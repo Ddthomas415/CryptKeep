@@ -1,0 +1,104 @@
+# CryptoBotPro config template (safe defaults)
+
+live:
+  exchange_id: coinbase     # coinbase | binance | gateio
+  sandbox: true             # always start true
+
+symbols:
+  - BTC/USDT
+  - ETH/USDT
+
+# Map canonical symbols to exchange-specific symbols if needed
+# (coinbase can often use canonical passthrough; binance/gateio may require exact formats)
+symbol_maps:
+  binance: {}
+  gateio: {}
+  coinbase: {}
+
+execution:
+  api_key_env: EXCHANGE_API_KEY
+  api_secret_env: EXCHANGE_API_SECRET
+  api_passphrase_env: EXCHANGE_API_PASSPHRASE
+  client_id_param: ""
+  enable_rate_limit: true
+  timeout_ms: 20000
+
+runner:
+  order_store_path: data/orders.sqlite
+  poll_sec: 1.0
+
+circuit_breaker:
+  latency_db_path: data/market_ws.sqlite
+  max_stale_ms: 2000
+  max_spread_bps: 150
+  enabled: true
+
+risk:
+  enabled: true
+  max_order_notional_usd: 100
+  max_position_notional_usd: 300
+  max_daily_loss_usd: null    # set to a number to enforce
+
+portfolio:
+  portfolio_db_path: data/portfolio.sqlite
+  latency_db_path: data/market_ws.sqlite
+  starting_cash: 10000.0
+  quote_ccy: USDT
+  fee_rate: 0.001
+
+reconciliation:
+  enabled: true
+  interval_sec: 30
+  cash_tolerance: 5.0
+  asset_qty_tolerance: 0.0001
+  recon_db_path: data/reconciliation.sqlite
+  portfolio_db_path: data/portfolio.sqlite
+  runbook_db_path: data/repair_runbooks.sqlite
+  auto_draft_runbook_on_critical: true
+  quote_ccys: ["USD","USDT"]
+
+fee_reconciliation:
+  enabled: true
+  max_orders_per_tick: 20
+  order_store_path: data/orders.sqlite
+  portfolio_db_path: data/portfolio.sqlite
+  latency_db_path: data/market_ws.sqlite
+
+runbooks:
+  executor:
+    enabled: false
+    require_env_yes: ENABLE_RUNBOOK_EXECUTION
+    runbook_db_path: data/repair_runbooks.sqlite
+    portfolio_db_path: data/portfolio.sqlite
+    recon_db_path: data/reconciliation.sqlite
+
+packaging:
+  app_name: CryptoBotPro
+  default_host: "127.0.0.1"
+  default_port: 8501
+
+multi_exchanges:
+  db_path: data/market_raw.sqlite
+  poll_sec: 5.0
+  venues:
+    - exchange_id: coinbase
+      sandbox: true
+      symbols: ["BTC/USDT"]
+    - exchange_id: binance
+      sandbox: true
+      symbols: ["BTC/USDT"]
+    - exchange_id: gateio
+      sandbox: true
+      symbols: ["BTC/USDT"]
+
+
+learning:
+
+  # Model switching safety
+  model_switch_requires_approval: true
+  recommended_model_path: data/learning/recommended_model.json
+  approval_path: data/learning/model_switch_approval.json
+
+  # Scheduling hints (OS tasks handle actual cadence)
+  monitor_interval_sec_hint: 300
+  recommend_apply_interval_sec_hint: 1800

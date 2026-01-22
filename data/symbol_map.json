@@ -1,0 +1,11 @@
+{
+  "binance": {
+    "btcusdt": "BTC-USDT"
+  },
+  "coinbase": {
+    "BTC-USD": "BTC-USD"
+  },
+  "gateio": {
+    "BTC_USDT": "BTC-USDT"
+  }
+}

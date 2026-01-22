@@ -1,0 +1,6 @@
+{
+  "lock_file": "/Users/baitus/Downloads/crypto-bot-pro/runtime/locks/live_consumer.lock",
+  "ok": false,
+  "reason": "lock_exists",
+  "ts": "2026-01-21T03:18:41.288074+00:00"
+}

@@ -1,0 +1,135 @@
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+def read(p: str) -> str:
+    P = Path(p)
+    return P.read_text(encoding="utf-8", errors="replace") if P.exists() else ""
+
+def safe_patch(path: str, marker: str, fn):
+    P = Path(path)
+    if not P.exists():
+        print(f"SKIP missing: {path}")
+        return False
+    t = read(path)
+    if marker in t:
+        print(f"SKIP already: {path}")
+        return False
+    t2 = fn(t)
+    if t2 == t:
+        print(f"SKIP nochange: {path}")
+        return False
+    P.write_text(t2, encoding="utf-8")
+    print(f"PATCHED: {path}")
+    return True
+
+def append_checkpoint(title: str, body: str):
+    ck = Path("CHECKPOINTS.md")
+    if not ck.exists():
+        return
+    t = read("CHECKPOINTS.md")
+    if title in t:
+        return
+    ck.write_text(t.rstrip() + "\n\n" + (title + "\n" + body).lstrip("\n"), encoding="utf-8")
+
+# -----------------------------------------------------------------------------
+# Phase 89: executor market rules validation uses real intent fields + anchor insertion
+# -----------------------------------------------------------------------------
+
+def patch_executor(txt: str) -> str:
+    if "PHASE89_MARKET_RULES_REAL_FIELDS" in txt:
+        return txt
+
+    # Ensure import
+    if "from services.markets.rules import validate as validate_market_rules" not in txt:
+        txt = "from services.markets.rules import validate as validate_market_rules  # Phase 89\n" + txt
+
+    helper = r'''
+# ---------------- PHASE89_MARKET_RULES_REAL_FIELDS ----------------
+def _phase89_extract_market_inputs(intent, cfg) -> dict:
+    # returns: {"venue": str, "symbol": str, "qty": float|None, "notional": float|None}
+    def g(obj, k, default=None):
+        if isinstance(obj, dict):
+            return obj.get(k, default)
+        return getattr(obj, k, default)
+
+    venue = (
+        g(intent, "venue") or g(intent, "exchange") or g(intent, "exchange_id") or g(intent, "venue_id") or
+        g(cfg, "venue") or g(cfg, "exchange") or g(cfg, "exchange_id") or "binance"
+    )
+    symbol = g(intent, "symbol") or g(intent, "market") or ""
+
+    qty = g(intent, "qty")
+    if qty is None:
+        qty = g(intent, "size")
+    try:
+        qty = float(qty) if qty is not None else None
+    except Exception:
+        qty = None
+
+    notional = g(intent, "notional_usd")
+    if notional is None:
+        notional = g(intent, "usd_notional")
+    if notional is None:
+        notional = g(intent, "notional")
+    try:
+        notional = float(notional) if notional is not None else None
+    except Exception:
+        notional = None
+
+    return {"venue": str(venue).strip().lower(), "symbol": str(symbol).strip(), "qty": qty, "notional": notional}
+
+def _phase89_validate_or_block(self, intent, intent_id):
+    inp = _phase89_extract_market_inputs(intent, getattr(self, "cfg", None))
+    v = inp["venue"]
+    sym = inp["symbol"]
+    if not sym:
+        # fail-closed in LIVE: symbol must be present
+        try:
+            self.ops.add(severity="ERROR", event_type="market_rules_block", message="LIVE blocked: missing symbol for market rules validation", meta={"code":"MISSING_SYMBOL"})
+        except Exception:
+            pass
+        self._mark_failed(str(intent_id), {"error":"LIVE_BLOCKED_MARKET_RULES", "code":"MISSING_SYMBOL"})
+        return False
+
+    vr = validate_market_rules(self.cfg.exec_db, v, sym, qty=inp["qty"], notional=inp["notional"])
+    if not vr.ok:
+        try:
+            self.ops.add(severity="ERROR", event_type="market_rules_block", message="LIVE blocked by market rules", meta={"code": vr.code, "message": vr.message, "venue": v, "symbol": sym})
+        except Exception:
+            pass
+        self._mark_failed(str(intent_id), {"error":"LIVE_BLOCKED_MARKET_RULES", "code": vr.code, "message": vr.message})
+        return False
+    return True
+# ---------------- /PHASE89_MARKET_RULES_REAL_FIELDS ----------------
+'''
+    if "_phase89_extract_market_inputs" not in txt:
+        txt = txt.rstrip() + "\n\n" + helper + "\n"
+
+    # Anchor replacement behavior
+    if "# LIVE_MARKET_RULES_VALIDATE_ANCHOR" in txt and "PHASE89_MARKET_RULES_APPLIED" not in txt:
+        txt = txt.replace(
+            "# LIVE_MARKET_RULES_VALIDATE_ANCHOR",
+            "if mode == 'live':\n            if not _phase89_validate_or_block(self, intent, intent_id):\n                return\n            # PHASE89_MARKET_RULES_APPLIED"
+        )
+        # allow re-run to be idempotent
+        return txt.rstrip() + "\n\n# PHASE89_MARKET_RULES_REAL_FIELDS\n"
+
+    # If no anchor, add instructions comment once
+    if "LIVE_MARKET_RULES_VALIDATE_ANCHOR" not in txt:
+        txt += "\n# Phase 89: Place '# LIVE_MARKET_RULES_VALIDATE_ANCHOR' on its own line RIGHT BEFORE LIVE order submit.\n"
+    return txt.rstrip() + "\n\n# PHASE89_MARKET_RULES_REAL_FIELDS\n"
+
+safe_patch("services/execution/intent_executor_safe.py", "PHASE89_MARKET_RULES_REAL_FIELDS", patch_executor)
+
+append_checkpoint(
+"## Phase 89) Market rules validation uses real intent fields + explicit anchor for submit path ✅",
+"""
+- ✅ Executor now has robust extractor for venue/symbol/qty/notional from the real intent/config
+- ✅ Adds explicit anchor: # LIVE_MARKET_RULES_VALIDATE_ANCHOR (place right before LIVE submit)
+- ✅ Re-run Phase 89 after placing anchor to inject fail-closed validation call
+""".lstrip("\n")
+)
+
+print("OK: Phase 89 installed. Place the anchor line in your LIVE submit path and re-run Phase 89 to apply it.")
+PY

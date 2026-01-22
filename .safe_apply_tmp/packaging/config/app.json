@@ -1,0 +1,11 @@
+{
+  "name": "CryptoBotPro",
+  "version": "0.1.0",
+  "publisher": "CryptoBotPro",
+  "entry": "desktop/run_desktop.py",
+  "windowed_default": false,
+  "icons": {
+    "windows_ico": "packaging/assets/icon.ico",
+    "mac_icns": "packaging/assets/icon.icns"
+  }
+}

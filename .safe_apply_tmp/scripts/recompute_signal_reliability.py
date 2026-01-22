@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import argparse
+import json
+from storage.signal_inbox_sqlite import SignalInboxSQLite
+from services.signals.reliability import compute_and_store_reliability
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--venue", default="binance")
+    ap.add_argument("--timeframe", default="1h")
+    ap.add_argument("--horizon", type=int, default=6)
+    ap.add_argument("--threshold-bps", type=float, default=5.0)
+    ap.add_argument("--symbol", default=None)
+    args = ap.parse_args()
+    inbox = SignalInboxSQLite()
+    rows = inbox.list_signals(limit=5000, status=None, symbol=args.symbol)
+    res = compute_and_store_reliability(
+        inbox_rows=rows,
+        venue=args.venue,
+        timeframe=args.timeframe,
+        horizon_candles=int(args.horizon),
+        threshold_bps=float(args.threshold_bps),
+        symbol=(args.symbol.strip() or None),
+    )
+    print(json.dumps(res, indent=2, sort_keys=True))
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,47 @@
+services:
+  dashboard:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./runtime:/app/runtime
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CBP_LIVE_ARMED=NO
+    command: streamlit run dashboard/app.py --server.port=8501 --server.address=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  tick-publisher:
+    build: .
+    volumes:
+      - ./runtime:/app/runtime
+      - ./logs:/app/logs
+    command: python3 scripts/run_tick_publisher.py run
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/runtime/snapshots/system_status.latest.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  live-consumer:
+    build: .
+    volumes:
+      - ./runtime:/app/runtime
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - CBP_LIVE_ARMED=YES
+    command: python3 scripts/run_live_intent_consumer.py run
+    restart: unless-stopped
+    depends_on:
+      tick-publisher:
+        condition: service_healthy

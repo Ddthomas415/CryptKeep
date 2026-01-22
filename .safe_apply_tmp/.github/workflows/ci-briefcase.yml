@@ -1,0 +1,59 @@
+name: CI - Briefcase Package (ZIP default)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    name: Package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows
+            format: zip
+          - os: macos-latest
+            target: macOS
+            format: dmg
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Briefcase + sync requires
+        shell: bash
+        run: |
+          python -m pip install -U pip setuptools wheel
+          python -m pip install -r requirements/briefcase.txt
+          python scripts/sync_briefcase_requires.py
+
+      - name: Briefcase create/build/package
+        shell: bash
+        run: |
+          # Note: Windows MSI uses WiX; ZIP avoids needing WiX (default in this workflow for Windows).
+          if [ "${{ matrix.target }}" = "windows" ]; then
+            briefcase create windows
+            briefcase build windows
+            briefcase package windows -p zip
+          else
+            briefcase create macOS
+            briefcase build macOS
+            briefcase package macOS
+          fi
+
+      - name: Upload Briefcase artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: CryptoBotPro-Briefcase-${{ matrix.os }}
+          path: |
+            build/**
+            dist/**
+            pyproject.toml
+          if-no-files-found: warn
