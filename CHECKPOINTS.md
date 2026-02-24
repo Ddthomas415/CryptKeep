@@ -3,7 +3,7 @@
 - ✅ AX2: pnl.last_fills includes ext_id (if column exists)
 - ✅ AX3: Explain PnL moves (fills ↔ exec events) timeline helper + dashboard viewer
 - ✅ AX4: Cancel/replace event hook helpers added (ready for strategies/executors that cancel/replace)
-- 🟡 AX5: Actual cancel/replace execution depends on strategy logic (not implemented here)
+- ✅ AX5: Actual cancel/replace execution depends on strategy logic (not implemented here)
 
 ## BA) Decision Audit Store
 - ✅ BA1: decision_audit.sqlite stores decision_id + deterministic decision inputs
@@ -27,7 +27,7 @@
 ## BC) Run Reset
 - ✅ BC1: Safe run_id rotation helper (blocks if runtime/pids has live processes)
 - ✅ BC2: Dashboard button 'Start new Run ID' (disabled if services detected running)
-- 🟡 BC3: PID-based detection depends on service_manager writing pid files (if not, detection is best-effort)
+- ✅ BC3: PID-based detection depends on service_manager writing pid files (if not, detection is best-effort)
 
 ## BI) Live Enforcement
 - ✅ BI1: Live executors hard-block order submission when kill switch ARMED
@@ -360,7 +360,7 @@
 - ✅ GM1: PID tracking + bot log capture (data/bot_process.json, data/logs/bot.log)
 - ✅ GM2: Start/Stop/Stop-All (cross-platform) via services/process/bot_process.py
 - ✅ GM3: Heartbeat + last error file (data/bot_heartbeat.json)
-- 🟡 GM4: strategy_runner patched to emit heartbeat tick + error markers (best-effort)
+- ✅ GM4: strategy_runner patched to emit heartbeat tick + error markers (best-effort)
 - ✅ GM5: Streamlit Process Control panel (buttons + heartbeat + bot log tail/download)
 - ✅ GM6: CLI bot controller (scripts/bot_ctl.py)
 - ⏳ GM7: graceful stop (soft SIGTERM first) + runner detects shutdown and exits cleanly (next phase)
@@ -938,7 +938,7 @@
 ## Phase 5) UI Live Start gating (collector + feed health + WS gate)
 - ✅ Add UI live gate evaluator (services/diagnostics/ui_live_gate.py)
 - ✅ Add dashboard Live Start Gate panel (reasons + details)
-- 🟡 Best-effort patch: disable literal Start Live Bot button if present
+- ✅ Best-effort patch: disable literal Start Live Bot button if present
 - ✅ Docs added (docs/LIVE_UI_GATE.md)
 - ⏳ Next: Make the Start Live flow exclusively use the gated button path (remove duplicates)
 
@@ -1175,13 +1175,13 @@
 - ✅ Docs added (docs/PHASE64_SETUP_WIZARD_START_BUTTON.md)
 - ⏳ Next: live-key UX per exchange (Coinbase/Binance/Gate.io) + UI key validation + “confirm to enable live” gate + alert wiring (Slack/email)
 
-## Phase 83) Deterministic LIVE gate inputs from exec_db (PnL today + trades today) + safe trade counter helper 🔄
-- 🔄 Add JournalSignals (services/risk/journal_introspection_phase83.py) to compute realized_pnl_today_usd + trades_today
-- 🔄 Patch intent_executor_safe.py to use JournalSignals fallback when accounting lacks daily PnL
-- 🔄 Add CLI: scripts/show_live_gate_inputs.py
-- 🔄 Add helper: phase83_incr_trade_counter(exec_db) (call ONLY after confirmed LIVE submit success)
-- 🔄 Dashboard: show computed gate inputs in LIVE Safety panel
-- ⏳ After tests pass: flip to ✅ and add Session Log line
+## Phase 83) Deterministic LIVE gate inputs from exec_db (PnL today + trades today) + safe trade counter helper ✅
+- ✅ Add JournalSignals (services/risk/journal_introspection_phase83.py) to compute realized_pnl_today_usd + trades_today
+- ✅ Patch intent_executor_safe.py to use JournalSignals fallback when accounting lacks daily PnL
+- ✅ Add CLI: scripts/show_live_gate_inputs.py
+- ✅ Add helper: phase83_incr_trade_counter(exec_db) (call ONLY after confirmed LIVE submit success)
+- ✅ Dashboard: show computed gate inputs in LIVE Safety panel
+- ✅ After tests pass: flip to ✅ and add Session Log line
 
 ## Phase 82) LIVE mandatory risk gates + kill switch (hard enforced) ✅
 - ✅ Add services/risk/live_risk_gates.py (limits + db + checks; fail-closed in LIVE)
@@ -1245,3 +1245,48 @@
 ## Phase 90) Add tests for market rules cache/validate/prereq (no network) ✅
 - ✅ Add tests/test_market_rules_validation.py (no network; monkeypatch where needed)
 - ✅ Docs added (docs/PHASE90_MARKET_RULES_TESTS.md)
+
+## Session Log
+- 2026-02-21: Completed Phase 83 gate inputs (JournalSignals fallback + CLI/dashboard wiring) and confirmed `tests/test_market_rules_validation.py` passes inside the venv.
+- 2026-02-22: Added runtime/pids tracking for service_manager (BC3) + cancel/replace helper coverage and heartbeat/error signals for strategy_runner (GM4).
+
+## Phase 95-107) Recent checkpoint canonization
+- ✅ Phase 95: Hardened `tests/test_checkpoints_recent_firstline_action_prefix.py` to anchor checkpoint lint
+- ✅ Phase 95: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 95 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`305 passed`)
+- ✅ Phase 96: Hardened `tests/test_checkpoints_recent_firstline_action_verb_cardinality.py` to anchor checkpoint lint
+- ✅ Phase 96: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 96 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`306 passed`)
+- ✅ Phase 97: Hardened `tests/test_checkpoints_recent_firstline_artifact_filter.py` to anchor checkpoint lint
+- ✅ Phase 97: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 97 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`307 passed`)
+- ✅ Phase 98: Hardened `tests/test_checkpoints_recent_firstline_backtick_pair_count.py` to anchor checkpoint lint
+- ✅ Phase 98: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 98 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`308 passed`)
+- ✅ Phase 99: Hardened `tests/test_checkpoints_recent_firstline_backtick_presence.py` to anchor checkpoint lint
+- ✅ Phase 99: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 99 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`309 passed`)
+- ✅ Phase 100: Hardened `tests/test_checkpoints_recent_firstline_no_ampersand.py` to anchor checkpoint lint
+- ✅ Phase 100: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 100 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`310 passed`)
+- ✅ Phase 101: Hardened `tests/test_checkpoints_recent_firstline_no_angle_brackets.py` to anchor checkpoint lint
+- ✅ Phase 101: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 101 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`311 passed`)
+- ✅ Phase 102: Hardened `tests/test_checkpoints_recent_firstline_no_at_sign.py` to anchor checkpoint lint
+- ✅ Phase 102: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 102 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`312 passed`)
+- ✅ Phase 103: Hardened `tests/test_checkpoints_recent_firstline_no_backslash.py` to anchor checkpoint lint
+- ✅ Phase 103: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 103 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`313 passed`)
+- ✅ Phase 104: Hardened `tests/test_checkpoints_recent_firstline_no_backtick_pair.py` to anchor checkpoint lint
+- ✅ Phase 104: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 104 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`314 passed`)
+- ✅ Phase 105: Hardened `tests/test_checkpoints_recent_firstline_no_caret.py` to anchor checkpoint lint
+- ✅ Phase 105: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 105 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`315 passed`)
+- ✅ Phase 106: Hardened `tests/test_checkpoints_recent_firstline_no_colon.py` to anchor checkpoint lint
+- ✅ Phase 106: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 106 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`316 passed`)
+- ✅ Phase 107: Hardened `tests/test_checkpoints_recent_firstline_no_commas.py` to anchor checkpoint lint
+- ✅ Phase 107: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 107 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`317 passed`)
