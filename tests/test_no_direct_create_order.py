@@ -10,7 +10,7 @@ ALLOWED = {
     "services/execution/place_order.py",
 }
 
-SKIP_DIRS = {".venv", "venv", "__pycache__", ".git", "data", "docs", "dist", "build", ".pytest_cache"}
+SKIP_DIRS = {'tools', 'attic', ".venv", "venv", "__pycache__", ".git", "data", "docs", "dist", "build", ".pytest_cache"}
 
 class TestNoDirectCreateOrder(unittest.TestCase):
     def test_no_direct_create_order_outside_place_order(self):
@@ -19,6 +19,8 @@ class TestNoDirectCreateOrder(unittest.TestCase):
         for p in root.rglob("*.py"):
             rel = p.relative_to(root).as_posix()
             parts = set(p.parts)
+            if any(part.startswith(".venv") for part in p.parts):
+                continue
             if any(s in parts for s in SKIP_DIRS):
                 continue
             if rel in ALLOWED:

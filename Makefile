@@ -1,62 +1,53 @@
-SHELL := /bin/bash
-PY := python3
-VENV := .venv
-PIP := $(VENV)/bin/pip
-PYTHON := $(VENV)/bin/python
+PYTHON ?= $(shell if ./.venv/bin/python -V >/dev/null 2>&1; then echo ./.venv/bin/python; elif command -v python3 >/dev/null 2>&1; then echo python3; else echo python; fi)
 
-.DEFAULT_GOAL := help
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast test
 
-help:
-	@echo "Crypto Bot Pro - common commands"
-	@echo ""
-	@echo "Install:"
-	@echo "  make venv"
-	@echo "  make install"
-	@echo "  make preflight"
-	@echo ""
-	@echo "Run:"
-	@echo "  make dashboard"
-	@echo "  make backend"
-	@echo ""
-	@echo "Quality:"
-	@echo "  make format"
-	@echo "  make lint"
-	@echo "  make test"
-	@echo ""
-	@echo "Docker:"
-	@echo "  make up / make down / make reset"
+doctor-strict:
+	$(PYTHON) tools/repo_doctor.py --strict
 
-venv:
-	@$(PY) -m venv $(VENV)
-	@$(PIP) install -U pip wheel setuptools
+alignment: check-alignment
 
-install: venv
-	@$(PIP) install -e ".[dev]"
+check-alignment:
+	$(PYTHON) scripts/check_repo_alignment.py
 
-preflight: install
-	@$(PYTHON) scripts/preflight_check.py
+check-alignment-list:
+	$(PYTHON) scripts/check_repo_alignment.py --list-tests
 
-format: install
-	@$(PYTHON) -m black .
+check-alignment-list-json:
+	@$(PYTHON) scripts/check_repo_alignment.py --list-tests --json
 
-lint: install
-	@$(PYTHON) -m ruff check .
+check-alignment-json:
+	@$(PYTHON) scripts/check_repo_alignment.py --json
 
-test: install
-	@$(PYTHON) -m pytest -q
+check-alignment-json-fast:
+	@CBP_ALIGNMENT_SKIP_GUARDS=1 $(PYTHON) scripts/check_repo_alignment.py --json
 
-dashboard: install
-	@$(PYTHON) -m streamlit run dashboard/app.py --server.port 8501
+validate-quick:
+	$(PYTHON) scripts/validate.py --quick
 
-backend: install
-	@$(PYTHON) -m backend.main
+validate-json-quick:
+	@$(PYTHON) scripts/validate.py --quick --json
 
-up:
-	@docker compose -f docker/docker-compose.yml up --build
+validate-json-fast:
+	@CBP_VALIDATE_SKIP_PYTEST=1 $(PYTHON) scripts/validate.py --json
 
-down:
-	@docker compose -f docker/docker-compose.yml down
+validate-json:
+	@$(PYTHON) scripts/validate.py --json
 
-reset:
-	@docker compose -f docker/docker-compose.yml down -v --remove-orphans
-	@bash scripts/reset_local.sh
+validate:
+	$(PYTHON) scripts/validate.py
+
+pre-release-sanity:
+	$(PYTHON) scripts/pre_release_sanity.py
+
+pre-release-sanity-quick:
+	$(PYTHON) scripts/pre_release_sanity.py --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
+
+pre-release-sanity-json-quick:
+	@$(PYTHON) scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
+
+pre-release-sanity-json-fast:
+	@CBP_PRE_RELEASE_SKIP_PYTEST=1 $(PYTHON) scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy
+
+test:
+	$(PYTHON) -m pytest -q

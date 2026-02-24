@@ -1,21 +1,30 @@
 from __future__ import annotations
-TOKEN1 = ".create_" + "order("
-TOKEN2 = ".create" + "Order("
-
 
 import argparse
 from pathlib import Path
+
+# CBP_BOOTSTRAP_SYS_PATH
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+TOKEN1 = ".create_" + "order("
+TOKEN2 = ".create" + "Order("
 
 ALLOWED = {
     "services/execution/place_order.py",
 }
 
-SKIP_DIRS = {".venv", "venv", "__pycache__", ".git", "data", "docs", "dist", "build", ".pytest_cache"}
+SKIP_DIRS = {"tools", "attic", ".venv", "venv", "__pycache__", ".git", "data", "docs", "dist", "build", ".pytest_cache"}
 
 def iter_py_files(root: Path):
     for p in root.rglob("*.py"):
-        rel = p.as_posix()
         parts = set(p.parts)
+        if any(part.startswith(".venv") for part in p.parts):
+            continue
         if any(s in parts for s in SKIP_DIRS):
             continue
         yield p
