@@ -1250,7 +1250,7 @@
 - 2026-02-21: Completed Phase 83 gate inputs (JournalSignals fallback + CLI/dashboard wiring) and confirmed `tests/test_market_rules_validation.py` passes inside the venv.
 - 2026-02-22: Added runtime/pids tracking for service_manager (BC3) + cancel/replace helper coverage and heartbeat/error signals for strategy_runner (GM4).
 
-## Phase 95-162) Recent checkpoint canonization
+## Phase 95-164) Recent checkpoint canonization
 - ✅ Phase 95: Hardened `tests/test_checkpoints_recent_firstline_action_prefix.py` to anchor checkpoint lint
 - ✅ Phase 95: Validated recent checkpoint narrative for the tail block
 - ✅ Phase 95 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`305 passed`)
@@ -1455,3 +1455,9 @@
 - ✅ Phase 162: Hardened `tests/test_checkpoints_recent_crosscheck_payload_truth.py` to anchor checkpoint lint
 - ✅ Phase 162: Validated recent checkpoint narrative for the tail block
 - ✅ Phase 162 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`372 passed`)
+- ✅ Phase 163: Hardened `tests/test_checkpoints_recent_crosscheck_segment_wording_noise.py` to anchor checkpoint lint
+- ✅ Phase 163: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 163 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`373 passed`)
+- ✅ Phase 164: Hardened `tests/test_checkpoints_recent_crosscheck_token_cardinality.py` to anchor checkpoint lint
+- ✅ Phase 164: Validated recent checkpoint narrative for the tail block
+- ✅ Phase 164 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`374 passed`)
