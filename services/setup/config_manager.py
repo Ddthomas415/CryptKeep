@@ -6,9 +6,15 @@ from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import yaml
+from services.os.app_paths import data_dir, ensure_dirs
+
+
+def _default_exec_db_path() -> str:
+    ensure_dirs()
+    return str(data_dir() / "execution.sqlite")
 
 DEFAULT_CFG = {
-    "symbols": ["BTC/USDT"],
+    "symbols": ["BTC/USD"],
     "pipeline": {
         "exchange_id": "coinbase",
         "strategy": "ema",          # ema | mean_reversion
@@ -29,7 +35,7 @@ DEFAULT_CFG = {
         "quote_notional": 0.0,
     },
     "execution": {
-        "db_path": "data/execution.sqlite",
+        "db_path": _default_exec_db_path(),
         "executor_mode": "paper",     # paper|live
         "executor_poll_sec": 1.5,
         "executor_max_per_cycle": 10,
@@ -44,6 +50,13 @@ DEFAULT_CFG = {
         "live_reconcile_lookback_ms": 21600000,
         "live_reconcile_limit_trades": 200,
         "live_reconcile_max_intents": 20,
+    },
+    "ai_engine": {
+        "enabled": False,
+        "strict": False,
+        "model_path": "",
+        "buy_threshold": 0.55,
+        "sell_threshold": 0.45,
     },
     "risk": {
         "exchange_allowlist": [],
@@ -111,7 +124,7 @@ def apply_risk_preset(cfg: Dict[str, Any], preset: str) -> Dict[str, Any]:
         exe["live_enabled"] = False
         risk.update({
             "exchange_allowlist": [pipe.get("exchange_id","coinbase")],
-            "symbol_allowlist": cfg.get("symbols") or ["BTC/USDT"],
+            "symbol_allowlist": cfg.get("symbols") or ["BTC/USD"],
             "min_notional": 5.0,
             "max_notional": 50.0,
             "max_intents_per_day": 50,
@@ -135,7 +148,7 @@ def apply_risk_preset(cfg: Dict[str, Any], preset: str) -> Dict[str, Any]:
         exe["executor_mode"] = "live"
         risk.update({
             "exchange_allowlist": [pipe.get("exchange_id","coinbase")],
-            "symbol_allowlist": cfg.get("symbols") or ["BTC/USDT"],
+            "symbol_allowlist": cfg.get("symbols") or ["BTC/USD"],
             "min_notional": 10.0,
             "max_notional": 100.0,
             "max_live_intents_per_day": 10,
