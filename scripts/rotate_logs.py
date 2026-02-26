@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # CBP_BOOTSTRAP_SYS_PATH
+import argparse
 import sys
 from pathlib import Path
 try:
@@ -10,10 +11,15 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-from cbp_desktop.logging_control import rotate_logs
+from services.desktop.logging_control import rotate_logs
 
 def main() -> int:
-    out = rotate_logs()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-bytes", type=int, default=5_000_000)
+    ap.add_argument("--max-keep", type=int, default=5)
+    args = ap.parse_args()
+
+    out = rotate_logs(max_bytes=int(args.max_bytes), max_keep=int(args.max_keep))
     print(out)
     return 0
 

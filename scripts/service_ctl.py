@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
 import argparse
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
+REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 from services.desktop.simple_service_manager import (
     specs_default,

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-# --- CBP bootstrap: ensure repo root on sys.path ---
+# CBP_BOOTSTRAP_SYS_PATH
 import sys
 from pathlib import Path
-_REPO = Path(__file__).resolve().parents[1]
-if str(_REPO) not in sys.path:
-    sys.path.insert(0, str(_REPO))
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+_REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
 import time
