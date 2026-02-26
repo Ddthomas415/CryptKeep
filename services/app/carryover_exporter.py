@@ -41,19 +41,19 @@ def generate_carryover_md() -> str:
     ts = datetime.now(timezone.utc).isoformat()
     version = current_version()
     checkpoints = _read_text(REPO_ROOT / "CHECKPOINTS.md", max_chars=60000)
-    install_app = _read_text(REPO_ROOT / "INSTALL_APP.md", max_chars=25000)
-    packaging = _read_text(REPO_ROOT / "PACKAGING.md", max_chars=25000)
+    install_app = _read_text(REPO_ROOT / "docs" / "INSTALL.md", max_chars=25000)
+    packaging = _read_text(REPO_ROOT / "docs" / "PACKAGING.md", max_chars=25000)
     user_cfg_path = REPO_ROOT / "config" / "user_config.yaml"
     user_cfg_raw = _read_text(user_cfg_path, max_chars=40000)
     user_cfg = _safe_config_snapshot(user_cfg_raw)
     run_cmds = """\
 ### Daily run (paper stack)
 - Installed app (recommended):
-  - macOS: double-click `CryptoBotPro.command`
-  - Windows: double-click `CryptoBotPro.bat`
+  - macOS: double-click `launchers/CryptoBotPro.command`
+  - Windows: double-click `launchers/CryptoBotPro.bat`
 - From repo (dev):
-  - `python3 scripts/cbp_supervisor.py start` (starts paper stack + dashboard)
-  - `python3 scripts/cbp_supervisor.py stop` (stops all)
+  - `python3 scripts/supervisor_ctl.py start` (starts dashboard + watchdog)
+  - `python3 scripts/supervisor_ctl.py stop --hard` (stops both)
 ### Individual processes (paper)
 - `python3 scripts/run_tick_publisher.py run`
 - `python3 scripts/run_paper_engine.py run`

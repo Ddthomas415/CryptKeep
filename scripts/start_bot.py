@@ -24,12 +24,12 @@ def main() -> int:
 
     # Start pipeline + executor loops
     r1 = start_process("pipeline", [py, "scripts/run_pipeline_loop.py"])
-    r2 = start_process("executor", [py, "scripts/run_executor_loop.py"])
+    r2 = start_process("executor", [py, "scripts/run_intent_executor_safe.py"])
 
     out = {"pipeline": r1, "executor": r2}
 
     if args.with_reconcile:
-        out["reconciler"] = start_process("reconciler", [py, "scripts/run_live_reconcile_loop.py"])
+        out["reconciler"] = start_process("reconciler", [py, "scripts/run_intent_reconciler_safe.py"])
 
     out["status"] = status(["pipeline","executor","reconciler"])
     print(out)
