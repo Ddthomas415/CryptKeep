@@ -1,14 +1,35 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
+# CBP_BOOTSTRAP: ensure repo root on sys.path so `import services` works when running scripts directly
+from pathlib import Path
+import sys
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+
 import argparse
 import json
 from pathlib import Path
 import yaml
 
+from services.os.app_paths import data_dir, ensure_dirs
 from services.risk.fill_hook import record_fill
 from services.risk.risk_daily import RiskDailyDB
 
 def main() -> int:
+    ensure_dirs()
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbol", default="BTC-USD")
     ap.add_argument("--pnl", type=float, default=0.0)
@@ -18,7 +39,7 @@ def main() -> int:
     cfg_path = Path("config/trading.yaml")
     cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) if cfg_path.exists() else {}
     ex_cfg = (cfg.get("execution") or {})
-    exec_db = str(ex_cfg.get("db_path") or "data/execution.sqlite")
+    exec_db = str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite"))
 
     cf = record_fill(exec_db, {"symbol": args.symbol, "realized_pnl_usd": args.pnl, "fee_usd": args.fee})
     snap = RiskDailyDB(exec_db).get()

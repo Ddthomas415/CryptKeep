@@ -7,9 +7,11 @@ from typing import Any
 from services.security.credential_store import get_exchange_credentials
 from services.security.exchange_factory import make_exchange
 from services.admin.state_report import maybe_auto_update_state_on_snapshot
+from services.os.app_paths import data_dir, runtime_dir, ensure_dirs
 
-SNAPSHOT_DIR = Path("runtime") / "snapshots"
-LOCAL_DB_DIRS = [Path("data"), Path("runtime"), Path("runtime") / "db", Path("runtime") / "data"]
+ensure_dirs()
+SNAPSHOT_DIR = runtime_dir() / "snapshots"
+LOCAL_DB_DIRS = [data_dir(), runtime_dir(), runtime_dir() / "db", runtime_dir() / "data"]
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()

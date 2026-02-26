@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+# CBP_FILL_HOOK_UPDATES_RISK_DAILY_V1
+
+import hashlib
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from services.risk.fill_ledger import FillLedgerDB
+from services.risk.risk_daily import RiskDailyDB
 
 def _get(o: Any, k: str, default=None):
     if isinstance(o, dict):
@@ -57,10 +61,43 @@ def normalize_fill(fill: Any) -> CanonFill:
 
 def record_fill(exec_db: str, fill: Any) -> CanonFill:
     cf = normalize_fill(fill)
+
+    # Extract idempotency key for daily rollup
+    venue = "unknown"
+    fill_id = ""
+    try:
+        if isinstance(fill, dict):
+            get = fill.get
+            venue = str(get("venue") or get("exchange") or "unknown")
+            fill_id = str(get("fill_id") or get("id") or "")
+        else:
+            venue = str(getattr(fill, "venue", None) or getattr(fill, "exchange", None) or "unknown")
+            fill_id = str(getattr(fill, "fill_id", None) or getattr(fill, "id", None) or "")
+    except Exception:
+        pass
+
+    # If missing fill_id, synthesize a deterministic one from stable fields
+    if not fill_id:
+        try:
+            raw = f"{venue}|{cf.symbol}|{cf.realized_pnl_usd}|{cf.fee_usd}"
+            fill_id = "synthetic:" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:24]
+        except Exception:
+            fill_id = "synthetic:unknown"
     FillLedgerDB(exec_db).insert_fill(
         symbol=cf.symbol,
         realized_pnl_usd=cf.realized_pnl_usd,
         fee_usd=cf.fee_usd,
         meta=cf.meta,
     )
+    # Update deterministic daily rollup (idempotent per venue+fill_id)
+    try:
+        RiskDailyDB(exec_db).apply_fill_once(
+            venue=str(venue),
+            fill_id=str(fill_id),
+            realized_pnl_usd=float(cf.realized_pnl_usd),
+            fee_usd=float(cf.fee_usd),
+        )
+    except Exception:
+        pass
+
     return cf

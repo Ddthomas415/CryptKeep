@@ -1,8 +1,10 @@
 from pathlib import Path
 import os
 from services.admin.health import read_health
+from services.os.app_paths import runtime_dir, ensure_dirs
 
-PID_DIR = Path("runtime") / "pids"
+ensure_dirs()
+PID_DIR = runtime_dir() / "pids"
 
 def _pid_alive(pid: int) -> bool:
     try:

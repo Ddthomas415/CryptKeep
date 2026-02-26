@@ -1,10 +1,21 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
 import argparse
 import json
 import os
 from typing import Optional
 
+from services.os.app_paths import data_dir, ensure_dirs
 from services.execution.exchange_client import ExchangeClient
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
 
@@ -22,10 +33,11 @@ def _extract_client_id(o: dict) -> Optional[str]:
     return None
 
 def main() -> int:
+    ensure_dirs()
     ap = argparse.ArgumentParser()
     ap.add_argument("--exchange", required=True)
     ap.add_argument("--symbol", required=True)
-    ap.add_argument("--exec-db", default=os.environ.get("EXEC_DB_PATH") or os.environ.get("CBP_DB_PATH") or "data/execution.sqlite")
+    ap.add_argument("--exec-db", default=os.environ.get("EXEC_DB_PATH") or os.environ.get("CBP_DB_PATH") or str(data_dir() / "execution.sqlite"))
     ap.add_argument("--limit", type=int, default=100)
     args = ap.parse_args()
 

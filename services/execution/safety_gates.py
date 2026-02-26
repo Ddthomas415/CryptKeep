@@ -4,7 +4,11 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
+from services.os.app_paths import data_dir, ensure_dirs
 from storage.market_ws_store_sqlite import SQLiteMarketWsStore
+
+ensure_dirs()
+DEFAULT_LATENCY_DB_PATH = str(data_dir() / "market_ws.sqlite")
 
 
 def now_ms() -> int:
@@ -20,7 +24,7 @@ class SafetyConfig:
     max_ack_ms: int = 3000
     pause_seconds_on_breach: int = 30
     require_ws_fresh_for_live: bool = True
-    latency_db_path: str = "data/market_ws.sqlite"
+    latency_db_path: str = DEFAULT_LATENCY_DB_PATH
 
 
 def check_market_freshness(store: SQLiteMarketWsStore, exchange: str, symbols: List[str], max_recv_age_ms: int) -> Tuple[bool, Dict[str, Any]]:

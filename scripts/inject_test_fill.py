@@ -1,8 +1,29 @@
 from __future__ import annotations
+
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
+# CBP_BOOTSTRAP: ensure repo root on sys.path so `import services` works when running scripts directly
+from pathlib import Path
+import sys
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import argparse, json, datetime, yaml
 from services.journal.fill_sink import CanonicalFillSink
+from services.os.app_paths import data_dir, ensure_dirs
 
 def main() -> int:
+    ensure_dirs()
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbol", default="BTC/USDT")
     ap.add_argument("--side", default="buy")
@@ -12,7 +33,7 @@ def main() -> int:
     args = ap.parse_args()
 
     cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8")) or {}
-    exec_db = str(cfg.get("execution", {}).get("db_path") or "data/execution.sqlite")
+    exec_db = str(cfg.get("execution", {}).get("db_path") or (data_dir() / "execution.sqlite"))
 
     sink = CanonicalFillSink(exec_db=exec_db)
     fill = {

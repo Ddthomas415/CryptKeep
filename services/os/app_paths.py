@@ -47,7 +47,8 @@ def state_root() -> Path:
     """
     if is_frozen():
         return user_data_root()
-    return code_root()
+    # Dev mode: keep mutable state under a hidden directory to avoid repo drift.
+    return code_root() / ".cbp_state"
 
 def runtime_dir() -> Path:
     return state_root() / "runtime"

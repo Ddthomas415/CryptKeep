@@ -4,8 +4,10 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
+from services.os.app_paths import data_dir, ensure_dirs
 
-DEFAULT_PATH = "data/update_state.json"
+ensure_dirs()
+DEFAULT_PATH = str(data_dir() / "update_state.json")
 
 def load_state(path: str = DEFAULT_PATH) -> Dict[str, Any]:
     p = Path(path)

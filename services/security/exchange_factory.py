@@ -1,11 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+import os
+from typing import Any
+
+from services.security.binance_guard import require_binance_allowed
+
 
 def make_exchange(exchange_id: str, creds: dict, *, enable_rate_limit: bool = True) -> Any:
     import ccxt  # type: ignore
 
-    ex_id = str(exchange_id).lower().strip()
+    ex_id = str(os.environ.get("CBP_VENUE") or exchange_id or "coinbase").lower().strip()
+    require_binance_allowed(ex_id)
+
     klass = getattr(ccxt, ex_id)
 
     cfg: dict = {
@@ -14,8 +20,7 @@ def make_exchange(exchange_id: str, creds: dict, *, enable_rate_limit: bool = Tr
         "secret": creds.get("secret"),
     }
 
-    # Some exchanges (notably Coinbase Exchange style) use a passphrase.
-    # CCXT commonly calls that field "password".
+    # Some exchanges use a passphrase; CCXT calls it "password".
     if creds.get("passphrase"):
         cfg["password"] = creds.get("passphrase")
 
@@ -26,3 +31,8 @@ def make_exchange(exchange_id: str, creds: dict, *, enable_rate_limit: bool = Tr
             cfg["options"].setdefault("adjustForTimeDifference", True)
 
     return klass(cfg)
+
+
+def _cbp_guard_binance(ex_id) -> None:
+    # legacy shim kept for compatibility with old call sites
+    require_binance_allowed(str(ex_id))

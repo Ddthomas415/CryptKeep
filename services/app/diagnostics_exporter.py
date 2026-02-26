@@ -80,7 +80,7 @@ def build_diagnostics_zip_bytes() -> bytes:
         add_text("config/user_config.yaml", _read_sanitized_config())
         for p in _iter_runtime_files():
             rel = p.relative_to(rt)
-            arc = f"runtime/{rel.as_posix()}"
+            arc = f"state/{rel.as_posix()}"
             if p.name.endswith(".log"):
                 add_text(arc, _tail_text(p, max_chars=20000))
             else:

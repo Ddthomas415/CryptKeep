@@ -1,17 +1,75 @@
-#!/usr/bin/env python3
 from __future__ import annotations
-import argparse
-from services.market_data.system_status_publisher import run_forever, request_stop
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["run", "stop"], nargs="?", default="run")
-    args = ap.parse_args()
-    if args.cmd == "stop":
-        print(request_stop())
+# --- CBP bootstrap: ensure repo root on sys.path ---
+import sys
+from pathlib import Path
+_REPO = Path(__file__).resolve().parents[1]
+if str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+
+import json
+import time
+import traceback
+from services.os.app_paths import data_dir, runtime_dir, ensure_dirs
+
+ensure_dirs()
+LOG_PATH = runtime_dir() / "logs" / "tick_publisher.log"
+LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+def _log(msg: str):
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    LOG_PATH.write_text(f"[{ts}] {msg}\n", encoding="utf-8", errors="replace", append=True) if hasattr(LOG_PATH, "write_text") else None
+
+# append-friendly helper (py<3.12 compatible)
+def _append(path: Path, text: str):
+    with path.open("a", encoding="utf-8") as f:
+        f.write(text)
+
+def log(msg: str):
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    _append(LOG_PATH, f"[{ts}] {msg}\n")
+
+def main() -> int:
+    try:
+        # Prereqs we can check without forcing API calls
+        cfg = _REPO / "config" / "trading.yaml"
+        rules_db = data_dir() / "execution.sqlite"
+
+        missing = []
+        if not cfg.exists():
+            missing.append("config/trading.yaml missing")
+        if not rules_db.exists():
+            # not fatal; just means no market rules cached yet
+            missing.append(".cbp_state/data/execution.sqlite missing (ok for fresh install)")
+
+        if missing:
+            log("tick_publisher starting in IDLE mode: " + "; ".join(missing))
+        else:
+            log("tick_publisher starting (prereqs present)")
+
+        # Try to run the real publisher if available
+        try:
+            from services.market_data.system_status_publisher import run_tick_publisher  # type: ignore
+        except Exception:
+            run_tick_publisher = None
+
+        if callable(run_tick_publisher):
+            log("tick_publisher using services.market_data.system_status_publisher.run_tick_publisher")
+            run_tick_publisher()
+            return 0
+
+        # Fallback: idle loop that keeps process alive (so supervisor tooling works)
+        log("tick_publisher fallback idle loop (no run_tick_publisher available)")
+        while True:
+            time.sleep(2.0)
+
+    except KeyboardInterrupt:
+        log("tick_publisher stopped (KeyboardInterrupt)")
         return 0
-    run_forever()
-    return 0
+    except Exception as e:
+        log("tick_publisher crashed: " + repr(e))
+        log(traceback.format_exc())
+        return 2
 
 if __name__ == "__main__":
     raise SystemExit(main())

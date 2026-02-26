@@ -11,6 +11,10 @@ from storage.portfolio_store_sqlite import SQLitePortfolioStore
 from storage.repair_runbook_store_sqlite import SQLiteRepairRunbookStore
 from services.runbooks.drift_repair_planner import RepairPolicy, build_repair_plan_from_drift
 from services.reconciliation.symbol_mapping import build_symbol_rows
+from services.os.app_paths import data_dir, ensure_dirs
+
+ensure_dirs()
+_DROOT = data_dir()
 
 def now_ms() -> int:
     return int(time.time() * 1000)
@@ -25,9 +29,9 @@ class ReconcileConfig:
     asset_qty_tolerance: float = 0.0001  # base units
 
     # stores
-    recon_db_path: str = "data/reconciliation.sqlite"
-    portfolio_db_path: str = "data/portfolio.sqlite"
-    runbook_db_path: str = "data/repair_runbooks.sqlite"
+    recon_db_path: str = str(_DROOT / "reconciliation.sqlite")
+    portfolio_db_path: str = str(_DROOT / "portfolio.sqlite")
+    runbook_db_path: str = str(_DROOT / "repair_runbooks.sqlite")
 
     # DRAFT runbooks
     auto_draft_runbook_on_critical: bool = True
@@ -55,6 +59,16 @@ def _extract_total_balances(fetch_balance_result: Dict[str, Any]) -> Dict[str, f
         except Exception:
             pass
     return out
+
+
+def default_reconcile_config() -> ReconcileConfig:
+    ensure_dirs()
+    droot = data_dir()
+    return ReconcileConfig(
+        recon_db_path=str(droot / "reconciliation.sqlite"),
+        portfolio_db_path=str(droot / "portfolio.sqlite"),
+        runbook_db_path=str(droot / "repair_runbooks.sqlite"),
+    )
 
 def severity_from(drift: Dict[str, Any], cash_tol: float, qty_tol: float) -> str:
     cash_primary = (drift.get("cash") or {}).get("primary") or {}

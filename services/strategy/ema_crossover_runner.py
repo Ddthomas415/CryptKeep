@@ -54,8 +54,17 @@ def _cfg() -> dict:
     cfg = load_user_yaml()
     s = cfg.get("strategy_runner") if isinstance(cfg.get("strategy_runner"), dict) else {}
     pf = cfg.get("preflight") if isinstance(cfg.get("preflight"), dict) else {}
-    venue = str(s.get("venue", (pf.get("venues",[ "binance" ])[0] if isinstance(pf.get("venues"), list) and pf.get("venues") else "binance")) or "binance").lower().strip()
-    symbol = str(s.get("symbol", (pf.get("symbols",[ "BTC/USDT" ])[0] if isinstance(pf.get("symbols"), list) and pf.get("symbols") else "BTC/USDT")) or "BTC/USDT").strip()
+
+    default_symbol = globals().get("DEFAULT_SYMBOL", "BTC/USD")
+    pf_venues = pf.get("venues") if isinstance(pf.get("venues"), list) else []
+    pf_symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else []
+
+    env_v = (os.environ.get("CBP_VENUE") or "").strip().lower()
+    venue = str(env_v or s.get("venue") or (pf_venues[0] if pf_venues else "coinbase")).lower().strip()
+
+    env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
+    symbol = str(env_syms[0] if env_syms else (s.get("symbol") or (pf_symbols[0] if pf_symbols else default_symbol))).strip()
+
     return {
         "enabled": bool(s.get("enabled", True)),
         "strategy_id": str(s.get("strategy_id", "ema_xover_v1") or "ema_xover_v1"),
@@ -161,29 +170,29 @@ def run_forever() -> None:
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued": enqueued})
                 break
             # Optional: choose best venue
- if bool(cfg.get('auto_select_best_venue')):
-     candidates = cfg.get('venue_candidates')
-     if not isinstance(candidates, list) or not candidates:
-         # fall back to preflight venues if present
-         base_cfg = load_user_yaml()
-         pf = base_cfg.get('preflight') if isinstance(base_cfg.get('preflight'), dict) else {}
-         candidates = pf.get('venues') if isinstance(pf.get('venues'), list) else [cfg['venue']]
-     candidates = [normalize_venue(str(v)) for v in candidates]
-     current_venue = normalize_venue(cfg['venue'])
-     cfg['venue'] = current_venue
+            if bool(cfg.get("auto_select_best_venue")):
+                candidates = cfg.get("venue_candidates")
+                if not isinstance(candidates, list) or not candidates:
+                    # fall back to preflight venues if present
+                    base_cfg = load_user_yaml()
+                    pf = base_cfg.get("preflight") if isinstance(base_cfg.get("preflight"), dict) else {}
+                    candidates = pf.get("venues") if isinstance(pf.get("venues"), list) else [cfg["venue"]]
+                candidates = [normalize_venue(str(v)) for v in candidates]
+                current_venue = normalize_venue(cfg["venue"])
+                cfg["venue"] = current_venue
 
-     if bool(cfg.get('switch_only_when_blocked', True)):
-         g = mq_check(cfg['venue'], cfg['symbol'])
-         if not g.get('ok'):
-             bv = best_venue(candidates, cfg['symbol'], require_ok=True)
-             if bv and bv.get('venue') and bv['venue'] != cfg['venue']:
-                 cfg['venue'] = str(bv['venue'])
-     else:
-         bv = best_venue(candidates, cfg['symbol'], require_ok=True)
-         if bv and bv.get('venue'):
-             cfg['venue'] = str(bv['venue'])
+                if bool(cfg.get("switch_only_when_blocked", True)):
+                    g = mq_check(cfg["venue"], cfg["symbol"])
+                    if not g.get("ok"):
+                        bv = best_venue(candidates, cfg["symbol"], require_ok=True)
+                        if bv and bv.get("venue") and bv["venue"] != cfg["venue"]:
+                            cfg["venue"] = str(bv["venue"])
+                else:
+                    bv = best_venue(candidates, cfg["symbol"], require_ok=True)
+                    if bv and bv.get("venue"):
+                        cfg["venue"] = str(bv["venue"])
 
- tick = _fetch_mid(cfg)
+            tick = _fetch_mid(cfg)
             if not tick:
                 _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_fresh_tick", "loops": loops, "enqueued": enqueued})
                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
@@ -275,3 +284,7 @@ def run_forever() -> None:
             pass
         _release_lock()
         _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued_total": enqueued})
+
+
+# ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
+DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]

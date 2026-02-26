@@ -1,5 +1,16 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
 import argparse
 import hashlib
 import json
@@ -12,6 +23,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from services.os import app_paths
+
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_DIR = ROOT / "releases"
 
@@ -19,7 +32,7 @@ MANIFEST_DIR = ROOT / "releases"
 DIST_DIRS = [
     ROOT / "dist",
     ROOT / "build",
-    ROOT / "data" / "reconcile_reports",
+    app_paths.data_dir() / "reconcile_reports",
 ]
 
 VERSION_RE = re.compile(r'(?m)^(version\s*=\s*")(\d+\.\d+\.\d+)(")\s*$')

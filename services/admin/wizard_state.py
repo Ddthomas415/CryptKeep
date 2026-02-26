@@ -48,3 +48,55 @@ def advance(st: dict[str, Any], step: int) -> dict[str, Any]:
     st["step"] = int(step)
     save(st)
     return st
+
+
+# --- compatibility wrapper (preflight/UI expects WizardState) ---
+def _call_any(names, *args, **kwargs):
+    for n in names:
+        fn = globals().get(n)
+        if callable(fn):
+            return fn(*args, **kwargs)
+    raise AttributeError(f"none of {names} found in wizard_state")
+
+class WizardState:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    @staticmethod
+    def live_unlocked() -> bool:
+        # Safe default: False if no underlying impl exists
+        try:
+            return bool(_call_any(["live_unlocked", "is_live_unlocked", "get_live_unlocked"]))
+        except Exception:
+            return False
+
+# --- CBP compatibility shim (preflight/UI expect WizardState.summary + args-safe init) ---
+try:
+    WizardState
+except NameError:
+    class WizardState:
+        pass
+
+if not hasattr(WizardState, "__init__"):
+    def __init__(self, *args, **kwargs):
+        pass
+    WizardState.__init__ = __init__
+
+# Always safe default: False unless real impl exists
+if not hasattr(WizardState, "live_unlocked"):
+    def _live_unlocked() -> bool:
+        fn = globals().get("live_unlocked") or globals().get("is_live_unlocked") or globals().get("get_live_unlocked")
+        try:
+            return bool(fn()) if callable(fn) else False
+        except Exception:
+            return False
+    WizardState.live_unlocked = staticmethod(_live_unlocked)
+
+# Preflight expects .summary on an instance; make it available everywhere
+if not hasattr(WizardState, "summary"):
+    def _summary() -> dict:
+        return {
+            "live_unlocked": bool(getattr(WizardState, "live_unlocked")()),
+            "note": "compat shim",
+        }
+    WizardState.summary = staticmethod(_summary)

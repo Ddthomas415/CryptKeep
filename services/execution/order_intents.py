@@ -13,7 +13,8 @@ def _ensure_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(DB_PATH))
     try:
-        conn.execute(\"\"\"
+        conn.execute(
+            """
         CREATE TABLE IF NOT EXISTS order_intents (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           intent_id TEXT NOT NULL UNIQUE,
@@ -28,7 +29,8 @@ def _ensure_db() -> None:
           meta_json TEXT,
           last_error TEXT
         )
-        \"\"\")
+        """
+        )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_intents_status ON order_intents(status)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_intents_symbol ON order_intents(symbol)")
         conn.commit()

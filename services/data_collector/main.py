@@ -10,6 +10,7 @@ from typing import Any, Dict, Sequence
 from adapters.exchanges.binance.market_ws import BinanceMarketDataFeed
 from adapters.exchanges.coinbase_adv.market_ws import CoinbaseAdvancedMarketDataFeed
 from adapters.exchanges.gateio.market_ws import GateIOMarketDataFeed
+from services.os.app_paths import data_dir, ensure_dirs
 from storage.event_store_sqlite import SQLiteEventStore
 
 def utc_now_iso() -> str:
@@ -65,10 +66,21 @@ async def _heartbeat_loop(store: SQLiteEventStore, enable: list[str], channels: 
 async def main() -> None:
     _setup_logging()
     log = logging.getLogger("collector")
-    enable = _csv("CBP_FEEDS", "binance,coinbase,gateio")
+    enable = _csv("CBP_FEEDS", "coinbase,gateio")
+    # DROP_BINANCE_FEED_UNLESS_CBP_VENUE
+    env_v = (os.environ.get('CBP_VENUE') or '').lower().strip()
+    if 'binance' in enable and not env_v.startswith('binance'):
+        enable = [e for e in enable if e != 'binance']
+
+    # filter out binance unless explicitly allowed
+    _env = (os.environ.get("CBP_VENUE") or "").lower().strip()
+    _allow_binance = _env.startswith("binance") and (os.environ.get("CBP_ALLOW_BINANCE") == "1")
+    if not _allow_binance:
+        enable = [x for x in enable if x != "binance"]
+
     channels = _csv("CBP_CHANNELS", "trades,book_l2")
-    Path("data").mkdir(exist_ok=True)
-    store = SQLiteEventStore(path=Path("data") / "events.sqlite")  # ← Fixed: use Path object
+    ensure_dirs()
+    store = SQLiteEventStore(path=data_dir() / "events.sqlite")
     stats: Dict[str, Any] = {}
     lock = asyncio.Lock()
     tasks: list[asyncio.Task] = []

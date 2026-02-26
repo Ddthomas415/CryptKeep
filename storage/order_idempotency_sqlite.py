@@ -3,8 +3,10 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+from services.os.app_paths import data_dir, ensure_dirs
 
-DB_PATH = Path("data") / "order_idempotency.sqlite"
+ensure_dirs()
+DB_PATH = data_dir() / "order_idempotency.sqlite"
 
 SCHEMA = '''
 PRAGMA journal_mode=WAL;

@@ -1,9 +1,21 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
 import argparse
 import json
 from pathlib import Path
 from datetime import datetime, timezone
+from services.os.app_paths import data_dir, ensure_dirs
 
 from storage.repair_runbook_store_sqlite import SQLiteRepairRunbookStore
 
@@ -77,12 +89,14 @@ def try_write_pdf(md_text: str, pdf_path: Path) -> bool:
 
 
 def main() -> int:
+    ensure_dirs()
+    droot = data_dir()
     ap = argparse.ArgumentParser()
     ap.add_argument("--plan-id", required=True)
-    ap.add_argument("--out-dir", default="data/runbook_exports")
+    ap.add_argument("--out-dir", default=str(droot / "runbook_exports"))
     args = ap.parse_args()
 
-    store = SQLiteRepairRunbookStore(path=Path("data/repair_runbooks.sqlite"))
+    store = SQLiteRepairRunbookStore(path=droot / "repair_runbooks.sqlite")
     plan = store.get_plan_sync(args.plan_id)
     if not plan:
         raise SystemExit("Plan not found.")

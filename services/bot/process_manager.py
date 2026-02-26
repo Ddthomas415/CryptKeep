@@ -10,8 +10,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-STATUS_PATH = Path("data/bot_process.json")
-LOG_DIR = Path("data/logs")
+from services.os.app_paths import data_dir, ensure_dirs
+
+ensure_dirs()
+STATUS_PATH = data_dir() / "bot_process.json"
+LOG_DIR = data_dir() / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 @dataclass(frozen=True)

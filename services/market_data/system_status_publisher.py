@@ -44,8 +44,12 @@ def fetch_status() -> dict:
         "ts_ms": int(time.time() * 1000),
         "venues": {}
     }
-    venues = ["binance", "coinbase", "gateio"]
-    symbol = "BTC/USDT"
+    venues = [v.strip() for v in (os.environ.get("CBP_VENUE") or "coinbase").split(",") if v.strip()]
+    venues = [str(v).lower().strip() for v in venues]
+    if not (os.environ.get("CBP_VENUE") or "").lower().startswith("binance"):
+        venues = [v for v in venues if not v.startswith("binance")]
+
+    symbol = "BTC/USD"
     for v in venues:
         print(f"\n=== Fetching from {v} ===")
         try:

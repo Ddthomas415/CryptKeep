@@ -1,10 +1,13 @@
 from __future__ import annotations
 import os
 from datetime import datetime
+from pathlib import Path
 from services.admin.config_editor import load_user_yaml, save_user_yaml
 from services.execution.live_arming import live_enabled_and_armed
+from services.os.app_paths import runtime_dir, ensure_dirs
 
-AUDIT_LOG = Path("runtime/logs/live_arm_audit.log")
+ensure_dirs()
+AUDIT_LOG = runtime_dir() / "logs" / "live_arm_audit.log"
 
 def _log_audit(action: str, success: bool, reason: str = "") -> None:
     ts = datetime.utcnow().isoformat()

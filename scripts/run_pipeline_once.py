@@ -1,18 +1,47 @@
 from __future__ import annotations
 
+import os
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
+# CBP_BOOTSTRAP: ensure repo root on sys.path so `import services` works when running scripts directly
+from pathlib import Path
+import sys
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+
 import yaml
 from services.pipeline.pipeline_router import build_pipeline, RouterCfg
+from services.os.app_paths import data_dir, ensure_dirs
 
 def main() -> int:
+    ensure_dirs()
     cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8").read()) or {}
     pipe = cfg.get("pipeline") or {}
     ex = cfg.get("execution") or {}
 
-    symbols = cfg.get("symbols") or ["BTC/USDT"]
+    symbols = cfg.get("symbols") or ["BTC/USD"]
+
+    _env_syms = (os.environ.get("CBP_SYMBOLS") or "").strip()
+
+    if _env_syms:
+
+        symbols = [x.strip() for x in _env_syms.split(",") if x.strip()]
+
     symbol = str(pipe.get("symbol") or symbols[0]).upper()
 
     p = build_pipeline(RouterCfg(
-        exec_db=str(ex.get("db_path") or "data/execution.sqlite"),
+        exec_db=str(ex.get("db_path") or (data_dir() / "execution.sqlite")),
         exchange_id=str(pipe.get("exchange_id") or "coinbase").lower(),
         symbol=symbol,
         timeframe=str(pipe.get("timeframe") or "5m"),

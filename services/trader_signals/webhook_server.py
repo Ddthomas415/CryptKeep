@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Tuple
 from pathlib import Path
 from storage.signals_store_sqlite import SignalsStoreSQLite
+from services.os.app_paths import data_dir, ensure_dirs
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
@@ -78,7 +79,9 @@ def _rate_limit_ok(signals_db_path: str, platform: str, trader_id: str, max_per_
         return True, "ok"
 
 class Handler(BaseHTTPRequestHandler):
-    store = SignalsStoreSQLite(Path("data") / "signals.sqlite")
+    ensure_dirs()
+    _signals_db = data_dir() / "signals.sqlite"
+    store = SignalsStoreSQLite(_signals_db)
 
     def _send(self, code: int, obj: Dict[str, Any]):
         b = json.dumps(obj).encode("utf-8")
@@ -131,7 +134,7 @@ class Handler(BaseHTTPRequestHandler):
                     rejected += 1
                     reasons["bad_signal"] = reasons.get("bad_signal", 0) + 1
                     continue
-                ok_rl, why = _rate_limit_ok(str(Path("data") / "signals.sqlite"), norm["platform"], norm["trader_id"], max_per_hour)
+                ok_rl, why = _rate_limit_ok(str(self._signals_db), norm["platform"], norm["trader_id"], max_per_hour)
                 if not ok_rl:
                     rejected += 1
                     reasons[why] = reasons.get(why, 0) + 1

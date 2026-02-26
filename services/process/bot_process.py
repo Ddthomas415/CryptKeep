@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from services.markets.symbols import env_symbol
 import json
 import os
 import sys
@@ -65,8 +66,12 @@ def start_bot(*, venue: str, symbols: list[str], force: bool = False) -> dict:
 
     syms = [s.strip().upper().replace("-", "/") for s in (symbols or []) if str(s).strip()]
     if not syms:
-        syms = ["BTC/USDT"]
-
+        env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
+        if env_syms:
+            syms = env_syms
+        else:
+            env_v = (os.environ.get("CBP_VENUE") or "").lower().strip()
+            syms = ["BTC/USD"] if env_v.startswith("coinbase") else ["BTC/USDT"]
     cmd = [
         sys.executable,
         "scripts/run_bot_safe.py",

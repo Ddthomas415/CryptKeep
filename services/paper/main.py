@@ -1,4 +1,6 @@
 from __future__ import annotations
+from services.markets.symbols import env_symbol
+from services.markets.symbols import env_symbol, normalize_symbol
 import asyncio
 import os
 import time
@@ -31,7 +33,7 @@ async def main() -> None:
     while True:
         # Simulate order logic (in real app, this would be triggered by signals)
         venue = "simulated"
-        symbol_norm = "BTC-USDT"
+        symbol_norm = env_symbol(venue=os.environ.get("CBP_VENUE") or "coinbase", out="dash")
         side = "buy"
         qty = 0.001
         price = 60000.0  # simulated price

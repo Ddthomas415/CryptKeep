@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 import json
 from pathlib import Path
 from services.os.app_paths import runtime_dir
@@ -37,8 +38,21 @@ def collect_process_files() -> dict:
 def collect_market_health() -> list[dict]:
     cfg = load_user_yaml()
     pf = cfg.get("preflight") if isinstance(cfg.get("preflight"), dict) else {}
-    venues = pf.get("venues") if isinstance(pf.get("venues"), list) else ["binance","coinbase","gateio"]
-    symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else ["BTC/USDT"]
+    venues = pf.get("venues") if isinstance(pf.get("venues"), list) else ["coinbase","gateio"]
+    _env_v = (os.environ.get("CBP_VENUE") or "").strip().lower()
+    if _env_v:
+        venues = [_env_v]
+    elif isinstance(venues, list):
+        venues = [v for v in venues if not str(v).lower().startswith("binance")]
+
+    symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else ["BTC/USD"]
+
+    _env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
+
+    if _env_syms:
+
+        symbols = _env_syms
+
     venues = [normalize_venue(str(v)) for v in venues]
     symbols = [normalize_symbol(str(s)) for s in symbols]
     rows_all = []

@@ -8,9 +8,17 @@ from typing import Any, Dict, Optional
 import yaml
 
 from services.execution.exchange_client import ExchangeClient
-from services.risk.live_risk_gates_phase82 import LiveRiskLimits, LiveGateDB, LiveRiskGates  # PHASE82_LIVE_GATES
+from services.os.app_paths import data_dir, ensure_dirs
+from services.risk.live_risk_gates_phase82 import (
+    LiveRiskLimits,
+    LiveGateDB,
+    LiveRiskGates,
+    phase83_incr_trade_counter,
+)  # PHASE82_LIVE_GATES
+from services.risk.journal_introspection_phase83 import JournalSignals
 from storage.execution_store_sqlite import ExecutionStore
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
+from storage.pnl_store_sqlite import PnLStoreSQLite
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
@@ -28,12 +36,13 @@ class LiveCfg:
     enabled: bool = False
     sandbox: bool = False
     exchange_id: str = "coinbase"
-    exec_db: str = "data/execution.sqlite"
-    symbol: str = "BTC/USDT"
+    exec_db: str = ""
+    symbol: str = DEFAULT_SYMBOL
     max_submit_per_tick: int = 1
     reconcile_limit: int = 25
 
 def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
+    ensure_dirs()
     cfg = yaml.safe_load(open(path, "r", encoding="utf-8").read()) or {}
     live = cfg.get("live") or {}
     ex_cfg = cfg.get("execution") or {}
@@ -41,8 +50,8 @@ def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
         enabled=bool(live.get("enabled", False)),
         sandbox=bool(live.get("sandbox", False)),
         exchange_id=str(live.get("exchange_id") or "coinbase").lower(),
-        exec_db=str(ex_cfg.get("db_path") or "data/execution.sqlite"),
-        symbol=str((cfg.get("symbols") or ["BTC/USDT"])[0]),
+        exec_db=str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite")),
+        symbol=str((cfg.get("symbols") or [DEFAULT_SYMBOL])[0]),
         max_submit_per_tick=int(live.get("max_submit_per_tick") or 1),
         reconcile_limit=int(live.get("reconcile_limit") or 25),
     )
@@ -99,10 +108,26 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
         cid = None
         try:
             # PHASE82_LIVE_GATES enforce
-            row = gate_db.day_row()
-            rpnl = float(row.get('realized_pnl_usd') or 0.0)
+            pnl_store = PnLStoreSQLite()
+            pnl_today = pnl_store.get_today_realized() or {}
+            rpnl = float((pnl_today.get('realized_pnl') or 0.0))
+            if pnl_today.get("updated_ts") is None:
+                fallback = JournalSignals(exec_db=cfg.exec_db).realized_pnl_today_usd()
+                if fallback is not None:
+                    rpnl = float(fallback)
             lp = (float(it['limit_price']) if it.get('limit_price') is not None else None)
-            ok2, reason2, meta2 = gates.check_live(it={'qty': float(it.get('qty') or 0.0), 'price': lp}, realized_pnl_usd=rpnl)
+            if lp is None:
+                try:
+                    ex = client.build()
+                    t = ex.fetch_ticker(str(it['symbol']))
+                    side0 = str(it.get('side') or '').lower()
+                    if side0 == 'buy':
+                        lp = float(t.get('ask') or t.get('last') or t.get('close') or 0.0) or None
+                    else:
+                        lp = float(t.get('bid') or t.get('last') or t.get('close') or 0.0) or None
+                except Exception:
+                    lp = None
+            ok2, reason2, meta2 = gates.check_live(it={'qty': float(it.get('qty') or 0.0), 'price': lp, 'symbol': str(it.get('symbol') or '')}, realized_pnl_usd=rpnl)
             if not ok2:
                 store.set_intent_status(intent_id=intent_id, status='pending', reason=f'live_gate_block:{reason2}')
                 continue
@@ -127,6 +152,12 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             cid2 = (row_d or {}).get("client_order_id") or cid
             rid2 = (row_d or {}).get("remote_order_id") or order.get("id")
             store.set_intent_status(intent_id=intent_id, status="submitted", reason=f"remote_id={rid2} client_id={cid2}")
+
+            # LIVE_SUBMIT_SUCCESS_ANCHOR
+            try:
+                phase83_incr_trade_counter(cfg.exec_db, gate_db=gate_db)
+            except Exception:
+                pass
 
             # EXEC_GUARD_TRADE_ATTEMPT
             try:
@@ -210,3 +241,63 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
 
     return {"ok": True, "note": "reconcile complete", "checked": checked, "fills_added": fills_added}
 # PHASE82_LIVE_GATES
+
+
+# ---------------- PHASE 85: open-orders reconcile helpers ----------------
+def _extract_client_id(o: dict) -> str:
+    for k in ("clientOrderId", "client_order_id", "text"):
+        v = o.get(k)
+        if v:
+            return str(v)
+    info = o.get("info")
+    if isinstance(info, dict):
+        for k in ("clientOrderId", "client_order_id", "text", "client_id"):
+            v = info.get(k)
+            if v:
+                return str(v)
+    return ""
+
+def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -> dict:
+    ex_id = (exchange_id or "").lower().strip()
+    store = OrderDedupeStore(exec_db=exec_db)
+    client = ExchangeClient(exchange_id=ex_id, sandbox=False)
+    rows = store.list_needs_reconcile(exchange_id=ex_id, limit=int(limit))
+    by_sym = {}
+    for r in rows:
+        sym = str(r.get("symbol") or "")
+        if sym:
+            by_sym.setdefault(sym, []).append(r)
+    matched = 0
+    for sym, rs in by_sym.items():
+        want = {str(r.get("client_order_id") or ""): str(r.get("intent_id") or "") for r in rs}
+        want = {k:v for k,v in want.items() if k}
+        if not want:
+            continue
+        try:
+            oo = client.fetch_open_orders(symbol=sym) or []
+        except Exception:
+            oo = []
+        for o in oo:
+            cid = _extract_client_id(o)
+            if cid and cid in want:
+                intent_id = want[cid]
+                rid = o.get("id")
+                if rid:
+                    store.set_remote_id_if_empty(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
+                    store.mark_submitted(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
+                    matched += 1
+    return {"ok": True, "rows": len(rows), "matched_open": matched}
+
+
+
+# ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
+DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
+
+
+def _env_symbol(default: str = "BTC/USD") -> str:
+    s = (os.environ.get("CBP_SYMBOLS") or "").split(",")[0].strip()
+    return s or default
+
+def _env_venue(default: str = "coinbase") -> str:
+    v = (os.environ.get("CBP_VENUE") or "").strip()
+    return (v or default).lower().strip()

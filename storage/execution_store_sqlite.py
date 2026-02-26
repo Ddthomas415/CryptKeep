@@ -7,6 +7,8 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, List
 
+from services.os.app_paths import data_dir, ensure_dirs
+
 def _now_ms() -> int:
     return int(time.time() * 1000)
 
@@ -53,9 +55,12 @@ CREATE INDEX IF NOT EXISTS idx_fills_intent_ts ON fills(intent_id, ts_ms);
 
 @dataclass
 class ExecutionStore:
-    path: str = "data/execution.sqlite"
+    path: str = ""
 
     def __post_init__(self) -> None:
+        if not self.path:
+            ensure_dirs()
+            self.path = str(data_dir() / "execution.sqlite")
         with _conn(self.path) as c:
             c.executescript(DDL)
             c.commit()

@@ -1,25 +1,90 @@
 from __future__ import annotations
-import re
-from typing import Tuple
+from dataclasses import dataclass
+import os
+from typing import Optional
 
-def canonicalize(sym: str) -> str:
-    s = (sym or "").strip().upper()
-    s = s.replace("/", "-").replace("_", "-")
-    s = re.sub(r"-{2,}", "-", s)
-    return s
+@dataclass(frozen=True)
+class ParsedSymbol:
+    base: str
+    quote: str
 
-def split(sym: str) -> Tuple[str,str]:
-    s = canonicalize(sym)
-    if "-" not in s:
-        return s, ""
-    a,b = s.split("-", 1)
-    return a,b
+def _coerce_venue(v: Optional[str]) -> str:
+    return str(v or "").lower().strip()
 
-def binance_native(canonical: str) -> str:
-    a,b = split(canonical); return f"{a}{b}" if b else a
+def _first_from_csv(s: str) -> str:
+    s = str(s or "").strip()
+    if not s:
+        return ""
+    return s.split(",")[0].strip()
 
-def gate_native(canonical: str) -> str:
-    a,b = split(canonical); return f"{a}_{b}" if b else a
+def parse_symbol(sym: str) -> Optional[ParsedSymbol]:
+    sym = _first_from_csv(sym)
+    if not sym:
+        return None
 
-def coinbase_native(canonical: str) -> str:
-    return canonicalize(canonical)
+    for sep in ("/", "-", "_"):
+        if sep in sym:
+            a, b = sym.split(sep, 1)
+            a, b = a.strip().upper(), b.strip().upper()
+            if a and b:
+                return ParsedSymbol(a, b)
+    return None
+
+def default_quote_for_venue(venue: Optional[str]) -> str:
+    v = _coerce_venue(venue)
+    if v.startswith("coinbase"):
+        return "USD"
+    return "USDT"
+
+def normalize_symbol(sym: str, *, venue: Optional[str] = None, out: str = "slash") -> str:
+    v = _coerce_venue(venue)
+    out = (out or "slash").lower().strip()
+    parsed = parse_symbol(sym)
+
+    if parsed is None:
+        base, quote = "BTC", default_quote_for_venue(v)
+    else:
+        base, quote = parsed.base, parsed.quote
+
+    sep = "/" if out == "slash" else "-"
+    return f"{base}{sep}{quote}"
+
+def canonicalize(symbol: str, venue: str | None = None) -> str:
+    """Return canonical hyphenated symbol (e.g., 'BTC-USD', 'BTC-USDT').
+
+    Accepts inputs like 'btc/usd', 'BTC_USD', 'BTC-USD'.
+    `venue` is kept for API compatibility but not required for normalization.
+    """
+    if symbol is None:
+        return ""
+    sym = str(symbol).strip().upper()
+    sym = sym.replace("/", "-").replace("_", "-")
+    while "--" in sym:
+        sym = sym.replace("--", "-")
+    return sym
+
+def env_symbol(*, venue: Optional[str] = None, out: str = "slash") -> str:
+    sym = os.environ.get("CBP_SYMBOLS") or os.environ.get("CBP_TRADE_SYMBOL") or ""
+    return normalize_symbol(sym or "", venue=venue, out=out)
+
+
+def _split_canonical(symbol: str) -> tuple[str, str]:
+    normalized = canonicalize(symbol)
+    if "-" not in normalized:
+        return normalized, ""
+    head, tail = normalized.split("-", 1)
+    return head, tail
+
+
+def binance_native(symbol: str) -> str:
+    base, quote = _split_canonical(symbol)
+    return f"{base}{quote}" if quote else base
+
+
+def gate_native(symbol: str) -> str:
+    base, quote = _split_canonical(symbol)
+    return f"{base}_{quote}" if quote else base
+
+
+def coinbase_native(symbol: str) -> str:
+    return canonicalize(symbol)

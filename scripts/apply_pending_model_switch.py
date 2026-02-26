@@ -1,15 +1,29 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
 import json
 from pathlib import Path
 import time
 
 import yaml
+from services.os.app_paths import data_dir, ensure_dirs
 
 from storage.ops_event_store_sqlite import OpsEventStore
 
-RECO_PATH = Path("data/learning/recommended_model.json")
-APPROVAL_PATH = Path("data/learning/model_switch_approval.json")
+ensure_dirs()
+_DROOT = data_dir()
+RECO_PATH = _DROOT / "learning" / "recommended_model.json"
+APPROVAL_PATH = _DROOT / "learning" / "model_switch_approval.json"
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
@@ -20,7 +34,7 @@ def main() -> int:
     cfg = cfg or {}
     learn = cfg.get("learning") or {}
 
-    exec_db = str((cfg.get("execution") or {}).get("db_path") or "data/execution.sqlite")
+    exec_db = str((cfg.get("execution") or {}).get("db_path") or (_DROOT / "execution.sqlite"))
     ops = OpsEventStore(exec_db=exec_db)
 
     if not RECO_PATH.exists():

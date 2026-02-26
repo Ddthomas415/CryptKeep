@@ -57,3 +57,49 @@ class OrderManager:
             })
             log_event(venue, symbol, "order_submitted", ref_id=oid, payload={"side": side, "qty": qty, "price": price, "idem_key": idem_key, "source": "OrderManager.submit_limit"})
         return o
+
+    async def cancel_and_replace(
+        self,
+        ex,
+        *,
+        venue: str,
+        symbol: str,
+        side: str,
+        order_id: str,
+        new_qty: float,
+        new_price: float,
+        params: Optional[dict] = None,
+        cancel_reason: str | None = None,
+    ) -> dict:
+        venue = str(venue)
+        symbol = str(symbol)
+        side = str(side).lower()
+        order_id = str(order_id)
+        params = params or {}
+
+        log_cancel_requested(venue, symbol, order_id, reason=cancel_reason)
+        cancel_details: dict[str, Any] = {}
+        ok = False
+        try:
+            resp = await ex.cancel_order(order_id, symbol)
+            ok = True
+            cancel_details["response"] = resp
+        except Exception as exc:
+            cancel_details["error"] = f"{type(exc).__name__}:{exc}"
+        finally:
+            log_cancel_result(venue, symbol, order_id, ok=ok, details=cancel_details)
+
+        if not ok:
+            raise RuntimeError(f"cancel_failed:{cancel_details.get('error')}")
+
+        log_replace_requested(venue, symbol, order_id, new_price=new_price, new_qty=new_qty)
+        replace_details: dict[str, Any] = {}
+        try:
+            res = await self.submit_limit(ex, venue, symbol, side, new_qty, new_price, params=params)
+            replace_details["order"] = res
+            log_replace_result(venue, symbol, order_id, ok=True, details=replace_details)
+            return res
+        except Exception as exc:
+            replace_details["error"] = f"{type(exc).__name__}:{exc}"
+            log_replace_result(venue, symbol, order_id, ok=False, details=replace_details)
+            raise

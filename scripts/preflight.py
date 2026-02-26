@@ -1,12 +1,22 @@
 from __future__ import annotations
 
-import os
+# CBP_BOOTSTRAP_SYS_PATH
 import sys
+from pathlib import Path
+
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
+import os
 import json
 import socket
 import importlib
 from dataclasses import dataclass, asdict
-from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 REQUIRED_IMPORTS = [

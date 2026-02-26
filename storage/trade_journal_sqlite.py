@@ -83,12 +83,11 @@ class TradeJournalSQLite:
         finally:
             con.close()
 
-   
     def list_fills_all(self, limit: int = 200000) -> list[dict]:
         # Convenience: fetch a large window for analytics/export
         return self.list_fills(limit=int(limit))
 
- def list_fills(self, limit: int = 1000) -> list[dict]:
+    def list_fills(self, limit: int = 1000) -> list[dict]:
         con = _connect()
         try:
             rows = con.execute(

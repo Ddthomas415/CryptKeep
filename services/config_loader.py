@@ -3,8 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict
 import yaml
+from services.os.app_paths import config_dir, ensure_dirs
 
-_CFG_PATH = Path("runtime") / "config" / "user.yaml"
+ensure_dirs()
+_CFG_PATH = config_dir() / "user.yaml"
 
 def load_user_config() -> Dict[str, Any]:
     if not _CFG_PATH.exists():

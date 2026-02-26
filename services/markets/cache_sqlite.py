@@ -1,19 +1,26 @@
 from __future__ import annotations
+import os
 import sqlite3, time, json
 from dataclasses import asdict
 from pathlib import Path
 from typing import Optional
 
+from services.os.app_paths import data_dir, ensure_dirs
 from services.markets.models import MarketRules
 
 def _exec_db_from_trading_yaml(path: str = "config/trading.yaml") -> str:
+    env_db = os.environ.get("EXEC_DB_PATH") or os.environ.get("CBP_DB_PATH")
+    if env_db:
+        return str(env_db)
     try:
         import yaml
         cfg = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
         ex = (cfg.get("execution") or {})
-        return str(ex.get("db_path") or "data/execution.sqlite")
+        ensure_dirs()
+        return str(ex.get("db_path") or (data_dir() / "execution.sqlite"))
     except Exception:
-        return "data/execution.sqlite"
+        ensure_dirs()
+        return str(data_dir() / "execution.sqlite")
 
 def _connect(exec_db: str) -> sqlite3.Connection:
     Path(exec_db).parent.mkdir(parents=True, exist_ok=True)

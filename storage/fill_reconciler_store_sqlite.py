@@ -3,8 +3,10 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
+from services.os.app_paths import data_dir, ensure_dirs
 
-DB_PATH = Path("data") / "fill_reconciler.sqlite"
+ensure_dirs()
+DB_PATH = data_dir() / "fill_reconciler.sqlite"
 
 SCHEMA = """
 PRAGMA journal_mode=WAL;

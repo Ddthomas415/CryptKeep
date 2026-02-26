@@ -64,8 +64,8 @@ def _read_json(path: Path) -> Any:
 def _cfg() -> dict:
     cfg = load_user_yaml()
     pf = cfg.get("preflight") if isinstance(cfg.get("preflight"), dict) else {}
-    venues = pf.get("venues") if isinstance(pf.get("venues"), list) else ["binance", "coinbase", "gateio"]
-    symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else ["BTC/USDT"]
+    venues = pf.get("venues") if isinstance(pf.get("venues"), list) else ["coinbase", "gateio"]
+    symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else ["BTC/USD"]
     return {"venues": venues, "symbols": symbols}
 
 

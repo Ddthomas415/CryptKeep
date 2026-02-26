@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 from services.collector.poll_collector import CollectorConfig, get_or_create
+from services.os.app_paths import data_dir, ensure_dirs
 
 @dataclass(frozen=True)
 class UiGateResult:
@@ -17,13 +18,15 @@ def _map_symbol(cfg: Dict[str, Any], exchange_id: str, canonical_symbol: str) ->
     return str(sm.get(canonical_symbol) or canonical_symbol)
 
 def evaluate_live_ui_gate(cfg: Dict[str, Any]) -> UiGateResult:
+    ensure_dirs()
+    droot = data_dir()
     live = cfg.get("live") or {}
     exchange_id = str(live.get("exchange_id") or "coinbase").lower()
 
     # Paths
-    events_db = str((cfg.get("events") or {}).get("db_path") or "data/events.sqlite")
+    events_db = str((cfg.get("events") or {}).get("db_path") or (droot / "events.sqlite"))
     cb = cfg.get("circuit_breaker") or {}
-    ws_db = str(cb.get("latency_db_path") or "data/market_ws.sqlite")
+    ws_db = str(cb.get("latency_db_path") or (droot / "market_ws.sqlite"))
 
     # Collector running?
     poll_sec = float((cfg.get("runner") or {}).get("poll_sec", 1.0) or 1.0)

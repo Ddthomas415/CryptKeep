@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+from services.markets.symbols import env_symbol
+import os
 import json
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from services.market_data.ccxt_market_data import CCXTMarketData, MarketDataCfg
 from services.execution.intent_writer import IntentWriter, IntentWriterCfg
+from services.os.app_paths import data_dir, ensure_dirs
 from storage.strategy_state_store_sqlite import StrategyStateStore
 from storage.ops_event_store_sqlite import OpsEventStore
+
+ensure_dirs()
 
 def _sma(values: List[float], n: int) -> float:
     if n <= 0 or len(values) < n:
@@ -23,9 +28,9 @@ def _std(values: List[float], n: int) -> float:
 
 @dataclass
 class MeanReversionCfg:
-    exec_db: str = "data/execution.sqlite"
+    exec_db: str = str(data_dir() / "execution.sqlite")
     exchange_id: str = "coinbase"
-    symbol: str = "BTC/USDT"
+    symbol: str = env_symbol(venue=os.environ.get("CBP_VENUE") or "coinbase")
     timeframe: str = "5m"
     ohlcv_limit: int = 300
 

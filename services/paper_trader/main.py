@@ -1,4 +1,6 @@
 from __future__ import annotations
+from services.markets.symbols import env_symbol
+from services.markets.symbols import env_symbol, normalize_symbol
 import asyncio
 import logging
 import os
@@ -9,6 +11,7 @@ import sqlite3
 from core.event_factory import event_from_dict
 from core.events import TradeEvent
 from core.symbols import normalize_symbol
+from services.os.app_paths import data_dir, ensure_dirs
 from services.strategy_ema import EMACrossStrategy
 from services.risk_engine import RiskConfig, RiskEngine
 from services.paper_exec import PaperExecConfig, PaperExecutor
@@ -35,11 +38,12 @@ def _get_position_qty(journal_path: Path, venue: str, symbol_norm: str) -> float
 async def main() -> None:
     _setup_logging()
     log = logging.getLogger("paper_trader")
-    events_db = Path("data") / "events.sqlite"
-    journal_db = Path("data") / "journal.sqlite"
+    ensure_dirs()
+    events_db = data_dir() / "events.sqlite"
+    journal_db = data_dir() / "journal.sqlite"
     if not events_db.exists():
         raise RuntimeError("events DB missing. Run collector first.")
-    symbol = os.environ.get("CBP_TRADE_SYMBOL", "BTC-USDT")
+    symbol = env_symbol(venue=os.environ.get("CBP_VENUE") or "coinbase", out="dash")
     src_venue = os.environ.get("CBP_SOURCE_VENUE", "gateio")  # fallback to gateio
     paper_venue = os.environ.get("CBP_PAPER_VENUE", "paper")
     fast = int(os.environ.get("CBP_EMA_FAST", "5"))

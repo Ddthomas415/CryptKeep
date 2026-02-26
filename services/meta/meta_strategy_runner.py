@@ -1,4 +1,6 @@
 from __future__ import annotations
+from services.markets.symbols import env_symbol
+import os
 import time
 import uuid
 from services.admin.config_editor import load_user_yaml
@@ -15,7 +17,12 @@ def _cfg() -> dict:
     cfg = load_user_yaml()
     m = cfg.get("meta_strategy") if isinstance(cfg.get("meta_strategy"), dict) else {}
     pf = cfg.get("preflight") if isinstance(cfg.get("preflight"), dict) else {}
-    symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else ["BTC/USDT"]
+    env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
+    if env_syms:
+        symbols = env_syms
+    else:
+        env_v = (os.environ.get("CBP_VENUE") or "").lower().strip()
+        symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else (["BTC/USD"] if env_v.startswith("coinbase") else ["BTC/USDT"])
     return {
         "enabled": bool(m.get("enabled", False)),
         "poll_sec": int(m.get("poll_sec", 15) or 15),

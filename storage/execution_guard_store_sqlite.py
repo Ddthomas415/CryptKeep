@@ -7,8 +7,10 @@ from dataclasses import dataclass
 from datetime import datetime, timezone, date
 from pathlib import Path
 from typing import Optional, Dict, Any
+from services.os.app_paths import data_dir, ensure_dirs
 
-DB_PATH = Path(os.environ.get("EXEC_GUARD_DB_PATH", "data/execution_guard.sqlite"))
+ensure_dirs()
+DB_PATH = Path(os.environ.get("EXEC_GUARD_DB_PATH", str(data_dir() / "execution_guard.sqlite")))
 
 SCHEMA = """
 PRAGMA journal_mode=WAL;
@@ -141,4 +143,3 @@ class ExecutionGuardStoreSQLite:
                 )
         finally:
             conn.close()
-

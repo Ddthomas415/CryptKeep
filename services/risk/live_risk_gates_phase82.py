@@ -7,6 +7,7 @@ import sqlite3
 from pathlib import Path
 
 import yaml
+from services.os.app_paths import data_dir, ensure_dirs
 
 def _utc_day_key() -> str:
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
@@ -17,14 +18,17 @@ class LiveRiskLimits:
     max_notional_per_trade_usd: float
     max_trades_per_day: int
     max_position_notional_usd: float
+    kill_switch_file: str = ""
 
     @staticmethod
     def from_trading_yaml(path: str = "config/trading.yaml") -> Optional["LiveRiskLimits"]:
+        ensure_dirs()
         p = Path(path)
         if not p.exists():
             return None
         cfg = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
         risk = (cfg.get("risk") or {}).get("live") or {}
+        paths = cfg.get("paths") or {}
         try:
             mdl = float(risk.get("max_daily_loss_usd"))
             mnt = float(risk.get("max_notional_per_trade_usd"))
@@ -34,7 +38,15 @@ class LiveRiskLimits:
             return None
         if not (mdl > 0 and mnt > 0 and mtd > 0 and mpn > 0):
             return None
-        return LiveRiskLimits(mdl, mnt, mtd, mpn)
+        ksf = str(paths.get("kill_switch_file") or (data_dir() / "KILL_SWITCH.flag"))
+        return LiveRiskLimits(mdl, mnt, mtd, mpn, ksf)
+
+
+def _killswitch_file_on(path: str) -> bool:
+    try:
+        return Path(path).exists()
+    except Exception:
+        return False
 
 class LiveGateDB:
     def __init__(self, exec_db: str):
@@ -114,7 +126,8 @@ class LiveRiskGates:
         return None
 
     def check_live(self, *, it: dict, realized_pnl_usd: float) -> Tuple[bool, str, Dict[str, Any]]:
-        if self.db.killswitch_on():
+        # KILL_SWITCH_FILE_SUPPORT
+        if self.db.killswitch_on() or _killswitch_file_on(self.limits.kill_switch_file):
             return False, "KILL_SWITCH_ON", {}
 
         n = self._estimate_notional_usd(it)
@@ -132,3 +145,9 @@ class LiveRiskGates:
             return False, "MAX_DAILY_LOSS_EXCEEDED", {"realized_pnl_usd": float(realized_pnl_usd)}
 
         return True, "OK", {"notional_usd": n, "daily": row}
+
+
+def phase83_incr_trade_counter(exec_db: str, *, gate_db: LiveGateDB | None = None, delta: int = 1) -> int:
+    """Increment the Phase 83 live gate trade counter (daily_limits.trades)."""
+    db = gate_db or LiveGateDB(exec_db=exec_db)
+    return db.incr_trades(delta)

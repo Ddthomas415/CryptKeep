@@ -7,3 +7,41 @@ __pycache__/
 .ruff_cache/
 .DS_Store
 .env
+
+# --- Crypto Bot Pro repo hygiene ---
+# Local state
+.cbp_state/
+data/
+runtime/
+logs/
+*.sqlite
+*.db
+*.log
+
+# Build artifacts
+dist/
+build/
+installers/
+*.spec
+*.dmg
+*.msi
+*.exe
+
+# Temp / tooling
+attic/
+.safe_apply_tmp/
+.ipynb_checkpoints/
+.pytest_cache/
+__pycache__/
+.ruff_cache/
+.venv/
+*.tmp
+*.swp
+*.bak
+*.bak-*
+*.bak_*
+
+# --- runtime artifacts (must not commit) ---
+data/*.sqlite
+data/*.db
+data/*.log

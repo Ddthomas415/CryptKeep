@@ -53,8 +53,8 @@ def run_forever() -> None:
     eng = PaperEngine()
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
-    venue = str(p.get("default_venue", "binance") or "binance").lower().strip()
-    symbol = str(p.get("default_symbol", "BTC/USDT") or "BTC/USDT").strip()
+    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or "coinbase")).lower().strip()
+    symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
     interval = float(p.get("loop_interval_sec", 1.0) or 1.0)
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "venue": venue, "symbol": symbol, "ts": _now()})
     try:
@@ -78,3 +78,12 @@ def run_forever() -> None:
     finally:
         _release_lock()
         _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now()})
+
+
+# ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
+DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
+
+
+# ---- runtime defaults (prefer env set by bot_ctl / run_bot_safe) ----
+DEFAULT_VENUE = (os.environ.get("CBP_VENUE") or "coinbase").lower().strip()
+DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]

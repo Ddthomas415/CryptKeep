@@ -1,4 +1,6 @@
 from __future__ import annotations
+from services.markets.symbols import env_symbol
+import os
 import uuid
 from services.admin.config_editor import load_user_yaml
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
@@ -14,7 +16,7 @@ def _cfg() -> dict:
     r = m.get("routing") if isinstance(m.get("routing"), dict) else {}
     return {
         "enabled": bool(m.get("enabled", False)),
-        "venue": normalize_venue(str(m.get("venue", "binance") or "binance")),
+        "venue": normalize_venue(str(os.environ.get("CBP_VENUE") or m.get("venue") or "coinbase")),
         "timeframe": str(m.get("timeframe", "1h") or "1h"),
         "horizon_candles": int(m.get("horizon_candles", 6) or 6),
         "internal": {

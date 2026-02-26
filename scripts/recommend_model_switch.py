@@ -1,16 +1,38 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
+# CBP_BOOTSTRAP: ensure repo root on sys.path so `import services` works when running scripts directly
+from pathlib import Path
+import sys
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+
 import json
 from pathlib import Path
 
 import yaml
+from services.os.app_paths import data_dir, ensure_dirs
 from services.learning.model_registry import ModelRegistry, RegistryCfg
 
-RECO_PATH = Path("data/learning/recommended_model.json")
+ensure_dirs()
+_DROOT = data_dir()
+RECO_PATH = _DROOT / "learning" / "recommended_model.json"
 
 def _load_eval(model_id: str) -> dict | None:
-    p1 = Path("data/models") / model_id / "walk_forward_report.json"
-    p2 = Path("data/models") / model_id / "eval_report.json"
+    p1 = _DROOT / "models" / model_id / "walk_forward_report.json"
+    p2 = _DROOT / "models" / model_id / "eval_report.json"
     for p in (p1, p2):
         if p.exists():
             try:

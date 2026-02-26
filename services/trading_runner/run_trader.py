@@ -12,7 +12,8 @@ import yaml  # type: ignore
 
 from core.price_aggregator import AggregationConfig, aggregate_prices
 from core.risk_manager import RiskConfig, RiskState, allow_order
-from strategies.ema_crossover import EMACfg, EMAState, update_ema_state, compute_signal
+from services.os.app_paths import data_dir, ensure_dirs
+from services.strategy_runner.strategies.ema_crossover import EMACfg, EMAState, update_ema_state, compute_signal
 
 from storage.journal_store_sqlite import SQLiteJournalStore
 from storage.market_data_store_sqlite import SQLiteMarketDataStore
@@ -49,6 +50,7 @@ def save_state(path: Path, d: Dict[str, Any]) -> None:
 
 async def runner(cfg_path: Path) -> int:
     cfg = load_cfg(cfg_path)
+    ensure_dirs()
 
     mode = str(cfg.get("mode") or "paper").strip().lower()
     if mode != "paper":
@@ -57,10 +59,11 @@ async def runner(cfg_path: Path) -> int:
     run_id = str(cfg.get("run_id") or "paper_run")
 
     paths = cfg.get("paths") or {}
-    journal_db = Path((paths.get("journal_db") or "data/paper_journal.sqlite"))
-    market_db = Path((paths.get("market_db") or "data/market_data.sqlite"))
-    state_file = Path((paths.get("state_file") or "data/runner_state.json"))
-    kill_file = Path((paths.get("kill_switch_file") or "data/KILL_SWITCH.flag"))
+    droot = data_dir()
+    journal_db = Path((paths.get("journal_db") or str(droot / "paper_journal.sqlite")))
+    market_db = Path((paths.get("market_db") or str(droot / "market_data.sqlite")))
+    state_file = Path((paths.get("state_file") or str(droot / "runner_state.json")))
+    kill_file = Path((paths.get("kill_switch_file") or str(droot / "KILL_SWITCH.flag")))
 
     tick_interval = float((cfg.get("runner") or {}).get("tick_interval_sec") or 2.0)
 

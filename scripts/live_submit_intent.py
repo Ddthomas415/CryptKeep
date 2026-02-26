@@ -1,10 +1,23 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
 import argparse
 import yaml
 from storage.execution_store_sqlite import ExecutionStore
+from services.os.app_paths import data_dir, ensure_dirs
 
 def main() -> int:
+    ensure_dirs()
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbol", required=True)
     ap.add_argument("--side", required=True, choices=["buy","sell"])
@@ -18,7 +31,7 @@ def main() -> int:
     live = cfg.get("live") or {}
     ex = str(live.get("exchange_id") or "coinbase").lower()
     ex_cfg = cfg.get("execution") or {}
-    db = str(ex_cfg.get("db_path") or "data/execution.sqlite")
+    db = str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite"))
 
     store = ExecutionStore(path=db)
     intent_id = store.submit_intent(

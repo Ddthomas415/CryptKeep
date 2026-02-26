@@ -4,8 +4,10 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
+from services.os.app_paths import data_dir, ensure_dirs
 
-DB_PATH = Path("data") / "risk_blocks.sqlite"
+ensure_dirs()
+DB_PATH = data_dir() / "risk_blocks.sqlite"
 
 SCHEMA = '''
 PRAGMA journal_mode=WAL;

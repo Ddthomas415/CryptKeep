@@ -6,11 +6,16 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
+import os
+from services.os.app_paths import data_dir, ensure_dirs
+CBP_UNKNOWN_RESUBMIT_AFTER_S = float(os.environ.get("CBP_UNKNOWN_RESUBMIT_AFTER_S") or "45")
+CBP_UNKNOWN_RESUBMIT_MAX = int(os.environ.get("CBP_UNKNOWN_RESUBMIT_MAX") or "1")
+
+
 def _now_ms() -> int:
     return int(time.time() * 1000)
 
 def _conn(path: str) -> sqlite3.Connection:
-    import os
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     c = sqlite3.connect(path, timeout=30)
     c.row_factory = sqlite3.Row
@@ -40,9 +45,12 @@ CREATE INDEX IF NOT EXISTS idx_od_status ON order_dedupe(status, updated_ts_ms);
 
 @dataclass
 class OrderDedupeStore:
-    exec_db: str = "data/execution.sqlite"
+    exec_db: str = ""
 
     def __post_init__(self) -> None:
+        if not self.exec_db:
+            ensure_dirs()
+            self.exec_db = str(data_dir() / "execution.sqlite")
         with _conn(self.exec_db) as c:
             c.executescript(DDL)
             c.commit()

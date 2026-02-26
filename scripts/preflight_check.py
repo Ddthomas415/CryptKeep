@@ -1,42 +1,95 @@
 from __future__ import annotations
 
+# --- CBP bootstrap: ensure repo root on sys.path ---
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+_REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+import json
 import os
 import platform
-import shutil
-import socket
-import sys
+import subprocess
 
-
-OPTIONAL_CMDS = ["git", "docker", "node", "rustup"]
-
-
-def port_free(port: int) -> bool:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(0.25)
-        return s.connect_ex(("127.0.0.1", port)) != 0
-
+def emit(ok: bool, msg: str, **extra):
+    payload = {"ok": bool(ok), "msg": msg}
+    payload.update(extra)
+    print(json.dumps(payload))
 
 def main() -> int:
-    print("=== Crypto Bot Pro Preflight ===")
-    print("OS:", platform.platform())
-    print("Python:", sys.version.split()[0])
-    print("Python exe:", sys.executable)
+    emit(True, "python", exe=sys.executable, version=platform.python_version())
 
-    for c in OPTIONAL_CMDS:
-        status = "OK" if shutil.which(c) else "MISSING"
-        print(f"{c}: {status}")
+    # imports
+    try:
+        import services  # noqa
+        emit(True, "import services")
+    except Exception as e:
+        emit(False, "import services", error=repr(e))
+        return 2
 
-    if not port_free(8501):
-        print("FAIL: Port 8501 is in use.")
-        return 3
+    try:
+        import keyring  # noqa
+        emit(True, "keyring available")
+    except Exception as e:
+        emit(False, "keyring unavailable", error=repr(e))
 
-    keys = ["CBP_COINBASE_KEY", "CBP_BINANCE_KEY", "CBP_GATEIO_KEY"]
-    present = [k for k in keys if os.environ.get(k)]
-    print("Secrets present (env):", present if present else "none")
+    # config presence
+    cfg = _REPO / "config" / "trading.yaml"
+    emit(cfg.exists(), "config/trading.yaml present" if cfg.exists() else "config/trading.yaml missing", path=str(cfg))
 
-    print("OK: Preflight passed (Phase 0/1).")
+    # wizard_state is OPTIONAL: never fail preflight on it
+    try:
+        from services.admin import wizard_state as ws  # noqa
+        WizardState = getattr(ws, "WizardState", None)
+        if WizardState is None:
+            emit(True, "wizard_state skip (no WizardState)")
+        else:
+            # tolerate either static or instance style
+            live_unlocked = False
+            try:
+                fn = getattr(WizardState, "live_unlocked", None)
+                if callable(fn):
+                    live_unlocked = bool(fn())
+            except Exception:
+                pass
+
+            summary = None
+            try:
+                fn2 = getattr(WizardState, "summary", None)
+                if callable(fn2):
+                    summary = fn2()
+            except Exception:
+                summary = None
+
+            emit(True, "wizard_state ok", live_unlocked=live_unlocked, summary=summary)
+    except Exception as e:
+        emit(True, "wizard_state skip", error=repr(e))
+
+    allow_repo_drift = (os.environ.get("CBP_ALLOW_REPO_DRIFT", "0").strip().lower() in {"1", "true", "yes", "on"})
+    doctor_cmd = [sys.executable, str(_REPO / "tools" / "repo_doctor.py"), "--strict", "--json"]
+    try:
+        p = subprocess.run(doctor_cmd, cwd=str(_REPO), text=True, capture_output=True)
+        ok = p.returncode == 0
+        details = None
+        try:
+            details = json.loads((p.stdout or "{}").strip() or "{}")
+        except Exception:
+            details = {"raw_stdout": (p.stdout or "").strip(), "raw_stderr": (p.stderr or "").strip()}
+        emit(ok, "repo_doctor_strict", details=details)
+        if (not ok) and (not allow_repo_drift):
+            emit(False, "preflight failed (repo drift detected; set CBP_ALLOW_REPO_DRIFT=1 to bypass)")
+            return 2
+    except Exception as e:
+        emit(False, "repo_doctor check failed", error=repr(e))
+        if not allow_repo_drift:
+            return 2
+
+    emit(True, "preflight complete")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

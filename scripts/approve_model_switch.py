@@ -1,12 +1,26 @@
 from __future__ import annotations
 
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
 import argparse
 import json
 import time
 from pathlib import Path
+from services.os.app_paths import data_dir, ensure_dirs
 
-APPROVAL_PATH = Path("data/learning/model_switch_approval.json")
-RECO_PATH = Path("data/learning/recommended_model.json")
+ensure_dirs()
+_DROOT = data_dir()
+APPROVAL_PATH = _DROOT / "learning" / "model_switch_approval.json"
+RECO_PATH = _DROOT / "learning" / "recommended_model.json"
 
 def _now_ms() -> int:
     return int(time.time() * 1000)

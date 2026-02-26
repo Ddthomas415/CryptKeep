@@ -7,6 +7,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
+from services.os.app_paths import data_dir, ensure_dirs
 
 def now_ms() -> int:
     return int(time.time() * 1000)
@@ -42,6 +43,8 @@ class PreflightConfig:
     trading_yaml: str = "config/trading.yaml"
 
 def run_preflight(cfg: PreflightConfig = PreflightConfig()) -> Dict[str, Any]:
+    ensure_dirs()
+    droot = data_dir()
     out: Dict[str, Any] = {"ts_ms": now_ms()}
 
     out["python"] = {
@@ -70,10 +73,10 @@ def run_preflight(cfg: PreflightConfig = PreflightConfig()) -> Dict[str, Any]:
 
     # DB write access (best effort)
     out["storage"] = {
-        "can_write_orders": file_writable("data/orders.sqlite"),
-        "can_write_portfolio": file_writable("data/portfolio.sqlite"),
-        "can_write_recon": file_writable("data/reconciliation.sqlite"),
-        "can_write_runbooks": file_writable("data/repair_runbooks.sqlite"),
+        "can_write_orders": file_writable(str(droot / "orders.sqlite")),
+        "can_write_portfolio": file_writable(str(droot / "portfolio.sqlite")),
+        "can_write_recon": file_writable(str(droot / "reconciliation.sqlite")),
+        "can_write_runbooks": file_writable(str(droot / "repair_runbooks.sqlite")),
     }
 
     # Quick imports

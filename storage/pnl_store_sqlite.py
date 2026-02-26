@@ -4,8 +4,10 @@ import sqlite3
 from datetime import datetime, timezone, date
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
+from services.os.app_paths import data_dir, ensure_dirs
 
-DB_PATH = Path("data") / "pnl.sqlite"
+ensure_dirs()
+DB_PATH = data_dir() / "pnl.sqlite"
 
 SCHEMA = """
 PRAGMA journal_mode=WAL;

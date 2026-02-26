@@ -1,5 +1,24 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
+# CBP_BOOTSTRAP: ensure repo root on sys.path so `import services` works when running scripts directly
+from pathlib import Path
+import sys
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import argparse
 import hmac
 import hashlib
@@ -20,9 +39,9 @@ def main():
     ap.add_argument("--source-id", required=True)
     ap.add_argument("--secret", help="Optional. If omitted, read from OS keyring/env.")
     ap.add_argument("--payload", help="Inline JSON string (single object or list).")
-    ap.add_argument("--symbol", default="BTC/USDT")
+    ap.add_argument("--symbol", default="BTC/USD")
     ap.add_argument("--side", default="buy", choices=["buy","sell","long","short","flat"])
-    ap.add_argument("--venue", default="binance")
+    ap.add_argument("--venue", default="coinbase")
     ap.add_argument("--confidence", type=float, default=0.7)
     ap.add_argument("--horizon-sec", type=int, default=3600)
     ap.add_argument("--notes", default="sender_test")

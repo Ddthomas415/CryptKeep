@@ -8,8 +8,10 @@ from services.admin.journal_exchange_reconcile import scan_local_journals
 from services.market_data.symbol_normalize import normalize_symbols, normalize_symbol
 from services.security.credential_store import get_exchange_credentials
 from services.security.exchange_factory import make_exchange
+from services.os.app_paths import runtime_dir, ensure_dirs
 
-SNAPSHOT_DIR = Path("runtime") / "snapshots"
+ensure_dirs()
+SNAPSHOT_DIR = runtime_dir() / "snapshots"
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()

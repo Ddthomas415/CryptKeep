@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 from pathlib import Path
 import json
+from services.os.app_paths import runtime_dir, ensure_dirs
 
-KILL_PATH = Path("runtime") / "kill_switch.json"
+ensure_dirs()
+KILL_PATH = runtime_dir() / "kill_switch.json"
 
 def _now():
     return datetime.now(timezone.utc).isoformat()

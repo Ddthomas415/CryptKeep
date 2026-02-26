@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json
+
+# CBP_BOOTSTRAP_SYS_PATH
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+import json
+from services.os import app_paths
 
 def main() -> int:
     checks = []
@@ -12,9 +21,9 @@ def main() -> int:
         checks.append({"name": name, "ok": bool(value), "details": details})
     ok("repo_root_exists", ROOT.exists(), str(ROOT))
     ok("dashboard_app_exists", (ROOT/"dashboard"/"app.py").exists())
-    ok("user_yaml_exists", (ROOT/"runtime"/"config"/"user.yaml").exists())
-    ok("data_dir_exists", (ROOT/"data").exists())
-    ok("runtime_snapshots_dir_exists", (ROOT/"runtime"/"snapshots").exists())
+    ok("user_yaml_exists", (app_paths.config_dir()/"user.yaml").exists())
+    ok("data_dir_exists", app_paths.data_dir().exists())
+    ok("runtime_snapshots_dir_exists", (app_paths.runtime_dir()/"snapshots").exists())
     try:
         import streamlit  # noqa
         ok("import_streamlit", True)

@@ -1,22 +1,46 @@
+#!/usr/bin/env python3
+"""Repo installer entrypoint.
+
+Run from repo root:
+    python3 scripts/install.py
+"""
+
+from __future__ import annotations
+
+import os
+import runpy
 import sys
 from pathlib import Path
 
-# Make sure Python can find the core package
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.insert(0, str(project_root))
 
-from core.symbols import ensure_default_symbol_map
+def _repo_root(start_dir: Path) -> Path:
+    """Walk upward until we find the repo root (pyproject + services + install.py)."""
+    for p in [start_dir] + list(start_dir.parents):
+        if (p / "pyproject.toml").exists() and (p / "services").is_dir() and (p / "install.py").exists():
+            return p
+    # fallback: scripts/.. (repo root)
+    return start_dir.parent
 
-ROOT = project_root
-(ROOT / "data").mkdir(exist_ok=True)
 
-print("Creating default symbol_map.json if missing...")
-ensure_default_symbol_map()
+def main() -> int:
+    # Avoid Path.resolve() on Python 3.13; use os.path.realpath(str) instead.
+    this_file = Path(os.path.realpath(__file__))
+    scripts_dir = this_file.parent
 
-print("\n=== Done! ===")
-json_file = ROOT / "data" / "symbol_map.json"
-if json_file.exists():
-    print("File created successfully:")
-    print(json_file.read_text())
-else:
-    print("File was NOT created - check errors above")
+    root = _repo_root(scripts_dir)
+
+    # Safety: if root/install.py accidentally points to THIS wrapper, force root to scripts/..
+    target_install = os.path.realpath(str(root / "install.py"))
+    if target_install == os.path.realpath(str(this_file)):
+        root = scripts_dir.parent
+        target_install = os.path.realpath(str(root / "install.py"))
+
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
+    runpy.run_path(target_install, run_name="__main__")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

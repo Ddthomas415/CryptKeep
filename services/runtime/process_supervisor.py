@@ -8,8 +8,10 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional
+from services.os.app_paths import runtime_dir, ensure_dirs
 
-RUNTIME_DIR = Path("data/runtime")
+ensure_dirs()
+RUNTIME_DIR = runtime_dir()
 
 def _pidfile(name: str) -> Path:
     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)

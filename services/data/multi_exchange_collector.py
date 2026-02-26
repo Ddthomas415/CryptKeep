@@ -7,7 +7,10 @@ from typing import Any, Dict, List, Optional
 import ccxt
 import yaml
 
+from services.os.app_paths import data_dir, ensure_dirs
 from storage.market_store_sqlite import MarketStore
+
+ensure_dirs()
 
 def _safe_load_yaml(path: str = "config/trading.yaml") -> Dict[str, Any]:
     try:
@@ -27,7 +30,7 @@ class VenueCfg:
 class MultiCollectorCfg:
     venues: List[VenueCfg]
     poll_sec: float = 5.0
-    db_path: str = "data/market_raw.sqlite"
+    db_path: str = str(data_dir() / "market_raw.sqlite")
 
 def _build_ex(exchange_id: str, sandbox: bool) -> Any:
     if not hasattr(ccxt, exchange_id):
@@ -107,6 +110,7 @@ def run_loop(cfg: MultiCollectorCfg) -> None:
         time.sleep(float(cfg.poll_sec))
 
 def cfg_from_yaml(path: str = "config/trading.yaml") -> MultiCollectorCfg:
+    ensure_dirs()
     cfg = _safe_load_yaml(path)
     multi = cfg.get("multi_exchanges") or {}
 
@@ -135,6 +139,6 @@ def cfg_from_yaml(path: str = "config/trading.yaml") -> MultiCollectorCfg:
         ))
 
     poll_sec = float(multi.get("poll_sec") or (cfg.get("collector") or {}).get("poll_sec") or 5.0)
-    db_path = str(multi.get("db_path") or (cfg.get("collector") or {}).get("db_path") or "data/market_raw.sqlite")
+    db_path = str(multi.get("db_path") or (cfg.get("collector") or {}).get("db_path") or (data_dir() / "market_raw.sqlite"))
 
     return MultiCollectorCfg(venues=venues, poll_sec=poll_sec, db_path=db_path)

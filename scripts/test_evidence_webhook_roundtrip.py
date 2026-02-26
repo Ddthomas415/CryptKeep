@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
 import subprocess
 import sys
 import time
@@ -19,7 +30,7 @@ def main():
         "--source-id", source_id,
         "--symbol", "BTC/USDT",
         "--side", "buy",
-        "--venue", "binance",
+        "--venue", "coinbase",
         "--notes", "roundtrip_valid"
     ])
     time.sleep(1)

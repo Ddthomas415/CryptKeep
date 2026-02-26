@@ -1,4 +1,6 @@
 from __future__ import annotations
+from services.markets.symbols import env_symbol
+import os
 import time
 import uuid
 from services.admin.config_editor import load_user_yaml
@@ -14,7 +16,7 @@ def _cfg() -> dict:
         "allowed_sources": r.get("allowed_sources") if isinstance(r.get("allowed_sources"), list) else [],
         "allowed_authors": r.get("allowed_authors") if isinstance(r.get("allowed_authors"), list) else [],
         "allowed_symbols": r.get("allowed_symbols") if isinstance(r.get("allowed_symbols"), list) else [],
-        "default_venue": normalize_venue(str(r.get("default_venue", "binance") or "binance")),
+        "default_venue": normalize_venue(str(os.environ.get("CBP_VENUE") or r.get("default_venue") or "coinbase")),
         "default_qty": float(r.get("default_qty", 0.001) or 0.001),
         "order_type": str(r.get("order_type", "market") or "market").lower().strip(),
     }

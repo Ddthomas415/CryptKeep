@@ -1,5 +1,18 @@
 from __future__ import annotations
 
+import os
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+
 import time
 from services.admin.config_editor import load_user_yaml
 from services.execution.intent_executor import execute_one, reconcile_open
@@ -7,7 +20,8 @@ from services.execution.intent_executor import execute_one, reconcile_open
 def main():
     cfg = load_user_yaml()
     ex = cfg.get("execution", {}) if isinstance(cfg.get("execution"), dict) else {}
-    venue = ex.get("venue", "binance")
+    venue = ex.get("venue", "coinbase")
+    venue = (os.environ.get("CBP_VENUE") or venue).lower().strip()
     mode = ex.get("mode", "paper")
     symbol = ex.get("symbol", None)
     interval = int(ex.get("loop_interval_sec", 2) or 2)

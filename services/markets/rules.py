@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 from typing import Optional
 from services.markets.models import MarketRules, ValidationResult
 from services.markets.symbols import canonicalize
@@ -10,19 +11,38 @@ DEFAULT_TTL_S = 6 * 3600.0
 def fetch_and_cache(exec_db: str, venue: str, canonical_symbol: str) -> MarketRules:
     v = venue.lower().strip()
     cs = canonicalize(canonical_symbol)
-    if v == "binance":
-        from services.markets.fetch_binance import fetch_rules
-        r = fetch_rules(cs)
-    elif v == "gate":
-        from services.markets.fetch_gate import fetch_rules
-        r = fetch_rules(cs)
-    elif v in ("coinbase", "coinbase_adv"):
-        from services.markets.fetch_coinbase_ccxt import fetch_rules
-        r = fetch_rules(cs)
-    else:
-        r = MarketRules(v, cs, cs, False, meta={"error":"UNSUPPORTED_VENUE"})
+
+    # best-effort native symbol for error cases
+    native = cs
+    try:
+        from services.markets.symbols import binance_native, gate_native, coinbase_native
+        if v == "binance":
+            native = binance_native(cs)
+        elif v == "gate":
+            native = gate_native(cs)
+        elif v in ("coinbase", "coinbase_adv"):
+            native = coinbase_native(cs)
+    except Exception:
+        pass
+
+    try:
+        if v == "binance":
+            from services.markets.fetch_binance import fetch_rules
+            r = fetch_rules(cs)
+        elif v == "gate":
+            from services.markets.fetch_gate import fetch_rules
+            r = fetch_rules(cs)
+        elif v in ("coinbase", "coinbase_adv"):
+            from services.markets.fetch_coinbase_ccxt import fetch_rules
+            r = fetch_rules(cs)
+        else:
+            r = MarketRules(v, cs, native, False, meta={"error":"UNSUPPORTED_VENUE"})
+    except Exception as e:
+        r = MarketRules(v, cs, native, False, meta={"error":"FETCH_FAILED", "detail": f"{type(e).__name__}:{e}"})
+
     cache_upsert(exec_db, r)
     return r
+
 
 def get_rules(exec_db: str, venue: str, canonical_symbol: str, ttl_s: float = DEFAULT_TTL_S, refresh_if_stale: bool = True) -> Optional[MarketRules]:
     v = venue.lower().strip()

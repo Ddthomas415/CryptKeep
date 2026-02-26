@@ -259,7 +259,7 @@ class PaperTradingSQLite:
         finally:
             con.close()
 
- def list_equity(self, limit: int = 2000) -> List[Dict[str, Any]]:
+    def list_equity(self, limit: int = 2000) -> List[Dict[str, Any]]:
         con = _connect()
         try:
             rows = con.execute(

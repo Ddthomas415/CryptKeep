@@ -4,7 +4,7 @@ from services.admin.kill_switch import get_state as kill_state, ensure_default a
 from services.security.private_connectivity import test_private_connectivity
 from services.security.permission_probes import run_probes, DEFAULT_PROBES
 
-async def run_preflight(venues=["binance","coinbase","gateio"], symbols=["BTC/USDT"]):
+async def run_preflight(venues=["coinbase","gateio"], symbols=["BTC/USD"]):
     ensure_kill_default()
     return {"venues": venues, "symbols": symbols, "kill_switch": kill_state()}
 

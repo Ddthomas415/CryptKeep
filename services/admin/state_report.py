@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
+from services.os import app_paths
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -14,8 +16,8 @@ def _now_tag() -> str:
 ROOT = Path(__file__).resolve().parents[2]
 STATE_PATH = ROOT / "docs" / "STATE.md"
 CHECKPOINTS_PATH = ROOT / "CHECKPOINTS.md"
-USER_YAML = ROOT / "runtime" / "config" / "user.yaml"
-SNAPSHOT_DIR = ROOT / "runtime" / "snapshots"
+USER_YAML = app_paths.config_dir() / "user.yaml"
+SNAPSHOT_DIR = app_paths.runtime_dir() / "snapshots"
 
 REDACT_KEYS = {"apikey", "api_key", "secret", "api_secret", "passphrase", "password", "token", "private_key"}
 

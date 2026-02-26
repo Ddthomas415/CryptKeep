@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, List, Protocol
 from services.journal.canonical_execdb import CanonicalJournal
+from services.risk.risk_daily import RiskDailyDB
 
 class FillSink(Protocol):
     def on_fill(self, fill: Any, *args, **kwargs: Any) -> Any: ...
@@ -64,6 +65,20 @@ class CanonicalFillSink:
                 order_id=str(oid),
                 raw=raw,
             )
+
+            # CBP_FILL_SINK_UPDATES_RISK_DAILY_V1
+            try:
+                # Apply realized PnL/fees to risk_daily exactly once per (venue, fill_id)
+                if fid:
+                    realized = 0.0 if pnl is None else float(pnl)
+                    RiskDailyDB(self.exec_db).apply_fill_once(
+                        venue=str(venue),
+                        fill_id=str(fid),
+                        realized_pnl_usd=float(realized),
+                        fee_usd=float(fee),
+                    )
+            except Exception:
+                pass
         except Exception:
             pass
 

@@ -4,10 +4,12 @@ import os
 import re
 from pathlib import Path
 from typing import Dict, Optional, Tuple
+from services.os.app_paths import data_dir, ensure_dirs
 
 _CACHE: Tuple[Optional[float], Dict[str, Dict[str, str]]] = (None, {})
 
-DEFAULT_MAP_PATH = Path("data") / "symbol_map.json"
+ensure_dirs()
+DEFAULT_MAP_PATH = data_dir() / "symbol_map.json"
 
 def _load_symbol_map(path: Path = DEFAULT_MAP_PATH) -> Dict[str, Dict[str, str]]:
     global _CACHE
@@ -73,4 +75,3 @@ def ensure_default_symbol_map(path: Path = DEFAULT_MAP_PATH) -> None:
         "gateio": {s: normalize_symbol("gateio", s) for s in gt_syms},
     }
     path.write_text(json.dumps(m, indent=2, sort_keys=True), encoding="utf-8")
-

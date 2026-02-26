@@ -1,7 +1,9 @@
 from pathlib import Path
+from services.os.app_paths import runtime_dir, ensure_dirs
 
 # File that stores the current run ID
-RUN_ID_FILE = Path("runtime/run_id.txt")
+ensure_dirs()
+RUN_ID_FILE = runtime_dir() / "run_id.txt"
 RUN_ID_ENV = "RUN_ID"
 
 def get_or_create_run_id() -> str:
@@ -37,7 +39,7 @@ def any_services_running() -> bool:
     # - if runtime/pids/*.pid exists and any pid is alive => "running"
     # - avoids rotating run_id while bots/services are active
     try:
-        pdir = Path("runtime") / "pids"
+        pdir = runtime_dir() / "pids"
         if not pdir.exists():
             return False
         for pf in pdir.glob("*.pid"):

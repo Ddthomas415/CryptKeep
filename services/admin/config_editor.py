@@ -2,9 +2,11 @@ from __future__ import annotations
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Tuple, List
+from services.os.app_paths import config_dir, ensure_dirs
 
-CONFIG_PATH = Path("runtime/config/user.yaml")
-BACKUP_PATH = Path("runtime/config/user.yaml.bak")
+ensure_dirs()
+CONFIG_PATH = config_dir() / "user.yaml"
+BACKUP_PATH = config_dir() / "user.yaml.bak"
 
 def load_user_yaml() -> Dict[str, Any]:
     if not CONFIG_PATH.exists():

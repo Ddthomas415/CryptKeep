@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from services.os.app_paths import runtime_dir, ensure_dirs
 
-HEALTH_DIR = Path("runtime") / "health"
+ensure_dirs()
+HEALTH_DIR = runtime_dir() / "health"
 
 
 def _now() -> str:
@@ -40,4 +42,3 @@ def list_health() -> list[dict]:
         except Exception:
             pass
     return rows
-

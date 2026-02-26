@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import asyncio
 from datetime import datetime, timezone
 
@@ -11,8 +12,8 @@ from services.admin.preflight import run_preflight
 
 SAFE_DEFAULTS = {
     "risk": {"enable_live": False, "allow_unknown_notional": False, "min_order_usd": 10.0, "max_position_usd": 250.0, "max_daily_loss_usd": 75.0, "max_trades_per_day": 15},
-    "preflight": {"venues": ["binance","coinbase","gateio"], "symbols": ["BTC/USDT"], "time_tolerance_ms": 1500, "private_check": False},
-    "market_data_poller": {"venue": "binance","symbols": ["BTC/USDT"], "interval_sec": 15.0, "include_symbols": True, "extra_pairs": []},
+    "preflight": {"venues": ["coinbase","gateio"], "symbols": ["BTC/USD"], "time_tolerance_ms": 1500, "private_check": False},
+    "market_data_poller": {"venue": "coinbase","symbols": ["BTC/USD"], "interval_sec": 15.0, "include_symbols": True, "extra_pairs": []},
     "safety": {"auto_disable_live_on_start": True}
 }
 
@@ -46,7 +47,7 @@ def compute_first_run_status() -> dict:
     md = cfg.get("market_data_poller") if isinstance(cfg.get("market_data_poller"), dict) else {}
     pf = cfg.get("preflight") if isinstance(cfg.get("preflight"), dict) else {}
     symbols = md.get("symbols") or pf.get("symbols") or ["BTC/USDT"]
-    venue = str(md.get("venue") or "binance").lower().strip()
+    venue = str(md.get("venue") or "coinbase").lower().strip()
     req_pairs = build_required_pairs([str(s).strip() for s in symbols], include_symbols=True, extra_pairs=(md.get("extra_pairs") or []))
     audit = cache_missing_pairs(venue, req_pairs)
 
@@ -84,7 +85,7 @@ def populate_cache_now() -> dict:
     cfg = load_user_yaml()
     md = cfg.get("market_data_poller") or SAFE_DEFAULTS["market_data_poller"]
     pf = cfg.get("preflight") or SAFE_DEFAULTS["preflight"]
-    venue = str(md.get("venue") or "binance").lower().strip()
+    venue = str(md.get("venue") or "coinbase").lower().strip()
     symbols = md.get("symbols") or pf.get("symbols") or ["BTC/USDT"]
     req_pairs = build_required_pairs([str(s).strip() for s in symbols], include_symbols=True, extra_pairs=(md.get("extra_pairs") or []))
     return asyncio.run(fetch_tickers_once(venue, req_pairs))

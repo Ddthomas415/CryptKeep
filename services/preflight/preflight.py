@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
+from services.os.app_paths import data_dir, ensure_dirs
 
 SUPPORTED_EXCHANGES = {"coinbase", "binance", "gateio"}
 
@@ -20,6 +21,7 @@ def _check(name: str, ok: bool, detail: str, severity: str = "INFO") -> Dict[str
 
 def run_preflight(cfg_path: str = "config/trading.yaml") -> PreflightResult:
     checks: List[Dict[str, Any]] = []
+    ensure_dirs()
 
     p = Path(cfg_path)
     if not p.exists():
@@ -34,6 +36,11 @@ def run_preflight(cfg_path: str = "config/trading.yaml") -> PreflightResult:
 
     # Symbols
     symbols = cfg.get("symbols") or []
+    # Prefer explicit symbols from env/CLI (CBP_SYMBOLS) over config defaults
+    env_syms = os.environ.get("CBP_SYMBOLS")
+    if env_syms:
+        symbols = [x.strip() for x in env_syms.split(",") if x.strip()]
+
     checks.append(_check("symbols_configured", len(symbols) > 0, f"symbols={symbols}", "ERROR" if len(symbols) == 0 else "INFO"))
 
     # Executor mode
@@ -49,7 +56,8 @@ def run_preflight(cfg_path: str = "config/trading.yaml") -> PreflightResult:
         checks.append(_check("live_enabled", True, f"paper mode (live_enabled={live_enabled})", "INFO"))
 
     # DB writable
-    db_path = str(exe.get("db_path") or "data/execution.sqlite")
+    db_default = str(data_dir() / "execution.sqlite")
+    db_path = str(os.environ.get("EXEC_DB_PATH") or os.environ.get("CBP_DB_PATH") or exe.get("db_path") or db_default)
     db_file = Path(db_path)
     db_file.parent.mkdir(parents=True, exist_ok=True)
     try:
