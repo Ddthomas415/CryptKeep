@@ -91,25 +91,33 @@ def _service_ctl_list() -> list[str]:
     return ["tick_publisher", "intent_executor", "intent_reconciler"]
 
 
-def _service_ctl_status(name: str) -> dict:
-    # IMPORTANT: service_ctl expects global options BEFORE subcommand
-    cmd = [sys.executable, str(REPO / "scripts" / "service_ctl.py"), "--name", name, "status"]
+def _service_ctl_call(name: str, action: str, *, lines: int | None = None) -> dict:
+    cmd = [sys.executable, str(REPO / "scripts" / "service_ctl.py"), "--name", name, action]
+    if action == "logs" and lines is not None:
+        cmd.extend(["--lines", str(int(lines))])
     rc, out, err = _run(cmd)
     parsed = _parse_maybe_structured(out)
     d = {
         "name": name,
+        "action": action,
+        "ok": rc == 0,
         "rc": rc,
         "out": out.strip(),
         "err": err.strip(),
     }
     if isinstance(parsed, dict):
         d.update(parsed)
+    return d
+
+
+def _service_ctl_status(name: str) -> dict:
+    d = _service_ctl_call(name, "status")
     # normalize common fields
     if "running" not in d:
         d["running"] = None
     if "pid" not in d:
         d["pid"] = None
-    d["ok"] = bool(d.get("ok", rc == 0))
+    d["ok"] = bool(d.get("ok"))
     return d
 
 
@@ -158,6 +166,55 @@ def _preflight() -> list[dict]:
     if err.strip():
         items.append({"stderr": err.strip(), "rc": rc})
     return items
+
+
+def _preflight_obj() -> dict:
+    checks = _preflight()
+    ok = True
+    for c in checks:
+        if not isinstance(c, dict):
+            continue
+        if bool(c.get("ok")):
+            continue
+        if str(c.get("severity") or "").upper() == "ERROR":
+            ok = False
+            break
+    return {"ok": ok, "checks": checks, "count": len(checks), "ts": int(time.time())}
+
+
+def _service_ctl_all(action: str) -> dict:
+    names = _service_ctl_list()
+    results = [_service_ctl_call(name, action) for name in names]
+    ok = all(bool(r.get("ok")) for r in results)
+    return {"ok": ok, "action": action, "count": len(results), "results": results, "ts": int(time.time())}
+
+
+def _stop_everything() -> dict:
+    # Precedence: stop managed services first, then watchdog, then clear stale locks.
+    services = _service_ctl_all("stop")
+
+    wd_cmd = [sys.executable, str(REPO / "scripts" / "watchdog_ctl.py"), "stop", "--hard"]
+    wd_rc, wd_out, wd_err = _run(wd_cmd)
+    wd_parsed = _parse_maybe_structured(wd_out)
+    watchdog: dict[str, Any] = {
+        "ok": wd_rc == 0,
+        "rc": wd_rc,
+        "out": wd_out.strip(),
+        "err": wd_err.strip(),
+    }
+    if isinstance(wd_parsed, dict):
+        watchdog.update(wd_parsed)
+
+    clean = _clean()
+    ok = bool(services.get("ok")) and bool(watchdog.get("ok")) and bool(clean.get("ok"))
+    return {
+        "ok": ok,
+        "precedence": ["services.stop", "watchdog.stop_hard", "locks.clear_stale_hard"],
+        "services": services,
+        "watchdog": watchdog,
+        "clean": clean,
+        "ts": int(time.time()),
+    }
 
 
 def _status_all_obj() -> dict:
@@ -218,6 +275,28 @@ def main() -> int:
 
     sub.add_parser("list")
 
+    pstatus = sub.add_parser("status")
+    pstatus.add_argument("--name", required=True)
+
+    pstart = sub.add_parser("start")
+    pstart.add_argument("--name", required=True)
+
+    pstop = sub.add_parser("stop")
+    pstop.add_argument("--name", required=True)
+
+    prestart = sub.add_parser("restart")
+    prestart.add_argument("--name", required=True)
+
+    plogs = sub.add_parser("logs")
+    plogs.add_argument("--name", required=True)
+    plogs.add_argument("--lines", type=int, default=80)
+
+    sub.add_parser("preflight")
+    sub.add_parser("start-all")
+    sub.add_parser("stop-all")
+    sub.add_parser("restart-all")
+    sub.add_parser("stop-everything")
+
     sub.add_parser("status-all")
 
     pdiag = sub.add_parser("diag")
@@ -233,6 +312,38 @@ def main() -> int:
         for n in _service_ctl_list():
             print(n)
         return 0
+
+    if args.cmd == "status":
+        print(json.dumps(_service_ctl_status(str(args.name))))
+        return 0
+
+    if args.cmd in {"start", "stop", "restart"}:
+        action = str(args.cmd)
+        result = _service_ctl_call(str(args.name), action)
+        print(json.dumps(result))
+        return 0 if bool(result.get("ok")) else 2
+
+    if args.cmd == "logs":
+        result = _service_ctl_call(str(args.name), "logs", lines=int(args.lines))
+        # Keep log output human-friendly for dashboard `st.code`.
+        print(result.get("out") or "")
+        return 0 if bool(result.get("ok")) else 2
+
+    if args.cmd == "preflight":
+        payload = _preflight_obj()
+        print(json.dumps(payload))
+        return 0 if bool(payload.get("ok")) else 2
+
+    if args.cmd in {"start-all", "stop-all", "restart-all"}:
+        action = args.cmd.replace("-all", "")
+        payload = _service_ctl_all(action)
+        print(json.dumps(payload))
+        return 0 if bool(payload.get("ok")) else 2
+
+    if args.cmd == "stop-everything":
+        payload = _stop_everything()
+        print(json.dumps(payload))
+        return 0 if bool(payload.get("ok")) else 2
 
     if args.cmd == "status-all":
         print(json.dumps(_status_all_obj()))
