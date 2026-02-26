@@ -16,6 +16,9 @@ import os
 import subprocess
 from pathlib import Path
 from services.os.app_paths import data_dir, ensure_dirs
+from services.logging.app_logger import get_logger
+
+logger = get_logger("start_supervisor")
 
 def pid_alive(pid: int) -> bool:
     try:
@@ -31,7 +34,10 @@ def main() -> int:
     pid_path = sup_dir / "daemon.pid"
     stop_path = sup_dir / "STOP"
     if stop_path.exists():
-        stop_path.unlink()
+        try:
+            stop_path.unlink()
+        except Exception:
+            logger.exception("start_supervisor: failed to remove stop flag path=%s", stop_path)
 
     if pid_path.exists():
         try:
@@ -40,7 +46,7 @@ def main() -> int:
                 print("Supervisor already running:", pid)
                 return 0
         except Exception:
-            pass
+            logger.exception("start_supervisor: failed to parse existing pid file path=%s", pid_path)
 
     cmd = [sys.executable, "-u", "services/supervisor/supervisor_daemon.py"]
     p = subprocess.Popen(cmd, cwd=str(Path(".").resolve()))

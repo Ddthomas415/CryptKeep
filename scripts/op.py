@@ -19,6 +19,9 @@ import time
 import subprocess
 
 from services.os import app_paths
+from services.logging.app_logger import get_logger
+
+logger = get_logger("op")
 
 def _run(cmd: list[str], *, timeout: int | None = None) -> tuple[int, str, str]:
     env = os.environ.copy()
@@ -87,6 +90,7 @@ def _service_ctl_list() -> list[str]:
         names = [ln.strip() for ln in out.splitlines() if ln.strip()]
         if names:
             return names
+    logger.warning("op: service_ctl list failed rc=%s err=%s", rc, (err or "").strip())
     # fallback for tests / minimal usability
     return ["tick_publisher", "intent_executor", "intent_reconciler"]
 
@@ -139,7 +143,7 @@ def _tail_from_known_logs(name: str, lines: int) -> str:
                     txt = fp.read_text(encoding="utf-8", errors="replace")
                     return "\n".join(txt.splitlines()[-lines:])
                 except Exception:
-                    pass
+                    logger.exception("op: failed to read log file path=%s", fp)
         # otherwise, scan
         try:
             for fp in sorted(base.glob("*.log")):
@@ -147,7 +151,7 @@ def _tail_from_known_logs(name: str, lines: int) -> str:
                     txt = fp.read_text(encoding="utf-8", errors="replace")
                     return "\n".join(txt.splitlines()[-lines:])
         except Exception:
-            pass
+            logger.exception("op: failed to scan log directory path=%s", base)
     return ""
 
 

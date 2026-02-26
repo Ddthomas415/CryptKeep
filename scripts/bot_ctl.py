@@ -18,10 +18,12 @@ except ModuleNotFoundError:
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 from services.os.app_paths import data_dir, ensure_dirs, state_root
+from services.logging.app_logger import get_logger
 
 REPO = Path(__file__).resolve().parents[1]
 PROC_PATH = data_dir() / "bot_process.json"
 LOG_PATH = data_dir() / "logs" / "bot.log"
+logger = get_logger("bot_ctl")
 
 
 def _emit(obj) -> None:
@@ -43,6 +45,7 @@ def _load_state() -> dict:
     try:
         return json.loads(PROC_PATH.read_text(encoding="utf-8"))
     except Exception:
+        logger.exception("bot_ctl: failed to parse process state path=%s", PROC_PATH)
         return {}
 
 
@@ -55,7 +58,7 @@ def _clear_state() -> None:
     try:
         PROC_PATH.unlink(missing_ok=True)
     except Exception:
-        pass
+        logger.exception("bot_ctl: failed to clear process state path=%s", PROC_PATH)
 
 
 def cmd_status(_args) -> int:
