@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from services.os.app_paths import data_dir
@@ -16,7 +16,7 @@ WD_PATH = data_dir() / "watchdog_last.json"
 logger = get_logger("watchdog")
 
 def _iso_now() -> str:
-    return datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 def _persist(obj: dict) -> None:
     try:

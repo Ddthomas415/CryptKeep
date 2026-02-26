@@ -5,7 +5,7 @@ import os
 import sys
 import time
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from services.os.app_paths import data_dir
@@ -16,7 +16,7 @@ COCKPIT_LOG = LOG_DIR / "cockpit.log"
 WATCHDOG_LOG = LOG_DIR / "watchdog.log"
 
 def _iso_now() -> str:
-    return datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 def _read() -> dict:
     try:

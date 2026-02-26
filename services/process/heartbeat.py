@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from services.os.app_paths import data_dir
@@ -10,7 +10,7 @@ from services.os.app_paths import data_dir
 HB_PATH = data_dir() / "bot_heartbeat.json"
 
 def _iso_now() -> str:
-    return datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 def write_heartbeat(*, status: str = "running", msg: str | None = None) -> dict:
     HB_PATH.parent.mkdir(parents=True, exist_ok=True)

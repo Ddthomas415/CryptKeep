@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +14,7 @@ CRASH_PATH = data_dir() / "crash_snapshot.json"
 BOT_LOG = data_dir() / "logs" / "bot.log"
 
 def _iso_now() -> str:
-    return datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 def _tail_bytes(p: Path, max_bytes: int = 200_000) -> str:
     try:

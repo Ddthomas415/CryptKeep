@@ -6,7 +6,7 @@ import os
 import sys
 import time
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +18,7 @@ LOG_DIR = data_dir() / "logs"
 BOT_LOG = LOG_DIR / "bot.log"
 
 def _iso_now() -> str:
-    return datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 def _read() -> dict:
     try:
