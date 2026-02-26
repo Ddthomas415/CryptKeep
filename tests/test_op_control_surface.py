@@ -50,6 +50,29 @@ def test_op_supervisor_status_shape():
     assert "out" in payload
 
 
+def test_op_supervisor_start_uses_supervisor_ctl(monkeypatch):
+    monkeypatch.setattr(op, "_script_call", lambda script, *args: {"ok": True, "script": script, "args": list(args)})
+    payload = op._supervisor_start()
+    assert payload.get("script") == "supervisor_ctl.py"
+    assert payload.get("args") == ["start"]
+
+
+def test_op_supervisor_stop_aggregates_ctl_and_flag(monkeypatch):
+    def _fake_script_call(script: str, *args: str):
+        if script == "supervisor_ctl.py":
+            return {"ok": True, "script": script, "args": list(args)}
+        if script == "stop_supervisor.py":
+            return {"ok": False, "script": script, "args": list(args)}
+        return {"ok": True, "script": script, "args": list(args)}
+
+    monkeypatch.setattr(op, "_script_call", _fake_script_call)
+    payload = op._supervisor_stop()
+    assert payload.get("ok") is False
+    assert payload.get("supervisor_ctl", {}).get("script") == "supervisor_ctl.py"
+    assert payload.get("supervisor_ctl", {}).get("args") == ["stop", "--hard"]
+    assert payload.get("stop_flag", {}).get("script") == "stop_supervisor.py"
+
+
 def test_op_service_ctl_all_aggregate(monkeypatch):
     monkeypatch.setattr(op, "_service_ctl_list", lambda: ["a", "b"])
     outcomes = {"a": {"ok": True}, "b": {"ok": False}}

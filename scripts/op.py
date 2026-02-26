@@ -204,6 +204,27 @@ def _script_call(script_name: str, *script_args: str) -> dict:
     return payload
 
 
+def _supervisor_start() -> dict:
+    # Keep Operator controls aligned on the same supervisor stack.
+    return _script_call("supervisor_ctl.py", "start")
+
+
+def _supervisor_status() -> dict:
+    return _script_call("supervisor_ctl.py", "status")
+
+
+def _supervisor_stop() -> dict:
+    ctl = _script_call("supervisor_ctl.py", "stop", "--hard")
+    # Also raise stop flag for the services supervisor if it is running.
+    flag = _script_call("stop_supervisor.py")
+    return {
+        "ok": bool(ctl.get("ok")) and bool(flag.get("ok")),
+        "supervisor_ctl": ctl,
+        "stop_flag": flag,
+        "ts": int(time.time()),
+    }
+
+
 def _stop_everything() -> dict:
     # Precedence: stop bot first (halts new submissions), then service workers,
     # then supervisor/watchdog controllers, then clear stale locks.
@@ -373,24 +394,17 @@ def main() -> int:
         return 0 if bool(payload.get("ok")) else 2
 
     if args.cmd == "supervisor-start":
-        payload = _script_call("start_supervisor.py")
+        payload = _supervisor_start()
         print(json.dumps(payload))
         return 0 if bool(payload.get("ok")) else 2
 
     if args.cmd == "supervisor-status":
-        payload = _script_call("supervisor_ctl.py", "status")
+        payload = _supervisor_status()
         print(json.dumps(payload))
         return 0 if bool(payload.get("ok")) else 2
 
     if args.cmd == "supervisor-stop":
-        ctl = _script_call("supervisor_ctl.py", "stop", "--hard")
-        flag = _script_call("stop_supervisor.py")
-        payload = {
-            "ok": bool(ctl.get("ok")) and bool(flag.get("ok")),
-            "supervisor_ctl": ctl,
-            "stop_flag": flag,
-            "ts": int(time.time()),
-        }
+        payload = _supervisor_stop()
         print(json.dumps(payload))
         return 0 if bool(payload.get("ok")) else 2
 

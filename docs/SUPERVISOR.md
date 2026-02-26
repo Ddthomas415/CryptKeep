@@ -15,6 +15,9 @@ Writes:
 - Windows: launchers/CryptoBotPro_Supervisor.bat
 
 ## CLI
+Start:
+  python scripts/supervisor_ctl.py start
+
 Status:
   python scripts/supervisor_ctl.py status
 
