@@ -56,6 +56,19 @@ if st.button("Stop Everything", use_container_width=True, key="op_stop_everythin
     rc, out = _op(["stop-everything"])
     st.code(out or f"rc={rc}")
 
+s0, s1, s2 = st.columns(3)
+if s0.button("Supervisor Start", use_container_width=True, key="op_supervisor_start"):
+    rc, out = _op(["supervisor-start"])
+    st.code(out or f"rc={rc}")
+
+if s1.button("Supervisor Stop", use_container_width=True, key="op_supervisor_stop"):
+    rc, out = _op(["supervisor-stop"])
+    st.code(out or f"rc={rc}")
+
+if s2.button("Supervisor Status", use_container_width=True, key="op_supervisor_status"):
+    rc, out = _op(["supervisor-status"])
+    st.code(out or f"rc={rc}")
+
 st.divider()
 
 svc = st.selectbox("Service", services, index=0, key="op_service_select_unique")

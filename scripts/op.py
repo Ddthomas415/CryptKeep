@@ -320,6 +320,9 @@ def main() -> int:
     sub.add_parser("stop-all")
     sub.add_parser("restart-all")
     sub.add_parser("stop-everything")
+    sub.add_parser("supervisor-start")
+    sub.add_parser("supervisor-stop")
+    sub.add_parser("supervisor-status")
 
     sub.add_parser("status-all")
 
@@ -366,6 +369,28 @@ def main() -> int:
 
     if args.cmd == "stop-everything":
         payload = _stop_everything()
+        print(json.dumps(payload))
+        return 0 if bool(payload.get("ok")) else 2
+
+    if args.cmd == "supervisor-start":
+        payload = _script_call("start_supervisor.py")
+        print(json.dumps(payload))
+        return 0 if bool(payload.get("ok")) else 2
+
+    if args.cmd == "supervisor-status":
+        payload = _script_call("supervisor_ctl.py", "status")
+        print(json.dumps(payload))
+        return 0 if bool(payload.get("ok")) else 2
+
+    if args.cmd == "supervisor-stop":
+        ctl = _script_call("supervisor_ctl.py", "stop", "--hard")
+        flag = _script_call("stop_supervisor.py")
+        payload = {
+            "ok": bool(ctl.get("ok")) and bool(flag.get("ok")),
+            "supervisor_ctl": ctl,
+            "stop_flag": flag,
+            "ts": int(time.time()),
+        }
         print(json.dumps(payload))
         return 0 if bool(payload.get("ok")) else 2
 

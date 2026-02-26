@@ -42,6 +42,14 @@ def test_op_status_and_logs_surface():
     assert p_logs.returncode in (0, 2)
 
 
+def test_op_supervisor_status_shape():
+    p = _run_op(["supervisor-status"])
+    assert p.stdout.strip()
+    payload = json.loads(p.stdout)
+    assert isinstance(payload.get("ok"), bool)
+    assert "out" in payload
+
+
 def test_op_service_ctl_all_aggregate(monkeypatch):
     monkeypatch.setattr(op, "_service_ctl_list", lambda: ["a", "b"])
     outcomes = {"a": {"ok": True}, "b": {"ok": False}}
