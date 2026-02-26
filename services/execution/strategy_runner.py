@@ -3,6 +3,8 @@ import os
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import signal
+import threading
 import time
 from services.execution.execution_throttle import can_trade, record_trade
 from services.execution.orderbook_sanity import check_orderbook
@@ -48,20 +50,59 @@ def run_once():
 # -------------------------------------------------------------------
 # Continuous loop
 # -------------------------------------------------------------------
+_SHUTDOWN_EVENT = threading.Event()
+_SIGNAL_HANDLERS_INSTALLED = False
+
+
+def request_shutdown(reason: str = "requested") -> None:
+    if _SHUTDOWN_EVENT.is_set():
+        return
+    _SHUTDOWN_EVENT.set()
+    try:
+        log_event(VENUE, SYMBOL, "strategy_shutdown", payload={"reason": str(reason)})
+    except Exception:
+        pass
+
+
+def _handle_shutdown_signal(signum: int, _frame) -> None:
+    request_shutdown(reason=f"signal_{int(signum)}")
+
+
+def _install_shutdown_signal_handlers() -> None:
+    global _SIGNAL_HANDLERS_INSTALLED
+    if _SIGNAL_HANDLERS_INSTALLED:
+        return
+    for sig_name in ("SIGTERM", "SIGINT"):
+        sig_obj = getattr(signal, sig_name, None)
+        if sig_obj is None:
+            continue
+        try:
+            signal.signal(sig_obj, _handle_shutdown_signal)
+        except Exception:
+            continue
+    _SIGNAL_HANDLERS_INSTALLED = True
+
+
 def run_forever(interval_sec: float = 10.0) -> None:
+    _install_shutdown_signal_handlers()
+    _SHUTDOWN_EVENT.clear()
     print("[LIVE] Starting modular live strategy runner...")
-    while True:
+    while not _SHUTDOWN_EVENT.is_set():
         try:
             _runner_iteration()
         except Exception as e:
             log_event(VENUE, SYMBOL, "strategy_error", payload={"error": f"{type(e).__name__}: {e}"})
             traceback.print_exc()
-        time.sleep(interval_sec)
+        if _SHUTDOWN_EVENT.wait(max(0.05, float(interval_sec))):
+            break
+    print("[LIVE] strategy runner stopped cleanly")
 
 _LATENCY_TRACKER = ExecutionLatencyTracker(store=SQLiteMarketWsStore())
 
 
 def _runner_iteration() -> None:
+    if _SHUTDOWN_EVENT.is_set():
+        return
     log_event(VENUE, SYMBOL, "strategy_heartbeat", payload={"timestamp": time.time()})
     _record_heartbeat_latency()
     try:
