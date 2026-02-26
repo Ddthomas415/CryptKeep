@@ -52,6 +52,10 @@ if c3.button("Restart All", use_container_width=True, key="op_restart_all"):
     rc, out = _op(["restart-all"])
     st.code(out or f"rc={rc}")
 
+if st.button("Stop Everything", use_container_width=True, key="op_stop_everything"):
+    rc, out = _op(["stop-everything"])
+    st.code(out or f"rc={rc}")
+
 st.divider()
 
 svc = st.selectbox("Service", services, index=0, key="op_service_select_unique")

@@ -189,28 +189,52 @@ def _service_ctl_all(action: str) -> dict:
     return {"ok": ok, "action": action, "count": len(results), "results": results, "ts": int(time.time())}
 
 
-def _stop_everything() -> dict:
-    # Precedence: stop managed services first, then watchdog, then clear stale locks.
-    services = _service_ctl_all("stop")
-
-    wd_cmd = [sys.executable, str(REPO / "scripts" / "watchdog_ctl.py"), "stop", "--hard"]
-    wd_rc, wd_out, wd_err = _run(wd_cmd)
-    wd_parsed = _parse_maybe_structured(wd_out)
-    watchdog: dict[str, Any] = {
-        "ok": wd_rc == 0,
-        "rc": wd_rc,
-        "out": wd_out.strip(),
-        "err": wd_err.strip(),
+def _script_call(script_name: str, *script_args: str) -> dict:
+    cmd = [sys.executable, str(REPO / "scripts" / script_name), *script_args]
+    rc, out, err = _run(cmd)
+    parsed = _parse_maybe_structured(out)
+    payload = {
+        "ok": rc == 0,
+        "rc": rc,
+        "out": out.strip(),
+        "err": err.strip(),
     }
-    if isinstance(wd_parsed, dict):
-        watchdog.update(wd_parsed)
+    if isinstance(parsed, dict):
+        payload.update(parsed)
+    return payload
 
+
+def _stop_everything() -> dict:
+    # Precedence: stop bot first (halts new submissions), then service workers,
+    # then supervisor/watchdog controllers, then clear stale locks.
+    bot = _script_call("bot_ctl.py", "stop_all", "--hard")
+    services = _service_ctl_all("stop")
+    supervisor = _script_call("supervisor_ctl.py", "stop", "--hard")
+    stop_flag = _script_call("stop_supervisor.py")
+    watchdog = _script_call("watchdog_ctl.py", "stop", "--hard")
     clean = _clean()
-    ok = bool(services.get("ok")) and bool(watchdog.get("ok")) and bool(clean.get("ok"))
+    ok = (
+        bool(bot.get("ok"))
+        and bool(services.get("ok"))
+        and bool(supervisor.get("ok"))
+        and bool(stop_flag.get("ok"))
+        and bool(watchdog.get("ok"))
+        and bool(clean.get("ok"))
+    )
     return {
         "ok": ok,
-        "precedence": ["services.stop", "watchdog.stop_hard", "locks.clear_stale_hard"],
+        "precedence": [
+            "bot_ctl.stop_all(hard)",
+            "service_ctl.stop_all",
+            "supervisor_ctl.stop(hard)",
+            "stop_supervisor.flag",
+            "watchdog_ctl.stop(hard)",
+            "watchdog_ctl.clear_stale(hard)",
+        ],
+        "bot": bot,
         "services": services,
+        "supervisor": supervisor,
+        "stop_flag": stop_flag,
         "watchdog": watchdog,
         "clean": clean,
         "ts": int(time.time()),

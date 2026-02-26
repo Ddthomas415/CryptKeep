@@ -53,9 +53,19 @@ def test_op_service_ctl_all_aggregate(monkeypatch):
 
 
 def test_op_stop_everything_precedence(monkeypatch):
+    monkeypatch.setattr(op, "_script_call", lambda script, *args: {"ok": True, "script": script, "args": list(args)})
     monkeypatch.setattr(op, "_service_ctl_all", lambda action: {"ok": True, "action": action})
-    monkeypatch.setattr(op, "_run", lambda cmd, timeout=None: (0, '{"ok": true}', ""))
     monkeypatch.setattr(op, "_clean", lambda: {"ok": True})
     payload = op._stop_everything()
     assert payload.get("ok") is True
-    assert payload.get("precedence") == ["services.stop", "watchdog.stop_hard", "locks.clear_stale_hard"]
+    assert payload.get("precedence") == [
+        "bot_ctl.stop_all(hard)",
+        "service_ctl.stop_all",
+        "supervisor_ctl.stop(hard)",
+        "stop_supervisor.flag",
+        "watchdog_ctl.stop(hard)",
+        "watchdog_ctl.clear_stale(hard)",
+    ]
+    assert payload.get("bot", {}).get("script") == "bot_ctl.py"
+    assert payload.get("supervisor", {}).get("script") == "supervisor_ctl.py"
+    assert payload.get("watchdog", {}).get("script") == "watchdog_ctl.py"
