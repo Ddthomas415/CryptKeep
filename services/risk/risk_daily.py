@@ -7,12 +7,14 @@ import sqlite3
 from pathlib import Path
 
 def _utc_day_key(now: Optional[datetime.datetime] = None) -> str:
-    n = now or datetime.datetime.utcnow()
+    n = now or datetime.datetime.now(datetime.timezone.utc)
     return n.strftime("%Y-%m-%d")
 
 def _utc_iso(now: Optional[datetime.datetime] = None) -> str:
-    n = now or datetime.datetime.utcnow()
-    return n.isoformat() + "Z"
+    n = now or datetime.datetime.now(datetime.timezone.utc)
+    if n.tzinfo is None:
+        n = n.replace(tzinfo=datetime.timezone.utc)
+    return n.isoformat().replace("+00:00", "Z")
 
 class RiskDailyDB:
     """

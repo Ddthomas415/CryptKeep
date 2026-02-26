@@ -8,7 +8,7 @@ from pathlib import Path
 
 def _utc_day_bounds(day: Optional[str] = None) -> Tuple[datetime.datetime, datetime.datetime]:
     if day is None:
-        day = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+        day = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
     start = datetime.datetime.fromisoformat(day + "T00:00:00")
     end = start + datetime.timedelta(days=1)
     return start, end
@@ -62,7 +62,7 @@ class JournalSignals:
     def realized_pnl_today_usd(self) -> Optional[float]:
         with _conn(self.exec_db) as c:
             tbls = _tables(c)
-            day = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+            day = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
             # Prefer Phase 82 table
             if "daily_limits" in tbls:
@@ -104,7 +104,7 @@ class JournalSignals:
     def trades_today(self) -> Optional[int]:
         with _conn(self.exec_db) as c:
             tbls = _tables(c)
-            day = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+            day = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
             if "daily_limits" in tbls:
                 r = c.execute("SELECT trades FROM daily_limits WHERE day = ?", (day,)).fetchone()
