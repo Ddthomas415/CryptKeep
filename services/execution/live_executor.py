@@ -9,6 +9,7 @@ import yaml
 
 from services.execution.exchange_client import ExchangeClient
 from services.os.app_paths import data_dir, ensure_dirs
+from services.preflight.preflight import run_preflight
 from services.risk.live_risk_gates_phase82 import (
     LiveRiskLimits,
     LiveGateDB,
@@ -20,6 +21,10 @@ from storage.execution_store_sqlite import ExecutionStore
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
 from storage.pnl_store_sqlite import PnLStoreSQLite
 
+# ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
+DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
+
+
 def _now_ms() -> int:
     return int(time.time() * 1000)
 
@@ -29,6 +34,83 @@ def _remote_id_from_reason(reason: str) -> Optional[str]:
     if "remote_id=" in s:
         return s.split("remote_id=", 1)[-1].split()[0].strip() or None
     return None
+
+
+def _truthy(v: str | None, *, default: bool = False) -> bool:
+    if v is None:
+        return default
+    return str(v).strip().lower() in {"1", "true", "yes", "on", "y"}
+
+
+def _first_preflight_error(checks: list[dict[str, Any]]) -> str:
+    for item in checks:
+        if not bool(item.get("ok", False)) and str(item.get("severity") or "").upper() == "ERROR":
+            detail = str(item.get("detail") or "").strip()
+            if detail:
+                return detail
+            name = str(item.get("name") or "").strip()
+            if name:
+                return name
+    return "preflight_failed"
+
+
+@dataclass
+class _PreflightCircuitState:
+    consecutive_failures: int = 0
+    pause_until_ts: float = 0.0
+    last_reason: str = ""
+
+
+_PREFLIGHT_CIRCUIT = _PreflightCircuitState()
+
+
+def _check_preflight_gate(
+    cfg: "LiveCfg",
+    *,
+    cfg_path: str = "config/trading.yaml",
+    state: _PreflightCircuitState = _PREFLIGHT_CIRCUIT,
+    now_ts: float | None = None,
+) -> tuple[bool, str, dict[str, Any]]:
+    enforce = _truthy(os.environ.get("CBP_LIVE_PREFLIGHT_ENFORCE"), default=True)
+    if not enforce:
+        return True, "PREFLIGHT_GATE_DISABLED", {"enforced": False}
+
+    now = float(now_ts) if now_ts is not None else time.time()
+    if state.pause_until_ts > now:
+        return False, "CIRCUIT_BREAKER_PAUSED", {
+            "pause_until_ts": state.pause_until_ts,
+            "pause_remaining_s": round(max(0.0, state.pause_until_ts - now), 3),
+            "last_reason": state.last_reason,
+        }
+
+    pf = run_preflight(cfg_path=cfg_path)
+    checks = list(getattr(pf, "checks", []) or [])
+    if bool(getattr(pf, "ok", False)):
+        state.consecutive_failures = 0
+        state.last_reason = ""
+        return True, "OK", {"checks": checks}
+
+    state.consecutive_failures += 1
+    threshold = max(1, int(os.environ.get("CBP_LIVE_PREFLIGHT_FAIL_THRESHOLD") or 3))
+    pause_s = max(1.0, float(os.environ.get("CBP_LIVE_PREFLIGHT_PAUSE_SECONDS") or 30.0))
+    detail = _first_preflight_error(checks)
+    state.last_reason = detail
+
+    meta: dict[str, Any] = {
+        "checks": checks,
+        "error": detail,
+        "consecutive_failures": state.consecutive_failures,
+        "threshold": threshold,
+    }
+
+    if state.consecutive_failures >= threshold:
+        state.pause_until_ts = now + pause_s
+        state.consecutive_failures = 0
+        meta["pause_seconds"] = pause_s
+        meta["pause_until_ts"] = state.pause_until_ts
+        return False, "CIRCUIT_BREAKER_TRIPPED", meta
+
+    return False, "PREFLIGHT_FAILED", meta
 
 
 @dataclass
@@ -93,6 +175,7 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     pending = _list_intents_any(store, mode="live", exchange=cfg.exchange_id, symbol=cfg.symbol, statuses=["pending"], limit=200)
     submitted = 0
     errors = 0
+    preflight_blocked = 0
 
     for it in pending:
         if submitted >= int(cfg.max_submit_per_tick):
@@ -130,6 +213,16 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             ok2, reason2, meta2 = gates.check_live(it={'qty': float(it.get('qty') or 0.0), 'price': lp, 'symbol': str(it.get('symbol') or '')}, realized_pnl_usd=rpnl)
             if not ok2:
                 store.set_intent_status(intent_id=intent_id, status='pending', reason=f'live_gate_block:{reason2}')
+                continue
+
+            pf_ok, pf_reason, pf_meta = _check_preflight_gate(cfg)
+            if not pf_ok:
+                preflight_blocked += 1
+                detail = str(pf_meta.get("error") or pf_reason)
+                store.set_intent_status(intent_id=intent_id, status="pending", reason=f"preflight_gate_block:{pf_reason}:{detail}")
+                # Pause state applies to all live submits this tick.
+                if pf_reason in {"CIRCUIT_BREAKER_TRIPPED", "CIRCUIT_BREAKER_PAUSED"}:
+                    break
                 continue
 
             order = client.submit_order(
@@ -170,7 +263,7 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             errors += 1
             store.set_intent_status(intent_id=intent_id, status="pending", reason=f"submit_error:{type(e).__name__}:{e}")
 
-    return {"ok": True, "note": "submitted tick complete", "submitted": submitted, "errors": errors}
+    return {"ok": True, "note": "submitted tick complete", "submitted": submitted, "errors": errors, "preflight_blocked": preflight_blocked}
 
 def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
     ok, why = _hard_off_guard(cfg)
@@ -287,12 +380,6 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -
                     store.mark_submitted(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
                     matched += 1
     return {"ok": True, "rows": len(rows), "matched_open": matched}
-
-
-
-# ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
-DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
-
 
 def _env_symbol(default: str = "BTC/USD") -> str:
     s = (os.environ.get("CBP_SYMBOLS") or "").split(",")[0].strip()
