@@ -1,0 +1,41 @@
+from __future__ import annotations
+
+import pathlib
+import re
+
+
+CHECKPOINTS_PATH = pathlib.Path("CHECKPOINTS.md")
+BACKTICK_PATH_RE = re.compile(r"`([^`]+)`")
+
+
+def _referenced_repo_paths() -> set[pathlib.Path]:
+    content = CHECKPOINTS_PATH.read_text(encoding="utf-8")
+    out: set[pathlib.Path] = set()
+
+    for token in BACKTICK_PATH_RE.findall(content):
+        if any(ch in token for ch in "*?[]"):
+            continue
+        if token.startswith("tests/") and token.endswith(".py"):
+            out.add(pathlib.Path(token))
+            continue
+        if token.startswith("scripts/") and token.endswith(".py"):
+            out.add(pathlib.Path(token))
+            continue
+        if token.startswith("docs/") and token.endswith(".md"):
+            out.add(pathlib.Path(token))
+
+    return out
+
+
+def test_checkpoints_referenced_repo_paths_exist() -> None:
+    refs = _referenced_repo_paths()
+    assert refs, "No repo file-path references found in CHECKPOINTS.md"
+
+    missing = sorted(str(p) for p in refs if not p.exists())
+    assert not missing, f"Missing referenced repo paths: {missing}"
+
+
+
+def test_checkpoints_referenced_repo_paths_are_unique() -> None:
+    refs = _referenced_repo_paths()
+    assert len(refs) == len(set(refs)), "Duplicate repo-path references found"
