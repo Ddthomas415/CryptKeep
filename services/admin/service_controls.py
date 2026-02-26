@@ -1,4 +1,13 @@
+from __future__ import annotations
 
+import os
+import re
+import signal
+import time
+
+from services.logging.app_logger import get_logger
+
+logger = get_logger("service_controls")
 
 
 def stop_service_from_pidfile(service_name: str, grace_sec: float = 4.0) -> dict:
@@ -27,15 +36,19 @@ def stop_service_from_pidfile(service_name: str, grace_sec: float = 4.0) -> dict
     try:
         pid = int(pf.read_text())
     except Exception:
-        try: pf.unlink()
-        except Exception: pass
+        try:
+            pf.unlink()
+        except Exception:
+            logger.exception("service_controls: failed to remove invalid pid file path=%s", pf)
         return {"ok": False, "error": "invalid_pid_file", "service": service_name}
 
     attempted.append({"service": service_name, "pid": pid, "file": str(pf)})
 
     # mark STOPPING
-    try: set_health(service_name, "STOPPING", pid=pid, details={"source": "dashboard_restart"})
-    except Exception: pass
+    try:
+        set_health(service_name, "STOPPING", pid=pid, details={"source": "dashboard_restart"})
+    except Exception:
+        logger.exception("service_controls: failed to mark STOPPING service=%s pid=%s", service_name, pid)
 
     # SIGTERM
     try: os.kill(pid, signal.SIGTERM)
@@ -49,10 +62,14 @@ def stop_service_from_pidfile(service_name: str, grace_sec: float = 4.0) -> dict
         time.sleep(0.15)
 
     if not _pid_alive(pid):
-        try: pf.unlink()
-        except Exception: pass
-        try: set_health(service_name, "STOPPED", pid=None, details={"source": "dashboard_restart"})
-        except Exception: pass
+        try:
+            pf.unlink()
+        except Exception:
+            logger.exception("service_controls: failed to remove pid file path=%s", pf)
+        try:
+            set_health(service_name, "STOPPED", pid=None, details={"source": "dashboard_restart"})
+        except Exception:
+            logger.exception("service_controls: failed to mark STOPPED service=%s", service_name)
         stopped.append({"service": service_name, "pid": pid})
         return {"ok": True, "attempted": attempted, "stopped": stopped, "still_alive": still_alive, "errors": errors}
 
@@ -66,14 +83,20 @@ def stop_service_from_pidfile(service_name: str, grace_sec: float = 4.0) -> dict
         time.sleep(0.15)
 
     if not _pid_alive(pid):
-        try: pf.unlink()
-        except Exception: pass
-        try: set_health(service_name, "STOPPED", pid=None, details={"source": "dashboard_restart"})
-        except Exception: pass
+        try:
+            pf.unlink()
+        except Exception:
+            logger.exception("service_controls: failed to remove pid file after hard stop path=%s", pf)
+        try:
+            set_health(service_name, "STOPPED", pid=None, details={"source": "dashboard_restart"})
+        except Exception:
+            logger.exception("service_controls: failed to mark STOPPED after hard stop service=%s", service_name)
         stopped.append({"service": service_name, "pid": pid})
         return {"ok": True, "attempted": attempted, "stopped": stopped, "still_alive": still_alive, "errors": errors}
 
-    try: set_health(service_name, "RUNNING", pid=pid, details={"source": "dashboard_restart", "note": "still_alive"})
-    except Exception: pass
+    try:
+        set_health(service_name, "RUNNING", pid=pid, details={"source": "dashboard_restart", "note": "still_alive"})
+    except Exception:
+        logger.exception("service_controls: failed to restore RUNNING status service=%s pid=%s", service_name, pid)
     still_alive.append({"service": service_name, "pid": pid, "file": str(pf)})
     return {"ok": False, "attempted": attempted, "stopped": stopped, "still_alive": still_alive, "errors": errors}
