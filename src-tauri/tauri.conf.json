@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Crypto Bot Pro",
+  "version": "0.1.0",
+  "identifier": "com.cryptobotpro.desktop",
+  "build": {
+    "beforeDevCommand": "python3 -m streamlit run dashboard/app.py --server.port 8501 --server.headless true",
+    "devUrl": "http://127.0.0.1:8501",
+    "frontendDist": "../desktop_ui"
+  },
+  "app": {
+    "windows": [
+      { "title": "Crypto Bot Pro", "width": 1200, "height": 800, "resizable": true }
+    ]
+  },
+  "bundle": { "active": true, "targets": "all", "externalBin": [] }
+}
