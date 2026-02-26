@@ -9,10 +9,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from services.os.app_paths import data_dir
+from services.logging.app_logger import get_logger
 
 PROC_PATH = data_dir() / "watchdog_process.json"
 LOG_DIR = data_dir() / "logs"
 WD_LOG = LOG_DIR / "watchdog_loop.log"
+logger = get_logger("watchdog_process")
 
 def _iso_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -23,11 +25,19 @@ def _read() -> dict:
             return {}
         return json.loads(PROC_PATH.read_text(encoding="utf-8"))
     except Exception:
+        logger.exception("watchdog_process: failed to read state path=%s", PROC_PATH)
         return {}
 
 def _write(obj: dict) -> None:
     PROC_PATH.parent.mkdir(parents=True, exist_ok=True)
     PROC_PATH.write_text(json.dumps(obj, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+
+
+def _safe_close(fp) -> None:
+    try:
+        fp.close()
+    except Exception:
+        logger.exception("watchdog_process: failed to close watchdog log handle")
 
 def _pid_alive(pid: int) -> bool:
     pid = int(pid)
@@ -78,8 +88,8 @@ def start_watchdog(*, interval_sec: int = 15) -> dict:
         })
         return {"ok": True, "started": True, "pid": p.pid, "log_path": str(WD_LOG), "proc_path": str(PROC_PATH)}
     except Exception as e:
-        try: lf.close()
-        except Exception: pass
+        logger.exception("watchdog_process: start failed")
+        _safe_close(lf)
         return {"ok": False, "reason": f"start_failed:{type(e).__name__}", "error": str(e)}
 
 def stop_watchdog(*, hard: bool = True, soft_timeout_sec: float = 6.0) -> dict:

@@ -9,11 +9,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from services.os.app_paths import data_dir
+from services.logging.app_logger import get_logger
 
 SUP_PATH = data_dir() / "supervisor_process.json"
 LOG_DIR = data_dir() / "logs"
 COCKPIT_LOG = LOG_DIR / "cockpit.log"
 WATCHDOG_LOG = LOG_DIR / "watchdog.log"
+logger = get_logger("supervisor_process")
 
 def _iso_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -24,11 +26,19 @@ def _read() -> dict:
             return {}
         return json.loads(SUP_PATH.read_text(encoding="utf-8"))
     except Exception:
+        logger.exception("supervisor_process: failed to read state path=%s", SUP_PATH)
         return {}
 
 def _write(obj: dict) -> None:
     SUP_PATH.parent.mkdir(parents=True, exist_ok=True)
     SUP_PATH.write_text(json.dumps(obj, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+
+
+def _safe_close(fp, *, name: str) -> None:
+    try:
+        fp.close()
+    except Exception:
+        logger.exception("supervisor_process: failed to close log handle=%s", name)
 
 def _pid_alive(pid: int) -> bool:
     pid = int(pid)
@@ -117,10 +127,9 @@ def start(*, streamlit_cmd: list[str], watchdog_cmd: list[str], cwd: Path) -> di
         _write(obj)
         return {"ok": True, "started": True, "cockpit_pid": cockpit.pid, "watchdog_pid": watchdog.pid, "paths": {"sup_path": str(SUP_PATH), "cockpit_log": str(COCKPIT_LOG), "watchdog_log": str(WATCHDOG_LOG)}}
     except Exception as e:
-        try: c_log.close()
-        except Exception: pass
-        try: w_log.close()
-        except Exception: pass
+        logger.exception("supervisor_process: start failed")
+        _safe_close(c_log, name="cockpit")
+        _safe_close(w_log, name="watchdog")
         return {"ok": False, "reason": f"start_failed:{type(e).__name__}", "error": str(e)}
 
 def stop(*, hard: bool = True, soft_timeout_sec: float = 6.0) -> dict:
@@ -136,13 +145,17 @@ def stop(*, hard: bool = True, soft_timeout_sec: float = 6.0) -> dict:
         _write({})
         return {"ok": True, "stopped": True, "reason": "no_pids"}
 
+    errors: list[dict] = []
+
     # soft stop all
     for pid in pids:
         if _pid_alive(pid):
             try:
                 _soft_stop_pid(pid)
-            except Exception:
-                pass
+            except Exception as e:
+                msg = f"{type(e).__name__}:{e}"
+                logger.warning("supervisor_process: soft stop failed pid=%s error=%s", pid, msg)
+                errors.append({"pid": pid, "phase": "soft_stop", "error": msg})
 
     t_end = time.time() + float(soft_timeout_sec)
     while time.time() < t_end:
@@ -156,15 +169,17 @@ def stop(*, hard: bool = True, soft_timeout_sec: float = 6.0) -> dict:
             if _pid_alive(pid):
                 try:
                     _hard_kill_pid(pid)
-                except Exception:
-                    pass
+                except Exception as e:
+                    msg = f"{type(e).__name__}:{e}"
+                    logger.warning("supervisor_process: hard kill failed pid=%s error=%s", pid, msg)
+                    errors.append({"pid": pid, "phase": "hard_kill", "error": msg})
         time.sleep(0.5)
 
     still = [pid for pid in pids if _pid_alive(pid)]
     if not still:
         _write({})
-        return {"ok": True, "stopped": True, "mode": ("hard" if hard else "soft_timeout")}
-    return {"ok": False, "stopped": False, "still_running": still, "mode": ("hard" if hard else "soft_timeout")}
+        return {"ok": True, "stopped": True, "mode": ("hard" if hard else "soft_timeout"), "errors": errors}
+    return {"ok": False, "stopped": False, "still_running": still, "mode": ("hard" if hard else "soft_timeout"), "errors": errors}
 
 def clear_stale() -> dict:
     st = _read()

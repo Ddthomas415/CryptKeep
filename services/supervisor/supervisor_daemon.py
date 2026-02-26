@@ -12,15 +12,19 @@ from typing import Any, Dict, Optional
 
 import yaml
 
+from services.logging.app_logger import get_logger
 
 def now_ms() -> int:
     return int(time.time() * 1000)
+
+logger = get_logger("services_supervisor")
 
 
 def _safe_read_yaml(path: Path) -> Dict[str, Any]:
     try:
         return yaml.safe_load(path.read_text(encoding="utf-8", errors="replace")) or {}
     except Exception:
+        logger.exception("services_supervisor: failed to read config path=%s", path)
         return {}
 
 
@@ -120,7 +124,7 @@ class SupervisorDaemon:
             else:
                 p.send_signal(signal.SIGTERM)
         except Exception:
-            pass
+            logger.exception("services_supervisor: terminate failed service=%s pid=%s", name, p.pid)
 
         t0 = time.time()
         while time.time() - t0 < timeout_sec:
@@ -132,7 +136,7 @@ class SupervisorDaemon:
             try:
                 p.kill()
             except Exception:
-                pass
+                logger.exception("services_supervisor: force kill failed service=%s pid=%s", name, p.pid)
 
         pi.last_exit_code = p.poll()
         self._write_status()
@@ -213,18 +217,18 @@ class SupervisorDaemon:
                         try:
                             self.start_service(name, svc)
                         except Exception:
-                            pass
+                            logger.exception("services_supervisor: start failed service=%s", name)
                     # restart if crashed
                     try:
                         self._maybe_restart(name, svc)
                     except Exception:
-                        pass
+                        logger.exception("services_supervisor: restart check failed service=%s", name)
                 else:
                     # stop if running
                     try:
                         self.stop_service(name)
                     except Exception:
-                        pass
+                        logger.exception("services_supervisor: stop failed service=%s", name)
 
             self._write_status()
             time.sleep(max(0.05, tick_ms / 1000.0))
