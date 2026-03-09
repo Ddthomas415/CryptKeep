@@ -72,10 +72,10 @@ def _cfg() -> dict:
 def _config_valid() -> tuple[bool, str | None]:
     try:
         from services.admin.config_editor import validate_user_yaml
-        res = validate_user_yaml(load_user_yaml())
-        if res.get("ok"):
+        ok, errors, _warnings = validate_user_yaml(load_user_yaml())
+        if ok:
             return True, None
-        return False, str(res.get("errors", []))
+        return False, str(errors)
     except Exception:
         return True, None
 

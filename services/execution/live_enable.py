@@ -1,7 +1,13 @@
 from __future__ import annotations
 from services.admin.config_editor import load_user_yaml, save_user_yaml
-from services.execution.live_arming import verify_and_consume
-from services.execution.live_preflight import run_preflight
+from services.execution.live_arming import set_live_enabled, verify_and_consume
+from services.preflight.preflight import run_preflight
+
+
+def _serialize_preflight_result(pre) -> dict:
+    return {"ok": bool(getattr(pre, "ok", False)), "checks": list(getattr(pre, "checks", []) or [])}
+
+
 def enable_live(*, token: str, checklist: dict) -> dict:
     required = [
         "i_understand_live_risk",
@@ -14,12 +20,25 @@ def enable_live(*, token: str, checklist: dict) -> dict:
     if missing:
         return {"ok": False, "reason": "checklist_incomplete", "missing": missing}
     pre = run_preflight()
-    if not pre.get("ok"):
-        return {"ok": False, "reason": "preflight_failed", "preflight": pre}
+    preflight = _serialize_preflight_result(pre)
+    if not preflight["ok"]:
+        return {"ok": False, "reason": "preflight_failed", "preflight": preflight}
     tok = verify_and_consume(token)
     if not tok.get("ok"):
-        return {"ok": False, "reason": "token_failed", "token": tok, "preflight": pre}
-    cfg = load_user_yaml()
-    cfg.setdefault("live_trading", {})["dry_run"] = False
-    save = save_user_yaml(cfg)
-    return {"ok": True, "changed": {"live_trading.dry_run": False}, "save": save, "preflight": pre}
+        return {"ok": False, "reason": "token_failed", "token": tok, "preflight": preflight}
+    cfg = set_live_enabled(load_user_yaml(), True)
+    ok, msg = save_user_yaml(cfg)
+    save = {"ok": ok, "message": msg}
+    if not ok:
+        return {"ok": False, "reason": "config_save_failed", "save": save, "preflight": preflight}
+    return {
+        "ok": True,
+        "changed": {
+            "live.enabled": True,
+            "live_trading.enabled": True,
+            "risk.enable_live": True,
+            "execution.live_enabled": True,
+        },
+        "save": save,
+        "preflight": preflight,
+    }
