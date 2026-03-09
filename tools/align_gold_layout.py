@@ -7,7 +7,10 @@ import datetime
 import json
 import shutil
 
-from _bootstrap import add_repo_root_to_syspath
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from tools._bootstrap import add_repo_root_to_syspath
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 

@@ -9,7 +9,10 @@ import shutil
 import sys
 from pathlib import Path
 
-from _bootstrap import repo_root as _shared_repo_root
+try:
+    from _bootstrap import repo_root as _shared_repo_root
+except ModuleNotFoundError:
+    from tools._bootstrap import repo_root as _shared_repo_root
 
 CANON_TOPLEVEL = {
     ".github",
