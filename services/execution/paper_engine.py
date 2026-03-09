@@ -16,14 +16,23 @@ def _now() -> str:
 def _cfg() -> dict:
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
+
+    def _float_cfg(key: str, default: float) -> float:
+        value = p.get(key, default)
+        return float(default if value is None else value)
+
+    def _bool_cfg(key: str, default: bool) -> bool:
+        value = p.get(key, default)
+        return default if value is None else bool(value)
+
     return {
-        "enabled": bool(p.get("enabled", True)),
+        "enabled": _bool_cfg("enabled", True),
         "quote_currency": str(p.get("quote_currency", "USDT") or "USDT"),
-        "starting_cash_quote": float(p.get("starting_cash_quote", 10000.0) or 10000.0),
-        "fee_bps": float(p.get("fee_bps", 7.5) or 7.5),
-        "slippage_bps": float(p.get("slippage_bps", 5.0) or 5.0),
-        "use_ccxt_fallback": bool(p.get("use_ccxt_fallback", True)),
-        "max_order_qty": float(p.get("max_order_qty", 1e9) or 1e9),
+        "starting_cash_quote": _float_cfg("starting_cash_quote", 10000.0),
+        "fee_bps": _float_cfg("fee_bps", 7.5),
+        "slippage_bps": _float_cfg("slippage_bps", 5.0),
+        "use_ccxt_fallback": _bool_cfg("use_ccxt_fallback", True),
+        "max_order_qty": _float_cfg("max_order_qty", 1e9),
     }
 
 class PaperEngine:
@@ -145,8 +154,6 @@ class PaperEngine:
         fee_bps = float(self.cfg["fee_bps"])
         fee = (price * qty) * (fee_bps / 10000.0)
         fee_ccy = self.cfg["quote_currency"]
-        fill_id = str(uuid.uuid4())
-        self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": _now(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
         pos = self.db.get_position(order["symbol"]) or {"symbol": order["symbol"], "qty": 0.0, "avg_price": 0.0, "realized_pnl": 0.0}
         pos_qty = float(pos["qty"])
         avg = float(pos["avg_price"])
@@ -173,7 +180,9 @@ class PaperEngine:
             self.db.upsert_position(order["symbol"], new_qty, new_avg, realized2)
             self.set_cash_quote(cash + proceeds)
             self.set_realized_pnl(self.realized_pnl() + pnl)
-            self.db.update_order_status(order["order_id"], "filled", None)
+        fill_id = str(uuid.uuid4())
+        self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": _now(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
+        self.db.update_order_status(order["order_id"], "filled", None)
         return {"ok": True, "fill_id": fill_id, "fee": fee}
 
     def evaluate_open_orders(self) -> dict:
