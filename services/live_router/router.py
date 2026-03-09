@@ -44,16 +44,29 @@ async def decide_order(
 
     meta: Dict[str, Any] = {"scope": scope}
 
+    if side == "none" or qty <= 0.0:
+        return RouterDecision(False, "zero_delta", "none", 0.0, "none", None, meta)
+
     ro_state = is_master_read_only()
     ro_on = bool(ro_state[0]) if isinstance(ro_state, tuple) else bool(ro_state)
     if ro_on:
         return RouterDecision(False, "master_read_only", "none", 0.0, "none", None, meta)
 
+    # Simulated decision price placeholder. In production this should be
+    # a fresh routed quote, but safety gates still need a non-zero reference.
+    limit_price = float(
+        ov_router.get("limit_price")
+        or ov_router.get("reference_price")
+        or ov.get("reference_price")
+        or 60000.0
+    )
+    meta["reference_price"] = limit_price
+
     # Safety gates (deterministic). Executors also enforce.
     try:
         gates = load_gates()
         store = ExecutionGuardStoreSQLite()
-        ok_s, why_s = should_allow_order(venue, symbol_norm, side, float(qty), float(limit_price or 0.0), gates, store)
+        ok_s, why_s = should_allow_order(venue, symbol_norm, side, float(qty), float(limit_price), gates, store)
     except Exception:
         ok_s, why_s = True, "safety_check_error_ignored"
 
@@ -126,9 +139,6 @@ async def decide_order(
                 return RouterDecision(False, f"proba_gate:{gv.reason}", "none", 0.0, "none", None, meta)
     except Exception:
         pass
-
-    # Simulated decision (in real app, compute price, qty, etc.)
-    limit_price = 60000.0  # placeholder
 
     return RouterDecision(True, "ok", side, qty, "limit", limit_price, meta)
 
