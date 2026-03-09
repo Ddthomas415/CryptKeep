@@ -130,15 +130,16 @@ def inject_sys_path_bootstrap(root: Path, attic: Path, folder: str) -> dict:
     if not base.exists():
         return {"changed": False, "reason": f"{folder} missing"}
 
+    fallback_pkg = "scripts" if folder == "scripts" else "tools" if folder == "tools" else "scripts"
     marker = "# CBP_BOOTSTRAP_SYS_PATH"
-    snippet = r'''
+    snippet = f'''
 # CBP_BOOTSTRAP_SYS_PATH
 import sys
 from pathlib import Path
 try:
     from _bootstrap import add_repo_root_to_syspath
 except ModuleNotFoundError:
-    from scripts._bootstrap import add_repo_root_to_syspath
+    from {fallback_pkg}._bootstrap import add_repo_root_to_syspath
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 '''
