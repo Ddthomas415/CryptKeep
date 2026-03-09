@@ -1,15 +1,18 @@
 from __future__ import annotations
 import json, time
+import logging
 from dataclasses import dataclass
 from services.os.app_paths import data_dir
 
 STATE_PATH = data_dir() / "execution_throttle.json"
+_LOG = logging.getLogger(__name__)
 
 def _load() -> dict:
     try:
         if STATE_PATH.exists():
             return json.loads(STATE_PATH.read_text(encoding="utf-8"))
-    except Exception: pass
+    except Exception as e:
+        _LOG.warning("failed to load execution throttle state %s: %s: %s", STATE_PATH, type(e).__name__, e)
     return {"version":1,"last_order_epoch":{}}
 
 def _save(st: dict) -> None:

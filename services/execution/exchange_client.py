@@ -6,6 +6,7 @@ import sys
 import time
 import uuid
 import getpass
+import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -15,6 +16,8 @@ from services.os.app_paths import data_dir, ensure_dirs
 from services.execution.place_order import place_order
 from services.execution.client_order_id import make_client_order_id
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
+
+_LOG = logging.getLogger(__name__)
 
 
 def _now_ms() -> int:
@@ -137,6 +140,13 @@ def _is_ambiguous_submit_error(e: Exception) -> bool:
         "TimeoutError",
     }
 
+
+def _safe_close(ex: Any, *, where: str) -> None:
+    try:
+        ex.close()
+    except Exception as e:
+        _LOG.warning("exchange close failed in %s: %s: %s", where, type(e).__name__, e)
+
 @dataclass
 class ExchangeClient:
     exchange_id: str
@@ -159,12 +169,12 @@ class ExchangeClient:
         if hasattr(ex, "set_sandbox_mode"):
             try:
                 ex.set_sandbox_mode(bool(self.sandbox))
-            except Exception:
-                pass
+            except Exception as e:
+                _LOG.warning("set_sandbox_mode failed for %s: %s: %s", self.exchange_id, type(e).__name__, e)
         try:
             ex.load_markets()
-        except Exception:
-            pass
+        except Exception as e:
+            _LOG.warning("load_markets failed for %s: %s: %s", self.exchange_id, type(e).__name__, e)
         return ex
     def submit_order(
         self,
@@ -230,34 +240,28 @@ class ExchangeClient:
                     store.mark_error(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
             raise
         finally:
-            try:
-                ex.close()
-            except Exception:
-                pass
+            _safe_close(ex, where="submit_order")
 
     def fetch_order(self, *, order_id: str, symbol: str) -> Dict[str, Any]:
         ex = self.build()
         try:
             return ex.fetch_order(order_id, symbol)
         finally:
-            try: ex.close()
-            except Exception: pass
+            _safe_close(ex, where="fetch_order")
 
     def fetch_open_orders(self, *, symbol: str, since: int | None = None, limit: int | None = None) -> list[dict[str, Any]]:
         ex = self.build()
         try:
             return ex.fetch_open_orders(symbol, since, limit)
         finally:
-            try: ex.close()
-            except Exception: pass
+            _safe_close(ex, where="fetch_open_orders")
 
     def fetch_my_trades(self, *, symbol: str, since: int | None = None, limit: int | None = None) -> list[dict[str, Any]]:
         ex = self.build()
         try:
             return ex.fetch_my_trades(symbol, since, limit)
         finally:
-            try: ex.close()
-            except Exception: pass
+            _safe_close(ex, where="fetch_my_trades")
 
 def make_client_id(intent_id: str) -> str:
     return _client_id_short(intent_id)  # stable mapping

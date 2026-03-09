@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json, sqlite3
 from datetime import datetime, timezone
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,7 @@ from services.os.app_paths import data_dir, runtime_dir, ensure_dirs
 ensure_dirs()
 SNAPSHOT_DIR = runtime_dir() / "snapshots"
 LOCAL_DB_DIRS = [data_dir(), runtime_dir(), runtime_dir() / "db", runtime_dir() / "data"]
+_LOG = logging.getLogger(__name__)
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -25,8 +27,8 @@ def _save_snapshot(obj: dict) -> str:
     p.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
     try:
         maybe_auto_update_state_on_snapshot(tag="journal_reconcile_snapshot")
-    except Exception:
-        pass
+    except Exception as e:
+        _LOG.warning("state auto-update failed after journal snapshot: %s: %s", type(e).__name__, e)
     return str(p)
 
 def _list_sqlite_files() -> list[Path]:
@@ -56,16 +58,22 @@ def _safe_float(x) -> float | None:
         return None
 
 def _to_epoch_ms(x) -> int | None:
-    if x is None: return None
+    if x is None:
+        return None
     try:
-        if isinstance(x, (int,float)): v = float(x); return int(v) if v>1e10 else int(v*1000)
-    except: pass
+        if isinstance(x, (int, float)):
+            v = float(x)
+            return int(v) if v > 1e10 else int(v * 1000)
+    except Exception:
+        return None
     try:
-        s = str(x).replace("Z","+00:00")
+        s = str(x).replace("Z", "+00:00")
         dt = datetime.fromisoformat(s)
-        if dt.tzinfo is None: dt = dt.replace(tzinfo=timezone.utc)
-        return int(dt.timestamp()*1000)
-    except: return None
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return int(dt.timestamp() * 1000)
+    except Exception:
+        return None
 
 def scan_local_journals(limit: int = 500, symbol: str | None = None) -> dict:
     # Simplified scan for trades/orders; returns list of normalized dicts
@@ -104,7 +112,8 @@ def fetch_exchange_history(venue: str, symbol: str | None, limit: int = 200) -> 
         return out
     finally:
         try: ex.close()
-        except: pass
+        except Exception as e:
+            _LOG.warning("exchange close failed after history fetch (%s): %s: %s", v, type(e).__name__, e)
 
 def reconcile_journal_vs_exchange(venue: str, symbol: str | None = None, *, local_limit: int=600, exchange_limit: int=300, bucket_seconds: int=10) -> dict:
     bucket_ms = bucket_seconds*1000

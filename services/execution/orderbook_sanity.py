@@ -1,6 +1,9 @@
 from __future__ import annotations
+import logging
 from services.security.exchange_factory import make_exchange
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
+
+_LOG = logging.getLogger(__name__)
 
 def check_orderbook(*,venue:str,symbol:str,max_spread_bps:float,min_top_quote:float)->dict:
     v=normalize_venue(venue)
@@ -25,4 +28,5 @@ def check_orderbook(*,venue:str,symbol:str,max_spread_bps:float,min_top_quote:fl
     finally:
         try:
             if hasattr(ex,"close"): ex.close()
-        except Exception: pass
+        except Exception as e:
+            _LOG.warning("orderbook exchange close failed (%s %s): %s: %s", v, sym, type(e).__name__, e)
