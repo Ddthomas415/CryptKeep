@@ -155,11 +155,22 @@ class PnLStoreSQLite:
         conn = self._connect()
         try:
             rows = conn.execute(
-                "SELECT ext_id, ts, venue, symbol, side, qty, price, fee, fee_ccy FROM fills ORDER BY id DESC LIMIT ?",
+                "SELECT id, ts, venue, symbol, side, qty, price, fee, fee_ccy FROM fills ORDER BY id DESC LIMIT ?",
                 (int(limit),)
             ).fetchall()
             return [
-                {"ext_id": r[0], "ts": r[1], "venue": r[2], "symbol": r[3], "side": r[4], "qty": r[5], "price": r[6], "fee": r[7], "fee_ccy": r[8]}
+                {
+                    "id": r[0],
+                    "ext_id": None,
+                    "ts": r[1],
+                    "venue": r[2],
+                    "symbol": r[3],
+                    "side": r[4],
+                    "qty": r[5],
+                    "price": r[6],
+                    "fee": r[7],
+                    "fee_ccy": r[8],
+                }
                 for r in rows
             ]
         finally:
