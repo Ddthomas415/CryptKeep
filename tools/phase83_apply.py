@@ -6,11 +6,21 @@ import datetime
 import re
 import shutil
 
-from _bootstrap import add_repo_root_to_syspath
+try:
+    from _bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    from tools._bootstrap import add_repo_root_to_syspath
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
-ATTIC = ROOT / "attic" / ("phase83_apply_" + datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S"))
-ATTIC.mkdir(parents=True, exist_ok=True)
+ATTIC: Path | None = None
+
+
+def _attic() -> Path:
+    global ATTIC
+    if ATTIC is None:
+        ATTIC = ROOT / "attic" / ("phase83_apply_" + datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S"))
+        ATTIC.mkdir(parents=True, exist_ok=True)
+    return ATTIC
 
 def read(p: Path) -> str:
     return p.read_text(encoding="utf-8", errors="replace") if p.exists() else ""
@@ -18,7 +28,7 @@ def read(p: Path) -> str:
 def backup(rel: str):
     p = ROOT / rel
     if p.exists():
-        dst = ATTIC / rel
+        dst = _attic() / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(p, dst)
 
@@ -45,12 +55,14 @@ def patch_scripts_bootstrap():
             i += 1
         block = [
             "",
-            "# CBP_BOOTSTRAP: ensure repo root on sys.path so `import services` works when running scripts directly",
+            "# CBP_BOOTSTRAP_SYS_PATH",
             "from pathlib import Path",
-            "import sys",
-            "ROOT = Path(__file__).resolve().parents[1]",
-            "if str(ROOT) not in sys.path:",
-            "    sys.path.insert(0, str(ROOT))",
+            "try:",
+            "    from _bootstrap import add_repo_root_to_syspath",
+            "except ModuleNotFoundError:",
+            "    from scripts._bootstrap import add_repo_root_to_syspath",
+            "",
+            "ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)",
             "",
         ]
         backup(str(p.relative_to(ROOT)))
@@ -286,7 +298,7 @@ def main():
     ensure_quantize()
     patch_place_order()
     print("\nOK ✅ Phase 83 apply complete.")
-    print(f"Backups: {ATTIC.relative_to(ROOT)}")
+    print(f"Backups: {_attic().relative_to(ROOT)}")
 
 if __name__ == "__main__":
     main()
