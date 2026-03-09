@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-from services.markets.symbols import env_symbol
-from services.markets.symbols import env_symbol, normalize_symbol
 import asyncio
 import os
 
 from services.admin.health import set_health
 from services.admin.live_guard import live_allowed
-from services.config_loader import load_user_config
-from services.execution.order_manager import OrderManager
 from services.execution.safety import load_gates, should_allow_order
+from services.markets.symbols import env_symbol
 from storage.execution_guard_store_sqlite import ExecutionGuardStoreSQLite
 from storage.pnl_store_sqlite import PnLStoreSQLite
 
@@ -21,11 +18,9 @@ async def main() -> None:
         print("Live fleet mode disabled. Set CBP_RUN_MODE=live")
         return
 
-    _cfg = load_user_config()
     guard_store = ExecutionGuardStoreSQLite()
     gates = load_gates()
     pnl_store = PnLStoreSQLite()
-    _order_manager = OrderManager()
 
     print("live_trader_fleet started (dry-run mode)")
 
@@ -70,6 +65,7 @@ async def main() -> None:
 
         # Strict: record only confirmed fills (placeholder for CCXT)
         await pnl_store.record_fill(venue, symbol_norm, side, qty, price, fee=0.0, fee_ccy=None)
+        await guard_store.record_order(venue, symbol_norm, side, qty, price)
 
         await asyncio.sleep(10)  # loop delay for demo
 
