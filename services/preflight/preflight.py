@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
+from services.execution.live_arming import is_live_enabled
 from services.os.app_paths import data_dir, ensure_dirs
 
 SUPPORTED_EXCHANGES = {"coinbase", "binance", "gateio"}
@@ -49,9 +50,16 @@ def run_preflight(cfg_path: str = "config/trading.yaml") -> PreflightResult:
     checks.append(_check("executor_mode_valid", mode in ("paper","live"), f"executor_mode={mode}", "ERROR" if mode not in ("paper","live") else "INFO"))
 
     # Live gating
-    live_enabled = bool(exe.get("live_enabled", False))
+    live_enabled = is_live_enabled(cfg)
     if mode == "live":
-        checks.append(_check("live_enabled", live_enabled, f"live_enabled={live_enabled} (required for live mode)", "ERROR" if not live_enabled else "INFO"))
+        checks.append(
+            _check(
+                "live_enabled",
+                live_enabled,
+                f"live_enabled={live_enabled} (normalized contract required for live mode)",
+                "ERROR" if not live_enabled else "INFO",
+            )
+        )
     else:
         checks.append(_check("live_enabled", True, f"paper mode (live_enabled={live_enabled})", "INFO"))
 

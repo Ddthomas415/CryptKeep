@@ -9,6 +9,7 @@ from services.admin.config_editor import load_user_yaml, save_user_yaml, ensure_
 from services.admin.kill_switch import ensure_default as ensure_kill_default, get_state as kill_state, set_armed
 from services.market_data.poller import build_required_pairs, fetch_tickers_once
 from services.admin.preflight import run_preflight
+from services.execution.live_arming import is_live_enabled
 from services.os.app_paths import runtime_dir
 
 MARKET_DATA_SNAPSHOT = runtime_dir() / "snapshots" / "market_data_poller.latest.json"
@@ -86,7 +87,8 @@ def compute_first_run_status() -> dict:
     return {
         "ts": _now(),
         "kill_switch": ks,
-        "risk_enable_live": bool(cfg.get("risk", {}).get("enable_live", False)),
+        "live_enabled": is_live_enabled(cfg),
+        "risk_enable_live": is_live_enabled(cfg),
         "config_presence": {k: isinstance(cfg.get(k), dict) for k in ["risk","preflight","market_data_poller"]},
         "cache": {"venue": venue, "symbols": symbols, "required_pairs_count": len(req_pairs), "missing_pairs_count": int(audit.get("missing_count", 0) or 0), "missing_pairs": audit.get("missing", [])},
         "suggested_defaults": SAFE_DEFAULTS,

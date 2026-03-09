@@ -19,7 +19,7 @@ def _env_on(name: str) -> bool:
     return (os.environ.get(name, "") or "").strip().lower() in ("1", "true", "yes", "on")
 
 async def main() -> None:
-    if not _env_on("CBP_RUN_MODE") == "paper":
+    if (os.environ.get("CBP_RUN_MODE", "") or "").strip().lower() != "paper":
         print("Paper mode disabled. Set CBP_RUN_MODE=paper")
         return
 

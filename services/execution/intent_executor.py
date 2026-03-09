@@ -6,12 +6,12 @@ from typing import Any
 from services.execution.adapters.factory import get_adapter
 from services.execution.adapters.types import OrderRequest
 from services.execution.client_oid import make_client_oid32
+from services.execution.live_arming import is_live_enabled
 from services.journal.order_event_store import log_event
 from services.execution.intent_store import claim_next_ready, update_intent, list_intents
 
 def _live_allowed(cfg: dict) -> tuple[bool, str]:
-    ex = cfg.get("execution", {}) if isinstance(cfg.get("execution"), dict) else {}
-    if not bool(ex.get("live_enabled", False)):
+    if not is_live_enabled(cfg):
         return (False, "live_disabled_in_config")
     # optional kill/cooldown gate if module exists
     try:
