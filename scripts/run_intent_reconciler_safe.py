@@ -16,8 +16,11 @@ import traceback
 import runpy
 from services.os import app_paths
 
-LOG_PATH = app_paths.runtime_dir() / "logs" / "intent_reconciler.log"
-LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+def _log_path() -> Path:
+    path = app_paths.runtime_dir() / "logs" / "intent_reconciler.log"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
 
 def _append(path: Path, text: str):
     with path.open("a", encoding="utf-8") as f:
@@ -25,7 +28,7 @@ def _append(path: Path, text: str):
 
 def log(msg: str):
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    _append(LOG_PATH, f"[{ts}] {msg}\n")
+    _append(_log_path(), f"[{ts}] {msg}\n")
 
 def _prereqs_ok() -> tuple[bool, str]:
     cfg = _REPO / "config" / "trading.yaml"

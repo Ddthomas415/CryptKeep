@@ -15,13 +15,11 @@ import time
 import traceback
 from services.os.app_paths import data_dir, runtime_dir, ensure_dirs
 
-ensure_dirs()
-LOG_PATH = runtime_dir() / "logs" / "tick_publisher.log"
-LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-def _log(msg: str):
-    ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    LOG_PATH.write_text(f"[{ts}] {msg}\n", encoding="utf-8", errors="replace", append=True) if hasattr(LOG_PATH, "write_text") else None
+def _log_path() -> Path:
+    ensure_dirs()
+    path = runtime_dir() / "logs" / "tick_publisher.log"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
 
 # append-friendly helper (py<3.12 compatible)
 def _append(path: Path, text: str):
@@ -30,7 +28,7 @@ def _append(path: Path, text: str):
 
 def log(msg: str):
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    _append(LOG_PATH, f"[{ts}] {msg}\n")
+    _append(_log_path(), f"[{ts}] {msg}\n")
 
 def main() -> int:
     try:
