@@ -63,21 +63,16 @@ def build_diagnostics_zip_bytes() -> bytes:
     rt = runtime_dir()
     mem = io.BytesIO()
     with zipfile.ZipFile(mem, "w", compression=zipfile.ZIP_DEFLATED) as z:
-        manifest = {
-            "generated_utc": ts,
-            "version": version,
-            "repo_root": str(REPO_ROOT),
-            "runtime_dir": str(rt),
-            "files": [],
-        }
         def add_text(name: str, text: str):
             z.writestr(name, text)
-        add_text("manifest.json", json.dumps(manifest, indent=2, sort_keys=True))
-        for rp in ["VERSION", "CHECKPOINTS.md", "INSTALL_APP.md", "PACKAGING.md"]:
+
+        for rp in ["VERSION", "CHECKPOINTS.md", "docs/INSTALL.md", "docs/PACKAGING.md"]:
             p = REPO_ROOT / rp
             if p.exists():
                 add_text(f"repo/{rp}", _tail_text(p, max_chars=200000))
+
         add_text("config/user_config.yaml", _read_sanitized_config())
+
         for p in _iter_runtime_files():
             rel = p.relative_to(rt)
             arc = f"state/{rel.as_posix()}"
@@ -85,9 +80,11 @@ def build_diagnostics_zip_bytes() -> bytes:
                 add_text(arc, _tail_text(p, max_chars=20000))
             else:
                 add_text(arc, _tail_text(p, max_chars=200000))
+
         files = []
         for info in z.infolist():
             files.append({"name": info.filename, "size": info.file_size, "compressed": info.compress_size})
+
         final_manifest = {
             "generated_utc": ts,
             "version": version,
