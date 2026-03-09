@@ -101,3 +101,13 @@ def test_scripts_package_init_is_side_effect_free():
     txt = _text("scripts/__init__.py")
     assert "add_repo_root_to_syspath" not in txt
     assert "sys.path" not in txt
+
+
+def test_no_legacy_inline_syspath_bootstrap_block_in_scripts():
+    offenders: list[str] = []
+    legacy_comment = "# CBP_BOOTSTRAP: ensure repo root on sys.path so `import services` works when running scripts directly"
+    for p in (ROOT / "scripts").rglob("*.py"):
+        txt = p.read_text(encoding="utf-8", errors="replace")
+        if legacy_comment in txt:
+            offenders.append(str(p.relative_to(ROOT)))
+    assert not offenders, "Legacy inline bootstrap block still present:\n" + "\n".join(sorted(offenders))
