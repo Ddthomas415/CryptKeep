@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import time
 
+from services.admin import kill_switch
 from services.process import watchdog
 
 
@@ -110,3 +111,18 @@ def test_watchdog_auto_stop_calls_stop_bot(monkeypatch, tmp_path):
     assert called["stop"] == 1
     actions = [a.get("action") for a in out.get("actions", [])]
     assert actions == ["kill_switch_on", "stop_bot"]
+
+
+def test_watchdog_kill_switch_helper_uses_admin_kill_switch(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def _set_armed(state: bool, note: str = "") -> dict:
+        captured["call"] = (state, note)
+        return {"armed": bool(state), "note": note}
+
+    monkeypatch.setattr(kill_switch, "set_armed", _set_armed)
+
+    out = watchdog._kill_switch_on("watchdog:heartbeat_stale")
+
+    assert out == {"ok": True, "kill_switch": {"armed": True, "note": "watchdog:heartbeat_stale"}}
+    assert captured["call"] == (True, "watchdog:heartbeat_stale")

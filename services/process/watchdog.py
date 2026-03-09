@@ -35,9 +35,10 @@ def read_last() -> dict:
 
 def _kill_switch_on(reason: str):
     try:
-        from services.execution.kill_switch import set_kill_switch
-        set_kill_switch(True, reason=reason)
-        return {"ok": True}
+        from services.admin.kill_switch import set_armed
+
+        payload = set_armed(True, note=reason)
+        return {"ok": True, "kill_switch": payload}
     except Exception as e:
         return {"ok": False, "error": f"{type(e).__name__}:{e}"}
 
