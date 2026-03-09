@@ -136,3 +136,13 @@ def write_state_files() -> dict:
     snap_json.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     return {"ok": True, "state_md": str(STATE_PATH), "snapshot_md": str(snap_md), "snapshot_json": str(snap_json), "ts": state.get("ts")}
+
+
+def maybe_auto_update_state_on_snapshot(tag: str = "") -> dict:
+    try:
+        out = write_state_files()
+        if tag:
+            out["tag"] = str(tag)
+        return out
+    except Exception as e:
+        return {"ok": False, "reason": f"{type(e).__name__}: {e}", "tag": str(tag)}
