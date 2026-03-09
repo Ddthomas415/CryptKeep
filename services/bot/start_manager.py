@@ -24,6 +24,7 @@ def _load_cfg(path: str = "config/trading.yaml") -> Dict[str, Any]:
 
 def _risk_check(cfg: Dict[str, Any]) -> Tuple[bool, List[str]]:
     r = cfg.get("risk") or {}
+    live_risk = r.get("live") if isinstance(r.get("live"), dict) else {}
     if not bool(r.get("enabled", True)):
         return True, ["risk_disabled"]
     reasons = []
@@ -34,12 +35,18 @@ def _risk_check(cfg: Dict[str, Any]) -> Tuple[bool, List[str]]:
         except Exception:
             return False
 
-    if not _pos(r.get("max_order_notional_usd", 0)):
+    max_order_notional = live_risk.get("max_notional_per_trade_usd", r.get("max_order_notional_usd", 0))
+    max_position_notional = live_risk.get(
+        "max_position_notional_usd",
+        r.get("max_position_notional_usd", r.get("max_position_notional", 0)),
+    )
+    mdl = live_risk.get("max_daily_loss_usd", r.get("max_daily_loss_usd", None))
+
+    if not _pos(max_order_notional):
         reasons.append("risk.max_order_notional_usd_missing_or_nonpositive")
-    if not _pos(r.get("max_position_notional_usd", 0)):
+    if not _pos(max_position_notional):
         reasons.append("risk.max_position_notional_usd_missing_or_nonpositive")
     # daily loss can be null (disabled), but if set must be >0
-    mdl = r.get("max_daily_loss_usd", None)
     if mdl is not None and not _pos(mdl):
         reasons.append("risk.max_daily_loss_usd_nonpositive")
     return (len([x for x in reasons if x.endswith("missing_or_nonpositive")]) == 0), reasons
