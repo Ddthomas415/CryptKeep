@@ -80,3 +80,63 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     assert out["post"]["kill_switch_armed"] is True
     assert events and events[0][2] == "live_disabled"
     assert events[0][3]["note"] == "operator_stop"
+
+def test_stop_service_from_pidfile_rejects_unsafe_name():
+    from services.admin import service_controls as sc
+
+    out = sc.stop_service_from_pidfile("../bad")
+
+    assert out["ok"] is False
+    assert out["error"] == "unsafe_service_name"
+
+
+def test_stop_service_from_pidfile_rejects_unknown_service(monkeypatch):
+    from services.admin import service_controls as sc
+
+    monkeypatch.setattr(
+        sc,
+        "stop_service_from_pidfile",
+        sc.stop_service_from_pidfile,
+    )
+
+    out = sc.stop_service_from_pidfile("definitely_unknown_service_name")
+
+    assert out["ok"] is False
+    assert out["error"] == "unknown_service_name"
+
+
+def test_stop_service_from_pidfile_invalid_pid_file_unlinks(monkeypatch, tmp_path):
+    from services.admin import health
+    from services.admin import service_controls as sc
+    from services.admin import watchdog
+
+    pid_dir = tmp_path / "pids"
+    pid_dir.mkdir(parents=True, exist_ok=True)
+    bad_pf = pid_dir / "market_data_poller.pid"
+    bad_pf.write_text("not-an-int", encoding="utf-8")
+
+    monkeypatch.setattr(watchdog, "PID_DIR", pid_dir)
+    monkeypatch.setattr(health, "set_health", lambda *args, **kwargs: None)
+
+    out = sc.stop_service_from_pidfile("market_data_poller")
+
+    assert out["ok"] is False
+    assert out["error"] == "invalid_pid_file"
+    assert out["service"] == "market_data_poller"
+    assert not bad_pf.exists()
+
+
+def test_stop_service_from_pidfile_missing_pid_file_is_ok(monkeypatch, tmp_path):
+    from services.admin import watchdog
+    from services.admin import service_controls as sc
+
+    pid_dir = tmp_path / "pids"
+    pid_dir.mkdir(parents=True, exist_ok=True)
+
+    monkeypatch.setattr(watchdog, "PID_DIR", pid_dir)
+
+    out = sc.stop_service_from_pidfile("market_data_poller")
+
+    assert out["ok"] is True
+    assert out["note"] == "pid_file_missing"
+    assert out["service"] == "market_data_poller"

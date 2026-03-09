@@ -127,7 +127,7 @@ def test_compute_first_run_status_uses_snapshot_based_cache_audit(monkeypatch, t
         lambda: {
             "market_data_poller": {
                 "venue": "coinbase",
-                "symbols": ["BTC/USD", "ETH/USD"],
+                "symbols": ["BTC/USD"],
                 "extra_pairs": [],
             }
         },
@@ -135,9 +135,9 @@ def test_compute_first_run_status_uses_snapshot_based_cache_audit(monkeypatch, t
 
     out = frw.compute_first_run_status()
 
-    assert out["cache"]["required_pairs_count"] == 2
-    assert out["cache"]["missing_pairs_count"] == 1
-    assert out["cache"]["missing_pairs"] == ["ETH/USD"]
+    assert out["cache"]["required_pairs_count"] == 1
+    assert out["cache"]["missing_pairs_count"] == 0
+    assert out["cache"]["missing_pairs"] == []
 
 
 def test_compute_first_run_status_reports_normalized_live_enabled(monkeypatch, tmp_path):
@@ -154,3 +154,122 @@ def test_compute_first_run_status_reports_normalized_live_enabled(monkeypatch, t
 
     assert out["live_enabled"] is True
     assert out["risk_enable_live"] is True
+
+def test_run_preflight_now_uses_safe_defaults_when_preflight_missing(monkeypatch):
+    captured = {}
+
+    async def _run_preflight(*, venues, symbols, time_tolerance_ms, do_private_check):
+        captured.update(
+            {
+                "venues": venues,
+                "symbols": symbols,
+                "time_tolerance_ms": time_tolerance_ms,
+                "do_private_check": do_private_check,
+            }
+        )
+        return {"ok": True}
+
+    monkeypatch.setattr(frw, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(frw, "run_preflight", _run_preflight)
+
+    out = frw.run_preflight_now()
+
+    assert out["ok"] is True
+    assert captured == {
+        "venues": ["coinbase", "gateio"],
+        "symbols": ["BTC/USD"],
+        "time_tolerance_ms": 1500,
+        "do_private_check": False,
+    }
+
+
+def test_populate_cache_now_includes_extra_pairs(monkeypatch):
+    captured = {}
+
+    async def _fetch_once(venue, req_pairs):
+        captured["venue"] = venue
+        captured["req_pairs"] = req_pairs
+        return {"ok": True, "pairs": req_pairs}
+
+    monkeypatch.setattr(
+        frw,
+        "load_user_yaml",
+        lambda: {
+            "market_data_poller": {
+                "venue": "coinbase",
+                "symbols": ["BTC/USD"],
+                "extra_pairs": ["ETH/USD"],
+            }
+        },
+    )
+    monkeypatch.setattr(frw, "fetch_tickers_once", _fetch_once)
+
+    out = frw.populate_cache_now()
+
+    assert out["ok"] is True
+    assert captured["venue"] == "coinbase"
+    assert "BTC/USD" in captured["req_pairs"]
+    assert "ETH/USD" in captured["req_pairs"]
+
+
+def test_compute_first_run_status_ignores_snapshot_for_wrong_venue(monkeypatch, tmp_path):
+    snapshot = tmp_path / "market_data_poller.latest.json"
+    snapshot.write_text(
+        json.dumps({"venue": "binance", "pairs": ["BTC/USD"]}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(frw, "MARKET_DATA_SNAPSHOT", snapshot)
+    monkeypatch.setattr(frw, "ensure_user_yaml_exists", lambda: True)
+    monkeypatch.setattr(frw, "ensure_kill_default", lambda: None)
+    monkeypatch.setattr(frw, "kill_state", lambda: {"armed": True, "note": "default"})
+    monkeypatch.setattr(
+        frw,
+        "load_user_yaml",
+        lambda: {
+            "market_data_poller": {
+                "venue": "coinbase",
+                "symbols": ["BTC/USD"],
+                "extra_pairs": [],
+            }
+        },
+    )
+
+    out = frw.compute_first_run_status()
+
+    assert out["cache"]["missing_pairs_count"] == out["cache"]["required_pairs_count"]
+
+
+def test_compute_first_run_status_handles_invalid_snapshot_json(monkeypatch, tmp_path):
+    snapshot = tmp_path / "market_data_poller.latest.json"
+    snapshot.write_text("{not-json", encoding="utf-8")
+
+    monkeypatch.setattr(frw, "MARKET_DATA_SNAPSHOT", snapshot)
+    monkeypatch.setattr(frw, "ensure_user_yaml_exists", lambda: True)
+    monkeypatch.setattr(frw, "ensure_kill_default", lambda: None)
+    monkeypatch.setattr(frw, "kill_state", lambda: {"armed": True, "note": "default"})
+    monkeypatch.setattr(
+        frw,
+        "load_user_yaml",
+        lambda: {
+            "market_data_poller": {
+                "venue": "coinbase",
+                "symbols": ["BTC/USD"],
+                "extra_pairs": [],
+            }
+        },
+    )
+
+    out = frw.compute_first_run_status()
+
+    assert out["cache"]["required_pairs_count"] >= 1
+
+
+def test_merge_defaults_preserves_existing_nested_values():
+    merged = frw.merge_defaults(
+        {"risk": {"enable_live": True}},
+        {"risk": {"enable_live": False, "max_trades_per_day": 3}},
+    )
+
+    assert merged["risk"]["enable_live"] is True
+    assert merged["risk"]["max_trades_per_day"] == 3

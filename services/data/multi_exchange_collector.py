@@ -9,6 +9,9 @@ import yaml
 
 from services.os.app_paths import data_dir, ensure_dirs
 from storage.market_store_sqlite import MarketStore
+import logging
+
+logger = logging.getLogger(__name__)
 
 ensure_dirs()
 
@@ -90,7 +93,8 @@ def collect_venue_once(store: MarketStore, v: VenueCfg) -> Dict[str, Any]:
     finally:
         if ex is not None:
             try: ex.close()
-            except Exception: pass
+            except Exception:
+                logger.exception("multi_exchange_collector close failed")
     return out
 
 def run_once(cfg: MultiCollectorCfg) -> Dict[str, Any]:
