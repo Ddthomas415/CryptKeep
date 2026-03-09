@@ -1,16 +1,16 @@
-import traceback
 import os
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import signal
 import threading
 import time
+import traceback
+import logging
 from services.execution.execution_throttle import can_trade, record_trade
 from services.execution.orderbook_sanity import check_orderbook
 from services.execution.event_log import log_event
 from services.execution.execution_latency import ExecutionLatencyTracker
 from storage.market_ws_store_sqlite import SQLiteMarketWsStore
+
+_LOG = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------
 # Mock strategy runner placeholders
@@ -60,8 +60,8 @@ def request_shutdown(reason: str = "requested") -> None:
     _SHUTDOWN_EVENT.set()
     try:
         log_event(VENUE, SYMBOL, "strategy_shutdown", payload={"reason": str(reason)})
-    except Exception:
-        pass
+    except Exception as e:
+        _LOG.warning("strategy shutdown log failed: %s: %s", type(e).__name__, e)
 
 
 def _handle_shutdown_signal(signum: int, _frame) -> None:
@@ -78,7 +78,8 @@ def _install_shutdown_signal_handlers() -> None:
             continue
         try:
             signal.signal(sig_obj, _handle_shutdown_signal)
-        except Exception:
+        except Exception as e:
+            _LOG.warning("strategy signal handler install failed for %s: %s: %s", sig_name, type(e).__name__, e)
             continue
     _SIGNAL_HANDLERS_INSTALLED = True
 
@@ -134,8 +135,8 @@ def _record_heartbeat_latency() -> None:
             price=None,
             qty=None,
         )
-    except Exception:
-        pass
+    except Exception as e:
+        _LOG.warning("strategy heartbeat latency recording failed: %s: %s", type(e).__name__, e)
 
 # -------------------------------------------------------------------
 # Entry point
@@ -164,29 +165,18 @@ def main(argv=None):
     raise SystemExit("strategy_runner: no runnable function found (expected run or run_loop/run_forever/start/serve/loop/run_once)")
 
 
-# ---- runtime overrides from env (set by scripts/bot_ctl.py) ----
-VENUE = (os.environ.get("CBP_VENUE") or os.environ.get("VENUE") or "coinbase").lower()
-_symbols_raw = os.environ.get("CBP_SYMBOLS") or os.environ.get("SYMBOLS") or ""
-SYMBOL = ([x.strip() for x in _symbols_raw.split(",") if x.strip()] or ["BTC/USD"])[0]
-
-
-# ---- runtime defaults (prefer env set by bot_ctl / run_bot_safe) ----
-DEFAULT_VENUE = (os.environ.get("CBP_VENUE") or "coinbase").lower().strip()
-DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
-
-# --- env helpers (Bundle 58): dynamic venue/symbol ---
 def _env_venue(default: str = "coinbase") -> str:
-    import os
-    return (os.environ.get("CBP_VENUE") or default).lower().strip()
+    return (os.environ.get("CBP_VENUE") or os.environ.get("VENUE") or default).lower().strip()
+
 
 def _env_symbol(default: str = "BTC/USD") -> str:
-    import os
-    raw = (os.environ.get("CBP_SYMBOLS") or "").strip()
+    raw = (os.environ.get("CBP_SYMBOLS") or os.environ.get("SYMBOLS") or "").strip()
     if raw:
         parts = [x.strip() for x in raw.split(",") if x.strip()]
         if parts:
             return parts[0]
     return default
 
-_venue = _env_venue()
-_symbol = _env_symbol()
+
+VENUE = _env_venue()
+SYMBOL = _env_symbol()
