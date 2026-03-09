@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import logging
 import os
 import time
 from datetime import datetime, timezone
@@ -12,6 +13,7 @@ LOCKS = runtime_dir() / "locks"
 STOP_FILE = FLAGS / "paper_engine.stop"
 LOCK_FILE = LOCKS / "paper_engine.lock"
 STATUS_FILE = FLAGS / "paper_engine.status.json"
+_LOG = logging.getLogger(__name__)
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -27,12 +29,12 @@ def _acquire_lock() -> bool:
     LOCK_FILE.write_text(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n", encoding="utf-8")
     return True
 
-def _release_lock():
+def _release_lock() -> None:
     try:
         if LOCK_FILE.exists():
             LOCK_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as e:
+        _LOG.warning("paper runner lock release failed: %s: %s", type(e).__name__, e)
 
 def request_stop() -> dict:
     ensure_dirs()
@@ -45,15 +47,15 @@ def run_forever() -> None:
     try:
         if STOP_FILE.exists():
             STOP_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as e:
+        _LOG.warning("paper runner stop-file cleanup failed: %s: %s", type(e).__name__, e)
     if not _acquire_lock():
         _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})
         return
     eng = PaperEngine()
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
-    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or "coinbase")).lower().strip()
+    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or DEFAULT_VENUE)).lower().strip()
     symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
     interval = float(p.get("loop_interval_sec", 1.0) or 1.0)
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "venue": venue, "symbol": symbol, "ts": _now()})
@@ -78,10 +80,6 @@ def run_forever() -> None:
     finally:
         _release_lock()
         _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now()})
-
-
-# ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
-DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
 
 
 # ---- runtime defaults (prefer env set by bot_ctl / run_bot_safe) ----
