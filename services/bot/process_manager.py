@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import signal
 import subprocess
@@ -16,6 +17,7 @@ ensure_dirs()
 STATUS_PATH = data_dir() / "bot_process.json"
 LOG_DIR = data_dir() / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+_LOG = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class ProcStatus:
@@ -54,6 +56,14 @@ def read_status() -> ProcStatus:
 def _write_status(d: Dict[str, Any]) -> None:
     STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATUS_PATH.write_text(json.dumps(d, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _clear_status_file(*, reason: str) -> None:
+    try:
+        if STATUS_PATH.exists():
+            STATUS_PATH.unlink()
+    except Exception as e:
+        _LOG.warning("bot process status cleanup failed (%s): %s: %s", reason, type(e).__name__, e)
 
 def _pid_is_running(pid: int) -> bool:
     if pid <= 0:
@@ -99,20 +109,12 @@ def start_process(mode: str, module: str, extra_env: Optional[Dict[str, str]] = 
 def stop_process() -> ProcStatus:
     st = read_status()
     if not st.pid:
-        try:
-            if STATUS_PATH.exists():
-                STATUS_PATH.unlink()
-        except Exception:
-            pass
+        _clear_status_file(reason="not_running")
         return ProcStatus(False, None, None, None, None, None, note="not_running")
 
     pid = int(st.pid)
     if not _pid_is_running(pid):
-        try:
-            if STATUS_PATH.exists():
-                STATUS_PATH.unlink()
-        except Exception:
-            pass
+        _clear_status_file(reason="stale_pid")
         return ProcStatus(False, None, None, None, None, None, note="stale_pid_cleared")
 
     try:
@@ -124,14 +126,9 @@ def stop_process() -> ProcStatus:
             time.sleep(0.8)
             if _pid_is_running(pid):
                 os.kill(pid, signal.SIGKILL)
-    except Exception:
-        # best-effort; do not crash UI
-        pass
+    except Exception as e:
+        _LOG.warning("bot process stop failed for pid=%s: %s: %s", pid, type(e).__name__, e)
 
-    try:
-        if STATUS_PATH.exists():
-            STATUS_PATH.unlink()
-    except Exception:
-        pass
+    _clear_status_file(reason="stopped")
 
     return ProcStatus(False, None, None, None, None, None, note="stopped")
