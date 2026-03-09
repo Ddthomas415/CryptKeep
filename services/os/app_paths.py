@@ -42,9 +42,13 @@ def user_data_root() -> Path:
 def state_root() -> Path:
     """
     Where runtime/data/config live.
+    - Override: CBP_STATE_DIR when set
     - Dev: repo root (keeps existing behavior)
     - Frozen: user_data_root()
     """
+    override = os.getenv("CBP_STATE_DIR", "").strip()
+    if override:
+        return Path(override).expanduser().resolve()
     if is_frozen():
         return user_data_root()
     # Dev mode: keep mutable state under a hidden directory to avoid repo drift.
