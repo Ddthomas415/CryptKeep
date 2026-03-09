@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-import os
 import asyncio
+import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 from services.admin.config_editor import load_user_yaml, save_user_yaml, ensure_user_yaml_exists
 from services.admin.kill_switch import ensure_default as ensure_kill_default, get_state as kill_state, set_armed
 from services.market_data.poller import build_required_pairs, fetch_tickers_once
-from services.market_data.cache_audit import missing_pairs as cache_missing_pairs
 from services.admin.preflight import run_preflight
+from services.os.app_paths import runtime_dir
+
+MARKET_DATA_SNAPSHOT = runtime_dir() / "snapshots" / "market_data_poller.latest.json"
 
 SAFE_DEFAULTS = {
     "risk": {"enable_live": False, "allow_unknown_notional": False, "min_order_usd": 10.0, "max_position_usd": 250.0, "max_daily_loss_usd": 75.0, "max_trades_per_day": 15},
@@ -19,6 +22,35 @@ SAFE_DEFAULTS = {
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _read_json(path: Path) -> dict:
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8"))
+        return obj if isinstance(obj, dict) else {}
+    except Exception:
+        return {}
+
+
+def _audit_cached_pairs(venue: str, required_pairs: list[str]) -> dict:
+    snapshot = _read_json(MARKET_DATA_SNAPSHOT)
+    snapshot_venue = str(snapshot.get("venue") or "").lower().strip()
+    cached_pairs = []
+    if snapshot_venue == str(venue).lower().strip():
+        cached_pairs.extend(str(p).strip() for p in (snapshot.get("pairs") or []) if str(p).strip())
+        for tick in snapshot.get("ticks") or []:
+            if isinstance(tick, dict):
+                sym = str(tick.get("symbol") or "").strip()
+                if sym:
+                    cached_pairs.append(sym)
+    cached_set = set(cached_pairs)
+    missing = [pair for pair in required_pairs if pair not in cached_set]
+    return {
+        "missing_count": len(missing),
+        "missing": missing,
+        "snapshot_path": str(MARKET_DATA_SNAPSHOT),
+        "snapshot_present": MARKET_DATA_SNAPSHOT.exists(),
+    }
 
 def merge_defaults(cfg: dict, defaults: dict) -> dict:
     out = dict(cfg or {})
@@ -49,7 +81,7 @@ def compute_first_run_status() -> dict:
     symbols = md.get("symbols") or pf.get("symbols") or ["BTC/USDT"]
     venue = str(md.get("venue") or "coinbase").lower().strip()
     req_pairs = build_required_pairs([str(s).strip() for s in symbols], include_symbols=True, extra_pairs=(md.get("extra_pairs") or []))
-    audit = cache_missing_pairs(venue, req_pairs)
+    audit = _audit_cached_pairs(venue, req_pairs)
 
     return {
         "ts": _now(),
@@ -68,9 +100,12 @@ def apply_safe_defaults(dry_run: bool = False) -> dict:
     merged_risk = merged.get("risk") or {}
     merged_risk["enable_live"] = False
     merged["risk"] = merged_risk
-    ks = set_armed(True, note="first_run_defaults")
-    out = save_user_yaml(merged, create_backup=True, dry_run=dry_run)
-    return {"ok": bool(out.get("ok")), "dry_run": dry_run, "save": out, "kill_switch": ks}
+    ks = kill_state()
+    if not dry_run:
+        ks = set_armed(True, note="first_run_defaults")
+    ok, msg = save_user_yaml(merged, dry_run=dry_run)
+    save = {"ok": ok, "message": msg}
+    return {"ok": ok, "dry_run": dry_run, "save": save, "kill_switch": ks}
 
 def run_preflight_now() -> dict:
     cfg = load_user_yaml()
