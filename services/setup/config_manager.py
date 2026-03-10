@@ -162,3 +162,35 @@ def apply_risk_preset(cfg: Dict[str, Any], preset: str) -> Dict[str, Any]:
     cfg["execution"] = exe
     cfg["pipeline"] = pipe
     return cfg
+
+def guided_setup_summary(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    cfg = deep_merge(DEFAULT_CFG, cfg or {})
+    pipe = dict(cfg.get("pipeline") or {})
+    exe = dict(cfg.get("execution") or {})
+    risk = dict(cfg.get("risk") or {})
+    symbols = list(cfg.get("symbols") or ["BTC/USD"])
+
+    return {
+        "exchange": pipe.get("exchange_id", "coinbase"),
+        "symbols": symbols,
+        "symbol_count": len(symbols),
+        "strategy": pipe.get("strategy", "ema"),
+        "timeframe": pipe.get("timeframe", "5m"),
+        "executor_mode": exe.get("executor_mode", "paper"),
+        "live_enabled": bool(exe.get("live_enabled", False)),
+        "risk_preset_state": {
+            "exchange_allowlist": list(risk.get("exchange_allowlist") or []),
+            "symbol_allowlist": list(risk.get("symbol_allowlist") or []),
+            "max_notional": float(risk.get("max_notional", 0.0) or 0.0),
+            "max_daily_loss_quote": float(risk.get("max_daily_loss_quote", 0.0) or 0.0),
+            "max_total_notional": float(risk.get("max_total_notional", 0.0) or 0.0),
+        },
+        "checks": {
+            "has_symbols": len(symbols) > 0,
+            "has_exchange": bool(pipe.get("exchange_id")),
+            "paper_mode": exe.get("executor_mode", "paper") == "paper",
+            "live_mode": exe.get("executor_mode") == "live",
+            "live_explicitly_enabled": bool(exe.get("live_enabled", False)),
+        },
+    }
+

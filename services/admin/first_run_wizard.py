@@ -11,8 +11,35 @@ from services.market_data.poller import build_required_pairs, fetch_tickers_once
 from services.admin.preflight import run_preflight
 from services.execution.live_arming import is_live_enabled
 from services.os.app_paths import runtime_dir
+from services.setup.config_manager import guided_setup_summary
+from services.setup.config_manager import apply_risk_preset
 
 MARKET_DATA_SNAPSHOT = runtime_dir() / "snapshots" / "market_data_poller.latest.json"
+
+def _run_async_safely(coro):
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+
+    import threading
+
+    box = {"result": None, "error": None}
+
+    def _runner():
+        try:
+            box["result"] = asyncio.run(coro)
+        except Exception as e:
+            box["error"] = e
+
+    t = threading.Thread(target=_runner, daemon=True)
+    t.start()
+    t.join()
+
+    if box["error"] is not None:
+        raise box["error"]
+    return box["result"]
+
 
 SAFE_DEFAULTS = {
     "risk": {"enable_live": False, "allow_unknown_notional": False, "min_order_usd": 10.0, "max_position_usd": 250.0, "max_daily_loss_usd": 75.0, "max_trades_per_day": 15},
@@ -116,7 +143,7 @@ def run_preflight_now() -> dict:
     symbols = pf.get("symbols") or SAFE_DEFAULTS["preflight"]["symbols"]
     tol = int(pf.get("time_tolerance_ms",1500) or 1500)
     do_priv = bool(pf.get("private_check", False))
-    return asyncio.run(run_preflight(venues=[str(v).lower() for v in venues], symbols=[str(s) for s in symbols], time_tolerance_ms=tol, do_private_check=do_priv))
+    return _run_async_safely(run_preflight(venues=[str(v).lower() for v in venues], symbols=[str(s) for s in symbols], time_tolerance_ms=tol, do_private_check=do_priv))
 
 def populate_cache_now() -> dict:
     cfg = load_user_yaml()
@@ -125,4 +152,47 @@ def populate_cache_now() -> dict:
     venue = str(md.get("venue") or "coinbase").lower().strip()
     symbols = md.get("symbols") or pf.get("symbols") or ["BTC/USDT"]
     req_pairs = build_required_pairs([str(s).strip() for s in symbols], include_symbols=True, extra_pairs=(md.get("extra_pairs") or []))
-    return asyncio.run(fetch_tickers_once(venue, req_pairs))
+    return _run_async_safely(fetch_tickers_once(venue, req_pairs))
+
+def guided_setup_review() -> dict:
+    cfg = load_user_yaml()
+    return guided_setup_summary(cfg)
+
+def guided_setup_preflight_review() -> dict:
+    return {
+        "summary": guided_setup_review(),
+        "preflight": run_preflight_now(),
+    }
+
+def guided_setup_apply(patch: dict | None = None) -> dict:
+    cfg = load_user_yaml()
+    cfg = merge_defaults(cfg, {})
+    if patch:
+        cfg = merge_defaults(patch, cfg)
+    save_user_yaml(cfg)
+    return {
+        "summary": guided_setup_review(),
+        "preflight": run_preflight_now(),
+    }
+
+def guided_setup_apply_preset(preset: str) -> dict:
+    cfg = load_user_yaml()
+    cfg = merge_defaults(cfg, {})
+    cfg = apply_risk_preset(cfg, preset)
+    save_user_yaml(cfg)
+    return {
+        "summary": guided_setup_review(),
+        "preflight": run_preflight_now(),
+    }
+
+def guided_setup_state() -> dict:
+    return {
+        "summary": guided_setup_review(),
+        "preflight": run_preflight_now(),
+        "status": compute_first_run_status(),
+    }
+
+def guided_setup_apply_state(patch: dict | None = None) -> dict:
+    guided_setup_apply(patch)
+    return guided_setup_state()
+

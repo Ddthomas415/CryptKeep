@@ -10,6 +10,11 @@ from typing import Any, List, Dict
 
 from services.os.app_paths import runtime_dir, data_dir, ensure_dirs
 from services.admin.config_editor import load_user_yaml
+from services.admin.first_run_wizard import (
+    guided_setup_state,
+    guided_setup_apply_state,
+    guided_setup_apply_preset,
+)
 
 
 def _now() -> str:
@@ -86,17 +91,6 @@ def _market_checks(venues: list[str], symbols: list[str]) -> list[dict]:
         from services.market_data.symbol_router import normalize_venue, normalize_symbol
         from services.risk.market_quality_guard import check as mq_check
 
-        # ── Debug: show snapshot info ──────────────────────────────────────────────
-        snapshot_path = runtime_dir() / "snapshots" / "system_status.latest.json"
-        if snapshot_path.exists():
-            print(f"Snapshot exists: {snapshot_path}")
-            with open(snapshot_path) as f:
-                content = f.read()
-                print("Snapshot content:\n" + content)
-        else:
-            print("Snapshot NOT found!")
-
-        # ── Run quality check for each venue/symbol ────────────────────────────────
         for v in venues:
             nv = normalize_venue(str(v))
             for s in symbols:
@@ -204,3 +198,19 @@ def run_preflight() -> dict:
         "supervisor": sup,
         "live_arming": live,
     }
+
+def wizard_guided_setup_state() -> dict:
+    return guided_setup_state()
+
+
+def wizard_guided_setup_apply_state(patch: dict | None = None) -> dict:
+    return guided_setup_apply_state(patch)
+
+
+def wizard_guided_setup_apply_preset(preset: str) -> dict:
+    return guided_setup_apply_preset(preset)
+
+def wizard_guided_setup_apply_preset_state(preset: str) -> dict:
+    guided_setup_apply_preset(preset)
+    return guided_setup_state()
+

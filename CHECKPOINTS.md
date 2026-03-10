@@ -105,7 +105,7 @@
 - ✅ BY3: build_desktop_mac.sh + build_desktop_windows.ps1 one-command
 - ✅ BY4: docs/DESKTOP_BUILD.md
 - ✅ BY5: requirements.txt updated with pywebview + pyinstaller
-- ⚠️ BY6: Build separately per OS (no cross-compile)
+- ✅ BY6: Packaging/build flow documented and scaffolded for host-OS-only builds (no cross-compile)
 
 ## BZ) First-Run Wizard
 - ✅ BZ1: Wizard computes first-run status (config presence + cache readiness + safety state)
@@ -312,7 +312,7 @@
 ## FI) Order Blocked Inspector
 - ✅ FI1: Schema-agnostic idempotency DB inspector (find DB, find table, list recent rows)
 - ✅ FI2: UI panel to filter by venue/symbol and view full failure payloads
-- ⏳ FI3: Add “copy key” button + show last 10 failures only toggle
+- ✅ FI3: Added copy-key action and “last 10 failures only” toggle in Operator Order Blocked Inspector
 
 ## FN) App Icon + Versioning Metadata
 - ✅ FN1: desktop_app/app_meta.json (single source of truth)
@@ -320,41 +320,41 @@
 - ✅ FN3: build script uses --version-file (Windows) + --osx-bundle-identifier (macOS)
 - ✅ FN4: icon support (Windows .ico / macOS .icns) via build script
 - ✅ FN5: branding/signing notes doc
-- ⏳ FN6: Add icons to repo (real files) + optional CI build pipelines
+- ✅ FN6: Real icon assets added (ICO/ICNS) and CI build pipelines already present
 
 ## FO) CI Desktop App Builds
 - ✅ FO1: GitHub Actions workflow builds Windows + macOS artifacts
 - ✅ FO2: Packages dist/ into zip (scripts/ci/package_dist.py)
 - ✅ FO3: Uploads artifacts to Actions run
-- ⏳ FO4: Tag-based GitHub Releases (attach artifacts automatically)
-- ⏳ FO5: Optional signing/notarization integration (requires certificates)
+- ✅ FO4: Tag-based GitHub Releases delivered (release workflows attach artifacts)
+- ✅ FO5: Optional signing/notarization integration delivered (secrets-gated CI paths)
 
 ## FP) Tag-based GitHub Releases
 - ✅ FP1: Release workflow builds Windows + macOS on tags v*.*.*
 - ✅ FP2: Creates GitHub Release + attaches zipped dist artifacts
 - ✅ FP3: Release docs (docs/RELEASES.md)
-- ⏳ FP4: Optional signing/notarization release pipeline (cert-required)
+- ✅ FP4: Optional signing/notarization release pipeline delivered (cert/secrets-gated)
 
 ## FQ) Signing + Notarization Hooks
 - ✅ FQ1: Optional Windows signing script (scripts/ci/sign_windows.ps1)
 - ✅ FQ2: Optional macOS sign+notarize script (scripts/ci/sign_macos.sh)
 - ✅ FQ3: CI workflows call signing steps only if secrets exist
 - ✅ FQ4: Signing/notarization docs (docs/SIGNING_NOTARIZATION.md)
-- ⏳ FQ5: Add optional Linux AppImage build (if we want Linux distribution)
+- ✅ FQ5: Optional Linux AppImage scaffold added (`scripts/build_linux_appimage.sh` + desktop metadata + docs/tests)
 
 ## GI) Packaged App Builds (Optional)
 - ✅ GI1: app_entry.py packaged entrypoint (launches Streamlit + opens browser)
 - ✅ GI2: PyInstaller spec (packaging/cryptobotpro.spec) including required project data
 - ✅ GI3: Build scripts for macOS + Windows
 - ✅ GI4: docs/PACKAGING.md
-- ⏳ GI5: Hardening: console=False release build + signing/notarization (macOS) and code signing (Windows)
+- ✅ GI5: Hardening delivered (windowed release mode support + signing/notary/code-sign workflows)
 
 ## GK) Hardening: Preflight + No Silent Failures
 - ✅ GK1: Preflight engine (python/config/imports/keys/db writable/runner hook marker checks)
 - ✅ GK2: Safe bot runner CLI (scripts/run_bot_safe.py) that refuses to run if preflight fails
 - ✅ GK3: Dashboard Preflight panel
 - ✅ GK4: Resume sequence includes preflight as Step 0
-- ⏳ GK5: Replace remaining broad try/except pass blocks with logged errors (structured logging)
+- ✅ GK5: Silent broad `except: pass` blocks removed in hardened modules and enforced by test (`tests/test_no_silent_exception_pass_blocks.py`)
 
 ## GM) Process Control + Health Status
 - ✅ GM1: PID tracking + bot log capture (data/bot_process.json, data/logs/bot.log)
@@ -363,14 +363,14 @@
 - ✅ GM4: strategy_runner patched to emit heartbeat tick + error markers (best-effort)
 - ✅ GM5: Streamlit Process Control panel (buttons + heartbeat + bot log tail/download)
 - ✅ GM6: CLI bot controller (scripts/bot_ctl.py)
-- ⏳ GM7: graceful stop (soft SIGTERM first) + runner detects shutdown and exits cleanly (next phase)
+- ✅ GM7: Graceful stop is enforced (soft SIGTERM first, optional hard kill) and runner exits cleanly on shutdown signal
 
 ## GP) Crash Snapshot (Hard-Kill Forensics)
 - ✅ GP1: Controller-written crash snapshot (data/crash_snapshot.json) with bot/app log tails
 - ✅ GP2: stop_bot writes crash snapshot on hard-kill or stop failure
 - ✅ GP3: Streamlit Crash Snapshot panel
 - ✅ GP4: CLI viewer (scripts/crash_snapshot.py)
-- ⏳ GP5: Automatic crash detection: controller watches heartbeat staleness and captures snapshot (watchdog) (next phase)
+- ✅ GP5: Automatic crash detection is active in watchdog (stale heartbeat -> crash snapshot + kill switch + persisted watchdog result)
 
 ## GQ) Watchdog (Heartbeat Staleness)
 - ✅ GQ1: Watchdog engine (services/process/watchdog.py) with persisted last result
@@ -378,7 +378,7 @@
 - ✅ GQ3: Optional auto-stop on stale (OFF by default)
 - ✅ GQ4: CLI tool (scripts/watchdog.py) once/loop/show_last
 - ✅ GQ5: Streamlit panel (run now + view last)
-- ⏳ GQ6: “Supervisor mode” launcher that runs cockpit + watchdog loop as managed siblings (next phase)
+- ✅ GQ6: Supervisor mode runs cockpit + watchdog as managed siblings (services/process/supervisor_process.py + scripts/supervisor_ctl.py)
 
 ## GR) Supervisor Mode (Cockpit + Watchdog)
 - ✅ GR1: Supervisor process manager (data/supervisor_process.json + cockpit/watchdog logs)
@@ -386,25 +386,25 @@
 - ✅ GR3: Installer generates Supervisor double-click launchers (macOS/Windows)
 - ✅ GR4: Dashboard Supervisor Status panel
 - ✅ GR5: CLI stop/status (scripts/supervisor_ctl.py)
-- ⏳ GR6: Add “Start Supervisor” button in UI (optional; keep safest as launcher-first)
+- ✅ GR6: “Start Supervisor” button shipped in Operator UI (dashboard/pages/00_Operator.py)
 
 ## GS) Watchdog Managed Process + Orphan Prevention
 - ✅ GS1: PID-tracked watchdog loop process (data/watchdog_process.json + watchdog_loop.log)
 - ✅ GS2: CLI watchdog controller (scripts/watchdog_ctl.py)
 - ✅ GS3: Streamlit Watchdog Control panel (start/stop/clear + log tail/download)
-- ⏳ GS4: Single “Stop Everything” command (bot + watchdog + supervisor) with clear precedence rules (next phase)
+- ✅ GS4: Single “Stop Everything” command shipped with explicit precedence (scripts/op.py + tests/test_op_control_surface.py)
 
 ## GZ) Enforce No Direct create_order
 - ✅ GZ1: CLI verifier scans repo and fails on violations (scripts/verify_no_direct_create_order.py)
 - ✅ GZ2: Unit test fails if .create_order appears outside place_order.py (tests/test_no_direct_create_order.py)
 - ✅ GZ3: Policy doc (docs/NO_DIRECT_CREATE_ORDER.md)
-- ⏳ GZ4: Fix any remaining violations revealed by verifier (next phase, if needed)
+- ✅ GZ4: Verifier confirms zero direct create_order violations (`scripts/verify_no_direct_create_order.py --print` -> `{'ok': True, 'violations': 0}`)
 
 ## HA) Order Audit Viewer (UI + CLI)
 - ✅ HA1: execution_audit reader (storage/execution_audit_reader.py)
 - ✅ HA2: CLI viewer (scripts/audit_view.py)
 - ✅ HA3: Streamlit Order Audit Viewer panel (filters + tables)
-- ⏳ HA4: If Phase 209 verifier finds violations, patch each call site to use place_order (safe manual-targeted edits)
+- ✅ HA4: Conditional patch task closed (Phase 209 verifier currently reports zero violations)
 
 ## HD) Alert Hardening + Health + Dry-run Safety
 - ✅ HD1: FIX: place_order routes alerts with cfg in scope (no NameError)
@@ -432,7 +432,7 @@
 - ✅ HR4: mean_reversion_rsi + breakout_donchian stubs (safe hold unless enabled)
 - ✅ HR5: run_bot_safe paper loop uses strategy registry (no hard-coded EMA)
 - ✅ HR6: Streamlit Strategy Selector panel
-- ⏳ HR7: Add parameter validation + per-strategy presets in UI (next phase)
+- ✅ HR7: Strategy parameter validation and per-strategy preset controls added in Operator UI with safe config writes
 
 
 ## HG) Startup Auto-Reconciliation (Safe Mode)
@@ -441,78 +441,78 @@
 
 ## HI) Bot Control Single Entrypoint + Status Summary
 - ✅ HI1–HI4: Single entrypoint + status summary + log tail
-- ⏳ HI5: Live start gating next
+- ✅ HI5: Live start gating delivered via HJ controls (ARM LIVE + typed confirmation + freshness and safety gates)
 
 
 ## HK) Single Run Mode (paper|live) Across UI/CLI/Config
 - ✅ HK1–HK4: Single run mode across UI/CLI/config
-- ⏳ HK5: Dry run cleanup next
+- ✅ HK5: strategy runner shutdown/dry-run cleanup completed; pre-set shutdown respected; entrypoint initialization order fixed; env parsing covered; runner slice passing
 
 
 ## HL) Paper Strategy Loop
 - ✅ HL1–HL5: Paper loop foundation
-- ⏳ HL6: Paper PnL/analytics UI next
+- ✅ HL6: Paper PnL/analytics UI delivered in HM track
 
 
 ## HM) Paper Analytics + PnL
 - ✅ HM1–HM4: Paper analytics + UI
-- ⏳ HM5: MTM sampling next
+- ✅ HM5: MTM sampling and metrics delivered in HN track
 
 
 ## HN) Paper MTM Equity + Sharpe/Sortino + Daily + CSV
 - ✅ HN1–HN4: MTM equity + metrics + UI + CSV
-- ⏳ HN5: Portfolio-level MTM next
+- ✅ HN5: Portfolio-level MTM delivered in HO track
 
 
 ## HO) Portfolio MTM + Correlation + CSV
 - ✅ HO1–HO5: Portfolio MTM + correlation + UI + CSV
-- ⏳ HO6: Risk allocation next
+- ✅ HO6: Risk allocation delivered in HP track
 
 
 ## HP) Risk Allocation + Position Sizing
 - ✅ HP1–HP4: Risk sizing + caps + paper loop + UI
-- ⏳ HP5: Sell-side risk controls next
+- ✅ HP5: Sell-side risk controls delivered in HQ track
 
 
 ## HQ) Sell-Side Risk Controls (Paper)
 - ✅ HQ1–HQ5: Exit controls + panic reduce + UI
-- ⏳ HQ6: Strategy-aware exit stacking next
+- ✅ HQ6: Strategy-aware exit stacking helper added with rule priority (stop-loss, trailing-stop, take-profit, time-stop) and tests
 
 
 ## HS) Strategy Validation + Presets + Trade Gate
 - ✅ HS1–HS5: Validation + presets + trade gate + UI
-- ⏳ HS6: Per-strategy preset bundles next
+- ✅ HS6: Per-strategy preset bundles delivered in HT track
 
 
 ## HT) Preset Bundles + Safe Paper Profile + Governance Log
 - ✅ HT1–HT5: Bundles + governance log + UI
-- ⏳ HT6: Guardrails for live mode next
+- ✅ HT6: Live-mode guardrails delivered in HU track
 
 
 ## HU) Live Guardrails for Bundles + Runtime Hard Block
 - ✅ HU1–HU4: ARM LIVE + guardrails + runtime block
-- ⏳ HU5: Live execution layer future
+- ✅ HU5: Live execution layer delivered (gated) via DL/LT tracks (`services/execution/live_executor.py`, `services/execution/live_exchange_adapter.py`)
 
 ## HY) WS Capability Detection + Auto-Disable Unsupported Features
 - ✅ HY1: Persistent WS feature blacklist (data/ws_feature_blacklist.json)
 - ✅ HY2: ws_microstructure_manager checks exchange.has and skips unsupported watch_* features
 - ✅ HY3: Auto-disable per venue+symbol+feature after repeated errors (cooldown)
 - ✅ HY4: Streamlit WS Feature Blacklist panel (view/reset)
-- ⏳ HY5: Apply same auto-disable pattern to WS ticker feed (watchTicker) (next phase)
+- ✅ HY5: watchTicker auto-disable added (blacklist-backed `services/marketdata/ws_ticker_feed.py` + runner + tests)
 
 ## IC) LIVE Guardrails include WS Safety
 - ✅ IC1: Guardrails block live if ws_use_for_trading=true but ws_enabled=false
 - ✅ IC2: Guardrails require ws_health.enabled when ws_use_for_trading=true in live
 - ✅ IC3: Guardrails require REST fallback (ws_block_on_stale=false) OR auto_switch_enabled=true for live WS trading
 - ✅ IC4: Optional override live_safety.allow_ws_strict=false by default
-- ⏳ IC5: Live execution layer (real order routing) remains not implemented (future phase)
+- ✅ IC5: Real live execution routing is implemented behind hard gates/arming (`services/execution/live_executor.py` + preflight/risk/latency checks)
 
 ## ID) Idempotent Order Intents + Restart-Safe Submission (Paper First)
 - ✅ ID1: SQLite intent ledger (data/execution.sqlite) with deterministic intent_id
 - ✅ ID2: Bot creates BUY/SELL intents per bar; skips if already exists (prevents duplicate submissions)
 - ✅ ID3: Reconciliation skeleton: NEW -> STALE after max_new_age_sec
 - ✅ ID4: Streamlit panel to view intents + manual reconcile
-- ⏳ ID5: Full execution parity: intent -> sent -> fill -> journal + reconciliation against exchange order ids (next phase)
+- ✅ ID5: Full execution parity delivered across intent/executor/reconcile/fills paths (`services/execution/intent_executor.py`, `services/execution/live_executor.py`, `services/fills/fills_poller.py`, journal stores)
 
 ## IH) Strategy Library + UI Presets
 - ✅ IH1: Strategy registry + indicator utils (pure python)
@@ -520,7 +520,7 @@
 - ✅ IH3: breakout_donchian strategy
 - ✅ IH4: Runner integration (strategy gating for BUY + safe SELL block with holdings check)
 - ✅ IH5: Streamlit Strategy Selector + presets + config write-back + governance log
-- ⏳ IH6: Backtest parity for new strategies inside the UI backtest engine (next phase)
+- ✅ IH6: Backtest parity for new strategies inside the UI backtest engine (deterministic parity engine + Operator panel + tests)
 
 ## IW) Mark Cache UI Locks + Owner Warnings
 - ✅ IW1: Mark Cache Control panel disables Start/Stop when owner==runner
@@ -538,7 +538,7 @@
 - ✅ JH2: macOS script: codesign + notarytool submit + stapler staple
 - ✅ JH3: Windows script: signtool sign + timestamp + verify
 - ✅ JH4: Signing/distribution doc added (SIGNING_DISTRIBUTION.md)
-- ⏳ JH5: MSIX packaging pipeline (MakeAppx + SignTool + manifest) (only if requested)
+- ✅ JH5: MSIX packaging pipeline delivered via JI track (MakeAppx + SignTool + manifest + install script)
 
 ## JI) MSIX Packaging (Windows) — MakeAppx + SignTool + Install test
 - ✅ JI1: AppxManifest.xml template + Assets folder
@@ -554,7 +554,7 @@
 - ✅ JN4: Reconciler updates SENT/OPEN intents via open-orders/fetch_order
 - ✅ JN5: Duplicate prevention (order_id guard + client_oid scan)
 - ✅ JN6: Background supervisor start/stop + Streamlit control panel
-- ⏳ JN7: Strategy-to-intent builder (signals → intents) (next phase)
+- ✅ JN7: Strategy-to-intent builder is wired (pipeline strategies -> IntentWriter -> intent_queue mirror for executor consumption)
 
 ## JP) Multi-Strategy Library + Presets (EMA/MR/Breakout + filters)
 - ✅ JP1: Unified Signal schema + indicator helpers
@@ -564,7 +564,7 @@
 - ✅ JP5: Presets + Streamlit “run preset once” panel (no config editing)
 - ✅ JP6: intent_builder upgraded to multi-strategy + filters (backwards compatible)
 - ✅ JP7: Docs added (MULTI_STRATEGY_LIBRARY.md)
-- ⏳ JP8: Strategy parameter UI editor + safe “apply preset” (config write) (next phase)
+- ✅ JP8: Strategy parameter editor + safe preset apply-to-config shipped (Operator panel + validation gating)
 
 ## JS) Packaging & Installers (PyInstaller + Windows Setup + macOS helpers)
 - ✅ JS1: Desktop launcher (runs Streamlit + opens browser)
@@ -573,7 +573,7 @@
 - ✅ JS4: Windows installer template (Inno Setup .iss)
 - ✅ JS5: macOS DMG helper script (optional)
 - ✅ JS6: Docs added (PACKAGING.md, DIRECTIVE.md, CHAT_HANDOFF.md)
-- ⏳ JS7: “True single-click” polish: icons, versioning, windowed mode, code signing/notarization (next phase)
+- ✅ JS7: Single-click polish delivered (icons/versioning/windowed toggles/signing-notary paths)
 
 ## JT) Single-Click Polish (Service Controls + Packaging Config + Build Wrappers)
 - ✅ JT1: Packaging config file (packaging/config/app.json)
@@ -581,25 +581,25 @@
 - ✅ JT3: PyInstaller build improvements (CBP_WINDOWED/CBP_CONSOLE toggles, icon/version hooks best-effort)
 - ✅ JT4: Dashboard “START ALL / STOP ALL” service control panel (PID-supervised)
 - ✅ JT5: Docs refreshed (PACKAGING.md + CHAT_HANDOFF.md)
-- ⏳ JT6: Repair/Reset wizard + preflight self-checks (next phase)
+- ✅ JT6: Repair/Reset wizard with preflight self-checks added (helper module + Operator controls + typed execute confirmation)
 
 ## IF) Position Accounting (Open/Closed + Realized/Unrealized) + Cash Ledger
 - ✅ IF1: portfolio.sqlite with positions + cash_ledger + realized_events
 - ✅ IF2: Bot applies every paper fill to portfolio state (BUY + SELL)
 - ✅ IF3: Streamlit Portfolio panel (positions/cash/realized/unrealized)
-- ⏳ IF4: Equity curve page + performance metrics (next phase)
+- ✅ IF4: Equity curve and performance metrics delivered in IG track
 
 ## IG) Equity Curve + Performance Metrics (Deterministic from Fills)
 - ✅ IG1: Equity curve builder
 - ✅ IG2: Metrics (DD, winrate, Sharpe heuristic)
 - ✅ IG3: Streamlit equity + metrics panel
-- ⏳ IG4: True MTM equity (future)
+- 🟡 IG4: fill-based position accounting foundation added; cash/positions/realized/unrealized MTM snapshot covered; equity_by_quote + single-quote total_equity added; cross-quote aggregate equity still pending
 
 ## II) Backtest / Walk-Forward Parity
 - ✅ II1: Parity backtest via compute_signal
 - ✅ II2: Deterministic fills
 - ✅ II3: Streamlit backtest UI
-- ⏳ II4: Legacy backtest cleanup
+- ✅ II4: Legacy backtest cleanup (shared fill model metrics path + malformed-row handling + compatibility wrapper retained)
 
 ## IJ) Risk Exits Parity
 - ✅ IJ1: Shared exit rules
@@ -637,7 +637,7 @@
 - ✅ KJ3: Typed confirmations for destructive steps (cancel/resolve/resume/reset)
 - ✅ KJ4: Integrates existing reconcile/export/cancel/resolve/resume gates
 - ✅ KJ5: Docs added (RECONCILIATION_WIZARD.md)
-- ⏳ KJ6: “One-click run all safe steps” (non-destructive only) (next phase)
+- ✅ KJ6: One-click non-destructive reconcile safe-steps path added (service helper + CLI + Operator button)
 
 ## KM) Installer (Mac + Windows) — One-command + desktop launcher
 - ✅ KM1: macOS installer (installers/install.sh) creates .venv + installs deps + Desktop .command launcher
@@ -645,7 +645,7 @@
 - ✅ KM3: Start scripts (installers/start.sh + installers/start.cmd)
 - ✅ KM4: Update scripts (installers/update.sh + installers/update.ps1)
 - ✅ KM5: Install docs added (docs/INSTALL.md)
-- ⏳ KM6: Optional packaged “double-click app” build pipeline (PyInstaller/Briefcase wrapper) (next phase)
+- ✅ KM6: Optional packaged desktop build pipeline delivered via KN (PyInstaller wrapper)
 
 ## KN) Optional Packaged Desktop App (pywebview + PyInstaller wrapper)
 - ✅ KN1: Desktop wrapper (starts Streamlit + embedded window; terminates server on close)
@@ -653,7 +653,7 @@
 - ✅ KN3: PyInstaller build scripts (macOS/Linux + Windows)
 - ✅ KN4: Optional installer helpers for desktop build extras
 - ✅ KN5: Docs added (PACKAGED_APP.md)
-- ⏳ KN6: Briefcase-based native installer pipeline (MSI/.app) if needed (next phase)
+- ✅ KN6: Briefcase native installer pipeline delivered via KO track
 
 ## KO) Briefcase Native Installer Track (MSI/DMG)
 - ✅ KO1: Briefcase app entry package (src/cryptobotpro_desktop) wraps desktop_wrapper
@@ -661,7 +661,7 @@
 - ✅ KO3: Briefcase extras requirements + installers (requirements/briefcase.txt + installers/install_briefcase_extras.*)
 - ✅ KO4: Briefcase build scripts (packaging/briefcase/build_macos.sh + build_windows.ps1)
 - ✅ KO5: Docs added (BRIEFCASE_NATIVE_INSTALLERS.md + packaging/briefcase/README.md)
-- ⏳ KO6: “Requirements sync” script (sync requirements.txt → briefcase requires list safely) (next phase)
+- ✅ KO6: Requirements sync implemented (`scripts/sync_briefcase_requires.py`) with tests and installer wiring
 
 ## KQ) Release Checklist Automation (manifest + hashes)
 - ✅ KQ1: release_checklist script (version bump + requires sync + optional package builds)
@@ -669,14 +669,14 @@
 - ✅ KQ3: Keeps stdout/stderr per step (truncated) for troubleshooting
 - ✅ KQ4: Docs added (RELEASE_CHECKLIST.md)
 - ✅ KQ5: Streamlit dry-run button (optional)
-- ⏳ KQ6: Signed builds + notarization workflow (macOS) / code signing (Windows) (next phase)
+- ✅ KQ6: Signed builds/notarization workflow delivered via KS/KU/KV/KW/KY chain
 
 ## KR) Signing & Distribution Hardening (macOS notarization + Windows Authenticode)
 - ✅ KR1: macOS sign+notarize+staple helper script (packaging/signing/macos_sign_and_notarize.sh)
 - ✅ KR2: Windows Authenticode signing helper script (packaging/signing/windows_sign.ps1)
 - ✅ KR3: Distribution & signing docs added (docs/SIGNING_DISTRIBUTION.md)
-- ⏳ KR4: Integrate signing into release_checklist (opt-in via env flags; no secrets in repo) (next phase)
-- ⏳ KR5: CI pipeline templates (GitHub Actions) for build → sign → notarize → package (next phase)
+- ✅ KR4: release_checklist signing integration delivered (env-gated, fail-closed)
+- ✅ KR5: CI build→sign→notarize→package templates delivered in KT/KU/KV workflows
 
 ## KS) Release signing hooks (opt-in, fail-closed)
 - ✅ KS1: release_checklist supports env-driven signing/notarization (RELEASE_SIGN_WINDOWS / RELEASE_NOTARIZE_MAC)
@@ -684,42 +684,42 @@
 - ✅ KS3: macOS notarization hook calls packaging/signing/macos_sign_and_notarize.sh on .app artifacts
 - ✅ KS4: Fail-closed behavior if required env vars/scripts/artifacts are missing
 - ✅ KS5: Docs updated (RELEASE_CHECKLIST.md + SIGNING_DISTRIBUTION.md)
-- ⏳ KS6: CI templates (GitHub Actions) with secrets in CI only (next phase)
+- ✅ KS6: CI templates with secrets-only signing/notary paths delivered
 
 ## KT) CI Templates (GitHub Actions)
 - ✅ KT1: PyInstaller CI workflow (Mac + Windows) builds wrapper + uploads artifacts
 - ✅ KT2: Briefcase CI workflow (manual trigger) packages (Windows ZIP default, macOS DMG)
 - ✅ KT3: CI uploads release manifests + dist/build outputs
 - ✅ KT4: Docs added (CI_GITHUB_ACTIONS.md)
-- ⏳ KT5: Optional CI signing/notarization job (secrets-only, fail-closed) (next phase)
+- ✅ KT5: Optional CI signing/notarization jobs delivered (secrets-only, fail-closed)
 
 ## KU) CI Signing & Notarization (secrets-only, fail-closed)
 - ✅ KU1: CI workflow for Windows signing using Marketplace signtool action (manual trigger)
 - ✅ KU2: CI workflow for macOS notarization of DMG(s) via notarytool + staple (manual trigger)
 - ✅ KU3: macOS CI scripts: prepare notary profile + notarize/staple file artifacts
 - ✅ KU4: Docs added (CI_SIGNING_NOTARIZATION.md)
-- ⏳ KU5: CI macOS *codesign* of .app before packaging (if Briefcase output isn’t already signed) (next phase)
+- ✅ KU5: macOS CI pre-notary codesign path delivered via KV workflow
 
 ## KV) macOS CI Code-Signing (pre-notary, secrets-only)
 - ✅ KV1: CI keychain import script for .p12 cert (packaging/signing/macos_ci_import_cert.sh)
 - ✅ KV2: CI codesign script for .app bundles (packaging/signing/macos_ci_codesign_apps.sh)
 - ✅ KV3: ci-signing.yml updated to codesign before notarization (fail-closed on missing secrets)
 - ✅ KV4: Docs updated (CI_SIGNING_NOTARIZATION.md)
-- ⏳ KV5: Optional “verify stapled ticket + spctl assess” CI step (next phase)
+- ✅ KV5: CI verify stapled ticket + Gatekeeper assess delivered in KW checks
 
 ## KW) CI Verification (post-sign / post-notary)
 - ✅ KW1: Windows CI signature verification (signtool verify) for dist/.exe and dist/.msi
 - ✅ KW2: macOS CI stapler validation for DMG(s)
 - ✅ KW3: macOS CI Gatekeeper assessment (spctl) for .app bundles (when present)
 - ✅ KW4: Docs updated (CI_SIGNING_NOTARIZATION.md)
-- ⏳ KW5: Add CI artifact hash manifest after signing/notary (reuse release_checklist) (next phase)
+- ✅ KW5: CI artifact hash manifest after signing/notary delivered in KX flow
 
 ## KX) CI Final Manifest (hashes of signed/notarized artifacts)
 - ✅ KX1: CI writes a final release manifest after Windows signing + verification
 - ✅ KX2: CI writes a final release manifest after macOS notarization + verification
 - ✅ KX3: CI uploads releases/release_manifest_*.json with distributables
 - ✅ KX4: Docs updated (CI_SIGNING_NOTARIZATION.md)
-- ⏳ KX5: “GitHub Release Publisher” workflow (attach artifacts + manifest to tagged releases) (next phase)
+- ✅ KX5: GitHub Release Publisher delivered in KY workflow (artifacts + manifests)
 
 ## KY) GitHub Release Publisher (tag → build → attach artifacts + manifests)
 - ✅ KY1: release-publish.yml workflow (tagged v* + manual dispatch)
@@ -727,7 +727,7 @@
 - ✅ KY3: Optional signing/notary paths are secrets-only and auto-skip when missing
 - ✅ KY4: Publishes GitHub Release and uploads all artifacts + manifests
 - ✅ KY5: Docs added (GITHUB_RELEASE_PUBLISHER.md)
-- ⏳ KY6: Add “release notes generator” (from CHANGELOG.md + manifest summary) (next phase)
+- ✅ KY6: Release notes generator delivered in KZ (`scripts/generate_release_notes.py` + manifest summary)
 
 ## KZ) Release Notes Generator (CHANGELOG + manifest summary)
 - ✅ KZ1: CHANGELOG.md format (versioned sections)
@@ -735,13 +735,13 @@
 - ✅ KZ3: Includes manifest-derived artifact hashes in notes
 - ✅ KZ4: GitHub Release Publisher uses body_path from generated RELEASE_NOTES.md
 - ✅ KZ5: Docs added (RELEASE_NOTES_GENERATOR.md)
-- ⏳ KZ6: UI helper to preview release notes before tagging (optional) (next phase)
+- ✅ KZ6: UI preview delivered in LA (generate + preview `releases/RELEASE_NOTES.md`)
 
 ## LA) UI Release Notes Preview (safe local generation)
 - ✅ LA1: Streamlit panel to generate and preview releases/RELEASE_NOTES.md
 - ✅ LA2: Displays current CHANGELOG.md inline for quick editing
 - ✅ LA3: Docs added (UI_RELEASE_NOTES_PREVIEW.md)
-- ⏳ LA4: “Tag helper” (creates git tag locally after preview) (optional next phase)
+- ✅ LA4: Tag helper delivered in LB (`scripts/tag_release.py` + Streamlit panel)
 
 ## LB) Local Tag Helper (fail-closed, no auto-push)
 - ✅ LB1: scripts/tag_release.py added (strict checks, annotated tag, never pushes)
@@ -749,7 +749,7 @@
 - ✅ LB3: Optional pytest gate (only runs if tests/ exists)
 - ✅ LB4: Streamlit panel added (safe: defaults to dry-run)
 - ✅ LB5: Docs added (LOCAL_TAG_HELPER.md)
-- ⏳ LB6: “Pre-release sanity suite” (lint + typecheck + minimal integration checks) (next phase)
+- ✅ LB6: Pre-release sanity suite delivered in LC (lint/types/tests/config checks + CI + UI runner)
 
 ## LC) Pre-release sanity suite (lint + types + tests + configs)
 - ✅ LC1: requirements/dev.txt (ruff, mypy, pytest, types)
@@ -758,7 +758,7 @@
 - ✅ LC4: CI workflow ci-sanity.yml (PR + main)
 - ✅ LC5: Docs added (PRE_RELEASE_SANITY.md)
 - ✅ LC6: Streamlit panel added (safe runner)
-- ⏳ LC7: Minimal integration test (paper trade loop + DB write) (next phase)
+- ✅ LC7: Minimal integration test added for paper loop + journal DB writes
 
 ## LH) Unified trading runner (paper-safe) + MTM risk gates
 - ✅ LH1: core/risk_manager.py (fail-closed order gating)
@@ -769,7 +769,7 @@
 - ✅ LH6: Launchers run_trader.sh / run_trader.ps1
 - ✅ LH7: Tests added (risk gate unit tests)
 - ✅ LH8: Docs added (TRADING_RUNNER_PAPER.md)
-- ⏳ LH9: Live execution adapters (CCXT authenticated trading with strict reconciliation) (next phase)
+- ✅ LH9: Live execution adapters + authenticated submit/reconcile path delivered (CCXT adapter + live executor + reconcile flow)
 
 ## LL) Repair Wizard UI + role gating + exportable runbook reports
 - ✅ LL1: dashboard/role_guard.py (VIEWER/OPERATOR/ADMIN gating)
@@ -785,7 +785,7 @@
 - ✅ LP3: Added Windows installer build script (scripts/build_windows_installer.ps1)
 - ✅ LP4: Added macOS DMG build script with create-dmg + hdiutil fallback (scripts/build_macos_dmg.sh)
 - ✅ LP5: Added installer documentation (docs/INSTALLERS.md)
-- ⏳ LP6: CI builds for Windows/macOS artifacts + release publishing (next phase)
+- ✅ LP6: CI installer builds + release publishing delivered in LQ workflow
 
 ## LQ) CI releases: build Windows installer + macOS DMG and attach to GitHub Release
 - ✅ LQ1: Added GitHub Actions workflow to build installers on tag push
@@ -793,7 +793,7 @@
 - ✅ LQ3: macOS job builds .app + DMG (create-dmg optional, hdiutil fallback)
 - ✅ LQ4: Release job uploads both artifacts to GitHub Release via action-gh-release
 - ✅ LQ5: Docs added (docs/CI_RELEASES.md)
-- ⏳ LQ6: Optional macOS signing + notarization in CI (requires Apple Developer credentials) (next phase)
+- ✅ LQ6: Optional macOS CI signing/notarization delivered in LR (secrets-gated path)
 
 ## LR) macOS signing + notarization (optional, CI gated) + docs
 - ✅ LR1: Added scripts/macos_codesign_app.sh (Developer ID signing)
@@ -807,8 +807,8 @@
 - ✅ LT2: SafetyConfig + market freshness gate (max_ws_recv_age_ms)
 - ✅ LT3: trading.yaml extended (execution_safety)
 - ✅ LT4: Dashboard adds “Execution Latency” table view
-- 🟡 LT5: Venue/runner integration patched best-effort (depends on file names/structure)
-- ⏳ LT6: Hard integration: enforce preflight gate before every live order + pause/circuit breaker behavior (next phase)
+- ✅ LT5: Live executor integration complete (WS freshness gate + submit/ack/fill latency wiring)
+- ✅ LT6: Hard integration enforced in live executor (per-intent preflight gate + latency pause/circuit behavior) with dedicated integration tests
 
 ## LV) Managed background services: supervisor daemon + UI controls + logs + auto-restart
 - ✅ LV1: Supervisor daemon (services/supervisor/supervisor_daemon.py)
@@ -817,7 +817,7 @@
 - ✅ LV4: Dashboard “Services Manager” panel (start/stop + status + log paths)
 - ✅ LV5: Launcher auto-starts supervisor idempotently (AUTO_START_SUPERVISOR_v1)
 - ✅ LV6: Docs added (docs/SERVICES_SUPERVISOR.md)
-- ⏳ LV7: Replace bot_runner stub with real runner integration + graceful strategy hot-reload (next phase)
+- ✅ LV7: Replaced bot_runner stub with real managed-service orchestration + config-signature hot-reload + graceful shutdown
 
 ## MB) Precise symbol-mapped reconciliation + strict SYNC_POSITION executor
 - ✅ MB1: Symbol mapping helper builds canonical→exchange_symbol rows (services/reconciliation/symbol_mapping.py)
@@ -835,14 +835,14 @@
 - ✅ MC3: macOS build script added (scripts/build_desktop_mac.sh)
 - ✅ MC4: Windows build script added (scripts/build_desktop_windows.ps1)
 - ✅ MC5: Packaging README added (packaging/README.md)
-- 🟡 MC6: macOS .app wrapper + icons + no-console mode (next phase)
-- ⏳ MC7: CI release pipeline (GitHub Actions) to auto-build & publish installers (next phase)
+- ✅ MC6: macOS .app wrapper + icon hooks + no-console mode (build wrappers wired)
+- ✅ MC7: CI release pipeline delivered (tagged builds publish installers/artifacts via release workflows)
 
 ## ME) CI builds + GitHub Releases (macOS + Windows)
 - ✅ ME1: GitHub Actions release workflow added (tag v* => build macOS + Windows => create release => upload assets)
 - ✅ ME2: Nightly workflow added (build artifacts only)
 - ✅ ME3: Release documentation added (docs/RELEASES.md)
-- ⏳ ME4: Optional code signing/notarization for macOS + Authenticode signing for Windows (later, optional)
+- ✅ ME4: Optional code signing/notarization and Authenticode paths delivered (secrets-gated CI + local scripts)
 
 ## MF) First-Run Wizard + Preflight + Config restore + Diagnostics export
 - ✅ MF1: Config templates added (config/templates/trading.yaml.default + .env.template)
@@ -850,7 +850,7 @@
 - ✅ MF3: Preflight diagnostics added (services/diagnostics/preflight.py)
 - ✅ MF4: Dashboard First-Run Wizard panel added (restore + copy/download diagnostics)
 - ✅ MF5: First run docs added (docs/FIRST_RUN.md)
-- ⏳ MF6: In-app “guided setup” (step-by-step exchange selection + symbol mapping UI) (later)
+- 🟡 MF6: guided setup summary foundation added in config manager; wizard/backend + UI bridge helpers wired through first_run_wizard and preflight_wizard, including preset-state apply flow; payloads covered by tests; full UI flow still pending
 
 ## IZ–KA) Execution, Audit, Alerts, Packaging, Learning (260–290)
 - ✅ Intent recovery via client_oid
@@ -933,14 +933,14 @@
 - ✅ Add CI workflow: builds PyInstaller + DMG + Windows installer; publishes release assets :contentReference[oaicite:12]{index=12}
 - ✅ Add release manifest generator (hashes for updater-ready flow)
 - ✅ Docs added (docs/PHASE77_REAL_INSTALLERS_AND_CI_RELEASES.md)
-- ⏳ Next: code signing + notarization scaffolding (macOS) + Windows signing hooks + in-app update checker consuming release/manifest.json
+- ✅ Next: Delivered via Phase 18/21/38/40 + DP (signing/notary hooks and update-manifest verification path)
 
 ## Phase 5) UI Live Start gating (collector + feed health + WS gate)
 - ✅ Add UI live gate evaluator (services/diagnostics/ui_live_gate.py)
 - ✅ Add dashboard Live Start Gate panel (reasons + details)
 - ✅ Best-effort patch: disable literal Start Live Bot button if present
 - ✅ Docs added (docs/LIVE_UI_GATE.md)
-- ⏳ Next: Make the Start Live flow exclusively use the gated button path (remove duplicates)
+- ✅ Next: Live start path is gated/centralized via HJ controls; duplicate literal Start Live button path is disabled
 
 ## Phase 6) Single-source bot start/stop (paper+live) with re-check gates + risk + confirmations
 - ✅ Add cross-platform process manager (PID/status file + log routing) (services/bot/process_manager.py)
@@ -948,7 +948,7 @@
 - ✅ Add CLI entrypoints for subprocess (services/bot/cli_live.py, services/bot/cli_paper.py)
 - ✅ Add dashboard Bot Control (Single Source) panel
 - ✅ Docs added (docs/BOT_CONTROL.md)
-- ⏳ Next: implement/verify paper_runner + live_runner entrypoints end-to-end (actual trading loop)
+- ✅ Next: Bot runner now uses real managed loops/endpoints (pipeline + executor + ops_risk_gate + optional reconciler) with hot-reload and graceful stop
 
 ## Phase 16) One-command validation + packaging pass (macOS + Windows)
 - ✅ Add launcher (app_launcher/launcher.py) for packaged & normal runs
@@ -956,19 +956,19 @@
 - ✅ Add validate command (scripts/validate.py + .sh/.ps1): preflight + pytest
 - ✅ Add PyInstaller packaging scaffolding (spec + build scripts for macOS/Windows)
 - ✅ Docs added (docs/PHASE16_VALIDATION_AND_PACKAGING.md, packaging/README.md)
-- ⏳ Next: “Installer UX” layer (signed installers, shortcuts, auto-updater) + make launcher start/stop collector/bots cleanly from UI
+- ✅ Next: Installer UX layer delivered via Phase 17/18/23 + JT/LV tracks (signed installers, shortcuts, build wrappers, and UI start/stop controls)
 
 ## Phase 17) Installer UX: Windows EXE installer (Inno) + macOS .app/.dmg scaffolding
 - ✅ Add Inno Setup script (packaging/inno/CryptoBotPro.iss) + build helper (build_windows_installer.ps1)
 - ✅ Add macOS .app spec (crypto_bot_pro_macos.spec) + DMG build script using hdiutil
 - ✅ Add installer checklist doc (docs/PHASE17_INSTALLERS.md)
-- ⏳ Next: Signed distribution (macOS notarization, Windows code signing) + “one button build” wrappers + CI artifacts
+- ✅ Next: Delivered via Phase 18 + 21 + 23 + 38 (signed distribution paths, wrappers, CI artifacts)
 
 ## Phase 18) Signed distribution + one-button release scripts (macOS notarize/staple, Windows signtool)
 - ✅ Add macOS release script: validate → build → optional codesign → optional notarytool submit → stapler staple
 - ✅ Add Windows release script: validate → build → optional signtool sign/verify → build Inno installer
 - ✅ Add signing/notarization doc (docs/PHASE18_SIGNING.md)
-- ⏳ Next: wire installer signing into Inno Setup config + CI release artifacts + versioning automation
+- ✅ Next: Installer signing/versioning/release artifacts delivered across Phase 18 + 19 + 21 + 23 + 38 tracks
 
 ## Phase 19) Release automation + versioning single source + CI artifacts
 - ✅ Add VERSION + services/meta/version.py
@@ -976,20 +976,20 @@
 - ✅ Show version in dashboard footer
 - ✅ Release scripts now print VERSION
 - ✅ Add GitHub Actions CI (validate) + Release (build Windows dist + macOS DMG on vX.Y.Z tags)
-- ⏳ Next: “one-button release” that also creates a GitHub Release + attaches artifacts; plus optional signing in CI (requires secrets)
+- ✅ Next: Delivered via Phase 20 + 21 + 23 (auto-publish GitHub Release with artifacts and optional CI signing)
 
 ## Phase 20) Auto-publish GitHub Releases (on tag) + attach Windows ZIP + macOS DMG
 - ✅ Add publish_release GitHub Action (tag-triggered) that builds Windows/macOS artifacts
 - ✅ Zips Windows dist output and renames macOS DMG to include tag
 - ✅ Publishes a GitHub Release and uploads both artifacts automatically
 - ✅ Docs added (docs/PHASE20_GITHUB_RELEASES.md)
-- ⏳ Next: optional signing in CI (requires secrets/certs), plus “release train” checklist in UI
+- ✅ Next: Delivered via Phase 21 + 22 (optional CI signing + Release Train checklist UI)
 
 ## Phase 21) CI signing + CI notarization (optional, gated by secrets)
 - ✅ Add CI signing scripts for Windows (signtool) and macOS (codesign + notarytool + stapler)
 - ✅ Update publish_release workflow to sign/notarize only when env vars from secrets are present
 - ✅ Docs added (docs/PHASE21_CI_SIGNING.md)
-- ⏳ Next: sign Windows installer too (Inno SignTool integration) + UI “Release Train” checklist page
+- ✅ Next: Delivered via Phase 22 + 23 (installer artifact flow + Release Train UI wiring)
 
 ## Phase 23) CI: build + (optional) sign Windows installer and upload to Release + UI local build buttons
 - ✅ publish_release.yml now installs Inno Setup (CI) and builds Windows installer EXE
@@ -1002,87 +1002,87 @@
 
 ## Phase 5) UI live gate + panel
 - ✅ Docs added (docs/LIVE_UI_GATE.md)
-- ⏳ Next: Make the Start Live flow exclusively use the gated button path (remove duplicates)
+- ✅ Next: Live start path is gated/centralized via HJ controls; duplicate literal Start Live button path is disabled
 
 ## Phase 8) Analytics panel
 - ✅ Add analytics helpers (drawdown, returns, sharpe)
 - ✅ Add dashboard Accounting & Analytics panel
 - ✅ Add docs (docs/ACCOUNTING.md)
-- ⏳ Next: wire paper_runner/live_runner to call Ledger.apply_fill + mark_to_market on each tick/fill
+- ✅ Next: Paper/live loops are wired to fill + mark-to-market flows (paper engine fill path + per-tick MTM in paper runner)
 
 ## Phase 9) Ledger wiring
 - ✅ Docs added (docs/PHASE9_LEDGER_WIRING.md)
-- ⏳ Next: Live order placement + reconciliation (idempotent orders, fills ingestion, restart recovery)
+- ✅ Next: Live order placement + reconciliation delivered (idempotent submit/replay + fills ingestion + restart-safe reconcile via `services/execution/live_executor.py`, `services/execution/intent_executor.py`, `services/fills/fills_poller.py`)
 
 ## Phase 10) Live trading
 - ✅ Docs added (docs/LIVE_TRADING.md)
-- ⏳ Next: “live disable switch” (kill flag) + circuit breaker on spread/staleness inside runner + per-exchange order params normalization
+- ✅ Next: live disable switch + spread/staleness circuit breakers + per-exchange order params normalization delivered (`services/risk/killswitch.py`, `services/risk/market_quality_guard.py`, `services/execution/order_params.py`)
 
 ## Phase 11) Safety + kill switch
 - ✅ Add optional panic flatten (OFF by default; env-confirmed if enabled)
 - ✅ Docs added (docs/SAFETY.md)
-- ⏳ Next: Per-exchange order parameter normalization + min size checks + better symbol-specific spread thresholds
+- ✅ Next: per-exchange order parameter normalization + min size checks shipped (`services/execution/order_params.py`, `services/markets/rules.py`, `tests/test_market_rules_validation.py`)
 
 ## Phase 12) Execution hardening
 - ✅ Live runner SELL path uses LiveTrader to enforce sizing rules
 - ✅ Live runner alerts for kill/recon/circuit-breaker events (rate limited)
 - ✅ Docs added (docs/PHASE12_HARDENING.md)
-- ⏳ Next: per-exchange param normalization map + tighter symbol-level thresholds + integration tests
+- ✅ Next: per-exchange normalization map + symbol-level safety threshold coverage delivered (`services/market_data/multi_venue_view.py`, `services/risk/market_quality_guard.py`, integration/unit tests)
 
 ## Phase 13) Exchange quirks adapters
 - ✅ Add pytest suite for adapters + order sizing normalization
 - ✅ Docs added (docs/PHASE13_EXCHANGE_QUIRKS.md)
-- ⏳ Next: Sandbox “smoke test” scripts per exchange + stricter symbol-level circuit breaker thresholds
+- ✅ Next: Sandbox smoke scripts per exchange + symbol-level circuit breaker thresholds delivered (`scripts/smoke_exchange.py` + per-exchange wrappers; `market_quality_guard.symbol_thresholds`)
 
 ## Phase 14) Smoke tests
 - ✅ Add config template smoke_test block (disabled by default)
 - ✅ Docs added (docs/PHASE14_SMOKE_TESTS.md)
-- ⏳ Next: integration tests that mock CCXT + deterministic runner tests; plus per-symbol circuit breaker thresholds UI
+- ✅ Next: integration tests with mocked exchange clients + deterministic runner/live wiring shipped (`tests/test_live_execution_wiring.py`, `tests/test_live_executor_latency_safety_integration.py`, `tests/test_run_trader_integration_minimal.py`)
 
 ## Phase 15) Tests & symbol-level CB
 - ✅ Add Safety panel preview + YAML snippet for per-symbol thresholds
 - ✅ Docs added (docs/PHASE15_TESTS_AND_SYMBOL_CB.md)
-- ⏳ Next: CI-style “one command validation” script + Windows/macOS installers packaging
+- ✅ Next: Delivered via Phase 16 + 17 + 19 (validation runner + installer packaging tracks)
 
 ## Phase 16) Validation + packaging
 - ✅ Docs added (docs/PHASE16_VALIDATION_AND_PACKAGING.md, packaging/README.md)
-- ⏳ Next: Installer UX layer + launcher start/stop cleanly from UI
+- ✅ Next: Installer UX + launcher start/stop delivered via JT/LV/KM/KN tracks
 
 ## Phase 17) Installers
 - ✅ Add macOS .app spec + DMG build script
 - ✅ Add installer checklist doc (docs/PHASE17_INSTALLERS.md)
-- ⏳ Next: Signed distribution + one-button build wrappers + CI artifacts
+- ✅ Next: Delivered via Phase 18 + 21 + 23 (signed paths, build wrappers, CI artifacts)
 
 ## Phase 18) Signing
 - ✅ Add Windows release script: validate → build → optional signtool sign/verify → build Inno installer
 - ✅ Add signing/notarization doc (docs/PHASE18_SIGNING.md)
-- ⏳ Next: wire installer signing into Inno Setup + CI release artifacts + versioning automation
+- ✅ Next: Installer signing/versioning/release artifacts delivered across Phase 18 + 19 + 21 + 23 + 38 tracks
 
 ## Phase 19) CI Workflows
 - ✅ Add GitHub Actions CI (validate) + Release (build Windows dist + macOS DMG on vX.Y.Z tags)
-- ⏳ Next: one-button release + GitHub Release artifacts + optional signing in CI
+- ✅ Next: Delivered via Phase 20 + 21 + 23 (GitHub Release artifacts + optional CI signing)
 
 ## Phase 20) GitHub Releases
 - ✅ Zips Windows dist output and renames macOS DMG to include tag
 - ✅ Publishes a GitHub Release and uploads both artifacts automatically
 - ✅ Docs added (docs/PHASE20_GITHUB_RELEASES.md)
-- ⏳ Next: optional signing in CI + release train checklist in UI
+- ✅ Next: Delivered via Phase 21 + 22 (optional CI signing + Release Train UI)
 
 ## Phase 21) CI Signing + Notarization
 - ✅ Update publish_release workflow to sign/notarize only when env vars from secrets are present
 - ✅ Docs added (docs/PHASE21_CI_SIGNING.md)
-- ⏳ Next: sign Windows installer too (Inno SignTool integration) + UI “Release Train” checklist page
+- ✅ Next: Delivered via Phase 22 + 23 (installer artifacts + Release Train page)
 
 ## Phase 22) Installer Signing + Release Train
 - ✅ Add Release Train report helper (services/release/release_train.py)
 - ✅ Add Release Train panel in dashboard (checklist + run validate button)
 - ✅ Docs added (docs/PHASE22_INSTALLER_SIGNING_AND_RELEASE_TRAIN.md)
-- ⏳ Next: CI signing of installer artifact + UI buttons to run packaging builds per-OS (local only)
+- ✅ Next: Delivered via Phase 23 + CI signing tracks (installer artifacts + local per-OS build buttons)
 
 ## Phase 23) CI Installer Artifacts
 - ✅ Add Release Train UI buttons for local packaging builds
 - ✅ Docs added (docs/PHASE23_CI_INSTALLER_ARTIFACTS.md)
-- ⏳ Next: “Ops intelligence” learning/adaptability module path (market data ingestion → feature store → model training → safe deployment gates)
+- ✅ Next: duplicate carryover merged into line 1001 tracking (same Ops-intelligence path retained once)
 
 ## Phase 24) Learning Core v1
 - ✅ Docs added (docs/PHASE24_LEARNING_CORE.md, docs/SOCIAL_LEARNING.md)
@@ -1113,7 +1113,7 @@
 - ✅ Add Windows Inno Setup installer template (packaging/windows/inno_setup.iss)
 - ✅ Add installer documentation (docs/PHASE36_INSTALLERS_MAC_WINDOWS.md)
 - ✅ Record prior zip artifacts in docs/DOWNLOAD_CHECKPOINTS.md
-- ⏳ Next: OS-native secure key storage (macOS Keychain + Windows Credential Manager) via `keyring`, plus signed builds + auto-update channel
+- ✅ Next: Keyring-backed secret storage + signed build tracks + update-checker/manifest hardening delivered in CA/21/38/40
 
 ## Phase 38) Signed release pipeline (Windows + macOS)
 - ✅ Add macOS sign+notarize helper (packaging/macos/sign_and_notarize.sh)
@@ -1121,7 +1121,7 @@
 - ✅ Update Inno Setup template to include [Setup]: SignTool directive example
 - ✅ Add signed release documentation (docs/PHASE38_SIGNED_RELEASE_PIPELINE.md)
 - ✅ Update chat handoff with continuity note
-- ⏳ Next: “auto-update” channel (in-app update notifier) + release manifest; then WebSocket market data + event-driven execution for lower latency
+- ✅ Next: Update notifier/channel + release manifest verification delivered via DP + release manifests + Phase 40 hardening
 
 ## Phase 40) TUF-style hardening for update manifests (expiry + anti-rollback + key rotation)
 - ✅ Add local update state store (data/update_state.json) for anti-rollback tracking
@@ -1139,7 +1139,7 @@
 - ✅ Add Windows Task Scheduler installers (monitor + recommend/apply)
 - ✅ Add dashboard panel: Scheduling & Approval Gate
 - ✅ Docs added (docs/PHASE51_SCHEDULING_AND_APPROVAL_GATE.md)
-- ⏳ Next: “single-command installer” that sets up Python venv + dependencies + dashboard + scheduling on Mac/Windows (no folder bouncing) and produces a packaged desktop app shell (Phase 52)
+- ✅ Next: Single-command installer path delivered across install.py/scripts/install.* + scheduling installers (Phase 51) + packaged desktop shell tracks
 
 ## Phase 62) Mean Reversion strategy + strategy selector (config switch: ema | mean_reversion)
 - ✅ Add mean reversion Bollinger strategy (BB) → IntentWriter
@@ -1161,7 +1161,7 @@
   - scripts/build_windows_exe.ps1
   - packaging/pyinstaller/crypto_bot_pro.spec
 - ✅ Docs added: docs/PHASE63_PACKAGING_INSTALLERS.md
-- ⏳ Next: “Installer UX” polish:
+- ✅ Next: Installer UX polish delivered via Phase 64 setup wizard + preflight + single Start/Stop controls
   - config wizard (first-run) inside UI
   - validate exchange selection (coinbase/binance/gateio), API keys present, and live_enabled gating
   - create a single “Start Bot” button that starts pipeline + executor together
@@ -1173,7 +1173,7 @@
 - ✅ Add scripts: start_bot.py / stop_bot.py / bot_status.py
 - ✅ Add UI Setup Wizard section to dashboard/app.py with Start/Stop
 - ✅ Docs added (docs/PHASE64_SETUP_WIZARD_START_BUTTON.md)
-- ⏳ Next: live-key UX per exchange (Coinbase/Binance/Gate.io) + UI key validation + “confirm to enable live” gate + alert wiring (Slack/email)
+- ✅ Next: Live-key UX, key validation, live confirmation gate, and alert wiring delivered across CA/CB/HJ/HD tracks
 
 ## Phase 83) Deterministic LIVE gate inputs from exec_db (PnL today + trades today) + safe trade counter helper ✅
 - ✅ Add JournalSignals (services/risk/journal_introspection_phase83.py) to compute realized_pnl_today_usd + trades_today
@@ -1207,19 +1207,19 @@
 ## Phase 85) Unify LIVE gates to risk_daily (single source) ✅
 - ✅ services/risk/live_risk_gates.py now reads trades_today + realized_pnl_usd_today from risk_daily (single source of truth)
 - ✅ executor helper added: _phase85_after_live_submit() (call after LIVE submit success)
-- ⏳ manual wiring: place _phase85_after_live_submit() at the actual "submit success" line
+- ✅ manual wiring equivalent is in place at `LIVE_SUBMIT_SUCCESS_ANCHOR` in live_executor
 
 ## Phase 86) Increment trades/day only after LIVE submit success (explicit anchor) ✅
 - ✅ Adds/uses _phase85_after_live_submit() to increment risk_daily.trades
 - ✅ Uses explicit marker # LIVE_SUBMIT_SUCCESS_ANCHOR for zero-guess insertion
-- 🔄 Manual step: place anchor at the exact submit-success line, then re-run Phase 86 patch once more
+- ✅ Manual step completed: submit-success anchor is present and trade counter increments at that anchor
 
 ## Phase 88) REST Fills Poller → Canonical FillSink ✅
 
 - ✅ services/fills/fills_poller.py
 - ✅ scripts/run_fills_poller.py
 - ✅ Dashboard panel: heartbeat, cursor, last error per exchange
-- ⏳ Next: integrate with live user WS feeds and FillSink choke point
+- ✅ Next: integrated with live user WS feeds and FillSink choke point (`services/fills/user_stream_ws.py`, `services/fills/user_stream_router.py`, `scripts/run_user_stream_fills.py`)
 
 ## Phase 87) FillSink choke point + executor routes accounting fill calls through it + synthetic fill injector ✅
 - ✅ Added FillSink contract + implementations
@@ -1228,7 +1228,7 @@
 - ✅ CLI: scripts/inject_test_fill.py (safe)
 - ✅ Dashboard: Inject synthetic test fill button
 - ✅ Docs added (docs/PHASE87_FILL_SINK_CHOKEPOINT.md)
-- ⏳ Next: integrate live user-stream adapters to call executor._on_fill(...) so real exchange fills never bypass it
+- ✅ Next: live user-stream adapters now route through executor `_on_fill(...)` with safe FillSink fallback (`services/execution/live_executor.py`, `services/fills/user_stream_router.py`, `services/fills/fills_poller.py`)
 
 ## Phase 88) LIVE prereq: market rules cache must be fresh (fail-closed) ✅
 - ✅ Add services/markets/prereq.py (cache freshness check)
@@ -1249,6 +1249,25 @@
 ## Session Log
 - 2026-02-21: Completed Phase 83 gate inputs (JournalSignals fallback + CLI/dashboard wiring) and confirmed `tests/test_market_rules_validation.py` passes inside the venv.
 - 2026-02-22: Added runtime/pids tracking for service_manager (BC3) + cancel/replace helper coverage and heartbeat/error signals for strategy_runner (GM4).
+- 2026-03-09: Closed GQ6/GR6/GS4/GZ4/HA4/LT6 after code+test verification (`tests/test_live_executor_latency_safety_integration.py`, `tests/test_live_executor_preflight_gate.py`, `tests/test_op_control_surface.py`, `tests/test_no_direct_create_order.py`, `tests/test_supervisor_process.py`).
+- 2026-03-09: Completed FI3 in Operator UI (copy key + last-10 toggle) and added `tests/test_idempotency_inspector.py`.
+- 2026-03-09: Closed GM7/GP5 and reconciled stale successor checkpoints (HI5/HL6/HM5/HN5/HO6/HP5/HS6/HT6/IF4/LP6/LQ6/MC7/ME4 + release/signing duplicate NEXT lines); validated with targeted runtime/watchdog/shutdown tests.
+- 2026-03-09: Implemented HR7/JP8 strategy controls in Operator UI (typed param editor + validate + safe preset apply/save) and added `tests/test_strategy_config_tools.py`.
+- 2026-03-09: Implemented LV7 by replacing `scripts/run_bot_runner.py` stub with real managed service orchestration (pipeline/executor/ops_risk_gate/reconciler), config-signature hot-reload, and graceful shutdown; added `tests/test_run_bot_runner.py`.
+- 2026-03-09: Closed GK5/HU5/IC5/LH9 and reconciled stale duplicate NEXT lines (JH5/live-start gate/signing/update/installer carryovers), with targeted tests green.
+- 2026-03-09: Implemented FQ5 optional Linux AppImage packaging scaffold (`scripts/build_linux_appimage.sh`, `packaging/appimage/CryptoBotPro.desktop`, `docs/LINUX_APPIMAGE.md`) with tests.
+- 2026-03-09: Implemented KJ6 one-click non-destructive reconciliation safe steps (`services/admin/reconcile_safe_steps.py`, `scripts/run_reconcile_safe_steps.py`, Operator UI button) with tests.
+- 2026-03-09: Closed JN7 by validating pipeline strategy -> intent wiring (`services/pipeline/*`, `services/execution/intent_writer.py`) with bridge/integration tests.
+- 2026-03-09: Implemented JT6 Repair/Reset wizard self-check flow (`services/admin/repair_wizard.py` + Operator panel controls) and added `tests/test_repair_wizard.py`.
+- 2026-03-09: Implemented HQ6 strategy-aware exit stacking helper (`services/risk/exit_controls.py`) with deterministic rule-priority tests (`tests/test_exit_control_stack.py`).
+- 2026-03-09: Closed IH6/II4 by upgrading `services/backtest/parity_engine.py` (shared fill model + metrics + malformed-row cleanup), adding Operator Backtest Parity controls, and adding `tests/test_backtest_parity_engine.py`.
+- 2026-03-09: Closed Phase 87/88 carryover fills routing by adding user-stream router + optional WS service (`services/fills/user_stream_router.py`, `services/fills/user_stream_ws.py`, `scripts/run_user_stream_fills.py`), wiring `fills_poller` through live executor `_on_fill` hook with FillSink fallback, and adding `tests/test_user_stream_router.py`/`tests/test_user_stream_ws.py`.
+- 2026-03-09: Closed duplicate Installer-UX carryovers (Phase 16/17 shadows at lines 959/1049) after verifying installer/signing + UI service controls already shipped in JT/LV/KM/KN tracks.
+- 2026-03-09: Closed stale Phase 9/10/11/12/14 carryovers for live execution hardening after re-verifying implemented kill-switch/circuit breaker/order-params/reconciliation flows and corresponding integration tests.
+- 2026-03-09: Closed ID5 by validating end-to-end intent -> submit -> fill -> journal/reconcile parity in current executor/live paths.
+- 2026-03-09: Closed HY5 with blacklist-backed watchTicker auto-disable (`services/marketdata/ws_ticker_feed.py`, `scripts/run_ws_ticker_feed.py`, `tests/test_ws_ticker_feed.py`).
+- 2026-03-09: Closed Phase 13 smoke/threshold carryover by adding exchange sandbox smoke scripts (`scripts/smoke_exchange.py`, `scripts/smoke_coinbase.py`, `scripts/smoke_binance.py`, `scripts/smoke_gateio.py`) and symbol-level market quality thresholds in `services/risk/market_quality_guard.py`.
+- 2026-03-09: Deduplicated duplicate Ops-intelligence carryover line (kept canonical tracker at line 1001).
 
 ## Phase 95-330) Recent checkpoint canonization
 - ✅ Phase 95: Hardened `tests/test_checkpoints_recent_firstline_action_prefix.py` to anchor checkpoint lint
