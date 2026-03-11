@@ -66,3 +66,15 @@ def test_live_risk_cfg_reads_nested_and_legacy_fallbacks(monkeypatch):
         "max_daily_notional_quote": 1250.5,
         "min_order_notional_quote": 15.0,
     }
+
+def test_live_enabled_and_armed_accepts_legacy_arm_env(monkeypatch):
+    monkeypatch.setattr(la, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
+    for name in ("CBP_LIVE_ARMED", "CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING"):
+        monkeypatch.delenv(name, raising=False)
+
+    monkeypatch.setenv("ENABLE_LIVE_TRADING", "1")
+    armed, reason = la.live_enabled_and_armed()
+
+    assert armed is True
+    assert reason == "env:ENABLE_LIVE_TRADING"
+

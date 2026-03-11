@@ -91,7 +91,7 @@ def status() -> dict:
 def start(*, streamlit_cmd: list[str], watchdog_cmd: list[str], cwd: Path) -> dict:
     st = status()
     if st["cockpit"]["alive"] or st["watchdog"]["alive"]:
-        return {"ok": False, "reason": "already_running", **st}
+        return {**st, "ok": False, "reason": "already_running"}
 
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     c_log = open(COCKPIT_LOG, "ab", buffering=0)

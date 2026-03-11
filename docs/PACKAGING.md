@@ -22,3 +22,9 @@ We build per OS using PyInstaller. You build Windows artifacts on Windows, macOS
 
 ## Output
 - `dist/CryptoBotPro/` (onedir)
+
+## Optional Linux AppImage
+- Build onedir first, then package AppImage:
+  - `bash scripts/build_linux_appimage.sh`
+- Requires `appimagetool` in `PATH`.
+- See `docs/LINUX_APPIMAGE.md` for details.

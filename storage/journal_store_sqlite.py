@@ -54,8 +54,9 @@ CREATE TABLE IF NOT EXISTS positions (
 """
 
 class JournalStoreSQLite:
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, initial_cash: float = 0.0) -> None:
         self.path = path
+        self.initial_cash = float(initial_cash or 0.0)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._init_or_upgrade()
 
@@ -182,23 +183,64 @@ class JournalStoreSQLite:
         finally:
             conn.close()
 
-    async def load_portfolio(self) -> PortfolioState:
-        return await asyncio.to_thread(self._load_portfolio_sync)
+    async def load_portfolio(self, latest_prices: Optional[dict[str, float]] = None) -> PortfolioState:
+        return await asyncio.to_thread(self._load_portfolio_sync, latest_prices)
 
-    def _load_portfolio_sync(self) -> PortfolioState:
+    def load_portfolio_sync(self, latest_prices: Optional[dict[str, float]] = None) -> PortfolioState:
+        return self._load_portfolio_sync(latest_prices)
+
+    def _load_portfolio_sync(self, latest_prices: Optional[dict[str, float]] = None) -> PortfolioState:
+        def _price_for_symbol(symbol: str) -> float | None:
+            if not latest_prices:
+                return None
+            variants = (
+                symbol,
+                symbol.replace("-", "/"),
+                symbol.replace("/", "-"),
+                symbol.replace("_", "-"),
+            )
+            for key in variants:
+                if key in latest_prices:
+                    try:
+                        return float(latest_prices[key])
+                    except Exception:
+                        continue
+            return None
+
         conn = self._connect()
         try:
             ps = PortfolioState()
+            cash = float(self.initial_cash)
+            cur = conn.execute("SELECT side, qty, price, fee FROM fills ORDER BY id ASC")
+            for side, qty, price, fee in cur.fetchall():
+                q = float(qty)
+                px = float(price)
+                f = float(fee)
+                if str(side) == "buy":
+                    cash -= q * px + f
+                else:
+                    cash += q * px - f
+            ps.cash = cash
             cur = conn.execute("SELECT venue, symbol_norm, qty, avg_price FROM positions")
             for venue, symn, qty, avg in cur.fetchall():
                 key = f"{venue}:{symn}"
+                lp = _price_for_symbol(str(symn))
+                unreal = ((float(lp) - float(avg)) * float(qty)) if lp is not None else 0.0
                 ps.positions[key] = Position(
                     venue=str(venue),
                     symbol=str(symn),
                     qty=float(qty),
                     avg_price=float(avg),
-                    unrealized_pnl=0.0,
+                    unrealized_pnl=unreal,
                 )
+            total_position_value = 0.0
+            for pos in ps.positions.values():
+                px = _price_for_symbol(pos.symbol)
+                total_position_value += float(pos.qty) * float(px if px is not None else pos.avg_price)
+            ps.equity = ps.cash + total_position_value
             return ps
         finally:
             conn.close()
+
+
+SQLiteJournalStore = JournalStoreSQLite

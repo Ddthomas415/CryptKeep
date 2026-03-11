@@ -17,6 +17,7 @@ FLAGS_DIR = runtime_dir() / "flags"
 LOCKS_DIR = runtime_dir() / "locks"
 STATE_FILE = FLAGS_DIR / "supervisor.state.json"
 LOCK_FILE = LOCKS_DIR / "supervisor.lock"
+MANAGED_SERVICES = ("dashboard", "tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate")
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -114,7 +115,7 @@ def status() -> dict:
     ensure_dirs()
     st = _read_json(STATE_FILE)
     out = {"ok": True, "ts": _now_iso(), "state": st, "services": {}}
-    for name in ("dashboard", "tick_publisher", "evidence_webhook"):
+    for name in MANAGED_SERVICES:
         pid = int((st.get("pids") or {}).get(name) or 0)
         out["services"][name] = {"pid": pid, "alive": pid_is_alive(pid)}
     lock = _read_json(LOCK_FILE) if LOCK_FILE.exists() else {}
@@ -132,6 +133,8 @@ def start(
     with_dashboard: bool = True,
     start_tick: bool = True,
     start_webhook: bool = True,
+    start_signal_adapter: bool = True,
+    start_risk_gate: bool = True,
     host: str | None = None,
     port: int | None = None,
     open_browser: bool = True,
@@ -156,6 +159,16 @@ def start(
             if not pid_is_alive(pid):
                 pid = _spawn_detached([sys.executable, "scripts/run_evidence_webhook.py", "run"])
                 pids["evidence_webhook"] = pid
+        if start_signal_adapter:
+            pid = int(pids.get("ops_signal_adapter") or 0)
+            if not pid_is_alive(pid):
+                pid = _spawn_detached([sys.executable, "scripts/run_ops_signal_adapter.py", "run"])
+                pids["ops_signal_adapter"] = pid
+        if start_risk_gate:
+            pid = int(pids.get("ops_risk_gate") or 0)
+            if not pid_is_alive(pid):
+                pid = _spawn_detached([sys.executable, "scripts/run_ops_risk_gate_service.py", "run"])
+                pids["ops_risk_gate"] = pid
         if with_dashboard:
             pid = int(pids.get("dashboard") or 0)
             if not pid_is_alive(pid):
@@ -169,13 +182,29 @@ def start(
                 pids["dashboard"] = pid
                 if open_browser:
                     _open_browser(host, port)
-        meta = {"host": host, "port": port, "with_dashboard": with_dashboard, "start_tick": start_tick, "start_webhook": start_webhook}
+        meta = {
+            "host": host,
+            "port": port,
+            "with_dashboard": with_dashboard,
+            "start_tick": start_tick,
+            "start_webhook": start_webhook,
+            "start_signal_adapter": start_signal_adapter,
+            "start_risk_gate": start_risk_gate,
+        }
         _write_state(pids, meta)
         return {"ok": True, "pids": pids, "meta": meta}
     finally:
         _release_lock()
 
-def stop(*, stop_dashboard: bool = True, stop_tick: bool = True, stop_webhook: bool = True, timeout_sec: int = 6) -> dict:
+def stop(
+    *,
+    stop_dashboard: bool = True,
+    stop_tick: bool = True,
+    stop_webhook: bool = True,
+    stop_signal_adapter: bool = True,
+    stop_risk_gate: bool = True,
+    timeout_sec: int = 6,
+) -> dict:
     ensure_dirs()
     lk = _acquire_lock()
     if not lk.get("ok"):
@@ -196,6 +225,18 @@ def stop(*, stop_dashboard: bool = True, stop_tick: bool = True, stop_webhook: b
                 actions.append({"service": "evidence_webhook", "action": "stop_file_written"})
             except Exception as e:
                 actions.append({"service": "evidence_webhook", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
+        if stop_signal_adapter:
+            try:
+                (runtime_dir() / "flags" / "ops_signal_adapter.stop").write_text(_now_iso() + "\n", encoding="utf-8")
+                actions.append({"service": "ops_signal_adapter", "action": "stop_file_written"})
+            except Exception as e:
+                actions.append({"service": "ops_signal_adapter", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
+        if stop_risk_gate:
+            try:
+                (runtime_dir() / "flags" / "ops_risk_gate_service.stop").write_text(_now_iso() + "\n", encoding="utf-8")
+                actions.append({"service": "ops_risk_gate", "action": "stop_file_written"})
+            except Exception as e:
+                actions.append({"service": "ops_risk_gate", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
         if stop_dashboard:
             pid = int(pids.get("dashboard") or 0)
             if pid_is_alive(pid):
@@ -210,15 +251,24 @@ def stop(*, stop_dashboard: bool = True, stop_tick: bool = True, stop_webhook: b
         deadline = time.time() + float(timeout_sec)
         while time.time() < deadline:
             alive_any = False
-            for svc in ("tick_publisher", "evidence_webhook"):
+            for svc in ("tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate"):
                 pid = int(pids.get(svc) or 0)
+                if svc == "ops_risk_gate" and not stop_risk_gate:
+                    continue
+                if svc == "ops_signal_adapter" and not stop_signal_adapter:
+                    continue
                 if pid and pid_is_alive(pid):
                     alive_any = True
             if not alive_any:
                 break
             time.sleep(0.25)
-        for svc in ("tick_publisher", "evidence_webhook"):
-            if (svc == "tick_publisher" and not stop_tick) or (svc == "evidence_webhook" and not stop_webhook):
+        for svc in ("tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate"):
+            if (
+                (svc == "tick_publisher" and not stop_tick)
+                or (svc == "evidence_webhook" and not stop_webhook)
+                or (svc == "ops_signal_adapter" and not stop_signal_adapter)
+                or (svc == "ops_risk_gate" and not stop_risk_gate)
+            ):
                 continue
             pid = int(pids.get(svc) or 0)
             if pid and pid_is_alive(pid):
@@ -237,6 +287,10 @@ def stop(*, stop_dashboard: bool = True, stop_tick: bool = True, stop_webhook: b
             new_pids["tick_publisher"] = 0
         if stop_webhook:
             new_pids["evidence_webhook"] = 0
+        if stop_signal_adapter:
+            new_pids["ops_signal_adapter"] = 0
+        if stop_risk_gate:
+            new_pids["ops_risk_gate"] = 0
         _write_state(new_pids, dict(st.get("meta") or {}))
         return {"ok": True, "actions": actions, "final_state": status()}
     finally:

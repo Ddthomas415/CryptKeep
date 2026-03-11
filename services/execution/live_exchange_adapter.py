@@ -1,7 +1,7 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Optional
 from services.market_data.symbol_router import normalize_venue, map_symbol
+from services.execution.order_params import prepare_ccxt_params
+from services.execution.place_order import place_order
 from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
 
@@ -40,16 +40,49 @@ class LiveExchangeAdapter:
         qty: float,
         limit_price: float | None,
         client_order_id: str,
+        params: dict | None = None,
+        allow_extra_params: bool = False,
+    ) -> dict:
+        # Backward-compatible alias; use submit_order in new call sites.
+        return self.submit_order(
+            canonical_symbol=canonical_symbol,
+            side=side,
+            order_type=order_type,
+            qty=qty,
+            limit_price=limit_price,
+            client_order_id=client_order_id,
+            params=params,
+            allow_extra_params=allow_extra_params,
+        )
+
+    def submit_order(
+        self,
+        *,
+        canonical_symbol: str,
+        side: str,
+        order_type: str,
+        qty: float,
+        limit_price: float | None,
+        client_order_id: str,
+        params: dict | None = None,
+        allow_extra_params: bool = False,
     ) -> dict:
         """
-        Best-effort clientOrderId support.
+        Venue-aware param normalization + idempotency key injection.
         """
         sym = map_symbol(self.venue, canonical_symbol)
         side = str(side).lower().strip()
         order_type = str(order_type).lower().strip()
-        params = {"clientOrderId": client_order_id}
         price = float(limit_price) if (order_type == "limit" and limit_price is not None) else None
-        return self.place_order(sym, order_type, side, float(qty), price, params)
+        ccxt_params = prepare_ccxt_params(
+            exchange_id=self.venue,
+            client_order_id=str(client_order_id),
+            order_type=order_type,
+            price=price,
+            params=dict(params or {}),
+            allow_extra=bool(allow_extra_params),
+        )
+        return place_order(self.ex, sym, order_type, side, float(qty), price, ccxt_params)
 
     def cancel_order(self, canonical_symbol: str, exchange_order_id: str) -> dict:
         sym = map_symbol(self.venue, canonical_symbol)

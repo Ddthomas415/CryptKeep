@@ -13,6 +13,7 @@ from typing import Any, Dict, Optional
 import yaml
 
 from services.logging.app_logger import get_logger
+from services.os.app_paths import data_dir, code_root
 
 def now_ms() -> int:
     return int(time.time() * 1000)
@@ -51,8 +52,8 @@ class ProcInfo:
 class SupervisorDaemon:
     def __init__(self, cfg_path: str = "config/services.yaml"):
         self.cfg_path = Path(cfg_path)
-        self.root = Path(".").resolve()
-        self.data_dir = self.root / "data" / "supervisor"
+        self.root = code_root()
+        self.data_dir = data_dir() / "supervisor"
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
         self.pid_path = self.data_dir / "daemon.pid"
@@ -84,13 +85,23 @@ class SupervisorDaemon:
         env.setdefault("PYTHONUNBUFFERED", "1")
         return env
 
+    def _normalize_cmd(self, cmd: list[Any]) -> list[str]:
+        parts = [str(x) for x in cmd]
+        if not parts:
+            return parts
+        exe = Path(parts[0]).name.lower()
+        if exe in {"python", "python3", "python.exe", "python3.exe"}:
+            parts[0] = sys.executable
+        return parts
+
     def start_service(self, name: str, service: Dict[str, Any]) -> None:
         if name in self.procs and self.procs[name].popen.poll() is None:
             return
 
-        cmd = service.get("cmd")
-        if not isinstance(cmd, list) or not cmd:
+        raw_cmd = service.get("cmd")
+        if not isinstance(raw_cmd, list) or not raw_cmd:
             raise RuntimeError(f"Service {name} missing cmd list")
+        cmd = self._normalize_cmd(raw_cmd)
         cwd = str(service.get("cwd") or str(self.root))
         env = self._env_for(service)
 

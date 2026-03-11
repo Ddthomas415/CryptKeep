@@ -1,0 +1,67 @@
+{
+  "title": "Trade AI MVP Overview",
+  "schemaVersion": 39,
+  "version": 2,
+  "panels": [
+    {
+      "type": "text",
+      "title": "Service Health",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "options": {"content": "Use health endpoints for gateway/orchestrator/ingestion services."}
+    },
+    {
+      "type": "text",
+      "title": "Paper Trading",
+      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 8},
+      "options": {"content": "Paper positions, fills, and risk state."}
+    },
+    {
+      "type": "table",
+      "title": "Paper Positions",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 10},
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT symbol, quantity, avg_entry_price, realized_pnl, updated_at FROM paper_positions ORDER BY ABS(quantity) DESC, symbol ASC LIMIT 100;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Recent Paper Fills",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 10},
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT created_at, symbol, side, price, quantity, fee, order_id FROM paper_fills ORDER BY created_at DESC LIMIT 100;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Paper Risk State",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 18},
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT now() AS ts, COALESCE((SELECT max_drawdown_pct FROM paper_performance_rollups WHERE interval='daily' ORDER BY bucket_start DESC LIMIT 1), 0) AS latest_max_drawdown_pct, COALESCE((SELECT SUM(ABS(quantity * COALESCE(avg_entry_price, 0))) FROM paper_positions), 0) AS gross_exposure_est_usd, COALESCE((SELECT MAX(ABS(quantity * COALESCE(avg_entry_price, 0))) FROM paper_positions), 0) AS top_position_est_usd;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Paper Readiness",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 18},
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT MIN(ts) AS first_point_ts, MAX(ts) AS last_point_ts, COUNT(*) AS equity_points, EXTRACT(EPOCH FROM (MAX(ts) - MIN(ts))) / 86400.0 AS observed_days FROM paper_equity_curve;",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

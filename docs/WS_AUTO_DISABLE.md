@@ -10,6 +10,11 @@ Updates:
   - checks exchange.has: watchOrderBook / watchTrades
   - skips unsupported features
   - on repeated errors, auto-disables feature per venue+symbol
+- services/marketdata/ws_ticker_feed.py
+  - checks capability: watchTicker
+  - on repeated watch_ticker/watchTicker errors, auto-disables `watchTicker`
+  - auto-expires via same blacklist cooldown behavior
+  - optional runner: `scripts/run_ws_ticker_feed.py`
 
 Config:
 microstructure:

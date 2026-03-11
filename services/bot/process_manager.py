@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from services.os.app_paths import data_dir, ensure_dirs
+from services.os.app_paths import data_dir, ensure_dirs, code_root
 
 ensure_dirs()
 STATUS_PATH = data_dir() / "bot_process.json"
@@ -93,7 +93,7 @@ def start_process(mode: str, module: str, extra_env: Optional[Dict[str, str]] = 
 
     cmd = [sys.executable, "-m", module]
     with open(log_path, "a", encoding="utf-8") as logf:
-        p = subprocess.Popen(cmd, stdout=logf, stderr=logf, env=env)
+        p = subprocess.Popen(cmd, stdout=logf, stderr=logf, env=env, cwd=str(code_root()))
 
     d = {
         "pid": int(p.pid),

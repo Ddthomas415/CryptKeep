@@ -35,3 +35,42 @@ def test_enable_live_uses_normalized_live_contract(monkeypatch):
     assert saved["cfg"]["live_trading"]["enabled"] is True
     assert saved["cfg"]["risk"]["enable_live"] is True
     assert saved["cfg"]["execution"]["live_enabled"] is True
+
+def test_enable_live_rejects_incomplete_checklist(monkeypatch):
+    from services.execution import live_enable as le
+
+    monkeypatch.setattr(le, "run_preflight", lambda: (_ for _ in ()).throw(AssertionError("should not run preflight")))
+    monkeypatch.setattr(le, "verify_and_consume", lambda token: (_ for _ in ()).throw(AssertionError("should not verify token")))
+
+    out = le.enable_live(
+        token="abc123",
+        checklist={
+            "i_understand_live_risk": True,
+            "api_keys_configured": False,
+            "risk_limits_set": True,
+            "dry_run_tested": True,
+            "i_accept_no_guarantees": True,
+        },
+    )
+
+    assert out["ok"] is False
+    assert out["reason"] == "checklist_incomplete"
+    assert "api_keys_configured" in out["missing"]
+
+
+def test_enable_live_returns_token_failed_when_verification_fails(monkeypatch):
+    from types import SimpleNamespace
+    from services.execution import live_enable as le
+
+    monkeypatch.setattr(le, "run_preflight", lambda: SimpleNamespace(ok=True, checks=[]))
+    monkeypatch.setattr(le, "verify_and_consume", lambda token: {"ok": False, "reason": "token_mismatch"})
+    monkeypatch.setattr(le, "load_user_yaml", lambda: {"live": {"enabled": False}})
+    monkeypatch.setattr(le, "save_user_yaml", lambda cfg: (_ for _ in ()).throw(AssertionError("should not save")))
+
+    out = le.enable_live(token="bad-token", checklist=CHECKLIST)
+
+    assert out["ok"] is False
+    assert out["reason"] == "token_failed"
+    assert out["token"]["reason"] == "token_mismatch"
+    assert out["preflight"]["ok"] is True
+

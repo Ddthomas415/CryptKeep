@@ -140,3 +140,26 @@ def test_stop_service_from_pidfile_missing_pid_file_is_ok(monkeypatch, tmp_path)
     assert out["ok"] is True
     assert out["note"] == "pid_file_missing"
     assert out["service"] == "market_data_poller"
+
+def test_stop_service_from_pidfile_rejects_unknown_dashboard_service_name(monkeypatch, tmp_path):
+    from services.admin import service_controls as sc
+    from services.admin import watchdog
+
+    pid_dir = tmp_path / "pids"
+    pid_dir.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(watchdog, "PID_DIR", pid_dir)
+
+    out = sc.stop_service_from_pidfile("dashboard")
+
+    assert out["ok"] is False
+    assert out["error"] == "unknown_service_name"
+
+
+def test_stop_service_from_pidfile_invalid_service_name_with_slash():
+    from services.admin import service_controls as sc
+
+    out = sc.stop_service_from_pidfile("bad/name")
+
+    assert out["ok"] is False
+    assert out["error"] == "unsafe_service_name"
+

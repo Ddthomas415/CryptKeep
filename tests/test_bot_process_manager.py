@@ -51,3 +51,42 @@ def test_stop_process_clears_stale_pid_status_file(monkeypatch, tmp_path):
     assert out.running is False
     assert out.note == "stale_pid_cleared"
     assert not pm.STATUS_PATH.exists()
+
+
+def test_start_process_uses_code_root_cwd(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    pm = _reload_process_manager()
+
+    first = pm.ProcStatus(False, None, None, None, None, None, note="no_status_file")
+    second = pm.ProcStatus(
+        True,
+        2468,
+        "paper",
+        1,
+        "python -m services.bot.cli_paper",
+        str(tmp_path / "logs" / "paper_bot.log"),
+        note="started",
+    )
+    states = [first, second]
+    monkeypatch.setattr(pm, "read_status", lambda: states.pop(0))
+    monkeypatch.setattr(pm, "_write_status", lambda _d: None)
+    monkeypatch.setattr(pm, "code_root", lambda: tmp_path / "repo")
+
+    captured: dict[str, object] = {}
+
+    class _DummyProc:
+        pid = 2468
+
+    def _fake_popen(cmd, **kwargs):
+        captured["cmd"] = list(cmd)
+        captured["cwd"] = kwargs.get("cwd")
+        return _DummyProc()
+
+    monkeypatch.setattr(pm.subprocess, "Popen", _fake_popen)
+
+    out = pm.start_process("paper", "services.bot.cli_paper")
+
+    assert out.running is True
+    assert out.pid == 2468
+    assert captured["cmd"] == [pm.sys.executable, "-m", "services.bot.cli_paper"]
+    assert captured["cwd"] == str(tmp_path / "repo")

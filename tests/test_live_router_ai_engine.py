@@ -57,3 +57,44 @@ def test_live_router_blocks_with_ai_gate_fail(monkeypatch, tmp_path):
     assert dec.allowed is False
     assert str(dec.reason).startswith("ai_gate:")
 
+
+def test_live_router_proba_gate_error_is_non_blocking_when_not_strict(monkeypatch):
+    from services import feature_gate as fg
+
+    def _boom(*_args, **_kwargs):
+        raise RuntimeError("proba_failed")
+
+    monkeypatch.setattr(fg, "proba_gate", _boom)
+    monkeypatch.setenv("CBP_USE_FUSED_PROBA", "1")
+    monkeypatch.delenv("CBP_PROBA_STRICT", raising=False)
+
+    dec = asyncio.run(
+        decide_order(
+            venue="coinbase",
+            symbol_norm="BTC/USD",
+            delta_qty=1.0,
+        )
+    )
+    assert dec.allowed is True
+    assert str(dec.meta.get("proba", {}).get("reason", "")).startswith("proba_gate_error_ignored:")
+
+
+def test_live_router_proba_gate_error_blocks_when_strict(monkeypatch):
+    from services import feature_gate as fg
+
+    def _boom(*_args, **_kwargs):
+        raise RuntimeError("proba_failed")
+
+    monkeypatch.setattr(fg, "proba_gate", _boom)
+    monkeypatch.setenv("CBP_USE_FUSED_PROBA", "1")
+    monkeypatch.setenv("CBP_PROBA_STRICT", "1")
+
+    dec = asyncio.run(
+        decide_order(
+            venue="coinbase",
+            symbol_norm="BTC/USD",
+            delta_qty=1.0,
+        )
+    )
+    assert dec.allowed is False
+    assert str(dec.reason).startswith("proba_gate:error:")

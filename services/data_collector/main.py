@@ -7,9 +7,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Sequence
 
-from adapters.exchanges.binance.market_ws import BinanceMarketDataFeed
-from adapters.exchanges.coinbase_adv.market_ws import CoinbaseAdvancedMarketDataFeed
-from adapters.exchanges.gateio.market_ws import GateIOMarketDataFeed
 from services.os.app_paths import data_dir, ensure_dirs
 from storage.event_store_sqlite import SQLiteEventStore
 
@@ -87,13 +84,19 @@ async def main() -> None:
     hb = asyncio.create_task(_heartbeat_loop(store, enable, channels, stats, lock))
     tasks.append(hb)
     if "binance" in enable:
+        from adapters.exchanges.binance.market_ws import BinanceMarketDataFeed
+
         symbols = _csv("CBP_BINANCE_SYMBOLS", "btcusdt")
         tasks.append(asyncio.create_task(_run_feed("binance", BinanceMarketDataFeed(), symbols, channels, store, stats, lock)))
     if "coinbase" in enable:
+        from adapters.exchanges.coinbase_adv.market_ws import CoinbaseAdvancedMarketDataFeed
+
         jwt = os.environ.get("CBP_COINBASE_JWT")
         products = _csv("CBP_COINBASE_PRODUCTS", "BTC-USD")
         tasks.append(asyncio.create_task(_run_feed("coinbase", CoinbaseAdvancedMarketDataFeed(jwt=jwt), products, channels, store, stats, lock)))
     if "gateio" in enable:
+        from adapters.exchanges.gateio.market_ws import GateIOMarketDataFeed
+
         pairs = _csv("CBP_GATEIO_PAIRS", "BTC_USDT")
         tasks.append(asyncio.create_task(_run_feed("gateio", GateIOMarketDataFeed(), pairs, channels, store, stats, lock)))
     if len(tasks) <= 1:

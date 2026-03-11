@@ -44,3 +44,8 @@ def reconcile_spot_position(*, venue: str, symbol: str) -> dict:
                 ex.close()
         except Exception:
             pass
+
+
+def reconcile_once(*, venue: str, symbol: str) -> dict:
+    """Compatibility alias for legacy callers."""
+    return reconcile_spot_position(venue=venue, symbol=symbol)

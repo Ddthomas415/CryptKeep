@@ -25,6 +25,8 @@ def run_once():
     side = None
     reason = "insufficient_candles"
     print(f"[EXECUTE] Action={action} Side={side} Reason={reason}")
+    if action not in ("buy", "sell"):
+        return
 
     # --- Throttle check ---
     throttle = can_trade(venue=VENUE, symbol=SYMBOL, min_seconds_between_orders=20)
@@ -86,7 +88,9 @@ def _install_shutdown_signal_handlers() -> None:
 
 def run_forever(interval_sec: float = 10.0) -> None:
     _install_shutdown_signal_handlers()
-    _SHUTDOWN_EVENT.clear()
+    if _SHUTDOWN_EVENT.is_set():
+        print("[LIVE] strategy runner stopped cleanly")
+        return
     print("[LIVE] Starting modular live strategy runner...")
     while not _SHUTDOWN_EVENT.is_set():
         try:
@@ -141,8 +145,6 @@ def _record_heartbeat_latency() -> None:
 # -------------------------------------------------------------------
 # Entry point
 # -------------------------------------------------------------------
-if __name__ == "__main__":
-    run_forever()
 
 # --- compat entrypoint for scripts/run_bot_safe.py ---
 def run(*args, **kwargs):
@@ -180,3 +182,7 @@ def _env_symbol(default: str = "BTC/USD") -> str:
 
 VENUE = _env_venue()
 SYMBOL = _env_symbol()
+
+
+if __name__ == "__main__":
+    run_forever()

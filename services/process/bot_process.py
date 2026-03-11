@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.os.app_paths import data_dir
+from services.os.app_paths import data_dir, code_root
 from services.process.crash_snapshot import write_crash_snapshot
 
 PROC_PATH = data_dir() / "bot_process.json"
@@ -58,7 +58,7 @@ def status() -> dict:
 def start_bot(*, venue: str, symbols: list[str], force: bool = False) -> dict:
     st = status()
     if st.get("running"):
-        return {"ok": False, "reason": "already_running", **st}
+        return {**st, "ok": False, "reason": "already_running"}
 
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     # append mode
@@ -84,7 +84,7 @@ def start_bot(*, venue: str, symbols: list[str], force: bool = False) -> dict:
     try:
         p = subprocess.Popen(
             cmd,
-            cwd=str(Path(__file__).resolve().parents[2]),
+            cwd=str(code_root()),
             stdout=lf,
             stderr=lf,
             stdin=subprocess.DEVNULL,

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import os, signal, subprocess, sys, time
-from pathlib import Path
 from typing import Any
-from services.os.app_paths import data_dir
+from services.os.app_paths import data_dir, code_root
 
 PID_PATH = data_dir() / "intent_executor.pid"
 
@@ -46,7 +45,7 @@ def start() -> dict[str, Any]:
     _remove_pid()
     cmd = [sys.executable, "scripts/run_intent_executor.py"]
     kwargs: dict[str, Any] = {
-        "cwd": str(Path.cwd()),
+        "cwd": str(code_root()),
         "stdout": subprocess.DEVNULL,
         "stderr": subprocess.DEVNULL,
         "stdin": subprocess.DEVNULL,

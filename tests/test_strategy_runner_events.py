@@ -42,3 +42,31 @@ def test_runner_iteration_logs_error(monkeypatch):
         strategy_runner._runner_iteration()
 
     assert any(event == "strategy_error" for event, _ in events)
+
+def test_env_symbol_uses_first_symbol_from_csv(monkeypatch):
+    monkeypatch.setenv("CBP_SYMBOLS", "ETH/USD, BTC/USD , SOL/USD")
+    monkeypatch.delenv("SYMBOLS", raising=False)
+
+    assert strategy_runner._env_symbol() == "ETH/USD"
+
+
+def test_env_symbol_falls_back_to_symbols_env(monkeypatch):
+    monkeypatch.delenv("CBP_SYMBOLS", raising=False)
+    monkeypatch.setenv("SYMBOLS", "LTC/USD, BTC/USD")
+
+    assert strategy_runner._env_symbol() == "LTC/USD"
+
+
+def test_env_symbol_returns_default_when_empty(monkeypatch):
+    monkeypatch.delenv("CBP_SYMBOLS", raising=False)
+    monkeypatch.delenv("SYMBOLS", raising=False)
+
+    assert strategy_runner._env_symbol() == "BTC/USD"
+
+
+def test_env_venue_prefers_cbp_venue(monkeypatch):
+    monkeypatch.setenv("CBP_VENUE", "kraken")
+    monkeypatch.setenv("EXCHANGE_ID", "coinbase")
+
+    assert strategy_runner._env_venue() == "kraken"
+

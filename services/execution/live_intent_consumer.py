@@ -127,7 +127,7 @@ def run_forever() -> None:
                 ad = None
                 try:
                     ad = LiveExchangeAdapter(venue)
-                    resp = place_order(
+                    resp = ad.submit_order(
                         canonical_symbol=symbol,
                         side=it["side"],
                         order_type=it["order_type"],

@@ -214,3 +214,33 @@ def wizard_guided_setup_apply_preset_state(preset: str) -> dict:
     guided_setup_apply_preset(preset)
     return guided_setup_state()
 
+def wizard_guided_setup_page_data() -> dict:
+    state = wizard_guided_setup_state()
+    return {
+        "summary": state.get("summary", {}),
+        "preflight": state.get("preflight", {}),
+        "status": state.get("status", {}),
+    }
+
+def render_guided_setup_panel(ui) -> dict:
+    action = ui.get("action")
+    if action == "apply_preset":
+        state = wizard_guided_setup_apply_preset_state(str(ui.get("preset", "safe_paper")))
+    elif action == "apply_patch":
+        state = wizard_guided_setup_apply_state(ui.get("patch"))
+    elif action == "refresh":
+        state = wizard_guided_setup_page_data()
+    else:
+        state = wizard_guided_setup_page_data()
+
+    summary = state.get("summary", {}) or {}
+    preflight = state.get("preflight", {}) or {}
+    status = state.get("status", {}) or {}
+
+    ui["summary"] = summary
+    ui["preflight"] = preflight
+    ui["status"] = status
+    ui["last_action"] = action or "load"
+
+    return state
+

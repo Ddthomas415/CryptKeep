@@ -5,7 +5,19 @@ services:
     enabled: true
     auto_restart: true
     restart_backoff_ms: 1500
-    cmd: ["python", "scripts/run_market_ws.py"]
+    cmd: ["python", "scripts/run_tick_publisher.py", "run"]
+
+  ops_risk_gate:
+    enabled: true
+    auto_restart: true
+    restart_backoff_ms: 1500
+    cmd: ["python", "scripts/run_ops_risk_gate_service.py", "run"]
+
+  ops_signal_adapter:
+    enabled: true
+    auto_restart: true
+    restart_backoff_ms: 1500
+    cmd: ["python", "scripts/run_ops_signal_adapter.py", "run"]
 
   # Bot runner placeholder:
   # Enable once your live runner entrypoint is stable.

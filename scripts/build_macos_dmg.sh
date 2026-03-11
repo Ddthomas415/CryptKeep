@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 # 1) Build PyInstaller output (also produces .app on macOS when --windowed is used)
 bash scripts/build_macos.sh
 
-APP_PATH="dist/CryptoBotPro/CryptoBotPro.app"
+APP_PATH="dist/CryptoBotPro.app"
 OUT_DIR="dist_installers"
 DMG_PATH="${OUT_DIR}/CryptoBotPro.dmg"
 
@@ -33,6 +33,8 @@ else
   hdiutil create -volname "CryptoBotPro" -srcfolder "${TMP_DIR}" -ov -format UDZO "${DMG_PATH}"
   rm -rf "${TMP_DIR}"
   echo "DMG built (basic) at ${DMG_PATH}"
+  echo "Tip: install create-dmg for nicer DMG layout."
+fi
 
 # OPTIONAL_SIGN_NOTARY_v1
 # Optional signing/notarization (CI sets secrets; local users can set env vars)
@@ -44,7 +46,4 @@ fi
 if [[ -n "${APPLE_ID:-}" && -n "${APPLE_TEAM_ID:-}" && -n "${APPLE_APP_PASSWORD:-}" ]]; then
   echo "[optional] Notarizing DMG..."
   APPLE_ID="${APPLE_ID}" APPLE_TEAM_ID="${APPLE_TEAM_ID}" APPLE_APP_PASSWORD="${APPLE_APP_PASSWORD}" DMG_PATH="${DMG_PATH}" APP_PATH="${APP_PATH}" bash scripts/macos_notarize_dmg.sh
-fi
-
-  echo "Tip: install create-dmg for nicer DMG layout."
 fi

@@ -1,0 +1,42 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+
+def _root() -> Path:
+    return Path(__file__).resolve().parents[1]
+
+
+def test_packaging_core_files_exist() -> None:
+    root = _root()
+    required = [
+        root / "packaging" / "config" / "app.json",
+        root / "packaging" / "pyinstaller" / "build.py",
+        root / "scripts" / "build_app.sh",
+        root / "scripts" / "build_app.ps1",
+        root / "scripts" / "build_macos.sh",
+    ]
+    missing = [str(p.relative_to(root)) for p in required if not p.exists()]
+    assert not missing, f"missing packaging scaffold files: {missing}"
+
+
+def test_packaging_app_config_entry_exists() -> None:
+    root = _root()
+    cfg = json.loads((root / "packaging" / "config" / "app.json").read_text(encoding="utf-8"))
+    entry = cfg.get("entry")
+    assert isinstance(entry, str) and entry
+    assert (root / entry).exists(), f"packaging entry does not exist: {entry}"
+
+
+def test_macos_build_script_targets_windowed_app() -> None:
+    root = _root()
+    text = (root / "scripts" / "build_macos.sh").read_text(encoding="utf-8", errors="replace")
+    assert "CBP_WINDOWED=1" in text
+    assert "dist/CryptoBotPro.app" in text
+
+
+def test_windows_installer_uses_existing_build_wrapper() -> None:
+    root = _root()
+    text = (root / "scripts" / "build_windows_installer.ps1").read_text(encoding="utf-8", errors="replace")
+    assert "scripts\\build_app.ps1" in text

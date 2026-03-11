@@ -15,7 +15,6 @@ from __future__ import annotations
 # CBP_FILLS_POLLER_SINGLE_SINK_PATH_V1
 
 import os
-import hashlib
 
 # CBP_FILLS_POLLER_CALLS_FILL_SINK_V1
 
@@ -30,6 +29,7 @@ from services.os.app_paths import data_dir, ensure_dirs
 from services.execution.exchange_client import ExchangeClient
 
 from services.journal.fill_sink import CanonicalFillSink
+from services.fills.user_stream_router import ccxt_trade_to_fill, route_fill_event
 
 
 
@@ -101,6 +101,7 @@ class FillsPollerCfg:
     sandbox: bool = False
     default_type: str = "spot"
     enable_rate_limit: bool = True
+    route_via_live_executor_hook: bool = True
 
 class FillsPoller:
     """
@@ -153,92 +154,7 @@ class FillsPoller:
         ).build()
         return ex
     def _trade_to_fill(self, ex_id: str, t: Dict[str, Any]) -> Dict[str, Any]:
-        # Stable fill_id is REQUIRED for idempotent accounting.
-        # Prefer exchange-provided trade id; fallback to deterministic hash.
-        def _sym_parts(sym: str) -> tuple[str, str]:
-            try:
-                if "/" in sym:
-                    b, q = sym.split("/", 1)
-                    return (b.strip().upper(), q.strip().upper())
-            except Exception:
-                pass
-            return ("", "")
-
-        def _usd_like(cur: str) -> bool:
-            c = str(cur or "").strip().upper()
-            return c in ("USD", "USDT", "USDC")
-
-        symbol = str(t.get("symbol") or "")
-        base, quote = _sym_parts(symbol)
-
-        ts_any = t.get("timestamp") or t.get("datetime") or (datetime.datetime.utcnow().isoformat() + "Z")
-        ts_str = str(ts_any)
-
-        # Fill id
-        fill_id = str(t.get("id") or "")
-        if not fill_id:
-            try:
-                raw = "|".join([
-                    str(ex_id),
-                    str(t.get("timestamp") or ""),
-                    str(t.get("order") or t.get("orderId") or ""),
-                    symbol,
-                    str(t.get("side") or ""),
-                    str(t.get("amount") or ""),
-                    str(t.get("price") or ""),
-                    str(t.get("cost") or ""),
-                ])
-                fill_id = "synthetic:" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:24]
-            except Exception:
-                fill_id = "synthetic:unknown"
-
-        # client_order_id (best-effort from ccxt trade info)
-        client_order_id = ""
-        try:
-            info = t.get("info") if isinstance(t.get("info"), dict) else {}
-            for k in ("clientOrderId", "client_order_id", "newClientOrderId", "text", "clientOid"):
-                v = t.get(k) or (info.get(k) if isinstance(info, dict) else None)
-                if v:
-                    client_order_id = str(v)
-                    break
-        except Exception:
-            pass
-
-        # fee_usd conversion (best-effort)
-        fee_usd = 0.0
-        fee = t.get("fee")
-        try:
-            price = float(t.get("price") or 0.0)
-        except Exception:
-            price = 0.0
-
-        if isinstance(fee, dict):
-            try:
-                cur = str(fee.get("currency") or "").upper()
-                cost = float(fee.get("cost") or 0.0)
-                if _usd_like(cur):
-                    fee_usd = cost
-                elif _usd_like(quote) and cur == quote:
-                    fee_usd = cost
-                elif _usd_like(quote) and cur == base and price > 0:
-                    fee_usd = cost * price
-            except Exception:
-                pass
-
-        return {
-            "venue": ex_id,
-            "fill_id": fill_id,
-            "order_id": str(t.get("order") or t.get("orderId") or ""),
-            "client_order_id": client_order_id,
-            "symbol": symbol,
-            "side": t.get("side") or "",
-            "qty": t.get("amount"),
-            "price": t.get("price"),
-            "ts": ts_str,
-            "fee_usd": float(fee_usd),
-            "realized_pnl_usd": None,
-            "raw": {"ccxt_trade": t},
-        }
+        return ccxt_trade_to_fill(ex_id, t)
     async def _poll_one(self, ex_id: str) -> None:
         ex_id = ex_id.lower().strip()
         ex_id = {'gate':'gateio','gate.io':'gateio'}.get(ex_id, ex_id)
@@ -264,7 +180,12 @@ class FillsPoller:
                         fill = self._trade_to_fill(ex_id, t)
                         if not fill.get("symbol") or not fill.get("side") or fill.get("qty") is None or fill.get("price") is None:
                             continue
-                        self.sink.on_fill(fill)
+                        route_fill_event(
+                            fill,
+                            exec_db=self.cfg.exec_db,
+                            prefer_live_executor_hook=bool(self.cfg.route_via_live_executor_hook),
+                            fallback_sink=self.sink,
+                        )
                         try:
                             ts = int(t.get("timestamp") or 0)
                             if ts > max_ts:
@@ -347,4 +268,9 @@ def load_cfg(path: str = "config/trading.yaml") -> FillsPollerCfg:
         sandbox=bool(fp.get("sandbox") or False),
         default_type=str(fp.get("default_type") or "spot"),
         enable_rate_limit=bool(fp.get("enable_rate_limit") if fp.get("enable_rate_limit") is not None else True),
+        route_via_live_executor_hook=bool(
+            fp.get("route_via_live_executor_hook")
+            if fp.get("route_via_live_executor_hook") is not None
+            else True
+        ),
     )

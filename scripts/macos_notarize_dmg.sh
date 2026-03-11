@@ -9,7 +9,7 @@ set -euo pipefail
 #   staples the DMG (and can staple the .app if you pass APP_PATH too)
 
 DMG_PATH="${DMG_PATH:-dist_installers/CryptoBotPro.dmg}"
-APP_PATH="${APP_PATH:-dist/CryptoBotPro/CryptoBotPro.app}"
+APP_PATH="${APP_PATH:-dist/CryptoBotPro.app}"
 
 APPLE_ID="${APPLE_ID:-}"
 APPLE_TEAM_ID="${APPLE_TEAM_ID:-}"

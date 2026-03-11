@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -8,6 +9,8 @@ from services.admin.master_read_only import is_master_read_only
 from services.config_loader import load_user_config
 from services.execution.safety import load_gates, should_allow_order
 from storage.execution_guard_store_sqlite import ExecutionGuardStoreSQLite
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -125,6 +128,7 @@ async def decide_order(
 
         env_use = (os.environ.get("CBP_USE_FUSED_PROBA", "") or "").strip().lower() in ("1", "true", "yes", "on")
         use_fused = bool(env_use or ov_router.get("use_fused_proba", False))
+        proba_strict = bool(int(os.environ.get("CBP_PROBA_STRICT", "0") or "0"))
         if use_fused:
             gv = proba_gate(
                 scope=scope,
@@ -132,13 +136,17 @@ async def decide_order(
                 use_fused=use_fused,
                 buy_th=float(ov_router.get("proba_buy_th", 0.55)),
                 sell_th=float(ov_router.get("proba_sell_th", 0.45)),
-                strict=bool(int(os.environ.get("CBP_PROBA_STRICT", "0") or "0")),
+                strict=proba_strict,
             )
             meta["proba"] = {"name": gv.feature_name, "val": gv.feature_value}
             if not gv.ok:
                 return RouterDecision(False, f"proba_gate:{gv.reason}", "none", 0.0, "none", None, meta)
-    except Exception:
-        pass
+    except Exception as e:
+        meta["proba"] = {"ok": True, "reason": f"proba_gate_error_ignored:{type(e).__name__}"}
+        logger.warning("live_router_proba_gate_error: %s: %s", type(e).__name__, e)
+        proba_strict = bool(int(os.environ.get("CBP_PROBA_STRICT", "0") or "0"))
+        if proba_strict:
+            return RouterDecision(False, f"proba_gate:error:{type(e).__name__}", "none", 0.0, "none", None, meta)
 
     return RouterDecision(True, "ok", side, qty, "limit", limit_price, meta)
 

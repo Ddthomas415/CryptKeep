@@ -25,6 +25,30 @@ def test_start_process_already_running(monkeypatch):
     assert out.get("pid") == 777
 
 
+def test_start_process_uses_code_root_as_cwd(monkeypatch, tmp_path):
+    monkeypatch.setattr(ps, "is_running", lambda _name: False)
+    monkeypatch.setattr(ps, "code_root", lambda: tmp_path)
+    monkeypatch.setattr(ps, "_write_pid", lambda _name, _pid: None)
+
+    captured: dict[str, object] = {}
+
+    class _DummyProc:
+        pid = 12345
+
+    def _fake_popen(cmd, **kwargs):
+        captured["cmd"] = list(cmd)
+        captured["cwd"] = kwargs.get("cwd")
+        return _DummyProc()
+
+    monkeypatch.setattr(ps.subprocess, "Popen", _fake_popen)
+
+    out = ps.start_process("worker", ["python3", "fake.py"])
+
+    assert out.get("ok") is True
+    assert captured["cmd"] == ["python3", "fake.py"]
+    assert captured["cwd"] == str(tmp_path)
+
+
 def test_stop_process_not_running():
     out = ps.stop_process("does_not_exist")
     assert out.get("ok") is True

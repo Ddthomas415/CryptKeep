@@ -183,3 +183,34 @@ def test_snapshot_multi_quote_leaves_total_equity_none():
     assert snap["equity_by_quote"]["USDT"] == 20.0
     assert snap["total_equity"] is None
 
+
+def test_snapshot_multi_quote_sets_total_equity_when_target_quote_and_fx_marks_given():
+    pa = PositionAccounting()
+    pa.apply_fill({"side": "BUY", "symbol": "BTC/USD", "qty": 1, "price": 100})
+    pa.apply_fill({"side": "BUY", "symbol": "ETH/USDT", "qty": 2, "price": 50})
+
+    snap = pa.snapshot(
+        marks={"BTC/USD": 120, "ETH/USDT": 60},
+        target_quote="USD",
+        quote_marks={"USDT/USD": 1.0},
+    )
+
+    assert snap["equity_by_quote"]["USD"] == 20.0
+    assert snap["equity_by_quote"]["USDT"] == 20.0
+    assert snap["total_equity"] == 40.0
+
+
+def test_snapshot_multi_quote_leaves_total_equity_none_when_fx_mark_missing():
+    pa = PositionAccounting()
+    pa.apply_fill({"side": "BUY", "symbol": "BTC/USD", "qty": 1, "price": 100})
+    pa.apply_fill({"side": "BUY", "symbol": "ETH/USDT", "qty": 2, "price": 50})
+
+    snap = pa.snapshot(
+        marks={"BTC/USD": 120, "ETH/USDT": 60},
+        target_quote="USD",
+    )
+
+    assert snap["equity_by_quote"]["USD"] == 20.0
+    assert snap["equity_by_quote"]["USDT"] == 20.0
+    assert snap["total_equity"] is None
+

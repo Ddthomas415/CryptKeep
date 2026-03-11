@@ -155,6 +155,9 @@ class MeanReversionBBPipeline:
                 price=None,
                 meta=meta,
                 status="pending",
+                strategy_id=self.STRATEGY_ID,
+                source="pipeline",
+                enqueue_execution=True,
             )
         except Exception as e:
             self.ops.add(

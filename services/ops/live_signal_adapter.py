@@ -23,6 +23,10 @@ class LiveSignalAdapter:
         gate = payload if isinstance(payload, RiskGateSignal) else RiskGateSignal.from_dict(payload)
         return self.store.insert_risk_gate(gate)
 
+    def publish_snapshot_with_gate(self, payload: RawSignalSnapshot | Dict[str, Any]) -> Dict[str, Any]:
+        from services.ops.risk_gate_engine import process_snapshot
+
+        return process_snapshot(payload, store=self.store)
+
     def latest_risk_gate(self) -> Dict[str, Any] | None:
         return self.store.latest_risk_gate()
-

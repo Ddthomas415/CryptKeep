@@ -50,3 +50,227 @@ def test_run_preflight_collects_private_connectivity_and_probe_results(monkeypat
     assert out["private_connectivity"][0]["ok"] is True
     assert out["private_connectivity"][1]["ok"] is False
     assert out["permission_probes"][0]["results"] == [{"probe": "fetch_balance"}]
+import json
+
+from services.diagnostics.config_restore import restore_missing_configs
+from services.diagnostics.preflight import (
+    PreflightConfig,
+    diagnostics_text,
+    run_preflight,
+)
+
+
+def test_restore_missing_configs_creates_missing_files(tmp_path):
+    root = tmp_path
+    tpl_dir = root / "config" / "templates"
+    tpl_dir.mkdir(parents=True, exist_ok=True)
+    (tpl_dir / "trading.yaml.default").write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+    (tpl_dir / ".env.template").write_text("EXAMPLE=1\n", encoding="utf-8")
+
+    out = restore_missing_configs(str(root))
+
+    assert out.ok is True
+    assert str(root / "config" / "trading.yaml") in out.restored
+    assert str(root / ".env.template") in out.restored
+    assert (root / "config" / "trading.yaml").exists()
+    assert (root / ".env.template").exists()
+
+
+def test_restore_missing_configs_skips_existing_files(tmp_path):
+    root = tmp_path
+    tpl_dir = root / "config" / "templates"
+    tpl_dir.mkdir(parents=True, exist_ok=True)
+    (tpl_dir / "trading.yaml.default").write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+    (tpl_dir / ".env.template").write_text("EXAMPLE=1\n", encoding="utf-8")
+
+    cfg = root / "config" / "trading.yaml"
+    cfg.parent.mkdir(parents=True, exist_ok=True)
+    cfg.write_text("symbols:\n  - ETH/USD\n", encoding="utf-8")
+    env_tpl = root / ".env.template"
+    env_tpl.write_text("EXAMPLE=keep\n", encoding="utf-8")
+
+    out = restore_missing_configs(str(root))
+
+    assert out.ok is True
+    assert str(cfg) in out.skipped
+    assert str(env_tpl) in out.skipped
+    assert cfg.read_text(encoding="utf-8") == "symbols:\n  - ETH/USD\n"
+    assert env_tpl.read_text(encoding="utf-8") == "EXAMPLE=keep\n"
+
+
+def test_diagnostics_text_is_sorted_json():
+    payload = {"z": 1, "a": {"b": 2}}
+    text = diagnostics_text(payload)
+
+    assert json.loads(text) == payload
+    assert text.index('"a"') < text.index('"z"')
+
+
+def test_run_preflight_reports_blocked_when_config_missing(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: True)
+    monkeypatch.setattr(pf, "file_writable", lambda path: True)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name in {"streamlit", "ccxt"}:
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    out = run_preflight(PreflightConfig(trading_yaml=str(tmp_path / "missing.yaml")))
+
+    assert out["status"] == "BLOCKED"
+    assert "missing config/trading.yaml" in out["blocked_reasons"]
+
+
+def test_run_preflight_ok_when_requirements_present(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    cfg = tmp_path / "trading.yaml"
+    cfg.write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: True)
+    monkeypatch.setattr(pf, "file_writable", lambda path: True)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name in {"streamlit", "ccxt"}:
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
+
+    assert out["status"] == "OK"
+    assert out["blocked_reasons"] == []
+
+def test_run_preflight_blocked_when_port_unavailable(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    cfg = tmp_path / "trading.yaml"
+    cfg.write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: False)
+    monkeypatch.setattr(pf, "file_writable", lambda path: True)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name in {"streamlit", "ccxt"}:
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
+
+    assert out["status"] == "BLOCKED"
+    assert "port not available (8501)" in out["blocked_reasons"]
+
+
+def test_run_preflight_blocked_when_import_missing(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    cfg = tmp_path / "trading.yaml"
+    cfg.write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: True)
+    monkeypatch.setattr(pf, "file_writable", lambda path: True)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "streamlit":
+            raise ModuleNotFoundError("streamlit")
+        if name == "ccxt":
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
+
+    assert out["status"] == "BLOCKED"
+    assert "streamlit not importable" in out["blocked_reasons"]
+    assert out["imports"]["streamlit"].startswith("FAIL:")
+
+
+def test_run_preflight_blocked_when_data_dir_not_writable(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    cfg = tmp_path / "trading.yaml"
+    cfg.write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: True)
+    monkeypatch.setattr(pf, "file_writable", lambda path: False)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name in {"streamlit", "ccxt"}:
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
+
+    assert out["status"] == "OK"
+    assert "data dir not writable" not in out["blocked_reasons"]
+
+
+def test_run_preflight_blocked_when_ccxt_missing(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    cfg = tmp_path / "trading.yaml"
+    cfg.write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: True)
+    monkeypatch.setattr(pf, "file_writable", lambda path: True)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "ccxt":
+            raise ModuleNotFoundError("ccxt")
+        if name == "streamlit":
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
+
+    assert out["status"] == "BLOCKED"
+    assert "ccxt not importable" in out["blocked_reasons"]
+    assert out["imports"]["ccxt"].startswith("FAIL:")
+
+
+def test_restore_missing_configs_handles_missing_templates(tmp_path):
+    root = tmp_path
+
+    out = restore_missing_configs(str(root))
+
+    assert out.ok is False
+    assert out.restored == {}
+    assert out.skipped == {}
+    assert out.errors
+

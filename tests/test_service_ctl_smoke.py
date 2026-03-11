@@ -10,3 +10,5 @@ def test_service_ctl_list_has_tick_publisher():
     out = subprocess.check_output(cmd, cwd=str(root), text=True)
     services = {line.strip() for line in out.splitlines() if line.strip()}
     assert "tick_publisher" in services
+    assert "ops_signal_adapter" in services
+    assert "ops_risk_gate" in services

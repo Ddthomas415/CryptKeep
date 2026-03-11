@@ -67,8 +67,15 @@ class PositionAccounting:
             pos["qty"] = 0.0
             pos["avg_price"] = 0.0
 
-    def snapshot(self, marks: dict[str, float] | None = None) -> dict:
+    def snapshot(
+        self,
+        marks: dict[str, float] | None = None,
+        *,
+        target_quote: str | None = None,
+        quote_marks: dict[str, float] | None = None,
+    ) -> dict:
         marks = marks or {}
+        quote_marks = quote_marks or {}
         positions = []
         unrealized = 0.0
 
@@ -105,7 +112,22 @@ class PositionAccounting:
 
         equity_by_quote = dict(sorted(equity_by_quote.items()))
         total_equity = None
-        if len(equity_by_quote) == 1:
+
+        if target_quote:
+            target_quote = str(target_quote)
+            converted = 0.0
+            for quote, value in equity_by_quote.items():
+                if quote == target_quote:
+                    converted += float(value)
+                    continue
+                pair = f"{quote}/{target_quote}"
+                if pair not in quote_marks:
+                    total_equity = None
+                    break
+                converted += float(value) * float(quote_marks[pair])
+            else:
+                total_equity = float(converted)
+        elif len(equity_by_quote) == 1:
             total_equity = float(next(iter(equity_by_quote.values())))
 
         return {

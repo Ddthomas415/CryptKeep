@@ -83,6 +83,14 @@ def test_op_service_ctl_all_aggregate(monkeypatch):
     assert payload.get("ok") is False
 
 
+def test_op_service_ctl_list_fallback_includes_ops_risk_gate(monkeypatch):
+    monkeypatch.setattr(op, "_run", lambda _cmd, timeout=None: (2, "", "failed"))
+    names = op._service_ctl_list()
+    assert "tick_publisher" in names
+    assert "ops_signal_adapter" in names
+    assert "ops_risk_gate" in names
+
+
 def test_op_stop_everything_precedence(monkeypatch):
     monkeypatch.setattr(op, "_script_call", lambda script, *args: {"ok": True, "script": script, "args": list(args)})
     monkeypatch.setattr(op, "_service_ctl_all", lambda action: {"ok": True, "action": action})

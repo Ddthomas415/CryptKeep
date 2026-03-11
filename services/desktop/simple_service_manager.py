@@ -11,18 +11,18 @@ from typing import Iterable
 from services.os.app_paths import runtime_dir, ensure_dirs
 
 REPO = Path(__file__).resolve().parents[2]
-ensure_dirs()
-RUNTIME = runtime_dir()
-FLAGS = RUNTIME / "flags"
-LOGS = RUNTIME / "logs"
-LOCKS = RUNTIME / "locks"
-PIDS = RUNTIME / "pids"
 
-for d in (FLAGS, LOGS, LOCKS, PIDS):
-    d.mkdir(parents=True, exist_ok=True)
 
-for d in (FLAGS, LOGS, LOCKS):
-    d.mkdir(parents=True, exist_ok=True)
+def _runtime_paths() -> tuple[Path, Path, Path, Path]:
+    ensure_dirs()
+    rt = runtime_dir()
+    flags = rt / "flags"
+    logs = rt / "logs"
+    locks = rt / "locks"
+    pids = rt / "pids"
+    for d in (flags, logs, locks, pids):
+        d.mkdir(parents=True, exist_ok=True)
+    return flags, logs, locks, pids
 
 @dataclass(frozen=True)
 class ServiceSpec:
@@ -31,15 +31,19 @@ class ServiceSpec:
     log_file: Path
 
 def specs_default() -> list[ServiceSpec]:
+    _, logs, _, _ = _runtime_paths()
     py = sys.executable
     return [
-        ServiceSpec("tick_publisher",   [py, "-u", str(REPO / "scripts" / "run_tick_publisher.py")],   LOGS / "tick_publisher.log"),
-        ServiceSpec("intent_executor",  [py, "-u", str(REPO / "scripts" / "run_intent_executor.py")],  LOGS / "intent_executor.log"),
-        ServiceSpec("intent_reconciler",[py, "-u", str(REPO / "scripts" / "run_intent_reconciler.py")],LOGS / "intent_reconciler.log"),
+        ServiceSpec("tick_publisher",   [py, "-u", str(REPO / "scripts" / "run_tick_publisher.py")],   logs / "tick_publisher.log"),
+        ServiceSpec("intent_executor",  [py, "-u", str(REPO / "scripts" / "run_intent_executor.py")],  logs / "intent_executor.log"),
+        ServiceSpec("intent_reconciler",[py, "-u", str(REPO / "scripts" / "run_intent_reconciler.py")],logs / "intent_reconciler.log"),
+        ServiceSpec("ops_signal_adapter",[py, "-u", str(REPO / "scripts" / "run_ops_signal_adapter.py"), "run"], logs / "ops_signal_adapter.log"),
+        ServiceSpec("ops_risk_gate",    [py, "-u", str(REPO / "scripts" / "run_ops_risk_gate_service.py"), "run"], logs / "ops_risk_gate.log"),
     ]
 
 def _pid_path(name: str) -> Path:
-    return PIDS / f"{name}.pid"
+    _, _, _, pids = _runtime_paths()
+    return pids / f"{name}.pid"
 
 def _read_pid(name: str) -> int | None:
     p = _pid_path(name)
@@ -71,7 +75,7 @@ def start_service(spec: ServiceSpec) -> dict:
     env = os.environ.copy()
     # make imports deterministic in child processes
     env["PYTHONPATH"] = str(REPO) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
-    env.setdefault("CBP_STATE_DIR", str(RUNTIME.parent))
+    env.setdefault("CBP_STATE_DIR", str(runtime_dir().parent))
 
     p = subprocess.Popen(
         spec.cmd,
@@ -126,7 +130,8 @@ def list_services(specs: Iterable[ServiceSpec]) -> list[str]:
     return [s.name for s in specs]
 
 def tail_log(name: str, lines: int = 80) -> str:
-    path = LOGS / f"{name}.log"
+    _, logs, _, _ = _runtime_paths()
+    path = logs / f"{name}.log"
     if not path.exists():
         return ""
     data = path.read_text(encoding="utf-8", errors="replace").splitlines()

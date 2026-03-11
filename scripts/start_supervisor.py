@@ -14,7 +14,6 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 import os
 import subprocess
-from pathlib import Path
 from services.os.app_paths import data_dir, ensure_dirs
 from services.logging.app_logger import get_logger
 
@@ -49,7 +48,7 @@ def main() -> int:
             logger.exception("start_supervisor: failed to parse existing pid file path=%s", pid_path)
 
     cmd = [sys.executable, "-u", "services/supervisor/supervisor_daemon.py"]
-    p = subprocess.Popen(cmd, cwd=str(Path(".").resolve()))
+    p = subprocess.Popen(cmd, cwd=str(ROOT))
     pid_path.write_text(str(p.pid), encoding="utf-8")
     print("Supervisor started:", p.pid)
     return 0

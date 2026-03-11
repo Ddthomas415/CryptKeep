@@ -3,11 +3,16 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import yaml
 
+from services.execution.client_order_id import make_client_order_id
+from services.execution.execution_latency import ExecutionLatencyTracker
+from services.execution.safety_gates import SafetyConfig
 from services.execution.exchange_client import ExchangeClient
+from services.journal.fill_sink import CanonicalFillSink
 from services.os.app_paths import data_dir, ensure_dirs
 from services.preflight.preflight import run_preflight
 from services.risk.live_risk_gates_phase82 import (
@@ -17,12 +22,42 @@ from services.risk.live_risk_gates_phase82 import (
     phase83_incr_trade_counter,
 )  # PHASE82_LIVE_GATES
 from services.risk.journal_introspection_phase83 import JournalSignals
+from services.risk.staleness_guard import is_snapshot_fresh
 from storage.execution_store_sqlite import ExecutionStore
+from storage.market_ws_store_sqlite import SQLiteMarketWsStore
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
 from storage.pnl_store_sqlite import PnLStoreSQLite
+from storage.ws_status_sqlite import WSStatusSQLite
 
 # ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
 DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
+
+
+def _default_exec_db_path() -> str:
+    return str(
+        os.environ.get("EXEC_DB_PATH")
+        or os.environ.get("CBP_DB_PATH")
+        or (data_dir() / "execution.sqlite")
+    )
+
+
+def _on_fill(fill: Dict[str, Any], *, exec_db: str | None = None) -> Dict[str, Any]:
+    """
+    Canonical fill choke point for live feeds.
+    User-stream/REST fill adapters should call this helper so fills always flow
+    through the same sink and idempotent journal path.
+    """
+    db_path = str(exec_db or _default_exec_db_path())
+    try:
+        CanonicalFillSink(exec_db=db_path).on_fill(dict(fill or {}))
+        return {
+            "ok": True,
+            "exec_db": db_path,
+            "venue": str((fill or {}).get("venue") or (fill or {}).get("exchange") or ""),
+            "fill_id": str((fill or {}).get("fill_id") or (fill or {}).get("id") or ""),
+        }
+    except Exception as e:
+        return {"ok": False, "exec_db": db_path, "error": f"{type(e).__name__}:{e}"}
 
 
 def _now_ms() -> int:
@@ -33,6 +68,14 @@ def _remote_id_from_reason(reason: str) -> Optional[str]:
     s = (reason or "").strip()
     if "remote_id=" in s:
         return s.split("remote_id=", 1)[-1].split()[0].strip() or None
+    return None
+
+
+def _client_id_from_reason(reason: str) -> Optional[str]:
+    s = (reason or "").strip()
+    for token in ("client_id=", "client_order_id="):
+        if token in s:
+            return s.split(token, 1)[-1].split()[0].strip() or None
     return None
 
 
@@ -62,6 +105,94 @@ class _PreflightCircuitState:
 
 
 _PREFLIGHT_CIRCUIT = _PreflightCircuitState()
+
+
+@dataclass
+class _ExecutionSafetyCircuitState:
+    pause_until_ts: float = 0.0
+    last_reason: str = ""
+
+
+_EXECUTION_SAFETY_CIRCUIT = _ExecutionSafetyCircuitState()
+
+
+def _load_execution_safety_cfg(cfg_path: str = "config/trading.yaml") -> SafetyConfig:
+    try:
+        cfg = yaml.safe_load(Path(cfg_path).read_text(encoding="utf-8")) or {}
+    except Exception:
+        cfg = {}
+    sec = cfg.get("execution_safety") or {}
+    if not isinstance(sec, dict):
+        sec = {}
+    return SafetyConfig(
+        enabled=bool(sec.get("enabled", True)),
+        max_ws_recv_age_ms=int(sec.get("max_ws_recv_age_ms", 1500) or 1500),
+        max_ack_ms=int(sec.get("max_ack_ms", 3000) or 3000),
+        pause_seconds_on_breach=int(sec.get("pause_seconds_on_breach", 30) or 30),
+        require_ws_fresh_for_live=bool(sec.get("require_ws_fresh_for_live", True)),
+        latency_db_path=str(sec.get("latency_db_path") or (data_dir() / "market_ws.sqlite")),
+    )
+
+
+def _latency_tracker(cfg: SafetyConfig) -> ExecutionLatencyTracker:
+    return ExecutionLatencyTracker(store=SQLiteMarketWsStore(path=cfg.latency_db_path))
+
+
+def _ws_status_store() -> WSStatusSQLite:
+    return WSStatusSQLite()
+
+
+def _check_market_freshness_for_live(
+    cfg: "LiveCfg",
+    safety_cfg: SafetyConfig,
+    *,
+    ws_db: WSStatusSQLite | None = None,
+    now_ms: int | None = None,
+) -> tuple[bool, str, dict[str, Any]]:
+    if not safety_cfg.enabled or not safety_cfg.require_ws_fresh_for_live:
+        return True, "WS_FRESHNESS_DISABLED", {"enforced": False}
+
+    db = ws_db or _ws_status_store()
+    now_v = int(now_ms) if now_ms is not None else _now_ms()
+    row = db.get_status(exchange=cfg.exchange_id, symbol=cfg.symbol)
+    if row:
+        recv_ts_ms = int(row.get("recv_ts_ms") or 0)
+        recv_age_ms = now_v - recv_ts_ms if recv_ts_ms else 10**9
+        ok = recv_age_ms <= int(safety_cfg.max_ws_recv_age_ms)
+        if ok:
+            return True, "WS_FRESH_OK", {
+                "source": "ws_status",
+                "recv_ts_ms": recv_ts_ms,
+                "recv_age_ms": recv_age_ms,
+                "max_ws_recv_age_ms": int(safety_cfg.max_ws_recv_age_ms),
+            }
+        return False, "WS_STALE", {
+            "source": "ws_status",
+            "recv_ts_ms": recv_ts_ms,
+            "recv_age_ms": recv_age_ms,
+            "max_ws_recv_age_ms": int(safety_cfg.max_ws_recv_age_ms),
+        }
+
+    max_age_sec = max(0.1, float(safety_cfg.max_ws_recv_age_ms) / 1000.0)
+    snap_ok, snap_reason = is_snapshot_fresh(max_age_sec=max_age_sec)
+    if snap_ok:
+        return True, "WS_FRESH_OK_SNAPSHOT", {"source": "snapshot", "max_age_sec": max_age_sec}
+    return False, "WS_MISSING_OR_STALE", {"source": "snapshot", "reason": snap_reason, "max_age_sec": max_age_sec}
+
+
+def _execution_safety_pause_open(
+    *,
+    state: _ExecutionSafetyCircuitState = _EXECUTION_SAFETY_CIRCUIT,
+    now_ts: float | None = None,
+) -> tuple[bool, str, dict[str, Any]]:
+    now = float(now_ts) if now_ts is not None else time.time()
+    if state.pause_until_ts > now:
+        return False, "ACK_LATENCY_PAUSED", {
+            "pause_until_ts": state.pause_until_ts,
+            "pause_remaining_s": round(max(0.0, state.pause_until_ts - now), 3),
+            "last_reason": state.last_reason,
+        }
+    return True, "OK", {}
 
 
 def _check_preflight_gate(
@@ -159,6 +290,35 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     if not ok:
         return {"ok": False, "note": why, "submitted": 0}
 
+    safety_cfg = _load_execution_safety_cfg()
+    safety_ok, safety_reason, safety_meta = _execution_safety_pause_open()
+    if not safety_ok:
+        return {
+            "ok": False,
+            "note": f"LIVE blocked: {safety_reason}",
+            "submitted": 0,
+            "errors": 0,
+            "preflight_blocked": 0,
+            "safety_blocked": 1,
+            "latency_breaches": 0,
+            "safety": safety_meta,
+        }
+
+    fresh_ok, fresh_reason, fresh_meta = _check_market_freshness_for_live(cfg, safety_cfg)
+    if not fresh_ok:
+        return {
+            "ok": False,
+            "note": f"LIVE blocked: {fresh_reason}",
+            "submitted": 0,
+            "errors": 0,
+            "preflight_blocked": 0,
+            "safety_blocked": 1,
+            "latency_breaches": 0,
+            "safety": fresh_meta,
+        }
+
+    latency_tracker = _latency_tracker(safety_cfg)
+
     # PHASE82_LIVE_GATES init
     limits = LiveRiskLimits.from_trading_yaml('config/trading.yaml')
     gate_db = LiveGateDB(exec_db=cfg.exec_db)
@@ -176,6 +336,8 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     submitted = 0
     errors = 0
     preflight_blocked = 0
+    safety_blocked = 0
+    latency_breaches = 0
 
     for it in pending:
         if submitted >= int(cfg.max_submit_per_tick):
@@ -188,7 +350,7 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
         if rid0:
             store.set_intent_status(intent_id=intent_id, status="submitted", reason=f"remote_id={rid0}")
             continue
-        cid = None
+        cid = make_client_order_id(cfg.exchange_id, intent_id)
         try:
             # PHASE82_LIVE_GATES enforce
             pnl_store = PnLStoreSQLite()
@@ -225,6 +387,14 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
                     break
                 continue
 
+            submit_started = _now_ms()
+            latency_tracker.record_submit(
+                client_order_id=cid,
+                exchange=cfg.exchange_id,
+                symbol=str(it["symbol"]),
+                side=str(it["side"]),
+                qty=float(it["qty"]),
+            )
             order = client.submit_order(
                 symbol=str(it["symbol"]),
                 side=str(it["side"]),
@@ -235,6 +405,12 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
                 extra_params=None,
                 intent_id=intent_id,
                 exec_db=cfg.exec_db,
+            )
+            latency_tracker.record_ack(
+                client_order_id=cid,
+                exchange=cfg.exchange_id,
+                symbol=str(it["symbol"]),
+                exchange_order_id=(order.get("id") if isinstance(order, dict) else None),
             )
             meta["client_id"] = cid
             meta["remote_order_id"] = order.get("id")
@@ -259,16 +435,36 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             except Exception:
                 pass
             submitted += 1
+
+            ack_ms = max(0, _now_ms() - submit_started)
+            if safety_cfg.enabled and ack_ms > int(safety_cfg.max_ack_ms):
+                latency_breaches += 1
+                _EXECUTION_SAFETY_CIRCUIT.pause_until_ts = time.time() + float(max(1, int(safety_cfg.pause_seconds_on_breach)))
+                _EXECUTION_SAFETY_CIRCUIT.last_reason = f"submit_to_ack_ms:{ack_ms}"
+                safety_blocked += 1
+                # Submit already happened; stop submitting additional orders this tick.
+                break
         except Exception as e:
             errors += 1
             store.set_intent_status(intent_id=intent_id, status="pending", reason=f"submit_error:{type(e).__name__}:{e}")
 
-    return {"ok": True, "note": "submitted tick complete", "submitted": submitted, "errors": errors, "preflight_blocked": preflight_blocked}
+    return {
+        "ok": True,
+        "note": "submitted tick complete",
+        "submitted": submitted,
+        "errors": errors,
+        "preflight_blocked": preflight_blocked,
+        "safety_blocked": safety_blocked,
+        "latency_breaches": latency_breaches,
+    }
 
 def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
     ok, why = _hard_off_guard(cfg)
     if not ok:
         return {"ok": False, "note": why, "fills_added": 0}
+
+    safety_cfg = _load_execution_safety_cfg()
+    latency_tracker = _latency_tracker(safety_cfg)
 
     store = ExecutionStore(path=cfg.exec_db)
     store_dedupe = OrderDedupeStore(exec_db=cfg.exec_db)
@@ -278,6 +474,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
     intents = _list_intents_any(store, mode="live", exchange=cfg.exchange_id, symbol=cfg.symbol, statuses=["submitted", "pending"], limit=200)
 
     fills_added = 0
+    latency_fills_recorded = 0
     checked = 0
 
     for it in intents:
@@ -319,6 +516,20 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                 fee_ccy=fee_ccy,
                 meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
             )
+            row_d = store_dedupe.get_by_intent(cfg.exchange_id, intent_id)
+            cid = str((row_d or {}).get("client_order_id") or "").strip() or _client_id_from_reason(reason)
+            if cid:
+                try:
+                    latency_tracker.record_fill(
+                        client_order_id=cid,
+                        exchange=cfg.exchange_id,
+                        symbol=str(it["symbol"]),
+                        price=avg,
+                        qty=filled,
+                    )
+                    latency_fills_recorded += 1
+                except Exception:
+                    pass
             store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
             try:
                 store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
@@ -332,7 +543,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
             except Exception:
                 pass
 
-    return {"ok": True, "note": "reconcile complete", "checked": checked, "fills_added": fills_added}
+    return {"ok": True, "note": "reconcile complete", "checked": checked, "fills_added": fills_added, "latency_fills_recorded": latency_fills_recorded}
 # PHASE82_LIVE_GATES
 
 

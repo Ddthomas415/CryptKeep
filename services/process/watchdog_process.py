@@ -8,7 +8,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from services.os.app_paths import data_dir
+from services.os.app_paths import data_dir, code_root
 from services.logging.app_logger import get_logger
 
 PROC_PATH = data_dir() / "watchdog_process.json"
@@ -62,7 +62,7 @@ def status() -> dict:
 def start_watchdog(*, interval_sec: int = 15) -> dict:
     st = status()
     if st.get("running"):
-        return {"ok": False, "reason": "already_running", **st}
+        return {**st, "ok": False, "reason": "already_running"}
 
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     lf = open(WD_LOG, "ab", buffering=0)
@@ -72,7 +72,7 @@ def start_watchdog(*, interval_sec: int = 15) -> dict:
     try:
         p = subprocess.Popen(
             cmd,
-            cwd=str(Path(__file__).resolve().parents[2]),
+            cwd=str(code_root()),
             stdout=lf,
             stderr=lf,
             stdin=subprocess.DEVNULL,

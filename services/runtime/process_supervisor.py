@@ -8,7 +8,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional
-from services.os.app_paths import runtime_dir, ensure_dirs
+from services.os.app_paths import runtime_dir, ensure_dirs, code_root
 from services.logging.app_logger import get_logger
 
 ensure_dirs()
@@ -62,7 +62,7 @@ def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
     else:
         kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
 
-    proc = subprocess.Popen(cmd, cwd=str(Path(".").resolve()), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kwargs)
+    proc = subprocess.Popen(cmd, cwd=str(code_root()), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kwargs)
     _write_pid(name, proc.pid)
     return {"ok": True, "note": "started", "name": name, "pid": proc.pid, "cmd": cmd}
 

@@ -15,24 +15,50 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import argparse
 from services.runtime.process_supervisor import stop_process, status
 
+ALL_SERVICES = ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--all", action="store_true", help="Stop pipeline, executor, reconciler")
+    ap.add_argument(
+        "--all",
+        action="store_true",
+        help="Stop pipeline, executor, ops_signal_adapter, ops_risk_gate, reconciler",
+    )
     ap.add_argument("--pipeline", action="store_true")
     ap.add_argument("--executor", action="store_true")
+    ap.add_argument("--ops_signal_adapter", action="store_true")
+    ap.add_argument("--ops_risk_gate", action="store_true")
     ap.add_argument("--reconciler", action="store_true")
     args = ap.parse_args()
 
     targets = []
-    if args.all or (not any([args.pipeline, args.executor, args.reconciler])):
-        targets = ["pipeline","executor","reconciler"]
+    if args.all or (
+        not any(
+            [
+                args.pipeline,
+                args.executor,
+                args.ops_signal_adapter,
+                args.ops_risk_gate,
+                args.reconciler,
+            ]
+        )
+    ):
+        targets = list(ALL_SERVICES)
     else:
-        if args.pipeline: targets.append("pipeline")
-        if args.executor: targets.append("executor")
-        if args.reconciler: targets.append("reconciler")
+        if args.pipeline:
+            targets.append("pipeline")
+        if args.executor:
+            targets.append("executor")
+        if args.ops_signal_adapter:
+            targets.append("ops_signal_adapter")
+        if args.ops_risk_gate:
+            targets.append("ops_risk_gate")
+        if args.reconciler:
+            targets.append("reconciler")
 
     out = {t: stop_process(t) for t in targets}
-    out["status"] = status(["pipeline","executor","reconciler"])
+    out["status"] = status(ALL_SERVICES)
     print(out)
     return 0
 

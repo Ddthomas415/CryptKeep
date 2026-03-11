@@ -52,6 +52,7 @@ def fetch_status() -> dict:
     symbol = "BTC/USD"
     for v in venues:
         print(f"\n=== Fetching from {v} ===")
+        ex = None
         try:
             ex = make_exchange(v, {"apiKey": None, "secret": None}, enable_rate_limit=True)
             print(f"  Exchange loaded: {ex.id}")
@@ -72,7 +73,7 @@ def fetch_status() -> dict:
             status["venues"][v] = {"ok": False, "error": str(e)}
         finally:
             try:
-                if hasattr(ex, "close"):
+                if ex is not None and hasattr(ex, "close"):
                     ex.close()
                     print("  Exchange closed")
             except Exception as e:
@@ -100,6 +101,11 @@ def run_forever() -> None:
     finally:
         _release_lock()
         print("Tick publisher stopped")
+
+
+def run_tick_publisher() -> None:
+    """Compatibility entrypoint used by scripts/run_tick_publisher.py."""
+    run_forever()
 
 if __name__ == "__main__":
     import argparse

@@ -2,19 +2,32 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-python3 -m cryptobotpro doctor
-python3 -m cryptobotpro install --venv
-
-# Build .app bundle (windowed)
-if [ -d ".venv" ]; then
-  PY=".venv/bin/python"
-else
-  PY="python3"
+if [ "$(uname -s)" != "Darwin" ]; then
+  echo "ERROR: scripts/build_macos.sh must run on macOS."
+  exit 1
 fi
 
-$PY -m pip install -r requirements-packaging.txt
-$PY -m PyInstaller packaging/pyinstaller/cryptobotpro-macos.spec --noconfirm --clean
+if [ -x ".venv/bin/python" ]; then
+  PY=".venv/bin/python"
+else
+  PY="${PYTHON:-python3}"
+fi
+
+"$PY" -m pip install --upgrade pip
+if [ -f "requirements-packaging.txt" ]; then
+  "$PY" -m pip install -r requirements-packaging.txt
+else
+  "$PY" -m pip install -r requirements.txt
+fi
+
+CBP_WINDOWED=1 "$PY" packaging/pyinstaller/build.py
+
+APP_PATH="dist/CryptoBotPro.app"
+if [ ! -d "$APP_PATH" ]; then
+  echo "ERROR: expected app bundle not found: $APP_PATH"
+  exit 1
+fi
 
 echo ""
-echo "DONE (macOS): dist/CryptoBotPro.app"
+echo "DONE (macOS): $APP_PATH"
 echo ""

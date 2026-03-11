@@ -22,6 +22,10 @@ logs/
 dist/
 build/
 installers/
+!installers/
+installers/*
+!installers/install_briefcase_extras.sh
+!installers/install_briefcase_extras.ps1
 *.spec
 *.dmg
 *.msi

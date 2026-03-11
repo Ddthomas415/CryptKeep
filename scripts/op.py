@@ -92,7 +92,7 @@ def _service_ctl_list() -> list[str]:
             return names
     logger.warning("op: service_ctl list failed rc=%s err=%s", rc, (err or "").strip())
     # fallback for tests / minimal usability
-    return ["tick_publisher", "intent_executor", "intent_reconciler"]
+    return ["tick_publisher", "intent_executor", "intent_reconciler", "ops_signal_adapter", "ops_risk_gate"]
 
 
 def _service_ctl_call(name: str, action: str, *, lines: int | None = None) -> dict:

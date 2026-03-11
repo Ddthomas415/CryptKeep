@@ -150,7 +150,139 @@ class EvidenceSignalsSQLite:
         finally:
             con.close()
 
-    # Add more methods here if you have them (recent_quarantine, insert_signal, insert_score, etc.)
+    def insert_signal(
+        self,
+        *,
+        signal_id: str,
+        event_id: str,
+        source_id: str,
+        ts: str,
+        symbol: str,
+        side: str,
+        venue: str | None = None,
+        confidence: float | None = None,
+        size_hint: float | None = None,
+        horizon_sec: int | None = None,
+        notes: str | None = None,
+        status: str = "ingested",
+    ) -> None:
+        con = _connect()
+        try:
+            con.execute(
+                "INSERT OR REPLACE INTO evidence_signals(signal_id, event_id, source_id, ts, venue, symbol, side, confidence, size_hint, horizon_sec, notes, status, created_ts) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    str(signal_id),
+                    str(event_id),
+                    str(source_id),
+                    str(ts),
+                    None if venue is None else str(venue),
+                    str(symbol),
+                    str(side),
+                    None if confidence is None else float(confidence),
+                    None if size_hint is None else float(size_hint),
+                    None if horizon_sec is None else int(horizon_sec),
+                    None if notes is None else str(notes),
+                    str(status),
+                    _now(),
+                ),
+            )
+        finally:
+            con.close()
+
+    def get_signal(self, signal_id: str) -> Optional[Dict[str, Any]]:
+        con = _connect()
+        try:
+            r = con.execute(
+                "SELECT signal_id, event_id, source_id, ts, venue, symbol, side, confidence, size_hint, horizon_sec, notes, status, created_ts "
+                "FROM evidence_signals WHERE signal_id=?",
+                (str(signal_id),),
+            ).fetchone()
+            if not r:
+                return None
+            return {
+                "signal_id": r[0],
+                "event_id": r[1],
+                "source_id": r[2],
+                "ts": r[3],
+                "venue": r[4],
+                "symbol": r[5],
+                "side": r[6],
+                "confidence": r[7],
+                "size_hint": r[8],
+                "horizon_sec": r[9],
+                "notes": r[10],
+                "status": r[11],
+                "created_ts": r[12],
+            }
+        finally:
+            con.close()
+
+    def recent_signals(self, limit: int = 200, source_id: str | None = None) -> List[Dict[str, Any]]:
+        con = _connect()
+        try:
+            q = (
+                "SELECT signal_id, event_id, source_id, ts, venue, symbol, side, confidence, size_hint, horizon_sec, notes, status, created_ts "
+                "FROM evidence_signals"
+            )
+            args: list[Any] = []
+            if source_id:
+                q += " WHERE source_id=?"
+                args.append(str(source_id))
+            q += " ORDER BY ts DESC LIMIT ?"
+            args.append(int(limit))
+            rows = con.execute(q, tuple(args)).fetchall()
+            return [
+                {
+                    "signal_id": r[0],
+                    "event_id": r[1],
+                    "source_id": r[2],
+                    "ts": r[3],
+                    "venue": r[4],
+                    "symbol": r[5],
+                    "side": r[6],
+                    "confidence": r[7],
+                    "size_hint": r[8],
+                    "horizon_sec": r[9],
+                    "notes": r[10],
+                    "status": r[11],
+                    "created_ts": r[12],
+                }
+                for r in rows
+            ]
+        finally:
+            con.close()
+
+    def insert_score(
+        self,
+        *,
+        score_id: str,
+        signal_id: str,
+        method: str,
+        horizon_sec: int,
+        forward_return: float | None = None,
+        label: int | None = None,
+        details_json: str | None = None,
+        scored_ts: str | None = None,
+    ) -> None:
+        con = _connect()
+        try:
+            con.execute(
+                "INSERT OR REPLACE INTO evidence_scores(score_id, signal_id, scored_ts, method, horizon_sec, forward_return, label, details_json) VALUES(?,?,?,?,?,?,?,?)",
+                (
+                    str(score_id),
+                    str(signal_id),
+                    str(scored_ts or _now()),
+                    str(method),
+                    int(horizon_sec),
+                    None if forward_return is None else float(forward_return),
+                    None if label is None else int(label),
+                    details_json,
+                ),
+            )
+        finally:
+            con.close()
+
     def recent_quarantine(self, limit: int = 200, status: str | None = None) -> List[Dict[str, Any]]:
         con = _connect()
         try:
@@ -175,5 +307,29 @@ class EvidenceSignalsSQLite:
                 }
                 for r in rows
             ]
+        finally:
+            con.close()
+
+    def get_quarantine(self, quarantine_id: str) -> Optional[Dict[str, Any]]:
+        con = _connect()
+        try:
+            r = con.execute(
+                "SELECT quarantine_id, event_id, source_id, received_ts, reason, payload_json, status, reviewed_ts, normalized_signal_id "
+                "FROM evidence_quarantine WHERE quarantine_id=?",
+                (str(quarantine_id),),
+            ).fetchone()
+            if not r:
+                return None
+            return {
+                "quarantine_id": r[0],
+                "event_id": r[1],
+                "source_id": r[2],
+                "received_ts": r[3],
+                "reason": r[4],
+                "payload_json": r[5],
+                "status": r[6],
+                "reviewed_ts": r[7],
+                "normalized_signal_id": r[8],
+            }
         finally:
             con.close()

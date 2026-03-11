@@ -593,7 +593,7 @@
 - ✅ IG1: Equity curve builder
 - ✅ IG2: Metrics (DD, winrate, Sharpe heuristic)
 - ✅ IG3: Streamlit equity + metrics panel
-- 🟡 IG4: fill-based position accounting foundation added; cash/positions/realized/unrealized MTM snapshot covered; equity_by_quote + single-quote total_equity added; cross-quote aggregate equity still pending
+- 🟡 IG4: fill-based position accounting foundation added; cash/positions/realized/unrealized MTM snapshot covered; equity_by_quote + single-quote total_equity added; cross-quote aggregate equity supported with explicit FX marks
 
 ## II) Backtest / Walk-Forward Parity
 - ✅ II1: Parity backtest via compute_signal
@@ -850,7 +850,7 @@
 - ✅ MF3: Preflight diagnostics added (services/diagnostics/preflight.py)
 - ✅ MF4: Dashboard First-Run Wizard panel added (restore + copy/download diagnostics)
 - ✅ MF5: First run docs added (docs/FIRST_RUN.md)
-- 🟡 MF6: guided setup summary foundation added in config manager; wizard/backend + UI bridge helpers wired through first_run_wizard and preflight_wizard, including preset-state apply flow; payloads covered by tests; full UI flow still pending
+- ✅ MF6: guided setup summary + wizard/backend/bridge completed; Operator page now includes polished Guided Setup panel (status metrics, preflight/cache warnings, preset apply, custom patch apply, refresh) wired through preflight_wizard actions with existing guided setup bridge tests passing
 
 ## IZ–KA) Execution, Audit, Alerts, Packaging, Learning (260–290)
 - ✅ Intent recovery via client_oid

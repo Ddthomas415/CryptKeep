@@ -20,6 +20,9 @@ from storage.market_data_store_sqlite import SQLiteMarketDataStore
 from services.paper_trader.paper_execution_venue import PaperExecutionVenue
 from services.market_data.run_price_feeds import main_async as run_feeds_async
 from core.models import Order, OrderType, Side, TimeInForce, utc_now
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _utc_day_key(dt: Optional[datetime] = None) -> str:
@@ -235,15 +238,15 @@ async def runner(cfg_path: Path) -> int:
         try:
             await venue.close()
         except Exception:
-            pass
+            logger.exception("run_trader venue.close failed")
         try:
             await asyncio.sleep(0.1)
         except Exception:
-            pass
+            logger.exception("run_trader shutdown sleep failed")
         try:
             fill_task.cancel()
         except Exception:
-            pass
+            logger.exception("run_trader fill_task.cancel failed")
         if feeder_task:
             feeder_task.cancel()
 

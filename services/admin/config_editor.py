@@ -135,20 +135,6 @@ if __name__ == "__main__":
     if warns:
         print("Warnings:", warns)
 
-def save_user_yaml(cfg: Dict[str, Any], dry_run: bool = False) -> Tuple[bool, str]:
-    if not isinstance(cfg, dict):
-        return False, "cfg must be dict"
-    try:
-        if CONFIG_PATH.exists():
-            BACKUP_PATH.write_bytes(CONFIG_PATH.read_bytes())
-        if dry_run:
-            return True, "Dry run OK"
-        with CONFIG_PATH.open("w", encoding="utf-8") as f:
-            yaml.safe_dump(cfg, f, sort_keys=False, allow_unicode=True)
-        return True, "Saved"
-    except Exception as e:
-        return False, f"Save failed: {type(e).__name__}: {e}"
-
 def ensure_user_yaml_exists() -> bool:
     if CONFIG_PATH.exists():
         return True
@@ -172,14 +158,17 @@ def restore_backup(backup_path: str) -> bool:
     except Exception:
         return False
 
-def set_armed(state: bool) -> None:
-    # Placeholder - real implementation in kill_switch.py
-    pass
+def set_armed(state: bool) -> dict:
+    from services.admin.kill_switch import set_armed as _set_armed
+    return _set_armed(bool(state), note="config_editor_compat")
 
-def read_health() -> dict:
-    # Placeholder - real implementation in health.py
-    return {"ok": True, "status": "healthy"}
+def read_health(service: str = "system") -> dict:
+    from services.admin.health import read_health as _read_health
+    return _read_health(str(service))
 
-def maybe_auto_update_state_on_snapshot(snapshot: dict) -> None:
-    # Placeholder - real implementation in state_report.py
-    pass
+def maybe_auto_update_state_on_snapshot(snapshot: dict | None = None) -> dict:
+    from services.admin.state_report import maybe_auto_update_state_on_snapshot as _update
+    tag = ""
+    if isinstance(snapshot, dict):
+        tag = str(snapshot.get("tag") or snapshot.get("source") or "")
+    return _update(tag=tag)

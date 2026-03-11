@@ -4,9 +4,9 @@ set -euo pipefail
 # Signs the built .app bundle.
 # Requires:
 #   CODESIGN_IDENTITY (e.g. "Developer ID Application: Your Company (TEAMID)")
-#   APP_PATH (default: dist/CryptoBotPro/CryptoBotPro.app)
+#   APP_PATH (default: dist/CryptoBotPro.app)
 
-APP_PATH="${APP_PATH:-dist/CryptoBotPro/CryptoBotPro.app}"
+APP_PATH="${APP_PATH:-dist/CryptoBotPro.app}"
 IDENTITY="${CODESIGN_IDENTITY:-}"
 
 if [[ -z "${IDENTITY}" ]]; then

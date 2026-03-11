@@ -1,0 +1,274 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:2.14.2-pg16
+    container_name: phase1-timescaledb
+    environment:
+      POSTGRES_DB: copilot
+      POSTGRES_USER: copilot
+      POSTGRES_PASSWORD: copilot
+    ports:
+      - "5432:5432"
+    volumes:
+      - phase1_timescaledb_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U copilot -d copilot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: phase1-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - phase1_qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:6333/healthz >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    container_name: phase1-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - phase1_minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9000/minio/health/live >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  audit-log:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-audit-log
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: audit-log
+      SERVICE_MODULE: audit_log.main
+      SERVICE_PORT: "8009"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    ports:
+      - "8009:8009"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8009/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  risk-stub:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-risk-stub
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: risk-stub
+      SERVICE_MODULE: risk_stub.main
+      SERVICE_PORT: "8008"
+    depends_on:
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8008:8008"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8008/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  parser-normalizer:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-parser
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: parser-normalizer
+      SERVICE_MODULE: parser_normalizer.main
+      SERVICE_PORT: "8006"
+    depends_on:
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8006:8006"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8006/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  memory-retrieval:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-memory
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: memory-retrieval
+      SERVICE_MODULE: memory_retrieval.main
+      SERVICE_PORT: "8007"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8007:8007"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8007/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  market-data:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-market
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: market-data
+      SERVICE_MODULE: market_data.main
+      SERVICE_PORT: "8003"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8003:8003"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8003/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  news-ingestion:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-news
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: news-ingestion
+      SERVICE_MODULE: news_ingestion.main
+      SERVICE_PORT: "8004"
+    depends_on:
+      parser-normalizer:
+        condition: service_healthy
+      memory-retrieval:
+        condition: service_healthy
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8004:8004"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8004/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  archive-lookup:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-archive
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: archive-lookup
+      SERVICE_MODULE: archive_lookup.main
+      SERVICE_PORT: "8005"
+    depends_on:
+      parser-normalizer:
+        condition: service_healthy
+      memory-retrieval:
+        condition: service_healthy
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8005:8005"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8005/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  orchestrator:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-orchestrator
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: orchestrator
+      SERVICE_MODULE: orchestrator.main
+      SERVICE_PORT: "8002"
+    depends_on:
+      memory-retrieval:
+        condition: service_healthy
+      risk-stub:
+        condition: service_healthy
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8002:8002"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: phase1_research_copilot/Dockerfile.service
+    container_name: phase1-gateway
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: gateway
+      SERVICE_MODULE: gateway.main
+      SERVICE_PORT: "8001"
+    depends_on:
+      orchestrator:
+        condition: service_healthy
+      audit-log:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/healthz', timeout=2).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  phase1_timescaledb_data:
+  phase1_qdrant_data:
+  phase1_minio_data:

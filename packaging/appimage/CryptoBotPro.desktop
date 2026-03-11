@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=CryptoBotPro
+Comment=Crypto Bot Pro Desktop
+Exec=cryptobotpro
+Icon=cryptobotpro
+Terminal=false
+Categories=Finance;Utility;

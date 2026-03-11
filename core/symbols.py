@@ -45,6 +45,9 @@ def normalize_symbol(venue: str, symbol: str) -> str:
     for c in candidates:
         if c in vmap:
             return vmap[c]
+    if "/" in s:
+        a, b = s.split("/", 1)
+        return f"{a.upper()}-{b.upper()}"
     if "-" in s:
         a, b = s.split("-", 1)
         return f"{a.upper()}-{b.upper()}"

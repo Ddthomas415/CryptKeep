@@ -20,7 +20,17 @@ def stop_service_from_pidfile(service_name: str, grace_sec: float = 4.0) -> dict
         return bool(re.match(r'^[a-zA-Z0-9_-]+$', name))
 
     def _known_services():
-        return ["market_data_poller", "live_trader_multi", "live_trader_fleet"]
+        names = {"market_data_poller", "live_trader_multi", "live_trader_fleet"}
+        try:
+            from services.desktop.simple_service_manager import specs_default
+
+            for spec in specs_default() or []:
+                sname = getattr(spec, "name", "")
+                if sname:
+                    names.add(str(sname))
+        except Exception:
+            logger.exception("service_controls: failed loading simple service specs")
+        return sorted(names)
 
     if not _safe_service_name(service_name):
         return {"ok": False, "error": "unsafe_service_name"}

@@ -8,8 +8,7 @@ set -euo pipefail
 # Build:
 #   bash scripts/build_mac_app.sh
 
-python3 -m pip install --upgrade pyinstaller
-pyinstaller --noconfirm packaging/pyinstaller/crypto_bot_pro.spec
+bash scripts/build_macos.sh
 
 echo "OK: Build finished."
-echo "Output: dist/CryptoBotPro/CryptoBotPro"
+echo "Output: dist/CryptoBotPro.app"

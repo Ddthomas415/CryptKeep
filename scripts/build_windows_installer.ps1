@@ -6,7 +6,7 @@
 $ErrorActionPreference = "Stop"
 
 # 1) Ensure app is built (PyInstaller onedir)
-powershell -ExecutionPolicy Bypass -File scripts\build_windows.ps1
+powershell -ExecutionPolicy Bypass -File scripts\build_app.ps1
 
 # 2) Find ISCC.exe
 $possible = @(
