@@ -174,8 +174,76 @@ def test_recent_activity_prefers_audit_details(monkeypatch) -> None:
         "_fetch_envelope",
         lambda path: payload if path == "/api/v1/audit/events" else None,
     )
+    monkeypatch.setattr(view_data, "_load_local_recent_activity", lambda limit=6: [])
     rows = view_data.get_recent_activity()
     assert rows == ["Generated explanation for SOL", "Execution disabled in research mode"]
+
+
+def test_recent_activity_prefers_local_rows(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_recent_activity",
+        lambda limit=6: ["Health check passed", "Listing logs refreshed"],
+    )
+    monkeypatch.setattr(view_data, "_fetch_envelope", lambda path: None)
+
+    rows = view_data.get_recent_activity()
+    assert rows == ["Health check passed", "Listing logs refreshed"]
+
+
+def test_load_local_recent_activity_prefers_ops_events(monkeypatch) -> None:
+    class FakeOpsEventStore:
+        def __init__(self, exec_db: str):
+            assert exec_db == "/tmp/test-exec.sqlite"
+
+        def list_recent(self, limit: int = 100):
+            assert limit == 4
+            return [
+                {"message": "Health check passed", "event_type": "health_check"},
+                {"message": "Listing logs refreshed", "event_type": "listing_logs"},
+                {"message": "Health check passed", "event_type": "health_check"},
+            ]
+
+    def _unexpected_intent_events(limit=200):
+        raise AssertionError("intent audit should not be used")
+
+    class FakeDecisionAuditStore:
+        def last_decisions(self, limit: int = 200):
+            raise AssertionError("decision audit should not be used")
+
+    monkeypatch.setattr(view_data, "_resolve_execution_db_path", lambda: "/tmp/test-exec.sqlite")
+    monkeypatch.setattr("storage.ops_event_store_sqlite.OpsEventStore", FakeOpsEventStore)
+    monkeypatch.setattr("services.execution.intent_audit.recent_intent_events", _unexpected_intent_events)
+    monkeypatch.setattr("storage.decision_audit_store_sqlite.DecisionAuditStoreSQLite", FakeDecisionAuditStore)
+
+    rows = view_data._load_local_recent_activity(limit=4)
+    assert rows == ["Health check passed", "Listing logs refreshed"]
+
+
+def test_load_local_recent_activity_falls_back_to_intent_audit(monkeypatch) -> None:
+    class FakeOpsEventStore:
+        def __init__(self, exec_db: str):
+            pass
+
+        def list_recent(self, limit: int = 100):
+            return []
+
+    monkeypatch.setattr(view_data, "_resolve_execution_db_path", lambda: "/tmp/test-exec.sqlite")
+    monkeypatch.setattr("storage.ops_event_store_sqlite.OpsEventStore", FakeOpsEventStore)
+    monkeypatch.setattr(
+        "services.execution.intent_audit.recent_intent_events",
+        lambda limit=200: [
+            {
+                "symbol": "sol/usd",
+                "status": "accepted",
+                "summary": "submit:accepted",
+                "payload": {"event": "submit", "status": "accepted"},
+            }
+        ],
+    )
+
+    rows = view_data._load_local_recent_activity(limit=3)
+    assert rows == ["Submit · SOL · accepted"]
 
 
 def test_portfolio_view_uses_dashboard_watchlist_marks(monkeypatch) -> None:

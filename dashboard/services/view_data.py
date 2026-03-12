@@ -734,6 +734,107 @@ def _load_local_recommendations(limit: int = 20) -> list[dict[str, Any]]:
     return []
 
 
+def _resolve_execution_db_path() -> str:
+    cfg = deep_merge(DEFAULT_CFG, load_user_yaml() or {})
+    execution_cfg = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}
+    return str(execution_cfg.get("db_path") or DEFAULT_CFG["execution"]["db_path"]).strip()
+
+
+def _load_local_recent_activity(limit: int = 6) -> list[str]:
+    normalized_limit = max(1, int(limit or 6))
+
+    def _dedupe_lines(lines: list[str]) -> list[str]:
+        out: list[str] = []
+        seen: set[str] = set()
+        for raw in lines:
+            line = str(raw or "").strip()
+            if not line or line in seen:
+                continue
+            seen.add(line)
+            out.append(line)
+            if len(out) >= normalized_limit:
+                break
+        return out
+
+    try:
+        from storage.ops_event_store_sqlite import OpsEventStore
+    except Exception:
+        OpsEventStore = None
+
+    if callable(OpsEventStore):
+        try:
+            rows = OpsEventStore(exec_db=_resolve_execution_db_path()).list_recent(limit=normalized_limit)
+        except Exception:
+            rows = []
+        if rows:
+            ops_lines = [
+                str(item.get("message") or item.get("event_type") or "").strip()
+                for item in rows
+                if isinstance(item, dict)
+            ]
+            deduped_ops = _dedupe_lines(ops_lines)
+            if deduped_ops:
+                return deduped_ops
+
+    try:
+        from services.execution.intent_audit import recent_intent_events
+    except Exception:
+        recent_intent_events = None
+
+    if callable(recent_intent_events):
+        try:
+            rows = recent_intent_events(limit=normalized_limit)
+        except Exception:
+            rows = []
+        if rows:
+            intent_lines: list[str] = []
+            for item in rows:
+                if not isinstance(item, dict):
+                    continue
+                payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
+                event = str(payload.get("event") or "").strip().replace("_", " ")
+                status = str(payload.get("status") or item.get("status") or "").strip()
+                asset = _normalize_asset_symbol(item.get("symbol"))
+                parts = [part for part in (event.title() if event else "", asset, status) if part]
+                line = " · ".join(parts) or str(item.get("summary") or "").strip()
+                if line:
+                    intent_lines.append(line)
+            deduped_intents = _dedupe_lines(intent_lines)
+            if deduped_intents:
+                return deduped_intents
+
+    try:
+        from storage.decision_audit_store_sqlite import DecisionAuditStoreSQLite
+    except Exception:
+        DecisionAuditStoreSQLite = None
+
+    if callable(DecisionAuditStoreSQLite):
+        try:
+            rows = DecisionAuditStoreSQLite().last_decisions(limit=normalized_limit)
+        except Exception:
+            rows = []
+        if rows:
+            decision_lines: list[str] = []
+            for item in rows:
+                if not isinstance(item, dict):
+                    continue
+                asset = _normalize_asset_symbol(item.get("symbol"))
+                side = _normalize_signal_action(item.get("side")).upper()
+                safety_reason = str(item.get("safety_reason") or "").strip()
+                price = float(item.get("price") or 0.0)
+                line = f"Decision {side or 'HOLD'} {asset}".strip()
+                if price > 0:
+                    line = f"{line} @ {price:,.2f}"
+                if safety_reason:
+                    line = f"{line} ({safety_reason})"
+                decision_lines.append(line)
+            deduped_decisions = _dedupe_lines(decision_lines)
+            if deduped_decisions:
+                return deduped_decisions
+
+    return []
+
+
 def _get_market_price_series(
     asset: str,
     last_price: float,
@@ -1191,6 +1292,10 @@ def get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
 
 
 def get_recent_activity() -> list[str]:
+    local_rows = _load_local_recent_activity(limit=6)
+    if local_rows:
+        return local_rows
+
     envelope = _fetch_envelope("/api/v1/audit/events")
     if isinstance(envelope, dict) and envelope.get("status") == "success":
         data = envelope.get("data")
