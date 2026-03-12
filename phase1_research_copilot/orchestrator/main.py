@@ -167,6 +167,7 @@ def _build_evidence_bundle(tool_results: dict[str, Any]) -> dict[str, Any]:
     return {
         "market": signal.get("market") if isinstance(signal.get("market"), dict) else tool_results.get("get_market_snapshot", {}),
         "market_snapshot": tool_results.get("get_market_snapshot", {}),
+        "risk": tool_results.get("get_risk_summary", {}),
         "recent_news": (signal.get("recent_news") if isinstance(signal.get("recent_news"), list) else [])[:3],
         "past_context": (signal.get("past_context") if isinstance(signal.get("past_context"), list) else [])[:3],
         "future_context": (signal.get("future_context") if isinstance(signal.get("future_context"), list) else [])[:3],
