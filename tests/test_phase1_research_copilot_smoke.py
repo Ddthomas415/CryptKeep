@@ -25,7 +25,14 @@ def test_summary_is_ok_without_openai_requirement() -> None:
         "gateway_health": {"status": "ok", "openai_enabled": False},
         "orchestrator_health": {"status": "ok", "openai_enabled": False, "no_trading": True},
         "explain": {"status": "ok", "provider": "fallback", "fallback": True, "execution_disabled": True},
-        "chat": {"status": "ok", "provider": "fallback", "fallback": True, "execution_disabled": True},
+        "chat": {
+            "status": "ok",
+            "provider": "fallback",
+            "fallback": True,
+            "execution_disabled": True,
+            "assistant_response": "Fallback answer.",
+            "reasoning_summary": "Explain: Gateway Fallback | fallback\nChat: Fallback | fallback",
+        },
     }
 
     assert smoke._summary_is_ok(summary, expect_openai=False) is True
@@ -37,7 +44,14 @@ def test_summary_is_ok_requires_openai_when_requested() -> None:
         "gateway_health": {"status": "ok", "openai_enabled": True},
         "orchestrator_health": {"status": "ok", "openai_enabled": True, "no_trading": True},
         "explain": {"status": "ok", "provider": "openai", "fallback": False, "execution_disabled": True},
-        "chat": {"status": "ok", "provider": "openai", "fallback": False, "execution_disabled": True},
+        "chat": {
+            "status": "ok",
+            "provider": "openai",
+            "fallback": False,
+            "execution_disabled": True,
+            "assistant_response": "OpenAI answer.",
+            "reasoning_summary": "Explain: OpenAI | gpt-4.1-mini\nChat: OpenAI | gpt-4.1-mini",
+        },
     }
 
     assert smoke._summary_is_ok(summary, expect_openai=True) is True
@@ -49,7 +63,14 @@ def test_summary_is_not_ok_when_openai_expected_but_fallback_used() -> None:
         "gateway_health": {"status": "ok", "openai_enabled": True},
         "orchestrator_health": {"status": "ok", "openai_enabled": True, "no_trading": True},
         "explain": {"status": "ok", "provider": "fallback", "fallback": True, "execution_disabled": True},
-        "chat": {"status": "ok", "provider": "openai", "fallback": False, "execution_disabled": True},
+        "chat": {
+            "status": "ok",
+            "provider": "openai",
+            "fallback": False,
+            "execution_disabled": True,
+            "assistant_response": "OpenAI answer.",
+            "reasoning_summary": "Explain: Fallback | fallback\nChat: OpenAI | gpt-4.1-mini",
+        },
     }
 
     assert smoke._summary_is_ok(summary, expect_openai=True) is False
@@ -61,10 +82,36 @@ def test_summary_is_not_ok_when_research_only_boundary_breaks() -> None:
         "gateway_health": {"status": "ok", "openai_enabled": True},
         "orchestrator_health": {"status": "ok", "openai_enabled": True, "no_trading": False},
         "explain": {"status": "ok", "provider": "openai", "fallback": False, "execution_disabled": False},
-        "chat": {"status": "ok", "provider": "openai", "fallback": False, "execution_disabled": False},
+        "chat": {
+            "status": "ok",
+            "provider": "openai",
+            "fallback": False,
+            "execution_disabled": False,
+            "assistant_response": "Unsafe answer.",
+            "reasoning_summary": "Explain: OpenAI | gpt-4.1-mini\nChat: OpenAI | gpt-4.1-mini",
+        },
     }
 
     assert smoke._summary_is_ok(summary, expect_openai=True) is False
+
+
+def test_summary_is_not_ok_when_chat_reasoning_summary_is_missing() -> None:
+    smoke = _load_smoke_module()
+    summary = {
+        "gateway_health": {"status": "ok", "openai_enabled": False},
+        "orchestrator_health": {"status": "ok", "openai_enabled": False, "no_trading": True},
+        "explain": {"status": "ok", "provider": "fallback", "fallback": True, "execution_disabled": True},
+        "chat": {
+            "status": "ok",
+            "provider": "fallback",
+            "fallback": True,
+            "execution_disabled": True,
+            "assistant_response": "Fallback answer.",
+            "reasoning_summary": "",
+        },
+    }
+
+    assert smoke._summary_is_ok(summary, expect_openai=False) is False
 
 
 def test_build_summary_collects_phase1_endpoints() -> None:
@@ -88,6 +135,7 @@ def test_build_summary_collects_phase1_endpoints() -> None:
             return {
                 "chat_status": {"provider": "openai", "fallback": False},
                 "assistant_response": "Concise research answer.",
+                "reasoning_summary": "Explain: OpenAI | gpt-4.1-mini\nChat: OpenAI | gpt-4.1-mini",
                 "execution_disabled": True,
             }
         raise AssertionError(f"unexpected url: {url}")
@@ -112,3 +160,4 @@ def test_build_summary_collects_phase1_endpoints() -> None:
     ]
     assert summary["explain"]["provider"] == "openai"
     assert summary["chat"]["assistant_response"] == "Concise research answer."
+    assert summary["chat"]["reasoning_summary"].startswith("Explain: OpenAI")

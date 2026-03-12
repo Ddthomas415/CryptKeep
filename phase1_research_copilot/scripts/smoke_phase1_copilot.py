@@ -89,6 +89,7 @@ def _build_summary(args: argparse.Namespace, request_json: Callable[..., dict[st
             "provider": (chat.get("chat_status") or {}).get("provider"),
             "fallback": (chat.get("chat_status") or {}).get("fallback"),
             "assistant_response": chat.get("assistant_response"),
+            "reasoning_summary": chat.get("reasoning_summary"),
             "execution_disabled": chat.get("execution_disabled"),
         }
     except Exception as exc:
@@ -109,6 +110,8 @@ def _summary_is_ok(summary: dict[str, Any], *, expect_openai: bool) -> bool:
         not bool(orchestrator_health.get("no_trading"))
         or not bool(explain.get("execution_disabled"))
         or not bool(chat.get("execution_disabled"))
+        or not str(chat.get("assistant_response") or "").strip()
+        or not str(chat.get("reasoning_summary") or "").strip()
     ):
         return False
 
