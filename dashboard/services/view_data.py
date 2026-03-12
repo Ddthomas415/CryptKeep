@@ -66,6 +66,20 @@ def _default_activity() -> list[str]:
     ]
 
 
+def _default_positions() -> list[dict[str, Any]]:
+    return [
+        {"asset": "BTC", "side": "long", "size": 0.12, "entry": 80120.0, "mark": 84250.12, "pnl": 495.6},
+        {"asset": "SOL", "side": "long", "size": 45.0, "entry": 173.4, "mark": 187.42, "pnl": 630.9},
+    ]
+
+
+def _default_recent_fills() -> list[dict[str, Any]]:
+    return [
+        {"ts": "2026-03-11T12:20:00Z", "asset": "BTC", "side": "buy", "qty": 0.01, "price": 83500.0},
+        {"ts": "2026-03-11T11:05:00Z", "asset": "ETH", "side": "sell", "qty": 0.3, "price": 4390.0},
+    ]
+
+
 def _read_mock_envelope(filename: str) -> dict[str, Any] | None:
     path = REPO_ROOT / "crypto-trading-ai" / "shared" / "mock-data" / filename
     if not path.exists():
@@ -144,3 +158,67 @@ def get_recent_activity() -> list[str]:
             if out:
                 return out
     return _default_activity()
+
+
+def get_portfolio_view() -> dict[str, Any]:
+    summary = get_dashboard_summary()
+    portfolio = summary.get("portfolio") if isinstance(summary.get("portfolio"), dict) else {}
+    watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
+
+    watch_prices = {
+        str(item.get("asset") or ""): float(item.get("price") or 0.0)
+        for item in watchlist
+        if isinstance(item, dict) and str(item.get("asset") or "").strip()
+    }
+
+    positions = _default_positions()
+    enriched_positions: list[dict[str, Any]] = []
+    for row in positions:
+        asset = str(row.get("asset") or "")
+        size = float(row.get("size") or 0.0)
+        entry = float(row.get("entry") or 0.0)
+        mark = float(watch_prices.get(asset) or row.get("mark") or 0.0)
+        pnl = round((mark - entry) * size, 2) if size and entry and mark else float(row.get("pnl") or 0.0)
+        enriched_positions.append(
+            {
+                "asset": asset,
+                "side": str(row.get("side") or "long"),
+                "size": size,
+                "entry": entry,
+                "mark": mark,
+                "pnl": pnl,
+            }
+        )
+
+    return {
+        "currency": "USD",
+        "portfolio": portfolio,
+        "positions": enriched_positions,
+    }
+
+
+def get_trades_view() -> dict[str, Any]:
+    summary = get_dashboard_summary()
+    recommendations = get_recommendations()
+
+    pending_approvals = [
+        {
+            "id": str(item.get("id") or f"rec_{index + 1}"),
+            "asset": str(item.get("asset") or ""),
+            "side": str(item.get("signal") or "hold"),
+            "risk_size_pct": float(item.get("risk_size_pct") or 0.0),
+            "status": str(item.get("status") or "pending_review"),
+        }
+        for index, item in enumerate(recommendations)
+        if str(item.get("status") or "").strip() in {"pending_review", "pending", "watch"}
+    ]
+    if not pending_approvals:
+        pending_approvals = [
+            {"id": "rec_1", "asset": "SOL", "side": "buy", "risk_size_pct": 1.5, "status": "pending_review"}
+        ]
+
+    return {
+        "approval_required": bool(summary.get("approval_required", True)),
+        "pending_approvals": pending_approvals,
+        "recent_fills": _default_recent_fills(),
+    }
