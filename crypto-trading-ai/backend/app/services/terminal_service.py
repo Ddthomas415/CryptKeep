@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import secrets
+import time
+
 from backend.app.domain.policy.terminal_policy import (
     DANGEROUS_PREFIXES,
     READ_ONLY_PREFIXES,
@@ -7,12 +10,39 @@ from backend.app.domain.policy.terminal_policy import (
 )
 
 APPROVED_TERMINAL_PREFIXES = READ_ONLY_PREFIXES + SEMI_SENSITIVE_PREFIXES + DANGEROUS_PREFIXES
+CONFIRMATION_TTL_SECONDS = 300
+MAX_PENDING_CONFIRMATIONS = 512
 
 
 class TerminalService:
+    def __init__(self) -> None:
+        self._pending_confirmations: dict[str, dict[str, object]] = {}
+
     @staticmethod
     def _is_approved_command(normalized: str) -> bool:
         return normalized.startswith(APPROVED_TERMINAL_PREFIXES)
+
+    def _prune_expired_confirmations(self) -> None:
+        now = time.time()
+        for token, record in list(self._pending_confirmations.items()):
+            expires_at = float(record.get("expires_at", 0))
+            if expires_at <= now:
+                self._pending_confirmations.pop(token, None)
+
+    def _mint_confirmation_token(self, command: str) -> str:
+        self._prune_expired_confirmations()
+
+        token = f"confirm_{secrets.token_urlsafe(18)}"
+        self._pending_confirmations[token] = {
+            "command": command,
+            "expires_at": time.time() + CONFIRMATION_TTL_SECONDS,
+        }
+
+        if len(self._pending_confirmations) > MAX_PENDING_CONFIRMATIONS:
+            oldest_token = next(iter(self._pending_confirmations))
+            self._pending_confirmations.pop(oldest_token, None)
+
+        return token
 
     def execute(self, command: str) -> dict:
         normalized = command.strip().lower()
@@ -43,17 +73,21 @@ class TerminalService:
                 "requires_confirmation": False,
             }
 
-        if normalized == "kill-switch on":
+        if normalized.startswith(DANGEROUS_PREFIXES):
+            confirmation_token = self._mint_confirmation_token(normalized)
+            warning_value = "Dangerous command requires explicit confirmation."
+            if normalized == "kill-switch on":
+                warning_value = "This will pause all strategy execution."
             return {
                 "command": command,
                 "output": [
                     {
                         "type": "warning",
-                        "value": "This will pause all strategy execution.",
+                        "value": warning_value,
                     }
                 ],
                 "requires_confirmation": True,
-                "confirmation_token": "confirm_123",
+                "confirmation_token": confirmation_token,
             }
 
         if normalized == "status":
@@ -95,7 +129,12 @@ class TerminalService:
             "requires_confirmation": False,
         }
 
-    def confirm(self, confirmation_token: str) -> dict:
+    def confirm(self, confirmation_token: str) -> dict | None:
+        self._prune_expired_confirmations()
+        record = self._pending_confirmations.pop(confirmation_token, None)
+        if not record:
+            return None
+
         return {
             "confirmation_token": confirmation_token,
             "confirmed": True,

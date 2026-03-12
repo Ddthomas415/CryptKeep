@@ -263,6 +263,13 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     expect(typeof confirmPayload.data.output[0].value).toBe("string");
   });
 
+  it("terminal confirm endpoint rejects invalid confirmation token with app error envelope", async () => {
+    const payload = await postJsonExpectStatus("/api/v1/terminal/confirm", {
+      confirmation_token: "confirm_invalid_token",
+    }, 400);
+    expectApplicationErrorEnvelope(payload, "INVALID_CONFIRMATION_TOKEN");
+  });
+
   it("audit events endpoint returns item list and pagination metadata", async () => {
     const page = 1;
     const pageSize = 5;
