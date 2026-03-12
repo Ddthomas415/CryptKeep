@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dashboard.components.asset_detail import build_asset_detail_metrics
+from dashboard.components.asset_detail import build_asset_detail_metrics, build_focus_summary_metrics
 
 
 def test_build_asset_detail_metrics_formats_snapshot_row() -> None:
@@ -37,3 +37,38 @@ def test_build_asset_detail_metrics_handles_missing_quote_values() -> None:
     assert metrics[1]["value"] == "- / -"
     assert metrics[2]["value"] == "-"
     assert metrics[3]["value"] == "Watchlist"
+
+
+def test_build_focus_summary_metrics_formats_signal_summary() -> None:
+    metrics = build_focus_summary_metrics(
+        {
+            "signal": "buy",
+            "status": "pending_review",
+            "confidence": 0.81,
+            "change_24h_pct": 6.5,
+            "price": 200.0,
+            "execution_disabled": True,
+            "risk_note": "Research only.",
+        }
+    )
+
+    assert metrics[0] == {
+        "label": "Signal",
+        "value": "Buy",
+        "delta": "Pending Review",
+    }
+    assert metrics[1] == {
+        "label": "Confidence",
+        "value": "81%",
+        "delta": "AI conviction",
+    }
+    assert metrics[2] == {
+        "label": "24h Move",
+        "value": "+6.5%",
+        "delta": "$200.00",
+    }
+    assert metrics[3] == {
+        "label": "Execution",
+        "value": "Disabled",
+        "delta": "Research only.",
+    }

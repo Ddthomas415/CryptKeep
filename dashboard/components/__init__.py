@@ -1,5 +1,6 @@
 from dashboard.components.asset_detail import (
     build_asset_detail_metrics,
+    build_focus_summary_metrics,
     render_asset_detail_card,
     render_evidence_section,
     render_focus_summary,
@@ -26,6 +27,7 @@ __all__ = [
     "render_page_header",
     "render_kpi_cards",
     "build_asset_detail_metrics",
+    "build_focus_summary_metrics",
     "render_asset_detail_card",
     "render_evidence_section",
     "render_focus_summary",

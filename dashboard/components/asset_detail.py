@@ -50,6 +50,46 @@ def build_asset_detail_metrics(detail: dict[str, Any] | None) -> list[dict[str, 
     ]
 
 
+def build_focus_summary_metrics(detail: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = detail if isinstance(detail, dict) else {}
+    try:
+        confidence = float(payload.get("confidence") or 0.0)
+    except (TypeError, ValueError):
+        confidence = 0.0
+    try:
+        change_24h_pct = float(payload.get("change_24h_pct") or 0.0)
+    except (TypeError, ValueError):
+        change_24h_pct = 0.0
+
+    signal_value = str(payload.get("signal") or "watch").replace("_", " ").title()
+    signal_delta = str(payload.get("status") or "monitor").replace("_", " ").title()
+    execution_value = "Disabled" if bool(payload.get("execution_disabled", True)) else "Enabled"
+    execution_delta = str(payload.get("risk_note") or "").strip()
+
+    return [
+        {
+            "label": "Signal",
+            "value": signal_value,
+            "delta": signal_delta,
+        },
+        {
+            "label": "Confidence",
+            "value": f"{confidence * 100:.0f}%",
+            "delta": "AI conviction",
+        },
+        {
+            "label": "24h Move",
+            "value": f"{change_24h_pct:+.1f}%",
+            "delta": _format_currency(payload.get("price")),
+        },
+        {
+            "label": "Execution",
+            "value": execution_value,
+            "delta": execution_delta,
+        },
+    ]
+
+
 def render_asset_detail_card(
     detail: dict[str, Any] | None,
     *,
@@ -132,6 +172,16 @@ def render_focus_summary(
 
     with st.container(border=True):
         st.markdown(f"### {title}")
+        metric_items = build_focus_summary_metrics(payload)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
         st.caption(str(payload.get("current_cause") or payload.get("thesis") or empty_message))
         secondary = str(payload.get("future_catalyst") or "").strip()
         if secondary:
