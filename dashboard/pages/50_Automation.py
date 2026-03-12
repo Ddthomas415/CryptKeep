@@ -3,6 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.services.view_data import get_automation_view, update_automation_view
@@ -59,12 +60,12 @@ payload = {
     "approval_required_for_live": approval_required_value,
 }
 
-if st.button("Save automation settings", type="primary"):
-    st.session_state["ck_automation_save_result"] = update_automation_view(payload)
-
-save_result = st.session_state.get("ck_automation_save_result")
-if isinstance(save_result, dict):
-    if bool(save_result.get("ok")):
-        st.success(str(save_result.get("message") or "Automation settings saved."))
-    else:
-        st.error(str(save_result.get("message") or "Automation settings save failed."))
+render_save_action(
+    button_label="Save automation settings",
+    button_key="ck_automation_save_button",
+    session_key="ck_automation_save_result",
+    payload=payload,
+    save_fn=update_automation_view,
+    success_message="Automation settings saved.",
+    error_message="Automation settings save failed.",
+)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.services.view_data import get_settings_view, update_settings_view
@@ -95,12 +96,12 @@ payload = {
     },
 }
 
-if st.button("Save settings", type="primary"):
-    st.session_state["ck_settings_save_result"] = update_settings_view(payload)
-
-save_result = st.session_state.get("ck_settings_save_result")
-if isinstance(save_result, dict):
-    if bool(save_result.get("ok")):
-        st.success("Settings saved to the local API.")
-    else:
-        st.error(str(save_result.get("message") or "Settings save failed."))
+render_save_action(
+    button_label="Save settings",
+    button_key="ck_settings_save_button",
+    session_key="ck_settings_save_result",
+    payload=payload,
+    save_fn=update_settings_view,
+    success_message="Settings saved to the local API.",
+    error_message="Settings save failed.",
+)
