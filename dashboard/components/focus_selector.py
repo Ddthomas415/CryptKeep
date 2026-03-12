@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from html import escape
 from typing import Any
 
 import streamlit as st
@@ -39,10 +40,15 @@ def render_focus_selector(
         fallback_asset=fallback_asset,
         asset_field=asset_field,
     )
+    st.markdown(
+        f"<div class='ck-control-label'>{escape(label)}</div>",
+        unsafe_allow_html=True,
+    )
     choice = st.selectbox(
         label,
         options or [default_asset],
         index=(options.index(default_asset) if default_asset in options else 0),
         key=key,
+        label_visibility="collapsed",
     )
     return str(choice), default_asset, options

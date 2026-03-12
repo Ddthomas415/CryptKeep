@@ -8,6 +8,7 @@ def test_dashboard_component_modules_import_together() -> None:
         "dashboard.components",
         "dashboard.components.activity",
         "dashboard.components.asset_detail",
+        "dashboard.components.badges",
         "dashboard.components.focus_selector",
         "dashboard.components.kpi_builders",
         "dashboard.components.summary_panels",
@@ -18,11 +19,15 @@ def test_dashboard_component_modules_import_together() -> None:
     package = imported["dashboard.components"]
     assert callable(package.normalize_activity_items)
     assert callable(package.render_activity_panel)
+    assert callable(package.badge_html)
+    assert callable(package.badge_row_html)
+    assert callable(package.render_badge_row)
     assert callable(package.build_assistant_status_message)
     assert callable(package.build_assistant_status_summary)
     assert callable(package.build_asset_detail_metrics)
     assert callable(package.build_focus_summary_metrics)
     assert callable(package.render_asset_detail_card)
+    assert callable(package.render_feature_hero)
     assert callable(package.render_focus_selector)
     assert callable(package.build_automation_kpis)
     assert callable(package.build_overview_kpis)
@@ -49,6 +54,7 @@ def test_dashboard_component_modules_import_together() -> None:
 
     assert callable(imported["dashboard.components.asset_detail"].render_research_lens)
     assert callable(imported["dashboard.components.activity"].normalize_activity_items)
+    assert callable(imported["dashboard.components.badges"].badge_row_html)
     assert callable(imported["dashboard.components.focus_selector"].resolve_focus_options)
     assert callable(imported["dashboard.components.kpi_builders"].build_signals_kpis)
     assert callable(imported["dashboard.components.summary_panels"].build_overview_status_metrics)

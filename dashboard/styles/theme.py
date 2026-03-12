@@ -70,6 +70,10 @@ def inject_theme() -> None:
           padding-left: 1rem;
           padding-right: 1rem;
         }
+        [data-testid="stSidebarNav"],
+        [data-testid="stSidebarNavSeparator"] {
+          display: none;
+        }
         [data-testid="stMarkdownContainer"] p,
         [data-testid="stCaptionContainer"] {
           color: var(--ck-muted);
@@ -310,6 +314,56 @@ def inject_theme() -> None:
           font-size: 0.76rem;
           padding: 0.26rem 0.62rem;
         }
+        .ck-control-label {
+          margin: 0.1rem 0 0.35rem;
+          font-size: 0.73rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--ck-muted);
+        }
+        .ck-mini-badge-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.45rem;
+          margin: 0.9rem 0 0;
+        }
+        .ck-mini-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          border: 1px solid var(--ck-border);
+          background: rgba(11, 18, 32, 0.72);
+          color: var(--ck-muted-strong);
+          font-size: 0.75rem;
+          line-height: 1;
+          padding: 0.38rem 0.7rem;
+          white-space: nowrap;
+        }
+        .ck-mini-badge--accent {
+          background: rgba(87, 165, 255, 0.14);
+          border-color: rgba(87, 165, 255, 0.26);
+          color: #d8e8ff;
+        }
+        .ck-mini-badge--success {
+          background: rgba(55, 214, 122, 0.12);
+          border-color: rgba(55, 214, 122, 0.24);
+          color: #caf9df;
+        }
+        .ck-mini-badge--warning {
+          background: rgba(242, 179, 93, 0.12);
+          border-color: rgba(242, 179, 93, 0.24);
+          color: #ffe1b2;
+        }
+        .ck-mini-badge--danger {
+          background: rgba(255, 107, 123, 0.12);
+          border-color: rgba(255, 107, 123, 0.24);
+          color: #ffd0d6;
+        }
+        .ck-mini-badge--muted {
+          background: rgba(117, 136, 173, 0.1);
+          border-color: rgba(117, 136, 173, 0.18);
+        }
         .ck-nav-label {
           margin: 0.9rem 0 0.45rem;
           font-size: 0.72rem;
@@ -339,6 +393,63 @@ def inject_theme() -> None:
           margin-top: 0.8rem;
           color: var(--ck-muted-strong);
           font-size: 0.9rem;
+        }
+        .ck-hero {
+          padding: 0.15rem 0.1rem 0.2rem;
+        }
+        .ck-hero-eyebrow {
+          color: var(--ck-accent);
+          font-size: 0.74rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          margin-bottom: 0.65rem;
+          font-weight: 650;
+        }
+        .ck-hero-title {
+          color: var(--ck-text);
+          font-size: 2.35rem;
+          line-height: 1.02;
+          letter-spacing: -0.05em;
+          font-weight: 760;
+          max-width: 18rem;
+        }
+        .ck-hero-summary {
+          margin: 0.9rem 0 0;
+          font-size: 1rem;
+          line-height: 1.6;
+          color: var(--ck-muted-strong);
+          max-width: 36rem;
+        }
+        .ck-hero-body {
+          margin: 1rem 0 0;
+          color: var(--ck-muted);
+          line-height: 1.55;
+          max-width: 36rem;
+        }
+        .ck-note-card {
+          height: 100%;
+          border: 1px solid rgba(87, 165, 255, 0.16);
+          border-radius: 20px;
+          background: linear-gradient(180deg, rgba(9, 16, 28, 0.95) 0%, rgba(11, 19, 32, 0.82) 100%);
+          padding: 1.15rem 1.1rem;
+        }
+        .ck-note-card-title {
+          color: var(--ck-text);
+          font-size: 0.92rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          font-weight: 650;
+          margin-bottom: 0.8rem;
+        }
+        .ck-note-card-list {
+          margin: 0;
+          padding-left: 1rem;
+          display: grid;
+          gap: 0.6rem;
+        }
+        .ck-note-card-list li {
+          color: var(--ck-muted-strong);
+          line-height: 1.45;
         }
         .ck-section-head {
           display: flex;

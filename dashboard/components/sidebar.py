@@ -32,6 +32,8 @@ def render_app_sidebar(
     title: str = "CryptKeep",
     subtitle: str = "AI Trading Copilot",
     nav_items: Sequence[NavItem] = DEFAULT_NAV_ITEMS,
+    secondary_nav_items: Sequence[NavItem] | None = None,
+    secondary_title: str = "Admin / Legacy",
     show_legacy_note: bool = True,
 ) -> None:
     with st.sidebar:
@@ -51,6 +53,10 @@ def render_app_sidebar(
         )
         for path, label, icon in nav_items:
             _page_link(path, label=label, icon=icon)
+        if secondary_nav_items:
+            st.markdown(f"<div class='ck-nav-label'>{escape(secondary_title)}</div>", unsafe_allow_html=True)
+            for path, label, icon in secondary_nav_items:
+                _page_link(path, label=label, icon=icon)
         if show_legacy_note:
             st.markdown(
                 "<div class='ck-sidebar-note'>Legacy admin pages remain available for compatibility.</div>",

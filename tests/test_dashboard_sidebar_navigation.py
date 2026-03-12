@@ -54,7 +54,7 @@ def test_sidebar_rendered_across_dashboard_pages() -> None:
         file_path = REPO_ROOT / relative_path
         assert file_path.exists(), f"Missing dashboard file: {relative_path}"
         source = file_path.read_text(encoding="utf-8")
-        assert "render_app_sidebar()" in source, f"Shared sidebar not wired in {relative_path}"
+        assert "render_app_sidebar(" in source, f"Shared sidebar not wired in {relative_path}"
 
 
 def test_auth_gating_consistent_across_dashboard_pages() -> None:

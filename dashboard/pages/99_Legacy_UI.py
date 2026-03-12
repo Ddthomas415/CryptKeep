@@ -6,7 +6,12 @@ from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 
 AUTH_STATE = require_authenticated_role("OPERATOR")
-render_app_sidebar()
+render_app_sidebar(
+    secondary_nav_items=(
+        ("pages/00_Operator.py", "Operator (Legacy)", "↩️"),
+        ("pages/99_Legacy_UI.py", "Legacy UI", "🗃️"),
+    ),
+)
 
 render_page_header(
     "Legacy UI (Retired)",
@@ -21,10 +26,11 @@ st.warning("Legacy UI is retired. Use Operations and the new workflow pages inst
 st.caption("This page remains only as a compatibility marker for old bookmarks.")
 
 if hasattr(st, "page_link"):
-    st.page_link("dashboard/pages/60_Operations.py", label="Open Operations", icon="🛠️")
+    st.page_link("pages/60_Operations.py", label="Open Operations", icon="🛠️")
 
-st.markdown("### Replacement pages")
-st.markdown("- Operations for system tools, logs, strategy controls, and recovery actions")
-st.markdown("- Overview for summary status and recent activity")
-st.markdown("- Portfolio, Signals, Trades, Automation, and Settings for focused workflow pages")
-st.info("If you need the historical monolithic dashboard again, restore it from git history into a separate page rather than importing it dynamically here.")
+with st.container(border=True):
+    st.markdown("### Replacement pages")
+    st.markdown("- Operations for system tools, logs, strategy controls, and recovery actions")
+    st.markdown("- Overview for summary status and recent activity")
+    st.markdown("- Portfolio, Signals, Trades, Automation, and Settings for focused workflow pages")
+    st.info("If you need the historical monolithic dashboard again, restore it from git history into a separate page rather than importing it dynamically here.")
