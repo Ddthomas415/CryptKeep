@@ -6,6 +6,7 @@ from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.services.view_data import get_dashboard_summary, get_recent_activity, get_recommendations
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
 
@@ -24,21 +25,38 @@ st.button = _disabled_button
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
 
+summary = get_dashboard_summary()
+portfolio = summary.get("portfolio") if isinstance(summary.get("portfolio"), dict) else {}
+recommendations = get_recommendations()
+recent_activity = get_recent_activity()
+
+mode = str(summary.get("mode") or "research_only")
+risk_status = str(summary.get("risk_status") or "safe")
+execution_enabled = bool(summary.get("execution_enabled", False))
+
+total_value = float(portfolio.get("total_value") or 0.0)
+cash_value = float(portfolio.get("cash") or 0.0)
+unrealized_pnl = float(portfolio.get("unrealized_pnl") or 0.0)
+
 render_page_header(
     "Overview",
     "Summary-first workspace with advanced controls moved to Operations.",
     badges=[
-        {"label": "Mode", "value": "Research Only"},
-        {"label": "Risk", "value": "Safe"},
+        {"label": "Mode", "value": mode.replace("_", " ").title()},
+        {"label": "Risk", "value": risk_status.title()},
     ],
 )
 
 render_kpi_cards(
     [
-        {"label": "Portfolio Value", "value": "$124,850", "delta": "+2.8%"},
-        {"label": "PnL Today", "value": "+$2,145", "delta": "+1.7%"},
-        {"label": "Active Signals", "value": "6", "delta": "2 high confidence"},
-        {"label": "Bot Status", "value": "Running", "delta": "Automation enabled"},
+        {"label": "Portfolio Value", "value": f"${total_value:,.2f}", "delta": f"Cash ${cash_value:,.2f}"},
+        {"label": "Unrealized PnL", "value": f"${unrealized_pnl:,.2f}", "delta": "Live mark-to-market"},
+        {"label": "Active Signals", "value": str(len(recommendations)), "delta": "Recommendation set"},
+        {
+            "label": "Bot Status",
+            "value": "Running" if execution_enabled else "Research Only",
+            "delta": "Automation enabled" if execution_enabled else "Execution disabled",
+        },
     ]
 )
 
@@ -46,19 +64,22 @@ col_signals, col_activity = st.columns((1.4, 1))
 
 with col_signals:
     st.markdown("### Recent Signals")
+    signal_rows = [
+        {
+            "asset": str(item.get("asset") or ""),
+            "thesis": str(item.get("summary") or ""),
+            "confidence": float(item.get("confidence") or 0.0),
+            "status": str(item.get("status") or "pending"),
+        }
+        for item in recommendations[:6]
+    ]
     st.dataframe(
-        [
-            {"asset": "SOL", "thesis": "Momentum + catalyst", "confidence": 0.78, "status": "research"},
-            {"asset": "BTC", "thesis": "Range breakout watch", "confidence": 0.66, "status": "watch"},
-            {"asset": "ETH", "thesis": "Funding cooling", "confidence": 0.71, "status": "monitor"},
-        ],
+        signal_rows,
         use_container_width=True,
         hide_index=True,
     )
 
 with col_activity:
     st.markdown("### Recent Activity")
-    st.markdown("- Generated explanation for SOL")
-    st.markdown("- Health check passed")
-    st.markdown("- Listing logs refreshed")
-    st.markdown("- Paper trade blocked by risk policy")
+    for line in recent_activity[:6]:
+        st.markdown(f"- {line}")

@@ -5,6 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.services.view_data import get_recommendations
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
@@ -16,22 +17,7 @@ render_page_header(
 )
 
 st.dataframe(
-    [
-        {
-            "asset": "SOL",
-            "signal": "buy",
-            "confidence": 0.78,
-            "summary": "Momentum + catalyst alignment",
-            "evidence": "spot volume, ecosystem releases",
-        },
-        {
-            "asset": "BTC",
-            "signal": "hold",
-            "confidence": 0.66,
-            "summary": "Range breakout not confirmed",
-            "evidence": "weak continuation volume",
-        },
-    ],
+    get_recommendations(),
     use_container_width=True,
     hide_index=True,
 )

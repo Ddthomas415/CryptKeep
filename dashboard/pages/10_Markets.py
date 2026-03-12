@@ -5,9 +5,18 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.services.view_data import get_dashboard_summary
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
+summary = get_dashboard_summary()
+watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
+if not watchlist:
+    watchlist = [
+        {"asset": "BTC", "price": 84250.12, "change_24h_pct": 2.4, "signal": "watch"},
+        {"asset": "ETH", "price": 4421.34, "change_24h_pct": 1.3, "signal": "monitor"},
+        {"asset": "SOL", "price": 187.42, "change_24h_pct": 6.9, "signal": "research"},
+    ]
 
 render_page_header(
     "Markets",
@@ -20,11 +29,7 @@ left, right = st.columns((1, 1.4))
 with left:
     st.markdown("### Watchlist")
     st.dataframe(
-        [
-            {"asset": "BTC", "price": 84250.12, "change_24h_pct": 2.4, "signal": "watch"},
-            {"asset": "ETH", "price": 4421.34, "change_24h_pct": 1.3, "signal": "monitor"},
-            {"asset": "SOL", "price": 187.42, "change_24h_pct": 6.9, "signal": "research"},
-        ],
+        watchlist,
         use_container_width=True,
         hide_index=True,
     )
