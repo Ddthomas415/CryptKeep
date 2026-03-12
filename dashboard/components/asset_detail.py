@@ -4,6 +4,7 @@ from typing import Any
 
 import streamlit as st
 
+from dashboard.components.summary_panels import build_market_snapshot_lines
 from dashboard.components.tables import render_table_section
 
 
@@ -24,6 +25,8 @@ def render_asset_detail_card(
     with st.container(border=True):
         st.markdown(f"#### {asset}")
         st.caption(primary_text)
+        for line in build_market_snapshot_lines(payload, include_price=True):
+            st.caption(line)
         if price_series:
             st.line_chart(price_series, use_container_width=True)
         else:
