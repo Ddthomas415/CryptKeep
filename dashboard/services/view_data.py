@@ -714,6 +714,102 @@ def _load_local_pending_approvals(limit: int = 20) -> list[dict[str, Any]]:
     return pending_rows[:normalized_limit]
 
 
+def _load_local_open_orders(limit: int = 20) -> list[dict[str, Any]]:
+    normalized_limit = max(1, int(limit or 20))
+    allowed_statuses = {"new", "open", "submitted", "accepted", "working", "partially_filled"}
+    open_rows: list[dict[str, Any]] = []
+
+    def _collect(rows: Any, *, mode: str, source: str) -> None:
+        if not isinstance(rows, list):
+            return
+        for item in rows:
+            if not isinstance(item, dict):
+                continue
+
+            status = str(item.get("status") or "").strip().lower()
+            if status not in allowed_statuses:
+                continue
+
+            asset = _normalize_asset_symbol(item.get("symbol") or item.get("asset"))
+            if not asset:
+                continue
+
+            try:
+                qty = float(item.get("qty") or 0.0)
+            except (TypeError, ValueError):
+                qty = 0.0
+
+            try:
+                limit_price = float(item.get("limit_price") or 0.0)
+            except (TypeError, ValueError):
+                limit_price = 0.0
+
+            open_rows.append(
+                {
+                    "id": str(
+                        item.get("client_order_id")
+                        or item.get("order_id")
+                        or item.get("exchange_order_id")
+                        or item.get("id")
+                        or ""
+                    ),
+                    "asset": asset,
+                    "side": str(item.get("side") or "hold").strip().lower(),
+                    "qty": qty,
+                    "venue": str(item.get("venue") or mode),
+                    "mode": mode,
+                    "order_type": str(item.get("order_type") or "market").strip().lower(),
+                    "limit_price": limit_price if limit_price > 0 else None,
+                    "status": status,
+                    "created_ts": str(
+                        item.get("created_ts")
+                        or item.get("ts")
+                        or item.get("ts_iso")
+                        or item.get("submitted_ts")
+                        or ""
+                    ),
+                    "exchange_order_id": str(item.get("exchange_order_id") or ""),
+                    "source": source,
+                }
+            )
+
+    try:
+        from storage.live_trading_sqlite import LiveTradingSQLite
+    except Exception:
+        LiveTradingSQLite = None
+
+    if callable(LiveTradingSQLite):
+        try:
+            _collect(LiveTradingSQLite().list_orders(limit=normalized_limit), mode="live", source="live_orders")
+        except Exception:
+            pass
+
+    try:
+        from storage.paper_trading_sqlite import PaperTradingSQLite
+    except Exception:
+        PaperTradingSQLite = None
+
+    if callable(PaperTradingSQLite):
+        try:
+            _collect(PaperTradingSQLite().list_orders(limit=normalized_limit, status=None), mode="paper", source="paper_orders")
+        except Exception:
+            pass
+
+    try:
+        from storage.execution_audit_reader import list_orders
+    except Exception:
+        list_orders = None
+
+    if callable(list_orders):
+        try:
+            _collect(list_orders(limit=normalized_limit), mode="audit", source="execution_audit")
+        except Exception:
+            pass
+
+    open_rows.sort(key=lambda row: str(row.get("created_ts") or ""), reverse=True)
+    return open_rows[:normalized_limit]
+
+
 def _dedupe_recommendation_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     deduped: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -1922,9 +2018,12 @@ def get_trades_view() -> dict[str, Any]:
     if not recent_fills:
         recent_fills = _default_recent_fills()
 
+    open_orders = _load_local_open_orders(limit=20)
+
     return {
         "approval_required": bool(summary.get("approval_required", True)),
         "pending_approvals": pending_approvals,
+        "open_orders": open_orders,
         "recent_fills": recent_fills,
     }
 

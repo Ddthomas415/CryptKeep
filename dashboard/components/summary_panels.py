@@ -314,12 +314,15 @@ def render_portfolio_position_summary(rows: Sequence[dict[str, Any]] | None) -> 
 
 def build_trades_queue_metrics(
     pending_approvals: Sequence[dict[str, Any]] | None,
+    open_orders: Sequence[dict[str, Any]] | None,
     recent_fills: Sequence[dict[str, Any]] | None,
 ) -> list[dict[str, str]]:
     approvals = [row for row in (pending_approvals or []) if isinstance(row, dict)]
+    orders = [row for row in (open_orders or []) if isinstance(row, dict)]
     fills = [row for row in (recent_fills or []) if isinstance(row, dict)]
     buy_count = sum(1 for row in approvals if str(row.get("side") or "").strip().lower() == "buy")
     sell_count = sum(1 for row in approvals if str(row.get("side") or "").strip().lower() == "sell")
+    latest_order = orders[0] if orders else {}
     latest_fill = fills[0] if fills else {}
 
     largest_review = max((float(row.get("risk_size_pct") or 0.0) for row in approvals), default=0.0)
@@ -341,25 +344,34 @@ def build_trades_queue_metrics(
             "delta": largest_asset,
         },
         {
-            "label": "Last Fill Price",
-            "value": _format_portfolio_currency(latest_fill.get("price")) if fills else "-",
-            "delta": str(latest_fill.get("asset") or "No fills yet") if fills else "No fills yet",
+            "label": "Open Orders",
+            "value": str(len(orders)),
+            "delta": f"{str(latest_order.get('asset') or '-')} / {str(latest_order.get('status') or '').replace('_', ' ').title()}".strip(
+                " /"
+            )
+            if orders
+            else "No open orders",
         },
         {
-            "label": "Last Fill Qty",
-            "value": f"{float(latest_fill.get('qty') or 0.0):g}" if fills else "-",
-            "delta": str(latest_fill.get("side") or "").upper() if fills else "No fills yet",
+            "label": "Last Fill",
+            "value": _format_portfolio_currency(latest_fill.get("price")) if fills else "-",
+            "delta": (
+                f"{str(latest_fill.get('asset') or '-')} / {str(latest_fill.get('side') or '').upper()} {float(latest_fill.get('qty') or 0.0):g}"
+            )
+            if fills
+            else "No fills yet",
         },
     ]
 
 
 def render_trades_queue_summary(
     pending_approvals: Sequence[dict[str, Any]] | None,
+    open_orders: Sequence[dict[str, Any]] | None,
     recent_fills: Sequence[dict[str, Any]] | None,
 ) -> None:
     with st.container(border=True):
         st.markdown("### Execution Summary")
-        metric_items = build_trades_queue_metrics(pending_approvals, recent_fills)
+        metric_items = build_trades_queue_metrics(pending_approvals, open_orders, recent_fills)
         metric_cols = st.columns(len(metric_items))
         for col, item in zip(metric_cols, metric_items, strict=False):
             with col:

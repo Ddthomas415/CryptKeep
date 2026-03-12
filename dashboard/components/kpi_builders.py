@@ -102,11 +102,14 @@ def build_trades_kpis(
     *,
     approval_required: bool,
     pending_approvals: list[dict[str, Any]] | None,
+    open_orders: list[dict[str, Any]] | None,
     recent_fills: list[dict[str, Any]] | None,
 ) -> list[dict[str, str]]:
     approvals = pending_approvals if isinstance(pending_approvals, list) else []
+    orders = open_orders if isinstance(open_orders, list) else []
     fills = recent_fills if isinstance(recent_fills, list) else []
     lead_approval = approvals[0] if approvals else {}
+    lead_order = orders[0] if orders else {}
     latest_fill = fills[0] if fills else {}
 
     return [
@@ -121,14 +124,16 @@ def build_trades_kpis(
             "delta": str(lead_approval.get("asset") or "Queue clear") if approvals else "Queue clear",
         },
         {
+            "label": "Open Orders",
+            "value": str(len(orders)),
+            "delta": f"{str(lead_order.get('asset') or '-')} / {str(lead_order.get('status') or '').replace('_', ' ').title()}".strip(" /")
+            if orders
+            else "No open orders",
+        },
+        {
             "label": "Recent Fills",
             "value": str(len(fills)),
             "delta": str(latest_fill.get("asset") or "No fills yet") if fills else "No fills yet",
-        },
-        {
-            "label": "Latest Side",
-            "value": str(latest_fill.get("side") or "-").upper() if fills else "-",
-            "delta": str(latest_fill.get("ts") or "No execution timestamp") if fills else "No execution timestamp",
         },
     ]
 

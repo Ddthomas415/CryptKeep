@@ -1288,6 +1288,7 @@ def test_research_explain_falls_back_for_non_sol_assets(monkeypatch) -> None:
 
 def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "_load_local_pending_approvals", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_open_orders", lambda limit=20: [])
     monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
     monkeypatch.setattr(
         view_data,
@@ -1312,12 +1313,14 @@ def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> N
     assert payload["approval_required"] is False
     assert payload["pending_approvals"][0]["id"] == "rec_99"
     assert payload["pending_approvals"][0]["side"] == "buy"
+    assert payload["open_orders"] == []
     assert len(payload["recent_fills"]) >= 1
 
 
 def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"approval_required": True})
     monkeypatch.setattr(view_data, "_load_local_pending_approvals", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_open_orders", lambda limit=20: [])
     monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
     monkeypatch.setattr(
         view_data,
@@ -1372,12 +1375,45 @@ def test_trades_view_prefers_local_pending_approvals(monkeypatch) -> None:
         ],
     )
     monkeypatch.setattr(view_data, "get_recommendations", lambda: [{"asset": "SOL", "signal": "buy", "status": "pending_review"}])
+    monkeypatch.setattr(view_data, "_load_local_open_orders", lambda limit=20: [])
     monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
 
     payload = view_data.get_trades_view()
     assert payload["pending_approvals"][0]["id"] == "intent_live_1"
     assert payload["pending_approvals"][0]["mode"] == "live"
     assert payload["pending_approvals"][0]["asset"] == "BTC"
+
+
+def test_trades_view_prefers_local_open_orders(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"approval_required": True})
+    monkeypatch.setattr(view_data, "_load_local_pending_approvals", lambda limit=20: [])
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_open_orders",
+        lambda limit=20: [
+            {
+                "id": "open_live_1",
+                "asset": "ETH",
+                "side": "buy",
+                "qty": 0.75,
+                "venue": "coinbase",
+                "mode": "live",
+                "order_type": "limit",
+                "limit_price": 4410.0,
+                "status": "working",
+                "created_ts": "2026-03-12T10:10:00Z",
+                "exchange_order_id": "ex_live_1",
+                "source": "live_orders",
+            }
+        ],
+    )
+    monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+
+    payload = view_data.get_trades_view()
+    assert payload["open_orders"][0]["id"] == "open_live_1"
+    assert payload["open_orders"][0]["status"] == "working"
+    assert payload["pending_approvals"][0]["asset"] == "SOL"
 
 
 def test_load_local_pending_approvals_prefers_queued_intents(monkeypatch) -> None:
@@ -1462,6 +1498,94 @@ def test_load_local_pending_approvals_prefers_queued_intents(monkeypatch) -> Non
             "status": "queued",
             "created_ts": "2026-03-12T09:00:00Z",
             "source": "signal_router",
+        },
+    ]
+
+
+def test_load_local_open_orders_prefers_live_and_paper_orders(monkeypatch) -> None:
+    class FakeLiveTrading:
+        def list_orders(self, limit: int = 300):
+            assert limit == 3
+            return [
+                {
+                    "client_order_id": "live_open_1",
+                    "created_ts": "2026-03-12T10:15:00Z",
+                    "venue": "coinbase",
+                    "symbol": "BTC-USDT",
+                    "side": "buy",
+                    "order_type": "limit",
+                    "qty": 0.05,
+                    "limit_price": 90250.0,
+                    "exchange_order_id": "cb_1",
+                    "status": "open",
+                },
+                {
+                    "client_order_id": "live_done_1",
+                    "created_ts": "2026-03-12T08:15:00Z",
+                    "venue": "coinbase",
+                    "symbol": "ETH-USDT",
+                    "side": "sell",
+                    "order_type": "market",
+                    "qty": 0.5,
+                    "limit_price": None,
+                    "exchange_order_id": "cb_2",
+                    "status": "filled",
+                },
+            ]
+
+    class FakePaperTrading:
+        def list_orders(self, limit: int = 500, status: str | None = None):
+            assert limit == 3
+            assert status is None
+            return [
+                {
+                    "order_id": "paper_open_1",
+                    "client_order_id": "paper_client_1",
+                    "created_ts": "2026-03-12T09:30:00Z",
+                    "ts": "2026-03-12T09:30:00Z",
+                    "venue": "paper",
+                    "symbol": "sol/usd",
+                    "side": "sell",
+                    "order_type": "market",
+                    "qty": 4.0,
+                    "limit_price": None,
+                    "status": "submitted",
+                }
+            ]
+
+    monkeypatch.setattr("storage.live_trading_sqlite.LiveTradingSQLite", FakeLiveTrading)
+    monkeypatch.setattr("storage.paper_trading_sqlite.PaperTradingSQLite", FakePaperTrading)
+    monkeypatch.setattr("storage.execution_audit_reader.list_orders", lambda limit=3: [])
+
+    rows = view_data._load_local_open_orders(limit=3)
+    assert rows == [
+        {
+            "id": "live_open_1",
+            "asset": "BTC",
+            "side": "buy",
+            "qty": 0.05,
+            "venue": "coinbase",
+            "mode": "live",
+            "order_type": "limit",
+            "limit_price": 90250.0,
+            "status": "open",
+            "created_ts": "2026-03-12T10:15:00Z",
+            "exchange_order_id": "cb_1",
+            "source": "live_orders",
+        },
+        {
+            "id": "paper_client_1",
+            "asset": "SOL",
+            "side": "sell",
+            "qty": 4.0,
+            "venue": "paper",
+            "mode": "paper",
+            "order_type": "market",
+            "limit_price": None,
+            "status": "submitted",
+            "created_ts": "2026-03-12T09:30:00Z",
+            "exchange_order_id": "",
+            "source": "paper_orders",
         },
     ]
 

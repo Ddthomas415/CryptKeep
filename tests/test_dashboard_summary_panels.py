@@ -197,6 +197,9 @@ def test_build_trades_queue_metrics_formats_queue_and_fill_details() -> None:
             {"asset": "BTC", "side": "sell", "risk_size_pct": 0.8},
         ],
         [
+            {"asset": "BTC", "status": "open"},
+        ],
+        [
             {"asset": "ETH", "side": "sell", "qty": 0.3, "price": 4390.0},
         ],
     )
@@ -212,14 +215,14 @@ def test_build_trades_queue_metrics_formats_queue_and_fill_details() -> None:
         "delta": "SOL",
     }
     assert metrics[2] == {
-        "label": "Last Fill Price",
-        "value": "$4,390.00",
-        "delta": "ETH",
+        "label": "Open Orders",
+        "value": "1",
+        "delta": "BTC / Open",
     }
     assert metrics[3] == {
-        "label": "Last Fill Qty",
-        "value": "0.3",
-        "delta": "SELL",
+        "label": "Last Fill",
+        "value": "$4,390.00",
+        "delta": "ETH / SELL 0.3",
     }
 
 

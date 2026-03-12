@@ -90,6 +90,9 @@ def test_build_trades_kpis_formats_trade_state() -> None:
             {"asset": "SOL", "side": "buy"},
             {"asset": "BTC", "side": "sell"},
         ],
+        open_orders=[
+            {"asset": "BTC", "status": "open"},
+        ],
         recent_fills=[
             {"asset": "ETH", "side": "sell", "ts": "2026-03-11T11:05:00Z"},
         ],
@@ -98,8 +101,9 @@ def test_build_trades_kpis_formats_trade_state() -> None:
     assert payload[1]["value"] == "2"
     assert payload[1]["delta"] == "SOL"
     assert payload[2]["value"] == "1"
-    assert payload[2]["delta"] == "ETH"
-    assert payload[3]["value"] == "SELL"
+    assert payload[2]["delta"] == "BTC / Open"
+    assert payload[3]["value"] == "1"
+    assert payload[3]["delta"] == "ETH"
 
 
 def test_build_automation_kpis_formats_runtime_summary() -> None:

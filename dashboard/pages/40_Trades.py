@@ -17,6 +17,7 @@ trades_view = get_trades_view()
 pending_approvals = (
     trades_view.get("pending_approvals") if isinstance(trades_view.get("pending_approvals"), list) else []
 )
+open_orders = trades_view.get("open_orders") if isinstance(trades_view.get("open_orders"), list) else []
 recent_fills = trades_view.get("recent_fills") if isinstance(trades_view.get("recent_fills"), list) else []
 approval_required = bool(trades_view.get("approval_required", True))
 
@@ -30,6 +31,7 @@ render_kpi_cards(
     build_trades_kpis(
         approval_required=approval_required,
         pending_approvals=pending_approvals,
+        open_orders=open_orders,
         recent_fills=recent_fills,
     )
 )
@@ -37,13 +39,18 @@ render_kpi_cards(
 summary_col, table_col = st.columns((1, 1.4))
 
 with summary_col:
-    render_trades_queue_summary(pending_approvals, recent_fills)
+    render_trades_queue_summary(pending_approvals, open_orders, recent_fills)
 
 with table_col:
     render_table_section(
         "Pending Approvals",
         pending_approvals,
         empty_message="No pending approvals.",
+    )
+    render_table_section(
+        "Open Orders",
+        open_orders,
+        empty_message="No open orders.",
     )
 
 render_table_section(
