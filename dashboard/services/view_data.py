@@ -212,6 +212,11 @@ def _default_explain_payload(asset: str = "SOL", question: str | None = None) ->
         "risk_note": selected.get("risk_note"),
         "execution_disabled": bool(selected.get("execution_disabled", True)),
         "evidence": list(selected.get("evidence") or []),
+        "assistant_status": {
+            "provider": "dashboard_fallback",
+            "model": None,
+            "fallback": True,
+        },
     }
 
 
@@ -1616,7 +1621,12 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
     resolved_question = question or f"Why is {asset_symbol} moving?"
     fallback = _default_explain_payload(asset_symbol, resolved_question)
 
-    def _normalize_explain(envelope: dict[str, Any] | None) -> dict[str, Any] | None:
+    def _normalize_explain(
+        envelope: dict[str, Any] | None,
+        *,
+        default_provider: str,
+        default_fallback: bool,
+    ) -> dict[str, Any] | None:
         if isinstance(envelope, dict) and isinstance(envelope.get("data"), dict):
             data = dict(envelope["data"])
         elif isinstance(envelope, dict):
@@ -1631,6 +1641,12 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
 
         data["asset"] = asset_symbol
         data["question"] = resolved_question
+        assistant_status = data.get("assistant_status") if isinstance(data.get("assistant_status"), dict) else {}
+        data["assistant_status"] = {
+            "provider": str(assistant_status.get("provider") or default_provider),
+            "model": assistant_status.get("model"),
+            "fallback": bool(assistant_status.get("fallback")) if "fallback" in assistant_status else default_fallback,
+        }
         return data
 
     primary_envelope = _request_envelope(
@@ -1638,7 +1654,11 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         method="POST",
         payload={"asset": asset_symbol, "question": resolved_question},
     )
-    primary = _normalize_explain(primary_envelope)
+    primary = _normalize_explain(
+        primary_envelope,
+        default_provider="backend_api",
+        default_fallback=False,
+    )
     if primary is not None:
         return primary
 
@@ -1648,7 +1668,9 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
             "/v1/explain",
             method="POST",
             payload={"asset": asset_symbol, "question": resolved_question, "lookback_minutes": 60},
-        )
+        ),
+        default_provider="phase1_copilot",
+        default_fallback=False,
     )
     if phase1 is not None:
         return phase1
@@ -1658,6 +1680,11 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         data = dict(mock["data"])
         data["asset"] = asset_symbol
         data["question"] = resolved_question
+        data["assistant_status"] = {
+            "provider": "dashboard_fallback",
+            "model": None,
+            "fallback": True,
+        }
         return data
 
     return fallback

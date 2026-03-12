@@ -998,6 +998,11 @@ def test_research_explain_uses_api_payload(monkeypatch) -> None:
     assert payload["asset"] == "BTC"
     assert payload["current_cause"] == "Spot demand improved."
     assert payload["confidence"] == 0.74
+    assert payload["assistant_status"] == {
+        "provider": "backend_api",
+        "model": None,
+        "fallback": False,
+    }
 
 
 def test_research_explain_falls_back_to_phase1_orchestrator(monkeypatch) -> None:
@@ -1026,6 +1031,7 @@ def test_research_explain_falls_back_to_phase1_orchestrator(monkeypatch) -> None
     assert payload["asset"] == "BTC"
     assert payload["current_cause"] == "BTC is firming on spot demand."
     assert payload["assistant_status"]["provider"] == "openai"
+    assert payload["assistant_status"]["fallback"] is False
 
 
 def test_markets_view_prefers_candle_api_series(monkeypatch) -> None:
@@ -1332,6 +1338,11 @@ def test_research_explain_falls_back_for_non_sol_assets(monkeypatch) -> None:
     assert payload["question"] == "Why is ADA moving?"
     assert payload["execution_disabled"] is True
     assert len(payload["evidence"]) == 1
+    assert payload["assistant_status"] == {
+        "provider": "dashboard_fallback",
+        "model": None,
+        "fallback": True,
+    }
 
 
 def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> None:
