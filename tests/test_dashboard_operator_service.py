@@ -30,3 +30,14 @@ def test_run_op_returns_rc_and_combined_output(monkeypatch):
     assert rc == 3
     assert "hello" in out
     assert "world" in out
+
+
+def test_run_repo_script_returns_rc_and_combined_output(monkeypatch):
+    def fake_run(*_args, **_kwargs):
+        return SimpleNamespace(returncode=1, stdout='{"ok":false}\n', stderr="warn\n")
+
+    monkeypatch.setattr(operator_service.subprocess, "run", fake_run)
+    rc, out = operator_service.run_repo_script("scripts/show_live_gate_inputs.py")
+    assert rc == 1
+    assert '{"ok":false}' in out
+    assert "warn" in out

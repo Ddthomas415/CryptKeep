@@ -16,6 +16,15 @@ def run_op(args: Sequence[str]) -> tuple[int, str]:
     return int(proc.returncode), output.strip()
 
 
+def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None) -> tuple[int, str]:
+    cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
+    if args:
+        cmd.extend(str(x) for x in args)
+    proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)
+    output = (proc.stdout or "") + (proc.stderr or "")
+    return int(proc.returncode), output.strip()
+
+
 def list_services(*, fallback: Sequence[str] | None = None) -> list[str]:
     rc, out = run_op(["list"])
     if rc == 0:

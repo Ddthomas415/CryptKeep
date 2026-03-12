@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import json
+
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.actions import render_system_action_buttons
 from dashboard.components.header import render_page_header
 from dashboard.components.logs import render_action_result
-from dashboard.services.operator import list_services, run_op
+from dashboard.services.operator import list_services, run_op, run_repo_script
 from dashboard.state.session import get_operator_result, set_operator_result
+from services.admin.repair_wizard import CONFIRM_TEXT as REPAIR_CONFIRM_TEXT
+from services.admin.repair_wizard import execute_reset, preflight_self_check, preview_reset
 from services.execution.idempotency_inspector import filter_rows as filter_idem_rows
 from services.execution.idempotency_inspector import list_recent as list_idem_recent
 
@@ -23,8 +27,8 @@ render_page_header(
     ],
 )
 
-tab_tools, tab_service_logs, tab_failures = st.tabs(
-    ["System Tools", "Service Logs", "Order Blocked Inspector"]
+tab_tools, tab_service_logs, tab_failures, tab_safety = st.tabs(
+    ["System Tools", "Service Logs", "Order Blocked Inspector", "Safety & Recovery"]
 )
 
 with tab_tools:
@@ -124,5 +128,58 @@ with tab_failures:
                             "raw": row.get("raw"),
                         }
                     )
+
+with tab_safety:
+    st.caption("Live safety snapshots and repair/reset tooling.")
+    s0, s1 = st.columns(2)
+    if s0.button("Show Live Gate Inputs", use_container_width=True, key="ops_live_gate_inputs"):
+        rc, out = run_repo_script("scripts/show_live_gate_inputs.py")
+        payload: object
+        if rc == 0:
+            try:
+                payload = json.loads(out)
+            except Exception:
+                payload = {"ok": False, "reason": "invalid_json_output", "raw": out}
+        else:
+            payload = {"ok": False, "reason": "command_failed", "rc": rc, "raw": out}
+        set_operator_result(action="Show Live Gate Inputs", rc=rc, output=json.dumps(payload, indent=2))
+
+    if s1.button("Run Reconcile Safe Steps", use_container_width=True, key="ops_reconcile_safe_steps"):
+        rc, out = run_repo_script(
+            "scripts/run_reconcile_safe_steps.py",
+            args=["--venue", "coinbase", "--symbols", "BTC/USD"],
+        )
+        payload: object
+        try:
+            payload = json.loads(out)
+        except Exception:
+            payload = {"ok": rc == 0, "rc": rc, "raw": out}
+        set_operator_result(action="Run Reconcile Safe Steps", rc=rc, output=json.dumps(payload, indent=2))
+
+    st.markdown("### Repair / Reset Wizard")
+    include_locks = st.checkbox("Include lock files in reset", value=False, key="ops_rw_include_locks")
+    confirm_text = st.text_input(
+        f"Type `{REPAIR_CONFIRM_TEXT}` to allow execute",
+        value="",
+        key="ops_rw_confirm_text",
+    )
+    r0, r1, r2 = st.columns(3)
+    if r0.button("Run Self-Check", use_container_width=True, key="ops_rw_self_check"):
+        payload = preflight_self_check()
+        set_operator_result(action="Run Self-Check", rc=0, output=json.dumps(payload, indent=2))
+    if r1.button("Preview Reset", use_container_width=True, key="ops_rw_preview_reset"):
+        payload = preview_reset(include_locks=include_locks)
+        set_operator_result(action="Preview Reset", rc=0, output=json.dumps(payload, indent=2))
+    if r2.button("Execute Reset", use_container_width=True, key="ops_rw_execute_reset"):
+        payload = execute_reset(confirm_text=confirm_text, include_locks=include_locks)
+        rc = 0 if bool(payload.get("ok")) else 1
+        set_operator_result(action="Execute Reset", rc=rc, output=json.dumps(payload, indent=2))
+
+    result = get_operator_result()
+    render_action_result(
+        action=str(result.get("action") or ""),
+        rc=int(result["rc"]) if result.get("rc") is not None else None,
+        output=str(result.get("output") or ""),
+    )
 
 st.warning("Legacy Operator page remains available for full compatibility and deep tooling.")
