@@ -173,3 +173,82 @@ def test_update_settings_view_reports_api_failure(monkeypatch) -> None:
     result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
     assert result["ok"] is False
     assert "unavailable" in result["message"].lower()
+
+
+def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "load_user_yaml",
+        lambda: {
+            "execution": {"executor_mode": "live", "live_enabled": False},
+            "signals": {"auto_route_to_paper": True},
+            "dashboard_ui": {
+                "automation": {
+                    "enabled": True,
+                    "dry_run_mode": False,
+                    "default_mode": "live_approval",
+                    "schedule": "hourly",
+                    "marketplace_routing": "approval gated",
+                    "approval_required_for_live": True,
+                }
+            },
+        },
+    )
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"execution_enabled": False, "approval_required": False})
+    monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"default_mode": "paper"}})
+
+    payload = view_data.get_automation_view()
+    assert payload["execution_enabled"] is True
+    assert payload["default_mode"] == "live_approval"
+    assert payload["schedule"] == "hourly"
+    assert payload["marketplace_routing"] == "approval gated"
+
+
+def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> None:
+    saved_cfg: dict[str, object] = {}
+
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+
+    def _fake_save(cfg, dry_run=False):
+        saved_cfg.update(cfg)
+        return True, "Saved"
+
+    monkeypatch.setattr(view_data, "save_user_yaml", _fake_save)
+    monkeypatch.setattr(view_data, "update_settings_view", lambda payload: {"ok": True, "data": payload})
+
+    result = view_data.update_automation_view(
+        {
+            "execution_enabled": True,
+            "dry_run_mode": False,
+            "default_mode": "live_auto",
+            "schedule": "every 15 min",
+            "marketplace_routing": "paper only",
+            "approval_required_for_live": False,
+        }
+    )
+
+    assert result["ok"] is True
+    execution = saved_cfg["execution"]
+    assert execution["executor_mode"] == "live"
+    assert execution["live_enabled"] is True
+    assert saved_cfg["signals"]["auto_route_to_paper"] is True
+    assert saved_cfg["dashboard_ui"]["automation"]["schedule"] == "every 15 min"
+
+
+def test_update_automation_view_allows_partial_success(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (True, "Saved"))
+    monkeypatch.setattr(view_data, "update_settings_view", lambda payload: {"ok": False, "message": "api down"})
+
+    result = view_data.update_automation_view(
+        {
+            "execution_enabled": False,
+            "dry_run_mode": True,
+            "default_mode": "research_only",
+            "schedule": "manual",
+            "marketplace_routing": "disabled",
+            "approval_required_for_live": True,
+        }
+    )
+    assert result["ok"] is True
+    assert "sync skipped" in result["message"].lower()

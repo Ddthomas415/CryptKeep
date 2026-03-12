@@ -5,7 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
-from dashboard.services.view_data import get_automation_view
+from dashboard.services.view_data import get_automation_view, update_automation_view
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
@@ -32,14 +32,39 @@ render_page_header(
 
 col_a, col_b = st.columns((1, 1))
 with col_a:
-    st.toggle("Enable automation", value=bool(automation_view.get("execution_enabled")), disabled=True)
-    st.toggle("Dry run mode", value=bool(automation_view.get("dry_run_mode")), disabled=True)
-    st.selectbox("Default mode", default_mode_options, index=default_mode_options.index(default_mode), disabled=True)
+    enable_automation_value = st.toggle("Enable automation", value=bool(automation_view.get("execution_enabled")))
+    dry_run_mode_value = st.toggle("Dry run mode", value=bool(automation_view.get("dry_run_mode")))
+    default_mode_value = st.selectbox("Default mode", default_mode_options, index=default_mode_options.index(default_mode))
 
 with col_b:
-    st.selectbox("Schedule", schedule_options, index=schedule_options.index(schedule), disabled=True)
-    st.selectbox("Marketplace routing", routing_options, index=routing_options.index(routing), disabled=True)
-    st.checkbox("Require approval for live actions", value=bool(automation_view.get("approval_required_for_live")), disabled=True)
+    schedule_value = st.selectbox("Schedule", schedule_options, index=schedule_options.index(schedule))
+    routing_value = st.selectbox("Marketplace routing", routing_options, index=routing_options.index(routing))
+    approval_required_value = st.checkbox(
+        "Require approval for live actions",
+        value=bool(automation_view.get("approval_required_for_live")),
+    )
 
 st.info("Advanced execution controls are isolated in Operations and remain explicitly gated.")
-st.caption("This Streamlit page is a read-only control summary until persistence-backed automation settings are wired.")
+st.caption(
+    f"Runtime config path: {automation_view.get('config_path')}  "
+    f"(executor_mode={automation_view.get('executor_mode')}, live_enabled={automation_view.get('live_enabled')})"
+)
+
+payload = {
+    "execution_enabled": enable_automation_value,
+    "dry_run_mode": dry_run_mode_value,
+    "default_mode": default_mode_value,
+    "schedule": schedule_value,
+    "marketplace_routing": routing_value,
+    "approval_required_for_live": approval_required_value,
+}
+
+if st.button("Save automation settings", type="primary"):
+    st.session_state["ck_automation_save_result"] = update_automation_view(payload)
+
+save_result = st.session_state.get("ck_automation_save_result")
+if isinstance(save_result, dict):
+    if bool(save_result.get("ok")):
+        st.success(str(save_result.get("message") or "Automation settings saved."))
+    else:
+        st.error(str(save_result.get("message") or "Automation settings save failed."))
