@@ -15,6 +15,7 @@ from shared.tools import (
     OPENAI_TOOL_DEFINITIONS,
     execute_tool_call,
     get_market_snapshot,
+    get_operations_summary,
     get_risk_summary,
     get_signal_summary,
 )
@@ -218,6 +219,8 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
         results["get_signal_summary"] = await get_signal_summary(asset)
     if "get_risk_summary" not in results:
         results["get_risk_summary"] = await get_risk_summary()
+    if "get_operations_summary" not in results:
+        results["get_operations_summary"] = await get_operations_summary()
     return results
 
 

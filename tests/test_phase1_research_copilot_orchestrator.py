@@ -74,10 +74,14 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     async def fake_risk() -> dict:
         return {"execution_mode": "DISABLED", "gate": "NO_TRADING", "allow_trading": False}
 
+    async def fake_operations() -> dict:
+        return {"healthy_services": 3, "total_services": 3, "services": [], "source": "healthz"}
+
     monkeypatch.setattr(orchestrator, "llm_client", DisabledClient())
     monkeypatch.setattr(orchestrator, "get_market_snapshot", fake_market)
     monkeypatch.setattr(orchestrator, "get_signal_summary", fake_signal)
     monkeypatch.setattr(orchestrator, "get_risk_summary", fake_risk)
+    monkeypatch.setattr(orchestrator, "get_operations_summary", fake_operations)
     monkeypatch.setattr(orchestrator, "emit_audit_event", _noop_audit)
 
     payload = asyncio.run(
@@ -92,6 +96,7 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     assert payload["risk_note"] == "Research only. Execution disabled."
     assert payload["assistant_status"]["provider"] == "fallback"
     assert isinstance(payload["evidence"], list) and payload["evidence"]
+    assert payload["evidence_bundle"]["operations"]["healthy_services"] == 3
 
 
 def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
@@ -179,11 +184,15 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
     async def fake_risk() -> dict:
         return {"execution_mode": "DISABLED", "gate": "NO_TRADING", "allow_trading": False}
 
+    async def fake_operations() -> dict:
+        return {"healthy_services": 4, "total_services": 4, "services": [], "source": "healthz"}
+
     monkeypatch.setattr(orchestrator, "llm_client", EnabledClient())
     monkeypatch.setattr(orchestrator, "execute_tool_call", fake_execute_tool_call)
     monkeypatch.setattr(orchestrator, "get_market_snapshot", fake_market)
     monkeypatch.setattr(orchestrator, "get_signal_summary", fake_signal)
     monkeypatch.setattr(orchestrator, "get_risk_summary", fake_risk)
+    monkeypatch.setattr(orchestrator, "get_operations_summary", fake_operations)
     monkeypatch.setattr(orchestrator, "emit_audit_event", _noop_audit)
 
     payload = asyncio.run(
@@ -201,3 +210,4 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
     assert calls[0]["text_format"]["type"] == "json_schema"
     assert calls[1]["text_format"]["name"] == "research_explain_response"
     assert calls[1]["previous_response_id"] == "resp_1"
+    assert payload["evidence_bundle"]["operations"]["healthy_services"] == 4
