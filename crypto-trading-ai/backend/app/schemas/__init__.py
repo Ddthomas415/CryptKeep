@@ -8,6 +8,7 @@ from backend.app.schemas.connections import (
     TestConnectionResponse,
 )
 from backend.app.schemas.dashboard import DashboardSummary
+from backend.app.schemas.health import HealthDependencyResponse, HealthLiveResponse
 from backend.app.schemas.research import (
     ExplainRequest,
     ExplainResponse,
@@ -20,6 +21,8 @@ from backend.app.schemas.trading import RecommendationItem, RecommendationList
 
 __all__ = [
     "DashboardSummary",
+    "HealthLiveResponse",
+    "HealthDependencyResponse",
     "ExplainRequest",
     "ExplainResponse",
     "SearchRequest",

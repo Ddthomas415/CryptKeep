@@ -8,6 +8,7 @@ import redis
 from backend.app.api.deps import get_app_settings
 from backend.app.core.config import Settings
 from backend.app.db.session import engine
+from backend.app.schemas.health import HealthDependencyResponse, HealthLiveResponse
 
 router = APIRouter()
 
@@ -27,9 +28,9 @@ def _sanitize_dependency_error(message: str | None) -> str | None:
     return sanitized
 
 
-@router.get("/live")
+@router.get("/live", response_model=HealthLiveResponse)
 def live() -> dict:
-    return {"status": "ok", "service": "backend"}
+    return HealthLiveResponse(status="ok", service="backend").model_dump()
 
 
 def _evaluate_dependencies(settings: Settings) -> tuple[dict[str, str], dict[str, str], str]:
@@ -55,9 +56,7 @@ def _evaluate_dependencies(settings: Settings) -> tuple[dict[str, str], dict[str
     return checks, errors, overall_status
 
 
-@router.get("/ready")
-def ready(settings: Settings | None = None) -> dict:
-    settings = settings or get_app_settings()
+def _build_dependency_payload(settings: Settings) -> dict:
     checks, errors, overall_status = _evaluate_dependencies(settings)
     payload: dict[str, object] = {
         "status": overall_status,
@@ -66,7 +65,13 @@ def ready(settings: Settings | None = None) -> dict:
     }
     if errors:
         payload["errors"] = errors
-    return payload
+    return HealthDependencyResponse.model_validate(payload).model_dump()
+
+
+@router.get("/ready", response_model=HealthDependencyResponse)
+def ready(settings: Settings | None = None) -> dict:
+    settings = settings or get_app_settings()
+    return _build_dependency_payload(settings)
 
 
 def _check_db() -> tuple[str, str | None]:
@@ -104,16 +109,7 @@ def _check_vector(vector_db_url: str) -> tuple[str, str | None]:
         return "error", str(exc)
 
 
-@router.get("/deps")
+@router.get("/deps", response_model=HealthDependencyResponse)
 def deps(settings: Settings | None = None) -> dict:
     settings = settings or get_app_settings()
-    checks, errors, overall_status = _evaluate_dependencies(settings)
-
-    payload: dict[str, object] = {
-        "status": overall_status,
-        "service": "backend",
-        "checks": checks,
-    }
-    if errors:
-        payload["errors"] = errors
-    return payload
+    return _build_dependency_payload(settings)
