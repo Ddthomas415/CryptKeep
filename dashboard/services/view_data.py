@@ -927,15 +927,71 @@ def _fetch_envelope(path: str) -> dict[str, Any] | None:
     return _request_envelope(path, method="GET")
 
 
+def _load_local_kill_switch_state() -> bool | None:
+    try:
+        from services.admin.kill_switch import KILL_PATH, get_state
+    except Exception:
+        return None
+
+    if not Path(KILL_PATH).exists():
+        return None
+
+    try:
+        payload = get_state()
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    return bool(payload.get("armed", True))
+
+
+def _apply_local_summary_overrides(summary: dict[str, Any]) -> dict[str, Any]:
+    merged = dict(summary or {})
+    portfolio = merged.get("portfolio") if isinstance(merged.get("portfolio"), dict) else {}
+    watchlist = merged.get("watchlist") if isinstance(merged.get("watchlist"), list) else []
+
+    watch_prices = {
+        str(item.get("asset") or ""): float(item.get("price") or 0.0)
+        for item in watchlist
+        if isinstance(item, dict) and str(item.get("asset") or "").strip()
+    }
+    local_snapshot = _load_local_portfolio_snapshot(watch_prices)
+    if isinstance(local_snapshot, dict):
+        local_portfolio = local_snapshot.get("portfolio") if isinstance(local_snapshot.get("portfolio"), dict) else {}
+        if local_portfolio:
+            merged["portfolio"] = {**portfolio, **local_portfolio}
+
+    raw_cfg = load_user_yaml()
+    if isinstance(raw_cfg, dict) and raw_cfg:
+        raw_execution = raw_cfg.get("execution") if isinstance(raw_cfg.get("execution"), dict) else {}
+        raw_dashboard_ui = raw_cfg.get("dashboard_ui") if isinstance(raw_cfg.get("dashboard_ui"), dict) else {}
+        raw_automation = raw_dashboard_ui.get("automation") if isinstance(raw_dashboard_ui.get("automation"), dict) else {}
+
+        if "default_mode" in raw_automation:
+            merged["mode"] = str(raw_automation.get("default_mode") or merged.get("mode") or "research_only")
+        if "enabled" in raw_automation:
+            merged["execution_enabled"] = bool(raw_automation.get("enabled"))
+        elif raw_execution.get("live_enabled") is True:
+            merged["execution_enabled"] = True
+        if "approval_required_for_live" in raw_automation:
+            merged["approval_required"] = bool(raw_automation.get("approval_required_for_live"))
+
+    local_kill_switch = _load_local_kill_switch_state()
+    if local_kill_switch is not None:
+        merged["kill_switch"] = local_kill_switch
+
+    return merged
+
+
 def get_dashboard_summary() -> dict[str, Any]:
     envelope = _fetch_envelope("/api/v1/dashboard/summary")
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return dict(envelope["data"])
+        return _apply_local_summary_overrides(dict(envelope["data"]))
 
     mock = _read_mock_envelope("dashboard.json")
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
-        return dict(mock["data"])
-    return _default_dashboard_summary()
+        return _apply_local_summary_overrides(dict(mock["data"]))
+    return _apply_local_summary_overrides(_default_dashboard_summary())
 
 
 def get_research_explain(asset: str, question: str | None = None) -> dict[str, Any]:

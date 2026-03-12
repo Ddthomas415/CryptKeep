@@ -6,11 +6,71 @@ from dashboard.services import view_data
 def test_dashboard_summary_uses_defaults_when_sources_unavailable(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "_fetch_envelope", lambda _path: None)
     monkeypatch.setattr(view_data, "_read_mock_envelope", lambda _name: None)
+    monkeypatch.setattr(view_data, "_apply_local_summary_overrides", lambda summary: summary)
 
     summary = view_data.get_dashboard_summary()
     assert summary["mode"] == "research_only"
     assert summary["risk_status"] == "safe"
     assert float(summary["portfolio"]["total_value"]) > 0
+
+
+def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "mode": "research_only",
+                "execution_enabled": False,
+                "approval_required": True,
+                "risk_status": "safe",
+                "kill_switch": False,
+                "portfolio": {
+                    "total_value": 1000.0,
+                    "cash": 300.0,
+                    "unrealized_pnl": 25.0,
+                },
+                "watchlist": [{"asset": "BTC", "price": 90000.0}],
+            },
+        }
+        if path == "/api/v1/dashboard/summary"
+        else None,
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_portfolio_snapshot",
+        lambda _prices: {
+            "portfolio": {
+                "total_value": 1500.0,
+                "cash": 450.0,
+                "unrealized_pnl": 120.0,
+            }
+        },
+    )
+    monkeypatch.setattr(
+        view_data,
+        "load_user_yaml",
+        lambda: {
+            "execution": {"live_enabled": True},
+            "dashboard_ui": {
+                "automation": {
+                    "enabled": True,
+                    "default_mode": "live_auto",
+                    "approval_required_for_live": False,
+                }
+            },
+        },
+    )
+    monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: True)
+
+    summary = view_data.get_dashboard_summary()
+    assert summary["mode"] == "live_auto"
+    assert summary["execution_enabled"] is True
+    assert summary["approval_required"] is False
+    assert summary["kill_switch"] is True
+    assert summary["portfolio"]["total_value"] == 1500.0
+    assert summary["portfolio"]["cash"] == 450.0
 
 
 def test_recommendations_map_api_payload(monkeypatch) -> None:
