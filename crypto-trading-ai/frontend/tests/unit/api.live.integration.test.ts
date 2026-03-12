@@ -242,6 +242,36 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     expect(payload.data.output.length).toBeGreaterThan(0);
   });
 
+  it("terminal execute dangerous non-kill command requires confirmation token", async () => {
+    const payload = await postJson("/api/v1/terminal/execute", {
+      command: "mode set paper",
+    });
+
+    expect(payload.status).toBe("success");
+    expect(payload.data.command).toBe("mode set paper");
+    expect(payload.data.requires_confirmation).toBe(true);
+    expect(typeof payload.data.confirmation_token).toBe("string");
+    expect(payload.data.confirmation_token.length).toBeGreaterThan(0);
+    expect(Array.isArray(payload.data.output)).toBe(true);
+    expect(payload.data.output.length).toBeGreaterThan(0);
+    expect(payload.data.output[0].type).toBe("warning");
+  });
+
+  it("terminal execute rejects non-approved commands without executing them", async () => {
+    const payload = await postJson("/api/v1/terminal/execute", {
+      command: "rm -rf /",
+    });
+
+    expect(payload.status).toBe("success");
+    expect(payload.data.requires_confirmation).toBe(false);
+    expect(Array.isArray(payload.data.output)).toBe(true);
+    expect(payload.data.output.length).toBeGreaterThan(0);
+    expect(payload.data.output[0].type).toBe("error");
+    expect(payload.data.output[0].value.toLowerCase()).toContain(
+      "approved product terminal commands",
+    );
+  });
+
   it("terminal confirm endpoint accepts confirmation token and returns confirmation payload", async () => {
     const executePayload = await postJson("/api/v1/terminal/execute", {
       command: "kill-switch on",
@@ -261,6 +291,28 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     expect(confirmPayload.data.output.length).toBeGreaterThan(0);
     expect(typeof confirmPayload.data.output[0].type).toBe("string");
     expect(typeof confirmPayload.data.output[0].value).toBe("string");
+  });
+
+  it("terminal confirm token is single-use", async () => {
+    const executePayload = await postJson("/api/v1/terminal/execute", {
+      command: "kill-switch on",
+    });
+    expect(executePayload.status).toBe("success");
+    expect(executePayload.data.requires_confirmation).toBe(true);
+
+    const confirmationToken = executePayload.data.confirmation_token as string;
+    const firstConfirmPayload = await postJson("/api/v1/terminal/confirm", {
+      confirmation_token: confirmationToken,
+    });
+    expect(firstConfirmPayload.status).toBe("success");
+    expect(firstConfirmPayload.data.confirmed).toBe(true);
+
+    const secondConfirmPayload = await postJsonExpectStatus(
+      "/api/v1/terminal/confirm",
+      { confirmation_token: confirmationToken },
+      400,
+    );
+    expectApplicationErrorEnvelope(secondConfirmPayload, "INVALID_CONFIRMATION_TOKEN");
   });
 
   it("terminal confirm endpoint rejects invalid confirmation token with app error envelope", async () => {
