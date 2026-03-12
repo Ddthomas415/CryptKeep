@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dashboard.components.kpi_builders import (
+    build_automation_kpis,
     build_markets_kpis,
     build_overview_kpis,
     build_portfolio_kpis,
@@ -98,3 +99,26 @@ def test_build_trades_kpis_formats_trade_state() -> None:
     assert payload[2]["value"] == "1"
     assert payload[2]["delta"] == "ETH"
     assert payload[3]["value"] == "SELL"
+
+
+def test_build_automation_kpis_formats_runtime_summary() -> None:
+    payload = build_automation_kpis(
+        {
+            "execution_enabled": True,
+            "dry_run_mode": False,
+            "default_mode": "live_approval",
+            "executor_mode": "live",
+            "schedule": "hourly",
+            "executor_poll_sec": 3.0,
+            "marketplace_routing": "approval gated",
+            "approval_required_for_live": True,
+        }
+    )
+    assert payload[0]["value"] == "Enabled"
+    assert payload[0]["delta"] == "Live path available"
+    assert payload[1]["value"] == "Live Approval"
+    assert payload[1]["delta"] == "LIVE"
+    assert payload[2]["value"] == "Hourly"
+    assert payload[2]["delta"] == "Poll 3s"
+    assert payload[3]["value"] == "Approval Gated"
+    assert payload[3]["delta"] == "Approval gated"

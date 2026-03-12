@@ -162,3 +162,35 @@ def build_portfolio_kpis(
             "delta": "Tracked book",
         },
     ]
+
+
+def build_automation_kpis(view: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = view if isinstance(view, dict) else {}
+    execution_enabled = bool(payload.get("execution_enabled"))
+    dry_run_mode = bool(payload.get("dry_run_mode"))
+    default_mode = str(payload.get("default_mode") or "research_only").replace("_", " ").title()
+    schedule = str(payload.get("schedule") or "manual").title()
+    routing = str(payload.get("marketplace_routing") or "disabled").title()
+
+    return [
+        {
+            "label": "Execution",
+            "value": "Enabled" if execution_enabled else "Disabled",
+            "delta": "Dry run active" if dry_run_mode else "Live path available",
+        },
+        {
+            "label": "Default Mode",
+            "value": default_mode,
+            "delta": str(payload.get("executor_mode") or "paper").upper(),
+        },
+        {
+            "label": "Schedule",
+            "value": schedule,
+            "delta": f"Poll {float(payload.get('executor_poll_sec') or 0.0):g}s",
+        },
+        {
+            "label": "Routing",
+            "value": routing,
+            "delta": "Approval gated" if bool(payload.get("approval_required_for_live")) else "Approval optional",
+        },
+    ]

@@ -13,6 +13,7 @@ from dashboard.components.focus_selector import render_focus_selector, resolve_f
 from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import (
+    build_automation_kpis,
     build_markets_kpis,
     build_overview_kpis,
     build_portfolio_kpis,
@@ -22,10 +23,12 @@ from dashboard.components.kpi_builders import (
 from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import (
+    build_automation_runtime_metrics,
     build_market_context_metrics,
     build_market_snapshot_lines,
     build_portfolio_position_metrics,
     build_trades_queue_metrics,
+    render_automation_runtime_summary,
     render_market_context,
     render_portfolio_position_summary,
     render_signal_thesis,
@@ -47,15 +50,18 @@ __all__ = [
     "render_research_lens",
     "render_focus_selector",
     "resolve_focus_options",
+    "build_automation_kpis",
     "build_markets_kpis",
     "build_overview_kpis",
     "build_portfolio_kpis",
     "build_signals_kpis",
     "build_trades_kpis",
+    "build_automation_runtime_metrics",
     "build_market_snapshot_lines",
     "build_market_context_metrics",
     "build_portfolio_position_metrics",
     "build_trades_queue_metrics",
+    "render_automation_runtime_summary",
     "render_market_context",
     "render_portfolio_position_summary",
     "render_signal_thesis",

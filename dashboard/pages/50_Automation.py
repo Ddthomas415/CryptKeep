@@ -3,9 +3,12 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.cards import render_kpi_cards
 from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
+from dashboard.components.kpi_builders import build_automation_kpis
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_automation_runtime_summary
 from dashboard.services.view_data import get_automation_view, update_automation_view
 
 AUTH_STATE = require_authenticated_role("VIEWER")
@@ -39,76 +42,83 @@ render_page_header(
     badges=[{"label": "Execution", "value": "Enabled" if automation_view.get("execution_enabled") else "Disabled"}],
 )
 
-col_a, col_b = st.columns((1, 1))
-with col_a:
-    enable_automation_value = st.toggle("Enable automation", value=bool(automation_view.get("execution_enabled")))
-    dry_run_mode_value = st.toggle("Dry run mode", value=bool(automation_view.get("dry_run_mode")))
-    default_mode_value = st.selectbox("Default mode", default_mode_options, index=default_mode_options.index(default_mode))
+render_kpi_cards(build_automation_kpis(automation_view))
 
-with col_b:
-    schedule_value = st.selectbox("Schedule", schedule_options, index=schedule_options.index(schedule))
-    routing_value = st.selectbox("Marketplace routing", routing_options, index=routing_options.index(routing))
-    approval_required_value = st.checkbox(
-        "Require approval for live actions",
-        value=bool(automation_view.get("approval_required_for_live")),
+summary_col, form_col = st.columns((1, 1.4))
+
+with summary_col:
+    render_automation_runtime_summary(automation_view)
+    st.info("Advanced execution controls are isolated in Operations and remain explicitly gated.")
+    st.caption(
+        f"Runtime config path: {automation_view.get('config_path')}  "
+        f"(executor_mode={automation_view.get('executor_mode')}, live_enabled={automation_view.get('live_enabled')})"
     )
 
-with st.expander("Advanced execution tuning", expanded=False):
-    tune_a, tune_b = st.columns((1, 1))
-    with tune_a:
-        executor_poll_sec_value = st.number_input(
-            "Executor poll (sec)",
-            min_value=0.5,
-            max_value=60.0,
-            value=float(automation_view.get("executor_poll_sec") or 1.5),
-            step=0.5,
-        )
-        executor_max_per_cycle_value = st.number_input(
-            "Max intents per cycle",
-            min_value=1,
-            max_value=500,
-            value=int(automation_view.get("executor_max_per_cycle") or 10),
-            step=1,
-        )
-        require_keys_for_live_value = st.checkbox(
-            "Require keys for live",
-            value=bool(automation_view.get("require_keys_for_live", True)),
-        )
-    with tune_b:
-        paper_fee_bps_value = st.number_input(
-            "Paper fee (bps)",
-            min_value=0.0,
-            max_value=100.0,
-            value=float(automation_view.get("paper_fee_bps") or 7.0),
-            step=0.5,
-        )
-        paper_slippage_bps_value = st.number_input(
-            "Paper slippage (bps)",
-            min_value=0.0,
-            max_value=100.0,
-            value=float(automation_view.get("paper_slippage_bps") or 2.0),
-            step=0.5,
-        )
-        default_qty_value = st.number_input(
-            "Default signal quantity",
-            min_value=0.0001,
-            max_value=1000.0,
-            value=float(automation_view.get("default_qty") or 0.001),
-            step=0.0001,
-            format="%.4f",
+with form_col:
+    col_a, col_b = st.columns((1, 1))
+    with col_a:
+        enable_automation_value = st.toggle("Enable automation", value=bool(automation_view.get("execution_enabled")))
+        dry_run_mode_value = st.toggle("Dry run mode", value=bool(automation_view.get("dry_run_mode")))
+        default_mode_value = st.selectbox("Default mode", default_mode_options, index=default_mode_options.index(default_mode))
+
+    with col_b:
+        schedule_value = st.selectbox("Schedule", schedule_options, index=schedule_options.index(schedule))
+        routing_value = st.selectbox("Marketplace routing", routing_options, index=routing_options.index(routing))
+        approval_required_value = st.checkbox(
+            "Require approval for live actions",
+            value=bool(automation_view.get("approval_required_for_live")),
         )
 
-    route_a, route_b = st.columns((1, 1))
-    with route_a:
-        default_venue_value = st.selectbox("Default signal venue", venue_options, index=venue_options.index(default_venue))
-    with route_b:
-        order_type_value = st.selectbox("Signal order type", order_type_options, index=order_type_options.index(order_type))
+    with st.expander("Advanced execution tuning", expanded=False):
+        tune_a, tune_b = st.columns((1, 1))
+        with tune_a:
+            executor_poll_sec_value = st.number_input(
+                "Executor poll (sec)",
+                min_value=0.5,
+                max_value=60.0,
+                value=float(automation_view.get("executor_poll_sec") or 1.5),
+                step=0.5,
+            )
+            executor_max_per_cycle_value = st.number_input(
+                "Max intents per cycle",
+                min_value=1,
+                max_value=500,
+                value=int(automation_view.get("executor_max_per_cycle") or 10),
+                step=1,
+            )
+            require_keys_for_live_value = st.checkbox(
+                "Require keys for live",
+                value=bool(automation_view.get("require_keys_for_live", True)),
+            )
+        with tune_b:
+            paper_fee_bps_value = st.number_input(
+                "Paper fee (bps)",
+                min_value=0.0,
+                max_value=100.0,
+                value=float(automation_view.get("paper_fee_bps") or 7.0),
+                step=0.5,
+            )
+            paper_slippage_bps_value = st.number_input(
+                "Paper slippage (bps)",
+                min_value=0.0,
+                max_value=100.0,
+                value=float(automation_view.get("paper_slippage_bps") or 2.0),
+                step=0.5,
+            )
+            default_qty_value = st.number_input(
+                "Default signal quantity",
+                min_value=0.0001,
+                max_value=1000.0,
+                value=float(automation_view.get("default_qty") or 0.001),
+                step=0.0001,
+                format="%.4f",
+            )
 
-st.info("Advanced execution controls are isolated in Operations and remain explicitly gated.")
-st.caption(
-    f"Runtime config path: {automation_view.get('config_path')}  "
-    f"(executor_mode={automation_view.get('executor_mode')}, live_enabled={automation_view.get('live_enabled')})"
-)
+        route_a, route_b = st.columns((1, 1))
+        with route_a:
+            default_venue_value = st.selectbox("Default signal venue", venue_options, index=venue_options.index(default_venue))
+        with route_b:
+            order_type_value = st.selectbox("Signal order type", order_type_options, index=order_type_options.index(order_type))
 
 payload = {
     "execution_enabled": enable_automation_value,

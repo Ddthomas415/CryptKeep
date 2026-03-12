@@ -265,3 +265,45 @@ def render_trades_queue_summary(
                     delta = str(item.get("delta") or "").strip()
                     if delta:
                         st.caption(delta)
+
+
+def build_automation_runtime_metrics(view: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = view if isinstance(view, dict) else {}
+    return [
+        {
+            "label": "Runtime Mode",
+            "value": str(payload.get("executor_mode") or "paper").upper(),
+            "delta": "Live armed" if bool(payload.get("live_enabled")) else "Live disarmed",
+        },
+        {
+            "label": "Approval",
+            "value": "Required" if bool(payload.get("approval_required_for_live")) else "Optional",
+            "delta": "Keys required" if bool(payload.get("require_keys_for_live", True)) else "Keys optional",
+        },
+        {
+            "label": "Signal Defaults",
+            "value": str(payload.get("default_venue") or "coinbase").upper(),
+            "delta": f"qty {float(payload.get('default_qty') or 0.0):g} / {str(payload.get('order_type') or 'market')}",
+        },
+        {
+            "label": "Paper Costs",
+            "value": f"{float(payload.get('paper_fee_bps') or 0.0):g} / {float(payload.get('paper_slippage_bps') or 0.0):g} bps",
+            "delta": f"max {int(payload.get('executor_max_per_cycle') or 0)} intents/cycle",
+        },
+    ]
+
+
+def render_automation_runtime_summary(view: dict[str, Any] | None) -> None:
+    payload = view if isinstance(view, dict) else {}
+    with st.container(border=True):
+        st.markdown("### Runtime Summary")
+        metric_items = build_automation_runtime_metrics(payload)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)

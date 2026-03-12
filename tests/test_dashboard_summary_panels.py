@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dashboard.components.summary_panels import (
+    build_automation_runtime_metrics,
     build_market_context_metrics,
     build_market_snapshot_lines,
     build_portfolio_position_metrics,
@@ -140,4 +141,42 @@ def test_build_trades_queue_metrics_formats_queue_and_fill_details() -> None:
         "label": "Last Fill Qty",
         "value": "0.3",
         "delta": "SELL",
+    }
+
+
+def test_build_automation_runtime_metrics_format_runtime_state() -> None:
+    metrics = build_automation_runtime_metrics(
+        {
+            "executor_mode": "live",
+            "live_enabled": True,
+            "approval_required_for_live": True,
+            "require_keys_for_live": True,
+            "default_venue": "coinbase",
+            "default_qty": 0.25,
+            "order_type": "limit",
+            "paper_fee_bps": 9.0,
+            "paper_slippage_bps": 4.0,
+            "executor_max_per_cycle": 25,
+        }
+    )
+
+    assert metrics[0] == {
+        "label": "Runtime Mode",
+        "value": "LIVE",
+        "delta": "Live armed",
+    }
+    assert metrics[1] == {
+        "label": "Approval",
+        "value": "Required",
+        "delta": "Keys required",
+    }
+    assert metrics[2] == {
+        "label": "Signal Defaults",
+        "value": "COINBASE",
+        "delta": "qty 0.25 / limit",
+    }
+    assert metrics[3] == {
+        "label": "Paper Costs",
+        "value": "9 / 4 bps",
+        "delta": "max 25 intents/cycle",
     }
