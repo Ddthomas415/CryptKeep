@@ -961,6 +961,49 @@ def _apply_local_summary_overrides(summary: dict[str, Any]) -> dict[str, Any]:
         if local_portfolio:
             merged["portfolio"] = {**portfolio, **local_portfolio}
 
+    normalized_watchlist: list[dict[str, Any]] = [
+        dict(item)
+        for item in watchlist
+        if isinstance(item, dict) and str(item.get("asset") or "").strip()
+    ]
+    if not normalized_watchlist:
+        settings = get_settings_view()
+        general = settings.get("general") if isinstance(settings.get("general"), dict) else {}
+        configured_assets = [
+            _normalize_asset_symbol(item)
+            for item in (general.get("watchlist_defaults") if isinstance(general.get("watchlist_defaults"), list) else [])
+        ]
+        configured_assets = [asset for asset in configured_assets if asset]
+        default_rows = {
+            str(item.get("asset") or "").strip().upper(): dict(item)
+            for item in _default_dashboard_summary()["watchlist"]
+            if isinstance(item, dict) and str(item.get("asset") or "").strip()
+        }
+        normalized_watchlist = [
+            dict(default_rows.get(asset) or {"asset": asset, "price": 0.0, "change_24h_pct": 0.0, "signal": "watch"})
+            for asset in configured_assets
+        ]
+
+    if normalized_watchlist:
+        updated_watchlist: list[dict[str, Any]] = []
+        for item in normalized_watchlist:
+            asset = _normalize_asset_symbol(item.get("asset"))
+            if not asset:
+                continue
+            row = dict(item)
+            row["asset"] = asset
+            snapshot = _get_market_snapshot(asset) or {}
+            if float(snapshot.get("last_price") or 0.0) > 0:
+                row["price"] = float(snapshot["last_price"])
+            if snapshot:
+                row["exchange"] = str(snapshot.get("exchange") or row.get("exchange") or "coinbase")
+                row["snapshot_source"] = str(snapshot.get("source") or row.get("snapshot_source") or "watchlist")
+                if float(snapshot.get("volume_24h") or 0.0) > 0:
+                    row["volume_24h"] = float(snapshot["volume_24h"])
+            updated_watchlist.append(row)
+        if updated_watchlist:
+            merged["watchlist"] = updated_watchlist
+
     raw_cfg = load_user_yaml()
     if isinstance(raw_cfg, dict) and raw_cfg:
         raw_execution = raw_cfg.get("execution") if isinstance(raw_cfg.get("execution"), dict) else {}

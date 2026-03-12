@@ -63,6 +63,7 @@ def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: True)
+    monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
 
     summary = view_data.get_dashboard_summary()
     assert summary["mode"] == "live_auto"
@@ -71,6 +72,92 @@ def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
     assert summary["kill_switch"] is True
     assert summary["portfolio"]["total_value"] == 1500.0
     assert summary["portfolio"]["cash"] == 450.0
+
+
+def test_dashboard_summary_prefers_local_watchlist_prices(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "mode": "research_only",
+                "execution_enabled": False,
+                "approval_required": True,
+                "risk_status": "safe",
+                "kill_switch": False,
+                "portfolio": {"total_value": 1000.0, "cash": 300.0, "unrealized_pnl": 25.0},
+                "watchlist": [{"asset": "BTC", "price": 80000.0, "change_24h_pct": 1.2, "signal": "watch"}],
+            },
+        }
+        if path == "/api/v1/dashboard/summary"
+        else None,
+    )
+    monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(
+        view_data,
+        "_get_market_snapshot",
+        lambda asset, exchange="coinbase": {
+            "asset": asset,
+            "exchange": exchange,
+            "last_price": 90555.25,
+            "source": "api",
+            "volume_24h": 125000000.0,
+        },
+    )
+
+    summary = view_data.get_dashboard_summary()
+    assert summary["watchlist"][0]["asset"] == "BTC"
+    assert summary["watchlist"][0]["price"] == 90555.25
+    assert summary["watchlist"][0]["snapshot_source"] == "api"
+    assert summary["watchlist"][0]["exchange"] == "coinbase"
+
+
+def test_dashboard_summary_uses_settings_watchlist_when_missing(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "mode": "research_only",
+                "execution_enabled": False,
+                "approval_required": True,
+                "risk_status": "safe",
+                "kill_switch": False,
+                "portfolio": {"total_value": 1000.0, "cash": 300.0, "unrealized_pnl": 25.0},
+                "watchlist": [],
+            },
+        }
+        if path == "/api/v1/dashboard/summary"
+        else None,
+    )
+    monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(
+        view_data,
+        "get_settings_view",
+        lambda: {"general": {"watchlist_defaults": ["BTC", "LINK"]}},
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_get_market_snapshot",
+        lambda asset, exchange="coinbase": {
+            "asset": asset,
+            "exchange": exchange,
+            "last_price": 91000.0 if asset == "BTC" else 18.5,
+            "source": "api",
+        },
+    )
+
+    summary = view_data.get_dashboard_summary()
+    assert [item["asset"] for item in summary["watchlist"]] == ["BTC", "LINK"]
+    assert summary["watchlist"][0]["price"] == 91000.0
+    assert summary["watchlist"][1]["price"] == 18.5
+    assert summary["watchlist"][1]["signal"] == "watch"
 
 
 def test_recommendations_map_api_payload(monkeypatch) -> None:
