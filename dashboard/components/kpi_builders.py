@@ -96,3 +96,34 @@ def build_signals_kpis(detail: dict[str, Any] | None) -> list[dict[str, str]]:
             "delta": str(payload.get("risk_note") or "Policy managed"),
         },
     ]
+
+
+def build_portfolio_kpis(
+    *,
+    portfolio: dict[str, Any] | None,
+    positions: list[dict[str, Any]] | None,
+) -> list[dict[str, str]]:
+    payload = portfolio if isinstance(portfolio, dict) else {}
+    rows = positions if isinstance(positions, list) else []
+    return [
+        {
+            "label": "Total Value",
+            "value": _format_currency(payload.get("total_value")),
+            "delta": f"Cash {_format_currency(payload.get('cash'))}",
+        },
+        {
+            "label": "Unrealized PnL",
+            "value": _format_currency(payload.get("unrealized_pnl")),
+            "delta": "Live mark-to-market",
+        },
+        {
+            "label": "Exposure Used",
+            "value": _format_pct(payload.get("exposure_used_pct")).replace("+", ""),
+            "delta": f"Leverage {float(payload.get('leverage') or 1.0):.1f}x",
+        },
+        {
+            "label": "Open Positions",
+            "value": str(len(rows)),
+            "delta": "Tracked book",
+        },
+    ]

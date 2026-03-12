@@ -3,8 +3,11 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
+from dashboard.components.kpi_builders import build_portfolio_kpis
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_portfolio_position_summary
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_portfolio_view
 
@@ -21,14 +24,16 @@ render_page_header(
     badges=[{"label": "Currency", "value": currency}],
 )
 
-metrics = st.columns(4)
-metrics[0].metric("Total Value", f"${float(portfolio.get('total_value') or 0.0):,.2f}")
-metrics[1].metric("Cash", f"${float(portfolio.get('cash') or 0.0):,.2f}")
-metrics[2].metric("Unrealized PnL", f"${float(portfolio.get('unrealized_pnl') or 0.0):,.2f}")
-metrics[3].metric("Exposure Used", f"{float(portfolio.get('exposure_used_pct') or 0.0):.1f}%")
+render_kpi_cards(build_portfolio_kpis(portfolio=portfolio, positions=positions))
 
-render_table_section(
-    "Open Positions",
-    positions,
-    empty_message="No open positions.",
-)
+summary_col, table_col = st.columns((1, 1.4))
+
+with summary_col:
+    render_portfolio_position_summary(positions)
+
+with table_col:
+    render_table_section(
+        "Open Positions",
+        positions,
+        empty_message="No open positions.",
+    )

@@ -144,3 +144,65 @@ def render_signal_thesis(
         st.caption(
             f"Evidence: {str(selected_row.get('evidence') or payload.get('evidence') or 'No evidence available.')}"
         )
+
+
+def _format_portfolio_currency(value: Any) -> str:
+    try:
+        amount = float(value or 0.0)
+    except (TypeError, ValueError):
+        return "$0.00"
+    return f"${amount:,.2f}"
+
+
+def build_portfolio_position_metrics(rows: Sequence[dict[str, Any]] | None) -> list[dict[str, str]]:
+    positions = [row for row in (rows or []) if isinstance(row, dict)]
+    if not positions:
+        return [
+            {"label": "Open Positions", "value": "0", "delta": "No active exposure"},
+            {"label": "Long / Short", "value": "0 / 0", "delta": "Position mix"},
+            {"label": "Best PnL", "value": "-", "delta": "No active position"},
+            {"label": "Worst PnL", "value": "-", "delta": "No active position"},
+        ]
+
+    long_count = sum(1 for row in positions if str(row.get("side") or "").strip().lower() == "long")
+    short_count = sum(1 for row in positions if str(row.get("side") or "").strip().lower() == "short")
+    best = max(positions, key=lambda row: float(row.get("pnl") or 0.0))
+    worst = min(positions, key=lambda row: float(row.get("pnl") or 0.0))
+
+    return [
+        {
+            "label": "Open Positions",
+            "value": str(len(positions)),
+            "delta": "Active book",
+        },
+        {
+            "label": "Long / Short",
+            "value": f"{long_count} / {short_count}",
+            "delta": "Position mix",
+        },
+        {
+            "label": "Best PnL",
+            "value": _format_portfolio_currency(best.get("pnl")),
+            "delta": str(best.get("asset") or "-"),
+        },
+        {
+            "label": "Worst PnL",
+            "value": _format_portfolio_currency(worst.get("pnl")),
+            "delta": str(worst.get("asset") or "-"),
+        },
+    ]
+
+
+def render_portfolio_position_summary(rows: Sequence[dict[str, Any]] | None) -> None:
+    with st.container(border=True):
+        st.markdown("### Position Summary")
+        metric_items = build_portfolio_position_metrics(rows)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)

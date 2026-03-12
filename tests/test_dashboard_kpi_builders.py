@@ -3,6 +3,7 @@ from __future__ import annotations
 from dashboard.components.kpi_builders import (
     build_markets_kpis,
     build_overview_kpis,
+    build_portfolio_kpis,
     build_signals_kpis,
 )
 
@@ -55,3 +56,25 @@ def test_build_signals_kpis_formats_signal_detail() -> None:
     assert payload[2]["delta"] == "$200.00"
     assert payload[3]["value"] == "Disabled"
     assert payload[3]["delta"] == "Research only."
+
+
+def test_build_portfolio_kpis_formats_portfolio_summary() -> None:
+    payload = build_portfolio_kpis(
+        portfolio={
+            "total_value": 124850.0,
+            "cash": 48120.0,
+            "unrealized_pnl": 2145.0,
+            "exposure_used_pct": 18.4,
+            "leverage": 1.2,
+        },
+        positions=[
+            {"asset": "BTC"},
+            {"asset": "SOL"},
+        ],
+    )
+    assert payload[0]["value"] == "$124,850.00"
+    assert payload[0]["delta"] == "Cash $48,120.00"
+    assert payload[1]["value"] == "$2,145.00"
+    assert payload[2]["value"] == "18.4%"
+    assert payload[2]["delta"] == "Leverage 1.2x"
+    assert payload[3]["value"] == "2"

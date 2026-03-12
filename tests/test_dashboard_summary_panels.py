@@ -3,6 +3,7 @@ from __future__ import annotations
 from dashboard.components.summary_panels import (
     build_market_context_metrics,
     build_market_snapshot_lines,
+    build_portfolio_position_metrics,
     resolve_asset_row,
 )
 
@@ -74,4 +75,35 @@ def test_build_market_context_metrics_include_snapshot_metadata() -> None:
         "label": "Source",
         "value": "Local Ws",
         "delta": "coinbase",
+    }
+
+
+def test_build_portfolio_position_metrics_formats_best_and_worst_positions() -> None:
+    metrics = build_portfolio_position_metrics(
+        [
+            {"asset": "BTC", "side": "long", "pnl": 495.6},
+            {"asset": "SOL", "side": "long", "pnl": 630.9},
+            {"asset": "ETH", "side": "short", "pnl": -120.5},
+        ]
+    )
+
+    assert metrics[0] == {
+        "label": "Open Positions",
+        "value": "3",
+        "delta": "Active book",
+    }
+    assert metrics[1] == {
+        "label": "Long / Short",
+        "value": "2 / 1",
+        "delta": "Position mix",
+    }
+    assert metrics[2] == {
+        "label": "Best PnL",
+        "value": "$630.90",
+        "delta": "SOL",
+    }
+    assert metrics[3] == {
+        "label": "Worst PnL",
+        "value": "$-120.50",
+        "delta": "ETH",
     }
