@@ -547,6 +547,83 @@ def get_recommendations() -> list[dict[str, Any]]:
     return _default_recommendations()
 
 
+def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
+    recommendations = get_recommendations()
+    summary = get_dashboard_summary()
+    watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
+
+    market_rows: dict[str, dict[str, Any]] = {}
+    for item in watchlist:
+        if not isinstance(item, dict):
+            continue
+        asset = str(item.get("asset") or "").strip().upper()
+        if asset:
+            market_rows[asset] = item
+
+    signals: list[dict[str, Any]] = []
+    for item in recommendations:
+        if not isinstance(item, dict):
+            continue
+        asset = str(item.get("asset") or "").strip().upper()
+        market = market_rows.get(asset, {})
+        signals.append(
+            {
+                "asset": asset,
+                "signal": str(item.get("signal") or "hold"),
+                "confidence": float(item.get("confidence") or 0.0),
+                "summary": str(item.get("summary") or ""),
+                "status": str(item.get("status") or "pending"),
+                "evidence": str(item.get("evidence") or ""),
+                "price": float(market.get("price") or 0.0),
+                "change_24h_pct": float(market.get("change_24h_pct") or 0.0),
+            }
+        )
+
+    if not signals:
+        markets_view = get_markets_view(selected_asset=selected_asset)
+        detail = markets_view.get("detail") if isinstance(markets_view.get("detail"), dict) else {}
+        fallback_asset = str(detail.get("asset") or selected_asset or "SOL")
+        signals = [
+            {
+                "asset": fallback_asset,
+                "signal": str(detail.get("signal") or "watch"),
+                "confidence": float(detail.get("confidence") or 0.0),
+                "summary": str(detail.get("current_cause") or detail.get("thesis") or ""),
+                "status": str(detail.get("status") or "monitor"),
+                "evidence": str(detail.get("evidence") or ""),
+                "price": float(detail.get("price") or 0.0),
+                "change_24h_pct": float(detail.get("change_24h_pct") or 0.0),
+            }
+        ]
+        return {
+            "selected_asset": fallback_asset,
+            "signals": signals,
+            "detail": detail,
+        }
+
+    requested_asset = str(selected_asset or "").strip().upper()
+    if requested_asset and any(row["asset"] == requested_asset for row in signals):
+        resolved_asset = requested_asset
+    else:
+        resolved_asset = max(
+            signals,
+            key=lambda row: (
+                str(row.get("status") or "") == "pending_review",
+                str(row.get("signal") or "") in {"buy", "research"},
+                float(row.get("confidence") or 0.0),
+            ),
+        )["asset"]
+
+    markets_view = get_markets_view(selected_asset=resolved_asset)
+    detail = markets_view.get("detail") if isinstance(markets_view.get("detail"), dict) else {}
+
+    return {
+        "selected_asset": resolved_asset,
+        "signals": signals,
+        "detail": detail,
+    }
+
+
 def get_recent_activity() -> list[str]:
     envelope = _fetch_envelope("/api/v1/audit/events")
     if isinstance(envelope, dict) and envelope.get("status") == "success":

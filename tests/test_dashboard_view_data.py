@@ -181,6 +181,88 @@ def test_markets_view_defaults_to_research_asset(monkeypatch) -> None:
     assert payload["detail"]["question"] == "Why is SOL moving?"
 
 
+def test_signals_view_prefers_pending_review_signal(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_recommendations",
+        lambda: [
+            {
+                "asset": "BTC",
+                "signal": "hold",
+                "confidence": 0.66,
+                "summary": "Range breakout not confirmed",
+                "status": "watch",
+                "evidence": "weak continuation volume",
+            },
+            {
+                "asset": "SOL",
+                "signal": "buy",
+                "confidence": 0.81,
+                "summary": "Momentum with catalyst support",
+                "status": "pending_review",
+                "evidence": "volume expansion",
+            },
+        ],
+    )
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "watchlist": [
+                {"asset": "BTC", "price": 90000.0, "change_24h_pct": 1.8},
+                {"asset": "SOL", "price": 200.0, "change_24h_pct": 6.5},
+            ]
+        },
+    )
+    monkeypatch.setattr(
+        view_data,
+        "get_markets_view",
+        lambda selected_asset=None: {
+            "detail": {
+                "asset": selected_asset or "SOL",
+                "current_cause": "Momentum with catalyst support",
+                "price": 200.0,
+                "change_24h_pct": 6.5,
+                "signal": "buy",
+                "status": "pending_review",
+                "confidence": 0.81,
+                "execution_disabled": True,
+                "risk_note": "Research only.",
+                "price_series": [190.0, 195.0, 200.0],
+                "evidence_items": [{"summary": "volume expansion"}],
+            }
+        },
+    )
+
+    payload = view_data.get_signals_view()
+    assert payload["selected_asset"] == "SOL"
+    assert payload["signals"][0]["asset"] == "BTC"
+    assert payload["signals"][1]["price"] == 200.0
+    assert payload["detail"]["asset"] == "SOL"
+    assert payload["detail"]["current_cause"] == "Momentum with catalyst support"
+
+
+def test_signals_view_respects_requested_asset(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_recommendations",
+        lambda: [
+            {"asset": "BTC", "signal": "hold", "confidence": 0.66, "summary": "Range trade", "status": "watch", "evidence": "volume"},
+            {"asset": "SOL", "signal": "buy", "confidence": 0.81, "summary": "Momentum", "status": "pending_review", "evidence": "catalyst"},
+        ],
+    )
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"watchlist": []})
+    monkeypatch.setattr(
+        view_data,
+        "get_markets_view",
+        lambda selected_asset=None: {"detail": {"asset": selected_asset or "BTC"}},
+    )
+
+    payload = view_data.get_signals_view(selected_asset="BTC")
+    assert payload["selected_asset"] == "BTC"
+    assert payload["detail"]["asset"] == "BTC"
+
+
 def test_research_explain_uses_api_payload(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,
