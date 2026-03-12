@@ -6,6 +6,7 @@ import importlib
 def test_dashboard_component_modules_import_together() -> None:
     modules = [
         "dashboard.components",
+        "dashboard.components.activity",
         "dashboard.components.asset_detail",
         "dashboard.components.focus_selector",
         "dashboard.components.kpi_builders",
@@ -15,6 +16,8 @@ def test_dashboard_component_modules_import_together() -> None:
     imported = {name: importlib.import_module(name) for name in modules}
 
     package = imported["dashboard.components"]
+    assert callable(package.normalize_activity_items)
+    assert callable(package.render_activity_panel)
     assert callable(package.build_asset_detail_metrics)
     assert callable(package.build_focus_summary_metrics)
     assert callable(package.render_asset_detail_card)
@@ -25,6 +28,7 @@ def test_dashboard_component_modules_import_together() -> None:
     assert callable(package.build_market_context_metrics)
 
     assert callable(imported["dashboard.components.asset_detail"].render_research_lens)
+    assert callable(imported["dashboard.components.activity"].normalize_activity_items)
     assert callable(imported["dashboard.components.focus_selector"].resolve_focus_options)
     assert callable(imported["dashboard.components.kpi_builders"].build_signals_kpis)
     assert callable(imported["dashboard.components.summary_panels"].resolve_asset_row)

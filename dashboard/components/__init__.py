@@ -1,3 +1,4 @@
+from dashboard.components.activity import normalize_activity_items, render_activity_panel
 from dashboard.components.asset_detail import (
     build_asset_detail_metrics,
     build_focus_summary_metrics,
@@ -24,6 +25,8 @@ from dashboard.components.summary_panels import (
 from dashboard.components.tables import render_table_section
 
 __all__ = [
+    "normalize_activity_items",
+    "render_activity_panel",
     "render_page_header",
     "render_kpi_cards",
     "build_asset_detail_metrics",

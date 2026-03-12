@@ -3,6 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.activity import render_activity_panel
 from dashboard.components.asset_detail import render_focus_summary
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.focus_selector import render_focus_selector
@@ -74,6 +75,4 @@ with col_signals:
     render_focus_summary(detail)
 
 with col_activity:
-    st.markdown("### Recent Activity")
-    for line in recent_activity[:6]:
-        st.markdown(f"- {line}")
+    render_activity_panel(recent_activity)
