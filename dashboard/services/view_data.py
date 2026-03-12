@@ -1565,6 +1565,40 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
     }
 
 
+def _build_watchlist_preview(summary: dict[str, Any], *, limit: int = 5) -> list[dict[str, Any]]:
+    watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
+    ranked_rows: list[tuple[float, int, dict[str, Any]]] = []
+
+    for index, item in enumerate(watchlist):
+        if not isinstance(item, dict):
+            continue
+
+        asset = str(item.get("asset") or "").strip().upper()
+        if not asset:
+            continue
+
+        try:
+            change_24h_pct = round(float(item.get("change_24h_pct") or 0.0), 2)
+        except (TypeError, ValueError):
+            change_24h_pct = 0.0
+
+        row: dict[str, Any] = {
+            "asset": asset,
+            "price": _to_price(item.get("price")),
+            "change_24h_pct": change_24h_pct,
+            "signal": str(item.get("signal") or "watch"),
+        }
+
+        snapshot_source = str(item.get("snapshot_source") or "").strip()
+        if snapshot_source:
+            row["source"] = snapshot_source
+
+        ranked_rows.append((abs(change_24h_pct), index, row))
+
+    ranked_rows.sort(key=lambda entry: (-entry[0], entry[1]))
+    return [row for _, _, row in ranked_rows[:limit]]
+
+
 def get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
     summary = get_dashboard_summary()
     recent_activity = get_recent_activity()
@@ -1587,6 +1621,7 @@ def get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
     return {
         "summary": summary,
         "recent_activity": recent_activity,
+        "watchlist_preview": _build_watchlist_preview(summary),
         "signals": signal_rows,
         "selected_asset": str(signals_view.get("selected_asset") or detail.get("asset") or ""),
         "detail": detail,

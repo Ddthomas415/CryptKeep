@@ -49,6 +49,9 @@ if focus_asset != default_asset:
 summary = overview_view.get("summary") if isinstance(overview_view.get("summary"), dict) else {}
 portfolio = summary.get("portfolio") if isinstance(summary.get("portfolio"), dict) else {}
 recent_activity = overview_view.get("recent_activity") if isinstance(overview_view.get("recent_activity"), list) else []
+watchlist_preview = (
+    overview_view.get("watchlist_preview") if isinstance(overview_view.get("watchlist_preview"), list) else []
+)
 
 mode = str(summary.get("mode") or "research_only")
 risk_status = str(summary.get("risk_status") or "safe")
@@ -77,4 +80,9 @@ with col_signals:
 
 with col_activity:
     render_overview_status_summary(summary)
+    render_table_section(
+        "Watchlist Snapshot",
+        watchlist_preview,
+        empty_message="No watchlist data available.",
+    )
     render_activity_panel(recent_activity)

@@ -863,6 +863,41 @@ def test_overview_view_reuses_signals_detail_contract(monkeypatch) -> None:
     assert payload["recent_activity"] == ["Generated explanation for SOL"]
 
 
+def test_overview_view_includes_ranked_watchlist_preview(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "mode": "research_only",
+            "portfolio": {"total_value": 1000.0},
+            "watchlist": [
+                {"asset": "BTC", "price": 90000.0, "change_24h_pct": 2.1, "signal": "watch", "snapshot_source": "api"},
+                {"asset": "ETH", "price": 4100.0, "change_24h_pct": -4.8, "signal": "monitor", "snapshot_source": "local_ws"},
+                {"asset": "SOL", "price": 200.0, "change_24h_pct": 6.5, "signal": "research", "snapshot_source": "api"},
+                {"asset": "LINK", "price": 18.5, "change_24h_pct": 1.1, "signal": "watch"},
+                {"asset": "AVAX", "price": 54.2, "change_24h_pct": -3.4, "signal": "monitor"},
+                {"asset": "DOGE", "price": 0.31, "change_24h_pct": 0.6, "signal": "watch"},
+            ],
+        },
+    )
+    monkeypatch.setattr(view_data, "get_recent_activity", lambda: ["Generated explanation for SOL"])
+    monkeypatch.setattr(
+        view_data,
+        "get_signals_view",
+        lambda selected_asset=None: {
+            "selected_asset": selected_asset or "SOL",
+            "signals": [],
+            "detail": {"asset": selected_asset or "SOL"},
+        },
+    )
+
+    payload = view_data.get_overview_view()
+    assert [row["asset"] for row in payload["watchlist_preview"]] == ["SOL", "ETH", "AVAX", "BTC", "LINK"]
+    assert payload["watchlist_preview"][0]["source"] == "api"
+    assert payload["watchlist_preview"][1]["source"] == "local_ws"
+    assert payload["watchlist_preview"][-1]["change_24h_pct"] == 1.1
+
+
 def test_research_explain_uses_api_payload(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,
