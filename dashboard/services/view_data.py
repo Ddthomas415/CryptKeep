@@ -245,6 +245,34 @@ def _normalize_asset_symbol(value: Any) -> str:
     return symbol
 
 
+def _normalize_signal_action(value: Any) -> str:
+    normalized = str(value or "").strip().lower()
+    mapping = {
+        "long": "buy",
+        "short": "sell",
+        "flat": "hold",
+    }
+    resolved = mapping.get(normalized, normalized)
+    return resolved if resolved in {"buy", "sell", "hold", "watch", "research", "monitor"} else "hold"
+
+
+def _normalize_signal_status(value: Any, *, action: str) -> str:
+    normalized = str(value or "").strip().lower()
+    if normalized in {"pending_review", "pending review"}:
+        return "pending_review"
+    if normalized in {"approved", "accepted", "routed", "executed"}:
+        return "approved"
+    if normalized in {"rejected", "blocked", "dropped"}:
+        return "rejected"
+    if normalized in {"expired", "stale"}:
+        return "expired"
+    if normalized in {"watch", "monitor"}:
+        return normalized
+    if normalized in {"new", "queued", "received", "pending", "review", "reviewed", "normalized", "ingested", "scored"}:
+        return "pending_review" if action in {"buy", "sell"} else "monitor"
+    return "pending_review" if action in {"buy", "sell"} else "watch"
+
+
 def _build_price_series(last_price: float, change_24h_pct: float) -> list[float]:
     price = max(float(last_price or 0.0), 0.01)
     pct = float(change_24h_pct or 0.0)
@@ -613,6 +641,99 @@ def _load_local_recent_fills(limit: int = 20) -> list[dict[str, Any]]:
     return []
 
 
+def _dedupe_recommendation_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    deduped: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        asset = str(row.get("asset") or "").strip().upper()
+        if not asset or asset in seen:
+            continue
+        seen.add(asset)
+        deduped.append(row)
+    return deduped
+
+
+def _load_local_recommendations(limit: int = 20) -> list[dict[str, Any]]:
+    normalized_limit = max(1, int(limit or 20))
+
+    try:
+        from storage.signal_inbox_sqlite import SignalInboxSQLite
+    except Exception:
+        SignalInboxSQLite = None
+
+    if callable(SignalInboxSQLite):
+        try:
+            inbox_rows = SignalInboxSQLite().list_signals(limit=normalized_limit)
+        except Exception:
+            inbox_rows = []
+        if inbox_rows:
+            mapped = []
+            for item in inbox_rows:
+                if not isinstance(item, dict):
+                    continue
+                asset = _normalize_asset_symbol(item.get("symbol"))
+                action = _normalize_signal_action(item.get("action"))
+                if not asset:
+                    continue
+                note = str(item.get("notes") or "").strip()
+                source = str(item.get("source") or "").strip()
+                author = str(item.get("author") or "").strip()
+                mapped.append(
+                    {
+                        "id": str(item.get("signal_id") or f"inbox_{asset.lower()}"),
+                        "asset": asset,
+                        "signal": action,
+                        "confidence": float(item.get("confidence") or 0.0),
+                        "summary": note or f"Signal inbox update from {author or source or 'local source'}.",
+                        "evidence": source or author or "signal_inbox",
+                        "status": _normalize_signal_status(item.get("status"), action=action),
+                    }
+                )
+            deduped = _dedupe_recommendation_rows(mapped)
+            if deduped:
+                return deduped
+
+    try:
+        from storage.evidence_signals_sqlite import EvidenceSignalsSQLite
+    except Exception:
+        EvidenceSignalsSQLite = None
+
+    if callable(EvidenceSignalsSQLite):
+        try:
+            evidence_rows = EvidenceSignalsSQLite().recent_signals(limit=normalized_limit)
+        except Exception:
+            evidence_rows = []
+        if evidence_rows:
+            mapped = []
+            for item in evidence_rows:
+                if not isinstance(item, dict):
+                    continue
+                asset = _normalize_asset_symbol(item.get("symbol"))
+                action = _normalize_signal_action(item.get("side"))
+                if not asset:
+                    continue
+                note = str(item.get("notes") or "").strip()
+                source_id = str(item.get("source_id") or "").strip()
+                mapped.append(
+                    {
+                        "id": str(item.get("signal_id") or f"evidence_{asset.lower()}"),
+                        "asset": asset,
+                        "signal": action,
+                        "confidence": float(item.get("confidence") or 0.0),
+                        "summary": note or f"Evidence signal from {source_id or 'local evidence store'}.",
+                        "evidence": source_id or "evidence_signals",
+                        "status": _normalize_signal_status(item.get("status"), action=action),
+                    }
+                )
+            deduped = _dedupe_recommendation_rows(mapped)
+            if deduped:
+                return deduped
+
+    return []
+
+
 def _get_market_price_series(
     asset: str,
     last_price: float,
@@ -937,6 +1058,10 @@ def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_recommendations() -> list[dict[str, Any]]:
+    local_rows = _load_local_recommendations(limit=20)
+    if local_rows:
+        return local_rows
+
     envelope = _fetch_envelope("/api/v1/trading/recommendations")
     if isinstance(envelope, dict) and envelope.get("status") == "success":
         data = envelope.get("data")

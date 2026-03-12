@@ -35,10 +35,128 @@ def test_recommendations_map_api_payload(monkeypatch) -> None:
         "_fetch_envelope",
         lambda path: payload if path == "/api/v1/trading/recommendations" else None,
     )
+    monkeypatch.setattr(view_data, "_load_local_recommendations", lambda limit=20: [])
     rows = view_data.get_recommendations()
     assert rows[0]["asset"] == "SOL"
     assert rows[0]["signal"] == "buy"
     assert rows[0]["status"] == "pending_review"
+
+
+def test_recommendations_prefer_local_rows(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_recommendations",
+        lambda limit=20: [
+            {
+                "id": "sig_local_1",
+                "asset": "ETH",
+                "signal": "sell",
+                "confidence": 0.67,
+                "summary": "Inbox signal",
+                "evidence": "source=tv",
+                "status": "pending_review",
+            }
+        ],
+    )
+    monkeypatch.setattr(view_data, "_fetch_envelope", lambda path: None)
+
+    rows = view_data.get_recommendations()
+    assert rows == [
+        {
+            "id": "sig_local_1",
+            "asset": "ETH",
+            "signal": "sell",
+            "confidence": 0.67,
+            "summary": "Inbox signal",
+            "evidence": "source=tv",
+            "status": "pending_review",
+        }
+    ]
+
+
+def test_load_local_recommendations_prefers_signal_inbox(monkeypatch) -> None:
+    class FakeInbox:
+        def list_signals(self, limit: int = 20):
+            assert limit == 5
+            return [
+                {
+                    "signal_id": "sig_1",
+                    "symbol": "btc/usd",
+                    "action": "long",
+                    "confidence": 0.82,
+                    "notes": "Breakout held above support",
+                    "source": "tradingview",
+                    "author": "desk",
+                    "status": "new",
+                },
+                {
+                    "signal_id": "sig_2",
+                    "symbol": "BTCUSDT",
+                    "action": "sell",
+                    "confidence": 0.41,
+                    "notes": "Older duplicate asset signal",
+                    "source": "tradingview",
+                    "author": "desk",
+                    "status": "rejected",
+                },
+            ]
+
+    class FakeEvidence:
+        def recent_signals(self, limit: int = 20):
+            raise AssertionError("evidence store should not be used when inbox rows exist")
+
+    monkeypatch.setattr("storage.signal_inbox_sqlite.SignalInboxSQLite", FakeInbox)
+    monkeypatch.setattr("storage.evidence_signals_sqlite.EvidenceSignalsSQLite", FakeEvidence)
+
+    rows = view_data._load_local_recommendations(limit=5)
+    assert rows == [
+        {
+            "id": "sig_1",
+            "asset": "BTC",
+            "signal": "buy",
+            "confidence": 0.82,
+            "summary": "Breakout held above support",
+            "evidence": "tradingview",
+            "status": "pending_review",
+        }
+    ]
+
+
+def test_load_local_recommendations_falls_back_to_evidence_store(monkeypatch) -> None:
+    class FakeInbox:
+        def list_signals(self, limit: int = 20):
+            return []
+
+    class FakeEvidence:
+        def recent_signals(self, limit: int = 20):
+            assert limit == 3
+            return [
+                {
+                    "signal_id": "ev_1",
+                    "symbol": "ETH-USDT",
+                    "side": "short",
+                    "confidence": 0.61,
+                    "notes": "Funding rolled over",
+                    "source_id": "partner_feed",
+                    "status": "scored",
+                }
+            ]
+
+    monkeypatch.setattr("storage.signal_inbox_sqlite.SignalInboxSQLite", FakeInbox)
+    monkeypatch.setattr("storage.evidence_signals_sqlite.EvidenceSignalsSQLite", FakeEvidence)
+
+    rows = view_data._load_local_recommendations(limit=3)
+    assert rows == [
+        {
+            "id": "ev_1",
+            "asset": "ETH",
+            "signal": "sell",
+            "confidence": 0.61,
+            "summary": "Funding rolled over",
+            "evidence": "partner_feed",
+            "status": "pending_review",
+        }
+    ]
 
 
 def test_recent_activity_prefers_audit_details(monkeypatch) -> None:
