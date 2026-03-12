@@ -3,6 +3,18 @@ from fastapi.testclient import TestClient
 from backend.app.main import app
 
 client = TestClient(app)
+SENSITIVE_KEYS = {"api_key", "api_secret", "passphrase", "secret", "credential", "credentials"}
+
+
+def _assert_no_sensitive_keys(value: object) -> None:
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            assert key.lower() not in SENSITIVE_KEYS
+            _assert_no_sensitive_keys(nested)
+        return
+    if isinstance(value, list):
+        for nested in value:
+            _assert_no_sensitive_keys(nested)
 
 
 def test_list_exchanges() -> None:
@@ -13,6 +25,7 @@ def test_list_exchanges() -> None:
     assert payload["status"] == "success"
     assert "items" in payload["data"]
     assert len(payload["data"]["items"]) >= 1
+    _assert_no_sensitive_keys(payload)
 
 
 def test_test_exchange() -> None:
@@ -34,6 +47,7 @@ def test_test_exchange() -> None:
     assert payload["status"] == "success"
     assert payload["data"]["success"] is True
     assert "permissions" in payload["data"]
+    _assert_no_sensitive_keys(payload)
 
 
 def test_save_exchange() -> None:
@@ -60,3 +74,4 @@ def test_save_exchange() -> None:
     assert payload["status"] == "success"
     assert payload["data"]["provider"] == "coinbase"
     assert payload["data"]["label"] == "Main Coinbase"
+    _assert_no_sensitive_keys(payload)
