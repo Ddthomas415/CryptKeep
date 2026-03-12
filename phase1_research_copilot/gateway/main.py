@@ -27,6 +27,50 @@ class ChatRequest(BaseModel):
     lookback_minutes: int = 60
 
 
+def _format_reasoning_provider(value: Any) -> str:
+    provider = str(value or "").strip().lower()
+    if not provider:
+        return "Unknown"
+    if provider == "openai":
+        return "OpenAI"
+    if provider == "backend_api":
+        return "Backend API"
+    if provider == "phase1_copilot":
+        return "Phase 1 Copilot"
+    if provider == "gateway_fallback":
+        return "Gateway Fallback"
+    if provider == "fallback":
+        return "Fallback"
+    return provider.replace("_", " ").title()
+
+
+def _format_status_summary(label: str, status: dict[str, Any] | None) -> str:
+    payload = status if isinstance(status, dict) else {}
+    provider = _format_reasoning_provider(payload.get("provider"))
+    model = str(payload.get("model") or "").strip()
+    parts = [provider]
+    if model:
+        parts.append(model)
+    if bool(payload.get("fallback")):
+        parts.append("fallback")
+    if bool(payload.get("upstream_fallback")):
+        upstream_reason = str(payload.get("upstream_reason") or "").strip()
+        parts.append(f"upstream {upstream_reason}" if upstream_reason else "upstream fallback")
+    return f"{label}: {' | '.join(parts)}"
+
+
+def _build_reasoning_summary(
+    explain_status: dict[str, Any] | None,
+    chat_status: dict[str, Any] | None,
+) -> str:
+    return "\n".join(
+        [
+            _format_status_summary("Explain", explain_status),
+            _format_status_summary("Chat", chat_status),
+        ]
+    )
+
+
 def _fallback_explain_response(req: ChatRequest, *, reason: str) -> dict[str, Any]:
     asset = str(req.asset or "").upper().strip() or "ASSET"
     current_cause = (
@@ -184,7 +228,8 @@ async function ask() {
   });
   const data = await res.json();
   if (data.assistant_response) {
-    out.textContent = data.assistant_response + '\n\n--- details ---\n' + JSON.stringify(data, null, 2);
+    const summary = data.reasoning_summary ? data.reasoning_summary + '\n\n' : '';
+    out.textContent = summary + data.assistant_response + '\n\n--- details ---\n' + JSON.stringify(data, null, 2);
     return;
   }
   out.textContent = JSON.stringify(data, null, 2);
@@ -233,6 +278,10 @@ async def chat(req: ChatRequest) -> dict[str, Any]:
         }
     response["assistant_response"] = assistant_response
     response["chat_status"] = assistant_status
+    response["reasoning_summary"] = _build_reasoning_summary(
+        response.get("assistant_status") if isinstance(response.get("assistant_status"), dict) else None,
+        assistant_status,
+    )
 
     await emit_audit_event(
         "gateway",

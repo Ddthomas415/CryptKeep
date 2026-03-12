@@ -74,6 +74,7 @@ def test_chat_endpoint_adds_assistant_response(monkeypatch) -> None:
     assert payload["assistant_response"].startswith("BTC is firming")
     assert payload["chat_status"]["provider"] == "fallback"
     assert payload["asset"] == "BTC"
+    assert payload["reasoning_summary"] == "Explain: Unknown\nChat: Fallback | fallback"
 
 
 def test_chat_endpoint_falls_back_when_orchestrator_is_unavailable(monkeypatch) -> None:
@@ -96,6 +97,10 @@ def test_chat_endpoint_falls_back_when_orchestrator_is_unavailable(monkeypatch) 
     assert payload["chat_status"]["upstream_fallback"] is True
     assert payload["chat_status"]["upstream_reason"] == "RuntimeError"
     assert payload["assistant_response"].startswith("ETH:")
+    assert (
+        payload["reasoning_summary"]
+        == "Explain: Gateway Fallback | fallback\nChat: Fallback | fallback | upstream RuntimeError"
+    )
 
 
 def test_generate_chat_response_uses_openai_when_enabled(monkeypatch) -> None:
@@ -128,3 +133,15 @@ def test_generate_chat_response_uses_openai_when_enabled(monkeypatch) -> None:
         "model": gateway.settings.openai_model,
         "fallback": False,
     }
+
+
+def test_build_reasoning_summary_formats_explain_and_chat_status() -> None:
+    summary = gateway._build_reasoning_summary(
+        {"provider": "openai", "model": "gpt-4.1-mini", "fallback": False},
+        {"provider": "fallback", "fallback": True, "upstream_fallback": True, "upstream_reason": "TimeoutError"},
+    )
+
+    assert summary == (
+        "Explain: OpenAI | gpt-4.1-mini\n"
+        "Chat: Fallback | fallback | upstream TimeoutError"
+    )
