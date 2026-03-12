@@ -64,3 +64,11 @@ def test_auth_gating_consistent_across_dashboard_pages() -> None:
         source = file_path.read_text(encoding="utf-8")
         expected = f'require_authenticated_role("{required_role}")'
         assert expected in source, f"Auth gate mismatch in {relative_path}"
+
+
+def test_legacy_ui_page_is_retired_stub() -> None:
+    file_path = REPO_ROOT / "dashboard/pages/99_Legacy_UI.py"
+    source = file_path.read_text(encoding="utf-8")
+    assert "Legacy UI (Retired)" in source
+    assert "importlib.util" not in source
+    assert "CBP_ENABLE_LEGACY_UI" not in source
