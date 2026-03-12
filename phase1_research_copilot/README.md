@@ -53,8 +53,23 @@ phase1_research_copilot/
 ## Quick start
 1. `cd /Users/baitus/Downloads/crypto-bot-pro/phase1_research_copilot`
 2. `cp .env.example .env`
-3. `docker compose up --build`
-4. Open web chat: `http://localhost:8001/`
+3. Set `OPENAI_API_KEY` in `.env` if you want live model reasoning.
+4. `docker compose up --build`
+5. Open web chat: `http://localhost:8001/`
+
+## OpenAI reasoning mode
+- `gateway` and `orchestrator` run in research-only mode whether OpenAI is configured or not.
+- If `OPENAI_API_KEY` is set:
+  - `/v1/explain` uses the OpenAI Responses API as the reasoning layer.
+  - safe read-only tool calling is enabled for:
+    - market snapshot
+    - risk summary
+    - operations summary
+    - signal summary
+- If OpenAI is unavailable:
+  - `orchestrator` falls back to deterministic research-only reasoning
+  - `gateway` falls back again if `orchestrator` itself is unavailable
+- No trading or order placement is allowed in either mode.
 
 ## Health checks
 - `http://localhost:8001/healthz` gateway
@@ -83,15 +98,20 @@ Example response shape:
   "asset": "SOL",
   "question": "Why is SOL moving?",
   "current_cause": "SOL moved up 1.84% in the lookback window...",
+  "past_precedent": "Most relevant past precedent: ...",
   "relevant_past_precedent": "Most relevant past precedent: ...",
   "future_catalyst": "Closest forward catalyst: ...",
+  "confidence": 0.71,
   "confidence_score": 0.71,
-  "evidence": {
+  "risk_note": "Research only. Execution disabled.",
+  "execution_disabled": true,
+  "evidence": [],
+  "evidence_bundle": {
     "market": {},
+    "market_snapshot": {},
     "recent_news": [],
     "past_context": [],
-    "future_context": [],
-    "vector_matches": []
+    "future_context": []
   },
   "risk_posture": {
     "execution_mode": "DISABLED",
@@ -101,6 +121,17 @@ Example response shape:
   "execution": {
     "enabled": false,
     "reason": "Phase 1 research copilot only"
+  },
+  "assistant_status": {
+    "provider": "openai",
+    "model": "o4-mini",
+    "fallback": false
+  },
+  "assistant_response": "SOL is rising on stronger spot demand. Risk note: research only.",
+  "chat_status": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini",
+    "fallback": false
   }
 }
 ```

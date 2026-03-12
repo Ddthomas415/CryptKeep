@@ -10,7 +10,15 @@ All services expose `GET /healthz`.
     ```json
     {"asset":"SOL","question":"Why is SOL moving?","lookback_minutes":60}
     ```
-  - Response: proxied orchestrator explanation payload.
+  - Response:
+    - proxied orchestrator explanation payload
+    - `assistant_response` (chat-friendly summary)
+    - `chat_status.provider` (`openai|fallback`)
+    - `chat_status.fallback` (boolean)
+  - Failure behavior:
+    - if `orchestrator` is unavailable, gateway returns a deterministic research-only fallback payload
+    - `assistant_status.provider=gateway_fallback`
+    - `execution.enabled=false`
 
 ## 2) orchestrator (`:8002`)
 - `POST /v1/explain`
@@ -20,11 +28,25 @@ All services expose `GET /healthz`.
     ```
   - Response:
     - `current_cause`
+    - `past_precedent`
     - `relevant_past_precedent`
     - `future_catalyst`
+    - `confidence`
     - `confidence_score`
-    - `evidence` bundle
+    - `risk_note`
+    - `execution_disabled=true`
+    - `evidence` list
+    - `evidence_bundle`
+    - `assistant_status.provider` (`openai|fallback`)
     - `execution.enabled=false`
+  - Reasoning behavior:
+    - if `OPENAI_API_KEY` is set, reasoning uses the OpenAI Responses API
+    - safe read-only tool calling is available for:
+      - `get_market_snapshot`
+      - `get_risk_summary`
+      - `get_operations_summary`
+      - `get_signal_summary`
+    - if OpenAI is unavailable, returns deterministic research-only fallback reasoning
 
 ## 3) market-data (`:8003`)
 - Background ingestion:
