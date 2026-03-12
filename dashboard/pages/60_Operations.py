@@ -418,4 +418,4 @@ with tab_safety:
         output=str(result.get("output") or ""),
     )
 
-st.warning("Legacy Operator page remains available for full compatibility and deep tooling.")
+st.info("Legacy Operator page now acts as a compatibility redirect to this Operations workspace.")
