@@ -1,12 +1,25 @@
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+try:
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+
+    _HAS_PYDANTIC_SETTINGS = True
+except Exception:  # pragma: no cover - exercised in local fallback validation
+    from pydantic import BaseModel
+
+    BaseSettings = BaseModel  # type: ignore[assignment]
+    _HAS_PYDANTIC_SETTINGS = False
+
+    def SettingsConfigDict(**kwargs):  # type: ignore[no-redef]
+        return kwargs
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    if _HAS_PYDANTIC_SETTINGS:
+        model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     service_name: str = "service"
     log_level: str = "INFO"
@@ -48,6 +61,11 @@ class Settings(BaseSettings):
 
     no_trading: bool = True
 
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4.1-mini"
+    openai_reasoning_model: str = "o4-mini"
+    openai_base_url: str = ""
+
     @property
     def exchange_symbols_list(self) -> list[str]:
         return [s.strip() for s in self.exchange_symbols.split(",") if s.strip()]
@@ -57,6 +75,16 @@ class Settings(BaseSettings):
         return [u.strip() for u in self.news_rss_urls.split(",") if u.strip()]
 
 
+def _fallback_env_values() -> dict[str, str]:
+    return {
+        field_name: raw_value
+        for field_name in Settings.model_fields
+        if (raw_value := os.environ.get(field_name.upper())) is not None
+    }
+
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return Settings()
+    if _HAS_PYDANTIC_SETTINGS:
+        return Settings()
+    return Settings(**_fallback_env_values())
