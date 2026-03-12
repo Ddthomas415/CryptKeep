@@ -13,6 +13,7 @@ from services.setup.config_manager import DEFAULT_CFG, deep_merge
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 API_BASE_URL = os.environ.get("CK_API_BASE_URL", "http://localhost:8000").rstrip("/")
+PHASE1_ORCHESTRATOR_URL = os.environ.get("CK_PHASE1_ORCHESTRATOR_URL", "http://localhost:8002").rstrip("/")
 API_TIMEOUT_SECONDS = float(os.environ.get("CK_API_TIMEOUT_SECONDS", "0.6"))
 
 
@@ -1260,8 +1261,14 @@ def _read_mock_envelope(filename: str) -> dict[str, Any] | None:
         return None
 
 
-def _request_envelope(path: str, *, method: str = "GET", payload: dict[str, Any] | None = None) -> dict[str, Any] | None:
-    url = f"{API_BASE_URL}{path}"
+def _request_envelope_from_base(
+    base_url: str,
+    path: str,
+    *,
+    method: str = "GET",
+    payload: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    url = f"{base_url}{path}"
     body: bytes | None = None
     headers = {
         "Accept": "application/json",
@@ -1281,6 +1288,10 @@ def _request_envelope(path: str, *, method: str = "GET", payload: dict[str, Any]
             return json.loads(resp.read().decode("utf-8"))
     except (TimeoutError, OSError, ValueError, urllib.error.URLError):
         return None
+
+
+def _request_envelope(path: str, *, method: str = "GET", payload: dict[str, Any] | None = None) -> dict[str, Any] | None:
+    return _request_envelope_from_base(API_BASE_URL, path, method=method, payload=payload)
 
 
 def _fetch_envelope(path: str) -> dict[str, Any] | None:
@@ -1610,8 +1621,21 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         method="POST",
         payload={"asset": asset_symbol, "question": resolved_question},
     )
-    if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
+    if not isinstance(envelope, dict) or envelope.get("status") != "success" or not isinstance(envelope.get("data"), dict):
+        envelope = _request_envelope_from_base(
+            PHASE1_ORCHESTRATOR_URL,
+            "/v1/explain",
+            method="POST",
+            payload={"asset": asset_symbol, "question": resolved_question, "lookback_minutes": 60},
+        )
+    if isinstance(envelope, dict) and isinstance(envelope.get("data"), dict):
         data = dict(envelope["data"])
+    elif isinstance(envelope, dict):
+        data = dict(envelope)
+    else:
+        data = {}
+
+    if data and any(key in data for key in ("current_cause", "past_precedent", "future_catalyst")):
         if not _explain_mentions_foreign_asset(data, asset_symbol):
             data["asset"] = asset_symbol
             data["question"] = resolved_question

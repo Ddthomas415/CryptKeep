@@ -1000,6 +1000,34 @@ def test_research_explain_uses_api_payload(monkeypatch) -> None:
     assert payload["confidence"] == 0.74
 
 
+def test_research_explain_falls_back_to_phase1_orchestrator(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope_from_base",
+        lambda base_url, path, method="GET", payload=None: {
+            "ok": True,
+            "asset": "BTC",
+            "question": "Why is BTC moving?",
+            "current_cause": "BTC is firming on spot demand.",
+            "past_precedent": "Prior breakouts held when liquidity stayed firm.",
+            "future_catalyst": "Macro data later this week could matter.",
+            "confidence": 0.72,
+            "risk_note": "Research only. Execution disabled.",
+            "execution_disabled": True,
+            "evidence": [{"type": "market", "source": "coinbase", "summary": "spot support", "relevance": 0.8}],
+            "assistant_status": {"provider": "openai", "fallback": False},
+        }
+        if base_url == view_data.PHASE1_ORCHESTRATOR_URL and path == "/v1/explain" and method == "POST"
+        else None,
+    )
+
+    payload = view_data.get_research_explain("BTC")
+    assert payload["asset"] == "BTC"
+    assert payload["current_cause"] == "BTC is firming on spot demand."
+    assert payload["assistant_status"]["provider"] == "openai"
+
+
 def test_markets_view_prefers_candle_api_series(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,
