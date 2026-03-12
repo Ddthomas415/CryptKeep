@@ -17,6 +17,7 @@ from dashboard.components.kpi_builders import (
     build_overview_kpis,
     build_portfolio_kpis,
     build_signals_kpis,
+    build_trades_kpis,
 )
 from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
@@ -24,9 +25,11 @@ from dashboard.components.summary_panels import (
     build_market_context_metrics,
     build_market_snapshot_lines,
     build_portfolio_position_metrics,
+    build_trades_queue_metrics,
     render_market_context,
     render_portfolio_position_summary,
     render_signal_thesis,
+    render_trades_queue_summary,
     resolve_asset_row,
 )
 from dashboard.components.tables import render_table_section
@@ -48,12 +51,15 @@ __all__ = [
     "build_overview_kpis",
     "build_portfolio_kpis",
     "build_signals_kpis",
+    "build_trades_kpis",
     "build_market_snapshot_lines",
     "build_market_context_metrics",
     "build_portfolio_position_metrics",
+    "build_trades_queue_metrics",
     "render_market_context",
     "render_portfolio_position_summary",
     "render_signal_thesis",
+    "render_trades_queue_summary",
     "resolve_asset_row",
     "render_save_action",
     "render_system_action_buttons",

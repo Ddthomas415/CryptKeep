@@ -5,6 +5,7 @@ from dashboard.components.kpi_builders import (
     build_overview_kpis,
     build_portfolio_kpis,
     build_signals_kpis,
+    build_trades_kpis,
 )
 
 
@@ -78,3 +79,22 @@ def test_build_portfolio_kpis_formats_portfolio_summary() -> None:
     assert payload[2]["value"] == "18.4%"
     assert payload[2]["delta"] == "Leverage 1.2x"
     assert payload[3]["value"] == "2"
+
+
+def test_build_trades_kpis_formats_trade_state() -> None:
+    payload = build_trades_kpis(
+        approval_required=True,
+        pending_approvals=[
+            {"asset": "SOL", "side": "buy"},
+            {"asset": "BTC", "side": "sell"},
+        ],
+        recent_fills=[
+            {"asset": "ETH", "side": "sell", "ts": "2026-03-11T11:05:00Z"},
+        ],
+    )
+    assert payload[0]["value"] == "Approval Required"
+    assert payload[1]["value"] == "2"
+    assert payload[1]["delta"] == "SOL"
+    assert payload[2]["value"] == "1"
+    assert payload[2]["delta"] == "ETH"
+    assert payload[3]["value"] == "SELL"

@@ -3,8 +3,11 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
+from dashboard.components.kpi_builders import build_trades_kpis
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_trades_queue_summary
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_trades_view
 
@@ -23,11 +26,25 @@ render_page_header(
     badges=[{"label": "Safety", "value": "Approval Required" if approval_required else "Auto Approved"}],
 )
 
-render_table_section(
-    "Pending Approvals",
-    pending_approvals,
-    empty_message="No pending approvals.",
+render_kpi_cards(
+    build_trades_kpis(
+        approval_required=approval_required,
+        pending_approvals=pending_approvals,
+        recent_fills=recent_fills,
+    )
 )
+
+summary_col, table_col = st.columns((1, 1.4))
+
+with summary_col:
+    render_trades_queue_summary(pending_approvals, recent_fills)
+
+with table_col:
+    render_table_section(
+        "Pending Approvals",
+        pending_approvals,
+        empty_message="No pending approvals.",
+    )
 
 render_table_section(
     "Recent Fills",

@@ -4,6 +4,7 @@ from dashboard.components.summary_panels import (
     build_market_context_metrics,
     build_market_snapshot_lines,
     build_portfolio_position_metrics,
+    build_trades_queue_metrics,
     resolve_asset_row,
 )
 
@@ -106,4 +107,37 @@ def test_build_portfolio_position_metrics_formats_best_and_worst_positions() -> 
         "label": "Worst PnL",
         "value": "$-120.50",
         "delta": "ETH",
+    }
+
+
+def test_build_trades_queue_metrics_formats_queue_and_fill_details() -> None:
+    metrics = build_trades_queue_metrics(
+        [
+            {"asset": "SOL", "side": "buy", "risk_size_pct": 1.5},
+            {"asset": "BTC", "side": "sell", "risk_size_pct": 0.8},
+        ],
+        [
+            {"asset": "ETH", "side": "sell", "qty": 0.3, "price": 4390.0},
+        ],
+    )
+
+    assert metrics[0] == {
+        "label": "Approval Mix",
+        "value": "1 / 1",
+        "delta": "Buy / Sell",
+    }
+    assert metrics[1] == {
+        "label": "Largest Review",
+        "value": "1.5%",
+        "delta": "SOL",
+    }
+    assert metrics[2] == {
+        "label": "Last Fill Price",
+        "value": "$4,390.00",
+        "delta": "ETH",
+    }
+    assert metrics[3] == {
+        "label": "Last Fill Qty",
+        "value": "0.3",
+        "delta": "SELL",
     }

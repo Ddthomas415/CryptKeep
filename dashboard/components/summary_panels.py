@@ -206,3 +206,58 @@ def render_portfolio_position_summary(rows: Sequence[dict[str, Any]] | None) -> 
                     delta = str(item.get("delta") or "").strip()
                     if delta:
                         st.caption(delta)
+
+
+def build_trades_queue_metrics(
+    pending_approvals: Sequence[dict[str, Any]] | None,
+    recent_fills: Sequence[dict[str, Any]] | None,
+) -> list[dict[str, str]]:
+    approvals = [row for row in (pending_approvals or []) if isinstance(row, dict)]
+    fills = [row for row in (recent_fills or []) if isinstance(row, dict)]
+
+    buy_count = sum(1 for row in approvals if str(row.get("side") or "").strip().lower() == "buy")
+    sell_count = sum(1 for row in approvals if str(row.get("side") or "").strip().lower() == "sell")
+    last_fill = fills[0] if fills else {}
+
+    return [
+        {
+            "label": "Approval Mix",
+            "value": f"{buy_count} / {sell_count}",
+            "delta": "Buy / Sell",
+        },
+        {
+            "label": "Largest Review",
+            "value": f"{max((float(row.get('risk_size_pct') or 0.0) for row in approvals), default=0.0):.1f}%",
+            "delta": str(max(approvals, key=lambda row: float(row.get("risk_size_pct") or 0.0)).get("asset") or "-")
+            if approvals
+            else "No queued trades",
+        },
+        {
+            "label": "Last Fill Price",
+            "value": _format_portfolio_currency(last_fill.get("price")) if last_fill else "-",
+            "delta": str(last_fill.get("asset") or "No fills yet"),
+        },
+        {
+            "label": "Last Fill Qty",
+            "value": f"{float(last_fill.get('qty') or 0.0):g}" if last_fill else "-",
+            "delta": str(last_fill.get("side") or "").upper() if last_fill else "No fills yet",
+        },
+    ]
+
+
+def render_trades_queue_summary(
+    pending_approvals: Sequence[dict[str, Any]] | None,
+    recent_fills: Sequence[dict[str, Any]] | None,
+) -> None:
+    with st.container(border=True):
+        st.markdown("### Execution Summary")
+        metric_items = build_trades_queue_metrics(pending_approvals, recent_fills)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
