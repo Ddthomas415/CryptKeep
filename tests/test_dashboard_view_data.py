@@ -85,6 +85,61 @@ def test_portfolio_view_uses_dashboard_watchlist_marks(monkeypatch) -> None:
     assert payload["positions"][1]["mark"] == 200.0
 
 
+def test_markets_view_prefers_requested_asset_and_related_signal(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "watchlist": [
+                {"asset": "BTC", "price": 90000.0, "change_24h_pct": 1.8, "signal": "watch"},
+                {"asset": "SOL", "price": 200.0, "change_24h_pct": 6.5, "signal": "research"},
+            ]
+        },
+    )
+    monkeypatch.setattr(
+        view_data,
+        "get_recommendations",
+        lambda: [
+            {
+                "asset": "SOL",
+                "signal": "buy",
+                "confidence": 0.81,
+                "summary": "Momentum with catalyst support",
+                "evidence": "volume expansion",
+                "status": "pending_review",
+            }
+        ],
+    )
+
+    payload = view_data.get_markets_view(selected_asset="SOL")
+    assert payload["selected_asset"] == "SOL"
+    assert payload["detail"]["asset"] == "SOL"
+    assert payload["detail"]["confidence"] == 0.81
+    assert payload["detail"]["market_bias"] == "bullish"
+    assert payload["detail"]["price_series"][-1] == 200.0
+    assert payload["detail"]["related_signals"][0]["status"] == "pending_review"
+
+
+def test_markets_view_defaults_to_research_asset(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "watchlist": [
+                {"asset": "BTC", "price": 90000.0, "change_24h_pct": 1.8, "signal": "watch"},
+                {"asset": "ETH", "price": 4100.0, "change_24h_pct": 0.7, "signal": "monitor"},
+                {"asset": "SOL", "price": 200.0, "change_24h_pct": 6.5, "signal": "research"},
+            ]
+        },
+    )
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+
+    payload = view_data.get_markets_view()
+    assert payload["selected_asset"] == "SOL"
+    assert payload["detail"]["asset"] == "SOL"
+    assert payload["detail"]["related_signals"][0]["summary"].startswith("No direct recommendation")
+
+
 def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,

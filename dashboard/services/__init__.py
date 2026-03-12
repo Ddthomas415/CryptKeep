@@ -3,6 +3,7 @@ from dashboard.services.operator_tools import parse_symbol_list, synthetic_ohlcv
 from dashboard.services.view_data import (
     get_automation_view,
     get_dashboard_summary,
+    get_markets_view,
     get_portfolio_view,
     get_recent_activity,
     get_recommendations,
@@ -20,6 +21,7 @@ __all__ = [
     "synthetic_ohlcv",
     "get_automation_view",
     "get_dashboard_summary",
+    "get_markets_view",
     "get_portfolio_view",
     "get_recommendations",
     "get_recent_activity",

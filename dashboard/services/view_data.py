@@ -121,6 +121,54 @@ def _default_settings_payload() -> dict[str, Any]:
     }
 
 
+def _derive_market_bias(change_24h_pct: float) -> str:
+    if change_24h_pct >= 2.0:
+        return "bullish"
+    if change_24h_pct <= -2.0:
+        return "defensive"
+    return "balanced"
+
+
+def _derive_volume_trend(change_24h_pct: float) -> str:
+    magnitude = abs(change_24h_pct)
+    if magnitude >= 5.0:
+        return "high"
+    if magnitude >= 2.0:
+        return "elevated"
+    return "steady"
+
+
+def _build_price_series(last_price: float, change_24h_pct: float) -> list[float]:
+    price = max(float(last_price or 0.0), 0.01)
+    pct = float(change_24h_pct or 0.0)
+    open_price = price / (1.0 + (pct / 100.0)) if abs(pct) < 95.0 else price
+    anchors = (0.22, 0.37, 0.31, 0.55, 0.71, 0.88, 0.81, 1.0)
+
+    series: list[float] = []
+    for idx, anchor in enumerate(anchors, start=1):
+        blend = idx / len(anchors)
+        drift = open_price + ((price - open_price) * blend)
+        swing = price * 0.012 * (anchor - 0.5)
+        if pct < 0:
+            swing *= -1
+        series.append(round(max(drift + swing, 0.01), 2))
+
+    series[-1] = round(price, 2)
+    return series
+
+
+def _asset_priority(signal: str) -> int:
+    normalized = str(signal or "").strip().lower()
+    order = {
+        "buy": 0,
+        "research": 0,
+        "monitor": 1,
+        "hold": 1,
+        "watch": 2,
+    }
+    return order.get(normalized, 3)
+
+
 def _read_mock_envelope(filename: str) -> dict[str, Any] | None:
     path = REPO_ROOT / "crypto-trading-ai" / "shared" / "mock-data" / filename
     if not path.exists():
@@ -167,6 +215,123 @@ def get_dashboard_summary() -> dict[str, Any]:
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
         return dict(mock["data"])
     return _default_dashboard_summary()
+
+
+def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
+    summary = get_dashboard_summary()
+    recommendations = get_recommendations()
+
+    recommendation_map: dict[str, dict[str, Any]] = {}
+    for item in recommendations:
+        if not isinstance(item, dict):
+            continue
+        asset = str(item.get("asset") or "").strip().upper()
+        if asset and asset not in recommendation_map:
+            recommendation_map[asset] = item
+
+    raw_watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
+    if not raw_watchlist:
+        raw_watchlist = _default_dashboard_summary()["watchlist"]
+
+    watchlist: list[dict[str, Any]] = []
+    for item in raw_watchlist:
+        if not isinstance(item, dict):
+            continue
+        asset = str(item.get("asset") or "").strip().upper()
+        if not asset:
+            continue
+        recommendation = recommendation_map.get(asset, {})
+        change_24h_pct = float(item.get("change_24h_pct") or 0.0)
+        watchlist.append(
+            {
+                "asset": asset,
+                "price": float(item.get("price") or 0.0),
+                "change_24h_pct": change_24h_pct,
+                "signal": str(item.get("signal") or recommendation.get("signal") or "watch"),
+                "confidence": float(recommendation.get("confidence") or 0.0),
+                "status": str(recommendation.get("status") or "monitor"),
+                "volume_trend": str(item.get("volume_trend") or _derive_volume_trend(change_24h_pct)),
+            }
+        )
+
+    if not watchlist:
+        watchlist = list(_default_dashboard_summary()["watchlist"])
+
+    requested_asset = str(selected_asset or "").strip().upper()
+    if requested_asset:
+        selected_row = next((row for row in watchlist if str(row.get("asset")) == requested_asset), watchlist[0])
+    else:
+        selected_row = min(
+            enumerate(watchlist),
+            key=lambda item: (_asset_priority(str(item[1].get("signal") or "")), item[0]),
+        )[1]
+
+    asset = str(selected_row.get("asset") or "")
+    price = float(selected_row.get("price") or 0.0)
+    change_24h_pct = float(selected_row.get("change_24h_pct") or 0.0)
+
+    related_signals = [
+        {
+            "asset": str(item.get("asset") or ""),
+            "signal": str(item.get("signal") or "hold"),
+            "confidence": float(item.get("confidence") or 0.0),
+            "summary": str(item.get("summary") or ""),
+            "status": str(item.get("status") or "pending"),
+        }
+        for item in recommendations
+        if isinstance(item, dict) and str(item.get("asset") or "").strip().upper() == asset
+    ]
+    if not related_signals:
+        related_signals = [
+            {
+                "asset": asset,
+                "signal": str(selected_row.get("signal") or "watch"),
+                "confidence": float(selected_row.get("confidence") or 0.0),
+                "summary": "No direct recommendation is available. Keep this asset in monitored research mode.",
+                "status": str(selected_row.get("status") or "monitor"),
+            }
+        ]
+
+    lead_signal = recommendation_map.get(asset, {})
+    thesis = str(lead_signal.get("summary") or "").strip()
+    if not thesis:
+        bias = _derive_market_bias(change_24h_pct)
+        thesis = f"{asset} remains {bias} with {selected_row.get('volume_trend')} activity and watchlist support."
+
+    evidence = str(lead_signal.get("evidence") or "").strip()
+    if not evidence:
+        evidence = f"24h change {change_24h_pct:+.1f}% with {selected_row.get('volume_trend')} participation."
+
+    catalysts = [
+        thesis,
+        f"Volume trend is {selected_row.get('volume_trend')}.",
+        f"Nearest support is ${price * 0.985:,.2f} and resistance is ${price * 1.015:,.2f}.",
+        f"Current workflow state is {str(selected_row.get('status') or 'monitor').replace('_', ' ')}.",
+    ]
+
+    detail = {
+        "asset": asset,
+        "price": price,
+        "change_24h_pct": change_24h_pct,
+        "signal": str(selected_row.get("signal") or "watch"),
+        "confidence": float(lead_signal.get("confidence") or selected_row.get("confidence") or 0.0),
+        "status": str(lead_signal.get("status") or selected_row.get("status") or "monitor"),
+        "market_bias": _derive_market_bias(change_24h_pct),
+        "volume_trend": str(selected_row.get("volume_trend") or "steady"),
+        "support": round(price * 0.985, 2),
+        "resistance": round(price * 1.015, 2),
+        "thesis": thesis,
+        "evidence": evidence,
+        "price_series": _build_price_series(price, change_24h_pct),
+        "catalysts": catalysts,
+        "related_signals": related_signals,
+    }
+
+    return {
+        "selected_asset": asset,
+        "watchlist": watchlist,
+        "detail": detail,
+    }
 
 
 def get_settings_view() -> dict[str, Any]:
