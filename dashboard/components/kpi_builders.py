@@ -98,6 +98,41 @@ def build_signals_kpis(detail: dict[str, Any] | None) -> list[dict[str, str]]:
     ]
 
 
+def build_trades_kpis(
+    *,
+    approval_required: bool,
+    pending_approvals: list[dict[str, Any]] | None,
+    recent_fills: list[dict[str, Any]] | None,
+) -> list[dict[str, str]]:
+    approvals = pending_approvals if isinstance(pending_approvals, list) else []
+    fills = recent_fills if isinstance(recent_fills, list) else []
+    lead_approval = approvals[0] if approvals else {}
+    latest_fill = fills[0] if fills else {}
+
+    return [
+        {
+            "label": "Safety",
+            "value": "Approval Required" if approval_required else "Auto Approved",
+            "delta": "Review gate active" if approval_required else "Execution can auto-route",
+        },
+        {
+            "label": "Pending Approvals",
+            "value": str(len(approvals)),
+            "delta": str(lead_approval.get("asset") or "Queue clear") if approvals else "Queue clear",
+        },
+        {
+            "label": "Recent Fills",
+            "value": str(len(fills)),
+            "delta": str(latest_fill.get("asset") or "No fills yet") if fills else "No fills yet",
+        },
+        {
+            "label": "Latest Side",
+            "value": str(latest_fill.get("side") or "-").upper() if fills else "-",
+            "delta": str(latest_fill.get("ts") or "No execution timestamp") if fills else "No execution timestamp",
+        },
+    ]
+
+
 def build_portfolio_kpis(
     *,
     portfolio: dict[str, Any] | None,
@@ -125,39 +160,5 @@ def build_portfolio_kpis(
             "label": "Open Positions",
             "value": str(len(rows)),
             "delta": "Tracked book",
-        },
-    ]
-
-
-def build_trades_kpis(
-    *,
-    approval_required: bool,
-    pending_approvals: list[dict[str, Any]] | None,
-    recent_fills: list[dict[str, Any]] | None,
-) -> list[dict[str, str]]:
-    approvals = pending_approvals if isinstance(pending_approvals, list) else []
-    fills = recent_fills if isinstance(recent_fills, list) else []
-    latest_fill = fills[0] if fills else {}
-
-    return [
-        {
-            "label": "Safety",
-            "value": "Approval Required" if approval_required else "Auto Approved",
-            "delta": "Review gate active" if approval_required else "Execution can auto-route",
-        },
-        {
-            "label": "Pending Approvals",
-            "value": str(len(approvals)),
-            "delta": str((approvals[0] or {}).get("asset") or "Queue clear") if approvals else "Queue clear",
-        },
-        {
-            "label": "Recent Fills",
-            "value": str(len(fills)),
-            "delta": str(latest_fill.get("asset") or "No fills yet"),
-        },
-        {
-            "label": "Latest Side",
-            "value": str(latest_fill.get("side") or "-").upper() if latest_fill else "-",
-            "delta": str(latest_fill.get("ts") or "No execution timestamp"),
         },
     ]

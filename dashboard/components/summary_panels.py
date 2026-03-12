@@ -214,10 +214,16 @@ def build_trades_queue_metrics(
 ) -> list[dict[str, str]]:
     approvals = [row for row in (pending_approvals or []) if isinstance(row, dict)]
     fills = [row for row in (recent_fills or []) if isinstance(row, dict)]
-
     buy_count = sum(1 for row in approvals if str(row.get("side") or "").strip().lower() == "buy")
     sell_count = sum(1 for row in approvals if str(row.get("side") or "").strip().lower() == "sell")
-    last_fill = fills[0] if fills else {}
+    latest_fill = fills[0] if fills else {}
+
+    largest_review = max((float(row.get("risk_size_pct") or 0.0) for row in approvals), default=0.0)
+    largest_asset = (
+        str(max(approvals, key=lambda row: float(row.get("risk_size_pct") or 0.0)).get("asset") or "-")
+        if approvals
+        else "No queued trades"
+    )
 
     return [
         {
@@ -227,20 +233,18 @@ def build_trades_queue_metrics(
         },
         {
             "label": "Largest Review",
-            "value": f"{max((float(row.get('risk_size_pct') or 0.0) for row in approvals), default=0.0):.1f}%",
-            "delta": str(max(approvals, key=lambda row: float(row.get("risk_size_pct") or 0.0)).get("asset") or "-")
-            if approvals
-            else "No queued trades",
+            "value": f"{largest_review:.1f}%",
+            "delta": largest_asset,
         },
         {
             "label": "Last Fill Price",
-            "value": _format_portfolio_currency(last_fill.get("price")) if last_fill else "-",
-            "delta": str(last_fill.get("asset") or "No fills yet"),
+            "value": _format_portfolio_currency(latest_fill.get("price")) if fills else "-",
+            "delta": str(latest_fill.get("asset") or "No fills yet") if fills else "No fills yet",
         },
         {
             "label": "Last Fill Qty",
-            "value": f"{float(last_fill.get('qty') or 0.0):g}" if last_fill else "-",
-            "delta": str(last_fill.get("side") or "").upper() if last_fill else "No fills yet",
+            "value": f"{float(latest_fill.get('qty') or 0.0):g}" if fills else "-",
+            "delta": str(latest_fill.get("side") or "").upper() if fills else "No fills yet",
         },
     ]
 
