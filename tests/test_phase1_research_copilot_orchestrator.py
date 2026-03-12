@@ -198,4 +198,6 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
     assert len(payload["evidence"]) >= 1
     assert len(calls) == 2
     assert calls[0]["instructions"] == calls[1]["instructions"]
+    assert calls[0]["text_format"]["type"] == "json_schema"
+    assert calls[1]["text_format"]["name"] == "research_explain_response"
     assert calls[1]["previous_response_id"] == "resp_1"

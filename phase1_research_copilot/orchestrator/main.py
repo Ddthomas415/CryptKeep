@@ -25,6 +25,28 @@ llm_client = OpenAIResponsesClient(settings)
 
 app = FastAPI(title="orchestrator", version="0.2.0")
 
+EXPLAIN_RESPONSE_FORMAT: dict[str, Any] = {
+    "type": "json_schema",
+    "name": "research_explain_response",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "current_cause": {"type": "string"},
+            "past_precedent": {"type": "string"},
+            "future_catalyst": {"type": "string"},
+            "confidence": {"type": "number"},
+        },
+        "required": [
+            "current_cause",
+            "past_precedent",
+            "future_catalyst",
+            "confidence",
+        ],
+        "additionalProperties": False,
+    },
+    "strict": True,
+}
+
 
 def _asset_symbol(asset: str) -> str:
     out = str(asset or "").upper().strip()
@@ -217,6 +239,7 @@ async def _run_openai_reasoning(req: ExplainRequest, asset: str) -> tuple[dict[s
         tools=OPENAI_TOOL_DEFINITIONS,
         metadata={"mode": "research_explain", "asset": asset},
         reasoning_effort="medium",
+        text_format=EXPLAIN_RESPONSE_FORMAT,
     )
 
     tool_results: dict[str, Any] = {}
@@ -249,6 +272,7 @@ async def _run_openai_reasoning(req: ExplainRequest, asset: str) -> tuple[dict[s
             tools=OPENAI_TOOL_DEFINITIONS,
             metadata={"mode": "research_explain", "asset": asset},
             reasoning_effort="medium",
+            text_format=EXPLAIN_RESPONSE_FORMAT,
         )
 
     tool_results = await _ensure_core_tool_results(asset, tool_results)

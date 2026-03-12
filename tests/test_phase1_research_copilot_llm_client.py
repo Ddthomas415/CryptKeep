@@ -34,6 +34,7 @@ def test_create_response_builds_expected_responses_request(monkeypatch) -> None:
             previous_response_id="resp_123",
             metadata={"mode": "chat"},
             reasoning_effort="medium",
+            text_format={"type": "json_schema", "name": "demo", "schema": {"type": "object"}, "strict": True},
         )
     )
 
@@ -47,6 +48,9 @@ def test_create_response_builds_expected_responses_request(monkeypatch) -> None:
         "previous_response_id": "resp_123",
         "metadata": {"mode": "chat"},
         "reasoning": {"effort": "medium"},
+        "text": {
+            "format": {"type": "json_schema", "name": "demo", "schema": {"type": "object"}, "strict": True}
+        },
     }
 
 

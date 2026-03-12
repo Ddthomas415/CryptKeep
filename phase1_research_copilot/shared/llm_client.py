@@ -47,6 +47,7 @@ class OpenAIResponsesClient:
         previous_response_id: str | None = None,
         metadata: dict[str, str] | None = None,
         reasoning_effort: str | None = None,
+        text_format: dict[str, Any] | None = None,
     ) -> Any:
         request: dict[str, Any] = {
             "model": model or self.settings.openai_model,
@@ -63,6 +64,8 @@ class OpenAIResponsesClient:
             request["metadata"] = metadata
         if reasoning_effort:
             request["reasoning"] = {"effort": reasoning_effort}
+        if text_format:
+            request["text"] = {"format": text_format}
 
         client = self._get_client()
         return await client.responses.create(**request)
