@@ -11,6 +11,10 @@
           "type": "string"
         },
         "side": {
+          "enum": [
+            "buy",
+            "sell"
+          ],
           "title": "Side",
           "type": "string"
         },
@@ -74,6 +78,12 @@
         },
         "mode_compatibility": {
           "items": {
+            "enum": [
+              "research_only",
+              "paper",
+              "live_approval",
+              "live_auto"
+            ],
             "type": "string"
           },
           "title": "Mode Compatibility",
@@ -84,6 +94,13 @@
           "type": "boolean"
         },
         "status": {
+          "enum": [
+            "draft",
+            "pending_review",
+            "approved",
+            "rejected",
+            "expired"
+          ],
           "title": "Status",
           "type": "string"
         },

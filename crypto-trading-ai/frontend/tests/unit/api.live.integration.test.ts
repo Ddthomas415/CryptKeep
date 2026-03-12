@@ -217,6 +217,27 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     expect(typeof payload.data.status).toBe("string");
   });
 
+  it("trading recommendations endpoint returns typed recommendation contracts", async () => {
+    const payload = await getJson("/api/v1/trading/recommendations");
+
+    expect(payload.status).toBe("success");
+    expect(Array.isArray(payload.data.items)).toBe(true);
+    expect(payload.data.items.length).toBeGreaterThan(0);
+
+    const first = payload.data.items[0];
+    expect(["buy", "sell"]).toContain(first.side);
+    expect(["draft", "pending_review", "approved", "rejected", "expired"]).toContain(
+      first.status,
+    );
+    expect(Array.isArray(first.mode_compatibility)).toBe(true);
+    for (const mode of first.mode_compatibility) {
+      expect(["research_only", "paper", "live_approval", "live_auto"]).toContain(mode);
+    }
+    expect(typeof first.confidence).toBe("number");
+    expect(first.confidence).toBeGreaterThanOrEqual(0);
+    expect(first.confidence).toBeLessThanOrEqual(1);
+  });
+
   it("terminal execute endpoint returns safe-command output contract", async () => {
     const payload = await postJson("/api/v1/terminal/execute", {
       command: "status",
