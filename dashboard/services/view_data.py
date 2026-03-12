@@ -641,6 +641,79 @@ def _load_local_recent_fills(limit: int = 20) -> list[dict[str, Any]]:
     return []
 
 
+def _load_local_pending_approvals(limit: int = 20) -> list[dict[str, Any]]:
+    normalized_limit = max(1, int(limit or 20))
+    allowed_statuses = {"queued", "pending", "pending_review", "review", "held", "new"}
+    pending_rows: list[dict[str, Any]] = []
+
+    def _collect(rows: Any, *, mode: str) -> None:
+        if not isinstance(rows, list):
+            return
+        for item in rows:
+            if not isinstance(item, dict):
+                continue
+
+            status = str(item.get("status") or "").strip().lower()
+            if status not in allowed_statuses:
+                continue
+
+            asset = _normalize_asset_symbol(item.get("symbol") or item.get("asset"))
+            if not asset:
+                continue
+
+            try:
+                qty = float(item.get("qty") or 0.0)
+            except (TypeError, ValueError):
+                qty = 0.0
+
+            try:
+                limit_price = float(item.get("limit_price") or 0.0)
+            except (TypeError, ValueError):
+                limit_price = 0.0
+
+            pending_rows.append(
+                {
+                    "id": str(item.get("intent_id") or item.get("id") or ""),
+                    "asset": asset,
+                    "side": str(item.get("side") or "hold").strip().lower(),
+                    "qty": qty,
+                    "risk_size_pct": float(item.get("risk_size_pct") or 0.0),
+                    "venue": str(item.get("venue") or mode),
+                    "mode": mode,
+                    "order_type": str(item.get("order_type") or "market").strip().lower(),
+                    "limit_price": limit_price if limit_price > 0 else None,
+                    "status": status,
+                    "created_ts": str(item.get("created_ts") or item.get("ts") or ""),
+                    "source": str(item.get("source") or ""),
+                }
+            )
+
+    try:
+        from storage.intent_queue_sqlite import IntentQueueSQLite
+    except Exception:
+        IntentQueueSQLite = None
+
+    if callable(IntentQueueSQLite):
+        try:
+            _collect(IntentQueueSQLite().list_intents(limit=normalized_limit, status=None), mode="paper")
+        except Exception:
+            pass
+
+    try:
+        from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
+    except Exception:
+        LiveIntentQueueSQLite = None
+
+    if callable(LiveIntentQueueSQLite):
+        try:
+            _collect(LiveIntentQueueSQLite().list_intents(limit=normalized_limit, status=None), mode="live")
+        except Exception:
+            pass
+
+    pending_rows.sort(key=lambda row: str(row.get("created_ts") or ""), reverse=True)
+    return pending_rows[:normalized_limit]
+
+
 def _dedupe_recommendation_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     deduped: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -1704,19 +1777,20 @@ def get_portfolio_view() -> dict[str, Any]:
 
 def get_trades_view() -> dict[str, Any]:
     summary = get_dashboard_summary()
-    recommendations = get_recommendations()
-
-    pending_approvals = [
-        {
-            "id": str(item.get("id") or f"rec_{index + 1}"),
-            "asset": str(item.get("asset") or ""),
-            "side": str(item.get("signal") or "hold"),
-            "risk_size_pct": float(item.get("risk_size_pct") or 0.0),
-            "status": str(item.get("status") or "pending_review"),
-        }
-        for index, item in enumerate(recommendations)
-        if str(item.get("status") or "").strip() in {"pending_review", "pending", "watch"}
-    ]
+    pending_approvals = _load_local_pending_approvals(limit=20)
+    if not pending_approvals:
+        recommendations = get_recommendations()
+        pending_approvals = [
+            {
+                "id": str(item.get("id") or f"rec_{index + 1}"),
+                "asset": str(item.get("asset") or ""),
+                "side": str(item.get("signal") or "hold"),
+                "risk_size_pct": float(item.get("risk_size_pct") or 0.0),
+                "status": str(item.get("status") or "pending_review"),
+            }
+            for index, item in enumerate(recommendations)
+            if str(item.get("status") or "").strip() in {"pending_review", "pending", "watch"}
+        ]
     if not pending_approvals:
         pending_approvals = [
             {"id": "rec_1", "asset": "SOL", "side": "buy", "risk_size_pct": 1.5, "status": "pending_review"}
