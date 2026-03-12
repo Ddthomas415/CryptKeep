@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
@@ -20,6 +21,7 @@ def _disabled_button(label: str, *args, **kwargs):
 
 st.button = _disabled_button
 
+AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
 
 render_page_header(

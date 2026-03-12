@@ -5,8 +5,10 @@ import importlib.util
 from pathlib import Path
 
 import streamlit as st
+from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.sidebar import render_app_sidebar
 
+AUTH_STATE = require_authenticated_role("OPERATOR")
 render_app_sidebar()
 
 st.title("Legacy UI (disabled by default)")
