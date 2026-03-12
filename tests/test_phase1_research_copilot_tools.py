@@ -55,3 +55,32 @@ def test_get_market_snapshot_falls_back_without_service(monkeypatch) -> None:
     assert payload["asset"] == "SOL"
     assert payload["source"] == "fallback"
     assert payload["ok"] is True
+
+
+def test_get_risk_summary_falls_back_without_service(monkeypatch) -> None:
+    async def fake_request_json(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(tools, "_request_json", fake_request_json)
+    payload = asyncio.run(tools.get_risk_summary())
+
+    assert payload["execution_mode"] == "DISABLED"
+    assert payload["gate"] == "NO_TRADING"
+    assert payload["allow_trading"] is False
+
+
+def test_get_signal_summary_falls_back_without_service(monkeypatch) -> None:
+    async def fake_request_json(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(tools, "_request_json", fake_request_json)
+    payload = asyncio.run(tools.get_signal_summary("BTC"))
+
+    assert payload["asset"] == "BTC"
+    assert payload["source"] == "fallback"
+    assert payload["counts"]["recent_news"] == 1
+
+
+def test_execute_tool_call_rejects_unknown_tool() -> None:
+    payload = asyncio.run(tools.execute_tool_call("nope", {}))
+    assert payload == {"ok": False, "error": "unsupported_tool:nope"}

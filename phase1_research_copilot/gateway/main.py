@@ -27,6 +27,48 @@ class ChatRequest(BaseModel):
     lookback_minutes: int = 60
 
 
+def _fallback_explain_response(req: ChatRequest, *, reason: str) -> dict[str, Any]:
+    asset = str(req.asset or "").upper().strip() or "ASSET"
+    current_cause = (
+        f"Live explain reasoning is temporarily unavailable for {asset}. "
+        "The gateway is returning a research-only fallback summary."
+    )
+    past_precedent = (
+        f"No trusted historical precedent for {asset} is available because the explain service could not be reached."
+    )
+    future_catalyst = (
+        f"No fresh forward catalyst for {asset} can be confirmed until the explain service is reachable again."
+    )
+    return {
+        "ok": True,
+        "asset": asset,
+        "question": req.question,
+        "current_cause": current_cause,
+        "past_precedent": past_precedent,
+        "relevant_past_precedent": past_precedent,
+        "future_catalyst": future_catalyst,
+        "confidence": 0.25,
+        "confidence_score": 0.25,
+        "risk_note": "Research only. Execution disabled.",
+        "execution_disabled": True,
+        "evidence": [],
+        "evidence_bundle": {"market_snapshot": {}, "recent_news": [], "past_context": [], "future_context": []},
+        "risk_posture": {
+            "execution_mode": "DISABLED",
+            "gate": "NO_TRADING",
+            "allow_trading": False,
+            "reason": "Gateway fallback mode",
+        },
+        "execution": {"enabled": False, "reason": "Phase 1 research copilot only"},
+        "assistant_status": {
+            "provider": "gateway_fallback",
+            "model": None,
+            "fallback": True,
+            "message": f"Explain service unavailable; gateway fallback used ({reason}).",
+        },
+    }
+
+
 def _fallback_chat_response(payload: dict[str, Any]) -> str:
     asset = str(payload.get("asset") or "asset")
     current = str(payload.get("current_cause") or "No current cause available.")
@@ -171,8 +213,24 @@ async def chat(req: ChatRequest) -> dict[str, Any]:
             res.raise_for_status()
             return res.json()
 
-    response = await retry_async(_call, retries=2, base_delay=0.3)
+    explain_fallback_reason: str | None = None
+    try:
+        response = await retry_async(_call, retries=2, base_delay=0.3)
+    except Exception as exc:
+        explain_fallback_reason = type(exc).__name__
+        response = _fallback_explain_response(req, reason=explain_fallback_reason)
+        logger.warning(
+            "orchestrator_chat_fallback",
+            extra={"context": {"asset": req.asset, "question": req.question, "error": str(exc)}},
+        )
+
     assistant_response, assistant_status = await _generate_chat_response(response)
+    if explain_fallback_reason:
+        assistant_status = {
+            **assistant_status,
+            "upstream_fallback": True,
+            "upstream_reason": explain_fallback_reason,
+        }
     response["assistant_response"] = assistant_response
     response["chat_status"] = assistant_status
 

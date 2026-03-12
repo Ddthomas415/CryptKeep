@@ -200,13 +200,14 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
 
 
 async def _run_openai_reasoning(req: ExplainRequest, asset: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    instructions = build_research_explain_instructions(
+        asset=asset,
+        question=req.question,
+        lookback_minutes=req.lookback_minutes,
+    )
     response = await llm_client.create_response(
         model=settings.openai_reasoning_model,
-        instructions=build_research_explain_instructions(
-            asset=asset,
-            question=req.question,
-            lookback_minutes=req.lookback_minutes,
-        ),
+        instructions=instructions,
         input=(
             f"Asset: {asset}\n"
             f"Question: {req.question}\n"
@@ -242,6 +243,7 @@ async def _run_openai_reasoning(req: ExplainRequest, asset: str) -> tuple[dict[s
 
         response = await llm_client.create_response(
             model=settings.openai_reasoning_model,
+            instructions=instructions,
             previous_response_id=str(getattr(response, "id", "")),
             input=tool_outputs,
             tools=OPENAI_TOOL_DEFINITIONS,
