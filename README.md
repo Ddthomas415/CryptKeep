@@ -20,6 +20,8 @@ py scripts\install.py
 - Status + scope: see `DECISIONS.md` and `CHECKPOINTS.md`.
 - Ops-risk integration contract: see `docs/OPS_RISK_GATE_INTEGRATION.md`.
 - AI engine scaffold: see `docs/AI_ENGINE.md`.
+- Dashboard API defaults to `CK_API_BASE_URL=http://localhost:8000`.
+- Dashboard research explain fallback can target the Phase 1 copilot with `CK_PHASE1_ORCHESTRATOR_URL=http://localhost:8002`.
 
 ## Repo Alignment Commands
 ```bash
