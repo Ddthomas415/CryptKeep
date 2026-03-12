@@ -52,3 +52,26 @@ def test_health_ready_reflects_dependency_state(monkeypatch) -> None:
 
     assert payload["status"] == "degraded"
     assert payload["checks"]["vector_db"] == "error"
+
+
+def test_health_dependency_errors_redact_url_credentials() -> None:
+    raw = "dial tcp postgres://app:super_secret_password@db.internal:5432/trading_ai failed"
+    redacted = health_route._sanitize_dependency_error(raw)
+    assert redacted is not None
+    assert "super_secret_password" not in redacted
+    assert "://***:***@" in redacted
+
+
+def test_health_dependency_errors_redact_key_value_secrets(monkeypatch) -> None:
+    secret_marker = "ULTRA_SECRET_MARKER_456"
+    monkeypatch.setattr(health_route, "_check_db", lambda: ("error", f"password={secret_marker}"))
+    monkeypatch.setattr(health_route, "_check_redis", lambda _url: ("error", f"token={secret_marker}"))
+    monkeypatch.setattr(health_route, "_check_vector", lambda _url: ("ok", None))
+
+    payload = health_route.deps()
+
+    assert payload["status"] == "degraded"
+    serialized = str(payload)
+    assert secret_marker not in serialized
+    assert payload["errors"]["db"].endswith("***")
+    assert payload["errors"]["redis"].endswith("***")

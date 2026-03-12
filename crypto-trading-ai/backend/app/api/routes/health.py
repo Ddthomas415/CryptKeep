@@ -1,3 +1,5 @@
+import re
+
 from fastapi import APIRouter
 from sqlalchemy import text
 
@@ -8,6 +10,21 @@ from backend.app.core.config import Settings
 from backend.app.db.session import engine
 
 router = APIRouter()
+
+
+def _sanitize_dependency_error(message: str | None) -> str | None:
+    if not message:
+        return None
+
+    sanitized = message
+    # Redact URL credentials e.g. scheme://user:pass@host
+    sanitized = re.sub(r"://([^:/\s@]+):([^@\s/]+)@", "://***:***@", sanitized)
+
+    # Redact common secret-bearing key/value fragments.
+    for key in ("password", "passwd", "pwd", "api_key", "api_secret", "token", "passphrase", "secret"):
+        sanitized = re.sub(rf"(?i)({key}\s*[=:]\s*)([^,\s;]+)", r"\1***", sanitized)
+
+    return sanitized
 
 
 @router.get("/live")
@@ -22,17 +39,17 @@ def _evaluate_dependencies(settings: Settings) -> tuple[dict[str, str], dict[str
     db_status, db_error = _check_db()
     checks["db"] = db_status
     if db_error:
-        errors["db"] = db_error
+        errors["db"] = _sanitize_dependency_error(db_error) or "dependency check failed"
 
     redis_status, redis_error = _check_redis(settings.redis_url)
     checks["redis"] = redis_status
     if redis_error:
-        errors["redis"] = redis_error
+        errors["redis"] = _sanitize_dependency_error(redis_error) or "dependency check failed"
 
     vector_status, vector_error = _check_vector(settings.vector_db_url)
     checks["vector_db"] = vector_status
     if vector_error:
-        errors["vector_db"] = vector_error
+        errors["vector_db"] = _sanitize_dependency_error(vector_error) or "dependency check failed"
 
     overall_status = "ok" if all(value == "ok" for value in checks.values()) else "degraded"
     return checks, errors, overall_status
