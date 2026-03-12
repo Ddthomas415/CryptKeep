@@ -200,6 +200,9 @@ def test_build_trades_queue_metrics_formats_queue_and_fill_details() -> None:
             {"asset": "BTC", "status": "open"},
         ],
         [
+            {"asset": "ADA", "status": "failed"},
+        ],
+        [
             {"asset": "ETH", "side": "sell", "qty": 0.3, "price": 4390.0},
         ],
     )
@@ -223,6 +226,11 @@ def test_build_trades_queue_metrics_formats_queue_and_fill_details() -> None:
         "label": "Last Fill",
         "value": "$4,390.00",
         "delta": "ETH / SELL 0.3",
+    }
+    assert metrics[4] == {
+        "label": "Failures",
+        "value": "1",
+        "delta": "ADA / Failed",
     }
 
 

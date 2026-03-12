@@ -269,6 +269,7 @@ def test_trades_page_fetches_view_on_import(monkeypatch) -> None:
             "approval_required": True,
             "pending_approvals": [{"asset": "SOL"}],
             "open_orders": [{"asset": "BTC"}],
+            "failed_orders": [{"asset": "ETH"}],
             "recent_fills": [{"asset": "BTC"}],
         }
 

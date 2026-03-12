@@ -93,6 +93,9 @@ def test_build_trades_kpis_formats_trade_state() -> None:
         open_orders=[
             {"asset": "BTC", "status": "open"},
         ],
+        failed_orders=[
+            {"asset": "ETH", "status": "rejected"},
+        ],
         recent_fills=[
             {"asset": "ETH", "side": "sell", "ts": "2026-03-11T11:05:00Z"},
         ],
@@ -104,6 +107,8 @@ def test_build_trades_kpis_formats_trade_state() -> None:
     assert payload[2]["delta"] == "BTC / Open"
     assert payload[3]["value"] == "1"
     assert payload[3]["delta"] == "ETH"
+    assert payload[4]["value"] == "1"
+    assert payload[4]["delta"] == "ETH / Rejected"
 
 
 def test_build_automation_kpis_formats_runtime_summary() -> None:

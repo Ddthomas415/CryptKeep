@@ -273,6 +273,17 @@ def _normalize_signal_status(value: Any, *, action: str) -> str:
     return "pending_review" if action in {"buy", "sell"} else "watch"
 
 
+def _normalize_order_status(value: Any) -> str:
+    normalized = str(value or "").strip().lower()
+    if normalized in {"cancelled"}:
+        return "canceled"
+    if normalized in {"blocked", "dropped"}:
+        return "rejected"
+    if normalized in {"error"}:
+        return "failed"
+    return normalized
+
+
 def _build_price_series(last_price: float, change_24h_pct: float) -> list[float]:
     price = max(float(last_price or 0.0), 0.01)
     pct = float(change_24h_pct or 0.0)
@@ -726,7 +737,7 @@ def _load_local_open_orders(limit: int = 20) -> list[dict[str, Any]]:
             if not isinstance(item, dict):
                 continue
 
-            status = str(item.get("status") or "").strip().lower()
+            status = _normalize_order_status(item.get("status"))
             if status not in allowed_statuses:
                 continue
 
@@ -808,6 +819,132 @@ def _load_local_open_orders(limit: int = 20) -> list[dict[str, Any]]:
 
     open_rows.sort(key=lambda row: str(row.get("created_ts") or ""), reverse=True)
     return open_rows[:normalized_limit]
+
+
+def _load_local_failed_orders(limit: int = 20) -> list[dict[str, Any]]:
+    normalized_limit = max(1, int(limit or 20))
+    allowed_statuses = {"rejected", "canceled", "failed"}
+    failed_rows: list[dict[str, Any]] = []
+
+    def _collect(rows: Any, *, mode: str, source: str) -> None:
+        if not isinstance(rows, list):
+            return
+        for item in rows:
+            if not isinstance(item, dict):
+                continue
+
+            status = _normalize_order_status(item.get("status"))
+            if status not in allowed_statuses:
+                continue
+
+            asset = _normalize_asset_symbol(item.get("symbol") or item.get("asset"))
+            if not asset:
+                continue
+
+            try:
+                qty = float(item.get("qty") or item.get("amount") or 0.0)
+            except (TypeError, ValueError):
+                qty = 0.0
+
+            try:
+                limit_price = float(item.get("limit_price") or item.get("price") or 0.0)
+            except (TypeError, ValueError):
+                limit_price = 0.0
+
+            failed_rows.append(
+                {
+                    "id": str(
+                        item.get("client_order_id")
+                        or item.get("order_id")
+                        or item.get("intent_id")
+                        or item.get("exchange_order_id")
+                        or item.get("id")
+                        or ""
+                    ),
+                    "asset": asset,
+                    "side": str(item.get("side") or "hold").strip().lower(),
+                    "qty": qty,
+                    "venue": str(item.get("venue") or mode),
+                    "mode": mode,
+                    "order_type": str(item.get("order_type") or "market").strip().lower(),
+                    "limit_price": limit_price if limit_price > 0 else None,
+                    "status": status,
+                    "created_ts": str(
+                        item.get("updated_ts")
+                        or item.get("created_ts")
+                        or item.get("ts")
+                        or item.get("ts_iso")
+                        or item.get("submitted_ts")
+                        or ""
+                    ),
+                    "exchange_order_id": str(item.get("exchange_order_id") or item.get("linked_order_id") or ""),
+                    "reason": str(
+                        item.get("last_error")
+                        or item.get("reject_reason")
+                        or item.get("error")
+                        or ""
+                    ),
+                    "source": source,
+                }
+            )
+
+    try:
+        from storage.live_trading_sqlite import LiveTradingSQLite
+    except Exception:
+        LiveTradingSQLite = None
+
+    if callable(LiveTradingSQLite):
+        try:
+            _collect(LiveTradingSQLite().list_orders(limit=normalized_limit), mode="live", source="live_orders")
+        except Exception:
+            pass
+
+    try:
+        from storage.paper_trading_sqlite import PaperTradingSQLite
+    except Exception:
+        PaperTradingSQLite = None
+
+    if callable(PaperTradingSQLite):
+        try:
+            _collect(PaperTradingSQLite().list_orders(limit=normalized_limit, status=None), mode="paper", source="paper_orders")
+        except Exception:
+            pass
+
+    try:
+        from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
+    except Exception:
+        LiveIntentQueueSQLite = None
+
+    if callable(LiveIntentQueueSQLite):
+        try:
+            _collect(LiveIntentQueueSQLite().list_intents(limit=normalized_limit, status=None), mode="live", source="live_intents")
+        except Exception:
+            pass
+
+    try:
+        from storage.intent_queue_sqlite import IntentQueueSQLite
+    except Exception:
+        IntentQueueSQLite = None
+
+    if callable(IntentQueueSQLite):
+        try:
+            _collect(IntentQueueSQLite().list_intents(limit=normalized_limit, status=None), mode="paper", source="paper_intents")
+        except Exception:
+            pass
+
+    try:
+        from storage.execution_audit_reader import list_orders
+    except Exception:
+        list_orders = None
+
+    if callable(list_orders):
+        try:
+            _collect(list_orders(limit=normalized_limit), mode="audit", source="execution_audit")
+        except Exception:
+            pass
+
+    failed_rows.sort(key=lambda row: str(row.get("created_ts") or ""), reverse=True)
+    return failed_rows[:normalized_limit]
 
 
 def _dedupe_recommendation_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -2019,11 +2156,13 @@ def get_trades_view() -> dict[str, Any]:
         recent_fills = _default_recent_fills()
 
     open_orders = _load_local_open_orders(limit=20)
+    failed_orders = _load_local_failed_orders(limit=20)
 
     return {
         "approval_required": bool(summary.get("approval_required", True)),
         "pending_approvals": pending_approvals,
         "open_orders": open_orders,
+        "failed_orders": failed_orders,
         "recent_fills": recent_fills,
     }
 
