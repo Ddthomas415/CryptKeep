@@ -11,6 +11,7 @@ from dashboard.components.asset_detail import (
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
+from dashboard.components.kpi_builders import build_markets_kpis
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_markets_view
@@ -43,30 +44,7 @@ render_page_header(
     ],
 )
 
-render_kpi_cards(
-    [
-        {
-            "label": "Last Price",
-            "value": f"${float(detail.get('price') or 0.0):,.2f}",
-            "delta": f"24h {float(detail.get('change_24h_pct') or 0.0):+.1f}%",
-        },
-        {
-            "label": "Signal State",
-            "value": str(detail.get("signal") or "watch").replace("_", " ").title(),
-            "delta": str(detail.get("status") or "monitor").replace("_", " ").title(),
-        },
-        {
-            "label": "Confidence",
-            "value": f"{float(detail.get('confidence') or 0.0) * 100:.0f}%",
-            "delta": "AI conviction",
-        },
-        {
-            "label": "Volume Trend",
-            "value": str(detail.get("volume_trend") or "steady").title(),
-            "delta": "Watchlist context",
-        },
-    ]
-)
+render_kpi_cards(build_markets_kpis(detail))
 
 left, right = st.columns((1, 1.4))
 

@@ -7,6 +7,7 @@ from dashboard.components.asset_detail import render_focus_summary
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
+from dashboard.components.kpi_builders import build_overview_kpis
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_overview_view
@@ -51,10 +52,6 @@ mode = str(summary.get("mode") or "research_only")
 risk_status = str(summary.get("risk_status") or "safe")
 execution_enabled = bool(summary.get("execution_enabled", False))
 
-total_value = float(portfolio.get("total_value") or 0.0)
-cash_value = float(portfolio.get("cash") or 0.0)
-unrealized_pnl = float(portfolio.get("unrealized_pnl") or 0.0)
-
 render_page_header(
     "Overview",
     "Summary-first workspace with advanced controls moved to Operations.",
@@ -64,18 +61,7 @@ render_page_header(
     ],
 )
 
-render_kpi_cards(
-    [
-        {"label": "Portfolio Value", "value": f"${total_value:,.2f}", "delta": f"Cash ${cash_value:,.2f}"},
-        {"label": "Unrealized PnL", "value": f"${unrealized_pnl:,.2f}", "delta": "Live mark-to-market"},
-        {"label": "Active Signals", "value": str(len(signal_rows)), "delta": "Recommendation set"},
-        {
-            "label": "Bot Status",
-            "value": "Running" if execution_enabled else "Research Only",
-            "delta": "Automation enabled" if execution_enabled else "Execution disabled",
-        },
-    ]
-)
+render_kpi_cards(build_overview_kpis(portfolio=portfolio, signal_count=len(signal_rows), execution_enabled=execution_enabled))
 
 col_signals, col_activity = st.columns((1.4, 1))
 

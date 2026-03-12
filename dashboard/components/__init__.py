@@ -9,6 +9,7 @@ from dashboard.components.cards import render_kpi_cards
 from dashboard.components.focus_selector import render_focus_selector, resolve_focus_options
 from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
+from dashboard.components.kpi_builders import build_markets_kpis, build_overview_kpis, build_signals_kpis
 from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
@@ -22,6 +23,9 @@ __all__ = [
     "render_research_lens",
     "render_focus_selector",
     "resolve_focus_options",
+    "build_markets_kpis",
+    "build_overview_kpis",
+    "build_signals_kpis",
     "render_save_action",
     "render_system_action_buttons",
     "render_action_result",
