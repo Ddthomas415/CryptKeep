@@ -196,6 +196,57 @@ def render_overview_status_summary(summary: dict[str, Any] | None) -> None:
                         st.caption(delta)
 
 
+def build_operations_status_metrics(snapshot: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = snapshot if isinstance(snapshot, dict) else {}
+    services = payload.get("services") if isinstance(payload.get("services"), list) else []
+    service_preview = ", ".join(str(item) for item in services[:2]) if services else "No services listed"
+    if len(services) > 2:
+        service_preview += f" +{len(services) - 2}"
+
+    attention = int(payload.get("attention_services") or 0)
+    unknown = int(payload.get("unknown_services") or 0)
+    last_health_ts = str(payload.get("last_health_ts") or "").strip()
+
+    return [
+        {
+            "label": "Tracked Services",
+            "value": str(int(payload.get("tracked_services") or 0)),
+            "delta": service_preview,
+        },
+        {
+            "label": "Healthy",
+            "value": str(int(payload.get("healthy_services") or 0)),
+            "delta": last_health_ts or "No health timestamp",
+        },
+        {
+            "label": "Attention",
+            "value": str(attention),
+            "delta": "Needs review" if attention else "No service errors",
+        },
+        {
+            "label": "Unknown",
+            "value": str(unknown),
+            "delta": "Missing health state" if unknown else "All tracked services reporting",
+        },
+    ]
+
+
+def render_operations_status_summary(snapshot: dict[str, Any] | None) -> None:
+    payload = snapshot if isinstance(snapshot, dict) else {}
+    with st.container(border=True):
+        st.markdown("### Operations Status")
+        metric_items = build_operations_status_metrics(payload)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+
 def _format_portfolio_currency(value: Any) -> str:
     try:
         amount = float(value or 0.0)

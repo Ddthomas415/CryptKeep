@@ -9,7 +9,8 @@ from dashboard.components.actions import render_system_action_buttons
 from dashboard.components.header import render_page_header
 from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
-from dashboard.services.operator import list_services, run_op, run_repo_script
+from dashboard.components.summary_panels import render_operations_status_summary
+from dashboard.services.operator import get_operations_snapshot, list_services, run_op, run_repo_script
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.state.session import get_operator_result, set_operator_result
 from services.admin.repair_wizard import CONFIRM_TEXT as REPAIR_CONFIRM_TEXT
@@ -39,6 +40,8 @@ render_page_header(
         {"label": "Role", "value": str(AUTH_STATE.get("role") or "OPERATOR")},
     ],
 )
+
+render_operations_status_summary(get_operations_snapshot())
 
 tab_tools, tab_service_logs, tab_failures, tab_strategy, tab_safety = st.tabs(
     ["System Tools", "Service Logs", "Order Blocked Inspector", "Strategy & Backtest", "Safety & Recovery"]

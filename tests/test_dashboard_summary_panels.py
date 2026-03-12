@@ -4,6 +4,7 @@ from dashboard.components.summary_panels import (
     build_automation_runtime_metrics,
     build_market_context_metrics,
     build_market_snapshot_lines,
+    build_operations_status_metrics,
     build_overview_status_metrics,
     build_portfolio_position_metrics,
     build_settings_profile_metrics,
@@ -121,6 +122,40 @@ def test_build_overview_status_metrics_formats_workspace_state() -> None:
         "label": "Exposure",
         "value": "55.5%",
         "delta": "Leverage 2.1x",
+    }
+
+
+def test_build_operations_status_metrics_formats_service_state() -> None:
+    metrics = build_operations_status_metrics(
+        {
+            "services": ["tick_publisher", "intent_executor", "audit_tail"],
+            "tracked_services": 3,
+            "healthy_services": 2,
+            "attention_services": 1,
+            "unknown_services": 0,
+            "last_health_ts": "2026-03-12T10:05:00Z",
+        }
+    )
+
+    assert metrics[0] == {
+        "label": "Tracked Services",
+        "value": "3",
+        "delta": "tick_publisher, intent_executor +1",
+    }
+    assert metrics[1] == {
+        "label": "Healthy",
+        "value": "2",
+        "delta": "2026-03-12T10:05:00Z",
+    }
+    assert metrics[2] == {
+        "label": "Attention",
+        "value": "1",
+        "delta": "Needs review",
+    }
+    assert metrics[3] == {
+        "label": "Unknown",
+        "value": "0",
+        "delta": "All tracked services reporting",
     }
 
 

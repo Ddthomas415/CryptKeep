@@ -41,3 +41,25 @@ def test_run_repo_script_returns_rc_and_combined_output(monkeypatch):
     assert rc == 1
     assert '{"ok":false}' in out
     assert "warn" in out
+
+
+def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
+    monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_executor"])
+    monkeypatch.setattr(
+        "services.admin.health.list_health",
+        lambda: [
+            {"service": "tick_publisher", "status": "RUNNING", "ts": "2026-03-12T10:00:00Z"},
+            {"service": "intent_executor", "status": "ERROR", "ts": "2026-03-12T10:05:00Z"},
+            {"service": "audit_tail", "status": "STARTING", "ts": "2026-03-12T09:58:00Z"},
+        ],
+    )
+
+    payload = operator_service.get_operations_snapshot()
+    assert payload == {
+        "services": ["tick_publisher", "intent_executor", "audit_tail"],
+        "tracked_services": 3,
+        "healthy_services": 2,
+        "attention_services": 1,
+        "unknown_services": 0,
+        "last_health_ts": "2026-03-12T10:05:00Z",
+    }
