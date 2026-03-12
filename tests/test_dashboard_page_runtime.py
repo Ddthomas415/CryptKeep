@@ -93,6 +93,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(summary_panels, "render_overview_status_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_signal_thesis", _noop)
     monkeypatch.setattr(summary_panels, "render_portfolio_position_summary", _noop)
+    monkeypatch.setattr(summary_panels, "render_trade_failure_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_trades_queue_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_automation_runtime_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_operations_status_summary", _noop)

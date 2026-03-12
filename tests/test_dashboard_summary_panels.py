@@ -8,6 +8,7 @@ from dashboard.components.summary_panels import (
     build_overview_status_metrics,
     build_portfolio_position_metrics,
     build_settings_profile_metrics,
+    build_trade_failure_metrics,
     build_trades_queue_metrics,
     resolve_asset_row,
 )
@@ -231,6 +232,37 @@ def test_build_trades_queue_metrics_formats_queue_and_fill_details() -> None:
         "label": "Failures",
         "value": "1",
         "delta": "ADA / Failed",
+    }
+
+
+def test_build_trade_failure_metrics_formats_reason_preview() -> None:
+    metrics = build_trade_failure_metrics(
+        [
+            {"asset": "ADA", "status": "failed", "reason": "exchange unavailable during submit"},
+            {"asset": "SOL", "status": "rejected", "reason": "risk gate"},
+            {"asset": "BTC", "status": "canceled", "reason": "user canceled"},
+        ]
+    )
+
+    assert metrics[0] == {
+        "label": "Failed Orders",
+        "value": "3",
+        "delta": "ADA",
+    }
+    assert metrics[1] == {
+        "label": "Rejected",
+        "value": "1",
+        "delta": "Risk or venue rejection",
+    }
+    assert metrics[2] == {
+        "label": "Canceled",
+        "value": "1",
+        "delta": "Canceled or withdrawn",
+    }
+    assert metrics[3] == {
+        "label": "Latest Reason",
+        "value": "Failed",
+        "delta": "exchange unavailable during submit",
     }
 
 

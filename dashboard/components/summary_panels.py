@@ -396,6 +396,62 @@ def render_trades_queue_summary(
                         st.caption(delta)
 
 
+def build_trade_failure_metrics(failed_orders: Sequence[dict[str, Any]] | None) -> list[dict[str, str]]:
+    failures = [row for row in (failed_orders or []) if isinstance(row, dict)]
+    if not failures:
+        return [
+            {"label": "Failed Orders", "value": "0", "delta": "No failures"},
+            {"label": "Rejected", "value": "0", "delta": "No rejected intents"},
+            {"label": "Canceled", "value": "0", "delta": "No canceled orders"},
+            {"label": "Latest Reason", "value": "-", "delta": "No recent failure"},
+        ]
+
+    rejected = sum(1 for row in failures if str(row.get("status") or "").strip().lower() == "rejected")
+    canceled = sum(1 for row in failures if str(row.get("status") or "").strip().lower() == "canceled")
+    latest = failures[0]
+    latest_reason = str(latest.get("reason") or "").strip() or "No reason recorded"
+    if len(latest_reason) > 44:
+        latest_reason = latest_reason[:41] + "..."
+
+    return [
+        {
+            "label": "Failed Orders",
+            "value": str(len(failures)),
+            "delta": str(latest.get("asset") or "Latest failure"),
+        },
+        {
+            "label": "Rejected",
+            "value": str(rejected),
+            "delta": "Risk or venue rejection",
+        },
+        {
+            "label": "Canceled",
+            "value": str(canceled),
+            "delta": "Canceled or withdrawn",
+        },
+        {
+            "label": "Latest Reason",
+            "value": str(latest.get("status") or "-").replace("_", " ").title(),
+            "delta": latest_reason,
+        },
+    ]
+
+
+def render_trade_failure_summary(failed_orders: Sequence[dict[str, Any]] | None) -> None:
+    with st.container(border=True):
+        st.markdown("### Failure Summary")
+        metric_items = build_trade_failure_metrics(failed_orders)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+
 def build_automation_runtime_metrics(view: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = view if isinstance(view, dict) else {}
     return [

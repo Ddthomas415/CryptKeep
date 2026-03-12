@@ -7,7 +7,7 @@ from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_trades_kpis
 from dashboard.components.sidebar import render_app_sidebar
-from dashboard.components.summary_panels import render_trades_queue_summary
+from dashboard.components.summary_panels import render_trade_failure_summary, render_trades_queue_summary
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_trades_view
 
@@ -42,6 +42,7 @@ summary_col, table_col = st.columns((1, 1.4))
 
 with summary_col:
     render_trades_queue_summary(pending_approvals, open_orders, failed_orders, recent_fills)
+    render_trade_failure_summary(failed_orders)
 
 with table_col:
     render_table_section(
