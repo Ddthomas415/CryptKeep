@@ -3,7 +3,9 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.components.header import render_page_header
+from dashboard.components.sidebar import render_app_sidebar
 
+render_app_sidebar()
 
 render_page_header(
     "Automation",

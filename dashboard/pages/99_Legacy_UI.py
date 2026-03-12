@@ -5,6 +5,9 @@ import importlib.util
 from pathlib import Path
 
 import streamlit as st
+from dashboard.components.sidebar import render_app_sidebar
+
+render_app_sidebar()
 
 st.title("Legacy UI (disabled by default)")
 st.caption("This page imports the old monolithic dashboard. It is OFF by default to prevent widget collisions.")

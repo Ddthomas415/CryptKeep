@@ -4,6 +4,7 @@ import streamlit as st
 
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
+from dashboard.components.sidebar import render_app_sidebar
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
 
@@ -19,28 +20,7 @@ def _disabled_button(label: str, *args, **kwargs):
 
 st.button = _disabled_button
 
-
-def _page_link(path: str, *, label: str, icon: str) -> None:
-    if hasattr(st, "page_link"):
-        st.page_link(path, label=label, icon=icon)
-    else:
-        st.markdown(f"- {icon} {label}")
-
-
-with st.sidebar:
-    st.markdown("## CryptKeep")
-    st.caption("AI Trading Copilot")
-    st.markdown("---")
-    _page_link("dashboard/app.py", label="Overview", icon="🏠")
-    _page_link("dashboard/pages/10_Markets.py", label="Markets", icon="📈")
-    _page_link("dashboard/pages/20_Portfolio.py", label="Portfolio", icon="💼")
-    _page_link("dashboard/pages/30_Signals.py", label="Signals", icon="🧠")
-    _page_link("dashboard/pages/40_Trades.py", label="Trades", icon="🔁")
-    _page_link("dashboard/pages/50_Automation.py", label="Automation", icon="⚙️")
-    _page_link("dashboard/pages/60_Operations.py", label="Operations", icon="🛠️")
-    _page_link("dashboard/pages/70_Settings.py", label="Settings", icon="🔒")
-    st.markdown("---")
-    st.caption("Legacy admin pages remain available for compatibility.")
+render_app_sidebar()
 
 render_page_header(
     "Overview",

@@ -8,6 +8,7 @@ from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.actions import render_system_action_buttons
 from dashboard.components.header import render_page_header
 from dashboard.components.logs import render_action_result
+from dashboard.components.sidebar import render_app_sidebar
 from dashboard.services.operator import list_services, run_op, run_repo_script
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.state.session import get_operator_result, set_operator_result
@@ -28,6 +29,7 @@ from services.strategies.presets import list_presets
 
 
 AUTH_STATE = require_authenticated_role("OPERATOR")
+render_app_sidebar()
 
 render_page_header(
     "Operations",
