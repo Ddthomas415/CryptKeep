@@ -290,6 +290,21 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     );
   });
 
+  it("terminal execute rejects shell chaining after an approved prefix", async () => {
+    const payload = await postJson("/api/v1/terminal/execute", {
+      command: "logs tail; rm -rf /",
+    });
+
+    expect(payload.status).toBe("success");
+    expect(payload.data.requires_confirmation).toBe(false);
+    expect(Array.isArray(payload.data.output)).toBe(true);
+    expect(payload.data.output.length).toBeGreaterThan(0);
+    expect(payload.data.output[0].type).toBe("error");
+    expect(payload.data.output[0].value.toLowerCase()).toContain(
+      "approved product terminal commands",
+    );
+  });
+
   it("terminal confirm endpoint accepts confirmation token and returns confirmation payload", async () => {
     const executePayload = await postJson("/api/v1/terminal/execute", {
       command: "kill-switch on",

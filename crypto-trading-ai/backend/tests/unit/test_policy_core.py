@@ -91,3 +91,15 @@ def test_terminal_policy_requires_confirmation_for_dangerous_commands() -> None:
     )
     assert allowed.allowed is True
     assert allowed.requires_approval is True
+
+
+def test_terminal_policy_blocks_unapproved_shell_like_command() -> None:
+    decision = evaluate_terminal_command(
+        role=Role.OWNER,
+        command="logs tail; rm -rf /",
+        mode=Mode.RESEARCH_ONLY,
+        risk_state=SafetyState.SAFE,
+        kill_switch_on=False,
+    )
+    assert decision.allowed is False
+    assert "COMMAND_NOT_APPROVED" in decision.reason_codes

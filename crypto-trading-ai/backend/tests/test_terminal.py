@@ -95,3 +95,14 @@ def test_terminal_execute_rejects_non_approved_command() -> None:
     assert payload["data"]["requires_confirmation"] is False
     assert payload["data"]["output"][0]["type"] == "error"
     assert "approved product terminal commands" in payload["data"]["output"][0]["value"].lower()
+
+
+def test_terminal_execute_rejects_shell_chaining_after_approved_prefix() -> None:
+    response = client.post("/api/v1/terminal/execute", json={"command": "logs tail; rm -rf /"})
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["status"] == "success"
+    assert payload["data"]["requires_confirmation"] is False
+    assert payload["data"]["output"][0]["type"] == "error"
+    assert "approved product terminal commands" in payload["data"]["output"][0]["value"].lower()

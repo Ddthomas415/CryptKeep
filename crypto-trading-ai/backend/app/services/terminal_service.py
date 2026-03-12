@@ -4,12 +4,10 @@ import secrets
 import time
 
 from backend.app.domain.policy.terminal_policy import (
-    DANGEROUS_PREFIXES,
-    READ_ONLY_PREFIXES,
-    SEMI_SENSITIVE_PREFIXES,
+    is_approved_terminal_command,
+    is_dangerous_terminal_command,
+    normalize_terminal_command,
 )
-
-APPROVED_TERMINAL_PREFIXES = READ_ONLY_PREFIXES + SEMI_SENSITIVE_PREFIXES + DANGEROUS_PREFIXES
 CONFIRMATION_TTL_SECONDS = 300
 MAX_PENDING_CONFIRMATIONS = 512
 
@@ -20,7 +18,7 @@ class TerminalService:
 
     @staticmethod
     def _is_approved_command(normalized: str) -> bool:
-        return normalized.startswith(APPROVED_TERMINAL_PREFIXES)
+        return is_approved_terminal_command(normalized)
 
     def _prune_expired_confirmations(self) -> None:
         now = time.time()
@@ -45,7 +43,7 @@ class TerminalService:
         return token
 
     def execute(self, command: str) -> dict:
-        normalized = command.strip().lower()
+        normalized = normalize_terminal_command(command)
 
         if not normalized:
             return {
@@ -73,7 +71,7 @@ class TerminalService:
                 "requires_confirmation": False,
             }
 
-        if normalized.startswith(DANGEROUS_PREFIXES):
+        if is_dangerous_terminal_command(normalized):
             confirmation_token = self._mint_confirmation_token(normalized)
             warning_value = "Dangerous command requires explicit confirmation."
             if normalized == "kill-switch on":
