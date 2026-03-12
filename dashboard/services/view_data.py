@@ -272,6 +272,129 @@ def _extract_close_series(rows: Any) -> list[float]:
     return series
 
 
+def _to_price(value: Any) -> float:
+    try:
+        price = round(float(value), 2)
+    except (TypeError, ValueError):
+        return 0.0
+    return price if price > 0 else 0.0
+
+
+def _snapshot_spread(bid: float, ask: float, provided: Any = None) -> float:
+    spread = _to_price(provided)
+    if spread > 0:
+        return spread
+    if bid > 0 and ask > 0 and ask >= bid:
+        return round(ask - bid, 2)
+    return 0.0
+
+
+def _canonical_market_symbol(asset: str, venue: str) -> str:
+    asset_symbol = str(asset or "").strip().upper()
+    normalized_venue = str(venue or "coinbase").strip().lower()
+    quote = "USD" if normalized_venue in {"coinbase", "kraken"} else "USDT"
+    return f"{asset_symbol}/{quote}"
+
+
+def _normalize_market_snapshot(asset: str, venue: str, payload: dict[str, Any], *, source: str) -> dict[str, Any]:
+    bid = _to_price(payload.get("bid"))
+    ask = _to_price(payload.get("ask"))
+    last_price = _to_price(payload.get("last_price") or payload.get("price") or payload.get("last"))
+    if last_price <= 0:
+        last_price = _to_price((payload.get("quote") or {}).get("last")) if isinstance(payload.get("quote"), dict) else 0.0
+    if last_price <= 0 and bid > 0 and ask > 0:
+        last_price = round((bid + ask) / 2.0, 2)
+
+    return {
+        "asset": str(asset or "").strip().upper(),
+        "exchange": str(payload.get("exchange") or payload.get("venue") or venue or "coinbase").strip().lower(),
+        "last_price": last_price,
+        "bid": bid,
+        "ask": ask,
+        "spread": _snapshot_spread(bid, ask, payload.get("spread")),
+        "volume_24h": _to_price(payload.get("volume_24h") or payload.get("quote_vol")),
+        "timestamp": str(payload.get("timestamp") or payload.get("ts") or payload.get("ts_ms") or ""),
+        "source": source,
+    }
+
+
+def _load_local_market_snapshot(venue: str, symbol: str, *, asset: str) -> dict[str, Any] | None:
+    try:
+        from services.ws.last_price_provider import get_last_price
+    except Exception:
+        get_last_price = None
+
+    if callable(get_last_price):
+        try:
+            quote = get_last_price(venue=venue, symbol=symbol, allow_stale=True)
+        except Exception:
+            quote = None
+        if isinstance(quote, dict) and bool(quote.get("ok")):
+            ws_payload: dict[str, Any] = {
+                "venue": venue,
+                "price": quote.get("price"),
+                "timestamp": quote.get("age_ms"),
+            }
+            if isinstance(quote.get("quote"), dict):
+                ws_payload.update(quote["quote"])
+            snapshot = _normalize_market_snapshot(asset, venue, ws_payload, source="local_ws")
+            if snapshot["last_price"] > 0:
+                return snapshot
+
+    try:
+        from services.os.app_paths import data_dir, runtime_dir
+        from storage.market_data_store_sqlite import SQLiteMarketDataStore
+    except Exception:
+        return None
+
+    candidate_paths = [
+        runtime_dir() / "market_data.sqlite",
+        runtime_dir() / "market_ws.sqlite",
+        data_dir() / "market_data.sqlite",
+    ]
+    seen_paths: set[str] = set()
+    for path in candidate_paths:
+        key = str(path)
+        if key in seen_paths:
+            continue
+        seen_paths.add(key)
+        try:
+            rows = SQLiteMarketDataStore(path=path).get_latest_sync()
+        except Exception:
+            continue
+        if not isinstance(rows, list):
+            continue
+        match = next(
+            (
+                row
+                for row in rows
+                if isinstance(row, dict)
+                and str(row.get("venue") or row.get("exchange") or "").strip().lower() == venue
+                and str(row.get("symbol") or "").strip().upper() == symbol.upper()
+            ),
+            None,
+        )
+        if isinstance(match, dict):
+            snapshot = _normalize_market_snapshot(asset, venue, match, source="local_store")
+            if snapshot["last_price"] > 0:
+                return snapshot
+    return None
+
+
+def _get_market_snapshot(asset: str, *, exchange: str = "coinbase") -> dict[str, Any] | None:
+    asset_symbol = str(asset or "").strip().upper()
+    venue = str(exchange or "coinbase").strip().lower() or "coinbase"
+
+    envelope = _fetch_envelope(f"/api/v1/market/{asset_symbol}/snapshot?exchange={venue}")
+    if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
+        snapshot = _normalize_market_snapshot(asset_symbol, venue, envelope["data"], source="api")
+        if snapshot["last_price"] > 0:
+            return snapshot
+
+    local_symbol = _canonical_market_symbol(asset_symbol, venue)
+    return _load_local_market_snapshot(venue, local_symbol, asset=asset_symbol)
+
+
 def _load_local_ohlcv(venue: str, symbol: str, *, timeframe: str = "1h", limit: int = 24) -> list[list]:
     try:
         from services.marketdata.ohlcv_fetcher import load_ohlcv
@@ -466,9 +589,18 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         )[1]
 
     asset = str(selected_row.get("asset") or "")
-    price = float(selected_row.get("price") or 0.0)
+    watchlist_price = float(selected_row.get("price") or 0.0)
     change_24h_pct = float(selected_row.get("change_24h_pct") or 0.0)
     explain = get_research_explain(asset, question=f"Why is {asset} moving?")
+    snapshot = _get_market_snapshot(asset) or {}
+    price = float(snapshot.get("last_price") or watchlist_price or 0.0)
+    bid = float(snapshot.get("bid") or 0.0)
+    ask = float(snapshot.get("ask") or 0.0)
+    spread = float(snapshot.get("spread") or 0.0)
+    exchange = str(snapshot.get("exchange") or "coinbase")
+    snapshot_timestamp = str(snapshot.get("timestamp") or "")
+    snapshot_source = str(snapshot.get("source") or "watchlist")
+    volume_24h = float(snapshot.get("volume_24h") or 0.0)
 
     related_signals = [
         {
@@ -548,6 +680,13 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         "volume_trend": str(selected_row.get("volume_trend") or "steady"),
         "support": round(price * 0.985, 2),
         "resistance": round(price * 1.015, 2),
+        "exchange": exchange,
+        "bid": bid,
+        "ask": ask,
+        "spread": spread,
+        "volume_24h": volume_24h,
+        "snapshot_timestamp": snapshot_timestamp,
+        "snapshot_source": snapshot_source,
         "thesis": thesis,
         "question": str(explain.get("question") or f"Why is {asset} moving?"),
         "current_cause": current_cause or thesis,
