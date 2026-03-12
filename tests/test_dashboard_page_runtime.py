@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from types import ModuleType
 from typing import Any
+from typing import Callable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -106,6 +107,7 @@ def _load_dashboard_module(
     relative_path: str,
     module_name: str,
     streamlit_overrides: dict[str, Any] | None = None,
+    prepare: Callable[[Any, _FakeStreamlit], None] | None = None,
 ) -> tuple[ModuleType, _FakeStreamlit]:
     fake_streamlit = _FakeStreamlit(overrides=streamlit_overrides)
     monkeypatch.setitem(sys.modules, "streamlit", fake_streamlit)
@@ -118,6 +120,8 @@ def _load_dashboard_module(
         lambda required_role="VIEWER": {"ok": True, "role": required_role},
     )
     _patch_common_dashboard_renders(monkeypatch)
+    if prepare is not None:
+        prepare(monkeypatch, fake_streamlit)
 
     path = REPO_ROOT / relative_path
     spec = importlib.util.spec_from_file_location(module_name, path)
@@ -202,6 +206,70 @@ def test_markets_page_requests_selected_asset(monkeypatch) -> None:
     )
 
     assert calls == [None, "ETH"]
+
+
+def test_markets_page_uses_phase1_explain_fallback(monkeypatch) -> None:
+    from dashboard.components import asset_detail, focus_selector
+    from dashboard.services import view_data
+
+    captured: dict[str, Any] = {}
+
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "watchlist": [
+                {"asset": "BTC", "price": 90000.0, "change_24h_pct": 1.8, "signal": "watch"},
+            ]
+        },
+    )
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+    monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope_from_base",
+        lambda base_url, path, method="GET", payload=None: {
+            "ok": True,
+            "asset": "BTC",
+            "question": "Why is BTC moving?",
+            "current_cause": "BTC is firming on spot demand.",
+            "past_precedent": "Prior breakouts held when liquidity stayed firm.",
+            "future_catalyst": "Macro data later this week could matter.",
+            "confidence": 0.72,
+            "risk_note": "Research only. Execution disabled.",
+            "execution_disabled": True,
+            "evidence": [{"type": "market", "source": "coinbase", "summary": "spot support", "relevance": 0.8}],
+            "assistant_status": {"provider": "openai", "fallback": False},
+        }
+        if base_url == view_data.PHASE1_ORCHESTRATOR_URL and path == "/v1/explain" and method == "POST"
+        else None,
+    )
+    monkeypatch.setattr(view_data, "_load_local_market_snapshot", lambda venue, symbol, asset: None)
+    monkeypatch.setattr(view_data, "_load_local_ohlcv", lambda venue, symbol, timeframe="1h", limit=24: [])
+    monkeypatch.setattr(
+        focus_selector,
+        "render_focus_selector",
+        lambda *args, **kwargs: ("BTC", "BTC", ["BTC"]),
+    )
+
+    def _prepare(monkeypatch, _fake_streamlit) -> None:
+        monkeypatch.setattr(
+            asset_detail,
+            "render_asset_detail_card",
+            lambda detail, **kwargs: captured.update(detail),
+        )
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/10_Markets.py",
+        module_name="dashboard_test_markets_phase1_fallback",
+        prepare=_prepare,
+    )
+
+    assert captured["asset"] == "BTC"
+    assert captured["current_cause"] == "BTC is firming on spot demand."
+    assert captured["risk_note"] == "Research only. Execution disabled."
+    assert captured["execution_disabled"] is True
 
 
 def test_signals_page_requests_selected_asset(monkeypatch) -> None:
