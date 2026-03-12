@@ -1,29 +1,13 @@
 from __future__ import annotations
 
-import subprocess
-import sys
-from pathlib import Path
-
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.actions import render_system_action_buttons
 from dashboard.components.header import render_page_header
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-
-def _op(args: list[str]) -> tuple[int, str]:
-    cmd = [sys.executable, str(REPO_ROOT / "scripts" / "op.py")] + args
-    proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)
-    output = (proc.stdout or "") + (proc.stderr or "")
-    return int(proc.returncode), output.strip()
-
-
-def _run_and_store(label: str, args: list[str]) -> None:
-    rc, out = _op(args)
-    st.session_state["ops_last_action"] = label
-    st.session_state["ops_last_rc"] = rc
-    st.session_state["ops_last_output"] = out or "(no output)"
+from dashboard.components.logs import render_action_result
+from dashboard.services.operator import list_services, run_op
+from dashboard.state.session import get_operator_result, set_operator_result
 
 
 AUTH_STATE = require_authenticated_role("OPERATOR")
@@ -40,42 +24,47 @@ render_page_header(
 tab_tools, tab_service_logs = st.tabs(["System Tools", "Service Logs"])
 
 with tab_tools:
-    c0, c1, c2, c3 = st.columns(4)
-    if c0.button("Preflight", use_container_width=True):
-        _run_and_store("Preflight", ["preflight"])
-    if c1.button("Status All", use_container_width=True):
-        _run_and_store("Status All", ["status-all"])
-    if c2.button("Diagnostic", use_container_width=True):
-        _run_and_store("Diagnostic", ["diag", "--lines", "80"])
-    if c3.button("Clean Locks", use_container_width=True):
-        _run_and_store("Clean Locks", ["clean"])
+    action = render_system_action_buttons()
+    if action:
+        label, args = action
+        rc, out = run_op(args)
+        set_operator_result(action=label, rc=rc, output=out or "(no output)")
 
-    c4, c5 = st.columns(2)
-    if c4.button("Start All", use_container_width=True):
-        _run_and_store("Start All", ["start-all"])
-    if c5.button("Stop All", use_container_width=True):
-        _run_and_store("Stop All", ["stop-all"])
-
-    if st.session_state.get("ops_last_action"):
-        st.markdown("### Action Result")
-        st.caption(
-            f"{st.session_state.get('ops_last_action')} (rc={st.session_state.get('ops_last_rc', '-')})"
-        )
-        st.code(str(st.session_state.get("ops_last_output") or "(no output)"))
+    result = get_operator_result()
+    render_action_result(
+        action=str(result.get("action") or ""),
+        rc=int(result["rc"]) if result.get("rc") is not None else None,
+        output=str(result.get("output") or ""),
+    )
 
 with tab_service_logs:
-    rc, out = _op(["list"])
-    services = [line.strip() for line in out.splitlines() if line.strip()] if rc == 0 else []
-    if not services:
-        services = ["tick_publisher", "intent_reconciler", "intent_executor"]
+    services = list_services()
 
     service_name = st.selectbox("Service", services, index=0)
     lines = st.number_input("Lines", min_value=20, max_value=500, value=120, step=10)
+    b0, b1, b2, b3 = st.columns(4)
+    if b0.button("Status", use_container_width=True, key="ops_service_status"):
+        rc, out = run_op(["status", "--name", str(service_name)])
+        set_operator_result(action="Status", rc=rc, output=out or "(no output)")
+    if b1.button("Start", use_container_width=True, key="ops_service_start"):
+        rc, out = run_op(["start", "--name", str(service_name)])
+        set_operator_result(action="Start", rc=rc, output=out or "(no output)")
+    if b2.button("Stop", use_container_width=True, key="ops_service_stop"):
+        rc, out = run_op(["stop", "--name", str(service_name)])
+        set_operator_result(action="Stop", rc=rc, output=out or "(no output)")
+    if b3.button("Restart", use_container_width=True, key="ops_service_restart"):
+        rc, out = run_op(["restart", "--name", str(service_name)])
+        set_operator_result(action="Restart", rc=rc, output=out or "(no output)")
 
-    if st.button("Tail Logs", use_container_width=True):
-        _run_and_store("Tail Logs", ["logs", "--name", str(service_name), "--lines", str(int(lines))])
+    if st.button("Tail Logs", use_container_width=True, key="ops_tail_logs"):
+        rc, out = run_op(["logs", "--name", str(service_name), "--lines", str(int(lines))])
+        set_operator_result(action="Tail Logs", rc=rc, output=out or "(no output)")
 
-    if st.session_state.get("ops_last_action") == "Tail Logs":
-        st.code(str(st.session_state.get("ops_last_output") or "(no output)"))
+    result = get_operator_result()
+    render_action_result(
+        action=str(result.get("action") or ""),
+        rc=int(result["rc"]) if result.get("rc") is not None else None,
+        output=str(result.get("output") or ""),
+    )
 
 st.warning("Legacy Operator page remains available for full compatibility and deep tooling.")
