@@ -4,8 +4,14 @@ from collections.abc import Sequence
 
 import streamlit as st
 
+from dashboard.styles.theme import inject_theme
+
 
 def render_page_header(title: str, subtitle: str = "", badges: Sequence[dict[str, str]] | None = None) -> None:
+    if not st.session_state.get("_ck_theme_injected"):
+        inject_theme()
+        st.session_state["_ck_theme_injected"] = True
+
     left, right = st.columns((2.4, 1))
 
     with left:

@@ -4,7 +4,6 @@ import streamlit as st
 
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
-from dashboard.styles.theme import inject_theme
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
 
@@ -19,8 +18,6 @@ def _disabled_button(label: str, *args, **kwargs):
 
 
 st.button = _disabled_button
-
-inject_theme()
 
 
 def _page_link(path: str, *, label: str, icon: str) -> None:
