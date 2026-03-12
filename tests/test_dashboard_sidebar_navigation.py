@@ -1,0 +1,44 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from dashboard.components.sidebar import DEFAULT_NAV_ITEMS
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+EXPECTED_NAV_ITEMS = (
+    ("dashboard/app.py", "Overview", "🏠"),
+    ("dashboard/pages/10_Markets.py", "Markets", "📈"),
+    ("dashboard/pages/20_Portfolio.py", "Portfolio", "💼"),
+    ("dashboard/pages/30_Signals.py", "Signals", "🧠"),
+    ("dashboard/pages/40_Trades.py", "Trades", "🔁"),
+    ("dashboard/pages/50_Automation.py", "Automation", "⚙️"),
+    ("dashboard/pages/60_Operations.py", "Operations", "🛠️"),
+    ("dashboard/pages/70_Settings.py", "Settings", "🔒"),
+)
+
+SIDEBAR_ENABLED_FILES = (
+    "dashboard/app.py",
+    "dashboard/pages/00_Operator.py",
+    "dashboard/pages/10_Markets.py",
+    "dashboard/pages/20_Portfolio.py",
+    "dashboard/pages/30_Signals.py",
+    "dashboard/pages/40_Trades.py",
+    "dashboard/pages/50_Automation.py",
+    "dashboard/pages/60_Operations.py",
+    "dashboard/pages/70_Settings.py",
+    "dashboard/pages/99_Legacy_UI.py",
+)
+
+
+def test_default_nav_items_contract() -> None:
+    assert DEFAULT_NAV_ITEMS == EXPECTED_NAV_ITEMS
+
+
+def test_sidebar_rendered_across_dashboard_pages() -> None:
+    for relative_path in SIDEBAR_ENABLED_FILES:
+        file_path = REPO_ROOT / relative_path
+        assert file_path.exists(), f"Missing dashboard file: {relative_path}"
+        source = file_path.read_text(encoding="utf-8")
+        assert "render_app_sidebar()" in source, f"Shared sidebar not wired in {relative_path}"
