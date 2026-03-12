@@ -22,6 +22,7 @@ py scripts\install.py
 - AI engine scaffold: see `docs/AI_ENGINE.md`.
 - Dashboard API defaults to `CK_API_BASE_URL=http://localhost:8000`.
 - Dashboard research explain fallback can target the Phase 1 copilot with `CK_PHASE1_ORCHESTRATOR_URL=http://localhost:8002`.
+- Phase 1 copilot smoke check: `make phase1-smoke`
 
 ## Repo Alignment Commands
 ```bash
