@@ -2,6 +2,7 @@ import re
 
 from fastapi import APIRouter
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 
 import httpx
 import redis
@@ -39,20 +40,20 @@ def _evaluate_dependencies(settings: Settings) -> tuple[dict[str, str], dict[str
 
     db_status, db_error = _check_db()
     checks["db"] = db_status
-    if db_error:
+    if db_status == "error" and db_error:
         errors["db"] = _sanitize_dependency_error(db_error) or "dependency check failed"
 
     redis_status, redis_error = _check_redis(settings.redis_url)
     checks["redis"] = redis_status
-    if redis_error:
+    if redis_status == "error" and redis_error:
         errors["redis"] = _sanitize_dependency_error(redis_error) or "dependency check failed"
 
     vector_status, vector_error = _check_vector(settings.vector_db_url)
     checks["vector_db"] = vector_status
-    if vector_error:
+    if vector_status == "error" and vector_error:
         errors["vector_db"] = _sanitize_dependency_error(vector_error) or "dependency check failed"
 
-    overall_status = "ok" if all(value == "ok" for value in checks.values()) else "degraded"
+    overall_status = "degraded" if any(value == "error" for value in checks.values()) else "ok"
     return checks, errors, overall_status
 
 
@@ -80,6 +81,8 @@ def _check_db() -> tuple[str, str | None]:
             connection.execute(text("SELECT 1"))
         return "ok", None
     except Exception as exc:
+        if _dependency_is_unavailable(exc):
+            return "unavailable", None
         return "error", str(exc)
 
 
@@ -90,6 +93,8 @@ def _check_redis(redis_url: str) -> tuple[str, str | None]:
         client.ping()
         return "ok", None
     except Exception as exc:
+        if _dependency_is_unavailable(exc):
+            return "unavailable", None
         return "error", str(exc)
     finally:
         if client is not None:
@@ -106,7 +111,51 @@ def _check_vector(vector_db_url: str) -> tuple[str, str | None]:
             return "ok", None
         return "error", f"HTTP {response.status_code}"
     except Exception as exc:
+        if _dependency_is_unavailable(exc):
+            return "unavailable", None
         return "error", str(exc)
+
+
+def _dependency_is_unavailable(exc: Exception) -> bool:
+    if isinstance(exc, (TimeoutError, OSError, redis.exceptions.ConnectionError, httpx.TimeoutException)):
+        return True
+    if isinstance(exc, httpx.TransportError):
+        return True
+    if isinstance(exc, OperationalError):
+        message = str(exc).lower()
+        if any(
+            token in message
+            for token in (
+                "connection refused",
+                "could not connect",
+                "timeout",
+                "timed out",
+                "name or service not known",
+                "temporary failure",
+                "nodename nor servname provided",
+                "network is unreachable",
+                "no route to host",
+            )
+        ):
+            return True
+
+    message = str(exc).lower()
+    return any(
+        token in message
+        for token in (
+            "connection refused",
+            "could not connect",
+            "failed to establish a new connection",
+            "timed out",
+            "timeout",
+            "name or service not known",
+            "temporary failure",
+            "nodename nor servname provided",
+            "network is unreachable",
+            "no route to host",
+            "getaddrinfo failed",
+        )
+    )
 
 
 @router.get("/deps", response_model=HealthDependencyResponse)

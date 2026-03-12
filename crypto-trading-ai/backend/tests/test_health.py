@@ -56,6 +56,18 @@ def test_health_ready_reflects_dependency_state(monkeypatch) -> None:
     assert payload["checks"]["vector_db"] == "error"
 
 
+def test_health_ready_stays_ok_when_dependency_is_unavailable(monkeypatch) -> None:
+    monkeypatch.setattr(health_route, "_check_db", lambda: ("ok", None))
+    monkeypatch.setattr(health_route, "_check_redis", lambda _url: ("ok", None))
+    monkeypatch.setattr(health_route, "_check_vector", lambda _url: ("unavailable", None))
+
+    payload = health_route.ready()
+
+    assert payload["status"] == "ok"
+    assert payload["checks"]["vector_db"] == "unavailable"
+    assert payload.get("errors") in (None, {})
+
+
 def test_health_dependency_errors_redact_url_credentials() -> None:
     raw = "dial tcp postgres://app:super_secret_password@db.internal:5432/trading_ai failed"
     redacted = health_route._sanitize_dependency_error(raw)

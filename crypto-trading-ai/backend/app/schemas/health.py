@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-DependencyStatus = Literal["ok", "error"]
+DependencyStatus = Literal["ok", "error", "unavailable"]
 
 
 class HealthLiveResponse(BaseModel):
