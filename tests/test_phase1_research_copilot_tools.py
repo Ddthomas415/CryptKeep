@@ -79,6 +79,43 @@ def test_get_signal_summary_falls_back_without_service(monkeypatch) -> None:
     assert payload["asset"] == "BTC"
     assert payload["source"] == "fallback"
     assert payload["counts"]["recent_news"] == 1
+    assert isinstance(payload["intelligence"], dict)
+    assert payload["intelligence"]["regime"] == "trend_up"
+    assert payload["intelligence"]["category"]
+
+
+def test_get_signal_summary_includes_intelligence_for_live_payload(monkeypatch) -> None:
+    async def fake_request_json(method, url, *, params=None, payload=None):
+        if "memory/retrieve" in url:
+            return {
+                "market": {"latest_price": 187.42, "change_pct": 6.9, "window_samples": 12},
+                "recent_news": [{"title": "Fresh ecosystem catalyst", "source": "feed"}],
+                "past_context": [{"title": "Prior continuation setup", "source": "archive"}],
+                "future_context": [{"title": "Governance milestone ahead", "source": "calendar"}],
+                "vector_matches": [],
+            }
+        if "market/latest" in url:
+            return {
+                "tick": {
+                    "symbol": "SOL/USDT",
+                    "price": 187.42,
+                    "bid": 187.3,
+                    "ask": 187.54,
+                    "volume": 412000.0,
+                    "exchange": "binance",
+                    "source": "market-data",
+                    "event_ts": "2026-03-12T10:00:00Z",
+                }
+            }
+        return None
+
+    monkeypatch.setattr(tools, "_request_json", fake_request_json)
+    payload = asyncio.run(tools.get_signal_summary("SOL"))
+
+    assert payload["asset"] == "SOL"
+    assert payload["source"] == "memory-retrieval"
+    assert payload["intelligence"]["regime"] == "trend_up"
+    assert payload["intelligence"]["opportunity_score"] > 0.0
 
 
 def test_execute_tool_call_rejects_unknown_tool() -> None:

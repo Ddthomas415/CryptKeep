@@ -715,6 +715,12 @@ def test_portfolio_view_prefers_local_portfolio_snapshot(monkeypatch) -> None:
 
 
 def test_markets_view_prefers_requested_asset_and_related_signal(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_load_current_regime", lambda: "trend_up")
+    monkeypatch.setattr(
+        view_data,
+        "_load_signal_reliability",
+        lambda asset: {"hit_rate": 0.68, "n_scored": 84, "avg_return_bps": 160.0} if asset == "SOL" else None,
+    )
     monkeypatch.setattr(
         view_data,
         "get_dashboard_summary",
@@ -774,6 +780,12 @@ def test_markets_view_prefers_requested_asset_and_related_signal(monkeypatch) ->
     assert payload["detail"]["current_cause"] == "Momentum with catalyst support"
     assert payload["detail"]["evidence_items"][0]["summary"] == "volume expansion"
     assert payload["detail"]["related_signals"][0]["status"] == "pending_review"
+    assert payload["detail"]["regime"] == "trend_up"
+    assert payload["detail"]["category"] in {"top_opportunity", "watch_closely"}
+    assert payload["detail"]["opportunity_score"] > 0.0
+    assert payload["watchlist"][1]["regime"] == "trend_up"
+    assert payload["watchlist"][1]["category"] in {"top_opportunity", "watch_closely"}
+    assert payload["detail"]["related_signals"][0]["category"] in {"top_opportunity", "watch_closely"}
 
 
 def test_markets_view_defaults_to_research_asset(monkeypatch) -> None:
@@ -928,6 +940,9 @@ def test_overview_view_reuses_signals_detail_contract(monkeypatch) -> None:
                     "status": "pending_review",
                     "execution_state": "LIVE · coinbase · limit",
                     "summary": "Momentum with catalyst support",
+                    "regime": "trend_up",
+                    "category": "top_opportunity",
+                    "opportunity_score": 0.74,
                 }
             ],
             "detail": {
@@ -944,6 +959,9 @@ def test_overview_view_reuses_signals_detail_contract(monkeypatch) -> None:
     assert payload["selected_asset"] == "SOL"
     assert payload["signals"][0]["thesis"] == "Momentum with catalyst support"
     assert payload["signals"][0]["execution_state"] == "LIVE · coinbase · limit"
+    assert payload["signals"][0]["regime"] == "trend_up"
+    assert payload["signals"][0]["category"] == "top_opportunity"
+    assert payload["signals"][0]["opportunity_score"] == 0.74
     assert payload["detail"]["future_catalyst"] == "A governance milestone remains in focus"
     assert payload["recent_activity"] == ["Generated explanation for SOL"]
 

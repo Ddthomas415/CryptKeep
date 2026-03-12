@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import sys
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -11,6 +13,11 @@ from shared.retry import retry_async
 
 settings = get_settings()
 logger = configure_logging("copilot-tools", settings.log_level)
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from dashboard.services.intelligence import build_opportunity_snapshot
 
 _MARKET_DATA_URL = "http://market-data:8003"
 _NEWS_INGESTION_URL = "http://news-ingestion:8004"
@@ -86,14 +93,26 @@ def _default_market_snapshot(asset: str) -> dict[str, Any]:
 
 def _default_signal_summary(asset: str) -> dict[str, Any]:
     asset_symbol = _asset_symbol(asset) or "SOL"
+    snapshot = _default_market_snapshot(asset_symbol)
+    market = {
+        "ok": True,
+        "latest_price": snapshot.get("price"),
+        "change_pct": 2.1 if asset_symbol == "BTC" else 6.9 if asset_symbol == "SOL" else 1.3,
+        "window_samples": 12,
+    }
+    intelligence = build_opportunity_snapshot(
+        signal_row={"asset": asset_symbol, "signal": "research", "confidence": 0.72},
+        market_row={
+            "price": market.get("latest_price"),
+            "change_24h_pct": market.get("change_pct"),
+            "spread": (float(snapshot.get("ask") or 0.0) - float(snapshot.get("bid") or 0.0)),
+            "volume_24h": snapshot.get("volume"),
+        },
+        summary={"current_regime": "trend_up"},
+    )
     return {
         "asset": asset_symbol,
-        "market": {
-            "ok": True,
-            "latest_price": _default_market_snapshot(asset_symbol).get("price"),
-            "change_pct": 2.1 if asset_symbol == "BTC" else 6.9 if asset_symbol == "SOL" else 1.3,
-            "window_samples": 12,
-        },
+        "market": market,
         "recent_news": [
             {
                 "title": f"Recent narrative flow remains active for {asset_symbol}",
@@ -115,6 +134,7 @@ def _default_signal_summary(asset: str) -> dict[str, Any]:
         ],
         "vector_matches": [],
         "counts": {"recent_news": 1, "past_context": 1, "future_context": 1, "vector_matches": 0},
+        "intelligence": intelligence,
         "source": "fallback",
     }
 
@@ -219,9 +239,35 @@ async def get_signal_summary(asset: str) -> dict[str, Any]:
         past_context = payload.get("past_context") if isinstance(payload.get("past_context"), list) else []
         future_context = payload.get("future_context") if isinstance(payload.get("future_context"), list) else []
         vector_matches = payload.get("vector_matches") if isinstance(payload.get("vector_matches"), list) else []
+        market = payload.get("market") if isinstance(payload.get("market"), dict) else {}
+        snapshot = await get_market_snapshot(asset_symbol)
+        intelligence = build_opportunity_snapshot(
+            signal_row={
+                "asset": asset_symbol,
+                "signal": "research",
+                "confidence": min(
+                    0.95,
+                    0.4
+                    + (0.12 if recent_news else 0.0)
+                    + (0.1 if past_context else 0.0)
+                    + (0.08 if future_context else 0.0),
+                ),
+            },
+            market_row={
+                "price": market.get("latest_price") or snapshot.get("price"),
+                "change_24h_pct": market.get("change_pct"),
+                "spread": (
+                    float(snapshot.get("ask") or 0.0) - float(snapshot.get("bid") or 0.0)
+                    if snapshot
+                    else 0.0
+                ),
+                "volume_24h": snapshot.get("volume") if isinstance(snapshot, dict) else 0.0,
+            },
+            summary={"current_regime": "trend_up"},
+        )
         return {
             "asset": asset_symbol,
-            "market": payload.get("market") if isinstance(payload.get("market"), dict) else {},
+            "market": market,
             "recent_news": recent_news,
             "past_context": past_context,
             "future_context": future_context,
@@ -232,6 +278,7 @@ async def get_signal_summary(asset: str) -> dict[str, Any]:
                 "future_context": len(future_context),
                 "vector_matches": len(vector_matches),
             },
+            "intelligence": intelligence,
             "source": "memory-retrieval",
         }
     return _default_signal_summary(asset_symbol)

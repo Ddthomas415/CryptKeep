@@ -1013,6 +1013,36 @@ def _load_signal_reliability(asset: str) -> dict[str, Any] | None:
     return None
 
 
+def _enrich_signal_row(
+    item: dict[str, Any] | None,
+    *,
+    market_row: dict[str, Any] | None = None,
+    current_regime: str = "",
+    risk_status: str = "",
+) -> dict[str, Any]:
+    payload = dict(item) if isinstance(item, dict) else {}
+    asset = str(payload.get("asset") or "").strip().upper()
+    intelligence = build_opportunity_snapshot(
+        signal_row=payload,
+        market_row=market_row if isinstance(market_row, dict) else {},
+        reliability=_load_signal_reliability(asset),
+        summary={"risk_status": risk_status, "current_regime": current_regime},
+    )
+    payload.update(
+        {
+            "regime": str(intelligence.get("regime") or ""),
+            "regime_fit": float(intelligence.get("regime_fit") or 0.0),
+            "tradeability": float(intelligence.get("tradeability") or 0.0),
+            "setup_quality": float(intelligence.get("setup_quality") or 0.0),
+            "expected_return": float(intelligence.get("expected_return") or 0.0),
+            "risk_penalty": float(intelligence.get("risk_penalty") or 0.0),
+            "opportunity_score": float(intelligence.get("opportunity_score") or 0.0),
+            "category": str(intelligence.get("category") or ""),
+        }
+    )
+    return payload
+
+
 def _load_local_recommendations(limit: int = 20) -> list[dict[str, Any]]:
     normalized_limit = max(1, int(limit or 20))
 
@@ -1742,6 +1772,8 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
 def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     summary = get_dashboard_summary()
     recommendations = get_recommendations()
+    current_regime = _load_current_regime() or str(summary.get("risk_status") or "")
+    risk_status = str(summary.get("risk_status") or "")
 
     recommendation_map: dict[str, dict[str, Any]] = {}
     for item in recommendations:
@@ -1765,15 +1797,23 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         recommendation = recommendation_map.get(asset, {})
         change_24h_pct = float(item.get("change_24h_pct") or 0.0)
         watchlist.append(
-            {
-                "asset": asset,
-                "price": float(item.get("price") or 0.0),
-                "change_24h_pct": change_24h_pct,
-                "signal": str(item.get("signal") or recommendation.get("signal") or "watch"),
-                "confidence": float(recommendation.get("confidence") or 0.0),
-                "status": str(recommendation.get("status") or "monitor"),
-                "volume_trend": str(item.get("volume_trend") or _derive_volume_trend(change_24h_pct)),
-            }
+            _enrich_signal_row(
+                {
+                    "asset": asset,
+                    "price": float(item.get("price") or 0.0),
+                    "change_24h_pct": change_24h_pct,
+                    "signal": str(item.get("signal") or recommendation.get("signal") or "watch"),
+                    "confidence": float(recommendation.get("confidence") or 0.0),
+                    "status": str(recommendation.get("status") or "monitor"),
+                    "volume_trend": str(item.get("volume_trend") or _derive_volume_trend(change_24h_pct)),
+                    "execution_state": str(recommendation.get("execution_state") or ""),
+                    "evidence": str(recommendation.get("evidence") or ""),
+                    "summary": str(recommendation.get("summary") or ""),
+                },
+                market_row=item,
+                current_regime=current_regime,
+                risk_status=risk_status,
+            )
         )
 
     if not watchlist:
@@ -1803,27 +1843,56 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     volume_24h = float(snapshot.get("volume_24h") or 0.0)
 
     related_signals = [
-        {
-            "asset": str(item.get("asset") or ""),
-            "signal": str(item.get("signal") or "hold"),
-            "confidence": float(item.get("confidence") or 0.0),
-            "summary": str(item.get("summary") or ""),
-            "status": str(item.get("status") or "pending"),
-            "execution_state": str(item.get("execution_state") or ""),
-        }
+        _enrich_signal_row(
+            {
+                "asset": str(item.get("asset") or ""),
+                "signal": str(item.get("signal") or "hold"),
+                "confidence": float(item.get("confidence") or 0.0),
+                "summary": str(item.get("summary") or ""),
+                "status": str(item.get("status") or "pending"),
+                "execution_state": str(item.get("execution_state") or ""),
+                "evidence": str(item.get("evidence") or ""),
+                "price": watchlist_price,
+                "change_24h_pct": change_24h_pct,
+            },
+            market_row={
+                **(selected_row if isinstance(selected_row, dict) else {}),
+                **(snapshot if isinstance(snapshot, dict) else {}),
+                "price": price,
+                "change_24h_pct": change_24h_pct,
+                "volume_24h": volume_24h,
+                "spread": spread,
+            },
+            current_regime=current_regime,
+            risk_status=risk_status,
+        )
         for item in recommendations
         if isinstance(item, dict) and str(item.get("asset") or "").strip().upper() == asset
     ]
     if not related_signals:
         related_signals = [
-            {
+            _enrich_signal_row(
+                {
                 "asset": asset,
                 "signal": str(selected_row.get("signal") or "watch"),
                 "confidence": float(selected_row.get("confidence") or 0.0),
                 "summary": "No direct recommendation is available. Keep this asset in monitored research mode.",
                 "status": str(selected_row.get("status") or "monitor"),
                 "execution_state": str(selected_row.get("execution_state") or ""),
-            }
+                "price": watchlist_price,
+                "change_24h_pct": change_24h_pct,
+                },
+                market_row={
+                    **(selected_row if isinstance(selected_row, dict) else {}),
+                    **(snapshot if isinstance(snapshot, dict) else {}),
+                    "price": price,
+                    "change_24h_pct": change_24h_pct,
+                    "volume_24h": volume_24h,
+                    "spread": spread,
+                },
+                current_regime=current_regime,
+                risk_status=risk_status,
+            )
         ]
 
     lead_signal = recommendation_map.get(asset, {})
@@ -1903,6 +1972,18 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         "catalysts": catalysts,
         "related_signals": related_signals,
     }
+    detail = _enrich_signal_row(
+        detail,
+        market_row={
+            **(snapshot if isinstance(snapshot, dict) else {}),
+            "price": price,
+            "change_24h_pct": change_24h_pct,
+            "volume_24h": volume_24h,
+            "spread": spread,
+        },
+        current_regime=current_regime,
+        risk_status=risk_status,
+    )
 
     return {
         "selected_asset": asset,
@@ -2044,32 +2125,23 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
             continue
         asset = str(item.get("asset") or "").strip().upper()
         market = market_rows.get(asset, {})
-        intelligence = build_opportunity_snapshot(
-            signal_row=item,
-            market_row=market,
-            reliability=_load_signal_reliability(asset),
-            summary={"risk_status": summary.get("risk_status"), "current_regime": current_regime},
-        )
         signals.append(
-            {
-                "asset": asset,
-                "signal": str(item.get("signal") or "hold"),
-                "confidence": float(item.get("confidence") or 0.0),
-                "summary": str(item.get("summary") or ""),
-                "status": str(item.get("status") or "pending"),
-                "execution_state": str(item.get("execution_state") or ""),
-                "evidence": str(item.get("evidence") or ""),
-                "price": float(market.get("price") or 0.0),
-                "change_24h_pct": float(market.get("change_24h_pct") or 0.0),
-                "regime": str(intelligence.get("regime") or ""),
-                "regime_fit": float(intelligence.get("regime_fit") or 0.0),
-                "tradeability": float(intelligence.get("tradeability") or 0.0),
-                "setup_quality": float(intelligence.get("setup_quality") or 0.0),
-                "expected_return": float(intelligence.get("expected_return") or 0.0),
-                "risk_penalty": float(intelligence.get("risk_penalty") or 0.0),
-                "opportunity_score": float(intelligence.get("opportunity_score") or 0.0),
-                "category": str(intelligence.get("category") or ""),
-            }
+            _enrich_signal_row(
+                {
+                    "asset": asset,
+                    "signal": str(item.get("signal") or "hold"),
+                    "confidence": float(item.get("confidence") or 0.0),
+                    "summary": str(item.get("summary") or ""),
+                    "status": str(item.get("status") or "pending"),
+                    "execution_state": str(item.get("execution_state") or ""),
+                    "evidence": str(item.get("evidence") or ""),
+                    "price": float(market.get("price") or 0.0),
+                    "change_24h_pct": float(market.get("change_24h_pct") or 0.0),
+                },
+                market_row=market,
+                current_regime=current_regime,
+                risk_status=str(summary.get("risk_status") or ""),
+            )
         )
 
     if not signals:
@@ -2189,6 +2261,9 @@ def get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
             "status": str(item.get("status") or ""),
             "execution_state": str(item.get("execution_state") or ""),
             "thesis": str(item.get("summary") or ""),
+            "regime": str(item.get("regime") or ""),
+            "category": str(item.get("category") or ""),
+            "opportunity_score": float(item.get("opportunity_score") or 0.0),
         }
         for item in signals[:6]
         if isinstance(item, dict)

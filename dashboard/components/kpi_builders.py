@@ -65,9 +65,9 @@ def build_markets_kpis(detail: dict[str, Any] | None) -> list[dict[str, str]]:
             "delta": "AI conviction",
         },
         {
-            "label": "Volume Trend",
-            "value": str(payload.get("volume_trend") or "steady").title(),
-            "delta": "Watchlist context",
+            "label": "Opportunity",
+            "value": str(payload.get("category") or "needs_confirmation").replace("_", " ").title(),
+            "delta": f"Score {_format_confidence(payload.get('opportunity_score'))} / {str(payload.get('regime') or 'unknown').replace('_', ' ').title()}",
         },
     ]
 

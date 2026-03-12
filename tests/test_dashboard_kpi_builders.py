@@ -31,14 +31,17 @@ def test_build_markets_kpis_formats_market_detail() -> None:
             "signal": "research",
             "status": "pending_review",
             "confidence": 0.78,
-            "volume_trend": "high",
+            "category": "top_opportunity",
+            "opportunity_score": 0.74,
+            "regime": "trend_up",
         }
     )
     assert payload[0]["value"] == "$187.42"
     assert payload[0]["delta"] == "24h +6.9%"
     assert payload[1]["value"] == "Research"
     assert payload[2]["value"] == "78%"
-    assert payload[3]["value"] == "High"
+    assert payload[3]["value"] == "Top Opportunity"
+    assert payload[3]["delta"] == "Score 74% / Trend Up"
 
 
 def test_build_signals_kpis_formats_signal_detail() -> None:

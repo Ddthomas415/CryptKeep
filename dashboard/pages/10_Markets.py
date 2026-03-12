@@ -59,6 +59,9 @@ with left:
                 "change_24h_pct": float(item.get("change_24h_pct") or 0.0),
                 "signal": str(item.get("signal") or ""),
                 "confidence": float(item.get("confidence") or 0.0),
+                "regime": str(item.get("regime") or ""),
+                "category": str(item.get("category") or ""),
+                "opportunity_score": float(item.get("opportunity_score") or 0.0),
             }
             for item in watchlist
             if isinstance(item, dict)
@@ -84,7 +87,23 @@ bottom_left, bottom_right = st.columns((1, 1))
 with bottom_left:
     render_table_section(
         "Related Signals",
-        detail.get("related_signals") if isinstance(detail.get("related_signals"), list) else [],
+        [
+            {
+                "asset": str(item.get("asset") or ""),
+                "signal": str(item.get("signal") or ""),
+                "confidence": float(item.get("confidence") or 0.0),
+                "status": str(item.get("status") or ""),
+                "execution_state": str(item.get("execution_state") or ""),
+                "regime": str(item.get("regime") or ""),
+                "category": str(item.get("category") or ""),
+                "opportunity_score": float(item.get("opportunity_score") or 0.0),
+                "summary": str(item.get("summary") or ""),
+            }
+            for item in (
+                detail.get("related_signals") if isinstance(detail.get("related_signals"), list) else []
+            )
+            if isinstance(item, dict)
+        ],
         empty_message="No related signals available.",
     )
 
