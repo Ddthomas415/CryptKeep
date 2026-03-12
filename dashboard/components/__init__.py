@@ -12,6 +12,7 @@ from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_markets_kpis, build_overview_kpis, build_signals_kpis
 from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_market_context, render_signal_thesis, resolve_asset_row
 from dashboard.components.tables import render_table_section
 
 __all__ = [
@@ -26,6 +27,9 @@ __all__ = [
     "build_markets_kpis",
     "build_overview_kpis",
     "build_signals_kpis",
+    "render_market_context",
+    "render_signal_thesis",
+    "resolve_asset_row",
     "render_save_action",
     "render_system_action_buttons",
     "render_action_result",

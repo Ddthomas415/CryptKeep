@@ -13,6 +13,7 @@ from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_markets_kpis
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_market_context
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_markets_view
 
@@ -64,11 +65,7 @@ with left:
         ],
         empty_message="No watchlist data available.",
     )
-    with st.container(border=True):
-        st.markdown("### Market Context")
-        st.caption(f"Support: ${float(detail.get('support') or 0.0):,.2f}")
-        st.caption(f"Resistance: ${float(detail.get('resistance') or 0.0):,.2f}")
-        st.caption(f"Evidence: {str(detail.get('evidence') or 'No evidence available.')}")
+    render_market_context(detail)
 
 with right:
     render_asset_detail_card(

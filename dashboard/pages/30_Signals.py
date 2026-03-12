@@ -13,6 +13,7 @@ from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_signals_kpis
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_signal_thesis
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_signals_view
 
@@ -64,14 +65,7 @@ with left:
         ],
         empty_message="No recommendation data available.",
     )
-    with st.container(border=True):
-        st.markdown("### Signal Thesis")
-        selected_row = next(
-            (item for item in signals if isinstance(item, dict) and str(item.get("asset") or "") == str(detail.get("asset") or default_asset)),
-            {},
-        )
-        st.caption(str(selected_row.get("summary") or detail.get("current_cause") or "No signal thesis available."))
-        st.caption(f"Evidence: {str(selected_row.get('evidence') or detail.get('evidence') or 'No evidence available.')}")
+    render_signal_thesis(signals, detail, fallback_asset=default_asset)
 
 with right:
     render_asset_detail_card(
