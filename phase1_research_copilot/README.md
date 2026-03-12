@@ -57,6 +57,18 @@ phase1_research_copilot/
 4. `docker compose up --build`
 5. Open web chat: `http://localhost:8001/`
 
+## Smoke check
+Once the stack is running, verify the gateway and orchestrator paths with:
+
+```bash
+python scripts/smoke_phase1_copilot.py --asset SOL --question "Why is SOL moving?"
+```
+
+The script checks:
+- `GET /healthz` for gateway and orchestrator
+- `POST /v1/explain`
+- `POST /v1/chat`
+
 ## OpenAI reasoning mode
 - `gateway` and `orchestrator` run in research-only mode whether OpenAI is configured or not.
 - If `OPENAI_API_KEY` is set:
