@@ -61,6 +61,7 @@ def test_recent_activity_prefers_audit_details(monkeypatch) -> None:
 
 
 def test_portfolio_view_uses_dashboard_watchlist_marks(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(
         view_data,
         "get_dashboard_summary",
@@ -83,6 +84,54 @@ def test_portfolio_view_uses_dashboard_watchlist_marks(monkeypatch) -> None:
     assert payload["positions"][0]["asset"] == "BTC"
     assert payload["positions"][0]["mark"] == 90000.0
     assert payload["positions"][1]["mark"] == 200.0
+
+
+def test_portfolio_view_prefers_local_portfolio_snapshot(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "portfolio": {
+                "total_value": 1000.0,
+                "cash": 300.0,
+                "unrealized_pnl": 25.0,
+                "exposure_used_pct": 17.5,
+            },
+            "watchlist": [{"asset": "BTC", "price": 90000.0}],
+        },
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_portfolio_snapshot",
+        lambda _prices: {
+            "portfolio": {
+                "total_value": 1500.0,
+                "cash": 450.0,
+                "unrealized_pnl": 120.0,
+                "realized_pnl_24h": 35.0,
+                "exposure_used_pct": 28.5,
+                "leverage": 1.0,
+            },
+            "positions": [
+                {
+                    "asset": "BTC",
+                    "symbol": "BTC/USD",
+                    "venue": "paper",
+                    "side": "long",
+                    "size": 0.02,
+                    "entry": 85000.0,
+                    "mark": 90000.0,
+                    "pnl": 100.0,
+                }
+            ],
+        },
+    )
+
+    payload = view_data.get_portfolio_view()
+    assert payload["portfolio"]["total_value"] == 1500.0
+    assert payload["portfolio"]["cash"] == 450.0
+    assert payload["positions"][0]["venue"] == "paper"
+    assert payload["positions"][0]["asset"] == "BTC"
 
 
 def test_markets_view_prefers_requested_asset_and_related_signal(monkeypatch) -> None:
@@ -615,6 +664,7 @@ def test_research_explain_falls_back_for_non_sol_assets(monkeypatch) -> None:
 
 
 def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
     monkeypatch.setattr(
         view_data,
         "get_dashboard_summary",
@@ -639,6 +689,39 @@ def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> N
     assert payload["pending_approvals"][0]["id"] == "rec_99"
     assert payload["pending_approvals"][0]["side"] == "buy"
     assert len(payload["recent_fills"]) >= 1
+
+
+def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"approval_required": True})
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_recent_fills",
+        lambda limit=20: [
+            {
+                "ts": "2026-03-12T00:05:00Z",
+                "asset": "ETH",
+                "side": "sell",
+                "qty": 0.25,
+                "price": 4420.0,
+                "venue": "paper",
+            }
+        ],
+    )
+
+    payload = view_data.get_trades_view()
+    assert payload["approval_required"] is True
+    assert payload["recent_fills"] == [
+        {
+            "ts": "2026-03-12T00:05:00Z",
+            "asset": "ETH",
+            "side": "sell",
+            "qty": 0.25,
+            "price": 4420.0,
+            "venue": "paper",
+        }
+    ]
+    assert payload["pending_approvals"][0]["asset"] == "SOL"
 
 
 def test_settings_view_uses_api_payload(monkeypatch) -> None:

@@ -231,6 +231,20 @@ def _derive_volume_trend(change_24h_pct: float) -> str:
     return "steady"
 
 
+def _normalize_asset_symbol(value: Any) -> str:
+    symbol = str(value or "").strip().upper()
+    if not symbol:
+        return ""
+    if "/" in symbol:
+        return symbol.split("/", 1)[0]
+    if "-" in symbol:
+        return symbol.split("-", 1)[0]
+    for suffix in ("USDT", "USDC", "USD", "PERP"):
+        if symbol.endswith(suffix) and len(symbol) > len(suffix):
+            return symbol[: -len(suffix)]
+    return symbol
+
+
 def _build_price_series(last_price: float, change_24h_pct: float) -> list[float]:
     price = max(float(last_price or 0.0), 0.01)
     pct = float(change_24h_pct or 0.0)
@@ -406,6 +420,197 @@ def _load_local_ohlcv(venue: str, symbol: str, *, timeframe: str = "1h", limit: 
     except Exception:
         return []
     return rows if isinstance(rows, list) else []
+
+
+def _load_local_portfolio_snapshot(prices: dict[str, float]) -> dict[str, Any] | None:
+    normalized_prices = {
+        _normalize_asset_symbol(symbol): float(price or 0.0)
+        for symbol, price in (prices or {}).items()
+        if _normalize_asset_symbol(symbol)
+    }
+
+    try:
+        from services.analytics.portfolio_mtm import build_portfolio_mtm
+        from services.paper.paper_state import PaperState
+    except Exception:
+        build_portfolio_mtm = None
+        PaperState = None
+
+    local_positions: list[dict[str, Any]] = []
+    cash_quote = 0.0
+    realized_pnl = 0.0
+
+    if callable(PaperState) and callable(build_portfolio_mtm):
+        try:
+            paper_state = PaperState()
+            snapshot = paper_state.snapshot(limit=200)
+        except Exception:
+            snapshot = {}
+        rows = snapshot.get("positions") if isinstance(snapshot.get("positions"), list) else []
+        local_positions = [
+            {
+                "symbol": str(item.get("symbol") or ""),
+                "qty": float(item.get("qty") or 0.0),
+                "avg_price": float(item.get("avg_price") or 0.0),
+                "realized_pnl": float(item.get("realized_pnl") or 0.0),
+                "updated_ts": str(item.get("updated_ts") or ""),
+                "venue": "paper",
+            }
+            for item in rows
+            if isinstance(item, dict) and str(item.get("symbol") or "").strip()
+        ]
+        cash_quote = float(snapshot.get("cash_quote") or 0.0)
+        realized_pnl = float(snapshot.get("realized_pnl") or 0.0)
+
+    if not local_positions:
+        try:
+            from storage.pnl_store_sqlite import PnLStoreSQLite
+        except Exception:
+            PnLStoreSQLite = None
+        if callable(PnLStoreSQLite) and callable(build_portfolio_mtm):
+            try:
+                pnl_store = PnLStoreSQLite()
+                local_positions = [
+                    {
+                        "symbol": str(item.get("symbol") or ""),
+                        "qty": float(item.get("qty") or 0.0),
+                        "avg_price": float(item.get("avg_price") or 0.0),
+                        "realized_pnl": 0.0,
+                        "updated_ts": str(item.get("updated_ts") or ""),
+                        "venue": str(item.get("venue") or "paper"),
+                    }
+                    for item in pnl_store.positions()
+                    if isinstance(item, dict) and str(item.get("symbol") or "").strip()
+                ]
+                realized_pnl = float((pnl_store.get_today_realized() or {}).get("realized_pnl") or 0.0)
+            except Exception:
+                local_positions = []
+
+    if not local_positions or not callable(build_portfolio_mtm):
+        return None
+
+    mtm = build_portfolio_mtm(
+        cash_quote=cash_quote,
+        positions=local_positions,
+        prices=normalized_prices,
+        realized_pnl=realized_pnl,
+    )
+    mtm_positions = mtm.get("positions") if isinstance(mtm.get("positions"), list) else []
+    by_symbol = {str(item.get("symbol") or ""): item for item in local_positions if isinstance(item, dict)}
+    enriched_positions: list[dict[str, Any]] = []
+    for row in mtm_positions:
+        if not isinstance(row, dict):
+            continue
+        symbol = str(row.get("symbol") or "")
+        source_row = by_symbol.get(symbol, {})
+        qty = float(row.get("qty") or 0.0)
+        asset = _normalize_asset_symbol(symbol)
+        enriched_positions.append(
+            {
+                "asset": asset or symbol,
+                "symbol": symbol,
+                "venue": str(source_row.get("venue") or "paper"),
+                "side": "long" if qty >= 0 else "short",
+                "size": abs(qty),
+                "entry": float(row.get("avg_price") or source_row.get("avg_price") or 0.0),
+                "mark": float(row.get("mark_price") or source_row.get("avg_price") or 0.0),
+                "pnl": float(row.get("unrealized_pnl") or 0.0),
+                "updated_ts": str(source_row.get("updated_ts") or ""),
+            }
+        )
+
+    equity_quote = float(mtm.get("equity_quote") or 0.0)
+    market_value = abs(float(mtm.get("market_value") or 0.0))
+    return {
+        "portfolio": {
+            "total_value": equity_quote,
+            "cash": float(mtm.get("cash_quote") or 0.0),
+            "unrealized_pnl": float(mtm.get("unrealized_pnl") or 0.0),
+            "realized_pnl_24h": float(mtm.get("realized_pnl") or 0.0),
+            "exposure_used_pct": round((market_value / equity_quote) * 100.0, 1) if equity_quote > 0 else 0.0,
+            "leverage": 1.0,
+        },
+        "positions": enriched_positions,
+        "source": "local_portfolio",
+    }
+
+
+def _load_local_recent_fills(limit: int = 20) -> list[dict[str, Any]]:
+    normalized_limit = max(1, int(limit or 20))
+
+    try:
+        from storage.pnl_store_sqlite import PnLStoreSQLite
+    except Exception:
+        PnLStoreSQLite = None
+
+    if callable(PnLStoreSQLite):
+        try:
+            fills = PnLStoreSQLite().last_fills(limit=normalized_limit)
+        except Exception:
+            fills = []
+        if fills:
+            return [
+                {
+                    "ts": str(item.get("ts") or ""),
+                    "asset": _normalize_asset_symbol(item.get("symbol")),
+                    "side": str(item.get("side") or ""),
+                    "qty": float(item.get("qty") or 0.0),
+                    "price": float(item.get("price") or 0.0),
+                    "venue": str(item.get("venue") or ""),
+                }
+                for item in fills
+                if isinstance(item, dict) and _normalize_asset_symbol(item.get("symbol"))
+            ]
+
+    try:
+        from storage.live_trading_sqlite import LiveTradingSQLite
+    except Exception:
+        LiveTradingSQLite = None
+
+    if callable(LiveTradingSQLite):
+        try:
+            fills = LiveTradingSQLite().list_fills(limit=normalized_limit)
+        except Exception:
+            fills = []
+        if fills:
+            return [
+                {
+                    "ts": str(item.get("ts") or ""),
+                    "asset": _normalize_asset_symbol(item.get("symbol")),
+                    "side": str(item.get("side") or ""),
+                    "qty": float(item.get("qty") or 0.0),
+                    "price": float(item.get("price") or 0.0),
+                    "venue": str(item.get("venue") or ""),
+                }
+                for item in fills
+                if isinstance(item, dict) and _normalize_asset_symbol(item.get("symbol"))
+            ]
+
+    try:
+        from storage.execution_audit_reader import list_fills
+    except Exception:
+        list_fills = None
+
+    if callable(list_fills):
+        try:
+            fills = list_fills(limit=normalized_limit)
+        except Exception:
+            fills = []
+        if fills:
+            return [
+                {
+                    "ts": str(item.get("ts") or item.get("ts_iso") or ""),
+                    "asset": _normalize_asset_symbol(item.get("symbol")),
+                    "side": str(item.get("side") or ""),
+                    "qty": float(item.get("qty") or 0.0),
+                    "price": float(item.get("price") or 0.0),
+                    "venue": str(item.get("venue") or ""),
+                }
+                for item in fills
+                if isinstance(item, dict) and _normalize_asset_symbol(item.get("symbol"))
+            ]
+
+    return []
 
 
 def _get_market_price_series(
@@ -890,6 +1095,20 @@ def get_portfolio_view() -> dict[str, Any]:
         if isinstance(item, dict) and str(item.get("asset") or "").strip()
     }
 
+    local_snapshot = _load_local_portfolio_snapshot(watch_prices)
+    if isinstance(local_snapshot, dict):
+        local_portfolio = local_snapshot.get("portfolio") if isinstance(local_snapshot.get("portfolio"), dict) else {}
+        local_positions = (
+            local_snapshot.get("positions") if isinstance(local_snapshot.get("positions"), list) else []
+        )
+        if local_portfolio and local_positions:
+            merged_portfolio = {**portfolio, **local_portfolio}
+            return {
+                "currency": "USD",
+                "portfolio": merged_portfolio,
+                "positions": local_positions,
+            }
+
     positions = _default_positions()
     enriched_positions: list[dict[str, Any]] = []
     for row in positions:
@@ -936,10 +1155,14 @@ def get_trades_view() -> dict[str, Any]:
             {"id": "rec_1", "asset": "SOL", "side": "buy", "risk_size_pct": 1.5, "status": "pending_review"}
         ]
 
+    recent_fills = _load_local_recent_fills(limit=20)
+    if not recent_fills:
+        recent_fills = _default_recent_fills()
+
     return {
         "approval_required": bool(summary.get("approval_required", True)),
         "pending_approvals": pending_approvals,
-        "recent_fills": _default_recent_fills(),
+        "recent_fills": recent_fills,
     }
 
 
