@@ -7,7 +7,7 @@ from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
-from dashboard.services.view_data import get_dashboard_summary, get_recent_activity, get_recommendations
+from dashboard.services.view_data import get_overview_view
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
 
@@ -26,10 +26,25 @@ st.button = _disabled_button
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
 
-summary = get_dashboard_summary()
+overview_view = get_overview_view()
+signal_rows = overview_view.get("signals") if isinstance(overview_view.get("signals"), list) else []
+detail = overview_view.get("detail") if isinstance(overview_view.get("detail"), dict) else {}
+focus_options = [str(item.get("asset") or "") for item in signal_rows if isinstance(item, dict)]
+default_asset = str(overview_view.get("selected_asset") or (focus_options[0] if focus_options else "SOL"))
+focus_asset = st.selectbox(
+    "Focus signal",
+    focus_options or [default_asset],
+    index=(focus_options.index(default_asset) if default_asset in focus_options else 0),
+    key="overview_selected_signal",
+)
+if focus_asset != default_asset:
+    overview_view = get_overview_view(selected_asset=focus_asset)
+    signal_rows = overview_view.get("signals") if isinstance(overview_view.get("signals"), list) else signal_rows
+    detail = overview_view.get("detail") if isinstance(overview_view.get("detail"), dict) else detail
+
+summary = overview_view.get("summary") if isinstance(overview_view.get("summary"), dict) else {}
 portfolio = summary.get("portfolio") if isinstance(summary.get("portfolio"), dict) else {}
-recommendations = get_recommendations()
-recent_activity = get_recent_activity()
+recent_activity = overview_view.get("recent_activity") if isinstance(overview_view.get("recent_activity"), list) else []
 
 mode = str(summary.get("mode") or "research_only")
 risk_status = str(summary.get("risk_status") or "safe")
@@ -52,7 +67,7 @@ render_kpi_cards(
     [
         {"label": "Portfolio Value", "value": f"${total_value:,.2f}", "delta": f"Cash ${cash_value:,.2f}"},
         {"label": "Unrealized PnL", "value": f"${unrealized_pnl:,.2f}", "delta": "Live mark-to-market"},
-        {"label": "Active Signals", "value": str(len(recommendations)), "delta": "Recommendation set"},
+        {"label": "Active Signals", "value": str(len(signal_rows)), "delta": "Recommendation set"},
         {
             "label": "Bot Status",
             "value": "Running" if execution_enabled else "Research Only",
@@ -64,20 +79,18 @@ render_kpi_cards(
 col_signals, col_activity = st.columns((1.4, 1))
 
 with col_signals:
-    signal_rows = [
-        {
-            "asset": str(item.get("asset") or ""),
-            "thesis": str(item.get("summary") or ""),
-            "confidence": float(item.get("confidence") or 0.0),
-            "status": str(item.get("status") or "pending"),
-        }
-        for item in recommendations[:6]
-    ]
     render_table_section(
         "Recent Signals",
         signal_rows,
         empty_message="No recent signals available.",
     )
+    with st.container(border=True):
+        st.markdown("### Focused Signal")
+        st.caption(str(detail.get("current_cause") or detail.get("thesis") or "No focused signal detail available."))
+        st.caption(f"Future catalyst: {str(detail.get('future_catalyst') or 'No forward catalyst available.')}")
+        risk_note = str(detail.get("risk_note") or "").strip()
+        if risk_note:
+            st.caption(risk_note)
 
 with col_activity:
     st.markdown("### Recent Activity")

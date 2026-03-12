@@ -624,6 +624,34 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
     }
 
 
+def get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
+    summary = get_dashboard_summary()
+    recent_activity = get_recent_activity()
+    signals_view = get_signals_view(selected_asset=selected_asset)
+    signals = signals_view.get("signals") if isinstance(signals_view.get("signals"), list) else []
+    detail = signals_view.get("detail") if isinstance(signals_view.get("detail"), dict) else {}
+
+    signal_rows = [
+        {
+            "asset": str(item.get("asset") or ""),
+            "signal": str(item.get("signal") or ""),
+            "confidence": float(item.get("confidence") or 0.0),
+            "status": str(item.get("status") or ""),
+            "thesis": str(item.get("summary") or ""),
+        }
+        for item in signals[:6]
+        if isinstance(item, dict)
+    ]
+
+    return {
+        "summary": summary,
+        "recent_activity": recent_activity,
+        "signals": signal_rows,
+        "selected_asset": str(signals_view.get("selected_asset") or detail.get("asset") or ""),
+        "detail": detail,
+    }
+
+
 def get_recent_activity() -> list[str]:
     envelope = _fetch_envelope("/api/v1/audit/events")
     if isinstance(envelope, dict) and envelope.get("status") == "success":

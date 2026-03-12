@@ -263,6 +263,39 @@ def test_signals_view_respects_requested_asset(monkeypatch) -> None:
     assert payload["detail"]["asset"] == "BTC"
 
 
+def test_overview_view_reuses_signals_detail_contract(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"mode": "research_only", "portfolio": {"total_value": 1000.0}})
+    monkeypatch.setattr(view_data, "get_recent_activity", lambda: ["Generated explanation for SOL"])
+    monkeypatch.setattr(
+        view_data,
+        "get_signals_view",
+        lambda selected_asset=None: {
+            "selected_asset": selected_asset or "SOL",
+            "signals": [
+                {
+                    "asset": "SOL",
+                    "signal": "buy",
+                    "confidence": 0.81,
+                    "status": "pending_review",
+                    "summary": "Momentum with catalyst support",
+                }
+            ],
+            "detail": {
+                "asset": selected_asset or "SOL",
+                "current_cause": "Momentum with catalyst support",
+                "future_catalyst": "A governance milestone remains in focus",
+            },
+        },
+    )
+
+    payload = view_data.get_overview_view()
+    assert payload["summary"]["mode"] == "research_only"
+    assert payload["selected_asset"] == "SOL"
+    assert payload["signals"][0]["thesis"] == "Momentum with catalyst support"
+    assert payload["detail"]["future_catalyst"] == "A governance milestone remains in focus"
+    assert payload["recent_activity"] == ["Generated explanation for SOL"]
+
+
 def test_research_explain_uses_api_payload(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,
