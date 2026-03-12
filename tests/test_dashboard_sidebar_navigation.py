@@ -8,14 +8,14 @@ from dashboard.components.sidebar import DEFAULT_NAV_ITEMS
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 EXPECTED_NAV_ITEMS = (
-    ("dashboard/app.py", "Overview", "🏠"),
-    ("dashboard/pages/10_Markets.py", "Markets", "📈"),
-    ("dashboard/pages/20_Portfolio.py", "Portfolio", "💼"),
-    ("dashboard/pages/30_Signals.py", "Signals", "🧠"),
-    ("dashboard/pages/40_Trades.py", "Trades", "🔁"),
-    ("dashboard/pages/50_Automation.py", "Automation", "⚙️"),
-    ("dashboard/pages/60_Operations.py", "Operations", "🛠️"),
-    ("dashboard/pages/70_Settings.py", "Settings", "🔒"),
+    ("app.py", "Overview", "🏠"),
+    ("pages/10_Markets.py", "Markets", "📈"),
+    ("pages/20_Portfolio.py", "Portfolio", "💼"),
+    ("pages/30_Signals.py", "Signals", "🧠"),
+    ("pages/40_Trades.py", "Trades", "🔁"),
+    ("pages/50_Automation.py", "Automation", "⚙️"),
+    ("pages/60_Operations.py", "Operations", "🛠️"),
+    ("pages/70_Settings.py", "Settings", "🔒"),
 )
 
 SIDEBAR_ENABLED_FILES = (

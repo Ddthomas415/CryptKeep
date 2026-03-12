@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from html import escape
 
 import streamlit as st
 
@@ -15,15 +16,34 @@ def render_page_header(title: str, subtitle: str = "", badges: Sequence[dict[str
     left, right = st.columns((2.4, 1))
 
     with left:
-        st.title(title)
-        if subtitle:
-            st.caption(subtitle)
+        subtitle_html = f"<p>{escape(subtitle)}</p>" if subtitle else ""
+        st.markdown(
+            f"""
+            <div class="ck-page-intro">
+              <h1>{escape(title)}</h1>
+              {subtitle_html}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     with right:
+        rendered_badges: list[str] = []
         for badge in badges or []:
             label = str(badge.get("label") or "").strip()
             value = str(badge.get("value") or "").strip()
             if not (label or value):
                 continue
-            text = f"{label}: {value}" if label else value
-            st.markdown(f"<span class='ck-badge'>{text}</span>", unsafe_allow_html=True)
+            rendered_badges.append(
+                f"""
+                <div class="ck-badge">
+                  <span class="ck-badge-label">{escape(label or "Status")}</span>
+                  <span class="ck-badge-value">{escape(value or "-")}</span>
+                </div>
+                """
+            )
+        if rendered_badges:
+            st.markdown(
+                f"<div class='ck-badge-row'>{''.join(rendered_badges)}</div>",
+                unsafe_allow_html=True,
+            )

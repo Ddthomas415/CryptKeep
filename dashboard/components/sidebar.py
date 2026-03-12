@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from html import escape
 
 import streamlit as st
 
@@ -8,14 +9,14 @@ NavItem = tuple[str, str, str]
 
 
 DEFAULT_NAV_ITEMS: tuple[NavItem, ...] = (
-    ("dashboard/app.py", "Overview", "🏠"),
-    ("dashboard/pages/10_Markets.py", "Markets", "📈"),
-    ("dashboard/pages/20_Portfolio.py", "Portfolio", "💼"),
-    ("dashboard/pages/30_Signals.py", "Signals", "🧠"),
-    ("dashboard/pages/40_Trades.py", "Trades", "🔁"),
-    ("dashboard/pages/50_Automation.py", "Automation", "⚙️"),
-    ("dashboard/pages/60_Operations.py", "Operations", "🛠️"),
-    ("dashboard/pages/70_Settings.py", "Settings", "🔒"),
+    ("app.py", "Overview", "🏠"),
+    ("pages/10_Markets.py", "Markets", "📈"),
+    ("pages/20_Portfolio.py", "Portfolio", "💼"),
+    ("pages/30_Signals.py", "Signals", "🧠"),
+    ("pages/40_Trades.py", "Trades", "🔁"),
+    ("pages/50_Automation.py", "Automation", "⚙️"),
+    ("pages/60_Operations.py", "Operations", "🛠️"),
+    ("pages/70_Settings.py", "Settings", "🔒"),
 )
 
 
@@ -34,11 +35,24 @@ def render_app_sidebar(
     show_legacy_note: bool = True,
 ) -> None:
     with st.sidebar:
-        st.markdown(f"## {title}")
-        st.caption(subtitle)
-        st.markdown("---")
+        st.markdown(
+            f"""
+            <div class="ck-brand">
+              <div class="ck-brand-title">{escape(title)}</div>
+              <div class="ck-brand-subtitle">{escape(subtitle)}</div>
+              <div class="ck-brand-pills">
+                <span class="ck-brand-pill">Research Only</span>
+                <span class="ck-brand-pill">Paper Safe</span>
+              </div>
+            </div>
+            <div class="ck-nav-label">Workspace</div>
+            """,
+            unsafe_allow_html=True,
+        )
         for path, label, icon in nav_items:
             _page_link(path, label=label, icon=icon)
-        st.markdown("---")
         if show_legacy_note:
-            st.caption("Legacy admin pages remain available for compatibility.")
+            st.markdown(
+                "<div class='ck-sidebar-note'>Legacy admin pages remain available for compatibility.</div>",
+                unsafe_allow_html=True,
+            )
