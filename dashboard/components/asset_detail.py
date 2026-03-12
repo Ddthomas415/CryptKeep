@@ -56,6 +56,15 @@ def build_assistant_status_summary(detail: dict[str, Any] | None) -> str:
     return summary
 
 
+def build_assistant_status_message(detail: dict[str, Any] | None) -> str:
+    payload = detail if isinstance(detail, dict) else {}
+    assistant_status = (
+        payload.get("assistant_status") if isinstance(payload.get("assistant_status"), dict) else {}
+    )
+    message = str(assistant_status.get("message") or "").strip()
+    return message
+
+
 def build_asset_detail_metrics(detail: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = detail if isinstance(detail, dict) else {}
     exchange = str(payload.get("exchange") or "").strip()
@@ -154,6 +163,9 @@ def render_asset_detail_card(
         assistant_summary = build_assistant_status_summary(payload)
         if assistant_summary:
             st.caption(assistant_summary)
+        assistant_message = build_assistant_status_message(payload)
+        if assistant_message:
+            st.caption(assistant_message)
         metric_items = build_asset_detail_metrics(payload)
         metric_cols = st.columns(len(metric_items))
         for col, item in zip(metric_cols, metric_items, strict=False):
@@ -197,6 +209,9 @@ def render_research_lens(
         assistant_summary = build_assistant_status_summary(payload)
         if assistant_summary:
             st.caption(assistant_summary)
+        assistant_message = build_assistant_status_message(payload)
+        if assistant_message:
+            st.caption(assistant_message)
         st.markdown(
             f"**Current Cause**  \n{str(payload.get('current_cause') or 'No current-cause summary available.')}"
         )
@@ -235,6 +250,9 @@ def render_focus_summary(
         assistant_summary = build_assistant_status_summary(payload)
         if assistant_summary:
             st.caption(assistant_summary)
+        assistant_message = build_assistant_status_message(payload)
+        if assistant_message:
+            st.caption(assistant_message)
         st.caption(str(payload.get("current_cause") or payload.get("thesis") or empty_message))
         secondary = str(payload.get("future_catalyst") or "").strip()
         if secondary:

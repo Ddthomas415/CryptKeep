@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dashboard.components.asset_detail import (
+    build_assistant_status_message,
     build_assistant_status_summary,
     build_asset_detail_metrics,
     build_focus_summary_metrics,
@@ -32,6 +33,20 @@ def test_build_assistant_status_summary_marks_fallback() -> None:
     )
 
     assert summary == "Reasoning: Dashboard Fallback | fallback"
+
+
+def test_build_assistant_status_message_returns_message_text() -> None:
+    message = build_assistant_status_message(
+        {
+            "assistant_status": {
+                "provider": "dashboard_fallback",
+                "fallback": True,
+                "message": "Primary explain service returned invalid asset copy.",
+            }
+        }
+    )
+
+    assert message == "Primary explain service returned invalid asset copy."
 
 
 def test_build_asset_detail_metrics_formats_snapshot_row() -> None:

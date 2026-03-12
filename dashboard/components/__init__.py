@@ -1,5 +1,6 @@
 from dashboard.components.activity import normalize_activity_items, render_activity_panel
 from dashboard.components.asset_detail import (
+    build_assistant_status_message,
     build_assistant_status_summary,
     build_asset_detail_metrics,
     build_focus_summary_metrics,
@@ -52,6 +53,7 @@ __all__ = [
     "render_activity_panel",
     "render_page_header",
     "render_kpi_cards",
+    "build_assistant_status_message",
     "build_assistant_status_summary",
     "build_asset_detail_metrics",
     "build_focus_summary_metrics",
