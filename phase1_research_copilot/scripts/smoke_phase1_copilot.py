@@ -89,6 +89,7 @@ def _build_summary(args: argparse.Namespace, request_json: Callable[..., dict[st
             "provider": (chat.get("chat_status") or {}).get("provider"),
             "fallback": (chat.get("chat_status") or {}).get("fallback"),
             "assistant_response": chat.get("assistant_response"),
+            "execution_disabled": chat.get("execution_disabled"),
         }
     except Exception as exc:
         summary["chat"] = {"status": "error", "message": f"{type(exc).__name__}: {exc}"}
@@ -100,13 +101,21 @@ def _summary_is_ok(summary: dict[str, Any], *, expect_openai: bool) -> bool:
     critical_keys = ("gateway_health", "orchestrator_health", "explain", "chat")
     if not all(isinstance(summary.get(key), dict) and summary[key].get("status") == "ok" for key in critical_keys):
         return False
+
+    orchestrator_health = summary.get("orchestrator_health") if isinstance(summary.get("orchestrator_health"), dict) else {}
+    explain = summary.get("explain") if isinstance(summary.get("explain"), dict) else {}
+    chat = summary.get("chat") if isinstance(summary.get("chat"), dict) else {}
+    if (
+        not bool(orchestrator_health.get("no_trading"))
+        or not bool(explain.get("execution_disabled"))
+        or not bool(chat.get("execution_disabled"))
+    ):
+        return False
+
     if not expect_openai:
         return True
 
     gateway_health = summary.get("gateway_health") if isinstance(summary.get("gateway_health"), dict) else {}
-    orchestrator_health = summary.get("orchestrator_health") if isinstance(summary.get("orchestrator_health"), dict) else {}
-    explain = summary.get("explain") if isinstance(summary.get("explain"), dict) else {}
-    chat = summary.get("chat") if isinstance(summary.get("chat"), dict) else {}
 
     return (
         bool(gateway_health.get("openai_enabled"))
