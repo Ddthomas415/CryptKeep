@@ -5,6 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_portfolio_view
 
 AUTH_STATE = require_authenticated_role("VIEWER")
@@ -26,9 +27,8 @@ metrics[1].metric("Cash", f"${float(portfolio.get('cash') or 0.0):,.2f}")
 metrics[2].metric("Unrealized PnL", f"${float(portfolio.get('unrealized_pnl') or 0.0):,.2f}")
 metrics[3].metric("Exposure Used", f"{float(portfolio.get('exposure_used_pct') or 0.0):.1f}%")
 
-st.markdown("### Open Positions")
-st.dataframe(
+render_table_section(
+    "Open Positions",
     positions,
-    use_container_width=True,
-    hide_index=True,
+    empty_message="No open positions.",
 )

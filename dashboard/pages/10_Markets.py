@@ -5,6 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_dashboard_summary
 
 AUTH_STATE = require_authenticated_role("VIEWER")
@@ -27,11 +28,10 @@ render_page_header(
 left, right = st.columns((1, 1.4))
 
 with left:
-    st.markdown("### Watchlist")
-    st.dataframe(
+    render_table_section(
+        "Watchlist",
         watchlist,
-        use_container_width=True,
-        hide_index=True,
+        empty_message="No watchlist data available.",
     )
 
 with right:

@@ -6,6 +6,7 @@ from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_dashboard_summary, get_recent_activity, get_recommendations
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
@@ -63,7 +64,6 @@ render_kpi_cards(
 col_signals, col_activity = st.columns((1.4, 1))
 
 with col_signals:
-    st.markdown("### Recent Signals")
     signal_rows = [
         {
             "asset": str(item.get("asset") or ""),
@@ -73,10 +73,10 @@ with col_signals:
         }
         for item in recommendations[:6]
     ]
-    st.dataframe(
+    render_table_section(
+        "Recent Signals",
         signal_rows,
-        use_container_width=True,
-        hide_index=True,
+        empty_message="No recent signals available.",
     )
 
 with col_activity:
