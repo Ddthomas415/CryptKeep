@@ -9,6 +9,7 @@ from dashboard.components.asset_detail import (
     render_research_lens,
 )
 from dashboard.components.cards import render_kpi_cards
+from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
@@ -19,12 +20,11 @@ render_app_sidebar()
 
 signals_view = get_signals_view()
 signals = signals_view.get("signals") if isinstance(signals_view.get("signals"), list) else []
-asset_options = [str(item.get("asset") or "") for item in signals if isinstance(item, dict)]
-default_asset = str(signals_view.get("selected_asset") or (asset_options[0] if asset_options else "SOL"))
-selected_asset = st.selectbox(
-    "Focus signal",
-    asset_options or [default_asset],
-    index=(asset_options.index(default_asset) if default_asset in asset_options else 0),
+selected_asset, default_asset, _asset_options = render_focus_selector(
+    signals,
+    label="Focus signal",
+    selected_asset=str(signals_view.get("selected_asset") or ""),
+    fallback_asset="SOL",
     key="signals_selected_asset",
 )
 if selected_asset != default_asset:

@@ -5,6 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.asset_detail import render_focus_summary
 from dashboard.components.cards import render_kpi_cards
+from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
@@ -30,12 +31,11 @@ render_app_sidebar()
 overview_view = get_overview_view()
 signal_rows = overview_view.get("signals") if isinstance(overview_view.get("signals"), list) else []
 detail = overview_view.get("detail") if isinstance(overview_view.get("detail"), dict) else {}
-focus_options = [str(item.get("asset") or "") for item in signal_rows if isinstance(item, dict)]
-default_asset = str(overview_view.get("selected_asset") or (focus_options[0] if focus_options else "SOL"))
-focus_asset = st.selectbox(
-    "Focus signal",
-    focus_options or [default_asset],
-    index=(focus_options.index(default_asset) if default_asset in focus_options else 0),
+focus_asset, default_asset, _focus_options = render_focus_selector(
+    signal_rows,
+    label="Focus signal",
+    selected_asset=str(overview_view.get("selected_asset") or ""),
+    fallback_asset="SOL",
     key="overview_selected_signal",
 )
 if focus_asset != default_asset:

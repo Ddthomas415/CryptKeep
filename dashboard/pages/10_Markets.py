@@ -9,6 +9,7 @@ from dashboard.components.asset_detail import (
     render_research_lens,
 )
 from dashboard.components.cards import render_kpi_cards
+from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
@@ -19,12 +20,11 @@ render_app_sidebar()
 
 markets_view = get_markets_view()
 watchlist = markets_view.get("watchlist") if isinstance(markets_view.get("watchlist"), list) else []
-asset_options = [str(item.get("asset") or "") for item in watchlist if isinstance(item, dict)]
-default_asset = str(markets_view.get("selected_asset") or (asset_options[0] if asset_options else "BTC"))
-selected_asset = st.selectbox(
-    "Focus asset",
-    asset_options or [default_asset],
-    index=(asset_options.index(default_asset) if default_asset in asset_options else 0),
+selected_asset, default_asset, _asset_options = render_focus_selector(
+    watchlist,
+    label="Focus asset",
+    selected_asset=str(markets_view.get("selected_asset") or ""),
+    fallback_asset="BTC",
     key="markets_selected_asset",
 )
 if selected_asset != default_asset:
