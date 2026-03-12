@@ -21,6 +21,7 @@ def test_dashboard_component_modules_import_together() -> None:
     assert callable(package.build_overview_kpis)
     assert callable(package.render_market_context)
     assert callable(package.build_market_snapshot_lines)
+    assert callable(package.build_market_context_metrics)
 
     assert callable(imported["dashboard.components.asset_detail"].render_research_lens)
     assert callable(imported["dashboard.components.focus_selector"].resolve_focus_options)

@@ -14,7 +14,7 @@ from dashboard.components.kpi_builders import build_markets_kpis, build_overview
 from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import (
-    build_market_context_lines,
+    build_market_context_metrics,
     build_market_snapshot_lines,
     render_market_context,
     render_signal_thesis,
@@ -36,7 +36,7 @@ __all__ = [
     "build_overview_kpis",
     "build_signals_kpis",
     "build_market_snapshot_lines",
-    "build_market_context_lines",
+    "build_market_context_metrics",
     "render_market_context",
     "render_signal_thesis",
     "resolve_asset_row",

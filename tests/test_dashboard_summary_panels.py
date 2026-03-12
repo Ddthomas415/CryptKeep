@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dashboard.components.summary_panels import (
-    build_market_context_lines,
+    build_market_context_metrics,
     build_market_snapshot_lines,
     resolve_asset_row,
 )
@@ -41,8 +41,8 @@ def test_build_market_snapshot_lines_formats_quote_and_source() -> None:
     assert lines[2] == "Source: coinbase / api | 2026-03-11T12:55:00Z"
 
 
-def test_build_market_context_lines_includes_snapshot_and_evidence() -> None:
-    lines = build_market_context_lines(
+def test_build_market_context_metrics_include_snapshot_metadata() -> None:
+    metrics = build_market_context_metrics(
         {
             "support": 89196.92,
             "resistance": 91913.58,
@@ -55,8 +55,23 @@ def test_build_market_context_lines_includes_snapshot_and_evidence() -> None:
         }
     )
 
-    assert lines[0] == "Support: $89,196.92"
-    assert lines[1] == "Resistance: $91,913.58"
-    assert "Quote: Bid $90,550.00 | Ask $90,560.50 | Spread $10.50" in lines
-    assert "Source: coinbase / local ws" in lines
-    assert lines[-1] == "Evidence: Spot demand improved."
+    assert metrics[0] == {
+        "label": "Support",
+        "value": "$89,196.92",
+        "delta": "buy-side reference",
+    }
+    assert metrics[1] == {
+        "label": "Resistance",
+        "value": "$91,913.58",
+        "delta": "sell-side reference",
+    }
+    assert metrics[2] == {
+        "label": "Bid / Ask",
+        "value": "$90,550.00 / $90,560.50",
+        "delta": "Spread $10.50",
+    }
+    assert metrics[3] == {
+        "label": "Source",
+        "value": "Local Ws",
+        "delta": "coinbase",
+    }

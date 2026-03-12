@@ -66,22 +66,65 @@ def build_market_snapshot_lines(
     return lines
 
 
-def build_market_context_lines(detail: dict[str, Any] | None) -> list[str]:
+def _format_currency(value: Any) -> str:
+    try:
+        amount = float(value or 0.0)
+    except (TypeError, ValueError):
+        return "-"
+    if amount <= 0:
+        return "-"
+    return f"${amount:,.2f}"
+
+
+def build_market_context_metrics(detail: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = detail if isinstance(detail, dict) else {}
-    lines = [
-        f"Support: ${float(payload.get('support') or 0.0):,.2f}",
-        f"Resistance: ${float(payload.get('resistance') or 0.0):,.2f}",
+    exchange = str(payload.get("exchange") or "").strip()
+    snapshot_source = str(payload.get("snapshot_source") or "").strip().replace("_", " ")
+    snapshot_timestamp = str(payload.get("snapshot_timestamp") or "").strip()
+    source_value = snapshot_source.title() if snapshot_source else "Watchlist"
+    source_delta = " / ".join(part for part in (exchange, snapshot_timestamp) if part)
+
+    return [
+        {
+            "label": "Support",
+            "value": _format_currency(payload.get("support")),
+            "delta": "buy-side reference",
+        },
+        {
+            "label": "Resistance",
+            "value": _format_currency(payload.get("resistance")),
+            "delta": "sell-side reference",
+        },
+        {
+            "label": "Bid / Ask",
+            "value": f"{_format_currency(payload.get('bid'))} / {_format_currency(payload.get('ask'))}",
+            "delta": f"Spread {_format_currency(payload.get('spread'))}"
+            if _format_currency(payload.get("spread")) != "-"
+            else "",
+        },
+        {
+            "label": "Source",
+            "value": source_value,
+            "delta": source_delta,
+        },
     ]
-    lines.extend(build_market_snapshot_lines(payload))
-    lines.append(f"Evidence: {str(payload.get('evidence') or 'No evidence available.')}")
-    return lines
 
 
 def render_market_context(detail: dict[str, Any] | None) -> None:
+    payload = detail if isinstance(detail, dict) else {}
     with st.container(border=True):
         st.markdown("### Market Context")
-        for line in build_market_context_lines(detail):
-            st.caption(line)
+        metric_items = build_market_context_metrics(payload)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+        st.caption(f"Evidence: {str(payload.get('evidence') or 'No evidence available.')}")
 
 
 def render_signal_thesis(
