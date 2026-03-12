@@ -4,6 +4,12 @@ up:
 up-auto-ports:
 	python3 scripts/run_compose_auto_ports.py
 
+backend-dev:
+	python3 scripts/run_backend_auto_port.py
+
+frontend-dev:
+	python3 scripts/run_frontend_auto_port.py
+
 down:
 	docker compose down
 

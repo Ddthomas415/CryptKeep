@@ -34,6 +34,16 @@ To preview the resolved host-port mapping without starting containers:
 python scripts/run_compose_auto_ports.py --print-env
 ```
 
+For local non-Docker development, the repo now auto-switches ports too:
+
+```bash
+make backend-dev
+make frontend-dev
+```
+
+`backend-dev` records the resolved backend port in `crypto-trading-ai/.runtime/local_dev_ports.json`.
+`frontend-dev` reads that runtime port and points the Vite proxy at the same backend automatically.
+
 Backend:
 - http://localhost:8000
 - docs: http://localhost:8000/docs
@@ -57,6 +67,8 @@ Useful commands
 ```bash
 make up
 make up-auto-ports
+make backend-dev
+make frontend-dev
 make down
 make migrate
 make backend-test
