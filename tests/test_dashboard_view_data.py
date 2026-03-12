@@ -815,6 +815,8 @@ def test_markets_view_defaults_to_research_asset(monkeypatch) -> None:
 
 
 def test_signals_view_prefers_pending_review_signal(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_load_current_regime", lambda: "trend_up")
+    monkeypatch.setattr(view_data, "_load_signal_reliability", lambda asset: {"hit_rate": 0.7, "n_scored": 50, "avg_return_bps": 120.0})
     monkeypatch.setattr(
         view_data,
         "get_recommendations",
@@ -875,12 +877,19 @@ def test_signals_view_prefers_pending_review_signal(monkeypatch) -> None:
     assert payload["signals"][0]["asset"] == "BTC"
     assert payload["signals"][1]["price"] == 200.0
     assert payload["signals"][1]["execution_state"] == "LIVE · coinbase · limit"
+    assert payload["signals"][1]["regime"] == "trend_up"
+    assert payload["signals"][1]["category"] in {"top_opportunity", "watch_closely"}
+    assert payload["signals"][1]["opportunity_score"] > 0.0
     assert payload["detail"]["asset"] == "SOL"
     assert payload["detail"]["execution_state"] == "LIVE · coinbase · limit"
     assert payload["detail"]["current_cause"] == "Momentum with catalyst support"
+    assert payload["detail"]["regime"] == "trend_up"
+    assert payload["detail"]["opportunity_score"] == payload["signals"][1]["opportunity_score"]
 
 
 def test_signals_view_respects_requested_asset(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_load_current_regime", lambda: "event_driven")
+    monkeypatch.setattr(view_data, "_load_signal_reliability", lambda asset: None)
     monkeypatch.setattr(
         view_data,
         "get_recommendations",
@@ -899,6 +908,8 @@ def test_signals_view_respects_requested_asset(monkeypatch) -> None:
     payload = view_data.get_signals_view(selected_asset="BTC")
     assert payload["selected_asset"] == "BTC"
     assert payload["detail"]["asset"] == "BTC"
+    assert payload["signals"][0]["regime"] == "event_driven"
+    assert payload["signals"][0]["category"]
 
 
 def test_overview_view_reuses_signals_detail_contract(monkeypatch) -> None:

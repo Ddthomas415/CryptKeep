@@ -86,6 +86,11 @@ def build_signals_kpis(detail: dict[str, Any] | None) -> list[dict[str, str]]:
             "delta": "AI conviction",
         },
         {
+            "label": "Opportunity",
+            "value": str(payload.get("category") or "needs_confirmation").replace("_", " ").title(),
+            "delta": f"Score {_format_confidence(payload.get('opportunity_score'))} / {str(payload.get('regime') or 'unknown').replace('_', ' ').title()}",
+        },
+        {
             "label": "24h Change",
             "value": _format_pct(payload.get("change_24h_pct")),
             "delta": _format_currency(payload.get("price")),

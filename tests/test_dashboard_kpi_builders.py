@@ -47,6 +47,9 @@ def test_build_signals_kpis_formats_signal_detail() -> None:
             "signal": "buy",
             "status": "pending_review",
             "confidence": 0.81,
+            "category": "top_opportunity",
+            "opportunity_score": 0.74,
+            "regime": "trend_up",
             "change_24h_pct": 6.5,
             "price": 200.0,
             "execution_disabled": True,
@@ -55,10 +58,12 @@ def test_build_signals_kpis_formats_signal_detail() -> None:
     )
     assert payload[0]["value"] == "Buy"
     assert payload[1]["value"] == "81%"
-    assert payload[2]["value"] == "+6.5%"
-    assert payload[2]["delta"] == "$200.00"
-    assert payload[3]["value"] == "Disabled"
-    assert payload[3]["delta"] == "Research only."
+    assert payload[2]["value"] == "Top Opportunity"
+    assert payload[2]["delta"] == "Score 74% / Trend Up"
+    assert payload[3]["value"] == "+6.5%"
+    assert payload[3]["delta"] == "$200.00"
+    assert payload[4]["value"] == "Disabled"
+    assert payload[4]["delta"] == "Research only."
 
 
 def test_build_portfolio_kpis_formats_portfolio_summary() -> None:

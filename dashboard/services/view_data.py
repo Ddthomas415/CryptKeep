@@ -7,6 +7,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from dashboard.services.intelligence import build_opportunity_snapshot
 from services.admin.config_editor import CONFIG_PATH, load_user_yaml, save_user_yaml
 from services.execution.live_arming import set_live_enabled
 from services.setup.config_manager import DEFAULT_CFG, deep_merge
@@ -966,6 +967,50 @@ def _dedupe_recommendation_rows(rows: list[dict[str, Any]]) -> list[dict[str, An
         seen.add(asset)
         deduped.append(row)
     return deduped
+
+
+def _load_current_regime() -> str:
+    try:
+        from storage.ops_signal_store_sqlite import OpsSignalStoreSQLite
+    except Exception:
+        OpsSignalStoreSQLite = None
+
+    if callable(OpsSignalStoreSQLite):
+        try:
+            payload = OpsSignalStoreSQLite().latest_risk_gate()
+        except Exception:
+            payload = None
+        if isinstance(payload, dict):
+            regime = str(payload.get("regime") or "").strip()
+            if regime:
+                return regime
+    return ""
+
+
+def _load_signal_reliability(asset: str) -> dict[str, Any] | None:
+    normalized_asset = _normalize_asset_symbol(asset)
+    if not normalized_asset:
+        return None
+
+    try:
+        from storage.signal_reliability_sqlite import SignalReliabilitySQLite
+    except Exception:
+        SignalReliabilitySQLite = None
+
+    if not callable(SignalReliabilitySQLite):
+        return None
+
+    try:
+        rows = SignalReliabilitySQLite().list(limit=100)
+    except Exception:
+        return None
+
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if _normalize_asset_symbol(row.get("symbol")) == normalized_asset:
+            return row
+    return None
 
 
 def _load_local_recommendations(limit: int = 20) -> list[dict[str, Any]]:
@@ -1982,6 +2027,7 @@ def get_recommendations() -> list[dict[str, Any]]:
 def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
     recommendations = get_recommendations()
     summary = get_dashboard_summary()
+    current_regime = _load_current_regime() or str(summary.get("risk_status") or "")
     watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
 
     market_rows: dict[str, dict[str, Any]] = {}
@@ -1998,6 +2044,12 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
             continue
         asset = str(item.get("asset") or "").strip().upper()
         market = market_rows.get(asset, {})
+        intelligence = build_opportunity_snapshot(
+            signal_row=item,
+            market_row=market,
+            reliability=_load_signal_reliability(asset),
+            summary={"risk_status": summary.get("risk_status"), "current_regime": current_regime},
+        )
         signals.append(
             {
                 "asset": asset,
@@ -2009,6 +2061,14 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
                 "evidence": str(item.get("evidence") or ""),
                 "price": float(market.get("price") or 0.0),
                 "change_24h_pct": float(market.get("change_24h_pct") or 0.0),
+                "regime": str(intelligence.get("regime") or ""),
+                "regime_fit": float(intelligence.get("regime_fit") or 0.0),
+                "tradeability": float(intelligence.get("tradeability") or 0.0),
+                "setup_quality": float(intelligence.get("setup_quality") or 0.0),
+                "expected_return": float(intelligence.get("expected_return") or 0.0),
+                "risk_penalty": float(intelligence.get("risk_penalty") or 0.0),
+                "opportunity_score": float(intelligence.get("opportunity_score") or 0.0),
+                "category": str(intelligence.get("category") or ""),
             }
         )
 
@@ -2027,6 +2087,14 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
                 "evidence": str(detail.get("evidence") or ""),
                 "price": float(detail.get("price") or 0.0),
                 "change_24h_pct": float(detail.get("change_24h_pct") or 0.0),
+                "regime": str(detail.get("regime") or current_regime or ""),
+                "regime_fit": float(detail.get("regime_fit") or 0.0),
+                "tradeability": float(detail.get("tradeability") or 0.0),
+                "setup_quality": float(detail.get("setup_quality") or 0.0),
+                "expected_return": float(detail.get("expected_return") or 0.0),
+                "risk_penalty": float(detail.get("risk_penalty") or 0.0),
+                "opportunity_score": float(detail.get("opportunity_score") or 0.0),
+                "category": str(detail.get("category") or ""),
             }
         ]
         return {
@@ -2049,7 +2117,21 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
         )["asset"]
 
     markets_view = get_markets_view(selected_asset=resolved_asset)
-    detail = markets_view.get("detail") if isinstance(markets_view.get("detail"), dict) else {}
+    detail = dict(markets_view.get("detail")) if isinstance(markets_view.get("detail"), dict) else {}
+    selected_signal = next((row for row in signals if str(row.get("asset") or "") == resolved_asset), {})
+    if detail and isinstance(selected_signal, dict):
+        detail.update(
+            {
+                "regime": str(selected_signal.get("regime") or ""),
+                "regime_fit": float(selected_signal.get("regime_fit") or 0.0),
+                "tradeability": float(selected_signal.get("tradeability") or 0.0),
+                "setup_quality": float(selected_signal.get("setup_quality") or 0.0),
+                "expected_return": float(selected_signal.get("expected_return") or 0.0),
+                "risk_penalty": float(selected_signal.get("risk_penalty") or 0.0),
+                "opportunity_score": float(selected_signal.get("opportunity_score") or 0.0),
+                "category": str(selected_signal.get("category") or ""),
+            }
+        )
 
     return {
         "selected_asset": resolved_asset,

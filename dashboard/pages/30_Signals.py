@@ -58,6 +58,9 @@ with left:
                 "confidence": float(item.get("confidence") or 0.0),
                 "status": str(item.get("status") or ""),
                 "execution_state": str(item.get("execution_state") or ""),
+                "regime": str(item.get("regime") or ""),
+                "category": str(item.get("category") or ""),
+                "opportunity_score": float(item.get("opportunity_score") or 0.0),
                 "price": float(item.get("price") or 0.0),
                 "change_24h_pct": float(item.get("change_24h_pct") or 0.0),
             }
