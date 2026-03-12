@@ -257,6 +257,24 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     expect(payload.data.output[0].type).toBe("warning");
   });
 
+  it("terminal dangerous command confirmation tokens are unique per request", async () => {
+    const firstPayload = await postJson("/api/v1/terminal/execute", {
+      command: "kill-switch on",
+    });
+    expect(firstPayload.status).toBe("success");
+    expect(firstPayload.data.requires_confirmation).toBe(true);
+
+    const secondPayload = await postJson("/api/v1/terminal/execute", {
+      command: "mode set paper",
+    });
+    expect(secondPayload.status).toBe("success");
+    expect(secondPayload.data.requires_confirmation).toBe(true);
+
+    const firstToken = firstPayload.data.confirmation_token as string;
+    const secondToken = secondPayload.data.confirmation_token as string;
+    expect(firstToken).not.toBe(secondToken);
+  });
+
   it("terminal execute rejects non-approved commands without executing them", async () => {
     const payload = await postJson("/api/v1/terminal/execute", {
       command: "rm -rf /",
