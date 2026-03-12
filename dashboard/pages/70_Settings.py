@@ -3,9 +3,12 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.cards import render_kpi_cards
 from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
+from dashboard.components.kpi_builders import build_settings_kpis
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_settings_profile_summary
 from dashboard.services.view_data import get_settings_view, update_settings_view
 
 AUTH_STATE = require_authenticated_role("VIEWER")
@@ -47,62 +50,75 @@ render_page_header(
     badges=[{"label": "Profile", "value": "Default Workspace"}],
 )
 
-tab_general, tab_notifications, tab_ai, tab_security = st.tabs(
-    ["General", "Notifications", "AI", "Security"]
-)
+render_kpi_cards(build_settings_kpis(settings_view))
 
-with tab_general:
-    timezone_value = st.selectbox("Timezone", timezones, index=timezones.index(timezone))
-    default_currency_value = st.selectbox(
-        "Default currency",
-        currency_options,
-        index=currency_options.index(default_currency),
-    )
-    default_mode_value = st.selectbox("Default mode", mode_options, index=mode_options.index(default_mode))
-    startup_page_value = st.text_input("Startup page", value=str(general.get("startup_page") or "/dashboard"))
-    watchlist_defaults_value = st.text_input("Watchlist defaults (comma separated)", value=watchlist_defaults_text)
+summary_col, form_col = st.columns((1, 1.4))
 
-with tab_notifications:
-    email_value = st.checkbox("Email alerts", value=bool(notifications.get("email")))
-    telegram_value = st.checkbox("Telegram alerts", value=bool(notifications.get("telegram")))
-    discord_value = st.checkbox("Discord alerts", value=bool(notifications.get("discord")))
-    webhook_value = st.checkbox("Webhook alerts", value=bool(notifications.get("webhook")))
-    price_alerts_value = st.checkbox("Price alerts", value=bool(notifications.get("price_alerts", True)))
-    news_alerts_value = st.checkbox("News alerts", value=bool(notifications.get("news_alerts", True)))
-    catalyst_alerts_value = st.checkbox("Catalyst alerts", value=bool(notifications.get("catalyst_alerts", True)))
-    risk_alerts_value = st.checkbox("Risk alerts", value=bool(notifications.get("risk_alerts")))
-    approval_requests_value = st.checkbox(
-        "Approval requests",
-        value=bool(notifications.get("approval_requests", True)),
+with summary_col:
+    render_settings_profile_summary(settings_view)
+    st.info("Workspace defaults, alert channels, and AI preferences are grouped here for faster review.")
+    st.caption(
+        "Profile scope: default workspace  "
+        f"(timezone={general.get('timezone') or 'UTC'}, mode={general.get('default_mode') or 'research_only'})"
     )
 
-with tab_ai:
-    explanation_length_value = st.selectbox(
-        "Explanation length",
-        length_options,
-        index=length_options.index(explanation_length),
+with form_col:
+    tab_general, tab_notifications, tab_ai, tab_security = st.tabs(
+        ["General", "Notifications", "AI", "Security"]
     )
-    tone_value = st.selectbox("Explanation tone", tone_options, index=tone_options.index(tone))
-    show_evidence_value = st.checkbox("Show evidence", value=bool(ai.get("show_evidence", True)))
-    show_confidence_value = st.checkbox("Show confidence", value=bool(ai.get("show_confidence", True)))
-    include_archives_value = st.checkbox("Include archives", value=bool(ai.get("include_archives", True)))
-    include_onchain_value = st.checkbox("Include on-chain", value=bool(ai.get("include_onchain", True)))
-    include_social_value = st.checkbox("Include social", value=bool(ai.get("include_social", False)))
-    allow_hypotheses_value = st.checkbox("Allow hypotheses", value=bool(ai.get("allow_hypotheses", True)))
 
-with tab_security:
-    session_timeout_value = st.number_input(
-        "Session timeout (minutes)",
-        min_value=5,
-        max_value=240,
-        value=int(security.get("session_timeout_minutes") or 60),
-        step=5,
-    )
-    secret_masking_value = st.checkbox("Secret masking", value=bool(security.get("secret_masking", True)))
-    audit_export_allowed_value = st.checkbox(
-        "Audit export allowed",
-        value=bool(security.get("audit_export_allowed", True)),
-    )
+    with tab_general:
+        timezone_value = st.selectbox("Timezone", timezones, index=timezones.index(timezone))
+        default_currency_value = st.selectbox(
+            "Default currency",
+            currency_options,
+            index=currency_options.index(default_currency),
+        )
+        default_mode_value = st.selectbox("Default mode", mode_options, index=mode_options.index(default_mode))
+        startup_page_value = st.text_input("Startup page", value=str(general.get("startup_page") or "/dashboard"))
+        watchlist_defaults_value = st.text_input("Watchlist defaults (comma separated)", value=watchlist_defaults_text)
+
+    with tab_notifications:
+        email_value = st.checkbox("Email alerts", value=bool(notifications.get("email")))
+        telegram_value = st.checkbox("Telegram alerts", value=bool(notifications.get("telegram")))
+        discord_value = st.checkbox("Discord alerts", value=bool(notifications.get("discord")))
+        webhook_value = st.checkbox("Webhook alerts", value=bool(notifications.get("webhook")))
+        price_alerts_value = st.checkbox("Price alerts", value=bool(notifications.get("price_alerts", True)))
+        news_alerts_value = st.checkbox("News alerts", value=bool(notifications.get("news_alerts", True)))
+        catalyst_alerts_value = st.checkbox("Catalyst alerts", value=bool(notifications.get("catalyst_alerts", True)))
+        risk_alerts_value = st.checkbox("Risk alerts", value=bool(notifications.get("risk_alerts")))
+        approval_requests_value = st.checkbox(
+            "Approval requests",
+            value=bool(notifications.get("approval_requests", True)),
+        )
+
+    with tab_ai:
+        explanation_length_value = st.selectbox(
+            "Explanation length",
+            length_options,
+            index=length_options.index(explanation_length),
+        )
+        tone_value = st.selectbox("Explanation tone", tone_options, index=tone_options.index(tone))
+        show_evidence_value = st.checkbox("Show evidence", value=bool(ai.get("show_evidence", True)))
+        show_confidence_value = st.checkbox("Show confidence", value=bool(ai.get("show_confidence", True)))
+        include_archives_value = st.checkbox("Include archives", value=bool(ai.get("include_archives", True)))
+        include_onchain_value = st.checkbox("Include on-chain", value=bool(ai.get("include_onchain", True)))
+        include_social_value = st.checkbox("Include social", value=bool(ai.get("include_social", False)))
+        allow_hypotheses_value = st.checkbox("Allow hypotheses", value=bool(ai.get("allow_hypotheses", True)))
+
+    with tab_security:
+        session_timeout_value = st.number_input(
+            "Session timeout (minutes)",
+            min_value=5,
+            max_value=240,
+            value=int(security.get("session_timeout_minutes") or 60),
+            step=5,
+        )
+        secret_masking_value = st.checkbox("Secret masking", value=bool(security.get("secret_masking", True)))
+        audit_export_allowed_value = st.checkbox(
+            "Audit export allowed",
+            value=bool(security.get("audit_export_allowed", True)),
+        )
 
 payload = {
     "general": {

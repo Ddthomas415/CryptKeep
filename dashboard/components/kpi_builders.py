@@ -194,3 +194,37 @@ def build_automation_kpis(view: dict[str, Any] | None) -> list[dict[str, str]]:
             "delta": "Approval gated" if bool(payload.get("approval_required_for_live")) else "Approval optional",
         },
     ]
+
+
+def build_settings_kpis(view: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = view if isinstance(view, dict) else {}
+    general = payload.get("general") if isinstance(payload.get("general"), dict) else {}
+    notifications = payload.get("notifications") if isinstance(payload.get("notifications"), dict) else {}
+    security = payload.get("security") if isinstance(payload.get("security"), dict) else {}
+
+    enabled_notifications = sum(
+        1 for value in notifications.values() if isinstance(value, bool) and value
+    )
+
+    return [
+        {
+            "label": "Timezone",
+            "value": str(general.get("timezone") or "UTC"),
+            "delta": str(general.get("default_currency") or "USD"),
+        },
+        {
+            "label": "Default Mode",
+            "value": str(general.get("default_mode") or "research_only").replace("_", " ").title(),
+            "delta": str(general.get("startup_page") or "/dashboard"),
+        },
+        {
+            "label": "Alerts Enabled",
+            "value": str(enabled_notifications),
+            "delta": "Notification toggles",
+        },
+        {
+            "label": "Session Timeout",
+            "value": f"{int(security.get('session_timeout_minutes') or 60)} min",
+            "delta": "Secret masking on" if bool(security.get("secret_masking", True)) else "Secret masking off",
+        },
+    ]

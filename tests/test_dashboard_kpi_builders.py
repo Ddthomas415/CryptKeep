@@ -5,6 +5,7 @@ from dashboard.components.kpi_builders import (
     build_markets_kpis,
     build_overview_kpis,
     build_portfolio_kpis,
+    build_settings_kpis,
     build_signals_kpis,
     build_trades_kpis,
 )
@@ -122,3 +123,34 @@ def test_build_automation_kpis_formats_runtime_summary() -> None:
     assert payload[2]["delta"] == "Poll 3s"
     assert payload[3]["value"] == "Approval Gated"
     assert payload[3]["delta"] == "Approval gated"
+
+
+def test_build_settings_kpis_formats_preferences_summary() -> None:
+    payload = build_settings_kpis(
+        {
+            "general": {
+                "timezone": "America/New_York",
+                "default_currency": "USD",
+                "default_mode": "research_only",
+                "startup_page": "/dashboard",
+            },
+            "notifications": {
+                "email": False,
+                "telegram": True,
+                "discord": False,
+                "webhook": False,
+                "price_alerts": True,
+                "news_alerts": True,
+            },
+            "security": {
+                "session_timeout_minutes": 60,
+                "secret_masking": True,
+            },
+        }
+    )
+    assert payload[0]["value"] == "America/New_York"
+    assert payload[0]["delta"] == "USD"
+    assert payload[1]["value"] == "Research Only"
+    assert payload[1]["delta"] == "/dashboard"
+    assert payload[2]["value"] == "3"
+    assert payload[3]["value"] == "60 min"

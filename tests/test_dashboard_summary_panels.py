@@ -5,6 +5,7 @@ from dashboard.components.summary_panels import (
     build_market_context_metrics,
     build_market_snapshot_lines,
     build_portfolio_position_metrics,
+    build_settings_profile_metrics,
     build_trades_queue_metrics,
     resolve_asset_row,
 )
@@ -179,4 +180,49 @@ def test_build_automation_runtime_metrics_format_runtime_state() -> None:
         "label": "Paper Costs",
         "value": "9 / 4 bps",
         "delta": "max 25 intents/cycle",
+    }
+
+
+def test_build_settings_profile_metrics_formats_workspace_profile() -> None:
+    metrics = build_settings_profile_metrics(
+        {
+            "general": {
+                "watchlist_defaults": ["BTC", "ETH", "SOL"],
+            },
+            "notifications": {
+                "email": False,
+                "telegram": True,
+                "discord": False,
+                "webhook": True,
+            },
+            "ai": {
+                "tone": "balanced",
+                "explanation_length": "normal",
+            },
+            "security": {
+                "secret_masking": True,
+                "audit_export_allowed": True,
+            },
+        }
+    )
+
+    assert metrics[0] == {
+        "label": "Watchlist Defaults",
+        "value": "3",
+        "delta": "BTC, ETH, SOL",
+    }
+    assert metrics[1] == {
+        "label": "Alert Targets",
+        "value": "Telegram, Webhook",
+        "delta": "Channels enabled",
+    }
+    assert metrics[2] == {
+        "label": "AI Profile",
+        "value": "Balanced",
+        "delta": "Normal",
+    }
+    assert metrics[3] == {
+        "label": "Security",
+        "value": "Masked",
+        "delta": "Audit export on",
     }

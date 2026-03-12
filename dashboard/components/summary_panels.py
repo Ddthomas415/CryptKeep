@@ -307,3 +307,60 @@ def render_automation_runtime_summary(view: dict[str, Any] | None) -> None:
                     delta = str(item.get("delta") or "").strip()
                     if delta:
                         st.caption(delta)
+
+
+def build_settings_profile_metrics(view: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = view if isinstance(view, dict) else {}
+    general = payload.get("general") if isinstance(payload.get("general"), dict) else {}
+    notifications = payload.get("notifications") if isinstance(payload.get("notifications"), dict) else {}
+    ai = payload.get("ai") if isinstance(payload.get("ai"), dict) else {}
+    security = payload.get("security") if isinstance(payload.get("security"), dict) else {}
+
+    watchlist_defaults = general.get("watchlist_defaults") if isinstance(general.get("watchlist_defaults"), list) else []
+    alert_targets = [
+        name
+        for name in ("email", "telegram", "discord", "webhook")
+        if bool(notifications.get(name))
+    ]
+    alert_target_value = ", ".join(alert_targets[:2]).title() if alert_targets else "None"
+    if len(alert_targets) > 2:
+        alert_target_value += f" +{len(alert_targets) - 2}"
+
+    return [
+        {
+            "label": "Watchlist Defaults",
+            "value": str(len(watchlist_defaults)),
+            "delta": ", ".join(str(item) for item in watchlist_defaults[:3]) or "No defaults",
+        },
+        {
+            "label": "Alert Targets",
+            "value": alert_target_value,
+            "delta": "Channels enabled",
+        },
+        {
+            "label": "AI Profile",
+            "value": str(ai.get("tone") or "balanced").title(),
+            "delta": str(ai.get("explanation_length") or "normal").title(),
+        },
+        {
+            "label": "Security",
+            "value": "Masked" if bool(security.get("secret_masking", True)) else "Visible",
+            "delta": "Audit export on" if bool(security.get("audit_export_allowed", True)) else "Audit export off",
+        },
+    ]
+
+
+def render_settings_profile_summary(view: dict[str, Any] | None) -> None:
+    payload = view if isinstance(view, dict) else {}
+    with st.container(border=True):
+        st.markdown("### Settings Profile")
+        metric_items = build_settings_profile_metrics(payload)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
