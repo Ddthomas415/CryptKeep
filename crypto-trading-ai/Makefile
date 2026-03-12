@@ -1,6 +1,9 @@
 up:
 	docker compose up --build
 
+up-auto-ports:
+	python3 scripts/run_compose_auto_ports.py
+
 down:
 	docker compose down
 

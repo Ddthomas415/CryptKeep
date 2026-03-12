@@ -15,6 +15,25 @@ cp .env.example .env
 docker compose up --build
 ```
 
+If the default host ports are already occupied by another repo, use:
+
+```bash
+make up-auto-ports
+```
+
+That launcher keeps the internal container ports fixed, but automatically picks the next free host ports for:
+- Postgres
+- Redis
+- Qdrant
+- backend
+- frontend
+
+To preview the resolved host-port mapping without starting containers:
+
+```bash
+python scripts/run_compose_auto_ports.py --print-env
+```
+
 Backend:
 - http://localhost:8000
 - docs: http://localhost:8000/docs
@@ -37,6 +56,7 @@ Useful commands
 
 ```bash
 make up
+make up-auto-ports
 make down
 make migrate
 make backend-test
