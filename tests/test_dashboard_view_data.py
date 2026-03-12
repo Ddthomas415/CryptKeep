@@ -150,3 +150,26 @@ def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
     assert payload["dry_run_mode"] is False
     assert payload["default_mode"] == "live_approval"
     assert payload["approval_required_for_live"] is False
+
+
+def test_update_settings_view_reports_success(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: {"status": "success", "data": payload}
+        if path == "/api/v1/settings" and method == "PUT"
+        else None,
+    )
+
+    payload = {"general": {"timezone": "UTC"}}
+    result = view_data.update_settings_view(payload)
+    assert result["ok"] is True
+    assert result["data"] == payload
+
+
+def test_update_settings_view_reports_api_failure(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
+
+    result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
+    assert result["ok"] is False
+    assert "unavailable" in result["message"].lower()

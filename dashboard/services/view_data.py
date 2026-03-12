@@ -128,20 +128,31 @@ def _read_mock_envelope(filename: str) -> dict[str, Any] | None:
         return None
 
 
-def _fetch_envelope(path: str) -> dict[str, Any] | None:
+def _request_envelope(path: str, *, method: str = "GET", payload: dict[str, Any] | None = None) -> dict[str, Any] | None:
     url = f"{API_BASE_URL}{path}"
+    body: bytes | None = None
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "CryptKeepDashboard/1.0",
+    }
+    if payload is not None:
+        body = json.dumps(payload).encode("utf-8")
+        headers["Content-Type"] = "application/json"
     req = urllib.request.Request(
         url,
-        headers={
-            "Accept": "application/json",
-            "User-Agent": "CryptKeepDashboard/1.0",
-        },
+        data=body,
+        headers=headers,
+        method=method,
     )
     try:
         with urllib.request.urlopen(req, timeout=API_TIMEOUT_SECONDS) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except (TimeoutError, OSError, ValueError, urllib.error.URLError):
         return None
+
+
+def _fetch_envelope(path: str) -> dict[str, Any] | None:
+    return _request_envelope(path, method="GET")
 
 
 def get_dashboard_summary() -> dict[str, Any]:
@@ -164,6 +175,18 @@ def get_settings_view() -> dict[str, Any]:
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
         return dict(mock["data"])
     return _default_settings_payload()
+
+
+def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
+    envelope = _request_envelope("/api/v1/settings", method="PUT", payload=payload)
+    if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
+        return {"ok": True, "data": dict(envelope["data"])}
+
+    error = envelope.get("error") if isinstance(envelope, dict) else None
+    message = "Settings API unavailable."
+    if isinstance(error, dict) and str(error.get("message") or "").strip():
+        message = str(error["message"])
+    return {"ok": False, "message": message}
 
 
 def get_recommendations() -> list[dict[str, Any]]:

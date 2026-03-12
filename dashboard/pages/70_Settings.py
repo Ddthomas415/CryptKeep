@@ -5,7 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
-from dashboard.services.view_data import get_settings_view
+from dashboard.services.view_data import get_settings_view, update_settings_view
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
@@ -40,31 +40,67 @@ tab_general, tab_notifications, tab_ai, tab_security = st.tabs(
 )
 
 with tab_general:
-    st.selectbox("Timezone", timezones, index=timezones.index(timezone), disabled=True)
-    st.selectbox("Default mode", mode_options, index=mode_options.index(default_mode), disabled=True)
-    st.text_input("Startup page", value=str(general.get("startup_page") or "/dashboard"), disabled=True)
+    timezone_value = st.selectbox("Timezone", timezones, index=timezones.index(timezone))
+    default_mode_value = st.selectbox("Default mode", mode_options, index=mode_options.index(default_mode))
+    startup_page_value = st.text_input("Startup page", value=str(general.get("startup_page") or "/dashboard"))
 
 with tab_notifications:
-    st.checkbox("Email alerts", value=bool(notifications.get("email")), disabled=True)
-    st.checkbox("Telegram alerts", value=bool(notifications.get("telegram")), disabled=True)
-    st.checkbox("Risk alerts", value=bool(notifications.get("risk_alerts")), disabled=True)
+    email_value = st.checkbox("Email alerts", value=bool(notifications.get("email")))
+    telegram_value = st.checkbox("Telegram alerts", value=bool(notifications.get("telegram")))
+    risk_alerts_value = st.checkbox("Risk alerts", value=bool(notifications.get("risk_alerts")))
 
 with tab_ai:
-    st.selectbox("Explanation tone", tone_options, index=tone_options.index(tone), disabled=True)
-    st.checkbox("Show evidence", value=bool(ai.get("show_evidence", True)), disabled=True)
-    st.checkbox("Show confidence", value=bool(ai.get("show_confidence", True)), disabled=True)
+    tone_value = st.selectbox("Explanation tone", tone_options, index=tone_options.index(tone))
+    show_evidence_value = st.checkbox("Show evidence", value=bool(ai.get("show_evidence", True)))
+    show_confidence_value = st.checkbox("Show confidence", value=bool(ai.get("show_confidence", True)))
 
 with tab_security:
-    st.number_input(
+    session_timeout_value = st.number_input(
         "Session timeout (minutes)",
         min_value=5,
         max_value=240,
         value=int(security.get("session_timeout_minutes") or 60),
         step=5,
-        disabled=True,
     )
-    st.checkbox("Secret masking", value=bool(security.get("secret_masking", True)), disabled=True)
-    st.checkbox("Audit export allowed", value=bool(security.get("audit_export_allowed", True)), disabled=True)
+    secret_masking_value = st.checkbox("Secret masking", value=bool(security.get("secret_masking", True)))
+    audit_export_allowed_value = st.checkbox(
+        "Audit export allowed",
+        value=bool(security.get("audit_export_allowed", True)),
+    )
 
-st.button("Save settings", type="primary", disabled=True)
-st.caption("Settings edits remain read-only in the Streamlit shell. Persisted updates live in the API application.")
+payload = {
+    "general": {
+        **general,
+        "timezone": timezone_value,
+        "default_mode": default_mode_value,
+        "startup_page": startup_page_value,
+    },
+    "notifications": {
+        **notifications,
+        "email": email_value,
+        "telegram": telegram_value,
+        "risk_alerts": risk_alerts_value,
+    },
+    "ai": {
+        **ai,
+        "tone": tone_value,
+        "show_evidence": show_evidence_value,
+        "show_confidence": show_confidence_value,
+    },
+    "security": {
+        **security,
+        "session_timeout_minutes": int(session_timeout_value),
+        "secret_masking": secret_masking_value,
+        "audit_export_allowed": audit_export_allowed_value,
+    },
+}
+
+if st.button("Save settings", type="primary"):
+    st.session_state["ck_settings_save_result"] = update_settings_view(payload)
+
+save_result = st.session_state.get("ck_settings_save_result")
+if isinstance(save_result, dict):
+    if bool(save_result.get("ok")):
+        st.success("Settings saved to the local API.")
+    else:
+        st.error(str(save_result.get("message") or "Settings save failed."))

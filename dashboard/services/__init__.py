@@ -8,6 +8,7 @@ from dashboard.services.view_data import (
     get_recommendations,
     get_settings_view,
     get_trades_view,
+    update_settings_view,
 )
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "get_recent_activity",
     "get_settings_view",
     "get_trades_view",
+    "update_settings_view",
 ]
