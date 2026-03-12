@@ -64,6 +64,7 @@ def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
     )
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: True)
     monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
+    monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
 
     summary = view_data.get_dashboard_summary()
     assert summary["mode"] == "live_auto"
@@ -96,6 +97,7 @@ def test_dashboard_summary_prefers_local_watchlist_prices(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
     monkeypatch.setattr(
         view_data,
         "_get_market_snapshot",
@@ -137,6 +139,7 @@ def test_dashboard_summary_uses_settings_watchlist_when_missing(monkeypatch) -> 
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
     monkeypatch.setattr(
         view_data,
         "get_settings_view",
@@ -158,6 +161,99 @@ def test_dashboard_summary_uses_settings_watchlist_when_missing(monkeypatch) -> 
     assert summary["watchlist"][0]["price"] == 91000.0
     assert summary["watchlist"][1]["price"] == 18.5
     assert summary["watchlist"][1]["signal"] == "watch"
+
+
+def test_load_local_risk_overlay_uses_ops_gate_and_blocks(monkeypatch) -> None:
+    class FakeOpsSignalStore:
+        def latest_raw_signal(self):
+            return {
+                "drawdown_pct": 4.8,
+                "exposure_usd": 420.0,
+                "leverage": 1.4,
+            }
+
+        def latest_risk_gate(self):
+            return {
+                "gate_state": "ALLOW_ONLY_REDUCTIONS",
+                "hazards": ["drawdown_warn"],
+                "reasons": ["warn_threshold_breached"],
+            }
+
+    class FakeRiskBlocksStore:
+        def last_n(self, limit: int = 200, run_id=None, venue=None, gate=None):
+            assert limit == 20
+            return [
+                {"gate": "max_daily_loss", "reason": "daily loss hit"},
+                {"gate": "max_daily_loss", "reason": "daily loss hit"},
+            ]
+
+    monkeypatch.setattr("storage.ops_signal_store_sqlite.OpsSignalStoreSQLite", FakeOpsSignalStore)
+    monkeypatch.setattr("storage.risk_blocks_store_sqlite.RiskBlocksStoreSQLite", FakeRiskBlocksStore)
+    monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: False)
+
+    payload = view_data._load_local_risk_overlay(portfolio_total_value=1000.0)
+    assert payload == {
+        "risk_status": "caution",
+        "blocked_trades_count": 2,
+        "active_warnings": ["drawdown_warn", "warn_threshold_breached", "max_daily_loss"],
+        "drawdown_today_pct": 4.8,
+        "drawdown_week_pct": 4.8,
+        "exposure_used_pct": 42.0,
+        "leverage": 1.4,
+    }
+
+
+def test_dashboard_summary_applies_local_risk_overlay(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "mode": "research_only",
+                "execution_enabled": False,
+                "approval_required": True,
+                "risk_status": "safe",
+                "kill_switch": False,
+                "portfolio": {
+                    "total_value": 1000.0,
+                    "cash": 300.0,
+                    "unrealized_pnl": 25.0,
+                    "exposure_used_pct": 18.4,
+                    "leverage": 1.0,
+                },
+                "watchlist": [],
+            },
+        }
+        if path == "/api/v1/dashboard/summary"
+        else None,
+    )
+    monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"watchlist_defaults": []}})
+    monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_risk_overlay",
+        lambda portfolio_total_value=0.0: {
+            "risk_status": "danger",
+            "blocked_trades_count": 3,
+            "active_warnings": ["kill_switch_armed"],
+            "drawdown_today_pct": 8.2,
+            "drawdown_week_pct": 8.2,
+            "exposure_used_pct": 55.5,
+            "leverage": 2.1,
+        },
+    )
+
+    summary = view_data.get_dashboard_summary()
+    assert summary["risk_status"] == "danger"
+    assert summary["blocked_trades_count"] == 3
+    assert summary["active_warnings"] == ["kill_switch_armed"]
+    assert summary["drawdown_today_pct"] == 8.2
+    assert summary["portfolio"]["exposure_used_pct"] == 55.5
+    assert summary["portfolio"]["leverage"] == 2.1
 
 
 def test_recommendations_map_api_payload(monkeypatch) -> None:

@@ -1023,6 +1023,35 @@ def _apply_local_summary_overrides(summary: dict[str, Any]) -> dict[str, Any]:
     if local_kill_switch is not None:
         merged["kill_switch"] = local_kill_switch
 
+    portfolio_payload = merged.get("portfolio") if isinstance(merged.get("portfolio"), dict) else {}
+    risk_overlay = _load_local_risk_overlay(
+        portfolio_total_value=float(portfolio_payload.get("total_value") or 0.0)
+    )
+    if isinstance(risk_overlay, dict):
+        risk_status = str(risk_overlay.get("risk_status") or "").strip()
+        if risk_status:
+            merged["risk_status"] = risk_status
+        if isinstance(risk_overlay.get("active_warnings"), list):
+            merged["active_warnings"] = list(risk_overlay.get("active_warnings") or [])
+        if risk_overlay.get("blocked_trades_count") is not None:
+            merged["blocked_trades_count"] = int(risk_overlay.get("blocked_trades_count") or 0)
+
+        portfolio_updates: dict[str, Any] = {}
+        exposure_used_pct = float(risk_overlay.get("exposure_used_pct") or 0.0)
+        leverage = float(risk_overlay.get("leverage") or 0.0)
+        drawdown_today_pct = float(risk_overlay.get("drawdown_today_pct") or 0.0)
+        drawdown_week_pct = float(risk_overlay.get("drawdown_week_pct") or 0.0)
+        if exposure_used_pct > 0.0:
+            portfolio_updates["exposure_used_pct"] = exposure_used_pct
+        if leverage > 0.0:
+            portfolio_updates["leverage"] = leverage
+        if drawdown_today_pct > 0.0:
+            merged["drawdown_today_pct"] = drawdown_today_pct
+        if drawdown_week_pct > 0.0:
+            merged["drawdown_week_pct"] = drawdown_week_pct
+        if portfolio_updates:
+            merged["portfolio"] = {**portfolio_payload, **portfolio_updates}
+
     return merged
 
 
@@ -1035,6 +1064,99 @@ def get_dashboard_summary() -> dict[str, Any]:
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
         return _apply_local_summary_overrides(dict(mock["data"]))
     return _apply_local_summary_overrides(_default_dashboard_summary())
+
+
+def _gate_state_to_risk_status(gate_state: Any, *, kill_switch_on: bool = False) -> str:
+    if kill_switch_on:
+        return "danger"
+    normalized = str(gate_state or "").strip().upper()
+    if normalized == "ALLOW_TRADING":
+        return "safe"
+    if normalized == "ALLOW_ONLY_REDUCTIONS":
+        return "caution"
+    if normalized in {"HALT_NEW_POSITIONS", "FULL_STOP"}:
+        return "danger"
+    return "safe"
+
+
+def _load_local_risk_overlay(*, portfolio_total_value: float = 0.0) -> dict[str, Any] | None:
+    raw_signal: dict[str, Any] | None = None
+    risk_gate: dict[str, Any] | None = None
+    blocked_rows: list[dict[str, Any]] = []
+
+    try:
+        from storage.ops_signal_store_sqlite import OpsSignalStoreSQLite
+    except Exception:
+        OpsSignalStoreSQLite = None
+
+    if callable(OpsSignalStoreSQLite):
+        try:
+            store = OpsSignalStoreSQLite()
+            raw_signal = store.latest_raw_signal()
+            risk_gate = store.latest_risk_gate()
+        except Exception:
+            raw_signal = None
+            risk_gate = None
+
+    try:
+        from storage.risk_blocks_store_sqlite import RiskBlocksStoreSQLite
+    except Exception:
+        RiskBlocksStoreSQLite = None
+
+    if callable(RiskBlocksStoreSQLite):
+        try:
+            blocked_rows = RiskBlocksStoreSQLite().last_n(limit=20)
+        except Exception:
+            blocked_rows = []
+
+    if not isinstance(raw_signal, dict) and not isinstance(risk_gate, dict) and not blocked_rows:
+        return None
+
+    kill_switch_on = bool(_load_local_kill_switch_state())
+    exposure_usd = float((raw_signal or {}).get("exposure_usd") or 0.0)
+    leverage = float((raw_signal or {}).get("leverage") or 0.0)
+    drawdown_pct = float((raw_signal or {}).get("drawdown_pct") or 0.0)
+    exposure_used_pct = 0.0
+    if portfolio_total_value > 0.0 and exposure_usd > 0.0:
+        exposure_used_pct = round((exposure_usd / portfolio_total_value) * 100.0, 2)
+
+    warnings: list[str] = []
+    for item in ((risk_gate or {}).get("hazards") or []):
+        text = str(item or "").strip()
+        if text:
+            warnings.append(text)
+    for item in ((risk_gate or {}).get("reasons") or []):
+        text = str(item or "").strip()
+        if text:
+            warnings.append(text)
+    for item in blocked_rows:
+        if not isinstance(item, dict):
+            continue
+        gate = str(item.get("gate") or "").strip()
+        reason = str(item.get("reason") or "").strip()
+        text = gate or reason
+        if text:
+            warnings.append(text)
+    if kill_switch_on:
+        warnings.append("kill_switch_armed")
+
+    deduped_warnings: list[str] = []
+    seen_warnings: set[str] = set()
+    for item in warnings:
+        if item in seen_warnings:
+            continue
+        seen_warnings.add(item)
+        deduped_warnings.append(item)
+
+    return {
+        "risk_status": _gate_state_to_risk_status((risk_gate or {}).get("gate_state"), kill_switch_on=kill_switch_on),
+        "blocked_trades_count": len(blocked_rows),
+        "active_warnings": deduped_warnings,
+        "drawdown_today_pct": round(drawdown_pct, 2),
+        "drawdown_week_pct": round(drawdown_pct, 2),
+        "exposure_used_pct": exposure_used_pct,
+        "leverage": round(leverage, 2),
+    }
 
 
 def get_research_explain(asset: str, question: str | None = None) -> dict[str, Any]:
