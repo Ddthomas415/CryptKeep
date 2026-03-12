@@ -85,6 +85,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(header, "render_page_header", _noop)
     monkeypatch.setattr(cards, "render_kpi_cards", _noop)
     monkeypatch.setattr(cards, "render_feature_hero", _noop)
+    monkeypatch.setattr(cards, "render_prompt_actions", _noop)
     monkeypatch.setattr(tables, "render_table_section", _noop)
     monkeypatch.setattr(activity, "render_activity_panel", _noop)
     monkeypatch.setattr(asset_detail, "render_asset_detail_card", _noop)

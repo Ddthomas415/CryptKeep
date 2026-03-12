@@ -5,6 +5,8 @@ from typing import Any
 
 import streamlit as st
 
+from dashboard.components.badges import render_badge_row
+
 
 def resolve_asset_row(
     rows: Sequence[dict[str, Any]] | None,
@@ -114,6 +116,18 @@ def render_market_context(detail: dict[str, Any] | None) -> None:
     payload = detail if isinstance(detail, dict) else {}
     with st.container(border=True):
         st.markdown("### Market Context")
+        render_badge_row(
+            [
+                {
+                    "text": str(payload.get("market_bias") or "balanced").replace("_", " ").title(),
+                    "tone": "accent",
+                },
+                {
+                    "text": str(payload.get("volume_trend") or "steady").replace("_", " ").title(),
+                    "tone": "muted",
+                },
+            ]
+        )
         metric_items = build_market_context_metrics(payload)
         metric_cols = st.columns(len(metric_items))
         for col, item in zip(metric_cols, metric_items, strict=False):
@@ -138,6 +152,22 @@ def render_signal_thesis(
 
     with st.container(border=True):
         st.markdown("### Signal Thesis")
+        render_badge_row(
+            [
+                {
+                    "text": str(selected_row.get("status") or payload.get("status") or "monitor").replace("_", " ").title(),
+                    "tone": "accent",
+                },
+                {
+                    "text": str(selected_row.get("regime") or payload.get("regime") or "unknown").replace("_", " ").title(),
+                    "tone": "success",
+                },
+                {
+                    "text": str(selected_row.get("category") or payload.get("category") or "needs_confirmation").replace("_", " ").title(),
+                    "tone": "warning",
+                },
+            ]
+        )
         st.caption(
             str(selected_row.get("summary") or payload.get("current_cause") or "No signal thesis available.")
         )

@@ -34,7 +34,7 @@ def render_app_sidebar(
     nav_items: Sequence[NavItem] = DEFAULT_NAV_ITEMS,
     secondary_nav_items: Sequence[NavItem] | None = None,
     secondary_title: str = "Admin / Legacy",
-    show_legacy_note: bool = True,
+    show_legacy_note: bool = False,
 ) -> None:
     with st.sidebar:
         st.markdown(

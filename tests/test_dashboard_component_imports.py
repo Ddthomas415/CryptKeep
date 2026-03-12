@@ -22,6 +22,7 @@ def test_dashboard_component_modules_import_together() -> None:
     assert callable(package.badge_html)
     assert callable(package.badge_row_html)
     assert callable(package.render_badge_row)
+    assert callable(package.render_prompt_actions)
     assert callable(package.build_assistant_status_message)
     assert callable(package.build_assistant_status_summary)
     assert callable(package.build_asset_detail_metrics)

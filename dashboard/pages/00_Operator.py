@@ -27,10 +27,10 @@ st.warning("Operator tools have moved to the Operations page.")
 st.caption("Use this page only as a compatibility entry point for old bookmarks.")
 
 if hasattr(st, "switch_page"):
-    if st.button("Open Operations", use_container_width=True, type="primary"):
+    if st.button("Open Operations", width="stretch", type="primary"):
         st.switch_page("pages/60_Operations.py")
 else:
-    st.page_link("dashboard/pages/60_Operations.py", label="Open Operations", icon="🛠️")
+    st.page_link("pages/60_Operations.py", label="Open Operations", icon="🛠️")
 
 with st.container(border=True):
     st.markdown("### Moved to Operations")

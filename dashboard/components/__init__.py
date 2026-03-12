@@ -13,6 +13,7 @@ from dashboard.components.actions import render_system_action_buttons
 from dashboard.components.badges import badge_html, badge_row_html, render_badge_row
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.cards import render_feature_hero
+from dashboard.components.cards import render_prompt_actions
 from dashboard.components.focus_selector import render_focus_selector, resolve_focus_options
 from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
@@ -56,6 +57,7 @@ __all__ = [
     "render_page_header",
     "render_kpi_cards",
     "render_feature_hero",
+    "render_prompt_actions",
     "badge_html",
     "badge_row_html",
     "render_badge_row",

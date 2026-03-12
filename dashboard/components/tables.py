@@ -11,13 +11,22 @@ def render_table_section(
     title: str,
     rows: Sequence[dict[str, Any]] | None,
     *,
+    subtitle: str = "",
     empty_message: str = "No data available.",
 ) -> None:
     total = len(rows or [])
+    subtitle_html = (
+        f"<div class='ck-section-subtitle'>{escape(subtitle)}</div>"
+        if subtitle.strip()
+        else ""
+    )
     st.markdown(
         f"""
         <div class="ck-section-head">
-          <div class="ck-section-title">{escape(title)}</div>
+          <div>
+            <div class="ck-section-title">{escape(title)}</div>
+            {subtitle_html}
+          </div>
           <div class="ck-section-meta">{total} row{'s' if total != 1 else ''}</div>
         </div>
         """,
@@ -27,4 +36,4 @@ def render_table_section(
         if not rows:
             st.info(empty_message)
             return
-        st.dataframe(rows, use_container_width=True, hide_index=True)
+        st.dataframe(rows, width="stretch", hide_index=True)

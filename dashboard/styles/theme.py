@@ -465,10 +465,18 @@ def inject_theme() -> None:
           color: var(--ck-text);
           letter-spacing: -0.02em;
         }
+        .ck-section-subtitle {
+          color: var(--ck-muted);
+          font-size: 0.84rem;
+          margin-top: 0.18rem;
+        }
         .ck-section-meta {
           color: var(--ck-muted);
           font-size: 0.8rem;
           white-space: nowrap;
+        }
+        .ck-prompt-head {
+          margin-top: 0.25rem;
         }
         .ck-activity-list {
           display: flex;
@@ -500,6 +508,9 @@ def inject_theme() -> None:
           margin-top: 1rem;
           color: var(--ck-muted);
           font-size: 0.86rem;
+        }
+        .ck-ops-shell [data-testid="stVerticalBlockBorderWrapper"] {
+          background: linear-gradient(180deg, rgba(17, 22, 36, 0.98) 0%, rgba(8, 13, 24, 0.94) 100%);
         }
         </style>
         """,

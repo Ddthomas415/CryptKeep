@@ -28,7 +28,7 @@ def _render_action_row(
     cols = st.columns(columns)
     for idx, (label, args) in enumerate(actions):
         with cols[idx]:
-            if st.button(label, use_container_width=True, key=f"{key_prefix}_{idx}"):
+            if st.button(label, width="stretch", key=f"{key_prefix}_{idx}"):
                 return label, list(args)
     return None
 

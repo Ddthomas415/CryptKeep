@@ -93,3 +93,33 @@ def render_feature_hero(
                     """,
                     unsafe_allow_html=True,
                 )
+
+
+def render_prompt_actions(
+    *,
+    title: str,
+    prompts: Sequence[str] | None,
+    key_prefix: str,
+) -> None:
+    items = [str(prompt).strip() for prompt in (prompts or []) if str(prompt).strip()]
+    if not items:
+        return
+
+    st.markdown(
+        f"""
+        <div class="ck-section-head ck-prompt-head">
+          <div class="ck-section-title">{escape(title)}</div>
+          <div class="ck-section-meta">copilot entry points</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    columns = st.columns(min(3, len(items)))
+    for index, prompt in enumerate(items):
+        with columns[index % len(columns)]:
+            if st.button(prompt, key=f"{key_prefix}_prompt_{index}", width="stretch"):
+                st.session_state[f"{key_prefix}_prompt_hint"] = prompt
+
+    selected_prompt = str(st.session_state.get(f"{key_prefix}_prompt_hint") or "").strip()
+    if selected_prompt:
+        st.info(f"Ask Copilot: {selected_prompt}")

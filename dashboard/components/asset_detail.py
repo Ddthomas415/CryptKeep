@@ -4,6 +4,7 @@ from typing import Any
 
 import streamlit as st
 
+from dashboard.components.badges import render_badge_row
 from dashboard.components.tables import render_table_section
 
 
@@ -160,6 +161,20 @@ def render_asset_detail_card(
     with st.container(border=True):
         st.markdown(f"#### {asset}")
         st.caption(primary_text)
+        detail_badges: list[dict[str, str]] = []
+        signal = str(payload.get("signal") or "").strip()
+        status = str(payload.get("status") or "").strip()
+        regime = str(payload.get("regime") or "").strip()
+        category = str(payload.get("category") or "").strip()
+        if signal:
+            detail_badges.append({"text": signal.replace("_", " ").title(), "tone": "accent"})
+        if status:
+            detail_badges.append({"text": status.replace("_", " ").title(), "tone": "muted"})
+        if regime:
+            detail_badges.append({"text": regime.replace("_", " ").title(), "tone": "success"})
+        if category:
+            detail_badges.append({"text": category.replace("_", " ").title(), "tone": "warning"})
+        render_badge_row(detail_badges)
         assistant_summary = build_assistant_status_summary(payload)
         if assistant_summary:
             st.caption(assistant_summary)
@@ -177,7 +192,7 @@ def render_asset_detail_card(
                     if delta:
                         st.caption(delta)
         if price_series:
-            st.line_chart(price_series, use_container_width=True)
+            st.line_chart(price_series, width="stretch")
         else:
             st.info("No price series available.")
         if footer:
@@ -206,6 +221,18 @@ def render_research_lens(
     with st.container(border=True):
         st.markdown(f"### {title}")
         st.caption(str(payload.get("question") or question_fallback))
+        research_badges: list[dict[str, str]] = []
+        if str(payload.get("signal") or "").strip():
+            research_badges.append(
+                {"text": str(payload.get("signal") or "").replace("_", " ").title(), "tone": "accent"}
+            )
+        if str(payload.get("regime") or "").strip():
+            research_badges.append(
+                {"text": str(payload.get("regime") or "").replace("_", " ").title(), "tone": "success"}
+            )
+        if bool(payload.get("execution_disabled", True)):
+            research_badges.append({"text": "Research Only", "tone": "warning"})
+        render_badge_row(research_badges)
         assistant_summary = build_assistant_status_summary(payload)
         if assistant_summary:
             st.caption(assistant_summary)
