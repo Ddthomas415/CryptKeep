@@ -6,6 +6,7 @@ from backend.app.core.envelopes import failure
 from backend.app.core.logging import get_logger
 
 logger = get_logger("backend.errors")
+SENSITIVE_KEYS = {"api_key", "api_secret", "passphrase", "secret", "credential", "credentials"}
 
 
 def bad_request(message: str, code: str = "VALIDATION_ERROR") -> HTTPException:
@@ -34,6 +35,32 @@ def internal_error(message: str = "Internal error", code: str = "INTERNAL_ERROR"
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         detail=failure(code=code, message=message)["error"],
     )
+
+
+def _redact_sensitive_value(value):
+    if isinstance(value, dict):
+        redacted: dict = {}
+        for key, nested in value.items():
+            if str(key).lower() in SENSITIVE_KEYS:
+                redacted[key] = "***redacted***"
+            else:
+                redacted[key] = _redact_sensitive_value(nested)
+        return redacted
+    if isinstance(value, list):
+        return [_redact_sensitive_value(item) for item in value]
+    return value
+
+
+def _sanitize_validation_errors(errors: list[dict]) -> list[dict]:
+    sanitized: list[dict] = []
+    for error in errors:
+        item = dict(error)
+        # Never echo the raw input payload in validation errors.
+        item.pop("input", None)
+        if "ctx" in item:
+            item["ctx"] = _redact_sensitive_value(item["ctx"])
+        sanitized.append(item)
+    return sanitized
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -65,10 +92,10 @@ def register_exception_handlers(app: FastAPI) -> None:
         payload = failure(
             code="VALIDATION_ERROR",
             message="Request validation failed.",
-            details={"errors": exc.errors()},
+            details={"errors": _sanitize_validation_errors(exc.errors())},
             request_id=request_id,
         )
-        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=payload)
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content=payload)
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:

@@ -60,6 +60,9 @@ function expectValidationEnvelope(payload: any): void {
   expect(payload.meta).toBeTruthy();
   expect(typeof payload.meta).toBe("object");
   expect(Array.isArray(payload.error.details?.errors)).toBe(true);
+  for (const item of payload.error.details?.errors ?? []) {
+    expect(item.input).toBeUndefined();
+  }
 }
 
 function expectApplicationErrorEnvelope(payload: any, expectedCode: string): void {
@@ -473,6 +476,25 @@ describe.runIf(runIntegration)("live backend API integration", () => {
       422,
     );
     expectValidationEnvelope(payload);
+  });
+
+  it("connections test validation errors do not echo credential inputs", async () => {
+    const secretMarker = "SUPER_SECRET_MARKER_123";
+    const payload = await postJsonExpectStatus(
+      "/api/v1/connections/exchanges/test",
+      {
+        provider: "coinbase",
+        environment: "live",
+        credentials: {
+          api_key: { nested: secretMarker },
+          api_secret: secretMarker,
+          passphrase: secretMarker,
+        },
+      },
+      422,
+    );
+    expectValidationEnvelope(payload);
+    expect(JSON.stringify(payload)).not.toContain(secretMarker);
   });
 
   it("terminal confirm returns validation envelope when confirmation token is missing", async () => {
