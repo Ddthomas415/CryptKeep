@@ -15,6 +15,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import argparse
 import os
 
+from services.os.ports import resolve_preferred_port
 from services.process.supervisor_process import start, status, stop
 
 REPO = Path(__file__).resolve().parents[1]
@@ -72,14 +73,26 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.cmd == "start":
+        resolution = resolve_preferred_port(
+            str(args.host or ""),
+            int(args.port),
+            max_offset=int(os.environ.get("CBP_PORT_SEARCH_LIMIT", "50") or "50"),
+        )
         payload = start(
             streamlit_cmd=_build_streamlit_cmd(
                 host=str(args.host or ""),
-                port=int(args.port),
+                port=int(resolution.resolved_port),
             ),
             watchdog_cmd=_build_watchdog_cmd(interval=int(args.interval)),
             cwd=REPO,
         )
+        payload["port_resolution"] = {
+            "host": resolution.host,
+            "requested_port": resolution.requested_port,
+            "resolved_port": resolution.resolved_port,
+            "requested_available": resolution.requested_available,
+            "auto_switched": resolution.auto_switched,
+        }
         print(payload)
         return 0 if bool(payload.get("ok")) else 2
 

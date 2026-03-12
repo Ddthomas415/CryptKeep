@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 
 from services.admin import preflight as ap
+from services.os.ports import PortResolution
 
 
 
@@ -153,8 +154,11 @@ def test_run_preflight_ok_when_requirements_present(monkeypatch, tmp_path):
 
     assert out["status"] == "OK"
     assert out["blocked_reasons"] == []
+    assert out["network"]["requested_port"] == 8501
+    assert out["network"]["resolved_port"] == 8501
 
-def test_run_preflight_blocked_when_port_unavailable(monkeypatch, tmp_path):
+
+def test_run_preflight_auto_switches_when_requested_port_busy(monkeypatch, tmp_path):
     from services.diagnostics import preflight as pf
 
     cfg = tmp_path / "trading.yaml"
@@ -162,6 +166,57 @@ def test_run_preflight_blocked_when_port_unavailable(monkeypatch, tmp_path):
 
     monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
     monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(
+        pf,
+        "resolve_preferred_port",
+        lambda host, port, max_offset=50: PortResolution(
+            host=str(host),
+            requested_port=int(port),
+            resolved_port=8502,
+            requested_available=False,
+            auto_switched=True,
+        ),
+    )
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: int(port) == 8502)
+    monkeypatch.setattr(pf, "file_writable", lambda path: True)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name in {"streamlit", "ccxt"}:
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
+
+    assert out["status"] == "OK"
+    assert out["blocked_reasons"] == []
+    assert out["network"]["requested_port"] == 8501
+    assert out["network"]["resolved_port"] == 8502
+    assert out["network"]["auto_switched"] is True
+
+
+def test_run_preflight_blocked_when_no_alternative_port_available(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    cfg = tmp_path / "trading.yaml"
+    cfg.write_text("symbols:\n  - BTC/USD\n", encoding="utf-8")
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(
+        pf,
+        "resolve_preferred_port",
+        lambda host, port, max_offset=50: PortResolution(
+            host=str(host),
+            requested_port=int(port),
+            resolved_port=int(port),
+            requested_available=False,
+            auto_switched=False,
+        ),
+    )
     monkeypatch.setattr(pf, "can_bind", lambda host, port: False)
     monkeypatch.setattr(pf, "file_writable", lambda path: True)
 
@@ -177,7 +232,7 @@ def test_run_preflight_blocked_when_port_unavailable(monkeypatch, tmp_path):
     out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
 
     assert out["status"] == "BLOCKED"
-    assert "port not available (8501)" in out["blocked_reasons"]
+    assert "no available UI port near 8501" in out["blocked_reasons"]
 
 
 def test_run_preflight_blocked_when_import_missing(monkeypatch, tmp_path):
@@ -273,4 +328,3 @@ def test_restore_missing_configs_handles_missing_templates(tmp_path):
     assert out.restored == {}
     assert out.skipped == {}
     assert out.errors
-

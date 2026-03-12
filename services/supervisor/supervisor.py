@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from services.os.app_paths import runtime_dir, ensure_dirs, code_root
+from services.os.ports import resolve_preferred_port
 
 FLAGS_DIR = runtime_dir() / "flags"
 LOCKS_DIR = runtime_dir() / "locks"
@@ -146,7 +147,13 @@ def start(
     try:
         host0, port0 = _default_host_port()
         host = (host or host0).strip()
-        port = int(port or port0)
+        requested_port = int(port or port0)
+        resolution = resolve_preferred_port(
+            host,
+            requested_port,
+            max_offset=int(os.getenv("CBP_PORT_SEARCH_LIMIT", "50") or "50"),
+        )
+        port = int(resolution.resolved_port)
         st = _read_json(STATE_FILE)
         pids = dict(st.get("pids") or {})
         if start_tick:
@@ -185,6 +192,8 @@ def start(
         meta = {
             "host": host,
             "port": port,
+            "requested_port": requested_port,
+            "auto_switched_port": bool(resolution.auto_switched),
             "with_dashboard": with_dashboard,
             "start_tick": start_tick,
             "start_webhook": start_webhook,
@@ -192,7 +201,18 @@ def start(
             "start_risk_gate": start_risk_gate,
         }
         _write_state(pids, meta)
-        return {"ok": True, "pids": pids, "meta": meta}
+        return {
+            "ok": True,
+            "pids": pids,
+            "meta": meta,
+            "port_resolution": {
+                "host": resolution.host,
+                "requested_port": resolution.requested_port,
+                "resolved_port": resolution.resolved_port,
+                "requested_available": resolution.requested_available,
+                "auto_switched": resolution.auto_switched,
+            },
+        }
     finally:
         _release_lock()
 

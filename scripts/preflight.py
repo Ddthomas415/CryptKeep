@@ -14,10 +14,10 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 import os
 import json
-import socket
 import importlib
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any, Optional
+from services.os.ports import can_bind, resolve_preferred_port
 
 REQUIRED_IMPORTS = [
     "streamlit",
@@ -38,13 +38,6 @@ class Check:
     name: str
     ok: bool
     detail: str
-
-def _port_free(host: str, port: int) -> bool:
-    try:
-        with socket.create_connection((host, port), timeout=0.5):
-            return False
-    except Exception:
-        return True
 
 def run() -> Dict[str, Any]:
     checks: List[Check] = []
@@ -75,8 +68,23 @@ def run() -> Dict[str, Any]:
     # Port availability
     host = os.environ.get("CBP_HOST", "127.0.0.1")
     port = int(os.environ.get("CBP_PORT", "8501"))
-    free = _port_free(host, port)
-    checks.append(Check("port_free", free, f"{host}:{port} ({'free' if free else 'in_use'})"))
+    resolution = resolve_preferred_port(
+        host,
+        port,
+        max_offset=int(os.environ.get("CBP_PORT_SEARCH_LIMIT", "50") or "50"),
+    )
+    checks.append(
+        Check(
+            "port_free",
+            can_bind(host, int(resolution.resolved_port)),
+            (
+                f"{host}:{resolution.requested_port} "
+                f"({'free' if resolution.requested_available else 'in_use'})"
+                f" -> {host}:{resolution.resolved_port}"
+                f"{' (auto-switched)' if resolution.auto_switched else ''}"
+            ),
+        )
+    )
 
     # Config sanity (read YAML)
     cfg_ok = False

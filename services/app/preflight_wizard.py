@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
 import os
-import socket
 import sys
 import time
 from dataclasses import dataclass
@@ -9,6 +8,7 @@ from pathlib import Path
 from typing import Any, List, Dict
 
 from services.os.app_paths import runtime_dir, data_dir, ensure_dirs
+from services.os.ports import can_bind as _port_can_bind, resolve_preferred_port
 from services.admin.config_editor import load_user_yaml
 from services.admin.first_run_wizard import (
     guided_setup_state,
@@ -19,21 +19,6 @@ from services.admin.first_run_wizard import (
 
 def _now() -> str:
     return time.strftime("%Y-%m-%d %H:%M:%S")
-
-
-def _port_free(host: str, port: int) -> bool:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((host, int(port)))
-        return True
-    except Exception:
-        return False
-    finally:
-        try:
-            s.close()
-        except Exception:
-            pass
 
 
 def _port_open(host: str, port: int, timeout: float = 0.25) -> bool:
@@ -152,9 +137,14 @@ def run_preflight() -> dict:
 
     host = "127.0.0.1"
     port = 8501
-    port_free = _port_free(host, port)
+    resolution = resolve_preferred_port(
+        host,
+        port,
+        max_offset=int(os.environ.get("CBP_PORT_SEARCH_LIMIT", "50") or "50"),
+    )
+    port_free = bool(resolution.requested_available)
     port_open = _port_open(host, port)
-    port_ok = port_free or port_open
+    port_ok = _port_can_bind(host, int(resolution.resolved_port))
 
     mk = _market_checks(cfg["venues"], cfg["symbols"])
 
@@ -178,7 +168,7 @@ def run_preflight() -> dict:
     if not deps["ccxt"]["ok"]:
         problems.append("missing_ccxt")
     if not port_ok:
-        problems.append("port_8501_unavailable")
+        problems.append("ui_port_unavailable")
     if not market_ok:
         problems.append("market_data_not_ready")
 
@@ -192,7 +182,14 @@ def run_preflight() -> dict:
         "venv": {"in_venv": venv, "sys_prefix": sys.prefix},
         "deps": deps,
         "config": {"ok": cfg_ok, "error": cfg_err, "preflight": cfg},
-        "port_8501": {"ok": port_ok, "free": port_free, "open": port_open},
+        "port_8501": {
+            "ok": port_ok,
+            "free": port_free,
+            "open": port_open,
+            "requested_port": int(resolution.requested_port),
+            "resolved_port": int(resolution.resolved_port),
+            "auto_switched": bool(resolution.auto_switched),
+        },
         "market_quality": mk,
         "db_presence": db,
         "supervisor": sup,
@@ -243,4 +240,3 @@ def render_guided_setup_panel(ui) -> dict:
     ui["last_action"] = action or "load"
 
     return state
-

@@ -2,29 +2,15 @@ from __future__ import annotations
 
 import os
 import sys
-import socket
 import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
 from services.os.app_paths import data_dir, ensure_dirs
+from services.os.ports import can_bind, resolve_preferred_port
 
 def now_ms() -> int:
     return int(time.time() * 1000)
-
-def can_bind(host: str, port: int) -> bool:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((host, port))
-        return True
-    except Exception:
-        return False
-    finally:
-        try:
-            s.close()
-        except Exception:
-            pass
 
 def file_writable(path: str) -> bool:
     p = Path(path)
@@ -65,10 +51,18 @@ def run_preflight(cfg: PreflightConfig = PreflightConfig()) -> Dict[str, Any]:
     out["env"] = {k: ("set" if (os.environ.get(k) not in (None, "")) else "missing") for k in keys}
 
     # Port availability
+    resolution = resolve_preferred_port(
+        cfg.host,
+        int(cfg.port),
+        max_offset=int(os.environ.get("CBP_PORT_SEARCH_LIMIT", "50") or "50"),
+    )
     out["network"] = {
-        "bind_ok": can_bind(cfg.host, int(cfg.port)),
-        "host": cfg.host,
-        "port": int(cfg.port),
+        "bind_ok": can_bind(cfg.host, int(resolution.resolved_port)),
+        "host": resolution.host,
+        "requested_port": int(resolution.requested_port),
+        "resolved_port": int(resolution.resolved_port),
+        "requested_available": bool(resolution.requested_available),
+        "auto_switched": bool(resolution.auto_switched),
     }
 
     # DB write access (best effort)
@@ -94,7 +88,7 @@ def run_preflight(cfg: PreflightConfig = PreflightConfig()) -> Dict[str, Any]:
     if not out["config"]["trading_yaml_exists"]:
         hard_fails.append("missing config/trading.yaml")
     if not out["network"]["bind_ok"]:
-        hard_fails.append("port not available (8501)")
+        hard_fails.append(f"no available UI port near {cfg.port}")
     if import_status.get("streamlit","").startswith("FAIL"):
         hard_fails.append("streamlit not importable")
     if import_status.get("ccxt","").startswith("FAIL"):
