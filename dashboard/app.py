@@ -3,6 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.asset_detail import render_focus_summary
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
@@ -84,13 +85,7 @@ with col_signals:
         signal_rows,
         empty_message="No recent signals available.",
     )
-    with st.container(border=True):
-        st.markdown("### Focused Signal")
-        st.caption(str(detail.get("current_cause") or detail.get("thesis") or "No focused signal detail available."))
-        st.caption(f"Future catalyst: {str(detail.get('future_catalyst') or 'No forward catalyst available.')}")
-        risk_note = str(detail.get("risk_note") or "").strip()
-        if risk_note:
-            st.caption(risk_note)
+    render_focus_summary(detail)
 
 with col_activity:
     st.markdown("### Recent Activity")

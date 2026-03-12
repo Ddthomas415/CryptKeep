@@ -3,6 +3,11 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.asset_detail import (
+    render_asset_detail_card,
+    render_evidence_section,
+    render_research_lens,
+)
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
@@ -88,15 +93,16 @@ with left:
         st.caption(f"Evidence: {str(detail.get('evidence') or 'No evidence available.')}")
 
 with right:
-    st.markdown("### Asset Detail")
-    with st.container(border=True):
-        st.markdown(f"#### {str(detail.get('asset') or default_asset)}")
-        st.caption(str(detail.get("current_cause") or detail.get("thesis") or "No asset thesis available."))
-        st.line_chart(detail.get("price_series") or [], use_container_width=True)
-        st.caption(
+    render_asset_detail_card(
+        detail,
+        title="Asset Detail",
+        fallback_asset=default_asset,
+        empty_message="No asset thesis available.",
+        footer=(
             f"Market bias: {market_bias}. Workflow status: "
             f"{str(detail.get('status') or 'monitor').replace('_', ' ')}."
-        )
+        ),
+    )
 
 bottom_left, bottom_right = st.columns((1, 1))
 
@@ -108,18 +114,6 @@ with bottom_left:
     )
 
 with bottom_right:
-    render_table_section(
-        "Evidence",
-        detail.get("evidence_items") if isinstance(detail.get("evidence_items"), list) else [],
-        empty_message="No supporting evidence available.",
-    )
+    render_evidence_section(detail)
 
-with st.container(border=True):
-    st.markdown("### Research Lens")
-    st.caption(str(detail.get("question") or "Why is this asset moving?"))
-    st.markdown(f"**Current Cause**  \n{str(detail.get('current_cause') or 'No current-cause summary available.')}")
-    st.markdown(f"**Past Precedent**  \n{str(detail.get('past_precedent') or 'No historical precedent available.')}")
-    st.markdown(f"**Future Catalyst**  \n{str(detail.get('future_catalyst') or 'No forward catalyst available.')}")
-    risk_note = str(detail.get("risk_note") or "").strip()
-    if risk_note:
-        st.caption(risk_note)
+render_research_lens(detail)

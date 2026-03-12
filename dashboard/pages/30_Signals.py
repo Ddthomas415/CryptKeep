@@ -3,6 +3,11 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.components.asset_detail import (
+    render_asset_detail_card,
+    render_evidence_section,
+    render_research_lens,
+)
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
@@ -91,29 +96,21 @@ with left:
         st.caption(f"Evidence: {str(selected_row.get('evidence') or detail.get('evidence') or 'No evidence available.')}")
 
 with right:
-    st.markdown("### Signal Detail")
-    with st.container(border=True):
-        st.markdown(f"#### {str(detail.get('asset') or default_asset)}")
-        st.caption(str(detail.get("current_cause") or detail.get("thesis") or "No signal detail available."))
-        st.line_chart(detail.get("price_series") or [], use_container_width=True)
-        st.caption(
+    render_asset_detail_card(
+        detail,
+        title="Signal Detail",
+        fallback_asset=default_asset,
+        empty_message="No signal detail available.",
+        footer=(
             f"Market bias: {str(detail.get('market_bias') or 'balanced').replace('_', ' ').title()}. "
             f"Volume trend: {str(detail.get('volume_trend') or 'steady').title()}."
-        )
+        ),
+    )
 
 bottom_left, bottom_right = st.columns((1, 1))
 
 with bottom_left:
-    render_table_section(
-        "Evidence",
-        detail.get("evidence_items") if isinstance(detail.get("evidence_items"), list) else [],
-        empty_message="No supporting evidence available.",
-    )
+    render_evidence_section(detail)
 
 with bottom_right:
-    with st.container(border=True):
-        st.markdown("### Research Lens")
-        st.caption(str(detail.get("question") or "Why is this signal active?"))
-        st.markdown(f"**Current Cause**  \n{str(detail.get('current_cause') or 'No current-cause summary available.')}")
-        st.markdown(f"**Past Precedent**  \n{str(detail.get('past_precedent') or 'No historical precedent available.')}")
-        st.markdown(f"**Future Catalyst**  \n{str(detail.get('future_catalyst') or 'No forward catalyst available.')}")
+    render_research_lens(detail, question_fallback="Why is this signal active?")
