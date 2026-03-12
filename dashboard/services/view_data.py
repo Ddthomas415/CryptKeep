@@ -80,6 +80,44 @@ def _default_recent_fills() -> list[dict[str, Any]]:
     ]
 
 
+def _default_settings_payload() -> dict[str, Any]:
+    return {
+        "general": {
+            "timezone": "America/New_York",
+            "default_currency": "USD",
+            "startup_page": "/dashboard",
+            "default_mode": "research_only",
+            "watchlist_defaults": ["BTC", "ETH", "SOL"],
+        },
+        "notifications": {
+            "email": False,
+            "telegram": True,
+            "discord": False,
+            "webhook": False,
+            "price_alerts": True,
+            "news_alerts": True,
+            "catalyst_alerts": True,
+            "risk_alerts": True,
+            "approval_requests": True,
+        },
+        "ai": {
+            "explanation_length": "normal",
+            "tone": "balanced",
+            "show_evidence": True,
+            "show_confidence": True,
+            "include_archives": True,
+            "include_onchain": True,
+            "include_social": False,
+            "allow_hypotheses": True,
+        },
+        "security": {
+            "session_timeout_minutes": 60,
+            "secret_masking": True,
+            "audit_export_allowed": True,
+        },
+    }
+
+
 def _read_mock_envelope(filename: str) -> dict[str, Any] | None:
     path = REPO_ROOT / "crypto-trading-ai" / "shared" / "mock-data" / filename
     if not path.exists():
@@ -115,6 +153,17 @@ def get_dashboard_summary() -> dict[str, Any]:
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
         return dict(mock["data"])
     return _default_dashboard_summary()
+
+
+def get_settings_view() -> dict[str, Any]:
+    envelope = _fetch_envelope("/api/v1/settings")
+    if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
+        return dict(envelope["data"])
+
+    mock = _read_mock_envelope("settings.json")
+    if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
+        return dict(mock["data"])
+    return _default_settings_payload()
 
 
 def get_recommendations() -> list[dict[str, Any]]:
@@ -221,4 +270,23 @@ def get_trades_view() -> dict[str, Any]:
         "approval_required": bool(summary.get("approval_required", True)),
         "pending_approvals": pending_approvals,
         "recent_fills": _default_recent_fills(),
+    }
+
+
+def get_automation_view() -> dict[str, Any]:
+    summary = get_dashboard_summary()
+    settings = get_settings_view()
+    general = settings.get("general") if isinstance(settings.get("general"), dict) else {}
+
+    default_mode = str(general.get("default_mode") or summary.get("mode") or "research_only")
+    execution_enabled = bool(summary.get("execution_enabled", False))
+    approval_required = bool(summary.get("approval_required", True))
+
+    return {
+        "execution_enabled": execution_enabled,
+        "dry_run_mode": not execution_enabled,
+        "default_mode": default_mode,
+        "schedule": "manual",
+        "marketplace_routing": "disabled",
+        "approval_required_for_live": approval_required,
     }

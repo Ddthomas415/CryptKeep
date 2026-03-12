@@ -110,3 +110,43 @@ def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> N
     assert payload["pending_approvals"][0]["id"] == "rec_99"
     assert payload["pending_approvals"][0]["side"] == "buy"
     assert len(payload["recent_fills"]) >= 1
+
+
+def test_settings_view_uses_api_payload(monkeypatch) -> None:
+    payload = {
+        "status": "success",
+        "data": {
+            "general": {"timezone": "UTC", "default_mode": "paper"},
+            "notifications": {"telegram": False},
+            "ai": {"tone": "concise"},
+            "security": {"secret_masking": False},
+        },
+    }
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: payload if path == "/api/v1/settings" else None,
+    )
+
+    settings = view_data.get_settings_view()
+    assert settings["general"]["timezone"] == "UTC"
+    assert settings["ai"]["tone"] == "concise"
+
+
+def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {"execution_enabled": True, "approval_required": False, "mode": "paper"},
+    )
+    monkeypatch.setattr(
+        view_data,
+        "get_settings_view",
+        lambda: {"general": {"default_mode": "live_approval"}},
+    )
+
+    payload = view_data.get_automation_view()
+    assert payload["execution_enabled"] is True
+    assert payload["dry_run_mode"] is False
+    assert payload["default_mode"] == "live_approval"
+    assert payload["approval_required_for_live"] is False
