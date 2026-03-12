@@ -338,6 +338,20 @@ def get_automation_view() -> dict[str, Any]:
         "config_path": str(CONFIG_PATH.resolve()),
         "executor_mode": executor_mode,
         "live_enabled": live_enabled,
+        "executor_poll_sec": float(runtime_execution.get("executor_poll_sec") or DEFAULT_CFG["execution"]["executor_poll_sec"]),
+        "executor_max_per_cycle": int(
+            runtime_execution.get("executor_max_per_cycle") or DEFAULT_CFG["execution"]["executor_max_per_cycle"]
+        ),
+        "paper_fee_bps": float(runtime_execution.get("paper_fee_bps") or DEFAULT_CFG["execution"]["paper_fee_bps"]),
+        "paper_slippage_bps": float(
+            runtime_execution.get("paper_slippage_bps") or DEFAULT_CFG["execution"]["paper_slippage_bps"]
+        ),
+        "require_keys_for_live": bool(
+            runtime_execution.get("require_keys_for_live", DEFAULT_CFG["execution"]["require_keys_for_live"])
+        ),
+        "default_venue": str(runtime_signals.get("default_venue") or "coinbase"),
+        "default_qty": float(runtime_signals.get("default_qty") or 0.001),
+        "order_type": str(runtime_signals.get("order_type") or "market").lower().strip(),
     }
 
 
@@ -348,6 +362,18 @@ def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
     schedule = str(payload.get("schedule") or "manual")
     marketplace_routing = str(payload.get("marketplace_routing") or "disabled")
     approval_required_for_live = bool(payload.get("approval_required_for_live", True))
+    executor_poll_sec = float(payload.get("executor_poll_sec") or DEFAULT_CFG["execution"]["executor_poll_sec"])
+    executor_max_per_cycle = int(
+        payload.get("executor_max_per_cycle") or DEFAULT_CFG["execution"]["executor_max_per_cycle"]
+    )
+    paper_fee_bps = float(payload.get("paper_fee_bps") or DEFAULT_CFG["execution"]["paper_fee_bps"])
+    paper_slippage_bps = float(payload.get("paper_slippage_bps") or DEFAULT_CFG["execution"]["paper_slippage_bps"])
+    require_keys_for_live = bool(
+        payload.get("require_keys_for_live", DEFAULT_CFG["execution"]["require_keys_for_live"])
+    )
+    default_venue = str(payload.get("default_venue") or "coinbase").strip().lower()
+    default_qty = float(payload.get("default_qty") or 0.001)
+    order_type = str(payload.get("order_type") or "market").strip().lower()
 
     cfg = deep_merge(DEFAULT_CFG, load_user_yaml())
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
@@ -362,12 +388,20 @@ def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
     cfg = set_live_enabled(cfg, runtime_live_enabled)
     execution = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else execution
     execution["executor_mode"] = executor_mode
+    execution["executor_poll_sec"] = executor_poll_sec
+    execution["executor_max_per_cycle"] = executor_max_per_cycle
+    execution["paper_fee_bps"] = paper_fee_bps
+    execution["paper_slippage_bps"] = paper_slippage_bps
+    execution["require_keys_for_live"] = require_keys_for_live
     cfg["execution"] = execution
 
     paper_execution["enabled"] = bool(enable_automation and executor_mode == "paper")
     cfg["paper_execution"] = paper_execution
 
     signals["auto_route_to_paper"] = marketplace_routing == "paper only"
+    signals["default_venue"] = default_venue
+    signals["default_qty"] = default_qty
+    signals["order_type"] = order_type
     cfg["signals"] = signals
 
     automation_ui.update(

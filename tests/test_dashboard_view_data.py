@@ -180,8 +180,21 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
         view_data,
         "load_user_yaml",
         lambda: {
-            "execution": {"executor_mode": "live", "live_enabled": False},
-            "signals": {"auto_route_to_paper": True},
+            "execution": {
+                "executor_mode": "live",
+                "live_enabled": False,
+                "executor_poll_sec": 3.0,
+                "executor_max_per_cycle": 25,
+                "paper_fee_bps": 9.0,
+                "paper_slippage_bps": 4.0,
+                "require_keys_for_live": False,
+            },
+            "signals": {
+                "auto_route_to_paper": True,
+                "default_venue": "kraken",
+                "default_qty": 0.25,
+                "order_type": "limit",
+            },
             "dashboard_ui": {
                 "automation": {
                     "enabled": True,
@@ -202,6 +215,14 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
     assert payload["default_mode"] == "live_approval"
     assert payload["schedule"] == "hourly"
     assert payload["marketplace_routing"] == "approval gated"
+    assert payload["executor_poll_sec"] == 3.0
+    assert payload["executor_max_per_cycle"] == 25
+    assert payload["paper_fee_bps"] == 9.0
+    assert payload["paper_slippage_bps"] == 4.0
+    assert payload["require_keys_for_live"] is False
+    assert payload["default_venue"] == "kraken"
+    assert payload["default_qty"] == 0.25
+    assert payload["order_type"] == "limit"
 
 
 def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> None:
@@ -224,6 +245,14 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
             "schedule": "every 15 min",
             "marketplace_routing": "paper only",
             "approval_required_for_live": False,
+            "executor_poll_sec": 2.5,
+            "executor_max_per_cycle": 42,
+            "paper_fee_bps": 11.0,
+            "paper_slippage_bps": 6.5,
+            "require_keys_for_live": False,
+            "default_venue": "kraken",
+            "default_qty": 0.5,
+            "order_type": "limit",
         }
     )
 
@@ -231,7 +260,15 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
     execution = saved_cfg["execution"]
     assert execution["executor_mode"] == "live"
     assert execution["live_enabled"] is True
+    assert execution["executor_poll_sec"] == 2.5
+    assert execution["executor_max_per_cycle"] == 42
+    assert execution["paper_fee_bps"] == 11.0
+    assert execution["paper_slippage_bps"] == 6.5
+    assert execution["require_keys_for_live"] is False
     assert saved_cfg["signals"]["auto_route_to_paper"] is True
+    assert saved_cfg["signals"]["default_venue"] == "kraken"
+    assert saved_cfg["signals"]["default_qty"] == 0.5
+    assert saved_cfg["signals"]["order_type"] == "limit"
     assert saved_cfg["dashboard_ui"]["automation"]["schedule"] == "every 15 min"
 
 
