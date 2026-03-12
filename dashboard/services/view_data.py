@@ -1616,31 +1616,42 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
     resolved_question = question or f"Why is {asset_symbol} moving?"
     fallback = _default_explain_payload(asset_symbol, resolved_question)
 
-    envelope = _request_envelope(
+    def _normalize_explain(envelope: dict[str, Any] | None) -> dict[str, Any] | None:
+        if isinstance(envelope, dict) and isinstance(envelope.get("data"), dict):
+            data = dict(envelope["data"])
+        elif isinstance(envelope, dict):
+            data = dict(envelope)
+        else:
+            return None
+
+        if not any(key in data for key in ("current_cause", "past_precedent", "future_catalyst")):
+            return None
+        if _explain_mentions_foreign_asset(data, asset_symbol):
+            return None
+
+        data["asset"] = asset_symbol
+        data["question"] = resolved_question
+        return data
+
+    primary_envelope = _request_envelope(
         "/api/v1/research/explain",
         method="POST",
         payload={"asset": asset_symbol, "question": resolved_question},
     )
-    if not isinstance(envelope, dict) or envelope.get("status") != "success" or not isinstance(envelope.get("data"), dict):
-        envelope = _request_envelope_from_base(
+    primary = _normalize_explain(primary_envelope)
+    if primary is not None:
+        return primary
+
+    phase1 = _normalize_explain(
+        _request_envelope_from_base(
             PHASE1_ORCHESTRATOR_URL,
             "/v1/explain",
             method="POST",
             payload={"asset": asset_symbol, "question": resolved_question, "lookback_minutes": 60},
         )
-    if isinstance(envelope, dict) and isinstance(envelope.get("data"), dict):
-        data = dict(envelope["data"])
-    elif isinstance(envelope, dict):
-        data = dict(envelope)
-    else:
-        data = {}
-
-    if data and any(key in data for key in ("current_cause", "past_precedent", "future_catalyst")):
-        if not _explain_mentions_foreign_asset(data, asset_symbol):
-            data["asset"] = asset_symbol
-            data["question"] = resolved_question
-            return data
-        return fallback
+    )
+    if phase1 is not None:
+        return phase1
 
     mock = _read_mock_envelope("explain-sol.json")
     if asset_symbol == "SOL" and isinstance(mock, dict) and isinstance(mock.get("data"), dict):

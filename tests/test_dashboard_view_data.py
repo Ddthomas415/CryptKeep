@@ -1296,11 +1296,31 @@ def test_research_explain_rejects_foreign_asset_copy(monkeypatch) -> None:
         if path == "/api/v1/research/explain" and method == "POST"
         else None,
     )
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope_from_base",
+        lambda base_url, path, method="GET", payload=None: {
+            "ok": True,
+            "asset": "BTC",
+            "question": "Why is BTC moving?",
+            "current_cause": "BTC is firming on spot demand.",
+            "past_precedent": "Prior breakouts held when liquidity stayed firm.",
+            "future_catalyst": "Macro data later this week could matter.",
+            "confidence": 0.72,
+            "risk_note": "Research only. Execution disabled.",
+            "execution_disabled": True,
+            "evidence": [],
+            "assistant_status": {"provider": "openai", "fallback": False},
+        }
+        if base_url == view_data.PHASE1_ORCHESTRATOR_URL and path == "/v1/explain" and method == "POST"
+        else None,
+    )
 
     payload = view_data.get_research_explain("BTC")
     assert payload["asset"] == "BTC"
     assert "SOL" not in payload["current_cause"]
-    assert payload["current_cause"].startswith("BTC is firming")
+    assert payload["current_cause"] == "BTC is firming on spot demand."
+    assert payload["assistant_status"]["provider"] == "openai"
 
 
 def test_research_explain_falls_back_for_non_sol_assets(monkeypatch) -> None:
