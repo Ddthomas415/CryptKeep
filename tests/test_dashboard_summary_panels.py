@@ -4,6 +4,7 @@ from dashboard.components.summary_panels import (
     build_automation_runtime_metrics,
     build_market_context_metrics,
     build_market_snapshot_lines,
+    build_overview_status_metrics,
     build_portfolio_position_metrics,
     build_settings_profile_metrics,
     build_trades_queue_metrics,
@@ -78,6 +79,48 @@ def test_build_market_context_metrics_include_snapshot_metadata() -> None:
         "label": "Source",
         "value": "Local Ws",
         "delta": "coinbase",
+    }
+
+
+def test_build_overview_status_metrics_formats_workspace_state() -> None:
+    metrics = build_overview_status_metrics(
+        {
+            "risk_status": "danger",
+            "kill_switch": True,
+            "blocked_trades_count": 3,
+            "active_warnings": ["kill_switch_armed", "drawdown_warn"],
+            "connections": {
+                "connected_exchanges": 2,
+                "connected_providers": 3,
+                "failed": 1,
+                "last_sync": "2026-03-12T10:05:00Z",
+            },
+            "portfolio": {
+                "exposure_used_pct": 55.5,
+                "leverage": 2.1,
+            },
+        }
+    )
+
+    assert metrics[0] == {
+        "label": "Risk State",
+        "value": "Danger",
+        "delta": "kill_switch_armed, drawdown_warn",
+    }
+    assert metrics[1] == {
+        "label": "Kill Switch",
+        "value": "Armed",
+        "delta": "Blocked 3 trades",
+    }
+    assert metrics[2] == {
+        "label": "Connectivity",
+        "value": "2 exch / 3 svc",
+        "delta": "Failed 1",
+    }
+    assert metrics[3] == {
+        "label": "Exposure",
+        "value": "55.5%",
+        "delta": "Leverage 2.1x",
     }
 
 

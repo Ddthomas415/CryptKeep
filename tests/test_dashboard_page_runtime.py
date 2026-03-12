@@ -90,6 +90,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(asset_detail, "render_research_lens", _noop)
     monkeypatch.setattr(asset_detail, "render_focus_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_market_context", _noop)
+    monkeypatch.setattr(summary_panels, "render_overview_status_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_signal_thesis", _noop)
     monkeypatch.setattr(summary_panels, "render_portfolio_position_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_trades_queue_summary", _noop)

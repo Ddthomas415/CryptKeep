@@ -146,6 +146,56 @@ def render_signal_thesis(
         )
 
 
+def build_overview_status_metrics(summary: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = summary if isinstance(summary, dict) else {}
+    portfolio = payload.get("portfolio") if isinstance(payload.get("portfolio"), dict) else {}
+    connections = payload.get("connections") if isinstance(payload.get("connections"), dict) else {}
+    warnings = payload.get("active_warnings") if isinstance(payload.get("active_warnings"), list) else []
+
+    warning_preview = ", ".join(str(item) for item in warnings[:2]) if warnings else "No active warnings"
+    failed_count = int(connections.get("failed") or 0)
+    last_sync = str(connections.get("last_sync") or "").strip()
+    connectivity_delta = f"Failed {failed_count}" if failed_count else (last_sync or "No sync recorded")
+
+    return [
+        {
+            "label": "Risk State",
+            "value": str(payload.get("risk_status") or "safe").replace("_", " ").title(),
+            "delta": warning_preview,
+        },
+        {
+            "label": "Kill Switch",
+            "value": "Armed" if bool(payload.get("kill_switch")) else "Off",
+            "delta": f"Blocked {int(payload.get('blocked_trades_count') or 0)} trades",
+        },
+        {
+            "label": "Connectivity",
+            "value": f"{int(connections.get('connected_exchanges') or 0)} exch / {int(connections.get('connected_providers') or 0)} svc",
+            "delta": connectivity_delta,
+        },
+        {
+            "label": "Exposure",
+            "value": f"{float(portfolio.get('exposure_used_pct') or 0.0):.1f}%",
+            "delta": f"Leverage {float(portfolio.get('leverage') or 0.0):.1f}x",
+        },
+    ]
+
+
+def render_overview_status_summary(summary: dict[str, Any] | None) -> None:
+    with st.container(border=True):
+        st.markdown("### Workspace Status")
+        metric_items = build_overview_status_metrics(summary)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+
 def _format_portfolio_currency(value: Any) -> str:
     try:
         amount = float(value or 0.0)

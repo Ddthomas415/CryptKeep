@@ -10,6 +10,7 @@ from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_overview_kpis
 from dashboard.components.sidebar import render_app_sidebar
+from dashboard.components.summary_panels import render_overview_status_summary
 from dashboard.components.tables import render_table_section
 from dashboard.services.view_data import get_overview_view
 
@@ -75,4 +76,5 @@ with col_signals:
     render_focus_summary(detail)
 
 with col_activity:
+    render_overview_status_summary(summary)
     render_activity_panel(recent_activity)
