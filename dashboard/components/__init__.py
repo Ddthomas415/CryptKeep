@@ -1,4 +1,5 @@
 from dashboard.components.asset_detail import (
+    build_asset_detail_metrics,
     render_asset_detail_card,
     render_evidence_section,
     render_focus_summary,
@@ -24,6 +25,7 @@ from dashboard.components.tables import render_table_section
 __all__ = [
     "render_page_header",
     "render_kpi_cards",
+    "build_asset_detail_metrics",
     "render_asset_detail_card",
     "render_evidence_section",
     "render_focus_summary",

@@ -15,6 +15,7 @@ def test_dashboard_component_modules_import_together() -> None:
     imported = {name: importlib.import_module(name) for name in modules}
 
     package = imported["dashboard.components"]
+    assert callable(package.build_asset_detail_metrics)
     assert callable(package.render_asset_detail_card)
     assert callable(package.render_focus_selector)
     assert callable(package.build_overview_kpis)

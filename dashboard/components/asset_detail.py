@@ -4,8 +4,50 @@ from typing import Any
 
 import streamlit as st
 
-from dashboard.components.summary_panels import build_market_snapshot_lines
 from dashboard.components.tables import render_table_section
+
+
+def _format_currency(value: Any) -> str:
+    try:
+        amount = float(value or 0.0)
+    except (TypeError, ValueError):
+        return "-"
+    if amount <= 0:
+        return "-"
+    return f"${amount:,.2f}"
+
+
+def build_asset_detail_metrics(detail: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = detail if isinstance(detail, dict) else {}
+    exchange = str(payload.get("exchange") or "").strip()
+    snapshot_source = str(payload.get("snapshot_source") or "").strip().replace("_", " ")
+    snapshot_timestamp = str(payload.get("snapshot_timestamp") or "").strip()
+
+    source_value = snapshot_source.title() if snapshot_source else "Watchlist"
+    source_delta = " / ".join(part for part in (exchange, snapshot_timestamp) if part)
+
+    return [
+        {
+            "label": "Spot",
+            "value": _format_currency(payload.get("price")),
+            "delta": exchange or "",
+        },
+        {
+            "label": "Bid / Ask",
+            "value": f"{_format_currency(payload.get('bid'))} / {_format_currency(payload.get('ask'))}",
+            "delta": "",
+        },
+        {
+            "label": "Spread",
+            "value": _format_currency(payload.get("spread")),
+            "delta": "",
+        },
+        {
+            "label": "Source",
+            "value": source_value,
+            "delta": source_delta,
+        },
+    ]
 
 
 def render_asset_detail_card(
@@ -25,8 +67,16 @@ def render_asset_detail_card(
     with st.container(border=True):
         st.markdown(f"#### {asset}")
         st.caption(primary_text)
-        for line in build_market_snapshot_lines(payload, include_price=True):
-            st.caption(line)
+        metric_items = build_asset_detail_metrics(payload)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
         if price_series:
             st.line_chart(price_series, use_container_width=True)
         else:
