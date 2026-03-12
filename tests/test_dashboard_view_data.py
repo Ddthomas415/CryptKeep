@@ -364,6 +364,8 @@ def test_recommendations_map_api_payload(monkeypatch) -> None:
         lambda path: payload if path == "/api/v1/trading/recommendations" else None,
     )
     monkeypatch.setattr(view_data, "_load_local_recommendations", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_pending_approvals", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
     rows = view_data.get_recommendations()
     assert rows[0]["asset"] == "SOL"
     assert rows[0]["signal"] == "buy"
@@ -387,6 +389,8 @@ def test_recommendations_prefer_local_rows(monkeypatch) -> None:
         ],
     )
     monkeypatch.setattr(view_data, "_fetch_envelope", lambda path: None)
+    monkeypatch.setattr(view_data, "_load_local_pending_approvals", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
 
     rows = view_data.get_recommendations()
     assert rows == [
@@ -400,6 +404,68 @@ def test_recommendations_prefer_local_rows(monkeypatch) -> None:
             "status": "pending_review",
         }
     ]
+
+
+def test_recommendations_overlay_local_execution_state(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_recommendations",
+        lambda limit=20: [
+            {
+                "id": "sig_btc",
+                "asset": "BTC",
+                "signal": "buy",
+                "confidence": 0.82,
+                "summary": "Breakout held above support",
+                "evidence": "tradingview",
+                "status": "pending_review",
+            },
+            {
+                "id": "sig_eth",
+                "asset": "ETH",
+                "signal": "sell",
+                "confidence": 0.61,
+                "summary": "Funding rolled over",
+                "evidence": "partner_feed",
+                "status": "pending_review",
+            },
+        ],
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_pending_approvals",
+        lambda limit=20: [
+            {
+                "asset": "BTC",
+                "mode": "live",
+                "venue": "coinbase",
+                "order_type": "limit",
+                "status": "queued",
+            }
+        ],
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_recent_fills",
+        lambda limit=20: [
+            {
+                "asset": "ETH",
+                "side": "sell",
+                "qty": 0.25,
+                "price": 4420.0,
+                "venue": "paper",
+            }
+        ],
+    )
+    monkeypatch.setattr(view_data, "_fetch_envelope", lambda path: None)
+
+    rows = view_data.get_recommendations()
+    assert rows[0]["asset"] == "BTC"
+    assert rows[0]["status"] == "queued"
+    assert rows[0]["execution_state"] == "LIVE · coinbase · limit"
+    assert rows[1]["asset"] == "ETH"
+    assert rows[1]["status"] == "executed"
+    assert rows[1]["execution_state"] == "SELL 0.25 @ 4,420.00 · paper"
 
 
 def test_load_local_recommendations_prefers_signal_inbox(monkeypatch) -> None:

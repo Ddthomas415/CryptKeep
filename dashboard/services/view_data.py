@@ -807,6 +807,60 @@ def _load_local_recommendations(limit: int = 20) -> list[dict[str, Any]]:
     return []
 
 
+def _apply_local_execution_state_to_recommendations(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    normalized_rows = [dict(row) for row in rows if isinstance(row, dict)]
+    if not normalized_rows:
+        return []
+
+    asset_count = len(normalized_rows)
+    pending_rows = _load_local_pending_approvals(limit=max(20, asset_count * 4))
+    fill_rows = _load_local_recent_fills(limit=max(20, asset_count * 4))
+
+    latest_pending_by_asset: dict[str, dict[str, Any]] = {}
+    for row in pending_rows:
+        if not isinstance(row, dict):
+            continue
+        asset = _normalize_asset_symbol(row.get("asset"))
+        if asset and asset not in latest_pending_by_asset:
+            latest_pending_by_asset[asset] = row
+
+    latest_fill_by_asset: dict[str, dict[str, Any]] = {}
+    for row in fill_rows:
+        if not isinstance(row, dict):
+            continue
+        asset = _normalize_asset_symbol(row.get("asset"))
+        if asset and asset not in latest_fill_by_asset:
+            latest_fill_by_asset[asset] = row
+
+    enriched_rows: list[dict[str, Any]] = []
+    for row in normalized_rows:
+        asset = _normalize_asset_symbol(row.get("asset"))
+        enriched = dict(row)
+        pending = latest_pending_by_asset.get(asset)
+        latest_fill = latest_fill_by_asset.get(asset)
+
+        if isinstance(latest_fill, dict):
+            side = str(latest_fill.get("side") or "").strip().lower()
+            qty = float(latest_fill.get("qty") or 0.0)
+            price = float(latest_fill.get("price") or 0.0)
+            venue = str(latest_fill.get("venue") or "").strip()
+            enriched["status"] = "executed"
+            enriched["execution_state"] = f"{side.upper()} {qty:g} @ {price:,.2f}" if qty and price else "Filled"
+            if venue:
+                enriched["execution_state"] = f"{enriched['execution_state']} · {venue}"
+        elif isinstance(pending, dict):
+            mode = str(pending.get("mode") or "").strip()
+            venue = str(pending.get("venue") or "").strip()
+            order_type = str(pending.get("order_type") or "").strip()
+            enriched["status"] = "queued"
+            parts = [part for part in (mode.upper() if mode else "", venue, order_type) if part]
+            enriched["execution_state"] = " · ".join(parts) or "Queued"
+
+        enriched_rows.append(enriched)
+
+    return enriched_rows
+
+
 def _resolve_execution_db_path() -> str:
     cfg = deep_merge(DEFAULT_CFG, load_user_yaml() or {})
     execution_cfg = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}
@@ -1598,7 +1652,7 @@ def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
 def get_recommendations() -> list[dict[str, Any]]:
     local_rows = _load_local_recommendations(limit=20)
     if local_rows:
-        return local_rows
+        return _apply_local_execution_state_to_recommendations(local_rows)
 
     envelope = _fetch_envelope("/api/v1/trading/recommendations")
     if isinstance(envelope, dict) and envelope.get("status") == "success":
@@ -1619,8 +1673,8 @@ def get_recommendations() -> list[dict[str, Any]]:
                     }
                 )
             if mapped:
-                return mapped
-    return _default_recommendations()
+                return _apply_local_execution_state_to_recommendations(mapped)
+    return _apply_local_execution_state_to_recommendations(_default_recommendations())
 
 
 def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
