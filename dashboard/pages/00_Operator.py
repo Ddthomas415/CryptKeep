@@ -7,6 +7,9 @@ from pathlib import Path
 
 import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
+from dashboard.services.operator import run_op as _op
+from dashboard.services.operator_tools import parse_symbol_list as _parse_symbol_list
+from dashboard.services.operator_tools import synthetic_ohlcv as _synthetic_ohlcv
 from services.admin.config_editor import load_user_yaml, save_user_yaml
 from services.admin.repair_wizard import CONFIRM_TEXT as REPAIR_CONFIRM_TEXT
 from services.admin.repair_wizard import execute_reset, preflight_self_check, preview_reset
@@ -46,16 +49,6 @@ def _guided_preset_label(preset: str) -> str:
         "live_locked": "live_locked",
     }
     return labels.get(str(preset), str(preset))
-
-
-def _parse_symbol_list(raw: str) -> list[str]:
-    items = str(raw or "").replace("\n", ",").split(",")
-    out: list[str] = []
-    for item in items:
-        sym = item.strip()
-        if sym:
-            out.append(sym)
-    return out
 
 
 def _guided_ui_state() -> dict:
@@ -166,41 +159,6 @@ def _render_guided_setup() -> None:
     with st.expander("Guided Setup JSON", expanded=False):
         st.json({"summary": summary, "preflight": preflight, "status": status})
 
-
-def _synthetic_ohlcv(count: int, *, start_px: float = 100.0) -> list[list[float]]:
-    rows: list[list[float]] = []
-    n = max(30, int(count))
-    seg = max(10, n // 3)
-    prev_close = float(start_px)
-    base_ts = 1_700_000_000_000
-
-    for i in range(n):
-        if i < seg:
-            close_px = start_px - 0.32 * i
-        elif i < 2 * seg:
-            close_px = start_px - 0.32 * seg + 0.42 * (i - seg)
-        else:
-            close_px = start_px - 0.32 * seg + 0.42 * seg - 0.36 * (i - 2 * seg)
-
-        # Periodic deterministic spikes force breakout-style edges in synthetic data.
-        if i % 17 == 0:
-            close_px += 0.8
-        elif i % 19 == 0:
-            close_px -= 0.8
-
-        open_px = prev_close
-        high_px = max(open_px, close_px) + 0.25
-        low_px = min(open_px, close_px) - 0.25
-        rows.append([float(base_ts + (i * 60_000)), float(open_px), float(high_px), float(low_px), float(close_px), 1.0])
-        prev_close = close_px
-    return rows
-
-
-def _op(args: list[str]) -> tuple[int, str]:
-    cmd = [sys.executable, str(REPO_ROOT / "scripts" / "op.py")] + args
-    p = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)
-    out = (p.stdout or "") + (p.stderr or "")
-    return p.returncode, out.strip()
 
 st.title("Operator")
 st.caption("Start/stop services, view status, tail logs. Live remains locked by WizardState.")

@@ -8,6 +8,8 @@ from dashboard.components.header import render_page_header
 from dashboard.components.logs import render_action_result
 from dashboard.services.operator import list_services, run_op
 from dashboard.state.session import get_operator_result, set_operator_result
+from services.execution.idempotency_inspector import filter_rows as filter_idem_rows
+from services.execution.idempotency_inspector import list_recent as list_idem_recent
 
 
 AUTH_STATE = require_authenticated_role("OPERATOR")
@@ -21,7 +23,9 @@ render_page_header(
     ],
 )
 
-tab_tools, tab_service_logs = st.tabs(["System Tools", "Service Logs"])
+tab_tools, tab_service_logs, tab_failures = st.tabs(
+    ["System Tools", "Service Logs", "Order Blocked Inspector"]
+)
 
 with tab_tools:
     action = render_system_action_buttons()
@@ -66,5 +70,59 @@ with tab_service_logs:
         rc=int(result["rc"]) if result.get("rc") is not None else None,
         output=str(result.get("output") or ""),
     )
+
+with tab_failures:
+    st.caption("Inspect recent idempotency failures and copy an idempotency key for investigation.")
+    show_last_10 = st.checkbox("Show last 10 failures only", value=True, key="ops_fi3_last10")
+    venue_filter = st.text_input("Venue filter (optional)", value="", key="ops_fi3_venue_filter")
+    symbol_filter = st.text_input("Symbol filter (optional)", value="", key="ops_fi3_symbol_filter")
+
+    limit = 10 if show_last_10 else 50
+    if st.button("Refresh failures", key="ops_fi3_refresh"):
+        st.session_state["ops_fi3_snapshot"] = list_idem_recent(limit=limit, status="error")
+
+    snapshot = st.session_state.get("ops_fi3_snapshot")
+    if not isinstance(snapshot, dict):
+        snapshot = list_idem_recent(limit=limit, status="error")
+
+    if not bool(snapshot.get("ok")):
+        reason = snapshot.get("reason") or "unknown_error"
+        st.info(f"No failure data available yet ({reason}).")
+    else:
+        rows = filter_idem_rows(list(snapshot.get("rows") or []), venue_filter, symbol_filter)
+        st.caption(
+            f"Source: {snapshot.get('path')}  Table: {snapshot.get('table')}  "
+            f"Rows shown: {len(rows)} (limit={limit})"
+        )
+        if not rows:
+            st.info("No failures match current filters.")
+        else:
+            copied = st.session_state.get("ops_fi3_copied_key")
+            if copied:
+                st.text_input("Copied key", value=str(copied), key="ops_fi3_copied_key_view")
+
+            for idx, row in enumerate(rows):
+                key = str(row.get("key") or "")
+                title = (
+                    f"#{idx + 1} status={row.get('status') or '-'} "
+                    f"venue={row.get('venue') or '-'} symbol={row.get('symbol') or '-'}"
+                )
+                with st.expander(title):
+                    c_key, c_btn = st.columns([4, 1])
+                    c_key.code(key or "(empty key)")
+                    if c_btn.button("Copy key", key=f"ops_fi3_copy_{idx}"):
+                        st.session_state["ops_fi3_copied_key"] = key
+                        st.rerun()
+                    st.json(
+                        {
+                            "key": key,
+                            "status": row.get("status"),
+                            "ts": row.get("ts"),
+                            "venue": row.get("venue"),
+                            "symbol": row.get("symbol"),
+                            "payload": row.get("payload"),
+                            "raw": row.get("raw"),
+                        }
+                    )
 
 st.warning("Legacy Operator page remains available for full compatibility and deep tooling.")
