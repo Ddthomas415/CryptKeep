@@ -1,6 +1,37 @@
 from __future__ import annotations
 
-from dashboard.components.asset_detail import build_asset_detail_metrics, build_focus_summary_metrics
+from dashboard.components.asset_detail import (
+    build_assistant_status_summary,
+    build_asset_detail_metrics,
+    build_focus_summary_metrics,
+)
+
+
+def test_build_assistant_status_summary_formats_openai_path() -> None:
+    summary = build_assistant_status_summary(
+        {
+            "assistant_status": {
+                "provider": "openai",
+                "model": "gpt-4.1-mini",
+                "fallback": False,
+            }
+        }
+    )
+
+    assert summary == "Reasoning: OpenAI | gpt-4.1-mini"
+
+
+def test_build_assistant_status_summary_marks_fallback() -> None:
+    summary = build_assistant_status_summary(
+        {
+            "assistant_status": {
+                "provider": "dashboard_fallback",
+                "fallback": True,
+            }
+        }
+    )
+
+    assert summary == "Reasoning: Dashboard Fallback | fallback"
 
 
 def test_build_asset_detail_metrics_formats_snapshot_row() -> None:

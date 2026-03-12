@@ -18,6 +18,7 @@ def test_dashboard_component_modules_import_together() -> None:
     package = imported["dashboard.components"]
     assert callable(package.normalize_activity_items)
     assert callable(package.render_activity_panel)
+    assert callable(package.build_assistant_status_summary)
     assert callable(package.build_asset_detail_metrics)
     assert callable(package.build_focus_summary_metrics)
     assert callable(package.render_asset_detail_card)

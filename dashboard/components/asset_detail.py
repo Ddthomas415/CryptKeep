@@ -17,6 +17,45 @@ def _format_currency(value: Any) -> str:
     return f"${amount:,.2f}"
 
 
+def _format_reasoning_provider(value: Any) -> str:
+    provider = str(value or "").strip().lower()
+    if not provider:
+        return ""
+    if provider == "openai":
+        return "OpenAI"
+    if provider == "backend_api":
+        return "Backend API"
+    if provider == "phase1_copilot":
+        return "Phase 1 Copilot"
+    if provider == "dashboard_fallback":
+        return "Dashboard Fallback"
+    if provider == "gateway_fallback":
+        return "Gateway Fallback"
+    return provider.replace("_", " ").title()
+
+
+def build_assistant_status_summary(detail: dict[str, Any] | None) -> str:
+    payload = detail if isinstance(detail, dict) else {}
+    assistant_status = (
+        payload.get("assistant_status") if isinstance(payload.get("assistant_status"), dict) else {}
+    )
+    if not assistant_status:
+        return ""
+
+    provider = _format_reasoning_provider(assistant_status.get("provider"))
+    model = str(assistant_status.get("model") or "").strip()
+    fallback = bool(assistant_status.get("fallback"))
+
+    parts = [part for part in (provider, model) if part]
+    if not parts:
+        return ""
+
+    summary = f"Reasoning: {' | '.join(parts)}"
+    if fallback:
+        summary = f"{summary} | fallback"
+    return summary
+
+
 def build_asset_detail_metrics(detail: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = detail if isinstance(detail, dict) else {}
     exchange = str(payload.get("exchange") or "").strip()
@@ -112,6 +151,9 @@ def render_asset_detail_card(
     with st.container(border=True):
         st.markdown(f"#### {asset}")
         st.caption(primary_text)
+        assistant_summary = build_assistant_status_summary(payload)
+        if assistant_summary:
+            st.caption(assistant_summary)
         metric_items = build_asset_detail_metrics(payload)
         metric_cols = st.columns(len(metric_items))
         for col, item in zip(metric_cols, metric_items, strict=False):
@@ -152,6 +194,9 @@ def render_research_lens(
     with st.container(border=True):
         st.markdown(f"### {title}")
         st.caption(str(payload.get("question") or question_fallback))
+        assistant_summary = build_assistant_status_summary(payload)
+        if assistant_summary:
+            st.caption(assistant_summary)
         st.markdown(
             f"**Current Cause**  \n{str(payload.get('current_cause') or 'No current-cause summary available.')}"
         )
@@ -187,6 +232,9 @@ def render_focus_summary(
                     delta = str(item.get("delta") or "").strip()
                     if delta:
                         st.caption(delta)
+        assistant_summary = build_assistant_status_summary(payload)
+        if assistant_summary:
+            st.caption(assistant_summary)
         st.caption(str(payload.get("current_cause") or payload.get("thesis") or empty_message))
         secondary = str(payload.get("future_catalyst") or "").strip()
         if secondary:
