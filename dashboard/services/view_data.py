@@ -216,6 +216,7 @@ def _default_explain_payload(asset: str = "SOL", question: str | None = None) ->
             "provider": "dashboard_fallback",
             "model": None,
             "fallback": True,
+            "message": "Static asset-aware dashboard fallback used because no valid explain response was available.",
         },
     }
 
@@ -1642,10 +1643,12 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         data["asset"] = asset_symbol
         data["question"] = resolved_question
         assistant_status = data.get("assistant_status") if isinstance(data.get("assistant_status"), dict) else {}
+        assistant_message = str(assistant_status.get("message") or "").strip()
         data["assistant_status"] = {
             "provider": str(assistant_status.get("provider") or default_provider),
             "model": assistant_status.get("model"),
             "fallback": bool(assistant_status.get("fallback")) if "fallback" in assistant_status else default_fallback,
+            "message": assistant_message or None,
         }
         return data
 
@@ -1684,6 +1687,7 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
             "provider": "dashboard_fallback",
             "model": None,
             "fallback": True,
+            "message": "Static asset-aware dashboard fallback used because no valid explain response was available.",
         }
         return data
 

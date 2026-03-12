@@ -1002,6 +1002,7 @@ def test_research_explain_uses_api_payload(monkeypatch) -> None:
         "provider": "backend_api",
         "model": None,
         "fallback": False,
+        "message": None,
     }
 
 
@@ -1342,6 +1343,7 @@ def test_research_explain_falls_back_for_non_sol_assets(monkeypatch) -> None:
         "provider": "dashboard_fallback",
         "model": None,
         "fallback": True,
+        "message": "Static asset-aware dashboard fallback used because no valid explain response was available.",
     }
 
 
