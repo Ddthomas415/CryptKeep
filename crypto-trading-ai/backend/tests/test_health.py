@@ -27,6 +27,7 @@ def test_health_deps() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "ok"
+    assert sorted(payload["checks"].keys()) == ["db", "redis", "vector_db"]
     assert payload["checks"]["db"] == "ok"
     assert payload["checks"]["redis"] == "ok"
 
@@ -51,6 +52,7 @@ def test_health_ready_reflects_dependency_state(monkeypatch) -> None:
     payload = health_route.ready()
 
     assert payload["status"] == "degraded"
+    assert sorted(payload["checks"].keys()) == ["db", "redis", "vector_db"]
     assert payload["checks"]["vector_db"] == "error"
 
 

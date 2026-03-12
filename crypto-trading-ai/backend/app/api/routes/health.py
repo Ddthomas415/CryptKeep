@@ -65,7 +65,7 @@ def _build_dependency_payload(settings: Settings) -> dict:
     }
     if errors:
         payload["errors"] = errors
-    return HealthDependencyResponse.model_validate(payload).model_dump()
+    return HealthDependencyResponse.model_validate(payload).model_dump(exclude_none=True)
 
 
 @router.get("/ready", response_model=HealthDependencyResponse)
