@@ -6,6 +6,7 @@ import sys
 import urllib.error
 import urllib.request
 from typing import Any
+from typing import Callable
 
 
 def _request_json(url: str, *, method: str = "GET", payload: dict[str, Any] | None = None, timeout: float = 5.0) -> dict[str, Any]:
@@ -26,16 +27,7 @@ def _status_label(ok: bool) -> str:
     return "ok" if ok else "error"
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Smoke test the Phase 1 research copilot gateway and orchestrator.")
-    parser.add_argument("--gateway-url", default="http://localhost:8001", help="Gateway base URL.")
-    parser.add_argument("--orchestrator-url", default="http://localhost:8002", help="Orchestrator base URL.")
-    parser.add_argument("--asset", default="SOL", help="Asset symbol to query.")
-    parser.add_argument("--question", default="Why is SOL moving?", help="Question to send.")
-    parser.add_argument("--lookback-minutes", type=int, default=60, help="Lookback window in minutes.")
-    parser.add_argument("--timeout", type=float, default=5.0, help="HTTP timeout in seconds.")
-    args = parser.parse_args()
-
+def _build_summary(args: argparse.Namespace, request_json: Callable[..., dict[str, Any]] = _request_json) -> dict[str, Any]:
     summary: dict[str, Any] = {
         "gateway_health": {"status": "error"},
         "orchestrator_health": {"status": "error"},
@@ -44,7 +36,7 @@ def main() -> int:
     }
 
     try:
-        gateway_health = _request_json(f"{args.gateway_url.rstrip('/')}/healthz", timeout=args.timeout)
+        gateway_health = request_json(f"{args.gateway_url.rstrip('/')}/healthz", timeout=args.timeout)
         summary["gateway_health"] = {
             "status": _status_label(bool(gateway_health.get("ok"))),
             "openai_enabled": gateway_health.get("openai_enabled"),
@@ -53,7 +45,7 @@ def main() -> int:
         summary["gateway_health"] = {"status": "error", "message": f"{type(exc).__name__}: {exc}"}
 
     try:
-        orchestrator_health = _request_json(f"{args.orchestrator_url.rstrip('/')}/healthz", timeout=args.timeout)
+        orchestrator_health = request_json(f"{args.orchestrator_url.rstrip('/')}/healthz", timeout=args.timeout)
         summary["orchestrator_health"] = {
             "status": _status_label(bool(orchestrator_health.get("ok"))),
             "openai_enabled": orchestrator_health.get("openai_enabled"),
@@ -68,7 +60,7 @@ def main() -> int:
         "lookback_minutes": args.lookback_minutes,
     }
     try:
-        explain = _request_json(
+        explain = request_json(
             f"{args.orchestrator_url.rstrip('/')}/v1/explain",
             method="POST",
             payload=explain_payload,
@@ -86,7 +78,7 @@ def main() -> int:
         summary["explain"] = {"status": "error", "message": f"{type(exc).__name__}: {exc}"}
 
     try:
-        chat = _request_json(
+        chat = request_json(
             f"{args.gateway_url.rstrip('/')}/v1/chat",
             method="POST",
             payload=explain_payload,
@@ -101,10 +93,49 @@ def main() -> int:
     except Exception as exc:
         summary["chat"] = {"status": "error", "message": f"{type(exc).__name__}: {exc}"}
 
-    print(json.dumps(summary, indent=2))
+    return summary
 
+
+def _summary_is_ok(summary: dict[str, Any], *, expect_openai: bool) -> bool:
     critical_keys = ("gateway_health", "orchestrator_health", "explain", "chat")
-    return 0 if all(summary[key]["status"] == "ok" for key in critical_keys) else 1
+    if not all(isinstance(summary.get(key), dict) and summary[key].get("status") == "ok" for key in critical_keys):
+        return False
+    if not expect_openai:
+        return True
+
+    gateway_health = summary.get("gateway_health") if isinstance(summary.get("gateway_health"), dict) else {}
+    orchestrator_health = summary.get("orchestrator_health") if isinstance(summary.get("orchestrator_health"), dict) else {}
+    explain = summary.get("explain") if isinstance(summary.get("explain"), dict) else {}
+    chat = summary.get("chat") if isinstance(summary.get("chat"), dict) else {}
+
+    return (
+        bool(gateway_health.get("openai_enabled"))
+        and bool(orchestrator_health.get("openai_enabled"))
+        and explain.get("provider") == "openai"
+        and chat.get("provider") == "openai"
+        and not bool(explain.get("fallback"))
+        and not bool(chat.get("fallback"))
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Smoke test the Phase 1 research copilot gateway and orchestrator.")
+    parser.add_argument("--gateway-url", default="http://localhost:8001", help="Gateway base URL.")
+    parser.add_argument("--orchestrator-url", default="http://localhost:8002", help="Orchestrator base URL.")
+    parser.add_argument("--asset", default="SOL", help="Asset symbol to query.")
+    parser.add_argument("--question", default="Why is SOL moving?", help="Question to send.")
+    parser.add_argument("--lookback-minutes", type=int, default=60, help="Lookback window in minutes.")
+    parser.add_argument("--timeout", type=float, default=5.0, help="HTTP timeout in seconds.")
+    parser.add_argument(
+        "--expect-openai",
+        action="store_true",
+        help="Require OpenAI-backed reasoning and chat phrasing instead of fallback providers.",
+    )
+    args = parser.parse_args()
+
+    summary = _build_summary(args)
+    print(json.dumps(summary, indent=2))
+    return 0 if _summary_is_ok(summary, expect_openai=args.expect_openai) else 1
 
 
 if __name__ == "__main__":

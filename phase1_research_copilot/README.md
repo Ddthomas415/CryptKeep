@@ -69,6 +69,12 @@ The script checks:
 - `POST /v1/explain`
 - `POST /v1/chat`
 
+To require the live OpenAI path instead of allowing fallback providers:
+
+```bash
+python scripts/smoke_phase1_copilot.py --expect-openai
+```
+
 ## OpenAI reasoning mode
 - `gateway` and `orchestrator` run in research-only mode whether OpenAI is configured or not.
 - If `OPENAI_API_KEY` is set:
