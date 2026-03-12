@@ -9,6 +9,7 @@ from backend.app.api.routes import (
     connections,
     dashboard,
     health,
+    market,
     research,
     risk,
     settings,
@@ -41,6 +42,7 @@ register_exception_handlers(app)
 
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
+app.include_router(market.router, prefix="/api/v1/market", tags=["market"])
 app.include_router(research.router, prefix="/api/v1/research", tags=["research"])
 app.include_router(connections.router, prefix="/api/v1/connections", tags=["connections"])
 app.include_router(settings.router, prefix="/api/v1/settings", tags=["settings"])

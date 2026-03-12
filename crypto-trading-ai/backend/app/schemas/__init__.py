@@ -9,6 +9,7 @@ from backend.app.schemas.connections import (
 )
 from backend.app.schemas.dashboard import DashboardSummary
 from backend.app.schemas.health import HealthDependencyResponse, HealthLiveResponse
+from backend.app.schemas.market import MarketCandlesResponse, MarketSnapshot
 from backend.app.schemas.research import (
     ExplainRequest,
     ExplainResponse,
@@ -23,6 +24,8 @@ __all__ = [
     "DashboardSummary",
     "HealthLiveResponse",
     "HealthDependencyResponse",
+    "MarketSnapshot",
+    "MarketCandlesResponse",
     "ExplainRequest",
     "ExplainResponse",
     "SearchRequest",

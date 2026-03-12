@@ -63,6 +63,22 @@ paths:
       responses:
         "200":
           description: "Successful Response"
+  /api/v1/market/{asset}/candles:
+    get:
+      summary: "Market Candles"
+      responses:
+        "200":
+          description: "Successful Response"
+        "422":
+          description: "Validation Error"
+  /api/v1/market/{asset}/snapshot:
+    get:
+      summary: "Market Snapshot"
+      responses:
+        "200":
+          description: "Successful Response"
+        "422":
+          description: "Validation Error"
   /api/v1/research/explain:
     post:
       summary: "Research Explain"
