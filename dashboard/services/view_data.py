@@ -250,6 +250,75 @@ def _build_price_series(last_price: float, change_24h_pct: float) -> list[float]
     return series
 
 
+def _extract_close_series(rows: Any) -> list[float]:
+    if not isinstance(rows, list):
+        return []
+
+    series: list[float] = []
+    for row in rows:
+        close_value: Any | None = None
+        if isinstance(row, dict):
+            close_value = row.get("close")
+        elif isinstance(row, (list, tuple)) and len(row) >= 5:
+            close_value = row[4]
+
+        try:
+            close_price = round(float(close_value), 2)
+        except (TypeError, ValueError):
+            continue
+
+        if close_price > 0:
+            series.append(close_price)
+    return series
+
+
+def _load_local_ohlcv(venue: str, symbol: str, *, timeframe: str = "1h", limit: int = 24) -> list[list]:
+    try:
+        from services.marketdata.ohlcv_fetcher import load_ohlcv
+    except Exception:
+        return []
+
+    try:
+        rows = load_ohlcv(venue, symbol, timeframe=timeframe, limit=limit)
+    except Exception:
+        return []
+    return rows if isinstance(rows, list) else []
+
+
+def _get_market_price_series(
+    asset: str,
+    last_price: float,
+    change_24h_pct: float,
+    *,
+    exchange: str = "coinbase",
+    interval: str = "1h",
+    limit: int = 24,
+) -> list[float]:
+    asset_symbol = str(asset or "").strip().upper()
+    venue = str(exchange or "coinbase").strip().lower() or "coinbase"
+    candle_limit = max(int(limit or 24), 2)
+
+    envelope = _fetch_envelope(
+        f"/api/v1/market/{asset_symbol}/candles?exchange={venue}&interval={interval}&limit={candle_limit}"
+    )
+    if isinstance(envelope, dict) and envelope.get("status") == "success":
+        data = envelope.get("data")
+        candles = data.get("candles") if isinstance(data, dict) else None
+        candle_series = _extract_close_series(candles)
+        if candle_series:
+            return candle_series
+
+    quote = "USD" if venue in {"coinbase", "kraken"} else "USDT"
+    local_symbol = f"{asset_symbol}/{quote}"
+    local_series = _extract_close_series(
+        _load_local_ohlcv(venue, local_symbol, timeframe=interval, limit=candle_limit)
+    )
+    if local_series:
+        return local_series
+
+    return _build_price_series(last_price, change_24h_pct)
+
+
 def _asset_priority(signal: str) -> int:
     normalized = str(signal or "").strip().lower()
     order = {
@@ -488,7 +557,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         "execution_disabled": bool(explain.get("execution_disabled", True)),
         "evidence": evidence,
         "evidence_items": evidence_items,
-        "price_series": _build_price_series(price, change_24h_pct),
+        "price_series": _get_market_price_series(asset, price, change_24h_pct),
         "catalysts": catalysts,
         "related_signals": related_signals,
     }

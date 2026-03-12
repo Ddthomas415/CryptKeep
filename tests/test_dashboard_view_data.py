@@ -133,6 +133,7 @@ def test_markets_view_prefers_requested_asset_and_related_signal(monkeypatch) ->
             ],
         },
     )
+    monkeypatch.setattr(view_data, "_load_local_ohlcv", lambda venue, symbol, timeframe="1h", limit=24: [])
 
     payload = view_data.get_markets_view(selected_asset="SOL")
     assert payload["selected_asset"] == "SOL"
@@ -173,6 +174,7 @@ def test_markets_view_defaults_to_research_asset(monkeypatch) -> None:
             "evidence": [],
         },
     )
+    monkeypatch.setattr(view_data, "_load_local_ohlcv", lambda venue, symbol, timeframe="1h", limit=24: [])
 
     payload = view_data.get_markets_view()
     assert payload["selected_asset"] == "SOL"
@@ -322,6 +324,140 @@ def test_research_explain_uses_api_payload(monkeypatch) -> None:
     assert payload["asset"] == "BTC"
     assert payload["current_cause"] == "Spot demand improved."
     assert payload["confidence"] == 0.74
+
+
+def test_markets_view_prefers_candle_api_series(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "watchlist": [
+                {"asset": "BTC", "price": 90000.0, "change_24h_pct": 1.8, "signal": "watch"},
+            ]
+        },
+    )
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+    monkeypatch.setattr(
+        view_data,
+        "get_research_explain",
+        lambda asset, question=None: {
+            "asset": asset,
+            "question": question or f"Why is {asset} moving?",
+            "current_cause": "Spot demand improved.",
+            "past_precedent": "",
+            "future_catalyst": "",
+            "confidence": 0.74,
+            "risk_note": "Research only.",
+            "execution_disabled": True,
+            "evidence": [],
+        },
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "candles": [
+                    {"close": 88100.0},
+                    {"close": 89450.5},
+                    {"close": 90010.25},
+                ]
+            },
+        }
+        if path == "/api/v1/market/BTC/candles?exchange=coinbase&interval=1h&limit=24"
+        else None,
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_ohlcv",
+        lambda venue, symbol, timeframe="1h", limit=24: [[0, 0, 0, 0, 1.0, 0.0]],
+    )
+
+    payload = view_data.get_markets_view(selected_asset="BTC")
+    assert payload["detail"]["price_series"] == [88100.0, 89450.5, 90010.25]
+
+
+def test_markets_view_falls_back_to_local_ohlcv_series(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "watchlist": [
+                {"asset": "BTC", "price": 90000.0, "change_24h_pct": 1.8, "signal": "watch"},
+            ]
+        },
+    )
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+    monkeypatch.setattr(
+        view_data,
+        "get_research_explain",
+        lambda asset, question=None: {
+            "asset": asset,
+            "question": question or f"Why is {asset} moving?",
+            "current_cause": "Spot demand improved.",
+            "past_precedent": "",
+            "future_catalyst": "",
+            "confidence": 0.74,
+            "risk_note": "Research only.",
+            "execution_disabled": True,
+            "evidence": [],
+        },
+    )
+    monkeypatch.setattr(view_data, "_fetch_envelope", lambda path: None)
+
+    seen: dict[str, object] = {}
+
+    def _fake_load(venue, symbol, timeframe="1h", limit=24):
+        seen["venue"] = venue
+        seen["symbol"] = symbol
+        seen["timeframe"] = timeframe
+        seen["limit"] = limit
+        return [
+            [1, 0.0, 0.0, 0.0, 88100.0, 0.0],
+            [2, 0.0, 0.0, 0.0, 89450.5, 0.0],
+            [3, 0.0, 0.0, 0.0, 90010.25, 0.0],
+        ]
+
+    monkeypatch.setattr(view_data, "_load_local_ohlcv", _fake_load)
+
+    payload = view_data.get_markets_view(selected_asset="BTC")
+    assert payload["detail"]["price_series"] == [88100.0, 89450.5, 90010.25]
+    assert seen == {"venue": "coinbase", "symbol": "BTC/USD", "timeframe": "1h", "limit": 24}
+
+
+def test_markets_view_falls_back_to_synthetic_series_when_history_unavailable(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "get_dashboard_summary",
+        lambda: {
+            "watchlist": [
+                {"asset": "SOL", "price": 200.0, "change_24h_pct": 6.5, "signal": "research"},
+            ]
+        },
+    )
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+    monkeypatch.setattr(
+        view_data,
+        "get_research_explain",
+        lambda asset, question=None: {
+            "asset": asset,
+            "question": question or f"Why is {asset} moving?",
+            "current_cause": "Momentum with catalyst support",
+            "past_precedent": "",
+            "future_catalyst": "",
+            "confidence": 0.81,
+            "risk_note": "Research only.",
+            "execution_disabled": True,
+            "evidence": [],
+        },
+    )
+    monkeypatch.setattr(view_data, "_fetch_envelope", lambda path: None)
+    monkeypatch.setattr(view_data, "_load_local_ohlcv", lambda venue, symbol, timeframe="1h", limit=24: [])
+
+    payload = view_data.get_markets_view(selected_asset="SOL")
+    assert payload["detail"]["price_series"]
+    assert payload["detail"]["price_series"][-1] == 200.0
 
 
 def test_research_explain_rejects_foreign_asset_copy(monkeypatch) -> None:
