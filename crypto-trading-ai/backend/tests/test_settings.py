@@ -84,3 +84,22 @@ def test_put_settings_empty_update_blocked() -> None:
     payload = response.json()
     assert payload["status"] == "error"
     assert payload["error"]["code"] == "EMPTY_SETTINGS_UPDATE"
+
+
+def test_put_settings_empty_section_update_blocked() -> None:
+    response = client.put("/api/v1/settings", json={"general": {}})
+    assert response.status_code == 400
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "EMPTY_SETTINGS_UPDATE"
+
+
+def test_put_settings_invalid_mode_validation() -> None:
+    response = client.put(
+        "/api/v1/settings",
+        json={"general": {"default_mode": "auto_live"}},
+    )
+    assert response.status_code == 422
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "VALIDATION_ERROR"

@@ -555,8 +555,22 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     expectValidationEnvelope(payload);
   });
 
+  it("settings update returns validation envelope when mode value is invalid", async () => {
+    const payload = await putJsonExpectStatus(
+      "/api/v1/settings",
+      { general: { default_mode: "auto_live" } },
+      422,
+    );
+    expectValidationEnvelope(payload);
+  });
+
   it("settings update returns EMPTY_SETTINGS_UPDATE envelope on empty body", async () => {
     const payload = await putJsonExpectStatus("/api/v1/settings", {}, 400);
+    expectApplicationErrorEnvelope(payload, "EMPTY_SETTINGS_UPDATE");
+  });
+
+  it("settings update returns EMPTY_SETTINGS_UPDATE envelope on empty section payload", async () => {
+    const payload = await putJsonExpectStatus("/api/v1/settings", { general: {} }, 400);
     expectApplicationErrorEnvelope(payload, "EMPTY_SETTINGS_UPDATE");
   });
 

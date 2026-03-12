@@ -1,11 +1,15 @@
+from typing import Literal
+
 from pydantic import BaseModel
+
+ModeLiteral = Literal["research_only", "paper", "live_approval", "live_auto"]
 
 
 class GeneralSettings(BaseModel):
     timezone: str
     default_currency: str
     startup_page: str
-    default_mode: str
+    default_mode: ModeLiteral
     watchlist_defaults: list[str]
 
 
@@ -87,7 +91,7 @@ class GeneralSettingsUpdate(BaseModel):
     timezone: str | None = None
     default_currency: str | None = None
     startup_page: str | None = None
-    default_mode: str | None = None
+    default_mode: ModeLiteral | None = None
     watchlist_defaults: list[str] | None = None
 
 

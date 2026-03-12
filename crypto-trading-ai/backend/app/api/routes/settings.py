@@ -19,6 +19,11 @@ def get_settings(request: Request) -> dict:
 @router.put("", response_model=ApiEnvelope[SettingsPayload])
 def update_settings(request: Request, payload: SettingsUpdatePayload) -> dict:
     patch = payload.model_dump(exclude_unset=True, exclude_none=True)
+    patch = {
+        section: updates
+        for section, updates in patch.items()
+        if not (isinstance(updates, dict) and len(updates) == 0)
+    }
     if not patch:
         raise bad_request("At least one settings section is required.", code="EMPTY_SETTINGS_UPDATE")
 

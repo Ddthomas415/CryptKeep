@@ -63,6 +63,12 @@
           "type": "string"
         },
         "default_mode": {
+          "enum": [
+            "research_only",
+            "paper",
+            "live_approval",
+            "live_auto"
+          ],
           "title": "Default Mode",
           "type": "string"
         },
