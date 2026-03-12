@@ -91,7 +91,7 @@ with right:
     st.markdown("### Asset Detail")
     with st.container(border=True):
         st.markdown(f"#### {str(detail.get('asset') or default_asset)}")
-        st.caption(str(detail.get("thesis") or "No asset thesis available."))
+        st.caption(str(detail.get("current_cause") or detail.get("thesis") or "No asset thesis available."))
         st.line_chart(detail.get("price_series") or [], use_container_width=True)
         st.caption(
             f"Market bias: {market_bias}. Workflow status: "
@@ -108,7 +108,18 @@ with bottom_left:
     )
 
 with bottom_right:
-    st.markdown("### Catalyst Checklist")
-    with st.container(border=True):
-        for line in detail.get("catalysts") if isinstance(detail.get("catalysts"), list) else []:
-            st.markdown(f"- {line}")
+    render_table_section(
+        "Evidence",
+        detail.get("evidence_items") if isinstance(detail.get("evidence_items"), list) else [],
+        empty_message="No supporting evidence available.",
+    )
+
+with st.container(border=True):
+    st.markdown("### Research Lens")
+    st.caption(str(detail.get("question") or "Why is this asset moving?"))
+    st.markdown(f"**Current Cause**  \n{str(detail.get('current_cause') or 'No current-cause summary available.')}")
+    st.markdown(f"**Past Precedent**  \n{str(detail.get('past_precedent') or 'No historical precedent available.')}")
+    st.markdown(f"**Future Catalyst**  \n{str(detail.get('future_catalyst') or 'No forward catalyst available.')}")
+    risk_note = str(detail.get("risk_note") or "").strip()
+    if risk_note:
+        st.caption(risk_note)

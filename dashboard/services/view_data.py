@@ -121,6 +121,99 @@ def _default_settings_payload() -> dict[str, Any]:
     }
 
 
+def _default_explain_payload(asset: str = "SOL", question: str | None = None) -> dict[str, Any]:
+    asset_symbol = str(asset or "SOL").strip().upper() or "SOL"
+    resolved_question = question or f"Why is {asset_symbol} moving?"
+    templates: dict[str, dict[str, Any]] = {
+        "SOL": {
+            "current_cause": "SOL is rising alongside increased spot volume and fresh ecosystem headlines.",
+            "past_precedent": "Similar moves previously followed ecosystem upgrade narratives.",
+            "future_catalyst": "A scheduled governance milestone may still matter.",
+            "confidence": 0.78,
+            "risk_note": "Research only. Execution disabled.",
+            "execution_disabled": True,
+            "evidence": [
+                {
+                    "id": "ev1",
+                    "type": "market",
+                    "source": "coinbase",
+                    "timestamp": "2026-03-11T12:55:00Z",
+                    "summary": "Volume expansion over the last hour.",
+                    "relevance": 0.92,
+                }
+            ],
+        },
+        "BTC": {
+            "current_cause": "BTC is firming as spot demand absorbs intraday pullbacks and range highs come back into view.",
+            "past_precedent": "Comparable breakouts often held when U.S. session liquidity strengthened into the close.",
+            "future_catalyst": "Macro prints later this week could decide whether continuation volume stays intact.",
+            "confidence": 0.72,
+            "risk_note": "Research only. Execution disabled.",
+            "execution_disabled": True,
+            "evidence": [
+                {
+                    "id": "ev_btc_1",
+                    "type": "market",
+                    "source": "coinbase",
+                    "timestamp": "2026-03-11T12:45:00Z",
+                    "summary": "Price held above intraday support while spot liquidity stayed firm.",
+                    "relevance": 0.87,
+                }
+            ],
+        },
+        "ETH": {
+            "current_cause": "ETH is trading with steadier follow-through as traders reprice upgrade narratives without a full momentum breakout.",
+            "past_precedent": "Past pre-upgrade phases often rotated between compression and brief expansion before trend confirmation.",
+            "future_catalyst": "Protocol milestone timing remains the next obvious catalyst for a larger directional move.",
+            "confidence": 0.68,
+            "risk_note": "Research only. Execution disabled.",
+            "execution_disabled": True,
+            "evidence": [
+                {
+                    "id": "ev_eth_1",
+                    "type": "news",
+                    "source": "newsapi",
+                    "timestamp": "2026-03-11T11:20:00Z",
+                    "summary": "Upgrade commentary is supporting interest, but conviction remains moderate.",
+                    "relevance": 0.81,
+                }
+            ],
+        },
+    }
+    selected = dict(templates.get(asset_symbol, templates["SOL"]))
+    if asset_symbol not in templates:
+        selected.update(
+            {
+                "current_cause": f"{asset_symbol} is moving with watchlist momentum and refreshed market attention.",
+                "past_precedent": f"Prior {asset_symbol} expansions tended to follow liquidity improvement and renewed narrative flow.",
+                "future_catalyst": f"The next catalyst for {asset_symbol} is whether follow-through volume confirms the move.",
+                "confidence": 0.64,
+                "evidence": [
+                    {
+                        "id": f"ev_{asset_symbol.lower()}_1",
+                        "type": "market",
+                        "source": "watchlist",
+                        "timestamp": None,
+                        "summary": f"{asset_symbol} is being tracked in the active market watchlist.",
+                        "relevance": 0.75,
+                    }
+                ],
+            }
+        )
+
+    return {
+        "asset": asset_symbol,
+        "question": resolved_question,
+        "current_cause": str(selected.get("current_cause") or ""),
+        "past_precedent": str(selected.get("past_precedent") or ""),
+        "future_catalyst": str(selected.get("future_catalyst") or ""),
+        "confidence": float(selected.get("confidence") or 0.0),
+        "risk_note": selected.get("risk_note"),
+        "execution_disabled": bool(selected.get("execution_disabled", True)),
+        "evidence": list(selected.get("evidence") or []),
+    }
+
+
 def _derive_market_bias(change_24h_pct: float) -> str:
     if change_24h_pct >= 2.0:
         return "bullish"
@@ -169,6 +262,15 @@ def _asset_priority(signal: str) -> int:
     return order.get(normalized, 3)
 
 
+def _explain_mentions_foreign_asset(payload: dict[str, Any], asset_symbol: str) -> bool:
+    text = " ".join(
+        str(payload.get(key) or "")
+        for key in ("current_cause", "past_precedent", "future_catalyst")
+    ).upper()
+    known_assets = {"BTC", "ETH", "SOL"}
+    return any(symbol in text for symbol in known_assets if symbol != asset_symbol)
+
+
 def _read_mock_envelope(filename: str) -> dict[str, Any] | None:
     path = REPO_ROOT / "crypto-trading-ai" / "shared" / "mock-data" / filename
     if not path.exists():
@@ -215,6 +317,34 @@ def get_dashboard_summary() -> dict[str, Any]:
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
         return dict(mock["data"])
     return _default_dashboard_summary()
+
+
+def get_research_explain(asset: str, question: str | None = None) -> dict[str, Any]:
+    asset_symbol = str(asset or "").strip().upper() or "SOL"
+    resolved_question = question or f"Why is {asset_symbol} moving?"
+    fallback = _default_explain_payload(asset_symbol, resolved_question)
+
+    envelope = _request_envelope(
+        "/api/v1/research/explain",
+        method="POST",
+        payload={"asset": asset_symbol, "question": resolved_question},
+    )
+    if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
+        data = dict(envelope["data"])
+        if not _explain_mentions_foreign_asset(data, asset_symbol):
+            data["asset"] = asset_symbol
+            data["question"] = resolved_question
+            return data
+        return fallback
+
+    mock = _read_mock_envelope("explain-sol.json")
+    if asset_symbol == "SOL" and isinstance(mock, dict) and isinstance(mock.get("data"), dict):
+        data = dict(mock["data"])
+        data["asset"] = asset_symbol
+        data["question"] = resolved_question
+        return data
+
+    return fallback
 
 
 def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
@@ -269,6 +399,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     asset = str(selected_row.get("asset") or "")
     price = float(selected_row.get("price") or 0.0)
     change_24h_pct = float(selected_row.get("change_24h_pct") or 0.0)
+    explain = get_research_explain(asset, question=f"Why is {asset} moving?")
 
     related_signals = [
         {
@@ -293,20 +424,48 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         ]
 
     lead_signal = recommendation_map.get(asset, {})
-    thesis = str(lead_signal.get("summary") or "").strip()
+    current_cause = str(explain.get("current_cause") or "").strip()
+    past_precedent = str(explain.get("past_precedent") or "").strip()
+    future_catalyst = str(explain.get("future_catalyst") or "").strip()
+
+    thesis = current_cause or str(lead_signal.get("summary") or "").strip()
     if not thesis:
         bias = _derive_market_bias(change_24h_pct)
         thesis = f"{asset} remains {bias} with {selected_row.get('volume_trend')} activity and watchlist support."
 
     evidence = str(lead_signal.get("evidence") or "").strip()
+    raw_evidence = explain.get("evidence") if isinstance(explain.get("evidence"), list) else []
+    evidence_items = [
+        {
+            "type": str(item.get("type") or ""),
+            "source": str(item.get("source") or ""),
+            "summary": str(item.get("summary") or ""),
+            "timestamp": str(item.get("timestamp") or ""),
+            "relevance": float(item.get("relevance") or 0.0),
+        }
+        for item in raw_evidence
+        if isinstance(item, dict)
+    ]
+    if not evidence and evidence_items:
+        evidence = str(evidence_items[0].get("summary") or "")
     if not evidence:
         evidence = f"24h change {change_24h_pct:+.1f}% with {selected_row.get('volume_trend')} participation."
+    if not evidence_items:
+        evidence_items = [
+            {
+                "type": "market",
+                "source": "watchlist",
+                "summary": evidence,
+                "timestamp": "",
+                "relevance": 0.7,
+            }
+        ]
 
     catalysts = [
-        thesis,
-        f"Volume trend is {selected_row.get('volume_trend')}.",
-        f"Nearest support is ${price * 0.985:,.2f} and resistance is ${price * 1.015:,.2f}.",
-        f"Current workflow state is {str(selected_row.get('status') or 'monitor').replace('_', ' ')}.",
+        current_cause or thesis,
+        past_precedent or f"Volume trend is {selected_row.get('volume_trend')}.",
+        future_catalyst or f"Nearest support is ${price * 0.985:,.2f} and resistance is ${price * 1.015:,.2f}.",
+        str(explain.get("risk_note") or f"Current workflow state is {str(selected_row.get('status') or 'monitor').replace('_', ' ')}."),
     ]
 
     detail = {
@@ -314,14 +473,21 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         "price": price,
         "change_24h_pct": change_24h_pct,
         "signal": str(selected_row.get("signal") or "watch"),
-        "confidence": float(lead_signal.get("confidence") or selected_row.get("confidence") or 0.0),
+        "confidence": float(explain.get("confidence") or lead_signal.get("confidence") or selected_row.get("confidence") or 0.0),
         "status": str(lead_signal.get("status") or selected_row.get("status") or "monitor"),
         "market_bias": _derive_market_bias(change_24h_pct),
         "volume_trend": str(selected_row.get("volume_trend") or "steady"),
         "support": round(price * 0.985, 2),
         "resistance": round(price * 1.015, 2),
         "thesis": thesis,
+        "question": str(explain.get("question") or f"Why is {asset} moving?"),
+        "current_cause": current_cause or thesis,
+        "past_precedent": past_precedent,
+        "future_catalyst": future_catalyst,
+        "risk_note": str(explain.get("risk_note") or ""),
+        "execution_disabled": bool(explain.get("execution_disabled", True)),
         "evidence": evidence,
+        "evidence_items": evidence_items,
         "price_series": _build_price_series(price, change_24h_pct),
         "catalysts": catalysts,
         "related_signals": related_signals,

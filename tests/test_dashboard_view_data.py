@@ -110,6 +110,29 @@ def test_markets_view_prefers_requested_asset_and_related_signal(monkeypatch) ->
             }
         ],
     )
+    monkeypatch.setattr(
+        view_data,
+        "get_research_explain",
+        lambda asset, question=None: {
+            "asset": asset,
+            "question": question or f"Why is {asset} moving?",
+            "current_cause": "Momentum with catalyst support",
+            "past_precedent": "Prior momentum cycles showed similar behavior",
+            "future_catalyst": "A governance milestone remains in focus",
+            "confidence": 0.81,
+            "risk_note": "Research only.",
+            "execution_disabled": True,
+            "evidence": [
+                {
+                    "type": "market",
+                    "source": "coinbase",
+                    "summary": "volume expansion",
+                    "timestamp": "2026-03-11T12:55:00Z",
+                    "relevance": 0.93,
+                }
+            ],
+        },
+    )
 
     payload = view_data.get_markets_view(selected_asset="SOL")
     assert payload["selected_asset"] == "SOL"
@@ -117,6 +140,8 @@ def test_markets_view_prefers_requested_asset_and_related_signal(monkeypatch) ->
     assert payload["detail"]["confidence"] == 0.81
     assert payload["detail"]["market_bias"] == "bullish"
     assert payload["detail"]["price_series"][-1] == 200.0
+    assert payload["detail"]["current_cause"] == "Momentum with catalyst support"
+    assert payload["detail"]["evidence_items"][0]["summary"] == "volume expansion"
     assert payload["detail"]["related_signals"][0]["status"] == "pending_review"
 
 
@@ -133,11 +158,94 @@ def test_markets_view_defaults_to_research_asset(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+    monkeypatch.setattr(
+        view_data,
+        "get_research_explain",
+        lambda asset, question=None: {
+            "asset": asset,
+            "question": question or f"Why is {asset} moving?",
+            "current_cause": "",
+            "past_precedent": "",
+            "future_catalyst": "",
+            "confidence": 0.0,
+            "risk_note": "",
+            "execution_disabled": True,
+            "evidence": [],
+        },
+    )
 
     payload = view_data.get_markets_view()
     assert payload["selected_asset"] == "SOL"
     assert payload["detail"]["asset"] == "SOL"
     assert payload["detail"]["related_signals"][0]["summary"].startswith("No direct recommendation")
+    assert payload["detail"]["question"] == "Why is SOL moving?"
+
+
+def test_research_explain_uses_api_payload(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: {
+            "status": "success",
+            "data": {
+                "asset": "BTC",
+                "question": "Why is BTC moving?",
+                "current_cause": "Spot demand improved.",
+                "past_precedent": "Breakout history is constructive.",
+                "future_catalyst": "Macro events remain pending.",
+                "confidence": 0.74,
+                "risk_note": "Research only.",
+                "execution_disabled": True,
+                "evidence": [{"type": "market", "source": "coinbase", "summary": "bid support", "relevance": 0.82}],
+            },
+        }
+        if path == "/api/v1/research/explain" and method == "POST"
+        else None,
+    )
+
+    payload = view_data.get_research_explain("BTC")
+    assert payload["asset"] == "BTC"
+    assert payload["current_cause"] == "Spot demand improved."
+    assert payload["confidence"] == 0.74
+
+
+def test_research_explain_rejects_foreign_asset_copy(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: {
+            "status": "success",
+            "data": {
+                "asset": "BTC",
+                "question": "Why is BTC moving?",
+                "current_cause": "SOL is rising alongside increased spot volume and fresh ecosystem headlines.",
+                "past_precedent": "Similar moves previously followed ecosystem upgrade narratives.",
+                "future_catalyst": "A scheduled governance milestone may still matter.",
+                "confidence": 0.78,
+                "risk_note": "Research only.",
+                "execution_disabled": True,
+                "evidence": [],
+            },
+        }
+        if path == "/api/v1/research/explain" and method == "POST"
+        else None,
+    )
+
+    payload = view_data.get_research_explain("BTC")
+    assert payload["asset"] == "BTC"
+    assert "SOL" not in payload["current_cause"]
+    assert payload["current_cause"].startswith("BTC is firming")
+
+
+def test_research_explain_falls_back_for_non_sol_assets(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
+    monkeypatch.setattr(view_data, "_read_mock_envelope", lambda _name: None)
+
+    payload = view_data.get_research_explain("ADA")
+    assert payload["asset"] == "ADA"
+    assert payload["question"] == "Why is ADA moving?"
+    assert payload["execution_disabled"] is True
+    assert len(payload["evidence"]) == 1
 
 
 def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> None:
