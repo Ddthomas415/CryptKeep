@@ -72,3 +72,24 @@ def test_build_focus_summary_metrics_formats_signal_summary() -> None:
         "value": "Disabled",
         "delta": "Research only.",
     }
+
+
+def test_build_focus_summary_metrics_prefers_execution_state() -> None:
+    metrics = build_focus_summary_metrics(
+        {
+            "signal": "buy",
+            "status": "executed",
+            "confidence": 0.81,
+            "change_24h_pct": 6.5,
+            "price": 200.0,
+            "execution_state": "SELL 0.25 @ 4,420.00 · paper",
+            "execution_disabled": True,
+            "risk_note": "Research only.",
+        }
+    )
+
+    assert metrics[3] == {
+        "label": "Execution",
+        "value": "Executed",
+        "delta": "SELL 0.25 @ 4,420.00 · paper",
+    }

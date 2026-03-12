@@ -144,6 +144,9 @@ def render_signal_thesis(
         st.caption(
             f"Evidence: {str(selected_row.get('evidence') or payload.get('evidence') or 'No evidence available.')}"
         )
+        execution_state = str(selected_row.get("execution_state") or payload.get("execution_state") or "").strip()
+        if execution_state:
+            st.caption(f"Execution: {execution_state}")
 
 
 def build_overview_status_metrics(summary: dict[str, Any] | None) -> list[dict[str, str]]:

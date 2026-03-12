@@ -1465,6 +1465,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
             "confidence": float(item.get("confidence") or 0.0),
             "summary": str(item.get("summary") or ""),
             "status": str(item.get("status") or "pending"),
+            "execution_state": str(item.get("execution_state") or ""),
         }
         for item in recommendations
         if isinstance(item, dict) and str(item.get("asset") or "").strip().upper() == asset
@@ -1477,6 +1478,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
                 "confidence": float(selected_row.get("confidence") or 0.0),
                 "summary": "No direct recommendation is available. Keep this asset in monitored research mode.",
                 "status": str(selected_row.get("status") or "monitor"),
+                "execution_state": str(selected_row.get("execution_state") or ""),
             }
         ]
 
@@ -1532,6 +1534,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         "signal": str(selected_row.get("signal") or "watch"),
         "confidence": float(explain.get("confidence") or lead_signal.get("confidence") or selected_row.get("confidence") or 0.0),
         "status": str(lead_signal.get("status") or selected_row.get("status") or "monitor"),
+        "execution_state": str(lead_signal.get("execution_state") or ""),
         "market_bias": _derive_market_bias(change_24h_pct),
         "volume_trend": str(selected_row.get("volume_trend") or "steady"),
         "support": round(price * 0.985, 2),
@@ -1703,6 +1706,7 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
                 "confidence": float(item.get("confidence") or 0.0),
                 "summary": str(item.get("summary") or ""),
                 "status": str(item.get("status") or "pending"),
+                "execution_state": str(item.get("execution_state") or ""),
                 "evidence": str(item.get("evidence") or ""),
                 "price": float(market.get("price") or 0.0),
                 "change_24h_pct": float(market.get("change_24h_pct") or 0.0),
@@ -1720,6 +1724,7 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
                 "confidence": float(detail.get("confidence") or 0.0),
                 "summary": str(detail.get("current_cause") or detail.get("thesis") or ""),
                 "status": str(detail.get("status") or "monitor"),
+                "execution_state": str(detail.get("execution_state") or ""),
                 "evidence": str(detail.get("evidence") or ""),
                 "price": float(detail.get("price") or 0.0),
                 "change_24h_pct": float(detail.get("change_24h_pct") or 0.0),
@@ -1801,6 +1806,7 @@ def get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
             "signal": str(item.get("signal") or ""),
             "confidence": float(item.get("confidence") or 0.0),
             "status": str(item.get("status") or ""),
+            "execution_state": str(item.get("execution_state") or ""),
             "thesis": str(item.get("summary") or ""),
         }
         for item in signals[:6]

@@ -57,6 +57,7 @@ with left:
                 "signal": str(item.get("signal") or ""),
                 "confidence": float(item.get("confidence") or 0.0),
                 "status": str(item.get("status") or ""),
+                "execution_state": str(item.get("execution_state") or ""),
                 "price": float(item.get("price") or 0.0),
                 "change_24h_pct": float(item.get("change_24h_pct") or 0.0),
             }

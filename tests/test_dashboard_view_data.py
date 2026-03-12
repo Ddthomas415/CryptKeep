@@ -825,6 +825,7 @@ def test_signals_view_prefers_pending_review_signal(monkeypatch) -> None:
                 "confidence": 0.66,
                 "summary": "Range breakout not confirmed",
                 "status": "watch",
+                "execution_state": "",
                 "evidence": "weak continuation volume",
             },
             {
@@ -833,6 +834,7 @@ def test_signals_view_prefers_pending_review_signal(monkeypatch) -> None:
                 "confidence": 0.81,
                 "summary": "Momentum with catalyst support",
                 "status": "pending_review",
+                "execution_state": "LIVE · coinbase · limit",
                 "evidence": "volume expansion",
             },
         ],
@@ -858,6 +860,7 @@ def test_signals_view_prefers_pending_review_signal(monkeypatch) -> None:
                 "change_24h_pct": 6.5,
                 "signal": "buy",
                 "status": "pending_review",
+                "execution_state": "LIVE · coinbase · limit",
                 "confidence": 0.81,
                 "execution_disabled": True,
                 "risk_note": "Research only.",
@@ -871,7 +874,9 @@ def test_signals_view_prefers_pending_review_signal(monkeypatch) -> None:
     assert payload["selected_asset"] == "SOL"
     assert payload["signals"][0]["asset"] == "BTC"
     assert payload["signals"][1]["price"] == 200.0
+    assert payload["signals"][1]["execution_state"] == "LIVE · coinbase · limit"
     assert payload["detail"]["asset"] == "SOL"
+    assert payload["detail"]["execution_state"] == "LIVE · coinbase · limit"
     assert payload["detail"]["current_cause"] == "Momentum with catalyst support"
 
 
@@ -910,12 +915,14 @@ def test_overview_view_reuses_signals_detail_contract(monkeypatch) -> None:
                     "signal": "buy",
                     "confidence": 0.81,
                     "status": "pending_review",
+                    "execution_state": "LIVE · coinbase · limit",
                     "summary": "Momentum with catalyst support",
                 }
             ],
             "detail": {
                 "asset": selected_asset or "SOL",
                 "current_cause": "Momentum with catalyst support",
+                "execution_state": "LIVE · coinbase · limit",
                 "future_catalyst": "A governance milestone remains in focus",
             },
         },
@@ -925,6 +932,7 @@ def test_overview_view_reuses_signals_detail_contract(monkeypatch) -> None:
     assert payload["summary"]["mode"] == "research_only"
     assert payload["selected_asset"] == "SOL"
     assert payload["signals"][0]["thesis"] == "Momentum with catalyst support"
+    assert payload["signals"][0]["execution_state"] == "LIVE · coinbase · limit"
     assert payload["detail"]["future_catalyst"] == "A governance milestone remains in focus"
     assert payload["recent_activity"] == ["Generated explanation for SOL"]
 

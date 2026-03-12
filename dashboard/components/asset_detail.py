@@ -63,8 +63,13 @@ def build_focus_summary_metrics(detail: dict[str, Any] | None) -> list[dict[str,
 
     signal_value = str(payload.get("signal") or "watch").replace("_", " ").title()
     signal_delta = str(payload.get("status") or "monitor").replace("_", " ").title()
-    execution_value = "Disabled" if bool(payload.get("execution_disabled", True)) else "Enabled"
-    execution_delta = str(payload.get("risk_note") or "").strip()
+    execution_state = str(payload.get("execution_state") or "").strip()
+    if execution_state:
+        execution_value = str(payload.get("status") or "monitor").replace("_", " ").title()
+        execution_delta = execution_state
+    else:
+        execution_value = "Disabled" if bool(payload.get("execution_disabled", True)) else "Enabled"
+        execution_delta = str(payload.get("risk_note") or "").strip()
 
     return [
         {
