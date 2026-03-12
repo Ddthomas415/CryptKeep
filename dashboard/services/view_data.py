@@ -1869,6 +1869,19 @@ def get_trades_view() -> dict[str, Any]:
     }
 
 
+def _load_automation_operations_snapshot() -> dict[str, Any]:
+    try:
+        from dashboard.services.operator import get_operations_snapshot
+    except Exception:
+        return {}
+
+    try:
+        payload = get_operations_snapshot()
+    except Exception:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
 def get_automation_view() -> dict[str, Any]:
     summary = get_dashboard_summary()
     settings = get_settings_view()
@@ -1922,6 +1935,7 @@ def get_automation_view() -> dict[str, Any]:
         "default_venue": str(runtime_signals.get("default_venue") or "coinbase"),
         "default_qty": float(runtime_signals.get("default_qty") or 0.001),
         "order_type": str(runtime_signals.get("order_type") or "market").lower().strip(),
+        "operations_snapshot": _load_automation_operations_snapshot(),
     }
 
 

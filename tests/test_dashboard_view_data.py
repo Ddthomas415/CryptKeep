@@ -1559,6 +1559,11 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
     )
     monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"execution_enabled": False, "approval_required": False})
     monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"default_mode": "paper"}})
+    monkeypatch.setattr(
+        view_data,
+        "_load_automation_operations_snapshot",
+        lambda: {"tracked_services": 4, "healthy_services": 3, "attention_services": 1},
+    )
 
     payload = view_data.get_automation_view()
     assert payload["execution_enabled"] is True
@@ -1573,6 +1578,11 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
     assert payload["default_venue"] == "kraken"
     assert payload["default_qty"] == 0.25
     assert payload["order_type"] == "limit"
+    assert payload["operations_snapshot"] == {
+        "tracked_services": 4,
+        "healthy_services": 3,
+        "attention_services": 1,
+    }
 
 
 def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> None:

@@ -8,7 +8,7 @@ from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_automation_kpis
 from dashboard.components.sidebar import render_app_sidebar
-from dashboard.components.summary_panels import render_automation_runtime_summary
+from dashboard.components.summary_panels import render_automation_runtime_summary, render_operations_status_summary
 from dashboard.services.view_data import get_automation_view, update_automation_view
 
 AUTH_STATE = require_authenticated_role("VIEWER")
@@ -48,6 +48,11 @@ summary_col, form_col = st.columns((1, 1.4))
 
 with summary_col:
     render_automation_runtime_summary(automation_view)
+    render_operations_status_summary(
+        automation_view.get("operations_snapshot")
+        if isinstance(automation_view.get("operations_snapshot"), dict)
+        else {}
+    )
     st.info("Advanced execution controls are isolated in Operations and remain explicitly gated.")
     st.caption(
         f"Runtime config path: {automation_view.get('config_path')}  "
