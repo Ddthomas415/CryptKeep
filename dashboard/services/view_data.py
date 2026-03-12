@@ -1510,27 +1510,89 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     }
 
 
+def _apply_local_settings_overrides(settings_payload: dict[str, Any]) -> dict[str, Any]:
+    merged = {
+        section: dict(value) if isinstance(value, dict) else {}
+        for section, value in (settings_payload or {}).items()
+    }
+    raw_cfg = load_user_yaml()
+    if not isinstance(raw_cfg, dict):
+        return merged
+
+    dashboard_ui = raw_cfg.get("dashboard_ui") if isinstance(raw_cfg.get("dashboard_ui"), dict) else {}
+    local_settings = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+    automation_ui = dashboard_ui.get("automation") if isinstance(dashboard_ui.get("automation"), dict) else {}
+
+    for section in ("general", "notifications", "ai", "security"):
+        local_section = local_settings.get(section) if isinstance(local_settings.get(section), dict) else {}
+        if local_section:
+            merged[section] = {
+                **(merged.get(section) if isinstance(merged.get(section), dict) else {}),
+                **local_section,
+            }
+
+    general = merged.get("general") if isinstance(merged.get("general"), dict) else {}
+    if "default_mode" not in general and str(automation_ui.get("default_mode") or "").strip():
+        general["default_mode"] = str(automation_ui.get("default_mode") or "research_only")
+
+    if "watchlist_defaults" not in general:
+        raw_symbols = raw_cfg.get("symbols") if isinstance(raw_cfg.get("symbols"), list) else []
+        normalized_symbols = [_normalize_asset_symbol(item) for item in raw_symbols]
+        normalized_symbols = [item for item in normalized_symbols if item]
+        if normalized_symbols:
+            general["watchlist_defaults"] = normalized_symbols
+
+    merged["general"] = general
+    return merged
+
+
 def get_settings_view() -> dict[str, Any]:
     envelope = _fetch_envelope("/api/v1/settings")
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return dict(envelope["data"])
+        return _apply_local_settings_overrides(dict(envelope["data"]))
 
     mock = _read_mock_envelope("settings.json")
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
-        return dict(mock["data"])
-    return _default_settings_payload()
+        return _apply_local_settings_overrides(dict(mock["data"]))
+    return _apply_local_settings_overrides(_default_settings_payload())
 
 
 def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
+    cfg = deep_merge(DEFAULT_CFG, load_user_yaml() or {})
+    dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
+    settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+
+    for section in ("general", "notifications", "ai", "security"):
+        if isinstance(payload.get(section), dict):
+            base_section = settings_overlay.get(section) if isinstance(settings_overlay.get(section), dict) else {}
+            settings_overlay[section] = {**base_section, **dict(payload[section])}
+
+    automation_ui = dashboard_ui.get("automation") if isinstance(dashboard_ui.get("automation"), dict) else {}
+    general_payload = payload.get("general") if isinstance(payload.get("general"), dict) else {}
+    if "default_mode" in general_payload:
+        automation_ui["default_mode"] = str(general_payload.get("default_mode") or "research_only")
+
+    dashboard_ui["automation"] = automation_ui
+    dashboard_ui["settings"] = settings_overlay
+    cfg["dashboard_ui"] = dashboard_ui
+
+    saved, local_message = save_user_yaml(cfg, dry_run=False)
+    if not saved:
+        return {"ok": False, "message": str(local_message or "Local settings save failed.")}
+
     envelope = _request_envelope("/api/v1/settings", method="PUT", payload=payload)
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return {"ok": True, "data": dict(envelope["data"])}
+        return {
+            "ok": True,
+            "data": dict(envelope["data"]),
+            "message": "Settings saved locally and synced to the local API.",
+        }
 
     error = envelope.get("error") if isinstance(envelope, dict) else None
-    message = "Settings API unavailable."
+    message = "Settings saved locally; API sync skipped."
     if isinstance(error, dict) and str(error.get("message") or "").strip():
-        message = str(error["message"])
-    return {"ok": False, "message": message}
+        message = f"Settings saved locally; API sync skipped: {str(error['message'])}"
+    return {"ok": True, "data": payload, "message": message}
 
 
 def get_recommendations() -> list[dict[str, Any]]:

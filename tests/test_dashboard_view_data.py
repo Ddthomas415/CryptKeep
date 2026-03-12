@@ -1407,10 +1407,52 @@ def test_settings_view_uses_api_payload(monkeypatch) -> None:
         "_fetch_envelope",
         lambda path: payload if path == "/api/v1/settings" else None,
     )
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
 
     settings = view_data.get_settings_view()
     assert settings["general"]["timezone"] == "UTC"
     assert settings["ai"]["tone"] == "concise"
+
+
+def test_settings_view_applies_local_overlay(monkeypatch) -> None:
+    payload = {
+        "status": "success",
+        "data": {
+            "general": {"timezone": "UTC", "default_mode": "paper"},
+            "notifications": {"telegram": False},
+            "ai": {"tone": "concise"},
+            "security": {"secret_masking": False},
+        },
+    }
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: payload if path == "/api/v1/settings" else None,
+    )
+    monkeypatch.setattr(
+        view_data,
+        "load_user_yaml",
+        lambda: {
+            "symbols": ["BTC/USD", "SOL/USDT"],
+            "dashboard_ui": {
+                "automation": {"default_mode": "live_auto"},
+                "settings": {
+                    "general": {"timezone": "America/New_York"},
+                    "notifications": {"telegram": True},
+                    "ai": {"tone": "detailed"},
+                    "security": {"secret_masking": True},
+                },
+            },
+        },
+    )
+
+    settings = view_data.get_settings_view()
+    assert settings["general"]["timezone"] == "America/New_York"
+    assert settings["general"]["default_mode"] == "paper"
+    assert settings["general"]["watchlist_defaults"] == ["BTC", "SOL"]
+    assert settings["notifications"]["telegram"] is True
+    assert settings["ai"]["tone"] == "detailed"
+    assert settings["security"]["secret_masking"] is True
 
 
 def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
@@ -1433,6 +1475,14 @@ def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
 
 
 def test_update_settings_view_reports_success(monkeypatch) -> None:
+    saved_cfg: dict[str, object] = {}
+
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        view_data,
+        "save_user_yaml",
+        lambda cfg, dry_run=False: (saved_cfg.update(cfg) or True, "Saved"),
+    )
     monkeypatch.setattr(
         view_data,
         "_request_envelope",
@@ -1445,14 +1495,34 @@ def test_update_settings_view_reports_success(monkeypatch) -> None:
     result = view_data.update_settings_view(payload)
     assert result["ok"] is True
     assert result["data"] == payload
+    assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
 
 
 def test_update_settings_view_reports_api_failure(monkeypatch) -> None:
+    saved_cfg: dict[str, object] = {}
+
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        view_data,
+        "save_user_yaml",
+        lambda cfg, dry_run=False: (saved_cfg.update(cfg) or True, "Saved"),
+    )
+    monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
+
+    result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
+    assert result["ok"] is True
+    assert "sync skipped" in result["message"].lower()
+    assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
+
+
+def test_update_settings_view_reports_local_save_failure(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (False, "disk error"))
     monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
 
     result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
     assert result["ok"] is False
-    assert "unavailable" in result["message"].lower()
+    assert "disk error" in result["message"].lower()
 
 
 def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
