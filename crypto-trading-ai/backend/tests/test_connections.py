@@ -50,6 +50,27 @@ def test_test_exchange() -> None:
     _assert_no_sensitive_keys(payload)
 
 
+def test_test_exchange_invalid_provider_validation() -> None:
+    response = client.post(
+        "/api/v1/connections/exchanges/test",
+        json={
+            "provider": "kucoin",
+            "environment": "live",
+            "credentials": {
+                "api_key": "demo",
+                "api_secret": "demo",
+                "passphrase": "demo",
+            },
+        },
+    )
+    assert response.status_code == 422
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "VALIDATION_ERROR"
+    for error in payload["error"]["details"]["errors"]:
+        assert "input" not in error
+
+
 def test_save_exchange() -> None:
     response = client.post(
         "/api/v1/connections/exchanges",
@@ -75,3 +96,27 @@ def test_save_exchange() -> None:
     assert payload["data"]["provider"] == "coinbase"
     assert payload["data"]["label"] == "Main Coinbase"
     _assert_no_sensitive_keys(payload)
+
+
+def test_save_exchange_invalid_environment_for_provider_validation() -> None:
+    response = client.post(
+        "/api/v1/connections/exchanges",
+        json={
+            "provider": "okx",
+            "label": "Main OKX",
+            "environment": "sandbox",
+            "credentials": {
+                "api_key": "demo",
+                "api_secret": "demo",
+                "passphrase": "demo",
+            },
+            "permissions": {
+                "read_only": True,
+                "allow_live_trading": False,
+            },
+        },
+    )
+    assert response.status_code == 422
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "VALIDATION_ERROR"

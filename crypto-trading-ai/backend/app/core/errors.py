@@ -1,3 +1,5 @@
+import json
+
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -46,8 +48,17 @@ def _redact_sensitive_value(value):
             else:
                 redacted[key] = _redact_sensitive_value(nested)
         return redacted
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple, set)):
         return [_redact_sensitive_value(item) for item in value]
+    if isinstance(value, BaseException):
+        return str(value)
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    try:
+        json.dumps(value)
+        return value
+    except TypeError:
+        return str(value)
     return value
 
 

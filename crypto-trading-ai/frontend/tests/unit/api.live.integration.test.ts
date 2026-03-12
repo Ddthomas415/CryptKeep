@@ -478,6 +478,45 @@ describe.runIf(runIntegration)("live backend API integration", () => {
     expectValidationEnvelope(payload);
   });
 
+  it("connections test returns validation envelope for unsupported provider", async () => {
+    const payload = await postJsonExpectStatus(
+      "/api/v1/connections/exchanges/test",
+      {
+        provider: "kucoin",
+        environment: "live",
+        credentials: {
+          api_key: "k",
+          api_secret: "s",
+          passphrase: "p",
+        },
+      },
+      422,
+    );
+    expectValidationEnvelope(payload);
+  });
+
+  it("connections save returns validation envelope for invalid provider/environment pair", async () => {
+    const payload = await postJsonExpectStatus(
+      "/api/v1/connections/exchanges",
+      {
+        provider: "okx",
+        label: "Main OKX",
+        environment: "sandbox",
+        credentials: {
+          api_key: "k",
+          api_secret: "s",
+          passphrase: "p",
+        },
+        permissions: {
+          read_only: true,
+          allow_live_trading: false,
+        },
+      },
+      422,
+    );
+    expectValidationEnvelope(payload);
+  });
+
   it("connections test validation errors do not echo credential inputs", async () => {
     const secretMarker = "SUPER_SECRET_MARKER_123";
     const payload = await postJsonExpectStatus(

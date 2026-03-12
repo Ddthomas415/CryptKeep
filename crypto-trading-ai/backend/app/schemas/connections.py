@@ -1,4 +1,14 @@
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+SUPPORTED_EXCHANGE_PROVIDERS = ("binance", "coinbase", "kraken", "okx")
+PROVIDER_ENVIRONMENTS: dict[str, set[str]] = {
+    "binance": {"sandbox", "live"},
+    "coinbase": {"sandbox", "live"},
+    "kraken": {"sandbox", "live"},
+    "okx": {"demo", "live"},
+}
 
 
 class ConnectionPermissions(BaseModel):
@@ -39,18 +49,51 @@ class ConnectionCredentialsInput(BaseModel):
     passphrase: str = ""
 
 
+class ExchangePermissionsInput(BaseModel):
+    read_only: bool = True
+    allow_live_trading: bool = False
+
+
 class ExchangeTestRequest(BaseModel):
-    provider: str
+    provider: Literal["binance", "coinbase", "kraken", "okx"]
     environment: str = "live"
     credentials: ConnectionCredentialsInput
+
+    @field_validator("environment", mode="before")
+    @classmethod
+    def normalize_environment(cls, value: str) -> str:
+        return str(value).strip().lower()
+
+    @model_validator(mode="after")
+    def validate_provider_environment(self):
+        allowed = PROVIDER_ENVIRONMENTS[self.provider]
+        if self.environment not in allowed:
+            raise ValueError(
+                f"environment must be one of {sorted(allowed)} for provider '{self.provider}'"
+            )
+        return self
 
 
 class ExchangeSaveRequest(BaseModel):
-    provider: str
-    label: str
+    provider: Literal["binance", "coinbase", "kraken", "okx"]
+    label: str = Field(min_length=1, max_length=120)
     environment: str = "live"
     credentials: ConnectionCredentialsInput
-    permissions: dict = {"read_only": True, "allow_live_trading": False}
+    permissions: ExchangePermissionsInput = ExchangePermissionsInput()
+
+    @field_validator("environment", mode="before")
+    @classmethod
+    def normalize_environment(cls, value: str) -> str:
+        return str(value).strip().lower()
+
+    @model_validator(mode="after")
+    def validate_provider_environment(self):
+        allowed = PROVIDER_ENVIRONMENTS[self.provider]
+        if self.environment not in allowed:
+            raise ValueError(
+                f"environment must be one of {sorted(allowed)} for provider '{self.provider}'"
+            )
+        return self
 
 
 class ExchangeConnectionListResponse(BaseModel):
