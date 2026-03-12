@@ -64,6 +64,7 @@ def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
     )
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: True)
     monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
+    monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
 
     summary = view_data.get_dashboard_summary()
@@ -97,6 +98,7 @@ def test_dashboard_summary_prefers_local_watchlist_prices(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
     monkeypatch.setattr(
         view_data,
@@ -139,6 +141,7 @@ def test_dashboard_summary_uses_settings_watchlist_when_missing(monkeypatch) -> 
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
     monkeypatch.setattr(
         view_data,
@@ -203,6 +206,36 @@ def test_load_local_risk_overlay_uses_ops_gate_and_blocks(monkeypatch) -> None:
     }
 
 
+def test_load_local_connections_summary_uses_health_and_ws_state(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "services.admin.health.list_health",
+        lambda: [
+            {"service": "market_data", "status": "RUNNING", "ts": "2026-03-12T10:00:00Z"},
+            {"service": "ops_risk_gate", "status": "RUNNING", "ts": "2026-03-12T10:01:00Z"},
+            {"service": "evidence_webhook", "status": "ERROR", "ts": "2026-03-12T09:59:00Z"},
+        ],
+    )
+
+    class FakeWSStatusStore:
+        def recent_events(self, limit: int = 200):
+            assert limit == 200
+            return [
+                {"exchange": "coinbase", "symbol": "BTC/USD", "status": "ok", "updated_ts": "2026-03-12T10:02:00Z"},
+                {"exchange": "kraken", "symbol": "ETH/USD", "status": "error", "updated_ts": "2026-03-12T09:58:00Z"},
+                {"exchange": "coinbase", "symbol": "ETH/USD", "status": "ok", "updated_ts": "2026-03-12T10:01:30Z"},
+            ]
+
+    monkeypatch.setattr("storage.ws_status_sqlite.WSStatusSQLite", FakeWSStatusStore)
+
+    payload = view_data._load_local_connections_summary()
+    assert payload == {
+        "connected_exchanges": 1,
+        "connected_providers": 2,
+        "failed": 1,
+        "last_sync": "2026-03-12T10:02:00Z",
+    }
+
+
 def test_dashboard_summary_applies_local_risk_overlay(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,
@@ -231,6 +264,7 @@ def test_dashboard_summary_applies_local_risk_overlay(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"watchlist_defaults": []}})
     monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
     monkeypatch.setattr(
@@ -254,6 +288,57 @@ def test_dashboard_summary_applies_local_risk_overlay(monkeypatch) -> None:
     assert summary["drawdown_today_pct"] == 8.2
     assert summary["portfolio"]["exposure_used_pct"] == 55.5
     assert summary["portfolio"]["leverage"] == 2.1
+
+
+def test_dashboard_summary_applies_local_connections_overlay(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "mode": "research_only",
+                "execution_enabled": False,
+                "approval_required": True,
+                "risk_status": "safe",
+                "kill_switch": False,
+                "portfolio": {"total_value": 1000.0, "cash": 300.0, "unrealized_pnl": 25.0},
+                "connections": {
+                    "connected_exchanges": 0,
+                    "connected_providers": 0,
+                    "failed": 0,
+                    "last_sync": None,
+                },
+                "watchlist": [],
+            },
+        }
+        if path == "/api/v1/dashboard/summary"
+        else None,
+    )
+    monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_connections_summary",
+        lambda: {
+            "connected_exchanges": 2,
+            "connected_providers": 3,
+            "failed": 1,
+            "last_sync": "2026-03-12T10:05:00Z",
+        },
+    )
+    monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
+    monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"watchlist_defaults": []}})
+    monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
+
+    summary = view_data.get_dashboard_summary()
+    assert summary["connections"] == {
+        "connected_exchanges": 2,
+        "connected_providers": 3,
+        "failed": 1,
+        "last_sync": "2026-03-12T10:05:00Z",
+    }
 
 
 def test_recommendations_map_api_payload(monkeypatch) -> None:

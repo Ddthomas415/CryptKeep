@@ -945,6 +945,82 @@ def _load_local_kill_switch_state() -> bool | None:
     return bool(payload.get("armed", True))
 
 
+def _load_local_connections_summary() -> dict[str, Any] | None:
+    health_rows: list[dict[str, Any]] = []
+    ws_rows: list[dict[str, Any]] = []
+
+    try:
+        from services.admin.health import list_health
+    except Exception:
+        list_health = None
+
+    if callable(list_health):
+        try:
+            raw_health = list_health()
+        except Exception:
+            raw_health = []
+        health_rows = [item for item in raw_health if isinstance(item, dict)]
+
+    try:
+        from storage.ws_status_sqlite import WSStatusSQLite
+    except Exception:
+        WSStatusSQLite = None
+
+    if callable(WSStatusSQLite):
+        try:
+            raw_ws = WSStatusSQLite().recent_events(limit=200)
+        except Exception:
+            raw_ws = []
+        ws_rows = [item for item in raw_ws if isinstance(item, dict)]
+
+    if not health_rows and not ws_rows:
+        return None
+
+    running_statuses = {"RUNNING", "OK", "HEALTHY", "STARTING"}
+    failed_statuses = {"ERROR", "FAILED", "UNHEALTHY", "DEGRADED", "STOPPED"}
+
+    provider_states: dict[str, str] = {}
+    last_sync = ""
+    for item in health_rows:
+        service = str(item.get("service") or "").strip()
+        status = str(item.get("status") or "").strip().upper()
+        ts = str(item.get("ts") or "").strip()
+        if service:
+            provider_states[service] = status
+        if ts and ts > last_sync:
+            last_sync = ts
+
+    latest_ws_by_pair: dict[tuple[str, str], dict[str, Any]] = {}
+    for item in ws_rows:
+        exchange = str(item.get("exchange") or "").strip().lower()
+        symbol = str(item.get("symbol") or "").strip().upper()
+        if not exchange or not symbol:
+            continue
+        latest_ws_by_pair.setdefault((exchange, symbol), item)
+        ts = str(item.get("updated_ts") or "").strip()
+        if ts and ts > last_sync:
+            last_sync = ts
+
+    exchange_states: dict[str, list[str]] = {}
+    for item in latest_ws_by_pair.values():
+        exchange = str(item.get("exchange") or "").strip().lower()
+        status = str(item.get("status") or "").strip().lower()
+        if exchange:
+            exchange_states.setdefault(exchange, []).append(status)
+
+    connected_exchanges = sum(1 for states in exchange_states.values() if any(state == "ok" for state in states))
+    failed_exchanges = sum(1 for states in exchange_states.values() if states and all(state == "error" for state in states))
+    connected_providers = sum(1 for status in provider_states.values() if status in running_statuses)
+    failed_providers = sum(1 for status in provider_states.values() if status in failed_statuses)
+
+    return {
+        "connected_exchanges": int(connected_exchanges),
+        "connected_providers": int(connected_providers if provider_states else connected_exchanges),
+        "failed": int(failed_providers if provider_states else failed_exchanges),
+        "last_sync": last_sync or None,
+    }
+
+
 def _apply_local_summary_overrides(summary: dict[str, Any]) -> dict[str, Any]:
     merged = dict(summary or {})
     portfolio = merged.get("portfolio") if isinstance(merged.get("portfolio"), dict) else {}
@@ -1022,6 +1098,11 @@ def _apply_local_summary_overrides(summary: dict[str, Any]) -> dict[str, Any]:
     local_kill_switch = _load_local_kill_switch_state()
     if local_kill_switch is not None:
         merged["kill_switch"] = local_kill_switch
+
+    connections_payload = merged.get("connections") if isinstance(merged.get("connections"), dict) else {}
+    local_connections = _load_local_connections_summary()
+    if isinstance(local_connections, dict):
+        merged["connections"] = {**connections_payload, **local_connections}
 
     portfolio_payload = merged.get("portfolio") if isinstance(merged.get("portfolio"), dict) else {}
     risk_overlay = _load_local_risk_overlay(
