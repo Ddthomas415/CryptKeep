@@ -1,0 +1,15 @@
+{
+  "request_id": "req_risk_1",
+  "status": "success",
+  "data": {
+    "risk_status": "safe",
+    "exposure_used_pct": 18.4,
+    "drawdown_today_pct": 0.8,
+    "drawdown_week_pct": 1.2,
+    "leverage": 1.0,
+    "blocked_trades_count": 2,
+    "active_warnings": []
+  },
+  "error": null,
+  "meta": {}
+}

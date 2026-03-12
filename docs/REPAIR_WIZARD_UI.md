@@ -3,10 +3,16 @@
 Where:
 - Streamlit dashboard contains a "Repair Wizard (Role-Gated)" section.
 
-Roles (local session placeholder):
+Roles (authenticated):
 - VIEWER: read-only
 - OPERATOR: generate + approve
 - ADMIN: execute
+
+Authentication:
+- Operator page now requires sign-in.
+- Preferred provider: OS keychain-backed user store.
+- Optional controlled fallback: `CBP_AUTH_USERNAME` + `CBP_AUTH_PASSWORD` (+ `CBP_AUTH_ROLE`).
+- Optional bootstrap (first user creation): `CBP_AUTH_BOOTSTRAP_USER`, `CBP_AUTH_BOOTSTRAP_PASSWORD`, `CBP_AUTH_BOOTSTRAP_ROLE`.
 
 Execution is fail-closed:
 - Requires config mode=live AND live.enabled=true

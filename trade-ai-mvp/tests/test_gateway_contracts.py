@@ -37,6 +37,33 @@ from shared.schemas.trade import TradeProposalRequest
 
 def test_gateway_required_routes_registered():
     paths = {route.path for route in app.routes}
+    assert "/api/v1/health" in paths
+    assert "/api/v1/enums" in paths
+    assert "/api/v1/dashboard/summary" in paths
+    assert "/api/v1/research/explain" in paths
+    assert "/api/v1/research/search" in paths
+    assert "/api/v1/research/history" in paths
+    assert "/api/v1/market/{asset}/snapshot" in paths
+    assert "/api/v1/market/{asset}/candles" in paths
+    assert "/api/v1/trading/recommendations" in paths
+    assert "/api/v1/trading/recommendations/{recommendation_id}" in paths
+    assert "/api/v1/trading/recommendations/{recommendation_id}/approve" in paths
+    assert "/api/v1/trading/recommendations/{recommendation_id}/reject" in paths
+    assert "/api/v1/approvals" in paths
+    assert "/api/v1/approvals/{approval_id}/approve" in paths
+    assert "/api/v1/approvals/{approval_id}/reject" in paths
+    assert "/api/v1/risk/summary" in paths
+    assert "/api/v1/risk/limits" in paths
+    assert "/api/v1/risk/kill-switch" in paths
+    assert "/api/v1/connections/exchanges" in paths
+    assert "/api/v1/connections/exchanges/test" in paths
+    assert "/api/v1/connections/exchanges/{connection_id}" in paths
+    assert "/api/v1/connections/providers" in paths
+    assert "/api/v1/connections/providers/test" in paths
+    assert "/api/v1/settings" in paths
+    assert "/api/v1/audit/events" in paths
+    assert "/api/v1/terminal/execute" in paths
+    assert "/api/v1/terminal/confirm" in paths
     assert "/query/explain" in paths
     assert "/query/why-moving" in paths
     assert "/query/propose-trade" in paths

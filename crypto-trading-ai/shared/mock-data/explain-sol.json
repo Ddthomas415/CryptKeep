@@ -1,0 +1,26 @@
+{
+  "request_id": "req_explain_1",
+  "status": "success",
+  "data": {
+    "asset": "SOL",
+    "question": "Why is SOL moving?",
+    "current_cause": "SOL is rising alongside increased spot volume and fresh ecosystem headlines.",
+    "past_precedent": "Similar moves previously followed ecosystem upgrade narratives.",
+    "future_catalyst": "A scheduled governance milestone may still matter.",
+    "confidence": 0.78,
+    "risk_note": "Research only. Execution disabled.",
+    "execution_disabled": true,
+    "evidence": [
+      {
+        "id": "ev1",
+        "type": "market",
+        "source": "coinbase",
+        "timestamp": "2026-03-11T12:55:00Z",
+        "summary": "Volume expansion over the last hour.",
+        "relevance": 0.92
+      }
+    ]
+  },
+  "error": null,
+  "meta": {}
+}

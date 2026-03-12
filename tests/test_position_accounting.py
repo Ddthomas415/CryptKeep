@@ -160,6 +160,7 @@ def test_snapshot_single_quote_sets_total_equity():
 
     assert snap["equity_by_quote"]["USD"] == 50.0
     assert snap["total_equity"] == 50.0
+    assert snap["fx_conversion"]["complete"] is True
 
 
 def test_snapshot_without_marks_single_quote_total_equity_matches_cash():
@@ -170,6 +171,7 @@ def test_snapshot_without_marks_single_quote_total_equity_matches_cash():
 
     assert snap["equity_by_quote"]["USD"] == -100.0
     assert snap["total_equity"] == -100.0
+    assert snap["fx_conversion"]["complete"] is True
 
 
 def test_snapshot_multi_quote_leaves_total_equity_none():
@@ -182,6 +184,7 @@ def test_snapshot_multi_quote_leaves_total_equity_none():
     assert snap["equity_by_quote"]["USD"] == 20.0
     assert snap["equity_by_quote"]["USDT"] == 20.0
     assert snap["total_equity"] is None
+    assert snap["fx_conversion"]["complete"] is False
 
 
 def test_snapshot_multi_quote_sets_total_equity_when_target_quote_and_fx_marks_given():
@@ -198,6 +201,9 @@ def test_snapshot_multi_quote_sets_total_equity_when_target_quote_and_fx_marks_g
     assert snap["equity_by_quote"]["USD"] == 20.0
     assert snap["equity_by_quote"]["USDT"] == 20.0
     assert snap["total_equity"] == 40.0
+    assert snap["fx_conversion"]["complete"] is True
+    used = snap["fx_conversion"]["used"]
+    assert any(u["method"] == "direct" for u in used)
 
 
 def test_snapshot_multi_quote_leaves_total_equity_none_when_fx_mark_missing():
@@ -213,4 +219,37 @@ def test_snapshot_multi_quote_leaves_total_equity_none_when_fx_mark_missing():
     assert snap["equity_by_quote"]["USD"] == 20.0
     assert snap["equity_by_quote"]["USDT"] == 20.0
     assert snap["total_equity"] is None
+    assert snap["fx_conversion"]["complete"] is False
+    assert len(snap["fx_conversion"]["missing"]) >= 1
 
+
+def test_snapshot_multi_quote_supports_inverse_fx_mark():
+    pa = PositionAccounting()
+    pa.apply_fill({"side": "BUY", "symbol": "BTC/USD", "qty": 1, "price": 100})
+    pa.apply_fill({"side": "BUY", "symbol": "ETH/USDT", "qty": 2, "price": 50})
+
+    snap = pa.snapshot(
+        marks={"BTC/USD": 120, "ETH/USDT": 60},
+        target_quote="USD",
+        quote_marks={"USD/USDT": 1.0},
+    )
+
+    assert snap["equity_by_quote"]["USD"] == 20.0
+    assert snap["equity_by_quote"]["USDT"] == 20.0
+    assert snap["total_equity"] == 40.0
+    used = snap["fx_conversion"]["used"]
+    assert any(u["method"] == "inverse" for u in used)
+
+
+def test_snapshot_target_quote_and_fx_pairs_are_case_insensitive():
+    pa = PositionAccounting()
+    pa.apply_fill({"side": "BUY", "symbol": "BTC/USD", "qty": 1, "price": 100})
+    pa.apply_fill({"side": "BUY", "symbol": "ETH/USDT", "qty": 2, "price": 50})
+
+    snap = pa.snapshot(
+        marks={"BTC/USD": 120, "ETH/USDT": 60},
+        target_quote="usd",
+        quote_marks={"usdt/usd": 1.0},
+    )
+    assert snap["total_equity"] == 40.0
+    assert snap["fx_conversion"]["target_quote"] == "USD"

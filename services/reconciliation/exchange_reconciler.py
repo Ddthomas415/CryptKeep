@@ -60,6 +60,42 @@ def _extract_total_balances(fetch_balance_result: Dict[str, Any]) -> Dict[str, f
             pass
     return out
 
+def _balance_for(totals: Dict[str, float], asset: str) -> float:
+    key = str(asset or "").strip()
+    if not key:
+        return 0.0
+    if key in totals:
+        return float(totals.get(key, 0.0) or 0.0)
+    up = key.upper()
+    if up in totals:
+        return float(totals.get(up, 0.0) or 0.0)
+    low = key.lower()
+    if low in totals:
+        return float(totals.get(low, 0.0) or 0.0)
+    for k, v in totals.items():
+        if str(k).upper() == up:
+            return float(v or 0.0)
+    return 0.0
+
+
+def _normalize_quote_ccys(primary_quote: str, cfg_quote_ccys: Optional[List[str]]) -> List[str]:
+    primary = str(primary_quote or "USD").upper().strip() or "USD"
+    raw = cfg_quote_ccys or [primary]
+    out: List[str] = []
+    seen: set[str] = set()
+
+    def _append(v: str) -> None:
+        q = str(v or "").upper().strip()
+        if not q or q in seen:
+            return
+        seen.add(q)
+        out.append(q)
+
+    _append(primary)
+    for q in raw:
+        _append(str(q))
+    return out
+
 
 def default_reconcile_config() -> ReconcileConfig:
     ensure_dirs()
@@ -98,29 +134,45 @@ async def reconcile_once(*, exchange_id: str, ex_obj, cfg: ReconcileConfig, trad
 
     # Determine quote currencies to report
     portfolio = trading_cfg.get("portfolio") or {}
-    primary_quote = str(portfolio.get("quote_ccy") or "USD")
-    quote_ccys = cfg.quote_ccys or [primary_quote]
-    if primary_quote not in quote_ccys:
-        quote_ccys = [primary_quote] + list(quote_ccys)
+    primary_quote = str(portfolio.get("quote_ccy") or "USD").upper().strip() or "USD"
+    quote_ccys = _normalize_quote_ccys(primary_quote, cfg.quote_ccys)
 
     recon.insert_balance_snapshot(ts, exchange_id, primary_quote, {"totals": totals, "quote_ccys": quote_ccys})
 
-    # Cash drift: primary quote compares to internal ledger; others reported as informational only
-    cash_row = port.get_cash(exchange_id)
-    internal_cash = float(cash_row["cash"]) if cash_row else 0.0
+    # Cash drift: compare all configured quote currencies against internal per-quote ledger (v2).
+    # Keep legacy single-row fallback for primary quote to preserve backward compatibility.
+    def _internal_cash_for_quote(quote_ccy: str) -> float:
+        row = port.get_cash(exchange_id, quote_ccy)
+        if row:
+            return float(row["cash"])
+        if quote_ccy == primary_quote:
+            legacy = port.get_cash(exchange_id)
+            return float(legacy["cash"]) if legacy else 0.0
+        return 0.0
+
     cash_report = {"primary": {}, "others": []}
 
-    exch_primary = float(totals.get(primary_quote, 0.0) or 0.0)
+    internal_primary = _internal_cash_for_quote(primary_quote)
+    exch_primary = _balance_for(totals, primary_quote)
     cash_report["primary"] = {
         "quote_ccy": primary_quote,
         "exchange_cash": exch_primary,
-        "internal_cash": internal_cash,
-        "abs_drift": exch_primary - internal_cash,
+        "internal_cash": internal_primary,
+        "abs_drift": exch_primary - internal_primary,
     }
     for q in quote_ccys:
         if q == primary_quote:
             continue
-        cash_report["others"].append({"quote_ccy": q, "exchange_cash": float(totals.get(q, 0.0) or 0.0)})
+        exch_cash = _balance_for(totals, q)
+        internal_cash = _internal_cash_for_quote(q)
+        cash_report["others"].append(
+            {
+                "quote_ccy": q,
+                "exchange_cash": exch_cash,
+                "internal_cash": internal_cash,
+                "abs_drift": exch_cash - internal_cash,
+            }
+        )
 
     # Positions drift: deterministic from symbol_maps (canonical->exchange symbol) + internal position row keyed by exchange_symbol
     rows = build_symbol_rows(exchange_id, trading_cfg)
@@ -131,7 +183,7 @@ async def reconcile_once(*, exchange_id: str, ex_obj, cfg: ReconcileConfig, trad
 
     for r in rows:
         tracked_bases.add(r.base)
-        exch_qty = float(totals.get(r.base, 0.0) or 0.0)
+        exch_qty = _balance_for(totals, r.base)
 
         internal_pos = internal_positions.get(r.exchange_symbol)
         internal_qty = float(internal_pos["qty"]) if internal_pos else 0.0

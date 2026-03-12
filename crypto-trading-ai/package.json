@@ -1,0 +1,12 @@
+{
+  "name": "crypto-trading-ai",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "frontend:dev": "cd frontend && pnpm dev",
+    "frontend:build": "cd frontend && pnpm build",
+    "frontend:test": "cd frontend && pnpm test",
+    "frontend:lint": "cd frontend && pnpm lint"
+  }
+}

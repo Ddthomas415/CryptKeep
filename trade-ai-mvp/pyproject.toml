@@ -25,7 +25,7 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["shared*", "services*"]
+include = ["shared*", "services*", "domain*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

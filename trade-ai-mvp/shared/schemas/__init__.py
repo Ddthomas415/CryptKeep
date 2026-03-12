@@ -1,4 +1,15 @@
 from shared.schemas.market import HealthResponse, MarketSnapshotResponse
+from shared.schemas.api import (
+    ApiEnvelope,
+    ApiError,
+    ApiStatus,
+    Mode,
+    RiskStatus,
+    ConnectionStatus,
+    Timeline,
+    ApprovalStatus,
+    RecommendationSide,
+)
 from shared.schemas.documents import DocumentOut, DocumentSearchRequest, DocumentSearchResponse
 from shared.schemas.explain import ExplainRequest, ExplainResponse, EvidenceItem
 from shared.schemas.audit import AuditLogIn
@@ -87,6 +98,15 @@ from shared.schemas.paper import (
 )
 
 __all__ = [
+    "ApiEnvelope",
+    "ApiError",
+    "ApiStatus",
+    "Mode",
+    "RiskStatus",
+    "ConnectionStatus",
+    "Timeline",
+    "ApprovalStatus",
+    "RecommendationSide",
     "HealthResponse",
     "MarketSnapshotResponse",
     "DocumentOut",

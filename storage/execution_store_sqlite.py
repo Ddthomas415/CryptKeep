@@ -114,6 +114,30 @@ class ExecutionStore:
             )
             c.commit()
 
+    def list_fill_trade_ids(self, *, intent_id: str, limit: int = 2000) -> List[str]:
+        with _conn(self.path) as c:
+            rows = c.execute(
+                """
+                SELECT meta_json
+                FROM fills
+                WHERE intent_id=?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (str(intent_id), int(limit)),
+            ).fetchall()
+
+        out: List[str] = []
+        for r in rows:
+            try:
+                meta = json.loads(r["meta_json"] or "{}")
+            except Exception:
+                meta = {}
+            tid = str((meta or {}).get("trade_id") or "").strip()
+            if tid:
+                out.append(tid)
+        return out
+
     # Optional helper (not required by live_executor, but useful)
     def upsert_intent(self, row: Dict[str, Any]) -> None:
         with _conn(self.path) as c:

@@ -12,3 +12,8 @@ Changes:
 Runbook safety:
 - SYNC_POSITION requires `params.exchange_symbol`.
 - Executor refuses SYNC_POSITION without exchange_symbol (no base/symbol guessing).
+
+Multi-quote cash ledger (MB8):
+- Internal cash storage now includes `portfolio_cash_v2(exchange, quote_ccy, cash, updated_ts)`.
+- Reconciliation compares exchange vs internal cash for all configured `reconciliation.quote_ccys`.
+- Primary quote drift keeps legacy fallback for older single-row `portfolio_cash` installs.

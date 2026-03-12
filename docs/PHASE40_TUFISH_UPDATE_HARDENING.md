@@ -7,6 +7,9 @@ Adds:
   - last_manifest_sha256
 - Key rotation: supports multiple Ed25519 public keys
 - Optional strictness: updates.require_signature=true to reject unsigned/unverified manifests
+- Multi-role metadata validation: roles.root/targets/timestamp/snapshot
+- Threshold signatures per role (unique signer count must meet role.threshold)
+- Root/key rotation policy validation (min_signatures + max_key_age_days)
 
 Files:
 - services/update/update_state.py
@@ -22,3 +25,7 @@ updates:
 Notes:
 - Signature verification needs `cryptography` installed.
 - This remains “check only” (no auto-download/install).
+- Validator flags:
+  - `--require_roles`
+  - `--require_role_signatures`
+  - `--require_rotation_policy`

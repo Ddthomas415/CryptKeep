@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "RecommendationItem": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "asset": {
+          "title": "Asset",
+          "type": "string"
+        },
+        "side": {
+          "title": "Side",
+          "type": "string"
+        },
+        "strategy": {
+          "title": "Strategy",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "entry_zone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entry Zone"
+        },
+        "stop": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stop"
+        },
+        "target_logic": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Logic"
+        },
+        "risk_size_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Risk Size Pct"
+        },
+        "mode_compatibility": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Mode Compatibility",
+          "type": "array"
+        },
+        "approval_required": {
+          "title": "Approval Required",
+          "type": "boolean"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "execution_disabled": {
+          "title": "Execution Disabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "asset",
+        "side",
+        "strategy",
+        "confidence",
+        "mode_compatibility",
+        "approval_required",
+        "status",
+        "execution_disabled"
+      ],
+      "title": "RecommendationItem",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "items": {
+      "items": {
+        "$ref": "#/$defs/RecommendationItem"
+      },
+      "title": "Items",
+      "type": "array"
+    }
+  },
+  "required": [
+    "items"
+  ],
+  "title": "RecommendationList",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
+from services.gateway.routes.api_v1 import router as api_v1_router
 from services.gateway.routes.live import router as live_router
 from services.gateway.routes import query as query_routes
 from services.gateway.routes.alerts import router as alerts_router
@@ -17,6 +18,7 @@ logger = get_logger("gateway", settings.log_level)
 app = FastAPI(title="gateway")
 
 app.include_router(health_router)
+app.include_router(api_v1_router)
 app.include_router(query_router)
 app.include_router(paper_router)
 app.include_router(live_router)

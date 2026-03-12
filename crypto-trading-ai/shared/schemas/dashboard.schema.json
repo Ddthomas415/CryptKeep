@@ -1,0 +1,255 @@
+{
+  "$defs": {
+    "ConnectionsSummary": {
+      "properties": {
+        "connected_exchanges": {
+          "title": "Connected Exchanges",
+          "type": "integer"
+        },
+        "connected_providers": {
+          "title": "Connected Providers",
+          "type": "integer"
+        },
+        "failed": {
+          "title": "Failed",
+          "type": "integer"
+        },
+        "last_sync": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Sync"
+        }
+      },
+      "required": [
+        "connected_exchanges",
+        "connected_providers",
+        "failed"
+      ],
+      "title": "ConnectionsSummary",
+      "type": "object"
+    },
+    "PortfolioSummary": {
+      "properties": {
+        "total_value": {
+          "title": "Total Value",
+          "type": "number"
+        },
+        "cash": {
+          "title": "Cash",
+          "type": "number"
+        },
+        "unrealized_pnl": {
+          "title": "Unrealized Pnl",
+          "type": "number"
+        },
+        "realized_pnl_24h": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Realized Pnl 24H"
+        },
+        "exposure_used_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exposure Used Pct"
+        },
+        "leverage": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Leverage"
+        }
+      },
+      "required": [
+        "total_value",
+        "cash",
+        "unrealized_pnl"
+      ],
+      "title": "PortfolioSummary",
+      "type": "object"
+    },
+    "WatchlistItem": {
+      "properties": {
+        "asset": {
+          "title": "Asset",
+          "type": "string"
+        },
+        "price": {
+          "title": "Price",
+          "type": "number"
+        },
+        "change_24h_pct": {
+          "title": "Change 24H Pct",
+          "type": "number"
+        },
+        "volume_trend": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Volume Trend"
+        },
+        "signal": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signal"
+        }
+      },
+      "required": [
+        "asset",
+        "price",
+        "change_24h_pct"
+      ],
+      "title": "WatchlistItem",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "mode": {
+      "title": "Mode",
+      "type": "string"
+    },
+    "execution_enabled": {
+      "title": "Execution Enabled",
+      "type": "boolean"
+    },
+    "approval_required": {
+      "title": "Approval Required",
+      "type": "boolean"
+    },
+    "risk_status": {
+      "title": "Risk Status",
+      "type": "string"
+    },
+    "kill_switch": {
+      "title": "Kill Switch",
+      "type": "boolean"
+    },
+    "portfolio": {
+      "$ref": "#/$defs/PortfolioSummary"
+    },
+    "connections": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ConnectionsSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "watchlist": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/WatchlistItem"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Watchlist"
+    },
+    "recent_explanations": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Recent Explanations"
+    },
+    "recommendations": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Recommendations"
+    },
+    "upcoming_catalysts": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Upcoming Catalysts"
+    }
+  },
+  "required": [
+    "mode",
+    "execution_enabled",
+    "approval_required",
+    "risk_status",
+    "kill_switch",
+    "portfolio"
+  ],
+  "title": "DashboardSummary",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "EvidenceItem": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "relevance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relevance"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "source",
+        "summary"
+      ],
+      "title": "EvidenceItem",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "asset": {
+      "title": "Asset",
+      "type": "string"
+    },
+    "question": {
+      "title": "Question",
+      "type": "string"
+    },
+    "current_cause": {
+      "title": "Current Cause",
+      "type": "string"
+    },
+    "past_precedent": {
+      "title": "Past Precedent",
+      "type": "string"
+    },
+    "future_catalyst": {
+      "title": "Future Catalyst",
+      "type": "string"
+    },
+    "confidence": {
+      "title": "Confidence",
+      "type": "number"
+    },
+    "risk_note": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Risk Note"
+    },
+    "execution_disabled": {
+      "title": "Execution Disabled",
+      "type": "boolean"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/EvidenceItem"
+      },
+      "title": "Evidence",
+      "type": "array"
+    }
+  },
+  "required": [
+    "asset",
+    "question",
+    "current_cause",
+    "past_precedent",
+    "future_catalyst",
+    "confidence",
+    "execution_disabled",
+    "evidence"
+  ],
+  "title": "ExplainResponse",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

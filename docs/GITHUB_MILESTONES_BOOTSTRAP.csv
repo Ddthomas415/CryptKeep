@@ -1,0 +1,5 @@
+milestone,description
+M1 — Research MVP,"Dashboard, Research, Connections, Settings, audit/health/metrics baseline"
+M2 — Paper Trading,"State machines, policy engine, recommendations, paper approvals, paper orders/positions, risk page"
+M3 — Live Approval,"One live exchange, approval-based execution, kill switch, reconciliation"
+M4 — Automation and Ops,"Event bus, workers, terminal, projections, replay/debug, advanced hardening"

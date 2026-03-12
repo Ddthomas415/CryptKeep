@@ -85,6 +85,16 @@ def _truthy(v: str | None, *, default: bool = False) -> bool:
     return str(v).strip().lower() in {"1", "true", "yes", "on", "y"}
 
 
+def _boolish(v: Any, *, default: bool = False) -> bool:
+    if v is None:
+        return default
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, (int, float)):
+        return bool(v)
+    return str(v).strip().lower() in {"1", "true", "yes", "on", "y"}
+
+
 def _first_preflight_error(checks: list[dict[str, Any]]) -> str:
     for item in checks:
         if not bool(item.get("ok", False)) and str(item.get("severity") or "").upper() == "ERROR":
@@ -247,12 +257,16 @@ def _check_preflight_gate(
 @dataclass
 class LiveCfg:
     enabled: bool = False
+    observe_only: bool = False
     sandbox: bool = False
     exchange_id: str = "coinbase"
     exec_db: str = ""
     symbol: str = DEFAULT_SYMBOL
     max_submit_per_tick: int = 1
     reconcile_limit: int = 25
+    reconcile_trades: bool = True
+    reconcile_lookback_ms: int = 6 * 60 * 60 * 1000
+    reconcile_trades_limit: int = 200
 
 def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
     ensure_dirs()
@@ -261,17 +275,34 @@ def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
     ex_cfg = cfg.get("execution") or {}
     return LiveCfg(
         enabled=bool(live.get("enabled", False)),
+        observe_only=_boolish(live.get("observe_only", live.get("shadow_mode", False)), default=False),
         sandbox=bool(live.get("sandbox", False)),
         exchange_id=str(live.get("exchange_id") or "coinbase").lower(),
         exec_db=str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite")),
         symbol=str((cfg.get("symbols") or [DEFAULT_SYMBOL])[0]),
         max_submit_per_tick=int(live.get("max_submit_per_tick") or 1),
         reconcile_limit=int(live.get("reconcile_limit") or 25),
+        reconcile_trades=_boolish(live.get("reconcile_trades", True), default=True),
+        reconcile_lookback_ms=int(live.get("reconcile_lookback_ms") or ex_cfg.get("live_reconcile_lookback_ms") or (6 * 60 * 60 * 1000)),
+        reconcile_trades_limit=int(live.get("reconcile_limit_trades") or ex_cfg.get("live_reconcile_limit_trades") or 200),
     )
 
-def _hard_off_guard(cfg: LiveCfg) -> tuple[bool, str]:
-    if not cfg.enabled:
+
+def _is_live_shadow(cfg: LiveCfg) -> bool:
+    if _truthy(os.environ.get("CBP_LIVE_SHADOW"), default=False):
+        return True
+    return bool(getattr(cfg, "observe_only", False))
+
+
+def _hard_off_guard(cfg: LiveCfg, *, operation: str = "submit") -> tuple[bool, str]:
+    op = str(operation or "submit").strip().lower()
+    observe_only = _is_live_shadow(cfg)
+    if op == "submit" and observe_only:
+        return False, "LIVE_SHADOW observe-only mode: submissions disabled"
+    if not cfg.enabled and not observe_only:
         return False, "live.enabled is false"
+    if op == "reconcile" and observe_only:
+        return True, "ok_shadow"
     if os.environ.get("LIVE_TRADING") != "YES":
         return False, "LIVE_TRADING env var is not YES"
     return True, "ok"
@@ -286,8 +317,10 @@ def _list_intents_any(store: ExecutionStore, *, mode: str, exchange: str, symbol
     return out[:limit]
 
 def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
-    ok, why = _hard_off_guard(cfg)
+    ok, why = _hard_off_guard(cfg, operation="submit")
     if not ok:
+        if str(why).startswith("LIVE_SHADOW"):
+            return {"ok": True, "note": why, "submitted": 0, "errors": 0, "observe_only": True}
         return {"ok": False, "note": why, "submitted": 0}
 
     safety_cfg = _load_execution_safety_cfg()
@@ -458,8 +491,92 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
         "latency_breaches": latency_breaches,
     }
 
+def _trade_id(t: Dict[str, Any]) -> str:
+    for k in ("id", "tradeId", "trade_id", "fillId", "fill_id"):
+        v = t.get(k)
+        if v:
+            return str(v).strip()
+    info = t.get("info")
+    if isinstance(info, dict):
+        for k in ("trade_id", "tradeId", "fill_id", "fillId", "id"):
+            v = info.get(k)
+            if v:
+                return str(v).strip()
+    return ""
+
+
+def _trade_order_id(t: Dict[str, Any]) -> str:
+    for k in ("order", "orderId", "order_id"):
+        v = t.get(k)
+        if v:
+            return str(v).strip()
+    info = t.get("info")
+    if isinstance(info, dict):
+        for k in ("order_id", "orderId", "order", "order_id_str"):
+            v = info.get(k)
+            if v:
+                return str(v).strip()
+    return ""
+
+
+def _trade_client_id(t: Dict[str, Any]) -> str:
+    for k in ("clientOrderId", "client_order_id", "clientId", "client_id", "text"):
+        v = t.get(k)
+        if v:
+            return str(v).strip()
+    info = t.get("info")
+    if isinstance(info, dict):
+        for k in ("clientOrderId", "client_order_id", "client_id", "clientId", "text"):
+            v = info.get(k)
+            if v:
+                return str(v).strip()
+    return ""
+
+
+def _trade_ts_ms(t: Dict[str, Any]) -> int:
+    raw = t.get("timestamp")
+    if raw is None:
+        return _now_ms()
+    try:
+        return int(float(raw))
+    except Exception:
+        return _now_ms()
+
+
+def _trade_fee_parts(t: Dict[str, Any]) -> tuple[float, str]:
+    fee_obj = t.get("fee")
+    if isinstance(fee_obj, dict):
+        fee_cost = float(fee_obj.get("cost") or 0.0)
+        fee_ccy = str(fee_obj.get("currency") or "USD").upper()
+        return fee_cost, (fee_ccy or "USD")
+    return 0.0, "USD"
+
+
+def _trade_matches_intent(trade: Dict[str, Any], *, remote_id: str | None, client_id: str | None) -> bool:
+    remote = str(remote_id or "").strip()
+    client = str(client_id or "").strip()
+    trade_remote = _trade_order_id(trade)
+    if remote and trade_remote and trade_remote == remote:
+        return True
+    trade_client = _trade_client_id(trade)
+    if client and trade_client and trade_client == client:
+        return True
+    return False
+
+
+def _existing_trade_ids(store: Any, *, intent_id: str) -> set[str]:
+    getter = getattr(store, "list_fill_trade_ids", None)
+    if callable(getter):
+        try:
+            rows = getter(intent_id=intent_id, limit=2000)
+            return {str(v).strip() for v in rows if str(v or "").strip()}
+        except Exception:
+            return set()
+    return set()
+
+
 def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
-    ok, why = _hard_off_guard(cfg)
+    ok, why = _hard_off_guard(cfg, operation="reconcile")
     if not ok:
         return {"ok": False, "note": why, "fills_added": 0}
 
@@ -474,6 +591,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
     intents = _list_intents_any(store, mode="live", exchange=cfg.exchange_id, symbol=cfg.symbol, statuses=["submitted", "pending"], limit=200)
 
     fills_added = 0
+    trade_fills_added = 0
     latency_fills_recorded = 0
     checked = 0
 
@@ -491,9 +609,13 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
         if not remote_id:
             continue
 
+        row_d = store_dedupe.get_by_intent(cfg.exchange_id, intent_id)
+        cid = str((row_d or {}).get("client_order_id") or "").strip() or _client_id_from_reason(reason)
+        known_trade_ids = _existing_trade_ids(store, intent_id=intent_id)
+
         try:
             o = client.fetch_order(order_id=remote_id, symbol=str(it["symbol"]))
-        except Exception as e:
+        except Exception:
             # keep tracking; don't spam submits
             continue
 
@@ -504,38 +626,100 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
         fee_cost = float(fee.get("cost") or 0.0)
         fee_ccy = str(fee.get("currency") or "").upper() or "USD"
 
-        # we store a single synthetic fill when order is closed and filled>0.
-        # For partials: if filled>0 and status is open, we do not add fills yet (safe + simple).
+        trade_filled_qty = 0.0
+        if bool(cfg.reconcile_trades):
+            trades: list[dict[str, Any]] = []
+            since_ms = max(0, _now_ms() - int(max(0, cfg.reconcile_lookback_ms)))
+            try:
+                fetch_trades = getattr(client, "fetch_my_trades", None)
+                if callable(fetch_trades):
+                    got = fetch_trades(symbol=str(it["symbol"]), since=since_ms, limit=int(max(1, cfg.reconcile_trades_limit)))
+                    if isinstance(got, list):
+                        trades = [dict(x or {}) for x in got]
+            except Exception:
+                trades = []
+
+            for tr in trades:
+                if not _trade_matches_intent(tr, remote_id=remote_id, client_id=cid):
+                    continue
+                qty = float(tr.get("amount") or tr.get("qty") or 0.0)
+                px = float(tr.get("price") or 0.0)
+                if qty <= 0.0 or px <= 0.0:
+                    continue
+                trade_filled_qty += qty
+                trade_id = _trade_id(tr)
+                if not trade_id or trade_id in known_trade_ids:
+                    continue
+                t_fee_cost, t_fee_ccy = _trade_fee_parts(tr)
+                t_ts_ms = _trade_ts_ms(tr)
+                store.add_fill(
+                    intent_id=intent_id,
+                    ts_ms=t_ts_ms,
+                    price=px,
+                    qty=qty,
+                    fee=t_fee_cost,
+                    fee_ccy=t_fee_ccy,
+                    meta={
+                        "remote_order_id": remote_id,
+                        "status": status,
+                        "trade_id": trade_id,
+                        "raw_trade": {
+                            "id": tr.get("id"),
+                            "order": tr.get("order"),
+                            "timestamp": tr.get("timestamp"),
+                            "price": tr.get("price"),
+                            "amount": tr.get("amount"),
+                            "fee": tr.get("fee"),
+                        },
+                    },
+                )
+                known_trade_ids.add(trade_id)
+                fills_added += 1
+                trade_fills_added += 1
+                if cid:
+                    try:
+                        latency_tracker.record_fill(
+                            client_order_id=cid,
+                            exchange=cfg.exchange_id,
+                            symbol=str(it["symbol"]),
+                            price=px,
+                            qty=qty,
+                        )
+                        latency_fills_recorded += 1
+                    except Exception:
+                        pass
+
+        # Trade-level reconciliation handles partial fills + fees.
+        # Keep synthetic fallback when closed fills are available but per-trade rows are not.
         if status in ("closed", "filled") and filled > 0 and avg > 0:
-            store.add_fill(
-                intent_id=intent_id,
-                ts_ms=_now_ms(),
-                price=avg,
-                qty=filled,
-                fee=fee_cost,
-                fee_ccy=fee_ccy,
-                meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
-            )
-            row_d = store_dedupe.get_by_intent(cfg.exchange_id, intent_id)
-            cid = str((row_d or {}).get("client_order_id") or "").strip() or _client_id_from_reason(reason)
-            if cid:
-                try:
-                    latency_tracker.record_fill(
-                        client_order_id=cid,
-                        exchange=cfg.exchange_id,
-                        symbol=str(it["symbol"]),
-                        price=avg,
-                        qty=filled,
-                    )
-                    latency_fills_recorded += 1
-                except Exception:
-                    pass
+            if trade_filled_qty <= 0.0:
+                store.add_fill(
+                    intent_id=intent_id,
+                    ts_ms=_now_ms(),
+                    price=avg,
+                    qty=filled,
+                    fee=fee_cost,
+                    fee_ccy=fee_ccy,
+                    meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
+                )
+                fills_added += 1
+                if cid:
+                    try:
+                        latency_tracker.record_fill(
+                            client_order_id=cid,
+                            exchange=cfg.exchange_id,
+                            symbol=str(it["symbol"]),
+                            price=avg,
+                            qty=filled,
+                        )
+                        latency_fills_recorded += 1
+                    except Exception:
+                        pass
             store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
             try:
                 store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
             except Exception:
                 pass
-            fills_added += 1
         elif status in ("canceled", "cancelled", "rejected", "expired"):
             store.set_intent_status(intent_id=intent_id, status="canceled", reason=f"remote_id={remote_id}:{status}")
             try:
@@ -543,7 +727,15 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
             except Exception:
                 pass
 
-    return {"ok": True, "note": "reconcile complete", "checked": checked, "fills_added": fills_added, "latency_fills_recorded": latency_fills_recorded}
+    return {
+        "ok": True,
+        "note": "reconcile complete",
+        "checked": checked,
+        "fills_added": fills_added,
+        "trade_fills_added": trade_fills_added,
+        "latency_fills_recorded": latency_fills_recorded,
+        "observe_only": _is_live_shadow(cfg),
+    }
 # PHASE82_LIVE_GATES
 
 

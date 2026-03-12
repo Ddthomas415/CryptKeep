@@ -593,7 +593,7 @@
 - ✅ IG1: Equity curve builder
 - ✅ IG2: Metrics (DD, winrate, Sharpe heuristic)
 - ✅ IG3: Streamlit equity + metrics panel
-- 🟡 IG4: fill-based position accounting foundation added; cash/positions/realized/unrealized MTM snapshot covered; equity_by_quote + single-quote total_equity added; cross-quote aggregate equity supported with explicit FX marks
+- ✅ IG4: fill-based position accounting completed; cash/positions/realized/unrealized MTM snapshot covered; equity_by_quote + single-quote total_equity added; cross-quote aggregate equity supports explicit direct/inverse FX marks with conversion metadata
 
 ## II) Backtest / Walk-Forward Parity
 - ✅ II1: Parity backtest via compute_signal
@@ -777,7 +777,7 @@
 - ✅ LL3: Execution remains fail-closed (config + env gates still required)
 - ✅ LL4: Export runbook report (scripts/repair_export.py) MD+JSON + optional PDF if reportlab installed
 - ✅ LL5: Docs added (REPAIR_WIZARD_UI.md)
-- ⏳ LL6: Replace local role selector with real auth (OS keychain login / OAuth / SSO) (later)
+- ✅ LL6: Replace local role selector with real auth path (keychain-backed username/password login + role enforcement in Operator UI; controlled env fallback for headless/dev)
 
 ## LP) Real installers: Windows Inno Setup + macOS DMG builder + docs
 - ✅ LP1: Updated PyInstaller build to create .app on macOS (adds --windowed on Darwin)
@@ -827,7 +827,7 @@
 - ✅ MB5: Runner updated to pass full trading_cfg into reconciler
 - ✅ MB6: Config supports reconciliation.quote_ccys reporting (primary still portfolio.quote_ccy)
 - ✅ MB7: Docs added (docs/PRECISE_SYNC_POSITION.md)
-- ⏳ MB8: Multi-quote internal cash ledger (schema v2) if you need simultaneous USD+USDT accounting (future, optional)
+- ✅ MB8: Multi-quote internal cash ledger (schema v2) implemented (portfolio_cash_v2 + quote-aware reconciler drift for primary/secondary quotes)
 
 ## MC) Desktop packaging (Mac + Windows) — PyInstaller + Streamlit launcher
 - ✅ MC1: Desktop launcher added (apps/desktop_launcher.py)
@@ -998,7 +998,7 @@
 - ✅ Add services/release/local_build.py for OS-gated local builds
 - ✅ Add Release Train UI buttons for local packaging builds
 - ✅ Docs added (docs/PHASE23_CI_INSTALLER_ARTIFACTS.md)
-- ⏳ Next: “Ops intelligence” learning/adaptability module path (market data ingestion → feature store → model training → safe deployment gates)
+- ✅ Next: “Ops intelligence” learning/adaptability module path (market data ingestion → feature store → model training → safe deployment gates) delivered via learning/ops tracks (feature_store + model_registry + guardrails + ops risk gates)
 
 ## Phase 5) UI live gate + panel
 - ✅ Docs added (docs/LIVE_UI_GATE.md)
@@ -1086,7 +1086,7 @@
 
 ## Phase 24) Learning Core v1
 - ✅ Docs added (docs/PHASE24_LEARNING_CORE.md, docs/SOCIAL_LEARNING.md)
-- ⏳ Next: wire ML into decision flow (paper mode first), add monitoring + rollback triggers, integrate imported trader signals as features
+- ✅ Next: wire ML into decision flow (paper mode first), add monitoring + rollback triggers, integrate imported trader signals as features (router AI gate + canary/runtime policy + signal inbox/consensus integration)
 
 ## Phase 28) Multi-exchange ingestion (Coinbase + Binance + Gate.io) + normalization view + dashboard monitor
 - ✅ Add multi-exchange collector (per-venue ticker + OHLCV → MarketStore)
@@ -1095,7 +1095,7 @@
 - ✅ Add dashboard panel: Multi-Exchange Monitor
 - ✅ Add config template block: multi_exchanges (coinbase/binance/gateio)
 - ✅ Docs added (docs/PHASE28_MULTI_EXCHANGE_INGESTION.md)
-- ⏳ Next: execution + reconciliation layer (idempotent orders, restart-safe state, latency-aware order placement) + add “best venue routing” in paper first
+- ✅ Next: execution + reconciliation layer (idempotent orders, restart-safe state, latency-aware order placement) + “best venue routing” in paper first (delivered via DK/CL/CQ tracks)
 
 ## Phase 32) Live execution adapters + idempotent client IDs + reconciliation (hard-off)
 - ✅ Add ccxt ExchangeClient wrapper + per-exchange client ID param mapping
@@ -1104,7 +1104,7 @@
 - ✅ Add dashboard panel: Live Execution (HARD-OFF by default)
 - ✅ Add config template: live.enabled/sandbox/exchange_id
 - ✅ Docs added (docs/PHASE32_LIVE_EXECUTION_ADAPTERS.md)
-- ⏳ Next: trade-level reconciliation (fetch_my_trades) for partial fills, fee correctness, and robust restart recovery; then LIVE_SHADOW (observe-only) before any live ML gating
+- ✅ Next: trade-level reconciliation (fetch_my_trades) for partial fills, fee correctness, and robust restart recovery; plus LIVE_SHADOW (observe-only) before any live ML gating
 
 ## Phase 36) Installable desktop app (macOS + Windows) via PyInstaller + launcher
 - ✅ Add Tkinter desktop launcher that starts/stops Streamlit and opens browser
@@ -1129,7 +1129,7 @@
 - ✅ Patch update checker: require_signature option, multi-key verification, expiry handling, manifest hash state
 - ✅ Add offline manifest validator script (scripts/release_validate_manifest.py)
 - ✅ Docs added (docs/PHASE40_TUFISH_UPDATE_HARDENING.md)
-- ⏳ Next: true multi-role metadata (root/targets/timestamp/snapshot) + key rotation policy + threshold signatures; then WebSocket market data + event-driven execution for latency reduction
+- ✅ Next: true multi-role metadata (root/targets/timestamp/snapshot) + key rotation policy + threshold signatures delivered (`services/update/tufish.py`, `scripts/release_validate_manifest.py`); WebSocket market data + event-driven execution path delivered (`services/marketdata/ws_ticker_feed.py`, `services/execution/live_event_executor.py`, `scripts/run_live_event_executor.py`)
 
 ## Phase 51) OS-native scheduling + approval gate for model switching (paper safe-by-design)
 - ✅ Add recommend_model_switch (writes recommendation file only)
@@ -1148,7 +1148,7 @@
 - ✅ Add config template knobs: pipeline.strategy + bb_window + bb_k
 - ✅ Add dashboard panel: Strategy Selector
 - ✅ Docs added (docs/PHASE62_STRATEGY_SELECTOR_MEAN_REVERSION.md)
-- ⏳ Next: packaging/installers (Mac + Windows) as a single installable app + one-command setup; then multi-exchange live safety UX (Coinbase/Binance/Gate.io) inside UI
+- ✅ Next: packaging/installers (Mac + Windows) as a single installable app + one-command setup delivered (install.py + scripts/install.* + desktop packaging tracks); multi-exchange live safety UX delivered in UI/preflight/permissions flows (Coinbase/Binance/Gate.io)
 
 ## Phase 63) Installable app path (Mac + Windows): one-command install/run + optional native PyInstaller builds
 - ✅ Add desktop launcher (launcher/desktop_launcher.py) that starts Streamlit + opens browser
@@ -1978,3 +1978,70 @@
 - ✅ Phase 330: Hardened `tests/test_checkpoints_recent_phase_entry_verification_set_match.py` to anchor checkpoint lint
 - ✅ Phase 330: Validated recent checkpoint narrative for the tail block
 - ✅ Phase 330 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`540 passed`)
+
+## UX) Productized UI/UX surfaces (Beginner + Trader + Power user)
+- ✅ UX1: App shell + route map + navigation IA completed with global mode badge, system health pill, alerts entrypoint, and kill-switch control in header (`trade-ai-mvp/frontend/src/components/layout/AppShell.tsx`, `trade-ai-mvp/frontend/src/app/{routes.ts,router.tsx}`)
+- ✅ UX2: Dashboard screen implemented with mode/safety banner, portfolio summary, connections health, watchlist movers, explanations, recommendations, catalysts, and quick actions (`trade-ai-mvp/frontend/src/pages/DashboardPage.tsx`)
+- ✅ UX3: Connections v1 implemented with exchange cards, dynamic credential schema forms (Binance/Coinbase/Kraken/OKX + expansions), test/save/disable/remove flows, permissions detection, and read-only vs trading labeling (`trade-ai-mvp/frontend/src/pages/ConnectionsPage.tsx`, `trade-ai-mvp/frontend/src/components/forms/ExchangeCredentialForm.tsx`)
+- ✅ UX4: Research workspace v1 implemented with ask box, filters, timeline tabs, answer sections (current/past/future/confidence/risk note), evidence, and history (`trade-ai-mvp/frontend/src/pages/ResearchPage.tsx`)
+- ✅ UX5: Settings v1 implemented across General/Notifications/AI/Data/Security tabs with safe defaults (`research_only`, evidence/confidence enabled) plus save path (`trade-ai-mvp/frontend/src/pages/SettingsPage.tsx`, `trade-ai-mvp/frontend/src/mock/data/settings.json`)
+- ✅ UX6: Shared design system + component contracts implemented (badges, cards, forms, confirm modal, empty/loading/error states, typed UI contracts) (`trade-ai-mvp/frontend/src/styles.css`, `trade-ai-mvp/frontend/src/types/contracts.ts`, `trade-ai-mvp/frontend/src/components/**`)
+- ✅ UX7: Trading UI v1 implemented with recommendations/approvals/positions/orders/strategies tabs, explicit execution-state labeling, and recommendation detail drawer (`trade-ai-mvp/frontend/src/pages/TradingPage.tsx`, `trade-ai-mvp/frontend/src/components/trading/RecommendationDetailDrawer.tsx`)
+- ✅ UX8: Risk UI v1 implemented with global risk summary, editable limits form, approval policy panel, restricted assets, kill-switch panel, blocked-trade view, and risk audit table (`trade-ai-mvp/frontend/src/pages/RiskPage.tsx`, `trade-ai-mvp/frontend/src/components/forms/RiskLimitsForm.tsx`)
+- ✅ UX9: Approval workflows implemented (queue + approve/reject + optional size override) with confirmation modals and audit-hooked mock mutations (`trade-ai-mvp/frontend/src/pages/TradingPage.tsx`, `trade-ai-mvp/frontend/src/components/modals/ConfirmActionModal.tsx`, `trade-ai-mvp/frontend/src/mock/handlers.ts`)
+- ✅ UX10: Terminal mode v1 implemented as controlled app console (no shell) with allowlisted parser behavior, help groups, suggestions/autocomplete, command history, and dangerous-action confirmation (`trade-ai-mvp/frontend/src/pages/TerminalPage.tsx`, `trade-ai-mvp/frontend/src/components/terminal/**`, `trade-ai-mvp/frontend/src/mock/handlers.ts`)
+- ✅ UX11: Onboarding wizard v1 implemented (mode, sources, watchlist interests, risk profile, first query step) with beginner-safe defaults and completion hook (`trade-ai-mvp/frontend/src/components/onboarding/OnboardingWizard.tsx`)
+- ✅ UX12: Mock API handler pack + JSON fixture set expanded and aligned with typed UI contracts for decoupled frontend delivery (`trade-ai-mvp/frontend/src/mock/handlers.ts`, `trade-ai-mvp/frontend/src/mock/data/*.json`, `trade-ai-mvp/frontend/src/services/mockApi.ts`)
+- ✅ UX13: User-facing audit/history surfaces implemented across settings/trading/risk with traceability for decisions, approvals, risk blocks, and connection-setting actions (`trade-ai-mvp/frontend/src/components/history/AuditTable.tsx`, `trade-ai-mvp/frontend/src/pages/{SettingsPage.tsx,TradingPage.tsx,RiskPage.tsx}`)
+- ✅ UX14: Multi-exchange UX expansion implemented with Bybit/KuCoin/Gate.io/Bitget/Hyperliquid fixture coverage and normalized capability/status badges (`trade-ai-mvp/frontend/src/mock/data/exchanges.json`, `trade-ai-mvp/frontend/src/pages/ConnectionsPage.tsx`)
+- ⚠️ UX Safety rule: terminal must remain a controlled product console only; no unrestricted shell access from UI
+
+## API) Frontend-backend contract alignment pack (v1)
+- ✅ API1: `/api/v1` envelope rollout completed across implemented gateway domain routes (health/enums/dashboard/research/market/trading/approvals/risk/connections/settings/audit/terminal)
+- ✅ API2: Shared enums/schemas added (`mode`, `risk_status`, `connection_status`, `timeline`, `approval_status`, recommendation side) and published via typed gateway OpenAPI routes
+- ✅ API3: Implemented `GET /api/v1/dashboard/summary` contract shape with explicit mode/execution/approval/risk/kill-switch fields and UI-aligned portfolio/connections/watchlist/recommendations/catalyst containers
+- ✅ API4: Implemented `/api/v1/research/explain`, `/api/v1/research/search`, and `/api/v1/research/history` envelope routes with filter/timeline inputs, evidence mapping, pagination meta, and graceful dependency-failure envelopes
+- ✅ API5: Implemented market contracts (`GET /api/v1/market/{asset}/snapshot`, `GET /api/v1/market/{asset}/candles`) with exchange/interval params, envelope responses, and degraded fallback when candle storage is unavailable
+- ✅ API6: Implemented trading recommendation contracts (`GET /api/v1/trading/recommendations`, detail, approve, reject) with explicit `execution_disabled`/`approval_required` fields and envelope responses
+- ✅ API7: Implemented approvals domain (`GET /api/v1/approvals`, `POST /api/v1/approvals/:id/approve|reject`) mapped to recommendation approval workflow (scaffolded in-memory state pending DB-backed persistence)
+- ✅ API8: Implemented risk contracts (`GET /api/v1/risk/summary`, `GET|PUT /api/v1/risk/limits`, `POST /api/v1/risk/kill-switch`) with role guards, kill-switch state updates, and policy-aligned error envelopes
+- ✅ API9: Implemented connections/provider contracts (`/api/v1/connections/exchanges` GET/POST/PATCH/DELETE + `/test`, `/api/v1/connections/providers` GET/POST + `/test`) with role guards, permissions detection, and latency/health response fields
+- ✅ API10: Implemented settings + audit contracts (`GET|PUT /api/v1/settings`, `GET /api/v1/audit/events` with pagination/meta and service/result filters) plus role guard on settings writes
+- ✅ API11: Implemented controlled terminal contracts (`POST /api/v1/terminal/execute`, `POST /api/v1/terminal/confirm`) with allowlisted command policy checks, confirmation tokens for dangerous commands, and explicit no-shell execution path
+- ✅ API12: Published API ownership/implementation-order/persistence anti-drift docs (`trade-ai-mvp/docs/API_OWNERSHIP_IMPLEMENTATION_ORDER.md` + `DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ⚠️ API Safety rule: terminal endpoints must route only approved product commands; never expose raw shell execution
+
+## DB) Schema alignment pack (UI/API/service ownership)
+- ✅ DB1: Published domain-modeled ORM ownership modules (`shared/models/domain/{core,connections,market,research,trading,risk,ops}.py`) with ownership index and structural tests
+- ✅ DB2: Defined MVP + full production table sets with promotion criteria in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB3: Added endpoint-to-table mapping for `/api/v1` routes (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB4: Added service write-ownership rules for single-writer domain boundaries (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB5: Added FK-safe migration order plan (identity -> settings -> connections -> market -> research -> trading -> risk -> ops) (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB6: Added high-frequency index plan for research/trading/risk/audit domains (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB7: Added retention/archival policy with explicit config knobs (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB8: Added vector/evidence traceability table definitions (`document_embeddings`, `evidence_links`) in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB9: Added lifecycle persistence extensions for research/trading entities (`research_queries`, `recommendations`, `recommendation_versions`, `approvals`, etc.) in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB10: Added connection credential split and rotation/test-history model (`exchange_connections`, `exchange_credentials`, `connection_test_results`) in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ⚠️ DB Safety rule: encrypted credential material must never be logged or returned in API responses
+
+## SM) State machine centralization (modes, approvals, orders, positions, kill switch)
+- ✅ SM1: Added `domain/state_machines/` package with explicit enums for mode/recommendation/approval/order/position/kill-switch/safety states
+- ✅ SM2: Implemented explicit transition maps per machine (no implicit transitions)
+- ✅ SM3: Implemented guard check functions for protected transitions (mode escalations, approval/order submission, kill-switch release)
+- ✅ SM4: Added typed transition result contract (`TransitionResult`: `allowed`, `from_state`, `to_state`, `reason`, `side_effects`)
+- ✅ SM5: Added transition audit-event helper (`build_transition_audit_event`) with actor/request/context fields
+- ✅ SM6: Integrated kill-switch/order-transition guards into execution-affecting API paths (`trading .../approve`, `approvals .../approve`)
+- ✅ SM7: Enforced explicit `rejected` vs `failed` order lifecycle split in state machine rules and tests
+- ✅ SM8: Added position `error_state` with reconciliation-required guard and recovery side effect
+- ✅ SM9: Added comprehensive state-machine tests and composite workflow tests (`trade-ai-mvp/tests/test_state_machines.py`, `trade-ai-mvp/tests/test_workflow_contracts.py`)
+- ⚠️ SM Safety rule: no service may bypass state-machine guards for execution-affecting transitions
+
+## PM) Permissions and policy matrix
+- ✅ PM1: Defined centralized role/mode/risk/kill-switch/connection/terminal permission matrix modules (`domain/policy/*`) with deterministic allow/deny decisions and reason codes
+- ✅ PM2: Encoded approval-required policy matrix (size/confidence/futures/new-asset/new-exchange/mode/risk) as composable evaluators (`approval_policy.py`, `trade_policy.py`)
+- ✅ PM3: Route-level policy wiring completed for `/api/v1` mutating paths (trade/approval approve+reject, risk writes, connections writes, settings writes, terminal command execution+confirm) using centralized role/policy reason-code decisions
+
+## WF) Workflow specs for end-to-end user journeys
+- ✅ WF1: Published canonical workflow specs for connect exchange, research query, paper/live approvals, kill-switch lifecycle, and terminal execution (`trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
+- ✅ WF2: Added per-step mapping from workflow actions to API endpoints, policy gates, state-transition expectations, and audit events (`trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
+- ✅ WF3: Added workflow contract tests for happy/blocked paths across role/mode/risk/kill-switch permutations (`trade-ai-mvp/tests/test_workflow_contracts.py`)

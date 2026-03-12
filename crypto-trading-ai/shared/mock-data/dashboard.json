@@ -1,0 +1,46 @@
+{
+  "request_id": "req_dash_1",
+  "status": "success",
+  "data": {
+    "mode": "research_only",
+    "execution_enabled": false,
+    "approval_required": true,
+    "risk_status": "safe",
+    "kill_switch": false,
+    "portfolio": {
+      "total_value": 12450.35,
+      "cash": 8200.12,
+      "unrealized_pnl": 210.45,
+      "realized_pnl_24h": 56.12,
+      "exposure_used_pct": 18.4,
+      "leverage": 1.0
+    },
+    "connections": {
+      "connected_exchanges": 1,
+      "connected_providers": 4,
+      "failed": 0,
+      "last_sync": "2026-03-11T13:05:00Z"
+    },
+    "watchlist": [
+      {
+        "asset": "BTC",
+        "price": 84250.12,
+        "change_24h_pct": 2.4,
+        "volume_trend": "high",
+        "signal": "watch"
+      },
+      {
+        "asset": "SOL",
+        "price": 187.42,
+        "change_24h_pct": 6.9,
+        "volume_trend": "high",
+        "signal": "research"
+      }
+    ],
+    "recent_explanations": [],
+    "recommendations": [],
+    "upcoming_catalysts": []
+  },
+  "error": null,
+  "meta": {}
+}

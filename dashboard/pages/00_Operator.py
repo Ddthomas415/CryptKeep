@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import streamlit as st
+from dashboard.auth_gate import require_authenticated_role
 from services.admin.config_editor import load_user_yaml, save_user_yaml
 from services.admin.repair_wizard import CONFIRM_TEXT as REPAIR_CONFIRM_TEXT
 from services.admin.repair_wizard import execute_reset, preflight_self_check, preview_reset
@@ -203,6 +204,7 @@ def _op(args: list[str]) -> tuple[int, str]:
 
 st.title("Operator")
 st.caption("Start/stop services, view status, tail logs. Live remains locked by WizardState.")
+AUTH_STATE = require_authenticated_role("OPERATOR")
 _render_guided_setup()
 st.divider()
 

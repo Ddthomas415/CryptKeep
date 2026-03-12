@@ -1,0 +1,59 @@
+{
+  "$defs": {
+    "TerminalOutputItem": {
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "title": "TerminalOutputItem",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "command": {
+      "title": "Command",
+      "type": "string"
+    },
+    "output": {
+      "items": {
+        "$ref": "#/$defs/TerminalOutputItem"
+      },
+      "title": "Output",
+      "type": "array"
+    },
+    "requires_confirmation": {
+      "title": "Requires Confirmation",
+      "type": "boolean"
+    },
+    "confirmation_token": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confirmation Token"
+    }
+  },
+  "required": [
+    "command",
+    "output",
+    "requires_confirmation"
+  ],
+  "title": "TerminalExecuteResponse",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

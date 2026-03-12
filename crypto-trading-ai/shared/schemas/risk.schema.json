@@ -1,0 +1,47 @@
+{
+  "properties": {
+    "risk_status": {
+      "title": "Risk Status",
+      "type": "string"
+    },
+    "exposure_used_pct": {
+      "title": "Exposure Used Pct",
+      "type": "number"
+    },
+    "drawdown_today_pct": {
+      "title": "Drawdown Today Pct",
+      "type": "number"
+    },
+    "drawdown_week_pct": {
+      "title": "Drawdown Week Pct",
+      "type": "number"
+    },
+    "leverage": {
+      "title": "Leverage",
+      "type": "number"
+    },
+    "blocked_trades_count": {
+      "title": "Blocked Trades Count",
+      "type": "integer"
+    },
+    "active_warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Active Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "risk_status",
+    "exposure_used_pct",
+    "drawdown_today_pct",
+    "drawdown_week_pct",
+    "leverage",
+    "blocked_trades_count",
+    "active_warnings"
+  ],
+  "title": "RiskSummary",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -26,5 +26,5 @@ Run (if enabled):
   LIVE_TRADING=YES python scripts/live_executor_tick.py
 
 Notes:
-- Reconciliation is intentionally conservative: we only write a synthetic fill when an order is CLOSED and FILLED>0.
-- Next phase will add per-exchange trade-level reconciliation (fetch_my_trades) for partial fills + fee accuracy.
+- Reconciliation now uses trade-level fetch (`fetch_my_trades`) when available for partial fills + fee accuracy, with synthetic closed-order fallback.
+- `LIVE_SHADOW` observe-only mode is supported (submissions disabled, reconciliation allowed) before any live ML gating.

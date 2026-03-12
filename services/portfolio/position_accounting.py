@@ -3,6 +3,10 @@ from __future__ import annotations
 from typing import Any
 
 
+def _norm_ccy(value: str | None) -> str:
+    return str(value or "").strip().upper()
+
+
 class PositionAccounting:
     def __init__(self, db_path=None):
         self.db_path = db_path
@@ -76,6 +80,15 @@ class PositionAccounting:
     ) -> dict:
         marks = marks or {}
         quote_marks = quote_marks or {}
+        quote_marks_norm: dict[str, float] = {}
+        for k, v in quote_marks.items():
+            kk = str(k or "").strip().upper()
+            if not kk or "/" not in kk:
+                continue
+            try:
+                quote_marks_norm[kk] = float(v)
+            except Exception:
+                continue
         positions = []
         unrealized = 0.0
 
@@ -112,23 +125,46 @@ class PositionAccounting:
 
         equity_by_quote = dict(sorted(equity_by_quote.items()))
         total_equity = None
+        fx_conversion = {
+            "target_quote": _norm_ccy(target_quote) if target_quote else None,
+            "used": [],
+            "missing": [],
+            "complete": None,
+        }
 
         if target_quote:
-            target_quote = str(target_quote)
+            target_quote = _norm_ccy(target_quote)
             converted = 0.0
             for quote, value in equity_by_quote.items():
                 if quote == target_quote:
                     converted += float(value)
+                    fx_conversion["used"].append({"from": quote, "to": target_quote, "pair": None, "rate": 1.0, "method": "identity"})
                     continue
-                pair = f"{quote}/{target_quote}"
-                if pair not in quote_marks:
+                pair = f"{_norm_ccy(quote)}/{target_quote}"
+                inv_pair = f"{target_quote}/{_norm_ccy(quote)}"
+                rate = quote_marks_norm.get(pair)
+                method = "direct"
+                if rate is None:
+                    inv_rate = quote_marks_norm.get(inv_pair)
+                    if inv_rate is not None and float(inv_rate) != 0.0:
+                        rate = 1.0 / float(inv_rate)
+                        method = "inverse"
+                if rate is None:
                     total_equity = None
+                    fx_conversion["missing"].append({"from": quote, "to": target_quote, "pair": pair, "inverse_pair": inv_pair})
                     break
-                converted += float(value) * float(quote_marks[pair])
+                converted += float(value) * float(rate)
+                fx_conversion["used"].append(
+                    {"from": quote, "to": target_quote, "pair": pair if method == "direct" else inv_pair, "rate": float(rate), "method": method}
+                )
             else:
                 total_equity = float(converted)
+            fx_conversion["complete"] = total_equity is not None
         elif len(equity_by_quote) == 1:
             total_equity = float(next(iter(equity_by_quote.values())))
+            fx_conversion["complete"] = True
+        else:
+            fx_conversion["complete"] = False
 
         return {
             "positions": positions,
@@ -137,4 +173,5 @@ class PositionAccounting:
             "unrealized": float(unrealized),
             "equity_by_quote": equity_by_quote,
             "total_equity": total_equity,
+            "fx_conversion": fx_conversion,
         }

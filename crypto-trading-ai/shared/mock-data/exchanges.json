@@ -1,0 +1,40 @@
+{
+  "request_id": "req_conn_1",
+  "status": "success",
+  "data": {
+    "items": [
+      {
+        "id": "conn_coinbase_1",
+        "provider": "coinbase",
+        "label": "Main Coinbase",
+        "environment": "live",
+        "status": "connected",
+        "permissions": {
+          "read": true,
+          "trade": false
+        },
+        "spot_supported": true,
+        "futures_supported": false,
+        "last_sync": "2026-03-11T13:05:00Z",
+        "latency_ms": 184
+      },
+      {
+        "id": "conn_binance_1",
+        "provider": "binance",
+        "label": "Research Binance",
+        "environment": "live",
+        "status": "disabled",
+        "permissions": {
+          "read": false,
+          "trade": false
+        },
+        "spot_supported": true,
+        "futures_supported": true,
+        "last_sync": null,
+        "latency_ms": null
+      }
+    ]
+  },
+  "error": null,
+  "meta": {}
+}

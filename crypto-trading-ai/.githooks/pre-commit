@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${HOOK_DIR}/.." && pwd)"
+cd "${PROJECT_ROOT}"
+
+echo "[pre-commit] Checking workflow sync..."
+bash scripts/check_github_workflows_sync.sh
+
+echo "[pre-commit] Checking generated OpenAPI sync..."
+docker compose exec -T backend python /app/scripts/generate_shared_openapi.py --check >/dev/null
+
+echo "[pre-commit] Checking OpenAPI/route contracts..."
+docker compose exec -T backend python /app/scripts/check_openapi_sync.py >/dev/null
+
+echo "[pre-commit] Running backend lint..."
+docker compose exec -T backend ruff check /app/backend >/dev/null
+
+echo "[pre-commit] Running frontend lint..."
+docker compose exec -T frontend sh -lc "cd /app/frontend && pnpm lint" >/dev/null
+
+echo "[pre-commit] Checks passed."
