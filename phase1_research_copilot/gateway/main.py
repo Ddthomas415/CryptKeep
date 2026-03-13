@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 import httpx
@@ -182,6 +183,7 @@ async def healthz() -> dict[str, Any]:
 
 @app.get("/", response_class=Response)
 async def chat_ui() -> Response:
+    dashboard_url = os.getenv("CK_DASHBOARD_URL", "http://localhost:8502").strip().rstrip("/")
     html = """
 <!doctype html>
 <html>
@@ -304,6 +306,16 @@ async def chat_ui() -> Response:
       color: var(--muted);
       background: transparent;
       border: 1px solid transparent;
+    }
+    .nav-item-link {
+      text-decoration: none;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, color 120ms ease;
+    }
+    .nav-item-link:hover {
+      transform: translateY(-1px);
+      background: rgba(87, 165, 255, 0.08);
+      border-color: rgba(87, 165, 255, 0.14);
+      color: var(--text);
     }
     .nav-item.active {
       background: rgba(87, 165, 255, 0.12);
@@ -486,6 +498,14 @@ async def chat_ui() -> Response:
           <div class=\"nav-item\"><span>Explain a signal</span><span>Queue</span></div>
           <div class=\"nav-item\"><span>Summarize while away</span><span>Digest</span></div>
         </div>
+        <div class=\"nav-label\">Dashboard workflow</div>
+        <div class=\"nav-list\">
+          <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/\" target=\"_blank\" rel=\"noreferrer\"><span>Overview</span><span>Open</span></a>
+          <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Markets\" target=\"_blank\" rel=\"noreferrer\"><span>Markets</span><span>Asset desk</span></a>
+          <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Signals\" target=\"_blank\" rel=\"noreferrer\"><span>Signals</span><span>AI queue</span></a>
+          <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Operations\" target=\"_blank\" rel=\"noreferrer\"><span>Operations</span><span>Operator</span></a>
+          <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Settings\" target=\"_blank\" rel=\"noreferrer\"><span>Settings</span><span>Config</span></a>
+        </div>
         <div class=\"nav-label\">Quick prompts</div>
         <div class=\"chip-row\">
           <button class=\"chip\" type=\"button\" onclick=\"preset('BTC', 'Why is BTC moving right now?')\">Why is BTC moving?</button>
@@ -609,6 +629,7 @@ async function ask() {
 </body>
 </html>
 """
+    html = html.replace("__DASHBOARD_URL__", dashboard_url)
     return Response(content=html, media_type="text/html")
 
 

@@ -145,3 +145,16 @@ def test_build_reasoning_summary_formats_explain_and_chat_status() -> None:
         "Explain: OpenAI | gpt-4.1-mini\n"
         "Chat: Fallback | fallback | upstream TimeoutError"
     )
+
+
+def test_chat_ui_links_back_to_dashboard(monkeypatch) -> None:
+    monkeypatch.setenv("CK_DASHBOARD_URL", "http://localhost:8602")
+
+    response = asyncio.run(gateway.chat_ui())
+    body = response.body.decode("utf-8")
+
+    assert 'href="http://localhost:8602/"' in body
+    assert 'href="http://localhost:8602/Markets"' in body
+    assert 'href="http://localhost:8602/Signals"' in body
+    assert 'href="http://localhost:8602/Operations"' in body
+    assert 'href="http://localhost:8602/Settings"' in body

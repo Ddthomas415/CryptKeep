@@ -457,11 +457,18 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
                 "opportunity_threshold": 0.7,
                 "quiet_hours_start": "22:00",
                 "quiet_hours_end": "06:00",
-                "telegram": True,
-                "categories": {
-                    "top_opportunities": True,
-                    "paper_trade_opened": True,
-                    "paper_trade_closed": True,
+            "telegram": True,
+            "discord": False,
+            "webhook": False,
+            "price_alerts": True,
+            "news_alerts": True,
+            "catalyst_alerts": True,
+            "risk_alerts": True,
+            "approval_requests": True,
+            "categories": {
+                "top_opportunities": True,
+                "paper_trade_opened": True,
+                "paper_trade_closed": True,
                     "macro_events": True,
                     "provider_failures": True,
                     "daily_summary": True,
@@ -476,6 +483,7 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
                 "show_confidence": True,
                 "include_archives": True,
                 "include_onchain": True,
+                "include_social": False,
                 "allow_hypotheses": True,
                 "provider_assisted_explanations": True,
                 "autopilot_explanation_depth": "standard",
@@ -547,6 +555,13 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
             "Opportunity threshold": 0.76,
             "Quiet hours start": "21:30",
             "Quiet hours end": "07:15",
+            "Discord channel": True,
+            "Webhook delivery": True,
+            "Price alerts": False,
+            "News alerts": False,
+            "Catalyst alerts": True,
+            "Risk alerts": False,
+            "Approval requests": True,
             "Top opportunities": False,
             "Paper trade opened": False,
             "Paper trade closed": True,
@@ -564,6 +579,7 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
             "Show confidence": False,
             "Use archive context": False,
             "Use on-chain context": True,
+            "Use social context": True,
             "Provider-assisted explanations": False,
             "Allow hypotheses": False,
             "Autopilot enabled": True,
@@ -582,10 +598,10 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
             "Forex": False,
             "Commodities": True,
             "Exclusion list (comma separated)": "doge, pepe",
-            "Enabled": True,
-            "API key / credential": "smtp-secret",
-            "Role / priority": "Alerts",
-            "Status note": "Healthy",
+            "Email / SMTP enabled": True,
+            "Email / SMTP credential": "smtp-secret",
+            "Email / SMTP role / priority": "Alerts",
+            "Email / SMTP status note": "Healthy",
             "Session timeout (minutes)": 90,
             "Secret masking": False,
             "Audit export allowed": False,
@@ -610,6 +626,13 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
     assert captured["payload"]["notifications"]["email_address"] == "desk@example.com"
     assert captured["payload"]["notifications"]["delivery_mode"] == "digest"
     assert captured["payload"]["notifications"]["confidence_threshold"] == 0.81
+    assert captured["payload"]["notifications"]["discord"] is True
+    assert captured["payload"]["notifications"]["webhook"] is True
+    assert captured["payload"]["notifications"]["price_alerts"] is False
+    assert captured["payload"]["notifications"]["news_alerts"] is False
+    assert captured["payload"]["notifications"]["catalyst_alerts"] is True
+    assert captured["payload"]["notifications"]["risk_alerts"] is False
+    assert captured["payload"]["notifications"]["approval_requests"] is True
     assert captured["payload"]["notifications"]["categories"] == {
         "top_opportunities": False,
         "paper_trade_opened": False,
@@ -622,6 +645,7 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
     assert captured["payload"]["ai"]["tone"] == "concise"
     assert captured["payload"]["ai"]["evidence_verbosity"] == "deep"
     assert captured["payload"]["ai"]["provider_assisted_explanations"] is False
+    assert captured["payload"]["ai"]["include_social"] is True
     assert captured["payload"]["autopilot"] == {
         "autopilot_enabled": True,
         "scout_mode_enabled": False,
