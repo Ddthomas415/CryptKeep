@@ -29,7 +29,7 @@ if SERVICES_DIR.exists():
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.activity import render_activity_panel
 from dashboard.components.asset_detail import build_assistant_status_summary
-from dashboard.components.cards import render_feature_hero, render_kpi_cards
+from dashboard.components.cards import render_feature_hero, render_kpi_cards, render_prompt_actions
 from dashboard.components.focus_selector import render_focus_selector
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_overview_kpis
@@ -142,6 +142,15 @@ with hero_col:
             f"Execution: {str(detail.get('execution_state') or 'disabled').replace('_', ' ').title()}",
             str(detail.get("risk_note") or "Execution remains disabled until policies allow it."),
         ],
+    )
+    render_prompt_actions(
+        title="Ask Copilot",
+        prompts=[
+            "What changed while I was away?",
+            "Explain this focused signal",
+            "Summarize workspace risk",
+        ],
+        key_prefix="overview_copilot",
     )
 
 with side_col:

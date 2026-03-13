@@ -222,30 +222,47 @@ def build_settings_kpis(view: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = view if isinstance(view, dict) else {}
     general = payload.get("general") if isinstance(payload.get("general"), dict) else {}
     notifications = payload.get("notifications") if isinstance(payload.get("notifications"), dict) else {}
+    ai = payload.get("ai") if isinstance(payload.get("ai"), dict) else {}
+    autopilot = payload.get("autopilot") if isinstance(payload.get("autopilot"), dict) else {}
+    providers = payload.get("providers") if isinstance(payload.get("providers"), dict) else {}
     security = payload.get("security") if isinstance(payload.get("security"), dict) else {}
+    categories = notifications.get("categories") if isinstance(notifications.get("categories"), dict) else {}
 
     enabled_notifications = sum(
-        1 for value in notifications.values() if isinstance(value, bool) and value
+        1 for value in categories.values() if isinstance(value, bool) and value
+    )
+    enabled_providers = sum(
+        1 for value in providers.values() if isinstance(value, dict) and bool(value.get("enabled"))
     )
 
     return [
         {
-            "label": "Timezone",
+            "label": "Workspace",
             "value": str(general.get("timezone") or "UTC"),
-            "delta": str(general.get("default_currency") or "USD"),
+            "delta": str(general.get("default_mode") or "research_only").replace("_", " ").title(),
         },
         {
-            "label": "Default Mode",
-            "value": str(general.get("default_mode") or "research_only").replace("_", " ").title(),
-            "delta": str(general.get("startup_page") or "/dashboard"),
+            "label": "Alerts",
+            "value": str(notifications.get("delivery_mode") or "instant").replace("_", " ").title(),
+            "delta": f"{enabled_notifications} active categories",
         },
         {
-            "label": "Alerts Enabled",
-            "value": str(enabled_notifications),
-            "delta": "Notification toggles",
+            "label": "Copilot",
+            "value": str(ai.get("tone") or "balanced").title(),
+            "delta": str(ai.get("autopilot_explanation_depth") or "standard").replace("_", " ").title(),
         },
         {
-            "label": "Session Timeout",
+            "label": "Scout",
+            "value": "Enabled" if bool(autopilot.get("autopilot_enabled")) else "Ready",
+            "delta": f"{int(autopilot.get('candidate_limit') or 0)} candidates / {int(autopilot.get('scan_interval_minutes') or 0)}m",
+        },
+        {
+            "label": "Providers",
+            "value": str(enabled_providers),
+            "delta": "Enabled integrations",
+        },
+        {
+            "label": "Session",
             "value": f"{int(security.get('session_timeout_minutes') or 60)} min",
             "delta": "Secret masking on" if bool(security.get("secret_masking", True)) else "Secret masking off",
         },

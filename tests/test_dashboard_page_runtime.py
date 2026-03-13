@@ -79,13 +79,15 @@ def _noop(*args, **kwargs) -> None:
 
 
 def _patch_common_dashboard_renders(monkeypatch) -> None:
-    from dashboard.components import activity, asset_detail, cards, header, sidebar, summary_panels, tables
+    from dashboard.components import activity, asset_detail, badges, cards, header, sidebar, summary_panels, tables
 
     monkeypatch.setattr(sidebar, "render_app_sidebar", _noop)
     monkeypatch.setattr(header, "render_page_header", _noop)
     monkeypatch.setattr(cards, "render_kpi_cards", _noop)
     monkeypatch.setattr(cards, "render_feature_hero", _noop)
     monkeypatch.setattr(cards, "render_prompt_actions", _noop)
+    monkeypatch.setattr(cards, "render_section_intro", _noop)
+    monkeypatch.setattr(badges, "render_badge_row", _noop)
     monkeypatch.setattr(tables, "render_table_section", _noop)
     monkeypatch.setattr(activity, "render_activity_panel", _noop)
     monkeypatch.setattr(asset_detail, "render_asset_detail_card", _noop)
@@ -446,24 +448,76 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
             },
             "notifications": {
                 "email": False,
+                "email_enabled": False,
+                "email_address": "",
+                "delivery_mode": "instant",
+                "daily_digest_enabled": True,
+                "weekly_digest_enabled": True,
+                "confidence_threshold": 0.72,
+                "opportunity_threshold": 0.7,
+                "quiet_hours_start": "22:00",
+                "quiet_hours_end": "06:00",
                 "telegram": True,
-                "discord": False,
-                "webhook": False,
-                "price_alerts": True,
-                "news_alerts": True,
-                "catalyst_alerts": True,
-                "risk_alerts": True,
-                "approval_requests": True,
+                "categories": {
+                    "top_opportunities": True,
+                    "paper_trade_opened": True,
+                    "paper_trade_closed": True,
+                    "macro_events": True,
+                    "provider_failures": True,
+                    "daily_summary": True,
+                    "weekly_summary": True,
+                },
             },
             "ai": {
                 "explanation_length": "normal",
                 "tone": "balanced",
+                "evidence_verbosity": "standard",
                 "show_evidence": True,
                 "show_confidence": True,
                 "include_archives": True,
                 "include_onchain": True,
-                "include_social": False,
                 "allow_hypotheses": True,
+                "provider_assisted_explanations": True,
+                "autopilot_explanation_depth": "standard",
+                "away_summary_mode": "prioritized",
+            },
+            "autopilot": {
+                "autopilot_enabled": False,
+                "scout_mode_enabled": True,
+                "paper_trading_enabled": True,
+                "learning_enabled": False,
+                "scan_interval_minutes": 15,
+                "candidate_limit": 12,
+                "confidence_threshold": 0.72,
+                "alert_threshold": 0.8,
+                "default_market_universe": "core_watchlist",
+                "enabled_asset_classes": ["crypto"],
+                "exclusion_list": [],
+                "digest_frequency": "daily",
+            },
+            "providers": {
+                "coingecko": {
+                    "enabled": True,
+                    "api_key": "",
+                    "status": "ready",
+                    "role": "Crypto breadth",
+                    "last_sync": "Starter dataset",
+                },
+                "smtp": {
+                    "enabled": False,
+                    "api_key": "",
+                    "status": "local",
+                    "role": "Email delivery",
+                    "last_sync": "Configure host",
+                },
+            },
+            "paper_trading": {
+                "enabled": True,
+                "fee_bps": 7.0,
+                "slippage_bps": 2.0,
+                "approval_required": True,
+                "max_position_size_usd": 5000.0,
+                "max_daily_loss_pct": 2.0,
             },
             "security": {
                 "session_timeout_minutes": 60,
@@ -484,26 +538,63 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
             "Default mode": "paper",
             "Startup page": "/signals",
             "Watchlist defaults (comma separated)": "btc, sol, link",
-            "Email alerts": True,
-            "Telegram alerts": False,
-            "Discord alerts": True,
-            "Webhook alerts": True,
-            "Price alerts": False,
-            "News alerts": True,
-            "Catalyst alerts": False,
-            "Risk alerts": True,
-            "Approval requests": False,
+            "Email enabled": True,
+            "Notification email": "desk@example.com",
+            "Delivery mode": "digest",
+            "Daily digest": False,
+            "Weekly digest": True,
+            "Confidence threshold": 0.81,
+            "Opportunity threshold": 0.76,
+            "Quiet hours start": "21:30",
+            "Quiet hours end": "07:15",
+            "Top opportunities": False,
+            "Paper trade opened": False,
+            "Paper trade closed": True,
+            "Macro events": False,
+            "Provider / system failures": True,
+            "Daily summary": False,
+            "Weekly summary": True,
+            "Telegram channel": False,
             "Explanation length": "detailed",
             "Explanation tone": "concise",
+            "Evidence verbosity": "deep",
+            "\"While away\" summary mode": "detailed",
+            "Autopilot explanation depth": "operator",
             "Show evidence": True,
             "Show confidence": False,
-            "Include archives": False,
-            "Include on-chain": True,
-            "Include social": True,
+            "Use archive context": False,
+            "Use on-chain context": True,
+            "Provider-assisted explanations": False,
             "Allow hypotheses": False,
+            "Autopilot enabled": True,
+            "Scout mode enabled": False,
+            "Paper trading enabled": False,
+            "Learning enabled": True,
+            "Scan interval (minutes)": 30,
+            "Candidate limit": 20,
+            "Scout confidence threshold": 0.84,
+            "Scout alert threshold": 0.88,
+            "Default market universe": "cross_asset",
+            "Digest frequency": "weekly",
+            "Crypto": True,
+            "Equities": True,
+            "ETFs": True,
+            "Forex": False,
+            "Commodities": True,
+            "Exclusion list (comma separated)": "doge, pepe",
+            "Enabled": True,
+            "API key / credential": "smtp-secret",
+            "Role / priority": "Alerts",
+            "Status note": "Healthy",
             "Session timeout (minutes)": 90,
             "Secret masking": False,
             "Audit export allowed": False,
+            "Paper trading default": False,
+            "Paper fee (bps)": 9.5,
+            "Paper slippage (bps)": 3.5,
+            "Approval required for live handoff": False,
+            "Max position size (USD)": 7500.0,
+            "Max daily loss (%)": 1.5,
         },
     )
 
@@ -515,10 +606,47 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
         "default_mode": "paper",
         "watchlist_defaults": ["BTC", "SOL", "LINK"],
     }
-    assert captured["payload"]["notifications"]["discord"] is True
-    assert captured["payload"]["notifications"]["webhook"] is True
+    assert captured["payload"]["notifications"]["email_enabled"] is True
+    assert captured["payload"]["notifications"]["email_address"] == "desk@example.com"
+    assert captured["payload"]["notifications"]["delivery_mode"] == "digest"
+    assert captured["payload"]["notifications"]["confidence_threshold"] == 0.81
+    assert captured["payload"]["notifications"]["categories"] == {
+        "top_opportunities": False,
+        "paper_trade_opened": False,
+        "paper_trade_closed": True,
+        "macro_events": False,
+        "provider_failures": True,
+        "daily_summary": False,
+        "weekly_summary": True,
+    }
     assert captured["payload"]["ai"]["tone"] == "concise"
-    assert captured["payload"]["ai"]["include_social"] is True
+    assert captured["payload"]["ai"]["evidence_verbosity"] == "deep"
+    assert captured["payload"]["ai"]["provider_assisted_explanations"] is False
+    assert captured["payload"]["autopilot"] == {
+        "autopilot_enabled": True,
+        "scout_mode_enabled": False,
+        "paper_trading_enabled": False,
+        "learning_enabled": True,
+        "scan_interval_minutes": 30,
+        "candidate_limit": 20,
+        "confidence_threshold": 0.84,
+        "alert_threshold": 0.88,
+        "default_market_universe": "cross_asset",
+        "enabled_asset_classes": ["crypto", "equities", "etf", "commodities"],
+        "exclusion_list": ["DOGE", "PEPE"],
+        "digest_frequency": "weekly",
+    }
+    assert captured["payload"]["providers"]["smtp"]["enabled"] is True
+    assert captured["payload"]["providers"]["smtp"]["api_key"] == "smtp-secret"
+    assert captured["payload"]["providers"]["smtp"]["role"] == "Alerts"
+    assert captured["payload"]["paper_trading"] == {
+        "enabled": False,
+        "fee_bps": 9.5,
+        "slippage_bps": 3.5,
+        "approval_required": False,
+        "max_position_size_usd": 7500.0,
+        "max_daily_loss_pct": 1.5,
+    }
     assert captured["payload"]["security"] == {
         "session_timeout_minutes": 90,
         "secret_masking": False,

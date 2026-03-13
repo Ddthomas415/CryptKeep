@@ -1901,6 +1901,8 @@ def test_settings_view_applies_local_overlay(monkeypatch) -> None:
     assert settings["notifications"]["telegram"] is True
     assert settings["ai"]["tone"] == "detailed"
     assert settings["security"]["secret_masking"] is True
+    assert settings["notifications"]["email_enabled"] is False
+    assert settings["autopilot"]["default_market_universe"] == "core_watchlist"
 
 
 def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:

@@ -188,31 +188,391 @@ async def chat_ui() -> Response:
 <head>
   <meta charset=\"utf-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-  <title>Crypto Research Copilot (Phase 1)</title>
+  <title>CryptKeep Copilot</title>
   <style>
-    body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; background: #0b1020; color: #e9ecf1; }
-    .wrap { max-width: 900px; margin: 24px auto; padding: 0 16px; }
-    .card { background: #121933; border: 1px solid #202a4d; border-radius: 10px; padding: 16px; }
-    input, textarea, button { width: 100%; box-sizing: border-box; border-radius: 8px; border: 1px solid #33416f; padding: 10px; background: #0f1730; color: #e9ecf1; }
-    button { margin-top: 10px; background: #2a4fde; border: 0; cursor: pointer; }
-    pre { white-space: pre-wrap; background: #0e152a; padding: 12px; border-radius: 8px; }
-    .row { display: grid; grid-template-columns: 180px 1fr; gap: 10px; margin-bottom: 10px; }
-    .note { color: #9fb2ff; font-size: 13px; margin-top: 8px; }
+    :root {
+      --bg: #050914;
+      --bg-soft: rgba(8, 13, 25, 0.94);
+      --surface: linear-gradient(180deg, rgba(13, 20, 34, 0.98) 0%, rgba(9, 15, 28, 0.96) 100%);
+      --surface-soft: rgba(11, 18, 32, 0.9);
+      --border: rgba(92, 118, 167, 0.18);
+      --border-strong: rgba(87, 165, 255, 0.24);
+      --text: #f4f7fb;
+      --muted: #98a8c7;
+      --accent: #57a5ff;
+      --accent-soft: rgba(87, 165, 255, 0.14);
+      --danger: #ff6b7b;
+      --danger-soft: rgba(255, 107, 123, 0.14);
+      --success: #37d67a;
+      --success-soft: rgba(55, 214, 122, 0.12);
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(46, 91, 255, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(9, 94, 61, 0.14), transparent 26%),
+        var(--bg);
+      color: var(--text);
+    }
+    .wrap { max-width: 1220px; margin: 0 auto; padding: 28px 22px 40px; }
+    .shell {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .sidebar,
+    .panel,
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .sidebar { padding: 20px 18px; position: sticky; top: 20px; }
+    .brand { display: grid; gap: 10px; margin-bottom: 20px; }
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(87, 165, 255, 0.28), rgba(87, 165, 255, 0.1));
+      border: 1px solid var(--border-strong);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .brand-title { font-size: 1.28rem; font-weight: 700; letter-spacing: -0.03em; }
+    .brand-copy { color: var(--muted); font-size: 0.92rem; line-height: 1.55; }
+    .badge-row,
+    .chip-row { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+    .badge,
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(11, 18, 32, 0.74);
+      color: var(--muted);
+      padding: 0.42rem 0.78rem;
+      font-size: 0.8rem;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .badge-accent,
+    .chip:hover {
+      background: var(--accent-soft);
+      border-color: var(--border-strong);
+      color: #dceaff;
+    }
+    .badge-success {
+      background: var(--success-soft);
+      border-color: rgba(55, 214, 122, 0.24);
+      color: #caf9df;
+    }
+    .badge-danger {
+      background: var(--danger-soft);
+      border-color: rgba(255, 107, 123, 0.24);
+      color: #ffd5db;
+    }
+    .chip {
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease, background 120ms ease;
+    }
+    .chip:hover { transform: translateY(-1px); }
+    .nav-label {
+      margin: 20px 0 8px;
+      font-size: 0.74rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .nav-list { display: grid; gap: 6px; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 14px;
+      padding: 0.75rem 0.9rem;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .nav-item.active {
+      background: rgba(87, 165, 255, 0.12);
+      border-color: rgba(87, 165, 255, 0.2);
+      color: var(--text);
+    }
+    .sidebar-note {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface-soft);
+      padding: 14px 15px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+    .main { display: grid; gap: 18px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+      gap: 18px;
+      padding: 24px;
+    }
+    .hero-eyebrow {
+      font-size: 0.76rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .hero-title {
+      margin-top: 12px;
+      font-size: 2.7rem;
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      font-weight: 760;
+      max-width: 12ch;
+    }
+    .hero-copy {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 42rem;
+    }
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(11, 18, 32, 0.76);
+      padding: 14px 15px;
+      min-height: 102px;
+    }
+    .metric-label { font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .metric-value { margin-top: 10px; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+    .metric-delta { margin-top: 9px; color: var(--muted); font-size: 0.88rem; }
+    .note-card {
+      border: 1px solid rgba(87, 165, 255, 0.16);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(10, 17, 30, 0.98), rgba(7, 12, 22, 0.94));
+      padding: 18px;
+      height: 100%;
+    }
+    .note-title {
+      font-size: 0.76rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .note-list { margin: 0; padding-left: 1rem; display: grid; gap: 0.7rem; color: var(--muted); }
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 18px;
+    }
+    .panel { padding: 20px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem;
+      margin-bottom: 14px;
+    }
+    .section-title { font-size: 1.12rem; font-weight: 700; letter-spacing: -0.03em; }
+    .section-copy { margin-top: 4px; color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
+    .meta { color: var(--muted); font-size: 0.82rem; }
+    .form-grid { display: grid; gap: 12px; }
+    .row { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 12px; align-items: start; margin-bottom: 12px; }
+    label { color: var(--muted); font-size: 0.9rem; padding-top: 10px; }
+    input, textarea, button {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 12px 13px;
+      background: rgba(11, 18, 32, 0.9);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    button.primary {
+      background: linear-gradient(180deg, rgba(255, 107, 123, 0.92), rgba(244, 86, 102, 0.88));
+      border-color: rgba(255, 107, 123, 0.3);
+      font-weight: 650;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .hint {
+      margin-top: 10px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(87, 165, 255, 0.14);
+      background: rgba(87, 165, 255, 0.08);
+      color: #d9e9ff;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .answer-card,
+    .raw-card {
+      padding: 20px;
+    }
+    .answer {
+      white-space: pre-wrap;
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 0.96rem;
+    }
+    details {
+      border-top: 1px solid var(--border);
+      margin-top: 14px;
+      padding-top: 14px;
+    }
+    summary { cursor: pointer; color: var(--muted); }
+    pre {
+      white-space: pre-wrap;
+      background: rgba(7, 12, 22, 0.92);
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 16px;
+      color: #d6e2f6;
+      overflow-x: auto;
+    }
+    @media (max-width: 1024px) {
+      .shell,
+      .hero,
+      .content-grid,
+      .hero-metrics {
+        grid-template-columns: 1fr;
+      }
+      .sidebar { position: static; }
+      .row { grid-template-columns: 1fr; }
+      label { padding-top: 0; }
+    }
   </style>
 </head>
 <body>
   <div class=\"wrap\">
-    <h1>Crypto Research Copilot (Phase 1)</h1>
-    <div class=\"card\">
-      <div class=\"row\"><label>Asset</label><input id=\"asset\" value=\"SOL\"/></div>
-      <div class=\"row\"><label>Question</label><textarea id=\"question\" rows=\"3\">Why is SOL moving?</textarea></div>
-      <div class=\"row\"><label>Lookback (min)</label><input id=\"lookback\" value=\"60\"/></div>
-      <button onclick=\"ask()\">Ask</button>
-      <div class=\"note\">Execution is disabled. This is research-only.</div>
-      <pre id=\"out\">Waiting for query...</pre>
+    <div class=\"shell\">
+      <aside class=\"sidebar\">
+        <div class=\"brand\">
+          <div class=\"brand-mark\">CK</div>
+          <div class=\"brand-title\">CryptKeep Copilot</div>
+          <div class=\"brand-copy\">Research-only assistant for signal review, market context, and operator summaries.</div>
+        </div>
+        <div class=\"badge-row\">
+          <span class=\"badge badge-accent\">Phase 1</span>
+          <span class=\"badge badge-success\">Execution Disabled</span>
+          <span class=\"badge badge-danger\">Research Only</span>
+        </div>
+        <div class=\"nav-label\">Copilot workflow</div>
+        <div class=\"nav-list\">
+          <div class=\"nav-item active\"><span>Ask about an asset</span><span>Live</span></div>
+          <div class=\"nav-item\"><span>Explain a signal</span><span>Queue</span></div>
+          <div class=\"nav-item\"><span>Summarize while away</span><span>Digest</span></div>
+        </div>
+        <div class=\"nav-label\">Quick prompts</div>
+        <div class=\"chip-row\">
+          <button class=\"chip\" type=\"button\" onclick=\"preset('BTC', 'Why is BTC moving right now?')\">Why is BTC moving?</button>
+          <button class=\"chip\" type=\"button\" onclick=\"preset('ETH', 'Explain the current ETH signal and risks.')\">Explain ETH signal</button>
+          <button class=\"chip\" type=\"button\" onclick=\"preset('SOL', 'What changed while I was away on SOL?')\">What changed?</button>
+        </div>
+        <div class=\"sidebar-note\">Keep the same reasoning model across dashboard detail cards and this page so the assistant feels native to the product rather than like a sidecar tool.</div>
+      </aside>
+      <main class=\"main\">
+        <section class=\"card hero\">
+          <div>
+            <div class=\"hero-eyebrow\">Embedded Copilot</div>
+            <div class=\"hero-title\">Research and explain from the same platform context.</div>
+            <p class=\"hero-copy\">Ask about an asset, a signal, or what changed while away. The assistant stays inside the same research-only safety boundary used by the dashboard.</p>
+            <div class=\"hero-metrics\">
+              <div class=\"metric\">
+                <div class=\"metric-label\">Mode</div>
+                <div class=\"metric-value\">Research</div>
+                <div class=\"metric-delta\">execution disabled</div>
+              </div>
+              <div class=\"metric\">
+                <div class=\"metric-label\">Scope</div>
+                <div class=\"metric-value\">Asset + Signal</div>
+                <div class=\"metric-delta\">market context ready</div>
+              </div>
+              <div class=\"metric\">
+                <div class=\"metric-label\">Evidence</div>
+                <div class=\"metric-value\">Structured</div>
+                <div class=\"metric-delta\">assistant metadata included</div>
+              </div>
+              <div class=\"metric\">
+                <div class=\"metric-label\">Output</div>
+                <div class=\"metric-value\">Copilot answer</div>
+                <div class=\"metric-delta\">raw details available</div>
+              </div>
+            </div>
+          </div>
+          <div class=\"note-card\">
+            <div class=\"note-title\">Suggested asks</div>
+            <ul class=\"note-list\">
+              <li>Ask why an asset is moving and what catalyst matters next.</li>
+              <li>Ask what changed while away using the same explain path as the dashboard.</li>
+              <li>Keep the assistant focused on research, evidence, and risk framing.</li>
+            </ul>
+          </div>
+        </section>
+        <div class=\"content-grid\">
+          <section class=\"panel\">
+            <div class=\"section-head\">
+              <div>
+                <div class=\"section-title\">Copilot Request</div>
+                <div class=\"section-copy\">Use the same asset + question flow as the dashboard explain path, but present it with a cleaner native shell.</div>
+              </div>
+              <div class=\"meta\">research only</div>
+            </div>
+            <div class=\"form-grid\">
+              <div class=\"row\"><label for=\"asset\">Asset</label><input id=\"asset\" value=\"SOL\"/></div>
+              <div class=\"row\"><label for=\"question\">Question</label><textarea id=\"question\">Why is SOL moving?</textarea></div>
+              <div class=\"row\"><label for=\"lookback\">Lookback (min)</label><input id=\"lookback\" value=\"60\"/></div>
+            </div>
+            <button class=\"primary\" onclick=\"ask()\">Ask Copilot</button>
+            <div class=\"hint\" id=\"reasoning\">Execution remains disabled. The assistant can explain and summarize, but it will not route orders.</div>
+          </section>
+          <section class=\"panel answer-card\">
+            <div class=\"section-head\">
+              <div>
+                <div class=\"section-title\">Assistant Response</div>
+                <div class=\"section-copy\">Reasoning summary first, then the formatted answer, then raw detail when needed.</div>
+              </div>
+              <div class=\"meta\">live output</div>
+            </div>
+            <div class=\"answer\" id=\"answer\">Waiting for query...</div>
+            <details>
+              <summary>Show raw response</summary>
+              <pre id=\"out\">Waiting for query...</pre>
+            </details>
+          </section>
+        </div>
+      </main>
     </div>
   </div>
 <script>
+function preset(asset, question) {
+  document.getElementById('asset').value = asset;
+  document.getElementById('question').value = question;
+}
+
 async function ask() {
   const body = {
     asset: document.getElementById('asset').value,
@@ -220,6 +580,9 @@ async function ask() {
     lookback_minutes: parseInt(document.getElementById('lookback').value || '60', 10),
   };
   const out = document.getElementById('out');
+  const answer = document.getElementById('answer');
+  const reasoning = document.getElementById('reasoning');
+  answer.textContent = 'Loading...';
   out.textContent = 'Loading...';
   const res = await fetch('/v1/chat', {
     method: 'POST',
@@ -228,10 +591,18 @@ async function ask() {
   });
   const data = await res.json();
   if (data.assistant_response) {
-    const summary = data.reasoning_summary ? data.reasoning_summary + '\n\n' : '';
-    out.textContent = summary + data.assistant_response + '\n\n--- details ---\n' + JSON.stringify(data, null, 2);
+    const summary = data.reasoning_summary ? data.reasoning_summary + '\\n\\n' : '';
+    const fallback = data.assistant_status && data.assistant_status.message ? ' ' + data.assistant_status.message : '';
+    reasoning.textContent = summary.trim() || 'Execution remains disabled. Research-only response.';
+    answer.textContent = data.assistant_response;
+    out.textContent = JSON.stringify(data, null, 2);
+    if (fallback.trim()) {
+      reasoning.textContent = reasoning.textContent + fallback;
+    }
     return;
   }
+  reasoning.textContent = 'Copilot returned raw data only.';
+  answer.textContent = 'No assistant response returned.';
   out.textContent = JSON.stringify(data, null, 2);
 }
 </script>

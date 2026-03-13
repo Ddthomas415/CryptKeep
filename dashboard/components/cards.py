@@ -8,6 +8,28 @@ import streamlit as st
 from dashboard.components.badges import badge_row_html
 
 
+def render_section_intro(
+    *,
+    title: str,
+    subtitle: str = "",
+    meta: str = "",
+) -> None:
+    subtitle_html = f"<div class='ck-section-subtitle'>{escape(subtitle)}</div>" if subtitle else ""
+    meta_html = f"<div class='ck-section-meta'>{escape(meta)}</div>" if meta else ""
+    st.markdown(
+        f"""
+        <div class="ck-section-head">
+          <div>
+            <div class="ck-section-title">{escape(title)}</div>
+            {subtitle_html}
+          </div>
+          {meta_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_kpi_cards(items: Sequence[dict[str, str]]) -> None:
     cards = list(items)
     if not cards:

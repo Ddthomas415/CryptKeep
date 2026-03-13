@@ -3,7 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
-from dashboard.components.cards import render_kpi_cards
+from dashboard.components.cards import render_kpi_cards, render_prompt_actions
 from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_portfolio_kpis
 from dashboard.components.sidebar import render_app_sidebar
@@ -25,6 +25,15 @@ render_page_header(
 )
 
 render_kpi_cards(build_portfolio_kpis(portfolio=portfolio, positions=positions))
+render_prompt_actions(
+    title="Ask Copilot",
+    prompts=[
+        "Summarize portfolio risk",
+        "Which holding is strongest right now?",
+        "What changed in positions today?",
+    ],
+    key_prefix="portfolio_copilot",
+)
 
 summary_col, table_col = st.columns((1, 1.4))
 

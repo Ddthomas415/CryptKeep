@@ -529,17 +529,18 @@ def build_settings_profile_metrics(view: dict[str, Any] | None) -> list[dict[str
     general = payload.get("general") if isinstance(payload.get("general"), dict) else {}
     notifications = payload.get("notifications") if isinstance(payload.get("notifications"), dict) else {}
     ai = payload.get("ai") if isinstance(payload.get("ai"), dict) else {}
-    security = payload.get("security") if isinstance(payload.get("security"), dict) else {}
+    autopilot = payload.get("autopilot") if isinstance(payload.get("autopilot"), dict) else {}
+    providers = payload.get("providers") if isinstance(payload.get("providers"), dict) else {}
 
     watchlist_defaults = general.get("watchlist_defaults") if isinstance(general.get("watchlist_defaults"), list) else []
-    alert_targets = [
-        name
-        for name in ("email", "telegram", "discord", "webhook")
-        if bool(notifications.get(name))
-    ]
-    alert_target_value = ", ".join(alert_targets[:2]).title() if alert_targets else "None"
+    categories = notifications.get("categories") if isinstance(notifications.get("categories"), dict) else {}
+    alert_targets = [name.replace("_", " ").title() for name, enabled in categories.items() if bool(enabled)]
+    alert_target_value = ", ".join(alert_targets[:2]) if alert_targets else "Digest Only"
     if len(alert_targets) > 2:
         alert_target_value += f" +{len(alert_targets) - 2}"
+    enabled_providers = sum(
+        1 for value in providers.values() if isinstance(value, dict) and bool(value.get("enabled"))
+    )
 
     return [
         {
@@ -548,19 +549,24 @@ def build_settings_profile_metrics(view: dict[str, Any] | None) -> list[dict[str
             "delta": ", ".join(str(item) for item in watchlist_defaults[:3]) or "No defaults",
         },
         {
-            "label": "Alert Targets",
+            "label": "Alerts",
             "value": alert_target_value,
-            "delta": "Channels enabled",
+            "delta": str(notifications.get("delivery_mode") or "instant").replace("_", " ").title(),
         },
         {
-            "label": "AI Profile",
+            "label": "Copilot",
             "value": str(ai.get("tone") or "balanced").title(),
-            "delta": str(ai.get("explanation_length") or "normal").title(),
+            "delta": str(ai.get("away_summary_mode") or "prioritized").replace("_", " ").title(),
         },
         {
-            "label": "Security",
-            "value": "Masked" if bool(security.get("secret_masking", True)) else "Visible",
-            "delta": "Audit export on" if bool(security.get("audit_export_allowed", True)) else "Audit export off",
+            "label": "Scout",
+            "value": "On" if bool(autopilot.get("scout_mode_enabled")) else "Paused",
+            "delta": f"{int(autopilot.get('candidate_limit') or 0)} candidates",
+        },
+        {
+            "label": "Providers",
+            "value": str(enabled_providers),
+            "delta": "Enabled integrations",
         },
     ]
 
