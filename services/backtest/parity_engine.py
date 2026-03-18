@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List
 
+from services.backtest.regimes import build_regime_scorecards, classify_market_regimes
 from services.backtest.scorecard import build_strategy_scorecard
 from services.execution.fill_model import apply_fee_slippage
 from services.strategies.strategy_registry import compute_signal
@@ -222,6 +223,16 @@ def run_parity_backtest(
         slippage_bps=float(slippage_bps),
         operational_incidents=0,
     )
+    regime_rows = classify_market_regimes(rows)
+    regime_scorecards = build_regime_scorecards(
+        strategy=strategy_name,
+        symbol=symbol_s,
+        trades=out_trades,
+        equity=equity_curve,
+        regime_rows=regime_rows,
+        fee_bps=float(fee_bps),
+        slippage_bps=float(slippage_bps),
+    )
 
     return {
         "ok": True,
@@ -247,4 +258,6 @@ def run_parity_backtest(
             "win_rate_pct": float(win_rate_pct),
         },
         "scorecard": scorecard,
+        "regimes": regime_rows,
+        "regime_scorecards": regime_scorecards,
     }

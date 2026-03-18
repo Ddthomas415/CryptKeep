@@ -75,6 +75,8 @@ def test_run_parity_backtest_ema_cross_outputs_metrics_and_trades():
     assert "net_return_after_costs_pct" in scorecard
     assert "profit_factor" in scorecard
     assert "exposure_adjusted_return_pct" in scorecard
+    assert len(out["regimes"]) == len(prices)
+    assert set(out["regime_scorecards"].keys()) == {"bull", "bear", "chop", "high_vol", "low_vol"}
 
 
 def test_run_parity_backtest_supports_new_strategies():
