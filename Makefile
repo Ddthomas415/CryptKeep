@@ -1,6 +1,6 @@
 PYTHON ?= $(shell if ./.venv/bin/python -V >/dev/null 2>&1; then echo ./.venv/bin/python; elif command -v python3 >/dev/null 2>&1; then echo python3; else echo python; fi)
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-smoke phase1-smoke-openai test
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai test
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -51,6 +51,9 @@ pre-release-sanity-json-fast:
 
 remaining-tasks:
 	$(PYTHON) scripts/rebuild_remaining_tasks.py
+
+phase1-safety:
+	$(PYTHON) scripts/run_phase1_safety.py
 
 phase1-smoke:
 	$(PYTHON) phase1_research_copilot/scripts/smoke_phase1_copilot.py

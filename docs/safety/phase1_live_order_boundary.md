@@ -43,6 +43,25 @@ This note captures the current Phase 1 safety posture around the live-order chok
 - `scripts/verify_no_direct_create_order.py` is the repo-level guard.
 - `tests/test_no_direct_create_order.py` mirrors the same guard in test form.
 - `tests/test_live_script_contracts.py` locks the current `sandbox=False` scripts to the approved read-only/cancel set.
+- Canonical rerun command for the Phase 1 safety pack:
+  - `make phase1-safety`
+
+## Phase 1 Safety Pack
+
+The rerunnable Phase 1 safety pack is:
+
+- `scripts/run_phase1_safety.py`
+
+It runs:
+
+- `scripts/verify_no_direct_create_order.py --root .`
+- focused pytest coverage for:
+  - `tests/test_place_order_fail_closed.py`
+  - `tests/test_place_order_ops_risk_gate.py`
+  - `tests/test_live_mode_contracts.py`
+  - `tests/test_no_direct_create_order.py`
+  - `tests/test_verify_no_direct_create_order_script.py`
+  - `tests/test_live_script_contracts.py`
 
 ## Scripts Using `sandbox=False`
 
