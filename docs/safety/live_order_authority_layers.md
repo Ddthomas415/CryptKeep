@@ -15,7 +15,7 @@ No raw exchange order creation should bypass that function.
 | --- | --- | --- | --- |
 | State/helper layer | `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py` | Normalizes persisted live-enable flags and exposes compatibility arming helpers | Advisory/helper |
 | Outer/operator gate | `/Users/baitus/Downloads/crypto-bot-pro/services/admin/live_guard.py` | Blocks live mode when kill switch is armed or normalized config says live is disabled | Early block, not final authority |
-| Execution precheck | `/Users/baitus/Downloads/crypto-bot-pro/services/execution/intent_executor.py::_live_allowed()` | Best-effort live-mode precheck before an intent is sent to the adapter | Early block, not final authority |
+| Execution precheck | `/Users/baitus/Downloads/crypto-bot-pro/services/execution/intent_executor.py::_live_allowed()` | Live-intent precheck before an intent is sent to the adapter | Early block, not final authority |
 | Final authority | `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py::_enforce_fail_closed(...)` | Enforces kill switch, explicit arming, ops risk gate, env risk limits, daily-state limits, and market-rules checks before `create_order(...)` | Final live-order authority |
 
 ## What Each Layer Can Do
@@ -48,7 +48,7 @@ It is still an outer gate. If this layer is bypassed or stale, the final order b
 
 It helps fail earlier in the intent pipeline, but it is not the final authority because:
 
-- it uses a separate best-effort kill/cooldown probe
+- it reuses the same kill/cooldown probe contract as the final order boundary
 - helper failure here must not be treated as permission to submit a live order
 
 This layer should be read as an early filter, not the ultimate decision maker.

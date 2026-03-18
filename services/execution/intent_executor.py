@@ -1,28 +1,25 @@
 from __future__ import annotations
 
-import time
 from typing import Any
 
 from services.execution.adapters.factory import get_adapter
 from services.execution.adapters.types import OrderRequest
 from services.execution.client_oid import make_client_oid32
 from services.execution.live_arming import is_live_enabled
+from services.execution.place_order import _killswitch_state
 from services.journal.order_event_store import log_event
 from services.execution.intent_store import claim_next_ready, update_intent, list_intents
 
 def _live_allowed(cfg: dict) -> tuple[bool, str]:
     if not is_live_enabled(cfg):
         return (False, "live_disabled_in_config")
-    # optional kill/cooldown gate if module exists
-    try:
-        from services.risk import live_safety_state as lss  # type: ignore
-        snap = lss.snapshot()
-        if bool(snap.get("kill_switch", False)):
-            return (False, "kill_switch_on")
-        if float(snap.get("cooldown_until", 0.0) or 0.0) > time.time():
-            return (False, "cooldown_active")
-    except Exception:
-        pass
+
+    # Early live-intent filter. Reuse the same kill/cooldown probe contract as the
+    # final order boundary so helper failure does not silently become permission.
+    ks_on, ks_reason = _killswitch_state()
+    if ks_on:
+        return (False, ks_reason or "kill_switch_on")
+
     return (True, "live_allowed")
 
 def execute_one(cfg: dict, *, venue: str | None = None, mode: str | None = None) -> dict[str, Any]:

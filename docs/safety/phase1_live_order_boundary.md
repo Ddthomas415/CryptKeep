@@ -54,5 +54,5 @@ This note captures the current Phase 1 safety posture around the live-order chok
 ## Remaining Phase 1 Risks
 
 1. Cancel/edit/replace safety is not governed by the same final-order chokepoint because the critical rule here is specific to raw order creation.
-2. `services/execution/intent_executor.py::_live_allowed()` still uses a best-effort kill/cooldown probe separate from `place_order.py`; it is an outer gate, not the final authority.
+2. `services/execution/intent_executor.py::_live_allowed()` now reuses the same kill/cooldown probe contract as `place_order.py`, but it is still only an outer gate, not the final authority.
 3. Any future adapter or recovery path that can create an order must keep routing into `services/execution/place_order.py` or the guard script/test will need to be updated immediately.
