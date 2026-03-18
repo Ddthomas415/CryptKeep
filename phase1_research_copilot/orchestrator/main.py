@@ -186,7 +186,9 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
                 "summary": (
                     f"Funding bias {str(funding.get('dominant_bias') or 'flat')}, "
                     f"average basis {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
-                    f"positive venue dislocations {int(dislocations.get('positive_count') or 0)}."
+                    f"positive venue dislocations {int(dislocations.get('positive_count') or 0)}. "
+                    f"Provenance {str(crypto_edges.get('data_origin_label') or 'Unknown')} / "
+                    f"{str(crypto_edges.get('freshness_summary') or 'Unknown')}."
                 ),
                 "relevance": 0.66,
             }
@@ -253,7 +255,9 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
         edge_note = (
             f" Research-only structural context shows funding bias {str(funding.get('dominant_bias') or 'flat')}, "
             f"average basis near {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
-            f"and {int(dislocations.get('positive_count') or 0)} positive cross-venue dislocations."
+            f"and {int(dislocations.get('positive_count') or 0)} positive cross-venue dislocations. "
+            f"Latest snapshot provenance is {str(crypto_edges.get('data_origin_label') or 'unknown')} "
+            f"with freshness {str(crypto_edges.get('freshness_summary') or 'unknown')}."
         )
 
     return {

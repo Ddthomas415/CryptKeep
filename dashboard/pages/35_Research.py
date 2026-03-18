@@ -18,7 +18,18 @@ render_page_header(
     "Crypto-native structural edge workspace for funding, basis, and cross-venue dislocation analysis.",
     badges=[
         {"label": "Mode", "value": "Research Only"},
-        {"label": "Data", "value": "Stored Snapshots" if bool(workspace.get("has_any_data")) else "No Snapshots"},
+        {
+            "label": "Data",
+            "value": str(workspace.get("data_origin_label") or "Stored Snapshots")
+            if bool(workspace.get("has_any_data"))
+            else "No Snapshots",
+        },
+        {
+            "label": "Freshness",
+            "value": str(workspace.get("freshness_summary") or "Unknown")
+            if bool(workspace.get("has_any_data"))
+            else "N/A",
+        },
     ],
 )
 
@@ -29,7 +40,8 @@ render_feature_hero(
         "Use stored snapshots to review crypto-native market structure without coupling this research to execution."
     ),
     body=(
-        "Load bundled sample data with `make load-sample-crypto-edges` or ingest your own JSON snapshots with "
+        "Load bundled sample data with `make load-sample-crypto-edges`, collect public live snapshots with "
+        "`make collect-live-crypto-edges`, or ingest your own JSON snapshots with "
         "`scripts/record_crypto_edge_snapshot.py`."
     ),
     badges=[
@@ -54,9 +66,9 @@ render_feature_hero(
             "delta": str(((workspace.get("quote_meta") or {}).get("capture_ts") or "No snapshot")),
         },
         {
-            "label": "Store",
-            "value": "Ready" if bool(workspace.get("has_any_data")) else "Empty",
-            "delta": str(workspace.get("store_path") or "unavailable"),
+            "label": "Origin",
+            "value": str(workspace.get("data_origin_label") or ("Ready" if bool(workspace.get("has_any_data")) else "Empty")),
+            "delta": str(workspace.get("freshness_summary") or "Unknown"),
         },
     ],
     aside_title="Ask Copilot",
@@ -93,6 +105,7 @@ else:
     funding_history = list(workspace.get("funding_history") or [])
     basis_history = list(workspace.get("basis_history") or [])
     dislocation_history = list(workspace.get("dislocation_history") or [])
+    provenance_rows = list(workspace.get("provenance_rows") or [])
 
     render_kpi_cards(
         [
@@ -128,6 +141,12 @@ else:
         list(workspace.get("trend_rows") or []),
         subtitle="Latest snapshot deltas versus the prior stored snapshot for each structural research theme.",
         empty_message="Not enough history yet to compare snapshots.",
+    )
+    render_table_section(
+        "Snapshot Provenance",
+        provenance_rows,
+        subtitle="Current source and freshness for the latest stored snapshot in each research stream.",
+        empty_message="No snapshot provenance available.",
     )
 
     left, right = st.columns((1, 1))

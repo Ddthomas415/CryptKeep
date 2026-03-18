@@ -296,7 +296,7 @@ async def get_signal_summary(asset: str) -> dict[str, Any]:
 
 async def get_crypto_edge_report() -> dict[str, Any]:
     try:
-        from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
+        from dashboard.services.crypto_edge_research import load_crypto_edge_workspace
     except Exception as exc:
         return {
             "ok": False,
@@ -307,11 +307,7 @@ async def get_crypto_edge_report() -> dict[str, Any]:
         }
 
     try:
-        report = CryptoEdgeStoreSQLite().latest_report()
-        report["ok"] = True
-        report["research_only"] = True
-        report["execution_enabled"] = False
-        return report
+        return load_crypto_edge_workspace(history_limit=5)
     except Exception as exc:
         logger.warning(
             "crypto_edge_report_failed",

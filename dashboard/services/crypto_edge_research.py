@@ -1,6 +1,88 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
+
+
+def _parse_capture_ts(value: Any) -> datetime | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(raw)
+        return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+
+
+def _source_label(source: Any) -> str:
+    value = str(source or "").strip().lower()
+    mapping = {
+        "sample_bundle": "Sample Bundle",
+        "live_public": "Live Public",
+        "manual": "Manual Import",
+    }
+    return mapping.get(value, value.replace("_", " ").title() or "Unknown")
+
+
+def _freshness_label(value: Any) -> str:
+    ts = _parse_capture_ts(value)
+    if ts is None:
+        return "Unknown"
+    age_seconds = max((datetime.now(timezone.utc) - ts).total_seconds(), 0.0)
+    if age_seconds < 3600.0:
+        return "Fresh"
+    if age_seconds < 6 * 3600.0:
+        return "Recent"
+    if age_seconds < 24 * 3600.0:
+        return "Aging"
+    return "Stale"
+
+
+def _build_provenance_rows(report: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    meta_map = {
+        "funding": dict(report.get("funding_meta") or {}),
+        "basis": dict(report.get("basis_meta") or {}),
+        "quotes": dict(report.get("quote_meta") or {}),
+    }
+    for theme, meta in meta_map.items():
+        if not meta:
+            continue
+        rows.append(
+            {
+                "theme": theme,
+                "source": _source_label(meta.get("source")),
+                "capture_ts": str(meta.get("capture_ts") or "-"),
+                "row_count": int(meta.get("row_count") or 0),
+                "freshness": _freshness_label(meta.get("capture_ts")),
+            }
+        )
+    return rows
+
+
+def _build_origin_summary(provenance_rows: list[dict[str, Any]]) -> tuple[str, str]:
+    if not provenance_rows:
+        return "No Snapshots", "No freshness data"
+    source_labels = sorted({str(row.get("source") or "Unknown") for row in provenance_rows})
+    freshness_labels = [str(row.get("freshness") or "Unknown") for row in provenance_rows]
+    if len(source_labels) == 1:
+        data_origin = source_labels[0]
+    else:
+        data_origin = "Mixed Sources"
+    if "Fresh" in freshness_labels:
+        freshness = "Fresh"
+    elif "Recent" in freshness_labels:
+        freshness = "Recent"
+    elif "Aging" in freshness_labels:
+        freshness = "Aging"
+    elif "Stale" in freshness_labels:
+        freshness = "Stale"
+    else:
+        freshness = "Unknown"
+    return data_origin, freshness
 
 
 def _trend_value(latest: dict[str, Any] | None, previous: dict[str, Any] | None, field: str) -> float | None:
@@ -102,6 +184,9 @@ def load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
         report["basis_history"] = []
         report["dislocation_history"] = []
         report["trend_rows"] = []
+        report["provenance_rows"] = []
+        report["data_origin_label"] = "Unavailable"
+        report["freshness_summary"] = "Unavailable"
         return report
 
     try:
@@ -112,6 +197,9 @@ def load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
         report["basis_history"] = []
         report["dislocation_history"] = []
         report["trend_rows"] = []
+        report["provenance_rows"] = []
+        report["data_origin_label"] = "Unavailable"
+        report["freshness_summary"] = "Unavailable"
         report["history_reason"] = f"store_import_failed:{type(exc).__name__}"
         return report
 
@@ -126,6 +214,8 @@ def load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
             basis_history=list(report.get("basis_history") or []),
             dislocation_history=list(report.get("dislocation_history") or []),
         )
+        report["provenance_rows"] = _build_provenance_rows(report)
+        report["data_origin_label"], report["freshness_summary"] = _build_origin_summary(list(report.get("provenance_rows") or []))
         return report
     except Exception as exc:
         report["history_rows"] = []
@@ -133,5 +223,8 @@ def load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
         report["basis_history"] = []
         report["dislocation_history"] = []
         report["trend_rows"] = []
+        report["provenance_rows"] = []
+        report["data_origin_label"] = "Unavailable"
+        report["freshness_summary"] = "Unavailable"
         report["history_reason"] = f"history_read_failed:{type(exc).__name__}"
         return report

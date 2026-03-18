@@ -139,3 +139,27 @@ def test_get_crypto_edge_report_falls_back_without_store(monkeypatch) -> None:
     assert payload["research_only"] is True
     assert payload["execution_enabled"] is False
     assert payload["reason"] == "store_import_failed:ImportError"
+
+
+def test_get_crypto_edge_report_uses_dashboard_workspace(monkeypatch) -> None:
+    from dashboard.services import crypto_edge_research
+
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_workspace",
+        lambda history_limit=5: {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Fresh",
+            "provenance_rows": [{"theme": "funding", "source": "Live Public"}],
+        },
+    )
+
+    payload = asyncio.run(tools.get_crypto_edge_report())
+
+    assert payload["ok"] is True
+    assert payload["data_origin_label"] == "Live Public"
+    assert payload["freshness_summary"] == "Fresh"

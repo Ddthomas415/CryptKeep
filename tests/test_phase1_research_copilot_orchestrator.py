@@ -83,6 +83,8 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
             "research_only": True,
             "execution_enabled": False,
             "has_any_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Fresh",
             "funding_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
             "basis_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
             "quote_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
@@ -115,6 +117,7 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     assert payload["evidence_bundle"]["operations"]["healthy_services"] == 3
     assert payload["evidence_bundle"]["crypto_edges"]["research_only"] is True
     assert "funding bias long_pays" in payload["current_cause"]
+    assert "Live Public" in payload["current_cause"]
 
 
 def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
@@ -211,6 +214,8 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
             "research_only": True,
             "execution_enabled": False,
             "has_any_data": True,
+            "data_origin_label": "Sample Bundle",
+            "freshness_summary": "Stale",
             "funding_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
             "basis_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
             "quote_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
