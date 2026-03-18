@@ -5,19 +5,32 @@ import json
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
-from dashboard.components.cards import render_feature_hero, render_prompt_actions
+from dashboard.components.badges import render_badge_row
+from dashboard.components.cards import (
+    render_feature_hero,
+    render_kpi_cards,
+    render_prompt_actions,
+    render_section_intro,
+)
 from dashboard.components.actions import render_system_action_buttons
 from dashboard.components.header import render_page_header
 from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import render_operations_status_summary
+from dashboard.components.tables import render_table_section
 from dashboard.services.operator import get_operations_snapshot, list_services, run_op, run_repo_script
 from dashboard.services.operator_tools import synthetic_ohlcv
+from dashboard.services.strategy_evaluation import (
+    build_hypothesis_sections,
+    build_leaderboard_table_rows,
+    build_regime_table_rows,
+    build_scorecard_table_rows,
+    build_strategy_workbench,
+)
 from dashboard.state.session import get_operator_result, set_operator_result
 from services.admin.repair_wizard import CONFIRM_TEXT as REPAIR_CONFIRM_TEXT
 from services.admin.repair_wizard import execute_reset, preflight_self_check, preview_reset
 from services.admin.config_editor import load_user_yaml, save_user_yaml
-from services.backtest.parity_engine import run_parity_backtest
 from services.execution.idempotency_inspector import filter_rows as filter_idem_rows
 from services.execution.idempotency_inspector import list_recent as list_idem_recent
 from services.strategies.config_tools import (
@@ -395,8 +408,9 @@ with tab_strategy:
             candles = synthetic_ohlcv(bt_bars)
             try:
                 bt_cfg = apply_strategy_block(cfg_user, preview_block)
-                st.session_state["ops_ih6_result"] = run_parity_backtest(
+                st.session_state["ops_ih6_workbench"] = build_strategy_workbench(
                     cfg=bt_cfg,
+                    strategy_name=selected_strategy,
                     symbol=str(bt_symbol or "BTC/USD"),
                     candles=candles,
                     warmup_bars=int(bt_warmup),
@@ -404,10 +418,16 @@ with tab_strategy:
                     fee_bps=float(bt_fee_bps),
                     slippage_bps=float(bt_slippage_bps),
                 )
+                st.session_state["ops_ih6_result"] = dict(
+                    st.session_state["ops_ih6_workbench"].get("backtest") or {}
+                )
             except Exception as exc:
-                st.session_state["ops_ih6_result"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+                failure = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+                st.session_state["ops_ih6_result"] = failure
+                st.session_state["ops_ih6_workbench"] = {"ok": False, "error": failure["error"]}
 
-        result = st.session_state.get("ops_ih6_result")
+        workbench = st.session_state.get("ops_ih6_workbench")
+        result = dict((workbench or {}).get("backtest") or st.session_state.get("ops_ih6_result") or {})
         if isinstance(result, dict):
             if not bool(result.get("ok")):
                 st.error(str(result.get("error") or "backtest_failed"))
@@ -426,6 +446,124 @@ with tab_strategy:
                 if equity:
                     st.caption("Equity curve")
                     st.line_chart([float(x.get("equity") or 0.0) for x in equity], width="stretch")
+
+                scorecard = dict(result.get("scorecard") or {})
+                if scorecard:
+                    render_section_intro(
+                        title="Strategy Scorecard",
+                        subtitle="Reusable post-cost evaluation metrics for the current parity run.",
+                        meta=str(result.get("strategy") or selected_strategy),
+                    )
+                    render_kpi_cards(
+                        [
+                            {
+                                "label": "Net Return",
+                                "value": f"{float(scorecard.get('net_return_after_costs_pct') or 0.0):.2f}%",
+                                "delta": "After fees and slippage",
+                            },
+                            {
+                                "label": "Max Drawdown",
+                                "value": f"{float(scorecard.get('max_drawdown_pct') or 0.0):.2f}%",
+                                "delta": "Peak-to-trough",
+                            },
+                            {
+                                "label": "Profit Factor",
+                                "value": (
+                                    f"{float(scorecard.get('profit_factor')):.2f}"
+                                    if scorecard.get("profit_factor") is not None
+                                    else "-"
+                                ),
+                                "delta": f"{int(scorecard.get('closed_trades') or 0)} closed trades",
+                            },
+                            {
+                                "label": "Expectancy",
+                                "value": f"{float(scorecard.get('expectancy') or 0.0):.2f}",
+                                "delta": "Average realized PnL",
+                            },
+                        ]
+                    )
+                    render_table_section(
+                        "Scorecard Detail",
+                        build_scorecard_table_rows(scorecard),
+                        subtitle="Common strategy-evaluation contract across backtest runs.",
+                        empty_message="No scorecard metrics available.",
+                    )
+
+                regime_rows = build_regime_table_rows(dict(result.get("regime_scorecards") or {}))
+                render_table_section(
+                    "Regime Breakdown",
+                    regime_rows,
+                    subtitle="Same strategy, segmented by simple deterministic regime labels.",
+                    empty_message="No regime scorecards available yet.",
+                )
+
+                hypothesis = dict((workbench or {}).get("hypothesis") or {})
+                if hypothesis:
+                    render_section_intro(
+                        title="Strategy Hypothesis",
+                        subtitle="Treat the active strategy as a falsifiable thesis, not a proven edge.",
+                        meta=str(hypothesis.get("strategy") or selected_strategy),
+                    )
+                    render_badge_row(
+                        [
+                            {"text": "Research Only", "tone": "warning"},
+                            {"text": "Hypothesis", "tone": "accent"},
+                            {
+                                "text": f"{len(list(hypothesis.get('expected_failure_regimes') or []))} failure regimes",
+                                "tone": "muted",
+                            },
+                        ]
+                    )
+                    hypothesis_sections = build_hypothesis_sections(hypothesis)
+                    left, right = st.columns(2)
+                    for index, section in enumerate(hypothesis_sections):
+                        target = left if index % 2 == 0 else right
+                        with target:
+                            with st.container(border=True):
+                                st.markdown(f"### {section['title']}")
+                                for item in section["items"] or ["-"]:
+                                    st.markdown(f"- {item}")
+
+                leaderboard = dict((workbench or {}).get("leaderboard") or {})
+                leaderboard_rows = build_leaderboard_table_rows(leaderboard)
+                if leaderboard_rows:
+                    top_row = leaderboard_rows[0]
+                    render_section_intro(
+                        title="Baseline Strategy Leaderboard",
+                        subtitle="Rank candidates by post-cost return, drawdown, regime robustness, slippage sensitivity, and drift.",
+                        meta=f"{int(leaderboard.get('candidate_count') or len(leaderboard_rows))} candidates",
+                    )
+                    render_kpi_cards(
+                        [
+                            {
+                                "label": "Top Candidate",
+                                "value": str(top_row.get("candidate") or "-"),
+                                "delta": str(top_row.get("strategy") or ""),
+                            },
+                            {
+                                "label": "Leaderboard Score",
+                                "value": f"{float(top_row.get('leaderboard_score') or 0.0):.4f}",
+                                "delta": f"Rank {int(top_row.get('rank') or 0)}",
+                            },
+                            {
+                                "label": "Regime Robustness",
+                                "value": f"{float(top_row.get('regime_robustness') or 0.0):.3f}",
+                                "delta": "Fraction of represented regimes with non-negative returns",
+                            },
+                            {
+                                "label": "Slippage Sensitivity",
+                                "value": f"{float(top_row.get('slippage_sensitivity_pct') or 0.0):.2f}%",
+                                "delta": "Return erosion under stressed slippage",
+                            },
+                        ]
+                    )
+                    render_table_section(
+                        "Leaderboard Detail",
+                        leaderboard_rows,
+                        subtitle="Comparison across baseline crypto strategy candidates on the same synthetic run.",
+                        empty_message="No leaderboard rows available.",
+                    )
+                    st.caption("Research/evaluation only. Leaderboard output does not route to live execution.")
 
 with tab_safety:
     with st.container(border=True):

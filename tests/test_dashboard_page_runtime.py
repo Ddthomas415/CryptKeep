@@ -70,6 +70,9 @@ class _FakeStreamlit:
     def number_input(self, label, value=0, **kwargs):
         return self._overrides.get(str(label), value)
 
+    def slider(self, label, min_value=None, max_value=None, value=None, **kwargs):
+        return self._overrides.get(str(label), value)
+
     def form_submit_button(self, label, **kwargs) -> bool:
         return bool(self._overrides.get(str(label), False))
 
@@ -427,6 +430,126 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
         "default_qty": 0.25,
         "order_type": "limit",
     }
+
+
+def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
+    from dashboard.components import actions, logs
+    from dashboard.services import operator as operator_service
+    from dashboard.services import operator_tools, strategy_evaluation
+    from services.admin import config_editor, repair_wizard
+    from services.execution import idempotency_inspector
+    from services.strategies import config_tools, presets
+
+    monkeypatch.setattr(actions, "render_system_action_buttons", lambda: None)
+    monkeypatch.setattr(logs, "render_action_result", _noop)
+    monkeypatch.setattr(
+        operator_service,
+        "get_operations_snapshot",
+        lambda: {
+            "tracked_services": 5,
+            "healthy_services": 4,
+            "unknown_services": 1,
+            "attention_services": 1,
+            "last_health_ts": "2026-03-18T10:00:00Z",
+        },
+    )
+    monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
+    monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
+    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
+    monkeypatch.setattr(
+        config_editor,
+        "load_user_yaml",
+        lambda: {"strategy": {"name": "ema_cross", "trade_enabled": True, "ema_fast": 12, "ema_slow": 26}},
+    )
+    monkeypatch.setattr(config_editor, "save_user_yaml", lambda cfg: (True, "saved"))
+    monkeypatch.setattr(config_tools, "supported_strategies", lambda: ["ema_cross", "mean_reversion_rsi", "breakout_donchian"])
+    monkeypatch.setattr(
+        config_tools,
+        "build_strategy_block",
+        lambda name, trade_enabled, params: {"name": name, "trade_enabled": trade_enabled, **params},
+    )
+    monkeypatch.setattr(config_tools, "apply_strategy_block", lambda cfg, block: {**cfg, "strategy": dict(block)})
+    monkeypatch.setattr(config_tools, "validate_cfg", lambda cfg: {"ok": True, "errors": [], "warnings": []})
+    monkeypatch.setattr(config_tools, "apply_preset_and_validate", lambda cfg, preset: (cfg, {"ok": True, "errors": [], "warnings": []}))
+    monkeypatch.setattr(presets, "list_presets", lambda: ["ema_cross_default"])
+    monkeypatch.setattr(operator_tools, "synthetic_ohlcv", lambda count: [[1, 100, 101, 99, 100, 1.0]] * max(int(count), 1))
+    monkeypatch.setattr(idempotency_inspector, "list_recent", lambda limit=10, status="error": {"ok": True, "rows": [], "path": "/tmp/db", "table": "idempotency"})
+    monkeypatch.setattr(idempotency_inspector, "filter_rows", lambda rows, venue_filter, symbol_filter: [])
+    monkeypatch.setattr(repair_wizard, "preflight_self_check", lambda: {"ok": True})
+    monkeypatch.setattr(repair_wizard, "preview_reset", lambda include_locks=False: {"ok": True, "include_locks": include_locks})
+    monkeypatch.setattr(repair_wizard, "execute_reset", lambda confirm_text="", include_locks=False: {"ok": False, "reason": "not_confirmed"})
+    monkeypatch.setattr(
+        strategy_evaluation,
+        "build_strategy_workbench",
+        lambda **kwargs: {
+            "ok": True,
+            "backtest": {
+                "ok": True,
+                "strategy": "ema_cross",
+                "trade_count": 2,
+                "metrics": {"final_equity": 10250.0, "total_return_pct": 2.5, "max_drawdown_pct": 1.2},
+                "trades": [{"ts_ms": 1, "action": "buy"}],
+                "equity": [{"equity": 10000.0}, {"equity": 10250.0}],
+                "scorecard": {
+                    "net_return_after_costs_pct": 2.5,
+                    "max_drawdown_pct": 1.2,
+                    "profit_factor": 1.4,
+                    "expectancy": 5.0,
+                    "closed_trades": 1,
+                    "regime_scorecards": {},
+                },
+                "regime_scorecards": {
+                    "bull": {
+                        "bars": 10,
+                        "net_return_after_costs_pct": 2.5,
+                        "max_drawdown_pct": 1.2,
+                        "win_rate_pct": 100.0,
+                        "profit_factor": 1.4,
+                        "expectancy": 5.0,
+                        "closed_trades": 1,
+                    }
+                },
+            },
+            "leaderboard": {
+                "ok": True,
+                "candidate_count": 1,
+                "rows": [
+                    {
+                        "rank": 1,
+                        "candidate": "ema_cross_default",
+                        "strategy": "ema_cross",
+                        "leaderboard_score": 0.9,
+                        "net_return_after_costs_pct": 2.5,
+                        "max_drawdown_pct": 1.2,
+                        "regime_robustness": 1.0,
+                        "regime_return_dispersion_pct": 0.0,
+                        "slippage_sensitivity_pct": 0.4,
+                        "paper_live_drift_pct": None,
+                    }
+                ],
+            },
+            "hypothesis": {
+                "strategy": "ema_cross",
+                "expected_failure_regimes": ["low_vol"],
+                "market_assumption": "trend persistence",
+                "entry_rules": ["cross up"],
+                "exit_rules": ["cross down"],
+                "no_trade_rules": ["weak volume"],
+                "invalidation_conditions": ["wrong-side slow ema"],
+                "notes": ["not proven"],
+            },
+        },
+    )
+
+    _module, fake_streamlit = _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/60_Operations.py",
+        module_name="dashboard_test_operations_page",
+        streamlit_overrides={"Run Backtest Parity": True},
+    )
+
+    assert fake_streamlit.session_state["ops_ih6_workbench"]["ok"] is True
+    assert fake_streamlit.session_state["ops_ih6_result"]["strategy"] == "ema_cross"
 
 
 def test_settings_page_builds_save_payload(monkeypatch) -> None:
