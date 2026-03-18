@@ -310,6 +310,37 @@ def test_signals_page_requests_selected_asset(monkeypatch) -> None:
     assert calls == [None, "BTC"]
 
 
+def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
+    from dashboard.services import crypto_edge_research
+
+    calls: list[int] = []
+
+    def fake_load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
+        calls.append(history_limit)
+        return {
+            "ok": True,
+            "has_any_data": True,
+            "store_path": "/tmp/crypto_edge_research.sqlite",
+            "funding_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "basis_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "quote_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "funding": {"count": 1, "annualized_carry_pct": 12.0, "dominant_bias": "long_pays", "rows": [{"symbol": "BTC-PERP"}]},
+            "basis": {"count": 1, "avg_basis_bps": 8.0, "widest_basis_bps": 8.0, "rows": [{"symbol": "BTC-PERP"}]},
+            "dislocations": {"count": 1, "positive_count": 1, "top_dislocation": {"symbol": "BTC/USD", "gross_cross_bps": 6.0}, "rows": [{"symbol": "BTC/USD"}]},
+            "history_rows": [{"kind": "quotes", "snapshot_id": "quotes-1", "capture_ts": "2026-03-18T10:00:00Z", "source": "sample_bundle", "row_count": 6}],
+        }
+
+    monkeypatch.setattr(crypto_edge_research, "load_crypto_edge_workspace", fake_load_crypto_edge_workspace)
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/35_Research.py",
+        module_name="dashboard_test_research_page",
+    )
+
+    assert calls == [5]
+
+
 def test_portfolio_page_fetches_view_on_import(monkeypatch) -> None:
     from dashboard.services import view_data
 

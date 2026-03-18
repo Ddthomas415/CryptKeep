@@ -13,6 +13,7 @@ DEFAULT_NAV_ITEMS: tuple[NavItem, ...] = (
     ("pages/10_Markets.py", "Markets", "📈"),
     ("pages/20_Portfolio.py", "Portfolio", "💼"),
     ("pages/30_Signals.py", "Signals", "🧠"),
+    ("pages/35_Research.py", "Research", "🔬"),
     ("pages/40_Trades.py", "Trades", "🔁"),
     ("pages/50_Automation.py", "Automation", "⚙️"),
     ("pages/60_Operations.py", "Operations", "🛠️"),

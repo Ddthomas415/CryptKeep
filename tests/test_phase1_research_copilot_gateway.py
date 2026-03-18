@@ -156,5 +156,6 @@ def test_chat_ui_links_back_to_dashboard(monkeypatch) -> None:
     assert 'href="http://localhost:8602/"' in body
     assert 'href="http://localhost:8602/Markets"' in body
     assert 'href="http://localhost:8602/Signals"' in body
+    assert 'href="http://localhost:8602/Research"' in body
     assert 'href="http://localhost:8602/Operations"' in body
     assert 'href="http://localhost:8602/Settings"' in body

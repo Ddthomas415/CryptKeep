@@ -11,6 +11,7 @@ PY_FILES = (
     "dashboard/pages/10_Markets.py",
     "dashboard/pages/20_Portfolio.py",
     "dashboard/pages/30_Signals.py",
+    "dashboard/pages/35_Research.py",
     "dashboard/pages/40_Trades.py",
     "dashboard/pages/50_Automation.py",
     "dashboard/pages/60_Operations.py",

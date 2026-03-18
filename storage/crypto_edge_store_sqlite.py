@@ -267,6 +267,34 @@ class CryptoEdgeStoreSQLite:
             "row_count": int(row["row_count"] or 0),
         }
 
+    def _recent_snapshot_meta(self, table: str, *, kind: str, limit: int = 5) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                f"SELECT snapshot_id, capture_ts, source, COUNT(*) AS row_count FROM {table} "
+                "GROUP BY snapshot_id, capture_ts, source "
+                "ORDER BY capture_ts DESC LIMIT ?",
+                (int(max(limit, 1)),),
+            ).fetchall()
+        return [
+            {
+                "kind": str(kind),
+                "snapshot_id": str(row["snapshot_id"]),
+                "capture_ts": str(row["capture_ts"]),
+                "source": str(row["source"]),
+                "row_count": int(row["row_count"] or 0),
+            }
+            for row in rows
+        ]
+
+    def recent_snapshot_history(self, *, limit_per_kind: int = 5) -> list[dict[str, Any]]:
+        rows = (
+            self._recent_snapshot_meta("funding_snapshots", kind="funding", limit=limit_per_kind)
+            + self._recent_snapshot_meta("basis_snapshots", kind="basis", limit=limit_per_kind)
+            + self._recent_snapshot_meta("quote_snapshots", kind="quotes", limit=limit_per_kind)
+        )
+        rows.sort(key=lambda row: str(row.get("capture_ts") or ""), reverse=True)
+        return rows
+
     def latest_report(self) -> dict[str, Any]:
         funding_rows = self.latest_funding_rows()
         basis_rows = self.latest_basis_rows()

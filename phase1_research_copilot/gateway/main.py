@@ -503,6 +503,7 @@ async def chat_ui() -> Response:
           <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/\" target=\"_blank\" rel=\"noreferrer\"><span>Overview</span><span>Open</span></a>
           <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Markets\" target=\"_blank\" rel=\"noreferrer\"><span>Markets</span><span>Asset desk</span></a>
           <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Signals\" target=\"_blank\" rel=\"noreferrer\"><span>Signals</span><span>AI queue</span></a>
+          <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Research\" target=\"_blank\" rel=\"noreferrer\"><span>Research</span><span>Edge lab</span></a>
           <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Operations\" target=\"_blank\" rel=\"noreferrer\"><span>Operations</span><span>Operator</span></a>
           <a class=\"nav-item nav-item-link\" href=\"__DASHBOARD_URL__/Settings\" target=\"_blank\" rel=\"noreferrer\"><span>Settings</span><span>Config</span></a>
         </div>
