@@ -1,0 +1,29 @@
+{
+  "funding": [
+    {
+      "venue": "binance",
+      "symbol": "BTC/USDT:USDT",
+      "interval_hours": 8.0
+    }
+  ],
+  "basis": [
+    {
+      "venue": "binance",
+      "spot_symbol": "BTC/USDT",
+      "perp_symbol": "BTC/USDT:USDT",
+      "days_to_expiry": 7
+    }
+  ],
+  "quotes": [
+    {
+      "venue": "coinbase",
+      "symbol": "BTC/USD",
+      "orderbook_limit": 5
+    },
+    {
+      "venue": "kraken",
+      "symbol": "BTC/USD",
+      "orderbook_limit": 5
+    }
+  ]
+}
