@@ -18,6 +18,7 @@ from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import render_operations_status_summary
 from dashboard.components.tables import render_table_section
+from dashboard.services.crypto_edge_research import load_crypto_edge_report
 from dashboard.services.operator import get_operations_snapshot, list_services, run_op, run_repo_script
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import (
@@ -104,8 +105,8 @@ render_prompt_actions(
 
 render_operations_status_summary(snapshot)
 
-tab_tools, tab_service_logs, tab_failures, tab_strategy, tab_safety = st.tabs(
-    ["System Tools", "Service Logs", "Order Blocked Inspector", "Strategy & Backtest", "Safety & Recovery"]
+tab_tools, tab_service_logs, tab_failures, tab_strategy, tab_research, tab_safety = st.tabs(
+    ["System Tools", "Service Logs", "Order Blocked Inspector", "Strategy & Backtest", "Crypto Edge Research", "Safety & Recovery"]
 )
 
 with tab_tools:
@@ -564,6 +565,114 @@ with tab_strategy:
                         empty_message="No leaderboard rows available.",
                     )
                     st.caption("Research/evaluation only. Leaderboard output does not route to live execution.")
+
+with tab_research:
+    report = load_crypto_edge_report()
+    render_feature_hero(
+        eyebrow="Structural Edge Research",
+        title="Funding, Basis, and Cross-Venue Monitor",
+        summary="Read-only crypto-native analytics built from stored snapshots, not live execution hooks.",
+        body="Use this workspace to inspect carry, basis, and venue dislocations after snapshots have been recorded into the local research store.",
+        badges=[
+            {"text": "Research Only", "tone": "warning"},
+            {"text": "Execution Disabled", "tone": "danger"},
+            {
+                "text": "Stored Snapshots"
+                if bool(report.get("has_any_data"))
+                else "No Stored Snapshots",
+                "tone": "success" if bool(report.get("has_any_data")) else "muted",
+            },
+        ],
+        metrics=[
+            {
+                "label": "Funding Rows",
+                "value": str(int(((report.get("funding") or {}).get("count") or 0))),
+                "delta": str(((report.get("funding_meta") or {}).get("capture_ts") or "No snapshot")),
+            },
+            {
+                "label": "Basis Rows",
+                "value": str(int(((report.get("basis") or {}).get("count") or 0))),
+                "delta": str(((report.get("basis_meta") or {}).get("capture_ts") or "No snapshot")),
+            },
+            {
+                "label": "Quote Rows",
+                "value": str(int(((report.get("dislocations") or {}).get("count") or 0))),
+                "delta": str(((report.get("quote_meta") or {}).get("capture_ts") or "No snapshot")),
+            },
+        ],
+        aside_title="Ingest Path",
+        aside_lines=[
+            "Record JSON snapshots with scripts/record_crypto_edge_snapshot.py.",
+            "Nothing here routes to execution or strategy automation.",
+            f"Store: {str(report.get('store_path') or 'unavailable')}",
+        ],
+    )
+    render_prompt_actions(
+        title="Ask Copilot",
+        prompts=[
+            "Summarize funding carry state",
+            "Explain current basis structure",
+            "Show top cross-venue dislocations",
+        ],
+        key_prefix="ops_crypto_edges",
+    )
+
+    if not bool(report.get("ok")):
+        st.warning(f"Crypto edge report unavailable: {str(report.get('reason') or 'unknown_error')}")
+    elif not bool(report.get("has_any_data")):
+        st.info("No stored crypto-edge snapshots yet. Use scripts/record_crypto_edge_snapshot.py to ingest research-only funding, basis, or quote snapshots.")
+    else:
+        funding = dict(report.get("funding") or {})
+        basis = dict(report.get("basis") or {})
+        dislocations = dict(report.get("dislocations") or {})
+
+        render_kpi_cards(
+            [
+                {
+                    "label": "Funding Carry",
+                    "value": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
+                    "delta": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
+                },
+                {
+                    "label": "Average Basis",
+                    "value": f"{float(basis.get('avg_basis_bps') or 0.0):.2f} bps",
+                    "delta": f"Widest {float(basis.get('widest_basis_bps') or 0.0):.2f} bps",
+                },
+                {
+                    "label": "Positive Dislocations",
+                    "value": str(int(dislocations.get("positive_count") or 0)),
+                    "delta": "Gross cross-venue bid/ask gaps",
+                },
+                {
+                    "label": "Top Symbol",
+                    "value": str(((dislocations.get("top_dislocation") or {}).get("symbol") or "-")),
+                    "delta": (
+                        f"{float(((dislocations.get('top_dislocation') or {}).get('gross_cross_bps') or 0.0)):.2f} bps"
+                        if dislocations.get("top_dislocation")
+                        else "No positive dislocation"
+                    ),
+                },
+            ]
+        )
+
+        render_table_section(
+            "Funding Snapshot",
+            list(funding.get("rows") or []),
+            subtitle="Latest stored funding-rate snapshot grouped as research-only carry context.",
+            empty_message="No funding rows available.",
+        )
+        render_table_section(
+            "Basis Snapshot",
+            list(basis.get("rows") or []),
+            subtitle="Latest stored perp/spot basis snapshot for the same research store.",
+            empty_message="No basis rows available.",
+        )
+        render_table_section(
+            "Cross-Venue Dislocations",
+            list(dislocations.get("rows") or []),
+            subtitle="Latest stored cross-venue quote snapshot ranked by gross bid/ask dislocation.",
+            empty_message="No quote dislocation rows available.",
+        )
 
 with tab_safety:
     with st.container(border=True):

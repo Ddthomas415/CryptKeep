@@ -434,6 +434,7 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
 
 def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
     from dashboard.components import actions, logs
+    from dashboard.services import crypto_edge_research
     from dashboard.services import operator as operator_service
     from dashboard.services import operator_tools, strategy_evaluation
     from services.admin import config_editor, repair_wizard
@@ -538,6 +539,21 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
                 "invalidation_conditions": ["wrong-side slow ema"],
                 "notes": ["not proven"],
             },
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_report",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "store_path": "/tmp/crypto_edge_research.sqlite",
+            "funding_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "basis_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "quote_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "funding": {"count": 1, "annualized_carry_pct": 12.0, "dominant_bias": "long_pays", "rows": [{"symbol": "BTC-PERP"}]},
+            "basis": {"count": 1, "avg_basis_bps": 8.0, "widest_basis_bps": 8.0, "rows": [{"symbol": "BTC-PERP"}]},
+            "dislocations": {"count": 1, "positive_count": 1, "top_dislocation": {"symbol": "BTC/USD", "gross_cross_bps": 6.0}, "rows": [{"symbol": "BTC/USD"}]},
         },
     )
 
