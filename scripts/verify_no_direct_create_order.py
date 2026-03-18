@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import re
 
 # CBP_BOOTSTRAP_SYS_PATH
 try:
@@ -13,6 +14,10 @@ add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 TOKEN1 = ".create_" + "order("
 TOKEN2 = ".create" + "Order("
+PATTERNS = (
+    re.compile(r"\.create_order\s*\("),
+    re.compile(r"\.createOrder\s*\("),
+)
 
 ALLOWED = {
     "services/execution/place_order.py",
@@ -37,11 +42,10 @@ def scan(root: Path) -> list[dict]:
             continue
         txt = p.read_text(encoding="utf-8", errors="replace")
         # look for direct exchange order placement patterns
-        # We explicitly block TOKEN1 anywhere outside place_order.py
-        if TOKEN1 in txt or TOKEN2 in txt:
-            # record line numbers
+        # We explicitly block direct create_order usage anywhere outside place_order.py.
+        if any(pattern.search(txt) for pattern in PATTERNS):
             for i, line in enumerate(txt.splitlines(), start=1):
-                if TOKEN1 in line or TOKEN2 in line:
+                if any(pattern.search(line) for pattern in PATTERNS):
                     hits.append({"file": rel, "line": i, "text": line.strip()[:240]})
     return hits
 

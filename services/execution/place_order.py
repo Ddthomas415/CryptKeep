@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+import math
 import os
 from services.security.binance_guard import require_binance_allowed
 import time
@@ -11,6 +13,8 @@ from services.os.app_paths import data_dir, ensure_dirs
 #
 # CBP_PHASE3_PLACE_ORDER_FAIL_CLOSED
 # CBP_PHASE4_CHOKEPOINT_RISK_MARKET_V1
+
+_LOG = logging.getLogger(__name__)
 
 def _truthy(v: Optional[str]) -> bool:
     if v is None:
@@ -39,23 +43,98 @@ def _venue_norm_for_market_rules(ex: Any) -> str:
         return "coinbase"
     return v
 
+
+def _load_killswitch_module() -> Any:
+    from services.risk import killswitch as ks  # type: ignore
+
+    return ks
+
+
+def _killswitch_fail_closed() -> bool:
+    raw = os.environ.get("CBP_KILLSWITCH_FAIL_CLOSED")
+    if raw is None or str(raw).strip() == "":
+        return True
+    return _truthy(raw)
+
+
+def _log_killswitch_probe_failure(*, stage: str, exc: Exception, fail_closed: bool) -> None:
+    _LOG.warning(
+        "place_order_killswitch_probe_failed",
+        extra={
+            "source": "services.risk.killswitch",
+            "stage": stage,
+            "failure_type": type(exc).__name__,
+            "reason": str(exc),
+            "fallback": "fail_closed_block" if fail_closed else "best_effort_allow",
+        },
+    )
+
+
 def _killswitch_state() -> Tuple[bool, str]:
     if _truthy(os.environ.get("CBP_KILL_SWITCH")):
         return True, "env:CBP_KILL_SWITCH"
+
+    fail_closed = _killswitch_fail_closed()
+
     try:
-        from services.risk import killswitch as ks  # type: ignore
-        if hasattr(ks, "is_on") and callable(getattr(ks, "is_on")) and bool(ks.is_on()):
-            return True, "services.risk.killswitch.is_on"
-        if hasattr(ks, "snapshot") and callable(getattr(ks, "snapshot")):
+        ks = _load_killswitch_module()
+    except Exception as exc:
+        _log_killswitch_probe_failure(stage="import", exc=exc, fail_closed=fail_closed)
+        if fail_closed:
+            return True, f"services.risk.killswitch.import_failed:{type(exc).__name__}"
+        return False, ""
+
+    probe_available = False
+    if hasattr(ks, "is_on") and callable(getattr(ks, "is_on")):
+        probe_available = True
+        try:
+            if bool(ks.is_on()):
+                return True, "services.risk.killswitch.is_on"
+        except Exception as exc:
+            _log_killswitch_probe_failure(stage="is_on", exc=exc, fail_closed=fail_closed)
+            if fail_closed:
+                return True, f"services.risk.killswitch.is_on_failed:{type(exc).__name__}"
+            return False, ""
+
+    if hasattr(ks, "snapshot") and callable(getattr(ks, "snapshot")):
+        probe_available = True
+        try:
             snap = ks.snapshot()
-            if isinstance(snap, dict):
-                if bool(snap.get("kill_switch", False)):
-                    return True, "services.risk.killswitch.snapshot.kill_switch"
-                until = float(snap.get("cooldown_until", 0.0) or 0.0)
-                if until > time.time():
-                    return True, "services.risk.killswitch.snapshot.cooldown_active"
-    except Exception:
-        pass
+        except Exception as exc:
+            _log_killswitch_probe_failure(stage="snapshot", exc=exc, fail_closed=fail_closed)
+            if fail_closed:
+                return True, f"services.risk.killswitch.snapshot_failed:{type(exc).__name__}"
+            return False, ""
+
+        if not isinstance(snap, dict):
+            exc = TypeError("snapshot_not_dict")
+            _log_killswitch_probe_failure(stage="snapshot", exc=exc, fail_closed=fail_closed)
+            if fail_closed:
+                return True, "services.risk.killswitch.snapshot_failed:TypeError"
+            return False, ""
+
+        if bool(snap.get("kill_switch", False)):
+            return True, "services.risk.killswitch.snapshot.kill_switch"
+
+        try:
+            until = float(snap.get("cooldown_until", 0.0) or 0.0)
+            if not math.isfinite(until):
+                raise ValueError("cooldown_until_not_finite")
+        except Exception as exc:
+            _log_killswitch_probe_failure(stage="cooldown_read", exc=exc, fail_closed=fail_closed)
+            if fail_closed:
+                return True, f"services.risk.killswitch.cooldown_read_failed:{type(exc).__name__}"
+            return False, ""
+
+        if until > time.time():
+            return True, "services.risk.killswitch.snapshot.cooldown_active"
+
+    if not probe_available:
+        exc = RuntimeError("no_killswitch_probe_available")
+        _log_killswitch_probe_failure(stage="missing_probe", exc=exc, fail_closed=fail_closed)
+        if fail_closed:
+            return True, "services.risk.killswitch.missing_probe:RuntimeError"
+
     return False, ""
 
 def _is_armed() -> Tuple[bool, str]:
@@ -73,7 +152,10 @@ def _require_env_float(name: str) -> float:
     if v is None or str(v).strip() == "":
         raise RuntimeError(f"CBP_ORDER_BLOCKED:missing_limit_env:{name}")
     try:
-        return float(str(v).strip())
+        out = float(str(v).strip())
+        if not math.isfinite(out):
+            raise ValueError("non_finite_limit_env")
+        return out
     except Exception:
         raise RuntimeError(f"CBP_ORDER_BLOCKED:invalid_limit_env:{name}")
 
@@ -81,24 +163,52 @@ def _normalize_loss_limit(x: float) -> float:
     # Accept either -250 or 250; normalize to negative threshold.
     return -abs(float(x))
 
-def _extract_create_order_args(args: tuple[Any, ...], kwargs: dict[str, Any]) -> tuple[str, str, float, float | None, Dict[str, Any], str]:
+def _extract_create_order_args(args: tuple[Any, ...], kwargs: dict[str, Any]) -> tuple[str, str, Any, Any | None, Dict[str, Any], str]:
     # ccxt.create_order(symbol, type, side, amount, price=None, params={})
     symbol = str(args[0] if len(args) > 0 else (kwargs.get("symbol") or ""))
     otype = str(args[1] if len(args) > 1 else (kwargs.get("type") or ""))
     side = str(args[2] if len(args) > 2 else (kwargs.get("side") or ""))
-    amount = float(args[3] if len(args) > 3 else (kwargs.get("amount") or 0.0))
+    amount = args[3] if len(args) > 3 else kwargs.get("amount")
 
     price_val = None
     if len(args) > 4:
         price_val = args[4]
     elif "price" in kwargs:
         price_val = kwargs.get("price")
-    price_f = float(price_val) if price_val is not None else None
 
     params_val = args[5] if len(args) > 5 else kwargs.get("params")
     params = dict(params_val) if isinstance(params_val, dict) else {}
 
-    return symbol, side, amount, price_f, params, otype
+    return symbol, side, amount, price_val, params, otype
+
+
+def _parse_order_amount(amount: Any) -> float:
+    try:
+        out = float(amount)
+    except Exception as exc:
+        raise RuntimeError(f"CBP_ORDER_BLOCKED:invalid_amount:{type(exc).__name__}") from exc
+    if not math.isfinite(out):
+        raise RuntimeError("CBP_ORDER_BLOCKED:invalid_amount:non_finite")
+    if out <= 0:
+        raise RuntimeError("CBP_ORDER_BLOCKED:invalid_amount:non_positive")
+    return out
+
+
+def _parse_order_price(price: Any | None, *, order_type: str) -> float | None:
+    normalized_type = str(order_type or "").strip().lower()
+    if price is None:
+        if normalized_type == "limit":
+            raise RuntimeError("CBP_ORDER_BLOCKED:missing_limit_price")
+        return None
+    try:
+        out = float(price)
+    except Exception as exc:
+        raise RuntimeError(f"CBP_ORDER_BLOCKED:invalid_price:{type(exc).__name__}") from exc
+    if not math.isfinite(out):
+        raise RuntimeError("CBP_ORDER_BLOCKED:invalid_price:non_finite")
+    if out <= 0:
+        raise RuntimeError("CBP_ORDER_BLOCKED:invalid_price:non_positive")
+    return out
 
 
 def _boolish(v: Any) -> bool:
@@ -166,11 +276,14 @@ def _enforce_fail_closed(
     *,
     symbol: str,
     side: str,
-    amount: float,
-    price: float | None,
+    amount: Any,
+    price: Any | None,
     params: Dict[str, Any],
     order_type: str,
 ) -> Tuple[str, float | None]:
+    amount_f = _parse_order_amount(amount)
+    price_f = _parse_order_price(price, order_type=order_type)
+
     # 1) Kill switch
     ks_on, ks_src = _killswitch_state()
     if ks_on:
@@ -195,15 +308,12 @@ def _enforce_fail_closed(
 
     # 5) Market orders disabled by default in LIVE
     allow_market = _truthy(os.environ.get("CBP_ALLOW_MARKET_ORDERS"))
-    if price is None and not allow_market:
+    if price_f is None and not allow_market:
         raise RuntimeError("CBP_ORDER_BLOCKED:market_orders_disabled (set CBP_ALLOW_MARKET_ORDERS=1 to allow)")
 
     notional = None
-    if price is not None:
-        try:
-            notional = float(amount) * float(price)
-        except Exception:
-            notional = None
+    if price_f is not None:
+        notional = amount_f * price_f
 
     if notional is not None and notional > float(max_order_notional):
         raise RuntimeError(f"CBP_ORDER_BLOCKED:order_notional_exceeds_limit notional={notional} max={max_order_notional}")
@@ -247,7 +357,7 @@ def _enforce_fail_closed(
 
     try:
         from services.markets.rules import validate as mr_validate  # type: ignore
-        vres = mr_validate(exec_db, venue, symbol, qty=float(amount), notional=notional, ttl_s=ttl_s)
+        vres = mr_validate(exec_db, venue, symbol, qty=amount_f, notional=notional, ttl_s=ttl_s)
         ok = bool(getattr(vres, "ok", False))
         if not ok:
             code = str(getattr(vres, "code", "MARKET_RULES_FAIL"))
