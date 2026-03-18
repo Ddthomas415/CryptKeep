@@ -9,14 +9,19 @@ from services.strategies.validation import validate_strategy_config
 
 _SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian"}
 _INT_FIELDS = {
-    "ema_cross": ("ema_fast", "ema_slow"),
-    "mean_reversion_rsi": ("rsi_len", "sma_len"),
-    "breakout_donchian": ("donchian_len",),
+    "ema_cross": ("ema_fast", "ema_slow", "filter_window"),
+    "mean_reversion_rsi": ("rsi_len", "sma_len", "filter_window"),
+    "breakout_donchian": ("donchian_len", "filter_window"),
 }
 _FLOAT_FIELDS = {
+    "ema_cross": ("min_volatility_pct", "min_volume_ratio", "min_trend_efficiency", "min_cross_gap_pct"),
+    "mean_reversion_rsi": ("rsi_buy", "rsi_sell", "max_volatility_pct", "min_volume_ratio", "max_trend_efficiency", "max_sma_distance_pct"),
+    "breakout_donchian": ("min_volatility_pct", "min_volume_ratio", "min_trend_efficiency", "min_channel_width_pct", "breakout_buffer_pct"),
+}
+_BOOL_FIELDS = {
     "ema_cross": (),
-    "mean_reversion_rsi": ("rsi_buy", "rsi_sell"),
-    "breakout_donchian": (),
+    "mean_reversion_rsi": ("require_reversal_confirmation",),
+    "breakout_donchian": ("require_directional_confirmation",),
 }
 
 
@@ -46,6 +51,9 @@ def build_strategy_block(
     for k in _FLOAT_FIELDS.get(n, ()):
         if k in p and p.get(k) is not None:
             out[k] = float(p[k])
+    for k in _BOOL_FIELDS.get(n, ()):
+        if k in p and p.get(k) is not None:
+            out[k] = bool(p[k])
     return out
 
 

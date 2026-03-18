@@ -7,12 +7,14 @@ def test_build_strategy_block_ema_typed_fields():
     st = ct.build_strategy_block(
         name="ema_cross",
         trade_enabled=True,
-        params={"ema_fast": 9.9, "ema_slow": 21.2},
+        params={"ema_fast": 9.9, "ema_slow": 21.2, "filter_window": 8.8, "min_volume_ratio": 1.1},
     )
     assert st["name"] == "ema_cross"
     assert st["trade_enabled"] is True
     assert st["ema_fast"] == 9
     assert st["ema_slow"] == 21
+    assert st["filter_window"] == 8
+    assert st["min_volume_ratio"] == 1.1
 
 
 def test_apply_strategy_block_overwrites_strategy_mapping():
@@ -49,13 +51,12 @@ def test_build_strategy_block_rejects_unknown_strategy():
 
 def test_build_strategy_block_preserves_bool_and_ignores_unknown_params():
     st = ct.build_strategy_block(
-        name="ema_cross",
+        name="breakout_donchian",
         trade_enabled=False,
-        params={"ema_fast": 10, "ema_slow": 30, "unused_param": 999},
+        params={"donchian_len": 30, "require_directional_confirmation": True, "unused_param": 999},
     )
-    assert st["name"] == "ema_cross"
+    assert st["name"] == "breakout_donchian"
     assert st["trade_enabled"] is False
-    assert st["ema_fast"] == 10
-    assert st["ema_slow"] == 30
+    assert st["donchian_len"] == 30
+    assert st["require_directional_confirmation"] is True
     assert "unused_param" not in st
-

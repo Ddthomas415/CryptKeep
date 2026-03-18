@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from services.strategies.indicators import ema
+from services.strategies.market_filters import market_context, pct_gap
 
 
 def _ema_pair_from_closes(closes: list[float], *, ema_fast: int, ema_slow: int) -> tuple[float, float, float, float] | None:
@@ -11,7 +12,17 @@ def _ema_pair_from_closes(closes: list[float], *, ema_fast: int, ema_slow: int) 
     return float(ef[-2]), float(ef[-1]), float(es[-2]), float(es[-1])
 
 
-def signal_from_ohlcv(*, ohlcv: list, ema_fast: int = 12, ema_slow: int = 26) -> dict:
+def signal_from_ohlcv(
+    *,
+    ohlcv: list,
+    ema_fast: int = 12,
+    ema_slow: int = 26,
+    filter_window: int | None = None,
+    min_volatility_pct: float | None = None,
+    min_volume_ratio: float | None = None,
+    min_trend_efficiency: float | None = None,
+    min_cross_gap_pct: float | None = None,
+) -> dict:
     if not ohlcv or len(ohlcv) < 5:
         return {"ok": False, "action": "hold", "reason": "insufficient_ohlcv"}
 
@@ -25,12 +36,43 @@ def signal_from_ohlcv(*, ohlcv: list, ema_fast: int = 12, ema_slow: int = 26) ->
     prev = (ef_prev - es_prev)
     cur = (ef_cur - es_cur)
 
+    action = "hold"
+    reason = "no_cross"
     if prev <= 0 and cur > 0:
-        return {"ok": True, "action": "buy", "reason": "ema_cross_up", "ind": {"ema_fast": ef_cur, "ema_slow": es_cur}}
-    if prev >= 0 and cur < 0:
-        return {"ok": True, "action": "sell", "reason": "ema_cross_down", "ind": {"ema_fast": ef_cur, "ema_slow": es_cur}}
+        action = "buy"
+        reason = "ema_cross_up"
+    elif prev >= 0 and cur < 0:
+        action = "sell"
+        reason = "ema_cross_down"
 
-    return {"ok": True, "action": "hold", "reason": "no_cross", "ind": {"ema_fast": ef_cur, "ema_slow": es_cur}}
+    ctx = market_context(ohlcv=ohlcv, window=int(filter_window or max(ema_slow, 8)))
+    cross_gap_pct = pct_gap(ef_cur, es_cur, base=closes[-1])
+    ind = {
+        "ema_fast": ef_cur,
+        "ema_slow": es_cur,
+        "avg_range_pct": ctx["avg_range_pct"],
+        "volume_ratio": ctx["volume_ratio"],
+        "trend_efficiency": ctx["trend_efficiency"],
+        "cross_gap_pct": cross_gap_pct,
+    }
+
+    if action == "hold":
+        return {"ok": True, "action": action, "reason": reason, "ind": ind}
+
+    if min_volatility_pct is not None and ctx["avg_range_pct"] < float(min_volatility_pct):
+        return {"ok": True, "action": "hold", "reason": "low_volatility_filter", "ind": ind}
+    if min_volume_ratio is not None and ctx["volume_ratio"] < float(min_volume_ratio):
+        return {"ok": True, "action": "hold", "reason": "low_volume_filter", "ind": ind}
+    if min_trend_efficiency is not None and ctx["trend_efficiency"] < float(min_trend_efficiency):
+        return {"ok": True, "action": "hold", "reason": "chop_filter", "ind": ind}
+    if min_cross_gap_pct is not None and cross_gap_pct < float(min_cross_gap_pct):
+        return {"ok": True, "action": "hold", "reason": "cross_not_confirmed", "ind": ind}
+    if action == "buy" and (closes[-1] < es_cur or es_cur < es_prev):
+        return {"ok": True, "action": "hold", "reason": "trend_consensus_failed", "ind": ind}
+    if action == "sell" and (closes[-1] > es_cur or es_cur > es_prev):
+        return {"ok": True, "action": "hold", "reason": "trend_consensus_failed", "ind": ind}
+
+    return {"ok": True, "action": action, "reason": reason, "ind": ind}
 
 
 def ema_crossover_signal(*, closes: list[float], fast: int = 12, slow: int = 26) -> dict:

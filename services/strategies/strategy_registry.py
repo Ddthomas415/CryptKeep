@@ -22,16 +22,53 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
     fn = SUPPORTED[name]
 
     if name == "ema_cross":
-        return {**fn(ohlcv=ohlcv, ema_fast=int(st.get("ema_fast", 12)), ema_slow=int(st.get("ema_slow", 26))), "strategy": name, "symbol": symbol}
+        return {
+            **fn(
+                ohlcv=ohlcv,
+                ema_fast=int(st.get("ema_fast", 12)),
+                ema_slow=int(st.get("ema_slow", 26)),
+                filter_window=int(st["filter_window"]) if "filter_window" in st else None,
+                min_volatility_pct=float(st["min_volatility_pct"]) if "min_volatility_pct" in st else None,
+                min_volume_ratio=float(st["min_volume_ratio"]) if "min_volume_ratio" in st else None,
+                min_trend_efficiency=float(st["min_trend_efficiency"]) if "min_trend_efficiency" in st else None,
+                min_cross_gap_pct=float(st["min_cross_gap_pct"]) if "min_cross_gap_pct" in st else None,
+            ),
+            "strategy": name,
+            "symbol": symbol,
+        }
     if name == "mean_reversion_rsi":
-        return {**fn(
-            ohlcv=ohlcv,
-            rsi_len=int(st.get("rsi_len", 14)),
-            rsi_buy=float(st.get("rsi_buy", 30.0)),
-            rsi_sell=float(st.get("rsi_sell", 70.0)),
-            sma_len=int(st.get("sma_len", 50)),
-        ), "strategy": name, "symbol": symbol}
+        return {
+            **fn(
+                ohlcv=ohlcv,
+                rsi_len=int(st.get("rsi_len", 14)),
+                rsi_buy=float(st.get("rsi_buy", 30.0)),
+                rsi_sell=float(st.get("rsi_sell", 70.0)),
+                sma_len=int(st.get("sma_len", 50)),
+                filter_window=int(st["filter_window"]) if "filter_window" in st else None,
+                max_volatility_pct=float(st["max_volatility_pct"]) if "max_volatility_pct" in st else None,
+                min_volume_ratio=float(st["min_volume_ratio"]) if "min_volume_ratio" in st else None,
+                max_trend_efficiency=float(st["max_trend_efficiency"]) if "max_trend_efficiency" in st else None,
+                max_sma_distance_pct=float(st["max_sma_distance_pct"]) if "max_sma_distance_pct" in st else None,
+                require_reversal_confirmation=bool(st.get("require_reversal_confirmation", False)),
+            ),
+            "strategy": name,
+            "symbol": symbol,
+        }
     if name == "breakout_donchian":
-        return {**fn(ohlcv=ohlcv, donchian_len=int(st.get("donchian_len", 20))), "strategy": name, "symbol": symbol}
+        return {
+            **fn(
+                ohlcv=ohlcv,
+                donchian_len=int(st.get("donchian_len", 20)),
+                filter_window=int(st["filter_window"]) if "filter_window" in st else None,
+                min_volatility_pct=float(st["min_volatility_pct"]) if "min_volatility_pct" in st else None,
+                min_volume_ratio=float(st["min_volume_ratio"]) if "min_volume_ratio" in st else None,
+                min_trend_efficiency=float(st["min_trend_efficiency"]) if "min_trend_efficiency" in st else None,
+                min_channel_width_pct=float(st["min_channel_width_pct"]) if "min_channel_width_pct" in st else None,
+                breakout_buffer_pct=float(st["breakout_buffer_pct"]) if "breakout_buffer_pct" in st else None,
+                require_directional_confirmation=bool(st.get("require_directional_confirmation", False)),
+            ),
+            "strategy": name,
+            "symbol": symbol,
+        }
 
     return {"ok": True, "action": "hold", "reason": "unknown_strategy", "strategy": name, "symbol": symbol}
