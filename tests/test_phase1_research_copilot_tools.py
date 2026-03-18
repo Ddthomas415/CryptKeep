@@ -42,6 +42,7 @@ def test_tool_definitions_expose_read_only_functions() -> None:
         "get_risk_summary",
         "get_operations_summary",
         "get_signal_summary",
+        "get_crypto_edge_report",
     ]
 
 
@@ -121,3 +122,20 @@ def test_get_signal_summary_includes_intelligence_for_live_payload(monkeypatch) 
 def test_execute_tool_call_rejects_unknown_tool() -> None:
     payload = asyncio.run(tools.execute_tool_call("nope", {}))
     assert payload == {"ok": False, "error": "unsupported_tool:nope"}
+
+
+def test_get_crypto_edge_report_falls_back_without_store(monkeypatch) -> None:
+    original_import = __import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "storage.crypto_edge_store_sqlite":
+            raise ImportError("store unavailable")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+    payload = asyncio.run(tools.get_crypto_edge_report())
+
+    assert payload["ok"] is False
+    assert payload["research_only"] is True
+    assert payload["execution_enabled"] is False
+    assert payload["reason"] == "store_import_failed:ImportError"

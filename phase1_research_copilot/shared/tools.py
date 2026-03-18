@@ -71,6 +71,16 @@ OPENAI_TOOL_DEFINITIONS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "type": "function",
+        "name": "get_crypto_edge_report",
+        "description": "Get the latest stored research-only crypto structural edge report covering funding, basis, and cross-venue dislocations.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -284,6 +294,38 @@ async def get_signal_summary(asset: str) -> dict[str, Any]:
     return _default_signal_summary(asset_symbol)
 
 
+async def get_crypto_edge_report() -> dict[str, Any]:
+    try:
+        from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"store_import_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": False,
+        }
+
+    try:
+        report = CryptoEdgeStoreSQLite().latest_report()
+        report["ok"] = True
+        report["research_only"] = True
+        report["execution_enabled"] = False
+        return report
+    except Exception as exc:
+        logger.warning(
+            "crypto_edge_report_failed",
+            extra={"context": {"error": str(exc)}},
+        )
+        return {
+            "ok": False,
+            "reason": f"store_read_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": False,
+        }
+
+
 async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | None) -> dict[str, Any]:
     if isinstance(raw_arguments, str):
         try:
@@ -303,4 +345,6 @@ async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | Non
         return await get_operations_summary()
     if name == "get_signal_summary":
         return await get_signal_summary(str(arguments.get("asset") or ""))
+    if name == "get_crypto_edge_report":
+        return await get_crypto_edge_report()
     return {"ok": False, "error": f"unsupported_tool:{name}"}

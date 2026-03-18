@@ -14,6 +14,7 @@ from shared.prompting import build_research_explain_instructions
 from shared.tools import (
     OPENAI_TOOL_DEFINITIONS,
     execute_tool_call,
+    get_crypto_edge_report,
     get_market_snapshot,
     get_operations_summary,
     get_risk_summary,
@@ -159,6 +160,37 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
                 "relevance": 0.68,
             }
         )
+    crypto_edges = (
+        tool_results.get("get_crypto_edge_report")
+        if isinstance(tool_results.get("get_crypto_edge_report"), dict)
+        else {}
+    )
+    if bool(crypto_edges.get("has_any_data")):
+        funding = crypto_edges.get("funding") if isinstance(crypto_edges.get("funding"), dict) else {}
+        basis = crypto_edges.get("basis") if isinstance(crypto_edges.get("basis"), dict) else {}
+        dislocations = (
+            crypto_edges.get("dislocations")
+            if isinstance(crypto_edges.get("dislocations"), dict)
+            else {}
+        )
+        evidence.append(
+            {
+                "id": "crypto_edges",
+                "type": "research",
+                "source": "crypto-edge-store",
+                "timestamp": (
+                    ((crypto_edges.get("quote_meta") or {}).get("capture_ts"))
+                    or ((crypto_edges.get("basis_meta") or {}).get("capture_ts"))
+                    or ((crypto_edges.get("funding_meta") or {}).get("capture_ts"))
+                ),
+                "summary": (
+                    f"Funding bias {str(funding.get('dominant_bias') or 'flat')}, "
+                    f"average basis {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
+                    f"positive venue dislocations {int(dislocations.get('positive_count') or 0)}."
+                ),
+                "relevance": 0.66,
+            }
+        )
     return evidence[:6]
 
 
@@ -173,6 +205,7 @@ def _build_evidence_bundle(tool_results: dict[str, Any]) -> dict[str, Any]:
         "future_context": (signal.get("future_context") if isinstance(signal.get("future_context"), list) else [])[:3],
         "vector_matches": (signal.get("vector_matches") if isinstance(signal.get("vector_matches"), list) else [])[:3],
         "operations": tool_results.get("get_operations_summary", {}),
+        "crypto_edges": tool_results.get("get_crypto_edge_report", {}),
     }
 
 
@@ -183,6 +216,11 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
     past_context = signal.get("past_context") if isinstance(signal.get("past_context"), list) else []
     future_context = signal.get("future_context") if isinstance(signal.get("future_context"), list) else []
     market_summary = signal.get("market") if isinstance(signal.get("market"), dict) else {}
+    crypto_edges = (
+        tool_results.get("get_crypto_edge_report")
+        if isinstance(tool_results.get("get_crypto_edge_report"), dict)
+        else {}
+    )
 
     latest_price = float(market.get("price") or market_summary.get("latest_price") or 0.0)
     change_pct = float(market_summary.get("change_pct") or 0.0)
@@ -200,11 +238,29 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
         confidence += 0.1
     if future_context:
         confidence += 0.1
+    if bool(crypto_edges.get("has_any_data")):
+        confidence += 0.05
+
+    edge_note = ""
+    if bool(crypto_edges.get("has_any_data")):
+        funding = crypto_edges.get("funding") if isinstance(crypto_edges.get("funding"), dict) else {}
+        basis = crypto_edges.get("basis") if isinstance(crypto_edges.get("basis"), dict) else {}
+        dislocations = (
+            crypto_edges.get("dislocations")
+            if isinstance(crypto_edges.get("dislocations"), dict)
+            else {}
+        )
+        edge_note = (
+            f" Research-only structural context shows funding bias {str(funding.get('dominant_bias') or 'flat')}, "
+            f"average basis near {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
+            f"and {int(dislocations.get('positive_count') or 0)} positive cross-venue dislocations."
+        )
 
     return {
         "current_cause": (
             f"{asset} is trading {direction} over the current lookback window with the last observed price near {latest_price:,.2f}. "
             f"Top linked narrative: {top_headline}"
+            f"{edge_note}"
         ).strip(),
         "past_precedent": past_title,
         "future_catalyst": future_title,
@@ -222,6 +278,8 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
         results["get_risk_summary"] = await get_risk_summary()
     if "get_operations_summary" not in results:
         results["get_operations_summary"] = await get_operations_summary()
+    if "get_crypto_edge_report" not in results:
+        results["get_crypto_edge_report"] = await get_crypto_edge_report()
     return results
 
 
