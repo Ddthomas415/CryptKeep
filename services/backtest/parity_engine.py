@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List
 
+from services.backtest.scorecard import build_strategy_scorecard
 from services.execution.fill_model import apply_fee_slippage
 from services.strategies.strategy_registry import compute_signal
 
@@ -211,6 +212,16 @@ def run_parity_backtest(
     realized_pnl = float(sum(closed_pnls))
     total_return_pct = float(((final_equity / float(initial_cash)) - 1.0) * 100.0) if float(initial_cash) > 0 else 0.0
     max_dd_pct = _max_drawdown_pct(equity_curve)
+    scorecard = build_strategy_scorecard(
+        strategy=strategy_name,
+        symbol=symbol_s,
+        trades=out_trades,
+        equity=equity_curve,
+        initial_cash=float(initial_cash),
+        fee_bps=float(fee_bps),
+        slippage_bps=float(slippage_bps),
+        operational_incidents=0,
+    )
 
     return {
         "ok": True,
@@ -235,4 +246,5 @@ def run_parity_backtest(
             "closed_trades": int(closed_count),
             "win_rate_pct": float(win_rate_pct),
         },
+        "scorecard": scorecard,
     }

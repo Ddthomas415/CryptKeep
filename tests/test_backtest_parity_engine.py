@@ -69,6 +69,12 @@ def test_run_parity_backtest_ema_cross_outputs_metrics_and_trades():
     assert len(out["equity"]) == len(prices)
     assert float(out["metrics"]["final_equity"]) > 0.0
     assert float(out["metrics"]["total_fees"]) > 0.0
+    scorecard = out["scorecard"]
+    assert scorecard["strategy"] == "ema_cross"
+    assert scorecard["symbol"] == "BTC/USD"
+    assert "net_return_after_costs_pct" in scorecard
+    assert "profit_factor" in scorecard
+    assert "exposure_adjusted_return_pct" in scorecard
 
 
 def test_run_parity_backtest_supports_new_strategies():
@@ -190,4 +196,3 @@ def test_legacy_run_backtest_wrapper_still_returns_truthy_signals():
 
     out = run_backtest(_fn, values)
     assert out == [{"v": 2}, {"v": 4}]
-
