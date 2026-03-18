@@ -25,6 +25,8 @@ This note captures the current Phase 1 safety posture around the live-order chok
 | `services/execution/order_manager.py::submit_limit()` | Yes | Yes | Uses `place_order_async(...)` | Yes |
 | `services/execution/order_manager.py::cancel_and_replace()` | Replace path | Yes for replacement leg | Cancel bypasses chokepoint, replacement leg uses `submit_limit()` -> `place_order_async(...)` | Yes for new order creation |
 | `services/execution/order_router.py::place_order_idempotent()` | Yes | Yes | Routes dry-run/live submit through `_place_order_ccxt()` -> `place_order(...)` | Yes |
+| `services/execution/intent_consumer.py` | Yes | Indirect yes | Uses `LiveExchangeAdapter.submit_order(...)`, which routes through `place_order.py` | Yes, based on current adapter wiring |
+| `services/execution/live_intent_consumer.py` | Yes | Indirect yes | Uses `LiveExchangeAdapter.submit_order(...)`, which routes through `place_order.py` | Yes, based on current adapter wiring |
 | `services/execution/intent_executor.py::execute_one()` | Yes | Indirect yes | Delegates to adapter `place_order(req)`; live adapter paths route through `place_order.py` | Yes, based on current adapter wiring |
 | `scripts/cancel_intent.py` | Cancel only | No | Uses `ExchangeClient(..., sandbox=False)` for cancel flow, not order creation | Not in scope for create-order chokepoint |
 | `scripts/reconcile_order_dedupe.py` | Reconcile/fetch only | No | Uses `ExchangeClient(..., sandbox=False)` for reconciliation | Not in scope for create-order chokepoint |
@@ -35,6 +37,14 @@ This note captures the current Phase 1 safety posture around the live-order chok
 - Raw exchange `create_order` is still only allowed in `services/execution/place_order.py`.
 - `scripts/verify_no_direct_create_order.py` is the repo-level guard.
 - `tests/test_no_direct_create_order.py` mirrors the same guard in test form.
+- `tests/test_live_script_contracts.py` locks the current `sandbox=False` scripts to the approved read-only/cancel set.
+
+## Scripts Using `sandbox=False`
+
+| Script | Classification | Reason |
+| --- | --- | --- |
+| `scripts/cancel_intent.py` | Cancel flow | Uses `ExchangeClient.cancel_intent(...)`; does not submit new orders |
+| `scripts/reconcile_order_dedupe.py` | Read-only reconcile | Uses `fetch_open_orders(...)` and `fetch_order(...)`; does not submit new orders |
 
 ## Remaining Phase 1 Risks
 
