@@ -1,0 +1,23 @@
+[
+  {
+    "symbol": "BTC-PERP",
+    "venue": "binance",
+    "spot_px": 84200.0,
+    "perp_px": 84242.0,
+    "days_to_expiry": 7
+  },
+  {
+    "symbol": "ETH-PERP",
+    "venue": "bybit",
+    "spot_px": 4420.0,
+    "perp_px": 4412.0,
+    "days_to_expiry": 7
+  },
+  {
+    "symbol": "SOL-PERP",
+    "venue": "okx",
+    "spot_px": 187.4,
+    "perp_px": 188.05,
+    "days_to_expiry": 7
+  }
+]

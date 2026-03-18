@@ -620,7 +620,10 @@ with tab_research:
     if not bool(report.get("ok")):
         st.warning(f"Crypto edge report unavailable: {str(report.get('reason') or 'unknown_error')}")
     elif not bool(report.get("has_any_data")):
-        st.info("No stored crypto-edge snapshots yet. Use scripts/record_crypto_edge_snapshot.py to ingest research-only funding, basis, or quote snapshots.")
+        st.info(
+            "No stored crypto-edge snapshots yet. Use `make load-sample-crypto-edges` for bundled demo data or "
+            "`scripts/record_crypto_edge_snapshot.py` to ingest research-only funding, basis, or quote snapshots."
+        )
     else:
         funding = dict(report.get("funding") or {})
         basis = dict(report.get("basis") or {})

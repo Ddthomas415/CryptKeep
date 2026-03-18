@@ -1,0 +1,38 @@
+[
+  {
+    "symbol": "BTC/USD",
+    "venue": "coinbase",
+    "bid": 84215.0,
+    "ask": 84222.0
+  },
+  {
+    "symbol": "BTC/USD",
+    "venue": "kraken",
+    "bid": 84231.0,
+    "ask": 84211.0
+  },
+  {
+    "symbol": "ETH/USD",
+    "venue": "coinbase",
+    "bid": 4420.5,
+    "ask": 4421.2
+  },
+  {
+    "symbol": "ETH/USD",
+    "venue": "kraken",
+    "bid": 4422.0,
+    "ask": 4419.8
+  },
+  {
+    "symbol": "SOL/USD",
+    "venue": "coinbase",
+    "bid": 187.35,
+    "ask": 187.44
+  },
+  {
+    "symbol": "SOL/USD",
+    "venue": "kraken",
+    "bid": 187.52,
+    "ask": 187.31
+  }
+]
