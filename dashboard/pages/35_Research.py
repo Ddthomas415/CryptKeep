@@ -90,6 +90,9 @@ else:
     funding = dict(workspace.get("funding") or {})
     basis = dict(workspace.get("basis") or {})
     dislocations = dict(workspace.get("dislocations") or {})
+    funding_history = list(workspace.get("funding_history") or [])
+    basis_history = list(workspace.get("basis_history") or [])
+    dislocation_history = list(workspace.get("dislocation_history") or [])
 
     render_kpi_cards(
         [
@@ -120,31 +123,61 @@ else:
         ]
     )
 
-left, right = st.columns((1, 1))
-with left:
     render_table_section(
-        "Funding Snapshot",
-        list(funding.get("rows") or []),
-        subtitle="Latest stored funding-rate snapshot grouped as research-only carry context.",
-        empty_message="No funding rows available.",
-    )
-    render_table_section(
-        "Basis Snapshot",
-        list(basis.get("rows") or []),
-        subtitle="Latest stored perp/spot basis snapshot in the research store.",
-        empty_message="No basis rows available.",
+        "What Changed",
+        list(workspace.get("trend_rows") or []),
+        subtitle="Latest snapshot deltas versus the prior stored snapshot for each structural research theme.",
+        empty_message="Not enough history yet to compare snapshots.",
     )
 
-with right:
-    render_table_section(
-        "Cross-Venue Dislocations",
-        list(dislocations.get("rows") or []),
-        subtitle="Latest stored quote snapshot ranked by gross bid/ask dislocation.",
-        empty_message="No quote dislocation rows available.",
-    )
-    render_table_section(
-        "Recent Snapshot History",
-        list(workspace.get("history_rows") or []),
-        subtitle="Recent funding, basis, and quote ingests grouped by snapshot id and source.",
-        empty_message="No snapshot history available.",
-    )
+    left, right = st.columns((1, 1))
+    with left:
+        render_table_section(
+            "Funding Snapshot",
+            list(funding.get("rows") or []),
+            subtitle="Latest stored funding-rate snapshot grouped as research-only carry context.",
+            empty_message="No funding rows available.",
+        )
+        render_table_section(
+            "Basis Snapshot",
+            list(basis.get("rows") or []),
+            subtitle="Latest stored perp/spot basis snapshot in the research store.",
+            empty_message="No basis rows available.",
+        )
+
+    with right:
+        render_table_section(
+            "Cross-Venue Dislocations",
+            list(dislocations.get("rows") or []),
+            subtitle="Latest stored quote snapshot ranked by gross bid/ask dislocation.",
+            empty_message="No quote dislocation rows available.",
+        )
+        render_table_section(
+            "Recent Snapshot History",
+            list(workspace.get("history_rows") or []),
+            subtitle="Recent funding, basis, and quote ingests grouped by snapshot id and source.",
+            empty_message="No snapshot history available.",
+        )
+
+    trend_left, trend_right = st.columns((1, 1))
+    with trend_left:
+        render_table_section(
+            "Funding History",
+            funding_history,
+            subtitle="Recent funding carry summaries rebuilt from stored snapshots.",
+            empty_message="No funding history available.",
+        )
+        render_table_section(
+            "Basis History",
+            basis_history,
+            subtitle="Recent basis summaries rebuilt from stored snapshots.",
+            empty_message="No basis history available.",
+        )
+
+    with trend_right:
+        render_table_section(
+            "Dislocation History",
+            dislocation_history,
+            subtitle="Recent cross-venue dislocation summaries rebuilt from stored quote snapshots.",
+            empty_message="No dislocation history available.",
+        )

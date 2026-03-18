@@ -242,6 +242,14 @@ class CryptoEdgeStoreSQLite:
             ).fetchall()
         return [dict(json.loads(str(item["payload_json"]))) for item in rows]
 
+    def _snapshot_rows(self, table: str, snapshot_id: str) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                f"SELECT payload_json FROM {table} WHERE snapshot_id = ? ORDER BY id ASC",
+                (str(snapshot_id),),
+            ).fetchall()
+        return [dict(json.loads(str(item["payload_json"]))) for item in rows]
+
     def latest_funding_rows(self) -> list[dict[str, Any]]:
         return self._latest_snapshot_rows("funding_snapshots")
 
@@ -294,6 +302,64 @@ class CryptoEdgeStoreSQLite:
         )
         rows.sort(key=lambda row: str(row.get("capture_ts") or ""), reverse=True)
         return rows
+
+    def recent_funding_history(self, *, limit: int = 5) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for meta in self._recent_snapshot_meta("funding_snapshots", kind="funding", limit=limit):
+            summary = build_crypto_edge_report(
+                funding_rows=self._snapshot_rows("funding_snapshots", str(meta["snapshot_id"])),
+            )["funding"]
+            out.append(
+                {
+                    "capture_ts": str(meta["capture_ts"]),
+                    "source": str(meta["source"]),
+                    "snapshot_id": str(meta["snapshot_id"]),
+                    "row_count": int(meta["row_count"] or 0),
+                    "annualized_carry_pct": float(summary.get("annualized_carry_pct") or 0.0),
+                    "dominant_bias": str(summary.get("dominant_bias") or "flat"),
+                    "positive_ratio": float(summary.get("positive_ratio") or 0.0),
+                }
+            )
+        return out
+
+    def recent_basis_history(self, *, limit: int = 5) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for meta in self._recent_snapshot_meta("basis_snapshots", kind="basis", limit=limit):
+            summary = build_crypto_edge_report(
+                basis_rows=self._snapshot_rows("basis_snapshots", str(meta["snapshot_id"])),
+            )["basis"]
+            out.append(
+                {
+                    "capture_ts": str(meta["capture_ts"]),
+                    "source": str(meta["source"]),
+                    "snapshot_id": str(meta["snapshot_id"]),
+                    "row_count": int(meta["row_count"] or 0),
+                    "avg_basis_bps": float(summary.get("avg_basis_bps") or 0.0),
+                    "widest_basis_bps": float(summary.get("widest_basis_bps") or 0.0),
+                    "premium_ratio": float(summary.get("premium_ratio") or 0.0),
+                }
+            )
+        return out
+
+    def recent_dislocation_history(self, *, limit: int = 5) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for meta in self._recent_snapshot_meta("quote_snapshots", kind="quotes", limit=limit):
+            summary = build_crypto_edge_report(
+                quote_rows=self._snapshot_rows("quote_snapshots", str(meta["snapshot_id"])),
+            )["dislocations"]
+            top = dict(summary.get("top_dislocation") or {})
+            out.append(
+                {
+                    "capture_ts": str(meta["capture_ts"]),
+                    "source": str(meta["source"]),
+                    "snapshot_id": str(meta["snapshot_id"]),
+                    "row_count": int(meta["row_count"] or 0),
+                    "positive_count": int(summary.get("positive_count") or 0),
+                    "top_symbol": str(top.get("symbol") or "-"),
+                    "top_gross_cross_bps": float(top.get("gross_cross_bps") or 0.0),
+                }
+            )
+        return out
 
     def latest_report(self) -> dict[str, Any]:
         funding_rows = self.latest_funding_rows()

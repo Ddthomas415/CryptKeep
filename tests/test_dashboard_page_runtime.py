@@ -328,6 +328,10 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
             "basis": {"count": 1, "avg_basis_bps": 8.0, "widest_basis_bps": 8.0, "rows": [{"symbol": "BTC-PERP"}]},
             "dislocations": {"count": 1, "positive_count": 1, "top_dislocation": {"symbol": "BTC/USD", "gross_cross_bps": 6.0}, "rows": [{"symbol": "BTC/USD"}]},
             "history_rows": [{"kind": "quotes", "snapshot_id": "quotes-1", "capture_ts": "2026-03-18T10:00:00Z", "source": "sample_bundle", "row_count": 6}],
+            "funding_history": [{"capture_ts": "2026-03-18T10:00:00Z", "annualized_carry_pct": 12.0, "dominant_bias": "long_pays"}],
+            "basis_history": [{"capture_ts": "2026-03-18T10:00:00Z", "avg_basis_bps": 8.0, "widest_basis_bps": 8.0}],
+            "dislocation_history": [{"capture_ts": "2026-03-18T10:00:00Z", "positive_count": 1, "top_symbol": "BTC/USD", "top_gross_cross_bps": 6.0}],
+            "trend_rows": [{"theme": "funding", "latest": "12.00%", "vs_prior": "No prior snapshot"}],
         }
 
     monkeypatch.setattr(crypto_edge_research, "load_crypto_edge_workspace", fake_load_crypto_edge_workspace)
