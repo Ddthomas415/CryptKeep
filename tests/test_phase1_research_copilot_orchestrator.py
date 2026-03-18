@@ -93,12 +93,27 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
             "dislocations": {"positive_count": 2, "count": 2},
         }
 
+    async def fake_latest_live_edges() -> dict:
+        return {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Recent",
+            "funding": {"dominant_bias": "long_pays"},
+            "basis": {"avg_basis_bps": 7.8},
+            "dislocations": {"positive_count": 3},
+        }
+
     monkeypatch.setattr(orchestrator, "llm_client", DisabledClient())
     monkeypatch.setattr(orchestrator, "get_market_snapshot", fake_market)
     monkeypatch.setattr(orchestrator, "get_signal_summary", fake_signal)
     monkeypatch.setattr(orchestrator, "get_risk_summary", fake_risk)
     monkeypatch.setattr(orchestrator, "get_operations_summary", fake_operations)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_report", fake_crypto_edges)
+    monkeypatch.setattr(orchestrator, "get_latest_live_crypto_edge_snapshot", fake_latest_live_edges)
     monkeypatch.setattr(orchestrator, "emit_audit_event", _noop_audit)
 
     payload = asyncio.run(
@@ -116,8 +131,10 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     assert payload["evidence_bundle"]["risk"]["gate"] == "NO_TRADING"
     assert payload["evidence_bundle"]["operations"]["healthy_services"] == 3
     assert payload["evidence_bundle"]["crypto_edges"]["research_only"] is True
+    assert payload["evidence_bundle"]["latest_live_crypto_edges"]["has_live_data"] is True
     assert "funding bias long_pays" in payload["current_cause"]
     assert "Live Public" in payload["current_cause"]
+    assert "Freshness is Recent" in payload["current_cause"]
 
 
 def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
@@ -224,6 +241,20 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
             "dislocations": {"positive_count": 1, "count": 1},
         }
 
+    async def fake_latest_live_edges() -> dict:
+        return {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Fresh",
+            "funding": {"dominant_bias": "short_pays"},
+            "basis": {"avg_basis_bps": -2.1},
+            "dislocations": {"positive_count": 1},
+        }
+
     monkeypatch.setattr(orchestrator, "llm_client", EnabledClient())
     monkeypatch.setattr(orchestrator, "execute_tool_call", fake_execute_tool_call)
     monkeypatch.setattr(orchestrator, "get_market_snapshot", fake_market)
@@ -231,6 +262,7 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
     monkeypatch.setattr(orchestrator, "get_risk_summary", fake_risk)
     monkeypatch.setattr(orchestrator, "get_operations_summary", fake_operations)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_report", fake_crypto_edges)
+    monkeypatch.setattr(orchestrator, "get_latest_live_crypto_edge_snapshot", fake_latest_live_edges)
     monkeypatch.setattr(orchestrator, "emit_audit_event", _noop_audit)
 
     payload = asyncio.run(
@@ -251,3 +283,4 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
     assert payload["evidence_bundle"]["risk"]["gate"] == "NO_TRADING"
     assert payload["evidence_bundle"]["operations"]["healthy_services"] == 4
     assert payload["evidence_bundle"]["crypto_edges"]["research_only"] is True
+    assert payload["evidence_bundle"]["latest_live_crypto_edges"]["has_live_data"] is True

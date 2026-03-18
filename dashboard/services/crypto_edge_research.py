@@ -85,6 +85,21 @@ def _build_origin_summary(provenance_rows: list[dict[str, Any]]) -> tuple[str, s
     return data_origin, freshness
 
 
+def _build_structural_summary(report: dict[str, Any], *, origin_label: str) -> str:
+    if not bool(report.get("has_any_data")):
+        return f"No {origin_label} structural edge snapshot is stored yet."
+    funding = dict(report.get("funding") or {})
+    basis = dict(report.get("basis") or {})
+    dislocations = dict(report.get("dislocations") or {})
+    top_symbol = str(((dislocations.get("top_dislocation") or {}).get("symbol") or "-"))
+    return (
+        f"{origin_label} snapshot shows funding bias {str(funding.get('dominant_bias') or 'flat')}, "
+        f"average basis {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
+        f"{int(dislocations.get('positive_count') or 0)} positive venue dislocations, "
+        f"top symbol {top_symbol}, freshness {str(report.get('freshness_summary') or 'Unknown')}."
+    )
+
+
 def _trend_value(latest: dict[str, Any] | None, previous: dict[str, Any] | None, field: str) -> float | None:
     if not latest or not previous:
         return None
@@ -228,3 +243,52 @@ def load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
         report["freshness_summary"] = "Unavailable"
         report["history_reason"] = f"history_read_failed:{type(exc).__name__}"
         return report
+
+
+def load_latest_live_crypto_edge_snapshot() -> dict[str, Any]:
+    try:
+        from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"store_import_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": False,
+            "has_live_data": False,
+            "data_origin_label": "Unavailable",
+            "freshness_summary": "Unavailable",
+            "summary_text": "Live-public structural edge snapshots are unavailable.",
+        }
+
+    try:
+        store = CryptoEdgeStoreSQLite()
+        report = store.latest_report_for_source(source="live_public")
+        report["ok"] = True
+        report["research_only"] = True
+        report["execution_enabled"] = False
+        report["has_live_data"] = bool(report.get("has_any_data"))
+        report["provenance_rows"] = _build_provenance_rows(report)
+        report["data_origin_label"], report["freshness_summary"] = _build_origin_summary(
+            list(report.get("provenance_rows") or [])
+        )
+        if not bool(report.get("provenance_rows")):
+            report["data_origin_label"] = "Live Public"
+            report["freshness_summary"] = "No Live Data"
+        report["summary_text"] = _build_structural_summary(
+            report,
+            origin_label=str(report.get("data_origin_label") or "Live Public"),
+        )
+        return report
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"store_read_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": False,
+            "has_live_data": False,
+            "data_origin_label": "Unavailable",
+            "freshness_summary": "Unavailable",
+            "summary_text": "Live-public structural edge snapshots could not be read.",
+        }

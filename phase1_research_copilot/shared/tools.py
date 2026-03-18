@@ -81,6 +81,16 @@ OPENAI_TOOL_DEFINITIONS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "type": "function",
+        "name": "get_latest_live_crypto_edge_snapshot",
+        "description": "Get the latest stored live-public crypto structural edge snapshot, isolated from sample or manual research data.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -322,6 +332,36 @@ async def get_crypto_edge_report() -> dict[str, Any]:
         }
 
 
+async def get_latest_live_crypto_edge_snapshot() -> dict[str, Any]:
+    try:
+        from dashboard.services.crypto_edge_research import load_latest_live_crypto_edge_snapshot
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"store_import_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": False,
+            "has_live_data": False,
+        }
+
+    try:
+        return load_latest_live_crypto_edge_snapshot()
+    except Exception as exc:
+        logger.warning(
+            "latest_live_crypto_edge_snapshot_failed",
+            extra={"context": {"error": str(exc)}},
+        )
+        return {
+            "ok": False,
+            "reason": f"store_read_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": False,
+            "has_live_data": False,
+        }
+
+
 async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | None) -> dict[str, Any]:
     if isinstance(raw_arguments, str):
         try:
@@ -343,4 +383,6 @@ async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | Non
         return await get_signal_summary(str(arguments.get("asset") or ""))
     if name == "get_crypto_edge_report":
         return await get_crypto_edge_report()
+    if name == "get_latest_live_crypto_edge_snapshot":
+        return await get_latest_live_crypto_edge_snapshot()
     return {"ok": False, "error": f"unsupported_tool:{name}"}

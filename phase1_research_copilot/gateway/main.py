@@ -512,6 +512,7 @@ async def chat_ui() -> Response:
           <button class=\"chip\" type=\"button\" onclick=\"preset('BTC', 'Why is BTC moving right now?')\">Why is BTC moving?</button>
           <button class=\"chip\" type=\"button\" onclick=\"preset('ETH', 'Explain the current ETH signal and risks.')\">Explain ETH signal</button>
           <button class=\"chip\" type=\"button\" onclick=\"preset('SOL', 'What changed while I was away on SOL?')\">What changed?</button>
+          <button class=\"chip\" type=\"button\" onclick=\"preset('BTC', 'Summarize the latest live structural edge snapshot.')\">Latest live edge snapshot</button>
         </div>
         <div class=\"sidebar-note\">Keep the same reasoning model across dashboard detail cards and this page so the assistant feels native to the product rather than like a sidecar tool.</div>
       </aside>
@@ -549,6 +550,7 @@ async def chat_ui() -> Response:
             <ul class=\"note-list\">
               <li>Ask why an asset is moving and what catalyst matters next.</li>
               <li>Ask what changed while away using the same explain path as the dashboard.</li>
+              <li>Ask for the latest live structural edge snapshot to separate collected venue data from sample bundles.</li>
               <li>Keep the assistant focused on research, evidence, and risk framing.</li>
             </ul>
           </div>

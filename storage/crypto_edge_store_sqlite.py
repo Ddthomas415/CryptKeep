@@ -242,6 +242,21 @@ class CryptoEdgeStoreSQLite:
             ).fetchall()
         return [dict(json.loads(str(item["payload_json"]))) for item in rows]
 
+    def _latest_snapshot_rows_for_source(self, table: str, *, source: str) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            row = conn.execute(
+                f"SELECT snapshot_id, capture_ts, source FROM {table} "
+                "WHERE source = ? ORDER BY capture_ts DESC, id DESC LIMIT 1",
+                (str(source or ""),),
+            ).fetchone()
+            if not row:
+                return []
+            rows = conn.execute(
+                f"SELECT payload_json FROM {table} WHERE snapshot_id = ? ORDER BY id ASC",
+                (str(row["snapshot_id"]),),
+            ).fetchall()
+        return [dict(json.loads(str(item["payload_json"]))) for item in rows]
+
     def _snapshot_rows(self, table: str, snapshot_id: str) -> list[dict[str, Any]]:
         with self._connect() as conn:
             rows = conn.execute(
@@ -259,12 +274,39 @@ class CryptoEdgeStoreSQLite:
     def latest_quote_rows(self) -> list[dict[str, Any]]:
         return self._latest_snapshot_rows("quote_snapshots")
 
+    def latest_funding_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
+        return self._latest_snapshot_rows_for_source("funding_snapshots", source=source)
+
+    def latest_basis_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
+        return self._latest_snapshot_rows_for_source("basis_snapshots", source=source)
+
+    def latest_quote_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
+        return self._latest_snapshot_rows_for_source("quote_snapshots", source=source)
+
     def _latest_snapshot_meta(self, table: str) -> dict[str, Any] | None:
         with self._connect() as conn:
             row = conn.execute(
                 f"SELECT snapshot_id, capture_ts, source, COUNT(*) AS row_count FROM {table} "
                 "GROUP BY snapshot_id, capture_ts, source "
                 "ORDER BY capture_ts DESC LIMIT 1"
+            ).fetchone()
+        if not row:
+            return None
+        return {
+            "snapshot_id": str(row["snapshot_id"]),
+            "capture_ts": str(row["capture_ts"]),
+            "source": str(row["source"]),
+            "row_count": int(row["row_count"] or 0),
+        }
+
+    def _latest_snapshot_meta_for_source(self, table: str, *, source: str) -> dict[str, Any] | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                f"SELECT snapshot_id, capture_ts, source, COUNT(*) AS row_count FROM {table} "
+                "WHERE source = ? "
+                "GROUP BY snapshot_id, capture_ts, source "
+                "ORDER BY capture_ts DESC LIMIT 1",
+                (str(source or ""),),
             ).fetchone()
         if not row:
             return None
@@ -375,4 +417,21 @@ class CryptoEdgeStoreSQLite:
         report["basis_meta"] = self._latest_snapshot_meta("basis_snapshots")
         report["quote_meta"] = self._latest_snapshot_meta("quote_snapshots")
         report["has_any_data"] = bool(funding_rows or basis_rows or quote_rows)
+        return report
+
+    def latest_report_for_source(self, *, source: str) -> dict[str, Any]:
+        funding_rows = self.latest_funding_rows_for_source(source=source)
+        basis_rows = self.latest_basis_rows_for_source(source=source)
+        quote_rows = self.latest_quote_rows_for_source(source=source)
+        report = build_crypto_edge_report(
+            funding_rows=funding_rows,
+            basis_rows=basis_rows,
+            quote_rows=quote_rows,
+        )
+        report["store_path"] = str(self.path)
+        report["funding_meta"] = self._latest_snapshot_meta_for_source("funding_snapshots", source=source)
+        report["basis_meta"] = self._latest_snapshot_meta_for_source("basis_snapshots", source=source)
+        report["quote_meta"] = self._latest_snapshot_meta_for_source("quote_snapshots", source=source)
+        report["has_any_data"] = bool(funding_rows or basis_rows or quote_rows)
+        report["source_filter"] = str(source or "")
         return report

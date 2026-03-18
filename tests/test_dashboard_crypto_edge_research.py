@@ -37,6 +37,19 @@ class _FakeStore:
             {"capture_ts": "2026-03-18T09:05:00+00:00", "positive_count": 1, "top_symbol": "BTC/USD"},
         ]
 
+    def latest_report_for_source(self, *, source: str) -> dict:
+        assert source == "live_public"
+        return {
+            "ok": True,
+            "has_any_data": True,
+            "funding_meta": {"capture_ts": "2026-03-18T10:00:00+00:00", "source": "live_public", "row_count": 1},
+            "basis_meta": {"capture_ts": "2026-03-18T09:30:00+00:00", "source": "live_public", "row_count": 1},
+            "quote_meta": None,
+            "funding": {"count": 1, "dominant_bias": "long_pays"},
+            "basis": {"count": 1, "avg_basis_bps": 6.0},
+            "dislocations": {"count": 0, "positive_count": 0, "top_dislocation": None},
+        }
+
 
 def test_load_crypto_edge_workspace_adds_provenance_and_freshness(monkeypatch) -> None:
     from storage import crypto_edge_store_sqlite
@@ -51,3 +64,17 @@ def test_load_crypto_edge_workspace_adds_provenance_and_freshness(monkeypatch) -
     assert len(payload["provenance_rows"]) == 3
     assert payload["provenance_rows"][0]["source"] in {"Live Public", "Sample Bundle"}
     assert len(payload["trend_rows"]) == 3
+
+
+def test_load_latest_live_crypto_edge_snapshot_isolates_live_public(monkeypatch) -> None:
+    from storage import crypto_edge_store_sqlite
+
+    monkeypatch.setattr(crypto_edge_store_sqlite, "CryptoEdgeStoreSQLite", lambda: _FakeStore())
+
+    payload = crypto_edge_research.load_latest_live_crypto_edge_snapshot()
+
+    assert payload["ok"] is True
+    assert payload["has_live_data"] is True
+    assert payload["data_origin_label"] == "Live Public"
+    assert payload["freshness_summary"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
+    assert "funding bias long_pays" in payload["summary_text"]

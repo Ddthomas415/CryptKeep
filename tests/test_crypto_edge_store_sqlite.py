@@ -121,3 +121,32 @@ def test_crypto_edge_store_builds_per_kind_history_summaries(tmp_path) -> None:
     assert dislocation_history[0]["capture_ts"] == "2026-03-18T11:10:00+00:00"
     assert dislocation_history[0]["positive_count"] >= 1
     assert dislocation_history[0]["top_gross_cross_bps"] >= dislocation_history[1]["top_gross_cross_bps"]
+
+
+def test_crypto_edge_store_can_isolate_latest_report_for_live_public(tmp_path) -> None:
+    store = CryptoEdgeStoreSQLite(path=str(tmp_path / "crypto_edges.sqlite"))
+    store.append_funding_rows(
+        [{"symbol": "BTC-PERP", "venue": "binance", "funding_rate": 0.0001}],
+        source="sample_bundle",
+        capture_ts="2026-03-18T09:00:00+00:00",
+    )
+    store.append_funding_rows(
+        [{"symbol": "BTC-PERP", "venue": "binance", "funding_rate": 0.0002}],
+        source="live_public",
+        capture_ts="2026-03-18T10:00:00+00:00",
+    )
+    store.append_basis_rows(
+        [{"symbol": "BTC-PERP", "venue": "binance", "spot_px": 84000.0, "perp_px": 84035.0, "days_to_expiry": 7}],
+        source="live_public",
+        capture_ts="2026-03-18T10:05:00+00:00",
+    )
+
+    report = store.latest_report_for_source(source="live_public")
+
+    assert report["has_any_data"] is True
+    assert report["funding"]["count"] == 1
+    assert report["basis"]["count"] == 1
+    assert report["dislocations"]["count"] == 0
+    assert report["funding_meta"]["source"] == "live_public"
+    assert report["basis_meta"]["source"] == "live_public"
+    assert report["quote_meta"] is None

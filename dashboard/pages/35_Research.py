@@ -7,12 +7,16 @@ from dashboard.components.cards import render_feature_hero, render_kpi_cards, re
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
-from dashboard.services.crypto_edge_research import load_crypto_edge_workspace
+from dashboard.services.crypto_edge_research import (
+    load_crypto_edge_workspace,
+    load_latest_live_crypto_edge_snapshot,
+)
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
 
 workspace = load_crypto_edge_workspace()
+live_snapshot = load_latest_live_crypto_edge_snapshot()
 render_page_header(
     "Research",
     "Crypto-native structural edge workspace for funding, basis, and cross-venue dislocation analysis.",
@@ -76,6 +80,7 @@ render_feature_hero(
         "Summarize funding carry state",
         "Explain current basis structure",
         "Show top cross-venue dislocations",
+        "Summarize latest live structural edge snapshot",
         "What changed while I was away?",
     ],
 )
@@ -86,6 +91,7 @@ render_prompt_actions(
         "Summarize funding carry state",
         "Explain current basis structure",
         "Show top cross-venue dislocations",
+        "Summarize latest live structural edge snapshot",
         "What changed while I was away?",
     ],
     key_prefix="research",
@@ -147,6 +153,24 @@ else:
         provenance_rows,
         subtitle="Current source and freshness for the latest stored snapshot in each research stream.",
         empty_message="No snapshot provenance available.",
+    )
+    render_table_section(
+        "Latest Live Structural Snapshot",
+        [
+            {
+                "source": str(live_snapshot.get("data_origin_label") or "Live Public"),
+                "freshness": str(live_snapshot.get("freshness_summary") or "Unknown"),
+                "funding_bias": str(((live_snapshot.get("funding") or {}).get("dominant_bias") or "flat")),
+                "avg_basis_bps": f"{float(((live_snapshot.get('basis') or {}).get('avg_basis_bps') or 0.0)):.2f}",
+                "positive_dislocations": int(((live_snapshot.get("dislocations") or {}).get("positive_count") or 0)),
+                "top_symbol": str((((live_snapshot.get("dislocations") or {}).get("top_dislocation") or {}).get("symbol") or "-")),
+                "summary": str(live_snapshot.get("summary_text") or ""),
+            }
+        ]
+        if bool(live_snapshot.get("has_live_data"))
+        else [],
+        subtitle="Latest stored live-public structural edge snapshot isolated from sample or manual research data.",
+        empty_message="No live-public structural edge snapshot is stored yet.",
     )
 
     left, right = st.columns((1, 1))

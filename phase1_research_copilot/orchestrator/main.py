@@ -15,6 +15,7 @@ from shared.tools import (
     OPENAI_TOOL_DEFINITIONS,
     execute_tool_call,
     get_crypto_edge_report,
+    get_latest_live_crypto_edge_snapshot,
     get_market_snapshot,
     get_operations_summary,
     get_risk_summary,
@@ -165,6 +166,11 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(tool_results.get("get_crypto_edge_report"), dict)
         else {}
     )
+    latest_live_edges = (
+        tool_results.get("get_latest_live_crypto_edge_snapshot")
+        if isinstance(tool_results.get("get_latest_live_crypto_edge_snapshot"), dict)
+        else {}
+    )
     if bool(crypto_edges.get("has_any_data")):
         funding = crypto_edges.get("funding") if isinstance(crypto_edges.get("funding"), dict) else {}
         basis = crypto_edges.get("basis") if isinstance(crypto_edges.get("basis"), dict) else {}
@@ -193,6 +199,33 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
                 "relevance": 0.66,
             }
         )
+    if bool(latest_live_edges.get("has_live_data")):
+        funding = latest_live_edges.get("funding") if isinstance(latest_live_edges.get("funding"), dict) else {}
+        basis = latest_live_edges.get("basis") if isinstance(latest_live_edges.get("basis"), dict) else {}
+        dislocations = (
+            latest_live_edges.get("dislocations")
+            if isinstance(latest_live_edges.get("dislocations"), dict)
+            else {}
+        )
+        evidence.append(
+            {
+                "id": "latest_live_crypto_edges",
+                "type": "research",
+                "source": "crypto-edge-store-live",
+                "timestamp": (
+                    ((latest_live_edges.get("quote_meta") or {}).get("capture_ts"))
+                    or ((latest_live_edges.get("basis_meta") or {}).get("capture_ts"))
+                    or ((latest_live_edges.get("funding_meta") or {}).get("capture_ts"))
+                ),
+                "summary": (
+                    f"Latest live-public snapshot shows funding bias {str(funding.get('dominant_bias') or 'flat')}, "
+                    f"average basis {float(basis.get('avg_basis_bps') or 0.0):.2f} bps, "
+                    f"positive venue dislocations {int(dislocations.get('positive_count') or 0)}. "
+                    f"Freshness {str(latest_live_edges.get('freshness_summary') or 'Unknown')}."
+                ),
+                "relevance": 0.71,
+            }
+        )
     return evidence[:6]
 
 
@@ -208,6 +241,7 @@ def _build_evidence_bundle(tool_results: dict[str, Any]) -> dict[str, Any]:
         "vector_matches": (signal.get("vector_matches") if isinstance(signal.get("vector_matches"), list) else [])[:3],
         "operations": tool_results.get("get_operations_summary", {}),
         "crypto_edges": tool_results.get("get_crypto_edge_report", {}),
+        "latest_live_crypto_edges": tool_results.get("get_latest_live_crypto_edge_snapshot", {}),
     }
 
 
@@ -221,6 +255,11 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
     crypto_edges = (
         tool_results.get("get_crypto_edge_report")
         if isinstance(tool_results.get("get_crypto_edge_report"), dict)
+        else {}
+    )
+    latest_live_edges = (
+        tool_results.get("get_latest_live_crypto_edge_snapshot")
+        if isinstance(tool_results.get("get_latest_live_crypto_edge_snapshot"), dict)
         else {}
     )
 
@@ -259,12 +298,22 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
             f"Latest snapshot provenance is {str(crypto_edges.get('data_origin_label') or 'unknown')} "
             f"with freshness {str(crypto_edges.get('freshness_summary') or 'unknown')}."
         )
+    live_edge_note = ""
+    if bool(latest_live_edges.get("has_live_data")):
+        live_edge_note = (
+            f" Latest live-public structural snapshot shows funding bias "
+            f"{str(((latest_live_edges.get('funding') or {}).get('dominant_bias') or 'flat'))}, "
+            f"average basis near {float(((latest_live_edges.get('basis') or {}).get('avg_basis_bps') or 0.0)):.2f} bps, "
+            f"and {int(((latest_live_edges.get('dislocations') or {}).get('positive_count') or 0))} positive venue dislocations. "
+            f"Freshness is {str(latest_live_edges.get('freshness_summary') or 'unknown')}."
+        )
 
     return {
         "current_cause": (
             f"{asset} is trading {direction} over the current lookback window with the last observed price near {latest_price:,.2f}. "
             f"Top linked narrative: {top_headline}"
             f"{edge_note}"
+            f"{live_edge_note}"
         ).strip(),
         "past_precedent": past_title,
         "future_catalyst": future_title,
@@ -284,6 +333,8 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
         results["get_operations_summary"] = await get_operations_summary()
     if "get_crypto_edge_report" not in results:
         results["get_crypto_edge_report"] = await get_crypto_edge_report()
+    if "get_latest_live_crypto_edge_snapshot" not in results:
+        results["get_latest_live_crypto_edge_snapshot"] = await get_latest_live_crypto_edge_snapshot()
     return results
 
 

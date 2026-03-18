@@ -313,10 +313,11 @@ def test_signals_page_requests_selected_asset(monkeypatch) -> None:
 def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
     from dashboard.services import crypto_edge_research
 
-    calls: list[int] = []
+    workspace_calls: list[int] = []
+    live_calls: list[bool] = []
 
     def fake_load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
-        calls.append(history_limit)
+        workspace_calls.append(history_limit)
         return {
             "ok": True,
             "has_any_data": True,
@@ -337,7 +338,26 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
             "trend_rows": [{"theme": "funding", "latest": "12.00%", "vs_prior": "No prior snapshot"}],
         }
 
+    def fake_load_latest_live_crypto_edge_snapshot() -> dict[str, Any]:
+        live_calls.append(True)
+        return {
+            "ok": True,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Recent",
+            "funding": {"dominant_bias": "long_pays"},
+            "basis": {"avg_basis_bps": 7.5},
+            "dislocations": {"positive_count": 2, "top_dislocation": {"symbol": "BTC/USD"}},
+            "summary_text": "Live Public snapshot shows funding bias long_pays.",
+        }
+
     monkeypatch.setattr(crypto_edge_research, "load_crypto_edge_workspace", fake_load_crypto_edge_workspace)
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        fake_load_latest_live_crypto_edge_snapshot,
+    )
 
     _load_dashboard_module(
         monkeypatch,
@@ -345,7 +365,8 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
         module_name="dashboard_test_research_page",
     )
 
-    assert calls == [5]
+    assert workspace_calls == [5]
+    assert live_calls == [True]
 
 
 def test_portfolio_page_fetches_view_on_import(monkeypatch) -> None:
