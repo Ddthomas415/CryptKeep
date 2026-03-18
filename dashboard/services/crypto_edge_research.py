@@ -100,6 +100,16 @@ def _build_structural_summary(report: dict[str, Any], *, origin_label: str) -> s
     )
 
 
+def _decorate_history_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    decorated: list[dict[str, Any]] = []
+    for row in rows:
+        item = dict(row or {})
+        item["source_label"] = _source_label(item.get("source"))
+        item["freshness"] = _freshness_label(item.get("capture_ts"))
+        decorated.append(item)
+    return decorated
+
+
 def _trend_value(latest: dict[str, Any] | None, previous: dict[str, Any] | None, field: str) -> float | None:
     if not latest or not previous:
         return None
@@ -220,10 +230,18 @@ def load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
 
     try:
         store = CryptoEdgeStoreSQLite()
-        report["history_rows"] = store.recent_snapshot_history(limit_per_kind=int(history_limit))
-        report["funding_history"] = store.recent_funding_history(limit=int(history_limit))
-        report["basis_history"] = store.recent_basis_history(limit=int(history_limit))
-        report["dislocation_history"] = store.recent_dislocation_history(limit=int(history_limit))
+        report["history_rows"] = _decorate_history_rows(
+            store.recent_snapshot_history(limit_per_kind=int(history_limit))
+        )
+        report["funding_history"] = _decorate_history_rows(
+            store.recent_funding_history(limit=int(history_limit))
+        )
+        report["basis_history"] = _decorate_history_rows(
+            store.recent_basis_history(limit=int(history_limit))
+        )
+        report["dislocation_history"] = _decorate_history_rows(
+            store.recent_dislocation_history(limit=int(history_limit))
+        )
         report["trend_rows"] = _build_trend_rows(
             funding_history=list(report.get("funding_history") or []),
             basis_history=list(report.get("basis_history") or []),

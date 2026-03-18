@@ -12,6 +12,16 @@ from dashboard.services.crypto_edge_research import (
     load_latest_live_crypto_edge_snapshot,
 )
 
+SOURCE_FILTER_OPTIONS = ["All Sources", "Live Public", "Sample Bundle", "Manual Import"]
+FRESHNESS_FILTER_OPTIONS = ["All Freshness", "Fresh", "Recent", "Aging", "Stale", "Unknown"]
+
+
+def _matches_filter(row: dict[str, object], *, source_filter: str, freshness_filter: str) -> bool:
+    source_ok = source_filter == "All Sources" or str(row.get("source_label") or row.get("source") or "") == source_filter
+    freshness_ok = freshness_filter == "All Freshness" or str(row.get("freshness") or "") == freshness_filter
+    return source_ok and freshness_ok
+
+
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
 
@@ -97,6 +107,22 @@ render_prompt_actions(
     key_prefix="research",
 )
 
+filter_left, filter_right = st.columns((1, 1))
+with filter_left:
+    source_filter = st.selectbox(
+        "Snapshot Source",
+        SOURCE_FILTER_OPTIONS,
+        index=0,
+        key="research_source_filter",
+    )
+with filter_right:
+    freshness_filter = st.selectbox(
+        "Freshness Filter",
+        FRESHNESS_FILTER_OPTIONS,
+        index=0,
+        key="research_freshness_filter",
+    )
+
 if not bool(workspace.get("ok")):
     st.warning(f"Crypto research workspace unavailable: {str(workspace.get('reason') or 'unknown_error')}")
 elif not bool(workspace.get("has_any_data")):
@@ -108,10 +134,34 @@ else:
     funding = dict(workspace.get("funding") or {})
     basis = dict(workspace.get("basis") or {})
     dislocations = dict(workspace.get("dislocations") or {})
-    funding_history = list(workspace.get("funding_history") or [])
-    basis_history = list(workspace.get("basis_history") or [])
-    dislocation_history = list(workspace.get("dislocation_history") or [])
-    provenance_rows = list(workspace.get("provenance_rows") or [])
+    funding_history = [
+        row
+        for row in list(workspace.get("funding_history") or [])
+        if _matches_filter(dict(row or {}), source_filter=source_filter, freshness_filter=freshness_filter)
+    ]
+    basis_history = [
+        row
+        for row in list(workspace.get("basis_history") or [])
+        if _matches_filter(dict(row or {}), source_filter=source_filter, freshness_filter=freshness_filter)
+    ]
+    dislocation_history = [
+        row
+        for row in list(workspace.get("dislocation_history") or [])
+        if _matches_filter(dict(row or {}), source_filter=source_filter, freshness_filter=freshness_filter)
+    ]
+    provenance_rows = [
+        row
+        for row in list(workspace.get("provenance_rows") or [])
+        if _matches_filter(dict(row or {}), source_filter=source_filter, freshness_filter=freshness_filter)
+    ]
+    history_rows = [
+        row
+        for row in list(workspace.get("history_rows") or [])
+        if _matches_filter(dict(row or {}), source_filter=source_filter, freshness_filter=freshness_filter)
+    ]
+    live_snapshot_visible = bool(live_snapshot.get("has_live_data")) and source_filter in {"All Sources", "Live Public"}
+    if live_snapshot_visible and freshness_filter != "All Freshness":
+        live_snapshot_visible = str(live_snapshot.get("freshness_summary") or "") == freshness_filter
 
     render_kpi_cards(
         [
@@ -144,8 +194,14 @@ else:
 
     render_table_section(
         "What Changed",
-        list(workspace.get("trend_rows") or []),
-        subtitle="Latest snapshot deltas versus the prior stored snapshot for each structural research theme.",
+        list(workspace.get("trend_rows") or [])
+        if source_filter == "All Sources" and freshness_filter == "All Freshness"
+        else [],
+        subtitle=(
+            "Latest snapshot deltas versus the prior stored snapshot for each structural research theme."
+            if source_filter == "All Sources" and freshness_filter == "All Freshness"
+            else "Global trend deltas are shown only for the unfiltered all-sources view."
+        ),
         empty_message="Not enough history yet to compare snapshots.",
     )
     render_table_section(
@@ -167,7 +223,7 @@ else:
                 "summary": str(live_snapshot.get("summary_text") or ""),
             }
         ]
-        if bool(live_snapshot.get("has_live_data"))
+        if live_snapshot_visible
         else [],
         subtitle="Latest stored live-public structural edge snapshot isolated from sample or manual research data.",
         empty_message="No live-public structural edge snapshot is stored yet.",
@@ -192,13 +248,13 @@ else:
         render_table_section(
             "Cross-Venue Dislocations",
             list(dislocations.get("rows") or []),
-            subtitle="Latest stored quote snapshot ranked by gross bid/ask dislocation.",
+            subtitle="Latest stored quote snapshot ranked by gross bid/ask dislocation. Source filters apply to provenance and history panels below.",
             empty_message="No quote dislocation rows available.",
         )
         render_table_section(
             "Recent Snapshot History",
-            list(workspace.get("history_rows") or []),
-            subtitle="Recent funding, basis, and quote ingests grouped by snapshot id and source.",
+            history_rows,
+            subtitle="Recent funding, basis, and quote ingests grouped by snapshot id and source, filtered by the controls above.",
             empty_message="No snapshot history available.",
         )
 

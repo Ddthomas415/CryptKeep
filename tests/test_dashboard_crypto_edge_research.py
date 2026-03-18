@@ -63,6 +63,8 @@ def test_load_crypto_edge_workspace_adds_provenance_and_freshness(monkeypatch) -
     assert payload["freshness_summary"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
     assert len(payload["provenance_rows"]) == 3
     assert payload["provenance_rows"][0]["source"] in {"Live Public", "Sample Bundle"}
+    assert payload["history_rows"][0]["source_label"] in {"Live Public", "Sample Bundle"}
+    assert payload["history_rows"][0]["freshness"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
     assert len(payload["trend_rows"]) == 3
 
 
