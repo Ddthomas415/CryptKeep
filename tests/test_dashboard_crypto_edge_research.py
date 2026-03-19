@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 from dashboard.services import crypto_edge_research
 
 
@@ -93,3 +95,37 @@ def test_load_crypto_edge_change_summary_uses_trend_rows(monkeypatch) -> None:
     assert payload["has_change_data"] is True
     assert len(payload["rows"]) == 3
     assert payload["summary_text"].startswith("Recent structural changes from stored snapshots:")
+
+
+def test_load_crypto_edge_collector_runtime_reads_status_file(tmp_path, monkeypatch) -> None:
+    status_path = tmp_path / "crypto_edge_collector.json"
+    status_path.write_text(
+        """
+        {
+          "status": "running",
+          "ts": "2026-03-18T10:00:00+00:00",
+          "loops": 3,
+          "writes": 2,
+          "errors": 1,
+          "source": "live_public",
+          "last_reason": "collected"
+        }
+        """.strip(),
+        encoding="utf-8",
+    )
+
+    class _FakeCollectorService:
+        @staticmethod
+        def status_file():
+            return status_path
+
+    monkeypatch.setitem(sys.modules, "services.analytics.crypto_edge_collector_service", _FakeCollectorService)
+
+    payload = crypto_edge_research.load_crypto_edge_collector_runtime()
+
+    assert payload["ok"] is True
+    assert payload["has_status"] is True
+    assert payload["status"] == "running"
+    assert payload["source_label"] == "Live Public"
+    assert payload["freshness"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
+    assert "Collector status running" in payload["summary_text"]

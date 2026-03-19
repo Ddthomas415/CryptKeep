@@ -328,6 +328,7 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
 
     workspace_calls: list[int] = []
     live_calls: list[bool] = []
+    runtime_calls: list[bool] = []
 
     def fake_load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
         workspace_calls.append(history_limit)
@@ -365,11 +366,31 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
             "summary_text": "Live Public snapshot shows funding bias long_pays.",
         }
 
+    def fake_load_crypto_edge_collector_runtime() -> dict[str, Any]:
+        runtime_calls.append(True)
+        return {
+            "ok": True,
+            "has_status": True,
+            "status": "running",
+            "source_label": "Live Public",
+            "freshness": "Fresh",
+            "loops": 2,
+            "writes": 2,
+            "errors": 0,
+            "last_reason": "collected",
+            "summary_text": "Collector status running.",
+        }
+
     monkeypatch.setattr(crypto_edge_research, "load_crypto_edge_workspace", fake_load_crypto_edge_workspace)
     monkeypatch.setattr(
         crypto_edge_research,
         "load_latest_live_crypto_edge_snapshot",
         fake_load_latest_live_crypto_edge_snapshot,
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        fake_load_crypto_edge_collector_runtime,
     )
 
     _load_dashboard_module(
@@ -380,6 +401,7 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
 
     assert workspace_calls == [5]
     assert live_calls == [True]
+    assert runtime_calls == [True]
 
 
 def test_portfolio_page_fetches_view_on_import(monkeypatch) -> None:

@@ -8,6 +8,7 @@ from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
 from dashboard.services.crypto_edge_research import (
+    load_crypto_edge_collector_runtime,
     load_crypto_edge_workspace,
     load_latest_live_crypto_edge_snapshot,
 )
@@ -27,6 +28,7 @@ render_app_sidebar()
 
 workspace = load_crypto_edge_workspace()
 live_snapshot = load_latest_live_crypto_edge_snapshot()
+collector_runtime = load_crypto_edge_collector_runtime()
 render_page_header(
     "Research",
     "Crypto-native structural edge workspace for funding, basis, and cross-venue dislocation analysis.",
@@ -105,6 +107,26 @@ render_prompt_actions(
         "What changed while I was away?",
     ],
     key_prefix="research",
+)
+
+render_table_section(
+    "Collector Runtime",
+    [
+        {
+            "status": str(collector_runtime.get("status") or "not_started"),
+            "source": str(collector_runtime.get("source_label") or collector_runtime.get("source") or "Live Public"),
+            "freshness": str(collector_runtime.get("freshness") or "Unknown"),
+            "loops": int(collector_runtime.get("loops") or 0),
+            "writes": int(collector_runtime.get("writes") or 0),
+            "errors": int(collector_runtime.get("errors") or 0),
+            "last_reason": str(collector_runtime.get("last_reason") or collector_runtime.get("reason") or ""),
+            "summary": str(collector_runtime.get("summary_text") or ""),
+        }
+    ]
+    if bool(collector_runtime.get("has_status"))
+    else [],
+    subtitle="Latest runtime health from the read-only live structural-edge collector loop.",
+    empty_message="Collector loop has not reported status yet. Use `make collect-live-crypto-edges-loop` to start it.",
 )
 
 filter_left, filter_right = st.columns((1, 1))

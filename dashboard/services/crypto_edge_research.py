@@ -116,6 +116,18 @@ def _build_change_summary_text(workspace: dict[str, Any]) -> str:
     )
 
 
+def _build_collector_runtime_summary(payload: dict[str, Any]) -> str:
+    if not bool(payload.get("has_status")):
+        return "Collector loop has not written runtime status yet."
+    status = str(payload.get("status") or "unknown").replace("_", " ")
+    reason = str(payload.get("reason") or payload.get("last_reason") or "unknown")
+    return (
+        f"Collector status {status}, source {str(payload.get('source_label') or payload.get('source') or 'Live Public')}, "
+        f"{int(payload.get('writes') or 0)} writes, {int(payload.get('errors') or 0)} errors, "
+        f"last reason {reason}."
+    )
+
+
 def _decorate_history_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     decorated: list[dict[str, Any]] = []
     for row in rows:
@@ -343,3 +355,43 @@ def load_crypto_edge_change_summary(*, history_limit: int = 5) -> dict[str, Any]
         "rows": change_rows,
         "summary_text": _build_change_summary_text(workspace),
     }
+
+
+def load_crypto_edge_collector_runtime() -> dict[str, Any]:
+    try:
+        from services.analytics.crypto_edge_collector_service import status_file
+    except Exception as exc:
+        return {
+            "ok": False,
+            "has_status": False,
+            "reason": f"status_import_failed:{type(exc).__name__}",
+            "summary_text": "Collector runtime status is unavailable.",
+        }
+
+    try:
+        path = status_file()
+        if not path.exists():
+            return {
+                "ok": True,
+                "has_status": False,
+                "reason": "status_missing",
+                "status": "not_started",
+                "freshness": "Unknown",
+                "summary_text": "Collector loop has not written runtime status yet.",
+            }
+        import json
+
+        payload = dict(json.loads(path.read_text(encoding="utf-8")) or {})
+        payload["ok"] = True
+        payload["has_status"] = True
+        payload["freshness"] = _freshness_label(payload.get("ts"))
+        payload["source_label"] = _source_label(payload.get("source"))
+        payload["summary_text"] = _build_collector_runtime_summary(payload)
+        return payload
+    except Exception as exc:
+        return {
+            "ok": False,
+            "has_status": False,
+            "reason": f"status_read_failed:{type(exc).__name__}",
+            "summary_text": "Collector runtime status is unavailable.",
+        }
