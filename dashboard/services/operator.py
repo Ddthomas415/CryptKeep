@@ -85,6 +85,46 @@ def stop_crypto_edge_collector_loop() -> tuple[int, str]:
     return run_repo_script("scripts/run_crypto_edge_collector_loop.py", args=["--stop"])
 
 
+def start_paper_strategy_evidence_collection(
+    *,
+    runtime_sec: float,
+    strategies: Sequence[str] | None = None,
+    symbol: str = "BTC/USD",
+    venue: str = "coinbase",
+) -> tuple[int, str]:
+    try:
+        from services.analytics.paper_strategy_evidence_service import load_runtime_status
+    except Exception:
+        load_runtime_status = None
+
+    runtime = load_runtime_status() if callable(load_runtime_status) else {}
+    if bool(runtime.get("pid_alive")):
+        pid = int(runtime.get("pid") or 0)
+        status = str(runtime.get("status") or "running")
+        return 0, f"already running pid={pid} status={status}"
+
+    args: list[str] = [
+        "--runtime-sec",
+        str(int(runtime_sec)),
+        "--symbol",
+        str(symbol or "BTC/USD"),
+        "--venue",
+        str(venue or "coinbase"),
+    ]
+    strategy_items = [str(item).strip() for item in list(strategies or []) if str(item).strip()]
+    if strategy_items:
+        args.extend(["--strategies", ",".join(strategy_items)])
+
+    return start_repo_script_background(
+        "scripts/run_paper_strategy_evidence_collector.py",
+        args=args,
+    )
+
+
+def stop_paper_strategy_evidence_collection() -> tuple[int, str]:
+    return run_repo_script("scripts/run_paper_strategy_evidence_collector.py", args=["--stop"])
+
+
 def list_services(*, fallback: Sequence[str] | None = None) -> list[str]:
     rc, out = run_op(["list"])
     if rc == 0:

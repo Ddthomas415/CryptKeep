@@ -35,9 +35,12 @@ from dashboard.services.operator import (
     run_op,
     run_repo_script,
     start_crypto_edge_collector_loop,
+    start_paper_strategy_evidence_collection,
     stop_crypto_edge_collector_loop,
+    stop_paper_strategy_evidence_collection,
 )
 from dashboard.services.operator_tools import synthetic_ohlcv
+from dashboard.services.strategy_evidence_runtime import load_paper_strategy_evidence_runtime
 from dashboard.services.strategy_evaluation import (
     build_hypothesis_sections,
     build_leaderboard_table_rows,
@@ -77,6 +80,7 @@ snapshot = get_operations_snapshot()
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
+paper_evidence_runtime = load_paper_strategy_evidence_runtime()
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
 
@@ -246,6 +250,60 @@ with tab_failures:
                     )
 
 with tab_strategy:
+    evidence_runtime_sec = float(
+        st.number_input(
+            "Paper Evidence Runtime (sec)",
+            min_value=60.0,
+            value=900.0,
+            step=60.0,
+            key="ops_paper_evidence_runtime_sec",
+        )
+    )
+    evidence_strategies_raw = str(
+        st.text_input(
+            "Paper Evidence Strategies",
+            value="ema_cross,breakout_donchian,mean_reversion_rsi",
+            key="ops_paper_evidence_strategies",
+        )
+        or ""
+    )
+    evidence_strategy_items = [item.strip() for item in evidence_strategies_raw.split(",") if item.strip()]
+    evidence_action = None
+    evidence_rc = None
+    evidence_output = None
+    evidence_cols = st.columns(2)
+    with evidence_cols[0]:
+        if st.button("Start Paper Evidence Collector", width="stretch", key="ops_paper_evidence_start"):
+            evidence_action = "Start Paper Evidence Collector"
+            evidence_rc, evidence_output = start_paper_strategy_evidence_collection(
+                runtime_sec=evidence_runtime_sec,
+                strategies=evidence_strategy_items,
+            )
+    with evidence_cols[1]:
+        if st.button("Stop Paper Evidence Collector", width="stretch", key="ops_paper_evidence_stop"):
+            evidence_action = "Stop Paper Evidence Collector"
+            evidence_rc, evidence_output = stop_paper_strategy_evidence_collection()
+
+    render_action_result(action=evidence_action, rc=evidence_rc, output=evidence_output)
+    render_table_section(
+        "Paper Evidence Collector",
+        [
+            {
+                "status": str(paper_evidence_runtime.get("status") or "not_started"),
+                "freshness": str(paper_evidence_runtime.get("freshness") or "Unknown"),
+                "age": str(paper_evidence_runtime.get("age_label") or "Unknown"),
+                "current_strategy": str(paper_evidence_runtime.get("current_strategy") or "-"),
+                "completed": str(paper_evidence_runtime.get("completed_summary") or "0/0"),
+                "reason": str(paper_evidence_runtime.get("reason") or ""),
+                "summary": str(paper_evidence_runtime.get("summary_text") or ""),
+            }
+        ]
+        if bool(paper_evidence_runtime.get("has_status"))
+        else [],
+        subtitle="Managed paper-evidence campaign runtime for sequential strategy collection and artifact refresh.",
+        empty_message="Paper evidence collector has not reported status yet. Use the controls above to start a managed campaign.",
+    )
+
     with st.container(border=True):
         st.markdown("### Strategy Controls")
         st.caption("Validate and save strategy parameters, then run parity backtests on synthetic candles.")

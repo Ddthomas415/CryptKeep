@@ -19,3 +19,15 @@ def test_tick_publisher_poll_interval_invalid_env_falls_back(monkeypatch) -> Non
     monkeypatch.setenv("CBP_TICK_PUBLISH_INTERVAL_SEC", "not-a-number")
 
     assert system_status_publisher._poll_interval_sec() == 2.0
+
+
+def test_tick_publisher_symbol_defaults_to_btc_usd(monkeypatch) -> None:
+    monkeypatch.delenv("CBP_SYMBOLS", raising=False)
+
+    assert system_status_publisher._symbol() == "BTC/USD"
+
+
+def test_tick_publisher_symbol_uses_first_env_symbol(monkeypatch) -> None:
+    monkeypatch.setenv("CBP_SYMBOLS", "ETH/USD,BTC/USD")
+
+    assert system_status_publisher._symbol() == "ETH/USD"

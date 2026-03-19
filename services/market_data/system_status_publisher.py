@@ -49,6 +49,13 @@ def _poll_interval_sec() -> float:
             pass
     return float(DEFAULT_POLL_INTERVAL_SEC)
 
+
+def _symbol() -> str:
+    env_symbols = [str(item).strip() for item in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if str(item).strip()]
+    if env_symbols:
+        return env_symbols[0]
+    return "BTC/USD"
+
 def fetch_status() -> dict:
     status = {
         "ts": _now_iso(),
@@ -60,7 +67,7 @@ def fetch_status() -> dict:
     if not (os.environ.get("CBP_VENUE") or "").lower().startswith("binance"):
         venues = [v for v in venues if not v.startswith("binance")]
 
-    symbol = "BTC/USD"
+    symbol = _symbol()
     for v in venues:
         print(f"\n=== Fetching from {v} ===")
         ex = None
