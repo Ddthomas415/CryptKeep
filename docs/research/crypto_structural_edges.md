@@ -18,6 +18,7 @@ Code:
 - `/Users/baitus/Downloads/crypto-bot-pro/scripts/record_crypto_edge_snapshot.py`
 - `/Users/baitus/Downloads/crypto-bot-pro/scripts/load_sample_crypto_edge_data.py`
 - `/Users/baitus/Downloads/crypto-bot-pro/scripts/collect_live_crypto_edge_snapshot.py`
+- `/Users/baitus/Downloads/crypto-bot-pro/scripts/run_crypto_edge_collector_loop.py`
 - `/Users/baitus/Downloads/crypto-bot-pro/tests/test_crypto_edge_analytics.py`
 
 Intent:
@@ -75,3 +76,29 @@ The collector remains read-only:
 - it does not place, edit, or cancel orders
 
 If a venue does not support a requested read-only method, the collector reports that in its check list and skips the affected rows.
+
+## Repeating collection workflow
+
+To keep the research store refreshed on a loop with the bundled plan:
+
+```bash
+make collect-live-crypto-edges-loop
+```
+
+To change the polling interval:
+
+```bash
+make collect-live-crypto-edges-loop CRYPTO_EDGE_INTERVAL_SEC=900
+```
+
+To request stop for the running loop:
+
+```bash
+make stop-live-crypto-edges-loop
+```
+
+The loop remains read-only:
+
+- it repeatedly runs the public-data collector
+- it writes status to the local runtime state
+- it does not place, edit, or cancel orders
