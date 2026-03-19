@@ -142,3 +142,22 @@ def test_apply_safe_system_self_repair_wraps_core_service(monkeypatch):
     assert out["ok"] is True
     assert out["removed_count"] == 2
     assert out["export_bundle"] is False
+
+
+def test_run_dashboard_streamlit_diagnostics_wraps_app_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.app.dashboard_diagnostics.run_dashboard_diagnostics",
+        lambda startup_smoke=True, timeout_sec=15.0: {
+            "ok": True,
+            "status": "ok",
+            "startup_smoke": startup_smoke,
+            "timeout_sec": timeout_sec,
+        },
+    )
+
+    out = operator_service.run_dashboard_streamlit_diagnostics(startup_smoke=False, timeout_sec=7.5)
+
+    assert out["ok"] is True
+    assert out["status"] == "ok"
+    assert out["startup_smoke"] is False
+    assert out["timeout_sec"] == 7.5

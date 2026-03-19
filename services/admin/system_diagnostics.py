@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from services.admin.health import list_health
+from services.app.dashboard_diagnostics import run_dashboard_diagnostics
 from services.app.diagnostics_exporter import export_zip_to_runtime
 from services.app.preflight_wizard import run_preflight as run_app_preflight
 from services.app.system_health import collect_process_files
@@ -345,6 +346,19 @@ def run_full_diagnostics(*, export_bundle: bool = False) -> dict[str, Any]:
             )
         )
 
+    dashboard_runtime = run_dashboard_diagnostics(startup_smoke=False)
+    for idx, item in enumerate(list(dashboard_runtime.get("issues") or [])):
+        issues.append(
+            _issue(
+                issue_id=f"dashboard_issue_{idx}",
+                severity="critical" if str(item.get("severity") or "") == "critical" else "warn",
+                category="dashboard",
+                title=str(item.get("title") or "dashboard issue"),
+                summary=str(item.get("summary") or ""),
+                path=str(item.get("path") or ""),
+            )
+        )
+
     process_files = collect_process_files()
     health_rows = _latest_health_rows()
     for row in health_rows:
@@ -519,6 +533,7 @@ def run_full_diagnostics(*, export_bundle: bool = False) -> dict[str, Any]:
         },
         "core_preflight": core_preflight_payload,
         "app_preflight": app_preflight_payload,
+        "dashboard": dashboard_runtime,
         "process_files": process_files,
         "health_rows": health_rows,
         "lock_rows": lock_rows,

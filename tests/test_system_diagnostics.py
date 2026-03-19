@@ -30,6 +30,7 @@ def test_run_full_diagnostics_detects_stale_runtime_files(monkeypatch, tmp_path:
     )
     monkeypatch.setattr(sd, "run_app_preflight", lambda: {"ready": True, "problems": []})
     monkeypatch.setattr(sd, "collect_process_files", lambda: {"flags": [], "locks": [], "supervisor": [], "snapshots": [], "pids": None})
+    monkeypatch.setattr(sd, "run_dashboard_diagnostics", lambda startup_smoke=False: {"ok": True, "status": "ok", "issues": []})
     monkeypatch.setattr(
         sd,
         "list_health",

@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List, Dict
 
+from services.app.dashboard_launch import dashboard_default_port
 from services.os.app_paths import runtime_dir, data_dir, ensure_dirs
 from services.os.ports import can_bind as _port_can_bind, resolve_preferred_port
 from services.admin.config_editor import load_user_yaml
@@ -137,7 +138,7 @@ def run_preflight() -> dict:
     cfg = _cfg()
 
     host = "127.0.0.1"
-    port = 8501
+    port = int(dashboard_default_port())
     resolution = resolve_preferred_port(
         host,
         port,
@@ -175,6 +176,15 @@ def run_preflight() -> dict:
 
     ready = len(problems) == 0
 
+    port_payload = {
+        "ok": port_ok,
+        "free": port_free,
+        "open": port_open,
+        "requested_port": int(resolution.requested_port),
+        "resolved_port": int(resolution.resolved_port),
+        "auto_switched": bool(resolution.auto_switched),
+    }
+
     return {
         "ts": _now(),
         "ready": ready,
@@ -183,14 +193,8 @@ def run_preflight() -> dict:
         "venv": {"in_venv": venv, "sys_prefix": sys.prefix},
         "deps": deps,
         "config": {"ok": cfg_ok, "error": cfg_err, "preflight": cfg},
-        "port_8501": {
-            "ok": port_ok,
-            "free": port_free,
-            "open": port_open,
-            "requested_port": int(resolution.requested_port),
-            "resolved_port": int(resolution.resolved_port),
-            "auto_switched": bool(resolution.auto_switched),
-        },
+        "dashboard_port": port_payload,
+        "port_8501": port_payload,
         "market_quality": mk,
         "db_presence": db,
         "supervisor": sup,

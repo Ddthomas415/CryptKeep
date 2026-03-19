@@ -32,3 +32,27 @@ def test_run_system_diagnostics_apply_safe_repair(monkeypatch, capsys) -> None:
     out = json.loads(capsys.readouterr().out)
     assert out["export_bundle"] is True
     assert out["removed_count"] == 1
+
+
+def test_run_system_diagnostics_dashboard_mode(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(
+        script,
+        "run_dashboard_diagnostics",
+        lambda startup_smoke=True, timeout_sec=15.0: {
+            "ok": True,
+            "status": "ok",
+            "startup_smoke": startup_smoke,
+            "timeout_sec": timeout_sec,
+        },
+    )
+    monkeypatch.setattr(
+        script.sys,
+        "argv",
+        ["run_system_diagnostics.py", "--dashboard", "--dashboard-no-smoke", "--dashboard-timeout-sec", "7.5"],
+    )
+
+    assert script.main() == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["status"] == "ok"
+    assert out["startup_smoke"] is False
+    assert out["timeout_sec"] == 7.5

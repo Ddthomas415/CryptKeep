@@ -20,6 +20,7 @@ from services.admin.system_diagnostics import (
     preview_safe_self_repair,
     run_full_diagnostics,
 )
+from services.app.dashboard_diagnostics import run_dashboard_diagnostics
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -27,9 +28,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--export", action="store_true", help="Export a diagnostics bundle as part of the diagnostics run")
     ap.add_argument("--preview-repair", action="store_true", help="Preview safe self-repair actions only")
     ap.add_argument("--repair-safe", action="store_true", help="Apply safe self-repair actions for stale runtime files")
+    ap.add_argument("--dashboard", action="store_true", help="Run dedicated Streamlit dashboard diagnostics")
+    ap.add_argument("--dashboard-no-smoke", action="store_true", help="Skip the dashboard startup smoke test")
+    ap.add_argument("--dashboard-timeout-sec", type=float, default=15.0, help="Timeout for the dashboard smoke test")
     args = ap.parse_args(argv)
 
-    if args.repair_safe:
+    if args.dashboard:
+        payload = run_dashboard_diagnostics(
+            startup_smoke=not bool(args.dashboard_no_smoke),
+            timeout_sec=float(args.dashboard_timeout_sec),
+        )
+    elif args.repair_safe:
         payload = apply_safe_self_repair(export_bundle=bool(args.export))
     elif args.preview_repair:
         payload = preview_safe_self_repair()

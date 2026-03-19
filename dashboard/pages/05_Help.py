@@ -349,6 +349,15 @@ with workflows_tab:
         "Safe self-repair only removes stale runtime lock, pid, and stop files under `.cbp_state/runtime`. "
         "It does not change live-order enforcement, strategy config, or promotion status."
     )
+    st.markdown(
+        "If the dashboard itself will not launch, run `Run Streamlit Diagnostics` from `Operations` or use the CLI below. "
+        "This checks port resolution, dashboard source compilation, and a real headless startup smoke run."
+    )
+    st.code(
+        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "./.venv/bin/python scripts/run_system_diagnostics.py --dashboard",
+        language="bash",
+    )
 
 with status_tab:
     render_section_intro(

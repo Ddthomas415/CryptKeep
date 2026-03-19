@@ -36,6 +36,7 @@ from dashboard.services.operator import (
     list_services,
     preview_safe_system_self_repair,
     run_op,
+    run_dashboard_streamlit_diagnostics,
     run_full_system_diagnostics,
     run_repo_script,
     start_crypto_edge_collector_loop,
@@ -899,6 +900,11 @@ with tab_safety:
                 payload = apply_safe_system_self_repair(export_bundle=export_before_repair)
                 rc = 0 if bool(payload.get("ok")) else 1
                 set_operator_result(action="Apply Safe Self-Repair", rc=rc, output=json.dumps(payload, indent=2))
+        with st.container():
+            if st.button("Run Streamlit Diagnostics", width="stretch", key="ops_diag_streamlit"):
+                payload = run_dashboard_streamlit_diagnostics(startup_smoke=True, timeout_sec=15.0)
+                rc = 0 if bool(payload.get("ok")) else 1
+                set_operator_result(action="Run Streamlit Diagnostics", rc=rc, output=json.dumps(payload, indent=2))
 
     with st.container(border=True):
         st.markdown("### Repair / Reset Wizard")

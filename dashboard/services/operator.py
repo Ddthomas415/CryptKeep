@@ -136,6 +136,23 @@ def run_full_system_diagnostics(*, export_bundle: bool = False) -> dict[str, obj
         return {"ok": False, "reason": f"diagnostics_run_failed:{type(exc).__name__}:{exc}"}
 
 
+def run_dashboard_streamlit_diagnostics(*, startup_smoke: bool = True, timeout_sec: float = 15.0) -> dict[str, object]:
+    try:
+        from services.app.dashboard_diagnostics import run_dashboard_diagnostics
+    except Exception as exc:
+        return {"ok": False, "reason": f"dashboard_diagnostics_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(
+            run_dashboard_diagnostics(
+                startup_smoke=bool(startup_smoke),
+                timeout_sec=float(timeout_sec),
+            )
+            or {}
+        )
+    except Exception as exc:
+        return {"ok": False, "reason": f"dashboard_diagnostics_failed:{type(exc).__name__}:{exc}"}
+
+
 def preview_safe_system_self_repair() -> dict[str, object]:
     try:
         from services.admin.system_diagnostics import preview_safe_self_repair
