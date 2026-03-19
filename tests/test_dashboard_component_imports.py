@@ -9,6 +9,7 @@ def test_dashboard_component_modules_import_together() -> None:
         "dashboard.components.activity",
         "dashboard.components.asset_detail",
         "dashboard.components.badges",
+        "dashboard.components.digest",
         "dashboard.components.focus_selector",
         "dashboard.components.kpi_builders",
         "dashboard.components.summary_panels",
@@ -29,6 +30,17 @@ def test_dashboard_component_modules_import_together() -> None:
     assert callable(package.build_focus_summary_metrics)
     assert callable(package.render_asset_detail_card)
     assert callable(package.render_feature_hero)
+    assert callable(package.render_digest_page_header)
+    assert callable(package.render_runtime_truth_strip)
+    assert callable(package.render_attention_now)
+    assert callable(package.render_leaderboard_summary)
+    assert callable(package.render_scorecard_snapshot)
+    assert callable(package.render_crypto_edge_summary)
+    assert callable(package.render_safety_warnings)
+    assert callable(package.render_mode_truth_card)
+    assert callable(package.render_freshness_panel)
+    assert callable(package.render_recent_incidents)
+    assert callable(package.render_next_best_action)
     assert callable(package.render_focus_selector)
     assert callable(package.build_automation_kpis)
     assert callable(package.build_overview_kpis)
@@ -56,6 +68,7 @@ def test_dashboard_component_modules_import_together() -> None:
     assert callable(imported["dashboard.components.asset_detail"].render_research_lens)
     assert callable(imported["dashboard.components.activity"].normalize_activity_items)
     assert callable(imported["dashboard.components.badges"].badge_row_html)
+    assert callable(imported["dashboard.components.digest"].render_runtime_truth_strip)
     assert callable(imported["dashboard.components.focus_selector"].resolve_focus_options)
     assert callable(imported["dashboard.components.kpi_builders"].build_signals_kpis)
     assert callable(imported["dashboard.components.summary_panels"].build_overview_status_metrics)

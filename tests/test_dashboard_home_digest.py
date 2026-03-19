@@ -207,3 +207,51 @@ def test_load_home_digest_surfaces_blocked_live_attention(monkeypatch) -> None:
     assert any("trade(s) are blocked" in item["title"] for item in payload["attention_now"]["items"])
     assert "ENABLE_LIVE_TRADING!=YES" in payload["mode_truth"]["promotion_blockers"]
     assert payload["next_best_action"]["source"] == "mode"
+
+
+def test_load_home_digest_pulls_overview_summary_when_not_supplied(monkeypatch) -> None:
+    from dashboard.services import view_data
+
+    monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
+    monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
+    monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_disabled"))
+    monkeypatch.setattr(home_digest, "live_allowed", lambda: (False, "risk_enable_live_false", {"live_enabled": False}))
+    monkeypatch.setattr(
+        home_digest,
+        "decide_start",
+        lambda mode, cfg=None: _Decision(ok=True, mode=mode, status="OK", reasons=[], note="Paper start allowed"),
+    )
+    monkeypatch.setattr(home_digest, "build_strategy_workbench", lambda **kwargs: {"ok": True, "leaderboard": {"rows": []}})
+    monkeypatch.setattr(
+        view_data,
+        "get_overview_view",
+        lambda selected_asset=None: {
+            "summary": {"active_warnings": [], "blocked_trades_count": 2},
+        },
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {"ok": True, "has_any_data": False, "has_live_data": False, "data_origin_label": "Live Public"},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_summary",
+        lambda: {"ok": True, "needs_attention": False, "severity": "ok", "summary_text": "Fresh"},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_digest",
+        lambda: {"ok": True, "headline": "Structural-edge data is current", "while_away_summary": "All good."},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_collector_runtime",
+        lambda: {"ok": True, "has_status": False, "freshness": "Missing"},
+    )
+    monkeypatch.setattr(home_digest, "get_operations_snapshot", lambda: {"attention_services": 0, "unknown_services": 0, "last_health_ts": ""})
+
+    payload = home_digest.load_home_digest()
+
+    assert any("trade(s) are blocked" in item["title"] for item in payload["attention_now"]["items"])

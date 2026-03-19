@@ -82,7 +82,7 @@ def _noop(*args, **kwargs) -> None:
 
 
 def _patch_common_dashboard_renders(monkeypatch) -> None:
-    from dashboard.components import activity, asset_detail, badges, cards, header, logs, sidebar, summary_panels, tables
+    from dashboard.components import activity, asset_detail, badges, cards, digest, header, logs, sidebar, summary_panels, tables
 
     monkeypatch.setattr(sidebar, "render_app_sidebar", _noop)
     monkeypatch.setattr(header, "render_page_header", _noop)
@@ -112,6 +112,17 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(summary_panels, "render_automation_runtime_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_operations_status_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_settings_profile_summary", _noop)
+    monkeypatch.setattr(digest, "render_digest_page_header", _noop)
+    monkeypatch.setattr(digest, "render_runtime_truth_strip", _noop)
+    monkeypatch.setattr(digest, "render_attention_now", _noop)
+    monkeypatch.setattr(digest, "render_leaderboard_summary", _noop)
+    monkeypatch.setattr(digest, "render_scorecard_snapshot", _noop)
+    monkeypatch.setattr(digest, "render_crypto_edge_summary", _noop)
+    monkeypatch.setattr(digest, "render_safety_warnings", _noop)
+    monkeypatch.setattr(digest, "render_mode_truth_card", _noop)
+    monkeypatch.setattr(digest, "render_freshness_panel", _noop)
+    monkeypatch.setattr(digest, "render_recent_incidents", _noop)
+    monkeypatch.setattr(digest, "render_next_best_action", _noop)
 
 
 def _load_dashboard_module(
@@ -312,6 +323,158 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     assert digest_calls == [True]
     assert len(home_digest_calls) == 1
     assert home_digest_calls[0].get("mode") == "research_only"
+
+
+def test_home_page_builds_digest(monkeypatch) -> None:
+    from dashboard.services import home_digest
+
+    digest_calls: list[bool] = []
+
+    monkeypatch.setattr(
+        home_digest,
+        "build_home_digest",
+        lambda: digest_calls.append(True)
+        or {
+            "as_of": "2026-03-18T12:00:00Z",
+            "page_status": {"state": "warn", "caveat": "Collector freshness needs review."},
+            "claim_boundaries": [],
+            "runtime_truth": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "mode": {"value": "Paper", "label": "Runtime Mode", "state": "ok", "caveat": None, "age_seconds": None},
+                "live_order_authority": {"value": "Healthy", "label": "Live-Order Authority", "state": "ok", "caveat": None, "age_seconds": None},
+                "kill_switch": {"value": "Disarmed", "label": "Kill Switch", "state": "ok", "caveat": None, "age_seconds": None},
+                "collector_freshness": {"value": "Aging", "label": "Collector Freshness", "state": "warn", "caveat": "Live-public data is aging.", "age_seconds": 4200},
+                "leaderboard_age": {"value": "Just Built", "label": "Leaderboard Age", "state": "warn", "caveat": "Synthetic benchmark", "age_seconds": 0},
+                "copilot_trust_layer": {"value": "Partial", "label": "Copilot Trust Layer", "state": "warn", "caveat": "Answer strips not universal.", "age_seconds": None},
+            },
+            "attention_now": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "items": [
+                    {
+                        "id": "attention-1",
+                        "severity": "important",
+                        "title": "Collector freshness needs attention",
+                        "why_it_matters": "Research freshness is aging.",
+                        "next_action": "Review the read-only collector loop.",
+                        "source": "collector",
+                        "as_of": "2026-03-18T12:00:00Z",
+                        "link_target": "/Research",
+                    }
+                ],
+            },
+            "leaderboard_summary": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "rows": [
+                    {
+                        "strategy_id": "ema_cross",
+                        "name": "Ema Cross Default",
+                        "rank": 1,
+                        "score": 0.72,
+                        "score_label": "0.72",
+                        "post_cost_return_pct": 4.2,
+                        "max_drawdown_pct": 1.4,
+                        "best_regime": "bull",
+                        "worst_regime": "chop",
+                        "paper_live_drift": "low",
+                        "recommendation": "keep",
+                        "as_of": "2026-03-18T12:00:00Z",
+                        "caveat": "Synthetic benchmark row.",
+                    }
+                ],
+            },
+            "scorecard_snapshot": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "highlights": {
+                    "best_post_cost": {"label": "Best post-cost performer", "strategy_name": "Ema Cross Default", "value": "+4.2%", "context": "after fees/slippage", "state": "ok", "caveat": None},
+                    "lowest_drawdown": {"label": "Lowest drawdown", "strategy_name": "Ema Cross Default", "value": "1.4%", "context": "peak-to-trough loss", "state": "ok", "caveat": None},
+                    "most_regime_fragile": {"label": "Most regime-fragile", "strategy_name": "Breakout Default", "value": "0.42", "context": "regime robustness", "state": "warn", "caveat": None},
+                    "most_slippage_sensitive": {"label": "Most slippage-sensitive", "strategy_name": "Breakout Default", "value": "3.8%", "context": "return loss under stressed slippage", "state": "warn", "caveat": None},
+                    "most_stable": {"label": "Most stable", "strategy_name": "Ema Cross Default", "value": "0.81", "context": "robustness across represented regimes", "state": "ok", "caveat": None},
+                    "most_changed": {"label": "Most changed", "strategy_name": None, "value": None, "context": None, "state": "unknown", "caveat": "No persisted delta stream yet."},
+                },
+            },
+            "crypto_edge_summary": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "rows": [
+                    {"module_id": "funding", "name": "Funding analytics", "status": "aging", "last_update_ts": "2026-03-18T11:00:00Z", "age_seconds": 3600, "summary": "Bias Positive / carry 8.40%", "caveat": None}
+                ],
+            },
+            "safety_warnings": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "items": [
+                    {"severity": "watch", "title": "Structural research freshness is degraded", "summary": "Funding data is aging.", "source": "collector", "as_of": "2026-03-18T12:00:00Z", "caveat": None}
+                ],
+                "live_boundary_status": "healthy",
+                "kill_switch_state": "disarmed",
+            },
+            "freshness_panel": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "rows": [
+                    {"source_id": "collector_loop", "name": "Collector loop", "status": "aging", "last_update_ts": "2026-03-18T11:00:00Z", "age_seconds": 3600, "caveat": "Collector is aging."}
+                ],
+            },
+            "mode_truth": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "current_mode": "paper",
+                "label": "Paper",
+                "allowed": ["paper execution", "research analytics"],
+                "blocked": ["sandbox live submission", "real live submission"],
+                "promotion_blockers": [],
+            },
+            "recent_incidents": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "items": [
+                    {"id": "incident-1", "ts": "2026-03-18T12:00:00Z", "severity": "watch", "title": "Collector loop aging", "summary": "Funding freshness is aging.", "source": "collector"}
+                ],
+            },
+            "next_best_action": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "caveat": None,
+                "source_name": "test",
+                "source_age_seconds": 0,
+                "title": "Review collector freshness",
+                "why": "Structural-edge freshness is aging.",
+                "recommended_action": "Inspect and restart the read-only collector loop if needed.",
+                "secondary_actions": ["Review the latest funding snapshot."],
+                "source": "collector",
+            },
+        },
+    )
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/00_Home.py",
+        module_name="dashboard_test_home_page",
+    )
+
+    assert digest_calls == [True]
 
 
 def test_markets_page_requests_selected_asset(monkeypatch) -> None:

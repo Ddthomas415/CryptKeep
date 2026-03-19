@@ -14,6 +14,19 @@ from dashboard.components.badges import badge_html, badge_row_html, render_badge
 from dashboard.components.cards import render_kpi_cards
 from dashboard.components.cards import render_feature_hero
 from dashboard.components.cards import render_prompt_actions
+from dashboard.components.digest import (
+    render_attention_now,
+    render_crypto_edge_summary,
+    render_digest_page_header,
+    render_freshness_panel,
+    render_leaderboard_summary,
+    render_mode_truth_card,
+    render_next_best_action,
+    render_recent_incidents,
+    render_runtime_truth_strip,
+    render_safety_warnings,
+    render_scorecard_snapshot,
+)
 from dashboard.components.focus_selector import render_focus_selector, resolve_focus_options
 from dashboard.components.forms import render_save_action
 from dashboard.components.header import render_page_header
@@ -58,6 +71,17 @@ __all__ = [
     "render_kpi_cards",
     "render_feature_hero",
     "render_prompt_actions",
+    "render_digest_page_header",
+    "render_runtime_truth_strip",
+    "render_attention_now",
+    "render_leaderboard_summary",
+    "render_scorecard_snapshot",
+    "render_crypto_edge_summary",
+    "render_safety_warnings",
+    "render_mode_truth_card",
+    "render_freshness_panel",
+    "render_recent_incidents",
+    "render_next_best_action",
     "badge_html",
     "badge_row_html",
     "render_badge_row",

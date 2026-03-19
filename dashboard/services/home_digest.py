@@ -1256,6 +1256,14 @@ def _page_status(
 
 def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDigestData:
     summary = overview_summary if isinstance(overview_summary, dict) else {}
+    if not summary:
+        try:
+            from dashboard.services.view_data import get_overview_view
+
+            overview_view = get_overview_view()
+            summary = overview_view.get("summary") if isinstance(overview_view.get("summary"), dict) else {}
+        except Exception:
+            summary = {}
     as_of = _utc_iso()
     user_cfg = load_user_yaml()
     trading_cfg = _load_trading_cfg()
