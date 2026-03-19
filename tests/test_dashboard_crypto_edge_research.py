@@ -80,3 +80,16 @@ def test_load_latest_live_crypto_edge_snapshot_isolates_live_public(monkeypatch)
     assert payload["data_origin_label"] == "Live Public"
     assert payload["freshness_summary"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
     assert "funding bias long_pays" in payload["summary_text"]
+
+
+def test_load_crypto_edge_change_summary_uses_trend_rows(monkeypatch) -> None:
+    from storage import crypto_edge_store_sqlite
+
+    monkeypatch.setattr(crypto_edge_store_sqlite, "CryptoEdgeStoreSQLite", lambda: _FakeStore())
+
+    payload = crypto_edge_research.load_crypto_edge_change_summary(history_limit=3)
+
+    assert payload["ok"] is True
+    assert payload["has_change_data"] is True
+    assert len(payload["rows"]) == 3
+    assert payload["summary_text"].startswith("Recent structural changes from stored snapshots:")

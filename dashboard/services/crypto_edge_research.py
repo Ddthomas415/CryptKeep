@@ -100,6 +100,22 @@ def _build_structural_summary(report: dict[str, Any], *, origin_label: str) -> s
     )
 
 
+def _build_change_summary_text(workspace: dict[str, Any]) -> str:
+    trend_rows = list(workspace.get("trend_rows") or [])
+    if not trend_rows:
+        return "Not enough stored structural edge history is available to summarize what changed."
+    fragments: list[str] = []
+    for row in trend_rows[:3]:
+        fragments.append(
+            f"{str(row.get('theme') or 'theme').title()} {str(row.get('latest') or '-')}"
+            f" ({str(row.get('vs_prior') or 'no prior')})"
+        )
+    return (
+        f"Recent structural changes from stored snapshots: {'; '.join(fragments)}. "
+        f"Snapshot freshness is {str(workspace.get('freshness_summary') or 'Unknown')}."
+    )
+
+
 def _decorate_history_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     decorated: list[dict[str, Any]] = []
     for row in rows:
@@ -310,3 +326,20 @@ def load_latest_live_crypto_edge_snapshot() -> dict[str, Any]:
             "freshness_summary": "Unavailable",
             "summary_text": "Live-public structural edge snapshots could not be read.",
         }
+
+
+def load_crypto_edge_change_summary(*, history_limit: int = 5) -> dict[str, Any]:
+    workspace = load_crypto_edge_workspace(history_limit=max(int(history_limit), 2))
+    change_rows = list(workspace.get("trend_rows") or [])
+    return {
+        "ok": bool(workspace.get("ok")),
+        "reason": workspace.get("reason") or workspace.get("history_reason"),
+        "research_only": True,
+        "execution_enabled": False,
+        "has_any_data": bool(workspace.get("has_any_data")),
+        "has_change_data": bool(change_rows),
+        "data_origin_label": workspace.get("data_origin_label") or "Unknown",
+        "freshness_summary": workspace.get("freshness_summary") or "Unknown",
+        "rows": change_rows,
+        "summary_text": _build_change_summary_text(workspace),
+    }

@@ -13,6 +13,7 @@ from shared.models import ExplainRequest
 from shared.prompting import build_research_explain_instructions
 from shared.tools import (
     OPENAI_TOOL_DEFINITIONS,
+    get_crypto_edge_change_summary,
     execute_tool_call,
     get_crypto_edge_report,
     get_latest_live_crypto_edge_snapshot,
@@ -171,6 +172,11 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(tool_results.get("get_latest_live_crypto_edge_snapshot"), dict)
         else {}
     )
+    crypto_edge_changes = (
+        tool_results.get("get_crypto_edge_change_summary")
+        if isinstance(tool_results.get("get_crypto_edge_change_summary"), dict)
+        else {}
+    )
     if bool(crypto_edges.get("has_any_data")):
         funding = crypto_edges.get("funding") if isinstance(crypto_edges.get("funding"), dict) else {}
         basis = crypto_edges.get("basis") if isinstance(crypto_edges.get("basis"), dict) else {}
@@ -226,6 +232,17 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
                 "relevance": 0.71,
             }
         )
+    if bool(crypto_edge_changes.get("has_change_data")):
+        evidence.append(
+            {
+                "id": "crypto_edge_changes",
+                "type": "research",
+                "source": "crypto-edge-store-history",
+                "timestamp": None,
+                "summary": str(crypto_edge_changes.get("summary_text") or "Stored structural change summary available."),
+                "relevance": 0.74,
+            }
+        )
     return evidence[:6]
 
 
@@ -242,6 +259,7 @@ def _build_evidence_bundle(tool_results: dict[str, Any]) -> dict[str, Any]:
         "operations": tool_results.get("get_operations_summary", {}),
         "crypto_edges": tool_results.get("get_crypto_edge_report", {}),
         "latest_live_crypto_edges": tool_results.get("get_latest_live_crypto_edge_snapshot", {}),
+        "crypto_edge_changes": tool_results.get("get_crypto_edge_change_summary", {}),
     }
 
 
@@ -262,6 +280,12 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
         if isinstance(tool_results.get("get_latest_live_crypto_edge_snapshot"), dict)
         else {}
     )
+    crypto_edge_changes = (
+        tool_results.get("get_crypto_edge_change_summary")
+        if isinstance(tool_results.get("get_crypto_edge_change_summary"), dict)
+        else {}
+    )
+    question_lc = str(question or "").lower()
 
     latest_price = float(market.get("price") or market_summary.get("latest_price") or 0.0)
     change_pct = float(market_summary.get("change_pct") or 0.0)
@@ -307,14 +331,21 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
             f"and {int(((latest_live_edges.get('dislocations') or {}).get('positive_count') or 0))} positive venue dislocations. "
             f"Freshness is {str(latest_live_edges.get('freshness_summary') or 'unknown')}."
         )
+    change_note = ""
+    if bool(crypto_edge_changes.get("has_change_data")):
+        change_note = f" {str(crypto_edge_changes.get('summary_text') or '').strip()}".strip()
+
+    current_cause = (
+        f"{asset} is trading {direction} over the current lookback window with the last observed price near {latest_price:,.2f}. "
+        f"Top linked narrative: {top_headline}"
+        f"{edge_note}"
+        f"{live_edge_note}"
+    ).strip()
+    if ("changed" in question_lc or "away" in question_lc) and change_note:
+        current_cause = f"{change_note} {current_cause}".strip()
 
     return {
-        "current_cause": (
-            f"{asset} is trading {direction} over the current lookback window with the last observed price near {latest_price:,.2f}. "
-            f"Top linked narrative: {top_headline}"
-            f"{edge_note}"
-            f"{live_edge_note}"
-        ).strip(),
+        "current_cause": current_cause,
         "past_precedent": past_title,
         "future_catalyst": future_title,
         "confidence": _clip_confidence(confidence, fallback=0.55),
@@ -335,6 +366,8 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
         results["get_crypto_edge_report"] = await get_crypto_edge_report()
     if "get_latest_live_crypto_edge_snapshot" not in results:
         results["get_latest_live_crypto_edge_snapshot"] = await get_latest_live_crypto_edge_snapshot()
+    if "get_crypto_edge_change_summary" not in results:
+        results["get_crypto_edge_change_summary"] = await get_crypto_edge_change_summary()
     return results
 
 

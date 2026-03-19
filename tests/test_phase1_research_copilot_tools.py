@@ -44,6 +44,7 @@ def test_tool_definitions_expose_read_only_functions() -> None:
         "get_signal_summary",
         "get_crypto_edge_report",
         "get_latest_live_crypto_edge_snapshot",
+        "get_crypto_edge_change_summary",
     ]
 
 
@@ -190,3 +191,27 @@ def test_get_latest_live_crypto_edge_snapshot_uses_dashboard_loader(monkeypatch)
     assert payload["has_live_data"] is True
     assert payload["data_origin_label"] == "Live Public"
     assert payload["freshness_summary"] == "Recent"
+
+
+def test_get_crypto_edge_change_summary_uses_dashboard_loader(monkeypatch) -> None:
+    from dashboard.services import crypto_edge_research
+
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_change_summary",
+        lambda history_limit=5: {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "has_any_data": True,
+            "has_change_data": True,
+            "summary_text": "Recent structural changes from stored snapshots: Funding 12.00% (+4.00 pts).",
+            "rows": [{"theme": "funding"}],
+        },
+    )
+
+    payload = asyncio.run(tools.get_crypto_edge_change_summary())
+
+    assert payload["ok"] is True
+    assert payload["has_change_data"] is True
+    assert "Recent structural changes" in payload["summary_text"]
