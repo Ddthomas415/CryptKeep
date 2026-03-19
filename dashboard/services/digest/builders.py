@@ -11,6 +11,7 @@ from dashboard.services.crypto_edge_research import (
     load_crypto_edge_staleness_summary,
     load_latest_live_crypto_edge_snapshot,
 )
+from dashboard.services.promotion_ladder import build_promotion_readiness
 from dashboard.services.digest.contracts import (
     AttentionItem,
     AttentionNowData,
@@ -564,6 +565,7 @@ def build_leaderboard_summary_digest(*, as_of: str, strategy_context: dict[str, 
                 "score_label": f"{_coerce_float(raw.get('leaderboard_score'), 0.0):.2f}",
                 "post_cost_return_pct": _coerce_float(raw.get("net_return_after_costs_pct"), 0.0),
                 "max_drawdown_pct": _coerce_float(raw.get("max_drawdown_pct"), 0.0),
+                "closed_trades": int(_coerce_float(raw.get("closed_trades"), 0.0)),
                 "best_regime": best_regime,
                 "worst_regime": worst_regime,
                 "paper_live_drift": _drift_label(raw.get("paper_live_drift_pct")),
@@ -933,7 +935,7 @@ def build_freshness_panel_digest(
     )
 
 
-def build_mode_truth_digest(*, as_of: str, runtime_context: dict[str, Any]) -> ModeTruthData:
+def build_mode_truth_digest(*, as_of: str, runtime_context: dict[str, Any], promotion_readiness: dict[str, Any]) -> ModeTruthData:
     mode_value = str(runtime_context.get("mode_value") or "unknown")
     mode_label = str(runtime_context.get("mode_label") or "Unknown")
     start_decision = runtime_context.get("start_decision")
@@ -961,6 +963,7 @@ def build_mode_truth_digest(*, as_of: str, runtime_context: dict[str, Any]) -> M
         reasons.append("normalized live enablement remains false")
     if mode_value != "paper" and not bool(runtime_context.get("armed")):
         reasons.append(str(runtime_context.get("arming_reason") or "live_not_armed"))
+    reasons.extend(str(item) for item in list(promotion_readiness.get("blockers") or []) if str(item or "").strip())
     return ModeTruthData(
         **_base_section(
             as_of=as_of,
@@ -972,6 +975,12 @@ def build_mode_truth_digest(*, as_of: str, runtime_context: dict[str, Any]) -> M
         label=mode_label,
         allowed=allowed,
         blocked=blocked,
+        promotion_stage=str(promotion_readiness.get("current_stage_label") or "Paper"),
+        promotion_target=str(promotion_readiness.get("target_stage_label") or "") or None,
+        promotion_status=_normalize_health_state(promotion_readiness.get("status")),
+        promotion_summary=str(promotion_readiness.get("summary") or "Promotion readiness is unavailable."),
+        promotion_pass_criteria=[str(item) for item in list(promotion_readiness.get("pass_criteria") or []) if str(item or "").strip()],
+        promotion_rollback_criteria=[str(item) for item in list(promotion_readiness.get("rollback_criteria") or []) if str(item or "").strip()],
         promotion_blockers=list(dict.fromkeys(reason for reason in reasons if reason)),
     )
 
@@ -1145,6 +1154,14 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         structural_health=structural_health,
         collector_runtime=collector_runtime,
     )
+    leaderboard_summary = build_leaderboard_summary_digest(as_of=as_of, strategy_context=strategy_context)
+    promotion_readiness = build_promotion_readiness(
+        as_of=as_of,
+        runtime_context=runtime_context,
+        leaderboard_summary=leaderboard_summary,
+        structural_health=structural_health,
+        collector_runtime=collector_runtime,
+    )
     attention_now = build_attention_now_digest(
         as_of=as_of,
         overview_summary=summary,
@@ -1154,7 +1171,6 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         collector_runtime=collector_runtime,
         operations_snapshot=operations_snapshot,
     )
-    leaderboard_summary = build_leaderboard_summary_digest(as_of=as_of, strategy_context=strategy_context)
     scorecard_snapshot = build_scorecard_snapshot_digest(as_of=as_of, strategy_context=strategy_context)
     crypto_edge_summary = build_crypto_edge_summary_digest(as_of=as_of, live_snapshot=live_snapshot)
     safety_warnings = build_safety_warnings_digest(
@@ -1174,7 +1190,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         leaderboard_summary=leaderboard_summary,
         scorecard_snapshot=scorecard_snapshot,
     )
-    mode_truth = build_mode_truth_digest(as_of=as_of, runtime_context=runtime_context)
+    mode_truth = build_mode_truth_digest(as_of=as_of, runtime_context=runtime_context, promotion_readiness=promotion_readiness)
     recent_incidents = build_recent_incidents_digest(
         as_of=as_of,
         overview_summary=summary,

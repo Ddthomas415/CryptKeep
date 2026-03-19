@@ -197,3 +197,11 @@ If Phase 3 cleanup is taken further, the safest target contract is:
   - `CONFIRM_LIVE=YES`
 
 Anything else should be treated as compatibility input until explicitly removed with tests.
+
+## Related Operator Note
+
+For review-stage criteria from `paper` to `sandbox live` to `tiny live`, see:
+
+- `/Users/baitus/Downloads/crypto-bot-pro/docs/safety/strategy_promotion_ladder.md`
+
+That note is intentionally operator-facing and conservative. It does not change the final order authority documented here.

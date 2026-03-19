@@ -61,6 +61,7 @@ class LeaderboardStrategyRow(TypedDict):
     score_label: str
     post_cost_return_pct: float | None
     max_drawdown_pct: float | None
+    closed_trades: int | None
     best_regime: str | None
     worst_regime: str | None
     paper_live_drift: str | None
@@ -142,6 +143,12 @@ class ModeTruthData(DigestSectionBase):
     label: str
     allowed: list[str]
     blocked: list[str]
+    promotion_stage: str
+    promotion_target: str | None
+    promotion_status: HealthState
+    promotion_summary: str
+    promotion_pass_criteria: list[str]
+    promotion_rollback_criteria: list[str]
     promotion_blockers: list[str]
 
 

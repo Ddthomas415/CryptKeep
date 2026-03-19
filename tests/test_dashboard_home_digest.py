@@ -76,6 +76,9 @@ def test_load_home_digest_reports_paper_truth(monkeypatch) -> None:
     assert payload["attention_now"]["items"][0]["title"] == "Runtime is paper-first"
     assert payload["leaderboard_summary"]["rows"] == []
     assert payload["mode_truth"]["current_mode"] == "paper"
+    assert payload["mode_truth"]["promotion_stage"] == "Paper"
+    assert payload["mode_truth"]["promotion_target"] == "Sandbox Live"
+    assert payload["mode_truth"]["promotion_status"] == "warn"
     assert "real live submission" in payload["mode_truth"]["blocked"]
     assert "Stock support is not proven." in payload["claim_boundaries"]
     assert payload["next_best_action"]["title"] == "Runtime is paper-first"
@@ -205,6 +208,8 @@ def test_load_home_digest_surfaces_blocked_live_attention(monkeypatch) -> None:
     assert payload["safety_warnings"]["live_boundary_status"] == "blocked"
     assert any(item["title"].endswith("start is blocked") for item in payload["attention_now"]["items"])
     assert any("trade(s) are blocked" in item["title"] for item in payload["attention_now"]["items"])
+    assert payload["mode_truth"]["promotion_stage"] == "Tiny Live"
+    assert payload["mode_truth"]["promotion_status"] == "critical"
     assert "ENABLE_LIVE_TRADING!=YES" in payload["mode_truth"]["promotion_blockers"]
     assert payload["next_best_action"]["source"] == "mode"
 

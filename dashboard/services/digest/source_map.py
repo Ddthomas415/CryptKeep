@@ -8,7 +8,7 @@ DIGEST_SOURCE_MAP = {
     "crypto_edge_summary": "dashboard.services.crypto_edge_research.load_latest_live_crypto_edge_snapshot",
     "safety_warnings": "live_guard + start_manager + collector_runtime",
     "freshness_panel": "collector runtime + latest live snapshot + synthetic evaluation",
-    "mode_truth": "config/trading.yaml + services.bot.start_manager.decide_start",
+    "mode_truth": "config/trading.yaml + services.bot.start_manager.decide_start + dashboard.services.promotion_ladder.build_promotion_readiness",
     "recent_incidents": "overview warnings + collector runtime + operations snapshot",
     "next_best_action_attention": "attention_now",
     "next_best_action_leaderboard": "strategy_leaderboard",

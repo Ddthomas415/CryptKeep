@@ -348,7 +348,23 @@ def render_mode_truth_card(payload: ModeTruthData) -> None:
         ])
         allowed = list(payload.get("allowed") or [])
         blocked = list(payload.get("blocked") or [])
+        promotion_stage = _display_text(payload.get("promotion_stage"), fallback="Unknown")
+        promotion_target = _display_text(payload.get("promotion_target"), fallback="None")
+        promotion_status = _display_text(payload.get("promotion_status"), fallback="Unknown")
+        promotion_summary = _display_text(payload.get("promotion_summary"), fallback="Promotion readiness is unavailable.")
+        promotion_pass_criteria = list(payload.get("promotion_pass_criteria") or [])
+        promotion_rollback_criteria = list(payload.get("promotion_rollback_criteria") or [])
         blockers = list(payload.get("promotion_blockers") or [])
+
+        st.markdown("**Promotion Readiness**")
+        render_badge_row(
+            [
+                {"text": f"Current Stage: {promotion_stage}", "tone": "muted"},
+                {"text": f"Next Stage: {promotion_target}", "tone": "accent" if promotion_target != "None" else "muted"},
+                {"text": f"Readiness: {_status_label(promotion_status)}", "tone": _tone_from_health(promotion_status)},
+            ]
+        )
+        st.caption(promotion_summary)
         col_allowed, col_blocked = st.columns(2)
         with col_allowed:
             st.markdown("**Allowed**")
@@ -370,6 +386,21 @@ def render_mode_truth_card(payload: ModeTruthData) -> None:
                 st.markdown(f"- {escape(str(line))}")
         else:
             st.caption("No explicit promotion blockers listed.")
+        criteria_cols = st.columns(2)
+        with criteria_cols[0]:
+            st.markdown("**Pass Criteria**")
+            if promotion_pass_criteria:
+                for line in promotion_pass_criteria:
+                    st.markdown(f"- {escape(str(line))}")
+            else:
+                st.caption("No explicit pass criteria listed.")
+        with criteria_cols[1]:
+            st.markdown("**Rollback Criteria**")
+            if promotion_rollback_criteria:
+                for line in promotion_rollback_criteria:
+                    st.markdown(f"- {escape(str(line))}")
+            else:
+                st.caption("No explicit rollback criteria listed.")
         _render_section_footer(payload)
 
 
