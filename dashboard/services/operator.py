@@ -125,6 +125,51 @@ def stop_paper_strategy_evidence_collection() -> tuple[int, str]:
     return run_repo_script("scripts/run_paper_strategy_evidence_collector.py", args=["--stop"])
 
 
+def run_full_system_diagnostics(*, export_bundle: bool = False) -> dict[str, object]:
+    try:
+        from services.admin.system_diagnostics import run_full_diagnostics
+    except Exception as exc:
+        return {"ok": False, "reason": f"diagnostics_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(run_full_diagnostics(export_bundle=bool(export_bundle)) or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"diagnostics_run_failed:{type(exc).__name__}:{exc}"}
+
+
+def preview_safe_system_self_repair() -> dict[str, object]:
+    try:
+        from services.admin.system_diagnostics import preview_safe_self_repair
+    except Exception as exc:
+        return {"ok": False, "reason": f"self_repair_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(preview_safe_self_repair() or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"self_repair_preview_failed:{type(exc).__name__}:{exc}"}
+
+
+def apply_safe_system_self_repair(*, export_bundle: bool = True) -> dict[str, object]:
+    try:
+        from services.admin.system_diagnostics import apply_safe_self_repair
+    except Exception as exc:
+        return {"ok": False, "reason": f"self_repair_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(apply_safe_self_repair(export_bundle=bool(export_bundle)) or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"self_repair_apply_failed:{type(exc).__name__}:{exc}"}
+
+
+def export_diagnostics_bundle() -> dict[str, object]:
+    try:
+        from services.app.diagnostics_exporter import export_zip_to_runtime
+    except Exception as exc:
+        return {"ok": False, "reason": f"diagnostics_export_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        path = export_zip_to_runtime()
+    except Exception as exc:
+        return {"ok": False, "reason": f"diagnostics_export_failed:{type(exc).__name__}:{exc}"}
+    return {"ok": True, "exported_to": str(path)}
+
+
 def list_services(*, fallback: Sequence[str] | None = None) -> list[str]:
     rc, out = run_op(["list"])
     if rc == 0:

@@ -116,3 +116,29 @@ def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
         "unknown_services": 0,
         "last_health_ts": "2026-03-12T10:05:00Z",
     }
+
+
+def test_run_full_system_diagnostics_wraps_core_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.admin.system_diagnostics.run_full_diagnostics",
+        lambda export_bundle=False: {"ok": True, "status": "warn", "export_bundle": export_bundle},
+    )
+
+    out = operator_service.run_full_system_diagnostics(export_bundle=True)
+
+    assert out["ok"] is True
+    assert out["status"] == "warn"
+    assert out["export_bundle"] is True
+
+
+def test_apply_safe_system_self_repair_wraps_core_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.admin.system_diagnostics.apply_safe_self_repair",
+        lambda export_bundle=True: {"ok": True, "removed_count": 2, "export_bundle": export_bundle},
+    )
+
+    out = operator_service.apply_safe_system_self_repair(export_bundle=False)
+
+    assert out["ok"] is True
+    assert out["removed_count"] == 2
+    assert out["export_bundle"] is False

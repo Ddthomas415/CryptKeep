@@ -30,9 +30,13 @@ from dashboard.services.crypto_edge_research import (
     load_latest_live_crypto_edge_snapshot,
 )
 from dashboard.services.operator import (
+    apply_safe_system_self_repair,
+    export_diagnostics_bundle,
     get_operations_snapshot,
     list_services,
+    preview_safe_system_self_repair,
     run_op,
+    run_full_system_diagnostics,
     run_repo_script,
     start_crypto_edge_collector_loop,
     start_paper_strategy_evidence_collection,
@@ -81,6 +85,7 @@ live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
 paper_evidence_runtime = load_paper_strategy_evidence_runtime()
+system_diagnostics = run_full_system_diagnostics(export_bundle=False)
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
 
@@ -824,6 +829,76 @@ with tab_safety:
             except Exception:
                 payload = {"ok": rc == 0, "rc": rc, "raw": out}
             set_operator_result(action="Run Reconcile Safe Steps", rc=rc, output=json.dumps(payload, indent=2))
+
+    with st.container(border=True):
+        st.markdown("### Diagnostics & Safe Self-Repair")
+        st.caption("Run a full local diagnostics pass, export a bundle, and apply only safe stale-runtime cleanup here.")
+        diag_summary = dict(system_diagnostics.get("summary") or {})
+        render_kpi_cards(
+            [
+                {
+                    "label": "Diagnostics",
+                    "value": str(system_diagnostics.get("status") or "unknown").title(),
+                    "delta": str(system_diagnostics.get("as_of") or "No timestamp"),
+                },
+                {
+                    "label": "Critical",
+                    "value": str(int(diag_summary.get("critical_issues") or 0)),
+                    "delta": "Immediate failures",
+                },
+                {
+                    "label": "Warnings",
+                    "value": str(int(diag_summary.get("warning_issues") or 0)),
+                    "delta": "Needs review",
+                },
+                {
+                    "label": "Repairable",
+                    "value": str(int(diag_summary.get("repairable_issues") or 0)),
+                    "delta": "Safe file cleanup only",
+                },
+            ]
+        )
+        render_table_section(
+            "Diagnostics Issues",
+            [
+                {
+                    "severity": str(item.get("severity") or ""),
+                    "category": str(item.get("category") or ""),
+                    "title": str(item.get("title") or ""),
+                    "summary": str(item.get("summary") or ""),
+                    "repairable": "yes" if bool(item.get("repairable")) else "no",
+                }
+                for item in list(system_diagnostics.get("issues") or [])
+            ],
+            subtitle="Unified preflight, runtime, health-file, managed-runtime, and artifact checks.",
+            empty_message="No active diagnostics issues were reported.",
+        )
+        export_before_repair = st.checkbox(
+            "Export diagnostics bundle before safe self-repair",
+            value=True,
+            key="ops_diag_export_before_repair",
+        )
+        d0, d1, d2, d3 = st.columns(4)
+        with d0:
+            if st.button("Run Full Diagnostics", width="stretch", key="ops_diag_run"):
+                payload = run_full_system_diagnostics(export_bundle=False)
+                rc = 0 if bool(payload.get("ok")) else 1
+                set_operator_result(action="Run Full Diagnostics", rc=rc, output=json.dumps(payload, indent=2))
+        with d1:
+            if st.button("Export Diagnostics Bundle", width="stretch", key="ops_diag_export"):
+                payload = export_diagnostics_bundle()
+                rc = 0 if bool(payload.get("ok")) else 1
+                set_operator_result(action="Export Diagnostics Bundle", rc=rc, output=json.dumps(payload, indent=2))
+        with d2:
+            if st.button("Preview Safe Self-Repair", width="stretch", key="ops_diag_preview_repair"):
+                payload = preview_safe_system_self_repair()
+                rc = 0 if bool(payload.get("ok")) else 1
+                set_operator_result(action="Preview Safe Self-Repair", rc=rc, output=json.dumps(payload, indent=2))
+        with d3:
+            if st.button("Apply Safe Self-Repair", width="stretch", key="ops_diag_apply_repair"):
+                payload = apply_safe_system_self_repair(export_bundle=export_before_repair)
+                rc = 0 if bool(payload.get("ok")) else 1
+                set_operator_result(action="Apply Safe Self-Repair", rc=rc, output=json.dumps(payload, indent=2))
 
     with st.container(border=True):
         st.markdown("### Repair / Reset Wizard")

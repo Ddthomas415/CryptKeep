@@ -319,6 +319,37 @@ with workflows_tab:
         "4. Treat research freshness as context for explanations, not execution permission."
     )
 
+    render_section_intro(
+        title="Diagnostics And Safe Self-Repair",
+        subtitle="Use Operations when the workspace looks broken, stale runtime files are suspected, or a managed process died unexpectedly.",
+        meta="diagnostics first, repair second",
+    )
+    st.markdown(
+        "1. Open `Operations` -> `Safety & Recovery` -> `Diagnostics & Safe Self-Repair`.\n"
+        "2. Run `Run Full Diagnostics` to inspect preflight, health rows, runtime files, managed runtimes, and evidence artifacts.\n"
+        "3. Use `Preview Safe Self-Repair` before making changes.\n"
+        "4. Use `Apply Safe Self-Repair` only for stale runtime file cleanup. It does not grant execution authority or reset trading state."
+    )
+    st.code(
+        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "make system-diagnostics",
+        language="bash",
+    )
+    st.code(
+        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "./.venv/bin/python scripts/run_system_diagnostics.py --preview-repair",
+        language="bash",
+    )
+    st.code(
+        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "./.venv/bin/python scripts/run_system_diagnostics.py --repair-safe --export",
+        language="bash",
+    )
+    st.caption(
+        "Safe self-repair only removes stale runtime lock, pid, and stop files under `.cbp_state/runtime`. "
+        "It does not change live-order enforcement, strategy config, or promotion status."
+    )
+
 with status_tab:
     render_section_intro(
         title="Status Labels",

@@ -136,6 +136,10 @@ def _load_dashboard_module(
     fake_streamlit = _FakeStreamlit(overrides=streamlit_overrides)
     monkeypatch.setitem(sys.modules, "streamlit", fake_streamlit)
 
+    from dashboard.state import session as dashboard_session
+
+    monkeypatch.setattr(dashboard_session, "st", fake_streamlit)
+
     from dashboard import auth_gate
 
     monkeypatch.setattr(
@@ -980,6 +984,20 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
     monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
     monkeypatch.setattr(
         operator_service,
+        "run_full_system_diagnostics",
+        lambda export_bundle=False: {
+            "ok": True,
+            "status": "warn",
+            "as_of": "2026-03-18T10:00:00Z",
+            "summary": {"critical_issues": 0, "warning_issues": 1, "repairable_issues": 1},
+            "issues": [{"severity": "warn", "category": "runtime_lock", "title": "Stale lock", "summary": "lock needs cleanup", "repairable": True}],
+        },
+    )
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": []})
+    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True: {"ok": True, "removed_count": 0})
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
+    monkeypatch.setattr(
+        operator_service,
         "start_paper_strategy_evidence_collection",
         lambda runtime_sec, strategies=None, symbol="BTC/USD", venue="coinbase": (0, "started"),
     )
@@ -1173,6 +1191,20 @@ def test_operations_page_starts_collector_loop(monkeypatch) -> None:
     monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
     monkeypatch.setattr(
         operator_service,
+        "run_full_system_diagnostics",
+        lambda export_bundle=False: {
+            "ok": True,
+            "status": "ok",
+            "as_of": "2026-03-18T10:00:00Z",
+            "summary": {"critical_issues": 0, "warning_issues": 0, "repairable_issues": 0},
+            "issues": [],
+        },
+    )
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": []})
+    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True: {"ok": True, "removed_count": 0})
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
+    monkeypatch.setattr(
+        operator_service,
         "start_crypto_edge_collector_loop",
         lambda interval_sec, plan_file="sample_data/crypto_edges/live_collector_plan.json": captured.update({"interval_sec": interval_sec, "plan_file": plan_file}) or (0, "started"),
     )
@@ -1306,6 +1338,20 @@ def test_operations_page_starts_paper_evidence_collector(monkeypatch) -> None:
     )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
     monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
+    monkeypatch.setattr(
+        operator_service,
+        "run_full_system_diagnostics",
+        lambda export_bundle=False: {
+            "ok": True,
+            "status": "ok",
+            "as_of": "2026-03-18T10:00:00Z",
+            "summary": {"critical_issues": 0, "warning_issues": 0, "repairable_issues": 0},
+            "issues": [],
+        },
+    )
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": []})
+    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True: {"ok": True, "removed_count": 0})
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
     monkeypatch.setattr(operator_service, "start_crypto_edge_collector_loop", lambda interval_sec, plan_file="sample_data/crypto_edges/live_collector_plan.json": (0, "started"))
     monkeypatch.setattr(operator_service, "stop_crypto_edge_collector_loop", lambda: (0, "stopped"))
     monkeypatch.setattr(
@@ -1419,6 +1465,153 @@ def test_operations_page_starts_paper_evidence_collector(monkeypatch) -> None:
     assert captured["strategies"] == ["ema_cross", "breakout_donchian"]
     assert captured["symbol"] == "BTC/USD"
     assert captured["venue"] == "coinbase"
+
+
+def test_operations_page_applies_safe_self_repair(monkeypatch) -> None:
+    from dashboard.components import actions, logs
+    from dashboard.services import crypto_edge_research
+    from dashboard.services import operator as operator_service
+    from dashboard.services import operator_tools, strategy_evaluation
+    from dashboard.services import strategy_evidence_runtime
+    from services.admin import config_editor, repair_wizard
+    from services.execution import idempotency_inspector
+    from services.strategies import config_tools, presets
+
+    monkeypatch.setattr(actions, "render_system_action_buttons", lambda: None)
+    monkeypatch.setattr(logs, "render_action_result", _noop)
+    monkeypatch.setattr(
+        operator_service,
+        "get_operations_snapshot",
+        lambda: {
+            "tracked_services": 5,
+            "healthy_services": 4,
+            "unknown_services": 1,
+            "attention_services": 1,
+            "last_health_ts": "2026-03-18T10:00:00Z",
+        },
+    )
+    monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
+    monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
+    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
+    monkeypatch.setattr(
+        operator_service,
+        "run_full_system_diagnostics",
+        lambda export_bundle=False: {
+            "ok": True,
+            "status": "warn",
+            "as_of": "2026-03-18T10:00:00Z",
+            "summary": {"critical_issues": 0, "warning_issues": 1, "repairable_issues": 1},
+            "issues": [{"severity": "warn", "category": "runtime_lock", "title": "Stale lock", "summary": "lock needs cleanup", "repairable": True}],
+        },
+    )
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": [{"action": "remove_stale_lock"}]})
+    monkeypatch.setattr(
+        operator_service,
+        "apply_safe_system_self_repair",
+        lambda export_bundle=True: {"ok": True, "removed_count": 1, "export_bundle": export_bundle},
+    )
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
+    monkeypatch.setattr(operator_service, "start_crypto_edge_collector_loop", lambda interval_sec, plan_file="sample_data/crypto_edges/live_collector_plan.json": (0, "started"))
+    monkeypatch.setattr(operator_service, "stop_crypto_edge_collector_loop", lambda: (0, "stopped"))
+    monkeypatch.setattr(
+        operator_service,
+        "start_paper_strategy_evidence_collection",
+        lambda runtime_sec, strategies=None, symbol="BTC/USD", venue="coinbase": (0, "started"),
+    )
+    monkeypatch.setattr(operator_service, "stop_paper_strategy_evidence_collection", lambda: (0, "stopped"))
+    monkeypatch.setattr(
+        config_editor,
+        "load_user_yaml",
+        lambda: {"strategy": {"name": "ema_cross", "trade_enabled": True, "ema_fast": 12, "ema_slow": 26}},
+    )
+    monkeypatch.setattr(config_editor, "save_user_yaml", lambda cfg: (True, "saved"))
+    monkeypatch.setattr(config_tools, "supported_strategies", lambda: ["ema_cross", "mean_reversion_rsi", "breakout_donchian"])
+    monkeypatch.setattr(
+        config_tools,
+        "build_strategy_block",
+        lambda name, trade_enabled, params: {"name": name, "trade_enabled": trade_enabled, **params},
+    )
+    monkeypatch.setattr(config_tools, "apply_strategy_block", lambda cfg, block: {**cfg, "strategy": dict(block)})
+    monkeypatch.setattr(config_tools, "validate_cfg", lambda cfg: {"ok": True, "errors": [], "warnings": []})
+    monkeypatch.setattr(config_tools, "apply_preset_and_validate", lambda cfg, preset: (cfg, {"ok": True, "errors": [], "warnings": []}))
+    monkeypatch.setattr(presets, "list_presets", lambda: ["ema_cross_default"])
+    monkeypatch.setattr(operator_tools, "synthetic_ohlcv", lambda count: [[1, 100, 101, 99, 100, 1.0]] * max(int(count), 1))
+    monkeypatch.setattr(idempotency_inspector, "list_recent", lambda limit=10, status="error": {"ok": True, "rows": [], "path": "/tmp/db", "table": "idempotency"})
+    monkeypatch.setattr(idempotency_inspector, "filter_rows", lambda rows, venue_filter, symbol_filter: [])
+    monkeypatch.setattr(repair_wizard, "preflight_self_check", lambda: {"ok": True})
+    monkeypatch.setattr(repair_wizard, "preview_reset", lambda include_locks=False: {"ok": True, "include_locks": include_locks})
+    monkeypatch.setattr(repair_wizard, "execute_reset", lambda confirm_text="", include_locks=False: {"ok": False, "reason": "not_confirmed"})
+    monkeypatch.setattr(
+        strategy_evaluation,
+        "build_strategy_workbench",
+        lambda **kwargs: {"ok": True, "backtest": {}, "leaderboard": {}, "hypothesis": {}},
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_report",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "store_path": "/tmp/crypto_edge_research.sqlite",
+            "funding_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "basis_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "quote_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "funding": {"count": 1, "annualized_carry_pct": 12.0, "dominant_bias": "long_pays", "rows": [{"symbol": "BTC-PERP"}]},
+            "basis": {"count": 1, "avg_basis_bps": 8.0, "widest_basis_bps": 8.0, "rows": [{"symbol": "BTC-PERP"}]},
+            "dislocations": {"count": 1, "positive_count": 1, "top_dislocation": {"symbol": "BTC/USD", "gross_cross_bps": 6.0}, "rows": [{"symbol": "BTC/USD"}]},
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Recent",
+            "funding": {"dominant_bias": "long_pays", "annualized_carry_pct": 12.0},
+            "basis": {"avg_basis_bps": 8.0, "widest_basis_bps": 8.0},
+            "dislocations": {"positive_count": 1, "top_dislocation": {"symbol": "BTC/USD"}},
+            "summary_text": "Live Public snapshot shows funding bias long_pays.",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: {"ok": True, "has_status": True, "status": "running", "freshness": "Recent"},
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_summary",
+        lambda: {"ok": True, "needs_attention": False, "severity": "ok"},
+    )
+    monkeypatch.setattr(
+        strategy_evidence_runtime,
+        "load_paper_strategy_evidence_runtime",
+        lambda: {
+            "ok": True,
+            "has_status": False,
+            "status": "not_started",
+            "freshness": "Unknown",
+            "age_label": "Unknown",
+            "current_strategy": "",
+            "completed_summary": "0/3",
+            "summary_text": "Paper strategy evidence collector has not written runtime status yet.",
+        },
+    )
+
+    _module, fake_streamlit = _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/60_Operations.py",
+        module_name="dashboard_test_operations_safe_repair",
+        streamlit_overrides={
+            "Apply Safe Self-Repair": True,
+            "Export diagnostics bundle before safe self-repair": True,
+        },
+    )
+
+    assert fake_streamlit.session_state["ops_last_result"]["action"] == "Apply Safe Self-Repair"
 
 
 def test_settings_page_builds_save_payload(monkeypatch) -> None:
