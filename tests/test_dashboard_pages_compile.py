@@ -25,3 +25,9 @@ def test_dashboard_pages_compile_smoke() -> None:
         path = REPO_ROOT / relative_path
         assert path.exists(), f"Missing dashboard file: {relative_path}"
         py_compile.compile(str(path), doraise=True)
+
+
+def test_dashboard_app_no_longer_preloads_services_package() -> None:
+    text = (REPO_ROOT / "dashboard/app.py").read_text(encoding="utf-8")
+    assert 'sys.modules["services"]' not in text
+    assert "spec_from_file_location(" not in text

@@ -11,21 +11,6 @@ if str(REPO_ROOT) not in sys.path:
 
 import streamlit as st
 
-
-import importlib.util
-
-SERVICES_DIR = REPO_ROOT / "services"
-if SERVICES_DIR.exists():
-    spec = importlib.util.spec_from_file_location(
-        "services",
-        SERVICES_DIR / "__init__.py",
-        submodule_search_locations=[str(SERVICES_DIR)],
-    )
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["services"] = module
-    assert spec.loader is not None
-    spec.loader.exec_module(module)
-
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.activity import render_activity_panel
 from dashboard.components.asset_detail import build_assistant_status_summary
