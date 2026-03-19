@@ -236,44 +236,77 @@ def render_home_digest_summary(
     subtitle: str = "Truthful runtime, safety, strategy, and structural research summary for operator review.",
 ) -> None:
     item = payload if isinstance(payload, dict) else {}
+
+    def _tone_from_state(value: Any) -> str:
+        state = str(value or "").strip().lower()
+        if state in {"ok", "fresh"}:
+            return "success"
+        if state in {"warn", "aging"}:
+            return "warning"
+        if state in {"critical", "stale"}:
+            return "danger"
+        return "muted"
+
     with st.container(border=True):
         st.markdown(f"### {title}")
         st.caption(subtitle)
-        if not bool(item.get("ok")):
+        if not item:
             st.info("Home digest is unavailable.")
             return
 
-        render_badge_row(
-            [
-                {"text": str(item.get("runtime_mode_label") or "Unknown"), "tone": "accent"},
-                {"text": str(item.get("execution_truth_label") or "Unknown"), "tone": "warning"},
-                {"text": str(item.get("live_safety_label") or "Unknown"), "tone": "success"},
-                {"text": str(item.get("structural_freshness_label") or "Unknown"), "tone": "muted"},
-            ]
+        runtime_truth = dict(item.get("runtime_truth") or {})
+        page_status = dict(item.get("page_status") or {})
+        attention_now = dict(item.get("attention_now") or {})
+        leaderboard_summary = dict(item.get("leaderboard_summary") or {})
+        next_best_action = dict(item.get("next_best_action") or {})
+        claim_boundaries = list(item.get("claim_boundaries") or [])
+
+        st.caption(
+            f"As of {str(item.get('as_of') or '-')} · Page status: "
+            f"{str(page_status.get('state') or 'unknown').upper()}"
         )
+        page_caveat = str(page_status.get("caveat") or "").strip()
+        if page_caveat:
+            st.caption(page_caveat)
+
+        truth_pills = []
+        for key in (
+            "mode",
+            "live_order_authority",
+            "kill_switch",
+            "collector_freshness",
+            "leaderboard_age",
+            "copilot_trust_layer",
+        ):
+            pill = dict(runtime_truth.get(key) or {})
+            truth_pills.append(
+                {
+                    "text": f"{str(pill.get('label') or key.replace('_', ' ').title())}: {str(pill.get('value') or 'Unknown')}",
+                    "tone": _tone_from_state(pill.get("state")),
+                }
+            )
+        render_badge_row(truth_pills)
 
         metric_items = [
             {
                 "label": "Runtime Mode",
-                "value": str(item.get("runtime_mode_label") or "Unknown"),
-                "delta": str(item.get("runtime_mode_note") or "").strip(),
+                "value": str(((runtime_truth.get("mode") or {}).get("value") or "Unknown")),
+                "delta": str(((runtime_truth.get("mode") or {}).get("caveat") or "")).strip(),
             },
             {
-                "label": "Execution Truth",
-                "value": str(item.get("execution_truth_label") or "Unknown"),
-                "delta": str(item.get("execution_truth_note") or "").strip(),
+                "label": "Live Boundary",
+                "value": str(((runtime_truth.get("live_order_authority") or {}).get("value") or "Unknown")),
+                "delta": str(((runtime_truth.get("live_order_authority") or {}).get("caveat") or "")).strip(),
             },
             {
-                "label": "Strategy Snapshot",
-                "value": str(item.get("strategy_label") or "Unknown"),
-                "delta": str(item.get("strategy_note") or "").strip(),
+                "label": "Collector Freshness",
+                "value": str(((runtime_truth.get("collector_freshness") or {}).get("value") or "Unknown")),
+                "delta": str(((runtime_truth.get("collector_freshness") or {}).get("caveat") or "")).strip(),
             },
             {
-                "label": "Structural Freshness",
-                "value": str(item.get("structural_freshness_label") or "Unknown"),
-                "delta": str(item.get("collector_status_label") or "Unknown")
-                + " / "
-                + str(item.get("collector_status_note") or "Unknown"),
+                "label": "Leaderboard Age",
+                "value": str(((runtime_truth.get("leaderboard_age") or {}).get("value") or "Unknown")),
+                "delta": str(((runtime_truth.get("leaderboard_age") or {}).get("caveat") or "")).strip(),
             },
         ]
         metric_cols = st.columns(len(metric_items))
@@ -290,15 +323,60 @@ def render_home_digest_summary(
         with left:
             with st.container(border=True):
                 st.markdown("### What Needs Attention Now")
-                for line in list(item.get("attention_items") or [])[:6]:
-                    st.markdown(f"- {str(line)}")
-                top_action = str(item.get("top_action") or "").strip()
-                if top_action:
-                    st.caption(f"Next action: {top_action}")
+                st.caption(f"As of {str(attention_now.get('as_of') or '-')}")
+                rows = list(attention_now.get("items") or [])
+                if not rows:
+                    st.caption("No urgent items right now.")
+                for row in rows[:5]:
+                    st.markdown(
+                        f"- **{str(row.get('severity') or 'info').upper()}** "
+                        f"{str(row.get('title') or 'Unknown')}"
+                    )
+                    st.caption(
+                        f"{str(row.get('why_it_matters') or 'No explanation available.')} "
+                        f"Next: {str(row.get('next_action') or 'Review this item.')}"
+                    )
+                caveat = str(attention_now.get("caveat") or "").strip()
+                if caveat:
+                    st.caption(caveat)
         with right:
             with st.container(border=True):
+                st.markdown("### Next Best Action")
+                st.caption(f"As of {str(next_best_action.get('as_of') or '-')}")
+                st.markdown(f"**{str(next_best_action.get('title') or 'Unavailable')}**")
+                st.caption(str(next_best_action.get("why") or "No next action available."))
+                action = str(next_best_action.get("recommended_action") or "").strip()
+                if action:
+                    st.caption(f"Next: {action}")
+                for line in list(next_best_action.get("secondary_actions") or [])[:2]:
+                    st.markdown(f"- {str(line)}")
+
+        bottom_left, bottom_right = st.columns((1.1, 0.9))
+        with bottom_left:
+            with st.container(border=True):
+                st.markdown("### Strategy Leaderboard Summary")
+                st.caption(f"As of {str(leaderboard_summary.get('as_of') or '-')}")
+                rows = list(leaderboard_summary.get("rows") or [])
+                if not rows:
+                    st.caption("No leaderboard available yet.")
+                for row in rows[:3]:
+                    st.markdown(
+                        f"- **#{int(row.get('rank') or 0)} {str(row.get('name') or 'Unknown')}** "
+                        f"· score {str(row.get('score_label') or '-')}"
+                    )
+                    st.caption(
+                        f"Best {str(row.get('best_regime') or 'Unknown')} / "
+                        f"Worst {str(row.get('worst_regime') or 'Unknown')} / "
+                        f"{str(row.get('recommendation') or 'unknown').replace('_', ' ').title()}"
+                    )
+                caveat = str(leaderboard_summary.get("caveat") or "").strip()
+                if caveat:
+                    st.caption(caveat)
+        with bottom_right:
+            with st.container(border=True):
                 st.markdown("### Claim Boundaries")
-                for line in list(item.get("claim_boundaries") or [])[:6]:
+                st.caption("As of digest build time")
+                for line in claim_boundaries[:6]:
                     st.markdown(f"- {str(line)}")
 
 
