@@ -6,7 +6,10 @@ import time
 from datetime import datetime, timezone
 from services.admin.config_editor import load_user_yaml
 from services.os.app_paths import runtime_dir, ensure_dirs
+from services.execution.intent_reconciler import reconcile_once
 from services.execution.paper_engine import PaperEngine
+from storage.intent_queue_sqlite import IntentQueueSQLite
+from storage.trade_journal_sqlite import TradeJournalSQLite
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -42,6 +45,64 @@ def request_stop() -> dict:
     STOP_FILE.write_text(_now() + "\n", encoding="utf-8")
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
+
+def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
+    queued = qdb.next_queued(limit=int(limit))
+    submitted = 0
+    rejected = 0
+    idempotent = 0
+    for it in queued:
+        intent_id = str(it.get("intent_id") or "").strip()
+        if not intent_id:
+            continue
+        client_order_id = str(it.get("client_order_id") or f"paper_intent_{intent_id}")
+        try:
+            resp = eng.submit_order(
+                client_order_id=client_order_id,
+                venue=str(it.get("venue") or "paper"),
+                symbol=str(it.get("symbol") or ""),
+                side=str(it.get("side") or ""),
+                order_type=str(it.get("order_type") or "market"),
+                qty=float(it.get("qty") or 0.0),
+                limit_price=(float(it["limit_price"]) if it.get("limit_price") is not None else None),
+                ts=str(it.get("ts") or _now()),
+            )
+        except Exception as e:
+            qdb.update_status(intent_id, "rejected", last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+            rejected += 1
+            continue
+
+        if not bool(resp.get("ok")):
+            qdb.update_status(
+                intent_id,
+                "rejected",
+                last_error=str(resp.get("reason") or "paper_submit_failed"),
+                client_order_id=client_order_id,
+            )
+            rejected += 1
+            continue
+
+        order = dict(resp.get("order") or {})
+        order_id = str(order.get("order_id") or "").strip() or None
+        reject_reason = order.get("reject_reason")
+        qdb.update_status(
+            intent_id,
+            "submitted",
+            last_error=reject_reason,
+            client_order_id=client_order_id,
+            linked_order_id=order_id,
+        )
+        submitted += 1
+        if bool(resp.get("idempotent")):
+            idempotent += 1
+
+    return {
+        "queued_seen": int(len(queued)),
+        "submitted": int(submitted),
+        "rejected": int(rejected),
+        "idempotent": int(idempotent),
+    }
+
 def run_forever() -> None:
     ensure_dirs()
     try:
@@ -53,18 +114,23 @@ def run_forever() -> None:
         _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})
         return
     eng = PaperEngine()
+    qdb = IntentQueueSQLite()
+    jdb = TradeJournalSQLite()
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
     venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or DEFAULT_VENUE)).lower().strip()
     symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
     interval = float(p.get("loop_interval_sec", 1.0) or 1.0)
+    max_intents_per_loop = int(p.get("max_intents_per_loop", 20) or 20)
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "venue": venue, "symbol": symbol, "ts": _now()})
     try:
         while True:
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now()})
                 break
+            queue_cycle = _consume_queued_intents_once(qdb=qdb, eng=eng, limit=max_intents_per_loop)
             rec = eng.evaluate_open_orders()
+            recon = reconcile_once(qdb=qdb, pdb=eng.db, jdb=jdb, max_intents=max_intents_per_loop)
             mtm = eng.mark_to_market(venue, symbol)
             _write_status({
                 "ok": True,
@@ -73,7 +139,9 @@ def run_forever() -> None:
                 "ts": _now(),
                 "venue": venue,
                 "symbol": symbol,
+                "queue": queue_cycle,
                 "reconcile": {"open_seen": rec.get("open_orders_seen"), "filled": rec.get("filled"), "rejected": rec.get("rejected")},
+                "intent_reconcile": recon,
                 "mtm": {"cash": mtm.get("cash_quote"), "equity": mtm.get("equity_quote"), "unreal": mtm.get("unrealized_pnl"), "realized": mtm.get("realized_pnl"), "mid": mtm.get("mid")},
             })
             time.sleep(max(0.25, interval))

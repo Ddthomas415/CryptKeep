@@ -51,6 +51,91 @@ def _cfg() -> dict:
         "max_intents_per_loop": int(r.get("max_intents_per_loop", 50) or 50),
     }
 
+
+def reconcile_once(
+    *,
+    qdb: IntentQueueSQLite | None = None,
+    pdb: PaperTradingSQLite | None = None,
+    jdb: TradeJournalSQLite | None = None,
+    max_intents: int = 50,
+) -> dict:
+    qdb = qdb or IntentQueueSQLite()
+    pdb = pdb or PaperTradingSQLite()
+    jdb = jdb or TradeJournalSQLite()
+    submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
+    intents_updated = 0
+    fills_journaled = 0
+
+    for it in submitted:
+        order_id = (it.get("linked_order_id") or "").strip()
+        if not order_id:
+            continue
+        order = pdb.get_order_by_order_id(order_id)
+        if not order:
+            continue
+        st = str(order.get("status") or "").lower().strip()
+        if st in ("new",):
+            continue
+        if st in ("rejected", "canceled"):
+            qdb.update_status(
+                it["intent_id"],
+                st,
+                last_error=order.get("reject_reason"),
+                client_order_id=it.get("client_order_id"),
+                linked_order_id=order_id,
+            )
+            intents_updated += 1
+            continue
+        if st == "filled":
+            qdb.update_status(
+                it["intent_id"],
+                "filled",
+                last_error=None,
+                client_order_id=it.get("client_order_id"),
+                linked_order_id=order_id,
+            )
+            intents_updated += 1
+            fills = pdb.list_fills_for_order(order_id, limit=5000)
+            pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
+            try:
+                cash = float(pdb.get_state("cash_quote") or "0.0")
+            except Exception:
+                cash = None
+            try:
+                realized = float(pdb.get_state("realized_pnl") or "0.0")
+            except Exception:
+                realized = None
+            for f in fills:
+                jdb.insert_fill({
+                    "fill_id": f["fill_id"],
+                    "journal_ts": _now(),
+                    "intent_id": it.get("intent_id"),
+                    "source": it.get("source"),
+                    "strategy_id": it.get("strategy_id"),
+                    "client_order_id": it.get("client_order_id"),
+                    "order_id": order_id,
+                    "fill_ts": f["ts"],
+                    "venue": order["venue"],
+                    "symbol": order["symbol"],
+                    "side": order["side"],
+                    "qty": f["qty"],
+                    "price": f["price"],
+                    "fee": f["fee"],
+                    "fee_currency": f["fee_currency"],
+                    "cash_quote": cash,
+                    "pos_qty": pos.get("qty"),
+                    "pos_avg_price": pos.get("avg_price"),
+                    "realized_pnl_total": realized,
+                })
+                fills_journaled += 1
+
+    return {
+        "submitted_checked": int(len(submitted)),
+        "intents_updated": int(intents_updated),
+        "fills_journaled": int(fills_journaled),
+        "journal_count": int(jdb.count()),
+    }
+
 def run_forever() -> None:
     ensure_dirs()
     cfg = _cfg()
@@ -79,69 +164,26 @@ def run_forever() -> None:
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops})
                 break
-            submitted = qdb.list_intents(limit=int(cfg["max_intents_per_loop"]), status="submitted")
-            intents_seen += len(submitted)
-            for it in submitted:
-                order_id = (it.get("linked_order_id") or "").strip()
-                if not order_id:
-                    continue
-                order = pdb.get_order_by_order_id(order_id)
-                if not order:
-                    continue
-                st = str(order.get("status") or "").lower().strip()
-                if st in ("new",):
-                    continue
-                if st in ("rejected", "canceled"):
-                    qdb.update_status(it["intent_id"], st, last_error=order.get("reject_reason"))
-                    intents_updated += 1
-                    continue
-                if st == "filled":
-                    qdb.update_status(it["intent_id"], "filled", last_error=None)
-                    intents_updated += 1
-                    fills = pdb.list_fills_for_order(order_id, limit=5000)
-                    pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
-                    try:
-                        cash = float(pdb.get_state("cash_quote") or "0.0")
-                    except Exception:
-                        cash = None
-                    try:
-                        realized = float(pdb.get_state("realized_pnl") or "0.0")
-                    except Exception:
-                        realized = None
-                    for f in fills:
-                        jdb.insert_fill({
-                            "fill_id": f["fill_id"],
-                            "journal_ts": _now(),
-                            "intent_id": it.get("intent_id"),
-                            "source": it.get("source"),
-                            "strategy_id": it.get("strategy_id"),
-                            "client_order_id": it.get("client_order_id"),
-                            "order_id": order_id,
-                            "fill_ts": f["ts"],
-                            "venue": order["venue"],
-                            "symbol": order["symbol"],
-                            "side": order["side"],
-                            "qty": f["qty"],
-                            "price": f["price"],
-                            "fee": f["fee"],
-                            "fee_currency": f["fee_currency"],
-                            "cash_quote": cash,
-                            "pos_qty": pos.get("qty"),
-                            "pos_avg_price": pos.get("avg_price"),
-                            "realized_pnl_total": realized,
-                        })
-                        fills_journaled += 1
+            cycle = reconcile_once(
+                qdb=qdb,
+                pdb=pdb,
+                jdb=jdb,
+                max_intents=int(cfg["max_intents_per_loop"]),
+            )
+            intents_seen += int(cycle.get("submitted_checked") or 0)
+            intents_updated += int(cycle.get("intents_updated") or 0)
+            fills_journaled += int(cycle.get("fills_journaled") or 0)
             _write_status({
                 "ok": True,
                 "status": "running",
                 "pid": os.getpid(),
                 "ts": _now(),
                 "loops": loops,
-                "submitted_checked": len(submitted),
+                "submitted_checked": int(cycle.get("submitted_checked") or 0),
                 "intents_seen_total": intents_seen,
                 "intents_updated_total": intents_updated,
                 "fills_journaled_total": fills_journaled,
-                "journal_count": jdb.count(),
+                "journal_count": int(cycle.get("journal_count") or 0),
             })
             time.sleep(max(0.2, float(cfg["poll_interval_sec"])))
     finally:
