@@ -99,6 +99,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(asset_detail, "render_focus_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_market_context", _noop)
     monkeypatch.setattr(summary_panels, "render_overview_status_summary", _noop)
+    monkeypatch.setattr(summary_panels, "render_structural_edge_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_signal_thesis", _noop)
     monkeypatch.setattr(summary_panels, "render_portfolio_position_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_trade_failure_summary", _noop)
@@ -141,6 +142,7 @@ def _load_dashboard_module(
 
 def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     from dashboard.components import focus_selector
+    from dashboard.services import crypto_edge_research
     from dashboard.services import view_data
 
     calls: list[str | None] = []
@@ -169,6 +171,17 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
         }
 
     monkeypatch.setattr(view_data, "get_overview_view", fake_get_overview_view)
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Fresh",
+        },
+    )
     monkeypatch.setattr(
         focus_selector,
         "render_focus_selector",
@@ -613,6 +626,21 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
             "funding": {"count": 1, "annualized_carry_pct": 12.0, "dominant_bias": "long_pays", "rows": [{"symbol": "BTC-PERP"}]},
             "basis": {"count": 1, "avg_basis_bps": 8.0, "widest_basis_bps": 8.0, "rows": [{"symbol": "BTC-PERP"}]},
             "dislocations": {"count": 1, "positive_count": 1, "top_dislocation": {"symbol": "BTC/USD", "gross_cross_bps": 6.0}, "rows": [{"symbol": "BTC/USD"}]},
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Recent",
+            "funding": {"dominant_bias": "long_pays", "annualized_carry_pct": 12.0},
+            "basis": {"avg_basis_bps": 8.0, "widest_basis_bps": 8.0},
+            "dislocations": {"positive_count": 1, "top_dislocation": {"symbol": "BTC/USD"}},
+            "summary_text": "Live Public snapshot shows funding bias long_pays.",
         },
     )
 

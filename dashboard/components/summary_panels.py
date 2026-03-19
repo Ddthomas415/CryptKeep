@@ -229,6 +229,71 @@ def render_overview_status_summary(summary: dict[str, Any] | None) -> None:
                         st.caption(delta)
 
 
+def build_structural_edge_metrics(report: dict[str, Any] | None) -> list[dict[str, str]]:
+    payload = report if isinstance(report, dict) else {}
+    funding = payload.get("funding") if isinstance(payload.get("funding"), dict) else {}
+    basis = payload.get("basis") if isinstance(payload.get("basis"), dict) else {}
+    dislocations = payload.get("dislocations") if isinstance(payload.get("dislocations"), dict) else {}
+    top_dislocation = (
+        dislocations.get("top_dislocation") if isinstance(dislocations.get("top_dislocation"), dict) else {}
+    )
+    return [
+        {
+            "label": "Origin",
+            "value": str(payload.get("data_origin_label") or "Unknown"),
+            "delta": str(payload.get("freshness_summary") or "Unknown"),
+        },
+        {
+            "label": "Funding Bias",
+            "value": str(funding.get("dominant_bias") or "flat").replace("_", " ").title(),
+            "delta": f"{float(funding.get('annualized_carry_pct') or 0.0):.2f}%",
+        },
+        {
+            "label": "Average Basis",
+            "value": f"{float(basis.get('avg_basis_bps') or 0.0):.2f} bps",
+            "delta": f"Widest {float(basis.get('widest_basis_bps') or 0.0):.2f} bps",
+        },
+        {
+            "label": "Dislocations",
+            "value": str(int(dislocations.get("positive_count") or 0)),
+            "delta": str(top_dislocation.get("symbol") or "No positive gap"),
+        },
+    ]
+
+
+def render_structural_edge_summary(
+    report: dict[str, Any] | None,
+    *,
+    title: str = "Structural Edge Snapshot",
+    subtitle: str = "Latest stored crypto-native market-structure summary.",
+) -> None:
+    payload = report if isinstance(report, dict) else {}
+    with st.container(border=True):
+        st.markdown(f"### {title}")
+        st.caption(subtitle)
+        if not bool(payload.get("ok")):
+            st.info(f"Structural edge summary unavailable: {str(payload.get('reason') or 'unknown_error')}")
+            return
+        if not bool(payload.get("has_any_data") or payload.get("has_live_data")):
+            st.info("No stored structural edge snapshot is available yet.")
+            return
+
+        metric_items = build_structural_edge_metrics(payload)
+        metric_cols = st.columns(len(metric_items))
+        for col, item in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(item.get("label") or ""))
+                    st.markdown(f"**{str(item.get('value') or '-')}**")
+                    delta = str(item.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+        summary_text = str(payload.get("summary_text") or "").strip()
+        if summary_text:
+            st.caption(summary_text)
+
+
 def build_operations_status_metrics(snapshot: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = snapshot if isinstance(snapshot, dict) else {}
     services = payload.get("services") if isinstance(payload.get("services"), list) else []
