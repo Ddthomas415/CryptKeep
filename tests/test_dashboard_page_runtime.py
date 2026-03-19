@@ -100,6 +100,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(asset_detail, "render_focus_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_market_context", _noop)
     monkeypatch.setattr(summary_panels, "render_collector_runtime_summary", _noop)
+    monkeypatch.setattr(summary_panels, "render_home_digest_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_overview_status_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_structural_edge_digest_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_structural_edge_summary", _noop)
@@ -146,6 +147,7 @@ def _load_dashboard_module(
 
 def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     from dashboard.components import focus_selector
+    from dashboard.services import home_digest
     from dashboard.services import crypto_edge_research
     from dashboard.services import view_data
 
@@ -153,6 +155,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     collector_calls: list[bool] = []
     health_calls: list[bool] = []
     digest_calls: list[bool] = []
+    home_digest_calls: list[dict[str, Any]] = []
 
     def fake_get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
         calls.append(selected_asset)
@@ -220,6 +223,21 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(
+        home_digest,
+        "load_home_digest",
+        lambda summary=None: home_digest_calls.append(dict(summary or {}))
+        or {
+            "ok": True,
+            "runtime_mode_label": "Paper",
+            "execution_truth_label": "Paper Only",
+            "live_safety_label": "Inactive",
+            "strategy_label": "Ema Cross",
+            "structural_freshness_label": "Fresh",
+            "attention_items": [],
+            "claim_boundaries": [],
+        },
+    )
+    monkeypatch.setattr(
         focus_selector,
         "render_focus_selector",
         lambda *args, **kwargs: ("BTC", "SOL", ["SOL", "BTC"]),
@@ -235,6 +253,8 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     assert collector_calls == [True]
     assert health_calls == [True]
     assert digest_calls == [True]
+    assert len(home_digest_calls) == 1
+    assert home_digest_calls[0].get("mode") == "research_only"
 
 
 def test_markets_page_requests_selected_asset(monkeypatch) -> None:

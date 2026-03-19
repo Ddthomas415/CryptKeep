@@ -36,6 +36,7 @@ from dashboard.components.kpi_builders import build_overview_kpis
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import (
     render_collector_runtime_summary,
+    render_home_digest_summary,
     render_overview_status_summary,
     render_structural_edge_digest_summary,
     render_structural_edge_health_summary,
@@ -48,6 +49,7 @@ from dashboard.services.crypto_edge_research import (
     load_crypto_edge_staleness_summary,
     load_latest_live_crypto_edge_snapshot,
 )
+from dashboard.services.home_digest import load_home_digest
 from dashboard.services.view_data import get_overview_view
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
@@ -92,6 +94,7 @@ live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
 structural_edge_digest = load_crypto_edge_staleness_digest()
+home_digest = load_home_digest(summary)
 
 mode = str(summary.get("mode") or "research_only")
 risk_status = str(summary.get("risk_status") or "safe")
@@ -107,6 +110,7 @@ render_page_header(
 )
 
 render_kpi_cards(build_overview_kpis(portfolio=portfolio, signal_count=len(signal_rows), execution_enabled=execution_enabled))
+render_home_digest_summary(home_digest)
 
 assistant_summary = build_assistant_status_summary(detail)
 hero_badges = [

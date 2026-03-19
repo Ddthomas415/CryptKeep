@@ -229,6 +229,79 @@ def render_overview_status_summary(summary: dict[str, Any] | None) -> None:
                         st.caption(delta)
 
 
+def render_home_digest_summary(
+    payload: dict[str, Any] | None,
+    *,
+    title: str = "Decision Surface",
+    subtitle: str = "Truthful runtime, safety, strategy, and structural research summary for operator review.",
+) -> None:
+    item = payload if isinstance(payload, dict) else {}
+    with st.container(border=True):
+        st.markdown(f"### {title}")
+        st.caption(subtitle)
+        if not bool(item.get("ok")):
+            st.info("Home digest is unavailable.")
+            return
+
+        render_badge_row(
+            [
+                {"text": str(item.get("runtime_mode_label") or "Unknown"), "tone": "accent"},
+                {"text": str(item.get("execution_truth_label") or "Unknown"), "tone": "warning"},
+                {"text": str(item.get("live_safety_label") or "Unknown"), "tone": "success"},
+                {"text": str(item.get("structural_freshness_label") or "Unknown"), "tone": "muted"},
+            ]
+        )
+
+        metric_items = [
+            {
+                "label": "Runtime Mode",
+                "value": str(item.get("runtime_mode_label") or "Unknown"),
+                "delta": str(item.get("runtime_mode_note") or "").strip(),
+            },
+            {
+                "label": "Execution Truth",
+                "value": str(item.get("execution_truth_label") or "Unknown"),
+                "delta": str(item.get("execution_truth_note") or "").strip(),
+            },
+            {
+                "label": "Strategy Snapshot",
+                "value": str(item.get("strategy_label") or "Unknown"),
+                "delta": str(item.get("strategy_note") or "").strip(),
+            },
+            {
+                "label": "Structural Freshness",
+                "value": str(item.get("structural_freshness_label") or "Unknown"),
+                "delta": str(item.get("collector_status_label") or "Unknown")
+                + " / "
+                + str(item.get("collector_status_note") or "Unknown"),
+            },
+        ]
+        metric_cols = st.columns(len(metric_items))
+        for col, metric in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(metric.get("label") or ""))
+                    st.markdown(f"**{str(metric.get('value') or '-')}**")
+                    delta = str(metric.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+        left, right = st.columns((1.2, 1))
+        with left:
+            with st.container(border=True):
+                st.markdown("### What Needs Attention Now")
+                for line in list(item.get("attention_items") or [])[:6]:
+                    st.markdown(f"- {str(line)}")
+                top_action = str(item.get("top_action") or "").strip()
+                if top_action:
+                    st.caption(f"Next action: {top_action}")
+        with right:
+            with st.container(border=True):
+                st.markdown("### Claim Boundaries")
+                for line in list(item.get("claim_boundaries") or [])[:6]:
+                    st.markdown(f"- {str(line)}")
+
+
 def build_structural_edge_metrics(report: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = report if isinstance(report, dict) else {}
     funding = payload.get("funding") if isinstance(payload.get("funding"), dict) else {}
