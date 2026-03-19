@@ -45,6 +45,7 @@ def test_tool_definitions_expose_read_only_functions() -> None:
         "get_crypto_edge_report",
         "get_latest_live_crypto_edge_snapshot",
         "get_crypto_edge_change_summary",
+        "get_crypto_edge_staleness_summary",
     ]
 
 
@@ -215,3 +216,26 @@ def test_get_crypto_edge_change_summary_uses_dashboard_loader(monkeypatch) -> No
     assert payload["ok"] is True
     assert payload["has_change_data"] is True
     assert "Recent structural changes" in payload["summary_text"]
+
+
+def test_get_crypto_edge_staleness_summary_uses_dashboard_loader(monkeypatch) -> None:
+    from dashboard.services import crypto_edge_research
+
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_summary",
+        lambda: {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "warn",
+            "summary_text": "Structural-edge freshness needs attention: collector loop is stopped.",
+        },
+    )
+
+    payload = asyncio.run(tools.get_crypto_edge_staleness_summary())
+
+    assert payload["ok"] is True
+    assert payload["needs_attention"] is True
+    assert payload["severity"] == "warn"

@@ -128,6 +128,68 @@ def _build_collector_runtime_summary(payload: dict[str, Any]) -> str:
     )
 
 
+def _build_staleness_summary(live_snapshot: dict[str, Any], collector_runtime: dict[str, Any]) -> dict[str, Any]:
+    live_freshness = str(live_snapshot.get("freshness_summary") or "Unknown")
+    collector_freshness = str(collector_runtime.get("freshness") or "Unknown")
+    collector_status = str(collector_runtime.get("status") or "not_started")
+    collector_errors = int(collector_runtime.get("errors") or 0)
+    has_live_data = bool(live_snapshot.get("has_live_data"))
+    has_collector_status = bool(collector_runtime.get("has_status"))
+
+    issues: list[str] = []
+    severity = "ok"
+    if not has_live_data:
+        issues.append("no live-public structural snapshot is stored")
+        severity = "critical"
+    elif live_freshness in {"Aging", "Stale", "Unknown", "No Live Data"}:
+        issues.append(f"live structural snapshot freshness is {live_freshness.lower()}")
+        severity = "warn" if severity == "ok" else severity
+
+    if not has_collector_status:
+        issues.append("collector loop has not reported runtime status")
+        severity = "warn" if severity == "ok" else severity
+    elif collector_status not in {"running", "stopped"}:
+        issues.append(f"collector status is {collector_status}")
+        severity = "warn" if severity == "ok" else severity
+    elif collector_status == "stopped":
+        issues.append(f"collector loop is stopped ({str(collector_runtime.get('reason') or 'unknown')})")
+        severity = "warn" if severity == "ok" else severity
+
+    if collector_freshness in {"Aging", "Stale", "Unknown"} and has_collector_status:
+        issues.append(f"collector runtime freshness is {collector_freshness.lower()}")
+        severity = "warn" if severity == "ok" else severity
+
+    if collector_errors > 0:
+        issues.append(f"collector reported {collector_errors} error(s)")
+        severity = "warn" if severity == "ok" else severity
+
+    needs_attention = bool(issues)
+    if not needs_attention:
+        summary_text = "Live structural-edge data is fresh and the collector loop is reporting normally."
+        action_text = "No operator action needed."
+    else:
+        summary_text = "Structural-edge freshness needs attention: " + "; ".join(issues) + "."
+        action_text = "Check `make collect-live-crypto-edges-loop` and verify live-public snapshots are being refreshed."
+
+    return {
+        "ok": True,
+        "research_only": True,
+        "execution_enabled": False,
+        "needs_attention": needs_attention,
+        "severity": severity,
+        "live_snapshot_freshness": live_freshness,
+        "collector_freshness": collector_freshness,
+        "collector_status": collector_status,
+        "collector_errors": collector_errors,
+        "has_live_data": has_live_data,
+        "has_collector_status": has_collector_status,
+        "data_origin_label": str(live_snapshot.get("data_origin_label") or "Live Public"),
+        "summary_text": summary_text,
+        "action_text": action_text,
+        "issues": issues,
+    }
+
+
 def _decorate_history_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     decorated: list[dict[str, Any]] = []
     for row in rows:
@@ -395,3 +457,26 @@ def load_crypto_edge_collector_runtime() -> dict[str, Any]:
             "reason": f"status_read_failed:{type(exc).__name__}",
             "summary_text": "Collector runtime status is unavailable.",
         }
+
+
+def load_crypto_edge_staleness_summary() -> dict[str, Any]:
+    live_snapshot = load_latest_live_crypto_edge_snapshot()
+    collector_runtime = load_crypto_edge_collector_runtime()
+    if not bool(live_snapshot.get("ok")) and not bool(collector_runtime.get("ok")):
+        return {
+            "ok": False,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "critical",
+            "summary_text": "Live structural-edge freshness could not be evaluated.",
+            "action_text": "Inspect the research store and collector runtime state before relying on structural-edge context.",
+            "issues": [
+                str(live_snapshot.get("reason") or "live_snapshot_unavailable"),
+                str(collector_runtime.get("reason") or "collector_runtime_unavailable"),
+            ],
+        }
+    return _build_staleness_summary(
+        live_snapshot if isinstance(live_snapshot, dict) else {},
+        collector_runtime if isinstance(collector_runtime, dict) else {},
+    )

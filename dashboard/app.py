@@ -36,10 +36,14 @@ from dashboard.components.kpi_builders import build_overview_kpis
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import (
     render_overview_status_summary,
+    render_structural_edge_health_summary,
     render_structural_edge_summary,
 )
 from dashboard.components.tables import render_table_section
-from dashboard.services.crypto_edge_research import load_latest_live_crypto_edge_snapshot
+from dashboard.services.crypto_edge_research import (
+    load_crypto_edge_staleness_summary,
+    load_latest_live_crypto_edge_snapshot,
+)
 from dashboard.services.view_data import get_overview_view
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
@@ -81,6 +85,7 @@ watchlist_preview = (
     overview_view.get("watchlist_preview") if isinstance(overview_view.get("watchlist_preview"), list) else []
 )
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
+structural_edge_health = load_crypto_edge_staleness_summary()
 
 mode = str(summary.get("mode") or "research_only")
 risk_status = str(summary.get("risk_status") or "safe")
@@ -160,6 +165,11 @@ with hero_col:
 
 with side_col:
     render_overview_status_summary(summary)
+    render_structural_edge_health_summary(
+        structural_edge_health,
+        title="Structural Edge Freshness",
+        subtitle="Live-public structural-edge freshness and collector loop health.",
+    )
     render_structural_edge_summary(
         live_structural_edges,
         title="Live Structural Snapshot",

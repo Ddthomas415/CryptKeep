@@ -101,6 +101,16 @@ OPENAI_TOOL_DEFINITIONS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "type": "function",
+        "name": "get_crypto_edge_staleness_summary",
+        "description": "Get a research-only summary of whether live-public structural-edge data is stale or whether the collector runtime needs attention.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -402,6 +412,34 @@ async def get_crypto_edge_change_summary() -> dict[str, Any]:
         }
 
 
+async def get_crypto_edge_staleness_summary() -> dict[str, Any]:
+    try:
+        from dashboard.services.crypto_edge_research import load_crypto_edge_staleness_summary
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"store_import_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+        }
+
+    try:
+        return load_crypto_edge_staleness_summary()
+    except Exception as exc:
+        logger.warning(
+            "crypto_edge_staleness_summary_failed",
+            extra={"context": {"error": str(exc)}},
+        )
+        return {
+            "ok": False,
+            "reason": f"store_read_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+        }
+
+
 async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | None) -> dict[str, Any]:
     if isinstance(raw_arguments, str):
         try:
@@ -427,4 +465,6 @@ async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | Non
         return await get_latest_live_crypto_edge_snapshot()
     if name == "get_crypto_edge_change_summary":
         return await get_crypto_edge_change_summary()
+    if name == "get_crypto_edge_staleness_summary":
+        return await get_crypto_edge_staleness_summary()
     return {"ok": False, "error": f"unsupported_tool:{name}"}

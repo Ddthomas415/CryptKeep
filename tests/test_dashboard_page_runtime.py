@@ -100,6 +100,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(summary_panels, "render_market_context", _noop)
     monkeypatch.setattr(summary_panels, "render_overview_status_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_structural_edge_summary", _noop)
+    monkeypatch.setattr(summary_panels, "render_structural_edge_health_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_signal_thesis", _noop)
     monkeypatch.setattr(summary_panels, "render_portfolio_position_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_trade_failure_summary", _noop)
@@ -146,6 +147,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     from dashboard.services import view_data
 
     calls: list[str | None] = []
+    health_calls: list[bool] = []
 
     def fake_get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
         calls.append(selected_asset)
@@ -183,6 +185,11 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_summary",
+        lambda: health_calls.append(True) or {"ok": True, "needs_attention": False, "severity": "ok"},
+    )
+    monkeypatch.setattr(
         focus_selector,
         "render_focus_selector",
         lambda *args, **kwargs: ("BTC", "SOL", ["SOL", "BTC"]),
@@ -195,6 +202,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     )
 
     assert calls == [None, "BTC"]
+    assert health_calls == [True]
 
 
 def test_markets_page_requests_selected_asset(monkeypatch) -> None:
@@ -664,6 +672,11 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
             "dislocations": {"positive_count": 1, "top_dislocation": {"symbol": "BTC/USD"}},
             "summary_text": "Live Public snapshot shows funding bias long_pays.",
         },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_summary",
+        lambda: {"ok": True, "needs_attention": False, "severity": "ok"},
     )
 
     _module, fake_streamlit = _load_dashboard_module(

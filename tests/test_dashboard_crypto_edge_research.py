@@ -129,3 +129,35 @@ def test_load_crypto_edge_collector_runtime_reads_status_file(tmp_path, monkeypa
     assert payload["source_label"] == "Live Public"
     assert payload["freshness"] in {"Fresh", "Recent", "Aging", "Stale", "Unknown"}
     assert "Collector status running" in payload["summary_text"]
+
+
+def test_load_crypto_edge_staleness_summary_flags_attention(monkeypatch) -> None:
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Stale",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "stopped",
+            "freshness": "Aging",
+            "errors": 2,
+            "reason": "manual_stop",
+        },
+    )
+
+    payload = crypto_edge_research.load_crypto_edge_staleness_summary()
+
+    assert payload["ok"] is True
+    assert payload["needs_attention"] is True
+    assert payload["severity"] == "warn"
+    assert "freshness needs attention" in payload["summary_text"]

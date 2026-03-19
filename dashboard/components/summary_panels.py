@@ -294,6 +294,62 @@ def render_structural_edge_summary(
             st.caption(summary_text)
 
 
+def render_structural_edge_health_summary(
+    payload: dict[str, Any] | None,
+    *,
+    title: str = "Structural Edge Freshness",
+    subtitle: str = "Live-public structural-edge freshness and collector runtime health.",
+) -> None:
+    item = payload if isinstance(payload, dict) else {}
+    with st.container(border=True):
+        st.markdown(f"### {title}")
+        st.caption(subtitle)
+        if not bool(item.get("ok")):
+            st.info(
+                f"Structural edge health unavailable: {str(item.get('summary_text') or item.get('reason') or 'unknown_error')}"
+            )
+            return
+
+        metric_items = [
+            {
+                "label": "Needs Attention",
+                "value": "Yes" if bool(item.get("needs_attention")) else "No",
+                "delta": str(item.get("severity") or "ok").upper(),
+            },
+            {
+                "label": "Live Snapshot",
+                "value": str(item.get("live_snapshot_freshness") or "Unknown"),
+                "delta": str(item.get("data_origin_label") or "Live Public"),
+            },
+            {
+                "label": "Collector",
+                "value": str(item.get("collector_status") or "not_started").replace("_", " ").title(),
+                "delta": str(item.get("collector_freshness") or "Unknown"),
+            },
+            {
+                "label": "Errors",
+                "value": str(int(item.get("collector_errors") or 0)),
+                "delta": "Collector loop",
+            },
+        ]
+        metric_cols = st.columns(len(metric_items))
+        for col, metric in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(metric.get("label") or ""))
+                    st.markdown(f"**{str(metric.get('value') or '-')}**")
+                    delta = str(metric.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+        summary_text = str(item.get("summary_text") or "").strip()
+        if summary_text:
+            st.caption(summary_text)
+        action_text = str(item.get("action_text") or "").strip()
+        if action_text:
+            st.caption(action_text)
+
+
 def build_operations_status_metrics(snapshot: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = snapshot if isinstance(snapshot, dict) else {}
     services = payload.get("services") if isinstance(payload.get("services"), list) else []

@@ -16,6 +16,7 @@ from shared.tools import (
     get_crypto_edge_change_summary,
     execute_tool_call,
     get_crypto_edge_report,
+    get_crypto_edge_staleness_summary,
     get_latest_live_crypto_edge_snapshot,
     get_market_snapshot,
     get_operations_summary,
@@ -177,6 +178,11 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(tool_results.get("get_crypto_edge_change_summary"), dict)
         else {}
     )
+    crypto_edge_staleness = (
+        tool_results.get("get_crypto_edge_staleness_summary")
+        if isinstance(tool_results.get("get_crypto_edge_staleness_summary"), dict)
+        else {}
+    )
     if bool(crypto_edges.get("has_any_data")):
         funding = crypto_edges.get("funding") if isinstance(crypto_edges.get("funding"), dict) else {}
         basis = crypto_edges.get("basis") if isinstance(crypto_edges.get("basis"), dict) else {}
@@ -243,6 +249,20 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
                 "relevance": 0.74,
             }
         )
+    if bool(crypto_edge_staleness.get("needs_attention")):
+        evidence.append(
+            {
+                "id": "crypto_edge_staleness",
+                "type": "research",
+                "source": "crypto-edge-runtime",
+                "timestamp": None,
+                "summary": str(
+                    crypto_edge_staleness.get("summary_text")
+                    or "Structural-edge freshness needs attention."
+                ),
+                "relevance": 0.78,
+            }
+        )
     return evidence[:6]
 
 
@@ -260,6 +280,7 @@ def _build_evidence_bundle(tool_results: dict[str, Any]) -> dict[str, Any]:
         "crypto_edges": tool_results.get("get_crypto_edge_report", {}),
         "latest_live_crypto_edges": tool_results.get("get_latest_live_crypto_edge_snapshot", {}),
         "crypto_edge_changes": tool_results.get("get_crypto_edge_change_summary", {}),
+        "crypto_edge_staleness": tool_results.get("get_crypto_edge_staleness_summary", {}),
     }
 
 
@@ -283,6 +304,11 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
     crypto_edge_changes = (
         tool_results.get("get_crypto_edge_change_summary")
         if isinstance(tool_results.get("get_crypto_edge_change_summary"), dict)
+        else {}
+    )
+    crypto_edge_staleness = (
+        tool_results.get("get_crypto_edge_staleness_summary")
+        if isinstance(tool_results.get("get_crypto_edge_staleness_summary"), dict)
         else {}
     )
     question_lc = str(question or "").lower()
@@ -334,6 +360,16 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
     change_note = ""
     if bool(crypto_edge_changes.get("has_change_data")):
         change_note = f" {str(crypto_edge_changes.get('summary_text') or '').strip()}".strip()
+    staleness_note = ""
+    if bool(crypto_edge_staleness.get("needs_attention")):
+        staleness_note = " ".join(
+            part.strip()
+            for part in (
+                str(crypto_edge_staleness.get("summary_text") or "").strip(),
+                str(crypto_edge_staleness.get("action_text") or "").strip(),
+            )
+            if part and part.strip()
+        ).strip()
 
     current_cause = (
         f"{asset} is trading {direction} over the current lookback window with the last observed price near {latest_price:,.2f}. "
@@ -343,6 +379,8 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
     ).strip()
     if ("changed" in question_lc or "away" in question_lc) and change_note:
         current_cause = f"{change_note} {current_cause}".strip()
+    if staleness_note:
+        current_cause = f"{current_cause} {staleness_note}".strip()
 
     return {
         "current_cause": current_cause,
@@ -368,6 +406,8 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
         results["get_latest_live_crypto_edge_snapshot"] = await get_latest_live_crypto_edge_snapshot()
     if "get_crypto_edge_change_summary" not in results:
         results["get_crypto_edge_change_summary"] = await get_crypto_edge_change_summary()
+    if "get_crypto_edge_staleness_summary" not in results:
+        results["get_crypto_edge_staleness_summary"] = await get_crypto_edge_staleness_summary()
     return results
 
 

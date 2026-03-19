@@ -18,10 +18,12 @@ from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import (
     render_operations_status_summary,
+    render_structural_edge_health_summary,
     render_structural_edge_summary,
 )
 from dashboard.components.tables import render_table_section
 from dashboard.services.crypto_edge_research import (
+    load_crypto_edge_staleness_summary,
     load_crypto_edge_report,
     load_latest_live_crypto_edge_snapshot,
 )
@@ -64,6 +66,7 @@ render_page_header(
 
 snapshot = get_operations_snapshot()
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
+structural_edge_health = load_crypto_edge_staleness_summary()
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
 
@@ -111,6 +114,11 @@ render_prompt_actions(
 )
 
 render_operations_status_summary(snapshot)
+render_structural_edge_health_summary(
+    structural_edge_health,
+    title="Structural Edge Freshness",
+    subtitle="Operator-facing freshness signal for live-public structural-edge data and collector runtime state.",
+)
 render_structural_edge_summary(
     live_structural_edges,
     title="Live Structural Snapshot",
