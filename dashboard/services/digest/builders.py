@@ -210,6 +210,22 @@ def _recommendation_for_row(row: dict[str, Any]) -> str:
     return "freeze"
 
 
+def _evidence_note_for_row(row: dict[str, Any]) -> str:
+    note = str(row.get("evidence_note") or "").strip()
+    if note:
+        return note
+    status = str(row.get("evidence_status") or "").strip().lower()
+    if status == "paper_supported":
+        return "Persisted paper-history supports the current research decision, but the sample is still not promotion-grade."
+    if status == "paper_thin":
+        return "Persisted paper-history exists, but the sample is still too thin to confirm the synthetic ranking."
+    if status == "synthetic_only":
+        return "Persisted paper-history is missing, so the decision still relies on synthetic windows."
+    if status == "insufficient":
+        return "No realized closed-trade participation exists across the current evidence windows."
+    return ""
+
+
 def _candidate_title(value: Any) -> str:
     return str(value or "Unknown").replace("_", " ").title()
 
@@ -418,6 +434,23 @@ def _build_attention_candidates(
                 "link_target": "/Home",
             }
         )
+    top_raw_rows = [dict(row) for row in list(strategy_context.get("raw_rows") or []) if isinstance(row, dict)]
+    if top_raw_rows:
+        top_row = top_raw_rows[0]
+        top_evidence_status = str(top_row.get("evidence_status") or "").strip().lower()
+        if top_evidence_status in {"synthetic_only", "paper_thin", "insufficient"}:
+            items.append(
+                {
+                    "id": f"strategy-evidence-{top_evidence_status}",
+                    "severity": "important" if top_evidence_status == "paper_thin" else "watch",
+                    "title": f"Top strategy evidence is {top_evidence_status.replace('_', ' ')}",
+                    "why_it_matters": _evidence_note_for_row(top_row) or "Current strategy evidence is too weak for promotion review.",
+                    "next_action": "Collect more real paper-history evidence, then rerun `make strategy-evidence-cycle`.",
+                    "source": "strategy_evidence",
+                    "as_of": as_of,
+                    "link_target": "/Home",
+                }
+            )
     if not bool(getattr(start_decision, "ok", False)):
         items.append(
             {
@@ -632,6 +665,7 @@ def build_leaderboard_summary_digest(*, as_of: str, strategy_context: dict[str, 
     rows: list[LeaderboardStrategyRow] = []
     for raw in raw_rows[:5]:
         best_regime, worst_regime = _regime_extremes(raw)
+        row_caveat_parts = [part for part in (_evidence_note_for_row(raw), caveat) if part]
         rows.append(
             {
                 "strategy_id": str(raw.get("strategy") or raw.get("candidate") or "unknown"),
@@ -647,7 +681,7 @@ def build_leaderboard_summary_digest(*, as_of: str, strategy_context: dict[str, 
                 "paper_live_drift": _drift_label(raw.get("paper_live_drift_pct")),
                 "recommendation": _recommendation_for_row(raw),
                 "as_of": row_as_of,
-                "caveat": caveat,
+                "caveat": " ".join(row_caveat_parts),
             }
         )
     return LeaderboardSummaryData(
@@ -840,6 +874,7 @@ def build_safety_warnings_digest(
     as_of: str,
     overview_summary: dict[str, Any],
     runtime_context: dict[str, Any],
+    strategy_context: dict[str, Any],
     structural_health: dict[str, Any],
     collector_runtime: dict[str, Any],
     operations_snapshot: dict[str, Any],
@@ -869,6 +904,21 @@ def build_safety_warnings_digest(
                 "caveat": ", ".join(str(item) for item in list(getattr(start_decision, "reasons", []) or [])) or None,
             }
         )
+    strategy_rows = [dict(row) for row in list(strategy_context.get("raw_rows") or []) if isinstance(row, dict)]
+    if strategy_rows:
+        top_row = strategy_rows[0]
+        top_evidence_status = str(top_row.get("evidence_status") or "").strip().lower()
+        if top_evidence_status in {"synthetic_only", "paper_thin", "insufficient"}:
+            items.append(
+                {
+                    "severity": "watch",
+                    "title": "Promotion evidence is not paper-supported",
+                    "summary": _evidence_note_for_row(top_row) or "Top strategy evidence is too weak for promotion review.",
+                    "source": "strategy_evidence",
+                    "as_of": as_of,
+                    "caveat": None,
+                }
+            )
     if bool(structural_health.get("needs_attention")):
         items.append(
             {
@@ -1270,6 +1320,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         as_of=as_of,
         overview_summary=summary,
         runtime_context=runtime_context,
+        strategy_context=strategy_context,
         structural_health=structural_health,
         collector_runtime=collector_runtime,
         operations_snapshot=operations_snapshot,

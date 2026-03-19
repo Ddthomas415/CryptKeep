@@ -43,10 +43,35 @@ def _top_row(leaderboard_summary: dict[str, Any]) -> dict[str, Any] | None:
     return dict(rows[0]) if rows else None
 
 
+def _top_strategy_evidence(strategy_truth: dict[str, Any], top: dict[str, Any] | None) -> dict[str, Any]:
+    raw_rows = [dict(row) for row in list(strategy_truth.get("raw_rows") or []) if isinstance(row, dict)]
+    decisions = [dict(item) for item in list(strategy_truth.get("decisions") or []) if isinstance(item, dict)]
+    top_strategy = str((top or {}).get("strategy_id") or "").strip().lower()
+    top_name = str((top or {}).get("name") or "").strip().lower()
+
+    for row in raw_rows:
+        row_strategy = str(row.get("strategy") or row.get("candidate") or "").strip().lower()
+        row_candidate = str(row.get("candidate") or "").strip().lower()
+        if top_strategy and row_strategy == top_strategy:
+            return row
+        if top_name and row_candidate == top_name:
+            return row
+
+    for item in decisions:
+        strategy = str(item.get("strategy") or item.get("candidate") or "").strip().lower()
+        candidate = str(item.get("candidate") or "").strip().lower()
+        if top_strategy and strategy == top_strategy:
+            return item
+        if top_name and candidate == top_name:
+            return item
+    return {}
+
+
 def _sandbox_pass_criteria() -> list[str]:
     return [
         "Top strategy remains Keep, not Improve/Freeze/Retire.",
         "Top strategy shows at least 3 closed trades in the current evaluation cycle.",
+        "Top strategy evidence status is paper_supported, not synthetic_only or paper_thin.",
         "Top strategy stays positive after fees and slippage.",
         "Collector/runtime freshness is not stale or missing.",
         "Kill switch is disarmed before enabling sandbox execution.",
@@ -67,6 +92,7 @@ def _tiny_live_pass_criteria() -> list[str]:
     return [
         "Sandbox stage has already run cleanly with no active safety blockers.",
         "Top strategy remains Keep with at least 5 closed trades across current evidence.",
+        "Top strategy evidence status is paper_supported before any tiny-live trial.",
         "Top strategy max drawdown stays at or below 8.0%.",
         "Paper/live drift is measured and not high before any tiny-live trial.",
         "ENABLE_LIVE_TRADING=YES and CONFIRM_LIVE=YES are set deliberately.",
@@ -104,6 +130,10 @@ def build_promotion_readiness(
     strategy_truth_source = str(strategy_truth.get("truth_source") or "").strip().lower()
     strategy_truth_freshness = str(strategy_truth.get("freshness_status") or "").strip().lower()
     strategy_truth_caveat = str(strategy_truth.get("caveat") or "").strip()
+    top_evidence = _top_strategy_evidence(strategy_truth, top)
+    top_evidence_status = str(top_evidence.get("evidence_status") or "").strip().lower()
+    top_confidence = str(top_evidence.get("confidence_label") or "").strip().lower()
+    top_evidence_note = str(top_evidence.get("evidence_note") or "").strip()
 
     if strategy_truth_source and strategy_truth_source != "persisted_artifact":
         blockers.append(
@@ -140,6 +170,15 @@ def build_promotion_readiness(
                 blockers.append(f"Top strategy recommendation is {recommendation or 'unknown'}; require keep.")
             if closed_trades < 3:
                 blockers.append(f"Top strategy only has {closed_trades} closed trade(s); require at least 3.")
+            if top_evidence_status != "paper_supported":
+                blockers.append(
+                    top_evidence_note
+                    or f"Top strategy evidence status is {top_evidence_status or 'unknown'}; require paper_supported."
+                )
+            elif top_confidence in {"unknown", "low"}:
+                blockers.append(
+                    f"Top strategy confidence is {top_confidence or 'unknown'}; require at least medium confidence before sandbox review."
+                )
             if post_cost_return <= 0.0:
                 blockers.append("Top strategy is not positive after fees and slippage.")
 
@@ -199,6 +238,15 @@ def build_promotion_readiness(
                 blockers.append(f"Top strategy recommendation is {recommendation or 'unknown'}; require keep.")
             if closed_trades < 5:
                 blockers.append(f"Top strategy only has {closed_trades} closed trade(s); require at least 5.")
+            if top_evidence_status != "paper_supported":
+                blockers.append(
+                    top_evidence_note
+                    or f"Top strategy evidence status is {top_evidence_status or 'unknown'}; require paper_supported."
+                )
+            elif top_confidence in {"unknown", "low"}:
+                blockers.append(
+                    f"Top strategy confidence is {top_confidence or 'unknown'}; require at least medium confidence before tiny-live review."
+                )
             if drawdown > 8.0:
                 blockers.append(f"Top strategy drawdown is {drawdown:.2f}%; require 8.00% or less.")
             if paper_live_drift in {"unknown", "high"}:

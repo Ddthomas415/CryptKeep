@@ -325,6 +325,9 @@ def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> No
                     "slippage_sensitivity_pct": 1.1,
                     "paper_live_drift_pct": None,
                     "decision": "keep",
+                    "evidence_status": "paper_supported",
+                    "confidence_label": "medium",
+                    "evidence_note": "Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.",
                 }
             ],
             "decisions": [
@@ -333,6 +336,9 @@ def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> No
                     "strategy": "breakout_donchian",
                     "rank": 1,
                     "decision": "keep",
+                    "evidence_status": "paper_supported",
+                    "confidence_label": "medium",
+                    "evidence_note": "Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.",
                 }
             ],
             "window_count": 5,
