@@ -33,6 +33,32 @@ def _minmax_scale(values: Iterable[float], *, invert: bool = False) -> list[floa
     return base
 
 
+def _bounded_ratio(value: Any, full_credit: float) -> float:
+    if full_credit <= 0.0:
+        return 0.0
+    return float(max(0.0, min(_fnum(value, 0.0) / float(full_credit), 1.0)))
+
+
+def _participation_quality(row: Dict[str, Any]) -> float:
+    closed_trades = max(int(_fnum(row.get("closed_trades"), 0.0)), 0)
+    exposure_fraction = max(_fnum(row.get("exposure_fraction"), 0.0), 0.0)
+    trade_quality = _bounded_ratio(closed_trades, 3.0)
+    exposure_quality = _bounded_ratio(exposure_fraction, 0.20)
+    return float((0.8 * trade_quality) + (0.2 * exposure_quality))
+
+
+def _thin_sample_penalty(row: Dict[str, Any]) -> float:
+    closed_trades = max(int(_fnum(row.get("closed_trades"), 0.0)), 0)
+    exposure_fraction = max(_fnum(row.get("exposure_fraction"), 0.0), 0.0)
+    if closed_trades <= 0:
+        return 0.35
+    if closed_trades == 1:
+        return 0.05
+    if closed_trades == 2 and exposure_fraction < 0.05:
+        return 0.02
+    return 0.0
+
+
 def default_strategy_candidates(base_cfg: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
     cfg = dict(base_cfg or {})
     return [
@@ -74,15 +100,19 @@ def rank_strategy_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         [abs(_fnum(row.get("paper_live_drift_pct"), 0.0)) if row.get("paper_live_drift_pct") is not None else 0.0 for row in ranked],
         invert=True,
     )
+    participation = _minmax_scale([_participation_quality(row) for row in ranked])
 
     for idx, row in enumerate(ranked):
         stability_component = (0.7 * robustness[idx]) + (0.3 * dispersions[idx])
+        thin_sample_penalty = _thin_sample_penalty(row)
         score = (
-            0.35 * returns[idx]
-            + 0.20 * drawdowns[idx]
-            + 0.20 * stability_component
-            + 0.15 * slippage[idx]
+            0.30 * returns[idx]
+            + 0.18 * drawdowns[idx]
+            + 0.18 * stability_component
+            + 0.14 * slippage[idx]
             + 0.10 * drifts[idx]
+            + 0.10 * participation[idx]
+            - thin_sample_penalty
         )
         row["leaderboard_score"] = float(round(score, 6))
         row["leaderboard_components"] = {
@@ -91,6 +121,8 @@ def rank_strategy_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "stability_component": float(round(stability_component, 6)),
             "slippage_component": float(round(slippage[idx], 6)),
             "drift_component": float(round(drifts[idx], 6)),
+            "participation_component": float(round(participation[idx], 6)),
+            "thin_sample_penalty": float(round(thin_sample_penalty, 6)),
         }
 
     ranked.sort(
@@ -168,6 +200,7 @@ def run_strategy_leaderboard(
             "expectancy": _fnum(scorecard.get("expectancy"), 0.0),
             "win_rate_pct": _fnum(scorecard.get("win_rate_pct"), 0.0),
             "closed_trades": int(_fnum(scorecard.get("closed_trades"), 0.0)),
+            "exposure_fraction": _fnum(scorecard.get("exposure_fraction"), 0.0),
             "exposure_adjusted_return_pct": _fnum(scorecard.get("exposure_adjusted_return_pct"), 0.0),
             "paper_live_drift_pct": float(paper_live_drift_pct) if paper_live_drift_pct is not None else None,
             "slippage_sensitivity_pct": float(

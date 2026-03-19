@@ -35,14 +35,15 @@ Current evaluation cycle used:
 Important limitation:
 - the active strategies that traded only realized `1` closed trade each in this cycle
 - `mean_reversion_rsi` realized `0` closed trades
+- the leaderboard now applies an explicit thin-sample penalty so inactivity cannot rank above active positive candidates
 - this is enough for a conservative ranking pass, not enough for promotion claims
 
 ## Results
 
 ### `breakout_donchian`
 - candidate: `breakout_default`
-- rank: `2`
-- leaderboard score: `0.524056`
+- rank: `1`
+- leaderboard score: `0.511650`
 - net return after costs: `+18.68%`
 - max drawdown: `4.56%`
 - closed trades: `1`
@@ -53,7 +54,7 @@ Important limitation:
 Decision: `keep`
 
 Reason:
-- best active post-cost performer in the current cycle
+- best active and best overall candidate in the current cycle once thin-sample penalties are applied honestly
 - acceptable drawdown relative to the other active strategies
 - still only one realized trade, so `keep` here means keep in the active research set, not promote to live
 
@@ -64,8 +65,8 @@ Next work:
 
 ### `ema_cross`
 - candidate: `ema_cross_default`
-- rank: `3`
-- leaderboard score: `0.418391`
+- rank: `2`
+- leaderboard score: `0.419287`
 - net return after costs: `+15.44%`
 - max drawdown: `6.25%`
 - closed trades: `1`
@@ -87,8 +88,8 @@ Next work:
 
 ### `mean_reversion_rsi`
 - candidate: `mean_reversion_default`
-- rank: `1`
-- leaderboard score: `0.530000`
+- rank: `3`
+- leaderboard score: `0.137000`
 - net return after costs: `0.00%`
 - max drawdown: `0.00%`
 - closed trades: `0`
@@ -99,13 +100,13 @@ Next work:
 Decision: `freeze`
 
 Reason:
-- the current rank is not trustworthy as a "best strategy" result because it came from inactivity, not realized edge
-- zero closed trades means there is no meaningful execution evidence in this cycle
-- this should not remain the apparent leader without a stronger participation penalty in the ranking logic
+- zero closed trades means there is no meaningful realized trading evidence in this cycle
+- the explicit thin-sample penalty now demotes it correctly instead of letting inactivity masquerade as stability
+- it should stay frozen until it can participate and produce positive expectancy under a broader test window
 
 Next work:
-- add a no-trade / low-activity penalty to the decision layer or leaderboard presentation
 - only reopen active iteration if a regime-targeted test shows real participation and positive expectancy
+- evaluate whether the current entry filters are simply too restrictive for the benchmark path
 
 ## Forced Decision Set
 
@@ -136,5 +137,6 @@ What it **does** mean:
 ## Follow-up Gaps
 
 The next improvement to the evaluation layer should be:
-- penalize zero-trade candidates in the decision layer so inactivity does not outrank active positive performers
+- extend the decision cycle across broader synthetic windows and paper datasets so one-trade outcomes do not dominate the ranking
+- add a stronger low-participation review threshold so single-trade candidates cannot look more reliable than the evidence supports
 - persist decision records or leaderboard deltas if historical comparison is needed later

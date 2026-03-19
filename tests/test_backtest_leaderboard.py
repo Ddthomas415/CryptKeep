@@ -45,6 +45,8 @@ def test_rank_strategy_rows_penalizes_drawdown_and_drift():
                 "regime_return_dispersion_pct": 1.0,
                 "slippage_sensitivity_pct": 0.5,
                 "paper_live_drift_pct": 0.0,
+                "closed_trades": 4,
+                "exposure_fraction": 0.25,
             },
             {
                 "candidate": "fragile",
@@ -55,6 +57,8 @@ def test_rank_strategy_rows_penalizes_drawdown_and_drift():
                 "regime_return_dispersion_pct": 8.0,
                 "slippage_sensitivity_pct": 4.0,
                 "paper_live_drift_pct": 6.0,
+                "closed_trades": 4,
+                "exposure_fraction": 0.25,
             },
         ]
     )
@@ -63,6 +67,78 @@ def test_rank_strategy_rows_penalizes_drawdown_and_drift():
     assert ranked[0]["leaderboard_score"] > ranked[1]["leaderboard_score"]
     assert ranked[0]["rank"] == 1
     assert ranked[1]["rank"] == 2
+
+
+def test_rank_strategy_rows_penalizes_zero_trade_inactivity():
+    ranked = rank_strategy_rows(
+        [
+            {
+                "candidate": "inactive",
+                "strategy": "mean_reversion_rsi",
+                "net_return_after_costs_pct": 0.0,
+                "max_drawdown_pct": 0.0,
+                "regime_robustness": 1.0,
+                "regime_return_dispersion_pct": 0.0,
+                "slippage_sensitivity_pct": 0.0,
+                "paper_live_drift_pct": 0.0,
+                "closed_trades": 0,
+                "exposure_fraction": 0.0,
+            },
+            {
+                "candidate": "active",
+                "strategy": "breakout_donchian",
+                "net_return_after_costs_pct": 6.0,
+                "max_drawdown_pct": 2.0,
+                "regime_robustness": 0.8,
+                "regime_return_dispersion_pct": 1.5,
+                "slippage_sensitivity_pct": 0.4,
+                "paper_live_drift_pct": 0.2,
+                "closed_trades": 3,
+                "exposure_fraction": 0.25,
+            },
+        ]
+    )
+
+    assert ranked[0]["candidate"] == "active"
+    assert ranked[1]["candidate"] == "inactive"
+    assert ranked[1]["leaderboard_components"]["participation_component"] == 0.0
+    assert ranked[1]["leaderboard_components"]["thin_sample_penalty"] > 0.0
+
+
+def test_rank_strategy_rows_penalizes_thin_participation():
+    ranked = rank_strategy_rows(
+        [
+            {
+                "candidate": "thin",
+                "strategy": "ema_cross",
+                "net_return_after_costs_pct": 10.0,
+                "max_drawdown_pct": 4.0,
+                "regime_robustness": 0.7,
+                "regime_return_dispersion_pct": 2.0,
+                "slippage_sensitivity_pct": 0.6,
+                "paper_live_drift_pct": 0.4,
+                "closed_trades": 1,
+                "exposure_fraction": 0.08,
+            },
+            {
+                "candidate": "proven",
+                "strategy": "breakout_donchian",
+                "net_return_after_costs_pct": 10.0,
+                "max_drawdown_pct": 4.0,
+                "regime_robustness": 0.7,
+                "regime_return_dispersion_pct": 2.0,
+                "slippage_sensitivity_pct": 0.6,
+                "paper_live_drift_pct": 0.4,
+                "closed_trades": 4,
+                "exposure_fraction": 0.25,
+            },
+        ]
+    )
+
+    assert ranked[0]["candidate"] == "proven"
+    assert ranked[1]["candidate"] == "thin"
+    assert ranked[0]["leaderboard_score"] > ranked[1]["leaderboard_score"]
+    assert ranked[1]["leaderboard_components"]["thin_sample_penalty"] > 0.0
 
 
 def test_run_strategy_leaderboard_returns_ranked_rows():
@@ -114,6 +190,6 @@ def test_run_strategy_leaderboard_returns_ranked_rows():
     assert out["stressed_slippage_bps"] > out["base_slippage_bps"]
     assert len(out["rows"]) == 3
     assert out["rows"][0]["leaderboard_score"] >= out["rows"][-1]["leaderboard_score"]
-    assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness"} <= set(
+    assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness", "closed_trades", "exposure_fraction"} <= set(
         out["rows"][0].keys()
     )
