@@ -22,3 +22,9 @@ def test_run_desktop_launcher_script_imports():
     root = Path(__file__).resolve().parents[1]
     mod = _load(root / "scripts" / "run_desktop_launcher.py")
     assert callable(getattr(mod, "main", None))
+
+
+def test_run_dashboard_script_imports():
+    root = Path(__file__).resolve().parents[1]
+    mod = _load(root / "scripts" / "run_dashboard.py")
+    assert callable(getattr(mod, "main", None))

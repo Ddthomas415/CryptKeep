@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 import os
-import sys
 import time
-import socket
 import subprocess
-import webbrowser
 import tkinter as tk
 from tkinter import messagebox
+
+from services.app.dashboard_launch import (
+    dashboard_default_port,
+    dashboard_port_search_limit,
+    dashboard_streamlit_cmd,
+    open_dashboard_browser,
+    port_open,
+    resolve_dashboard_launch,
+)
 
 LOG_PATH = os.path.join("data", "desktop_launcher.log")
 
@@ -16,22 +22,20 @@ def _log(msg: str) -> None:
     with open(LOG_PATH, "a", encoding="utf-8") as f:
         f.write(f"{int(time.time())} {msg}\n")
 
-def _port_open(host: str, port: int) -> bool:
-    try:
-        with socket.create_connection((host, port), timeout=0.5):
-            return True
-    except Exception:
-        return False
-
 class Launcher:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Crypto Bot Pro — Desktop")
         self.proc: subprocess.Popen | None = None
 
-        self.port = int(os.environ.get("APP_PORT", "8501"))
+        self.port = dashboard_default_port(fallback=8501)
         self.host = "127.0.0.1"
-        self.url = f"http://{self.host}:{self.port}"
+        self.ctx = resolve_dashboard_launch(
+            host=self.host,
+            preferred_port=self.port,
+            search_limit=dashboard_port_search_limit(),
+        )
+        self.url = self.ctx.url
 
         frm = tk.Frame(self.root, padx=14, pady=14)
         frm.pack(fill="both", expand=True)
@@ -58,34 +62,34 @@ class Launcher:
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
-    def _streamlit_cmd(self) -> list[str]:
-        # Important: use module invocation so PyInstaller + venv behave consistently.
-        # Streamlit app path:
-        app_path = os.path.join("dashboard", "app.py")
-        # Make Streamlit quieter and deterministic.
-        return [
-            sys.executable, "-m", "streamlit", "run", app_path,
-            "--server.address", self.host,
-            "--server.port", str(self.port),
-            "--server.headless", "true",
-            "--browser.gatherUsageStats", "false",
-        ]
+    def _refresh_context(self) -> None:
+        self.ctx = resolve_dashboard_launch(
+            host=self.host,
+            preferred_port=self.port,
+            search_limit=dashboard_port_search_limit(),
+        )
+        self.url = self.ctx.url
+        status_port = self.ctx.resolved_port
+        if self.ctx.auto_switched:
+            self.status.set(f"Status: requested {self.ctx.requested_port} busy, using {status_port}")
 
     def start(self):
         if self.proc and self.proc.poll() is None:
             self.status.set("Status: already running")
             return
 
-        if _port_open(self.host, self.port):
+        self._refresh_context()
+
+        if not self.ctx.auto_switched and port_open(self.ctx.host, self.ctx.resolved_port):
             self.status.set("Status: port already in use — opening UI")
             self.open_ui()
             return
 
-        cmd = self._streamlit_cmd()
+        cmd = dashboard_streamlit_cmd(self.ctx, headless=True)
         _log("Starting Streamlit: " + " ".join(cmd))
 
         creationflags = 0
-        if sys.platform.startswith("win"):
+        if os.name == "nt":
             creationflags = subprocess.CREATE_NEW_PROCESS_GROUP
 
         try:
@@ -108,7 +112,7 @@ class Launcher:
 
         # Wait briefly for server
         for _ in range(50):  # ~10s
-            if _port_open(self.host, self.port):
+            if port_open(self.ctx.host, self.ctx.resolved_port):
                 self.status.set("Status: running")
                 self.open_ui()
                 return
@@ -118,7 +122,7 @@ class Launcher:
         self.open_ui()
 
     def open_ui(self):
-        webbrowser.open(self.url)
+        open_dashboard_browser(self.ctx)
 
     def stop(self):
         if not self.proc or self.proc.poll() is not None:

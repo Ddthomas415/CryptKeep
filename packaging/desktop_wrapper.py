@@ -1,28 +1,16 @@
 from __future__ import annotations
 
 import os
-import sys
-import time
-import socket
 import subprocess
 from pathlib import Path
 
-def _find_free_port() -> int:
-    s = socket.socket()
-    s.bind(("", 0))
-    port = s.getsockname()[1]
-    s.close()
-    return int(port)
-
-def _wait_port(host: str, port: int, timeout_sec: int = 25) -> bool:
-    t0 = time.time()
-    while time.time() - t0 < timeout_sec:
-        try:
-            with socket.create_connection((host, port), timeout=1.0):
-                return True
-        except Exception:
-            time.sleep(0.25)
-    return False
+from services.app.dashboard_launch import (
+    dashboard_port_search_limit,
+    dashboard_streamlit_cmd,
+    dashboard_streamlit_env,
+    resolve_dashboard_launch,
+    wait_for_dashboard,
+)
 
 def run():
     # Resolve repo root (works when frozen too)
@@ -33,21 +21,22 @@ def run():
     if not app_py.exists():
         raise FileNotFoundError(f"dashboard/app.py not found at: {app_py}")
 
-    port = int(os.environ.get("CRYPTBOT_PORT") or _find_free_port())
     host = os.environ.get("CRYPTBOT_HOST", "127.0.0.1")
+    requested_port = int(os.environ.get("CRYPTBOT_PORT") or os.environ.get("STREAMLIT_SERVER_PORT") or "8502")
+    ctx = resolve_dashboard_launch(
+        host=host,
+        preferred_port=requested_port,
+        search_limit=dashboard_port_search_limit(),
+    )
 
-    env = os.environ.copy()
-    env.setdefault("STREAMLIT_SERVER_HEADLESS", "true")
-    env.setdefault("STREAMLIT_BROWSER_GATHER_USAGE_STATS", "false")
-    env.setdefault("STREAMLIT_SERVER_PORT", str(port))
-    env.setdefault("STREAMLIT_SERVER_ADDRESS", host)
+    env = dashboard_streamlit_env(ctx, base_env=os.environ, headless=True)
     env.setdefault("STREAMLIT_SERVER_ENABLE_CORS", "false")
 
     # Start streamlit server
-    cmd = [sys.executable, "-m", "streamlit", "run", str(app_py), "--server.port", str(port), "--server.address", host]
+    cmd = dashboard_streamlit_cmd(ctx, headless=True)
     proc = subprocess.Popen(cmd, cwd=str(root), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
-    ok = _wait_port(host, port, timeout_sec=35)
+    ok = wait_for_dashboard(ctx.host, ctx.resolved_port, timeout_sec=35.0)
     if not ok:
         # Dump last output for diagnosis
         out = ""
@@ -63,7 +52,7 @@ def run():
         proc.terminate()
         raise RuntimeError("Streamlit server did not start in time.\n" + out[:4000])
 
-    url = f"http://{host}:{port}"
+    url = ctx.url
 
     # Open embedded window
     import webview  # pywebview

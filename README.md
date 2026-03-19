@@ -23,6 +23,8 @@ py scripts\install.py
 - Dashboard API defaults to `CK_API_BASE_URL=http://localhost:8000`.
 - Dashboard research explain fallback can target the Phase 1 copilot with `CK_PHASE1_ORCHESTRATOR_URL=http://localhost:8002`.
 - Phase 1 copilot smoke check: `make phase1-smoke`
+- `./run_dashboard.sh` and `.\run_dashboard.ps1` auto-switch to the next free local dashboard port if the requested one is already in use.
+- `make docker-up-auto-ports` starts the Docker stack with the next free host ports for backend and dashboard when the defaults are busy.
 
 ## Repo Alignment Commands
 ```bash

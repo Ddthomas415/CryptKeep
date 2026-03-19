@@ -3,7 +3,7 @@ PYTHON ?= $(shell if ./.venv/bin/python -V >/dev/null 2>&1; then echo ./.venv/bi
 CRYPTO_EDGE_INTERVAL_SEC ?= 300
 PAPER_EVIDENCE_RUNTIME_SEC ?= 900
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence strategy-evidence-cycle test
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence strategy-evidence-cycle dashboard docker-up-auto-ports docker-print-auto-ports test
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -90,6 +90,15 @@ status-paper-strategy-evidence:
 
 strategy-evidence-cycle:
 	$(PYTHON) scripts/run_strategy_evidence_cycle.py --write-decision-record
+
+dashboard:
+	$(PYTHON) scripts/run_dashboard.py --open
+
+docker-up-auto-ports:
+	$(PYTHON) docker/run_compose_auto_ports.py
+
+docker-print-auto-ports:
+	$(PYTHON) docker/run_compose_auto_ports.py --print-env
 
 test:
 	$(PYTHON) -m pytest -q
