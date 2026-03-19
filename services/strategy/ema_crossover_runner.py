@@ -1,18 +1,23 @@
 from __future__ import annotations
+
 import json
 import math
 import os
 import time
 import uuid
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import List, Optional
+
 from services.admin.config_editor import load_user_yaml
-from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
-from services.market_data.symbol_router import normalize_venue, map_symbol
 from services.market_data.multi_venue_view import best_venue
+from services.market_data.symbol_router import normalize_venue
+from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
+from services.os.app_paths import ensure_dirs, runtime_dir
 from services.risk.market_quality_guard import check as mq_check
 from services.security.exchange_factory import make_exchange
-from services.os.app_paths import runtime_dir, ensure_dirs
+from services.strategies.config_tools import build_strategy_block
+from services.strategies.presets import get_preset
+from services.strategies.strategy_registry import compute_signal
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
@@ -22,6 +27,54 @@ LOCKS = runtime_dir() / "locks"
 STOP_FILE = FLAGS / "strategy_runner.stop"
 LOCK_FILE = LOCKS / "strategy_runner.lock"
 STATUS_FILE = FLAGS / "strategy_runner.status.json"
+
+_STRATEGY_ALIASES = {
+    "ema_cross": "ema_cross",
+    "ema_crossover": "ema_cross",
+    "ema_xover": "ema_cross",
+    "ema_xover_v1": "ema_cross",
+    "mean_reversion": "mean_reversion_rsi",
+    "mean_reversion_rsi": "mean_reversion_rsi",
+    "breakout": "breakout_donchian",
+    "breakout_donchian": "breakout_donchian",
+    "donchian": "breakout_donchian",
+}
+_DEFAULT_PRESET_BY_STRATEGY = {
+    "ema_cross": "ema_cross_default",
+    "mean_reversion_rsi": "mean_reversion_default",
+    "breakout_donchian": "breakout_default",
+}
+_EMA_FIELDS = (
+    "ema_fast",
+    "ema_slow",
+    "filter_window",
+    "min_volatility_pct",
+    "min_volume_ratio",
+    "min_trend_efficiency",
+    "min_cross_gap_pct",
+)
+_MEAN_REVERSION_FIELDS = (
+    "rsi_len",
+    "rsi_buy",
+    "rsi_sell",
+    "sma_len",
+    "filter_window",
+    "max_volatility_pct",
+    "min_volume_ratio",
+    "max_trend_efficiency",
+    "max_sma_distance_pct",
+    "require_reversal_confirmation",
+)
+_BREAKOUT_FIELDS = (
+    "donchian_len",
+    "filter_window",
+    "min_volatility_pct",
+    "min_volume_ratio",
+    "min_trend_efficiency",
+    "min_channel_width_pct",
+    "breakout_buffer_pct",
+    "require_directional_confirmation",
+)
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -64,15 +117,20 @@ def _cfg() -> dict:
 
     env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
     symbol = str(env_syms[0] if env_syms else (s.get("symbol") or (pf_symbols[0] if pf_symbols else default_symbol))).strip()
+    strategy_block, strategy_preset = _strategy_block_from_runner_cfg(s)
+    min_bars = max(int(s.get("min_bars", 60) or 60), _required_history(strategy_block))
+    venue_candidates = s.get("venue_candidates") if isinstance(s.get("venue_candidates"), list) else []
 
     return {
         "enabled": bool(s.get("enabled", True)),
-        "strategy_id": str(s.get("strategy_id", "ema_xover_v1") or "ema_xover_v1"),
+        "strategy_id": str(strategy_block["name"]),
+        "strategy": strategy_block,
+        "strategy_preset": str(strategy_preset),
         "venue": venue,
         "symbol": symbol,
         "fast_n": int(s.get("fast_n", 12) or 12),
         "slow_n": int(s.get("slow_n", 26) or 26),
-        "min_bars": int(s.get("min_bars", 60) or 60),
+        "min_bars": int(min_bars),
         "max_bars": int(s.get("max_bars", 400) or 400),
         "loop_interval_sec": float(s.get("loop_interval_sec", 1.0) or 1.0),
         "qty": float(s.get("qty", 0.001) or 0.001),
@@ -82,7 +140,124 @@ def _cfg() -> dict:
         "max_tick_age_sec": float(s.get("max_tick_age_sec", 5.0) or 5.0),
         "position_aware": bool(s.get("position_aware", True)),
         "sell_full_position": bool(s.get("sell_full_position", True)),
+        "signal_source": "synthetic_mid_ohlcv",
+        "auto_select_best_venue": bool(s.get("auto_select_best_venue", False)),
+        "switch_only_when_blocked": bool(s.get("switch_only_when_blocked", True)),
+        "venue_candidates": [str(v).lower().strip() for v in venue_candidates if str(v).strip()],
     }
+
+
+def _canonical_strategy_name(raw: object) -> str:
+    key = str(raw or "").strip().lower()
+    return _STRATEGY_ALIASES.get(key, "ema_cross")
+
+
+def _legacy_strategy_params(s: dict, strategy_name: str) -> dict:
+    params: dict = {}
+    if strategy_name == "ema_cross":
+        if "fast_n" in s:
+            params["ema_fast"] = s.get("fast_n")
+        if "slow_n" in s:
+            params["ema_slow"] = s.get("slow_n")
+        for field in _EMA_FIELDS[2:]:
+            if field in s:
+                params[field] = s.get(field)
+        return params
+    if strategy_name == "mean_reversion_rsi":
+        for field in _MEAN_REVERSION_FIELDS:
+            if field in s:
+                params[field] = s.get(field)
+        return params
+    if strategy_name == "breakout_donchian":
+        for field in _BREAKOUT_FIELDS:
+            if field in s:
+                params[field] = s.get(field)
+        return params
+    return params
+
+
+def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
+    nested = s.get("strategy") if isinstance(s.get("strategy"), dict) else {}
+    raw_name = (
+        os.environ.get("CBP_STRATEGY_NAME")
+        or nested.get("name")
+        or s.get("strategy_name")
+        or s.get("strategy_id")
+        or "ema_cross"
+    )
+    strategy_name = _canonical_strategy_name(raw_name)
+    default_preset = _DEFAULT_PRESET_BY_STRATEGY[strategy_name]
+    preset_name = str(
+        os.environ.get("CBP_STRATEGY_PRESET")
+        or s.get("strategy_preset")
+        or default_preset
+    ).strip() or default_preset
+    preset = get_preset(preset_name) or get_preset(default_preset) or {}
+    if preset_name != default_preset and not get_preset(preset_name):
+        preset_name = default_preset
+
+    merged = dict(preset.get("strategy") if isinstance(preset.get("strategy"), dict) else {})
+    merged.update(_legacy_strategy_params(s, strategy_name))
+    for key, value in nested.items():
+        if key == "name" or value is None:
+            continue
+        merged[key] = value
+
+    trade_enabled = bool(nested.get("trade_enabled", merged.get("trade_enabled", True)))
+    strategy_block = build_strategy_block(
+        name=strategy_name,
+        trade_enabled=trade_enabled,
+        params=merged,
+    )
+    return strategy_block, preset_name
+
+
+def _required_history(strategy_block: dict) -> int:
+    name = str(strategy_block.get("name") or "ema_cross")
+    if name == "ema_cross":
+        return max(
+            int(strategy_block.get("ema_slow", 26) or 26) + 2,
+            int(strategy_block.get("filter_window", 0) or 0) + 2,
+            5,
+        )
+    if name == "mean_reversion_rsi":
+        return max(
+            int(strategy_block.get("rsi_len", 14) or 14) + 2,
+            int(strategy_block.get("sma_len", 50) or 50) + 2,
+            int(strategy_block.get("filter_window", 0) or 0) + 2,
+            5,
+        )
+    if name == "breakout_donchian":
+        return max(
+            int(strategy_block.get("donchian_len", 20) or 20) + 2,
+            int(strategy_block.get("filter_window", 0) or 0) + 2,
+            5,
+        )
+    return 5
+
+
+def _synth_ohlcv(prices: List[float], *, ts_ms: int | None = None) -> list[list[float]]:
+    clean = [float(x) for x in (prices or []) if isinstance(x, (int, float)) and math.isfinite(float(x))]
+    if not clean:
+        return []
+    base_ts = int(ts_ms or int(time.time() * 1000)) - max(0, len(clean) - 1) * 1000
+    rows: list[list[float]] = []
+    prev = clean[0]
+    for idx, close in enumerate(clean):
+        open_px = prev if idx else close
+        high = max(open_px, close)
+        low = min(open_px, close)
+        rows.append([base_ts + idx * 1000, open_px, high, low, close, 1.0])
+        prev = close
+    return rows
+
+
+def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None) -> dict:
+    return compute_signal(
+        cfg={"strategy": dict(cfg.get("strategy") or {})},
+        symbol=str(cfg.get("symbol") or ""),
+        ohlcv=_synth_ohlcv(prices, ts_ms=ts_ms),
+    )
 
 def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
     q = get_best_bid_ask_last(cfg["venue"], cfg["symbol"])
@@ -145,7 +320,7 @@ def run_forever() -> None:
     pdb = PaperTradingSQLite()
     sdb = StrategyStateSQLite()
     k_prices = f"prices:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    k_last_sig = f"last_sig:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
+    k_last_action = f"last_action:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     k_warm = f"warmed:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     try:
         prices = json.loads(sdb.get(k_prices) or "[]")
@@ -155,11 +330,9 @@ def run_forever() -> None:
     except Exception:
         prices = []
     warmed = (sdb.get(k_warm) or "") == "1"
-    last_sig = sdb.get(k_last_sig)
-    try:
-        last_sig_i = int(last_sig) if last_sig is not None else 0
-    except Exception:
-        last_sig_i = 0
+    last_action = str(sdb.get(k_last_action) or "hold").strip().lower()
+    if last_action not in ("buy", "sell", "hold"):
+        last_action = "hold"
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now()})
     loops = 0
     enqueued = 0
@@ -204,29 +377,46 @@ def run_forever() -> None:
             if loops % 5 == 0:
                 sdb.set(k_prices, json.dumps(prices))
             if len(prices) < int(cfg["min_bars"]):
-                _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "mid": m, "bars": len(prices), "note": "warming", "enqueued": enqueued})
+                _write_status(
+                    {
+                        "ok": True,
+                        "status": "running",
+                        "pid": os.getpid(),
+                        "ts": _now(),
+                        "mid": m,
+                        "bars": len(prices),
+                        "note": "warming",
+                        "enqueued": enqueued,
+                        "strategy_id": cfg["strategy_id"],
+                        "strategy_source": cfg["signal_source"],
+                    }
+                )
                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                 continue
-            ef = _ema(prices[-int(cfg["min_bars"]):], int(cfg["fast_n"]))
-            es = _ema(prices[-int(cfg["min_bars"]):], int(cfg["slow_n"]))
-            if ef is None or es is None:
-                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                continue
-            sig = 1 if ef > es else -1
+            signal = _strategy_signal(cfg, prices[-int(cfg["min_bars"]):], ts_ms=ts_ms)
+            decision = str(signal.get("action") or "hold").lower().strip()
+            if decision not in ("buy", "sell", "hold"):
+                decision = "hold"
+            changed = False
+            note = None
             if not warmed:
-                sdb.set(k_last_sig, str(sig))
+                if decision in ("buy", "sell") and bool(cfg["allow_first_signal_trade"]):
+                    changed = True
+                sdb.set(k_last_action, decision)
                 sdb.set(k_warm, "1")
                 warmed = True
-                last_sig_i = sig
-                _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "mid": m, "ema_fast": ef, "ema_slow": es, "sig": sig, "note": "warmed_no_trade"})
-                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                continue
-            changed = (sig != last_sig_i)
+                last_action = decision
+                note = "warmed_no_trade"
+            else:
+                changed = decision != last_action
+                if changed:
+                    last_action = decision
+                    sdb.set(k_last_action, decision)
             action = None
             pos = pdb.get_position(cfg["symbol"]) or {"qty": 0.0, "avg_price": 0.0}
             pos_qty = float(pos.get("qty") or 0.0)
             if changed:
-                if sig == 1:
+                if decision == "buy":
                     if (not cfg["position_aware"]) or (pos_qty <= 0.0):
                         action = "buy"
                 else:
@@ -255,9 +445,6 @@ def run_forever() -> None:
                     "linked_order_id": None,
                 })
                 enqueued += 1
-            if changed:
-                last_sig_i = sig
-                sdb.set(k_last_sig, str(sig))
             _write_status({
                 "ok": True,
                 "status": "running",
@@ -266,20 +453,31 @@ def run_forever() -> None:
                 "mid": m,
                 "ts_ms": ts_ms,
                 "bars": len(prices),
-                "ema_fast": ef,
-                "ema_slow": es,
-                "sig": sig,
-                "sig_changed": bool(changed),
+                "strategy_id": cfg["strategy_id"],
+                "strategy_preset": cfg["strategy_preset"],
+                "signal_source": cfg["signal_source"],
+                "signal_action": decision,
+                "signal_reason": signal.get("reason"),
+                "signal_ok": bool(signal.get("ok", False)),
+                "signal_changed": bool(changed),
+                "signal_indicators": signal.get("ind"),
                 "pos_qty": pos_qty,
                 "action": action,
+                "note": note,
                 "enqueued_total": enqueued,
-                "cfg": {"venue": cfg["venue"], "symbol": cfg["symbol"], "fast_n": cfg["fast_n"], "slow_n": cfg["slow_n"], "min_bars": cfg["min_bars"], "order_type": cfg["order_type"]},
+                "cfg": {
+                    "venue": cfg["venue"],
+                    "symbol": cfg["symbol"],
+                    "strategy": cfg["strategy"],
+                    "min_bars": cfg["min_bars"],
+                    "order_type": cfg["order_type"],
+                },
             })
             time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
     finally:
         try:
             sdb.set(k_prices, json.dumps(prices))
-            sdb.set(k_last_sig, str(last_sig_i))
+            sdb.set(k_last_action, last_action)
         except Exception:
             pass
         _release_lock()

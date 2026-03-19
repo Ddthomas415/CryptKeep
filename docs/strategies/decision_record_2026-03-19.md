@@ -55,12 +55,15 @@ Important limitation:
 - positive windows: `4` / `5`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
+- evidence status: `synthetic_only`
+- confidence: `low`
 - paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
 Decision: `keep`
 
 Reason:
 - It is the strongest aggregate candidate with enough closed-trade evidence for continued research.
+- Evidence note: Persisted paper-history is missing, so the decision still relies on synthetic windows.
 - Biggest weakness: The sample is still small relative to the confidence needed for promotion.
 
 Next work:
@@ -78,12 +81,15 @@ Next work:
 - positive windows: `3` / `5`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
+- evidence status: `synthetic_only`
+- confidence: `low`
 - paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
 Decision: `improve`
 
 Reason:
 - It remains viable, but the evidence is still weaker than the top aggregate candidate.
+- Evidence note: Persisted paper-history is missing, so the decision still relies on synthetic windows.
 - Biggest weakness: Expected failure regimes are still concentrated in chop, low vol.
 
 Next work:
@@ -101,12 +107,15 @@ Next work:
 - positive windows: `0` / `5`
 - best window: `synthetic_default`
 - worst window: `synthetic_default`
+- evidence status: `insufficient`
+- confidence: `low`
 - paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
 Decision: `freeze`
 
 Reason:
 - No realized closed-trade evidence exists across the current window set.
+- Evidence note: No realized closed-trade participation exists across the current evidence windows.
 - Biggest weakness: No realized trading participation across the current evidence windows.
 
 Next work:

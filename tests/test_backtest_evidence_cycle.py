@@ -107,7 +107,10 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
     assert rows[0]["candidate"] == "breakout_default"
     assert rows[0]["closed_trades"] == 4
     assert rows[0]["decision"] == "keep"
+    assert rows[0]["evidence_status"] == "synthetic_only"
+    assert rows[0]["confidence_label"] == "low"
     assert rows[1]["decision"] == "freeze"
+    assert rows[1]["evidence_status"] == "insufficient"
     assert out["paper_history"]["status"] == "missing"
 
 
@@ -222,6 +225,72 @@ def test_run_strategy_evidence_cycle_downgrades_on_negative_paper_history(monkey
     row = out["aggregate_leaderboard"]["rows"][0]
     assert row["decision"] == "improve"
     assert "negative after 2 closed trade(s)" in row["decision_reason"]
+    assert row["evidence_status"] == "paper_thin"
+    assert row["confidence_label"] == "low"
+
+
+def test_run_strategy_evidence_cycle_marks_paper_supported_when_history_is_present(monkeypatch) -> None:
+    monkeypatch.setattr(
+        evidence_cycle,
+        "run_strategy_leaderboard",
+        lambda **kwargs: {
+            "ok": True,
+            "rows": [
+                {
+                    "candidate": "breakout_default",
+                    "strategy": "breakout_donchian",
+                    "symbol": "BTC/USDT",
+                    "rank": 1,
+                    "leaderboard_score": 0.8,
+                    "net_return_after_costs_pct": 12.0,
+                    "max_drawdown_pct": 4.0,
+                    "regime_robustness": 1.0,
+                    "regime_return_dispersion_pct": 1.2,
+                    "slippage_sensitivity_pct": 0.3,
+                    "closed_trades": 2,
+                    "trade_count": 4,
+                    "exposure_fraction": 0.25,
+                }
+            ],
+        },
+    )
+    monkeypatch.setattr(
+        evidence_cycle,
+        "load_paper_history_evidence",
+        lambda journal_path="": {
+            "ok": True,
+            "status": "available",
+            "journal_path": "/tmp/trade_journal.sqlite",
+            "source": "trade_journal_sqlite",
+            "as_of": "2026-03-19T12:00:00Z",
+            "fills_count": 6,
+            "strategy_count": 1,
+            "rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "fills": 6,
+                    "closed_trades": 3,
+                    "win_rate": 0.5,
+                    "net_realized_pnl": 5.0,
+                }
+            ],
+            "caveat": "Supplemental paper history.",
+        },
+    )
+
+    out = evidence_cycle.run_strategy_evidence_cycle(
+        base_cfg={},
+        symbol="BTC/USDT",
+        windows=[
+            {"window_id": "w1", "label": "One", "warmup_bars": 5, "candles": [[1, 0, 0, 0, 0, 0]]},
+            {"window_id": "w2", "label": "Two", "warmup_bars": 5, "candles": [[2, 0, 0, 0, 0, 0]]},
+        ],
+    )
+
+    row = out["aggregate_leaderboard"]["rows"][0]
+    assert row["evidence_status"] == "paper_supported"
+    assert row["confidence_label"] == "medium"
+    assert "research-grade" in row["evidence_note"]
 
 
 def test_persist_strategy_evidence_writes_latest_and_history(tmp_path, monkeypatch) -> None:
@@ -285,5 +354,7 @@ def test_render_decision_record_includes_decision_summary() -> None:
     assert "evidence artifact: `/tmp/report.json`" in text
     assert "paper-history source: `trade_journal_sqlite`" in text
     assert "Decision: `keep`" in text
+    assert "- evidence status: `unknown`" in text
+    assert "- confidence: `unknown`" in text
     assert "- paper-history: 1 closed trade, positive net realized pnl." in text
     assert "- `breakout_donchian`" in text

@@ -389,6 +389,49 @@ def _paper_history_note(paper_row: dict[str, Any] | None) -> str:
     )
 
 
+def _evidence_status_for_row(
+    *,
+    row: dict[str, Any],
+    paper_row: dict[str, Any] | None,
+    paper_history_status: str,
+) -> tuple[str, str, str]:
+    total_closed_trades = int(_fnum(row.get("closed_trades"), 0.0))
+    active_window_count = int(_fnum(row.get("active_window_count"), 0.0))
+    if total_closed_trades <= 0 or active_window_count <= 0:
+        return (
+            "insufficient",
+            "low",
+            "No realized closed-trade participation exists across the current evidence windows.",
+        )
+    if not paper_row:
+        basis = "missing" if paper_history_status != "available" else "strategy_missing"
+        if basis == "strategy_missing":
+            return (
+                "synthetic_only",
+                "low",
+                "Persisted paper-history exists, but this strategy has no attributed paper fills yet, so the decision still relies on synthetic windows.",
+            )
+        return (
+            "synthetic_only",
+            "low",
+            "Persisted paper-history is missing, so the decision still relies on synthetic windows.",
+        )
+
+    paper_fills = int(_fnum(paper_row.get("fills"), 0.0))
+    paper_closed_trades = int(_fnum(paper_row.get("closed_trades"), 0.0))
+    if paper_fills < 6 or paper_closed_trades < 3:
+        return (
+            "paper_thin",
+            "low",
+            "Persisted paper-history exists, but the sample is still too thin to confirm the synthetic ranking.",
+        )
+    return (
+        "paper_supported",
+        "medium",
+        "Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.",
+    )
+
+
 def _weakness_for_row(row: dict[str, Any], hypothesis: dict[str, Any] | None) -> str:
     expected_failures = [str(item).replace("_", " ") for item in list((hypothesis or {}).get("expected_failure_regimes") or [])]
     decision = str(row.get("decision") or "")
@@ -541,8 +584,16 @@ def run_strategy_evidence_cycle(
         decision, reason = _decision_for_row(row)
         paper_row = paper_history_by_strategy.get(str(row.get("strategy") or ""))
         decision, reason = _apply_paper_history_adjustment(decision=decision, reason=reason, paper_row=paper_row)
+        evidence_status, confidence_label, evidence_note = _evidence_status_for_row(
+            row=row,
+            paper_row=paper_row,
+            paper_history_status=str(paper_history.get("status") or "missing"),
+        )
         row["decision"] = decision
         row["decision_reason"] = reason
+        row["evidence_status"] = evidence_status
+        row["confidence_label"] = confidence_label
+        row["evidence_note"] = evidence_note
         row["biggest_weakness"] = _weakness_for_row(row, hypothesis)
         row["next_improvement"] = _improvement_for_row(row, hypothesis)
         row["paper_history"] = dict(paper_row or {})
@@ -554,6 +605,9 @@ def run_strategy_evidence_cycle(
                 "rank": int(row.get("rank") or 0),
                 "decision": decision,
                 "reason": reason,
+                "evidence_status": evidence_status,
+                "confidence_label": confidence_label,
+                "evidence_note": evidence_note,
                 "biggest_weakness": str(row.get("biggest_weakness") or ""),
                 "next_improvement": str(row.get("next_improvement") or ""),
                 "paper_history_note": str(row.get("paper_history_note") or ""),
@@ -693,12 +747,15 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 f"- positive windows: `{int(row.get('positive_window_count') or 0)}` / `{int(row.get('window_count') or 0)}`",
                 f"- best window: `{str(row.get('best_window_id') or 'unknown')}`",
                 f"- worst window: `{str(row.get('worst_window_id') or 'unknown')}`",
+                f"- evidence status: `{str(row.get('evidence_status') or 'unknown')}`",
+                f"- confidence: `{str(row.get('confidence_label') or 'unknown')}`",
                 f"- paper-history: {str(row.get('paper_history_note') or 'No strategy-attributed persisted paper-history fills are available yet.')}",
                 "",
                 f"Decision: `{str(row.get('decision') or 'unknown')}`",
                 "",
                 "Reason:",
                 f"- {str(row.get('decision_reason') or 'No reason recorded.')}",
+                f"- Evidence note: {str(row.get('evidence_note') or 'No evidence note recorded.')}",
                 f"- Biggest weakness: {str(row.get('biggest_weakness') or 'Unknown.')}",
                 "",
                 "Next work:",
