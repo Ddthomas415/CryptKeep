@@ -99,6 +99,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(asset_detail, "render_focus_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_market_context", _noop)
     monkeypatch.setattr(summary_panels, "render_overview_status_summary", _noop)
+    monkeypatch.setattr(summary_panels, "render_structural_edge_digest_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_structural_edge_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_structural_edge_health_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_signal_thesis", _noop)
@@ -148,6 +149,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
 
     calls: list[str | None] = []
     health_calls: list[bool] = []
+    digest_calls: list[bool] = []
 
     def fake_get_overview_view(selected_asset: str | None = None) -> dict[str, Any]:
         calls.append(selected_asset)
@@ -190,6 +192,18 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
         lambda: health_calls.append(True) or {"ok": True, "needs_attention": False, "severity": "ok"},
     )
     monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_digest",
+        lambda: digest_calls.append(True)
+        or {
+            "ok": True,
+            "needs_attention": False,
+            "severity": "ok",
+            "headline": "Structural-edge data is current",
+            "while_away_summary": "Live structural-edge data is fresh and the collector loop is reporting normally.",
+        },
+    )
+    monkeypatch.setattr(
         focus_selector,
         "render_focus_selector",
         lambda *args, **kwargs: ("BTC", "SOL", ["SOL", "BTC"]),
@@ -203,6 +217,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
 
     assert calls == [None, "BTC"]
     assert health_calls == [True]
+    assert digest_calls == [True]
 
 
 def test_markets_page_requests_selected_asset(monkeypatch) -> None:

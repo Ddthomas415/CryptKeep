@@ -36,11 +36,13 @@ from dashboard.components.kpi_builders import build_overview_kpis
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import (
     render_overview_status_summary,
+    render_structural_edge_digest_summary,
     render_structural_edge_health_summary,
     render_structural_edge_summary,
 )
 from dashboard.components.tables import render_table_section
 from dashboard.services.crypto_edge_research import (
+    load_crypto_edge_staleness_digest,
     load_crypto_edge_staleness_summary,
     load_latest_live_crypto_edge_snapshot,
 )
@@ -86,6 +88,7 @@ watchlist_preview = (
 )
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
 structural_edge_health = load_crypto_edge_staleness_summary()
+structural_edge_digest = load_crypto_edge_staleness_digest()
 
 mode = str(summary.get("mode") or "research_only")
 risk_status = str(summary.get("risk_status") or "safe")
@@ -165,6 +168,11 @@ with hero_col:
 
 with side_col:
     render_overview_status_summary(summary)
+    render_structural_edge_digest_summary(
+        structural_edge_digest,
+        title="While-Away Structural Digest",
+        subtitle="Compact stale-data and change summary for live-public structural-edge research.",
+    )
     render_structural_edge_health_summary(
         structural_edge_health,
         title="Structural Edge Freshness",

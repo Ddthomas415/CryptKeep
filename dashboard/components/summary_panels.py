@@ -350,6 +350,49 @@ def render_structural_edge_health_summary(
             st.caption(action_text)
 
 
+def render_structural_edge_digest_summary(
+    payload: dict[str, Any] | None,
+    *,
+    title: str = "While-Away Structural Digest",
+    subtitle: str = "Compact stale-data and recent-change summary for live-public structural-edge research.",
+) -> None:
+    item = payload if isinstance(payload, dict) else {}
+    with st.container(border=True):
+        st.markdown(f"### {title}")
+        st.caption(subtitle)
+        if not bool(item.get("ok")):
+            st.info(
+                f"Structural digest unavailable: {str(item.get('while_away_summary') or item.get('summary_text') or item.get('reason') or 'unknown_error')}"
+            )
+            return
+
+        metric_items = [
+            {
+                "label": "Headline",
+                "value": str(item.get("headline") or "Structural-edge data status"),
+                "delta": str(item.get("severity") or "ok").upper(),
+            },
+            {
+                "label": "Attention",
+                "value": "Yes" if bool(item.get("needs_attention")) else "No",
+                "delta": "Operator review" if bool(item.get("needs_attention")) else "No action needed",
+            },
+        ]
+        metric_cols = st.columns(len(metric_items))
+        for col, metric in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(metric.get("label") or ""))
+                    st.markdown(f"**{str(metric.get('value') or '-')}**")
+                    delta = str(metric.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+        while_away_summary = str(item.get("while_away_summary") or "").strip()
+        if while_away_summary:
+            st.caption(while_away_summary)
+
+
 def build_operations_status_metrics(snapshot: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = snapshot if isinstance(snapshot, dict) else {}
     services = payload.get("services") if isinstance(payload.get("services"), list) else []
