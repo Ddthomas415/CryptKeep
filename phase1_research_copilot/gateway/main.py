@@ -4,7 +4,6 @@ import html as html_lib
 import json
 import os
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +11,7 @@ import httpx
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 
+from shared.answer_metadata import fallback_answer_metadata, normalize_answer_metadata
 from shared.audit import emit_audit_event
 from shared.config import get_settings
 from shared.llm_client import OpenAIResponsesClient
@@ -74,51 +74,6 @@ def _build_reasoning_summary(
             _format_status_summary("Chat", chat_status),
         ]
     )
-
-
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-
-
-def _fallback_answer_provenance() -> dict[str, Any]:
-    return {
-        "as_of": _utc_now_iso(),
-        "source_type": "fallback",
-        "source_label": "Fallback",
-        "source_names": [],
-        "freshness": "missing",
-        "freshness_label": "Missing",
-        "data_timestamp": None,
-        "age_seconds": None,
-        "confidence_label": "Low",
-        "confidence_score": 0.25,
-        "explain_provider": "gateway_fallback",
-        "chat_provider": "unknown",
-        "data_basis": "Deterministic fallback only",
-        "caveat": "Research only. Execution disabled. Upstream explain context is unavailable.",
-        "summary": "Fallback-only response with no trusted upstream evidence timestamp.",
-    }
-
-
-def _attach_chat_provenance(
-    payload: dict[str, Any],
-    *,
-    chat_status: dict[str, Any],
-) -> dict[str, Any]:
-    provenance = payload.get("answer_provenance") if isinstance(payload.get("answer_provenance"), dict) else {}
-    out = dict(provenance or _fallback_answer_provenance())
-    out["chat_provider"] = str(chat_status.get("provider") or "unknown")
-    out["chat_model"] = str(chat_status.get("model") or "").strip() or None
-    if bool(chat_status.get("fallback")):
-        message = str(chat_status.get("message") or "Deterministic formatter used.").strip()
-        caveat = str(out.get("caveat") or "").strip()
-        out["caveat"] = " ".join(part for part in (caveat, message) if part).strip()
-    if bool(chat_status.get("upstream_fallback")):
-        reason = str(chat_status.get("upstream_reason") or "unknown").strip()
-        caveat = str(out.get("caveat") or "").strip()
-        upstream_note = f"Explain upstream fallback was used ({reason})."
-        out["caveat"] = " ".join(part for part in (caveat, upstream_note) if part).strip()
-    return out
 
 
 def _structural_badge_class(severity: str) -> str:
@@ -187,7 +142,7 @@ def _fallback_explain_response(req: ChatRequest, *, reason: str) -> dict[str, An
         "execution_disabled": True,
         "evidence": [],
         "evidence_bundle": {"market_snapshot": {}, "recent_news": [], "past_context": [], "future_context": []},
-        "answer_provenance": _fallback_answer_provenance(),
+        "answer_metadata": fallback_answer_metadata(reason=f"Explain service unavailable ({reason})."),
         "risk_posture": {
             "execution_mode": "DISABLED",
             "gate": "NO_TRADING",
@@ -693,12 +648,12 @@ async def chat_ui() -> Response:
               </div>
               <div class=\"meta\">live output</div>
             </div>
-            <div class=\"provenance-strip\" id=\"answer-provenance\">
+            <div class=\"provenance-strip\" id=\"answer-metadata\">
               <div class=\"badge-row\">
                 <span class=\"badge\">Answer Trust</span>
                 <span class=\"badge\">Missing</span>
               </div>
-              <div class=\"provenance-copy\">Source basis, freshness, providers, and caveats will appear here after each query.</div>
+              <div class=\"provenance-copy\">Source basis, freshness, confidence, and caveats will appear here after each query.</div>
             </div>
             <div class=\"answer\" id=\"answer\">Waiting for query...</div>
             <details>
@@ -733,34 +688,35 @@ function trustBadgeClass(state) {
   return '';
 }
 
-function renderAnswerProvenance(provenance) {
-  const container = document.getElementById('answer-provenance');
-  const payload = provenance && typeof provenance === 'object' ? provenance : {};
-  const sourceLabel = payload.source_label || 'Unknown';
-  const freshnessLabel = payload.freshness_label || 'Missing';
+function renderAnswerMetadata(metadata) {
+  const container = document.getElementById('answer-metadata');
+  const payload = metadata && typeof metadata === 'object' ? metadata : {};
+  const sourceName = payload.source_name || 'Unknown';
+  const sourceFamily = payload.source_family || 'unknown';
+  const freshnessStatus = payload.freshness_status || 'missing';
   const confidenceLabel = payload.confidence_label || 'Unknown';
-  const explainProvider = payload.explain_provider || 'unknown';
-  const chatProvider = payload.chat_provider || 'unknown';
+  const provenanceLabel = payload.partial_provenance ? 'Partial' : 'Complete';
   const timestamp = payload.data_timestamp || payload.as_of || '-';
-  const summary = payload.summary || 'No answer provenance was returned.';
   const caveat = payload.caveat || 'Research only. Execution disabled.';
+  const missingReason = payload.missing_provenance_reason || '';
   const badges = [
-    ['Basis', sourceLabel, trustBadgeClass(payload.freshness)],
-    ['Freshness', freshnessLabel, trustBadgeClass(payload.freshness)],
+    ['Basis', sourceName, trustBadgeClass(payload.metadata_status)],
+    ['Family', sourceFamily, trustBadgeClass(payload.metadata_status)],
+    ['Freshness', freshnessStatus, trustBadgeClass(freshnessStatus)],
     ['Confidence', confidenceLabel, trustBadgeClass(String(confidenceLabel).toLowerCase())],
-    ['Explain', explainProvider, trustBadgeClass(explainProvider === 'fallback' ? 'warn' : 'ok')],
-    ['Chat', chatProvider, trustBadgeClass(chatProvider === 'fallback' ? 'warn' : 'ok')],
+    ['Provenance', provenanceLabel, trustBadgeClass(payload.partial_provenance ? 'warn' : 'ok')],
     ['As Of', timestamp, ''],
   ];
   const badgeHtml = badges.map(([label, value, badgeClass]) =>
     `<span class=\"badge ${badgeClass}\">${escapeHtml(label)}: ${escapeHtml(value)}</span>`
   ).join('');
+  const detail = missingReason ? `<br/>${escapeHtml(missingReason)}` : '';
   container.innerHTML = `
     <div class=\"badge-row\">
       <span class=\"badge badge-accent\">Answer Trust</span>
       ${badgeHtml}
     </div>
-    <div class=\"provenance-copy\"><strong>${escapeHtml(summary)}</strong><br/>${escapeHtml(caveat)}</div>
+    <div class=\"provenance-copy\"><strong>${escapeHtml(sourceName)} metadata</strong><br/>${escapeHtml(caveat)}${detail}</div>
   `;
 }
 
@@ -773,10 +729,10 @@ async function ask() {
   const out = document.getElementById('out');
   const answer = document.getElementById('answer');
   const reasoning = document.getElementById('reasoning');
-  const provenance = document.getElementById('answer-provenance');
+  const provenance = document.getElementById('answer-metadata');
   answer.textContent = 'Loading...';
   out.textContent = 'Loading...';
-  provenance.querySelector('.provenance-copy').textContent = 'Loading answer provenance...';
+  provenance.querySelector('.provenance-copy').textContent = 'Loading answer metadata...';
   const res = await fetch('/v1/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -788,7 +744,7 @@ async function ask() {
     const fallback = data.assistant_status && data.assistant_status.message ? ' ' + data.assistant_status.message : '';
     reasoning.textContent = summary.trim() || 'Execution remains disabled. Research-only response.';
     answer.textContent = data.assistant_response;
-    renderAnswerProvenance(data.answer_provenance);
+    renderAnswerMetadata(data.answer_metadata);
     out.textContent = JSON.stringify(data, null, 2);
     if (fallback.trim()) {
       reasoning.textContent = reasoning.textContent + fallback;
@@ -797,7 +753,7 @@ async function ask() {
   }
   reasoning.textContent = 'Copilot returned raw data only.';
   answer.textContent = 'No assistant response returned.';
-  renderAnswerProvenance(data.answer_provenance);
+  renderAnswerMetadata(data.answer_metadata);
   out.textContent = JSON.stringify(data, null, 2);
 }
 </script>
@@ -849,9 +805,8 @@ async def chat(req: ChatRequest) -> dict[str, Any]:
         }
     response["assistant_response"] = assistant_response
     response["chat_status"] = assistant_status
-    response["answer_provenance"] = _attach_chat_provenance(
-        response if isinstance(response, dict) else {},
-        chat_status=assistant_status,
+    response["answer_metadata"] = normalize_answer_metadata(
+        response.get("answer_metadata") if isinstance(response, dict) else None
     )
     response["reasoning_summary"] = _build_reasoning_summary(
         response.get("assistant_status") if isinstance(response.get("assistant_status"), dict) else None,

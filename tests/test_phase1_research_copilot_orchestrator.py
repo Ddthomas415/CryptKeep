@@ -171,14 +171,16 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     assert payload["evidence_bundle"]["crypto_edge_changes"]["has_change_data"] is True
     assert payload["evidence_bundle"]["crypto_edge_staleness"]["needs_attention"] is True
     assert payload["evidence_bundle"]["crypto_edge_digest"]["needs_attention"] is True
-    assert payload["answer_provenance"]["source_type"] == "live_public_structural"
-    assert payload["answer_provenance"]["source_label"] == "Live Public"
-    assert payload["answer_provenance"]["freshness"] == "fresh"
-    assert payload["answer_provenance"]["freshness_label"] == "Recent"
-    assert payload["answer_provenance"]["data_timestamp"] == "2026-03-12T12:00:00Z"
-    assert payload["answer_provenance"]["confidence_label"] == "High"
-    assert payload["answer_provenance"]["explain_provider"] == "fallback"
-    assert "collector loop is stopped" in payload["answer_provenance"]["caveat"]
+    assert payload["answer_metadata"]["source_type"] == "live_public_structural"
+    assert payload["answer_metadata"]["source_family"] == "live_public"
+    assert payload["answer_metadata"]["source_name"] == "Live Public"
+    assert payload["answer_metadata"]["freshness_status"] == "fresh"
+    assert payload["answer_metadata"]["data_timestamp"] == "2026-03-12T12:00:00Z"
+    assert payload["answer_metadata"]["confidence_label"] == "High"
+    assert payload["answer_metadata"]["partial_provenance"] is True
+    assert "timestamp was used" in str(payload["answer_metadata"]["missing_provenance_reason"])
+    assert payload["answer_metadata"]["metadata_status"] == "warn"
+    assert "collector loop is stopped" in payload["answer_metadata"]["caveat"]
     assert "funding bias long_pays" in payload["current_cause"]
     assert "Live Public" in payload["current_cause"]
     assert "Freshness is Recent" in payload["current_cause"]
