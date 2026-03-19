@@ -29,7 +29,13 @@ from dashboard.services.crypto_edge_research import (
     load_crypto_edge_report,
     load_latest_live_crypto_edge_snapshot,
 )
-from dashboard.services.operator import get_operations_snapshot, list_services, run_op, run_repo_script
+from dashboard.services.operator import (
+    get_operations_snapshot,
+    list_services,
+    run_op,
+    run_repo_script,
+    start_repo_script_background,
+)
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import (
     build_hypothesis_sections,
@@ -644,6 +650,41 @@ with tab_research:
         ],
         key_prefix="ops_crypto_edges",
     )
+
+    collector_interval_sec = float(
+        st.number_input(
+            "Collector Loop Interval (sec)",
+            min_value=60.0,
+            value=300.0,
+            step=60.0,
+            key="ops_crypto_edge_interval_sec",
+        )
+    )
+    collector_action = None
+    collector_rc = None
+    collector_output = None
+    collector_cols = st.columns(2)
+    with collector_cols[0]:
+        if st.button("Start Live Collector Loop", width="stretch", key="ops_crypto_edge_start"):
+            collector_action = "Start Live Collector Loop"
+            collector_rc, collector_output = start_repo_script_background(
+                "scripts/run_crypto_edge_collector_loop.py",
+                args=[
+                    "--plan-file",
+                    "sample_data/crypto_edges/live_collector_plan.json",
+                    "--interval-sec",
+                    str(int(collector_interval_sec)),
+                ],
+            )
+    with collector_cols[1]:
+        if st.button("Stop Live Collector Loop", width="stretch", key="ops_crypto_edge_stop"):
+            collector_action = "Stop Live Collector Loop"
+            collector_rc, collector_output = run_repo_script(
+                "scripts/run_crypto_edge_collector_loop.py",
+                args=["--stop"],
+            )
+
+    render_action_result(action=collector_action, rc=collector_rc, output=collector_output)
 
     if not bool(report.get("ok")):
         st.warning(f"Crypto edge report unavailable: {str(report.get('reason') or 'unknown_error')}")
