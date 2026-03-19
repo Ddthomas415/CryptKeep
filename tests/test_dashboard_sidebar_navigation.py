@@ -9,6 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 EXPECTED_NAV_ITEMS = (
     ("pages/00_Home.py", "Home", "🏠"),
+    ("pages/05_Help.py", "Help", "❓"),
     ("app.py", "Overview", "📋"),
     ("pages/10_Markets.py", "Markets", "📈"),
     ("pages/20_Portfolio.py", "Portfolio", "💼"),
@@ -23,6 +24,7 @@ EXPECTED_NAV_ITEMS = (
 SIDEBAR_ENABLED_FILES = (
     "dashboard/app.py",
     "dashboard/pages/00_Home.py",
+    "dashboard/pages/05_Help.py",
     "dashboard/pages/00_Operator.py",
     "dashboard/pages/10_Markets.py",
     "dashboard/pages/20_Portfolio.py",
@@ -38,6 +40,7 @@ SIDEBAR_ENABLED_FILES = (
 AUTH_ROLE_REQUIREMENTS = {
     "dashboard/app.py": "VIEWER",
     "dashboard/pages/00_Home.py": "VIEWER",
+    "dashboard/pages/05_Help.py": "VIEWER",
     "dashboard/pages/10_Markets.py": "VIEWER",
     "dashboard/pages/20_Portfolio.py": "VIEWER",
     "dashboard/pages/30_Signals.py": "VIEWER",

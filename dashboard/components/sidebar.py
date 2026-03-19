@@ -10,6 +10,7 @@ NavItem = tuple[str, str, str]
 
 DEFAULT_NAV_ITEMS: tuple[NavItem, ...] = (
     ("pages/00_Home.py", "Home", "🏠"),
+    ("pages/05_Help.py", "Help", "❓"),
     ("app.py", "Overview", "📋"),
     ("pages/10_Markets.py", "Markets", "📈"),
     ("pages/20_Portfolio.py", "Portfolio", "💼"),

@@ -7,6 +7,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PY_FILES = (
     "dashboard/app.py",
+    "dashboard/pages/05_Help.py",
     "dashboard/pages/00_Operator.py",
     "dashboard/pages/10_Markets.py",
     "dashboard/pages/20_Portfolio.py",

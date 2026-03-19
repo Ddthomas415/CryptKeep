@@ -477,6 +477,66 @@ def test_home_page_builds_digest(monkeypatch) -> None:
     assert digest_calls == [True]
 
 
+def test_help_page_loads_runtime_guidance(monkeypatch) -> None:
+    from dashboard.services import crypto_edge_research, strategy_evidence_runtime
+    from dashboard.services.digest import builders as home_digest
+
+    digest_calls: list[bool] = []
+    evidence_calls: list[bool] = []
+    collector_calls: list[bool] = []
+
+    monkeypatch.setattr(
+        home_digest,
+        "load_home_digest",
+        lambda: digest_calls.append(True)
+        or {
+            "as_of": "2026-03-19T07:00:00Z",
+            "page_status": {"state": "warn", "caveat": "Digest is usable, but evidence is still thin."},
+            "runtime_truth": {
+                "mode": {"value": "Paper", "caveat": None},
+                "live_order_authority": {"value": "Blocked", "caveat": "Paper-first runtime."},
+                "collector_freshness": {"value": "Fresh", "caveat": None},
+            },
+            "mode_truth": {"label": "Paper", "current_mode": "paper"},
+            "next_best_action": {"title": "Collect more paper evidence", "source": "strategy_evidence"},
+        },
+    )
+    monkeypatch.setattr(
+        strategy_evidence_runtime,
+        "load_paper_strategy_evidence_runtime",
+        lambda: evidence_calls.append(True)
+        or {
+            "ok": True,
+            "status": "running",
+            "current_strategy": "ema_cross",
+            "completed_summary": "0/3",
+            "freshness": "Fresh",
+            "summary_text": "Paper evidence collector is running on ema_cross (0/3 complete).",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: collector_calls.append(True)
+        or {
+            "ok": True,
+            "status": "running",
+            "freshness": "Fresh",
+            "summary_text": "Collector loop is healthy.",
+        },
+    )
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/05_Help.py",
+        module_name="dashboard_test_help_page",
+    )
+
+    assert digest_calls == [True]
+    assert evidence_calls == [True]
+    assert collector_calls == [True]
+
+
 def test_markets_page_requests_selected_asset(monkeypatch) -> None:
     from dashboard.components import focus_selector
     from dashboard.services import view_data
