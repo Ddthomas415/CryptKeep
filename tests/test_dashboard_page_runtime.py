@@ -82,7 +82,7 @@ def _noop(*args, **kwargs) -> None:
 
 
 def _patch_common_dashboard_renders(monkeypatch) -> None:
-    from dashboard.components import activity, asset_detail, badges, cards, header, sidebar, summary_panels, tables
+    from dashboard.components import activity, asset_detail, badges, cards, header, logs, sidebar, summary_panels, tables
 
     monkeypatch.setattr(sidebar, "render_app_sidebar", _noop)
     monkeypatch.setattr(header, "render_page_header", _noop)
@@ -92,6 +92,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(cards, "render_section_intro", _noop)
     monkeypatch.setattr(badges, "render_badge_row", _noop)
     monkeypatch.setattr(tables, "render_table_section", _noop)
+    monkeypatch.setattr(logs, "render_action_result", _noop)
     monkeypatch.setattr(activity, "render_activity_panel", _noop)
     monkeypatch.setattr(asset_detail, "render_asset_detail_card", _noop)
     monkeypatch.setattr(asset_detail, "render_evidence_section", _noop)
@@ -348,6 +349,7 @@ def test_signals_page_requests_selected_asset(monkeypatch) -> None:
 
 def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
     from dashboard.services import crypto_edge_research
+    from dashboard.services import operator as operator_service
 
     workspace_calls: list[int] = []
     live_calls: list[bool] = []
@@ -431,6 +433,16 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
         "load_crypto_edge_staleness_digest",
         fake_load_crypto_edge_staleness_digest,
     )
+    monkeypatch.setattr(
+        operator_service,
+        "start_repo_script_background",
+        lambda script_relpath, args=None: (0, "started"),
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "run_repo_script",
+        lambda script_relpath, args=None: (0, "stopped"),
+    )
 
     _load_dashboard_module(
         monkeypatch,
@@ -442,6 +454,67 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
     assert live_calls == [True]
     assert runtime_calls == [True]
     assert digest_calls == [True]
+
+
+def test_research_page_starts_collector_loop_from_dashboard(monkeypatch) -> None:
+    from dashboard.services import crypto_edge_research
+    from dashboard.services import operator as operator_service
+
+    captured: dict[str, Any] = {}
+
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_workspace",
+        lambda history_limit=5: {
+            "ok": True,
+            "has_any_data": False,
+            "data_origin_label": "No Snapshots",
+            "freshness_summary": "Unknown",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {"ok": True, "has_live_data": False, "freshness_summary": "Unknown"},
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: {"ok": True, "has_status": False, "status": "not_started", "freshness": "Unknown"},
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_digest",
+        lambda: {"ok": True, "needs_attention": True, "severity": "warn", "headline": "Structural-edge data needs attention"},
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "start_repo_script_background",
+        lambda script_relpath, args=None: captured.update({"script": script_relpath, "args": list(args or [])}) or (0, "started"),
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "run_repo_script",
+        lambda script_relpath, args=None: (0, "stopped"),
+    )
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/35_Research.py",
+        module_name="dashboard_test_research_start_collector",
+        streamlit_overrides={
+            "Collector Loop Interval (sec)": 900.0,
+            "Start Live Collector Loop": True,
+        },
+    )
+
+    assert captured["script"] == "scripts/run_crypto_edge_collector_loop.py"
+    assert captured["args"] == [
+        "--plan-file",
+        "sample_data/crypto_edges/live_collector_plan.json",
+        "--interval-sec",
+        "900",
+    ]
 
 
 def test_portfolio_page_fetches_view_on_import(monkeypatch) -> None:

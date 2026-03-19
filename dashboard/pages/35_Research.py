@@ -5,6 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.components.cards import render_feature_hero, render_kpi_cards, render_prompt_actions
 from dashboard.components.header import render_page_header
+from dashboard.components.logs import render_action_result
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
 from dashboard.services.crypto_edge_research import (
@@ -13,6 +14,7 @@ from dashboard.services.crypto_edge_research import (
     load_crypto_edge_workspace,
     load_latest_live_crypto_edge_snapshot,
 )
+from dashboard.services.operator import run_repo_script, start_repo_script_background
 
 SOURCE_FILTER_OPTIONS = ["All Sources", "Live Public", "Sample Bundle", "Manual Import"]
 FRESHNESS_FILTER_OPTIONS = ["All Freshness", "Fresh", "Recent", "Aging", "Stale", "Unknown"]
@@ -112,6 +114,41 @@ render_prompt_actions(
     ],
     key_prefix="research",
 )
+
+collector_interval_sec = float(
+    st.number_input(
+        "Collector Loop Interval (sec)",
+        min_value=60.0,
+        value=300.0,
+        step=60.0,
+        key="research_collector_interval_sec",
+    )
+)
+collector_action = None
+collector_rc = None
+collector_output = None
+collector_cols = st.columns(2)
+with collector_cols[0]:
+    if st.button("Start Live Collector Loop", width="stretch", key="research_collector_start"):
+        collector_action = "Start Live Collector Loop"
+        collector_rc, collector_output = start_repo_script_background(
+            "scripts/run_crypto_edge_collector_loop.py",
+            args=[
+                "--plan-file",
+                "sample_data/crypto_edges/live_collector_plan.json",
+                "--interval-sec",
+                str(int(collector_interval_sec)),
+            ],
+        )
+with collector_cols[1]:
+    if st.button("Stop Live Collector Loop", width="stretch", key="research_collector_stop"):
+        collector_action = "Stop Live Collector Loop"
+        collector_rc, collector_output = run_repo_script(
+            "scripts/run_crypto_edge_collector_loop.py",
+            args=["--stop"],
+        )
+
+render_action_result(action=collector_action, rc=collector_rc, output=collector_output)
 
 render_table_section(
     "Stale-Data Digest",

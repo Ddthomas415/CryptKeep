@@ -43,6 +43,28 @@ def test_run_repo_script_returns_rc_and_combined_output(monkeypatch):
     assert "warn" in out
 
 
+def test_start_repo_script_background_returns_started_pid(monkeypatch):
+    seen: dict[str, object] = {}
+
+    class _Proc:
+        pid = 43210
+
+    def fake_popen(cmd, **kwargs):
+        seen["cmd"] = cmd
+        seen["kwargs"] = kwargs
+        return _Proc()
+
+    monkeypatch.setattr(operator_service.subprocess, "Popen", fake_popen)
+    rc, out = operator_service.start_repo_script_background(
+        "scripts/run_crypto_edge_collector_loop.py",
+        args=["--stop"],
+    )
+
+    assert rc == 0
+    assert "started pid=43210" in out
+    assert "run_crypto_edge_collector_loop.py" in " ".join(str(x) for x in seen["cmd"])
+
+
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
     monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_executor"])
     monkeypatch.setattr(

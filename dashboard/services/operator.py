@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from collections.abc import Sequence
@@ -23,6 +24,34 @@ def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None) -
     proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)
     output = (proc.stdout or "") + (proc.stderr or "")
     return int(proc.returncode), output.strip()
+
+
+def start_repo_script_background(script_relpath: str, *, args: Sequence[str] | None = None) -> tuple[int, str]:
+    cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
+    if args:
+        cmd.extend(str(x) for x in args)
+
+    kwargs: dict[str, object] = {
+        "cwd": str(REPO_ROOT),
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL,
+        "stdin": subprocess.DEVNULL,
+    }
+    if os.name == "nt":
+        creationflags = 0
+        if hasattr(subprocess, "CREATE_NEW_PROCESS_GROUP"):
+            creationflags |= subprocess.CREATE_NEW_PROCESS_GROUP
+        if hasattr(subprocess, "DETACHED_PROCESS"):
+            creationflags |= subprocess.DETACHED_PROCESS
+        kwargs["creationflags"] = creationflags
+    else:
+        kwargs["start_new_session"] = True
+
+    try:
+        proc = subprocess.Popen(cmd, **kwargs)
+    except Exception as exc:
+        return 1, f"{type(exc).__name__}: {exc}"
+    return 0, f"started pid={int(proc.pid)} script={script_relpath}"
 
 
 def list_services(*, fallback: Sequence[str] | None = None) -> list[str]:
