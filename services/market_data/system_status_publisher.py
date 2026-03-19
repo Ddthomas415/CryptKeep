@@ -14,6 +14,7 @@ SNAPSHOTS = runtime_dir() / "snapshots"
 STOP_FILE = FLAGS / "tick_publisher.stop"
 LOCK_FILE = LOCKS / "tick_publisher.lock"
 STATUS_FILE = SNAPSHOTS / "system_status.latest.json"
+DEFAULT_POLL_INTERVAL_SEC = 2.0
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -37,6 +38,16 @@ def request_stop() -> dict:
     FLAGS.mkdir(parents=True, exist_ok=True)
     STOP_FILE.write_text(_now_iso() + "\n", encoding="utf-8")
     return {"ok": True, "stop_file": str(STOP_FILE)}
+
+
+def _poll_interval_sec() -> float:
+    raw = str(os.environ.get("CBP_TICK_PUBLISH_INTERVAL_SEC") or "").strip()
+    if raw:
+        try:
+            return max(0.5, float(raw))
+        except Exception:
+            pass
+    return float(DEFAULT_POLL_INTERVAL_SEC)
 
 def fetch_status() -> dict:
     status = {
@@ -82,6 +93,7 @@ def fetch_status() -> dict:
 
 def run_forever() -> None:
     ensure_dirs()
+    poll_interval_sec = _poll_interval_sec()
     try:
         if STOP_FILE.exists():
             STOP_FILE.unlink()
@@ -97,7 +109,7 @@ def run_forever() -> None:
             data = fetch_status()
             STATUS_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
             print(f"Wrote snapshot at {_now_iso()}\n")
-            time.sleep(10)
+            time.sleep(poll_interval_sec)
     finally:
         _release_lock()
         print("Tick publisher stopped")
