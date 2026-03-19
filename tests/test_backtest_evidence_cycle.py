@@ -306,6 +306,69 @@ def test_persist_strategy_evidence_writes_latest_and_history(tmp_path, monkeypat
     assert json.loads(latest_path.read_text(encoding="utf-8"))["as_of"] == "2026-03-19T12:00:00Z"
 
 
+def test_persist_strategy_evidence_attaches_comparison_to_previous_latest(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(evidence_cycle, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(evidence_cycle, "ensure_dirs", lambda: None)
+    latest_dir = tmp_path / "strategy_evidence"
+    latest_dir.mkdir(parents=True, exist_ok=True)
+    latest_path = latest_dir / "strategy_evidence.latest.json"
+    latest_path.write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "as_of": "2026-03-18T12:00:00Z",
+                "aggregate_leaderboard": {
+                    "rows": [
+                        {
+                            "strategy": "ema_cross",
+                            "rank": 1,
+                            "decision": "keep",
+                            "leaderboard_score": 0.40,
+                            "avg_return_pct": 2.0,
+                        }
+                    ]
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    report = {
+        "ok": True,
+        "as_of": "2026-03-19T12:00:00Z",
+        "aggregate_leaderboard": {
+            "rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "rank": 1,
+                    "decision": "keep",
+                    "leaderboard_score": 0.55,
+                    "avg_return_pct": 8.0,
+                },
+                {
+                    "strategy": "ema_cross",
+                    "rank": 2,
+                    "decision": "improve",
+                    "leaderboard_score": 0.35,
+                    "avg_return_pct": 1.5,
+                },
+            ]
+        },
+    }
+
+    evidence_cycle.persist_strategy_evidence(report)
+
+    persisted = json.loads(latest_path.read_text(encoding="utf-8"))
+    comparison = dict(persisted.get("comparison") or {})
+    assert comparison["has_previous"] is True
+    assert comparison["top_strategy_previous"] == "ema_cross"
+    assert comparison["top_strategy_current"] == "breakout_donchian"
+    assert comparison["top_strategy_changed"] is True
+    assert report["comparison"]["top_strategy_changed"] is True
+    changes = {item["strategy"]: item for item in comparison["changes"]}
+    assert changes["ema_cross"]["movement"] == "degraded"
+    assert changes["breakout_donchian"]["movement"] == "new"
+
+
 def test_render_decision_record_includes_decision_summary() -> None:
     report = {
         "as_of": "2026-03-19T12:00:00Z",
@@ -320,6 +383,29 @@ def test_render_decision_record_includes_decision_summary() -> None:
             "source": "trade_journal_sqlite",
             "journal_path": "/tmp/trade_journal.sqlite",
             "fills_count": 4,
+        },
+        "comparison": {
+            "has_previous": True,
+            "previous_as_of": "2026-03-18T12:00:00Z",
+            "current_as_of": "2026-03-19T12:00:00Z",
+            "top_strategy_previous": "ema_cross",
+            "top_strategy_current": "breakout_donchian",
+            "top_strategy_changed": True,
+            "improved_count": 1,
+            "degraded_count": 1,
+            "unchanged_count": 0,
+            "new_count": 0,
+            "summary_text": "Top strategy changed from ema_cross to breakout_donchian versus the prior persisted evidence run.",
+            "changes": [
+                {
+                    "strategy": "breakout_donchian",
+                    "movement": "improved",
+                    "previous_rank": 2,
+                    "current_rank": 1,
+                    "previous_decision": "improve",
+                    "current_decision": "keep",
+                }
+            ],
         },
         "aggregate_leaderboard": {
             "rows": [
@@ -353,6 +439,9 @@ def test_render_decision_record_includes_decision_summary() -> None:
     assert "Strategy Decision Record — 2026-03-19" in text
     assert "evidence artifact: `/tmp/report.json`" in text
     assert "paper-history source: `trade_journal_sqlite`" in text
+    assert "## Run-to-Run Comparison" in text
+    assert "top strategy changed: `yes`" in text
+    assert "Top strategy changed from ema_cross to breakout_donchian" in text
     assert "Decision: `keep`" in text
     assert "- evidence status: `unknown`" in text
     assert "- confidence: `unknown`" in text

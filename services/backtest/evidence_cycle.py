@@ -640,12 +640,183 @@ def evidence_dir() -> Path:
     return path
 
 
+def _load_evidence_payload(path: Path) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    return dict(payload) if isinstance(payload, dict) else {}
+
+
+def _decision_weight(value: Any) -> int:
+    mapping = {
+        "keep": 4,
+        "improve": 3,
+        "freeze": 2,
+        "retire": 1,
+    }
+    return int(mapping.get(str(value or "").strip().lower(), 0))
+
+
+def _row_movement(*, current: dict[str, Any], previous: dict[str, Any] | None) -> str:
+    if not previous:
+        return "new"
+    current_decision = _decision_weight(current.get("decision"))
+    previous_decision = _decision_weight(previous.get("decision"))
+    if current_decision > previous_decision:
+        return "improved"
+    if current_decision < previous_decision:
+        return "degraded"
+
+    current_rank = int(_fnum(current.get("rank"), 0.0))
+    previous_rank = int(_fnum(previous.get("rank"), 0.0))
+    if previous_rank > 0 and current_rank > 0:
+        if current_rank < previous_rank:
+            return "improved"
+        if current_rank > previous_rank:
+            return "degraded"
+
+    score_delta = _fnum(current.get("leaderboard_score"), 0.0) - _fnum(previous.get("leaderboard_score"), 0.0)
+    if score_delta > 1e-9:
+        return "improved"
+    if score_delta < -1e-9:
+        return "degraded"
+    return "unchanged"
+
+
+def build_evidence_comparison(
+    current_report: dict[str, Any],
+    *,
+    previous_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    current_payload = dict(current_report or {})
+    previous_payload = dict(previous_report or {})
+    previous_rows = {
+        str(item.get("strategy") or ""): dict(item)
+        for item in list(((previous_payload.get("aggregate_leaderboard") or {}).get("rows") or []))
+        if isinstance(item, dict) and str(item.get("strategy") or "").strip()
+    }
+    current_rows = [
+        dict(item)
+        for item in list(((current_payload.get("aggregate_leaderboard") or {}).get("rows") or []))
+        if isinstance(item, dict) and str(item.get("strategy") or "").strip()
+    ]
+    previous_as_of = str(previous_payload.get("as_of") or "").strip() or None
+    current_as_of = str(current_payload.get("as_of") or "").strip() or None
+
+    if not previous_rows or not previous_as_of:
+        return {
+            "has_previous": False,
+            "previous_as_of": previous_as_of,
+            "current_as_of": current_as_of,
+            "summary_text": "No prior persisted strategy evidence artifact is available for comparison.",
+            "improved_count": 0,
+            "degraded_count": 0,
+            "unchanged_count": 0,
+            "new_count": int(len(current_rows)),
+            "changes": [],
+            "top_strategy_previous": None,
+            "top_strategy_current": str(current_rows[0].get("strategy") or "") if current_rows else None,
+            "top_strategy_changed": False,
+        }
+
+    changes: list[dict[str, Any]] = []
+    improved = 0
+    degraded = 0
+    unchanged = 0
+    new_count = 0
+    for row in current_rows:
+        strategy = str(row.get("strategy") or "").strip()
+        if not strategy:
+            continue
+        previous = previous_rows.get(strategy)
+        movement = _row_movement(current=row, previous=previous)
+        if movement == "improved":
+            improved += 1
+        elif movement == "degraded":
+            degraded += 1
+        elif movement == "new":
+            new_count += 1
+        else:
+            unchanged += 1
+        changes.append(
+            {
+                "strategy": strategy,
+                "movement": movement,
+                "current_rank": int(_fnum(row.get("rank"), 0.0)) or None,
+                "previous_rank": int(_fnum(previous.get("rank"), 0.0)) or None if previous else None,
+                "rank_delta": (
+                    int(_fnum(previous.get("rank"), 0.0)) - int(_fnum(row.get("rank"), 0.0))
+                    if previous and int(_fnum(previous.get("rank"), 0.0)) > 0 and int(_fnum(row.get("rank"), 0.0)) > 0
+                    else None
+                ),
+                "current_decision": str(row.get("decision") or ""),
+                "previous_decision": str(previous.get("decision") or "") if previous else "",
+                "decision_changed": str(row.get("decision") or "") != str(previous.get("decision") or "") if previous else True,
+                "current_score": float(_fnum(row.get("leaderboard_score"), 0.0)),
+                "previous_score": float(_fnum(previous.get("leaderboard_score"), 0.0)) if previous else None,
+                "score_delta": (
+                    float(_fnum(row.get("leaderboard_score"), 0.0) - _fnum(previous.get("leaderboard_score"), 0.0))
+                    if previous
+                    else None
+                ),
+                "current_avg_return_pct": float(_fnum(row.get("avg_return_pct"), 0.0)),
+                "previous_avg_return_pct": float(_fnum(previous.get("avg_return_pct"), 0.0)) if previous else None,
+                "avg_return_pct_delta": (
+                    float(_fnum(row.get("avg_return_pct"), 0.0) - _fnum(previous.get("avg_return_pct"), 0.0))
+                    if previous
+                    else None
+                ),
+                "current_evidence_status": str(row.get("evidence_status") or ""),
+                "previous_evidence_status": str(previous.get("evidence_status") or "") if previous else "",
+            }
+        )
+
+    previous_top = next(iter(previous_rows.values()), {})
+    current_top = current_rows[0] if current_rows else {}
+    top_previous = str(previous_top.get("strategy") or "").strip() or None
+    top_current = str(current_top.get("strategy") or "").strip() or None
+    top_changed = bool(top_previous and top_current and top_previous != top_current)
+    if top_changed:
+        summary_text = f"Top strategy changed from {top_previous} to {top_current} versus the prior persisted evidence run."
+    elif degraded > 0 and improved == 0:
+        summary_text = f"{degraded} strategy comparison(s) degraded versus the prior persisted evidence run."
+    elif improved > 0 and degraded == 0:
+        summary_text = f"{improved} strategy comparison(s) improved versus the prior persisted evidence run."
+    elif improved > 0 or degraded > 0:
+        summary_text = (
+            f"{improved} strategy comparison(s) improved and {degraded} degraded versus the prior persisted evidence run."
+        )
+    else:
+        summary_text = "Current strategy evidence is unchanged versus the prior persisted evidence run."
+
+    return {
+        "has_previous": True,
+        "previous_as_of": previous_as_of,
+        "current_as_of": current_as_of,
+        "summary_text": summary_text,
+        "improved_count": int(improved),
+        "degraded_count": int(degraded),
+        "unchanged_count": int(unchanged),
+        "new_count": int(new_count),
+        "changes": changes,
+        "top_strategy_previous": top_previous,
+        "top_strategy_current": top_current,
+        "top_strategy_changed": top_changed,
+    }
+
+
 def persist_strategy_evidence(report: dict[str, Any], *, latest_path: str = "") -> dict[str, Any]:
     payload = dict(report or {})
     evidence_root = evidence_dir()
     ts_token = str(payload.get("as_of") or _now_iso()).replace(":", "").replace("-", "").replace("Z", "Z")
     latest = Path(latest_path).expanduser().resolve() if latest_path else (evidence_root / "strategy_evidence.latest.json").resolve()
     history = (evidence_root / f"strategy_evidence.{ts_token}.json").resolve()
+    previous_payload = _load_evidence_payload(latest) if latest.exists() else {}
+    comparison = build_evidence_comparison(payload, previous_report=previous_payload)
+    payload["comparison"] = comparison
+    if isinstance(report, dict):
+        report["comparison"] = comparison
     latest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     history.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return {
@@ -668,6 +839,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
     decisions = [dict(item) for item in list(payload.get("decisions") or [])]
     windows = [dict(item) for item in list(payload.get("windows") or [])]
     paper_history = dict(payload.get("paper_history") or {})
+    comparison = dict(payload.get("comparison") or {})
     as_of = str(payload.get("as_of") or _now_iso())
     date_token = as_of.split("T", 1)[0]
 
@@ -728,6 +900,40 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
             "- this cycle is stronger than a single-window pass, but it still does not prove profitability or promotion readiness by itself",
             f"- persisted paper-history status for this run is `{str(paper_history.get('status') or 'missing')}`",
             "",
+        ]
+    )
+    if comparison:
+        out.extend(
+            [
+                "## Run-to-Run Comparison",
+                "",
+                f"- previous run: `{str(comparison.get('previous_as_of') or 'none')}`",
+                f"- current run: `{str(comparison.get('current_as_of') or as_of)}`",
+                f"- top strategy previous: `{str(comparison.get('top_strategy_previous') or 'none')}`",
+                f"- top strategy current: `{str(comparison.get('top_strategy_current') or 'none')}`",
+                f"- top strategy changed: `{'yes' if bool(comparison.get('top_strategy_changed')) else 'no'}`",
+                f"- improved comparisons: `{int(comparison.get('improved_count') or 0)}`",
+                f"- degraded comparisons: `{int(comparison.get('degraded_count') or 0)}`",
+                f"- unchanged comparisons: `{int(comparison.get('unchanged_count') or 0)}`",
+                f"- new comparisons: `{int(comparison.get('new_count') or 0)}`",
+                "",
+                f"Summary: {str(comparison.get('summary_text') or 'No comparison summary available.')}",
+                "",
+            ]
+        )
+        changes = [dict(item) for item in list(comparison.get("changes") or []) if isinstance(item, dict)]
+        if changes:
+            out.extend(["Comparison detail:"])
+            for item in changes[:5]:
+                out.append(
+                    "- "
+                    f"`{str(item.get('strategy') or '')}` moved `{str(item.get('movement') or 'unchanged')}`; "
+                    f"rank `{str(item.get('previous_rank') or '-')}` -> `{str(item.get('current_rank') or '-')}`, "
+                    f"decision `{str(item.get('previous_decision') or '-')}` -> `{str(item.get('current_decision') or '-')}`."
+                )
+            out.extend([""])
+    out.extend(
+        [
             "## Results",
             "",
         ]

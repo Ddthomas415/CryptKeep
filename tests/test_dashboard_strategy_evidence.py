@@ -39,6 +39,12 @@ def test_load_latest_strategy_evidence_reads_persisted_artifact(tmp_path, monkey
                     ],
                 },
                 "decisions": [{"candidate": "breakout_default", "decision": "keep"}],
+                "comparison": {
+                    "has_previous": True,
+                    "previous_as_of": "2026-03-18T05:36:37Z",
+                    "current_as_of": "2026-03-19T05:36:37Z",
+                    "summary_text": "Top strategy changed from ema_cross to breakout_donchian.",
+                },
             }
         ),
         encoding="utf-8",
@@ -53,3 +59,5 @@ def test_load_latest_strategy_evidence_reads_persisted_artifact(tmp_path, monkey
     assert out["source_label"] == "Persisted Synthetic Evidence"
     assert out["rows"][0]["candidate"] == "breakout_default"
     assert out["decisions"][0]["decision"] == "keep"
+    assert out["comparison"]["has_previous"] is True
+    assert "Top strategy changed" in out["comparison"]["summary_text"]

@@ -70,6 +70,7 @@ def load_latest_strategy_evidence(path: str = "") -> dict[str, Any]:
     aggregate = payload.get("aggregate_leaderboard") if isinstance(payload.get("aggregate_leaderboard"), dict) else {}
     rows = [dict(row) for row in list(aggregate.get("rows") or []) if isinstance(row, dict)]
     decisions = [dict(item) for item in list(payload.get("decisions") or []) if isinstance(item, dict)]
+    comparison = dict(payload.get("comparison") or {}) if isinstance(payload.get("comparison"), dict) else {}
     as_of = str(payload.get("as_of") or "").strip() or None
     age_s = _age_seconds(as_of)
     freshness_status = _freshness_for_strategy_evidence(age_s)
@@ -94,6 +95,7 @@ def load_latest_strategy_evidence(path: str = "") -> dict[str, Any]:
         "caveat": caveat,
         "rows": rows,
         "decisions": decisions,
+        "comparison": comparison,
         "window_count": int(payload.get("window_count") or 0),
         "candidate_count": int(aggregate.get("candidate_count") or len(rows)),
     }
