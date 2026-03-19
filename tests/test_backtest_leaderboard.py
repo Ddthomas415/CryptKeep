@@ -190,6 +190,6 @@ def test_run_strategy_leaderboard_returns_ranked_rows():
     assert out["stressed_slippage_bps"] > out["base_slippage_bps"]
     assert len(out["rows"]) == 3
     assert out["rows"][0]["leaderboard_score"] >= out["rows"][-1]["leaderboard_score"]
-    assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness", "closed_trades", "exposure_fraction"} <= set(
+    assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness", "closed_trades", "trade_count", "exposure_fraction"} <= set(
         out["rows"][0].keys()
     )

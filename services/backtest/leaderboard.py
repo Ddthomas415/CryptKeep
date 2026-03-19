@@ -200,6 +200,7 @@ def run_strategy_leaderboard(
             "expectancy": _fnum(scorecard.get("expectancy"), 0.0),
             "win_rate_pct": _fnum(scorecard.get("win_rate_pct"), 0.0),
             "closed_trades": int(_fnum(scorecard.get("closed_trades"), 0.0)),
+            "trade_count": int(_fnum(base_result.get("trade_count"), 0.0)),
             "exposure_fraction": _fnum(scorecard.get("exposure_fraction"), 0.0),
             "exposure_adjusted_return_pct": _fnum(scorecard.get("exposure_adjusted_return_pct"), 0.0),
             "paper_live_drift_pct": float(paper_live_drift_pct) if paper_live_drift_pct is not None else None,
