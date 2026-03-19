@@ -35,6 +35,7 @@ from dashboard.components.header import render_page_header
 from dashboard.components.kpi_builders import build_overview_kpis
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import (
+    render_collector_runtime_summary,
     render_overview_status_summary,
     render_structural_edge_digest_summary,
     render_structural_edge_health_summary,
@@ -42,6 +43,7 @@ from dashboard.components.summary_panels import (
 )
 from dashboard.components.tables import render_table_section
 from dashboard.services.crypto_edge_research import (
+    load_crypto_edge_collector_runtime,
     load_crypto_edge_staleness_digest,
     load_crypto_edge_staleness_summary,
     load_latest_live_crypto_edge_snapshot,
@@ -87,6 +89,7 @@ watchlist_preview = (
     overview_view.get("watchlist_preview") if isinstance(overview_view.get("watchlist_preview"), list) else []
 )
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
+collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
 structural_edge_digest = load_crypto_edge_staleness_digest()
 
@@ -177,6 +180,11 @@ with side_col:
         structural_edge_health,
         title="Structural Edge Freshness",
         subtitle="Live-public structural-edge freshness and collector loop health.",
+    )
+    render_collector_runtime_summary(
+        collector_runtime,
+        title="Collector Loop",
+        subtitle="Read-only collector loop status for live-public structural-edge snapshots.",
     )
     render_structural_edge_summary(
         live_structural_edges,

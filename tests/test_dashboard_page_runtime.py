@@ -99,6 +99,7 @@ def _patch_common_dashboard_renders(monkeypatch) -> None:
     monkeypatch.setattr(asset_detail, "render_research_lens", _noop)
     monkeypatch.setattr(asset_detail, "render_focus_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_market_context", _noop)
+    monkeypatch.setattr(summary_panels, "render_collector_runtime_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_overview_status_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_structural_edge_digest_summary", _noop)
     monkeypatch.setattr(summary_panels, "render_structural_edge_summary", _noop)
@@ -149,6 +150,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     from dashboard.services import view_data
 
     calls: list[str | None] = []
+    collector_calls: list[bool] = []
     health_calls: list[bool] = []
     digest_calls: list[bool] = []
 
@@ -189,6 +191,19 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: collector_calls.append(True)
+        or {
+            "ok": True,
+            "has_status": True,
+            "status": "running",
+            "freshness": "Fresh",
+            "writes": 2,
+            "errors": 0,
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
         "load_crypto_edge_staleness_summary",
         lambda: health_calls.append(True) or {"ok": True, "needs_attention": False, "severity": "ok"},
     )
@@ -217,6 +232,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     )
 
     assert calls == [None, "BTC"]
+    assert collector_calls == [True]
     assert health_calls == [True]
     assert digest_calls == [True]
 
@@ -648,6 +664,8 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
     from services.execution import idempotency_inspector
     from services.strategies import config_tools, presets
 
+    collector_calls: list[bool] = []
+
     monkeypatch.setattr(actions, "render_system_action_buttons", lambda: None)
     monkeypatch.setattr(logs, "render_action_result", _noop)
     monkeypatch.setattr(
@@ -780,6 +798,20 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: collector_calls.append(True)
+        or {
+            "ok": True,
+            "has_status": True,
+            "status": "running",
+            "freshness": "Recent",
+            "source_label": "Live Public",
+            "writes": 3,
+            "errors": 0,
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
         "load_crypto_edge_staleness_summary",
         lambda: {"ok": True, "needs_attention": False, "severity": "ok"},
     )
@@ -793,6 +825,7 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
 
     assert fake_streamlit.session_state["ops_ih6_workbench"]["ok"] is True
     assert fake_streamlit.session_state["ops_ih6_result"]["strategy"] == "ema_cross"
+    assert collector_calls == [True]
 
 
 def test_settings_page_builds_save_payload(monkeypatch) -> None:

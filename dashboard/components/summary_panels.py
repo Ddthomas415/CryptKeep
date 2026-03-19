@@ -393,6 +393,54 @@ def render_structural_edge_digest_summary(
             st.caption(while_away_summary)
 
 
+def render_collector_runtime_summary(
+    payload: dict[str, Any] | None,
+    *,
+    title: str = "Collector Runtime",
+    subtitle: str = "Read-only live structural-edge collector loop status.",
+) -> None:
+    item = payload if isinstance(payload, dict) else {}
+    with st.container(border=True):
+        st.markdown(f"### {title}")
+        st.caption(subtitle)
+        if not bool(item.get("ok")):
+            st.info(
+                f"Collector runtime unavailable: {str(item.get('summary_text') or item.get('reason') or 'unknown_error')}"
+            )
+            return
+
+        metric_items = [
+            {
+                "label": "Status",
+                "value": str(item.get("status") or "not_started").replace("_", " ").title(),
+                "delta": str(item.get("freshness") or "Unknown"),
+            },
+            {
+                "label": "Source",
+                "value": str(item.get("source_label") or item.get("source") or "Live Public"),
+                "delta": f"Loops {int(item.get('loops') or 0)}",
+            },
+            {
+                "label": "Writes",
+                "value": str(int(item.get("writes") or 0)),
+                "delta": f"Errors {int(item.get('errors') or 0)}",
+            },
+        ]
+        metric_cols = st.columns(len(metric_items))
+        for col, metric in zip(metric_cols, metric_items, strict=False):
+            with col:
+                with st.container(border=True):
+                    st.caption(str(metric.get("label") or ""))
+                    st.markdown(f"**{str(metric.get('value') or '-')}**")
+                    delta = str(metric.get("delta") or "").strip()
+                    if delta:
+                        st.caption(delta)
+
+        summary_text = str(item.get("summary_text") or "").strip()
+        if summary_text:
+            st.caption(summary_text)
+
+
 def build_operations_status_metrics(snapshot: dict[str, Any] | None) -> list[dict[str, str]]:
     payload = snapshot if isinstance(snapshot, dict) else {}
     services = payload.get("services") if isinstance(payload.get("services"), list) else []
