@@ -7,7 +7,7 @@ import streamlit as st
 
 from dashboard.components.badges import render_badge_row
 from dashboard.components.cards import render_section_intro
-from dashboard.services.home_digest_contracts import (
+from dashboard.services.digest.contracts import (
     AttentionNowData,
     CryptoEdgeSummaryData,
     FreshnessPanelData,

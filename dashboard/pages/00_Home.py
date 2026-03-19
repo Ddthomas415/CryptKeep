@@ -18,7 +18,7 @@ from dashboard.components.digest import (
 )
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
-from dashboard.services.home_digest import build_home_digest
+from dashboard.services.digest.builders import build_home_digest
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()

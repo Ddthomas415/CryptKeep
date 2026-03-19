@@ -49,7 +49,7 @@ from dashboard.services.crypto_edge_research import (
     load_crypto_edge_staleness_summary,
     load_latest_live_crypto_edge_snapshot,
 )
-from dashboard.services.home_digest import load_home_digest
+from dashboard.services.digest.builders import load_home_digest
 from dashboard.services.view_data import get_overview_view
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dashboard.services import home_digest
+from dashboard.services.digest import builders as home_digest
 
 
 class _Decision:

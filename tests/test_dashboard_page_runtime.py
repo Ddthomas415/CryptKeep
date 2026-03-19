@@ -158,7 +158,7 @@ def _load_dashboard_module(
 
 def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
     from dashboard.components import focus_selector
-    from dashboard.services import home_digest
+    from dashboard.services.digest import builders as home_digest
     from dashboard.services import crypto_edge_research
     from dashboard.services import view_data
 
@@ -326,7 +326,7 @@ def test_overview_page_requests_selected_focus_asset(monkeypatch) -> None:
 
 
 def test_home_page_builds_digest(monkeypatch) -> None:
-    from dashboard.services import home_digest
+    from dashboard.services.digest import builders as home_digest
 
     digest_calls: list[bool] = []
 
