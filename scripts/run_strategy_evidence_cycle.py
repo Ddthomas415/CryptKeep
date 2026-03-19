@@ -29,6 +29,7 @@ def main() -> int:
     ap.add_argument("--fee-bps", type=float, default=10.0, help="Fee model in basis points")
     ap.add_argument("--slippage-bps", type=float, default=5.0, help="Slippage model in basis points")
     ap.add_argument("--output-path", default="", help="Optional latest-report path override")
+    ap.add_argument("--paper-history-path", default="", help="Optional trade_journal.sqlite path override")
     ap.add_argument("--write-decision-record", action="store_true", help="Also regenerate the dated markdown decision record")
     ap.add_argument("--decision-record-path", default="", help="Optional decision record path override")
     args = ap.parse_args()
@@ -39,6 +40,7 @@ def main() -> int:
         initial_cash=float(args.initial_cash),
         fee_bps=float(args.fee_bps),
         slippage_bps=float(args.slippage_bps),
+        paper_history_path=str(args.paper_history_path or ""),
     )
     persist_out = persist_strategy_evidence(report, latest_path=str(args.output_path or ""))
     out: dict[str, object] = {

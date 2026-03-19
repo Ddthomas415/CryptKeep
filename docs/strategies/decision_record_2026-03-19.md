@@ -23,6 +23,10 @@ Phase 1 safety pack should be rerun before relying on this record.
 - initial cash: `10000`
 - fees: `10 bps`
 - slippage: `5 bps`
+- paper-history source: `trade_journal_sqlite`
+- paper-history status: `missing`
+- paper-history journal: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
+- paper-history fills: `0`
 - evidence artifact: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/strategy_evidence/strategy_evidence.latest.json`
 
 Window set:
@@ -35,6 +39,7 @@ Window set:
 Important limitation:
 - these windows are deterministic synthetic benchmarks, not live or market-history proof
 - this cycle is stronger than a single-window pass, but it still does not prove profitability or promotion readiness by itself
+- persisted paper-history status for this run is `missing`
 
 ## Results
 
@@ -50,6 +55,7 @@ Important limitation:
 - positive windows: `4` / `5`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
+- paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
 Decision: `keep`
 
@@ -72,6 +78,7 @@ Next work:
 - positive windows: `3` / `5`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
+- paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
 Decision: `improve`
 
@@ -94,6 +101,7 @@ Next work:
 - positive windows: `0` / `5`
 - best window: `synthetic_default`
 - worst window: `synthetic_default`
+- paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
 Decision: `freeze`
 
@@ -128,11 +136,12 @@ What this does **not** mean:
 What it **does** mean:
 - the strategy ranking now reflects multiple deterministic windows instead of one benchmark pass
 - inactive or low-participation candidates are easier to challenge with explicit evidence
+- persisted paper-history evidence is included when available, but missing paper history is now explicit instead of silent
 - promotion decisions should still remain conservative until broader paper or sandbox evidence exists
 
 ## Follow-up Gaps
 
 The next improvement to the evaluation layer should be:
 - persist multiple evidence runs and compare deltas over time
-- add broader paper-history inputs so the cycle is not purely synthetic
+- grow the trade journal so paper-history evidence is no longer missing or thin
 - feed the persisted evidence artifact into the Home Digest instead of rebuilding a single-window summary on demand

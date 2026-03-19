@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import json
 import math
+import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from statistics import pstdev
 from typing import Any, Dict, Iterable, List
 
+from services.analytics.journal_analytics import fifo_pnl_from_fills
 from services.backtest.leaderboard import rank_strategy_rows, run_strategy_leaderboard
 from services.os.app_paths import code_root, data_dir, ensure_dirs
 from services.strategies.hypotheses import get_strategy_hypothesis
@@ -94,6 +96,175 @@ def _segment_closes(*segments: tuple[int, float, int | None, float | None], star
     return closes
 
 
+def default_trade_journal_path() -> Path:
+    ensure_dirs()
+    return (data_dir() / "trade_journal.sqlite").resolve()
+
+
+def _normalize_strategy_name(value: Any) -> str | None:
+    text = str(value or "").strip().lower()
+    if not text:
+        return None
+    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian"}:
+        return text
+    if "ema" in text and ("cross" in text or "xover" in text or "crossover" in text):
+        return "ema_cross"
+    if "mean_reversion" in text or "mean-reversion" in text or "reversion" in text:
+        return "mean_reversion_rsi"
+    if "breakout" in text or "donchian" in text:
+        return "breakout_donchian"
+    return None
+
+
+def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
+    path = Path(journal_path).expanduser().resolve() if journal_path else default_trade_journal_path()
+    if not path.exists():
+        return {
+            "ok": False,
+            "status": "missing",
+            "journal_path": str(path),
+            "source": "trade_journal_sqlite",
+            "as_of": None,
+            "fills_count": 0,
+            "strategy_count": 0,
+            "rows": [],
+            "unmapped_strategy_ids": [],
+            "caveat": "No persisted trade journal exists yet, so strategy-attributed paper-history evidence is unavailable.",
+        }
+
+    try:
+        con = sqlite3.connect(str(path))
+        con.row_factory = sqlite3.Row
+    except Exception as exc:
+        return {
+            "ok": False,
+            "status": "missing",
+            "journal_path": str(path),
+            "source": "trade_journal_sqlite",
+            "as_of": None,
+            "fills_count": 0,
+            "strategy_count": 0,
+            "rows": [],
+            "unmapped_strategy_ids": [],
+            "caveat": f"Persisted trade journal could not be opened ({type(exc).__name__}); strategy-attributed paper-history evidence is unavailable.",
+        }
+
+    try:
+        table = con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='journal_fills'"
+        ).fetchone()
+        if not table:
+            return {
+                "ok": False,
+                "status": "missing",
+                "journal_path": str(path),
+                "source": "trade_journal_sqlite",
+                "as_of": None,
+                "fills_count": 0,
+                "strategy_count": 0,
+                "rows": [],
+                "unmapped_strategy_ids": [],
+                "caveat": "Persisted trade journal exists but has no journal_fills table yet, so strategy-attributed paper-history evidence is unavailable.",
+            }
+
+        rows = con.execute(
+            "SELECT fill_id, journal_ts, strategy_id, fill_ts, symbol, side, qty, price, fee, realized_pnl_total "
+            "FROM journal_fills ORDER BY fill_ts ASC"
+        ).fetchall()
+    except Exception as exc:
+        return {
+            "ok": False,
+            "status": "missing",
+            "journal_path": str(path),
+            "source": "trade_journal_sqlite",
+            "as_of": None,
+            "fills_count": 0,
+            "strategy_count": 0,
+            "rows": [],
+            "unmapped_strategy_ids": [],
+            "caveat": f"Persisted trade journal could not be read ({type(exc).__name__}); strategy-attributed paper-history evidence is unavailable.",
+        }
+    finally:
+        con.close()
+
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    strategy_ids_by_name: dict[str, set[str]] = {}
+    unmapped: set[str] = set()
+    latest_ts: str | None = None
+
+    for row in rows:
+        item = dict(row)
+        latest_ts = str(item.get("fill_ts") or item.get("journal_ts") or latest_ts or "") or latest_ts
+        raw_strategy_id = str(item.get("strategy_id") or "").strip()
+        strategy_name = _normalize_strategy_name(raw_strategy_id)
+        if strategy_name is None:
+            if raw_strategy_id:
+                unmapped.add(raw_strategy_id)
+            continue
+        grouped.setdefault(strategy_name, []).append(item)
+        strategy_ids_by_name.setdefault(strategy_name, set()).add(raw_strategy_id)
+
+    if not grouped:
+        caveat = "Persisted trade journal has no strategy-attributed paper-history fills yet."
+        if unmapped:
+            caveat = (
+                caveat
+                + f" Unmapped strategy IDs were present: {', '.join(sorted(unmapped)[:5])}."
+            )
+        return {
+            "ok": False,
+            "status": "missing",
+            "journal_path": str(path),
+            "source": "trade_journal_sqlite",
+            "as_of": latest_ts,
+            "fills_count": 0,
+            "strategy_count": 0,
+            "rows": [],
+            "unmapped_strategy_ids": sorted(unmapped),
+            "caveat": caveat,
+        }
+
+    summary_rows: list[dict[str, Any]] = []
+    total_fills = 0
+    for strategy_name, fills in grouped.items():
+        analytics = fifo_pnl_from_fills(fills)
+        summary = dict(analytics.get("summary") or {})
+        total_fills += len(fills)
+        latest_fill_ts = str(fills[-1].get("fill_ts") or fills[-1].get("journal_ts") or "")
+        summary_rows.append(
+            {
+                "strategy": strategy_name,
+                "source_strategy_ids": sorted(strategy_ids_by_name.get(strategy_name) or []),
+                "fills": int(len(fills)),
+                "closed_trades": int(summary.get("closed_trades") or 0),
+                "wins": int(summary.get("wins") or 0),
+                "losses": int(summary.get("losses") or 0),
+                "win_rate": float(summary.get("win_rate") or 0.0),
+                "gross_realized_pnl": float(summary.get("gross_realized_pnl") or 0.0),
+                "net_realized_pnl": float(summary.get("net_realized_pnl") or 0.0),
+                "total_fees": float(summary.get("total_fees") or 0.0),
+                "latest_fill_ts": latest_fill_ts or None,
+            }
+        )
+    summary_rows.sort(key=lambda item: (-int(item.get("fills") or 0), str(item.get("strategy") or "")))
+
+    caveat = "Persisted paper-history evidence is supplemental. It improves operator truth, but it is not enough by itself to prove profitability or promotion readiness."
+    if unmapped:
+        caveat += f" Unmapped strategy IDs were ignored: {', '.join(sorted(unmapped)[:5])}."
+    return {
+        "ok": True,
+        "status": "available",
+        "journal_path": str(path),
+        "source": "trade_journal_sqlite",
+        "as_of": latest_ts,
+        "fills_count": int(total_fills),
+        "strategy_count": int(len(summary_rows)),
+        "rows": summary_rows,
+        "unmapped_strategy_ids": sorted(unmapped),
+        "caveat": caveat,
+    }
+
+
 def default_evidence_windows() -> list[dict[str, Any]]:
     return [
         {
@@ -163,6 +334,59 @@ def _decision_for_row(row: dict[str, Any]) -> tuple[str, str]:
     if avg_return > 0.0 and active_window_count >= 2:
         return "improve", "It remains viable, but the evidence is still weaker than the top aggregate candidate."
     return "freeze", "The current evidence is too thin or too inconsistent to justify active iteration."
+
+
+def _apply_paper_history_adjustment(
+    *,
+    decision: str,
+    reason: str,
+    paper_row: dict[str, Any] | None,
+) -> tuple[str, str]:
+    if not paper_row:
+        return decision, reason
+    closed_trades = int(_fnum(paper_row.get("closed_trades"), 0.0))
+    net_realized = _fnum(paper_row.get("net_realized_pnl"), 0.0)
+    win_rate = _fnum(paper_row.get("win_rate"), 0.0)
+
+    if closed_trades >= 2 and net_realized < 0.0:
+        downgraded = {
+            "keep": "improve",
+            "improve": "freeze",
+            "freeze": "freeze",
+            "retire": "retire",
+        }.get(decision, decision)
+        return (
+            downgraded,
+            f"{reason} Persisted paper-history evidence is negative after {closed_trades} closed trade(s), so the decision stays conservative.",
+        )
+    if closed_trades >= 3 and net_realized > 0.0:
+        return (
+            decision,
+            f"{reason} Supplemental paper-history evidence is positive across {closed_trades} closed trade(s), but it is still not enough to justify promotion.",
+        )
+    if closed_trades >= 2 and win_rate < 0.4:
+        downgraded = {
+            "keep": "improve",
+            "improve": "freeze",
+            "freeze": "freeze",
+            "retire": "retire",
+        }.get(decision, decision)
+        return (
+            downgraded,
+            f"{reason} Persisted paper-history win rate is weak across {closed_trades} closed trade(s), so the decision remains conservative.",
+        )
+    return decision, reason
+
+
+def _paper_history_note(paper_row: dict[str, Any] | None) -> str:
+    if not paper_row:
+        return "No strategy-attributed persisted paper-history fills are available yet."
+    return (
+        f"{int(_fnum(paper_row.get('closed_trades'), 0.0))} closed trade(s), "
+        f"{_fnum(paper_row.get('net_realized_pnl'), 0.0):+.2f} net realized PnL, "
+        f"{_fnum(paper_row.get('win_rate'), 0.0) * 100.0:.1f}% win rate "
+        f"across {int(_fnum(paper_row.get('fills'), 0.0))} fill(s)."
+    )
 
 
 def _weakness_for_row(row: dict[str, Any], hypothesis: dict[str, Any] | None) -> str:
@@ -277,9 +501,16 @@ def run_strategy_evidence_cycle(
     fee_bps: float = 10.0,
     slippage_bps: float = 5.0,
     windows: list[dict[str, Any]] | None = None,
+    paper_history_path: str = "",
 ) -> dict[str, Any]:
     as_of = _now_iso()
     window_defs = [dict(item) for item in list(windows or default_evidence_windows())]
+    paper_history = load_paper_history_evidence(journal_path=paper_history_path)
+    paper_history_by_strategy = {
+        str(item.get("strategy") or ""): dict(item)
+        for item in list(paper_history.get("rows") or [])
+        if str(item.get("strategy") or "")
+    }
     window_reports: list[dict[str, Any]] = []
     for item in window_defs:
         candles = [list(row) for row in list(item.get("candles") or [])]
@@ -308,10 +539,14 @@ def run_strategy_evidence_cycle(
     for row in aggregate_rows:
         hypothesis = get_strategy_hypothesis(str(row.get("strategy") or ""))
         decision, reason = _decision_for_row(row)
+        paper_row = paper_history_by_strategy.get(str(row.get("strategy") or ""))
+        decision, reason = _apply_paper_history_adjustment(decision=decision, reason=reason, paper_row=paper_row)
         row["decision"] = decision
         row["decision_reason"] = reason
         row["biggest_weakness"] = _weakness_for_row(row, hypothesis)
         row["next_improvement"] = _improvement_for_row(row, hypothesis)
+        row["paper_history"] = dict(paper_row or {})
+        row["paper_history_note"] = _paper_history_note(paper_row)
         decisions.append(
             {
                 "candidate": str(row.get("candidate") or ""),
@@ -321,6 +556,7 @@ def run_strategy_evidence_cycle(
                 "reason": reason,
                 "biggest_weakness": str(row.get("biggest_weakness") or ""),
                 "next_improvement": str(row.get("next_improvement") or ""),
+                "paper_history_note": str(row.get("paper_history_note") or ""),
             }
         )
 
@@ -334,6 +570,7 @@ def run_strategy_evidence_cycle(
         "slippage_bps": float(slippage_bps),
         "initial_cash": float(initial_cash),
         "windows": window_reports,
+        "paper_history": paper_history,
         "aggregate_leaderboard": {
             "candidate_count": int(len(aggregate_rows)),
             "rows": aggregate_rows,
@@ -376,6 +613,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
     rows = [dict(item) for item in list(((payload.get("aggregate_leaderboard") or {}).get("rows") or []))]
     decisions = [dict(item) for item in list(payload.get("decisions") or [])]
     windows = [dict(item) for item in list(payload.get("windows") or [])]
+    paper_history = dict(payload.get("paper_history") or {})
     as_of = str(payload.get("as_of") or _now_iso())
     date_token = as_of.split("T", 1)[0]
 
@@ -411,6 +649,11 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
         f"- fees: `{_fnum(payload.get('fee_bps'), 0.0):.0f} bps`",
         f"- slippage: `{_fnum(payload.get('slippage_bps'), 0.0):.0f} bps`",
     ]
+    if paper_history:
+        out.append(f"- paper-history source: `{str(paper_history.get('source') or 'unknown')}`")
+        out.append(f"- paper-history status: `{str(paper_history.get('status') or 'missing')}`")
+        out.append(f"- paper-history journal: `{str(paper_history.get('journal_path') or '')}`")
+        out.append(f"- paper-history fills: `{int(paper_history.get('fills_count') or 0)}`")
     if artifact_path:
         out.append(f"- evidence artifact: `{artifact_path}`")
     out.extend(
@@ -429,6 +672,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
             "Important limitation:",
             "- these windows are deterministic synthetic benchmarks, not live or market-history proof",
             "- this cycle is stronger than a single-window pass, but it still does not prove profitability or promotion readiness by itself",
+            f"- persisted paper-history status for this run is `{str(paper_history.get('status') or 'missing')}`",
             "",
             "## Results",
             "",
@@ -449,6 +693,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 f"- positive windows: `{int(row.get('positive_window_count') or 0)}` / `{int(row.get('window_count') or 0)}`",
                 f"- best window: `{str(row.get('best_window_id') or 'unknown')}`",
                 f"- worst window: `{str(row.get('worst_window_id') or 'unknown')}`",
+                f"- paper-history: {str(row.get('paper_history_note') or 'No strategy-attributed persisted paper-history fills are available yet.')}",
                 "",
                 f"Decision: `{str(row.get('decision') or 'unknown')}`",
                 "",
@@ -487,13 +732,14 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
             "What it **does** mean:",
             "- the strategy ranking now reflects multiple deterministic windows instead of one benchmark pass",
             "- inactive or low-participation candidates are easier to challenge with explicit evidence",
+            "- persisted paper-history evidence is included when available, but missing paper history is now explicit instead of silent",
             "- promotion decisions should still remain conservative until broader paper or sandbox evidence exists",
             "",
             "## Follow-up Gaps",
             "",
             "The next improvement to the evaluation layer should be:",
             "- persist multiple evidence runs and compare deltas over time",
-            "- add broader paper-history inputs so the cycle is not purely synthetic",
+            "- grow the trade journal so paper-history evidence is no longer missing or thin",
             "- feed the persisted evidence artifact into the Home Digest instead of rebuilding a single-window summary on demand",
             "",
         ]
