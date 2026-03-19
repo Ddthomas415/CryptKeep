@@ -65,6 +65,37 @@ def test_start_repo_script_background_returns_started_pid(monkeypatch):
     assert "run_crypto_edge_collector_loop.py" in " ".join(str(x) for x in seen["cmd"])
 
 
+def test_start_crypto_edge_collector_loop_returns_already_running(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.crypto_edge_collector_service.load_runtime_status",
+        lambda: {"ok": True, "pid_alive": True, "pid": 23456, "status": "running"},
+    )
+
+    rc, out = operator_service.start_crypto_edge_collector_loop(interval_sec=900.0)
+
+    assert rc == 0
+    assert "already running" in out
+    assert "23456" in out
+
+
+def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.crypto_edge_collector_service.load_runtime_status",
+        lambda: {"ok": True, "pid_alive": False, "status": "dead"},
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "start_repo_script_background",
+        lambda script_relpath, args=None: (0, f"{script_relpath}|{' '.join(str(x) for x in (args or []))}"),
+    )
+
+    rc, out = operator_service.start_crypto_edge_collector_loop(interval_sec=900.0)
+
+    assert rc == 0
+    assert "scripts/run_crypto_edge_collector_loop.py" in out
+    assert "--interval-sec 900" in out
+
+
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
     monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_executor"])
     monkeypatch.setattr(

@@ -2,7 +2,7 @@ PYTHON ?= $(shell if ./.venv/bin/python -V >/dev/null 2>&1; then echo ./.venv/bi
 
 CRYPTO_EDGE_INTERVAL_SEC ?= 300
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop test
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop test
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -74,6 +74,9 @@ collect-live-crypto-edges-loop:
 
 stop-live-crypto-edges-loop:
 	$(PYTHON) scripts/run_crypto_edge_collector_loop.py --stop
+
+status-live-crypto-edges-loop:
+	$(PYTHON) scripts/run_crypto_edge_collector_loop.py --status
 
 test:
 	$(PYTHON) -m pytest -q

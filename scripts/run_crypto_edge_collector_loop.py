@@ -16,6 +16,7 @@ import json
 
 from services.analytics.crypto_edge_collector_service import (
     CryptoEdgeCollectorServiceCfg,
+    load_runtime_status,
     request_stop,
     run_forever,
 )
@@ -29,10 +30,14 @@ def main() -> int:
     ap.add_argument("--interval-sec", type=float, default=300.0, help="Polling interval between collections")
     ap.add_argument("--max-loops", type=int, default=0, help="Optional loop limit for test/manual use")
     ap.add_argument("--stop", action="store_true", help="Request stop for the running collector loop")
+    ap.add_argument("--status", action="store_true", help="Show managed collector runtime status")
     args = ap.parse_args()
 
     if args.stop:
         print(json.dumps(request_stop(), indent=2, default=str))
+        return 0
+    if args.status:
+        print(json.dumps(load_runtime_status(), indent=2, default=str))
         return 0
 
     cfg = CryptoEdgeCollectorServiceCfg(

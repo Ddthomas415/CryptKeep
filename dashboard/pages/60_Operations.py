@@ -34,7 +34,8 @@ from dashboard.services.operator import (
     list_services,
     run_op,
     run_repo_script,
-    start_repo_script_background,
+    start_crypto_edge_collector_loop,
+    stop_crypto_edge_collector_loop,
 )
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import (
@@ -667,22 +668,13 @@ with tab_research:
     with collector_cols[0]:
         if st.button("Start Live Collector Loop", width="stretch", key="ops_crypto_edge_start"):
             collector_action = "Start Live Collector Loop"
-            collector_rc, collector_output = start_repo_script_background(
-                "scripts/run_crypto_edge_collector_loop.py",
-                args=[
-                    "--plan-file",
-                    "sample_data/crypto_edges/live_collector_plan.json",
-                    "--interval-sec",
-                    str(int(collector_interval_sec)),
-                ],
+            collector_rc, collector_output = start_crypto_edge_collector_loop(
+                interval_sec=collector_interval_sec,
             )
     with collector_cols[1]:
         if st.button("Stop Live Collector Loop", width="stretch", key="ops_crypto_edge_stop"):
             collector_action = "Stop Live Collector Loop"
-            collector_rc, collector_output = run_repo_script(
-                "scripts/run_crypto_edge_collector_loop.py",
-                args=["--stop"],
-            )
+            collector_rc, collector_output = stop_crypto_edge_collector_loop()
 
     render_action_result(action=collector_action, rc=collector_rc, output=collector_output)
 

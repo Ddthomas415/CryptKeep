@@ -54,6 +54,37 @@ def start_repo_script_background(script_relpath: str, *, args: Sequence[str] | N
     return 0, f"started pid={int(proc.pid)} script={script_relpath}"
 
 
+def start_crypto_edge_collector_loop(
+    *,
+    interval_sec: float,
+    plan_file: str = "sample_data/crypto_edges/live_collector_plan.json",
+) -> tuple[int, str]:
+    try:
+        from services.analytics.crypto_edge_collector_service import load_runtime_status
+    except Exception:
+        load_runtime_status = None
+
+    runtime = load_runtime_status() if callable(load_runtime_status) else {}
+    if bool(runtime.get("pid_alive")):
+        pid = int(runtime.get("pid") or 0)
+        status = str(runtime.get("status") or "running")
+        return 0, f"already running pid={pid} status={status}"
+
+    return start_repo_script_background(
+        "scripts/run_crypto_edge_collector_loop.py",
+        args=[
+            "--plan-file",
+            str(plan_file),
+            "--interval-sec",
+            str(int(interval_sec)),
+        ],
+    )
+
+
+def stop_crypto_edge_collector_loop() -> tuple[int, str]:
+    return run_repo_script("scripts/run_crypto_edge_collector_loop.py", args=["--stop"])
+
+
 def list_services(*, fallback: Sequence[str] | None = None) -> list[str]:
     rc, out = run_op(["list"])
     if rc == 0:

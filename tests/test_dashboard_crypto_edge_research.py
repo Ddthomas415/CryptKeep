@@ -97,27 +97,24 @@ def test_load_crypto_edge_change_summary_uses_trend_rows(monkeypatch) -> None:
     assert payload["summary_text"].startswith("Recent structural changes from stored snapshots:")
 
 
-def test_load_crypto_edge_collector_runtime_reads_status_file(tmp_path, monkeypatch) -> None:
-    status_path = tmp_path / "crypto_edge_collector.json"
-    status_path.write_text(
-        """
-        {
-          "status": "running",
-          "ts": "2026-03-18T10:00:00+00:00",
-          "loops": 3,
-          "writes": 2,
-          "errors": 1,
-          "source": "live_public",
-          "last_reason": "collected"
-        }
-        """.strip(),
-        encoding="utf-8",
-    )
-
+def test_load_crypto_edge_collector_runtime_reads_managed_status(monkeypatch) -> None:
     class _FakeCollectorService:
         @staticmethod
-        def status_file():
-            return status_path
+        def load_runtime_status():
+            return {
+                "ok": True,
+                "has_status": True,
+                "status": "running",
+                "ts": "2026-03-18T10:00:00+00:00",
+                "loops": 3,
+                "writes": 2,
+                "errors": 1,
+                "source": "live_public",
+                "last_reason": "collected",
+                "pid": 12345,
+                "pid_alive": True,
+                "poll_interval_sec": 300.0,
+            }
 
     monkeypatch.setitem(sys.modules, "services.analytics.crypto_edge_collector_service", _FakeCollectorService)
 

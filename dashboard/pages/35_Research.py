@@ -14,7 +14,7 @@ from dashboard.services.crypto_edge_research import (
     load_crypto_edge_workspace,
     load_latest_live_crypto_edge_snapshot,
 )
-from dashboard.services.operator import run_repo_script, start_repo_script_background
+from dashboard.services.operator import start_crypto_edge_collector_loop, stop_crypto_edge_collector_loop
 
 SOURCE_FILTER_OPTIONS = ["All Sources", "Live Public", "Sample Bundle", "Manual Import"]
 FRESHNESS_FILTER_OPTIONS = ["All Freshness", "Fresh", "Recent", "Aging", "Stale", "Unknown"]
@@ -131,22 +131,13 @@ collector_cols = st.columns(2)
 with collector_cols[0]:
     if st.button("Start Live Collector Loop", width="stretch", key="research_collector_start"):
         collector_action = "Start Live Collector Loop"
-        collector_rc, collector_output = start_repo_script_background(
-            "scripts/run_crypto_edge_collector_loop.py",
-            args=[
-                "--plan-file",
-                "sample_data/crypto_edges/live_collector_plan.json",
-                "--interval-sec",
-                str(int(collector_interval_sec)),
-            ],
+        collector_rc, collector_output = start_crypto_edge_collector_loop(
+            interval_sec=collector_interval_sec,
         )
 with collector_cols[1]:
     if st.button("Stop Live Collector Loop", width="stretch", key="research_collector_stop"):
         collector_action = "Stop Live Collector Loop"
-        collector_rc, collector_output = run_repo_script(
-            "scripts/run_crypto_edge_collector_loop.py",
-            args=["--stop"],
-        )
+        collector_rc, collector_output = stop_crypto_edge_collector_loop()
 
 render_action_result(action=collector_action, rc=collector_rc, output=collector_output)
 

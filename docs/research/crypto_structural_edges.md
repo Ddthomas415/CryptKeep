@@ -97,8 +97,17 @@ To request stop for the running loop:
 make stop-live-crypto-edges-loop
 ```
 
+To inspect the managed loop runtime:
+
+```bash
+make status-live-crypto-edges-loop
+```
+
 The loop remains read-only:
 
 - it repeatedly runs the public-data collector
 - it writes status to the local runtime state
+- it writes managed PID/runtime metadata so the dashboard can detect dead or duplicate loops
 - it does not place, edit, or cancel orders
+
+The managed loop now refuses duplicate starts when an existing collector PID is still alive. If a prior loop dies unexpectedly, the runtime view marks that state explicitly instead of continuing to report a healthy running loop.

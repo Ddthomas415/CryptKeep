@@ -745,13 +745,13 @@ def test_research_page_starts_collector_loop_from_dashboard(monkeypatch) -> None
     )
     monkeypatch.setattr(
         operator_service,
-        "start_repo_script_background",
-        lambda script_relpath, args=None: captured.update({"script": script_relpath, "args": list(args or [])}) or (0, "started"),
+        "start_crypto_edge_collector_loop",
+        lambda interval_sec, plan_file="sample_data/crypto_edges/live_collector_plan.json": captured.update({"interval_sec": interval_sec, "plan_file": plan_file}) or (0, "started"),
     )
     monkeypatch.setattr(
         operator_service,
-        "run_repo_script",
-        lambda script_relpath, args=None: (0, "stopped"),
+        "stop_crypto_edge_collector_loop",
+        lambda: (0, "stopped"),
     )
 
     _load_dashboard_module(
@@ -764,13 +764,8 @@ def test_research_page_starts_collector_loop_from_dashboard(monkeypatch) -> None
         },
     )
 
-    assert captured["script"] == "scripts/run_crypto_edge_collector_loop.py"
-    assert captured["args"] == [
-        "--plan-file",
-        "sample_data/crypto_edges/live_collector_plan.json",
-        "--interval-sec",
-        "900",
-    ]
+    assert captured["plan_file"] == "sample_data/crypto_edges/live_collector_plan.json"
+    assert captured["interval_sec"] == 900.0
 
 
 def test_portfolio_page_fetches_view_on_import(monkeypatch) -> None:
@@ -1094,12 +1089,12 @@ def test_operations_page_starts_collector_loop(monkeypatch) -> None:
     )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
     monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
-    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "stopped"))
     monkeypatch.setattr(
         operator_service,
-        "start_repo_script_background",
-        lambda script, args=None: captured.update({"script": script, "args": list(args or [])}) or (0, "started"),
+        "start_crypto_edge_collector_loop",
+        lambda interval_sec, plan_file="sample_data/crypto_edges/live_collector_plan.json": captured.update({"interval_sec": interval_sec, "plan_file": plan_file}) or (0, "started"),
     )
+    monkeypatch.setattr(operator_service, "stop_crypto_edge_collector_loop", lambda: (0, "stopped"))
     monkeypatch.setattr(
         config_editor,
         "load_user_yaml",
@@ -1178,13 +1173,8 @@ def test_operations_page_starts_collector_loop(monkeypatch) -> None:
         },
     )
 
-    assert captured["script"] == "scripts/run_crypto_edge_collector_loop.py"
-    assert captured["args"] == [
-        "--plan-file",
-        "sample_data/crypto_edges/live_collector_plan.json",
-        "--interval-sec",
-        "900",
-    ]
+    assert captured["plan_file"] == "sample_data/crypto_edges/live_collector_plan.json"
+    assert captured["interval_sec"] == 900.0
 
 
 def test_settings_page_builds_save_payload(monkeypatch) -> None:

@@ -421,7 +421,7 @@ def load_crypto_edge_change_summary(*, history_limit: int = 5) -> dict[str, Any]
 
 def load_crypto_edge_collector_runtime() -> dict[str, Any]:
     try:
-        from services.analytics.crypto_edge_collector_service import status_file
+        from services.analytics.crypto_edge_collector_service import load_runtime_status
     except Exception as exc:
         return {
             "ok": False,
@@ -431,21 +431,7 @@ def load_crypto_edge_collector_runtime() -> dict[str, Any]:
         }
 
     try:
-        path = status_file()
-        if not path.exists():
-            return {
-                "ok": True,
-                "has_status": False,
-                "reason": "status_missing",
-                "status": "not_started",
-                "freshness": "Unknown",
-                "summary_text": "Collector loop has not written runtime status yet.",
-            }
-        import json
-
-        payload = dict(json.loads(path.read_text(encoding="utf-8")) or {})
-        payload["ok"] = True
-        payload["has_status"] = True
+        payload = dict(load_runtime_status() or {})
         payload["freshness"] = _freshness_label(payload.get("ts"))
         payload["source_label"] = _source_label(payload.get("source"))
         payload["summary_text"] = _build_collector_runtime_summary(payload)

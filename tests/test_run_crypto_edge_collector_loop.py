@@ -15,6 +15,17 @@ def test_run_crypto_edge_collector_loop_requests_stop(monkeypatch, capsys) -> No
     assert out["stop_file"] == "/tmp/stop"
 
 
+def test_run_crypto_edge_collector_loop_shows_status(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(script, "load_runtime_status", lambda: {"ok": True, "status": "running", "pid": 12345})
+    monkeypatch.setattr(script.sys, "argv", ["run_crypto_edge_collector_loop.py", "--status"])
+
+    assert script.main() == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["ok"] is True
+    assert out["status"] == "running"
+    assert out["pid"] == 12345
+
+
 def test_run_crypto_edge_collector_loop_runs_with_cfg(monkeypatch, capsys) -> None:
     seen: dict[str, object] = {}
 
