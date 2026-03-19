@@ -149,6 +149,16 @@ def test_build_reasoning_summary_formats_explain_and_chat_status() -> None:
 
 def test_chat_ui_links_back_to_dashboard(monkeypatch) -> None:
     monkeypatch.setenv("CK_DASHBOARD_URL", "http://localhost:8602")
+    monkeypatch.setattr(
+        gateway,
+        "_load_structural_edge_shell_state",
+        lambda: {
+            "severity": "warn",
+            "headline": "Structural-edge data needs attention",
+            "summary": "Live structural-edge freshness needs attention before you rely on the latest snapshot.",
+            "badge_label": "Needs Attention",
+        },
+    )
 
     response = asyncio.run(gateway.chat_ui())
     body = response.body.decode("utf-8")
@@ -159,3 +169,6 @@ def test_chat_ui_links_back_to_dashboard(monkeypatch) -> None:
     assert 'href="http://localhost:8602/Research"' in body
     assert 'href="http://localhost:8602/Operations"' in body
     assert 'href="http://localhost:8602/Settings"' in body
+    assert "Structural-edge data needs attention" in body
+    assert "Live structural-edge freshness needs attention before you rely on the latest snapshot." in body
+    assert "Needs Attention" in body

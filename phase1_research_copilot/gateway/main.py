@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import html as html_lib
 import json
 import os
+import sys
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -70,6 +73,46 @@ def _build_reasoning_summary(
             _format_status_summary("Chat", chat_status),
         ]
     )
+
+
+def _structural_badge_class(severity: str) -> str:
+    value = str(severity or "ok").strip().lower()
+    if value in {"critical", "danger", "error"}:
+        return "badge-danger"
+    if value in {"warn", "warning"}:
+        return "badge-accent"
+    return "badge-success"
+
+
+def _load_structural_edge_shell_state() -> dict[str, Any]:
+    try:
+        repo_root = Path(__file__).resolve().parents[2]
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
+        from dashboard.services.crypto_edge_research import load_crypto_edge_staleness_digest
+
+        payload = load_crypto_edge_staleness_digest()
+        if isinstance(payload, dict) and payload:
+            severity = str(payload.get("severity") or "ok")
+            headline = str(payload.get("headline") or "Structural-edge data status")
+            summary = str(payload.get("while_away_summary") or payload.get("summary_text") or "").strip()
+            return {
+                "severity": severity,
+                "headline": headline,
+                "summary": summary or "Structural-edge freshness summary is available in the dashboard research workspace.",
+                "badge_label": "Needs Attention" if bool(payload.get("needs_attention")) else "Current",
+            }
+    except Exception as exc:
+        logger.warning(
+            "gateway_structural_shell_state_failed",
+            extra={"context": {"error": str(exc)}},
+        )
+    return {
+        "severity": "warn",
+        "headline": "Structural-edge digest unavailable",
+        "summary": "Structural-edge freshness could not be loaded for the copilot shell. Check the dashboard research workspace if you need current provenance and freshness details.",
+        "badge_label": "Unavailable",
+    }
 
 
 def _fallback_explain_response(req: ChatRequest, *, reason: str) -> dict[str, Any]:
@@ -184,6 +227,7 @@ async def healthz() -> dict[str, Any]:
 @app.get("/", response_class=Response)
 async def chat_ui() -> Response:
     dashboard_url = os.getenv("CK_DASHBOARD_URL", "http://localhost:8502").strip().rstrip("/")
+    structural_state = _load_structural_edge_shell_state()
     html = """
 <!doctype html>
 <html>
@@ -546,7 +590,15 @@ async def chat_ui() -> Response:
             </div>
           </div>
           <div class=\"note-card\">
-            <div class=\"note-title\">Suggested asks</div>
+            <div class=\"note-title\">Structural edge status</div>
+            <div class=\"badge-row\">
+              <span class=\"badge __STRUCTURAL_BADGE_CLASS__\">__STRUCTURAL_BADGE_LABEL__</span>
+            </div>
+            <p class=\"hero-copy\" style=\"margin-top:12px; max-width:none;\">
+              <strong>__STRUCTURAL_HEADLINE__</strong><br/>
+              __STRUCTURAL_SUMMARY__
+            </p>
+            <div class=\"note-title\" style=\"margin-top:18px;\">Suggested asks</div>
             <ul class=\"note-list\">
               <li>Ask why an asset is moving and what catalyst matters next.</li>
               <li>Ask what changed while away using the same explain path as the dashboard.</li>
@@ -633,6 +685,10 @@ async function ask() {
 </html>
 """
     html = html.replace("__DASHBOARD_URL__", dashboard_url)
+    html = html.replace("__STRUCTURAL_BADGE_CLASS__", _structural_badge_class(structural_state.get("severity") or "ok"))
+    html = html.replace("__STRUCTURAL_BADGE_LABEL__", html_lib.escape(str(structural_state.get("badge_label") or "Current")))
+    html = html.replace("__STRUCTURAL_HEADLINE__", html_lib.escape(str(structural_state.get("headline") or "Structural-edge data status")))
+    html = html.replace("__STRUCTURAL_SUMMARY__", html_lib.escape(str(structural_state.get("summary") or "")))
     return Response(content=html, media_type="text/html")
 
 
