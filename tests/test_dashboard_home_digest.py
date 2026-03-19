@@ -15,6 +15,17 @@ class _Decision:
 def test_load_home_digest_reports_paper_truth(monkeypatch) -> None:
     monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
     monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_strategy_evidence",
+        lambda: {
+            "ok": False,
+            "has_artifact": False,
+            "artifact_path": "/tmp/strategy_evidence.latest.json",
+            "freshness_status": "missing",
+            "caveat": "Persisted strategy evidence artifact is missing; digest must use labeled synthetic fallback.",
+        },
+    )
     monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
     monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_disabled"))
     monkeypatch.setattr(home_digest, "live_allowed", lambda: (False, "risk_enable_live_false", {"live_enabled": False}))
@@ -91,6 +102,17 @@ def test_load_home_digest_surfaces_blocked_live_attention(monkeypatch) -> None:
         lambda: {"mode": "live", "live": {"sandbox": False}, "symbols": ["ETH/USD"]},
     )
     monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {"execution": {"live_enabled": False}})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_strategy_evidence",
+        lambda: {
+            "ok": False,
+            "has_artifact": False,
+            "artifact_path": "/tmp/strategy_evidence.latest.json",
+            "freshness_status": "missing",
+            "caveat": "Persisted strategy evidence artifact is missing; digest must use labeled synthetic fallback.",
+        },
+    )
     monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
     monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_not_armed"))
     monkeypatch.setattr(
@@ -219,6 +241,17 @@ def test_load_home_digest_pulls_overview_summary_when_not_supplied(monkeypatch) 
 
     monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
     monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_strategy_evidence",
+        lambda: {
+            "ok": False,
+            "has_artifact": False,
+            "artifact_path": "/tmp/strategy_evidence.latest.json",
+            "freshness_status": "missing",
+            "caveat": "Persisted strategy evidence artifact is missing; digest must use labeled synthetic fallback.",
+        },
+    )
     monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
     monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_disabled"))
     monkeypatch.setattr(home_digest, "live_allowed", lambda: (False, "risk_enable_live_false", {"live_enabled": False}))
@@ -259,4 +292,88 @@ def test_load_home_digest_pulls_overview_summary_when_not_supplied(monkeypatch) 
 
     payload = home_digest.load_home_digest()
 
-    assert any("trade(s) are blocked" in item["title"] for item in payload["attention_now"]["items"])
+
+def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> None:
+    monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
+    monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_strategy_evidence",
+        lambda: {
+            "ok": True,
+            "has_artifact": True,
+            "artifact_path": "/tmp/strategy_evidence.latest.json",
+            "as_of": "2026-03-19T05:36:37Z",
+            "age_seconds": 900,
+            "freshness_status": "fresh",
+            "source": "multi_window_synthetic",
+            "source_label": "Persisted Synthetic Evidence",
+            "caveat": "Persisted synthetic multi-window strategy evidence artifact. Stronger than on-demand fallback, but still not market-history proof.",
+            "rows": [
+                {
+                    "candidate": "breakout_default",
+                    "strategy": "breakout_donchian",
+                    "rank": 1,
+                    "leaderboard_score": 0.57,
+                    "net_return_after_costs_pct": 19.01,
+                    "max_drawdown_pct": 7.83,
+                    "closed_trades": 4,
+                    "trade_count": 10,
+                    "exposure_fraction": 0.34,
+                    "regime_robustness": 0.8,
+                    "regime_return_dispersion_pct": 8.2,
+                    "slippage_sensitivity_pct": 1.1,
+                    "paper_live_drift_pct": None,
+                    "decision": "keep",
+                }
+            ],
+            "decisions": [
+                {
+                    "candidate": "breakout_default",
+                    "strategy": "breakout_donchian",
+                    "rank": 1,
+                    "decision": "keep",
+                }
+            ],
+            "window_count": 5,
+        },
+    )
+    monkeypatch.setattr(home_digest, "build_strategy_workbench", lambda **kwargs: (_ for _ in ()).throw(AssertionError("synthetic fallback should not run")))
+    monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
+    monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_disabled"))
+    monkeypatch.setattr(home_digest, "live_allowed", lambda: (False, "risk_enable_live_false", {"live_enabled": False}))
+    monkeypatch.setattr(
+        home_digest,
+        "decide_start",
+        lambda mode, cfg=None: _Decision(ok=True, mode=mode, status="OK", reasons=[], note="Paper start allowed"),
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {"ok": True, "has_any_data": False, "has_live_data": False, "data_origin_label": "Live Public"},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_summary",
+        lambda: {"ok": True, "needs_attention": False, "severity": "ok", "summary_text": "Fresh"},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_digest",
+        lambda: {"ok": True, "headline": "Structural-edge data is current", "while_away_summary": "All good."},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_collector_runtime",
+        lambda: {"ok": True, "has_status": True, "freshness": "Fresh", "errors": 0, "ts": "2026-03-19T05:40:00Z", "summary_text": "Collector loop is healthy."},
+    )
+    monkeypatch.setattr(home_digest, "get_operations_snapshot", lambda: {"attention_services": 0, "unknown_services": 0, "last_health_ts": ""})
+
+    payload = home_digest.load_home_digest({"active_warnings": [], "blocked_trades_count": 0})
+
+    assert payload["leaderboard_summary"]["source_name"] == home_digest.DIGEST_SOURCE_MAP["leaderboard_summary_artifact"]
+    assert payload["leaderboard_summary"]["rows"][0]["recommendation"] == "keep"
+    assert payload["runtime_truth"]["leaderboard_age"]["value"] == "15m old"
+    assert any("execution.live_enabled remains false" in item for item in payload["mode_truth"]["promotion_blockers"])
+    assert not any(item["title"] == "Persisted strategy evidence is unavailable" for item in payload["attention_now"]["items"])
+    assert payload["scorecard_snapshot"]["source_name"] == home_digest.DIGEST_SOURCE_MAP["scorecard_snapshot_artifact"]

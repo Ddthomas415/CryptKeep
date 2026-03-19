@@ -12,6 +12,7 @@ from dashboard.services.crypto_edge_research import (
     load_latest_live_crypto_edge_snapshot,
 )
 from dashboard.services.promotion_ladder import build_promotion_readiness
+from dashboard.services.digest.strategy_evidence import load_latest_strategy_evidence
 from dashboard.services.digest.contracts import (
     AttentionItem,
     AttentionNowData,
@@ -71,7 +72,7 @@ CLAIM_BOUNDARIES = [
     "Live trading stays guarded and fail-closed.",
     "Stock support is not proven.",
     "Shorting is not fully validated.",
-    "Strategy digest uses synthetic benchmark evaluation, not live profitability proof.",
+    "Strategy digest uses persisted synthetic multi-window evidence when available, not live profitability proof.",
 ]
 _SEVERITY_RANK = {"critical": 0, "important": 1, "watch": 2, "info": 3}
 
@@ -120,6 +121,23 @@ def _strategy_context(*, user_cfg: dict[str, Any], trading_cfg: dict[str, Any]) 
     configured_strategy = _configured_strategy_name(user_cfg, trading_cfg)
     symbol_rows = list(trading_cfg.get("symbols") or [])
     symbol = str(symbol_rows[0] or "BTC/USD") if symbol_rows else "BTC/USD"
+    evidence = load_latest_strategy_evidence()
+    if bool(evidence.get("has_artifact")):
+        return {
+            "configured_strategy": configured_strategy,
+            "symbol": symbol,
+            "workbench": None,
+            "raw_rows": [dict(row) for row in list(evidence.get("rows") or [])],
+            "truth_source": "persisted_artifact",
+            "source_name": DIGEST_SOURCE_MAP["leaderboard_summary_artifact"],
+            "source_as_of": str(evidence.get("as_of") or "") or None,
+            "source_age_seconds": evidence.get("age_seconds"),
+            "freshness_status": str(evidence.get("freshness_status") or "missing"),
+            "caveat": str(evidence.get("caveat") or "Persisted strategy evidence artifact."),
+            "artifact_path": str(evidence.get("artifact_path") or ""),
+            "window_count": int(evidence.get("window_count") or 0),
+            "decisions": [dict(item) for item in list(evidence.get("decisions") or [])],
+        }
     workbench = build_strategy_workbench(
         cfg=dict(user_cfg or {}),
         strategy_name=configured_strategy,
@@ -136,6 +154,15 @@ def _strategy_context(*, user_cfg: dict[str, Any], trading_cfg: dict[str, Any]) 
         "symbol": symbol,
         "workbench": workbench,
         "raw_rows": raw_rows,
+        "truth_source": "synthetic_fallback",
+        "source_name": DIGEST_SOURCE_MAP["leaderboard_summary_fallback"],
+        "source_as_of": None,
+        "source_age_seconds": None,
+        "freshness_status": "missing",
+        "caveat": "Persisted strategy evidence artifact is unavailable; digest is using labeled synthetic fallback built on demand.",
+        "artifact_path": str(evidence.get("artifact_path") or ""),
+        "window_count": 0,
+        "decisions": [],
     }
 
 
@@ -166,6 +193,9 @@ def _drift_label(value: Any) -> str:
 
 
 def _recommendation_for_row(row: dict[str, Any]) -> str:
+    explicit = str(row.get("decision") or "").strip().lower()
+    if explicit in {"keep", "improve", "freeze", "retire"}:
+        return explicit
     rank = int(row.get("rank") or 0)
     ret = _coerce_float(row.get("net_return_after_costs_pct"), 0.0)
     drawdown = _coerce_float(row.get("max_drawdown_pct"), 0.0)
@@ -231,6 +261,7 @@ def build_runtime_truth_digest(
     runtime_context: dict[str, Any],
     structural_health: dict[str, Any],
     collector_runtime: dict[str, Any],
+    strategy_context: dict[str, Any],
 ) -> RuntimeTruthData:
     mode_value = str(runtime_context.get("mode_value") or "unknown")
     mode_label = str(runtime_context.get("mode_label") or "Unknown")
@@ -276,15 +307,26 @@ def build_runtime_truth_digest(
         "not_active": "Not Active",
     }[collector_freshness_state]
 
-    leaderboard_pill = _pill(
-        value="Just Built",
-        label="Leaderboard Age",
-        state="warn",
-        caveat="Synthetic leaderboard is built on demand during digest render; no persisted benchmark timestamp exists yet.",
-        age_seconds=0,
-    )
+    strategy_truth_source = str(strategy_context.get("truth_source") or "synthetic_fallback")
+    strategy_truth_age = strategy_context.get("source_age_seconds")
+    if strategy_truth_source == "persisted_artifact":
+        leaderboard_pill = _pill(
+            value=_fmt_age(strategy_truth_age),
+            label="Leaderboard Age",
+            state=_health_from_freshness(str(strategy_context.get("freshness_status") or "missing")),  # type: ignore[arg-type]
+            caveat=str(strategy_context.get("caveat") or "Persisted strategy evidence artifact."),
+            age_seconds=strategy_truth_age if isinstance(strategy_truth_age, int) else None,
+        )
+    else:
+        leaderboard_pill = _pill(
+            value="Fallback",
+            label="Leaderboard Age",
+            state="warn",
+            caveat=str(strategy_context.get("caveat") or "Persisted evidence is unavailable; synthetic fallback was rebuilt on demand."),
+            age_seconds=None,
+        )
 
-    trust_caveat = "Copilot freshness/provenance is available on home summaries, but answer-level provenance strips are not universal yet."
+    trust_caveat = "Copilot answer-level provenance is present on the inspected gateway path, but not yet proven universal across every future surface."
     return RuntimeTruthData(
         **_base_section(
             as_of=as_of,
@@ -322,6 +364,7 @@ def _build_attention_candidates(
     as_of: str,
     overview_summary: dict[str, Any],
     runtime_context: dict[str, Any],
+    strategy_context: dict[str, Any],
     structural_health: dict[str, Any],
     structural_digest: dict[str, Any],
     collector_runtime: dict[str, Any],
@@ -347,7 +390,35 @@ def _build_attention_candidates(
                 "link_target": "/Overview",
             }
         )
-    elif not bool(getattr(start_decision, "ok", False)):
+
+    strategy_truth_source = str(strategy_context.get("truth_source") or "synthetic_fallback")
+    if strategy_truth_source != "persisted_artifact":
+        items.append(
+            {
+                "id": "strategy-evidence-fallback",
+                "severity": "watch",
+                "title": "Persisted strategy evidence is unavailable",
+                "why_it_matters": str(strategy_context.get("caveat") or "Digest is relying on labeled synthetic fallback strategy truth."),
+                "next_action": "Run `make strategy-evidence-cycle` before relying on strategy rankings or promotion readiness.",
+                "source": "strategy_evidence",
+                "as_of": as_of,
+                "link_target": "/Home",
+            }
+        )
+    elif str(strategy_context.get("freshness_status") or "") == "stale":
+        items.append(
+            {
+                "id": "strategy-evidence-stale",
+                "severity": "watch",
+                "title": "Persisted strategy evidence is stale",
+                "why_it_matters": str(strategy_context.get("caveat") or "The saved strategy evidence artifact is old enough to challenge current operator confidence."),
+                "next_action": "Rerun `make strategy-evidence-cycle` before using the digest for promotion or strategy decisions.",
+                "source": "strategy_evidence",
+                "as_of": as_of,
+                "link_target": "/Home",
+            }
+        )
+    if not bool(getattr(start_decision, "ok", False)):
         items.append(
             {
                 "id": "live-start-blocked",
@@ -513,6 +584,7 @@ def build_attention_now_digest(
     as_of: str,
     overview_summary: dict[str, Any],
     runtime_context: dict[str, Any],
+    strategy_context: dict[str, Any],
     structural_health: dict[str, Any],
     structural_digest: dict[str, Any],
     collector_runtime: dict[str, Any],
@@ -522,6 +594,7 @@ def build_attention_now_digest(
         as_of=as_of,
         overview_summary=overview_summary,
         runtime_context=runtime_context,
+        strategy_context=strategy_context,
         structural_health=structural_health,
         structural_digest=structural_digest,
         collector_runtime=collector_runtime,
@@ -553,6 +626,9 @@ def build_attention_now_digest(
 
 def build_leaderboard_summary_digest(*, as_of: str, strategy_context: dict[str, Any]) -> LeaderboardSummaryData:
     raw_rows = list(strategy_context.get("raw_rows") or [])
+    row_as_of = str(strategy_context.get("source_as_of") or as_of)
+    source_name = str(strategy_context.get("source_name") or DIGEST_SOURCE_MAP["leaderboard_summary_fallback"])
+    caveat = str(strategy_context.get("caveat") or "Strategy truth is unavailable.")
     rows: list[LeaderboardStrategyRow] = []
     for raw in raw_rows[:5]:
         best_regime, worst_regime = _regime_extremes(raw)
@@ -570,16 +646,16 @@ def build_leaderboard_summary_digest(*, as_of: str, strategy_context: dict[str, 
                 "worst_regime": worst_regime,
                 "paper_live_drift": _drift_label(raw.get("paper_live_drift_pct")),
                 "recommendation": _recommendation_for_row(raw),
-                "as_of": as_of,
-                "caveat": "Synthetic benchmark row built on demand from the current preset candidates.",
+                "as_of": row_as_of,
+                "caveat": caveat,
             }
         )
     return LeaderboardSummaryData(
         **_base_section(
             as_of=as_of,
-            caveat="Leaderboard is built from synthetic benchmark evaluation, not live performance history.",
-            source_name=DIGEST_SOURCE_MAP["leaderboard_summary"],
-            source_age_seconds=0,
+            caveat=caveat,
+            source_name=source_name,
+            source_age_seconds=strategy_context.get("source_age_seconds"),
         ),
         rows=rows,
     )
@@ -617,6 +693,12 @@ def _highlight_for_row(
 
 def build_scorecard_snapshot_digest(*, as_of: str, strategy_context: dict[str, Any]) -> ScorecardSnapshotData:
     raw_rows = list(strategy_context.get("raw_rows") or [])
+    source_name = (
+        DIGEST_SOURCE_MAP["scorecard_snapshot_artifact"]
+        if str(strategy_context.get("truth_source") or "") == "persisted_artifact"
+        else DIGEST_SOURCE_MAP["scorecard_snapshot_fallback"]
+    )
+    caveat = str(strategy_context.get("caveat") or "Strategy scorecard truth is unavailable.")
     if not raw_rows:
         highlights: ScorecardSnapshotHighlights = {
             "best_post_cost": _empty_highlight("Best post-cost performer", "Run strategy evaluation first."),
@@ -686,9 +768,9 @@ def build_scorecard_snapshot_digest(*, as_of: str, strategy_context: dict[str, A
     return ScorecardSnapshotData(
         **_base_section(
             as_of=as_of,
-            caveat="Highlights summarize the current synthetic scorecard output and do not imply validated edge.",
-            source_name=DIGEST_SOURCE_MAP["scorecard_snapshot"],
-            source_age_seconds=0,
+            caveat=caveat,
+            source_name=source_name,
+            source_age_seconds=strategy_context.get("source_age_seconds"),
         ),
         highlights=highlights,
     )
@@ -853,6 +935,7 @@ def build_freshness_panel_digest(
     collector_runtime: dict[str, Any],
     live_snapshot: dict[str, Any],
     operations_snapshot: dict[str, Any],
+    strategy_context: dict[str, Any],
     leaderboard_summary: LeaderboardSummaryData,
     scorecard_snapshot: ScorecardSnapshotData,
 ) -> FreshnessPanelData:
@@ -893,17 +976,25 @@ def build_freshness_panel_digest(
             {
                 "source_id": "strategy_leaderboard",
                 "name": "Strategy leaderboard",
-                "status": "fresh" if list(leaderboard_summary.get("rows") or []) else "missing",
-                "last_update_ts": leaderboard_summary.get("as_of"),
-                "age_seconds": leaderboard_summary.get("source_age_seconds"),
+                "status": (
+                    str(strategy_context.get("freshness_status") or "missing")
+                    if str(strategy_context.get("truth_source") or "") == "persisted_artifact"
+                    else "missing"
+                ),
+                "last_update_ts": strategy_context.get("source_as_of"),
+                "age_seconds": strategy_context.get("source_age_seconds"),
                 "caveat": leaderboard_summary.get("caveat"),
             },
             {
                 "source_id": "strategy_scorecard",
                 "name": "Strategy scorecard",
-                "status": "fresh",
-                "last_update_ts": scorecard_snapshot.get("as_of"),
-                "age_seconds": scorecard_snapshot.get("source_age_seconds"),
+                "status": (
+                    str(strategy_context.get("freshness_status") or "missing")
+                    if str(strategy_context.get("truth_source") or "") == "persisted_artifact"
+                    else "missing"
+                ),
+                "last_update_ts": strategy_context.get("source_as_of"),
+                "age_seconds": strategy_context.get("source_age_seconds"),
                 "caveat": scorecard_snapshot.get("caveat"),
             },
             {
@@ -1147,25 +1238,27 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
     structural_digest = load_crypto_edge_staleness_digest()
     collector_runtime = load_crypto_edge_collector_runtime()
     operations_snapshot = get_operations_snapshot()
-
+    leaderboard_summary = build_leaderboard_summary_digest(as_of=as_of, strategy_context=strategy_context)
     runtime_truth = build_runtime_truth_digest(
         as_of=as_of,
         runtime_context=runtime_context,
         structural_health=structural_health,
         collector_runtime=collector_runtime,
+        strategy_context=strategy_context,
     )
-    leaderboard_summary = build_leaderboard_summary_digest(as_of=as_of, strategy_context=strategy_context)
     promotion_readiness = build_promotion_readiness(
         as_of=as_of,
         runtime_context=runtime_context,
         leaderboard_summary=leaderboard_summary,
         structural_health=structural_health,
         collector_runtime=collector_runtime,
+        strategy_truth=strategy_context,
     )
     attention_now = build_attention_now_digest(
         as_of=as_of,
         overview_summary=summary,
         runtime_context=runtime_context,
+        strategy_context=strategy_context,
         structural_health=structural_health,
         structural_digest=structural_digest,
         collector_runtime=collector_runtime,
@@ -1187,6 +1280,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         collector_runtime=collector_runtime,
         live_snapshot=live_snapshot,
         operations_snapshot=operations_snapshot,
+        strategy_context=strategy_context,
         leaderboard_summary=leaderboard_summary,
         scorecard_snapshot=scorecard_snapshot,
     )

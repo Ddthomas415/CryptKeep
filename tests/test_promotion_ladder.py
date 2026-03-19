@@ -67,3 +67,34 @@ def test_promotion_readiness_allows_sandbox_to_tiny_live_review_when_criteria_cl
     assert out["target_stage_label"] == "Tiny Live"
     assert out["status"] == "ok"
     assert out["blockers"] == []
+
+
+def test_promotion_readiness_blocks_when_only_synthetic_fallback_truth_exists() -> None:
+    out = build_promotion_readiness(
+        as_of="2026-03-19T12:00:00Z",
+        runtime_context={
+            "mode_value": "paper",
+            "normalized_live_enabled": True,
+            "kill_armed": False,
+        },
+        leaderboard_summary={
+            "rows": [
+                {
+                    "name": "Breakout Default",
+                    "recommendation": "keep",
+                    "closed_trades": 4,
+                    "post_cost_return_pct": 12.0,
+                }
+            ]
+        },
+        structural_health={"needs_attention": False},
+        collector_runtime={"freshness": "Fresh", "errors": 0},
+        strategy_truth={
+            "truth_source": "synthetic_fallback",
+            "freshness_status": "missing",
+            "caveat": "Persisted strategy evidence artifact is unavailable; digest is using labeled synthetic fallback built on demand.",
+        },
+    )
+
+    assert out["status"] == "warn"
+    assert any("synthetic fallback" in item.lower() for item in out["blockers"])

@@ -90,15 +90,32 @@ def build_promotion_readiness(
     leaderboard_summary: dict[str, Any],
     structural_health: dict[str, Any],
     collector_runtime: dict[str, Any],
+    strategy_truth: dict[str, Any] | None = None,
 ) -> PromotionReadiness:
     current_stage, current_stage_label, target_stage, target_stage_label = _mode_to_stage(runtime_context.get("mode_value"))
     top = _top_row(leaderboard_summary)
     blockers: list[str] = []
+    strategy_truth = dict(strategy_truth or {})
 
     kill_armed = bool(runtime_context.get("kill_armed"))
     collector_freshness = str(collector_runtime.get("freshness") or "").strip().lower()
     collector_errors = int(_fnum(collector_runtime.get("errors"), 0.0))
     live_enabled = bool(runtime_context.get("normalized_live_enabled"))
+    strategy_truth_source = str(strategy_truth.get("truth_source") or "").strip().lower()
+    strategy_truth_freshness = str(strategy_truth.get("freshness_status") or "").strip().lower()
+    strategy_truth_caveat = str(strategy_truth.get("caveat") or "").strip()
+
+    if strategy_truth_source and strategy_truth_source != "persisted_artifact":
+        blockers.append(
+            "Persisted strategy evidence artifact is unavailable; labeled synthetic fallback is not sufficient for promotion review."
+        )
+    elif strategy_truth_source == "persisted_artifact" and strategy_truth_freshness == "stale":
+        blockers.append("Persisted strategy evidence artifact is stale; rerun the evidence cycle before promotion review.")
+    elif strategy_truth_source == "persisted_artifact" and strategy_truth_freshness == "aging":
+        blockers.append("Persisted strategy evidence artifact is aging; refresh it before promotion review.")
+
+    if strategy_truth_caveat and strategy_truth_source != "persisted_artifact":
+        blockers.append(strategy_truth_caveat)
 
     if target_stage == "sandbox_live":
         pass_criteria = _sandbox_pass_criteria()
