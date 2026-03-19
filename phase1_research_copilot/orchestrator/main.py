@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI
@@ -107,6 +108,174 @@ def _clip_confidence(value: Any, *, fallback: float = 0.55) -> float:
     except (TypeError, ValueError):
         numeric = fallback
     return round(min(0.99, max(0.0, numeric)), 3)
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _parse_timestamp(value: Any) -> datetime | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(raw)
+        return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+
+
+def _timestamp_age_seconds(value: Any) -> int | None:
+    parsed = _parse_timestamp(value)
+    if parsed is None:
+        return None
+    return max(int((datetime.now(timezone.utc) - parsed).total_seconds()), 0)
+
+
+def _freshness_state(label: Any) -> str:
+    value = str(label or "").strip().lower()
+    mapping = {
+        "fresh": "fresh",
+        "recent": "fresh",
+        "aging": "aging",
+        "stale": "stale",
+        "missing": "missing",
+        "no live data": "missing",
+        "no freshness data": "missing",
+        "unavailable": "missing",
+        "unknown": "missing",
+    }
+    return mapping.get(value, "missing")
+
+
+def _freshness_label_from_timestamp(value: Any) -> str:
+    age_seconds = _timestamp_age_seconds(value)
+    if age_seconds is None:
+        return "Unknown"
+    if age_seconds < 3600:
+        return "Fresh"
+    if age_seconds < 6 * 3600:
+        return "Recent"
+    if age_seconds < 24 * 3600:
+        return "Aging"
+    return "Stale"
+
+
+def _confidence_label(score: float) -> str:
+    if score >= 0.75:
+        return "High"
+    if score >= 0.45:
+        return "Medium"
+    return "Low"
+
+
+def _first_non_empty(*values: Any) -> str | None:
+    for value in values:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return None
+
+
+def _build_answer_provenance(
+    tool_results: dict[str, Any],
+    *,
+    confidence: float,
+    llm_status: dict[str, Any],
+) -> dict[str, Any]:
+    market = tool_results.get("get_market_snapshot") if isinstance(tool_results.get("get_market_snapshot"), dict) else {}
+    crypto_edges = (
+        tool_results.get("get_crypto_edge_report")
+        if isinstance(tool_results.get("get_crypto_edge_report"), dict)
+        else {}
+    )
+    latest_live_edges = (
+        tool_results.get("get_latest_live_crypto_edge_snapshot")
+        if isinstance(tool_results.get("get_latest_live_crypto_edge_snapshot"), dict)
+        else {}
+    )
+    crypto_edge_staleness = (
+        tool_results.get("get_crypto_edge_staleness_summary")
+        if isinstance(tool_results.get("get_crypto_edge_staleness_summary"), dict)
+        else {}
+    )
+    crypto_edge_digest = (
+        tool_results.get("get_crypto_edge_staleness_digest")
+        if isinstance(tool_results.get("get_crypto_edge_staleness_digest"), dict)
+        else {}
+    )
+
+    source_type = "fallback"
+    source_label = "Fallback"
+    source_names: list[str] = []
+    freshness_label = "Missing"
+    data_timestamp = None
+    data_basis = "Deterministic fallback only"
+    caveat_parts = ["Research only. Execution disabled."]
+
+    if bool(latest_live_edges.get("has_live_data")):
+        source_type = "live_public_structural"
+        source_label = str(latest_live_edges.get("data_origin_label") or "Live Public")
+        source_names = ["market_snapshot", "signal_summary", "latest_live_crypto_edges"]
+        freshness_label = str(latest_live_edges.get("freshness_summary") or "Unknown")
+        data_timestamp = _first_non_empty(
+            (latest_live_edges.get("quote_meta") or {}).get("capture_ts"),
+            (latest_live_edges.get("basis_meta") or {}).get("capture_ts"),
+            (latest_live_edges.get("funding_meta") or {}).get("capture_ts"),
+            market.get("as_of"),
+        )
+        data_basis = "Live-public structural snapshot plus cached market and signal context"
+    elif bool(crypto_edges.get("has_any_data")):
+        source_type = "cached_research"
+        source_label = str(crypto_edges.get("data_origin_label") or "Cached Research")
+        source_names = ["market_snapshot", "signal_summary", "crypto_edge_report"]
+        freshness_label = str(crypto_edges.get("freshness_summary") or "Unknown")
+        data_timestamp = _first_non_empty(
+            (crypto_edges.get("quote_meta") or {}).get("capture_ts"),
+            (crypto_edges.get("basis_meta") or {}).get("capture_ts"),
+            (crypto_edges.get("funding_meta") or {}).get("capture_ts"),
+            market.get("as_of"),
+        )
+        data_basis = "Cached structural snapshot plus cached market and signal context"
+        caveat_parts.append("No live-public structural snapshot was available for this answer.")
+    elif str(market.get("as_of") or "").strip():
+        source_type = "market_snapshot"
+        source_label = str(market.get("source") or market.get("exchange") or "Market Snapshot")
+        source_names = ["market_snapshot", "signal_summary"]
+        data_timestamp = str(market.get("as_of") or "")
+        freshness_label = _freshness_label_from_timestamp(data_timestamp)
+        data_basis = "Market snapshot plus cached signal context"
+        caveat_parts.append("Structural-edge snapshots were unavailable for this answer.")
+    else:
+        caveat_parts.append("Trusted evidence timestamps were unavailable.")
+
+    if bool(crypto_edge_staleness.get("needs_attention")):
+        source_names.append("crypto_edge_staleness")
+        caveat_parts.append(str(crypto_edge_staleness.get("summary_text") or "").strip())
+    if str(crypto_edge_digest.get("while_away_summary") or "").strip():
+        source_names.append("crypto_edge_digest")
+
+    source_names = list(dict.fromkeys(name for name in source_names if name))
+    data_age_seconds = _timestamp_age_seconds(data_timestamp)
+
+    return {
+        "as_of": _utc_now_iso(),
+        "source_type": source_type,
+        "source_label": source_label,
+        "source_names": source_names,
+        "freshness": _freshness_state(freshness_label),
+        "freshness_label": freshness_label,
+        "data_timestamp": data_timestamp,
+        "age_seconds": data_age_seconds,
+        "confidence_label": _confidence_label(confidence),
+        "confidence_score": confidence,
+        "explain_provider": str(llm_status.get("provider") or "unknown"),
+        "data_basis": data_basis,
+        "caveat": " ".join(part for part in caveat_parts if part).strip(),
+        "summary": f"{source_label} basis with {freshness_label.lower()} evidence.",
+    }
 
 
 def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
@@ -530,6 +699,11 @@ def _assemble_explain_response(
         "execution_disabled": True,
         "evidence": evidence,
         "evidence_bundle": _build_evidence_bundle(tool_results),
+        "answer_provenance": _build_answer_provenance(
+            tool_results,
+            confidence=confidence,
+            llm_status=llm_status,
+        ),
         "risk_posture": risk,
         "execution": {"enabled": False, "reason": "Phase 1 research copilot only"},
         "assistant_status": llm_status,

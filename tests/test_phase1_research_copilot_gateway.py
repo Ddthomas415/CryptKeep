@@ -53,6 +53,22 @@ def test_chat_endpoint_adds_assistant_response(monkeypatch) -> None:
             "risk_note": "Research only. Execution disabled.",
             "execution_disabled": True,
             "evidence": [],
+            "answer_provenance": {
+                "as_of": "2026-03-18T12:00:00Z",
+                "source_type": "live_public_structural",
+                "source_label": "Live Public",
+                "source_names": ["market_snapshot", "latest_live_crypto_edges"],
+                "freshness": "fresh",
+                "freshness_label": "Recent",
+                "data_timestamp": "2026-03-18T11:55:00Z",
+                "age_seconds": 300,
+                "confidence_label": "Medium",
+                "confidence_score": 0.72,
+                "explain_provider": "fallback",
+                "data_basis": "Live-public structural snapshot plus cached market and signal context",
+                "caveat": "Research only. Execution disabled.",
+                "summary": "Live Public basis with recent evidence.",
+            },
         }
 
     async def fake_generate(payload):
@@ -75,6 +91,9 @@ def test_chat_endpoint_adds_assistant_response(monkeypatch) -> None:
     assert payload["chat_status"]["provider"] == "fallback"
     assert payload["asset"] == "BTC"
     assert payload["reasoning_summary"] == "Explain: Unknown\nChat: Fallback | fallback"
+    assert payload["answer_provenance"]["source_label"] == "Live Public"
+    assert payload["answer_provenance"]["chat_provider"] == "fallback"
+    assert "deterministic formatter used" in payload["answer_provenance"]["caveat"].lower()
 
 
 def test_chat_endpoint_falls_back_when_orchestrator_is_unavailable(monkeypatch) -> None:
@@ -97,6 +116,9 @@ def test_chat_endpoint_falls_back_when_orchestrator_is_unavailable(monkeypatch) 
     assert payload["chat_status"]["upstream_fallback"] is True
     assert payload["chat_status"]["upstream_reason"] == "RuntimeError"
     assert payload["assistant_response"].startswith("ETH:")
+    assert payload["answer_provenance"]["source_type"] == "fallback"
+    assert payload["answer_provenance"]["chat_provider"] == "fallback"
+    assert "upstream fallback was used" in payload["answer_provenance"]["caveat"]
     assert (
         payload["reasoning_summary"]
         == "Explain: Gateway Fallback | fallback\nChat: Fallback | fallback | upstream RuntimeError"
@@ -172,3 +194,5 @@ def test_chat_ui_links_back_to_dashboard(monkeypatch) -> None:
     assert "Structural-edge data needs attention" in body
     assert "Live structural-edge freshness needs attention before you rely on the latest snapshot." in body
     assert "Needs Attention" in body
+    assert 'id="answer-provenance"' in body
+    assert "Answer Trust" in body
