@@ -129,6 +129,17 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
             "action_text": "Restart the collector loop.",
         }
 
+    async def fake_crypto_edge_digest() -> dict:
+        return {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "warn",
+            "headline": "Structural-edge data needs attention",
+            "while_away_summary": "Structural-edge freshness needs attention: collector loop is stopped. Restart the collector loop.",
+        }
+
     monkeypatch.setattr(orchestrator, "llm_client", DisabledClient())
     monkeypatch.setattr(orchestrator, "get_market_snapshot", fake_market)
     monkeypatch.setattr(orchestrator, "get_signal_summary", fake_signal)
@@ -138,6 +149,7 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     monkeypatch.setattr(orchestrator, "get_latest_live_crypto_edge_snapshot", fake_latest_live_edges)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_change_summary", fake_crypto_edge_changes)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_summary", fake_crypto_edge_staleness)
+    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_digest", fake_crypto_edge_digest)
     monkeypatch.setattr(orchestrator, "emit_audit_event", _noop_audit)
 
     payload = asyncio.run(
@@ -158,6 +170,7 @@ def test_explain_endpoint_uses_safe_fallback_shape(monkeypatch) -> None:
     assert payload["evidence_bundle"]["latest_live_crypto_edges"]["has_live_data"] is True
     assert payload["evidence_bundle"]["crypto_edge_changes"]["has_change_data"] is True
     assert payload["evidence_bundle"]["crypto_edge_staleness"]["needs_attention"] is True
+    assert payload["evidence_bundle"]["crypto_edge_digest"]["needs_attention"] is True
     assert "funding bias long_pays" in payload["current_cause"]
     assert "Live Public" in payload["current_cause"]
     assert "Freshness is Recent" in payload["current_cause"]
@@ -304,6 +317,17 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
             "action_text": "Restart the collector loop.",
         }
 
+    async def fake_crypto_edge_digest() -> dict:
+        return {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "warn",
+            "headline": "Structural-edge data needs attention",
+            "while_away_summary": "Structural-edge freshness needs attention: collector loop is stopped. Restart the collector loop.",
+        }
+
     monkeypatch.setattr(orchestrator, "llm_client", EnabledClient())
     monkeypatch.setattr(orchestrator, "execute_tool_call", fake_execute_tool_call)
     monkeypatch.setattr(orchestrator, "get_market_snapshot", fake_market)
@@ -314,6 +338,7 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
     monkeypatch.setattr(orchestrator, "get_latest_live_crypto_edge_snapshot", fake_latest_live_edges)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_change_summary", fake_crypto_edge_changes)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_summary", fake_crypto_edge_staleness)
+    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_digest", fake_crypto_edge_digest)
     monkeypatch.setattr(orchestrator, "emit_audit_event", _noop_audit)
 
     payload = asyncio.run(
@@ -337,6 +362,7 @@ def test_explain_endpoint_uses_openai_tool_reasoning_loop(monkeypatch) -> None:
     assert payload["evidence_bundle"]["latest_live_crypto_edges"]["has_live_data"] is True
     assert payload["evidence_bundle"]["crypto_edge_changes"]["has_change_data"] is True
     assert payload["evidence_bundle"]["crypto_edge_staleness"]["needs_attention"] is True
+    assert payload["evidence_bundle"]["crypto_edge_digest"]["needs_attention"] is True
 
 
 def test_explain_endpoint_prioritizes_change_summary_for_while_away_question(monkeypatch) -> None:
@@ -424,6 +450,17 @@ def test_explain_endpoint_prioritizes_change_summary_for_while_away_question(mon
             "action_text": "Restart the collector loop.",
         }
 
+    async def fake_crypto_edge_digest() -> dict:
+        return {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "warn",
+            "headline": "Structural-edge data needs attention",
+            "while_away_summary": "Structural-edge freshness needs attention: collector loop is stopped. Restart the collector loop.",
+        }
+
     monkeypatch.setattr(orchestrator, "llm_client", DisabledClient())
     monkeypatch.setattr(orchestrator, "get_market_snapshot", fake_market)
     monkeypatch.setattr(orchestrator, "get_signal_summary", fake_signal)
@@ -433,6 +470,7 @@ def test_explain_endpoint_prioritizes_change_summary_for_while_away_question(mon
     monkeypatch.setattr(orchestrator, "get_latest_live_crypto_edge_snapshot", fake_latest_live_edges)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_change_summary", fake_crypto_edge_changes)
     monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_summary", fake_crypto_edge_staleness)
+    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_digest", fake_crypto_edge_digest)
     monkeypatch.setattr(orchestrator, "emit_audit_event", _noop_audit)
 
     payload = asyncio.run(

@@ -337,6 +337,7 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
     workspace_calls: list[int] = []
     live_calls: list[bool] = []
     runtime_calls: list[bool] = []
+    digest_calls: list[bool] = []
 
     def fake_load_crypto_edge_workspace(*, history_limit: int = 5) -> dict[str, Any]:
         workspace_calls.append(history_limit)
@@ -389,6 +390,16 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
             "summary_text": "Collector status running.",
         }
 
+    def fake_load_crypto_edge_staleness_digest() -> dict[str, Any]:
+        digest_calls.append(True)
+        return {
+            "ok": True,
+            "needs_attention": False,
+            "severity": "ok",
+            "headline": "Structural-edge data is current",
+            "while_away_summary": "Live structural-edge data is fresh and the collector loop is reporting normally.",
+        }
+
     monkeypatch.setattr(crypto_edge_research, "load_crypto_edge_workspace", fake_load_crypto_edge_workspace)
     monkeypatch.setattr(
         crypto_edge_research,
@@ -400,6 +411,11 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
         "load_crypto_edge_collector_runtime",
         fake_load_crypto_edge_collector_runtime,
     )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_digest",
+        fake_load_crypto_edge_staleness_digest,
+    )
 
     _load_dashboard_module(
         monkeypatch,
@@ -410,6 +426,7 @@ def test_research_page_fetches_workspace_on_import(monkeypatch) -> None:
     assert workspace_calls == [5]
     assert live_calls == [True]
     assert runtime_calls == [True]
+    assert digest_calls == [True]
 
 
 def test_portfolio_page_fetches_view_on_import(monkeypatch) -> None:

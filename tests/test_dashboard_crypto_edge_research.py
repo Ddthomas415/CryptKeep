@@ -161,3 +161,45 @@ def test_load_crypto_edge_staleness_summary_flags_attention(monkeypatch) -> None
     assert payload["needs_attention"] is True
     assert payload["severity"] == "warn"
     assert "freshness needs attention" in payload["summary_text"]
+
+
+def test_load_crypto_edge_staleness_digest_includes_change_and_action(monkeypatch) -> None:
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_summary",
+        lambda: {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "warn",
+            "summary_text": "Structural-edge freshness needs attention: collector loop is stopped.",
+            "action_text": "Restart the collector loop.",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_live_data": True,
+            "summary_text": "Live Public snapshot shows funding bias long_pays.",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_change_summary",
+        lambda history_limit=5: {
+            "ok": True,
+            "has_change_data": True,
+            "summary_text": "Recent structural changes from stored snapshots: Funding 12.00% (+4.00 pts).",
+        },
+    )
+
+    payload = crypto_edge_research.load_crypto_edge_staleness_digest()
+
+    assert payload["ok"] is True
+    assert payload["needs_attention"] is True
+    assert payload["headline"] == "Structural-edge data needs attention"
+    assert len(payload["digest_lines"]) == 3
+    assert "Restart the collector loop." in payload["while_away_summary"]

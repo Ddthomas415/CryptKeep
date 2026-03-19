@@ -14,6 +14,7 @@ from shared.prompting import build_research_explain_instructions
 from shared.tools import (
     OPENAI_TOOL_DEFINITIONS,
     get_crypto_edge_change_summary,
+    get_crypto_edge_staleness_digest,
     execute_tool_call,
     get_crypto_edge_report,
     get_crypto_edge_staleness_summary,
@@ -183,6 +184,11 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(tool_results.get("get_crypto_edge_staleness_summary"), dict)
         else {}
     )
+    crypto_edge_digest = (
+        tool_results.get("get_crypto_edge_staleness_digest")
+        if isinstance(tool_results.get("get_crypto_edge_staleness_digest"), dict)
+        else {}
+    )
     if bool(crypto_edges.get("has_any_data")):
         funding = crypto_edges.get("funding") if isinstance(crypto_edges.get("funding"), dict) else {}
         basis = crypto_edges.get("basis") if isinstance(crypto_edges.get("basis"), dict) else {}
@@ -263,6 +269,17 @@ def _build_evidence(tool_results: dict[str, Any]) -> list[dict[str, Any]]:
                 "relevance": 0.78,
             }
         )
+    if str(crypto_edge_digest.get("while_away_summary") or "").strip():
+        evidence.append(
+            {
+                "id": "crypto_edge_staleness_digest",
+                "type": "research",
+                "source": "crypto-edge-digest",
+                "timestamp": None,
+                "summary": str(crypto_edge_digest.get("while_away_summary") or "").strip(),
+                "relevance": 0.73,
+            }
+        )
     return evidence[:6]
 
 
@@ -281,6 +298,7 @@ def _build_evidence_bundle(tool_results: dict[str, Any]) -> dict[str, Any]:
         "latest_live_crypto_edges": tool_results.get("get_latest_live_crypto_edge_snapshot", {}),
         "crypto_edge_changes": tool_results.get("get_crypto_edge_change_summary", {}),
         "crypto_edge_staleness": tool_results.get("get_crypto_edge_staleness_summary", {}),
+        "crypto_edge_digest": tool_results.get("get_crypto_edge_staleness_digest", {}),
     }
 
 
@@ -309,6 +327,11 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
     crypto_edge_staleness = (
         tool_results.get("get_crypto_edge_staleness_summary")
         if isinstance(tool_results.get("get_crypto_edge_staleness_summary"), dict)
+        else {}
+    )
+    crypto_edge_digest = (
+        tool_results.get("get_crypto_edge_staleness_digest")
+        if isinstance(tool_results.get("get_crypto_edge_staleness_digest"), dict)
         else {}
     )
     question_lc = str(question or "").lower()
@@ -370,6 +393,7 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
             )
             if part and part.strip()
         ).strip()
+    digest_note = str(crypto_edge_digest.get("while_away_summary") or "").strip()
 
     current_cause = (
         f"{asset} is trading {direction} over the current lookback window with the last observed price near {latest_price:,.2f}. "
@@ -379,6 +403,8 @@ def _fallback_reasoning(asset: str, question: str, tool_results: dict[str, Any])
     ).strip()
     if ("changed" in question_lc or "away" in question_lc) and change_note:
         current_cause = f"{change_note} {current_cause}".strip()
+    if ("changed" in question_lc or "away" in question_lc) and digest_note:
+        current_cause = f"{current_cause} {digest_note}".strip()
     if staleness_note:
         current_cause = f"{current_cause} {staleness_note}".strip()
 
@@ -408,6 +434,8 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
         results["get_crypto_edge_change_summary"] = await get_crypto_edge_change_summary()
     if "get_crypto_edge_staleness_summary" not in results:
         results["get_crypto_edge_staleness_summary"] = await get_crypto_edge_staleness_summary()
+    if "get_crypto_edge_staleness_digest" not in results:
+        results["get_crypto_edge_staleness_digest"] = await get_crypto_edge_staleness_digest()
     return results
 
 

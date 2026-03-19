@@ -480,3 +480,68 @@ def load_crypto_edge_staleness_summary() -> dict[str, Any]:
         live_snapshot if isinstance(live_snapshot, dict) else {},
         collector_runtime if isinstance(collector_runtime, dict) else {},
     )
+
+
+def load_crypto_edge_staleness_digest() -> dict[str, Any]:
+    staleness = load_crypto_edge_staleness_summary()
+    live_snapshot = load_latest_live_crypto_edge_snapshot()
+    change_summary = load_crypto_edge_change_summary(history_limit=5)
+
+    if not bool(staleness.get("ok")):
+        return {
+            "ok": False,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "critical",
+            "headline": "Structural-edge freshness unavailable",
+            "while_away_summary": str(
+                staleness.get("summary_text")
+                or "Structural-edge freshness could not be evaluated."
+            ),
+            "digest_lines": [
+                str(staleness.get("summary_text") or "Structural-edge freshness could not be evaluated."),
+                str(
+                    staleness.get("action_text")
+                    or "Inspect the research store and collector runtime state."
+                ),
+            ],
+        }
+
+    needs_attention = bool(staleness.get("needs_attention"))
+    severity = str(staleness.get("severity") or "ok")
+    headline = (
+        "Structural-edge data needs attention"
+        if needs_attention
+        else "Structural-edge data is current"
+    )
+
+    digest_lines: list[str] = []
+    summary_text = str(staleness.get("summary_text") or "").strip()
+    action_text = str(staleness.get("action_text") or "").strip()
+    change_text = str(change_summary.get("summary_text") or "").strip()
+    live_text = str(live_snapshot.get("summary_text") or "").strip()
+    if summary_text:
+        digest_lines.append(summary_text)
+    if bool(change_summary.get("has_change_data")) and change_text:
+        digest_lines.append(change_text)
+    elif bool(live_snapshot.get("has_live_data")) and live_text:
+        digest_lines.append(live_text)
+    if action_text and action_text not in digest_lines:
+        digest_lines.append(action_text)
+
+    while_away_summary = " ".join(line for line in digest_lines if line).strip()
+    return {
+        "ok": True,
+        "research_only": True,
+        "execution_enabled": False,
+        "needs_attention": needs_attention,
+        "severity": severity,
+        "headline": headline,
+        "summary_text": summary_text,
+        "action_text": action_text,
+        "change_summary_text": change_text,
+        "live_summary_text": live_text,
+        "digest_lines": digest_lines,
+        "while_away_summary": while_away_summary,
+    }

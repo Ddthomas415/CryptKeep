@@ -111,6 +111,16 @@ OPENAI_TOOL_DEFINITIONS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "type": "function",
+        "name": "get_crypto_edge_staleness_digest",
+        "description": "Get a compact research-only while-away digest for structural-edge freshness, collector health, and recent stored changes.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -440,6 +450,34 @@ async def get_crypto_edge_staleness_summary() -> dict[str, Any]:
         }
 
 
+async def get_crypto_edge_staleness_digest() -> dict[str, Any]:
+    try:
+        from dashboard.services.crypto_edge_research import load_crypto_edge_staleness_digest
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"store_import_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+        }
+
+    try:
+        return load_crypto_edge_staleness_digest()
+    except Exception as exc:
+        logger.warning(
+            "crypto_edge_staleness_digest_failed",
+            extra={"context": {"error": str(exc)}},
+        )
+        return {
+            "ok": False,
+            "reason": f"store_read_failed:{type(exc).__name__}",
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+        }
+
+
 async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | None) -> dict[str, Any]:
     if isinstance(raw_arguments, str):
         try:
@@ -467,4 +505,6 @@ async def execute_tool_call(name: str, raw_arguments: str | dict[str, Any] | Non
         return await get_crypto_edge_change_summary()
     if name == "get_crypto_edge_staleness_summary":
         return await get_crypto_edge_staleness_summary()
+    if name == "get_crypto_edge_staleness_digest":
+        return await get_crypto_edge_staleness_digest()
     return {"ok": False, "error": f"unsupported_tool:{name}"}

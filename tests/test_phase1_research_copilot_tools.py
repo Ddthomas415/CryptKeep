@@ -46,6 +46,7 @@ def test_tool_definitions_expose_read_only_functions() -> None:
         "get_latest_live_crypto_edge_snapshot",
         "get_crypto_edge_change_summary",
         "get_crypto_edge_staleness_summary",
+        "get_crypto_edge_staleness_digest",
     ]
 
 
@@ -239,3 +240,27 @@ def test_get_crypto_edge_staleness_summary_uses_dashboard_loader(monkeypatch) ->
     assert payload["ok"] is True
     assert payload["needs_attention"] is True
     assert payload["severity"] == "warn"
+
+
+def test_get_crypto_edge_staleness_digest_uses_dashboard_loader(monkeypatch) -> None:
+    from dashboard.services import crypto_edge_research
+
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_digest",
+        lambda: {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "needs_attention": True,
+            "severity": "warn",
+            "headline": "Structural-edge data needs attention",
+            "while_away_summary": "Structural-edge freshness needs attention: collector loop is stopped. Restart the collector loop.",
+        },
+    )
+
+    payload = asyncio.run(tools.get_crypto_edge_staleness_digest())
+
+    assert payload["ok"] is True
+    assert payload["needs_attention"] is True
+    assert "collector loop is stopped" in payload["while_away_summary"]

@@ -9,6 +9,7 @@ from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.tables import render_table_section
 from dashboard.services.crypto_edge_research import (
     load_crypto_edge_collector_runtime,
+    load_crypto_edge_staleness_digest,
     load_crypto_edge_workspace,
     load_latest_live_crypto_edge_snapshot,
 )
@@ -29,6 +30,7 @@ render_app_sidebar()
 workspace = load_crypto_edge_workspace()
 live_snapshot = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
+staleness_digest = load_crypto_edge_staleness_digest()
 render_page_header(
     "Research",
     "Crypto-native structural edge workspace for funding, basis, and cross-venue dislocation analysis.",
@@ -93,6 +95,7 @@ render_feature_hero(
         "Explain current basis structure",
         "Show top cross-venue dislocations",
         "Summarize latest live structural edge snapshot",
+        "Summarize stale-data risk",
         "What changed while I was away?",
     ],
 )
@@ -104,9 +107,26 @@ render_prompt_actions(
         "Explain current basis structure",
         "Show top cross-venue dislocations",
         "Summarize latest live structural edge snapshot",
+        "Summarize stale-data risk",
         "What changed while I was away?",
     ],
     key_prefix="research",
+)
+
+render_table_section(
+    "Stale-Data Digest",
+    [
+        {
+            "headline": str(staleness_digest.get("headline") or "Structural-edge data status"),
+            "severity": str(staleness_digest.get("severity") or "ok"),
+            "attention": "yes" if bool(staleness_digest.get("needs_attention")) else "no",
+            "summary": str(staleness_digest.get("while_away_summary") or staleness_digest.get("summary_text") or ""),
+        }
+    ]
+    if bool(staleness_digest.get("ok"))
+    else [],
+    subtitle="Compact stale-data and while-away digest built from live snapshot freshness, collector runtime, and stored change summaries.",
+    empty_message="No stale-data digest is available yet.",
 )
 
 render_table_section(
