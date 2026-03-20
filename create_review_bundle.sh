@@ -54,7 +54,7 @@ Recommended review entry points:
 - README.md
 - dashboard/
 - phase1_research_copilot/
-- trade-ai-mvp/
+- attic/trade-ai-mvp/
 - tools/
 - tests/
 EOF

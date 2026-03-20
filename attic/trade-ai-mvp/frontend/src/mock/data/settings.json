@@ -1,0 +1,40 @@
+{
+  "general": {
+    "timezone": "America/New_York",
+    "default_currency": "USD",
+    "startup_page": "/dashboard",
+    "default_mode": "research_only",
+    "watchlist_defaults": ["BTC", "ETH", "SOL"]
+  },
+  "notifications": {
+    "email": false,
+    "telegram": true,
+    "discord": false,
+    "webhook": false,
+    "price_alerts": true,
+    "news_alerts": true,
+    "catalyst_alerts": true,
+    "risk_alerts": true,
+    "approval_requests": true
+  },
+  "ai": {
+    "explanation_length": "normal",
+    "tone": "balanced",
+    "show_evidence": true,
+    "show_confidence": true,
+    "include_archives": true,
+    "include_onchain": true,
+    "include_social": false,
+    "allow_hypotheses": true
+  },
+  "data": {
+    "include_archived_data_default": true,
+    "include_social_default": false,
+    "include_onchain_default": true
+  },
+  "security": {
+    "session_timeout_minutes": 60,
+    "secret_masking": true,
+    "audit_export_allowed": true
+  }
+}

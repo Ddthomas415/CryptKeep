@@ -1,0 +1,114 @@
+{
+  "mode": "research_only",
+  "execution_enabled": false,
+  "approval_required": true,
+  "risk_status": "warning",
+  "kill_switch": false,
+  "health_status": "degraded",
+  "active_alerts": 4,
+  "portfolio": {
+    "total_value": 12450.35,
+    "cash": 8200.12,
+    "unrealized_pnl": 210.45,
+    "realized_pnl_24h": 56.12,
+    "exposure_used_pct": 18.4,
+    "leverage": 1
+  },
+  "connections": {
+    "connected_exchanges": 4,
+    "connected_providers": 6,
+    "failed": 1,
+    "last_sync": "2026-03-11T13:05:00Z"
+  },
+  "watchlist": [
+    { "asset": "BTC", "price": 84250.12, "change_24h_pct": 2.4, "volume_trend": "high", "signal": "watch" },
+    { "asset": "ETH", "price": 4620.88, "change_24h_pct": 1.8, "volume_trend": "normal", "signal": "watch" },
+    { "asset": "SOL", "price": 187.42, "change_24h_pct": 6.9, "volume_trend": "high", "signal": "research" },
+    { "asset": "ARB", "price": 2.18, "change_24h_pct": -1.1, "volume_trend": "normal", "signal": "risk" }
+  ],
+  "recent_explanations": [
+    {
+      "id": "exp_1",
+      "asset": "SOL",
+      "question": "Why is SOL moving?",
+      "current_cause": "Volume expansion and catalyst chatter around validator and ecosystem activity.",
+      "confidence": 0.78,
+      "timestamp": "2026-03-11T13:00:00Z"
+    },
+    {
+      "id": "exp_2",
+      "asset": "BTC",
+      "question": "What changed in BTC in the last hour?",
+      "current_cause": "Spot-driven momentum with narrowing spread and rising order-book depth.",
+      "confidence": 0.67,
+      "timestamp": "2026-03-11T12:42:00Z"
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "rec_1",
+      "asset": "SOL",
+      "side": "buy",
+      "strategy": "event_momentum",
+      "confidence": 0.74,
+      "entry_zone": "186-188",
+      "stop": "181",
+      "target_logic": "trailing",
+      "risk_size_pct": 1.5,
+      "mode_compatibility": ["paper", "live_approval"],
+      "approval_required": true,
+      "status": "pending_review",
+      "execution_disabled": true,
+      "reason_summary": "Momentum with near-term governance catalyst and healthy spot breadth.",
+      "evidence": [
+        {
+          "id": "ev_market_sol",
+          "type": "market",
+          "source": "coinbase",
+          "timestamp": "2026-03-11T12:55:00Z",
+          "summary": "SOL volume expansion over the last hour.",
+          "relevance": 0.92,
+          "confidence": 0.82
+        },
+        {
+          "id": "ev_future_sol",
+          "type": "future_event",
+          "source": "governance_calendar",
+          "timestamp": "2026-03-14T15:00:00Z",
+          "summary": "Scheduled governance milestone.",
+          "relevance": 0.68,
+          "confidence": 0.71
+        }
+      ]
+    }
+  ],
+  "upcoming_catalysts": [
+    {
+      "id": "cat_1",
+      "asset": "SOL",
+      "type": "governance",
+      "timeline": "future",
+      "date": "2026-03-14T15:00:00Z",
+      "importance": "medium",
+      "confidence": 0.71,
+      "summary": "Scheduled governance milestone"
+    },
+    {
+      "id": "cat_2",
+      "asset": "ETH",
+      "type": "upgrade",
+      "timeline": "future",
+      "date": "2026-03-20T17:00:00Z",
+      "importance": "high",
+      "confidence": 0.83,
+      "summary": "Planned network upgrade checkpoint"
+    }
+  ],
+  "quick_actions": [
+    { "id": "qa_1", "label": "Add exchange", "target": "/connections" },
+    { "id": "qa_2", "label": "Ask question", "target": "/research" },
+    { "id": "qa_3", "label": "Start paper trading", "target": "/trading" },
+    { "id": "qa_4", "label": "Pause trading", "target": "/risk" },
+    { "id": "qa_5", "label": "Open terminal", "target": "/terminal" }
+  ]
+}

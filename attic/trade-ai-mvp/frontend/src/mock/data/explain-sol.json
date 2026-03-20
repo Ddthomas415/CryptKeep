@@ -1,0 +1,48 @@
+{
+  "asset": "SOL",
+  "question": "Why is SOL moving?",
+  "current_cause": "SOL is rising alongside increased spot volume, positive market breadth, and fresh ecosystem headlines.",
+  "past_precedent": "Similar moves in prior quarters followed ecosystem upgrade narratives and strong relative momentum periods.",
+  "future_catalyst": "A scheduled governance-related catalyst and future network milestone may still be relevant.",
+  "confidence": 0.78,
+  "risk_note": "Research only. No execution allowed.",
+  "execution_disabled": true,
+  "evidence": [
+    {
+      "id": "ev_market_1",
+      "type": "market",
+      "source": "coinbase",
+      "timestamp": "2026-03-11T12:55:00Z",
+      "summary": "Price and volume expansion over the last hour.",
+      "relevance": 0.92,
+      "confidence": 0.82
+    },
+    {
+      "id": "ev_doc_1",
+      "type": "document",
+      "source": "newsapi",
+      "timestamp": "2026-03-11T12:40:00Z",
+      "summary": "Recent article discussing SOL ecosystem activity.",
+      "relevance": 0.81,
+      "confidence": 0.74
+    },
+    {
+      "id": "ev_archive_1",
+      "type": "archive",
+      "source": "wayback",
+      "timestamp": "2024-09-05T11:00:00Z",
+      "summary": "Archived roadmap references similar validator growth milestones.",
+      "relevance": 0.64,
+      "confidence": 0.69
+    },
+    {
+      "id": "ev_future_1",
+      "type": "future_event",
+      "source": "governance_calendar",
+      "timestamp": "2026-03-14T15:00:00Z",
+      "summary": "Scheduled governance milestone this week.",
+      "relevance": 0.7,
+      "confidence": 0.71
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "groups": [
+    {
+      "title": "General",
+      "commands": ["help", "status", "mode show", "mode set paper"]
+    },
+    {
+      "title": "Research",
+      "commands": ["why sol", "market btc", "news eth --hours 24", "archive arb", "future unlocks"]
+    },
+    {
+      "title": "Trading",
+      "commands": ["trading pause", "trading resume", "approvals list", "approve trade 124", "reject trade 124"]
+    },
+    {
+      "title": "Risk",
+      "commands": ["risk show", "kill-switch on", "kill-switch off"]
+    }
+  ]
+}

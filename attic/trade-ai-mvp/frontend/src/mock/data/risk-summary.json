@@ -1,0 +1,9 @@
+{
+  "risk_status": "warning",
+  "exposure_used_pct": 18.4,
+  "drawdown_today_pct": 0.8,
+  "drawdown_week_pct": 1.2,
+  "leverage": 1.0,
+  "blocked_trades_count": 2,
+  "active_warnings": ["Provider latency elevated", "Approval backlog above threshold"]
+}

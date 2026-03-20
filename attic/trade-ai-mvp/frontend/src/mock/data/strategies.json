@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "strat_1",
+      "name": "event_momentum",
+      "enabled": true,
+      "allowed_assets": ["SOL", "BTC", "ETH"],
+      "allowed_exchanges": ["coinbase", "okx"],
+      "max_daily_trades": 5,
+      "confidence_min": 0.7
+    },
+    {
+      "id": "strat_2",
+      "name": "breakout_filter",
+      "enabled": false,
+      "allowed_assets": ["BTC", "ETH"],
+      "allowed_exchanges": ["coinbase"],
+      "max_daily_trades": 3,
+      "confidence_min": 0.75
+    }
+  ]
+}

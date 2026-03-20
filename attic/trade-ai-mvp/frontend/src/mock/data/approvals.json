@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "appr_1",
+      "trade_id": "rec_1",
+      "asset": "SOL",
+      "side": "buy",
+      "size_pct": 1.5,
+      "confidence": 0.74,
+      "reason": "Live or paper approval required by policy",
+      "status": "pending"
+    }
+  ]
+}

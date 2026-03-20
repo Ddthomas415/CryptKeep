@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "id": "hist_1",
+      "asset": "SOL",
+      "question": "Why is SOL moving?",
+      "timestamp": "2026-03-11T13:00:00Z",
+      "confidence": 0.78
+    },
+    {
+      "id": "hist_2",
+      "asset": "BTC",
+      "question": "What changed in BTC in the last hour?",
+      "timestamp": "2026-03-11T12:44:00Z",
+      "confidence": 0.67
+    },
+    {
+      "id": "hist_3",
+      "asset": "ETH",
+      "question": "What future catalysts matter this week?",
+      "timestamp": "2026-03-11T11:12:00Z",
+      "confidence": 0.75
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "mode": "research_only",
+  "exchange": "coinbase",
+  "risk_profile": "conservative",
+  "interests": ["BTC", "ETH", "SOL"],
+  "completed": false
+}

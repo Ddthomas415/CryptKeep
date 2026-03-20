@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "rec_1",
+      "asset": "SOL",
+      "side": "buy",
+      "strategy": "event_momentum",
+      "confidence": 0.74,
+      "entry_zone": "186-188",
+      "stop": "181",
+      "target_logic": "trailing",
+      "risk_size_pct": 1.5,
+      "mode_compatibility": ["paper", "live_approval"],
+      "approval_required": true,
+      "status": "pending_review",
+      "execution_disabled": true,
+      "reason_summary": "Momentum with near-term governance catalyst and healthy spot breadth.",
+      "evidence": [
+        {
+          "id": "ev_market_sol",
+          "type": "market",
+          "source": "coinbase",
+          "timestamp": "2026-03-11T12:55:00Z",
+          "summary": "SOL volume expansion over the last hour.",
+          "relevance": 0.92,
+          "confidence": 0.82
+        }
+      ]
+    },
+    {
+      "id": "rec_2",
+      "asset": "ETH",
+      "side": "hold",
+      "strategy": "risk_filter",
+      "confidence": 0.61,
+      "entry_zone": "N/A",
+      "stop": "N/A",
+      "target_logic": "wait_for_confirmation",
+      "risk_size_pct": 0.0,
+      "mode_compatibility": ["research_only", "paper"],
+      "approval_required": false,
+      "status": "ready",
+      "execution_disabled": true,
+      "reason_summary": "Mixed signal quality; maintain neutral bias until upgrade checkpoint.",
+      "evidence": [
+        {
+          "id": "ev_future_eth",
+          "type": "future_event",
+          "source": "upgrade_tracker",
+          "timestamp": "2026-03-20T17:00:00Z",
+          "summary": "Upcoming upgrade checkpoint with moderate uncertainty.",
+          "relevance": 0.66,
+          "confidence": 0.71
+        }
+      ]
+    }
+  ]
+}

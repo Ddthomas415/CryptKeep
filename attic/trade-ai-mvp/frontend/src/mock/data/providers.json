@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "prov_newsapi",
+      "provider": "newsapi",
+      "source_type": "news",
+      "status": "connected",
+      "last_sync": "2026-03-11T12:59:00Z",
+      "rate_limit_health": "ok",
+      "trust_score": 0.78,
+      "failure_count": 0
+    },
+    {
+      "id": "prov_wayback",
+      "provider": "wayback",
+      "source_type": "archive",
+      "status": "connected",
+      "last_sync": "2026-03-11T12:40:00Z",
+      "rate_limit_health": "ok",
+      "trust_score": 0.85,
+      "failure_count": 0
+    },
+    {
+      "id": "prov_commoncrawl",
+      "provider": "commoncrawl",
+      "source_type": "archive",
+      "status": "connected",
+      "last_sync": "2026-03-11T08:00:00Z",
+      "rate_limit_health": "ok",
+      "trust_score": 0.74,
+      "failure_count": 1
+    },
+    {
+      "id": "prov_messari",
+      "provider": "messari",
+      "source_type": "data",
+      "status": "degraded",
+      "last_sync": "2026-03-11T10:20:00Z",
+      "rate_limit_health": "warning",
+      "trust_score": 0.82,
+      "failure_count": 5
+    },
+    {
+      "id": "prov_etherscan",
+      "provider": "etherscan",
+      "source_type": "onchain",
+      "status": "connected",
+      "last_sync": "2026-03-11T12:48:00Z",
+      "rate_limit_health": "ok",
+      "trust_score": 0.88,
+      "failure_count": 0
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "pos_1",
+      "asset": "BTC",
+      "exchange": "coinbase",
+      "side": "long",
+      "size": 0.15,
+      "avg_entry": 81200,
+      "mark_price": 84250.12,
+      "pnl": 457.52,
+      "stop": 79850,
+      "target": 86500,
+      "duration_hours": 36,
+      "strategy": "trend_core"
+    }
+  ]
+}
