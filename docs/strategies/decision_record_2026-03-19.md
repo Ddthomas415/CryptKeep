@@ -18,15 +18,15 @@ Phase 1 safety pack should be rerun before relying on this record.
 
 ## Evaluation Inputs
 
-- symbol: `BTC/USDT`
+- symbol: `APR/USD`
 - windows: `5` deterministic synthetic windows
 - initial cash: `10000`
 - fees: `10 bps`
 - slippage: `5 bps`
 - paper-history source: `trade_journal_sqlite`
-- paper-history status: `missing`
+- paper-history status: `available`
 - paper-history journal: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
-- paper-history fills: `0`
+- paper-history fills: `29`
 - evidence artifact: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/strategy_evidence/strategy_evidence.latest.json`
 
 Window set:
@@ -39,7 +39,26 @@ Window set:
 Important limitation:
 - these windows are deterministic synthetic benchmarks, not live or market-history proof
 - this cycle is stronger than a single-window pass, but it still does not prove profitability or promotion readiness by itself
-- persisted paper-history status for this run is `missing`
+- persisted paper-history status for this run is `available`
+
+## Run-to-Run Comparison
+
+- previous run: `2026-03-19T10:52:49Z`
+- current run: `2026-03-19T12:58:27Z`
+- top strategy previous: `breakout_donchian`
+- top strategy current: `breakout_donchian`
+- top strategy changed: `no`
+- improved comparisons: `0`
+- degraded comparisons: `0`
+- unchanged comparisons: `3`
+- new comparisons: `0`
+
+Summary: Current strategy evidence is unchanged versus the prior persisted evidence run.
+
+Comparison detail:
+- `breakout_donchian` moved `unchanged`; rank `1` -> `1`, decision `keep` -> `keep`.
+- `ema_cross` moved `unchanged`; rank `2` -> `2`, decision `improve` -> `improve`.
+- `mean_reversion_rsi` moved `unchanged`; rank `3` -> `3`, decision `freeze` -> `freeze`.
 
 ## Results
 
@@ -55,15 +74,15 @@ Important limitation:
 - positive windows: `4` / `5`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
-- evidence status: `synthetic_only`
+- evidence status: `paper_thin`
 - confidence: `low`
-- paper-history: No strategy-attributed persisted paper-history fills are available yet.
+- paper-history: 0 closed trade(s), -0.00 net realized PnL, 0.0% win rate across 1 fill(s).
 
 Decision: `keep`
 
 Reason:
 - It is the strongest aggregate candidate with enough closed-trade evidence for continued research.
-- Evidence note: Persisted paper-history is missing, so the decision still relies on synthetic windows.
+- Evidence note: Persisted paper-history exists, but the sample is still too thin to confirm the synthetic ranking.
 - Biggest weakness: The sample is still small relative to the confidence needed for promotion.
 
 Next work:
@@ -89,7 +108,7 @@ Decision: `improve`
 
 Reason:
 - It remains viable, but the evidence is still weaker than the top aggregate candidate.
-- Evidence note: Persisted paper-history is missing, so the decision still relies on synthetic windows.
+- Evidence note: Persisted paper-history exists, but this strategy has no attributed paper fills yet, so the decision still relies on synthetic windows.
 - Biggest weakness: Expected failure regimes are still concentrated in chop, low vol.
 
 Next work:
@@ -109,12 +128,12 @@ Next work:
 - worst window: `synthetic_default`
 - evidence status: `insufficient`
 - confidence: `low`
-- paper-history: No strategy-attributed persisted paper-history fills are available yet.
+- paper-history: 14 closed trade(s), -2.44 net realized PnL, 0.0% win rate across 28 fill(s).
 
 Decision: `freeze`
 
 Reason:
-- No realized closed-trade evidence exists across the current window set.
+- No realized closed-trade evidence exists across the current window set. Persisted paper-history evidence is negative after 14 closed trade(s), so the decision stays conservative.
 - Evidence note: No realized closed-trade participation exists across the current evidence windows.
 - Biggest weakness: No realized trading participation across the current evidence windows.
 

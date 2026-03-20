@@ -48,6 +48,7 @@ async def fetch_tickers_once(venue: str, pairs: Iterable[str]) -> dict:
             sym = map_symbol(v, p)
             try:
                 t = ex.fetch_ticker(sym)
+                fetch_ts_ms = int(time.time() * 1000)
                 ticks.append(
                     {
                         "venue": v,
@@ -56,7 +57,8 @@ async def fetch_tickers_once(venue: str, pairs: Iterable[str]) -> dict:
                         "bid": t.get("bid"),
                         "ask": t.get("ask"),
                         "last": t.get("last"),
-                        "ts_ms": int(t.get("timestamp") or (time.time() * 1000)),
+                        "ts_ms": fetch_ts_ms,
+                        "exchange_ts_ms": int(t.get("timestamp") or 0),
                     }
                 )
             except Exception as e:

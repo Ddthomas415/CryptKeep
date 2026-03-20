@@ -58,6 +58,7 @@ async def _parse_via_service(
             "source": source,
             "source_type": source_type,
             "timeline_hint": "present",
+            "asset_hint": [],
             "published_at": published_at,
             "metadata": {"ingested_by": "news-ingestion"},
         }

@@ -17,7 +17,15 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dashboard.services.intelligence import build_opportunity_snapshot
+try:
+    from dashboard.services.intelligence import build_opportunity_snapshot
+except Exception:
+    def build_opportunity_snapshot(*args, **kwargs):
+        return {
+            "status": "unavailable",
+            "reason": "dashboard_import_failed",
+            "opportunities": [],
+        }
 
 _MARKET_DATA_URL = "http://market-data:8003"
 _NEWS_INGESTION_URL = "http://news-ingestion:8004"

@@ -1,19 +1,45 @@
 from __future__ import annotations
-from services.security.exchange_factory import make_exchange
+
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
 from services.market_data.symbol_utils import split_symbol
+from services.security.credentials_loader import load_exchange_credentials
+from services.security.exchange_factory import make_exchange
 from storage.position_state_sqlite import PositionStateSQLite
+
+
 def _safe_float(x) -> float:
     try:
         return float(x or 0.0)
     except Exception:
         return 0.0
+
+
 def reconcile_spot_position(*, venue: str, symbol: str) -> dict:
     v = normalize_venue(venue)
     sym = normalize_symbol(symbol)
     base, quote = split_symbol(sym)
-    ex = make_exchange(v, {}, enable_rate_limit=True)
+    ex = None
     try:
+        creds = load_exchange_credentials(v)
+        if not creds.get("apiKey") or not creds.get("secret"):
+            return {
+                "ok": False,
+                "error": "missing_credentials",
+                "venue": v,
+                "symbol": sym,
+                "source": str(creds.get("source") or "unknown"),
+                "api_env": creds.get("api_env"),
+                "secret_env": creds.get("secret_env"),
+            }
+        ex = make_exchange(
+            v,
+            {
+                "apiKey": creds["apiKey"],
+                "secret": creds["secret"],
+                "password": creds.get("password"),
+            },
+            enable_rate_limit=True,
+        )
         bal = ex.fetch_balance()
         total_map = bal.get("total") if isinstance(bal.get("total"), dict) else {}
         free_map = bal.get("free") if isinstance(bal.get("free"), dict) else {}
@@ -40,7 +66,7 @@ def reconcile_spot_position(*, venue: str, symbol: str) -> dict:
         return {"ok": False, "error": f"{type(e).__name__}:{e}", "venue": v, "symbol": sym}
     finally:
         try:
-            if hasattr(ex, "close"):
+            if ex is not None and hasattr(ex, "close"):
                 ex.close()
         except Exception:
             pass

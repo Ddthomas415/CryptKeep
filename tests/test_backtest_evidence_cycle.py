@@ -93,6 +93,22 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
         }
 
     monkeypatch.setattr(evidence_cycle, "run_strategy_leaderboard", _run_strategy_leaderboard)
+    monkeypatch.setattr(
+        evidence_cycle,
+        "load_paper_history_evidence",
+        lambda journal_path="": {
+            "ok": False,
+            "status": "missing",
+            "journal_path": "/tmp/trade_journal.sqlite",
+            "source": "trade_journal_sqlite",
+            "as_of": None,
+            "fills_count": 0,
+            "strategy_count": 0,
+            "rows": [],
+            "unmapped_strategy_ids": [],
+            "caveat": "No persisted trade journal exists yet.",
+        },
+    )
     windows = [
         {"window_id": "w1", "label": "One", "warmup_bars": 5, "candles": [["1", 0, 0, 0, 0, 0]]},
         {"window_id": "w2", "label": "Two", "warmup_bars": 5, "candles": [["2", 0, 0, 0, 0, 0]]},

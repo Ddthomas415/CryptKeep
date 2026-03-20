@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS market_ticks (
-  id BIGSERIAL PRIMARY KEY,
+  id BIGSERIAL NOT NULL,
   event_ts TIMESTAMPTZ NOT NULL,
   exchange TEXT NOT NULL,
   symbol TEXT NOT NULL,
@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS market_ticks (
   ask DOUBLE PRECISION,
   volume DOUBLE PRECISION,
   raw_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (id, event_ts)
 );
 
 SELECT create_hypertable('market_ticks', 'event_ts', if_not_exists => TRUE);

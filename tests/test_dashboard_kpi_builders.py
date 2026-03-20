@@ -166,8 +166,8 @@ def test_build_settings_kpis_formats_preferences_summary() -> None:
         }
     )
     assert payload[0]["value"] == "America/New_York"
-    assert payload[0]["delta"] == "USD"
-    assert payload[1]["value"] == "Research Only"
-    assert payload[1]["delta"] == "/dashboard"
-    assert payload[2]["value"] == "3"
-    assert payload[3]["value"] == "60 min"
+    assert payload[0]["delta"] == "Research Only"
+    assert payload[1]["value"] == "Instant"
+    assert payload[1]["delta"] == "0 active categories"
+    assert payload[5]["value"] == "60 min"
+    assert payload[5]["delta"] == "Secret masking on"

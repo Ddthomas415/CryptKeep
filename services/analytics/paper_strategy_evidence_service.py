@@ -19,6 +19,7 @@ from services.backtest.evidence_cycle import (
     write_decision_record,
 )
 from services.execution.paper_runner import request_stop as request_paper_engine_stop
+from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.market_data.system_status_publisher import request_stop as request_tick_publisher_stop
 from services.os.app_paths import code_root, ensure_dirs, runtime_dir
 from services.strategy.ema_crossover_runner import request_stop as request_strategy_runner_stop
@@ -259,6 +260,15 @@ def _strategy_delta(
     }
 
 
+def _campaign_has_new_paper_history(results: list[dict[str, Any]]) -> bool:
+    for item in results:
+        if int(item.get("fills_delta") or 0) > 0:
+            return True
+        if int(item.get("closed_trades_delta") or 0) > 0:
+            return True
+    return False
+
+
 def _repo_script_path(script_relpath: str) -> str:
     return str((code_root() / script_relpath).resolve())
 
@@ -297,20 +307,77 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
     env["CBP_SYMBOLS"] = str(cfg.symbol or DEFAULT_SYMBOL)
     env["CBP_VENUE"] = str(cfg.venue or DEFAULT_VENUE)
     env["CBP_TICK_PUBLISH_INTERVAL_SEC"] = str(float(cfg.tick_publish_interval_sec))
+    if int(cfg.strategy_min_bars or 0) > 0:
+        env["CBP_STRATEGY_MIN_BARS"] = str(int(cfg.strategy_min_bars))
+    if str(cfg.signal_source or "").strip():
+        env["CBP_STRATEGY_SIGNAL_SOURCE"] = str(cfg.signal_source).strip()
+    if bool(cfg.allow_first_signal_trade):
+        env["CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE"] = "1"
     if strategy_name:
         env["CBP_STRATEGY_NAME"] = str(strategy_name)
     return env
 
 
+def _target_symbols(cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
+    raw = [str(item).strip() for item in str(cfg.symbol or DEFAULT_SYMBOL).split(",") if str(item).strip()]
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in raw or [DEFAULT_SYMBOL]:
+        sym = normalize_symbol(item)
+        if sym and sym not in seen:
+            out.append(sym)
+            seen.add(sym)
+    return out
+
+
+def _tick_publisher_reusable(state: dict[str, Any], *, cfg: "PaperStrategyEvidenceServiceCfg") -> bool:
+    payload = state.get("status_payload") if isinstance(state.get("status_payload"), dict) else {}
+    venue = normalize_venue(str(cfg.venue or DEFAULT_VENUE))
+    symbols = set(_target_symbols(cfg))
+    venues = payload.get("venues") if isinstance(payload.get("venues"), dict) else {}
+    venue_row = venues.get(venue) if isinstance(venues.get(venue), dict) else {}
+    if not venue_row or not bool(venue_row.get("ok")):
+        return False
+    ticks = payload.get("ticks")
+    if not isinstance(ticks, list):
+        return False
+    now_ms = int(time.time() * 1000)
+    max_age_ms = max(10_000, int(max(0.5, float(cfg.tick_publish_interval_sec or 2.0)) * 4000))
+    fresh_symbols: set[str] = set()
+    for tick in ticks:
+        if not isinstance(tick, dict):
+            continue
+        if normalize_venue(str(tick.get("venue") or "")) != venue:
+            continue
+        symbol = normalize_symbol(str(tick.get("symbol") or ""))
+        if symbol not in symbols:
+            continue
+        ts_ms = int(tick.get("ts_ms") or 0)
+        if ts_ms <= 0:
+            continue
+        if (now_ms - ts_ms) > max_age_ms:
+            continue
+        fresh_symbols.add(symbol)
+    return symbols.issubset(fresh_symbols)
+
+
 def _ensure_component(name: str, *, cfg: "PaperStrategyEvidenceServiceCfg") -> dict[str, Any]:
     current = _component_runtime(name)
     if bool(current.get("pid_alive")):
-        return {
-            "name": name,
-            "started": False,
-            "pid": int(current.get("pid") or 0),
-            "status": str(current.get("status") or "running"),
-        }
+        if name == "tick_publisher" and not _tick_publisher_reusable(current, cfg=cfg):
+            try:
+                _stop_component(name)
+            except Exception as exc:
+                logger.warning("paper_strategy_evidence_tick_reuse_stop_failed", extra={"error": str(exc)})
+            _wait_for_component_stop(name, timeout_sec=10.0)
+            current = _component_runtime(name)
+        else:
+            return {
+                "name": name,
+                "started": False,
+                "pid": int(current.get("pid") or 0),
+                "status": str(current.get("status") or "running"),
+            }
 
     script = {
         "tick_publisher": "scripts/run_tick_publisher.py",
@@ -437,6 +504,9 @@ class PaperStrategyEvidenceServiceCfg:
     symbol: str = DEFAULT_SYMBOL
     venue: str = DEFAULT_VENUE
     tick_publish_interval_sec: float = 2.0
+    strategy_min_bars: int = 0
+    signal_source: str = ""
+    allow_first_signal_trade: bool = False
     evidence_symbol: str = ""
     initial_cash: float = 10_000.0
     fee_bps: float = 10.0
@@ -571,20 +641,38 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
         for name in reversed(tuple(started_components.keys())):
             _wait_for_component_stop(name, timeout_sec=10.0)
 
-        report = run_strategy_evidence_cycle(
-            base_cfg=load_user_yaml(),
-            symbol=str(cfg.evidence_symbol or cfg.symbol or DEFAULT_SYMBOL),
-            initial_cash=float(cfg.initial_cash),
-            fee_bps=float(cfg.fee_bps),
-            slippage_bps=float(cfg.slippage_bps),
-            paper_history_path=str(cfg.paper_history_path or ""),
-        )
-        evidence_out = persist_strategy_evidence(report)
-        if bool(cfg.write_decision_record):
-            decision_record_out = write_decision_record(
-                report,
-                artifact_path=str(evidence_out.get("latest_path") or ""),
+        if _campaign_has_new_paper_history(results):
+            report = run_strategy_evidence_cycle(
+                base_cfg=load_user_yaml(),
+                symbol=str(cfg.evidence_symbol or cfg.symbol or DEFAULT_SYMBOL),
+                initial_cash=float(cfg.initial_cash),
+                fee_bps=float(cfg.fee_bps),
+                slippage_bps=float(cfg.slippage_bps),
+                paper_history_path=str(cfg.paper_history_path or ""),
             )
+            evidence_out = persist_strategy_evidence(report)
+            if bool(cfg.write_decision_record):
+                decision_record_out = write_decision_record(
+                    report,
+                    artifact_path=str(evidence_out.get("latest_path") or ""),
+                )
+        else:
+            evidence_out = {
+                "ok": True,
+                "skipped": True,
+                "reason": "paper_history_unchanged",
+                "summary_text": (
+                    "No new paper-history fills or closed trades were recorded during the campaign, "
+                    "so the evidence cycle was skipped."
+                ),
+            }
+            if bool(cfg.write_decision_record):
+                decision_record_out = {
+                    "ok": True,
+                    "skipped": True,
+                    "reason": "paper_history_unchanged",
+                    "summary_text": "Decision record was not regenerated because paper-history coverage did not change.",
+                }
     except Exception as exc:
         campaign_reason = f"error:{type(exc).__name__}"
         out = {

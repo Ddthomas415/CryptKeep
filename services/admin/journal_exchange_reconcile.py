@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from services.security.credential_store import get_exchange_credentials
+from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
 from services.admin.state_report import maybe_auto_update_state_on_snapshot
 from services.os.app_paths import data_dir, runtime_dir, ensure_dirs
@@ -101,8 +101,9 @@ def _fingerprint(symbol: str, side: str, qty: float | None, price: float | None,
 
 def fetch_exchange_history(venue: str, symbol: str | None, limit: int = 200) -> dict:
     v = str(venue).lower().strip()
-    creds = get_exchange_credentials(v)
-    if not creds: return {"ok": False, "venue": v, "reason": "missing_credentials"}
+    creds = load_exchange_credentials(v)
+    if not creds.get("apiKey") or not creds.get("secret"):
+        return {"ok": False, "venue": v, "reason": "missing_credentials", "source": str(creds.get("source") or "unknown")}
     ex = make_exchange(v, creds, enable_rate_limit=True)
     out = {"ok": True, "venue": v, "trades": [], "orders": [], "errors": []}
     try:

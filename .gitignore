@@ -50,3 +50,5 @@ __pycache__/
 data/*.sqlite
 data/*.db
 data/*.log
+
+*_review_bundle_*.zip

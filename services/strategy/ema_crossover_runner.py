@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from services.admin.config_editor import load_user_yaml
 from services.market_data.multi_venue_view import best_venue
-from services.market_data.symbol_router import normalize_venue
+from services.market_data.symbol_router import map_symbol, normalize_symbol, normalize_venue
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
 from services.os.app_paths import ensure_dirs, runtime_dir
 from services.risk.market_quality_guard import check as mq_check
@@ -118,7 +118,18 @@ def _cfg() -> dict:
     env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
     symbol = str(env_syms[0] if env_syms else (s.get("symbol") or (pf_symbols[0] if pf_symbols else default_symbol))).strip()
     strategy_block, strategy_preset = _strategy_block_from_runner_cfg(s)
-    min_bars = max(int(s.get("min_bars", 60) or 60), _required_history(strategy_block))
+    env_min_bars_raw = str(os.environ.get("CBP_STRATEGY_MIN_BARS") or "").strip()
+    env_min_bars = int(env_min_bars_raw) if env_min_bars_raw else 0
+    min_bars_source = env_min_bars if env_min_bars > 0 else int(s.get("min_bars", 60) or 60)
+    min_bars = max(int(min_bars_source), _required_history(strategy_block))
+    allow_first_signal_trade = bool(s.get("allow_first_signal_trade", False))
+    if str(os.environ.get("CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE", "")).strip().lower() in {"1", "true", "yes", "on"}:
+        allow_first_signal_trade = True
+    signal_source = str(
+        os.environ.get("CBP_STRATEGY_SIGNAL_SOURCE")
+        or s.get("signal_source")
+        or "synthetic_mid_ohlcv"
+    ).strip().lower() or "synthetic_mid_ohlcv"
     venue_candidates = s.get("venue_candidates") if isinstance(s.get("venue_candidates"), list) else []
 
     return {
@@ -135,12 +146,12 @@ def _cfg() -> dict:
         "loop_interval_sec": float(s.get("loop_interval_sec", 1.0) or 1.0),
         "qty": float(s.get("qty", 0.001) or 0.001),
         "order_type": str(s.get("order_type", "market") or "market").lower().strip(),
-        "allow_first_signal_trade": bool(s.get("allow_first_signal_trade", False)),
+        "allow_first_signal_trade": allow_first_signal_trade,
         "use_ccxt_fallback": bool(s.get("use_ccxt_fallback", True)),
         "max_tick_age_sec": float(s.get("max_tick_age_sec", 5.0) or 5.0),
         "position_aware": bool(s.get("position_aware", True)),
         "sell_full_position": bool(s.get("sell_full_position", True)),
-        "signal_source": "synthetic_mid_ohlcv",
+        "signal_source": signal_source,
         "auto_select_best_venue": bool(s.get("auto_select_best_venue", False)),
         "switch_only_when_blocked": bool(s.get("switch_only_when_blocked", True)),
         "venue_candidates": [str(v).lower().strip() for v in venue_candidates if str(v).strip()],
@@ -259,6 +270,35 @@ def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None
         ohlcv=_synth_ohlcv(prices, ts_ms=ts_ms),
     )
 
+
+def _public_ohlcv_timeframe(cfg: dict) -> str | None:
+    source = str(cfg.get("signal_source") or "").strip().lower()
+    if source.startswith("public_ohlcv_"):
+        timeframe = source.removeprefix("public_ohlcv_").strip()
+        return timeframe or None
+    return None
+
+
+def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
+    timeframe = _public_ohlcv_timeframe(cfg)
+    if not timeframe:
+        return []
+    ex = None
+    try:
+        ex = make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True)
+        symbol = map_symbol(cfg["venue"], normalize_symbol(cfg["symbol"]))
+        limit = max(int(cfg["min_bars"]), int(cfg["max_bars"]))
+        rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
+        return [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
+    except Exception:
+        return []
+    finally:
+        try:
+            if ex is not None and hasattr(ex, "close"):
+                ex.close()
+        except Exception:
+            pass
+
 def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
     q = get_best_bid_ask_last(cfg["venue"], cfg["symbol"])
     if q:
@@ -272,8 +312,9 @@ def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
         return float(m), ts_ms
     if not cfg["use_ccxt_fallback"]:
         return None
-    ex = make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True)
+    ex = None
     try:
+        ex = make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True)
         t = ex.fetch_ticker(cfg["symbol"])
         bid = t.get("bid")
         ask = t.get("ask")
@@ -286,9 +327,11 @@ def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
             return None
         ts_ms = int(t.get("timestamp") or (time.time() * 1000))
         return m, ts_ms
+    except Exception:
+        return None
     finally:
         try:
-            if hasattr(ex, "close"):
+            if ex is not None and hasattr(ex, "close"):
                 ex.close()
         except Exception:
             pass
@@ -365,35 +408,72 @@ def run_forever() -> None:
                     if bv and bv.get("venue"):
                         cfg["venue"] = str(bv["venue"])
 
-            tick = _fetch_mid(cfg)
-            if not tick:
-                _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_fresh_tick", "loops": loops, "enqueued": enqueued})
-                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                continue
-            m, ts_ms = tick
-            prices.append(float(m))
-            if len(prices) > int(cfg["max_bars"]):
-                prices = prices[-int(cfg["max_bars"]):]
-            if loops % 5 == 0:
-                sdb.set(k_prices, json.dumps(prices))
-            if len(prices) < int(cfg["min_bars"]):
-                _write_status(
-                    {
-                        "ok": True,
-                        "status": "running",
-                        "pid": os.getpid(),
-                        "ts": _now(),
-                        "mid": m,
-                        "bars": len(prices),
-                        "note": "warming",
-                        "enqueued": enqueued,
-                        "strategy_id": cfg["strategy_id"],
-                        "strategy_source": cfg["signal_source"],
-                    }
+            timeframe = _public_ohlcv_timeframe(cfg)
+            if timeframe:
+                ohlcv = _fetch_public_ohlcv(cfg)
+                if not ohlcv:
+                    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                    continue
+                prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
+                if loops % 5 == 0:
+                    sdb.set(k_prices, json.dumps(prices))
+                if len(ohlcv) < int(cfg["min_bars"]):
+                    _write_status(
+                        {
+                            "ok": True,
+                            "status": "running",
+                            "pid": os.getpid(),
+                            "ts": _now(),
+                            "mid": float(ohlcv[-1][4]),
+                            "bars": len(ohlcv),
+                            "note": "warming",
+                            "enqueued": enqueued,
+                            "strategy_id": cfg["strategy_id"],
+                            "strategy_source": cfg["signal_source"],
+                        }
+                    )
+                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                    continue
+                ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
+                m = float(ohlcv[-1][4])
+                signal = compute_signal(
+                    cfg={"strategy": dict(cfg.get("strategy") or {})},
+                    symbol=str(cfg.get("symbol") or ""),
+                    ohlcv=ohlcv[-int(cfg["min_bars"]):],
                 )
-                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                continue
-            signal = _strategy_signal(cfg, prices[-int(cfg["min_bars"]):], ts_ms=ts_ms)
+                bars = len(ohlcv)
+            else:
+                tick = _fetch_mid(cfg)
+                if not tick:
+                    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_fresh_tick", "loops": loops, "enqueued": enqueued})
+                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                    continue
+                m, ts_ms = tick
+                prices.append(float(m))
+                if len(prices) > int(cfg["max_bars"]):
+                    prices = prices[-int(cfg["max_bars"]):]
+                if loops % 5 == 0:
+                    sdb.set(k_prices, json.dumps(prices))
+                if len(prices) < int(cfg["min_bars"]):
+                    _write_status(
+                        {
+                            "ok": True,
+                            "status": "running",
+                            "pid": os.getpid(),
+                            "ts": _now(),
+                            "mid": m,
+                            "bars": len(prices),
+                            "note": "warming",
+                            "enqueued": enqueued,
+                            "strategy_id": cfg["strategy_id"],
+                            "strategy_source": cfg["signal_source"],
+                        }
+                    )
+                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                    continue
+                signal = _strategy_signal(cfg, prices[-int(cfg["min_bars"]):], ts_ms=ts_ms)
+                bars = len(prices)
             decision = str(signal.get("action") or "hold").lower().strip()
             if decision not in ("buy", "sell", "hold"):
                 decision = "hold"
@@ -452,7 +532,7 @@ def run_forever() -> None:
                 "ts": _now(),
                 "mid": m,
                 "ts_ms": ts_ms,
-                "bars": len(prices),
+                "bars": bars,
                 "strategy_id": cfg["strategy_id"],
                 "strategy_preset": cfg["strategy_preset"],
                 "signal_source": cfg["signal_source"],

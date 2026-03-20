@@ -6,7 +6,7 @@ from typing import List, Dict, Optional
 
 from services.admin.journal_exchange_reconcile import scan_local_journals
 from services.market_data.symbol_normalize import normalize_symbols, normalize_symbol
-from services.security.credential_store import get_exchange_credentials
+from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
 from services.os.app_paths import runtime_dir, ensure_dirs
 
@@ -48,9 +48,9 @@ def _local_net_positions_from_trades(trades: List[dict], bases_filter: Optional[
     return out
 
 def _exchange_spot_balances(venue: str) -> dict:
-    creds = get_exchange_credentials(venue)
-    if not creds:
-        return {"ok": False, "venue": venue, "reason": "missing_credentials"}
+    creds = load_exchange_credentials(venue)
+    if not creds.get("apiKey") or not creds.get("secret"):
+        return {"ok": False, "venue": venue, "reason": "missing_credentials", "source": str(creds.get("source") or "unknown")}
     ex = make_exchange(venue, creds, enable_rate_limit=True)
     try:
         bal = ex.fetch_balance()
@@ -63,9 +63,9 @@ def _exchange_spot_balances(venue: str) -> dict:
             ex.close()
 
 def _exchange_derivatives_positions(venue: str, symbols: Optional[List[str]] = None) -> dict:
-    creds = get_exchange_credentials(venue)
-    if not creds:
-        return {"ok": False, "venue": venue, "reason": "missing_credentials"}
+    creds = load_exchange_credentials(venue)
+    if not creds.get("apiKey") or not creds.get("secret"):
+        return {"ok": False, "venue": venue, "reason": "missing_credentials", "source": str(creds.get("source") or "unknown")}
     ex = make_exchange(venue, creds, enable_rate_limit=True)
     try:
         if not getattr(ex, "has", {}).get("fetchPositions", False):

@@ -9,10 +9,34 @@ class LiveExchangeAdapter:
     def __init__(self, venue: str, *, enable_rate_limit: bool = True) -> None:
         self.venue = normalize_venue(venue)
         creds = load_exchange_credentials(self.venue)
-        self._creds_meta = {k: creds.get(k) for k in ("venue","api_env","secret_env","password_env","api_key_present","secret_present","password_present")}
+        self._creds_meta = {
+            k: creds.get(k)
+            for k in (
+                "venue",
+                "source",
+                "api_env",
+                "secret_env",
+                "password_env",
+                "api_key_present",
+                "secret_present",
+                "password_present",
+            )
+        }
         if not creds.get("apiKey") or not creds.get("secret"):
-            raise RuntimeError(f"Missing credentials for {self.venue}: set ENV {creds.get('api_env')} and {creds.get('secret_env')}")
-        self.ex = make_exchange(self.venue, {"apiKey": creds["apiKey"], "secret": creds["secret"], "password": creds.get("password")}, enable_rate_limit=enable_rate_limit)
+            raise RuntimeError(
+                f"Missing credentials for {self.venue}: "
+                f"keyring or env-backed credentials required "
+                f"({creds.get('api_env')}, {creds.get('secret_env')})"
+            )
+        self.ex = make_exchange(
+            self.venue,
+            {
+                "apiKey": creds["apiKey"],
+                "secret": creds["secret"],
+                "password": creds.get("password"),
+            },
+            enable_rate_limit=enable_rate_limit,
+        )
 
     def creds_meta(self) -> dict:
         return dict(self._creds_meta)

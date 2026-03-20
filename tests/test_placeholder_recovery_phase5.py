@@ -108,7 +108,7 @@ def test_ccxt_private_factory_and_feature_store(monkeypatch, tmp_path):
     import services.execution.ccxt_private_factory as ccxt_private_factory
     from services.learning.feature_store import FeatureStore
 
-    monkeypatch.setattr(ccxt_private_factory, "get_exchange_credentials", lambda ex: {"apiKey": "k", "secret": "s"})
+    monkeypatch.setattr(ccxt_private_factory, "load_exchange_credentials", lambda ex: {"apiKey": "k", "secret": "s"})
     monkeypatch.setattr(ccxt_private_factory, "make_exchange", lambda ex, creds, enable_rate_limit=True: {"exchange": ex, "creds": creds})
     ex = ccxt_private_factory.make_private_exchange("coinbase")
     assert ex["exchange"] == "coinbase"

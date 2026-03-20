@@ -51,6 +51,20 @@ DEPTH_OPTIONS = ["standard", "deep", "operator"]
 UNIVERSE_OPTIONS = ["core_watchlist", "top_100", "cross_asset", "custom"]
 DIGEST_OPTIONS = ["off", "daily", "twice_daily", "weekly"]
 ASSET_CLASS_OPTIONS = ["crypto", "equities", "etf", "forex", "commodities"]
+AUTH_SCOPE_OPTIONS = ["local_private_only", "remote_public_candidate"]
+AUTH_SCOPE_LABELS = {
+    "local_private_only": "Local/private only",
+    "remote_public_candidate": "Remote/public candidate",
+}
+OUTER_ACCESS_CONTROL_OPTIONS = ["", "vpn", "tailscale", "reverse_proxy", "sso", "cloudflare_access"]
+OUTER_ACCESS_CONTROL_LABELS = {
+    "": "Not configured",
+    "vpn": "VPN",
+    "tailscale": "Tailscale",
+    "reverse_proxy": "Reverse proxy auth",
+    "sso": "SSO",
+    "cloudflare_access": "Cloudflare Access",
+}
 PROVIDER_LABELS = {
     "coingecko": "CoinGecko",
     "twelve_data": "Twelve Data",
@@ -194,6 +208,12 @@ enabled_asset_classes = [
 if not enabled_asset_classes:
     enabled_asset_classes = ["crypto"]
 exclusion_list_text = _as_csv(autopilot.get("exclusion_list"))
+auth_scope = str(security.get("auth_scope") or AUTH_SCOPE_OPTIONS[0])
+if auth_scope not in AUTH_SCOPE_OPTIONS:
+    AUTH_SCOPE_OPTIONS = [auth_scope, *[item for item in AUTH_SCOPE_OPTIONS if item != auth_scope]]
+outer_access_control = str(security.get("outer_access_control") or "")
+if outer_access_control not in OUTER_ACCESS_CONTROL_OPTIONS:
+    OUTER_ACCESS_CONTROL_OPTIONS = [outer_access_control, *[item for item in OUTER_ACCESS_CONTROL_OPTIONS if item != outer_access_control]]
 
 provider_badges = [
     {"text": f"{sum(1 for value in providers.values() if isinstance(value, dict) and bool(value.get('enabled')))} providers enabled", "tone": "accent"},
@@ -258,409 +278,447 @@ render_prompt_actions(
     key_prefix="settings_center",
 )
 
-workspace_col, notifications_col = st.columns((1, 1))
+settings_tabs = st.tabs(
+    [
+        "Workspace & Alerts",
+        "Copilot & Scout",
+        "Providers",
+        "Safety & Paper",
+    ]
+)
 
-with workspace_col:
+with settings_tabs[0]:
+    workspace_col, notifications_col = st.columns((1, 1))
+
+    with workspace_col:
+        with st.container(border=True):
+            render_section_intro(
+                title="Workspace / General",
+                subtitle="Base workspace defaults, startup behavior, and the symbols the rest of the product assumes first.",
+                meta="Core defaults",
+            )
+            render_badge_row(
+                [
+                    {"text": timezone.replace("_", " "), "tone": "accent"},
+                    {"text": default_mode.replace("_", " ").title(), "tone": "success"},
+                    {"text": f"{len(general.get('watchlist_defaults') if isinstance(general.get('watchlist_defaults'), list) else [])} default symbols", "tone": "muted"},
+                ]
+            )
+            general_left_col, general_right_col = st.columns((1, 1))
+            with general_left_col:
+                timezone_value = st.selectbox("Timezone", TIMEZONES, index=TIMEZONES.index(timezone))
+                default_currency_value = st.selectbox(
+                    "Default currency",
+                    CURRENCIES,
+                    index=CURRENCIES.index(default_currency),
+                )
+                default_mode_value = st.selectbox("Default mode", MODE_OPTIONS, index=MODE_OPTIONS.index(default_mode))
+            with general_right_col:
+                startup_page_value = st.text_input("Startup page", value=str(general.get("startup_page") or "/dashboard"))
+                watchlist_defaults_value = st.text_input(
+                    "Watchlist defaults (comma separated)",
+                    value=watchlist_defaults_text,
+                )
+
+    with notifications_col:
+        with st.container(border=True):
+            render_section_intro(
+                title="Notifications",
+                subtitle="Alert delivery, quiet hours, and which events should break through when you are away.",
+                meta="Alerts center",
+            )
+            render_badge_row(
+                [
+                    {"text": "Email on" if bool(notifications.get("email_enabled", notifications.get("email"))) else "Email off", "tone": _tone_for_enabled(bool(notifications.get("email_enabled", notifications.get("email"))))},
+                    {"text": notification_delivery.title(), "tone": "accent"},
+                    {"text": f"{float(notifications.get('confidence_threshold') or 0.72):.0%} confidence", "tone": "warning"},
+                ]
+            )
+            delivery_col, category_col = st.columns((1, 1))
+            with delivery_col:
+                email_enabled_value = st.checkbox(
+                    "Email enabled",
+                    value=bool(notifications.get("email_enabled", notifications.get("email"))),
+                )
+                email_address_value = st.text_input(
+                    "Notification email",
+                    value=str(notifications.get("email_address") or ""),
+                )
+                delivery_mode_value = st.selectbox(
+                    "Delivery mode",
+                    DELIVERY_OPTIONS,
+                    index=DELIVERY_OPTIONS.index(notification_delivery),
+                )
+                daily_digest_enabled_value = st.checkbox(
+                    "Daily digest",
+                    value=bool(notifications.get("daily_digest_enabled", True)),
+                )
+                weekly_digest_enabled_value = st.checkbox(
+                    "Weekly digest",
+                    value=bool(notifications.get("weekly_digest_enabled", True)),
+                )
+                quiet_hours_cols = st.columns(2)
+                with quiet_hours_cols[0]:
+                    quiet_hours_start_value = st.text_input(
+                        "Quiet hours start",
+                        value=str(notifications.get("quiet_hours_start") or "22:00"),
+                    )
+                with quiet_hours_cols[1]:
+                    quiet_hours_end_value = st.text_input(
+                        "Quiet hours end",
+                        value=str(notifications.get("quiet_hours_end") or "06:00"),
+                    )
+                telegram_value = st.checkbox("Telegram channel", value=bool(notifications.get("telegram")))
+                discord_value = st.checkbox("Discord channel", value=bool(notifications.get("discord")))
+                webhook_value = st.checkbox("Webhook delivery", value=bool(notifications.get("webhook")))
+
+            with category_col:
+                confidence_threshold_value = st.number_input(
+                    "Confidence threshold",
+                    min_value=0.0,
+                    max_value=1.0,
+                    step=0.01,
+                    value=float(notifications.get("confidence_threshold") or 0.72),
+                )
+                opportunity_threshold_value = st.number_input(
+                    "Opportunity threshold",
+                    min_value=0.0,
+                    max_value=1.0,
+                    step=0.01,
+                    value=float(notifications.get("opportunity_threshold") or 0.7),
+                )
+                price_alerts_value = st.checkbox("Price alerts", value=bool(notifications.get("price_alerts", True)))
+                news_alerts_value = st.checkbox("News alerts", value=bool(notifications.get("news_alerts", True)))
+                catalyst_alerts_value = st.checkbox(
+                    "Catalyst alerts",
+                    value=bool(notifications.get("catalyst_alerts", True)),
+                )
+                risk_alerts_value = st.checkbox("Risk alerts", value=bool(notifications.get("risk_alerts", True)))
+                approval_requests_value = st.checkbox(
+                    "Approval requests",
+                    value=bool(notifications.get("approval_requests", True)),
+                )
+
+                st.caption("Alert categories")
+                category_col_a, category_col_b = st.columns(2)
+                with category_col_a:
+                    top_opportunities_value = st.checkbox(
+                        "Top opportunities",
+                        value=bool(notification_categories.get("top_opportunities", True)),
+                    )
+                    paper_trade_opened_value = st.checkbox(
+                        "Paper trade opened",
+                        value=bool(notification_categories.get("paper_trade_opened", True)),
+                    )
+                    paper_trade_closed_value = st.checkbox(
+                        "Paper trade closed",
+                        value=bool(notification_categories.get("paper_trade_closed", True)),
+                    )
+                    macro_events_value = st.checkbox(
+                        "Macro events",
+                        value=bool(notification_categories.get("macro_events", True)),
+                    )
+                with category_col_b:
+                    provider_failures_value = st.checkbox(
+                        "Provider / system failures",
+                        value=bool(notification_categories.get("provider_failures", True)),
+                    )
+                    daily_summary_value = st.checkbox(
+                        "Daily summary",
+                        value=bool(notification_categories.get("daily_summary", True)),
+                    )
+                    weekly_summary_value = st.checkbox(
+                        "Weekly summary",
+                        value=bool(notification_categories.get("weekly_summary", True)),
+                    )
+
+with settings_tabs[1]:
+    copilot_col, autopilot_col = st.columns((1, 1))
+
+    with copilot_col:
+        with st.container(border=True):
+            render_section_intro(
+                title="AI / Copilot",
+                subtitle="Control explanation style, evidence depth, and how the assistant summarizes the platform for you.",
+                meta="Assistant behavior",
+            )
+            render_badge_row(
+                [
+                    {"text": tone.title(), "tone": "accent"},
+                    {"text": evidence_verbosity.title(), "tone": "warning"},
+                    {"text": away_summary_mode.title(), "tone": "success"},
+                ]
+            )
+            explanation_col, context_col = st.columns((1, 1))
+            with explanation_col:
+                tone_value = st.selectbox("Explanation tone", TONE_OPTIONS, index=TONE_OPTIONS.index(tone))
+                explanation_length_value = st.selectbox(
+                    "Explanation length",
+                    LENGTH_OPTIONS,
+                    index=LENGTH_OPTIONS.index(explanation_length),
+                )
+                evidence_verbosity_value = st.selectbox(
+                    "Evidence verbosity",
+                    VERBOSITY_OPTIONS,
+                    index=VERBOSITY_OPTIONS.index(evidence_verbosity),
+                )
+                away_summary_mode_value = st.selectbox(
+                    '"While away" summary mode',
+                    SUMMARY_OPTIONS,
+                    index=SUMMARY_OPTIONS.index(away_summary_mode),
+                )
+                autopilot_explanation_depth_value = st.selectbox(
+                    "Autopilot explanation depth",
+                    DEPTH_OPTIONS,
+                    index=DEPTH_OPTIONS.index(autopilot_depth),
+                )
+            with context_col:
+                show_confidence_value = st.checkbox("Display confidence", value=bool(ai.get("show_confidence", True)))
+                show_evidence_value = st.checkbox("Display evidence", value=bool(ai.get("show_evidence", True)))
+                include_archives_value = st.checkbox("Use archive context", value=bool(ai.get("include_archives", True)))
+                include_onchain_value = st.checkbox("Use on-chain context", value=bool(ai.get("include_onchain", True)))
+                include_social_value = st.checkbox("Use social context", value=bool(ai.get("include_social", False)))
+                provider_assisted_explanations_value = st.checkbox(
+                    "Provider-assisted explanations",
+                    value=bool(ai.get("provider_assisted_explanations", True)),
+                )
+                allow_hypotheses_value = st.checkbox(
+                    "Allow hypotheses when evidence is incomplete",
+                    value=bool(ai.get("allow_hypotheses", True)),
+                )
+
+    with autopilot_col:
+        with st.container(border=True):
+            render_section_intro(
+                title="Autopilot / Scout",
+                subtitle="Define how the scout behaves, how many candidates it surfaces, and how often it should check the market.",
+                meta="Runtime planning",
+            )
+            render_badge_row(
+                [
+                    {"text": "Scout live" if bool(autopilot.get("scout_mode_enabled", True)) else "Scout paused", "tone": _tone_for_enabled(bool(autopilot.get("scout_mode_enabled", True)))},
+                    {"text": f"{int(autopilot.get('candidate_limit') or 12)} candidates", "tone": "accent"},
+                    {"text": default_market_universe.replace("_", " ").title(), "tone": "warning"},
+                ]
+            )
+            autopilot_mode_col, autopilot_limits_col = st.columns((1, 1))
+            with autopilot_mode_col:
+                autopilot_enabled_value = st.checkbox(
+                    "Autopilot enabled",
+                    value=bool(autopilot.get("autopilot_enabled")),
+                )
+                scout_mode_enabled_value = st.checkbox(
+                    "Scout mode enabled",
+                    value=bool(autopilot.get("scout_mode_enabled", True)),
+                )
+                paper_trading_enabled_value = st.checkbox(
+                    "Paper trading enabled",
+                    value=bool(autopilot.get("paper_trading_enabled", True)),
+                )
+                learning_enabled_value = st.checkbox(
+                    "Learning enabled",
+                    value=bool(autopilot.get("learning_enabled")),
+                )
+                default_market_universe_value = st.selectbox(
+                    "Default market universe",
+                    UNIVERSE_OPTIONS,
+                    index=UNIVERSE_OPTIONS.index(default_market_universe),
+                )
+                digest_frequency_value = st.selectbox(
+                    "Digest frequency",
+                    DIGEST_OPTIONS,
+                    index=DIGEST_OPTIONS.index(digest_frequency),
+                )
+            with autopilot_limits_col:
+                scan_interval_minutes_value = st.number_input(
+                    "Scan interval (minutes)",
+                    min_value=5,
+                    max_value=240,
+                    step=5,
+                    value=int(autopilot.get("scan_interval_minutes") or 15),
+                )
+                candidate_limit_value = st.number_input(
+                    "Candidate limit",
+                    min_value=1,
+                    max_value=100,
+                    step=1,
+                    value=int(autopilot.get("candidate_limit") or 12),
+                )
+                autopilot_confidence_threshold_value = st.number_input(
+                    "Scout confidence threshold",
+                    min_value=0.0,
+                    max_value=1.0,
+                    step=0.01,
+                    value=float(autopilot.get("confidence_threshold") or 0.72),
+                )
+                alert_threshold_value = st.number_input(
+                    "Scout alert threshold",
+                    min_value=0.0,
+                    max_value=1.0,
+                    step=0.01,
+                    value=float(autopilot.get("alert_threshold") or 0.8),
+                )
+                exclusion_list_value = st.text_input(
+                    "Exclusion list (comma separated)",
+                    value=exclusion_list_text,
+                )
+            asset_class_col_a, asset_class_col_b, asset_class_col_c = st.columns(3)
+            with asset_class_col_a:
+                asset_class_crypto_value = st.checkbox("Crypto", value="crypto" in enabled_asset_classes)
+                asset_class_equities_value = st.checkbox("Equities", value="equities" in enabled_asset_classes)
+            with asset_class_col_b:
+                asset_class_etf_value = st.checkbox("ETFs", value="etf" in enabled_asset_classes)
+                asset_class_forex_value = st.checkbox("Forex", value="forex" in enabled_asset_classes)
+            with asset_class_col_c:
+                asset_class_commodities_value = st.checkbox(
+                    "Commodities",
+                    value="commodities" in enabled_asset_classes,
+                )
+
+with settings_tabs[2]:
     with st.container(border=True):
         render_section_intro(
-            title="Workspace / General",
-            subtitle="Base workspace defaults, startup behavior, and the symbols the rest of the product assumes first.",
-            meta="Core defaults",
+            title="Providers / Integrations",
+            subtitle="Enable or stage the data sources and delivery providers that shape market intelligence, macro context, and outbound alerts.",
+            meta="Integration center",
         )
-        render_badge_row(
-            [
-                {"text": timezone.replace("_", " "), "tone": "accent"},
-                {"text": default_mode.replace("_", " ").title(), "tone": "success"},
-                {"text": f"{len(general.get('watchlist_defaults') if isinstance(general.get('watchlist_defaults'), list) else [])} default symbols", "tone": "muted"},
-            ]
-        )
-        general_left_col, general_right_col = st.columns((1, 1))
-        with general_left_col:
-            timezone_value = st.selectbox("Timezone", TIMEZONES, index=TIMEZONES.index(timezone))
-            default_currency_value = st.selectbox(
-                "Default currency",
-                CURRENCIES,
-                index=CURRENCIES.index(default_currency),
-            )
-            default_mode_value = st.selectbox("Default mode", MODE_OPTIONS, index=MODE_OPTIONS.index(default_mode))
-        with general_right_col:
-            startup_page_value = st.text_input("Startup page", value=str(general.get("startup_page") or "/dashboard"))
-            watchlist_defaults_value = st.text_input(
-                "Watchlist defaults (comma separated)",
-                value=watchlist_defaults_text,
-            )
+        provider_payload: dict[str, dict[str, object]] = {}
+        provider_group_cols = st.columns((1, 1, 0.82))
+        for group_col, (group_title, group_subtitle, provider_names) in zip(provider_group_cols, PROVIDER_GROUPS, strict=False):
+            with group_col:
+                enabled_count = sum(
+                    1
+                    for name in provider_names
+                    if isinstance(providers.get(name), dict) and bool(providers.get(name, {}).get("enabled"))
+                )
+                with st.container(border=True):
+                    render_section_intro(
+                        title=group_title,
+                        subtitle=group_subtitle,
+                        meta=f"{len(provider_names)} modules",
+                    )
+                    render_badge_row(
+                        [
+                            {"text": f"{enabled_count}/{len(provider_names)} enabled", "tone": "accent"},
+                            {"text": "Ready to wire" if enabled_count else "Configure first", "tone": "success" if enabled_count else "warning"},
+                        ]
+                    )
+                    for provider_name in provider_names:
+                        provider = providers.get(provider_name) if isinstance(providers.get(provider_name), dict) else {}
+                        provider_payload[provider_name] = _render_provider_card(provider_name, provider)
 
-with notifications_col:
-    with st.container(border=True):
-        render_section_intro(
-            title="Notifications",
-            subtitle="Alert delivery, quiet hours, and which events should break through when you are away.",
-            meta="Alerts center",
-        )
-        render_badge_row(
-            [
-                {"text": "Email on" if bool(notifications.get("email_enabled", notifications.get("email"))) else "Email off", "tone": _tone_for_enabled(bool(notifications.get("email_enabled", notifications.get("email"))))},
-                {"text": notification_delivery.title(), "tone": "accent"},
-                {"text": f"{float(notifications.get('confidence_threshold') or 0.72):.0%} confidence", "tone": "warning"},
-            ]
-        )
-        delivery_col, category_col = st.columns((1, 1))
-        with delivery_col:
-            email_enabled_value = st.checkbox(
-                "Email enabled",
-                value=bool(notifications.get("email_enabled", notifications.get("email"))),
-            )
-            email_address_value = st.text_input(
-                "Notification email",
-                value=str(notifications.get("email_address") or ""),
-            )
-            delivery_mode_value = st.selectbox(
-                "Delivery mode",
-                DELIVERY_OPTIONS,
-                index=DELIVERY_OPTIONS.index(notification_delivery),
-            )
-            daily_digest_enabled_value = st.checkbox(
-                "Daily digest",
-                value=bool(notifications.get("daily_digest_enabled", True)),
-            )
-            weekly_digest_enabled_value = st.checkbox(
-                "Weekly digest",
-                value=bool(notifications.get("weekly_digest_enabled", True)),
-            )
-            quiet_hours_cols = st.columns(2)
-            with quiet_hours_cols[0]:
-                quiet_hours_start_value = st.text_input(
-                    "Quiet hours start",
-                    value=str(notifications.get("quiet_hours_start") or "22:00"),
-                )
-            with quiet_hours_cols[1]:
-                quiet_hours_end_value = st.text_input(
-                    "Quiet hours end",
-                    value=str(notifications.get("quiet_hours_end") or "06:00"),
-                )
-            telegram_value = st.checkbox("Telegram channel", value=bool(notifications.get("telegram")))
-            discord_value = st.checkbox("Discord channel", value=bool(notifications.get("discord")))
-            webhook_value = st.checkbox("Webhook delivery", value=bool(notifications.get("webhook")))
+with settings_tabs[3]:
+    security_col, paper_col = st.columns((1, 1))
 
-        with category_col:
-            confidence_threshold_value = st.number_input(
-                "Confidence threshold",
-                min_value=0.0,
-                max_value=1.0,
-                step=0.01,
-                value=float(notifications.get("confidence_threshold") or 0.72),
+    with security_col:
+        with st.container(border=True):
+            render_section_intro(
+                title="Security / Access",
+                subtitle="Session policy, masking, and export controls that should stay explicit while the product matures.",
+                meta="Safety defaults",
             )
-            opportunity_threshold_value = st.number_input(
-                "Opportunity threshold",
-                min_value=0.0,
-                max_value=1.0,
-                step=0.01,
-                value=float(notifications.get("opportunity_threshold") or 0.7),
+            render_badge_row(
+                [
+                    {"text": f"{int(security.get('session_timeout_minutes') or 60)}m session", "tone": "accent"},
+                    {"text": AUTH_SCOPE_LABELS.get(str(security.get("auth_scope") or "local_private_only"), "Local/private only"), "tone": "warning" if str(security.get("auth_scope") or "local_private_only") == "remote_public_candidate" else "success"},
+                    {"text": "Masking on" if bool(security.get("secret_masking", True)) else "Masking off", "tone": _tone_for_enabled(bool(security.get("secret_masking", True)))},
+                    {"text": "External MFA required" if bool(security.get("remote_access_requires_mfa", True)) else "Remote MFA optional", "tone": "warning"},
+                    {"text": OUTER_ACCESS_CONTROL_LABELS.get(str(security.get("outer_access_control") or ""), "Not configured"), "tone": "warning" if not str(security.get("outer_access_control") or "") else "success"},
+                    {"text": "Export allowed" if bool(security.get("audit_export_allowed", True)) else "Export blocked", "tone": "warning"},
+                ]
             )
-            price_alerts_value = st.checkbox("Price alerts", value=bool(notifications.get("price_alerts", True)))
-            news_alerts_value = st.checkbox("News alerts", value=bool(notifications.get("news_alerts", True)))
-            catalyst_alerts_value = st.checkbox(
-                "Catalyst alerts",
-                value=bool(notifications.get("catalyst_alerts", True)),
-            )
-            risk_alerts_value = st.checkbox("Risk alerts", value=bool(notifications.get("risk_alerts", True)))
-            approval_requests_value = st.checkbox(
-                "Approval requests",
-                value=bool(notifications.get("approval_requests", True)),
-            )
-
-            st.caption("Alert categories")
-            category_col_a, category_col_b = st.columns(2)
-            with category_col_a:
-                top_opportunities_value = st.checkbox(
-                    "Top opportunities",
-                    value=bool(notification_categories.get("top_opportunities", True)),
-                )
-                paper_trade_opened_value = st.checkbox(
-                    "Paper trade opened",
-                    value=bool(notification_categories.get("paper_trade_opened", True)),
-                )
-                paper_trade_closed_value = st.checkbox(
-                    "Paper trade closed",
-                    value=bool(notification_categories.get("paper_trade_closed", True)),
-                )
-                macro_events_value = st.checkbox(
-                    "Macro events",
-                    value=bool(notification_categories.get("macro_events", True)),
-                )
-            with category_col_b:
-                provider_failures_value = st.checkbox(
-                    "Provider / system failures",
-                    value=bool(notification_categories.get("provider_failures", True)),
-                )
-                daily_summary_value = st.checkbox(
-                    "Daily summary",
-                    value=bool(notification_categories.get("daily_summary", True)),
-                )
-                weekly_summary_value = st.checkbox(
-                    "Weekly summary",
-                    value=bool(notification_categories.get("weekly_summary", True)),
-                )
-
-copilot_col, autopilot_col = st.columns((1, 1))
-
-with copilot_col:
-    with st.container(border=True):
-        render_section_intro(
-            title="AI / Copilot",
-            subtitle="Control explanation style, evidence depth, and how the assistant summarizes the platform for you.",
-            meta="Assistant behavior",
-        )
-        render_badge_row(
-            [
-                {"text": tone.title(), "tone": "accent"},
-                {"text": evidence_verbosity.title(), "tone": "warning"},
-                {"text": away_summary_mode.title(), "tone": "success"},
-            ]
-        )
-        explanation_col, context_col = st.columns((1, 1))
-        with explanation_col:
-            tone_value = st.selectbox("Explanation tone", TONE_OPTIONS, index=TONE_OPTIONS.index(tone))
-            explanation_length_value = st.selectbox(
-                "Explanation length",
-                LENGTH_OPTIONS,
-                index=LENGTH_OPTIONS.index(explanation_length),
-            )
-            evidence_verbosity_value = st.selectbox(
-                "Evidence verbosity",
-                VERBOSITY_OPTIONS,
-                index=VERBOSITY_OPTIONS.index(evidence_verbosity),
-            )
-            away_summary_mode_value = st.selectbox(
-                '"While away" summary mode',
-                SUMMARY_OPTIONS,
-                index=SUMMARY_OPTIONS.index(away_summary_mode),
-            )
-            autopilot_explanation_depth_value = st.selectbox(
-                "Autopilot explanation depth",
-                DEPTH_OPTIONS,
-                index=DEPTH_OPTIONS.index(autopilot_depth),
-            )
-        with context_col:
-            show_confidence_value = st.checkbox("Display confidence", value=bool(ai.get("show_confidence", True)))
-            show_evidence_value = st.checkbox("Display evidence", value=bool(ai.get("show_evidence", True)))
-            include_archives_value = st.checkbox("Use archive context", value=bool(ai.get("include_archives", True)))
-            include_onchain_value = st.checkbox("Use on-chain context", value=bool(ai.get("include_onchain", True)))
-            include_social_value = st.checkbox("Use social context", value=bool(ai.get("include_social", False)))
-            provider_assisted_explanations_value = st.checkbox(
-                "Provider-assisted explanations",
-                value=bool(ai.get("provider_assisted_explanations", True)),
-            )
-            allow_hypotheses_value = st.checkbox(
-                "Allow hypotheses when evidence is incomplete",
-                value=bool(ai.get("allow_hypotheses", True)),
-            )
-
-with autopilot_col:
-    with st.container(border=True):
-        render_section_intro(
-            title="Autopilot / Scout",
-            subtitle="Define how the scout behaves, how many candidates it surfaces, and how often it should check the market.",
-            meta="Runtime planning",
-        )
-        render_badge_row(
-            [
-                {"text": "Scout live" if bool(autopilot.get("scout_mode_enabled", True)) else "Scout paused", "tone": _tone_for_enabled(bool(autopilot.get("scout_mode_enabled", True)))},
-                {"text": f"{int(autopilot.get('candidate_limit') or 12)} candidates", "tone": "accent"},
-                {"text": default_market_universe.replace("_", " ").title(), "tone": "warning"},
-            ]
-        )
-        autopilot_mode_col, autopilot_limits_col = st.columns((1, 1))
-        with autopilot_mode_col:
-            autopilot_enabled_value = st.checkbox(
-                "Autopilot enabled",
-                value=bool(autopilot.get("autopilot_enabled")),
-            )
-            scout_mode_enabled_value = st.checkbox(
-                "Scout mode enabled",
-                value=bool(autopilot.get("scout_mode_enabled", True)),
-            )
-            paper_trading_enabled_value = st.checkbox(
-                "Paper trading enabled",
-                value=bool(autopilot.get("paper_trading_enabled", True)),
-            )
-            learning_enabled_value = st.checkbox(
-                "Learning enabled",
-                value=bool(autopilot.get("learning_enabled")),
-            )
-            default_market_universe_value = st.selectbox(
-                "Default market universe",
-                UNIVERSE_OPTIONS,
-                index=UNIVERSE_OPTIONS.index(default_market_universe),
-            )
-            digest_frequency_value = st.selectbox(
-                "Digest frequency",
-                DIGEST_OPTIONS,
-                index=DIGEST_OPTIONS.index(digest_frequency),
-            )
-        with autopilot_limits_col:
-            scan_interval_minutes_value = st.number_input(
-                "Scan interval (minutes)",
+            session_timeout_value = st.number_input(
+                "Session timeout (minutes)",
                 min_value=5,
                 max_value=240,
                 step=5,
-                value=int(autopilot.get("scan_interval_minutes") or 15),
+                value=int(security.get("session_timeout_minutes") or 60),
             )
-            candidate_limit_value = st.number_input(
-                "Candidate limit",
-                min_value=1,
-                max_value=100,
-                step=1,
-                value=int(autopilot.get("candidate_limit") or 12),
+            auth_scope_value = st.selectbox(
+                "Auth scope",
+                options=AUTH_SCOPE_OPTIONS,
+                index=AUTH_SCOPE_OPTIONS.index(auth_scope),
+                format_func=lambda item: AUTH_SCOPE_LABELS.get(str(item), str(item).replace("_", " ").title()),
             )
-            autopilot_confidence_threshold_value = st.number_input(
-                "Scout confidence threshold",
-                min_value=0.0,
-                max_value=1.0,
-                step=0.01,
-                value=float(autopilot.get("confidence_threshold") or 0.72),
+            outer_access_control_value = st.selectbox(
+                "Outer access control",
+                options=OUTER_ACCESS_CONTROL_OPTIONS,
+                index=OUTER_ACCESS_CONTROL_OPTIONS.index(outer_access_control),
+                format_func=lambda item: OUTER_ACCESS_CONTROL_LABELS.get(str(item), str(item).replace("_", " ").title()),
             )
-            alert_threshold_value = st.number_input(
-                "Scout alert threshold",
-                min_value=0.0,
-                max_value=1.0,
-                step=0.01,
-                value=float(autopilot.get("alert_threshold") or 0.8),
+            secret_masking_value = st.checkbox(
+                "Secret masking",
+                value=bool(security.get("secret_masking", True)),
             )
-            exclusion_list_value = st.text_input(
-                "Exclusion list (comma separated)",
-                value=exclusion_list_text,
+            audit_export_allowed_value = st.checkbox(
+                "Audit export allowed",
+                value=bool(security.get("audit_export_allowed", True)),
             )
-        asset_class_col_a, asset_class_col_b, asset_class_col_c = st.columns(3)
-        with asset_class_col_a:
-            asset_class_crypto_value = st.checkbox("Crypto", value="crypto" in enabled_asset_classes)
-            asset_class_equities_value = st.checkbox("Equities", value="equities" in enabled_asset_classes)
-        with asset_class_col_b:
-            asset_class_etf_value = st.checkbox("ETFs", value="etf" in enabled_asset_classes)
-            asset_class_forex_value = st.checkbox("Forex", value="forex" in enabled_asset_classes)
-        with asset_class_col_c:
-            asset_class_commodities_value = st.checkbox(
-                "Commodities",
-                value="commodities" in enabled_asset_classes,
-            )
-
-with st.container(border=True):
-    render_section_intro(
-        title="Providers / Integrations",
-        subtitle="Enable or stage the data sources and delivery providers that shape market intelligence, macro context, and outbound alerts.",
-        meta="Integration center",
-    )
-    provider_payload: dict[str, dict[str, object]] = {}
-    provider_group_cols = st.columns((1, 1, 0.82))
-    for group_col, (group_title, group_subtitle, provider_names) in zip(provider_group_cols, PROVIDER_GROUPS, strict=False):
-        with group_col:
-            enabled_count = sum(
-                1
-                for name in provider_names
-                if isinstance(providers.get(name), dict) and bool(providers.get(name, {}).get("enabled"))
-            )
-            with st.container(border=True):
-                render_section_intro(
-                    title=group_title,
-                    subtitle=group_subtitle,
-                    meta=f"{len(provider_names)} modules",
+            st.caption("Built-in TOTP MFA is available per user, but remote/public deployment still needs stronger outer controls.")
+            if auth_scope_value == "local_private_only":
+                st.info("Local/private-only is the supported posture. Remote/public exposure is not hardened by the app.")
+            else:
+                st.warning(
+                    "Remote/public use requires MFA plus an outer access-control layer such as VPN, reverse-proxy auth, or equivalent. "
+                    "Do not treat the app as remote-hardened by itself."
                 )
-                render_badge_row(
-                    [
-                        {"text": f"{enabled_count}/{len(provider_names)} enabled", "tone": "accent"},
-                        {"text": "Ready to wire" if enabled_count else "Configure first", "tone": "success" if enabled_count else "warning"},
-                    ]
-                )
-                for provider_name in provider_names:
-                    provider = providers.get(provider_name) if isinstance(providers.get(provider_name), dict) else {}
-                    provider_payload[provider_name] = _render_provider_card(provider_name, provider)
+                if not outer_access_control_value:
+                    st.error("Remote/public candidate mode is selected, but no outer access control is configured.")
+            render_settings_profile_summary(settings_view)
 
-security_col, paper_col = st.columns((1, 1))
-
-with security_col:
-    with st.container(border=True):
-        render_section_intro(
-            title="Security / Access",
-            subtitle="Session policy, masking, and export controls that should stay explicit while the product matures.",
-            meta="Safety defaults",
-        )
-        render_badge_row(
-            [
-                {"text": f"{int(security.get('session_timeout_minutes') or 60)}m session", "tone": "accent"},
-                {"text": "Masking on" if bool(security.get("secret_masking", True)) else "Masking off", "tone": _tone_for_enabled(bool(security.get("secret_masking", True)))},
-                {"text": "Export allowed" if bool(security.get("audit_export_allowed", True)) else "Export blocked", "tone": "warning"},
-            ]
-        )
-        session_timeout_value = st.number_input(
-            "Session timeout (minutes)",
-            min_value=5,
-            max_value=240,
-            step=5,
-            value=int(security.get("session_timeout_minutes") or 60),
-        )
-        secret_masking_value = st.checkbox(
-            "Secret masking",
-            value=bool(security.get("secret_masking", True)),
-        )
-        audit_export_allowed_value = st.checkbox(
-            "Audit export allowed",
-            value=bool(security.get("audit_export_allowed", True)),
-        )
-        render_settings_profile_summary(settings_view)
-
-with paper_col:
-    with st.container(border=True):
-        render_section_intro(
-            title="Paper Trading / Risk Defaults",
-            subtitle="Keep simulation assumptions explicit so scout and approval surfaces stay grounded in the same safety model.",
-            meta="Execution guardrails",
-        )
-        render_badge_row(
-            [
-                {"text": "Paper on" if bool(paper_trading.get("enabled", True)) else "Paper off", "tone": _tone_for_enabled(bool(paper_trading.get("enabled", True)))},
-                {"text": f"{float(paper_trading.get('fee_bps') or 7.0):g} / {float(paper_trading.get('slippage_bps') or 2.0):g} bps", "tone": "accent"},
-                {"text": "Approval required" if bool(paper_trading.get("approval_required", True)) else "Auto handoff", "tone": "warning"},
-            ]
-        )
-        paper_trading_enabled_override_value = st.checkbox(
-            "Paper trading default",
-            value=bool(paper_trading.get("enabled", True)),
-        )
-        paper_fee_bps_value = st.number_input(
-            "Paper fee (bps)",
-            min_value=0.0,
-            max_value=100.0,
-            step=0.5,
-            value=float(paper_trading.get("fee_bps") or 7.0),
-        )
-        paper_slippage_bps_value = st.number_input(
-            "Paper slippage (bps)",
-            min_value=0.0,
-            max_value=100.0,
-            step=0.5,
-            value=float(paper_trading.get("slippage_bps") or 2.0),
-        )
-        paper_approval_required_value = st.checkbox(
-            "Approval required for live handoff",
-            value=bool(paper_trading.get("approval_required", True)),
-        )
-        max_position_size_usd_value = st.number_input(
-            "Max position size (USD)",
-            min_value=0.0,
-            max_value=1000000.0,
-            step=100.0,
-            value=float(paper_trading.get("max_position_size_usd") or 5000.0),
-        )
-        max_daily_loss_pct_value = st.number_input(
-            "Max daily loss (%)",
-            min_value=0.0,
-            max_value=100.0,
-            step=0.25,
-            value=float(paper_trading.get("max_daily_loss_pct") or 2.0),
-        )
-        st.info(
-            "These values shape scout thresholds, paper fills, and approval expectations even when execution remains disabled."
-        )
+    with paper_col:
+        with st.container(border=True):
+            render_section_intro(
+                title="Paper Trading / Risk Defaults",
+                subtitle="Keep simulation assumptions explicit so scout and approval surfaces stay grounded in the same safety model.",
+                meta="Execution guardrails",
+            )
+            render_badge_row(
+                [
+                    {"text": "Paper on" if bool(paper_trading.get("enabled", True)) else "Paper off", "tone": _tone_for_enabled(bool(paper_trading.get("enabled", True)))},
+                    {"text": f"{float(paper_trading.get('fee_bps') or 7.0):g} / {float(paper_trading.get('slippage_bps') or 2.0):g} bps", "tone": "accent"},
+                    {"text": "Approval required" if bool(paper_trading.get("approval_required", True)) else "Auto handoff", "tone": "warning"},
+                ]
+            )
+            paper_trading_enabled_override_value = st.checkbox(
+                "Paper trading default",
+                value=bool(paper_trading.get("enabled", True)),
+            )
+            paper_fee_bps_value = st.number_input(
+                "Paper fee (bps)",
+                min_value=0.0,
+                max_value=100.0,
+                step=0.5,
+                value=float(paper_trading.get("fee_bps") or 7.0),
+            )
+            paper_slippage_bps_value = st.number_input(
+                "Paper slippage (bps)",
+                min_value=0.0,
+                max_value=100.0,
+                step=0.5,
+                value=float(paper_trading.get("slippage_bps") or 2.0),
+            )
+            paper_approval_required_value = st.checkbox(
+                "Approval required for live handoff",
+                value=bool(paper_trading.get("approval_required", True)),
+            )
+            max_position_size_usd_value = st.number_input(
+                "Max position size (USD)",
+                min_value=0.0,
+                max_value=1000000.0,
+                step=100.0,
+                value=float(paper_trading.get("max_position_size_usd") or 5000.0),
+            )
+            max_daily_loss_pct_value = st.number_input(
+                "Max daily loss (%)",
+                min_value=0.0,
+                max_value=100.0,
+                step=0.25,
+                value=float(paper_trading.get("max_daily_loss_pct") or 2.0),
+            )
+            st.info(
+                "These values shape scout thresholds, paper fills, and approval expectations even when execution remains disabled."
+            )
 
 selected_asset_classes = []
 if asset_class_crypto_value:
@@ -766,6 +824,9 @@ payload = {
     "security": {
         **security,
         "session_timeout_minutes": int(session_timeout_value),
+        "auth_scope": auth_scope_value,
+        "remote_access_requires_mfa": True,
+        "outer_access_control": outer_access_control_value,
         "secret_masking": secret_masking_value,
         "audit_export_allowed": audit_export_allowed_value,
     },

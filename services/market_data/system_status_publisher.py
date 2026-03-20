@@ -51,41 +51,70 @@ def _poll_interval_sec() -> float:
 
 
 def _symbol() -> str:
+    return _symbols()[0]
+
+
+def _symbols() -> list[str]:
     env_symbols = [str(item).strip() for item in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if str(item).strip()]
     if env_symbols:
-        return env_symbols[0]
-    return "BTC/USD"
+        return env_symbols
+    return ["BTC/USD"]
 
 def fetch_status() -> dict:
     status = {
         "ts": _now_iso(),
         "ts_ms": int(time.time() * 1000),
-        "venues": {}
+        "venues": {},
+        "ticks": [],
     }
     venues = [v.strip() for v in (os.environ.get("CBP_VENUE") or "coinbase").split(",") if v.strip()]
     venues = [str(v).lower().strip() for v in venues]
     if not (os.environ.get("CBP_VENUE") or "").lower().startswith("binance"):
         venues = [v for v in venues if not v.startswith("binance")]
 
-    symbol = _symbol()
+    symbols = _symbols()
     for v in venues:
         print(f"\n=== Fetching from {v} ===")
         ex = None
         try:
             ex = make_exchange(v, {"apiKey": None, "secret": None}, enable_rate_limit=True)
             print(f"  Exchange loaded: {ex.id}")
-            s = map_symbol(v, normalize_symbol(symbol))
-            print(f"  Mapped symbol: {s}")
-            t = ex.fetch_ticker(s)
-            print(f"  Raw ticker response: {json.dumps(t, indent=2)}")
-            status["venues"][v] = {
-                "bid": t.get("bid"),
-                "ask": t.get("ask"),
-                "last": t.get("last"),
-                "timestamp": t.get("timestamp"),
-                "ok": True
-            }
-            print(f"  Success - bid/ask/last: {t.get('bid')}/{t.get('ask')}/{t.get('last')}")
+            venue_ok = False
+            venue_error = ""
+            for symbol in symbols:
+                s = map_symbol(v, normalize_symbol(symbol))
+                print(f"  Mapped symbol: {symbol} -> {s}")
+                try:
+                    t = ex.fetch_ticker(s)
+                    fetch_ts_ms = int(time.time() * 1000)
+                    print(f"  Raw ticker response ({symbol}): {json.dumps(t, indent=2)}")
+                    tick = {
+                        "venue": v,
+                        "symbol": normalize_symbol(symbol),
+                        "symbol_mapped": s,
+                        "bid": t.get("bid"),
+                        "ask": t.get("ask"),
+                        "last": t.get("last"),
+                        "ts_ms": fetch_ts_ms,
+                        "exchange_ts_ms": int(t.get("timestamp") or 0),
+                    }
+                    status["ticks"].append(tick)
+                    if not venue_ok:
+                        status["venues"][v] = {
+                            "bid": t.get("bid"),
+                            "ask": t.get("ask"),
+                            "last": t.get("last"),
+                            "timestamp": fetch_ts_ms,
+                            "exchange_timestamp": t.get("timestamp"),
+                            "ok": True,
+                        }
+                    venue_ok = True
+                    print(f"  Success - bid/ask/last: {t.get('bid')}/{t.get('ask')}/{t.get('last')}")
+                except Exception as e:
+                    venue_error = f"{type(e).__name__}: {e}"
+                    print(f"  Fetch failed for {symbol}: {venue_error}")
+            if not venue_ok:
+                status["venues"][v] = {"ok": False, "error": venue_error or "no_symbol_tickers"}
         except Exception as e:
             print(f"  Fetch failed: {type(e).__name__}: {e}")
             status["venues"][v] = {"ok": False, "error": str(e)}

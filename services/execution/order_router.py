@@ -1,9 +1,19 @@
 from __future__ import annotations
+
 import inspect
+from typing import Any, Dict
+
+from services.admin.config_editor import load_user_yaml
 from services.execution.place_order import place_order as _place_order
+from services.execution.retry_policy import backoff_sleep, is_retryable_exception
+from services.market_data.symbol_router import normalize_symbol, normalize_venue
+from services.security.credentials_loader import load_exchange_credentials
+from services.security.exchange_factory import make_exchange
+from storage.idempotency_sqlite import IdempotencySQLite
 
 _PO_SIG = inspect.signature(_place_order)
 _PO_PARAM_NAMES = tuple(_PO_SIG.parameters.keys())
+
 
 def _place_order_ccxt(ex, symbol, type, side, amount, price, params):
     # Preferred: ccxt-like positional call
@@ -14,30 +24,21 @@ def _place_order_ccxt(ex, symbol, type, side, amount, price, params):
         kw = {}
         if _PO_PARAM_NAMES:
             kw[_PO_PARAM_NAMES[0]] = ex
+
         def _set(names, value):
             for n in names:
                 if n in _PO_PARAM_NAMES:
                     kw[n] = value
                     return
-        _set(("symbol","sym","market","pair"), symbol)
-        _set(("type","order_type","otype"), type)
+
+        _set(("symbol", "sym", "market", "pair"), symbol)
+        _set(("type", "order_type", "otype"), type)
         _set(("side",), side)
-        _set(("amount","qty","size","quantity"), amount)
+        _set(("amount", "qty", "size", "quantity"), amount)
         if price is not None:
-            _set(("price","limit_price"), price)
-        _set(("params","extra"), params)
+            _set(("price", "limit_price"), price)
+        _set(("params", "extra"), params)
         return _place_order(**kw)
-
-
-import json
-import os
-from typing import Any, Dict
-
-from services.admin.config_editor import load_user_yaml
-from services.execution.retry_policy import backoff_sleep, is_retryable_exception
-from services.market_data.symbol_router import normalize_symbol, normalize_venue
-from services.security.exchange_factory import make_exchange
-from storage.idempotency_sqlite import IdempotencySQLite
 
 
 def _cfg() -> dict:
@@ -49,18 +50,6 @@ def _cfg() -> dict:
         "base_retry_delay_sec": float(ex.get("base_retry_delay_sec", 0.6)),
         "max_retry_delay_sec": float(ex.get("max_retry_delay_sec", 6.0)),
     }
-
-
-def _creds_from_env(venue: str) -> dict:
-    ex = str(venue).upper().replace(".", "_")
-    key = os.environ.get(f"{ex}_API_KEY") or os.environ.get("CBP_API_KEY")
-    sec = os.environ.get(f"{ex}_API_SECRET") or os.environ.get("CBP_API_SECRET")
-    pwd = (
-        os.environ.get(f"{ex}_API_PASSPHRASE")
-        or os.environ.get(f"{ex}_API_PASSWORD")
-        or os.environ.get("CBP_API_PASSPHRASE")
-    )
-    return {"apiKey": key, "secret": sec, "passphrase": pwd}
 
 
 def place_order_idempotent(
@@ -115,12 +104,21 @@ def place_order_idempotent(
     while True:
         ex = None
         try:
-            ex = make_exchange(v, _creds_from_env(v), enable_rate_limit=True)
-            result = _place_order_ccxt(ex, sym, type, side, float(amount), float(price) if price is not None else None, params)
+            creds = load_exchange_credentials(v)
+            ex = make_exchange(v, creds, enable_rate_limit=True)
+            result = _place_order_ccxt(
+                ex,
+                sym,
+                type,
+                side,
+                float(amount),
+                float(price) if price is not None else None,
+                params,
+            )
             idem.put_success(idempotency_key, result)
             return {"ok": True, "result": result, "key": idempotency_key}
         except Exception as e:
-            last_err = f"{type(e).__name__}:{e}"
+            last_err = f"{e.__class__.__name__}:{e}"
             if is_retryable_exception(e) and attempt < max_retries:
                 attempt += 1
                 backoff_sleep(attempt, base_delay, max_delay)

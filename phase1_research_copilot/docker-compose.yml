@@ -24,11 +24,6 @@ services:
       - "6333:6333"
     volumes:
       - phase1_qdrant_data:/qdrant/storage
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:6333/healthz >/dev/null 2>&1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   minio:
     image: minio/minio:RELEASE.2024-10-13T13-34-11Z
@@ -42,11 +37,6 @@ services:
       - "9001:9001"
     volumes:
       - phase1_minio_data:/data
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:9000/minio/health/live >/dev/null 2>&1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   audit-log:
     build:
@@ -129,9 +119,9 @@ services:
       timescaledb:
         condition: service_healthy
       qdrant:
-        condition: service_healthy
+        condition: service_started
       minio:
-        condition: service_healthy
+        condition: service_started
       audit-log:
         condition: service_healthy
     ports:

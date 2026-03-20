@@ -1858,6 +1858,9 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
     }
     assert captured["payload"]["security"] == {
         "session_timeout_minutes": 90,
+        "auth_scope": "local_private_only",
+        "remote_access_requires_mfa": True,
+        "outer_access_control": "",
         "secret_masking": False,
         "audit_export_allowed": False,
     }

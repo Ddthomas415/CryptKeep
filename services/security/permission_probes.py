@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
-from services.security.credential_store import get_exchange_credentials
+from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -49,9 +50,16 @@ def run_probe(exchange_id: str, probe_key: str) -> dict:
     if key not in PROBES:
         return {"ok": False, "exchange": ex_id, "probe": key, "reason": "unknown_probe", "ts": _now()}
 
-    creds = get_exchange_credentials(ex_id)
-    if not creds:
-        return {"ok": False, "exchange": ex_id, "probe": key, "reason": "missing_credentials", "ts": _now()}
+    creds = load_exchange_credentials(ex_id)
+    if not creds.get("apiKey") or not creds.get("secret"):
+        return {
+            "ok": False,
+            "exchange": ex_id,
+            "probe": key,
+            "reason": "missing_credentials",
+            "source": str(creds.get("source") or "unknown"),
+            "ts": _now(),
+        }
 
     ex = make_exchange(ex_id, creds)
     try:

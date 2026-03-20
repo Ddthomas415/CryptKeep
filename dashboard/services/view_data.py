@@ -215,6 +215,9 @@ def _default_settings_payload() -> dict[str, Any]:
             "session_timeout_minutes": 60,
             "secret_masking": True,
             "audit_export_allowed": True,
+            "auth_scope": "local_private_only",
+            "remote_access_requires_mfa": True,
+            "outer_access_control": "",
         },
     }
 

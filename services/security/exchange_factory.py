@@ -21,8 +21,9 @@ def make_exchange(exchange_id: str, creds: dict, *, enable_rate_limit: bool = Tr
     }
 
     # Some exchanges use a passphrase; CCXT calls it "password".
-    if creds.get("passphrase"):
-        cfg["password"] = creds.get("passphrase")
+    password = creds.get("password") or creds.get("passphrase")
+    if password:
+        cfg["password"] = password
 
     # Binance reliability: allow time difference adjustment
     if ex_id.startswith("binance"):

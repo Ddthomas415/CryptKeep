@@ -34,6 +34,22 @@ def main() -> int:
     ap.add_argument("--symbol", default="BTC/USD", help="Runtime symbol for tick publisher, runner, and paper engine")
     ap.add_argument("--venue", default="coinbase", help="Runtime venue for tick publisher, runner, and paper engine")
     ap.add_argument("--tick-interval-sec", type=float, default=2.0, help="Tick publisher interval while the campaign is active")
+    ap.add_argument(
+        "--strategy-min-bars",
+        type=int,
+        default=0,
+        help="Optional strategy warmup override for managed evidence runs. Uses the greater of this value and the strategy's required history.",
+    )
+    ap.add_argument(
+        "--signal-source",
+        default="",
+        help="Optional signal source override, e.g. public_ohlcv_1m or public_ohlcv_5m.",
+    )
+    ap.add_argument(
+        "--allow-first-signal-trade",
+        action="store_true",
+        help="Allow the first actionable signal after warmup to enqueue immediately during managed evidence runs.",
+    )
     ap.add_argument("--evidence-symbol", default="", help="Optional symbol override for the synthetic evidence cycle")
     ap.add_argument("--paper-history-path", default="", help="Optional trade_journal.sqlite path override")
     ap.add_argument("--max-strategies", type=int, default=0, help="Optional cap for test/manual runs")
@@ -55,6 +71,9 @@ def main() -> int:
         symbol=str(args.symbol or "BTC/USD"),
         venue=str(args.venue or "coinbase"),
         tick_publish_interval_sec=float(args.tick_interval_sec or 2.0),
+        strategy_min_bars=int(args.strategy_min_bars or 0),
+        signal_source=str(args.signal_source or ""),
+        allow_first_signal_trade=bool(args.allow_first_signal_trade),
         evidence_symbol=str(args.evidence_symbol or ""),
         paper_history_path=str(args.paper_history_path or ""),
     )
