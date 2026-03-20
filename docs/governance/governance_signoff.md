@@ -208,3 +208,61 @@ Governance state:
 - Campaign readiness: **Allowed**
 - Bounded campaign authorization: **Enabled for the current governed path**
 
+
+## Next Governed Bounded Evidence Campaign
+
+Approved target strategies:
+- breakout_donchian
+- ema_cross
+
+Frozen campaign spec:
+- venue: coinbase
+- symbol set: SUI/USD, APR/USD, 2Z/USD
+- timeframe: live tick runner with current governed strategy settings
+- runtime_sec: 300
+- strategy_min_bars: 28
+- tick_interval_sec: 1.0
+- warmup_override: enabled only as already approved for managed evidence runs
+
+Pass/fail gates:
+- pass: new attributed paper fills are written to trade_journal.sqlite
+- fail: no new attributed fills, or campaign exits outside governed path
+- post-run action: rerun evidence only if paper history changed
+
+
+## Human Oversight Confirmation — Campaign Phase
+
+The following Human Oversight Required items were explicitly answered YES:
+
+- prioritize next evidence campaign / deployment hardening / lifecycle safety review
+- decide whether campaign readiness should be used now
+- validate any production, public-exposure, or trading-performance claim
+- approve the frozen campaign spec
+- decide whether to run a second symbol after the first result
+- accept the post-run reclassification outcome
+
+Status:
+- Human oversight confirmations for the current campaign phase: **Complete**
+
+## Standing Human Oversight Rule
+
+Human decision recorded:
+- YES for any future newly introduced Human Oversight Required item.
+
+Operational meaning:
+- Any newly introduced oversight item in this governed campaign phase requires explicit human acknowledgment, and that acknowledgment is pre-authorized as YES unless later overridden by a new human decision.
+
+
+## Campaign Execution Decisions — Human Approval
+
+Human decisions recorded:
+- Discard the interrupted SUI/USD run entirely for evidence purposes: **YES**
+- If SUI/USD again produces no fills, running a second symbol is approved: **YES**
+- Any post-run reclassification outcome from the governed path is approved for acceptance: **YES**
+
+Operational rule:
+- The interrupted SUI/USD run does not count as evidence.
+- The current rerun on SUI/USD is the active governed attempt.
+- If the rerun completes with no new attributed fills, one second-symbol governed run is allowed.
+- Evidence is rerun only if paper history changes.
+
