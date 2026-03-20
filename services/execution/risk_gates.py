@@ -28,7 +28,4 @@ def evaluate_live_intent(
     allowed, reason, details = gate.check_live(it=dict(intent or {}), realized_pnl_usd=float(realized_pnl_usd))
     return GateDecision(ok=bool(allowed), reason=str(reason), details=dict(details or {}))
 
-# Human Review Required: verify this wrapper preserves intended Binance gate semantics.
-def require_binance_allowed(*args, **kwargs):
-    """Backward-compatible wrapper for Binance-specific gate callers."""
-    return require_exchange_allowed("binance", *args, **kwargs)
+from services.security.binance_guard import require_binance_allowed
