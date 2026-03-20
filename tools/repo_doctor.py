@@ -13,8 +13,10 @@ except ModuleNotFoundError:
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 CANON = {
-  "adapters","backtest","config","core","dashboard","docker","docs",
-  "scripts","services","storage","tests","tools","desktop","src-tauri","attic"
+  "adapters","assets","attic","backtest","build","config","core","dashboard",
+  "data","desktop","docker","docs","logs","packaging","phase1_research_copilot",
+  "requirements","sample_data","scripts","services","src-tauri","storage",
+  "tests","tools"
 }
 
 ALLOWED_TOP_FILES = {
@@ -25,10 +27,15 @@ ALLOWED_TOP_FILES = {
     "Makefile",
     "README.md",
     "REMAINING_TASKS.md",
+    "create_review_bundle.sh",
     "install.py",
     "pyproject.toml",
     "pytest.ini",
+    "requirements-dev.txt",
+    "requirements-packaging.txt",
     "requirements.txt",
+    "run_dashboard.ps1",
+    "run_dashboard.sh",
 }
 
 def main() -> int:
