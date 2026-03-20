@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from services.risk.exit_controls import evaluate_strategy_exit_stack
+
 import json
 import math
 import os
@@ -365,6 +367,9 @@ def run_forever() -> None:
     k_prices = f"prices:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     k_last_action = f"last_action:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     k_warm = f"warmed:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
+    k_entry_price = f"entry_price:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
+    k_trailing_peak = f"trailing_peak:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
+    k_bars_held = f"bars_held:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     try:
         prices = json.loads(sdb.get(k_prices) or "[]")
         if not isinstance(prices, list):
@@ -376,6 +381,15 @@ def run_forever() -> None:
     last_action = str(sdb.get(k_last_action) or "hold").strip().lower()
     if last_action not in ("buy", "sell", "hold"):
         last_action = "hold"
+
+    # Breakout/post-entry exit defaults.
+    # These are runner-level controls and should be explicitly versioned in strategy config
+    # before governed evidence runs.
+    cfg.setdefault("stop_loss_pct", 0.03)
+    cfg.setdefault("take_profit_pct", 0.06)
+    cfg.setdefault("trailing_stop_pct", 0.02)
+    cfg.setdefault("max_bars_hold", 60)
+
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now()})
     loops = 0
     enqueued = 0
@@ -495,7 +509,63 @@ def run_forever() -> None:
             action = None
             pos = pdb.get_position(cfg["symbol"]) or {"qty": 0.0, "avg_price": 0.0}
             pos_qty = float(pos.get("qty") or 0.0)
-            if changed:
+
+            # Track entry/hold state for strategy-aware exit controls.
+            entry_price = float(sdb.get(k_entry_price) or 0.0)
+            trailing_peak_price = float(sdb.get(k_trailing_peak) or 0.0)
+            bars_held = int(sdb.get(k_bars_held) or 0)
+
+            if pos_qty <= 0.0:
+                # No open position: clear runner-side exit state.
+                for k in (k_entry_price, k_trailing_peak, k_bars_held):
+                    try:
+                        sdb.delete(k)
+                    except Exception:
+                        pass
+                entry_price = 0.0
+                trailing_peak_price = 0.0
+                bars_held = 0
+            else:
+                # Seed entry state from live paper position if missing.
+                if entry_price <= 0.0:
+                    avg_price = float(pos.get("avg_price") or 0.0)
+                    if avg_price > 0.0:
+                        entry_price = avg_price
+                        sdb.set(k_entry_price, str(entry_price))
+                bars_held += 1
+                sdb.set(k_bars_held, str(bars_held))
+
+                cur_px = float(m)
+                if cur_px > 0.0:
+                    trailing_peak_price = max(float(trailing_peak_price or 0.0), cur_px)
+                    sdb.set(k_trailing_peak, str(trailing_peak_price))
+
+            # Strategy-aware exit stack takes priority over signal-change actioning.
+            exit_action = None
+            exit_reason = None
+            if pos_qty > 0.0 and entry_price > 0.0:
+                exit_out = evaluate_strategy_exit_stack(
+                    entry_price=entry_price,
+                    current_price=float(m),
+                    qty=float(pos_qty),
+                    side="long",
+                    strategy=str(cfg["strategy_id"]),
+                    stop_loss_pct=float(cfg.get("stop_loss_pct", 0.0) or 0.0),
+                    take_profit_pct=float(cfg.get("take_profit_pct", 0.0) or 0.0),
+                    trailing_peak_price=float(trailing_peak_price or 0.0) if trailing_peak_price > 0.0 else None,
+                    trailing_stop_pct=float(cfg.get("trailing_stop_pct", 0.0) or 0.0),
+                    bars_held=int(bars_held),
+                    max_bars_hold=int(cfg.get("max_bars_hold", 0) or 0) or None,
+                )
+                if str(exit_out.get("action") or "") == "exit":
+                    exit_action = "sell"
+                    exit_reason = str(exit_out.get("reason") or exit_out.get("stack_rule") or "strategy_exit")
+
+            if exit_action:
+                action = "sell"
+                note = exit_reason
+                changed = False
+            elif changed:
                 if decision == "buy":
                     if (not cfg["position_aware"]) or (pos_qty <= 0.0):
                         action = "buy"
@@ -507,6 +577,19 @@ def run_forever() -> None:
                 qty = float(cfg["qty"])
                 if action == "sell" and bool(cfg["sell_full_position"]) and pos_qty > 0.0:
                     qty = pos_qty
+
+                # Keep exit-state in sync with newly emitted intents.
+                if action == "buy":
+                    sdb.set(k_entry_price, str(float(m)))
+                    sdb.set(k_trailing_peak, str(float(m)))
+                    sdb.set(k_bars_held, "0")
+                elif action == "sell":
+                    for k in (k_entry_price, k_trailing_peak, k_bars_held):
+                        try:
+                            sdb.delete(k)
+                        except Exception:
+                            pass
+
                 qdb.upsert_intent({
                     "intent_id": intent_id,
                     "created_ts": _now(),
