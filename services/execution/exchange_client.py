@@ -11,7 +11,17 @@ import ccxt  # type: ignore
 
 from services.execution.place_order import place_order
 from services.execution.risk_gates import require_binance_allowed
-from services.execution.venue_adapter import client_id_param, data_dir, ensure_dirs
+from services.os.app_paths import data_dir, ensure_dirs
+
+# Human Review Required: confirm per-exchange client order id param names.
+def client_id_param(exchange_id: str, client_id: str | None) -> dict:
+    if not client_id:
+        return {}
+    ex = str(exchange_id).lower()
+    if ex == "binance":
+        return {"newClientOrderId": client_id}
+    return {"clientOrderId": client_id}
+
 from services.security.credentials_loader import load_exchange_credentials
 from storage.idempotency_sqlite import OrderDedupeStore
 

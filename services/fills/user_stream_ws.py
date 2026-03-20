@@ -118,6 +118,8 @@ class UserStreamFillService:
                 try:
                     await self.run_once(client=ex)
                     last_error = ""
+                    # Cooperative yield so stop() and other tasks can run.
+                    await asyncio.sleep(0)
                 except asyncio.CancelledError:
                     raise
                 except Exception as e:

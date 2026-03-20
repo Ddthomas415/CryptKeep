@@ -84,3 +84,12 @@ class IdempotencySQLite:
             )
         finally:
             con.close()
+
+
+
+
+# Human Review Required: compatibility wrapper; verify method/constructor semantics.
+class OrderDedupeStore(IdempotencySQLite):
+    def __init__(self, exec_db=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.exec_db = exec_db
