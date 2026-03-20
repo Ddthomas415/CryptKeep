@@ -266,3 +266,15 @@ Operational rule:
 - If the rerun completes with no new attributed fills, one second-symbol governed run is allowed.
 - Evidence is rerun only if paper history changes.
 
+
+## Deployment Scope — Human Approval
+
+Human decisions recorded:
+- Keep `local_private_only` as the enforced default: **YES**
+- Any future switch to `remote_allowed` requires explicit human approval: **YES**
+
+Operational rule:
+- Current enforced auth/deployment posture remains `local_private_only`.
+- `remote_public_candidate` may exist as a settings/documentation state, but it is not treated as approved remote/public deployment.
+- Any future switch to `remote_allowed` requires a new explicit human decision and verification of outer access control, MFA flow, and direct-origin blocking.
+
