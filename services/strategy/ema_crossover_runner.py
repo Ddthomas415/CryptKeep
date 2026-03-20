@@ -543,6 +543,7 @@ def run_forever() -> None:
             # Strategy-aware exit stack takes priority over signal-change actioning.
             exit_action = None
             exit_reason = None
+            exit_out = {}
             if pos_qty > 0.0 and entry_price > 0.0:
                 exit_out = evaluate_strategy_exit_stack(
                     entry_price=entry_price,
@@ -625,6 +626,13 @@ def run_forever() -> None:
                 "signal_changed": bool(changed),
                 "signal_indicators": signal.get("ind"),
                 "pos_qty": pos_qty,
+                "entry_price": entry_price,
+                "trailing_peak_price": trailing_peak_price,
+                "bars_held": bars_held,
+                "exit_action": exit_action,
+                "exit_reason": exit_reason,
+                "exit_stack_rule": exit_out.get("stack_rule"),
+                "exit_stack_action": exit_out.get("action"),
                 "action": action,
                 "note": note,
                 "enqueued_total": enqueued,
