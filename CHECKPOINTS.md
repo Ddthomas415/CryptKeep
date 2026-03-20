@@ -1980,20 +1980,20 @@
 - ✅ Phase 330 verification: focused guard pass (`1 passed`), alignment cross-check pass (`True True True`), full pytest pass (`540 passed`)
 
 ## UX) Productized UI/UX surfaces (Beginner + Trader + Power user)
-- ✅ UX1: App shell + route map + navigation IA completed with global mode badge, system health pill, alerts entrypoint, and kill-switch control in header (`trade-ai-mvp/frontend/src/components/layout/AppShell.tsx`, `trade-ai-mvp/frontend/src/app/{routes.ts,router.tsx}`)
-- ✅ UX2: Dashboard screen implemented with mode/safety banner, portfolio summary, connections health, watchlist movers, explanations, recommendations, catalysts, and quick actions (`trade-ai-mvp/frontend/src/pages/DashboardPage.tsx`)
-- ✅ UX3: Connections v1 implemented with exchange cards, dynamic credential schema forms (Binance/Coinbase/Kraken/OKX + expansions), test/save/disable/remove flows, permissions detection, and read-only vs trading labeling (`trade-ai-mvp/frontend/src/pages/ConnectionsPage.tsx`, `trade-ai-mvp/frontend/src/components/forms/ExchangeCredentialForm.tsx`)
-- ✅ UX4: Research workspace v1 implemented with ask box, filters, timeline tabs, answer sections (current/past/future/confidence/risk note), evidence, and history (`trade-ai-mvp/frontend/src/pages/ResearchPage.tsx`)
-- ✅ UX5: Settings v1 implemented across General/Notifications/AI/Data/Security tabs with safe defaults (`research_only`, evidence/confidence enabled) plus save path (`trade-ai-mvp/frontend/src/pages/SettingsPage.tsx`, `trade-ai-mvp/frontend/src/mock/data/settings.json`)
-- ✅ UX6: Shared design system + component contracts implemented (badges, cards, forms, confirm modal, empty/loading/error states, typed UI contracts) (`trade-ai-mvp/frontend/src/styles.css`, `trade-ai-mvp/frontend/src/types/contracts.ts`, `trade-ai-mvp/frontend/src/components/**`)
-- ✅ UX7: Trading UI v1 implemented with recommendations/approvals/positions/orders/strategies tabs, explicit execution-state labeling, and recommendation detail drawer (`trade-ai-mvp/frontend/src/pages/TradingPage.tsx`, `trade-ai-mvp/frontend/src/components/trading/RecommendationDetailDrawer.tsx`)
-- ✅ UX8: Risk UI v1 implemented with global risk summary, editable limits form, approval policy panel, restricted assets, kill-switch panel, blocked-trade view, and risk audit table (`trade-ai-mvp/frontend/src/pages/RiskPage.tsx`, `trade-ai-mvp/frontend/src/components/forms/RiskLimitsForm.tsx`)
-- ✅ UX9: Approval workflows implemented (queue + approve/reject + optional size override) with confirmation modals and audit-hooked mock mutations (`trade-ai-mvp/frontend/src/pages/TradingPage.tsx`, `trade-ai-mvp/frontend/src/components/modals/ConfirmActionModal.tsx`, `trade-ai-mvp/frontend/src/mock/handlers.ts`)
-- ✅ UX10: Terminal mode v1 implemented as controlled app console (no shell) with allowlisted parser behavior, help groups, suggestions/autocomplete, command history, and dangerous-action confirmation (`trade-ai-mvp/frontend/src/pages/TerminalPage.tsx`, `trade-ai-mvp/frontend/src/components/terminal/**`, `trade-ai-mvp/frontend/src/mock/handlers.ts`)
-- ✅ UX11: Onboarding wizard v1 implemented (mode, sources, watchlist interests, risk profile, first query step) with beginner-safe defaults and completion hook (`trade-ai-mvp/frontend/src/components/onboarding/OnboardingWizard.tsx`)
-- ✅ UX12: Mock API handler pack + JSON fixture set expanded and aligned with typed UI contracts for decoupled frontend delivery (`trade-ai-mvp/frontend/src/mock/handlers.ts`, `trade-ai-mvp/frontend/src/mock/data/*.json`, `trade-ai-mvp/frontend/src/services/mockApi.ts`)
-- ✅ UX13: User-facing audit/history surfaces implemented across settings/trading/risk with traceability for decisions, approvals, risk blocks, and connection-setting actions (`trade-ai-mvp/frontend/src/components/history/AuditTable.tsx`, `trade-ai-mvp/frontend/src/pages/{SettingsPage.tsx,TradingPage.tsx,RiskPage.tsx}`)
-- ✅ UX14: Multi-exchange UX expansion implemented with Bybit/KuCoin/Gate.io/Bitget/Hyperliquid fixture coverage and normalized capability/status badges (`trade-ai-mvp/frontend/src/mock/data/exchanges.json`, `trade-ai-mvp/frontend/src/pages/ConnectionsPage.tsx`)
+- ✅ UX1: App shell + route map + navigation IA completed with global mode badge, system health pill, alerts entrypoint, and kill-switch control in header (`attic/trade-ai-mvp/frontend/src/components/layout/AppShell.tsx`, `attic/trade-ai-mvp/frontend/src/app/{routes.ts,router.tsx}`)
+- ✅ UX2: Dashboard screen implemented with mode/safety banner, portfolio summary, connections health, watchlist movers, explanations, recommendations, catalysts, and quick actions (`attic/trade-ai-mvp/frontend/src/pages/DashboardPage.tsx`)
+- ✅ UX3: Connections v1 implemented with exchange cards, dynamic credential schema forms (Binance/Coinbase/Kraken/OKX + expansions), test/save/disable/remove flows, permissions detection, and read-only vs trading labeling (`attic/trade-ai-mvp/frontend/src/pages/ConnectionsPage.tsx`, `attic/trade-ai-mvp/frontend/src/components/forms/ExchangeCredentialForm.tsx`)
+- ✅ UX4: Research workspace v1 implemented with ask box, filters, timeline tabs, answer sections (current/past/future/confidence/risk note), evidence, and history (`attic/trade-ai-mvp/frontend/src/pages/ResearchPage.tsx`)
+- ✅ UX5: Settings v1 implemented across General/Notifications/AI/Data/Security tabs with safe defaults (`research_only`, evidence/confidence enabled) plus save path (`attic/trade-ai-mvp/frontend/src/pages/SettingsPage.tsx`, `attic/trade-ai-mvp/frontend/src/mock/data/settings.json`)
+- ✅ UX6: Shared design system + component contracts implemented (badges, cards, forms, confirm modal, empty/loading/error states, typed UI contracts) (`attic/trade-ai-mvp/frontend/src/styles.css`, `attic/trade-ai-mvp/frontend/src/types/contracts.ts`, `attic/trade-ai-mvp/frontend/src/components/**`)
+- ✅ UX7: Trading UI v1 implemented with recommendations/approvals/positions/orders/strategies tabs, explicit execution-state labeling, and recommendation detail drawer (`attic/trade-ai-mvp/frontend/src/pages/TradingPage.tsx`, `attic/trade-ai-mvp/frontend/src/components/trading/RecommendationDetailDrawer.tsx`)
+- ✅ UX8: Risk UI v1 implemented with global risk summary, editable limits form, approval policy panel, restricted assets, kill-switch panel, blocked-trade view, and risk audit table (`attic/trade-ai-mvp/frontend/src/pages/RiskPage.tsx`, `attic/trade-ai-mvp/frontend/src/components/forms/RiskLimitsForm.tsx`)
+- ✅ UX9: Approval workflows implemented (queue + approve/reject + optional size override) with confirmation modals and audit-hooked mock mutations (`attic/trade-ai-mvp/frontend/src/pages/TradingPage.tsx`, `attic/trade-ai-mvp/frontend/src/components/modals/ConfirmActionModal.tsx`, `attic/trade-ai-mvp/frontend/src/mock/handlers.ts`)
+- ✅ UX10: Terminal mode v1 implemented as controlled app console (no shell) with allowlisted parser behavior, help groups, suggestions/autocomplete, command history, and dangerous-action confirmation (`attic/trade-ai-mvp/frontend/src/pages/TerminalPage.tsx`, `attic/trade-ai-mvp/frontend/src/components/terminal/**`, `attic/trade-ai-mvp/frontend/src/mock/handlers.ts`)
+- ✅ UX11: Onboarding wizard v1 implemented (mode, sources, watchlist interests, risk profile, first query step) with beginner-safe defaults and completion hook (`attic/trade-ai-mvp/frontend/src/components/onboarding/OnboardingWizard.tsx`)
+- ✅ UX12: Mock API handler pack + JSON fixture set expanded and aligned with typed UI contracts for decoupled frontend delivery (`attic/trade-ai-mvp/frontend/src/mock/handlers.ts`, `attic/trade-ai-mvp/frontend/src/mock/data/*.json`, `attic/trade-ai-mvp/frontend/src/services/mockApi.ts`)
+- ✅ UX13: User-facing audit/history surfaces implemented across settings/trading/risk with traceability for decisions, approvals, risk blocks, and connection-setting actions (`attic/trade-ai-mvp/frontend/src/components/history/AuditTable.tsx`, `attic/trade-ai-mvp/frontend/src/pages/{SettingsPage.tsx,TradingPage.tsx,RiskPage.tsx}`)
+- ✅ UX14: Multi-exchange UX expansion implemented with Bybit/KuCoin/Gate.io/Bitget/Hyperliquid fixture coverage and normalized capability/status badges (`attic/trade-ai-mvp/frontend/src/mock/data/exchanges.json`, `attic/trade-ai-mvp/frontend/src/pages/ConnectionsPage.tsx`)
 - ⚠️ UX Safety rule: terminal must remain a controlled product console only; no unrestricted shell access from UI
 
 ## API) Frontend-backend contract alignment pack (v1)
@@ -2008,20 +2008,20 @@
 - ✅ API9: Implemented connections/provider contracts (`/api/v1/connections/exchanges` GET/POST/PATCH/DELETE + `/test`, `/api/v1/connections/providers` GET/POST + `/test`) with role guards, permissions detection, and latency/health response fields
 - ✅ API10: Implemented settings + audit contracts (`GET|PUT /api/v1/settings`, `GET /api/v1/audit/events` with pagination/meta and service/result filters) plus role guard on settings writes
 - ✅ API11: Implemented controlled terminal contracts (`POST /api/v1/terminal/execute`, `POST /api/v1/terminal/confirm`) with allowlisted command policy checks, confirmation tokens for dangerous commands, and explicit no-shell execution path
-- ✅ API12: Published API ownership/implementation-order/persistence anti-drift docs (`trade-ai-mvp/docs/API_OWNERSHIP_IMPLEMENTATION_ORDER.md` + `DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ API12: Published API ownership/implementation-order/persistence anti-drift docs (`attic/trade-ai-mvp/docs/API_OWNERSHIP_IMPLEMENTATION_ORDER.md` + `DB_SCHEMA_ALIGNMENT_PACK.md`)
 - ⚠️ API Safety rule: terminal endpoints must route only approved product commands; never expose raw shell execution
 
 ## DB) Schema alignment pack (UI/API/service ownership)
 - ✅ DB1: Published domain-modeled ORM ownership modules (`shared/models/domain/{core,connections,market,research,trading,risk,ops}.py`) with ownership index and structural tests
-- ✅ DB2: Defined MVP + full production table sets with promotion criteria in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB3: Added endpoint-to-table mapping for `/api/v1` routes (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB4: Added service write-ownership rules for single-writer domain boundaries (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB5: Added FK-safe migration order plan (identity -> settings -> connections -> market -> research -> trading -> risk -> ops) (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB6: Added high-frequency index plan for research/trading/risk/audit domains (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB7: Added retention/archival policy with explicit config knobs (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB8: Added vector/evidence traceability table definitions (`document_embeddings`, `evidence_links`) in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB9: Added lifecycle persistence extensions for research/trading entities (`research_queries`, `recommendations`, `recommendation_versions`, `approvals`, etc.) in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
-- ✅ DB10: Added connection credential split and rotation/test-history model (`exchange_connections`, `exchange_credentials`, `connection_test_results`) in schema alignment pack (`trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB2: Defined MVP + full production table sets with promotion criteria in schema alignment pack (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB3: Added endpoint-to-table mapping for `/api/v1` routes (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB4: Added service write-ownership rules for single-writer domain boundaries (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB5: Added FK-safe migration order plan (identity -> settings -> connections -> market -> research -> trading -> risk -> ops) (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB6: Added high-frequency index plan for research/trading/risk/audit domains (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB7: Added retention/archival policy with explicit config knobs (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB8: Added vector/evidence traceability table definitions (`document_embeddings`, `evidence_links`) in schema alignment pack (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB9: Added lifecycle persistence extensions for research/trading entities (`research_queries`, `recommendations`, `recommendation_versions`, `approvals`, etc.) in schema alignment pack (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
+- ✅ DB10: Added connection credential split and rotation/test-history model (`exchange_connections`, `exchange_credentials`, `connection_test_results`) in schema alignment pack (`attic/trade-ai-mvp/docs/DB_SCHEMA_ALIGNMENT_PACK.md`)
 - ⚠️ DB Safety rule: encrypted credential material must never be logged or returned in API responses
 
 ## SM) State machine centralization (modes, approvals, orders, positions, kill switch)
@@ -2033,7 +2033,7 @@
 - ✅ SM6: Integrated kill-switch/order-transition guards into execution-affecting API paths (`trading .../approve`, `approvals .../approve`)
 - ✅ SM7: Enforced explicit `rejected` vs `failed` order lifecycle split in state machine rules and tests
 - ✅ SM8: Added position `error_state` with reconciliation-required guard and recovery side effect
-- ✅ SM9: Added comprehensive state-machine tests and composite workflow tests (`trade-ai-mvp/tests/test_state_machines.py`, `trade-ai-mvp/tests/test_workflow_contracts.py`)
+- ✅ SM9: Added comprehensive state-machine tests and composite workflow tests (`attic/trade-ai-mvp/tests/test_state_machines.py`, `attic/trade-ai-mvp/tests/test_workflow_contracts.py`)
 - ⚠️ SM Safety rule: no service may bypass state-machine guards for execution-affecting transitions
 
 ## PM) Permissions and policy matrix
@@ -2042,6 +2042,6 @@
 - ✅ PM3: Route-level policy wiring completed for `/api/v1` mutating paths (trade/approval approve+reject, risk writes, connections writes, settings writes, terminal command execution+confirm) using centralized role/policy reason-code decisions
 
 ## WF) Workflow specs for end-to-end user journeys
-- ✅ WF1: Published canonical workflow specs for connect exchange, research query, paper/live approvals, kill-switch lifecycle, and terminal execution (`trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
-- ✅ WF2: Added per-step mapping from workflow actions to API endpoints, policy gates, state-transition expectations, and audit events (`trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
-- ✅ WF3: Added workflow contract tests for happy/blocked paths across role/mode/risk/kill-switch permutations (`trade-ai-mvp/tests/test_workflow_contracts.py`)
+- ✅ WF1: Published canonical workflow specs for connect exchange, research query, paper/live approvals, kill-switch lifecycle, and terminal execution (`attic/trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
+- ✅ WF2: Added per-step mapping from workflow actions to API endpoints, policy gates, state-transition expectations, and audit events (`attic/trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
+- ✅ WF3: Added workflow contract tests for happy/blocked paths across role/mode/risk/kill-switch permutations (`attic/trade-ai-mvp/tests/test_workflow_contracts.py`)

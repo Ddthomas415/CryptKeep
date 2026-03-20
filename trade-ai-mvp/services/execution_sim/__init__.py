@@ -1,1 +1,0 @@
-"""Paper execution simulation service."""
