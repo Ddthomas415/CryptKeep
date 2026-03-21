@@ -16,7 +16,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "min_volatility_pct": 0.20,
             "min_volume_ratio": 0.95,
             "min_trend_efficiency": 0.15,
-            "min_cross_gap_pct": 0.03,
+            "min_cross_gap_pct": 0.02,
         },
     },
     "mean_reversion_default": {
