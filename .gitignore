@@ -60,3 +60,6 @@ attic/**/.venv/
 attic/**/.pytest_cache/
 attic/**/.venv/
 attic/**/.pytest_cache/
+
+# audit helper backups
+scripts/manual_repo_audit.sh.pre_*
