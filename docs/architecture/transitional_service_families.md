@@ -49,3 +49,8 @@
 2. services/marketdata
 3. services/strategy
 4. services/strategy_runner
+
+## Approved review decision: services/paper
+- status: transitional / compatibility
+- current callers: test-only unless a non-test caller is found during review
+- cleanup rule: do not delete yet; migrate tests or keep thin shim first
