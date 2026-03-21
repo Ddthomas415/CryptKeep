@@ -70,7 +70,7 @@ This checklist reflects execution and verification status only. It does not repr
 
 ## Current Strategy Truth
 - [x] `breakout_donchian` -> `improve` (`paper_thin`, low confidence)
-- [x] `ema_cross` -> `improve` (`paper_thin`, low confidence)
+- [x] `ema_cross` -> `freeze` (`paper_thin`, low confidence)
 - [x] `mean_reversion_rsi` -> `freeze` (`insufficient`, low confidence)
 
 ## Interpretation of APR/USD Campaign
