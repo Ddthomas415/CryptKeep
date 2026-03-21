@@ -99,6 +99,4 @@ This checklist reflects execution and verification status only. It does not repr
 - [x] Further tuning is paused pending human review of the latest evidence and preset baseline
 
 ## Remaining Concerns to Track
-- [ ] Human strategy review complete for preset tuning commit `2672605`
-- [ ] Pre-commit/backend/OpenAPI hook validation rerun in the correct backend-enabled environment
 - [x] `docs/strategies/decision_record_2026-03-21.md` committed and pushed with the latest approved state
