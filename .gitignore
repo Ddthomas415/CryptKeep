@@ -63,3 +63,5 @@ attic/**/.pytest_cache/
 
 # audit helper backups
 scripts/manual_repo_audit.sh.pre_*
+
+phase1_research_copilot/.env
