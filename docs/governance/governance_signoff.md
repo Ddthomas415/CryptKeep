@@ -278,3 +278,17 @@ Operational rule:
 - `remote_public_candidate` may exist as a settings/documentation state, but it is not treated as approved remote/public deployment.
 - Any future switch to `remote_allowed` requires a new explicit human decision and verification of outer access control, MFA flow, and direct-origin blocking.
 
+
+## Required Post-Run Diagnostics
+
+After every governed paper campaign, generate and review:
+
+python3 scripts/report_paper_run_diagnostics.py --limit 20
+
+When strategy/symbol-specific tracing is needed, use:
+
+python3 scripts/report_paper_run_diagnostics.py --strategy-id ema_cross --symbol 2Z/USD --limit 10
+
+Purpose:
+- confirm signal → intent → paper order → paper fill → journal fill path
+- prevent stale or incorrect interpretation of campaign outcomes
