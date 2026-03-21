@@ -67,3 +67,33 @@ This checklist reflects execution and verification status only. It does not repr
 - [x] New campaign baseline verified
 - [ ] Human strategy review complete for preset tuning commit `2672605`
 - [ ] Pre-commit/backend/OpenAPI hook validation rerun in the correct backend-enabled environment
+
+## Current Strategy Truth
+- [x] `breakout_donchian` -> `improve` (`paper_thin`, low confidence)
+- [x] `ema_cross` -> `improve` (`paper_thin`, low confidence)
+- [x] `mean_reversion_rsi` -> `freeze` (`insufficient`, low confidence)
+
+## Interpretation of APR/USD Campaign
+- [x] `ema_cross` produced additional real paper participation
+- [x] `ema_cross` campaign result:
+  - [x] `enqueued_total = 2`
+  - [x] `fills_delta = 2`
+  - [x] `closed_trades_delta = 1`
+- [x] Strategy evidence artifact regenerated
+  - [x] `.cbp_state/data/strategy_evidence/strategy_evidence.latest.json`
+  - [x] `.cbp_state/data/strategy_evidence/strategy_evidence.20260321T044154Z.json`
+- [x] Decision record regenerated
+  - [x] `docs/strategies/decision_record_2026-03-21.md`
+- [x] `ema_cross` is no longer `synthetic_only`; it now has real paper-history participation
+- [ ] Human review of whether preset tuning commit `2672605` remains the preferred next baseline
+
+## Current Counts / Evidence Snapshot
+- [x] `mean_reversion_rsi = 28`
+- [x] `breakout_donchian = 4`
+- [x] `ema_cross = 4`
+
+## Current Technical-Lead Decision
+- [x] Execution / reconciliation / journaling path verified
+- [x] Diagnostics report required after governed runs
+- [x] Maintenance mode remains active
+- [x] Further tuning is paused pending human review of the latest evidence and preset baseline
