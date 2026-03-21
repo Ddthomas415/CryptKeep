@@ -390,6 +390,11 @@ def run_forever() -> None:
     cfg.setdefault("trailing_stop_pct", 0.02)
     cfg.setdefault("max_bars_hold", 60)
 
+    # ema_cross_v2 post-entry invalidation defaults
+    cfg.setdefault("ema_invalidate_on_low_vol", True)
+    cfg.setdefault("ema_invalidate_on_chop", True)
+    cfg.setdefault("ema_invalidate_on_cross_gap_loss", True)
+
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now()})
     loops = 0
     enqueued = 0
@@ -544,7 +549,34 @@ def run_forever() -> None:
             exit_action = None
             exit_reason = None
             exit_out = {}
-            if pos_qty > 0.0 and entry_price > 0.0:
+
+            # ema_cross_v2: invalidate open long if the original setup degrades into
+            # low-vol / chop / collapsed cross-gap after entry.
+            sig_ind = signal.get("ind") or {}
+            if (
+                pos_qty > 0.0
+                and entry_price > 0.0
+                and str(cfg.get("strategy_id")) == "ema_cross"
+            ):
+                avg_range_pct = float(sig_ind.get("avg_range_pct") or 0.0)
+                trend_eff = float(sig_ind.get("trend_efficiency") or 0.0)
+                cross_gap_pct = float(sig_ind.get("cross_gap_pct") or 0.0)
+
+                min_vol = float(cfg.get("min_volatility_pct", 0.0) or 0.0)
+                min_trend = float(cfg.get("min_trend_efficiency", 0.0) or 0.0)
+                min_gap = float(cfg.get("min_cross_gap_pct", 0.0) or 0.0)
+
+                if bool(cfg.get("ema_invalidate_on_low_vol", True)) and avg_range_pct < min_vol:
+                    exit_action = "sell"
+                    exit_reason = "strategy_exit:ema_cross:low_volatility_invalidation"
+                elif bool(cfg.get("ema_invalidate_on_chop", True)) and trend_eff < min_trend:
+                    exit_action = "sell"
+                    exit_reason = "strategy_exit:ema_cross:chop_invalidation"
+                elif bool(cfg.get("ema_invalidate_on_cross_gap_loss", True)) and cross_gap_pct < min_gap:
+                    exit_action = "sell"
+                    exit_reason = "strategy_exit:ema_cross:cross_gap_invalidation"
+
+            if pos_qty > 0.0 and entry_price > 0.0 and not exit_action:
                 exit_out = evaluate_strategy_exit_stack(
                     entry_price=entry_price,
                     current_price=float(m),
