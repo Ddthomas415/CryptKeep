@@ -107,7 +107,7 @@ test:
 	$(PYTHON) -m pytest -q
 
 test-governance:
-	pytest -q \
+	$(PYTHON) -m pytest -q \
 	  tests/test_governance_blockers_minimum.py \
 	  tests/test_governance_audit_repo_anchored.py \
 	  tests/test_governance_module_wrappers.py \
