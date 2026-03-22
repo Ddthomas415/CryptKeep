@@ -2151,3 +2151,10 @@
 - branch: followup/compat-cleanup
 - baseline commit: 071f7a9
 - baseline status: clean pushed governance baseline
+
+## Phase 2 implementation checkpoint
+- completed task: governance-smoke target in Makefile
+- validation: make governance-smoke => 0
+- validation: python3 tools/repo_doctor.py --strict => 0
+- validation: ./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py => passing
+- branch: followup/compat-cleanup
