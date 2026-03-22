@@ -2051,3 +2051,9 @@
 - canonical output root: .cbp_state/audit_reports
 - verified newest run directory contains 00_summary.txt, failed_checks.txt, and pytest_collect.txt
 - latest successful run: .cbp_state/audit_reports/repo_audit_20260322_095927
+
+## 2026-03-22 successful manual audit run
+- audit script writes to .cbp_state/audit_reports
+- verified newest run directory contains 00_summary.txt, failed_checks.txt, and pytest_collect.txt
+- latest successful run: .cbp_state/audit_reports/repo_audit_20260322_100331
+- failed_checks.txt is empty in the latest successful run
