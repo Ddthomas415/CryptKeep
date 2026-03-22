@@ -10,7 +10,6 @@ set -u
 
 TS="$(date +%Y%m%d_%H%M%S)"
 BASE_DIR=".cbp_state/audit_reports"
-mkdir -p ""
 STATE_ROOT=".cbp_state/audit_reports"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 OUT_DIR="$STATE_ROOT/repo_audit_$STAMP"
