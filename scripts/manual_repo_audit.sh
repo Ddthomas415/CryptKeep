@@ -229,9 +229,9 @@ run_shell_check env_files 20 'find . -maxdepth 4 \( -name ".env" -o -name ".env.
 run_shell_check local_paths 45 'grep -RniI --exclude="*.pyc" "/Users/" docs services tests 2>/dev/null || true'
 
 if [ "$MODE" = "full" ]; then
-  run_shell_check secret_patterns 90 'grep -RniE "OPENAI_API_KEY|DATABASE_URL|MINIO_SECRET_KEY|MINIO_ACCESS_KEY|SECRET_KEY|API_KEY|TOKEN=" . '"${GREP_EXCLUDES[*]}"' 2>/dev/null || true'
-  run_shell_check private_keys 45 'grep -RniE "BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|BEGIN PRIVATE KEY" . '"${GREP_EXCLUDES[*]}"' 2>/dev/null || true'
-  run_shell_check secret_entropy 45 'grep -RniE "[A-Za-z0-9+/=_-]{32,}" . '"${GREP_EXCLUDES[*]}"' 2>/dev/null || true'
+  run_shell_check secret_patterns 90 'grep -RniE "OPENAI_API_KEY|DATABASE_URL|MINIO_SECRET_KEY|MINIO_ACCESS_KEY|SECRET_KEY|API_KEY|TOKEN=" . '"${GREP_EXCLUDES[*]}"' 2>/dev/null | sed "s/:.*/: [REDACTED_MATCH]/" || true'
+  run_shell_check private_keys 45 'grep -RniE "BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|BEGIN PRIVATE KEY" . '"${GREP_EXCLUDES[*]}"' 2>/dev/null | sed "s/:.*/: [REDACTED_MATCH]/" || true'
+  run_shell_check secret_entropy 45 'grep -RniE "[A-Za-z0-9+/=_-]{32,}" . '"${GREP_EXCLUDES[*]}"' 2>/dev/null | sed "s/:.*/: [REDACTED_MATCH]/" || true'
 else
   cat > "$OUT_DIR/secret_patterns.txt" <<EOF
 # CHECK: secret_patterns
