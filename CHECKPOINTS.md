@@ -2158,3 +2158,10 @@
 - validation: python3 tools/repo_doctor.py --strict => 0
 - validation: ./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py => passing
 - branch: followup/compat-cleanup
+
+## Phase 2 queue exhausted
+- branch: followup/compat-cleanup
+- current head: d3fb54c
+- REMAINING_TASKS.md status: no executable tasks
+- only constraint notes remain
+- next required action: define at least one tracked implementation task before further execution
