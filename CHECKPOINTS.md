@@ -2078,3 +2078,9 @@
 - latest verified audit run: .cbp_state/audit_reports/repo_audit_20260322_102230
 - verified artifacts: 00_summary.txt, failed_checks.txt, pytest_collect.txt
 - push status: origin/followup/compat-cleanup is up to date
+
+## 2026-03-22 repo_doctor_strict follow-up queue
+- remove remaining .bak artifacts
+- remove remaining __pycache__ directories
+- remove remaining .pyc files
+- remediate any non-canonical top-level generated output if reintroduced
