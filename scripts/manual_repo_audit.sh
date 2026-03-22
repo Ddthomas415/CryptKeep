@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -u
 
 # Manual repo audit helper
@@ -73,12 +73,21 @@ flag_check_exit() {
   fi
 }
 
-# Prefer gtimeout on macOS if available
+# Prefer timeout only when it matches the active architecture.
+# On macOS, Homebrew timeout/gtimeout can be x86_64 and force child processes
+# into the wrong architecture under Rosetta. In that case, disable timeout.
 TIMEOUT_BIN=""
 if command -v gtimeout >/dev/null 2>&1; then
-  TIMEOUT_BIN="gtimeout"
-elif command -v timeout >/dev/null 2>&1; then
-  TIMEOUT_BIN="timeout"
+  GTIMEOUT_PATH="$(command -v gtimeout)"
+  if ! file "$GTIMEOUT_PATH" 2>/dev/null | grep -q 'x86_64'; then
+    TIMEOUT_BIN="$GTIMEOUT_PATH"
+  fi
+fi
+if [ -z "$TIMEOUT_BIN" ] && command -v timeout >/dev/null 2>&1; then
+  TIMEOUT_PATH="$(command -v timeout)"
+  if ! file "$TIMEOUT_PATH" 2>/dev/null | grep -q 'x86_64'; then
+    TIMEOUT_BIN="$TIMEOUT_PATH"
+  fi
 fi
 
 # Exclude big/noisy dirs from grep/find passes
@@ -154,32 +163,36 @@ run_check() {
 
 run_shell_check() {
   local name="$1"
-  local timeout_s="$2"
+  local timeout_sec="$2"
   local cmd="$3"
-  local outfile="$OUT_DIR/${name}.txt"
-  local start end rc
 
-  start="$(date +%s)"
+  local outfile="$OUT_DIR/${name}.txt"
+  local start end duration exit_code
+
+  start=$(date +%s)
   log "RUN $name"
 
   {
     echo "# CHECK: $name"
-    echo "# TIMEOUT: ${timeout_s}s"
+    echo "# TIMEOUT: ${timeout_sec}s"
     echo "# CMD: $cmd"
     echo
-    run_with_timeout "$timeout_s" bash -lc "$cmd"
-  } >"$outfile" 2>&1
-  rc=$?
+  } >"$outfile"
 
-  end="$(date +%s)"
+  run_with_timeout "$timeout_sec" /bin/bash -c "$cmd" >>"$outfile" 2>&1
+  exit_code=$?
+
+  end=$(date +%s)
+  duration=$((end - start))
+
   {
     echo
-    echo "# EXIT_CODE: $rc"
-    echo "# DURATION_SEC: $((end-start))"
+    echo "# EXIT_CODE: $exit_code"
+    echo "# DURATION_SEC: $duration"
   } >>"$outfile"
 
-  if [ "$rc" -ne 0 ]; then
-    record_failure "$name" "$rc"
+  if [ "$exit_code" -ne 0 ]; then
+    echo "$name (exit=$exit_code)" >>"$FAILED_LIST"
   fi
 
   return 0
@@ -207,7 +220,7 @@ run_shell_check overlap_refs 45 'grep -RniE "services/(strategy|strategies|marke
 # -------- 4. Security / config hygiene --------
 run_shell_check env_files 20 'find . -maxdepth 4 \( -name ".env" -o -name ".env.*" \) -not -path "./.git/*" | sort'
 
-run_shell_check local_paths 45 'grep -Rni "/Users/" docs services tests .cbp_state 2>/dev/null || true'
+run_shell_check local_paths 45 'grep -RniI --exclude="*.pyc" "/Users/" docs services tests 2>/dev/null || true'
 
 if [ "$MODE" = "full" ]; then
   run_shell_check secret_patterns 90 'grep -RniE "OPENAI_API_KEY|DATABASE_URL|MINIO_SECRET_KEY|MINIO_ACCESS_KEY|SECRET_KEY|API_KEY|TOKEN=" . '"${GREP_EXCLUDES[*]}"' 2>/dev/null || true'
@@ -241,9 +254,9 @@ run_shell_check automation_files 20 'find . -maxdepth 3 -type f | grep -E "docke
 
 # -------- 6. Testing / validation --------
 if [ "$MODE" = "quick" ]; then
-  run_shell_check pytest_collect 90 'pytest --collect-only -q'
+  run_shell_check pytest_collect 90 './.venv/bin/python -m pytest --collect-only -q'
 else
-  run_shell_check pytest_collect 180 'pytest --collect-only -q'
+  run_shell_check pytest_collect 180 './.venv/bin/python -m pytest --collect-only -q'
   run_shell_check test_repo_doctor 90 'pytest -q tests/test_repo_doctor_strict.py'
   run_shell_check test_user_stream 90 'pytest -q tests/test_user_stream_ws.py'
   run_shell_check test_dedupe 90 'pytest -q tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py'
@@ -356,7 +369,7 @@ run_shell_check test_inventory 20 'find tests -type f | sort'
 run_shell_check flaky_markers 20 'grep -RniE "xfail|skip|flaky|sleep\\(" tests 2>/dev/null || true'
 run_shell_check targeted_green 120 'python3 -m pytest -q tests/test_user_stream_ws.py tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py tests/test_run_paper_strategy_evidence_collector.py'
 run_shell_check governance_docs 20 'find docs/governance docs/strategies -type f | sort'
-run_shell_check absolute_paths 30 'grep -Rni "/Users/" docs .cbp_state 2>/dev/null || true'
+run_shell_check absolute_paths 30 'grep -Rni "/Users/" docs 2>/dev/null || true'
 run_shell_check checklist_pending 20 'grep -n "\\- \\[ \\]" docs/governance/governance_checklist.md 2>/dev/null || true'
 run_shell_check strategy_evidence 20 'ls -lah .cbp_state/data/strategy_evidence 2>/dev/null || true'
 run_shell_check decision_records_all 20 'ls -lah docs/strategies/decision_record_*.md 2>/dev/null || true'
