@@ -6,17 +6,9 @@ import streamlit as st
 
 SystemAction = tuple[str, list[str]]
 
-PRIMARY_ACTIONS: tuple[SystemAction, ...] = (
-    ("Preflight", ["preflight"]),
-    ("Status All", ["status-all"]),
-    ("Diagnostic", ["diag", "--lines", "80"]),
-    ("Clean Locks", ["clean"]),
-)
+PRIMARY_ACTIONS: tuple[SystemAction, ...] = ()
 
-SECONDARY_ACTIONS: tuple[SystemAction, ...] = (
-    ("Start All", ["start-all"]),
-    ("Stop All", ["stop-all"]),
-)
+SECONDARY_ACTIONS: tuple[SystemAction, ...] = ()
 
 
 def _render_action_row(
