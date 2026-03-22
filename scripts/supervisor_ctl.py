@@ -85,6 +85,7 @@ def main() -> int:
             ),
             watchdog_cmd=_build_watchdog_cmd(interval=int(args.interval)),
             cwd=REPO,
+            current_role="ADMIN",
         )
         payload["port_resolution"] = {
             "host": resolution.host,
@@ -102,7 +103,7 @@ def main() -> int:
         return 0 if bool(payload.get("ok")) else 2
 
     if args.cmd == "stop":
-        payload = stop(hard=bool(args.hard))
+        payload = stop(hard=bool(args.hard), current_role="ADMIN")
         print(payload)
         return 0 if bool(payload.get("ok")) else 2
     return 2
