@@ -2161,7 +2161,7 @@
 
 ## Phase 2 queue exhausted
 - branch: followup/compat-cleanup
-- current head: d3fb54c
+- current head: 1c53071
 - REMAINING_TASKS.md status: no executable tasks
 - only constraint notes remain
 - next required action: define at least one tracked implementation task before further execution
