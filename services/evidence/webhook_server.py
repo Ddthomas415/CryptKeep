@@ -96,7 +96,7 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(payload, dict):
                 raise ValueError("payload must be a JSON object")
         except Exception as e:
-            _write_json(self, 400, {"ok": False, "error": f"invalid_json: {type(e).__name__}: {e}"})
+            _write_json(self, 400, {"ok": False, "error": "invalid_json", "error_type": type(e).__name__})
             return
 
         out = ingest_event(

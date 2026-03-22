@@ -48,12 +48,14 @@ class Handler(BaseHTTPRequestHandler):
             })
             self._send(200, {"ok": True, "signal_id": sig.signal_id})
         except Exception as e:
-            self._send(400, {"ok": False, "reason": f"{type(e).__name__}:{e}"})
+            self._send(400, {"ok": False, "reason": "invalid_request", "error_type": type(e).__name__})
 
     def log_message(self, fmt, *args):
         return
 
 def run(host: str = "127.0.0.1", port: int = 8787):
+    if host not in {"127.0.0.1", "localhost", "::1"}:
+        raise RuntimeError("Public bind is disabled; use 127.0.0.1")
     srv = HTTPServer((host, int(port)), Handler)
     print({"ok": True, "listening": f"http://{host}:{port}", "post_to": "/signal"})
     srv.serve_forever()
