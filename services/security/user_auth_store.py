@@ -405,6 +405,16 @@ def verify_login(*, username: str, password: str) -> dict[str, Any]:
 
 
 def ensure_bootstrap_user_from_env() -> dict[str, Any]:
+    app_env = str(os.environ.get("APP_ENV") or "").strip().lower()
+    explicit = str(os.environ.get("CBP_ALLOW_BOOTSTRAP_USER") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    if not (app_env == "dev" and explicit):
+        return {"ok": True, "skipped": True, "reason": "bootstrap_not_allowed"}
+
     user = _norm_username(os.environ.get("CBP_AUTH_BOOTSTRAP_USER") or "")
     pwd = str(os.environ.get("CBP_AUTH_BOOTSTRAP_PASSWORD") or "")
     role = _norm_role(os.environ.get("CBP_AUTH_BOOTSTRAP_ROLE") or "ADMIN")
