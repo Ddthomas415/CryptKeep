@@ -6,7 +6,7 @@ Source: `CHECKPOINTS.md`
 - Total non-✅ items: 4
 - 🔄 In progress: 0
 - 🟡 Partial: 0
-- ⏳ Not started: 1
+- ⏳ Not started: 0
 - ⚠️ Constraint/note: 4
 
 ## 🔄 In Progress (0)
@@ -15,14 +15,9 @@ Source: `CHECKPOINTS.md`
 ## 🟡 Partial (0)
 
 
-## ⏳ Not Started (1)
+## ⏳ Not Started (0)
 
 
-- Move `00_summary.txt` generation to the end of `scripts/manual_repo_audit.sh`
-  - Ensure the summary is written only after all checks complete
-  - Validation:
-    - `./scripts/manual_repo_audit.sh quick`
-    - newest `.cbp_state/audit_reports/repo_audit_*` contains non-empty `00_summary.txt`
 
 ## ⚠️ Constraint / Note (4)
 
