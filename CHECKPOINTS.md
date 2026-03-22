@@ -2084,3 +2084,11 @@
 - remove remaining __pycache__ directories
 - remove remaining .pyc files
 - remediate any non-canonical top-level generated output if reintroduced
+
+## 2026-03-22 governance baseline clean
+- branch: followup/compat-cleanup
+- strict doctor status: python3 tools/repo_doctor.py --strict => 0
+- latest verified audit run: .cbp_state/audit_reports/repo_audit_20260322_102612
+- verified artifacts: 00_summary.txt, failed_checks.txt, pytest_collect.txt
+- regression test status: ./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py => passing
+- worktree status at checkpoint: clean
