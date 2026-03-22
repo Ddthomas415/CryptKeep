@@ -61,3 +61,10 @@
 - services/paper/paper_broker.py: compatibility wrapper over services.execution.paper_engine.PaperEngine
 - decision: keep frozen as transitional compatibility layer
 - rule: no new direct imports; migrate callers only if needed
+
+## Approved review decision: services/paper implementation shape
+- services/paper/main.py: compatibility paper-mode loop over canonical safety/storage components
+- services/paper/paper_state.py: compatibility wrapper over storage.paper_trading_sqlite.PaperTradingSQLite
+- services/paper/paper_broker.py: compatibility wrapper over services.execution.paper_engine.PaperEngine
+- decision: keep frozen as transitional compatibility layer
+- rule: no new direct imports; migrate callers only if needed
