@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from collections.abc import Sequence
+from dashboard.role_guard import require_role
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -25,7 +26,8 @@ ALLOWED_OP_ARGS = {
 }
 
 
-def run_op(args: Sequence[str]) -> tuple[int, str]:
+def run_op(args: Sequence[str], *, current_role: str = "VIEWER") -> tuple[int, str]:
+    require_role(current_role, "OPERATOR")
     normalized = tuple(str(x) for x in list(args))
     if normalized[:3] in ALLOWED_OP_ARGS:
         pass
@@ -39,7 +41,8 @@ def run_op(args: Sequence[str]) -> tuple[int, str]:
     return int(proc.returncode), output.strip()
 
 
-def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None) -> tuple[int, str]:
+def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None, current_role: str = "VIEWER") -> tuple[int, str]:
+    require_role(current_role, "OPERATOR")
     if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
         return 1, "disallowed_script"
     cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
@@ -50,7 +53,8 @@ def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None) -
     return int(proc.returncode), output.strip()
 
 
-def start_repo_script_background(script_relpath: str, *, args: Sequence[str] | None = None) -> tuple[int, str]:
+def start_repo_script_background(script_relpath: str, *, args: Sequence[str] | None = None, current_role: str = "VIEWER") -> tuple[int, str]:
+    require_role(current_role, "OPERATOR")
     if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
         return 1, "disallowed_script"
     cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
