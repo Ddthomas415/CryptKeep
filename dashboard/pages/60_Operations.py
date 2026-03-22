@@ -86,7 +86,7 @@ live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
 paper_evidence_runtime = load_paper_strategy_evidence_runtime()
-system_diagnostics = run_full_system_diagnostics(export_bundle=False)
+system_diagnostics = run_full_system_diagnostics(export_bundle=False, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
 
@@ -158,7 +158,7 @@ with tab_tools:
     action = render_system_action_buttons()
     if action:
         label, args = action
-        rc, out = run_op(args)
+        rc, out = run_op(args, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
         set_operator_result(action=label, rc=rc, output=out or "(no output)")
 
     result = get_operator_result()
@@ -178,20 +178,20 @@ with tab_service_logs:
         lines = st.number_input("Lines", min_value=20, max_value=500, value=120, step=10)
         b0, b1, b2, b3 = st.columns(4)
         if b0.button("Status", width="stretch", key="ops_service_status"):
-            rc, out = run_op(["status", "--name", str(service_name)])
+            rc, out = run_op(["status", "--name", str(service_name)], current_role=str(AUTH_STATE.get("role") or "VIEWER"))
             set_operator_result(action="Status", rc=rc, output=out or "(no output)")
         if b1.button("Start", width="stretch", key="ops_service_start"):
-            rc, out = run_op(["start", "--name", str(service_name)])
+            rc, out = run_op(["start", "--name", str(service_name)], current_role=str(AUTH_STATE.get("role") or "VIEWER"))
             set_operator_result(action="Start", rc=rc, output=out or "(no output)")
         if b2.button("Stop", width="stretch", key="ops_service_stop"):
-            rc, out = run_op(["stop", "--name", str(service_name)])
+            rc, out = run_op(["stop", "--name", str(service_name)], current_role=str(AUTH_STATE.get("role") or "VIEWER"))
             set_operator_result(action="Stop", rc=rc, output=out or "(no output)")
         if b3.button("Restart", width="stretch", key="ops_service_restart"):
-            rc, out = run_op(["restart", "--name", str(service_name)])
+            rc, out = run_op(["restart", "--name", str(service_name)], current_role=str(AUTH_STATE.get("role") or "VIEWER"))
             set_operator_result(action="Restart", rc=rc, output=out or "(no output)")
 
         if st.button("Tail Logs", width="stretch", key="ops_tail_logs"):
-            rc, out = run_op(["logs", "--name", str(service_name), "--lines", str(int(lines))])
+            rc, out = run_op(["logs", "--name", str(service_name), "--lines", str(int(lines))], current_role=str(AUTH_STATE.get("role") or "VIEWER"))
             set_operator_result(action="Tail Logs", rc=rc, output=out or "(no output)")
 
         result = get_operator_result()
