@@ -627,6 +627,27 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                 }
             )
             result = _run_strategy_window(cfg=cfg, strategy_name=strategy_name)
+            stop_reason = str(result.get("stop_reason") or "").strip().lower()
+            if stop_reason in {"fingerprint_mismatch", "drift", "contamination"}:
+                out = {
+                    "ok": True,
+                    "has_status": True,
+                    "status": "INVALID",
+                    "is_terminal": True,
+                    "reason": stop_reason,
+                    "ts": _now_iso(),
+                    "pid": current_pid,
+                    "strategy": str(strategy_name),
+                    "completed_strategies": idx - 1,
+                    "total_strategies": len(strategies),
+                    "symbol": str(cfg.symbol or DEFAULT_SYMBOL),
+                    "venue": str(cfg.venue or DEFAULT_VENUE),
+                    "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
+                    "started_components": dict(started_components),
+                    "reused_components": dict(reused_components),
+                }
+                _write_status(out)
+                return out
             results.append(result)
             if result.get("stop_reason") == "stop_requested":
                 campaign_reason = "stop_requested"
