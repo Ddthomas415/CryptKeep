@@ -7,6 +7,7 @@ import time
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+from dashboard.role_guard import require_role
 
 from services.os.app_paths import data_dir
 from services.logging.app_logger import get_logger
@@ -88,7 +89,8 @@ def status() -> dict:
         "paths": {"sup_path": str(SUP_PATH), "cockpit_log": str(COCKPIT_LOG), "watchdog_log": str(WATCHDOG_LOG)},
     }
 
-def start(*, streamlit_cmd: list[str], watchdog_cmd: list[str], cwd: Path) -> dict:
+def start(*, streamlit_cmd: list[str], watchdog_cmd: list[str], cwd: Path, current_role: str = "VIEWER") -> dict:
+    require_role(current_role, "ADMIN")
     st = status()
     if st["cockpit"]["alive"] or st["watchdog"]["alive"]:
         return {**st, "ok": False, "reason": "already_running"}
@@ -132,7 +134,8 @@ def start(*, streamlit_cmd: list[str], watchdog_cmd: list[str], cwd: Path) -> di
         _safe_close(w_log, name="watchdog")
         return {"ok": False, "reason": f"start_failed:{type(e).__name__}", "error": str(e)}
 
-def stop(*, hard: bool = True, soft_timeout_sec: float = 6.0) -> dict:
+def stop(*, hard: bool = False, soft_timeout_sec: float = 6.0, current_role: str = "VIEWER") -> dict:
+    require_role(current_role, "ADMIN")
     st = _read()
     cp = st.get("cockpit_pid")
     wp = st.get("watchdog_pid")
@@ -181,7 +184,8 @@ def stop(*, hard: bool = True, soft_timeout_sec: float = 6.0) -> dict:
         return {"ok": True, "stopped": True, "mode": ("hard" if hard else "soft_timeout"), "errors": errors}
     return {"ok": False, "stopped": False, "still_running": still, "mode": ("hard" if hard else "soft_timeout"), "errors": errors}
 
-def clear_stale() -> dict:
+def clear_stale(*, current_role: str = "VIEWER") -> dict:
+    require_role(current_role, "ADMIN")
     st = _read()
     cp = st.get("cockpit_pid")
     wp = st.get("watchdog_pid")
