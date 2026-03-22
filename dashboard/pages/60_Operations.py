@@ -284,6 +284,7 @@ with tab_strategy:
             evidence_rc, evidence_output = start_paper_strategy_evidence_collection(
                 runtime_sec=evidence_runtime_sec,
                 strategies=evidence_strategy_items,
+                current_role=str(AUTH_STATE.get("role") or "VIEWER"),
             )
     with evidence_cols[1]:
         if st.button("Stop Paper Evidence Collector", width="stretch", key="ops_paper_evidence_stop"):
@@ -734,6 +735,7 @@ with tab_research:
             collector_action = "Start Live Collector Loop"
             collector_rc, collector_output = start_crypto_edge_collector_loop(
                 interval_sec=collector_interval_sec,
+                current_role=str(AUTH_STATE.get("role") or "VIEWER"),
             )
     with collector_cols[1]:
         if st.button("Stop Live Collector Loop", width="stretch", key="ops_crypto_edge_stop"):
