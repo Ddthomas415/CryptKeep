@@ -2071,3 +2071,10 @@
 - verified artifacts: 00_summary.txt, failed_checks.txt, pytest_collect.txt
 - regression test added: tests/test_manual_repo_audit_paths.py
 - regression test status: passing
+
+## 2026-03-22 manual audit path fix pushed
+- branch: followup/compat-cleanup
+- pushed commit: 9442c40
+- latest verified audit run: .cbp_state/audit_reports/repo_audit_20260322_102230
+- verified artifacts: 00_summary.txt, failed_checks.txt, pytest_collect.txt
+- push status: origin/followup/compat-cleanup is up to date
