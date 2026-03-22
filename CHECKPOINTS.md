@@ -2149,5 +2149,5 @@
 
 ## Phase 2 start point
 - branch: followup/compat-cleanup
-- baseline commit: 4bda65c
+- baseline commit: 071f7a9
 - baseline status: clean pushed governance baseline
