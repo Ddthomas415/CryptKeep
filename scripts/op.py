@@ -341,22 +341,22 @@ def main() -> int:
     plogs.add_argument("--lines", type=int, default=80)
 
     sub.add_parser("preflight")
-    sub.add_parser("start-all")
-    sub.add_parser("stop-all")
-    sub.add_parser("restart-all")
-    sub.add_parser("stop-everything")
-    sub.add_parser("supervisor-start")
-    sub.add_parser("supervisor-stop")
-    sub.add_parser("supervisor-status")
 
     sub.add_parser("status-all")
 
     pdiag = sub.add_parser("diag")
+    sub.add_parser("ui")
+    sub.add_parser("clean")
+    sub.add_parser("supervisor-status")
+    sub.add_parser("supervisor-stop")
+    sub.add_parser("supervisor-start")
+    sub.add_parser("stop-everything")
+    sub.add_parser("restart-all")
+    sub.add_parser("stop-all")
+    sub.add_parser("start-all")
     pdiag.add_argument("--lines", type=int, default=50)
 
-    sub.add_parser("clean")
 
-    sub.add_parser("ui")
 
     args = ap.parse_args()
 
@@ -387,30 +387,24 @@ def main() -> int:
         return 0 if bool(payload.get("ok")) else 2
 
     if args.cmd in {"start-all", "stop-all", "restart-all"}:
-        action = args.cmd.replace("-all", "")
-        payload = _service_ctl_all(action)
-        print(json.dumps(payload))
-        return 0 if bool(payload.get("ok")) else 2
+        print(json.dumps({"ok": False, "error": "disabled_command"}))
+        return 2
 
     if args.cmd == "stop-everything":
-        payload = _stop_everything()
-        print(json.dumps(payload))
-        return 0 if bool(payload.get("ok")) else 2
+        print(json.dumps({"ok": False, "error": "disabled_command"}))
+        return 2
 
     if args.cmd == "supervisor-start":
-        payload = _supervisor_start()
-        print(json.dumps(payload))
-        return 0 if bool(payload.get("ok")) else 2
+        print(json.dumps({"ok": False, "error": "disabled_command"}))
+        return 2
 
     if args.cmd == "supervisor-status":
-        payload = _supervisor_status()
-        print(json.dumps(payload))
-        return 0 if bool(payload.get("ok")) else 2
+        print(json.dumps({"ok": False, "error": "disabled_command"}))
+        return 2
 
     if args.cmd == "supervisor-stop":
-        payload = _supervisor_stop()
-        print(json.dumps(payload))
-        return 0 if bool(payload.get("ok")) else 2
+        print(json.dumps({"ok": False, "error": "disabled_command"}))
+        return 2
 
     if args.cmd == "status-all":
         print(json.dumps(_status_all_obj()))
@@ -421,11 +415,12 @@ def main() -> int:
         return 0
 
     if args.cmd == "clean":
-        print(json.dumps(_clean()))
-        return 0
+        print(json.dumps({"ok": False, "error": "disabled_command"}))
+        return 2
 
     if args.cmd == "ui":
-        return _ui()
+        print(json.dumps({"ok": False, "error": "disabled_command"}))
+        return 2
 
     ap.error("unknown command")
     return 2
