@@ -72,14 +72,19 @@ def _runtime_files() -> dict[str, dict[str, Path]]:
     }
 
 
-def _status_path() -> Path:
-    return state_dir() / "paper_strategy_evidence_service.status.json"
+def state_dir() -> Path:
+    root = os.getenv("CBP_STATE_DIR", "").strip()
+    path = Path(root).expanduser().resolve() if root else Path("state").resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 def _write_status(obj: dict[str, Any]) -> None:
     status = str(obj.get("status") or "").strip().upper()
     if status == "PROMOTED":
         raise ValueError("direct status mutation is not allowed")
-    _status_path().write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
+    target = status_file()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
 def _write_pid_state(obj: dict[str, Any]) -> None:
     ensure_dirs()
     _health_dir().mkdir(parents=True, exist_ok=True)
