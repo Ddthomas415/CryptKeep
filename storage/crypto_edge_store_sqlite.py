@@ -412,7 +412,7 @@ class CryptoEdgeStoreSQLite:
             basis_rows=basis_rows,
             quote_rows=quote_rows,
         )
-        report["store_path"] = str(self.path)
+        report["store_path"] = "redacted"
         report["funding_meta"] = self._latest_snapshot_meta("funding_snapshots")
         report["basis_meta"] = self._latest_snapshot_meta("basis_snapshots")
         report["quote_meta"] = self._latest_snapshot_meta("quote_snapshots")
@@ -428,7 +428,7 @@ class CryptoEdgeStoreSQLite:
             basis_rows=basis_rows,
             quote_rows=quote_rows,
         )
-        report["store_path"] = str(self.path)
+        report["store_path"] = "redacted"
         report["funding_meta"] = self._latest_snapshot_meta_for_source("funding_snapshots", source=source)
         report["basis_meta"] = self._latest_snapshot_meta_for_source("basis_snapshots", source=source)
         report["quote_meta"] = self._latest_snapshot_meta_for_source("quote_snapshots", source=source)
