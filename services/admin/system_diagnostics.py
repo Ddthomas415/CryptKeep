@@ -628,7 +628,7 @@ def run_full_diagnostics(*, export_bundle: bool = False) -> dict[str, Any]:
         "artifacts": artifacts,
         "issues": issues,
         "repair_plan": repair_plan,
-        "export_path": export_path,
+        "export_created": bool(export_path),
     })
 
 
@@ -673,6 +673,6 @@ def apply_safe_self_repair(*, export_bundle: bool = True) -> dict[str, Any]:
         "removed_count": len(removed),
         "removed_paths": removed,
         "failed_actions": failed,
-        "export_path": export_path,
+        "export_created": bool(export_path),
         "diagnostics_after": diagnostics_after,
     }

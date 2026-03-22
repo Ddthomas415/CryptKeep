@@ -16,8 +16,8 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 from services.app.diagnostics_exporter import export_zip_to_runtime
 
 def main():
-    p = export_zip_to_runtime()
-    print({"ok": True, "exported_to": str(p)})
+    export_zip_to_runtime()
+    print({"ok": True})
     return 0
 
 if __name__ == "__main__":
