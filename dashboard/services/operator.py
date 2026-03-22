@@ -88,7 +88,9 @@ def start_crypto_edge_collector_loop(
     *,
     interval_sec: float,
     plan_file: str = "sample_data/crypto_edges/live_collector_plan.json",
+    current_role: str = "VIEWER",
 ) -> tuple[int, str]:
+    require_role(current_role, "OPERATOR")
     try:
         from services.analytics.crypto_edge_collector_service import load_runtime_status
     except Exception:
@@ -108,11 +110,13 @@ def start_crypto_edge_collector_loop(
             "--interval-sec",
             str(int(interval_sec)),
         ],
+        current_role=current_role,
     )
 
 
-def stop_crypto_edge_collector_loop() -> tuple[int, str]:
-    return run_repo_script("scripts/run_crypto_edge_collector_loop.py", args=["--stop"])
+def stop_crypto_edge_collector_loop(*, current_role: str = "VIEWER") -> tuple[int, str]:
+    require_role(current_role, "OPERATOR")
+    return run_repo_script("scripts/run_crypto_edge_collector_loop.py", args=["--stop"], current_role=current_role)
 
 
 def start_paper_strategy_evidence_collection(
@@ -121,7 +125,9 @@ def start_paper_strategy_evidence_collection(
     strategies: Sequence[str] | None = None,
     symbol: str = "BTC/USD",
     venue: str = "coinbase",
+    current_role: str = "VIEWER",
 ) -> tuple[int, str]:
+    require_role(current_role, "OPERATOR")
     try:
         from services.analytics.paper_strategy_evidence_service import load_runtime_status
     except Exception:
@@ -148,14 +154,17 @@ def start_paper_strategy_evidence_collection(
     return start_repo_script_background(
         "scripts/run_paper_strategy_evidence_collector.py",
         args=args,
+        current_role=current_role,
     )
 
 
-def stop_paper_strategy_evidence_collection() -> tuple[int, str]:
-    return run_repo_script("scripts/run_paper_strategy_evidence_collector.py", args=["--stop"])
+def stop_paper_strategy_evidence_collection(*, current_role: str = "VIEWER") -> tuple[int, str]:
+    require_role(current_role, "OPERATOR")
+    return run_repo_script("scripts/run_paper_strategy_evidence_collector.py", args=["--stop"], current_role=current_role)
 
 
-def run_full_system_diagnostics(*, export_bundle: bool = False) -> dict[str, object]:
+def run_full_system_diagnostics(*, export_bundle: bool = False, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
     try:
         from services.admin.system_diagnostics import run_full_diagnostics
     except Exception as exc:
@@ -166,7 +175,8 @@ def run_full_system_diagnostics(*, export_bundle: bool = False) -> dict[str, obj
         return {"ok": False, "reason": f"diagnostics_run_failed:{type(exc).__name__}:{exc}"}
 
 
-def run_dashboard_streamlit_diagnostics(*, startup_smoke: bool = True, timeout_sec: float = 15.0) -> dict[str, object]:
+def run_dashboard_streamlit_diagnostics(*, startup_smoke: bool = True, timeout_sec: float = 15.0, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
     try:
         from services.app.dashboard_diagnostics import run_dashboard_diagnostics
     except Exception as exc:
@@ -183,7 +193,8 @@ def run_dashboard_streamlit_diagnostics(*, startup_smoke: bool = True, timeout_s
         return {"ok": False, "reason": f"dashboard_diagnostics_failed:{type(exc).__name__}:{exc}"}
 
 
-def preview_safe_system_self_repair() -> dict[str, object]:
+def preview_safe_system_self_repair(*, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
     try:
         from services.admin.system_diagnostics import preview_safe_self_repair
     except Exception as exc:
@@ -194,7 +205,8 @@ def preview_safe_system_self_repair() -> dict[str, object]:
         return {"ok": False, "reason": f"self_repair_preview_failed:{type(exc).__name__}:{exc}"}
 
 
-def apply_safe_system_self_repair(*, export_bundle: bool = True) -> dict[str, object]:
+def apply_safe_system_self_repair(*, export_bundle: bool = True, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
     try:
         from services.admin.system_diagnostics import apply_safe_self_repair
     except Exception as exc:
@@ -205,7 +217,8 @@ def apply_safe_system_self_repair(*, export_bundle: bool = True) -> dict[str, ob
         return {"ok": False, "reason": f"self_repair_apply_failed:{type(exc).__name__}:{exc}"}
 
 
-def export_diagnostics_bundle() -> dict[str, object]:
+def export_diagnostics_bundle(*, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
     try:
         from services.app.diagnostics_exporter import export_zip_to_runtime
     except Exception as exc:
