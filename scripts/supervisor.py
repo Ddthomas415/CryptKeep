@@ -24,7 +24,6 @@ def main():
     ap.add_argument("--no-tick", action="store_true")
     ap.add_argument("--no-webhook", action="store_true")
     ap.add_argument("--no-signal-adapter", action="store_true")
-    ap.add_argument("--no-risk-gate", action="store_true")
     ap.add_argument("--host", default=None)
     ap.add_argument("--port", type=int, default=None)
     ap.add_argument("--no-browser", action="store_true")
@@ -39,7 +38,7 @@ def main():
             start_tick=not args.no_tick,
             start_webhook=not args.no_webhook,
             start_signal_adapter=not args.no_signal_adapter,
-            start_risk_gate=not args.no_risk_gate,
+            start_risk_gate=True,
             host=args.host,
             port=args.port,
             open_browser=not args.no_browser,
@@ -51,7 +50,7 @@ def main():
         stop_tick=not args.no_tick,
         stop_webhook=not args.no_webhook,
         stop_signal_adapter=not args.no_signal_adapter,
-        stop_risk_gate=not args.no_risk_gate,
+        stop_risk_gate=True,
         timeout_sec=int(args.timeout_sec),
     )
     print(json.dumps(out, indent=2))
