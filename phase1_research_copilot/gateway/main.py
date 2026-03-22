@@ -106,7 +106,7 @@ def _load_structural_edge_shell_state() -> dict[str, Any]:
     except Exception as exc:
         logger.warning(
             "gateway_structural_shell_state_failed",
-            extra={"context": {"error": str(exc)}},
+            extra={"context": {"error_type": type(exc).__name__}},
         )
     return {
         "severity": "warn",
@@ -211,7 +211,7 @@ async def _generate_chat_response(explain_payload: dict[str, Any]) -> tuple[str,
     except Exception as exc:
         logger.warning(
             "chat_generation_fallback",
-            extra={"context": {"asset": explain_payload.get("asset"), "error": str(exc)}},
+            extra={"context": {"asset": explain_payload.get("asset"), "error_type": type(exc).__name__}},
         )
         return _fallback_chat_response(explain_payload), {
             "provider": "fallback",
