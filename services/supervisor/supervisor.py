@@ -135,7 +135,6 @@ def start(
     start_tick: bool = True,
     start_webhook: bool = True,
     start_signal_adapter: bool = True,
-    start_risk_gate: bool = True,
     host: str | None = None,
     port: int | None = None,
     open_browser: bool = True,
@@ -171,11 +170,10 @@ def start(
             if not pid_is_alive(pid):
                 pid = _spawn_detached([sys.executable, "scripts/run_ops_signal_adapter.py", "run"])
                 pids["ops_signal_adapter"] = pid
-        if start_risk_gate:
-            pid = int(pids.get("ops_risk_gate") or 0)
-            if not pid_is_alive(pid):
-                pid = _spawn_detached([sys.executable, "scripts/run_ops_risk_gate_service.py", "run"])
-                pids["ops_risk_gate"] = pid
+        pid = int(pids.get("ops_risk_gate") or 0)
+        if not pid_is_alive(pid):
+            pid = _spawn_detached([sys.executable, "scripts/run_ops_risk_gate_service.py", "run"])
+            pids["ops_risk_gate"] = pid
         if with_dashboard:
             pid = int(pids.get("dashboard") or 0)
             if not pid_is_alive(pid):
@@ -198,7 +196,7 @@ def start(
             "start_tick": start_tick,
             "start_webhook": start_webhook,
             "start_signal_adapter": start_signal_adapter,
-            "start_risk_gate": start_risk_gate,
+            "start_risk_gate": True,
         }
         _write_state(pids, meta)
         return {
@@ -222,7 +220,6 @@ def stop(
     stop_tick: bool = True,
     stop_webhook: bool = True,
     stop_signal_adapter: bool = True,
-    stop_risk_gate: bool = True,
     timeout_sec: int = 6,
 ) -> dict:
     ensure_dirs()
@@ -251,12 +248,11 @@ def stop(
                 actions.append({"service": "ops_signal_adapter", "action": "stop_file_written"})
             except Exception as e:
                 actions.append({"service": "ops_signal_adapter", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
-        if stop_risk_gate:
-            try:
-                (runtime_dir() / "flags" / "ops_risk_gate_service.stop").write_text(_now_iso() + "\n", encoding="utf-8")
-                actions.append({"service": "ops_risk_gate", "action": "stop_file_written"})
-            except Exception as e:
-                actions.append({"service": "ops_risk_gate", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
+        try:
+            (runtime_dir() / "flags" / "ops_risk_gate_service.stop").write_text(_now_iso() + "\n", encoding="utf-8")
+            actions.append({"service": "ops_risk_gate", "action": "stop_file_written"})
+        except Exception as e:
+            actions.append({"service": "ops_risk_gate", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
         if stop_dashboard:
             pid = int(pids.get("dashboard") or 0)
             if pid_is_alive(pid):
@@ -273,8 +269,6 @@ def stop(
             alive_any = False
             for svc in ("tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate"):
                 pid = int(pids.get(svc) or 0)
-                if svc == "ops_risk_gate" and not stop_risk_gate:
-                    continue
                 if svc == "ops_signal_adapter" and not stop_signal_adapter:
                     continue
                 if pid and pid_is_alive(pid):
@@ -287,7 +281,6 @@ def stop(
                 (svc == "tick_publisher" and not stop_tick)
                 or (svc == "evidence_webhook" and not stop_webhook)
                 or (svc == "ops_signal_adapter" and not stop_signal_adapter)
-                or (svc == "ops_risk_gate" and not stop_risk_gate)
             ):
                 continue
             pid = int(pids.get(svc) or 0)
@@ -309,8 +302,7 @@ def stop(
             new_pids["evidence_webhook"] = 0
         if stop_signal_adapter:
             new_pids["ops_signal_adapter"] = 0
-        if stop_risk_gate:
-            new_pids["ops_risk_gate"] = 0
+        new_pids["ops_risk_gate"] = 0
         _write_state(new_pids, dict(st.get("meta") or {}))
         return {"ok": True, "actions": actions, "final_state": status()}
     finally:

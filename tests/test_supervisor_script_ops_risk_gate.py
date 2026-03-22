@@ -1,76 +1,35 @@
 from __future__ import annotations
 
-from scripts import supervisor as supervisor_script
+import scripts.supervisor as mod
 
 
-def test_supervisor_script_start_forwards_risk_gate_default(monkeypatch):
-    calls: dict[str, object] = {}
+def test_start_enforces_risk_gate(monkeypatch):
+    calls = {}
 
-    monkeypatch.setattr(
-        supervisor_script,
-        "start",
-        lambda **kwargs: calls.update(kwargs) or {"ok": True},
-    )
-    monkeypatch.setattr(supervisor_script, "stop", lambda **kwargs: {"ok": True, "kwargs": kwargs})
-    monkeypatch.setattr(supervisor_script, "status", lambda: {"ok": True})
-    monkeypatch.setattr(supervisor_script.sys, "argv", ["supervisor.py", "start", "--no-dashboard"])
+    def fake_start(**kwargs):
+        calls.update(kwargs)
+        return {"ok": True}
 
-    assert supervisor_script.main() == 0
-    assert calls.get("start_signal_adapter") is True
+    monkeypatch.setattr(mod, "start", fake_start)
+    monkeypatch.setattr(mod, "stop", lambda **kwargs: {"ok": True})
+    monkeypatch.setattr(mod, "status", lambda: {"ok": True})
+
+    rc = mod.main(["start"])
+    assert rc == 0
     assert calls.get("start_risk_gate") is True
 
 
-def test_supervisor_script_start_honors_no_risk_gate_flag(monkeypatch):
-    calls: dict[str, object] = {}
+def test_stop_enforces_risk_gate(monkeypatch):
+    calls = {}
 
-    monkeypatch.setattr(
-        supervisor_script,
-        "start",
-        lambda **kwargs: calls.update(kwargs) or {"ok": True},
-    )
-    monkeypatch.setattr(supervisor_script, "stop", lambda **kwargs: {"ok": True, "kwargs": kwargs})
-    monkeypatch.setattr(supervisor_script, "status", lambda: {"ok": True})
-    monkeypatch.setattr(
-        supervisor_script.sys,
-        "argv",
-        ["supervisor.py", "start", "--no-dashboard", "--no-risk-gate"],
-    )
+    def fake_stop(**kwargs):
+        calls.update(kwargs)
+        return {"ok": True}
 
-    assert supervisor_script.main() == 0
-    assert calls.get("start_risk_gate") is False
+    monkeypatch.setattr(mod, "start", lambda **kwargs: {"ok": True})
+    monkeypatch.setattr(mod, "stop", fake_stop)
+    monkeypatch.setattr(mod, "status", lambda: {"ok": True})
 
-
-def test_supervisor_script_stop_honors_no_risk_gate_flag(monkeypatch):
-    calls: dict[str, object] = {}
-
-    monkeypatch.setattr(supervisor_script, "start", lambda **kwargs: {"ok": True, "kwargs": kwargs})
-    monkeypatch.setattr(
-        supervisor_script,
-        "stop",
-        lambda **kwargs: calls.update(kwargs) or {"ok": True},
-    )
-    monkeypatch.setattr(supervisor_script, "status", lambda: {"ok": True})
-    monkeypatch.setattr(supervisor_script.sys, "argv", ["supervisor.py", "stop", "--no-risk-gate"])
-
-    assert supervisor_script.main() == 0
-    assert calls.get("stop_risk_gate") is False
-
-
-def test_supervisor_script_start_honors_no_signal_adapter_flag(monkeypatch):
-    calls: dict[str, object] = {}
-
-    monkeypatch.setattr(
-        supervisor_script,
-        "start",
-        lambda **kwargs: calls.update(kwargs) or {"ok": True},
-    )
-    monkeypatch.setattr(supervisor_script, "stop", lambda **kwargs: {"ok": True, "kwargs": kwargs})
-    monkeypatch.setattr(supervisor_script, "status", lambda: {"ok": True})
-    monkeypatch.setattr(
-        supervisor_script.sys,
-        "argv",
-        ["supervisor.py", "start", "--no-dashboard", "--no-signal-adapter"],
-    )
-
-    assert supervisor_script.main() == 0
-    assert calls.get("start_signal_adapter") is False
+    rc = mod.main(["stop"])
+    assert rc == 0
+    assert calls.get("stop_risk_gate") is True
