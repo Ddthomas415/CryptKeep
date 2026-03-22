@@ -25,7 +25,11 @@ def collect_process_files() -> dict:
         out = []
         for p in sorted(d.glob("*")):
             if p.is_file():
-                out.append({"path": str(p), "name": p.name, "mtime": p.stat().st_mtime})
+                try:
+                    rel = str(p.relative_to(rt))
+                except Exception:
+                    rel = p.name
+                out.append({"path": rel, "name": p.name, "mtime": p.stat().st_mtime})
         return out
     return {
         "flags": list_files(flags),
