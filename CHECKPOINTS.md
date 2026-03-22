@@ -2146,3 +2146,8 @@
 - verified artifacts: 00_summary.txt, failed_checks.txt, pytest_collect.txt
 - regression test status: ./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py => passing
 - worktree status at checkpoint: clean
+
+## Phase 2 start point
+- branch: followup/compat-cleanup
+- baseline commit: 4bda65c
+- baseline status: clean pushed governance baseline
