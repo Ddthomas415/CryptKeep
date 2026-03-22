@@ -882,7 +882,7 @@ with tab_safety:
         d0, d1, d2, d3 = st.columns(4)
         with d0:
             if st.button("Run Full Diagnostics", width="stretch", key="ops_diag_run"):
-                payload = run_full_system_diagnostics(export_bundle=False)
+                payload = run_full_system_diagnostics(export_bundle=False, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
                 rc = 0 if bool(payload.get("ok")) else 1
                 set_operator_result(action="Run Full Diagnostics", rc=rc, output=json.dumps(payload, indent=2))
         with d1:
