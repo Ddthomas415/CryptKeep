@@ -2138,3 +2138,11 @@
 - current strict doctor result: pass
 - steady-state noise still expected outside tracked artifacts: sqlite samples, log samples, cache samples under runtime/state paths
 - next cleanup track: reduce recurring __pycache__ regeneration only if it becomes a policy target
+
+## 2026-03-22 governance baseline reconfirmed pushed
+- branch: followup/compat-cleanup
+- strict doctor status: python3 tools/repo_doctor.py --strict => 0
+- latest verified audit run: .cbp_state/audit_reports/repo_audit_20260322_105047
+- verified artifacts: 00_summary.txt, failed_checks.txt, pytest_collect.txt
+- regression test status: ./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py => passing
+- worktree status at checkpoint: clean
