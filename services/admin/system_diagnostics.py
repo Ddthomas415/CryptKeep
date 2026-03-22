@@ -52,6 +52,54 @@ RUNNING_STATUSES = {"RUNNING", "OK", "HEALTHY", "STARTING"}
 ATTENTION_STATUSES = {"ERROR", "FAILED", "UNHEALTHY", "DEGRADED", "STOPPED"}
 REPAIRABLE_ACTIONS = {"remove_stale_lock", "remove_stale_pid_file", "remove_stale_stop_file"}
 
+def _normalize_diagnostics_payload(obj):
+    repo_root = str(REPO_ROOT)
+    runtime_root = str(runtime_dir())
+
+    if isinstance(obj, dict):
+        out = {}
+        for k, v in obj.items():
+            if k == "detail" and isinstance(v, str) and v.startswith("db_path="):
+                out[k] = _normalize_detail_text(v)
+            elif k in {"intent_queue", "paper_trading", "trade_journal", "live_intent_queue", "live_trading", "app_path"} and isinstance(v, str):
+                out[k] = _repo_relative_str(v) if v.startswith(repo_root) else v
+            elif k == "pids_path" and isinstance(v, str):
+                out[k] = _runtime_relative_str(v) if v.startswith(runtime_root) or v.startswith(repo_root) else v
+            elif k == "path" and isinstance(v, str):
+                if v.startswith(runtime_root):
+                    out[k] = _runtime_relative_str(v)
+                elif v.startswith(repo_root):
+                    out[k] = _repo_relative_str(v)
+                else:
+                    out[k] = v
+            else:
+                out[k] = _normalize_diagnostics_payload(v)
+        return out
+
+    if isinstance(obj, list):
+        return [_normalize_diagnostics_payload(v) for v in obj]
+
+    return obj
+
+
+def _normalize_loaded_payload(obj):
+    if isinstance(obj, dict):
+        out = {}
+        for k, v in obj.items():
+            if k in {"intent_queue", "paper_trading", "trade_journal", "live_intent_queue", "live_trading", "app_path"}:
+                out[k] = _repo_relative_str(v)
+            elif k in {"pids_path"}:
+                out[k] = _runtime_relative_str(v)
+            elif k == "detail" and isinstance(v, str) and v.startswith("db_path="):
+                out[k] = _normalize_detail_text(v)
+            else:
+                out[k] = _normalize_loaded_payload(v)
+        return _normalize_diagnostics_payload(out)
+    if isinstance(obj, list):
+        return [_normalize_loaded_payload(v) for v in obj]
+    return obj
+
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -486,7 +534,7 @@ def run_full_diagnostics(*, export_bundle: bool = False) -> dict[str, Any]:
     except Exception as exc:
         paper_evidence_runtime = {"ok": False, "reason": f"runtime_import_failed:{type(exc).__name__}"}
     else:
-        paper_evidence_runtime = _load_managed_runtime(load_paper_evidence_runtime_status)
+        paper_evidence_runtime = _normalize_loaded_payload(_load_managed_runtime(load_paper_evidence_runtime_status))
     for name, payload in (
         ("crypto_edge_collector", collector_runtime),
         ("paper_strategy_evidence", paper_evidence_runtime),
@@ -552,7 +600,7 @@ def run_full_diagnostics(*, export_bundle: bool = False) -> dict[str, Any]:
             warning_count = sum(1 for item in issues if str(item.get("severity") or "") == "warn")
             status = "critical" if critical_count else ("warn" if warning_count else "ok")
 
-    return {
+    return _normalize_diagnostics_payload({
         "ok": True,
         "as_of": _now_iso(),
         "status": status,
@@ -581,7 +629,7 @@ def run_full_diagnostics(*, export_bundle: bool = False) -> dict[str, Any]:
         "issues": issues,
         "repair_plan": repair_plan,
         "export_path": export_path,
-    }
+    })
 
 
 def preview_safe_self_repair() -> dict[str, Any]:
