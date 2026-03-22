@@ -17,7 +17,6 @@ Source: `CHECKPOINTS.md`
 
 ## ⏳ Not Started (1)
 
-## ⏳ Not Started (1)
 
 - Move `00_summary.txt` generation to the end of `scripts/manual_repo_audit.sh`
   - Ensure the summary is written only after all checks complete
