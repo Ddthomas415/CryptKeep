@@ -3,13 +3,21 @@ set -u
 
 # Manual repo audit helper
 # Read-only by default
-# Writes timestamped outputs under audit_reports/
+# Writes timestamped outputs under .cbp_state/audit_reports/
 # Human Review Required:
 # - interpreting findings
 # - deciding what to delete, keep, or refactor
 
 TS="$(date +%Y%m%d_%H%M%S)"
-OUT_DIR="audit_reports/repo_audit_${TS}"
+BASE_DIR=".cbp_state/audit_reports"
+mkdir -p ""
+STATE_ROOT=".cbp_state/audit_reports"
+STAMP="$(date +%Y%m%d_%H%M%S)"
+OUT_DIR="$STATE_ROOT/repo_audit_$STAMP"
+mkdir -p "$OUT_DIR" || exit 1
+SUMMARY="$OUT_DIR/00_summary.txt"
+FAILED_LIST="$OUT_DIR/failed_checks.txt"
+: > "$FAILED_LIST"
 mkdir -p "$OUT_DIR"
 
 MODE="${1:-full}"   # quick | full
@@ -95,15 +103,13 @@ FIND_EXCLUDES=(
   -not -path "./.git/*"
   -not -path "./.venv/*"
   -not -path "./.venv_x86_backup_*/*"
-  -not -path "./attic/*"
-  -not -path "./audit_reports/*" -not -path "./.cbp_state/audit_reports/*"
+  -not -path "./attic/*" -not -path "./.cbp_state/audit_reports/*"
 )
 
 GREP_EXCLUDES=(
   --exclude-dir=.git
   --exclude-dir=.venv --exclude-dir=.venv_x86_backup_20260224_133111
   --exclude-dir=attic
-  --exclude-dir=audit_reports
   --exclude=manual_repo_audit.sh
   --exclude=manual_repo_audit.sh.pre_*
 )
@@ -202,9 +208,9 @@ run_shell_check() {
 run_check git_status 20 git status --short
 run_check git_log 20 git log --oneline --decorate -10
 run_shell_check repo_doctor_strict 60 'python3 tools/repo_doctor.py --strict'
-run_shell_check find_bak 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./audit_reports" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type f -name "*.bak" -print | sort'
-run_shell_check find_pycache 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./audit_reports" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type d -name "__pycache__" -print | sort'
-run_shell_check find_pyc 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./audit_reports" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type f -name "*.pyc" -print | sort'
+run_shell_check find_bak 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type f -name "*.bak" -print | sort'
+run_shell_check find_pycache 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type d -name "__pycache__" -print | sort'
+run_shell_check find_pyc 20 'find . \( -path "./.git" -o -path "./.venv" -o -path "./attic" -o -path "./.cbp_state/audit_reports" -o -path "./.venv_x86_backup_20260224_133111" \) -prune -o -type f -name "*.pyc" -print | sort'
 
 # -------- 2. Structure / boundaries --------
 run_shell_check top_level 20 'find . -maxdepth 1 -mindepth 1 | sort'
@@ -274,7 +280,6 @@ run_shell_check observability_services 20 'find services -type f | grep -E "log|
 run_shell_check observability_scripts 20 'find scripts -type f | grep -E "diagnostic|doctor|repair|watchdog|supervisor" | sort || true'
 
 # -------- 9. Summary --------
-SUMMARY="$OUT_DIR/00_summary.txt"
 {
   echo "Repo Audit Summary"
   echo "=================="
