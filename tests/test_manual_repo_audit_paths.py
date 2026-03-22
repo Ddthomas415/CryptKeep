@@ -10,8 +10,13 @@ def test_manual_repo_audit_writes_required_artifacts() -> None:
     )
     runs = sorted(Path(".cbp_state/audit_reports").glob("repo_audit_*"))
     latest = runs[-1]
-    assert (latest / "00_summary.txt").is_file()
-    assert (latest / "failed_checks.txt").is_file()
-    assert (latest / "pytest_collect.txt").is_file()
-    assert (latest / "00_summary.txt").stat().st_size > 0
+    summary = latest / "00_summary.txt"
+    failed = latest / "failed_checks.txt"
+    collect = latest / "pytest_collect.txt"
+
+    assert summary.is_file()
+    assert failed.is_file()
+    assert collect.is_file()
+    assert summary.stat().st_size > 0
+    assert failed.read_text().strip() == ""
     assert "No such file or directory" not in result.stderr
