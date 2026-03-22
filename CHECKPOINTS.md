@@ -2171,3 +2171,9 @@
 - validation: ./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py => passing
 - branch: followup/compat-cleanup
 - queue status: no executable tasks remain
+
+## Phase 2 task activated
+- active task: move 00_summary.txt generation to the end of scripts/manual_repo_audit.sh
+- source commit: ce13e12
+- branch: followup/compat-cleanup
+- next action: implement summary ordering change and validate with ./scripts/manual_repo_audit.sh quick
