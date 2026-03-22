@@ -261,7 +261,7 @@ def upsert_user(*, username: str, password: str, role: str = "VIEWER", enabled: 
 def get_user_mfa_status(username: str) -> dict[str, Any]:
     row = get_user(username)
     if not row:
-        return {"ok": False, "reason": "unknown_user"}
+        return {"ok": False, "reason": "invalid_credentials"}
     backup_hashes = [str(item) for item in list(row.get("mfa_backup_code_hashes") or []) if str(item).strip()]
     return {
         "ok": True,
@@ -278,7 +278,7 @@ def get_user_mfa_status(username: str) -> dict[str, Any]:
 def begin_mfa_enrollment(*, username: str, issuer: str = MFA_ISSUER) -> dict[str, Any]:
     row = get_user(username)
     if not row:
-        return {"ok": False, "reason": "unknown_user"}
+        return {"ok": False, "reason": "invalid_credentials"}
     secret_b32 = _generate_totp_secret()
     backup_codes = _generate_backup_codes()
     row["mfa_enabled"] = False
@@ -302,7 +302,7 @@ def begin_mfa_enrollment(*, username: str, issuer: str = MFA_ISSUER) -> dict[str
 def confirm_mfa_enrollment(*, username: str, code: str) -> dict[str, Any]:
     row = get_user(username)
     if not row:
-        return {"ok": False, "reason": "unknown_user"}
+        return {"ok": False, "reason": "invalid_credentials"}
     secret_b32 = str(row.get("mfa_secret_b32") or "").strip()
     if not secret_b32:
         return {"ok": False, "reason": "mfa_not_configured"}
@@ -322,7 +322,7 @@ def confirm_mfa_enrollment(*, username: str, code: str) -> dict[str, Any]:
 def disable_mfa_for_user(*, username: str) -> dict[str, Any]:
     row = get_user(username)
     if not row:
-        return {"ok": False, "reason": "unknown_user"}
+        return {"ok": False, "reason": "invalid_credentials"}
     for key in _MFA_RECORD_KEYS:
         row.pop(key, None)
     row["updated_ts"] = _now_iso()
@@ -333,7 +333,7 @@ def disable_mfa_for_user(*, username: str) -> dict[str, Any]:
 def verify_mfa_code(*, username: str, code: str) -> dict[str, Any]:
     row = get_user(username)
     if not row:
-        return {"ok": False, "reason": "unknown_user"}
+        return {"ok": False, "reason": "invalid_credentials"}
     if not bool(row.get("mfa_enabled", False)):
         return {"ok": False, "reason": "mfa_not_enabled"}
     secret_b32 = str(row.get("mfa_secret_b32") or "").strip()
@@ -382,15 +382,15 @@ def verify_login(*, username: str, password: str) -> dict[str, Any]:
 
     row = get_user(name)
     if not row:
-        return {"ok": False, "reason": "unknown_user"}
+        return {"ok": False, "reason": "invalid_credentials"}
     if not bool(row.get("enabled", True)):
-        return {"ok": False, "reason": "user_disabled"}
+        return {"ok": False, "reason": "invalid_credentials"}
     try:
         salt = base64.b64decode(str(row.get("password_salt_b64") or "").encode("utf-8"))
         iterations = int(row.get("iterations") or 390_000)
         expected = str(row.get("password_hash_hex") or "")
     except Exception:
-        return {"ok": False, "reason": "invalid_user_record"}
+        return {"ok": False, "reason": "invalid_credentials"}
     actual = _pbkdf2_hash(pwd, salt, iterations)
     if not hmac.compare_digest(actual, expected):
         return {"ok": False, "reason": "invalid_credentials"}
