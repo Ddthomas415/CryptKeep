@@ -77,9 +77,9 @@ def build_diagnostics_zip_bytes() -> bytes:
             rel = p.relative_to(rt)
             arc = f"state/{rel.as_posix()}"
             if p.name.endswith(".log"):
-                add_text(arc, _tail_text(p, max_chars=20000))
+                add_text(arc, _safe_yaml_text(_tail_text(p, max_chars=20000)))
             else:
-                add_text(arc, _tail_text(p, max_chars=200000))
+                add_text(arc, _safe_yaml_text(_tail_text(p, max_chars=200000)))
 
         files = []
         for info in z.infolist():
@@ -88,8 +88,8 @@ def build_diagnostics_zip_bytes() -> bytes:
         final_manifest = {
             "generated_utc": ts,
             "version": version,
-            "repo_root": str(REPO_ROOT),
-            "runtime_dir": str(rt),
+            "repo_root": ".",
+            "runtime_dir": "runtime",
             "zip_entries": files,
         }
         z.writestr("manifest.json", json.dumps(final_manifest, indent=2, sort_keys=True))

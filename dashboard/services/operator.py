@@ -184,7 +184,7 @@ def export_diagnostics_bundle() -> dict[str, object]:
         path = export_zip_to_runtime()
     except Exception as exc:
         return {"ok": False, "reason": f"diagnostics_export_failed:{type(exc).__name__}:{exc}"}
-    return {"ok": True, "exported_to": str(path)}
+    return {"ok": True, "export_created": True}
 
 
 def list_services(*, fallback: Sequence[str] | None = None) -> list[str]:
