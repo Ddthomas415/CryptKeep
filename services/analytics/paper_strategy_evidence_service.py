@@ -73,11 +73,10 @@ def _runtime_files() -> dict[str, dict[str, Path]]:
 
 
 def _write_status(obj: dict[str, Any]) -> None:
-    ensure_dirs()
-    _health_dir().mkdir(parents=True, exist_ok=True)
-    status_file().write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
-
+    status = str(obj.get("status") or "").strip().upper()
+    if status == "PROMOTED":
+        raise ValueError("direct status mutation is not allowed")
+    _status_path().write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
 def _write_pid_state(obj: dict[str, Any]) -> None:
     ensure_dirs()
     _health_dir().mkdir(parents=True, exist_ok=True)
