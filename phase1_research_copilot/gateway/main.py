@@ -793,7 +793,7 @@ async def chat(req: ChatRequest) -> dict[str, Any]:
         response = _fallback_explain_response(req, reason=explain_fallback_reason)
         logger.warning(
             "orchestrator_chat_fallback",
-            extra={"context": {"asset": req.asset, "question": req.question, "error": str(exc)}},
+            extra={"context": {"asset": req.asset, "question": req.question, "error_type": type(exc).__name__}},
         )
 
     assistant_response, assistant_status = await _generate_chat_response(response)
