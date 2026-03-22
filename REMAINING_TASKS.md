@@ -15,19 +15,11 @@ Source: `CHECKPOINTS.md`
 ## 🟡 Partial (0)
 
 
-## ⏳ Not Started (1)
+## ⏳ Not Started (0)
 
 
 
 
-- Implement governance smoke target in `Makefile`
-  - Add `.PHONY: governance-smoke`
-  - Target commands:
-    - `python3 tools/repo_doctor.py --strict`
-    - `./scripts/manual_repo_audit.sh quick`
-    - `./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py`
-  - Validation:
-    - `make governance-smoke` exits 0
 
 ## ⚠️ Constraint / Note (4)
 
