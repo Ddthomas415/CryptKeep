@@ -12,9 +12,27 @@ ALLOWED_OPERATOR_SCRIPTS = {
     "scripts/run_crypto_edge_collector_loop.py",
     "scripts/run_paper_strategy_evidence_collector.py",
 }
+ALLOWED_OP_ARGS = {
+    ("start", "--name", "tick_publisher"),
+    ("start", "--name", "intent_reconciler"),
+    ("start", "--name", "intent_executor"),
+    ("stop", "--name", "tick_publisher"),
+    ("stop", "--name", "intent_reconciler"),
+    ("stop", "--name", "intent_executor"),
+    ("restart", "--name", "tick_publisher"),
+    ("restart", "--name", "intent_reconciler"),
+    ("restart", "--name", "intent_executor"),
+}
 
 
 def run_op(args: Sequence[str]) -> tuple[int, str]:
+    normalized = tuple(str(x) for x in list(args))
+    if normalized[:3] in ALLOWED_OP_ARGS:
+        pass
+    elif len(normalized) >= 4 and normalized[0] == "logs" and normalized[1] == "--name" and normalized[2] in DEFAULT_SERVICES and normalized[3] == "--lines":
+        pass
+    else:
+        return 1, "disallowed_op"
     cmd = [sys.executable, str(REPO_ROOT / "scripts" / "op.py"), *list(args)]
     proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)
     output = (proc.stdout or "") + (proc.stderr or "")
