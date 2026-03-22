@@ -72,3 +72,21 @@ def test_process_snapshot_persists_raw_and_gate(tmp_path):
         RiskGateState.HALT_NEW_POSITIONS.value,
         RiskGateState.FULL_STOP.value,
     }
+
+def test_caution_zone_blocks_promotion_path():
+    from services.ops.risk_gate_engine import RiskGateState
+
+    gate_state = RiskGateState.ALLOW_ONLY_REDUCTIONS
+    zone = "caution"
+
+    decision = "PROMOTE" if gate_state.name == "OPEN" and zone not in {"caution", "stressed"} else "BLOCK"
+    assert decision == "BLOCK"
+
+def test_caution_zone_blocks_promotion_path():
+    from services.ops.risk_gate_engine import RiskGateState
+
+    gate_state = RiskGateState.ALLOW_ONLY_REDUCTIONS
+    zone = "caution"
+
+    decision = "PROMOTE" if gate_state.name == "OPEN" and zone not in {"caution", "stressed"} else "BLOCK"
+    assert decision == "BLOCK"

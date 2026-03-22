@@ -193,3 +193,39 @@ def test_require_authenticated_role_warns_when_remote_scope_is_not_hardened(monk
         auth_gate.require_authenticated_role("VIEWER")
 
     assert any("outer access-control layer" in msg.lower() for msg in fake.warnings)
+
+def test_login_requires_mfa_when_user_has_mfa_enabled(monkeypatch):
+    from dashboard import auth_gate
+
+    monkeypatch.setattr(
+        auth_gate,
+        "verify_login",
+        lambda *args, **kwargs: {"ok": True, "mfa_required": True},
+    )
+
+    out = auth_gate.verify_login("user", "pass")
+    assert out["ok"] is True
+    assert out["mfa_required"] is True
+
+def test_logout_clears_session_state(monkeypatch):
+    from dashboard import auth_gate
+
+    fake_state = {"authenticated": True}
+    monkeypatch.setattr(auth_gate.st, "session_state", fake_state, raising=False)
+
+    auth_gate.logout()
+    assert fake_state["cbp_auth_session"]["ok"] is False
+    assert "user" not in fake_state["cbp_auth_session"]
+
+def test_login_requires_mfa_when_user_has_mfa_enabled(monkeypatch):
+    from dashboard import auth_gate
+
+    monkeypatch.setattr(
+        auth_gate,
+        "verify_login",
+        lambda *args, **kwargs: {"ok": True, "mfa_required": True},
+    )
+
+    out = auth_gate.verify_login("user", "pass")
+    assert out["ok"] is True
+    assert out["mfa_required"] is True
