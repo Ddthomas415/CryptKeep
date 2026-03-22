@@ -20,7 +20,6 @@ FAILED_LIST="$OUT_DIR/failed_checks.txt"
 [ -n "$SUMMARY" ] || exit 1
 [ -n "$FAILED_LIST" ] || exit 1
 : > "$FAILED_LIST"
-mkdir -p "$OUT_DIR"
 
 MODE="${1:-full}"   # quick | full
 : > "$FAILED_LIST"
