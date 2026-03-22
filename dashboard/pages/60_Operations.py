@@ -288,7 +288,7 @@ with tab_strategy:
     with evidence_cols[1]:
         if st.button("Stop Paper Evidence Collector", width="stretch", key="ops_paper_evidence_stop"):
             evidence_action = "Stop Paper Evidence Collector"
-            evidence_rc, evidence_output = stop_paper_strategy_evidence_collection()
+            evidence_rc, evidence_output = stop_paper_strategy_evidence_collection(current_role=str(AUTH_STATE.get("role") or "VIEWER"))
 
     render_action_result(action=evidence_action, rc=evidence_rc, output=evidence_output)
     render_table_section(
@@ -738,7 +738,7 @@ with tab_research:
     with collector_cols[1]:
         if st.button("Stop Live Collector Loop", width="stretch", key="ops_crypto_edge_stop"):
             collector_action = "Stop Live Collector Loop"
-            collector_rc, collector_output = stop_crypto_edge_collector_loop()
+            collector_rc, collector_output = stop_crypto_edge_collector_loop(current_role=str(AUTH_STATE.get("role") or "VIEWER"))
 
     render_action_result(action=collector_action, rc=collector_rc, output=collector_output)
 
@@ -887,17 +887,17 @@ with tab_safety:
                 set_operator_result(action="Run Full Diagnostics", rc=rc, output=json.dumps(payload, indent=2))
         with d1:
             if st.button("Export Diagnostics Bundle", width="stretch", key="ops_diag_export"):
-                payload = export_diagnostics_bundle()
+                payload = export_diagnostics_bundle(current_role=str(AUTH_STATE.get("role") or "VIEWER"))
                 rc = 0 if bool(payload.get("ok")) else 1
                 set_operator_result(action="Export Diagnostics Bundle", rc=rc, output=json.dumps(payload, indent=2))
         with d2:
             if st.button("Preview Safe Self-Repair", width="stretch", key="ops_diag_preview_repair"):
-                payload = preview_safe_system_self_repair()
+                payload = preview_safe_system_self_repair(current_role=str(AUTH_STATE.get("role") or "VIEWER"))
                 rc = 0 if bool(payload.get("ok")) else 1
                 set_operator_result(action="Preview Safe Self-Repair", rc=rc, output=json.dumps(payload, indent=2))
         with d3:
             if st.button("Apply Safe Self-Repair", width="stretch", key="ops_diag_apply_repair"):
-                payload = apply_safe_system_self_repair(export_bundle=export_before_repair)
+                payload = apply_safe_system_self_repair(export_bundle=export_before_repair, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
                 rc = 0 if bool(payload.get("ok")) else 1
                 set_operator_result(action="Apply Safe Self-Repair", rc=rc, output=json.dumps(payload, indent=2))
         with st.container():
