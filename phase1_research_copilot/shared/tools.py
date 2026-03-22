@@ -359,7 +359,7 @@ async def get_crypto_edge_report() -> dict[str, Any]:
     except Exception as exc:
         logger.warning(
             "crypto_edge_report_failed",
-            extra={"context": {"error": str(exc)}},
+            extra={"context": {"error_type": type(exc).__name__}},
         )
         return {
             "ok": False,
@@ -388,7 +388,7 @@ async def get_latest_live_crypto_edge_snapshot() -> dict[str, Any]:
     except Exception as exc:
         logger.warning(
             "latest_live_crypto_edge_snapshot_failed",
-            extra={"context": {"error": str(exc)}},
+            extra={"context": {"error_type": type(exc).__name__}},
         )
         return {
             "ok": False,
@@ -418,7 +418,7 @@ async def get_crypto_edge_change_summary() -> dict[str, Any]:
     except Exception as exc:
         logger.warning(
             "crypto_edge_change_summary_failed",
-            extra={"context": {"error": str(exc)}},
+            extra={"context": {"error_type": type(exc).__name__}},
         )
         return {
             "ok": False,
@@ -447,7 +447,7 @@ async def get_crypto_edge_staleness_summary() -> dict[str, Any]:
     except Exception as exc:
         logger.warning(
             "crypto_edge_staleness_summary_failed",
-            extra={"context": {"error": str(exc)}},
+            extra={"context": {"error_type": type(exc).__name__}},
         )
         return {
             "ok": False,
@@ -475,7 +475,7 @@ async def get_crypto_edge_staleness_digest() -> dict[str, Any]:
     except Exception as exc:
         logger.warning(
             "crypto_edge_staleness_digest_failed",
-            extra={"context": {"error": str(exc)}},
+            extra={"context": {"error_type": type(exc).__name__}},
         )
         return {
             "ok": False,
