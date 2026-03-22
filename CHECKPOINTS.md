@@ -2045,3 +2045,9 @@
 - ✅ WF1: Published canonical workflow specs for connect exchange, research query, paper/live approvals, kill-switch lifecycle, and terminal execution (`attic/trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
 - ✅ WF2: Added per-step mapping from workflow actions to API endpoints, policy gates, state-transition expectations, and audit events (`attic/trade-ai-mvp/docs/WORKFLOW_SPECS.md`)
 - ✅ WF3: Added workflow contract tests for happy/blocked paths across role/mode/risk/kill-switch permutations (`attic/trade-ai-mvp/tests/test_workflow_contracts.py`)
+
+## 2026-03-22 audit output dir checkpoint
+- blocker fixed: removed hardcoded OUT_DIR=/repo_audit_
+- canonical output root: .cbp_state/audit_reports
+- verified newest run directory contains 00_summary.txt, failed_checks.txt, and pytest_collect.txt
+- latest successful run: .cbp_state/audit_reports/repo_audit_20260322_095927
