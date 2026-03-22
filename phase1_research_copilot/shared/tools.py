@@ -215,7 +215,7 @@ async def _request_json(
     except Exception as exc:
         logger.warning(
             "tool_request_failed",
-            extra={"context": {"method": method, "url": url, "error": str(exc)}},
+            extra={"context": {"method": method, "url": url, "error_type": type(exc).__name__}},
         )
         return None
 
