@@ -362,7 +362,7 @@ run_shell_check orphan_dirs 20 'find . -maxdepth 2 -type d | grep -E "attic|prot
 run_shell_check ci_secrets 30 'grep -RniE "secrets\\.|AWS_|TOKEN|KEY|PASSWORD" .github/workflows 2>/dev/null || true'
 run_shell_check insecure_defaults 45 'grep -RniE --exclude="manual_repo_audit.sh" --exclude="manual_repo_audit.sh.*" --exclude="*.pyc" "localhost|0.0.0.0|debug=True|allow_origins|CORS|SECRET_KEY|MINIO_|DATABASE_URL" services scripts config docker crypto-trading-ai .env.example 2>/dev/null || true'
 run_shell_check branch_refs 20 'grep -RniE "main|master" .github/workflows Makefile scripts docker 2>/dev/null || true'
-run_shell_check shell_scripts 60 'command -v shellcheck >/dev/null 2>&1 && find . -type f \\( -name "*.sh" -o -name "run_*" \\) -print0 | xargs -0 shellcheck || true'
+run_shell_check shell_scripts 60 'command -v shellcheck >/dev/null 2>&1 && find . -type f \( -name "*.sh" -o -name "run_*" \) -print0 | xargs -0 shellcheck || true'
 
 # -------- 13. Tests / governance / evidence --------
 run_shell_check test_inventory 20 'find tests -type f | sort'
