@@ -29,7 +29,7 @@ def _cfg() -> Dict[str, Any]:
         "source_type": str(webhook.get("source_type") or "webhook"),
         "display_name": str(webhook.get("display_name") or "Webhook Source"),
         "consent_confirmed": bool(webhook.get("consent_confirmed", True)),
-        "require_hmac": bool(webhook.get("require_hmac", False)),
+        "require_hmac": bool(webhook.get("require_hmac", True)),
         "hmac_secret": str(webhook.get("hmac_secret") or ""),
         "hmac_header": str(webhook.get("hmac_header") or "X-Signature"),
         "allow_public_bind": bool(webhook.get("allow_public_bind", False)),
@@ -38,11 +38,9 @@ def _cfg() -> Dict[str, Any]:
 
 def _bind_guard(cfg: Dict[str, Any]) -> None:
     host = str(cfg.get("host") or "")
-    if bool(cfg.get("allow_public_bind")):
-        return
     if host in {"127.0.0.1", "localhost", "::1"}:
         return
-    raise RuntimeError("Public bind is disabled; use 127.0.0.1 or set evidence.webhook.allow_public_bind=true")
+    raise RuntimeError("Public bind is disabled; use 127.0.0.1")
 
 
 def _validate_hmac(body: bytes, signature: str, secret: str) -> bool:
