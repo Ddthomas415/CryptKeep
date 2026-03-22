@@ -10,7 +10,7 @@ from services.os.app_paths import runtime_dir
 from services.app.versioning import current_version
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REDACT_KEYS = ("api_key", "apikey", "secret", "passphrase", "password", "private_key")
+REDACT_KEYS = ("api_key", "apikey", "secret", "passphrase", "password", "private_key", "token", "authorization", "bearer", "cookie", "session", "jwt")
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
