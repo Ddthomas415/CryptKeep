@@ -68,3 +68,9 @@
 - services/paper/paper_broker.py: compatibility wrapper over services.execution.paper_engine.PaperEngine
 - decision: keep frozen as transitional compatibility layer
 - rule: no new direct imports; migrate callers only if needed
+
+## Approved review decision: services/strategy implementation shape
+- services/strategy/registry.py: legacy internal registry of old strategy compute functions
+- services/strategy/strategies/*: legacy compute implementations returning services.strategy.signals.Signal
+- decision: keep frozen as transitional internal compatibility island
+- rule: no new direct imports; migrate external callers to services/strategies where canonical equivalents exist
