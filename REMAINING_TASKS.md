@@ -6,7 +6,7 @@ Source: `CHECKPOINTS.md`
 - Total non-✅ items: 4
 - 🔄 In progress: 0
 - 🟡 Partial: 0
-- ⏳ Not started: 0
+- ⏳ Not started: 1
 - ⚠️ Constraint/note: 4
 
 ## 🔄 In Progress (0)
@@ -15,11 +15,12 @@ Source: `CHECKPOINTS.md`
 ## 🟡 Partial (0)
 
 
-## ⏳ Not Started (0)
+## ⏳ Not Started (1)
 
-
-
-
+- Add zero-failed-checks assertion to `tests/test_manual_repo_audit_paths.py`
+  - Update the regression test to assert `failed_checks.txt` is empty for the clean quick run
+  - Validation:
+    - `./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py` exits 0
 
 ## ⚠️ Constraint / Note (4)
 
