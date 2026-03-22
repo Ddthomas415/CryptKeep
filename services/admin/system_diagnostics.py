@@ -12,6 +12,40 @@ from services.app.diagnostics_exporter import export_zip_to_runtime
 from services.app.preflight_wizard import run_preflight as run_app_preflight
 from services.app.system_health import collect_process_files
 from services.os.app_paths import data_dir, ensure_dirs, runtime_dir
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _repo_relative_str(value: object) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return raw
+    try:
+        path = Path(raw).expanduser().resolve()
+        return str(path.relative_to(REPO_ROOT))
+    except Exception:
+        return raw
+
+
+def _runtime_relative_str(value: object) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return raw
+    try:
+        path = Path(raw).expanduser().resolve()
+        return str(path.relative_to(runtime_dir()))
+    except Exception:
+        return _repo_relative_str(raw)
+
+
+def _normalize_detail_text(value: object) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return raw
+    prefix = "db_path="
+    if raw.startswith(prefix):
+        return prefix + _repo_relative_str(raw[len(prefix):])
+    return raw
 from services.preflight.preflight import run_preflight as run_core_preflight
 
 RUNNING_STATUSES = {"RUNNING", "OK", "HEALTHY", "STARTING"}
@@ -86,17 +120,17 @@ def _artifact_summary() -> dict[str, Any]:
     latest_record = decision_records[-1] if decision_records else None
     return {
         "strategy_evidence_latest": {
-            "path": str(latest_path),
+            "path": _repo_relative_str(latest_path),
             "exists": latest_path.exists(),
             "age_seconds": _age_seconds(datetime.fromtimestamp(latest_path.stat().st_mtime, tz=timezone.utc).isoformat()) if latest_path.exists() else None,
         },
         "trade_journal": {
-            "path": str(trade_journal),
+            "path": _repo_relative_str(trade_journal),
             "exists": trade_journal.exists(),
             "age_seconds": _age_seconds(datetime.fromtimestamp(trade_journal.stat().st_mtime, tz=timezone.utc).isoformat()) if trade_journal.exists() else None,
         },
         "decision_record_latest": {
-            "path": str(latest_record) if latest_record else "",
+            "path": _repo_relative_str(latest_record) if latest_record else "",
             "exists": bool(latest_record and latest_record.exists()),
             "age_seconds": (
                 _age_seconds(datetime.fromtimestamp(latest_record.stat().st_mtime, tz=timezone.utc).isoformat())
@@ -137,7 +171,7 @@ def _lock_rows() -> list[dict[str, Any]]:
         if not path.is_file():
             continue
         row: dict[str, Any] = {
-            "path": str(path),
+            "path": _runtime_relative_str(path),
             "name": path.name,
             "service": path.stem,
             "repairable": False,
@@ -178,7 +212,7 @@ def _pid_rows() -> list[dict[str, Any]]:
         alive = _pid_alive(pid)
         rows.append(
             {
-                "path": str(path),
+                "path": _runtime_relative_str(path),
                 "name": path.name,
                 "service": path.stem,
                 "pid": pid,
@@ -225,7 +259,7 @@ def _stop_rows() -> list[dict[str, Any]]:
         alive = _related_process_alive(service)
         rows.append(
             {
-                "path": str(path),
+                "path": _runtime_relative_str(path),
                 "name": path.name,
                 "service": service,
                 "pid_alive": alive,
@@ -502,7 +536,7 @@ def run_full_diagnostics(*, export_bundle: bool = False) -> dict[str, Any]:
     export_path = ""
     if bool(export_bundle):
         try:
-            export_path = str(export_zip_to_runtime())
+            export_path = _runtime_relative_str(export_zip_to_runtime())
         except Exception as exc:
             issues.append(
                 _issue(
@@ -572,16 +606,16 @@ def apply_safe_self_repair(*, export_bundle: bool = True) -> dict[str, Any]:
 
     if bool(export_bundle):
         try:
-            export_path = str(export_zip_to_runtime())
+            export_path = _runtime_relative_str(export_zip_to_runtime())
         except Exception as exc:
             failed.append({"action": "export_diagnostics", "error": f"{type(exc).__name__}: {exc}"})
 
     for item in repair_plan:
         path = Path(str(item.get("path") or ""))
         if not _safe_remove_file(path):
-            failed.append({"action": str(item.get("action") or ""), "path": str(path), "error": "remove_failed"})
+            failed.append({"action": str(item.get("action") or ""), "path": _runtime_relative_str(path), "error": "remove_failed"})
             continue
-        removed.append(str(path))
+        removed.append(_runtime_relative_str(path))
 
     diagnostics_after = run_full_diagnostics(export_bundle=False)
     return {
