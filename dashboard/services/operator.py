@@ -8,6 +8,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SERVICES = ("tick_publisher", "intent_reconciler", "intent_executor")
+ALLOWED_OPERATOR_SCRIPTS = {
+    "scripts/run_crypto_edge_collector_loop.py",
+    "scripts/run_paper_strategy_evidence_collector.py",
+}
 
 
 def run_op(args: Sequence[str]) -> tuple[int, str]:
@@ -18,6 +22,8 @@ def run_op(args: Sequence[str]) -> tuple[int, str]:
 
 
 def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None) -> tuple[int, str]:
+    if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
+        return 1, "disallowed_script"
     cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
     if args:
         cmd.extend(str(x) for x in args)
@@ -27,6 +33,8 @@ def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None) -
 
 
 def start_repo_script_background(script_relpath: str, *, args: Sequence[str] | None = None) -> tuple[int, str]:
+    if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
+        return 1, "disallowed_script"
     cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
     if args:
         cmd.extend(str(x) for x in args)
