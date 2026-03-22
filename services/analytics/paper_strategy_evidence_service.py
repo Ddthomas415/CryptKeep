@@ -72,6 +72,9 @@ def _runtime_files() -> dict[str, dict[str, Path]]:
     }
 
 
+def _status_path() -> Path:
+    return state_dir() / "paper_strategy_evidence_service.status.json"
+
 def _write_status(obj: dict[str, Any]) -> None:
     status = str(obj.get("status") or "").strip().upper()
     if status == "PROMOTED":
