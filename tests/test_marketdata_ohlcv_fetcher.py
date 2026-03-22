@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import services.marketdata.ohlcv_fetcher as ohlcv_fetcher
+import services.market_data.ohlcv_fetcher as ohlcv_fetcher
 
 
 def test_fetch_ohlcv_delegates(monkeypatch):

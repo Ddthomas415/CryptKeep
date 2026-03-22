@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, AsyncIterator, Dict
 
 from services.market_data.ws_common import normalize_ticker_message
-from services.marketdata import ws_feature_blacklist as blacklist
+from services.market_data import ws_feature_blacklist as blacklist
 
 
 def _watch_ticker_supported(exchange: Any) -> bool:

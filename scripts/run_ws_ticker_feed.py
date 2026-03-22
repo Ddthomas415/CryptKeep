@@ -17,7 +17,7 @@ import os
 import signal
 from typing import Any
 
-from services.marketdata.ws_ticker_feed import WSTickerFeed, WSTickerFeedCfg
+from services.market_data.ws_ticker_feed import WSTickerFeed, WSTickerFeedCfg
 
 
 def _normalize_exchange_id(exchange_id: str) -> str:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from services.marketdata import ws_ticker_feed as wtf
+from services.market_data import ws_ticker_feed as wtf
 
 
 class _ExchangeNoWatch:

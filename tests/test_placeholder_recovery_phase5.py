@@ -121,7 +121,7 @@ def test_ccxt_private_factory_and_feature_store(monkeypatch, tmp_path):
 
 
 def test_ws_clients_status():
-    from services.marketdata.ws_clients import build_status
+    from services.market_data.ws_clients import build_status
 
     row = build_status(exchange="coinbase", symbol="BTC/USD", connected=True, recv_ts_ms=1000, now_ts_ms=1110)
     assert row["lag_ms"] == 110.0
