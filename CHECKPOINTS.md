@@ -2057,3 +2057,10 @@
 - verified newest run directory contains 00_summary.txt, failed_checks.txt, and pytest_collect.txt
 - latest successful run: .cbp_state/audit_reports/repo_audit_20260322_100331
 - failed_checks.txt is empty in the latest successful run
+
+## 2026-03-22 manual audit artifact regression closed
+- scripts/manual_repo_audit.sh writes audit output under .cbp_state/audit_reports
+- verified run: .cbp_state/audit_reports/repo_audit_20260322_100650
+- verified artifacts: 00_summary.txt, failed_checks.txt, pytest_collect.txt
+- regression test added: tests/test_manual_repo_audit_paths.py
+- regression test status: passing
