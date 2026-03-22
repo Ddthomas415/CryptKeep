@@ -17,11 +17,17 @@ OUT_DIR="$STATE_ROOT/repo_audit_$STAMP"
 mkdir -p "$OUT_DIR" || exit 1
 SUMMARY="$OUT_DIR/00_summary.txt"
 FAILED_LIST="$OUT_DIR/failed_checks.txt"
+[ -n "$OUT_DIR" ] || exit 1
+[ -n "$SUMMARY" ] || exit 1
+[ -n "$FAILED_LIST" ] || exit 1
 : > "$FAILED_LIST"
 mkdir -p "$OUT_DIR"
 
 MODE="${1:-full}"   # quick | full
 FAILED_LIST="$OUT_DIR/failed_checks.txt"
+[ -n "$OUT_DIR" ] || exit 1
+[ -n "$SUMMARY" ] || exit 1
+[ -n "$FAILED_LIST" ] || exit 1
 : > "$FAILED_LIST"
 
 score=100
