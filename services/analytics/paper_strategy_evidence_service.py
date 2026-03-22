@@ -22,7 +22,7 @@ from services.execution.paper_runner import request_stop as request_paper_engine
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.market_data.system_status_publisher import request_stop as request_tick_publisher_stop
 from services.os.app_paths import code_root, ensure_dirs, runtime_dir
-from services.strategy.ema_crossover_runner import request_stop as request_strategy_runner_stop
+from services.strategy_runner.ema_crossover_runner import request_stop as request_strategy_runner_stop
 
 logger = logging.getLogger(__name__)
 

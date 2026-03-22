@@ -13,7 +13,7 @@ except ModuleNotFoundError:
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 import argparse
-from services.strategy.ema_crossover_runner import run_forever, request_stop
+from services.strategy_runner.ema_crossover_runner import run_forever, request_stop
 
 def main():
     ap = argparse.ArgumentParser()

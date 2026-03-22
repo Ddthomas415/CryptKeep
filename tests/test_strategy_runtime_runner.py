@@ -12,7 +12,7 @@ def _reload_strategy_runner(monkeypatch, tmp_path):
     import storage.intent_queue_sqlite as intent_queue_sqlite
     import storage.paper_trading_sqlite as paper_trading_sqlite
     import storage.strategy_state_sqlite as strategy_state_sqlite
-    import services.strategy.ema_crossover_runner as runner
+    import services.strategy_runner.ema_crossover_runner as runner
 
     importlib.reload(app_paths)
     importlib.reload(config_editor)
