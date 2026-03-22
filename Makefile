@@ -124,3 +124,9 @@ test-governance:
 
 precommit-prereqs:
 	docker start cbp-backend
+
+.PHONY: governance-smoke
+governance-smoke:
+	python3 tools/repo_doctor.py --strict
+	./scripts/manual_repo_audit.sh quick
+	./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py
