@@ -105,3 +105,22 @@ docker-print-auto-ports:
 
 test:
 	$(PYTHON) -m pytest -q
+
+test-governance:
+	pytest -q \
+	  tests/test_governance_blockers_minimum.py \
+	  tests/test_governance_audit_repo_anchored.py \
+	  tests/test_governance_module_wrappers.py \
+	  tests/test_governance_doc_metadata.py \
+	  tests/test_direct_origin_guard.py \
+	  tests/test_signal_replay.py \
+	  tests/test_paper_strategy_evidence_service.py \
+	  tests/test_ema_cross_runtime_invalidation.py \
+	  tests/test_ops_risk_gate_engine.py \
+	  tests/test_auth_gate.py \
+	  tests/test_auth_runtime_guard.py \
+	  tests/test_auth_capabilities.py \
+	  tests/test_dashboard_home_digest.py
+
+precommit-prereqs:
+	docker start cbp-backend

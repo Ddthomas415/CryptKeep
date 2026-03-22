@@ -1,3 +1,10 @@
+# Governance Signoff
+
+Version: 1.0
+Status: Frozen
+Owner: Governance
+Effective Date: 2026-03-21
+
 # Governance Sign-Off
 
 | Control Area | Expected Canonical Module | Actual Repo File(s) | Present? | Gap? | Blocking? | Notes |
