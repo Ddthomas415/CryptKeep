@@ -83,3 +83,7 @@ Reduce architecture debt from overlapping module families without breaking activ
   2. remove/replace wrapper tests
   3. verify zero live imports again
 
+
+## Deprecation priority
+1. `services.marketdata` — safest first deprecation target
+2. `services.storage` — second deprecation target after wrapper test replacement
