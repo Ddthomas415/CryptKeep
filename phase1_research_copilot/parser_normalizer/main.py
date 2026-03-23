@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import re
 from datetime import datetime, timezone
 from typing import Any
 
 import httpx
 from bs4 import BeautifulSoup
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from shared.audit import emit_audit_event
@@ -19,6 +20,18 @@ settings = get_settings()
 logger = configure_logging(settings.service_name or "parser-normalizer", settings.log_level)
 
 app = FastAPI(title="parser-normalizer", version="0.1.0")
+
+def _require_service_token(authorization: str | None) -> None:
+    expected = str(getattr(settings, "service_token", "") or "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="service_auth_not_configured")
+    supplied = str(authorization or "").strip()
+    prefix = "Bearer "
+    if not supplied.startswith(prefix):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    token = supplied[len(prefix):].strip()
+    if not hmac.compare_digest(token, expected):
+        raise HTTPException(status_code=401, detail="unauthorized")
 
 ASSET_PATTERNS: dict[str, tuple[str, ...]] = {
     "BTC": ("BTC", "Bitcoin"),
@@ -173,7 +186,8 @@ async def healthz() -> dict[str, Any]:
 
 
 @app.post("/v1/parse/url")
-async def parse_url(req: ParseUrlRequest) -> dict[str, Any]:
+async def parse_url(req: ParseUrlRequest, authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     html = await _fetch_url(req.url)
     doc = _build_doc(
         url=req.url,
@@ -200,7 +214,8 @@ async def parse_url(req: ParseUrlRequest) -> dict[str, Any]:
 
 
 @app.post("/v1/parse/html")
-async def parse_html(req: ParseHtmlRequest) -> dict[str, Any]:
+async def parse_html(req: ParseHtmlRequest, authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     doc = _build_doc(
         url=req.url,
         source=req.source,
