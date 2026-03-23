@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Header, HTTPException
 from pydantic import BaseModel
 
 from shared.answer_metadata import fallback_answer_metadata, normalize_answer_metadata
