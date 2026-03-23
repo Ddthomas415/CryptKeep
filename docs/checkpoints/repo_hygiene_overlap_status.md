@@ -36,3 +36,9 @@
 - `services/paper` = active legacy/current paper-engine path
 - `services/paper_trader` = active parallel execution-venue path
 - Action: architecture debt, not safe to delete blindly
+
+### strategy family
+- `services/strategies` = active canonical strategy-definition package
+- `services/strategy_runner` = active runner/runtime package
+- `services/strategy` = legacy/compat/parallel overlap debt
+- Action: not safe to delete blindly
