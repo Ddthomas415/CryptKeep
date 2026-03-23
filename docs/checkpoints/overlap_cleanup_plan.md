@@ -53,3 +53,10 @@ Reduce architecture debt from overlapping module families without breaking activ
 ## Progress
 - Migrated `dashboard/services/view_data.py` from `services.marketdata` to canonical `services.market_data`
 - Compatibility wrapper remains in place for now and is still covered by `tests/test_compat_wrappers.py`
+
+### marketdata status update
+- No remaining live-code imports of `services.marketdata` in `dashboard`, `services`, or `scripts`
+- Remaining reference is compat coverage only:
+  - `tests/test_compat_wrappers.py`
+- `services.marketdata` is now compat-only debt
+- Action: retain for now; later removal can be planned once compat support is intentionally dropped
