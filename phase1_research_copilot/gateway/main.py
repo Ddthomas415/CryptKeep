@@ -792,6 +792,7 @@ async def chat(req: ChatRequest, authorization: str | None = Header(default=None
         async with httpx.AsyncClient(timeout=settings.request_timeout_seconds) as client:
             res = await client.post(
                 endpoint,
+                headers={"Authorization": f"Bearer {settings.service_token}"},
                 json={
                     "asset": req.asset,
                     "question": req.question,
