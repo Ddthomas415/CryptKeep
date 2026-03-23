@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from typing import Any
+import hmac
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 
 from shared.audit import emit_audit_event
 from shared.config import get_settings
@@ -12,6 +13,18 @@ settings = get_settings()
 logger = configure_logging(settings.service_name or "risk-stub", settings.log_level)
 
 app = FastAPI(title="risk-stub", version="0.1.0")
+
+def _require_service_token(authorization: str | None) -> None:
+    expected = str(getattr(settings, "service_token", "") or "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="service_auth_not_configured")
+    supplied = str(authorization or "").strip()
+    prefix = "Bearer "
+    if not supplied.startswith(prefix):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    token = supplied[len(prefix):].strip()
+    if not hmac.compare_digest(token, expected):
+        raise HTTPException(status_code=401, detail="unauthorized")
 
 
 @app.get("/healthz")
@@ -24,7 +37,8 @@ async def healthz() -> dict[str, Any]:
 
 
 @app.get("/v1/risk/status")
-async def risk_status() -> dict[str, Any]:
+async def risk_status(authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     payload = {
         "execution_mode": "DISABLED",
         "gate": "NO_TRADING",
@@ -36,7 +50,8 @@ async def risk_status() -> dict[str, Any]:
 
 
 @app.post("/v1/risk/check-order")
-async def check_order() -> dict[str, Any]:
+async def check_order(authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     payload = {
         "allowed": False,
         "gate": "NO_TRADING",
