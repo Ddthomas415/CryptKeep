@@ -35,5 +35,5 @@ async def emit_audit_event(
     except Exception as exc:
         _logger.warning(
             "audit_emit_failed",
-            extra={"context": {"service": service, "action": action, "error": str(exc)}},
+            extra={"context": {"service": service, "action": action, "error_type": type(exc).__name__}},
         )
