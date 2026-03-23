@@ -8,7 +8,7 @@ from typing import Any
 
 import ccxt
 import websockets
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Header, HTTPException, Query
 
 from shared.audit import emit_audit_event
 from shared.config import get_settings
@@ -21,6 +21,18 @@ logger = configure_logging(settings.service_name or "market-data", settings.log_
 db = Database(settings.database_url)
 
 app = FastAPI(title="market-data", version="0.1.0")
+
+def _require_service_token(authorization: str | None) -> None:
+    expected = str(getattr(settings, "service_token", "") or "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="service_auth_not_configured")
+    supplied = str(authorization or "").strip()
+    prefix = "Bearer "
+    if not supplied.startswith(prefix):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    token = supplied[len(prefix):].strip()
+    if not hmac.compare_digest(token, expected):
+        raise HTTPException(status_code=401, detail="unauthorized")
 
 
 class State:
@@ -210,7 +222,8 @@ async def healthz() -> dict[str, Any]:
 
 
 @app.get("/v1/market/latest")
-async def latest(symbol: str = Query(..., description="Symbol like SOL/USDT")) -> dict[str, Any]:
+async def latest(symbol: str = Query(..., description="Symbol like SOL/USDT"), authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     row = db.fetch_one(
         """
         SELECT event_ts, exchange, symbol, source, price, bid, ask, volume, raw_payload
