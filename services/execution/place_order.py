@@ -64,7 +64,7 @@ def _log_killswitch_probe_failure(*, stage: str, exc: Exception, fail_closed: bo
             "source": "services.risk.killswitch",
             "stage": stage,
             "failure_type": type(exc).__name__,
-            "reason": str(exc),
+            "reason": type(exc).__name__,
             "fallback": "fail_closed_block" if fail_closed else "best_effort_allow",
         },
     )
