@@ -89,6 +89,14 @@ python scripts/smoke_phase1_copilot.py --expect-openai
   - `gateway` falls back again if `orchestrator` itself is unavailable
 - No trading or order placement is allowed in either mode.
 
+## Route auth
+- Health checks remain unauthenticated.
+- Non-health Phase 1 routes require:
+```bash
+-H 'Authorization: Bearer $SERVICE_TOKEN'
+```
+- Set `SERVICE_TOKEN` consistently for all Phase 1 services via `.env`.
+
 ## Health checks
 - `http://localhost:8001/healthz` gateway
 - `http://localhost:8002/healthz` orchestrator
@@ -105,6 +113,7 @@ python scripts/smoke_phase1_copilot.py --expect-openai
 ### 1) Ask a question (gateway)
 ```bash
 curl -s http://localhost:8001/v1/chat \
+  -H 'Authorization: Bearer '$SERVICE_TOKEN' \
   -H 'content-type: application/json' \
   -d '{"asset":"SOL","question":"Why is SOL moving?","lookback_minutes":60}' | jq
 ```
@@ -156,12 +165,14 @@ Example response shape:
 
 ### 2) Trigger one news poll
 ```bash
-curl -s -X POST http://localhost:8004/v1/news/poll-now | jq
+curl -s -X POST http://localhost:8004/v1/news/poll-now \
+  -H 'Authorization: Bearer '$SERVICE_TOKEN' | jq
 ```
 
 ### 3) Ingest archive context
 ```bash
 curl -s http://localhost:8005/v1/archive/lookup \
+  -H 'Authorization: Bearer '$SERVICE_TOKEN' \
   -H 'content-type: application/json' \
   -d '{"url":"solana.com","asset":"SOL","max_snapshots":2,"ingest":true}' | jq
 ```
@@ -169,13 +180,15 @@ curl -s http://localhost:8005/v1/archive/lookup \
 ### 4) Retrieve combined context directly
 ```bash
 curl -s http://localhost:8007/v1/memory/retrieve \
+  -H 'Authorization: Bearer '$SERVICE_TOKEN' \
   -H 'content-type: application/json' \
   -d '{"asset":"BTC","question":"What changed in BTC in the last hour?","lookback_minutes":60,"limit":5}' | jq
 ```
 
 ### 5) Check audit events
 ```bash
-curl -s 'http://localhost:8009/v1/audit/events/recent?limit=20' | jq
+curl -s 'http://localhost:8009/v1/audit/events/recent?limit=20' \
+  -H 'Authorization: Bearer '$SERVICE_TOKEN' | jq
 ```
 
 ## Data model highlights
@@ -205,4 +218,4 @@ Normalization fields captured per document:
 7. Add exchange private API connectivity checks (still paper-only first).
 8. Add incident runbooks and auto-generated postmortems.
 9. Upgrade embeddings to model-based vectors (replace hash embedding stub).
-10. Add authN/authZ and tenant-aware audit trails.
+10. Add stronger user-facing authN/authZ and tenant-aware audit trails beyond the internal Phase 1 service-token boundary.
