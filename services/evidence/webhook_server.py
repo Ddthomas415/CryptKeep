@@ -64,7 +64,7 @@ def _write_json(handler: BaseHTTPRequestHandler, status: int, payload: Dict[str,
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args: object) -> None:
-        print(f"[evidence_webhook] {self.address_string()} - {fmt % args}")
+        return
 
     def do_GET(self) -> None:
         path = urlparse(self.path).path
@@ -125,8 +125,7 @@ def run() -> None:
     cfg = _cfg()
     try:
         _bind_guard(cfg)
-    except RuntimeError as e:
-        print(f"Bind error: {e}")
+    except RuntimeError:
         return
 
     global _RUNTIME_CFG
@@ -142,7 +141,6 @@ def run() -> None:
 
     httpd = HTTPServer((host, port), Handler)
     httpd.timeout = 1.0
-    print(f"[evidence_webhook] listening on http://{host}:{port}/evidence (hmac_required={cfg['require_hmac']})")
     try:
         while True:
             if STOP_FILE.exists():
@@ -150,4 +148,3 @@ def run() -> None:
             httpd.handle_request()
     finally:
         httpd.server_close()
-        print("[evidence_webhook] stopped")
