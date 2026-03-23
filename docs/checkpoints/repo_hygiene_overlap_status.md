@@ -42,3 +42,7 @@
 - `services/strategy_runner` = active runner/runtime package
 - `services/strategy` = legacy/compat/parallel overlap debt
 - Action: not safe to delete blindly
+
+### storage family
+- `services/storage` = likely inactive/legacy overlap relative to top-level `storage`
+- Action: later cleanup candidate, not safe to delete blindly without a removal pass
