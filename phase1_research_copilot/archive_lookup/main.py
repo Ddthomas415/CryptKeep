@@ -131,13 +131,13 @@ async def lookup(req: ArchiveLookupRequest) -> dict[str, Any]:
         except Exception as exc:
             logger.error(
                 "archive_snapshot_failed",
-                extra={"context": {"archive_url": archive_url, "error": str(exc)}},
+                extra={"context": {"archive_url": archive_url, "error_type": type(exc).__name__}},
             )
             await emit_audit_event(
                 "archive-lookup",
                 "archive_snapshot_failed",
                 status="error",
-                payload={"archive_url": archive_url, "error": str(exc)},
+                payload={"archive_url": archive_url, "error_type": type(exc).__name__},
             )
 
     payload = {
