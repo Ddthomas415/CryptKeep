@@ -567,7 +567,7 @@ async def explain(req: ExplainRequest) -> dict[str, Any]:
         }
         logger.warning(
             "openai_reasoning_fallback",
-            extra={"context": {"asset": asset, "error": str(exc)}},
+            extra={"context": {"asset": asset, "error_type": type(exc).__name__}},
         )
 
     result = _assemble_explain_response(req, reasoning, tool_results, llm_status=llm_status)
