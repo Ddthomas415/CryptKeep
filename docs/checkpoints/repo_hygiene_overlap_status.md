@@ -31,3 +31,8 @@
 - `services/market_data` = canonical package candidate
 - `services/marketdata` = compatibility alias/wrapper family
 - Action: retain for now, do not delete blindly
+
+### paper family
+- `services/paper` = active legacy/current paper-engine path
+- `services/paper_trader` = active parallel execution-venue path
+- Action: architecture debt, not safe to delete blindly
