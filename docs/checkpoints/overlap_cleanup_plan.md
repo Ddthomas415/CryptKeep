@@ -63,10 +63,6 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 ### strategy compat modules
 - `services/strategy/ema_crossover_runner.py` is a pure compatibility re-export to `services.strategy_runner.ema_crossover_runner`
-- Action: keep as compat-only for now; do not delete until compat support is intentionally dropped
-
-### strategy compat modules
-- `services/strategy/ema_crossover_runner.py` is a pure compatibility re-export to `services.strategy_runner.ema_crossover_runner`
 - `services/strategy_runner` remains an active runtime/runner package
 - `services/strategy` still contains legacy real code in `registry.py`, `filters/*`, and `strategies/*`
 - Action: keep compat wrapper for now; do not delete `services/strategy` wholesale
