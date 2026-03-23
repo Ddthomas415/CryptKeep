@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hmac
 from datetime import datetime, timezone
 from typing import Any
 
@@ -18,6 +19,18 @@ db = Database(settings.database_url)
 
 app = FastAPI(title="audit-log", version="0.1.0")
 
+def _require_service_token(authorization: str | None) -> None:
+    expected = str(getattr(settings, "service_token", "") or "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="service_auth_not_configured")
+    supplied = str(authorization or "").strip()
+    prefix = "Bearer "
+    if not supplied.startswith(prefix):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    token = supplied[len(prefix):].strip()
+    if not hmac.compare_digest(token, expected):
+        raise HTTPException(status_code=401, detail="unauthorized")
+
 
 class AuditEventResponse(BaseModel):
     ok: bool
@@ -30,7 +43,8 @@ def healthz() -> dict[str, Any]:
 
 
 @app.post("/v1/audit/events", response_model=AuditEventResponse)
-def create_event(event: AuditEvent) -> AuditEventResponse:
+def create_event(event: AuditEvent, authorization: str | None = Header(default=None, alias="Authorization")) -> AuditEventResponse:
+    _require_service_token(authorization)
     row = db.fetch_one(
         """
         INSERT INTO audit_events (event_ts, service, action, status, correlation_id, payload)
@@ -63,7 +77,8 @@ def create_event(event: AuditEvent) -> AuditEventResponse:
 
 
 @app.get("/v1/audit/events/recent")
-def recent_events(limit: int = Query(default=50, ge=1, le=500)) -> dict[str, Any]:
+def recent_events(limit: int = Query(default=50, ge=1, le=500), authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     rows = db.fetch_all(
         """
         SELECT id, event_ts, service, action, status, correlation_id, payload
