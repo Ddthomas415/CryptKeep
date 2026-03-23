@@ -117,7 +117,7 @@ def request_stop() -> dict:
     ensure_dirs()
     FLAGS_DIR.mkdir(parents=True, exist_ok=True)
     STOP_FILE.write_text("1\n", encoding="utf-8")
-    return {"ok": True, "stop_file": str(STOP_FILE)}
+    return {"ok": True, "stop_file": "redacted"}
 
 
 def run() -> None:
