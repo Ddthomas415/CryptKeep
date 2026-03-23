@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import hmac
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 
 from shared.answer_metadata import build_answer_metadata
 from shared.audit import emit_audit_event
@@ -31,6 +32,18 @@ logger = configure_logging(settings.service_name or "orchestrator", settings.log
 llm_client = OpenAIResponsesClient(settings)
 
 app = FastAPI(title="orchestrator", version="0.2.0")
+
+def _require_service_token(authorization: str | None) -> None:
+    expected = str(getattr(settings, "service_token", "") or "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="service_auth_not_configured")
+    supplied = str(authorization or "").strip()
+    prefix = "Bearer "
+    if not supplied.startswith(prefix):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    token = supplied[len(prefix):].strip()
+    if not hmac.compare_digest(token, expected):
+        raise HTTPException(status_code=401, detail="unauthorized")
 
 EXPLAIN_RESPONSE_FORMAT: dict[str, Any] = {
     "type": "json_schema",
@@ -544,7 +557,8 @@ async def healthz() -> dict[str, Any]:
 
 
 @app.post("/v1/explain")
-async def explain(req: ExplainRequest) -> dict[str, Any]:
+async def explain(req: ExplainRequest, authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     asset = _asset_symbol(req.asset)
     llm_status: dict[str, Any] = {
         "provider": "openai" if llm_client.enabled else "fallback",
