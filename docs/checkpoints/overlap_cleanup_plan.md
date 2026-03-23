@@ -82,3 +82,11 @@ Reduce architecture debt from overlapping module families without breaking activ
   1. verify no live imports remain
   2. remove/replace wrapper tests
   3. verify zero live imports again
+
+## Next retirement candidate
+- `services/storage`
+- Reason: top-level `storage` is the canonical live package; `services/storage` appears to be wrapper-only
+- Preconditions before removal:
+  1. verify no live imports remain
+  2. remove/replace wrapper tests
+  3. verify zero live imports again
