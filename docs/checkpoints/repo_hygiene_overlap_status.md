@@ -46,3 +46,8 @@
 ### storage family
 - `services/storage` = likely inactive/legacy overlap relative to top-level `storage`
 - Action: later cleanup candidate, not safe to delete blindly without a removal pass
+
+### storage family
+- `storage/` = canonical live storage package
+- `services/storage` = compatibility wrapper layer over top-level `storage`
+- Action: retain for now, later deprecate/remove after wrapper consumers are eliminated
