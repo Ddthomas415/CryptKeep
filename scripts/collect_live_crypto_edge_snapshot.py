@@ -60,7 +60,7 @@ def main() -> int:
         "ok": True,
         "research_only": True,
         "execution_enabled": False,
-        "store_path": str(store.path),
+        "store_path": "redacted",
         "checks": list(collected.get("checks") or []),
     }
     if funding_rows:

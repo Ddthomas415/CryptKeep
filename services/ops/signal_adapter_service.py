@@ -45,7 +45,7 @@ def run_forever(cfg: SignalAdapterServiceCfg, *, max_loops: int | None = None) -
         if STOP_FILE.exists():
             STOP_FILE.unlink()
     except Exception as exc:
-        logger.warning("ops_signal_adapter_stop_file_clear_failed", extra={"path": str(STOP_FILE), "error": str(exc)})
+        logger.warning("ops_signal_adapter_stop_file_clear_failed", extra={"path": str(STOP_FILE), "error_type": type(exc).__name__})
 
     loops = 0
     writes = 0

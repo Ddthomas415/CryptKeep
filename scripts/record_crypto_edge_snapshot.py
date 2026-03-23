@@ -44,7 +44,7 @@ def main() -> int:
         return 1
 
     store = CryptoEdgeStoreSQLite(path=str(args.db_path or ""))
-    out: dict[str, Any] = {"ok": True, "store_path": str(store.path)}
+    out: dict[str, Any] = {"ok": True, "store_path": "redacted"}
     if funding_rows:
         out["funding_snapshot_id"] = store.append_funding_rows(
             funding_rows,
