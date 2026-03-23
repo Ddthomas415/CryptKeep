@@ -105,13 +105,13 @@ async def _rest_loop() -> None:
                 state.errors += 1
                 logger.error(
                     "rest_ingest_failed",
-                    extra={"context": {"symbol": symbol, "error": str(exc)}},
+                    extra={"context": {"symbol": symbol, "error_type": type(exc).__name__}},
                 )
                 await emit_audit_event(
                     "market-data",
                     "rest_ingest_failed",
                     status="error",
-                    payload={"symbol": symbol, "error": str(exc)},
+                    payload={"symbol": symbol, "error_type": type(exc).__name__},
                 )
 
         await emit_audit_event(
@@ -159,12 +159,12 @@ async def _binance_ws_loop() -> None:
                     state.ws_last_ingest = datetime.now(timezone.utc).isoformat()
         except Exception as exc:
             state.errors += 1
-            logger.error("ws_ingest_failed", extra={"context": {"error": str(exc)}})
+            logger.error("ws_ingest_failed", extra={"context": {"error_type": type(exc).__name__}})
             await emit_audit_event(
                 "market-data",
                 "ws_ingest_failed",
                 status="error",
-                payload={"error": str(exc)},
+                payload={"error_type": type(exc).__name__},
             )
             await asyncio.sleep(2.0)
 
