@@ -5,7 +5,7 @@ import hmac
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Header, HTTPException
 from pydantic import BaseModel
 
 from shared.config import get_settings
