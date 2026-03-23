@@ -557,7 +557,7 @@ def _get_market_snapshot(asset: str, *, exchange: str = "coinbase") -> dict[str,
 
 def _load_local_ohlcv(venue: str, symbol: str, *, timeframe: str = "1h", limit: int = 24) -> list[list]:
     try:
-        from services.marketdata.ohlcv_fetcher import load_ohlcv
+        from services.market_data.ohlcv_fetcher import load_ohlcv
     except Exception:
         return []
 
