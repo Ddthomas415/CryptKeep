@@ -49,3 +49,7 @@ Reduce architecture debt from overlapping module families without breaking activ
 ## Stop conditions
 - No deletions without import/reference proof
 - No behavior changes in this planning phase
+
+## Progress
+- Migrated `dashboard/services/view_data.py` from `services.marketdata` to canonical `services.market_data`
+- Compatibility wrapper remains in place for now and is still covered by `tests/test_compat_wrappers.py`
