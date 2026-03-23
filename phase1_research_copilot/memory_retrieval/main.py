@@ -241,7 +241,8 @@ async def ingest_document(doc: NormalizedDocument, authorization: str | None = H
 
 
 @app.post("/v1/memory/retrieve")
-async def retrieve_context(req: RetrieveRequest) -> dict[str, Any]:
+async def retrieve_context(req: RetrieveRequest, authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     asset = _normalize_asset(req.asset)
     symbol_like = f"{asset}/%"
 
