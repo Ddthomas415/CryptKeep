@@ -61,7 +61,7 @@ def _clear_pid_state() -> None:
         if pid_file().exists():
             pid_file().unlink()
     except Exception as exc:
-        logger.warning("crypto_edge_collector_pid_file_clear_failed", extra={"path": str(pid_file()), "error": str(exc)})
+        logger.warning("crypto_edge_collector_pid_file_clear_failed", extra={"path": str(pid_file()), "error_type": type(exc).__name__})
 
 
 def _process_alive(pid: int) -> bool:
@@ -168,7 +168,7 @@ def collect_once(cfg: CryptoEdgeCollectorServiceCfg) -> Dict[str, Any]:
         return out
 
     store = CryptoEdgeStoreSQLite(path=str(cfg.db_path or ""))
-    out["store_path"] = str(store.path)
+    out["store_path"] = "redacted"
     if funding_rows:
         out["funding_snapshot_id"] = store.append_funding_rows(funding_rows, source=out["source"])
     if basis_rows:
@@ -202,7 +202,7 @@ def run_forever(cfg: CryptoEdgeCollectorServiceCfg, *, max_loops: int | None = N
         if stop_file().exists():
             stop_file().unlink()
     except Exception as exc:
-        logger.warning("crypto_edge_collector_stop_file_clear_failed", extra={"path": str(stop_file()), "error": str(exc)})
+        logger.warning("crypto_edge_collector_stop_file_clear_failed", extra={"path": str(stop_file()), "error_type": type(exc).__name__})
 
     _write_pid_state(
         {
@@ -263,7 +263,7 @@ def run_forever(cfg: CryptoEdgeCollectorServiceCfg, *, max_loops: int | None = N
             last_result = {
                 "ok": False,
                 "reason": f"collector_loop_failed:{type(exc).__name__}",
-                "error": str(exc),
+                "error_type": type(exc).__name__,
                 "research_only": True,
                 "execution_enabled": False,
                 "source": str(cfg.source or "live_public"),
