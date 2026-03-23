@@ -216,6 +216,7 @@ services:
     env_file:
       - .env
     environment:
+      PYTHONPATH: /app:/repo
       SERVICE_NAME: orchestrator
       SERVICE_MODULE: orchestrator.main
       SERVICE_PORT: "8002"
@@ -234,6 +235,8 @@ services:
       timeout: 5s
       retries: 10
 
+    volumes:
+      - ../:/repo
   gateway:
     build:
       context: ..
@@ -242,6 +245,7 @@ services:
     env_file:
       - .env
     environment:
+      PYTHONPATH: /app:/repo
       SERVICE_NAME: gateway
       SERVICE_MODULE: gateway.main
       SERVICE_PORT: "8001"
@@ -252,6 +256,8 @@ services:
         condition: service_healthy
     ports:
       - "8001:8001"
+    volumes:
+      - ../:/repo
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/healthz', timeout=2).read()\""]
       interval: 10s
