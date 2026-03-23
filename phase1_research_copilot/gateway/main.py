@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html as html_lib
+import hmac
 import json
 import os
 import sys
@@ -24,6 +25,20 @@ logger = configure_logging(settings.service_name or "gateway", settings.log_leve
 llm_client = OpenAIResponsesClient(settings)
 
 app = FastAPI(title="gateway", version="0.2.0")
+
+
+def _require_service_token(authorization: str | None) -> None:
+    expected = str(getattr(settings, "service_token", "") or "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="service_auth_not_configured")
+    supplied = str(authorization or "").strip()
+    prefix = "Bearer "
+    if not supplied.startswith(prefix):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    token = supplied[len(prefix):].strip()
+    if not hmac.compare_digest(token, expected):
+        raise HTTPException(status_code=401, detail="unauthorized")
+
 
 
 class ChatRequest(BaseModel):
@@ -769,7 +784,8 @@ async function ask() {
 
 
 @app.post("/v1/chat")
-async def chat(req: ChatRequest) -> dict[str, Any]:
+async def chat(req: ChatRequest, authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     endpoint = f"{settings.orchestrator_url.rstrip('/')}/v1/explain"
 
     async def _call() -> dict[str, Any]:
