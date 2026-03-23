@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
 from shared.audit import emit_audit_event
@@ -14,6 +14,18 @@ from shared.retry import retry_async
 
 settings = get_settings()
 logger = configure_logging(settings.service_name or "archive-lookup", settings.log_level)
+
+def _require_service_token(authorization: str | None) -> None:
+    expected = str(getattr(settings, "service_token", "") or "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="service_auth_not_configured")
+    supplied = str(authorization or "").strip()
+    prefix = "Bearer "
+    if not supplied.startswith(prefix):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    token = supplied[len(prefix):].strip()
+    if not hmac.compare_digest(token, expected):
+        raise HTTPException(status_code=401, detail="unauthorized")
 
 app = FastAPI(title="archive-lookup", version="0.1.0")
 
@@ -102,7 +114,8 @@ async def healthz() -> dict[str, Any]:
 
 
 @app.post("/v1/archive/lookup")
-async def lookup(req: ArchiveLookupRequest) -> dict[str, Any]:
+async def lookup(req: ArchiveLookupRequest, authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
+    _require_service_token(authorization)
     snapshots = await _cdx_lookup(req.url, max(1, min(req.max_snapshots, 10)))
     docs: list[dict[str, Any]] = []
 
