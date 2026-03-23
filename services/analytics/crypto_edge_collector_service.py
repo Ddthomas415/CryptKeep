@@ -104,7 +104,10 @@ def load_runtime_status() -> Dict[str, Any]:
             pid_state = _load_json(pid_file())
         except Exception as exc:
             payload["pid_reason"] = f"pid_read_failed:{type(exc).__name__}"
+    status_pid = int(payload.get("pid") or 0) if payload else 0
     pid = int(pid_state.get("pid") or 0) if pid_state else 0
+    if status_pid > 0 and (pid <= 0 or payload.get("status") == "running"):
+        pid = status_pid
     pid_alive = _process_alive(pid) if pid > 0 else False
 
     payload["ok"] = bool(payload.get("ok", True))
