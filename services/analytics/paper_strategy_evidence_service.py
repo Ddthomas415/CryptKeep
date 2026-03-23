@@ -100,7 +100,7 @@ def _clear_pid_state() -> None:
         if pid_file().exists():
             pid_file().unlink()
     except Exception as exc:
-        logger.warning("paper_strategy_evidence_pid_clear_failed", extra={"error": str(exc), "path": str(pid_file())})
+        logger.warning("paper_strategy_evidence_pid_clear_failed", extra={"error_type": type(exc).__name__, "path": str(pid_file())})
 
 
 def _process_alive(pid: int) -> bool:
@@ -375,7 +375,7 @@ def _ensure_component(name: str, *, cfg: "PaperStrategyEvidenceServiceCfg") -> d
             try:
                 _stop_component(name)
             except Exception as exc:
-                logger.warning("paper_strategy_evidence_tick_reuse_stop_failed", extra={"error": str(exc)})
+                logger.warning("paper_strategy_evidence_tick_reuse_stop_failed", extra={"error_type": type(exc).__name__})
             _wait_for_component_stop(name, timeout_sec=10.0)
             current = _component_runtime(name)
         else:
@@ -462,7 +462,7 @@ def _run_strategy_window(
         try:
             _stop_component("strategy_runner")
         except Exception as exc:
-            logger.warning("strategy_runner_stop_failed", extra={"strategy": strategy_name, "error": str(exc)})
+            logger.warning("strategy_runner_stop_failed", extra={"strategy": strategy_name, "error_type": type(exc).__name__})
         _wait_for_component_stop("strategy_runner", timeout_sec=10.0)
         time.sleep(max(0.0, float(cfg.strategy_drain_sec)))
 
@@ -555,7 +555,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
         if stop_file().exists():
             stop_file().unlink()
     except Exception as exc:
-        logger.warning("paper_strategy_evidence_stop_file_clear_failed", extra={"error": str(exc), "path": str(stop_file())})
+        logger.warning("paper_strategy_evidence_stop_file_clear_failed", extra={"error_type": type(exc).__name__, "path": str(stop_file())})
 
     _write_pid_state(
         {
@@ -665,7 +665,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             try:
                 _stop_component(name)
             except Exception as exc:
-                logger.warning("paper_strategy_evidence_component_stop_failed", extra={"component": name, "error": str(exc)})
+                logger.warning("paper_strategy_evidence_component_stop_failed", extra={"component": name, "error_type": type(exc).__name__})
         for name in reversed(tuple(started_components.keys())):
             _wait_for_component_stop(name, timeout_sec=10.0)
 

@@ -704,7 +704,7 @@ with tab_research:
         aside_lines=[
             "Record JSON snapshots with scripts/record_crypto_edge_snapshot.py.",
             "Nothing here routes to execution or strategy automation.",
-            f"Store: {str(report.get('store_path') or 'unavailable')}",
+            "Store: redacted",
         ],
     )
     render_prompt_actions(

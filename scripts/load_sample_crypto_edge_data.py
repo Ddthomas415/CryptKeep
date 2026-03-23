@@ -42,7 +42,7 @@ def main() -> int:
     store = CryptoEdgeStoreSQLite(path=str(args.db_path or ""))
     out: dict[str, Any] = {
         "ok": True,
-        "store_path": str(store.path),
+        "store_path": "redacted",
         "sample_dir": str(sample_dir),
         "funding_snapshot_id": store.append_funding_rows(
             funding_rows,

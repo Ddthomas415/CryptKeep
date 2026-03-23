@@ -69,7 +69,7 @@ def run_forever(cfg: RiskGateServiceCfg, *, max_loops: int | None = None) -> Dic
         if STOP_FILE.exists():
             STOP_FILE.unlink()
     except Exception as exc:
-        logger.warning("ops_risk_gate_stop_file_clear_failed", extra={"path": str(STOP_FILE), "error": str(exc)})
+        logger.warning("ops_risk_gate_stop_file_clear_failed", extra={"path": str(STOP_FILE), "error_type": type(exc).__name__})
 
     store = OpsSignalStoreSQLite(path=cfg.store_path)
     loops = 0
