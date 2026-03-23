@@ -121,13 +121,13 @@ async def _poll_once() -> dict[str, Any]:
                 state.errors += 1
                 logger.error(
                     "news_ingest_entry_failed",
-                    extra={"context": {"feed_url": feed_url, "url": link, "error": str(exc)}},
+                    extra={"context": {"feed_url": feed_url, "url": link, "error_type": type(exc).__name__}},
                 )
                 await emit_audit_event(
                     "news-ingestion",
                     "news_ingest_entry_failed",
                     status="error",
-                    payload={"feed_url": feed_url, "url": link, "error": str(exc)},
+                    payload={"feed_url": feed_url, "url": link, "error_type": type(exc).__name__},
                 )
 
     state.polls += 1
@@ -151,12 +151,12 @@ async def _poll_loop() -> None:
             await _poll_once()
         except Exception as exc:
             state.errors += 1
-            logger.error("news_poll_failed", extra={"context": {"error": str(exc)}})
+            logger.error("news_poll_failed", extra={"context": {"error_type": type(exc).__name__}})
             await emit_audit_event(
                 "news-ingestion",
                 "poll_failed",
                 status="error",
-                payload={"error": str(exc)},
+                payload={"error_type": type(exc).__name__},
             )
         await asyncio.sleep(max(30.0, settings.news_poll_seconds))
 
