@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     environment: str = "dev"
+    service_token: str = ""
 
     database_url: str = "postgresql://copilot:copilot@timescaledb:5432/copilot"
 
