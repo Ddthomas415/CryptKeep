@@ -66,3 +66,11 @@ Reduce architecture debt from overlapping module families without breaking activ
 - `services/strategy_runner` remains an active runtime/runner package
 - `services/strategy` still contains legacy real code in `registry.py`, `filters/*`, and `strategies/*`
 - Action: keep compat wrapper for now; do not delete `services/strategy` wholesale
+
+## Next retirement candidate
+- `services/marketdata`
+- Reason: no remaining live-code imports; compat-test coverage only
+- Preconditions before removal:
+  1. decide compat support end date
+  2. remove/replace compat wrapper tests
+  3. verify zero live imports again
