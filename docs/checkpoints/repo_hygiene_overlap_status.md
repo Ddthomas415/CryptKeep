@@ -24,3 +24,10 @@
 
 ## Next track
 - classify canonical vs legacy/compat packages for the overlap families
+
+## Overlap classification progress
+
+### market_data family
+- `services/market_data` = canonical package candidate
+- `services/marketdata` = compatibility alias/wrapper family
+- Action: retain for now, do not delete blindly
