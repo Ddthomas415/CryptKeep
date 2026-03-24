@@ -23,6 +23,7 @@ from services.strategies.strategy_registry import compute_signal
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
+from services.strategy.startup_guard import require_known_flat_or_override
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -338,18 +339,11 @@ def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
         except Exception:
             pass
 
-def _ema(series: List[float], n: int) -> Optional[float]:
-    if n <= 1 or len(series) < n:
-        return None
-    alpha = 2.0 / (n + 1.0)
-    e = series[0]
-    for x in series[1:]:
-        e = alpha * x + (1.0 - alpha) * e
-    return float(e)
 
 def run_forever() -> None:
     ensure_dirs()
     cfg = _cfg()
+    require_known_flat_or_override(venue=cfg["venue"], symbol=cfg["symbol"])
     if not cfg["enabled"]:
         _write_status({"ok": False, "reason": "disabled", "ts": _now()})
         return

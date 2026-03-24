@@ -56,7 +56,7 @@ async def main() -> None:
     symn = normalize_symbol(src_venue, symbol)
     log.info("paper_trader start symbol=%s source_venue=%s paper_venue=%s", symn, src_venue, paper_venue)
     journal = JournalStoreSQLite(journal_db)
-    strat = EMACrossStrategy(venue=paper_venue, symbol=symn, target_qty=target_qty, fast_period=fast, slow_period=slow)
+    strat = EMACrossStrategy(fast=fast, slow=slow)
     risk = RiskEngine(RiskConfig(max_abs_qty=max_abs_qty, max_trades_per_day=max_trades_day))
     execu = PaperExecutor(journal, PaperExecConfig(venue=paper_venue, slippage_bps=slippage_bps, fee_bps=fee_bps))
     last_id = 0

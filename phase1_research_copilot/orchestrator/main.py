@@ -4,8 +4,47 @@ import json
 import hmac
 from typing import Any
 
-from fastapi import FastAPI, Header, HTTPException
+try:
+    from fastapi import FastAPI, Response, Header, HTTPException
+except ModuleNotFoundError:
+    class HTTPException(Exception):
+        def __init__(self, status_code: int = 500, detail=None):
+            self.status_code = status_code
+            self.detail = detail
+            super().__init__(detail)
 
+    class Response:
+        def __init__(self, content=None, status_code: int = 200, media_type=None):
+            self.content = content
+            self.status_code = status_code
+            self.media_type = media_type
+
+    def Header(default=None, *args, **kwargs):
+        return default
+
+    class FastAPI:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def get(self, *args, **kwargs):
+            def deco(fn):
+                return fn
+            return deco
+
+        def post(self, *args, **kwargs):
+            def deco(fn):
+                return fn
+            return deco
+
+        def put(self, *args, **kwargs):
+            def deco(fn):
+                return fn
+            return deco
+
+        def delete(self, *args, **kwargs):
+            def deco(fn):
+                return fn
+            return deco
 from shared.answer_metadata import build_answer_metadata
 from shared.audit import emit_audit_event
 from shared.config import get_settings

@@ -4,7 +4,23 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, AsyncIterator, Dict, Optional
-import orjson
+try:
+    import orjson
+except ModuleNotFoundError:
+    import json
+
+    class _OrjsonCompat:
+        @staticmethod
+        def dumps(obj):
+            return json.dumps(obj, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+        @staticmethod
+        def loads(data):
+            if isinstance(data, (bytes, bytearray)):
+                data = data.decode("utf-8")
+            return json.loads(data)
+
+    orjson = _OrjsonCompat()
 from core.event_factory import event_from_dict
 from core.event_key import compute_event_key
 from core.events import EventBase

@@ -21,7 +21,7 @@ from services.fills.user_stream_ws import UserStreamFillService, UserStreamWSCon
 def _build_arg_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="Run authenticated user-stream fills router (optional).")
     ap.add_argument("--exchange", default="coinbase", help="Exchange id (coinbase/binance/gateio)")
-    ap.add_argument("--exec-db", default="data/execution.sqlite", help="Execution DB path")
+    ap.add_argument("--exec-db", default=".cbp_state/data/execution.sqlite", help="Execution DB path")
     ap.add_argument("--symbol", default="", help="Optional symbol filter (e.g. BTC/USD)")
     ap.add_argument("--sandbox", action="store_true", help="Enable sandbox mode")
     ap.add_argument("--no-live-hook", action="store_true", help="Disable live_executor._on_fill hook preference")
