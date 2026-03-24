@@ -24,6 +24,7 @@ def client_id_param(exchange_id: str, client_id: str | None) -> dict:
 
 from services.security.credentials_loader import load_exchange_credentials
 from storage.idempotency_sqlite import OrderDedupeStore
+from services.execution.order_reconciliation import reconcile_ambiguous_submission, SafeToRetryAfterReconciliation
 
 _LOG = logging.getLogger(__name__)
 _PROMPT_CACHE: Dict[str, Dict[str, str]] = {}
@@ -199,6 +200,17 @@ class ExchangeClient:
                 msg = f"{type(e).__name__}:{e}"
                 if _is_ambiguous_submit_error(e):
                     store.mark_unknown(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
+                    recon = reconcile_ambiguous_submission(
+                        venue=self.exchange_id,
+                        client=ex,
+                        symbol=symbol,
+                        client_oid=client_id,
+                        remote_order_id=None,
+                        age_sec=0,
+                    )
+                    if recon.outcome == "confirmed_not_placed":
+                        raise SafeToRetryAfterReconciliation("confirmed_not_placed_after_reconciliation")
+                    raise RuntimeError(f"ambiguous_submit_blocked:{recon.outcome}")
                 else:
                     store.mark_error(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
             raise

@@ -9,6 +9,7 @@ from services.execution.live_arming import is_live_enabled
 from services.execution.place_order import _killswitch_state
 from services.journal.order_event_store import log_event
 from services.execution.intent_store import claim_next_ready, update_intent, list_intents
+from services.execution.funnel import FunnelExecutor, FunnelIntent
 
 def _live_allowed(cfg: dict) -> tuple[bool, str]:
     if not is_live_enabled(cfg):
@@ -84,7 +85,31 @@ def execute_one(cfg: dict, *, venue: str | None = None, mode: str | None = None)
     log_event(intent_id=intent_id, venue=v, symbol=sym, event="place_attempt", status="SENDING", client_oid=client_oid,
               payload={"req": req.__dict__})
 
-    res = adapter.place_order(req)
+    funnel = FunnelExecutor(
+        submit_fn=lambda **kw: adapter.submit_order(
+            symbol=kw["symbol"],
+            side=kw["side"],
+            qty=kw["qty"],
+            price=kw.get("price"),
+            order_type=kw.get("order_type", "market"),
+            client_oid=kw.get("client_oid"),
+        ),
+    )
+    fresult = funnel.execute(
+        FunnelIntent(
+            venue=venue,
+            symbol=sym,
+            side=req["side"],
+            qty=float(req["qty"]),
+            order_type=req.get("order_type", "market"),
+            price=req.get("price"),
+            client_oid=client_oid,
+        )
+    )
+    if not fresult.ok:
+        qdb.update_status(intent_id=it["intent_id"], status="blocked", reason=fresult.reason)
+        return fresult.details or {}
+    res = fresult.response
     if not res.ok:
         update_intent(intent_id=intent_id, status="FAILED", last_error=str(res.reason or "place_failed"))
         log_event(intent_id=intent_id, venue=v, symbol=sym, event="place_failed", status="FAILED", client_oid=client_oid,

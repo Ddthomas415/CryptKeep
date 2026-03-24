@@ -10,6 +10,7 @@ from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
 from storage.idempotency_sqlite import IdempotencySQLite
+from services.execution.order_reconciliation import reconcile_ambiguous_submission
 
 _PO_SIG = inspect.signature(_place_order)
 _PO_PARAM_NAMES = tuple(_PO_SIG.parameters.keys())
@@ -120,9 +121,19 @@ def place_order_idempotent(
         except Exception as e:
             last_err = f"{e.__class__.__name__}:{e}"
             if is_retryable_exception(e) and attempt < max_retries:
-                attempt += 1
-                backoff_sleep(attempt, base_delay, max_delay)
-                continue
+                recon = reconcile_ambiguous_submission(
+                    venue=venue,
+                    client=ex,
+                    symbol=symbol,
+                    client_oid=idempotency_key,
+                    remote_order_id=None,
+                    age_sec=0,
+                )
+                if recon.outcome == "confirmed_not_placed":
+                    attempt += 1
+                    backoff_sleep(attempt, base_delay, max_delay)
+                    continue
+                raise RuntimeError(f"retry_blocked_after_ambiguous_submit:{recon.outcome}")
             idem.put_error(idempotency_key, last_err)
             return {"ok": False, "error": last_err, "key": idempotency_key}
         finally:

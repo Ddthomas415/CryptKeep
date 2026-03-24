@@ -1,5 +1,21 @@
 from __future__ import annotations
-import orjson
+try:
+    import orjson
+except ModuleNotFoundError:
+    import json
+
+    class _OrjsonCompat:
+        @staticmethod
+        def dumps(obj):
+            return json.dumps(obj, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+        @staticmethod
+        def loads(data):
+            if isinstance(data, (bytes, bytearray)):
+                data = data.decode("utf-8")
+            return json.loads(data)
+
+    orjson = _OrjsonCompat()
 import hashlib
 from core.events import EventBase
 from core.symbols import normalize_symbol
