@@ -87,3 +87,10 @@ Reduce architecture debt from overlapping module families without breaking activ
 ## Deprecation priority
 1. `services.marketdata` — safest first deprecation target
 2. `services.storage` — second deprecation target after wrapper test replacement
+
+### storage status update
+- No remaining live-code imports of `services.storage` in `dashboard`, `services`, or `scripts`
+- Remaining references are wrapper-test coverage only:
+  - `tests/test_service_storage_wrappers.py`
+- `services.storage` is now wrapper-only / compat-only debt
+- Action: retain for now; later removal can be planned once wrapper-test coverage is intentionally removed or replaced
