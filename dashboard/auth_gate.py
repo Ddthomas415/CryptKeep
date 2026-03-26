@@ -402,7 +402,7 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                 elif msg == "invalid_mfa_code":
                     st.error("MFA verification failed. Use a current authenticator code or an unused backup code.")
                 else:
-                    st.error(f"Sign-in failed: {msg}")
+                    st.error("Sign-in failed. Check your credentials and try again.")
 
     state = _session_get()
     if not bool(state.get("ok")):

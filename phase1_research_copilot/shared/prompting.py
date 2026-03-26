@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-def build_research_explain_instructions(*, asset: str, question: str, lookback_minutes: int) -> str:
+def build_research_explain_instructions(*, asset: str, lookback_minutes: int) -> str:
     return f"""
 You are the reasoning layer for a crypto research copilot.
 
@@ -15,7 +15,6 @@ Mode and safety rules:
 
 Task:
 - Explain the current move for asset {asset}.
-- User question: {question}
 - Lookback window: {lookback_minutes} minutes.
 
 Before finalizing, use at least:

@@ -29,14 +29,49 @@ def test_upsert_and_verify_keychain_user(monkeypatch):
     assert ok["role"] == "ADMIN"
     assert ok["mfa_required"] is False
 
+    row = uas.get_user("admin")
+    assert row is not None
+    assert row["password_algo"] == uas.PASSWORD_ALGO_ARGON2ID
+    assert str(row.get("password_hash") or "").startswith("$argon2")
+    assert "password_hash_hex" not in row
+
     bad = uas.verify_login(username="admin", password="wrong")
     assert bad["ok"] is False
     assert bad["reason"] == "invalid_credentials"
 
 
+def test_verify_login_upgrades_legacy_pbkdf2_user(monkeypatch):
+    fake = _FakeKeyring()
+    monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+
+    legacy = uas._build_pbkdf2_password_record("pw-123")
+    legacy_record = {
+        "username": "admin",
+        "role": "ADMIN",
+        "enabled": True,
+        "created_ts": "2026-01-01T00:00:00+00:00",
+        "updated_ts": "2026-01-01T00:00:00+00:00",
+        **legacy,
+    }
+    uas._save_user_record("admin", legacy_record)
+    uas._save_users_index(["admin"])
+
+    ok = uas.verify_login(username="admin", password="pw-123")
+    assert ok["ok"] is True
+    row = uas.get_user("admin")
+    assert row is not None
+    assert row["password_algo"] == uas.PASSWORD_ALGO_ARGON2ID
+    assert str(row.get("password_hash") or "").startswith("$argon2")
+    assert "password_hash_hex" not in row
+    assert "password_salt_b64" not in row
+    assert "iterations" not in row
+
+
 def test_bootstrap_user_from_env(monkeypatch):
     fake = _FakeKeyring()
     monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+    monkeypatch.setenv("APP_ENV", "dev")
+    monkeypatch.setenv("CBP_ALLOW_BOOTSTRAP_USER", "1")
     monkeypatch.setenv("CBP_AUTH_BOOTSTRAP_USER", "operator")
     monkeypatch.setenv("CBP_AUTH_BOOTSTRAP_PASSWORD", "op-pass")
     monkeypatch.setenv("CBP_AUTH_BOOTSTRAP_ROLE", "OPERATOR")
@@ -68,7 +103,7 @@ def test_verify_login_env_fallback_blocked_by_default(monkeypatch):
 
     out = uas.verify_login(username="viewer", password="view-pass")
     assert out["ok"] is False
-    assert out["reason"] == "unknown_user"
+    assert out["reason"] == "invalid_credentials"
 
 
 def test_verify_login_env_fallback_allowed_only_in_explicit_dev(monkeypatch):

@@ -9,6 +9,9 @@ from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import quote
 
+from argon2 import PasswordHasher
+from argon2.exceptions import InvalidHashError, VerifyMismatchError
+
 
 SERVICE_NAME = "crypto-bot-pro-auth"
 INDEX_ACCOUNT = "__users_index__"
@@ -18,6 +21,9 @@ MFA_DIGITS = 6
 MFA_PERIOD_SECONDS = 30
 MFA_ALLOWED_DRIFT_WINDOWS = 1
 MFA_BACKUP_CODE_COUNT = 6
+PASSWORD_ALGO_ARGON2ID = "argon2id"
+PASSWORD_ALGO_PBKDF2 = "pbkdf2_sha256"
+DEFAULT_PBKDF2_ITERATIONS = 390_000
 
 _MFA_RECORD_KEYS = {
     "mfa_enabled",
@@ -65,6 +71,27 @@ def _norm_role(role: str | None) -> str:
 def _pbkdf2_hash(password: str, salt: bytes, iterations: int) -> str:
     raw = hashlib.pbkdf2_hmac("sha256", str(password).encode("utf-8"), salt, int(iterations))
     return raw.hex()
+
+
+def _argon2_hasher() -> PasswordHasher:
+    return PasswordHasher()
+
+
+def _build_argon2_password_record(password: str) -> dict[str, Any]:
+    return {
+        "password_algo": PASSWORD_ALGO_ARGON2ID,
+        "password_hash": _argon2_hasher().hash(str(password or "")),
+    }
+
+
+def _build_pbkdf2_password_record(password: str, *, iterations: int = DEFAULT_PBKDF2_ITERATIONS) -> dict[str, Any]:
+    salt = secrets.token_bytes(16)
+    return {
+        "password_algo": PASSWORD_ALGO_PBKDF2,
+        "iterations": int(iterations),
+        "password_salt_b64": base64.b64encode(salt).decode("utf-8"),
+        "password_hash_hex": _pbkdf2_hash(str(password or ""), salt, int(iterations)),
+    }
 
 
 def _save_user_record(username: str, record: dict[str, Any]) -> None:
@@ -158,7 +185,10 @@ def keychain_available() -> tuple[bool, str | None]:
 
 
 def _load_users_index() -> list[str]:
-    raw = _keyring_get(INDEX_ACCOUNT)
+    try:
+        raw = _keyring_get(INDEX_ACCOUNT)
+    except Exception:
+        return []
     if not raw:
         return []
     try:
@@ -184,7 +214,10 @@ def get_user(username: str) -> dict[str, Any] | None:
     name = _norm_username(username)
     if not name:
         return None
-    raw = _keyring_get(_account_name(name))
+    try:
+        raw = _keyring_get(_account_name(name))
+    except Exception:
+        return None
     if not raw:
         return None
     try:
@@ -236,18 +269,14 @@ def upsert_user(*, username: str, password: str, role: str = "VIEWER", enabled: 
         return {"ok": False, "reason": "password_required"}
 
     existing = get_user(name) or {}
-    salt = secrets.token_bytes(16)
-    iterations = int(existing.get("iterations") or 390_000)
     record = {
         "username": name,
         "role": _norm_role(role),
         "enabled": bool(enabled),
-        "iterations": int(iterations),
-        "password_salt_b64": base64.b64encode(salt).decode("utf-8"),
-        "password_hash_hex": _pbkdf2_hash(pwd, salt, iterations),
         "created_ts": str(existing.get("created_ts") or _now_iso()),
         "updated_ts": _now_iso(),
     }
+    record.update(_build_argon2_password_record(pwd))
     for key in _MFA_RECORD_KEYS:
         if key in existing:
             record[key] = existing.get(key)
@@ -385,15 +414,39 @@ def verify_login(*, username: str, password: str) -> dict[str, Any]:
         return {"ok": False, "reason": "invalid_credentials"}
     if not bool(row.get("enabled", True)):
         return {"ok": False, "reason": "invalid_credentials"}
-    try:
-        salt = base64.b64decode(str(row.get("password_salt_b64") or "").encode("utf-8"))
-        iterations = int(row.get("iterations") or 390_000)
-        expected = str(row.get("password_hash_hex") or "")
-    except Exception:
+    algo = str(row.get("password_algo") or "").strip().lower()
+    verified = False
+    needs_rehash = False
+    if algo in {"", PASSWORD_ALGO_PBKDF2}:
+        try:
+            salt = base64.b64decode(str(row.get("password_salt_b64") or "").encode("utf-8"))
+            iterations = int(row.get("iterations") or DEFAULT_PBKDF2_ITERATIONS)
+            expected = str(row.get("password_hash_hex") or "")
+        except Exception:
+            return {"ok": False, "reason": "invalid_credentials"}
+        actual = _pbkdf2_hash(pwd, salt, iterations)
+        verified = hmac.compare_digest(actual, expected)
+        needs_rehash = verified
+    elif algo == PASSWORD_ALGO_ARGON2ID:
+        encoded = str(row.get("password_hash") or "").strip()
+        try:
+            verified = _argon2_hasher().verify(encoded, pwd)
+            needs_rehash = _argon2_hasher().check_needs_rehash(encoded)
+        except (VerifyMismatchError, InvalidHashError):
+            verified = False
+        except Exception:
+            return {"ok": False, "reason": "invalid_credentials"}
+    else:
         return {"ok": False, "reason": "invalid_credentials"}
-    actual = _pbkdf2_hash(pwd, salt, iterations)
-    if not hmac.compare_digest(actual, expected):
+    if not verified:
         return {"ok": False, "reason": "invalid_credentials"}
+    if needs_rehash:
+        row.update(_build_argon2_password_record(pwd))
+        row.pop("iterations", None)
+        row.pop("password_salt_b64", None)
+        row.pop("password_hash_hex", None)
+        row["updated_ts"] = _now_iso()
+        _save_user_record(name, row)
     mfa_enabled = bool(row.get("mfa_enabled", False) and str(row.get("mfa_secret_b32") or "").strip())
     return {
         "ok": True,

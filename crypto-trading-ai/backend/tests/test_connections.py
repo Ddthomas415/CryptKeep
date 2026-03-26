@@ -2,7 +2,12 @@ from fastapi.testclient import TestClient
 
 from backend.app.main import app
 
-client = TestClient(app)
+viewer_client = TestClient(app)
+viewer_client.headers.update({"Authorization": "Bearer test-viewer-token"})
+analyst_client = TestClient(app)
+analyst_client.headers.update({"Authorization": "Bearer test-analyst-token"})
+owner_client = TestClient(app)
+owner_client.headers.update({"Authorization": "Bearer test-owner-token"})
 SENSITIVE_KEYS = {"api_key", "api_secret", "passphrase", "secret", "credential", "credentials"}
 
 
@@ -18,7 +23,7 @@ def _assert_no_sensitive_keys(value: object) -> None:
 
 
 def test_list_exchanges() -> None:
-    response = client.get("/api/v1/connections/exchanges")
+    response = viewer_client.get("/api/v1/connections/exchanges")
     assert response.status_code == 200
 
     payload = response.json()
@@ -29,7 +34,7 @@ def test_list_exchanges() -> None:
 
 
 def test_test_exchange() -> None:
-    response = client.post(
+    response = analyst_client.post(
         "/api/v1/connections/exchanges/test",
         json={
             "provider": "coinbase",
@@ -51,7 +56,7 @@ def test_test_exchange() -> None:
 
 
 def test_test_exchange_invalid_provider_validation() -> None:
-    response = client.post(
+    response = analyst_client.post(
         "/api/v1/connections/exchanges/test",
         json={
             "provider": "kucoin",
@@ -71,8 +76,17 @@ def test_test_exchange_invalid_provider_validation() -> None:
         assert "input" not in error
 
 
+def test_connections_require_authentication() -> None:
+    unauth_client = TestClient(app)
+    response = unauth_client.get("/api/v1/connections/exchanges")
+    assert response.status_code == 401
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "UNAUTHORIZED"
+
+
 def test_save_exchange() -> None:
-    response = client.post(
+    response = owner_client.post(
         "/api/v1/connections/exchanges",
         json={
             "provider": "coinbase",
@@ -99,7 +113,7 @@ def test_save_exchange() -> None:
 
 
 def test_save_exchange_invalid_environment_for_provider_validation() -> None:
-    response = client.post(
+    response = owner_client.post(
         "/api/v1/connections/exchanges",
         json={
             "provider": "okx",
@@ -120,3 +134,27 @@ def test_save_exchange_invalid_environment_for_provider_validation() -> None:
     payload = response.json()
     assert payload["status"] == "error"
     assert payload["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_save_exchange_requires_owner_role() -> None:
+    response = analyst_client.post(
+        "/api/v1/connections/exchanges",
+        json={
+            "provider": "coinbase",
+            "label": "Main Coinbase",
+            "environment": "live",
+            "credentials": {
+                "api_key": "demo",
+                "api_secret": "demo",
+                "passphrase": "demo",
+            },
+            "permissions": {
+                "read_only": True,
+                "allow_live_trading": False,
+            },
+        },
+    )
+    assert response.status_code == 403
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "FORBIDDEN"

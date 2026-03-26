@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from backend.app.main import app
 
 client = TestClient(app)
+client.headers.update({"Authorization": "Bearer test-analyst-token"})
 
 
 def test_validation_errors_do_not_echo_request_input_or_secrets() -> None:
@@ -31,4 +32,3 @@ def test_validation_errors_do_not_echo_request_input_or_secrets() -> None:
 
     serialized = str(payload)
     assert secret_marker not in serialized
-
