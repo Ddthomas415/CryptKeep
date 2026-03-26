@@ -19,7 +19,7 @@ Phase 1 safety pack should be rerun before relying on this record.
 ## Evaluation Inputs
 
 - symbol: `SOL/USD`
-- windows: `7` deterministic synthetic windows
+- windows: `8` deterministic synthetic windows
 - initial cash: `10000`
 - fees: `10 bps`
 - slippage: `5 bps`
@@ -37,6 +37,7 @@ Window set:
 - `range_snapback`: Range Snapback (144 bars)
 - `false_breakout_whipsaw`: False Breakout Whipsaw (108 bars)
 - `event_trend_grind`: Event Trend Grind (104 bars)
+- `low_vol_fee_bleed`: Low-Vol Fee Bleed (108 bars)
 
 Important limitation:
 - these windows are deterministic synthetic benchmarks, not live or market-history proof
@@ -45,21 +46,21 @@ Important limitation:
 
 ## Run-to-Run Comparison
 
-- previous run: `2026-03-26T14:05:07Z`
-- current run: `2026-03-26T18:24:30Z`
+- previous run: `2026-03-26T18:24:30Z`
+- current run: `2026-03-26T18:30:07Z`
 - top strategy previous: `breakout_donchian`
 - top strategy current: `breakout_donchian`
 - top strategy changed: `no`
-- improved comparisons: `1`
+- improved comparisons: `0`
 - degraded comparisons: `1`
-- unchanged comparisons: `1`
+- unchanged comparisons: `2`
 - new comparisons: `0`
 
-Summary: 1 strategy comparison(s) improved and 1 degraded versus the prior persisted evidence run.
+Summary: 1 strategy comparison(s) degraded versus the prior persisted evidence run.
 
 Comparison detail:
-- `breakout_donchian` moved `degraded`; rank `1` -> `1`, decision `improve` -> `freeze`.
-- `ema_cross` moved `improved`; rank `2` -> `2`, decision `freeze` -> `freeze`.
+- `breakout_donchian` moved `unchanged`; rank `1` -> `1`, decision `freeze` -> `freeze`.
+- `ema_cross` moved `degraded`; rank `2` -> `2`, decision `freeze` -> `freeze`.
 - `mean_reversion_rsi` moved `unchanged`; rank `3` -> `3`, decision `freeze` -> `freeze`.
 
 ## Results
@@ -68,12 +69,12 @@ Comparison detail:
 - candidate: `breakout_default`
 - rank: `1`
 - aggregate leaderboard score: `0.576000`
-- average net return after costs: `+17.68%`
+- average net return after costs: `+15.47%`
 - worst-window return: `+0.00%`
 - worst drawdown: `8.48%`
 - closed trades: `5`
-- active windows: `6` / `7`
-- positive windows: `6` / `7`
+- active windows: `6` / `8`
+- positive windows: `6` / `8`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
 - evidence status: `paper_supported`
@@ -93,13 +94,13 @@ Next work:
 ### `ema_cross`
 - candidate: `ema_cross_default`
 - rank: `2`
-- aggregate leaderboard score: `0.451677`
-- average net return after costs: `+7.80%`
+- aggregate leaderboard score: `0.447904`
+- average net return after costs: `+6.83%`
 - worst-window return: `-3.55%`
 - worst drawdown: `6.25%`
 - closed trades: `2`
-- active windows: `4` / `7`
-- positive windows: `3` / `7`
+- active windows: `4` / `8`
+- positive windows: `3` / `8`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
 - evidence status: `paper_thin`
@@ -120,13 +121,13 @@ Next work:
 - candidate: `mean_reversion_default`
 - rank: `3`
 - aggregate leaderboard score: `0.074000`
-- average net return after costs: `-0.01%`
+- average net return after costs: `+0.00%`
 - worst-window return: `-0.06%`
 - worst drawdown: `0.19%`
 - closed trades: `0`
-- active windows: `1` / `7`
-- positive windows: `0` / `7`
-- best window: `synthetic_default`
+- active windows: `2` / `8`
+- positive windows: `1` / `8`
+- best window: `low_vol_fee_bleed`
 - worst window: `false_breakout_whipsaw`
 - evidence status: `insufficient`
 - confidence: `low`

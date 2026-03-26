@@ -347,6 +347,21 @@ def default_evidence_windows() -> list[dict[str, Any]]:
                 start_ts_ms=1_700_600_000_000,
             ),
         },
+        {
+            "window_id": "low_vol_fee_bleed",
+            "label": "Low-Vol Fee Bleed",
+            "notes": "Slow grind down, tiny reversal, and shallow rebound intended to trigger a small mean-reversion round trip that loses after costs.",
+            "warmup_bars": 20,
+            "candles": _candles_from_closes(
+                _segment_closes(
+                    (58, -0.032, None, None),
+                    (14, 0.012, None, None),
+                    (28, 0.004, None, None),
+                    (8, -0.006, None, None),
+                ),
+                start_ts_ms=1_700_700_000_000,
+            ),
+        },
     ]
 
 

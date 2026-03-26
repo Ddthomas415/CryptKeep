@@ -10,10 +10,11 @@ def test_default_evidence_windows_expose_multiple_benchmarks() -> None:
     windows = evidence_cycle.default_evidence_windows()
     window_ids = {str(item["window_id"]) for item in windows}
 
-    assert len(windows) >= 7
+    assert len(windows) >= 8
     assert windows[0]["window_id"] == "synthetic_default"
     assert "false_breakout_whipsaw" in window_ids
     assert "event_trend_grind" in window_ids
+    assert "low_vol_fee_bleed" in window_ids
     assert all(int(item["bars"] if "bars" in item else len(item["candles"])) >= 100 for item in windows)
 
 
