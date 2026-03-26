@@ -46,21 +46,21 @@ Important limitation:
 
 ## Run-to-Run Comparison
 
-- previous run: `2026-03-26T18:24:30Z`
-- current run: `2026-03-26T18:30:07Z`
+- previous run: `2026-03-26T18:30:07Z`
+- current run: `2026-03-26T18:38:12Z`
 - top strategy previous: `breakout_donchian`
 - top strategy current: `breakout_donchian`
 - top strategy changed: `no`
 - improved comparisons: `0`
-- degraded comparisons: `1`
-- unchanged comparisons: `2`
+- degraded comparisons: `0`
+- unchanged comparisons: `3`
 - new comparisons: `0`
 
-Summary: 1 strategy comparison(s) degraded versus the prior persisted evidence run.
+Summary: Current strategy evidence is unchanged versus the prior persisted evidence run.
 
 Comparison detail:
 - `breakout_donchian` moved `unchanged`; rank `1` -> `1`, decision `freeze` -> `freeze`.
-- `ema_cross` moved `degraded`; rank `2` -> `2`, decision `freeze` -> `freeze`.
+- `ema_cross` moved `unchanged`; rank `2` -> `2`, decision `freeze` -> `freeze`.
 - `mean_reversion_rsi` moved `unchanged`; rank `3` -> `3`, decision `freeze` -> `freeze`.
 
 ## Results
@@ -84,7 +84,7 @@ Comparison detail:
 Decision: `freeze`
 
 Reason:
-- It remains viable, but the evidence is still weaker than the top aggregate candidate. Persisted paper-history evidence is negative after 3 closed trade(s), so the decision stays conservative.
+- It remains the strongest aggregate candidate, but the evidence is still not strong enough for a stronger decision. Persisted paper-history evidence is negative after 3 closed trade(s), so the decision stays conservative.
 - Evidence note: Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.
 - Biggest weakness: The sample is still small relative to the confidence needed for promotion.
 

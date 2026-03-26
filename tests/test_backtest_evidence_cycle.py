@@ -249,6 +249,72 @@ def test_run_strategy_evidence_cycle_downgrades_on_negative_paper_history(monkey
     assert row["confidence_label"] == "low"
 
 
+def test_run_strategy_evidence_cycle_rank1_downgrade_keeps_rank_aware_reason(monkeypatch) -> None:
+    monkeypatch.setattr(
+        evidence_cycle,
+        "run_strategy_leaderboard",
+        lambda **kwargs: {
+            "ok": True,
+            "rows": [
+                {
+                    "candidate": "breakout_default",
+                    "strategy": "breakout_donchian",
+                    "symbol": "BTC/USDT",
+                    "rank": 1,
+                    "leaderboard_score": 0.8,
+                    "net_return_after_costs_pct": 12.0,
+                    "max_drawdown_pct": 8.5,
+                    "regime_robustness": 1.0,
+                    "regime_return_dispersion_pct": 1.2,
+                    "slippage_sensitivity_pct": 0.3,
+                    "closed_trades": 3,
+                    "trade_count": 4,
+                    "exposure_fraction": 0.25,
+                }
+            ],
+        },
+    )
+    monkeypatch.setattr(
+        evidence_cycle,
+        "load_paper_history_evidence",
+        lambda journal_path="": {
+            "ok": True,
+            "status": "available",
+            "journal_path": "/tmp/trade_journal.sqlite",
+            "source": "trade_journal_sqlite",
+            "as_of": "2026-03-19T12:00:00Z",
+            "fills_count": 6,
+            "strategy_count": 1,
+            "rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "fills": 6,
+                    "closed_trades": 3,
+                    "win_rate": 0.0,
+                    "net_realized_pnl": -5.0,
+                }
+            ],
+            "caveat": "Supplemental paper history.",
+        },
+    )
+
+    out = evidence_cycle.run_strategy_evidence_cycle(
+        base_cfg={},
+        symbol="BTC/USDT",
+        windows=[
+            {"window_id": "w1", "label": "One", "warmup_bars": 5, "candles": [[1, 0, 0, 0, 0, 0]]},
+            {"window_id": "w2", "label": "Two", "warmup_bars": 5, "candles": [[2, 0, 0, 0, 0, 0]]},
+        ],
+    )
+
+    row = out["aggregate_leaderboard"]["rows"][0]
+    assert row["rank"] == 1
+    assert row["decision"] == "freeze"
+    assert "weaker than the top aggregate candidate" not in row["decision_reason"]
+    assert "strongest aggregate candidate" in row["decision_reason"]
+    assert "negative after 3 closed trade(s)" in row["decision_reason"]
+
+
 def test_run_strategy_evidence_cycle_marks_paper_supported_when_history_is_present(monkeypatch) -> None:
     monkeypatch.setattr(
         evidence_cycle,

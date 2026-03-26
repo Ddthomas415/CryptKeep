@@ -380,6 +380,8 @@ def _decision_for_row(row: dict[str, Any]) -> tuple[str, str]:
     if rank == 1 and total_closed_trades >= 3 and avg_return > 0.0 and positive_window_fraction >= 0.5 and worst_drawdown <= 8.0:
         return "keep", "It is the strongest aggregate candidate with enough closed-trade evidence for continued research."
     if avg_return > 0.0 and active_window_count >= 2:
+        if rank == 1:
+            return "improve", "It remains the strongest aggregate candidate, but the evidence is still not strong enough for a stronger decision."
         return "improve", "It remains viable, but the evidence is still weaker than the top aggregate candidate."
     return "freeze", "The current evidence is too thin or too inconsistent to justify active iteration."
 
