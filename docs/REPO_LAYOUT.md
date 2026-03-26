@@ -15,6 +15,17 @@ Canonical top-level dirs:
 Operational config:
 - config/ (runtime YAMLs)
 
+Companion trees currently referenced by the main repo:
+- phase1_research_copilot/
+  - actively referenced from the main README, Makefile, dashboard research fallback, and tests
+  - current repo evidence shows it is a companion subsystem, not dead archive material
+
+Sidecar workspace present in the tree:
+- crypto-trading-ai/
+  - present with its own backend/frontend/docs/scripts
+  - current repo evidence shows test coverage and utility scripts, but not the same level of integration into the main operator/runtime path as `phase1_research_copilot/`
+  - treat as sidecar workspace unless a stronger product-scope decision is documented elsewhere
+
 Local-only state (gitignored):
 - data/, runtime/, logs/, .venv/
 

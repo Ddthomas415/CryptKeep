@@ -146,6 +146,42 @@ def test_run_campaign_refuses_busy_strategy_runner(tmp_path, monkeypatch) -> Non
     assert status["status"] == "blocked"
 
 
+def test_summary_text_humanizes_no_fresh_tick_for_current_strategy() -> None:
+    summary = svc._summary_text(
+        {
+            "status": "running",
+            "current_strategy": "ema_cross",
+            "completed_strategies": 0,
+            "total_strategies": 3,
+            "runner_note": "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked",
+        }
+    )
+
+    assert "Paper evidence collector is running on ema_cross (0/3 complete)." in summary
+    assert "tick snapshot is stale" in summary
+    assert "network access may be blocked" in summary
+
+
+def test_summary_text_uses_latest_result_runner_note_when_current_strategy_missing() -> None:
+    summary = svc._summary_text(
+        {
+            "status": "completed",
+            "completed_strategies": 1,
+            "total_strategies": 1,
+            "results": [
+                {
+                    "strategy": "breakout_donchian",
+                    "runner_note": "no_fresh_tick:snapshot_present_but_symbol_missing:check_symbol_or_venue_mapping",
+                }
+            ],
+        }
+    )
+
+    assert "Paper evidence collector is completed (1/1 complete)." in summary
+    assert "breakout_donchian" in summary
+    assert "requested symbol is missing" in summary
+
+
 def test_load_runtime_status_marks_dead_process(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     svc.status_file().parent.mkdir(parents=True, exist_ok=True)

@@ -17,6 +17,14 @@ def _freshness_label(seconds: int | None) -> str:
     return mapping.get(state, "Unknown")
 
 
+def _runtime_alert(payload: dict[str, Any]) -> tuple[str, str]:
+    summary = str(payload.get("summary_text") or "").strip()
+    normalized = summary.lower()
+    if "waiting for fresh market ticks" in normalized:
+        return "warning", summary
+    return "", ""
+
+
 def load_paper_strategy_evidence_runtime() -> dict[str, Any]:
     try:
         from services.analytics.paper_strategy_evidence_service import load_runtime_status
@@ -43,4 +51,7 @@ def load_paper_strategy_evidence_runtime() -> dict[str, Any]:
             f"Paper strategy evidence collector status {str(payload.get('status') or 'unknown')}, "
             f"{payload['completed_summary']} strategies complete."
         )
+    tone, text = _runtime_alert(payload)
+    payload["alert_tone"] = tone
+    payload["alert_text"] = text
     return payload

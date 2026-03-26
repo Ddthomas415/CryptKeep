@@ -6,6 +6,7 @@ import json
 
 def _reload_strategy_runner(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("CBP_STARTUP_CONFIRM_FLAT", "true")
 
     import services.os.app_paths as app_paths
     import services.admin.config_editor as config_editor
@@ -163,6 +164,25 @@ def test_fetch_mid_returns_none_when_ccxt_fallback_raises(monkeypatch, tmp_path)
     assert out is None
 
 
+def test_no_fresh_tick_note_when_snapshot_missing(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    note = runner._no_fresh_tick_note()
+
+    assert note == "no_fresh_tick:snapshot_file_missing:start_tick_publisher"
+
+
+def test_no_fresh_tick_note_when_snapshot_stale(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    runner.TICK_SNAPSHOT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    runner.TICK_SNAPSHOT_FILE.write_text('{"ticks":[]}', encoding="utf-8")
+    monkeypatch.setattr(runner.time, "time", lambda: runner.TICK_SNAPSHOT_FILE.stat().st_mtime + 60.0)
+
+    note = runner._no_fresh_tick_note(stale_after_sec=30.0)
+
+    assert note == "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked"
+
+
 def test_strategy_signal_supports_mean_reversion_runtime_prices(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
 
@@ -243,3 +263,79 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     assert len(queued) == 1
     assert queued[0]["strategy_id"] == "breakout_donchian"
     assert queued[0]["side"] == "buy"
+
+
+def test_run_forever_exit_action_emits_sell_once_while_condition_persists(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    emitted: list[dict[str, object]] = []
+
+    class FakeIntentQueue:
+        def upsert_intent(self, row):
+            emitted.append(dict(row))
+
+    class FakePaperTrading:
+        def get_position(self, symbol):
+            return {"symbol": symbol, "qty": 1.0, "avg_price": 100.0}
+
+    monkeypatch.setattr(runner, "IntentQueueSQLite", lambda: FakeIntentQueue())
+    monkeypatch.setattr(runner, "PaperTradingSQLite", lambda: FakePaperTrading())
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "ema_cross",
+            "strategy": {
+                "name": "ema_cross",
+                "trade_enabled": True,
+                "ema_fast": 2,
+                "ema_slow": 4,
+            },
+            "strategy_preset": "ema_cross_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "fast_n": 2,
+            "slow_n": 4,
+            "min_bars": 5,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": False,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (110.0, 1))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "no_cross", "ind": {}},
+    )
+    monkeypatch.setattr(
+        runner,
+        "evaluate_strategy_exit_stack",
+        lambda **kwargs: {"action": "exit", "reason": "take_profit", "stack_rule": "take_profit"},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 8:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert len(emitted) == 1
+    assert emitted[0]["side"] == "sell"

@@ -492,15 +492,58 @@ def _run_strategy_window(
 
 
 def _summary_text(payload: dict[str, Any]) -> str:
+    def _runner_note_summary(note: str, *, strategy_name: str = "") -> str:
+        raw = str(note or "").strip()
+        if not raw.startswith("no_fresh_tick:"):
+            return ""
+        target = f" for {strategy_name}" if strategy_name else ""
+        mapping = {
+            "no_fresh_tick:snapshot_file_missing:start_tick_publisher": (
+                f"Strategy runner is waiting for fresh market ticks{target}; start the tick publisher."
+            ),
+            "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked": (
+                f"Strategy runner is waiting for fresh market ticks{target}; the tick snapshot is stale, so the publisher may be stopped or network access may be blocked."
+            ),
+            "no_fresh_tick:snapshot_unreadable:check_tick_publisher_output": (
+                f"Strategy runner is waiting for fresh market ticks{target}; the tick snapshot could not be read, so check tick publisher output."
+            ),
+            "no_fresh_tick:snapshot_has_no_ticks:check_venue_connectivity": (
+                f"Strategy runner is waiting for fresh market ticks{target}; the snapshot has no usable ticks, so check venue connectivity."
+            ),
+            "no_fresh_tick:snapshot_present_but_symbol_missing:check_symbol_or_venue_mapping": (
+                f"Strategy runner is waiting for fresh market ticks{target}; the snapshot is fresh but the requested symbol is missing, so check symbol or venue mapping."
+            ),
+        }
+        return mapping.get(raw, "")
+
+    def _latest_runner_note(obj: dict[str, Any]) -> tuple[str, str]:
+        note = str(obj.get("runner_note") or "").strip()
+        strategy_name = str(obj.get("current_strategy") or obj.get("strategy") or "").strip()
+        if note:
+            return note, strategy_name
+        rows = list(obj.get("results") or [])
+        for row in reversed(rows):
+            if not isinstance(row, dict):
+                continue
+            row_note = str(row.get("runner_note") or "").strip()
+            if row_note:
+                return row_note, str(row.get("strategy") or strategy_name or "").strip()
+        return "", strategy_name
+
     status = str(payload.get("status") or "unknown").replace("_", " ")
     current = str(payload.get("current_strategy") or "").strip()
     completed = int(payload.get("completed_strategies") or 0)
     total = int(payload.get("total_strategies") or 0)
+    runner_note, runner_strategy = _latest_runner_note(payload)
+    runner_summary = _runner_note_summary(runner_note, strategy_name=(current or runner_strategy))
     if current:
-        return f"Paper evidence collector is {status} on {current} ({completed}/{total} complete)."
+        base = f"Paper evidence collector is {status} on {current} ({completed}/{total} complete)."
+        return f"{base} {runner_summary}".strip() if runner_summary else base
     if total > 0:
-        return f"Paper evidence collector is {status} ({completed}/{total} complete)."
-    return f"Paper evidence collector is {status}."
+        base = f"Paper evidence collector is {status} ({completed}/{total} complete)."
+        return f"{base} {runner_summary}".strip() if runner_summary else base
+    base = f"Paper evidence collector is {status}."
+    return f"{base} {runner_summary}".strip() if runner_summary else base
 
 
 @dataclass(frozen=True)

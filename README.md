@@ -1,5 +1,7 @@
 # Crypto Bot Pro (Gold Repo)
 
+Crypto Bot Pro is a crypto-first operator platform for market-data collection, paper trading, guarded live execution, reconciliation, and dashboard-based operations. The current repo includes both research/evaluation workflows and execution surfaces, so it should be treated as a safety-aware trading system under active hardening, not as a read-only market-data bundle.
+
 ## Install (no bouncing)
 ### macOS
 ```bash
@@ -16,7 +18,6 @@ py scripts\install.py
 ```
 
 ## Notes
-- Phase 2 is **read-only** market data collection (no trading).
 - Status + scope: see `DECISIONS.md` and `CHECKPOINTS.md`.
 - Ops-risk integration contract: see `docs/OPS_RISK_GATE_INTEGRATION.md`.
 - AI engine scaffold: see `docs/AI_ENGINE.md`.
