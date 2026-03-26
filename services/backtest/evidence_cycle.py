@@ -314,6 +314,39 @@ def default_evidence_windows() -> list[dict[str, Any]]:
                 start_ts_ms=1_700_400_000_000,
             ),
         },
+        {
+            "window_id": "false_breakout_whipsaw",
+            "label": "False Breakout Whipsaw",
+            "notes": "Tight base, upside breakout, then fast reversal back through the base to test breakout false-positive handling and exit discipline.",
+            "warmup_bars": 20,
+            "candles": _candles_from_closes(
+                _segment_closes(
+                    (26, 0.01, 2, -0.02),
+                    (14, 0.85, None, None),
+                    (10, 0.20, None, None),
+                    (18, -1.10, 4, -0.35),
+                    (16, -0.20, None, None),
+                    (24, 0.06, 2, -0.10),
+                ),
+                start_ts_ms=1_700_500_000_000,
+            ),
+        },
+        {
+            "window_id": "event_trend_grind",
+            "label": "Event Trend Grind",
+            "notes": "Persistent one-way trend with shallow pullbacks and periodic squeeze bars intended to punish early countertrend entries.",
+            "warmup_bars": 20,
+            "candles": _candles_from_closes(
+                _segment_closes(
+                    (28, 0.38, 7, 0.45),
+                    (14, -0.06, None, None),
+                    (26, 0.52, 5, 0.55),
+                    (12, -0.04, None, None),
+                    (24, 0.44, 6, 0.35),
+                ),
+                start_ts_ms=1_700_600_000_000,
+            ),
+        },
     ]
 
 
