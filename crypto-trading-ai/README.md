@@ -97,7 +97,8 @@ Pre-commit guardrail
 
 - Install hooks once per clone with `make install-hooks`.
 - The installer auto-detects monorepo/nested layout and sets `core.hooksPath` correctly.
-- The pre-commit hook enforces:
+- The pre-commit hook scopes service-backed checks to staged `crypto-trading-ai` backend/frontend/workflow changes, so unrelated repo-level docs and evidence commits do not require running app containers.
+- For relevant staged changes it enforces:
   - workflow sync check
   - generated OpenAPI sync check
   - OpenAPI/route contract check
