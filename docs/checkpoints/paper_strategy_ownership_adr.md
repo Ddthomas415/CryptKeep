@@ -44,4 +44,8 @@ Define explicit ownership boundaries for:
 4. Which modules are compat-only and candidates for later retirement?
 
 ## Current decision
-Pending
+- `services/strategies` is the canonical owner of strategy definitions.
+- `services/strategy_runner` is the canonical owner of strategy runtime/execution.
+- `services/strategy` is a legacy/compatibility layer and is not an ownership target.
+- Long-term ownership between `services/paper` and `services/paper_trader` remains unresolved in this ADR draft.
+- No deletions or migrations are approved by this ADR yet.

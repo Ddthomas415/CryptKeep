@@ -27,9 +27,11 @@ from services.strategy.startup_guard import require_known_flat_or_override
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
+SNAPSHOTS = runtime_dir() / "snapshots"
 STOP_FILE = FLAGS / "strategy_runner.stop"
 LOCK_FILE = LOCKS / "strategy_runner.lock"
 STATUS_FILE = FLAGS / "strategy_runner.status.json"
+TICK_SNAPSHOT_FILE = SNAPSHOTS / "system_status.latest.json"
 
 _STRATEGY_ALIASES = {
     "ema_cross": "ema_cross",
@@ -85,6 +87,25 @@ def _now() -> str:
 def _write_status(obj: dict) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
     STATUS_FILE.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _no_fresh_tick_note(*, stale_after_sec: float = 30.0) -> str:
+    if not TICK_SNAPSHOT_FILE.exists():
+        return "no_fresh_tick:snapshot_file_missing:start_tick_publisher"
+    try:
+        age_sec = max(0.0, time.time() - float(TICK_SNAPSHOT_FILE.stat().st_mtime))
+    except Exception:
+        age_sec = stale_after_sec + 1.0
+    if age_sec > float(stale_after_sec):
+        return "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked"
+    try:
+        snap = json.loads(TICK_SNAPSHOT_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return "no_fresh_tick:snapshot_unreadable:check_tick_publisher_output"
+    ticks = snap.get("ticks")
+    if not isinstance(ticks, list) or not ticks:
+        return "no_fresh_tick:snapshot_has_no_ticks:check_venue_connectivity"
+    return "no_fresh_tick:snapshot_present_but_symbol_missing:check_symbol_or_venue_mapping"
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
@@ -341,6 +362,12 @@ def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
 
 
 def run_forever() -> None:
+    # Runner emission contract:
+    # - emits at most one intent per position transition (flat->long, long->exit)
+    # - suppresses repeated emissions of the same action via last_emitted_action
+    # - latch resets only when the signal/exit condition no longer requests that action
+    # - runner does not own order lifecycle; paper/live engines resolve queued intents
+    # - source of truth for current position is PaperTradingSQLite.get_position()
     ensure_dirs()
     cfg = _cfg()
     require_known_flat_or_override(venue=cfg["venue"], symbol=cfg["symbol"])
@@ -360,6 +387,7 @@ def run_forever() -> None:
     sdb = StrategyStateSQLite()
     k_prices = f"prices:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     k_last_action = f"last_action:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
+    k_last_emitted_action = f"last_emitted_action:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     k_warm = f"warmed:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     k_entry_price = f"entry_price:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
     k_trailing_peak = f"trailing_peak:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
@@ -375,6 +403,9 @@ def run_forever() -> None:
     last_action = str(sdb.get(k_last_action) or "hold").strip().lower()
     if last_action not in ("buy", "sell", "hold"):
         last_action = "hold"
+    last_emitted_action = str(sdb.get(k_last_emitted_action) or "hold").strip().lower()
+    if last_emitted_action not in ("buy", "sell", "hold"):
+        last_emitted_action = "hold"
 
     # Breakout/post-entry exit defaults.
     # These are runner-level controls and should be explicitly versioned in strategy config
@@ -459,7 +490,17 @@ def run_forever() -> None:
             else:
                 tick = _fetch_mid(cfg)
                 if not tick:
-                    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_fresh_tick", "loops": loops, "enqueued": enqueued})
+                    _write_status(
+                        {
+                            "ok": True,
+                            "status": "running",
+                            "pid": os.getpid(),
+                            "ts": _now(),
+                            "note": _no_fresh_tick_note(),
+                            "loops": loops,
+                            "enqueued": enqueued,
+                        }
+                    )
                     time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                     continue
                 m, ts_ms = tick
@@ -599,6 +640,8 @@ def run_forever() -> None:
                 else:
                     if (not cfg["position_aware"]) or (pos_qty > 0.0):
                         action = "sell"
+            if action and action == last_emitted_action:
+                action = None
             if action:
                 intent_id = str(uuid.uuid4())
                 qty = float(cfg["qty"])
@@ -635,6 +678,11 @@ def run_forever() -> None:
                     "linked_order_id": None,
                 })
                 enqueued += 1
+                last_emitted_action = action
+                sdb.set(k_last_emitted_action, last_emitted_action)
+            elif not exit_action and decision == "hold" and last_emitted_action != "hold":
+                last_emitted_action = "hold"
+                sdb.set(k_last_emitted_action, last_emitted_action)
             _write_status({
                 "ok": True,
                 "status": "running",
@@ -669,6 +717,7 @@ def run_forever() -> None:
         try:
             sdb.set(k_prices, json.dumps(prices))
             sdb.set(k_last_action, last_action)
+            sdb.set(k_last_emitted_action, last_emitted_action)
         except Exception:
             pass
         _release_lock()

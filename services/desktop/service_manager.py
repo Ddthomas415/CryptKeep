@@ -1,6 +1,15 @@
 
+"""
+Legacy compatibility shim for older desktop service-manager callers.
 
-# --- compatibility wrappers for scripts/service_ctl.py ---
+Current operator/service control scripts use:
+
+- scripts/service_ctl.py -> services.desktop.simple_service_manager
+
+This module remains only as a compatibility surface for any residual imports
+that still expect a `services.desktop.service_manager` module shape.
+"""
+
 def specs_default():
     # Try common internal providers
     for n in ("specs_default", "specs", "get_specs", "default_specs"):

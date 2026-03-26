@@ -292,6 +292,13 @@ with tab_strategy:
             evidence_rc, evidence_output = stop_paper_strategy_evidence_collection(current_role=str(AUTH_STATE.get("role") or "VIEWER"))
 
     render_action_result(action=evidence_action, rc=evidence_rc, output=evidence_output)
+    evidence_alert_text = str(paper_evidence_runtime.get("alert_text") or "").strip()
+    evidence_alert_tone = str(paper_evidence_runtime.get("alert_tone") or "").strip().lower()
+    if evidence_alert_text:
+        if evidence_alert_tone == "warning":
+            st.warning(evidence_alert_text)
+        else:
+            st.info(evidence_alert_text)
     render_table_section(
         "Paper Evidence Collector",
         [
