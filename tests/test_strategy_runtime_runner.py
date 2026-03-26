@@ -265,6 +265,77 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     assert queued[0]["side"] == "buy"
 
 
+def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    sdb = runner.StrategyStateSQLite()
+
+    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    sdb.set("warmed:coinbase:BTC/USD:breakout_donchian", "1")
+    sdb.set("last_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("last_emitted_action:coinbase:BTC/USD:breakout_donchian", "buy")
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "breakout_donchian",
+            "strategy": {
+                "name": "breakout_donchian",
+                "trade_enabled": True,
+                "donchian_len": 3,
+            },
+            "strategy_preset": "breakout_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "fast_n": 12,
+            "slow_n": 26,
+            "min_bars": 5,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": False,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (110.0, 1))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "inside_channel", "ind": {}},
+    )
+    monkeypatch.setattr(
+        runner,
+        "evaluate_strategy_exit_stack",
+        lambda **kwargs: {"action": "hold", "reason": "within_limits", "stack_rule": "none"},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 4:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    intents = qdb.list_intents(limit=10)
+    assert intents == []
+
+
 def test_run_forever_exit_action_emits_sell_once_while_condition_persists(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     emitted: list[dict[str, object]] = []

@@ -366,6 +366,7 @@ def run_forever() -> None:
     # - emits at most one intent per position transition (flat->long, long->exit)
     # - suppresses repeated emissions of the same action via last_emitted_action
     # - latch resets only when the signal/exit condition no longer requests that action
+    # - a neutral hold does not force an exit; exits come from opposite signals or explicit exit controls
     # - runner does not own order lifecycle; paper/live engines resolve queued intents
     # - source of truth for current position is PaperTradingSQLite.get_position()
     ensure_dirs()
@@ -637,7 +638,7 @@ def run_forever() -> None:
                 if decision == "buy":
                     if (not cfg["position_aware"]) or (pos_qty <= 0.0):
                         action = "buy"
-                else:
+                elif decision == "sell":
                     if (not cfg["position_aware"]) or (pos_qty > 0.0):
                         action = "sell"
             if action and action == last_emitted_action:
