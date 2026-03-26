@@ -18,24 +18,27 @@ Current status in that record:
 
 - decision: `freeze`
 - evidence status: `insufficient`
-- aggregate deterministic result: `0` active windows, `0` closed trades
+- aggregate deterministic result: `2 / 8` active windows, `0` closed trades
 - persisted paper history: `46` closed trades, `-2.55` net realized PnL, `2.2%` win rate across `92` fills
 
 ## Deterministic Window Read
 
-The built-in synthetic evidence windows did not produce realized participation for `mean_reversion_rsi`.
+The built-in synthetic evidence windows now produce limited participation for `mean_reversion_rsi`, but they still do not produce realized closed-trade evidence.
 
 Observed from the persisted evidence artifact:
 
-- active windows: `0 / 5`
+- active windows: `2 / 8`
 - closed trades: `0`
-- positive windows: `0 / 5`
-- aggregate net return after costs: `0.0%`
+- positive windows: `1 / 8`
+- aggregate net return after costs: `+0.00%`
+- best window: `low_vol_fee_bleed`
+- worst window: `false_breakout_whipsaw`
 
 Interpretation:
 
 - the current deterministic window set is not proving this strategy viable
-- it is also not stress-testing the strategy in a way that explains the live paper losses, because the strategy is mostly staying inactive in those synthetic windows
+- the added `low_vol_fee_bleed` window is a better structural match for the observed low-vol paper losses
+- but the deterministic pack still is not producing realized closed trades that would justify tuning from synthetic evidence alone
 
 ## Persisted Paper-History Read
 
@@ -81,7 +84,7 @@ The current hypothesis in [hypotheses.py](/Users/baitus/Downloads/crypto-bot-pro
 What can be said safely from current evidence:
 
 - the live paper sample is strongly negative
-- the current deterministic windows are not representative enough to explain that negative live result
+- the deterministic pack now captures a small amount of low-vol participation, but still does not reproduce a convincing realized-loss analogue to the paper history
 - the next step should be hypothesis and evaluation redesign, not threshold tuning
 
 What should **not** be claimed from current evidence:
@@ -102,14 +105,14 @@ Keep:
 Reason:
 
 - the paper sample is large enough to show the current implementation is performing poorly
-- the deterministic window set is not yet the right tool for explaining or improving that behavior
+- the deterministic window set is better than it was before the low-vol fee-bleed addition, but it is still not strong enough to justify preset tuning
 - changing thresholds before fixing the evaluation mismatch would be guesswork
 
 ## Recommended Follow-up
 
 If work resumes on this strategy, do one of these first:
 
-- add deterministic windows that actually exercise mean-reversion entries and exits in adverse trend regimes
+- strengthen the deterministic pack so low-vol fee-bleed and adverse trend windows produce more diagnostic realized participation
 - run a dedicated regime study that compares paper-loss periods against the hypothesis failure regimes
 
 Not recommended now:

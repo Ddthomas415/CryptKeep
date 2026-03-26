@@ -106,6 +106,12 @@ It is now safer to say:
 - `mean_reversion_rsi` is not just "negative on paper"; its current losses cluster in low-vol micro conditions that the hypothesis/evaluation layer does not currently represent well
 - `breakout_donchian` still lacks a clean enough paper sample to justify more preset tuning, especially after excluding the bug-contaminated `BTC/USD` loss
 
+Update after the expanded evidence pack:
+
+- the deterministic suite now includes `low_vol_fee_bleed`, so the evaluation layer does represent this failure mode better than it did when this note was first written
+- that addition increased `mean_reversion_rsi` participation in deterministic windows, but it still did not create realized closed-trade evidence strong enough to change the strategy decision
+- the repo truth therefore moved from "missing low-vol fee-bleed coverage" to "low-vol fee-bleed is partially represented, but still not diagnostic enough on its own"
+
 It is **not** safe to say:
 
 - that `mean_reversion_rsi` is disproven in all regimes
@@ -115,7 +121,7 @@ It is **not** safe to say:
 
 Do next:
 
-- add one deterministic low-vol fee-bleed / micro-churn window aimed at mean-reversion failure
+- strengthen the low-vol failure-regime pack so it produces more diagnostic realized participation, not just sparse entries
 - keep the breakout strategy conservative until a cleaner post-fix paper sample exists
 - confirm whether thin or unusual symbols such as `2Z/USD` should be part of the managed evidence universe at all
 
