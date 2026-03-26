@@ -29,9 +29,13 @@ async def emit_audit_event(
         "payload": payload or {},
     }
     url = f"{_settings.audit_service_url.rstrip('/')}/v1/audit/events"
+    headers: dict[str, str] = {}
+    token = str(getattr(_settings, "service_token", "") or "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     try:
         async with httpx.AsyncClient(timeout=_settings.request_timeout_seconds) as client:
-            await client.post(url, json=body)
+            await client.post(url, json=body, headers=headers)
     except Exception as exc:
         _logger.warning(
             "audit_emit_failed",

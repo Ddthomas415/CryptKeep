@@ -495,7 +495,6 @@ async def _ensure_core_tool_results(asset: str, tool_results: dict[str, Any]) ->
 async def _run_openai_reasoning(req: ExplainRequest, asset: str) -> tuple[dict[str, Any], dict[str, Any]]:
     instructions = build_research_explain_instructions(
         asset=asset,
-        question=req.question,
         lookback_minutes=req.lookback_minutes,
     )
     response = await llm_client.create_response(

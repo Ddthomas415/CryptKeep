@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from backend.app.main import app
 
 client = TestClient(app)
+client.headers.update({"Authorization": "Bearer test-viewer-token"})
 
 
 def test_dashboard_summary() -> None:

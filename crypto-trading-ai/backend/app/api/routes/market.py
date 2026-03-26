@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 
+from backend.app.api.deps import require_min_role
 from backend.app.core.envelopes import success
+from backend.app.domain.policy.roles import Role
 from backend.app.schemas.common import ApiEnvelope
 from backend.app.schemas.market import MarketCandlesResponse, MarketSnapshot
 from backend.app.services.market_service import MarketService
@@ -11,7 +13,7 @@ router = APIRouter()
 service = MarketService()
 
 
-@router.get("/{asset}/snapshot", response_model=ApiEnvelope[MarketSnapshot])
+@router.get("/{asset}/snapshot", response_model=ApiEnvelope[MarketSnapshot], dependencies=[Depends(require_min_role(Role.VIEWER))])
 def market_snapshot(
     asset: str,
     request: Request,
@@ -21,7 +23,7 @@ def market_snapshot(
     return success(data=data, request_id=request.state.request_id)
 
 
-@router.get("/{asset}/candles", response_model=ApiEnvelope[MarketCandlesResponse])
+@router.get("/{asset}/candles", response_model=ApiEnvelope[MarketCandlesResponse], dependencies=[Depends(require_min_role(Role.VIEWER))])
 def market_candles(
     asset: str,
     request: Request,

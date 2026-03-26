@@ -2,11 +2,14 @@ from fastapi.testclient import TestClient
 
 from backend.app.main import app
 
-client = TestClient(app)
+owner_client = TestClient(app)
+owner_client.headers.update({"Authorization": "Bearer test-owner-token"})
+viewer_client = TestClient(app)
+viewer_client.headers.update({"Authorization": "Bearer test-viewer-token"})
 
 
 def test_get_settings() -> None:
-    response = client.get("/api/v1/settings")
+    response = owner_client.get("/api/v1/settings")
     assert response.status_code == 200
 
     payload = response.json()
@@ -52,7 +55,7 @@ def test_put_settings() -> None:
         },
     }
 
-    response = client.put("/api/v1/settings", json=body)
+    response = owner_client.put("/api/v1/settings", json=body)
     assert response.status_code == 200
 
     payload = response.json()
@@ -62,7 +65,7 @@ def test_put_settings() -> None:
 
 
 def test_patch_settings_partial_update() -> None:
-    response = client.put(
+    response = owner_client.put(
         "/api/v1/settings",
         json={
             "general": {
@@ -79,7 +82,7 @@ def test_patch_settings_partial_update() -> None:
 
 
 def test_put_settings_empty_update_blocked() -> None:
-    response = client.put("/api/v1/settings", json={})
+    response = owner_client.put("/api/v1/settings", json={})
     assert response.status_code == 400
     payload = response.json()
     assert payload["status"] == "error"
@@ -87,7 +90,7 @@ def test_put_settings_empty_update_blocked() -> None:
 
 
 def test_put_settings_empty_section_update_blocked() -> None:
-    response = client.put("/api/v1/settings", json={"general": {}})
+    response = owner_client.put("/api/v1/settings", json={"general": {}})
     assert response.status_code == 400
     payload = response.json()
     assert payload["status"] == "error"
@@ -95,7 +98,7 @@ def test_put_settings_empty_section_update_blocked() -> None:
 
 
 def test_put_settings_invalid_mode_validation() -> None:
-    response = client.put(
+    response = owner_client.put(
         "/api/v1/settings",
         json={"general": {"default_mode": "auto_live"}},
     )
@@ -103,3 +106,11 @@ def test_put_settings_invalid_mode_validation() -> None:
     payload = response.json()
     assert payload["status"] == "error"
     assert payload["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_settings_require_owner_role() -> None:
+    response = viewer_client.get("/api/v1/settings")
+    assert response.status_code == 403
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "FORBIDDEN"

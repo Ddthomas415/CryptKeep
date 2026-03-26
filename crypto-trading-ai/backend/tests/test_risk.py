@@ -2,11 +2,14 @@ from fastapi.testclient import TestClient
 
 from backend.app.main import app
 
-client = TestClient(app)
+viewer_client = TestClient(app)
+viewer_client.headers.update({"Authorization": "Bearer test-viewer-token"})
+owner_client = TestClient(app)
+owner_client.headers.update({"Authorization": "Bearer test-owner-token"})
 
 
 def test_risk_summary() -> None:
-    response = client.get("/api/v1/risk/summary")
+    response = viewer_client.get("/api/v1/risk/summary")
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "success"
@@ -14,13 +17,13 @@ def test_risk_summary() -> None:
 
 
 def test_risk_limits_get_and_update() -> None:
-    get_response = client.get("/api/v1/risk/limits")
+    get_response = owner_client.get("/api/v1/risk/limits")
     assert get_response.status_code == 200
     before_payload = get_response.json()
     assert before_payload["status"] == "success"
     assert "max_position_size_pct" in before_payload["data"]
 
-    put_response = client.put(
+    put_response = owner_client.put(
         "/api/v1/risk/limits",
         json={"max_position_size_pct": 2.5},
     )
@@ -31,8 +34,16 @@ def test_risk_limits_get_and_update() -> None:
 
 
 def test_risk_limits_empty_update_blocked() -> None:
-    response = client.put("/api/v1/risk/limits", json={})
+    response = owner_client.put("/api/v1/risk/limits", json={})
     assert response.status_code == 400
     payload = response.json()
     assert payload["status"] == "error"
     assert payload["error"]["code"] == "EMPTY_RISK_LIMITS_UPDATE"
+
+
+def test_risk_limits_require_owner_role() -> None:
+    response = viewer_client.get("/api/v1/risk/limits")
+    assert response.status_code == 403
+    payload = response.json()
+    assert payload["status"] == "error"
+    assert payload["error"]["code"] == "FORBIDDEN"
