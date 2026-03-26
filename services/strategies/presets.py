@@ -39,7 +39,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         "strategy": {
             "name": "breakout_donchian",
             "trade_enabled": True,
-            "donchian_len": 16,
+            "donchian_len": 20,
             "filter_window": 8,
             "min_volatility_pct": 0.20,
             "min_volume_ratio": 0.95,
