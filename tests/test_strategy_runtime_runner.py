@@ -34,7 +34,7 @@ def test_cfg_uses_canonical_breakout_strategy(monkeypatch, tmp_path):
     assert cfg["strategy_id"] == "breakout_donchian"
     assert cfg["strategy"]["name"] == "breakout_donchian"
     assert cfg["strategy_preset"] == "breakout_default"
-    assert cfg["strategy"]["donchian_len"] == 20
+    assert cfg["strategy"]["donchian_len"] == 16
 
 
 def test_cfg_honors_env_min_bars_override_without_going_below_required_history(monkeypatch, tmp_path):
