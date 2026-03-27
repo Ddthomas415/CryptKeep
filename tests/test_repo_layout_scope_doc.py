@@ -12,6 +12,13 @@ def test_repo_layout_mentions_phase1_companion_scope() -> None:
     assert "actively referenced from the main README, Makefile, dashboard research fallback, and tests" in txt
 
 
+def test_repo_layout_points_backtest_to_services_root() -> None:
+    txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
+    assert "- backtest/" not in txt
+    assert "there is no canonical top-level `backtest/` root in the current tree" in txt
+    assert "backtest implementation currently lives under `services/backtest/`" in txt
+
+
 def test_repo_layout_mentions_crypto_trading_ai_as_sidecar_workspace() -> None:
     txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
     assert "crypto-trading-ai/" in txt

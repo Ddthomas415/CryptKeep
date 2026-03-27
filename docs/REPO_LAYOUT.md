@@ -9,8 +9,11 @@ Canonical top-level dirs:
 - scripts/
 - services/
 - storage/
-- backtest/
 - tests/
+
+Backtest code location:
+- there is no canonical top-level `backtest/` root in the current tree
+- backtest implementation currently lives under `services/backtest/`
 
 Operational config:
 - config/ (runtime YAMLs)
