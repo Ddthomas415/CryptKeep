@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import install as install_mod
+import tomllib
 
 
 def _normalized_req_name(line: str) -> str:
@@ -33,6 +34,13 @@ def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
     assert names.count("fastapi") == 1
     assert names.count("uvicorn[standard]") == 1
     assert names.count("pydantic") == 1
+
+
+def test_pyproject_includes_visible_root_runtime_packages() -> None:
+    deps = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["dependencies"]
+
+    assert "keyring" in deps
+    assert "ccxt>=4.0" in deps
 
 
 def test_root_install_refuses_pyproject_fallback_without_requirements(monkeypatch, tmp_path, capsys) -> None:
