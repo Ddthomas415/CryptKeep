@@ -32,8 +32,10 @@ def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
 
     assert names.count("httpx") == 1
     assert names.count("fastapi") == 1
-    assert names.count("uvicorn[standard]") == 1
+    assert names.count("uvicorn[standard]") == 0
     assert names.count("pydantic") == 1
+    assert names.count("gate-ws") == 0
+    assert names.count("psutil") == 0
     assert names.count("pydantic-settings") == 0
     assert names.count("pytest") == 0
     assert names.count("pywebview") == 0
@@ -56,6 +58,9 @@ def test_desktop_requirements_carry_packaging_only_dependencies() -> None:
     desktop = Path("requirements/desktop.txt").read_text(encoding="utf-8")
 
     assert "-r ../requirements.txt" in desktop
+    assert "gate-ws>=0.1.0" in desktop
+    assert "psutil>=5.9" in desktop
+    assert "uvicorn[standard]>=0.27" in desktop
     assert "pywebview" in desktop
     assert "pyinstaller" in desktop
 
