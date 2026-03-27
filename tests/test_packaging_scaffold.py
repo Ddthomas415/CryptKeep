@@ -40,3 +40,17 @@ def test_windows_installer_uses_existing_build_wrapper() -> None:
     root = _root()
     text = (root / "scripts" / "build_windows_installer.ps1").read_text(encoding="utf-8", errors="replace")
     assert "scripts\\build_app.ps1" in text
+
+
+def test_desktop_build_wrappers_use_desktop_requirements_profile() -> None:
+    root = _root()
+    targets = [
+        root / "packaging" / "build_macos.sh",
+        root / "packaging" / "build_windows.ps1",
+        root / "scripts" / "build_desktop_mac.sh",
+        root / "scripts" / "build_desktop_windows.ps1",
+    ]
+
+    for path in targets:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        assert "requirements/desktop.txt" in text or "requirements\\desktop.txt" in text
