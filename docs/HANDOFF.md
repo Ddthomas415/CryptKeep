@@ -13,14 +13,14 @@
 macOS:
 ```bash
 python3 scripts/install.py
-./run_collector.sh
+./.venv/bin/python -m services.data_collector.main
 ./run_dashboard.sh
 ```
 
 Windows (PowerShell):
 ```powershell
 py scripts\install.py
-.\run_collector.ps1
+.\.venv\Scripts\python.exe -m services.data_collector.main
 .\run_dashboard.ps1
 ```
 

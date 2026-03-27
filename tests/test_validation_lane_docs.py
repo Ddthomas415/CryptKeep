@@ -3,11 +3,15 @@ from pathlib import Path
 
 def test_makefile_exposes_runtime_and_checkpoint_test_lanes() -> None:
     text = Path("Makefile").read_text(encoding="utf-8")
+    pytest_ini = Path("pytest.ini").read_text(encoding="utf-8")
 
     assert "test-runtime:" in text
-    assert 'pytest -q tests -k "not checkpoints"' in text
+    assert "pytest -q -m runtime tests" in text
     assert "test-checkpoints:" in text
-    assert "pytest -q tests/test_checkpoints*.py" in text
+    assert "pytest -q -m checkpoint tests" in text
+    assert "markers =" in pytest_ini
+    assert "runtime: runtime and product behavior tests" in pytest_ini
+    assert "checkpoint: repo hygiene and checkpoint-format tests" in pytest_ini
 
 
 def test_docs_explain_validation_lanes() -> None:

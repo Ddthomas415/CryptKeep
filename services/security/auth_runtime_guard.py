@@ -41,7 +41,7 @@ def auth_runtime_guard_status() -> Dict[str, Any]:
     if bootstrap_user_present != bootstrap_password_present:
         warnings.append("Bootstrap auth env is partially configured")
     if auth_scope == "remote_public_candidate" and not outer_access_control:
-        warnings.append("Remote/public candidate mode is set without an outer access-control layer")
+        violations.append("Remote/public candidate mode is set without an outer access-control layer")
 
     return {
         "app_env": app_env,

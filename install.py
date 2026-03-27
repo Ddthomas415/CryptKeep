@@ -3,8 +3,9 @@
 Crypto Bot Pro — installer (clean, idempotent)
 
 - Ensures .venv exists
-- Installs dependencies (requirements.txt preferred, else pyproject)
+- Installs root baseline dependencies from requirements.txt when present
 - Does NOT write secrets
+- Supports the root repo Python platform only
 """
 from __future__ import annotations
 
@@ -64,6 +65,9 @@ def main() -> int:
         return 2
 
     print("\n[ok] install complete.")
+    print("[note] This installer provisions the root repo Python platform only.")
+    print("[note] requirements.txt is the dependency source of truth for this baseline when it is present.")
+    print("[note] Sidecar workspaces such as crypto-trading-ai/, src-tauri/, and packaging flows are not part of this baseline install path.")
     if platform.system().lower().startswith("win"):
         print(r"Activate: .\.venv\Scripts\activate")
     else:

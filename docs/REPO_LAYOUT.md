@@ -24,6 +24,7 @@ Sidecar workspace present in the tree:
 - crypto-trading-ai/
   - present with its own backend/frontend/docs/scripts
   - current repo evidence shows test coverage and utility scripts, but not the same level of integration into the main operator/runtime path as `phase1_research_copilot/`
+  - current root-only production decision means this tree is not part of the required root install/run/test baseline
   - treat as sidecar workspace unless a stronger product-scope decision is documented elsewhere
 
 Desktop/build roots:
@@ -31,6 +32,7 @@ Desktop/build roots:
   - currently contains only `desktop/README.md`
   - treat the top-level `desktop/` root as a reserved/documentation placeholder, not as an active code root
   - current desktop-related implementation surfaces visible in the repo live elsewhere, including `src-tauri/`, `packaging/`, and `services/desktop/`
+- current root-only production decision means `src-tauri/` and packaging/release flows are not part of the required root install/run/test baseline
 - `build/`
   - current tree contains no checked-in source files under this root
   - treat `build/` as an output-shaped root, not a canonical source location

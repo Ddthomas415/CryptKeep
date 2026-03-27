@@ -9,8 +9,8 @@ Goal: Read-only market data collection to a canonical event stream.
 - SQLite append-only `data/events.sqlite` store
 
 ## Run
-- macOS: `./run_collector.sh`
-- Windows: `./run_collector.ps1`
+- macOS: `./.venv/bin/python -m services.data_collector.main`
+- Windows: `.\.venv\Scripts\python.exe -m services.data_collector.main`
 
 ## Env vars
 - `CBP_FEEDS=binance,coinbase,gateio`
