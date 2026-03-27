@@ -15,12 +15,21 @@ def _f(x, default=0.0):
     except Exception:
         return default
 
-def fetch_ohlcv(venue: str, canonical_symbol: str, timeframe: str = "1h", limit: int = 500) -> list[list]:
+def fetch_ohlcv(
+    venue: str,
+    canonical_symbol: str,
+    timeframe: str = "1h",
+    limit: int = 500,
+    since_ms: int | None = None,
+) -> list[list]:
     v = normalize_venue(venue)
     sym = map_symbol(v, normalize_symbol(canonical_symbol))
     ex = make_exchange(v, {"apiKey": None, "secret": None}, enable_rate_limit=True)
     try:
-        return ex.fetch_ohlcv(sym, timeframe=timeframe, limit=int(limit))
+        kwargs = {"timeframe": timeframe, "limit": int(limit)}
+        if since_ms is not None:
+            kwargs["since"] = int(since_ms)
+        return ex.fetch_ohlcv(sym, **kwargs)
     finally:
         try:
             if hasattr(ex, "close"):

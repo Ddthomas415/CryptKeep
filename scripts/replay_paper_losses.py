@@ -24,6 +24,8 @@ def main() -> int:
     ap.add_argument("--symbol", default="", help="Optional symbol filter, e.g. ETH/USD")
     ap.add_argument("--journal-path", default="", help="Optional trade_journal.sqlite path override")
     ap.add_argument("--limit", type=int, default=10, help="Maximum number of losing replays to emit")
+    ap.add_argument("--timeframe", default="", help="Optional OHLCV context timeframe, e.g. 5m")
+    ap.add_argument("--context-bars", type=int, default=3, help="Bars before/after entry and exit to include when timeframe is set")
     args = ap.parse_args()
 
     out = build_loss_replay(
@@ -31,6 +33,8 @@ def main() -> int:
         symbol=str(args.symbol or "").strip(),
         journal_path=str(args.journal_path or ""),
         limit=int(args.limit or 10),
+        timeframe=str(args.timeframe or "").strip(),
+        context_bars=int(args.context_bars or 3),
     )
     print(json.dumps(out, indent=2, default=str))
     return 0
