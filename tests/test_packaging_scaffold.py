@@ -49,8 +49,16 @@ def test_desktop_build_wrappers_use_desktop_requirements_profile() -> None:
         root / "packaging" / "build_windows.ps1",
         root / "scripts" / "build_desktop_mac.sh",
         root / "scripts" / "build_desktop_windows.ps1",
+        root / "scripts" / "build_app.sh",
+        root / "scripts" / "build_app.ps1",
     ]
 
     for path in targets:
         text = path.read_text(encoding="utf-8", errors="replace")
         assert "requirements/desktop.txt" in text or "requirements\\desktop.txt" in text
+
+
+def test_pyinstaller_build_guidance_uses_desktop_requirements_profile() -> None:
+    root = _root()
+    text = (root / "packaging" / "pyinstaller" / "build.py").read_text(encoding="utf-8", errors="replace")
+    assert "pip install -r requirements/desktop.txt" in text

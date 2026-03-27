@@ -5,8 +5,8 @@ Set-Location $Root
 $Py = if (Test-Path ".venv\Scripts\python.exe") { ".\.venv\Scripts\python.exe" } else { "py" }
 
 & $Py -m pip install --upgrade pip
-if (Test-Path "requirements-dev.txt") {
-  & $Py -m pip install -r requirements-dev.txt
+if (Test-Path "requirements\\desktop.txt") {
+  & $Py -m pip install -r requirements\desktop.txt
 } elseif (Test-Path "requirements.txt") {
   & $Py -m pip install -r requirements.txt
 } else {
