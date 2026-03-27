@@ -32,3 +32,14 @@ def test_requirements_compat_files_chain_to_main_requirements() -> None:
     for f in files:
         text = f.read_text(encoding="utf-8", errors="replace")
         assert "-r" in text
+
+
+def test_packaging_requirements_chain_to_desktop_profile() -> None:
+    root = _root()
+    root_packaging = (root / "requirements-packaging.txt").read_text(encoding="utf-8", errors="replace")
+    compat_packaging = (root / "requirements" / "requirements.packaging.txt").read_text(
+        encoding="utf-8", errors="replace"
+    )
+
+    assert "-r requirements/desktop.txt" in root_packaging
+    assert "-r desktop.txt" in compat_packaging
