@@ -5,6 +5,30 @@ import json
 from services.analytics import paper_strategy_evidence_service as svc
 
 
+def test_strategy_summary_map_passes_symbol_filter(monkeypatch) -> None:
+    calls: list[tuple[str, str]] = []
+
+    def _load_paper_history_evidence(*, journal_path: str = "", symbol: str = "") -> dict[str, object]:
+        calls.append((journal_path, symbol))
+        return {
+            "rows": [
+                {
+                    "strategy": "ema_cross",
+                    "fills": 1,
+                    "closed_trades": 0,
+                    "net_realized_pnl": 0.0,
+                }
+            ]
+        }
+
+    monkeypatch.setattr(svc, "load_paper_history_evidence", _load_paper_history_evidence)
+
+    out = svc._strategy_summary_map("/tmp/trade_journal.sqlite", symbol="ETH/USD")
+
+    assert calls == [("/tmp/trade_journal.sqlite", "ETH/USD")]
+    assert out["ema_cross"]["fills"] == 1
+
+
 def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     stop_calls: list[str] = []

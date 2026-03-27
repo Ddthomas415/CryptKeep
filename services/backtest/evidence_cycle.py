@@ -204,13 +204,15 @@ def _build_recent_trend(
     }
 
 
-def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
+def load_paper_history_evidence(*, journal_path: str = "", symbol: str = "") -> dict[str, Any]:
     path = Path(journal_path).expanduser().resolve() if journal_path else default_trade_journal_path()
+    symbol_filter = str(symbol or "").strip()
     if not path.exists():
         return {
             "ok": False,
             "status": "missing",
             "journal_path": str(path),
+            "symbol_filter": symbol_filter or None,
             "source": "trade_journal_sqlite",
             "as_of": None,
             "fills_count": 0,
@@ -228,6 +230,7 @@ def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
             "ok": False,
             "status": "missing",
             "journal_path": str(path),
+            "symbol_filter": symbol_filter or None,
             "source": "trade_journal_sqlite",
             "as_of": None,
             "fills_count": 0,
@@ -246,6 +249,7 @@ def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
                 "ok": False,
                 "status": "missing",
                 "journal_path": str(path),
+                "symbol_filter": symbol_filter or None,
                 "source": "trade_journal_sqlite",
                 "as_of": None,
                 "fills_count": 0,
@@ -264,6 +268,7 @@ def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
             "ok": False,
             "status": "missing",
             "journal_path": str(path),
+            "symbol_filter": symbol_filter or None,
             "source": "trade_journal_sqlite",
             "as_of": None,
             "fills_count": 0,
@@ -283,6 +288,9 @@ def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
     for row in rows:
         item = dict(row)
         latest_ts = str(item.get("fill_ts") or item.get("journal_ts") or latest_ts or "") or latest_ts
+        item_symbol = str(item.get("symbol") or "").strip()
+        if symbol_filter and item_symbol != symbol_filter:
+            continue
         raw_strategy_id = str(item.get("strategy_id") or "").strip()
         strategy_name = _normalize_strategy_name(raw_strategy_id)
         if strategy_name is None:
@@ -303,6 +311,7 @@ def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
             "ok": False,
             "status": "missing",
             "journal_path": str(path),
+            "symbol_filter": symbol_filter or None,
             "source": "trade_journal_sqlite",
             "as_of": latest_ts,
             "fills_count": 0,
@@ -339,10 +348,13 @@ def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
     caveat = "Persisted paper-history evidence is supplemental. It improves operator truth, but it is not enough by itself to prove profitability or promotion readiness."
     if unmapped:
         caveat += f" Unmapped strategy IDs were ignored: {', '.join(sorted(unmapped)[:5])}."
+    if symbol_filter:
+        caveat += f" Current summary is filtered to persisted paper-history fills for `{symbol_filter}` only."
     return {
         "ok": True,
         "status": "available",
         "journal_path": str(path),
+        "symbol_filter": symbol_filter or None,
         "source": "trade_journal_sqlite",
         "as_of": latest_ts,
         "fills_count": int(total_fills),
@@ -686,7 +698,7 @@ def run_strategy_evidence_cycle(
 ) -> dict[str, Any]:
     as_of = _now_iso()
     window_defs = [dict(item) for item in list(windows or default_evidence_windows())]
-    paper_history = load_paper_history_evidence(journal_path=paper_history_path)
+    paper_history = load_paper_history_evidence(journal_path=paper_history_path, symbol=str(symbol or ""))
     paper_history_by_strategy = {
         str(item.get("strategy") or ""): dict(item)
         for item in list(paper_history.get("rows") or [])
