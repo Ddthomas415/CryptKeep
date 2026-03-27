@@ -398,6 +398,26 @@ def test_persist_strategy_evidence_attaches_comparison_to_previous_latest(tmp_pa
     latest_dir = tmp_path / "strategy_evidence"
     latest_dir.mkdir(parents=True, exist_ok=True)
     latest_path = latest_dir / "strategy_evidence.latest.json"
+    (latest_dir / "strategy_evidence.20260317T120000Z.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "as_of": "2026-03-17T12:00:00Z",
+                "aggregate_leaderboard": {"rows": [{"strategy": "breakout_donchian", "rank": 1, "decision": "keep"}]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (latest_dir / "strategy_evidence.20260318T120000Z.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "as_of": "2026-03-18T12:00:00Z",
+                "aggregate_leaderboard": {"rows": [{"strategy": "ema_cross", "rank": 1, "decision": "keep"}]},
+            }
+        ),
+        encoding="utf-8",
+    )
     latest_path.write_text(
         json.dumps(
             {
@@ -450,6 +470,14 @@ def test_persist_strategy_evidence_attaches_comparison_to_previous_latest(tmp_pa
     assert comparison["top_strategy_current"] == "breakout_donchian"
     assert comparison["top_strategy_changed"] is True
     assert report["comparison"]["top_strategy_changed"] is True
+    assert comparison["recent_trend"]["run_count"] == 3
+    assert comparison["recent_trend"]["transition_count"] == 2
+    assert comparison["recent_trend"]["current_top_streak"] == 1
+    assert comparison["recent_trend"]["top_strategy_sequence"] == [
+        "breakout_donchian",
+        "ema_cross",
+        "breakout_donchian",
+    ]
     changes = {item["strategy"]: item for item in comparison["changes"]}
     assert changes["ema_cross"]["movement"] == "degraded"
     assert changes["breakout_donchian"]["movement"] == "new"
@@ -482,6 +510,12 @@ def test_render_decision_record_includes_decision_summary() -> None:
             "unchanged_count": 0,
             "new_count": 0,
             "summary_text": "Top strategy changed from ema_cross to breakout_donchian versus the prior persisted evidence run.",
+            "recent_trend": {
+                "run_count": 3,
+                "distinct_top_strategy_count": 2,
+                "current_top_streak": 1,
+                "summary_text": "Top strategy changed 2 time(s) across the last 3 persisted evidence runs; current top is breakout_donchian.",
+            },
             "changes": [
                 {
                     "strategy": "breakout_donchian",
@@ -528,6 +562,10 @@ def test_render_decision_record_includes_decision_summary() -> None:
     assert "## Run-to-Run Comparison" in text
     assert "top strategy changed: `yes`" in text
     assert "Top strategy changed from ema_cross to breakout_donchian" in text
+    assert "- recent persisted runs considered: `3`" in text
+    assert "- distinct recent top strategies: `2`" in text
+    assert "- current top streak: `1`" in text
+    assert "Recent trend: Top strategy changed 2 time(s) across the last 3 persisted evidence runs; current top is breakout_donchian." in text
     assert "Decision: `keep`" in text
     assert "- evidence status: `unknown`" in text
     assert "- confidence: `unknown`" in text

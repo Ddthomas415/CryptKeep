@@ -46,8 +46,8 @@ Important limitation:
 
 ## Run-to-Run Comparison
 
-- previous run: `2026-03-27T10:21:44Z`
-- current run: `2026-03-27T10:22:29Z`
+- previous run: `2026-03-27T10:22:29Z`
+- current run: `2026-03-27T10:27:40Z`
 - top strategy previous: `breakout_donchian`
 - top strategy current: `breakout_donchian`
 - top strategy changed: `no`
@@ -57,6 +57,12 @@ Important limitation:
 - new comparisons: `0`
 
 Summary: Current strategy evidence is unchanged versus the prior persisted evidence run.
+
+- recent persisted runs considered: `5`
+- distinct recent top strategies: `1`
+- current top streak: `5`
+
+Recent trend: Top strategy has remained breakout_donchian across the last 5 persisted evidence runs.
 
 Comparison detail:
 - `breakout_donchian` moved `unchanged`; rank `1` -> `1`, decision `freeze` -> `freeze`.

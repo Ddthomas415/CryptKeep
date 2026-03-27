@@ -116,6 +116,94 @@ def _normalize_strategy_name(value: Any) -> str | None:
     return None
 
 
+def _top_strategy_name(report: dict[str, Any]) -> str | None:
+    rows = list(((dict(report or {}).get("aggregate_leaderboard") or {}).get("rows") or []))
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        strategy = str(item.get("strategy") or "").strip()
+        if strategy:
+            return strategy
+    return None
+
+
+def _load_recent_history_payloads(evidence_root: Path, *, limit: int = 4) -> list[dict[str, Any]]:
+    if limit <= 0:
+        return []
+    paths = sorted(
+        path
+        for path in evidence_root.glob("strategy_evidence.*.json")
+        if path.name != "strategy_evidence.latest.json"
+    )
+    payloads: list[dict[str, Any]] = []
+    for path in paths[-int(limit) :]:
+        payload = _load_evidence_payload(path)
+        if payload:
+            payloads.append(payload)
+    return payloads
+
+
+def _build_recent_trend(
+    current_report: dict[str, Any],
+    *,
+    previous_history_reports: list[dict[str, Any]] | None = None,
+    lookback: int = 5,
+) -> dict[str, Any]:
+    reports = [dict(item) for item in list(previous_history_reports or []) if isinstance(item, dict)]
+    reports.append(dict(current_report or {}))
+    sequence: list[dict[str, str]] = []
+    for payload in reports:
+        as_of = str(payload.get("as_of") or "").strip()
+        top_strategy = _top_strategy_name(payload)
+        if as_of and top_strategy:
+            sequence.append({"as_of": as_of, "top_strategy": top_strategy})
+    recent = sequence[-max(1, int(lookback)) :]
+    if not recent:
+        return {
+            "has_recent_history": False,
+            "run_count": 0,
+            "transition_count": 0,
+            "distinct_top_strategy_count": 0,
+            "current_top_streak": 0,
+            "top_strategy_current": None,
+            "top_strategy_sequence": [],
+            "runs": [],
+            "summary_text": "No persisted strategy evidence artifacts are available for recent-trend comparison.",
+        }
+
+    top_sequence = [str(item.get("top_strategy") or "") for item in recent if str(item.get("top_strategy") or "").strip()]
+    current_top = top_sequence[-1] if top_sequence else None
+    transitions = sum(1 for prev, cur in zip(top_sequence, top_sequence[1:]) if prev != cur)
+    streak = 0
+    if current_top:
+        streak = 1
+        for strategy in reversed(top_sequence[:-1]):
+            if strategy != current_top:
+                break
+            streak += 1
+    distinct_top_count = len({strategy for strategy in top_sequence if strategy})
+    if len(recent) <= 1:
+        summary_text = "Only one persisted strategy evidence artifact is available, so no recent-trend summary is available."
+    elif distinct_top_count <= 1 and current_top:
+        summary_text = f"Top strategy has remained {current_top} across the last {len(recent)} persisted evidence runs."
+    else:
+        summary_text = (
+            f"Top strategy changed {transitions} time(s) across the last {len(recent)} persisted evidence runs; "
+            f"current top is {current_top or 'unknown'}."
+        )
+    return {
+        "has_recent_history": len(recent) > 1,
+        "run_count": int(len(recent)),
+        "transition_count": int(transitions),
+        "distinct_top_strategy_count": int(distinct_top_count),
+        "current_top_streak": int(streak),
+        "top_strategy_current": current_top,
+        "top_strategy_sequence": top_sequence,
+        "runs": recent,
+        "summary_text": summary_text,
+    }
+
+
 def load_paper_history_evidence(*, journal_path: str = "") -> dict[str, Any]:
     path = Path(journal_path).expanduser().resolve() if journal_path else default_trade_journal_path()
     if not path.exists():
@@ -738,9 +826,11 @@ def build_evidence_comparison(
     current_report: dict[str, Any],
     *,
     previous_report: dict[str, Any] | None = None,
+    previous_history_reports: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     current_payload = dict(current_report or {})
     previous_payload = dict(previous_report or {})
+    recent_trend = _build_recent_trend(current_payload, previous_history_reports=previous_history_reports)
     previous_rows = {
         str(item.get("strategy") or ""): dict(item)
         for item in list(((previous_payload.get("aggregate_leaderboard") or {}).get("rows") or []))
@@ -766,8 +856,9 @@ def build_evidence_comparison(
             "new_count": int(len(current_rows)),
             "changes": [],
             "top_strategy_previous": None,
-            "top_strategy_current": str(current_rows[0].get("strategy") or "") if current_rows else None,
+            "top_strategy_current": _top_strategy_name(current_payload),
             "top_strategy_changed": False,
+            "recent_trend": recent_trend,
         }
 
     changes: list[dict[str, Any]] = []
@@ -853,6 +944,7 @@ def build_evidence_comparison(
         "top_strategy_previous": top_previous,
         "top_strategy_current": top_current,
         "top_strategy_changed": top_changed,
+        "recent_trend": recent_trend,
     }
 
 
@@ -863,7 +955,12 @@ def persist_strategy_evidence(report: dict[str, Any], *, latest_path: str = "") 
     latest = Path(latest_path).expanduser().resolve() if latest_path else (evidence_root / "strategy_evidence.latest.json").resolve()
     history = (evidence_root / f"strategy_evidence.{ts_token}.json").resolve()
     previous_payload = _load_evidence_payload(latest) if latest.exists() else {}
-    comparison = build_evidence_comparison(payload, previous_report=previous_payload)
+    previous_history = _load_recent_history_payloads(evidence_root, limit=4)
+    comparison = build_evidence_comparison(
+        payload,
+        previous_report=previous_payload,
+        previous_history_reports=previous_history,
+    )
     payload["comparison"] = comparison
     if isinstance(report, dict):
         report["comparison"] = comparison
@@ -971,6 +1068,18 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 "",
             ]
         )
+        recent_trend = dict(comparison.get("recent_trend") or {})
+        if recent_trend:
+            out.extend(
+                [
+                    f"- recent persisted runs considered: `{int(recent_trend.get('run_count') or 0)}`",
+                    f"- distinct recent top strategies: `{int(recent_trend.get('distinct_top_strategy_count') or 0)}`",
+                    f"- current top streak: `{int(recent_trend.get('current_top_streak') or 0)}`",
+                    "",
+                    f"Recent trend: {str(recent_trend.get('summary_text') or 'No recent trend summary available.')}",
+                    "",
+                ]
+            )
         changes = [dict(item) for item in list(comparison.get("changes") or []) if isinstance(item, dict)]
         if changes:
             out.extend(["Comparison detail:"])
