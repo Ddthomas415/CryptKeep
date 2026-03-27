@@ -87,7 +87,7 @@ def main() -> int:
     try:
         import PyInstaller  # noqa: F401
     except Exception:
-        print("PyInstaller not installed. Run: pip install -r requirements.txt")
+        print("PyInstaller not installed. Run: pip install -r requirements/desktop.txt")
         return 2
 
     cfg = _load_cfg()

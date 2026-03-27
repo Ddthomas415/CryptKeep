@@ -9,8 +9,8 @@ else
 fi
 
 "$PY" -m pip install --upgrade pip
-if [ -f "requirements-dev.txt" ]; then
-  "$PY" -m pip install -r requirements-dev.txt
+if [ -f "requirements/desktop.txt" ]; then
+  "$PY" -m pip install -r requirements/desktop.txt
 elif [ -f "requirements.txt" ]; then
   "$PY" -m pip install -r requirements.txt
 else
