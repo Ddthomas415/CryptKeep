@@ -14,6 +14,15 @@ def _normalized_req_name(line: str) -> str:
     return raw.strip().lower()
 
 
+def _normalized_req_line(line: str) -> str:
+    raw = line.strip()
+    for marker in ("<", ">", "=", "!", "~", ";"):
+        if marker in raw:
+            left, right = raw.split(marker, 1)
+            return f"{left.strip().lower()}{marker}{right.strip()}"
+    return raw.lower()
+
+
 def test_root_install_docs_name_requirements_txt_as_baseline_source_of_truth() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
     install = Path("docs/INSTALL.md").read_text(encoding="utf-8")
@@ -52,6 +61,19 @@ def test_pyproject_includes_visible_root_runtime_packages() -> None:
     assert "keyring" in deps
     assert "ccxt>=4.0" in deps
     assert "PyYAML>=6.0" in deps
+
+
+def test_root_requirements_and_pyproject_dependencies_are_aligned() -> None:
+    reqs = [
+        line.strip()
+        for line in Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+    deps = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["dependencies"]
+
+    assert {_normalized_req_line(line) for line in reqs} == {
+        _normalized_req_line(line) for line in deps
+    }
 
 
 def test_desktop_requirements_carry_packaging_only_dependencies() -> None:
