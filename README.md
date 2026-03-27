@@ -44,7 +44,15 @@ make pre-release-sanity
 make pre-release-sanity-quick
 make pre-release-sanity-json-quick
 make pre-release-sanity-json-fast
+make test-runtime
+make test-checkpoints
 ```
+
+Validation lanes:
+- `make validate-quick` and `make validate` remain the main repo-level gates
+- `make test-runtime` runs top-level tests excluding `test_checkpoints*`
+- `make test-checkpoints` runs the checkpoint-formatting / repo-hygiene lane separately
+- `make test` still runs the full top-level pytest suite
 
 Fast full JSON (skip inner pytest):
 ```bash
