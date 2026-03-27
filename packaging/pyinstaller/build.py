@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+import platform
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,21 @@ def run(cmd: list[str]) -> int:
 
 def _truthy(name: str) -> bool:
     return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _target_arch() -> str | None:
+    if sys.platform != "darwin":
+        return None
+
+    raw = os.environ.get("CBP_TARGET_ARCH", "").strip().lower()
+    if not raw:
+        return {"amd64": "x86_64"}.get(platform.machine().lower(), platform.machine().lower())
+
+    target = {"amd64": "x86_64"}.get(raw, raw)
+    if target not in {"x86_64", "arm64", "universal2"}:
+        raise ValueError(f"Unsupported CBP_TARGET_ARCH={raw!r}; expected arm64, x86_64, or universal2.")
+
+    return target
 
 
 def _load_cfg() -> dict[str, Any]:
@@ -96,6 +112,11 @@ def main() -> int:
     version = str(cfg.get("version", "0.1.0"))
     icons = cfg.get("icons", {}) if isinstance(cfg.get("icons"), dict) else {}
     pyi = cfg.get("pyinstaller", {}) if isinstance(cfg.get("pyinstaller"), dict) else {}
+    try:
+        target_arch = _target_arch()
+    except ValueError as exc:
+        print(str(exc))
+        return 4
 
     if not entry.exists():
         print(f"Missing entry: {entry}")
@@ -129,6 +150,8 @@ def main() -> int:
         "--clean",
         "--windowed" if windowed else "--console",
     ]
+    if target_arch:
+        cmd += ["--target-arch", target_arch]
     _add_data_args(cmd, pyi)
 
     if os.name == "nt":

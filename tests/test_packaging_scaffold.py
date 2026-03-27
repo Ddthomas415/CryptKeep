@@ -62,3 +62,15 @@ def test_pyinstaller_build_guidance_uses_desktop_requirements_profile() -> None:
     root = _root()
     text = (root / "packaging" / "pyinstaller" / "build.py").read_text(encoding="utf-8", errors="replace")
     assert "pip install -r requirements/desktop.txt" in text
+
+
+def test_pyinstaller_macos_build_supports_explicit_target_arch() -> None:
+    root = _root()
+    shell = (root / "packaging" / "pyinstaller" / "build.sh").read_text(encoding="utf-8", errors="replace")
+    driver = (root / "packaging" / "pyinstaller" / "build.py").read_text(encoding="utf-8", errors="replace")
+
+    assert "CBP_TARGET_ARCH" in shell
+    assert ".venv_x86_backup_" in shell
+    assert "platform.machine().lower()" in shell
+    assert "--target-arch" in driver
+    assert "CBP_TARGET_ARCH" in driver
