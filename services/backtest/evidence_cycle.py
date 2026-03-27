@@ -1051,9 +1051,9 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
             "## Follow-up Gaps",
             "",
             "The next improvement to the evaluation layer should be:",
-            "- persist multiple evidence runs and compare deltas over time",
+            "- extend persisted evidence comparison beyond the immediately previous artifact",
             "- grow the trade journal so paper-history evidence is no longer missing or thin",
-            "- feed the persisted evidence artifact into the Home Digest instead of rebuilding a single-window summary on demand",
+            "- improve deterministic windows where strategies still show no realized closed-trade participation",
             "",
         ]
     )
