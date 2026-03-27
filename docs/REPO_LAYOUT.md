@@ -26,6 +26,16 @@ Sidecar workspace present in the tree:
   - current repo evidence shows test coverage and utility scripts, but not the same level of integration into the main operator/runtime path as `phase1_research_copilot/`
   - treat as sidecar workspace unless a stronger product-scope decision is documented elsewhere
 
+Desktop/build roots:
+- `desktop/`
+  - currently contains only `desktop/README.md`
+  - treat the top-level `desktop/` root as a reserved/documentation placeholder, not as an active code root
+  - current desktop-related implementation surfaces visible in the repo live elsewhere, including `src-tauri/`, `packaging/`, and `services/desktop/`
+- `build/`
+  - current tree contains no checked-in source files under this root
+  - treat `build/` as an output-shaped root, not a canonical source location
+  - do not place new source modules under `build/`
+
 Local-only state (gitignored):
 - data/, runtime/, logs/, .venv/
 

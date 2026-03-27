@@ -26,3 +26,11 @@ def test_repo_layout_calls_out_overlapping_service_families() -> None:
     assert "`strategy/` and `strategies/`" in txt
     assert "`trading/` and `trading_runner/`" in txt
     assert "do not consolidate or move these families based on naming similarity alone" in txt
+
+
+def test_repo_layout_marks_desktop_and_build_as_non_source_roots() -> None:
+    txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
+    assert "Desktop/build roots:" in txt
+    assert "currently contains only `desktop/README.md`" in txt
+    assert "`src-tauri/`, `packaging/`, and `services/desktop/`" in txt
+    assert "current tree contains no checked-in source files under this root" in txt
