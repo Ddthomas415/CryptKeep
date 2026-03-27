@@ -34,6 +34,7 @@ def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
     assert names.count("fastapi") == 1
     assert names.count("uvicorn[standard]") == 1
     assert names.count("pydantic") == 1
+    assert names.count("pytest") == 0
     assert names.count("pywebview") == 0
     assert names.count("pyinstaller") == 0
 
@@ -56,6 +57,14 @@ def test_desktop_requirements_carry_packaging_only_dependencies() -> None:
     assert "-r ../requirements.txt" in desktop
     assert "pywebview" in desktop
     assert "pyinstaller" in desktop
+
+
+def test_dev_requirements_carry_pytest() -> None:
+    root_dev = Path("requirements-dev.txt").read_text(encoding="utf-8")
+    compat_dev = Path("requirements/dev.txt").read_text(encoding="utf-8")
+
+    assert "pytest>=7.4.0" in root_dev
+    assert "pytest>=7.4.0" in compat_dev
 
 
 def test_root_install_refuses_pyproject_fallback_without_requirements(monkeypatch, tmp_path, capsys) -> None:
