@@ -22,15 +22,19 @@ DEFAULT_CANON = {
 
 ALLOWED_TOP_FILES = {
     ".env.docker",
+    "AGENTS.md",
     ".gitignore",
     "CANON",
     "CANON.txt",
     "CHECKPOINTS.md",
+    "CryptoBotPro.spec",
     "DECISIONS.md",
     "Makefile",
     "README.md",
     "REMAINING_TASKS.md",
+    "conformance_tests.md",
     "create_review_bundle.sh",
+    "handoff_template.md",
     "install.py",
     "pyproject.toml",
     "pytest.ini",
@@ -39,6 +43,12 @@ ALLOWED_TOP_FILES = {
     "requirements.txt",
     "run_dashboard.ps1",
     "run_dashboard.sh",
+    "runtime_prompt.md",
+}
+
+IGNORED_TOP_LEVEL_DIRS = {
+    "__pycache__",
+    "dist",
 }
 
 
@@ -71,7 +81,10 @@ def main() -> int:
 
     top_dirs = sorted([p.name for p in root.iterdir() if p.is_dir() and p.name not in {".git"}])
     top_files = sorted([p.name for p in root.iterdir() if p.is_file()])
-    noncanon = [d for d in top_dirs if d not in canon and not d.startswith(".")]
+    noncanon = [
+        d for d in top_dirs
+        if d not in canon and d not in IGNORED_TOP_LEVEL_DIRS and not d.startswith(".")
+    ]
     suspicious_files = [f for f in top_files if not f.startswith(".") and f not in ALLOWED_TOP_FILES]
 
     def find(pattern: str, limit: int = 50):
