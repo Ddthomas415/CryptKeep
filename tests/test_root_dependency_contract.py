@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import install as install_mod
+
 
 def _normalized_req_name(line: str) -> str:
     raw = line.strip()
@@ -16,7 +18,7 @@ def test_root_install_docs_name_requirements_txt_as_baseline_source_of_truth() -
     install = Path("docs/INSTALL.md").read_text(encoding="utf-8")
 
     assert "root dependency source of truth for that baseline is `requirements.txt`" in readme
-    assert "`requirements.txt` is the dependency source of truth used by the installer when present" in install
+    assert "`requirements.txt` is the dependency source of truth and is required by the installer" in install
 
 
 def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
@@ -31,3 +33,21 @@ def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
     assert names.count("fastapi") == 1
     assert names.count("uvicorn[standard]") == 1
     assert names.count("pydantic") == 1
+
+
+def test_root_install_refuses_pyproject_fallback_without_requirements(monkeypatch, tmp_path, capsys) -> None:
+    py = tmp_path / "python"
+    calls: list[list[str]] = []
+
+    monkeypatch.setattr(install_mod, "ROOT", tmp_path)
+    monkeypatch.setattr(install_mod, "ensure_venv", lambda: py)
+    monkeypatch.setattr(install_mod, "_run", lambda cmd, env=None: calls.append(list(cmd)))
+
+    (tmp_path / "pyproject.toml").write_text("[project]\nname='demo'\nversion='0.1.0'\n", encoding="utf-8")
+
+    out = install_mod.main()
+    stdout = capsys.readouterr().out
+
+    assert out == 2
+    assert calls == [[str(py), "-m", "pip", "install", "-U", "pip"]]
+    assert "requirements.txt is required for the root baseline install path." in stdout
