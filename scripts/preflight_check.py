@@ -37,6 +37,13 @@ def main() -> int:
     except Exception as e:
         emit(False, "keyring unavailable", error=repr(e))
 
+    req = _REPO / "requirements.txt"
+    req_ok = req.exists()
+    emit(req_ok, "requirements.txt present" if req_ok else "requirements.txt missing", path=str(req))
+    if not req_ok:
+        emit(False, "preflight failed (root baseline requirements.txt missing)")
+        return 2
+
     # config presence
     cfg = _REPO / "config" / "trading.yaml"
     emit(cfg.exists(), "config/trading.yaml present" if cfg.exists() else "config/trading.yaml missing", path=str(cfg))
