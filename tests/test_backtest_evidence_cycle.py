@@ -533,3 +533,6 @@ def test_render_decision_record_includes_decision_summary() -> None:
     assert "- confidence: `unknown`" in text
     assert "- paper-history: 1 closed trade, positive net realized pnl." in text
     assert "- `breakout_donchian`" in text
+    assert "- extend persisted evidence comparison beyond the immediately previous artifact" in text
+    assert "- improve deterministic windows where strategies still show no realized closed-trade participation" in text
+    assert "feed the persisted evidence artifact into the Home Digest" not in text
