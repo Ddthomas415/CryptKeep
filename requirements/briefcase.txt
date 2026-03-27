@@ -5,8 +5,13 @@ websockets>=12.0
 gate-ws>=0.1.0
 psutil>=5.9
 keyring
-pywebview
+argon2-cffi>=25.1.0
 fastapi>=0.110
 uvicorn[standard]>=0.27
+SQLAlchemy>=2.0
+redis>=7.4.0
+psycopg[binary]>=3.3.0
 PyYAML>=6.0
 ccxt>=4.0
+httpx>=0.27,<1.0
+pywebview

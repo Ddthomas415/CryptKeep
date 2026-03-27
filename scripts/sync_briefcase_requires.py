@@ -15,7 +15,7 @@ import re
 from typing import Iterable
 
 
-DEFAULT_SRC = ROOT / "requirements.txt"
+DEFAULT_SRC = ROOT / "requirements" / "desktop.txt"
 DEFAULT_DST = ROOT / "requirements" / "briefcase.txt"
 
 # Build/test tooling should not leak into briefcase runtime deps.
@@ -62,10 +62,41 @@ def _sanitize(lines: Iterable[str]) -> list[str]:
     return out
 
 
+def _load_requirement_lines(src: Path, seen: set[Path] | None = None) -> list[str]:
+    resolved = src.resolve()
+    if seen is None:
+        seen = set()
+    if resolved in seen:
+        return []
+    seen.add(resolved)
+
+    out: list[str] = []
+    for raw in src.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("-r "):
+            nested = (src.parent / line[3:].strip()).resolve()
+            if not nested.exists():
+                raise FileNotFoundError(nested)
+            out.extend(_load_requirement_lines(nested, seen))
+            continue
+        out.append(line)
+    return out
+
+
 def sync_requires(src: Path = DEFAULT_SRC, dst: Path = DEFAULT_DST) -> dict:
     if not src.exists():
         return {"ok": False, "reason": "source_missing", "source": str(src)}
-    src_lines = src.read_text(encoding="utf-8", errors="replace").splitlines()
+    try:
+        src_lines = _load_requirement_lines(src)
+    except FileNotFoundError as exc:
+        return {
+            "ok": False,
+            "reason": "include_missing",
+            "source": str(src),
+            "missing_include": str(exc.filename or exc),
+        }
     wanted = _sanitize(src_lines)
 
     dst.parent.mkdir(parents=True, exist_ok=True)
@@ -86,7 +117,7 @@ def sync_requires(src: Path = DEFAULT_SRC, dst: Path = DEFAULT_DST) -> dict:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Sync requirements.txt into requirements/briefcase.txt")
+    ap = argparse.ArgumentParser(description="Sync requirements/desktop.txt into requirements/briefcase.txt")
     ap.add_argument("--src", default=str(DEFAULT_SRC))
     ap.add_argument("--dst", default=str(DEFAULT_DST))
     args = ap.parse_args()
