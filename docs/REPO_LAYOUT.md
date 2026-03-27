@@ -34,5 +34,17 @@ Validation entrypoint:
 - active git hooks are currently installed via `core.hooksPath` and point at `crypto-trading-ai/.githooks/pre-commit`
 - repo-level validation commands live at the main repo root (`make validate-quick`, `python3 scripts/validate.py --quick`)
 
+Overlapping service families:
+- the current tree contains overlapping top-level service families that should be treated as unresolved ownership boundaries until an explicit canonical-owner decision is documented
+- examples currently visible in `services/`:
+  - `market_data/` and `marketdata/`
+  - `paper/` and `paper_trader/`
+  - `strategy/` and `strategies/`
+  - `trading/` and `trading_runner/`
+  - `signals/` and `trader_signals/`
+  - `data/` and `data_collector/`
+  - `live_router/`, `live_trader_fleet/`, and `live_trader_multi/`
+- safe rule: do not consolidate or move these families based on naming similarity alone; document canonical ownership first
+
 Archive:
 - attic/ (old/duplicate code moved here; reversible)
