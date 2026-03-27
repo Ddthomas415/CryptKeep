@@ -34,6 +34,7 @@ def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
     assert names.count("fastapi") == 1
     assert names.count("uvicorn[standard]") == 1
     assert names.count("pydantic") == 1
+    assert names.count("pydantic-settings") == 0
     assert names.count("pytest") == 0
     assert names.count("pywebview") == 0
     assert names.count("pyinstaller") == 0
