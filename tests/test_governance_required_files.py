@@ -17,11 +17,11 @@ def test_required_governance_files_exist_and_are_nonempty() -> None:
         assert text, f"required governance file is empty: {path}"
 
 
-def test_runtime_prompt_and_conformance_docs_have_expected_headings() -> None:
+def test_runtime_prompt_and_conformance_docs_have_expected_anchors() -> None:
     runtime_prompt = Path("runtime_prompt.md").read_text(encoding="utf-8")
     conformance = Path("conformance_tests.md").read_text(encoding="utf-8")
 
-    assert "# Runtime Prompt" in runtime_prompt
-    assert "Use this short prompt for normal execution work in this repo" in runtime_prompt
+    assert "ROLE: AUTONOMOUS_HARDENING" in runtime_prompt
+    assert "Allowed normal output format only:" in runtime_prompt
     assert "# Conformance Tests" in conformance
     assert "Use targeted verification first." in conformance
