@@ -41,8 +41,13 @@ def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
 def test_pyproject_includes_visible_root_runtime_packages() -> None:
     deps = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["dependencies"]
 
+    assert "streamlit>=1.30.0" in deps
+    assert "pydantic>=2.5.0" in deps
+    assert "httpx>=0.27,<1.0" in deps
+    assert "orjson>=3.9.0" in deps
     assert "keyring" in deps
     assert "ccxt>=4.0" in deps
+    assert "PyYAML>=6.0" in deps
 
 
 def test_desktop_requirements_carry_packaging_only_dependencies() -> None:
