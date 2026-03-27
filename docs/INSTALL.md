@@ -2,7 +2,7 @@
 
 This project installs locally and runs on localhost (Streamlit).
 The supported baseline here is the root repo Python platform only.
-For that baseline, `requirements.txt` is the dependency source of truth used by the installer when present.
+For that baseline, `requirements.txt` is the dependency source of truth and is required by the installer.
 Sidecar workspaces such as `crypto-trading-ai/`, `src-tauri/`, and packaging/release helpers are not part of the required root install/run/test path.
 
 ## macOS
