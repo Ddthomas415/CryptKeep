@@ -8,6 +8,7 @@ class Lot:
     qty: float
     price: float  # entry price
     ts: str
+    fee_remaining: float = 0.0
 
 @dataclass
 class ClosedTrade:
@@ -54,14 +55,17 @@ def fifo_pnl_from_fills(journal_fills: List[dict]) -> dict:
         total_fees += fee
         lots.setdefault(sym, [])
         if side == "buy":
-            lots[sym].append(Lot(qty=qty, price=px, ts=ts))
+            lots[sym].append(Lot(qty=qty, price=px, ts=ts, fee_remaining=fee))
             continue
         if side == "sell":
             remaining = qty
             while remaining > 1e-12 and lots[sym]:
                 lot = lots[sym][0]
+                lot_qty_before = lot.qty
                 close_qty = min(lot.qty, remaining)
                 pnl = (px - lot.price) * close_qty
+                buy_fee_alloc = (lot.fee_remaining * (close_qty / lot_qty_before)) if lot_qty_before > 1e-12 else 0.0
+                sell_fee_alloc = fee * (close_qty / qty) if qty > 1e-12 else 0.0
                 gross_realized += pnl
                 closed.append(ClosedTrade(
                     symbol=sym,
@@ -72,9 +76,10 @@ def fifo_pnl_from_fills(journal_fills: List[dict]) -> dict:
                     exit_price=px,
                     qty=close_qty,
                     pnl=pnl,
-                    fees=0.0,  # fees handled separately; we keep total fees in summary
+                    fees=buy_fee_alloc + sell_fee_alloc,
                 ))
                 lot.qty -= close_qty
+                lot.fee_remaining = max(lot.fee_remaining - buy_fee_alloc, 0.0)
                 remaining -= close_qty
                 if lot.qty <= 1e-12:
                     lots[sym].pop(0)
