@@ -151,6 +151,67 @@ def test_run_campaign_skips_evidence_when_no_new_history(tmp_path, monkeypatch) 
     assert out["decision_record"]["skipped"] is True
 
 
+def test_run_campaign_prefers_explicit_evidence_symbol_over_user_yaml_symbols(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    seen: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        svc,
+        "_component_runtime",
+        lambda name: {"name": name, "pid_alive": False, "pid": 0, "status": "not_started"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_ensure_component",
+        lambda name, *, cfg: {"name": name, "started": True, "pid": 123 if name == "tick_publisher" else 456, "status": "running"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_run_strategy_window",
+        lambda *, cfg, strategy_name: {
+            "strategy": str(strategy_name),
+            "runtime_sec": 1.0,
+            "stop_reason": "runtime_elapsed",
+            "runner_status": "stopped",
+            "enqueued_total": 1,
+            "fills_delta": 1,
+            "closed_trades_delta": 1,
+            "net_realized_pnl_delta": 0.0,
+            "fills_total": 1,
+            "closed_trades_total": 1,
+            "net_realized_pnl_total": 0.0,
+            "latest_fill_ts": "",
+        },
+    )
+    monkeypatch.setattr(svc, "load_user_yaml", lambda: {"symbols": ["APR/USD"]})
+    monkeypatch.setattr(
+        svc,
+        "run_strategy_evidence_cycle",
+        lambda **kwargs: seen.setdefault("kwargs", kwargs) or {"as_of": "2026-03-19T00:00:00Z", "aggregate_leaderboard": {"rows": []}, "decisions": []},
+    )
+    monkeypatch.setattr(svc, "persist_strategy_evidence", lambda report: {"ok": True, "latest_path": str(tmp_path / "strategy_evidence.latest.json")})
+    monkeypatch.setattr(
+        svc,
+        "write_decision_record",
+        lambda report, *, artifact_path="": {"ok": True, "path": str(tmp_path / "decision_record.md"), "artifact_path": artifact_path},
+    )
+    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+    monkeypatch.setattr(svc, "_stop_component", lambda name: {"ok": True, "component": name})
+
+    out = svc.run_campaign(
+        svc.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            per_strategy_runtime_sec=1.0,
+            symbol="ETH/USD",
+            evidence_symbol="SOL/USD",
+        )
+    )
+
+    assert out["ok"] is True
+    assert seen["kwargs"]["symbol"] == "SOL/USD"
+    assert seen["kwargs"]["base_cfg"] == {"symbols": ["APR/USD"]}
+
+
 def test_run_campaign_refuses_busy_strategy_runner(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
 

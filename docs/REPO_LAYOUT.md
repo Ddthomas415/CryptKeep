@@ -55,6 +55,13 @@ Validation entrypoint:
 - active git hooks are currently installed via `core.hooksPath` and point at `crypto-trading-ai/.githooks/pre-commit`
 - repo-level validation commands live at the main repo root (`make validate-quick`, `python3 scripts/validate.py --quick`)
 
+Managed evidence symbol scope:
+- the managed paper evidence collector is currently CLI/env driven, not driven by `/.cbp_state/runtime/config/user.yaml` symbol lists alone
+- runtime collection symbol comes from `scripts/run_paper_strategy_evidence_collector.py --symbol` and flows into `PaperStrategyEvidenceServiceCfg.symbol`
+- the synthetic evidence cycle uses `PaperStrategyEvidenceServiceCfg.evidence_symbol` when set, otherwise it reuses the managed runtime symbol
+- `load_user_yaml()` is still passed into the evidence cycle as base configuration, but it does not override the managed evidence symbol by itself
+- older docs, journals, and evidence artifacts may still mention historical campaign symbols such as `APR/USD` and `2Z/USD`; treat those as historical evidence inputs, not as the current default managed evidence universe
+
 Overlapping service families:
 - the current tree contains overlapping top-level service families that should be treated as unresolved ownership boundaries until an explicit canonical-owner decision is documented
 - examples currently visible in `services/`:
