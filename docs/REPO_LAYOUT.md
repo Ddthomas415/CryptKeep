@@ -29,5 +29,10 @@ Sidecar workspace present in the tree:
 Local-only state (gitignored):
 - data/, runtime/, logs/, .venv/
 
+Validation entrypoint:
+- root `/.pre-commit-config.yaml` is intentionally minimal
+- active git hooks are currently installed via `core.hooksPath` and point at `crypto-trading-ai/.githooks/pre-commit`
+- repo-level validation commands live at the main repo root (`make validate-quick`, `python3 scripts/validate.py --quick`)
+
 Archive:
 - attic/ (old/duplicate code moved here; reversible)
