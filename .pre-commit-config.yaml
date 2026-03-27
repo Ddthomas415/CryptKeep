@@ -1,0 +1,8 @@
+repos: []
+
+# Root repo note:
+# - This file is intentionally minimal.
+# - Active git-hook behavior is installed via `core.hooksPath` and currently
+#   points at `crypto-trading-ai/.githooks/pre-commit`.
+# - Repo-level validation entrypoints remain the Makefile commands and
+#   `python3 scripts/validate.py --quick`.
