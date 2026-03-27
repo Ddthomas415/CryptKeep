@@ -107,10 +107,10 @@ test:
 	$(PYTHON) -m pytest -q
 
 test-runtime:
-	$(PYTHON) -m pytest -q tests -k "not checkpoints"
+	$(PYTHON) -m pytest -q -m runtime tests
 
 test-checkpoints:
-	$(PYTHON) -m pytest -q tests/test_checkpoints*.py
+	$(PYTHON) -m pytest -q -m checkpoint tests
 
 test-governance:
 	$(PYTHON) -m pytest -q \

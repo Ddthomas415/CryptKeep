@@ -43,7 +43,7 @@ def test_runtime_guard_warns_on_partial_bootstrap(monkeypatch):
     assert any("partially configured" in msg for msg in out["warnings"])
 
 
-def test_runtime_guard_warns_when_remote_scope_lacks_outer_control(monkeypatch):
+def test_runtime_guard_blocks_when_remote_scope_lacks_outer_control(monkeypatch):
     import services.security.auth_runtime_guard as arg
 
     monkeypatch.setattr(
@@ -54,5 +54,6 @@ def test_runtime_guard_warns_when_remote_scope_lacks_outer_control(monkeypatch):
     )
 
     out = auth_runtime_guard_status()
-    assert out["ok"] is True
-    assert any("outer access-control layer" in msg for msg in out["warnings"])
+    assert out["ok"] is False
+    assert any("outer access-control layer" in msg for msg in out["violations"])
+    assert out["warnings"] == []

@@ -101,3 +101,32 @@ def test_auth_capabilities_reports_store_error_without_dev_env_login(monkeypatch
     assert out["recommended"] == "unavailable"
     assert out["detail"] == "keychain unavailable"
     assert out["remote_access_hardened"] is False
+
+
+def test_auth_capabilities_surfaces_runtime_guard_violation_for_unhardened_remote_scope(monkeypatch):
+    import services.security.auth_runtime_guard as arg
+
+    monkeypatch.setattr(ac, "_keychain_available", lambda: (True, None))
+    monkeypatch.setattr(
+        ac,
+        "_security_policy",
+        lambda: {
+            "auth_scope": "remote_public_candidate",
+            "auth_scope_label": "Remote/public candidate",
+            "remote_access_requires_mfa": True,
+            "scope_detail": "Remote/public use requires an external MFA layer.",
+            "mfa_detail": "Built-in TOTP MFA is available for keychain-backed users.",
+            "outer_access_control": "",
+        },
+    )
+    monkeypatch.setattr(
+        arg,
+        "get_settings_view",
+        lambda: {"security": {"auth_scope": "remote_public_candidate", "outer_access_control": ""}},
+        raising=False,
+    )
+
+    out = ac.auth_capabilities()
+
+    assert out["runtime_guard_ok"] is False
+    assert any("outer access-control layer" in msg for msg in out["runtime_guard_violations"])

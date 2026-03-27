@@ -15,6 +15,7 @@ def test_repo_layout_mentions_phase1_companion_scope() -> None:
 def test_repo_layout_mentions_crypto_trading_ai_as_sidecar_workspace() -> None:
     txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
     assert "crypto-trading-ai/" in txt
+    assert "current root-only production decision means this tree is not part of the required root install/run/test baseline" in txt
     assert "treat as sidecar workspace unless a stronger product-scope decision is documented elsewhere" in txt
 
 
@@ -33,6 +34,7 @@ def test_repo_layout_marks_desktop_and_build_as_non_source_roots() -> None:
     assert "Desktop/build roots:" in txt
     assert "currently contains only `desktop/README.md`" in txt
     assert "`src-tauri/`, `packaging/`, and `services/desktop/`" in txt
+    assert "not part of the required root install/run/test baseline" in txt
     assert "current tree contains no checked-in source files under this root" in txt
 
 

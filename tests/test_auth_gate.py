@@ -194,6 +194,46 @@ def test_require_authenticated_role_warns_when_remote_scope_is_not_hardened(monk
 
     assert any("outer access-control layer" in msg.lower() for msg in fake.warnings)
 
+
+def test_require_authenticated_role_surfaces_runtime_guard_violation_for_remote_scope(monkeypatch) -> None:
+    import services.security.auth_capabilities as ac
+    import services.security.auth_runtime_guard as arg
+
+    fake = _FakeStreamlit()
+    monkeypatch.setattr(auth_gate, "st", fake)
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("BYPASS_DASHBOARD_AUTH", raising=False)
+    monkeypatch.setattr(ac, "_keychain_available", lambda: (True, None))
+    monkeypatch.setattr(
+        ac,
+        "_security_policy",
+        lambda: {
+            "auth_scope": "remote_public_candidate",
+            "auth_scope_label": "Remote/public candidate",
+            "remote_access_requires_mfa": True,
+            "scope_detail": "Remote/public use requires stronger controls.",
+            "mfa_detail": "Built-in TOTP MFA is available.",
+            "outer_access_control": "",
+        },
+    )
+    monkeypatch.setattr(
+        arg,
+        "get_settings_view",
+        lambda: {"security": {"auth_scope": "remote_public_candidate", "outer_access_control": ""}},
+        raising=False,
+    )
+    monkeypatch.setattr(auth_gate, "auth_capabilities", ac.auth_capabilities)
+    monkeypatch.setattr(auth_gate, "ensure_bootstrap_user_from_env", lambda: {"ok": True, "skipped": True})
+
+    with pytest.raises(_StopCalled):
+        auth_gate.require_authenticated_role("VIEWER")
+
+    assert any("outer access-control layer" in msg.lower() for msg in fake.warnings)
+    assert any(
+        "runtime guard: remote/public candidate mode is set without an outer access-control layer" in msg.lower()
+        for msg in fake.errors
+    )
+
 def test_login_requires_mfa_when_user_has_mfa_enabled(monkeypatch):
     from dashboard import auth_gate
 
