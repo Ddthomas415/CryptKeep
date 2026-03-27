@@ -1,3 +1,6 @@
 -r ../requirements.txt
+gate-ws>=0.1.0
+psutil>=5.9
+uvicorn[standard]>=0.27
 pywebview
 pyinstaller
