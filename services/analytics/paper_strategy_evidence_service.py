@@ -233,8 +233,8 @@ def load_runtime_status() -> dict[str, Any]:
     return payload
 
 
-def _strategy_summary_map(journal_path: str = "") -> dict[str, dict[str, Any]]:
-    payload = load_paper_history_evidence(journal_path=journal_path)
+def _strategy_summary_map(journal_path: str = "", *, symbol: str = "") -> dict[str, dict[str, Any]]:
+    payload = load_paper_history_evidence(journal_path=journal_path, symbol=symbol)
     return {
         str(row.get("strategy") or ""): dict(row)
         for row in list(payload.get("rows") or [])
@@ -429,7 +429,7 @@ def _run_strategy_window(
     cfg: "PaperStrategyEvidenceServiceCfg",
     strategy_name: str,
 ) -> dict[str, Any]:
-    before_rows = _strategy_summary_map(cfg.paper_history_path)
+    before_rows = _strategy_summary_map(cfg.paper_history_path, symbol=str(cfg.symbol or DEFAULT_SYMBOL))
     proc = _start_process(
         script_relpath="scripts/run_strategy_runner.py",
         env=_component_env(cfg, strategy_name=strategy_name),
@@ -466,7 +466,7 @@ def _run_strategy_window(
         _wait_for_component_stop("strategy_runner", timeout_sec=10.0)
         time.sleep(max(0.0, float(cfg.strategy_drain_sec)))
 
-    after_rows = _strategy_summary_map(cfg.paper_history_path)
+    after_rows = _strategy_summary_map(cfg.paper_history_path, symbol=str(cfg.symbol or DEFAULT_SYMBOL))
     delta = _strategy_delta(strategy_name, before_rows=before_rows, after_rows=after_rows)
     ended_ts = _now_iso()
     last_status = dict((_component_runtime("strategy_runner").get("status_payload") or last_status or {}))

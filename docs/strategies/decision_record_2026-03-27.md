@@ -26,7 +26,7 @@ Phase 1 safety pack should be rerun before relying on this record.
 - paper-history source: `trade_journal_sqlite`
 - paper-history status: `available`
 - paper-history journal: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
-- paper-history fills: `103`
+- paper-history fills: `22`
 - evidence artifact: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/strategy_evidence/strategy_evidence.latest.json`
 
 Window set:
@@ -46,17 +46,17 @@ Important limitation:
 
 ## Run-to-Run Comparison
 
-- previous run: `2026-03-27T10:22:29Z`
-- current run: `2026-03-27T10:27:40Z`
+- previous run: `2026-03-27T10:27:40Z`
+- current run: `2026-03-27T10:35:55Z`
 - top strategy previous: `breakout_donchian`
 - top strategy current: `breakout_donchian`
 - top strategy changed: `no`
-- improved comparisons: `0`
+- improved comparisons: `2`
 - degraded comparisons: `0`
-- unchanged comparisons: `3`
+- unchanged comparisons: `1`
 - new comparisons: `0`
 
-Summary: Current strategy evidence is unchanged versus the prior persisted evidence run.
+Summary: 2 strategy comparison(s) improved versus the prior persisted evidence run.
 
 - recent persisted runs considered: `5`
 - distinct recent top strategies: `1`
@@ -65,8 +65,8 @@ Summary: Current strategy evidence is unchanged versus the prior persisted evide
 Recent trend: Top strategy has remained breakout_donchian across the last 5 persisted evidence runs.
 
 Comparison detail:
-- `breakout_donchian` moved `unchanged`; rank `1` -> `1`, decision `freeze` -> `freeze`.
-- `ema_cross` moved `unchanged`; rank `2` -> `2`, decision `freeze` -> `freeze`.
+- `breakout_donchian` moved `improved`; rank `1` -> `1`, decision `freeze` -> `improve`.
+- `ema_cross` moved `improved`; rank `2` -> `2`, decision `freeze` -> `improve`.
 - `mean_reversion_rsi` moved `unchanged`; rank `3` -> `3`, decision `freeze` -> `freeze`.
 
 ## Results
@@ -83,16 +83,16 @@ Comparison detail:
 - positive windows: `6` / `8`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
-- evidence status: `paper_supported`
-- confidence: `medium`
-- paper-history: 3 closed trade(s), -0.19 net realized PnL, 0.0% win rate across 6 fill(s).
+- evidence status: `synthetic_only`
+- confidence: `low`
+- paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
-Decision: `freeze`
+Decision: `improve`
 
 Reason:
-- It remains the strongest aggregate candidate, but the evidence is still not strong enough for a stronger decision. Persisted paper-history evidence is negative after 3 closed trade(s), so the decision stays conservative.
-- Evidence note: Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.
-- Biggest weakness: The sample is still small relative to the confidence needed for promotion.
+- It remains the strongest aggregate candidate, but the evidence is still not strong enough for a stronger decision.
+- Evidence note: Persisted paper-history exists, but this strategy has no attributed paper fills yet, so the decision still relies on synthetic windows.
+- Biggest weakness: Expected failure regimes are still concentrated in chop, low vol.
 
 Next work:
 - Test false-breakout handling and exit discipline over a longer multi-window pack.
@@ -109,15 +109,15 @@ Next work:
 - positive windows: `3` / `8`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
-- evidence status: `paper_thin`
+- evidence status: `synthetic_only`
 - confidence: `low`
-- paper-history: 2 closed trade(s), -0.00 net realized PnL, 0.0% win rate across 5 fill(s).
+- paper-history: No strategy-attributed persisted paper-history fills are available yet.
 
-Decision: `freeze`
+Decision: `improve`
 
 Reason:
-- It remains viable, but the evidence is still weaker than the top aggregate candidate. Persisted paper-history evidence is negative after 2 closed trade(s), so the decision stays conservative.
-- Evidence note: Persisted paper-history exists, but the sample is still too thin to confirm the synthetic ranking.
+- It remains viable, but the evidence is still weaker than the top aggregate candidate.
+- Evidence note: Persisted paper-history exists, but this strategy has no attributed paper fills yet, so the decision still relies on synthetic windows.
 - Biggest weakness: Performance is fragile across windows, not just thin in sample size.
 
 Next work:
@@ -137,12 +137,12 @@ Next work:
 - worst window: `false_breakout_whipsaw`
 - evidence status: `insufficient`
 - confidence: `low`
-- paper-history: 46 closed trade(s), -2.55 net realized PnL, 2.2% win rate across 92 fill(s).
+- paper-history: 11 closed trade(s), -0.00 net realized PnL, 0.0% win rate across 22 fill(s).
 
 Decision: `freeze`
 
 Reason:
-- No realized closed-trade evidence exists across the current window set. Persisted paper-history evidence is negative after 46 closed trade(s), so the decision stays conservative.
+- No realized closed-trade evidence exists across the current window set. Persisted paper-history evidence is negative after 11 closed trade(s), so the decision stays conservative.
 - Evidence note: No realized closed-trade participation exists across the current evidence windows.
 - Biggest weakness: No realized trading participation across the current evidence windows.
 
@@ -155,11 +155,10 @@ Keep:
 - none
 
 Improve:
-- none
-
-Freeze:
 - `breakout_donchian`
 - `ema_cross`
+
+Freeze:
 - `mean_reversion_rsi`
 
 Retire:

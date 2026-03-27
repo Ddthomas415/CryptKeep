@@ -100,10 +100,11 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
     monkeypatch.setattr(
         evidence_cycle,
         "load_paper_history_evidence",
-        lambda journal_path="": {
+        lambda journal_path="", symbol="": {
             "ok": False,
             "status": "missing",
             "journal_path": "/tmp/trade_journal.sqlite",
+            "symbol_filter": symbol or None,
             "source": "trade_journal_sqlite",
             "as_of": None,
             "fills_count": 0,
@@ -184,6 +185,60 @@ def test_load_paper_history_evidence_summarizes_trade_journal(tmp_path) -> None:
     assert out["rows"][0]["net_realized_pnl"] > 0.0
 
 
+def test_load_paper_history_evidence_filters_by_symbol(tmp_path) -> None:
+    db = tmp_path / "trade_journal.sqlite"
+    con = sqlite3.connect(str(db))
+    try:
+        con.execute(
+            """
+            CREATE TABLE journal_fills (
+              fill_id TEXT PRIMARY KEY,
+              journal_ts TEXT NOT NULL,
+              intent_id TEXT,
+              source TEXT,
+              strategy_id TEXT,
+              client_order_id TEXT,
+              order_id TEXT NOT NULL,
+              fill_ts TEXT NOT NULL,
+              venue TEXT NOT NULL,
+              symbol TEXT NOT NULL,
+              side TEXT NOT NULL,
+              qty REAL NOT NULL,
+              price REAL NOT NULL,
+              fee REAL NOT NULL,
+              fee_currency TEXT NOT NULL,
+              cash_quote REAL,
+              pos_qty REAL,
+              pos_avg_price REAL,
+              realized_pnl_total REAL
+            )
+            """
+        )
+        con.executemany(
+            "INSERT INTO journal_fills(fill_id, journal_ts, strategy_id, order_id, fill_ts, venue, symbol, side, qty, price, fee, fee_currency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                ("f1", "2026-03-19T12:00:00Z", "breakout_donchian", "o1", "2026-03-19T12:00:00Z", "paper", "BTC/USD", "buy", 1.0, 100.0, 0.1, "USD"),
+                ("f2", "2026-03-19T12:10:00Z", "breakout_donchian", "o2", "2026-03-19T12:10:00Z", "paper", "BTC/USD", "sell", 1.0, 110.0, 0.1, "USD"),
+                ("f3", "2026-03-19T12:20:00Z", "breakout_donchian", "o3", "2026-03-19T12:20:00Z", "paper", "APR/USD", "buy", 1.0, 50.0, 0.1, "USD"),
+                ("f4", "2026-03-19T12:30:00Z", "breakout_donchian", "o4", "2026-03-19T12:30:00Z", "paper", "APR/USD", "sell", 1.0, 40.0, 0.1, "USD"),
+            ],
+        )
+        con.commit()
+    finally:
+        con.close()
+
+    out = evidence_cycle.load_paper_history_evidence(journal_path=str(db), symbol="BTC/USD")
+
+    assert out["status"] == "available"
+    assert out["symbol_filter"] == "BTC/USD"
+    assert out["fills_count"] == 2
+    assert out["strategy_count"] == 1
+    assert out["rows"][0]["strategy"] == "breakout_donchian"
+    assert out["rows"][0]["closed_trades"] == 1
+    assert out["rows"][0]["net_realized_pnl"] > 0.0
+    assert "BTC/USD" in out["caveat"]
+
+
 def test_run_strategy_evidence_cycle_downgrades_on_negative_paper_history(monkeypatch) -> None:
     monkeypatch.setattr(
         evidence_cycle,
@@ -212,10 +267,11 @@ def test_run_strategy_evidence_cycle_downgrades_on_negative_paper_history(monkey
     monkeypatch.setattr(
         evidence_cycle,
         "load_paper_history_evidence",
-        lambda journal_path="": {
+        lambda journal_path="", symbol="": {
             "ok": True,
             "status": "available",
             "journal_path": "/tmp/trade_journal.sqlite",
+            "symbol_filter": symbol or None,
             "source": "trade_journal_sqlite",
             "as_of": "2026-03-19T12:00:00Z",
             "fills_count": 4,
@@ -277,10 +333,11 @@ def test_run_strategy_evidence_cycle_rank1_downgrade_keeps_rank_aware_reason(mon
     monkeypatch.setattr(
         evidence_cycle,
         "load_paper_history_evidence",
-        lambda journal_path="": {
+        lambda journal_path="", symbol="": {
             "ok": True,
             "status": "available",
             "journal_path": "/tmp/trade_journal.sqlite",
+            "symbol_filter": symbol or None,
             "source": "trade_journal_sqlite",
             "as_of": "2026-03-19T12:00:00Z",
             "fills_count": 6,
@@ -343,10 +400,11 @@ def test_run_strategy_evidence_cycle_marks_paper_supported_when_history_is_prese
     monkeypatch.setattr(
         evidence_cycle,
         "load_paper_history_evidence",
-        lambda journal_path="": {
+        lambda journal_path="", symbol="": {
             "ok": True,
             "status": "available",
             "journal_path": "/tmp/trade_journal.sqlite",
+            "symbol_filter": symbol or None,
             "source": "trade_journal_sqlite",
             "as_of": "2026-03-19T12:00:00Z",
             "fills_count": 6,
@@ -377,6 +435,72 @@ def test_run_strategy_evidence_cycle_marks_paper_supported_when_history_is_prese
     assert row["evidence_status"] == "paper_supported"
     assert row["confidence_label"] == "medium"
     assert "research-grade" in row["evidence_note"]
+
+
+def test_run_strategy_evidence_cycle_ignores_other_symbol_paper_history(tmp_path) -> None:
+    db = tmp_path / "trade_journal.sqlite"
+    con = sqlite3.connect(str(db))
+    try:
+        con.execute(
+            """
+            CREATE TABLE journal_fills (
+              fill_id TEXT PRIMARY KEY,
+              journal_ts TEXT NOT NULL,
+              intent_id TEXT,
+              source TEXT,
+              strategy_id TEXT,
+              client_order_id TEXT,
+              order_id TEXT NOT NULL,
+              fill_ts TEXT NOT NULL,
+              venue TEXT NOT NULL,
+              symbol TEXT NOT NULL,
+              side TEXT NOT NULL,
+              qty REAL NOT NULL,
+              price REAL NOT NULL,
+              fee REAL NOT NULL,
+              fee_currency TEXT NOT NULL,
+              cash_quote REAL,
+              pos_qty REAL,
+              pos_avg_price REAL,
+              realized_pnl_total REAL
+            )
+            """
+        )
+        con.executemany(
+            "INSERT INTO journal_fills(fill_id, journal_ts, strategy_id, order_id, fill_ts, venue, symbol, side, qty, price, fee, fee_currency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                ("f1", "2026-03-19T12:00:00Z", "breakout_donchian", "o1", "2026-03-19T12:00:00Z", "paper", "APR/USD", "buy", 1.0, 50.0, 0.1, "USD"),
+                ("f2", "2026-03-19T12:10:00Z", "breakout_donchian", "o2", "2026-03-19T12:10:00Z", "paper", "APR/USD", "sell", 1.0, 40.0, 0.1, "USD"),
+            ],
+        )
+        con.commit()
+    finally:
+        con.close()
+
+    out = evidence_cycle.run_strategy_evidence_cycle(
+        base_cfg={},
+        symbol="BTC/USD",
+        windows=[
+            {
+                "window_id": "w1",
+                "label": "One",
+                "warmup_bars": 5,
+                "candles": evidence_cycle._candles_from_closes([100.0, 101.0, 102.0, 103.0, 104.0, 105.0], start_ts_ms=1_700_000_000_000),
+            },
+            {
+                "window_id": "w2",
+                "label": "Two",
+                "warmup_bars": 5,
+                "candles": evidence_cycle._candles_from_closes([100.0, 99.0, 98.0, 97.0, 96.0, 95.0], start_ts_ms=1_700_010_000_000),
+            },
+        ],
+        paper_history_path=str(db),
+    )
+
+    breakout_row = next(row for row in out["aggregate_leaderboard"]["rows"] if row["strategy"] == "breakout_donchian")
+    assert out["paper_history"]["symbol_filter"] == "BTC/USD"
+    assert breakout_row["paper_history_note"] == "No strategy-attributed persisted paper-history fills are available yet."
+    assert "negative after" not in breakout_row["decision_reason"]
 
 
 def test_persist_strategy_evidence_writes_latest_and_history(tmp_path, monkeypatch) -> None:
