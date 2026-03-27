@@ -45,3 +45,12 @@ def test_repo_layout_marks_runtime_and_archive_roots_as_non_source() -> None:
     assert "operationally important, but not a canonical source tree" in txt
     assert "tracked archive content retained inside the repo" in txt
     assert "do not route new integration work through it" in txt
+
+
+def test_repo_layout_documents_managed_evidence_symbol_scope() -> None:
+    txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
+    assert "Managed evidence symbol scope:" in txt
+    assert "managed paper evidence collector is currently CLI/env driven" in txt
+    assert "`scripts/run_paper_strategy_evidence_collector.py --symbol`" in txt
+    assert "`PaperStrategyEvidenceServiceCfg.evidence_symbol`" in txt
+    assert "`APR/USD` and `2Z/USD`" in txt
