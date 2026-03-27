@@ -12,8 +12,7 @@ if (!(Test-Path ".venv")) {
 }
 
 & .\.venv\Scripts\python.exe -m pip install --upgrade pip wheel
-& .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-& .\.venv\Scripts\python.exe -m pip install pyinstaller
+& .\.venv\Scripts\python.exe -m pip install -r requirements\desktop.txt
 
 & .\.venv\Scripts\pyinstaller.exe --noconfirm packaging\pyinstaller\crypto_bot_pro.spec
 

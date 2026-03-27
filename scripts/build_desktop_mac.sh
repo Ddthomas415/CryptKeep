@@ -21,8 +21,7 @@ fi
 source .venv/bin/activate
 
 python -m pip install --upgrade pip wheel
-python -m pip install -r requirements.txt
-python -m pip install pyinstaller
+python -m pip install -r requirements/desktop.txt
 
 if [ "$BUILD_APP" = "1" ]; then
   if [ -f "$ICON_PATH" ]; then
