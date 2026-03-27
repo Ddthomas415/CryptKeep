@@ -12,8 +12,6 @@ keyring
 argon2-cffi>=25.1.0
 
 # Desktop dependencies
-pywebview
-pyinstaller
 fastapi>=0.110
 uvicorn[standard]>=0.27
 SQLAlchemy>=2.0
