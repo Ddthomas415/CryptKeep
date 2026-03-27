@@ -34,3 +34,14 @@ def test_repo_layout_marks_desktop_and_build_as_non_source_roots() -> None:
     assert "currently contains only `desktop/README.md`" in txt
     assert "`src-tauri/`, `packaging/`, and `services/desktop/`" in txt
     assert "current tree contains no checked-in source files under this root" in txt
+
+
+def test_repo_layout_marks_runtime_and_archive_roots_as_non_source() -> None:
+    txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
+    assert "Non-source workspace material:" in txt
+    assert "`/.cbp_state/`" in txt
+    assert "`/data/`" in txt
+    assert "`/.venv_x86_backup_20260224_133111/`" in txt
+    assert "operationally important, but not a canonical source tree" in txt
+    assert "tracked archive content retained inside the repo" in txt
+    assert "do not route new integration work through it" in txt
