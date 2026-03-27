@@ -39,6 +39,17 @@ Desktop/build roots:
 Local-only state (gitignored):
 - data/, runtime/, logs/, .venv/
 
+Non-source workspace material:
+- `/.cbp_state/`
+  - runtime state, snapshots, journals, logs, and generated evidence artifacts
+  - operationally important, but not a canonical source tree
+- `/data/`
+  - local SQLite stores and runtime-adjacent outputs
+  - operationally important, but not a canonical source tree
+- `/.venv_x86_backup_20260224_133111/`
+  - backup virtualenv content
+  - do not treat as source, dependency metadata, or a supported runtime root
+
 Validation entrypoint:
 - root `/.pre-commit-config.yaml` is intentionally minimal
 - active git hooks are currently installed via `core.hooksPath` and point at `crypto-trading-ai/.githooks/pre-commit`
@@ -57,4 +68,6 @@ Overlapping service families:
 - safe rule: do not consolidate or move these families based on naming similarity alone; document canonical ownership first
 
 Archive:
-- attic/ (old/duplicate code moved here; reversible)
+- `attic/`
+  - tracked archive content retained inside the repo
+  - treat as non-canonical source and do not route new integration work through it
