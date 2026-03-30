@@ -5,6 +5,15 @@ Status: OPEN
 ## Objective
 Record the currently visible hidden defaults on runtime-capable root-runtime paths without changing runtime behavior.
 
+## Updated status
+The canonical operator/config path now requires explicit venue and symbol inputs in:
+- `scripts/run_bot_safe.py`
+- `scripts/bot_ctl.py`
+- `services/execution/live_executor.py`
+
+This reduces the launch-path risk from silent defaults on the actively used operator path.
+Hidden defaults may still remain in non-canonical or not-yet-classified paths.
+
 ## Confirmed defaults
 The repo currently includes runtime-capable defaults such as:
 
