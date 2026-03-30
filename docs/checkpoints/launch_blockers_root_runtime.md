@@ -136,6 +136,7 @@ Why it exists:
 
 Evidence:
 - docs/safety/live_mode_contract.md
+- docs/checkpoints/live_mode_source_of_truth_note.md
 
 Close condition:
 - One persisted live-enable source
