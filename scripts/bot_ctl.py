@@ -148,8 +148,8 @@ def cmd_stop(args) -> int:
 
 def main() -> int:
     common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--venue", default="coinbase")
-    common.add_argument("--symbols", default="BTC/USD", help="Comma list")
+    common.add_argument("--venue", required=True)
+    common.add_argument("--symbols", required=True, help="Comma list")
 
     ap = argparse.ArgumentParser(prog="bot_ctl.py")
     sub = ap.add_subparsers(dest="cmd", required=True)
