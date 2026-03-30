@@ -163,6 +163,7 @@ Close condition:
 ### B. Remove or fence hidden defaults on launch-capable paths
 Evidence:
 - defaults such as venue=coinbase and symbol=BTC/USD exist on runtime-capable paths
+- docs/checkpoints/hidden_defaults_note.md
 
 Close condition:
 - Venue, symbol, mode, and account are explicit on the chosen launch path
