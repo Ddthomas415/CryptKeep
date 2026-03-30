@@ -1,31 +1,27 @@
 # Remaining Tasks
 
-Source: `CHECKPOINTS.md`
+This file is a lightweight index only.
 
-## Summary
-- Total non-✅ items: 4
-- 🔄 In progress: 0
-- 🟡 Partial: 0
-- ⏳ Not started: 0
-- ⚠️ Constraint/note: 4
+## Current state
+Production hardening is not complete.
 
-## 🔄 In Progress (0)
+## Canonical blocker list
+See:
 
+- docs/checkpoints/launch_blockers_root_runtime.md
 
-## 🟡 Partial (0)
+## Interpretation
+The critical path is:
 
+1. freeze launch scope
+2. configure one sandbox venue
+3. prove private authenticated connectivity
+4. prove private lifecycle runtime flow
+5. resolve live lifecycle authority gap if required by the frozen launch path
+6. collapse live-mode source of truth if required by the frozen launch path
 
-## ⏳ Not Started (0)
-
-
-
-## ⚠️ Constraint / Note (4)
-
-- UX Safety rule: terminal must remain a controlled product console only; no unrestricted shell access from UI
-  Source: `CHECKPOINTS.md:1997`
-- API Safety rule: terminal endpoints must route only approved product commands; never expose raw shell execution
-  Source: `CHECKPOINTS.md:2012`
-- DB Safety rule: encrypted credential material must never be logged or returned in API responses
-  Source: `CHECKPOINTS.md:2025`
-- SM Safety rule: no service may bypass state-machine guards for execution-affecting transitions
-  Source: `CHECKPOINTS.md:2037`
+## Notes
+Do not mix:
+- launch blockers
+- conditional broader-scope controls
+- non-blocking architectural debt
