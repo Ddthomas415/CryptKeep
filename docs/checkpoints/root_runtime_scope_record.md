@@ -32,8 +32,12 @@ Related blocker record:
 ## Current repo truth
 - `DECISIONS.md` defines the canonical repo direction
 - `config/trading.yaml` still presents paper-mode / "live not implemented yet" language
-- runtime-capable paths still include hidden defaults such as `coinbase` and `BTC/USD`
-- those defaults are not yet treated as approved launch-scope selections
+- runtime-capable paths previously included hidden defaults such as `coinbase` and `BTC/USD`
+- the canonical operator/config path now requires explicit venue/symbol inputs in:
+  - `scripts/run_bot_safe.py`
+  - `scripts/bot_ctl.py`
+  - `services/execution/live_executor.py`
+- hidden-default cleanup may still remain outside the fully verified canonical operator path
 - live lifecycle authority is not yet fully boundary-governed on all active paths
 - live-mode source of truth is not yet singular
 

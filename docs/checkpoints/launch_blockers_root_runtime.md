@@ -165,8 +165,15 @@ Close condition:
 
 ### B. Remove or fence hidden defaults on launch-capable paths
 Evidence:
-- defaults such as venue=coinbase and symbol=BTC/USD exist on runtime-capable paths
+- defaults such as venue=coinbase and symbol=BTC/USD previously existed on runtime-capable paths
 - docs/checkpoints/hidden_defaults_note.md
+
+Current status:
+- the canonical operator/config path now requires explicit venue/symbol inputs in:
+  - `scripts/run_bot_safe.py`
+  - `scripts/bot_ctl.py`
+  - `services/execution/live_executor.py`
+- hidden-default cleanup outside the fully verified canonical operator path may still remain
 
 Current status:
 - Coinbase submit path now blocks locally when the bound portfolio lacks the required quote account for the requested symbol
