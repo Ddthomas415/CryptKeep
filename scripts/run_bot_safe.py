@@ -69,8 +69,8 @@ def _start_strategy_runner() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--venue", default="coinbase")
-    ap.add_argument("--symbols", default="BTC/USD", help="Comma-separated symbol list")
+    ap.add_argument("--venue", required=True)
+    ap.add_argument("--symbols", required=True, help="Comma-separated symbol list")
     ap.add_argument("--force", action="store_true", help="Run even if preflight fails")
     args = ap.parse_args(argv)
 
@@ -78,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
     os.environ.setdefault("CBP_VENUE", str(args.venue or ""))
     os.environ.setdefault("CBP_SYMBOLS", ",".join(symbols))
 
-    preflight = _invoke_preflight(venue=str(args.venue or "coinbase"), symbols=symbols)
+    preflight = _invoke_preflight(venue=str(args.venue), symbols=symbols)
     print(
         {
             "preflight_ok": _pf_get(preflight, "ok"),
