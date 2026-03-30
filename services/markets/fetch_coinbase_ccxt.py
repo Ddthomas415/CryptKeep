@@ -34,11 +34,23 @@ def fetch_rules(canonical_symbol: str) -> MarketRules:
 
     prec = m.get("precision") or {}
     try:
-        if prec.get("amount") is not None: qty_step = 10.0 ** (-int(prec.get("amount")))
+        amt_prec = prec.get("amount")
+        if amt_prec is not None:
+            ap = float(amt_prec)
+            if ap >= 1 and ap.is_integer():
+                qty_step = 10.0 ** (-int(ap))
+            elif 0 < ap < 1:
+                qty_step = ap
     except Exception:
         pass
     try:
-        if prec.get("price") is not None: price_tick = 10.0 ** (-int(prec.get("price")))
+        price_prec = prec.get("price")
+        if price_prec is not None:
+            pp = float(price_prec)
+            if pp >= 1 and pp.is_integer():
+                price_tick = 10.0 ** (-int(pp))
+            elif 0 < pp < 1:
+                price_tick = pp
     except Exception:
         pass
 
