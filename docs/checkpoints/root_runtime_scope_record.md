@@ -30,6 +30,7 @@ It is intentionally narrow and should be updated only by explicit scope decision
 - `DECISIONS.md` defines the canonical repo direction
 - `config/trading.yaml` still presents paper-mode / "live not implemented yet" language
 - runtime-capable paths still include hidden defaults such as `coinbase` and `BTC/USD`
+- those defaults are not yet treated as approved launch-scope selections
 - live lifecycle authority is not yet fully boundary-governed on all active paths
 - live-mode source of truth is not yet singular
 
