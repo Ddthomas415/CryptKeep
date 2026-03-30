@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+from services.execution.lifecycle_boundary import fetch_open_orders_via_boundary
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -770,7 +771,12 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -
         if not want:
             continue
         try:
-            oo = client.fetch_open_orders(symbol=sym) or []
+            oo = fetch_open_orders_via_boundary(
+                client.build(),
+                venue=ex_id,
+                symbol=sym,
+                source="live_executor.reconcile_open_orders",
+            ) or []
         except Exception:
             oo = []
         for o in oo:
