@@ -13,6 +13,9 @@ Status: PROVISIONAL
 This record freezes the currently supported launch scope for the root runtime baseline only.
 It is intentionally narrow and should be updated only by explicit scope decision.
 
+Related blocker record:
+- docs/checkpoints/launch_blockers_root_runtime.md
+
 ## In scope
 - Root repo baseline
 - Canonical operator path: `scripts/bot_ctl.py` -> `scripts/run_bot_safe.py`
