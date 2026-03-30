@@ -30,6 +30,13 @@ Current classification from repo reachability checks:
 - but no active runtime callers were shown in the latest caller grep
 - `live_exchange_adapter.py` fetch methods are boundary-routed wrappers
 
+Additional interface cleanup landed:
+- `services/execution/exchange_client.py` now implements `find_order_by_client_oid(...)`
+- `services/execution/live_exchange_adapter.py` now implements `find_order_by_client_oid(...)`
+- this closes the earlier visible interface mismatch where call sites existed without a visible implementation
+- commit landed:
+  - `0c7f40c` — `execution: add find_order_by_client_oid to client and adapter`
+
 ## Current repo truth
 The repo's lifecycle documentation already describes this as partial lifecycle hardening rather than full closure:
 
