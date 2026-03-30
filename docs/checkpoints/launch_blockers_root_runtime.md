@@ -114,6 +114,7 @@ Evidence:
 - services/execution/live_executor.py
 - services/execution/exchange_client.py
 - docs/safety/lifecycle_matrix.md
+- docs/checkpoints/live_lifecycle_gap_note.md
 
 Close condition:
 - Either:
