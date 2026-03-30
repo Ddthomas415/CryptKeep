@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import time
 from services.execution.lifecycle_boundary import fetch_open_orders_via_boundary
+from services.execution.lifecycle_boundary import fetch_order_via_boundary
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -615,7 +616,13 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
         known_trade_ids = _existing_trade_ids(store, intent_id=intent_id)
 
         try:
-            o = client.fetch_order(order_id=remote_id, symbol=str(it["symbol"]))
+            o = fetch_order_via_boundary(
+                client.build(),
+                venue=ex_id,
+                symbol=str(it["symbol"]),
+                order_id=remote_id,
+                source="live_executor.reconcile_remote_order",
+            )
         except Exception:
             # keep tracking; don't spam submits
             continue
