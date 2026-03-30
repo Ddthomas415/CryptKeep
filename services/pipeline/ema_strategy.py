@@ -19,13 +19,13 @@ ensure_dirs()
 @dataclass
 class EMAStrategyCfg:
     exec_db: str = str(data_dir() / "execution.sqlite")
-    exchange_id: str = "coinbase"
-    symbol: str = env_symbol(venue=os.environ.get("CBP_VENUE") or "coinbase")
+    exchange_id: str = ""
+    symbol: str = ""
     timeframe: str = "5m"
     fast: int = 12
     slow: int = 26
     ohlcv_limit: int = 300
-    mode: str = "paper"
+    mode: str = ""
     fixed_qty: float = 0.0
     quote_notional: float = 0.0
     only_on_new_bar: bool = True
