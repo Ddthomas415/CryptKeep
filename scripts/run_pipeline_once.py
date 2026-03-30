@@ -24,23 +24,33 @@ def main() -> int:
     pipe = cfg.get("pipeline") or {}
     ex = cfg.get("execution") or {}
 
-    symbols = cfg.get("symbols") or ["BTC/USD"]
+    symbols = cfg.get("symbols") or []
 
     _env_syms = (os.environ.get("CBP_SYMBOLS") or "").strip()
 
     if _env_syms:
-
         symbols = [x.strip() for x in _env_syms.split(",") if x.strip()]
+
+    if not symbols:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
 
     symbol = str(pipe.get("symbol") or symbols[0]).upper()
 
+    exchange_id = str(pipe.get("exchange_id") or "").strip().lower()
+    if not exchange_id:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id")
+
+    mode = str(ex.get("executor_mode") or "").strip().lower()
+    if not mode:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:execution.executor_mode")
+
     p = build_pipeline(RouterCfg(
         exec_db=str(ex.get("db_path") or (data_dir() / "execution.sqlite")),
-        exchange_id=str(pipe.get("exchange_id") or "coinbase").lower(),
+        exchange_id=exchange_id,
         symbol=symbol,
         timeframe=str(pipe.get("timeframe") or "5m"),
         ohlcv_limit=int(pipe.get("ohlcv_limit") or 200),
-        mode=str(ex.get("executor_mode") or "paper").lower(),
+        mode=mode,
         fixed_qty=float(pipe.get("fixed_qty") or 0.0),
         quote_notional=float(pipe.get("quote_notional") or 0.0),
         only_on_new_bar=bool(pipe.get("only_on_new_bar", True)),
