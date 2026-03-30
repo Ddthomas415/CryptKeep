@@ -19,6 +19,17 @@ Those calls resolve to thin direct exchange methods in `services/execution/excha
 - `exchange_client.py:227` -> `def fetch_open_orders(...)`
 - `exchange_client.py:234` -> `def fetch_my_trades(...)`
 
+## Updated status
+Active live-executor lifecycle reads have now been boundary-routed for:
+- fetch_order
+- fetch_open_orders
+- fetch_my_trades
+
+Current classification from repo reachability checks:
+- `fill_confirmation.py` still contains a direct `fetch_order(...)` call
+- but no active runtime callers were shown in the latest caller grep
+- `live_exchange_adapter.py` fetch methods are boundary-routed wrappers
+
 ## Current repo truth
 The repo's lifecycle documentation already describes this as partial lifecycle hardening rather than full closure:
 
