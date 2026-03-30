@@ -4,6 +4,7 @@ import os
 import time
 from services.execution.lifecycle_boundary import fetch_open_orders_via_boundary
 from services.execution.lifecycle_boundary import fetch_order_via_boundary
+from services.execution.lifecycle_boundary import fetch_my_trades_via_boundary
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -639,11 +640,16 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
             trades: list[dict[str, Any]] = []
             since_ms = max(0, _now_ms() - int(max(0, cfg.reconcile_lookback_ms)))
             try:
-                fetch_trades = getattr(client, "fetch_my_trades", None)
-                if callable(fetch_trades):
-                    got = fetch_trades(symbol=str(it["symbol"]), since=since_ms, limit=int(max(1, cfg.reconcile_trades_limit)))
-                    if isinstance(got, list):
-                        trades = [dict(x or {}) for x in got]
+                got = fetch_my_trades_via_boundary(
+                    client.build(),
+                    venue=ex_id,
+                    symbol=str(it["symbol"]),
+                    since_ms=since_ms,
+                    limit=int(max(1, cfg.reconcile_trades_limit)),
+                    source="live_executor.reconcile_remote_trades",
+                )
+                if isinstance(got, list):
+                    trades = [dict(x or {}) for x in got]
             except Exception:
                 trades = []
 
