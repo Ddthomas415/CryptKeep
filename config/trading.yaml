@@ -1,4 +1,4 @@
-mode: paper   # paper | live (live not implemented yet; paper only in Phase 321)
+mode: paper   # paper | live (paper is the default; live-capable surfaces exist, but live readiness is not yet established)
 run_id: paper_run
 
 paths:
