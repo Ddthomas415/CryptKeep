@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import math
 import os
+from services.execution.coinbase_portfolio_guard import enforce_coinbase_quote_account_available
 from services.security.binance_guard import require_binance_allowed
 import time
 from typing import Any, Dict, Optional, Tuple
@@ -371,6 +372,8 @@ def _enforce_fail_closed(
 def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
     exec_db, notional = _enforce_fail_closed(ex, symbol=symbol, side=side, amount=amount, price=price, params=params, order_type=otype)
+
+    enforce_coinbase_quote_account_available(ex, symbol)
     o = ex.create_order(*args, **kwargs)
 
     # Best-effort: count submits toward daily state (fills will refine pnl later)
