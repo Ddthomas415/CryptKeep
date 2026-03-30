@@ -12,6 +12,9 @@ Status: OPEN
 - [ ] Collapse live-mode source of truth
 - [ ] Remove or fence hidden defaults on launch-capable paths
 
+Recent landed fix:
+- docs/checkpoints/coinbase_portfolio_quote_guard_note.md
+
 ## Already documented
 - [x] Scope record created
 - [x] Launch blocker list created
