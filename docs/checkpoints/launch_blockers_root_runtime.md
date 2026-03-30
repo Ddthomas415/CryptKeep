@@ -174,6 +174,7 @@ Current status:
   - `scripts/bot_ctl.py`
   - `services/execution/live_executor.py`
 - hidden-default cleanup outside the fully verified canonical operator path may still remain
+- active pipeline config defaults were also tightened in `services/pipeline/ema_strategy.py`
 
 Current status:
 - Coinbase submit path now blocks locally when the bound portfolio lacks the required quote account for the requested symbol
