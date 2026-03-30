@@ -74,17 +74,22 @@ def _int_value(*values: Any, default: int = 0) -> int:
 
 def is_live_enabled(cfg: dict[str, Any] | None = None) -> bool:
     cfg = cfg if isinstance(cfg, dict) else load_user_yaml()
+
+    execution = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}
+    canonical = execution.get("live_enabled")
+    if canonical is not None:
+        return _truthy(canonical)
+
     live = cfg.get("live") if isinstance(cfg.get("live"), dict) else {}
     live_trading = cfg.get("live_trading") if isinstance(cfg.get("live_trading"), dict) else {}
     risk = cfg.get("risk") if isinstance(cfg.get("risk"), dict) else {}
-    execution = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}
-    return _bool_value(
+
+    fallback_candidates = (
         live.get("enabled"),
         live_trading.get("enabled"),
         risk.get("enable_live"),
-        execution.get("live_enabled"),
-        default=False,
     )
+    return any(_truthy(v) for v in fallback_candidates)
 
 
 def set_live_enabled(cfg: dict[str, Any] | None, enabled: bool) -> dict[str, Any]:
