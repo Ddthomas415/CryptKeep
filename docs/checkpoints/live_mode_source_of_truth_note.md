@@ -14,6 +14,22 @@ The current live-mode contract says the intended direction is:
   - `ENABLE_LIVE_TRADING=YES`
   - `CONFIRM_LIVE=YES`
 
+## Confirmed code behavior
+From `services/execution/live_arming.py`:
+
+- `is_live_enabled(...)` accepts multiple persisted/config inputs:
+  - `live.enabled`
+  - `live_trading.enabled`
+  - `risk.enable_live`
+  - `execution.live_enabled`
+- `set_live_enabled(...)` writes back to all four surfaces
+- `live_enabled_and_armed()` accepts multiple arming env vars:
+  - `CBP_LIVE_ARMED`
+  - `CBP_EXECUTION_ARMED`
+  - `CBP_LIVE_ENABLED`
+  - `ENABLE_LIVE_TRADING`
+  - `LIVE_TRADING`
+
 ## Confirmed ambiguity
 The repo documentation also explicitly records that live-mode truth is not yet singular:
 
