@@ -26,6 +26,13 @@ The canonical operator/config path now requires explicit venue and symbol inputs
 This reduces the launch-path risk from silent defaults on the actively used operator path.
 Hidden defaults may still remain in non-canonical or not-yet-classified paths.
 
+Current classification from script review:
+- `scripts/run_reconcile_safe_steps.py` still has venue/symbol defaults, but appears to be an admin/helper entrypoint
+- `scripts/run_bot_runner.py` still has mode/venue/symbol defaults in `desired_state(...)`
+- latest caller grep only showed `tests/test_run_bot_runner.py`
+- these scripts are not yet proven to be part of the active canonical runtime path, so they remain classified rather than patched
+
+
 ## Updated status
 Recent landed cleanup:
 - `services/pipeline/ema_strategy.py` no longer silently defaults:
