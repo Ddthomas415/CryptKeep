@@ -168,6 +168,10 @@ Evidence:
 - defaults such as venue=coinbase and symbol=BTC/USD exist on runtime-capable paths
 - docs/checkpoints/hidden_defaults_note.md
 
+Current status:
+- Coinbase submit path now blocks locally when the bound portfolio lacks the required quote account for the requested symbol
+- This prevents invalid BTC/USD submit attempts from reaching Coinbase on portfolios without USD funding
+
 Close condition:
 - Venue, symbol, mode, and account are explicit on the chosen launch path
 
