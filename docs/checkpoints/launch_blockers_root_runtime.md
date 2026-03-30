@@ -2,6 +2,14 @@
 
 Status: INCOMPLETE
 
+## Snapshot
+- Repo truth docs updated: yes
+- Scope record present: yes
+- Trading config comment aligned: yes
+- External sandbox proof present: no
+- Live lifecycle authority fully governed: no
+- Live-mode source of truth singular: no
+
 ## Scope
 This note tracks the visible launch blockers for the root runtime baseline only.
 It does not automatically include companion trees or broader governance surfaces unless explicitly pulled into scope.
