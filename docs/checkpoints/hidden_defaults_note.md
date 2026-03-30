@@ -6,6 +6,18 @@ Status: OPEN
 Record the currently visible hidden defaults on runtime-capable root-runtime paths without changing runtime behavior.
 
 ## Updated status
+Recent landed cleanup:
+- `scripts/run_pipeline_loop.py` now requires explicit:
+  - `symbols[0]`
+  - `pipeline.exchange_id`
+  - `execution.executor_mode`
+- `scripts/run_pipeline_once.py` now requires explicit:
+  - `symbols[0]`
+  - `pipeline.exchange_id`
+  - `execution.executor_mode`
+- commit landed:
+  - `87cafb0` — `config: require explicit pipeline exchange, symbol, and mode`
+
 The canonical operator/config path now requires explicit venue and symbol inputs in:
 - `scripts/run_bot_safe.py`
 - `scripts/bot_ctl.py`
