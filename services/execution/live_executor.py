@@ -33,7 +33,7 @@ from storage.pnl_store_sqlite import PnLStoreSQLite
 from storage.ws_status_sqlite import WSStatusSQLite
 
 # ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
-DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
+DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or [""])[0]
 
 
 def _default_exec_db_path() -> str:
@@ -262,9 +262,9 @@ class LiveCfg:
     enabled: bool = False
     observe_only: bool = False
     sandbox: bool = False
-    exchange_id: str = "coinbase"
+    exchange_id: str = ""
     exec_db: str = ""
-    symbol: str = DEFAULT_SYMBOL
+    symbol: str = ""
     max_submit_per_tick: int = 1
     reconcile_limit: int = 25
     reconcile_trades: bool = True
@@ -276,13 +276,23 @@ def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
     cfg = yaml.safe_load(open(path, "r", encoding="utf-8").read()) or {}
     live = cfg.get("live") or {}
     ex_cfg = cfg.get("execution") or {}
+
+    exchange_id = str(live.get("exchange_id") or "").strip().lower()
+    if not exchange_id:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
+
+    symbols = cfg.get("symbols") or []
+    symbol = str(symbols[0]).strip() if symbols else ""
+    if not symbol:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
+
     return LiveCfg(
         enabled=bool(live.get("enabled", False)),
         observe_only=_boolish(live.get("observe_only", live.get("shadow_mode", False)), default=False),
         sandbox=bool(live.get("sandbox", False)),
-        exchange_id=str(live.get("exchange_id") or "coinbase").lower(),
+        exchange_id=exchange_id,
         exec_db=str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite")),
-        symbol=str((cfg.get("symbols") or [DEFAULT_SYMBOL])[0]),
+        symbol=symbol,
         max_submit_per_tick=int(live.get("max_submit_per_tick") or 1),
         reconcile_limit=int(live.get("reconcile_limit") or 25),
         reconcile_trades=_boolish(live.get("reconcile_trades", True), default=True),
