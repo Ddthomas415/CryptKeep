@@ -805,8 +805,12 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -
 
 def _env_symbol(default: str = "BTC/USD") -> str:
     s = (os.environ.get("CBP_SYMBOLS") or "").split(",")[0].strip()
-    return s or default
+    if not s:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_env:CBP_SYMBOLS")
+    return s
 
 def _env_venue(default: str = "coinbase") -> str:
-    v = (os.environ.get("CBP_VENUE") or "").strip()
-    return (v or default).lower().strip()
+    v = (os.environ.get("CBP_VENUE") or "").strip().lower()
+    if not v:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_env:CBP_VENUE")
+    return v
