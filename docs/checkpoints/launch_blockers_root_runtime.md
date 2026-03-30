@@ -144,7 +144,8 @@ Review lane:
 
 ### A. Align docs/config with actual supported state
 Evidence:
-- config/trading.yaml still presents paper-only language while guarded live-capable surfaces exist
+- config/trading.yaml now states that paper is the default and that live-capable surfaces exist, but live readiness is not yet established
+- the scope record and blocker list should continue to reflect that same repo truth
 
 Close condition:
 - Operator-facing docs and active config describe the same supported state
