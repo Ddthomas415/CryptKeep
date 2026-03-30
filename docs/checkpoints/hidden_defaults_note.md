@@ -14,6 +14,15 @@ The canonical operator/config path now requires explicit venue and symbol inputs
 This reduces the launch-path risk from silent defaults on the actively used operator path.
 Hidden defaults may still remain in non-canonical or not-yet-classified paths.
 
+## Updated status
+Recent landed cleanup:
+- `services/pipeline/ema_strategy.py` no longer silently defaults:
+  - `exchange_id` to `coinbase`
+  - `symbol` to a venue-derived fallback
+  - `mode` to `paper`
+- commit landed:
+  - `dbbf53d` — `config: remove silent runtime defaults from ema strategy cfg`
+
 ## Confirmed defaults
 The repo currently includes runtime-capable defaults such as:
 
