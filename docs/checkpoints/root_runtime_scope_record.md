@@ -2,6 +2,13 @@
 
 Status: PROVISIONAL
 
+## Current status
+- Scope frozen: not yet
+- Paper default: yes
+- Live-ready: no
+- External sandbox proof present: no
+- Runtime story unified: no
+
 ## Purpose
 This record freezes the currently supported launch scope for the root runtime baseline only.
 It is intentionally narrow and should be updated only by explicit scope decision.
