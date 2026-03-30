@@ -1,5 +1,10 @@
 from __future__ import annotations
 from services.market_data.symbol_router import normalize_venue, map_symbol
+from services.execution.lifecycle_boundary import (
+    cancel_order_via_boundary,
+    fetch_my_trades_via_boundary,
+    fetch_order_via_boundary,
+)
 from services.execution.order_params import prepare_ccxt_params
 from services.execution.place_order import place_order
 from services.security.credentials_loader import load_exchange_credentials
@@ -110,12 +115,49 @@ class LiveExchangeAdapter:
 
     def cancel_order(self, canonical_symbol: str, exchange_order_id: str) -> dict:
         sym = map_symbol(self.venue, canonical_symbol)
-        return self.ex.cancel_order(exchange_order_id, sym)
+        return cancel_order_via_boundary(
+            self.ex,
+            venue=self.venue,
+            symbol=sym,
+            order_id=str(exchange_order_id),
+            source="live_exchange_adapter.cancel_order",
+        )
 
     def fetch_order(self, canonical_symbol: str, exchange_order_id: str) -> dict:
         sym = map_symbol(self.venue, canonical_symbol)
-        return self.ex.fetch_order(exchange_order_id, sym)
+        return fetch_order_via_boundary(
+            self.ex,
+            venue=self.venue,
+            symbol=sym,
+            order_id=str(exchange_order_id),
+            source="live_exchange_adapter.fetch_order",
+        )
 
     def fetch_my_trades(self, canonical_symbol: str, since_ms: int | None = None, limit: int | None = 200) -> list[dict]:
         sym = map_symbol(self.venue, canonical_symbol)
-        return self.ex.fetch_my_trades(sym, since=since_ms, limit=limit)
+        return fetch_my_trades_via_boundary(
+            self.ex,
+            venue=self.venue,
+            symbol=sym,
+            since_ms=since_ms,
+            limit=limit,
+            source="live_exchange_adapter.fetch_my_trades",
+        )
+
+
+    def find_order_by_client_oid(self, canonical_symbol: str, client_oid: str) -> dict | None:
+        sym = map_symbol(self.venue, canonical_symbol)
+        try:
+            oo = self.ex.fetch_open_orders(sym) or []
+        except Exception:
+            oo = []
+        for o in oo:
+            ocid = (
+                o.get("clientOrderId")
+                or o.get("client_order_id")
+                or (o.get("info") or {}).get("clientOrderId")
+                or (o.get("info") or {}).get("text")
+            )
+            if ocid and str(ocid) == str(client_oid):
+                return dict(o or {})
+        return None
