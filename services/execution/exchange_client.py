@@ -282,6 +282,23 @@ class ExchangeClient:
         return {"ok": True, "remote_order_id": rid, "exchange_status": (out or {}).get("status")}
 
 
+    def find_order_by_client_oid(self, symbol: str, client_oid: str) -> dict | None:
+        try:
+            oo = self.fetch_open_orders(symbol=symbol) or []
+        except Exception:
+            oo = []
+        for o in oo:
+            ocid = (
+                o.get("clientOrderId")
+                or o.get("client_order_id")
+                or (o.get("info") or {}).get("clientOrderId")
+                or (o.get("info") or {}).get("text")
+            )
+            if ocid and str(ocid) == str(client_oid):
+                return dict(o or {})
+        return None
+
+
 def make_client_id(intent_id: str) -> str:
     return _client_id_short(intent_id)
 
