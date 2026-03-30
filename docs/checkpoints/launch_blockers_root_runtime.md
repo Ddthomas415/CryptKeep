@@ -6,6 +6,9 @@ Status: INCOMPLETE
 This note tracks the visible launch blockers for the root runtime baseline only.
 It does not automatically include companion trees or broader governance surfaces unless explicitly pulled into scope.
 
+Canonical scope record:
+- docs/checkpoints/root_runtime_scope_record.md
+
 ## Confirmed launch blockers
 
 ### 1. Freeze launch scope
