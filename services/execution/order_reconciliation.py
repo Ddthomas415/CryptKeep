@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from services.execution.venue_capabilities import retry_is_safe_after_ambiguous_ack
+from services.execution.lifecycle_boundary import fetch_order_via_boundary
 
 
 @dataclass(frozen=True)
@@ -27,7 +28,13 @@ def reconcile_ambiguous_submission(
 ) -> ReconciliationResult:
     if remote_order_id:
         try:
-            order = client.fetch_order(order_id=remote_order_id, symbol=symbol)
+            order = fetch_order_via_boundary(
+                client.build(),
+                venue=venue,
+                symbol=symbol,
+                order_id=remote_order_id,
+                source="order_reconciliation.remote_order_id",
+            )
             if order:
                 return ReconciliationResult("confirmed_placed", {"source": "remote_order_id"})
         except Exception:
