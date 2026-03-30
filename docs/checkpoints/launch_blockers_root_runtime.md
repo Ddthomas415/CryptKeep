@@ -17,6 +17,9 @@ It does not automatically include companion trees or broader governance surfaces
 Canonical scope record:
 - docs/checkpoints/root_runtime_scope_record.md
 
+Next actions board:
+- docs/checkpoints/root_runtime_next_actions.md
+
 ## Confirmed launch blockers
 
 ### 1. Freeze launch scope
