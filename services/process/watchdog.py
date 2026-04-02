@@ -42,6 +42,16 @@ def _kill_switch_on(reason: str):
     except Exception as e:
         return {"ok": False, "error": f"{type(e).__name__}:{e}"}
 
+
+def _system_guard_halting(reason: str):
+    try:
+        from services.admin.system_guard import set_state
+
+        payload = set_state("HALTING", writer="watchdog", reason=reason)
+        return {"ok": True, "system_guard": payload}
+    except Exception as e:
+        return {"ok": False, "error": f"{type(e).__name__}:{e}"}
+
 def _cfg() -> dict:
     cfg = load_user_yaml()
     wd = cfg.get("watchdog") if isinstance(cfg.get("watchdog"), dict) else {}
@@ -115,11 +125,15 @@ def run_watchdog_once() -> dict:
             logger.exception("watchdog: crash snapshot failed")
             out["actions"].append({"action": "write_crash_snapshot", "ok": False, "error": f"{type(e).__name__}:{e}"})
 
-    # 2) kill switch ON (always)
+    # 2) system guard HALTING (always)
+    sg = _system_guard_halting("watchdog:heartbeat_stale")
+    out["actions"].append({"action": "system_guard_halting", "result": sg})
+
+    # 3) kill switch ON (always)
     ks = _kill_switch_on("watchdog:heartbeat_stale")
     out["actions"].append({"action": "kill_switch_on", "result": ks})
 
-    # 3) optional stop
+    # 4) optional stop
     if bool(wd.get("auto_stop_on_stale", False)):
         try:
             res = stop_bot(hard=bool(wd.get("stop_hard", True)))

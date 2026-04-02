@@ -4,6 +4,7 @@ import json
 import time
 
 from services.admin import kill_switch
+from services.admin import system_guard
 from services.process import watchdog
 
 
@@ -29,6 +30,7 @@ def test_watchdog_stale_heartbeat_triggers_snapshot_and_kill_switch(monkeypatch,
     )
     monkeypatch.setattr(watchdog, "read_heartbeat", lambda: {"ts_epoch": now - 120})
     monkeypatch.setattr(watchdog, "write_crash_snapshot", lambda **kwargs: {"ok": True, "kwargs": kwargs})
+    monkeypatch.setattr(watchdog, "_system_guard_halting", lambda reason: {"ok": True, "reason": reason})
     monkeypatch.setattr(watchdog, "_kill_switch_on", lambda reason: {"ok": True, "reason": reason})
 
     out = watchdog.run_watchdog_once()
@@ -37,7 +39,7 @@ def test_watchdog_stale_heartbeat_triggers_snapshot_and_kill_switch(monkeypatch,
     assert out.get("triggered") is True
     assert out.get("heartbeat_stale") is True
     actions = [a.get("action") for a in out.get("actions", [])]
-    assert actions == ["write_crash_snapshot", "kill_switch_on"]
+    assert actions == ["write_crash_snapshot", "system_guard_halting", "kill_switch_on"]
     assert wd_file.exists()
     persisted = json.loads(wd_file.read_text(encoding="utf-8"))
     assert persisted.get("triggered") is True
@@ -97,6 +99,7 @@ def test_watchdog_auto_stop_calls_stop_bot(monkeypatch, tmp_path):
         lambda: {"running": True, "pid": 777, "state": {}},
     )
     monkeypatch.setattr(watchdog, "read_heartbeat", lambda: {"ts_epoch": now - 120})
+    monkeypatch.setattr(watchdog, "_system_guard_halting", lambda reason: {"ok": True, "reason": reason})
     monkeypatch.setattr(watchdog, "_kill_switch_on", lambda reason: {"ok": True, "reason": reason})
 
     def _stop_bot(*, hard: bool = True):
@@ -110,7 +113,25 @@ def test_watchdog_auto_stop_calls_stop_bot(monkeypatch, tmp_path):
     assert out.get("triggered") is True
     assert called["stop"] == 1
     actions = [a.get("action") for a in out.get("actions", [])]
-    assert actions == ["kill_switch_on", "stop_bot"]
+    assert actions == ["system_guard_halting", "kill_switch_on", "stop_bot"]
+
+
+def test_watchdog_system_guard_helper_sets_halting(monkeypatch):
+    captured: dict[str, object] = {}
+
+    def _set_state(state: str, *, writer: str, reason: str = "") -> dict:
+        captured["call"] = (state, writer, reason)
+        return {"state": state, "writer": writer, "reason": reason}
+
+    monkeypatch.setattr(system_guard, "set_state", _set_state)
+
+    out = watchdog._system_guard_halting("watchdog:heartbeat_stale")
+
+    assert out == {
+        "ok": True,
+        "system_guard": {"state": "HALTING", "writer": "watchdog", "reason": "watchdog:heartbeat_stale"},
+    }
+    assert captured["call"] == ("HALTING", "watchdog", "watchdog:heartbeat_stale")
 
 
 def test_watchdog_kill_switch_helper_uses_admin_kill_switch(monkeypatch):
