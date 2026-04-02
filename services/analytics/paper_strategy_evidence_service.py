@@ -19,10 +19,12 @@ from services.backtest.evidence_cycle import (
     write_decision_record,
 )
 from services.execution.paper_runner import request_stop as request_paper_engine_stop
+from services.market_data.symbol_utils import split_symbol
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.market_data.system_status_publisher import request_stop as request_tick_publisher_stop
 from services.os.app_paths import code_root, ensure_dirs, runtime_dir
 from services.strategy_runner.ema_crossover_runner import request_stop as request_strategy_runner_stop
+from storage.position_state_sqlite import PositionStateSQLite
 
 logger = logging.getLogger(__name__)
 
@@ -337,6 +339,55 @@ def _target_symbols(cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
     return out
 
 
+def _ensure_known_flat_position_state(*, venue: str, symbol: str) -> dict[str, Any]:
+    v = normalize_venue(venue)
+    sym = normalize_symbol(symbol)
+    store = PositionStateSQLite()
+    row = store.get(venue=v, symbol=sym)
+    if row is not None:
+        return {
+            "ok": True,
+            "seeded": False,
+            "venue": v,
+            "symbol": sym,
+            "reason": "position_state_exists",
+            "row": row,
+        }
+
+    base, quote = split_symbol(sym)
+    if not base or not quote:
+        return {
+            "ok": False,
+            "seeded": False,
+            "venue": v,
+            "symbol": sym,
+            "reason": "symbol_parse_failed",
+        }
+
+    seeded_row = {
+        "venue": v,
+        "symbol": sym,
+        "base": base,
+        "quote": quote,
+        "qty": 0.0,
+        "status": "flat",
+        "note": "seeded_for_managed_paper_campaign",
+        "raw": {
+            "seeded_by": "paper_strategy_evidence_service",
+            "seed_reason": "managed_campaign_startup_guard",
+        },
+    }
+    store.upsert(**seeded_row)
+    return {
+        "ok": True,
+        "seeded": True,
+        "venue": v,
+        "symbol": sym,
+        "reason": "missing_row_seeded_flat",
+        "row": store.get(venue=v, symbol=sym) or seeded_row,
+    }
+
+
 def _tick_publisher_reusable(state: dict[str, Any], *, cfg: "PaperStrategyEvidenceServiceCfg") -> bool:
     payload = state.get("status_payload") if isinstance(state.get("status_payload"), dict) else {}
     venue = normalize_venue(str(cfg.venue or DEFAULT_VENUE))
@@ -649,6 +700,14 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             if stop_file().exists():
                 campaign_reason = "stop_requested"
                 break
+            seeded_state = _ensure_known_flat_position_state(
+                venue=str(cfg.venue or DEFAULT_VENUE),
+                symbol=str(cfg.symbol or DEFAULT_SYMBOL),
+            )
+            if not bool(seeded_state.get("ok")):
+                raise RuntimeError(
+                    f"position_state_seed_failed:{seeded_state.get('reason') or 'unknown'}"
+                )
             _write_status(
                 {
                     "ok": True,

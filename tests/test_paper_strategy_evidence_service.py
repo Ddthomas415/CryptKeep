@@ -29,6 +29,79 @@ def test_strategy_summary_map_passes_symbol_filter(monkeypatch) -> None:
     assert out["ema_cross"]["fills"] == 1
 
 
+class _FakePositionStateStore:
+    def __init__(self) -> None:
+        self.rows: dict[tuple[str, str], dict[str, object]] = {}
+
+    def get(self, *, venue: str, symbol: str):
+        row = self.rows.get((str(venue), str(symbol)))
+        return dict(row) if isinstance(row, dict) else row
+
+    def upsert(
+        self,
+        *,
+        venue: str,
+        symbol: str,
+        base: str,
+        quote: str,
+        qty: float,
+        status: str,
+        note: str = "",
+        raw: dict[str, object] | None = None,
+    ) -> None:
+        self.rows[(str(venue), str(symbol))] = {
+            "venue": str(venue),
+            "symbol": str(symbol),
+            "base": str(base),
+            "quote": str(quote),
+            "qty": float(qty or 0.0),
+            "status": str(status),
+            "note": str(note or ""),
+            "raw": dict(raw or {}),
+        }
+
+
+def test_ensure_known_flat_position_state_seeds_missing_row(tmp_path, monkeypatch) -> None:
+    store = _FakePositionStateStore()
+    monkeypatch.setattr(svc, "PositionStateSQLite", lambda: store)
+
+    out = svc._ensure_known_flat_position_state(venue="coinbase", symbol="BTC/USD")
+
+    assert out["ok"] is True
+    assert out["seeded"] is True
+    row = store.get(venue="coinbase", symbol="BTC/USD")
+    assert row is not None
+    assert row["qty"] == 0.0
+    assert row["status"] == "flat"
+    assert row["note"] == "seeded_for_managed_paper_campaign"
+    assert row["raw"]["seed_reason"] == "managed_campaign_startup_guard"
+
+
+def test_ensure_known_flat_position_state_keeps_existing_row(tmp_path, monkeypatch) -> None:
+    store = _FakePositionStateStore()
+    store.upsert(
+        venue="coinbase",
+        symbol="BTC/USD",
+        base="BTC",
+        quote="USD",
+        qty=1.25,
+        status="open",
+        note="existing_position",
+        raw={"source": "test"},
+    )
+    monkeypatch.setattr(svc, "PositionStateSQLite", lambda: store)
+
+    out = svc._ensure_known_flat_position_state(venue="coinbase", symbol="BTC/USD")
+
+    assert out["ok"] is True
+    assert out["seeded"] is False
+    row = store.get(venue="coinbase", symbol="BTC/USD")
+    assert row is not None
+    assert row["qty"] == 1.25
+    assert row["status"] == "open"
+    assert row["note"] == "existing_position"
+
+
 def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     stop_calls: list[str] = []
@@ -99,6 +172,64 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     assert stop_calls.count("strategy_runner") >= 1
     assert "tick_publisher" in stop_calls
     assert "paper_engine" in stop_calls
+
+
+def test_run_campaign_seeds_flat_position_state_before_strategy_window(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    seen: dict[str, object] = {}
+    store = _FakePositionStateStore()
+    monkeypatch.setattr(svc, "PositionStateSQLite", lambda: store)
+
+    monkeypatch.setattr(
+        svc,
+        "_component_runtime",
+        lambda name: {"name": name, "pid_alive": False, "pid": 0, "status": "not_started"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_ensure_component",
+        lambda name, *, cfg: {"name": name, "started": True, "pid": 123 if name == "tick_publisher" else 456, "status": "running"},
+    )
+
+    def _run_strategy_window(*, cfg, strategy_name):
+        seen["row"] = store.get(venue="coinbase", symbol="BTC/USD")
+        return {
+            "strategy": str(strategy_name),
+            "runtime_sec": 1.0,
+            "stop_reason": "runtime_elapsed",
+            "runner_status": "stopped",
+            "enqueued_total": 0,
+            "fills_delta": 0,
+            "closed_trades_delta": 0,
+            "net_realized_pnl_delta": 0.0,
+            "fills_total": 0,
+            "closed_trades_total": 0,
+            "net_realized_pnl_total": 0.0,
+            "latest_fill_ts": "",
+        }
+
+    monkeypatch.setattr(svc, "_run_strategy_window", _run_strategy_window)
+    monkeypatch.setattr(svc, "run_strategy_evidence_cycle", lambda **kwargs: (_ for _ in ()).throw(AssertionError("should not rerun evidence")))
+    monkeypatch.setattr(svc, "persist_strategy_evidence", lambda report: (_ for _ in ()).throw(AssertionError("should not persist evidence")))
+    monkeypatch.setattr(svc, "write_decision_record", lambda report, *, artifact_path="": (_ for _ in ()).throw(AssertionError("should not rewrite decision record")))
+    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+    monkeypatch.setattr(svc, "_stop_component", lambda name: {"ok": True, "component": name})
+
+    out = svc.run_campaign(
+        svc.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            per_strategy_runtime_sec=1.0,
+            symbol="BTC/USD",
+            venue="coinbase",
+        )
+    )
+
+    assert out["ok"] is True
+    assert out["status"] == "completed"
+    row = seen["row"]
+    assert isinstance(row, dict)
+    assert row["qty"] == 0.0
+    assert row["status"] == "flat"
 
 
 def test_run_campaign_skips_evidence_when_no_new_history(tmp_path, monkeypatch) -> None:
