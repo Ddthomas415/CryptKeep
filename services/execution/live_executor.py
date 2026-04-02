@@ -13,6 +13,7 @@ from services.execution.execution_latency import ExecutionLatencyTracker
 from services.execution.safety_gates import SafetyConfig
 from services.execution.exchange_client import ExchangeClient
 from services.journal.fill_sink import CanonicalFillSink
+from services.market_data.tick_reader import get_best_bid_ask_last
 from services.os.app_paths import data_dir, ensure_dirs
 from services.preflight.preflight import run_preflight
 from services.risk.live_risk_gates_phase82 import (
@@ -387,6 +388,24 @@ def _list_intents_any(store: ExecutionStore, *, mode: str, exchange: str, symbol
     out.sort(key=lambda r: int(r.get("ts_ms") or 0), reverse=True)
     return out[:limit]
 
+
+def _local_gate_price(cfg: "LiveCfg", *, side: str) -> float | None:
+    quote = get_best_bid_ask_last(cfg.exchange_id, cfg.symbol)
+    if not isinstance(quote, dict):
+        return None
+    side_v = str(side or "").lower().strip()
+    if side_v == "buy":
+        raw = quote.get("ask")
+    else:
+        raw = quote.get("bid")
+    if raw is None:
+        raw = quote.get("last")
+    try:
+        px = float(raw)
+    except Exception:
+        return None
+    return px if px > 0.0 else None
+
 def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     ok, why = _hard_off_guard(cfg, operation="submit")
     if not ok:
@@ -466,16 +485,15 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
                     rpnl = float(fallback)
             lp = (float(it['limit_price']) if it.get('limit_price') is not None else None)
             if lp is None:
-                try:
-                    ex = client.build()
-                    t = ex.fetch_ticker(str(it['symbol']))
-                    side0 = str(it.get('side') or '').lower()
-                    if side0 == 'buy':
-                        lp = float(t.get('ask') or t.get('last') or t.get('close') or 0.0) or None
-                    else:
-                        lp = float(t.get('bid') or t.get('last') or t.get('close') or 0.0) or None
-                except Exception:
-                    lp = None
+                side0 = str(it.get('side') or '').lower()
+                lp = _local_gate_price(cfg, side=side0)
+                if lp is None:
+                    store.set_intent_status(
+                        intent_id=intent_id,
+                        status="pending",
+                        reason="live_gate_block:missing_local_quote",
+                    )
+                    continue
             ok2, reason2, meta2 = gates.check_live(it={'qty': float(it.get('qty') or 0.0), 'price': lp, 'symbol': str(it.get('symbol') or '')}, realized_pnl_usd=rpnl)
             if not ok2:
                 store.set_intent_status(intent_id=intent_id, status='pending', reason=f'live_gate_block:{reason2}')
