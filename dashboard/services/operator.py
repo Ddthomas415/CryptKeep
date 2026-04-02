@@ -15,6 +15,7 @@ ALLOWED_OPERATOR_SCRIPTS = {
 }
 ALLOWED_OP_ARGS = {
     ("supervisor-status",),
+    ("stop-everything",),
     ("start", "--name", "tick_publisher"),
     ("start", "--name", "intent_reconciler"),
     ("start", "--name", "intent_executor"),

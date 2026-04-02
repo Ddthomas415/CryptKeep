@@ -156,6 +156,7 @@ tab_tools, tab_service_logs, tab_failures, tab_strategy, tab_research, tab_safet
 
 with tab_tools:
     action = render_system_action_buttons()
+    st.caption("`Halt Runtime` raises System Guard before the broader stop sequence. Service Controls below remain scoped to individual services only.")
     if action:
         label, args = action
         rc, out = run_op(args, current_role=str(AUTH_STATE.get("role") or "VIEWER"))

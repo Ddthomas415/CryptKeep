@@ -19,6 +19,7 @@ import time
 import subprocess
 
 from services.os import app_paths
+from services.admin.system_guard import set_state as set_system_guard_state
 from services.logging.app_logger import get_logger
 
 logger = get_logger("op")
@@ -229,9 +230,22 @@ def _supervisor_stop() -> dict:
     }
 
 
+def _system_guard_halting(*, reason: str) -> dict:
+    try:
+        payload = set_system_guard_state("HALTING", writer="operator", reason=str(reason or "operator_halt"))
+        return {"ok": True, "payload": payload}
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": f"system_guard_write_failed:{type(exc).__name__}",
+            "error": str(exc),
+        }
+
+
 def _stop_everything() -> dict:
-    # Precedence: stop bot first (halts new submissions), then service workers,
+    # Precedence: raise shared halt state first, then stop bot, then service workers,
     # then supervisor/watchdog controllers, then clear stale locks.
+    system_guard = _system_guard_halting(reason="operator_stop_everything")
     bot = _script_call("bot_ctl.py", "stop_all", "--hard")
     services = _service_ctl_all("stop")
     supervisor = _script_call("supervisor_ctl.py", "stop", "--hard")
@@ -239,7 +253,8 @@ def _stop_everything() -> dict:
     watchdog = _script_call("watchdog_ctl.py", "stop", "--hard")
     clean = _clean()
     ok = (
-        bool(bot.get("ok"))
+        bool(system_guard.get("ok"))
+        and bool(bot.get("ok"))
         and bool(services.get("ok"))
         and bool(supervisor.get("ok"))
         and bool(stop_flag.get("ok"))
@@ -249,6 +264,7 @@ def _stop_everything() -> dict:
     return {
         "ok": ok,
         "precedence": [
+            "system_guard.set_state(HALTING)",
             "bot_ctl.stop_all(hard)",
             "service_ctl.stop_all",
             "supervisor_ctl.stop(hard)",
@@ -256,6 +272,7 @@ def _stop_everything() -> dict:
             "watchdog_ctl.stop(hard)",
             "watchdog_ctl.clear_stale(hard)",
         ],
+        "system_guard": system_guard,
         "bot": bot,
         "services": services,
         "supervisor": supervisor,
@@ -391,8 +408,9 @@ def main() -> int:
         return 2
 
     if args.cmd == "stop-everything":
-        print(json.dumps({"ok": False, "error": "disabled_command"}))
-        return 2
+        payload = _stop_everything()
+        print(json.dumps(payload))
+        return 0 if bool(payload.get("ok")) else 2
 
     if args.cmd == "supervisor-start":
         print(json.dumps({"ok": False, "error": "disabled_command"}))

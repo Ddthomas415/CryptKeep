@@ -154,15 +154,15 @@ def main() -> int:
     ap = argparse.ArgumentParser(prog="bot_ctl.py")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    sub.add_parser("status", parents=[common])
+    sub.add_parser("status")
 
     p_start = sub.add_parser("start", parents=[common])
     p_start.add_argument("--force", action="store_true", help="Start even if preflight fails (unsafe)")
 
-    p_stop = sub.add_parser("stop", parents=[common])
+    p_stop = sub.add_parser("stop")
     p_stop.add_argument("--hard", action="store_true", help="Hard stop (kill)")
 
-    p_stop_all = sub.add_parser("stop_all", parents=[common])
+    p_stop_all = sub.add_parser("stop_all")
     p_stop_all.add_argument("--hard", action="store_true", help="Hard stop (kill)")
 
     args = ap.parse_args()

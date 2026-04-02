@@ -8,7 +8,9 @@ SystemAction = tuple[str, list[str]]
 
 PRIMARY_ACTIONS: tuple[SystemAction, ...] = ()
 
-SECONDARY_ACTIONS: tuple[SystemAction, ...] = ()
+SECONDARY_ACTIONS: tuple[SystemAction, ...] = (
+    ("Halt Runtime", ["stop-everything"]),
+)
 
 
 def _render_action_row(

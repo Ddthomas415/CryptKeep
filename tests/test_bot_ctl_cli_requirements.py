@@ -34,3 +34,13 @@ def test_bot_ctl_start_accepts_explicit_venue_and_symbols(monkeypatch, tmp_path)
         rc = bot_ctl.main()
 
     assert rc == 0
+
+
+def test_bot_ctl_stop_all_does_not_require_venue_or_symbols(monkeypatch):
+    monkeypatch.setattr(bot_ctl, "_load_state", lambda: {})
+    monkeypatch.setattr(bot_ctl, "_emit", lambda obj: None)
+
+    with patch("sys.argv", ["bot_ctl.py", "stop_all"]):
+        rc = bot_ctl.main()
+
+    assert rc == 0
