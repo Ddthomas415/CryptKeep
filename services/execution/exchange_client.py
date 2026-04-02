@@ -9,9 +9,13 @@ from typing import Any, Dict
 
 import ccxt  # type: ignore
 
+from services.execution.client_order_id import (
+    make_client_order_id as canonical_make_client_order_id,
+)
 from services.execution.place_order import place_order
 from services.execution.risk_gates import require_binance_allowed
 from services.os.app_paths import data_dir, ensure_dirs
+from storage.order_dedupe_store_sqlite import OrderDedupeStore
 
 # Human Review Required: confirm per-exchange client order id param names.
 def client_id_param(exchange_id: str, client_id: str | None) -> dict:
@@ -23,7 +27,6 @@ def client_id_param(exchange_id: str, client_id: str | None) -> dict:
     return {"clientOrderId": client_id}
 
 from services.security.credentials_loader import load_exchange_credentials
-from storage.idempotency_sqlite import OrderDedupeStore
 from services.execution.order_reconciliation import reconcile_ambiguous_submission, SafeToRetryAfterReconciliation
 
 _LOG = logging.getLogger(__name__)
@@ -40,13 +43,7 @@ def _client_id_short(intent_id: str) -> str:
 
 
 def make_client_order_id(exchange_id: str, intent_id: str) -> str:
-    ex = (exchange_id or "").lower().strip()
-    base = _client_id_short(intent_id)
-    if ex == "binance":
-        return base[:36]
-    if ex == "coinbase":
-        return base[:100]
-    return base[:48]
+    return canonical_make_client_order_id(exchange_id, intent_id)
 
 
 def _prompt_exchange_creds(exchange_id: str) -> Dict[str, str]:

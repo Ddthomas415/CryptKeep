@@ -1,6 +1,8 @@
 import pytest
 
+from services.execution.client_order_id import make_client_order_id as canonical_make_client_order_id
 from services.execution.order_reconciliation import SafeToRetryAfterReconciliation
+from storage.order_dedupe_store_sqlite import OrderDedupeStore as ExecutionOrderDedupeStore
 
 
 class DummyStore:
@@ -33,6 +35,14 @@ class DummyExchange:
 
     def create_order(self, *args, **kwargs):
         raise self.exc
+
+    def close(self):
+        pass
+
+
+class DummySuccessExchange:
+    def close(self):
+        pass
 
 
 def test_ambiguous_submit_requires_reconciliation_before_retry(monkeypatch):
@@ -95,3 +105,39 @@ def test_ambiguous_submit_allows_retry_only_when_confirmed_not_placed(monkeypatc
         )
 
     assert len(store.unknown) == 1
+
+
+def test_submit_order_uses_execution_dedupe_store_and_canonical_client_id(monkeypatch, tmp_path):
+    from services.execution.exchange_client import ExchangeClient
+
+    captured = {}
+
+    def _fake_place_order(ex, symbol, order_type, side, amount, price, params):
+        captured["params"] = dict(params or {})
+        return {"id": "ord-1"}
+
+    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummySuccessExchange())
+    monkeypatch.setattr("services.execution.exchange_client.place_order", _fake_place_order)
+
+    exec_db = str(tmp_path / "execution.sqlite")
+    client = ExchangeClient("coinbase")
+
+    out = client.submit_order(
+        intent_id="intent-1",
+        client_id=None,
+        symbol="BTC/USD",
+        side="buy",
+        amount=1.0,
+        price=1.0,
+        order_type="limit",
+        exec_db=exec_db,
+    )
+
+    expected_cid = canonical_make_client_order_id("coinbase", "intent-1")
+    row = ExecutionOrderDedupeStore(exec_db=exec_db).get_by_intent("coinbase", "intent-1")
+
+    assert out == {"id": "ord-1"}
+    assert captured["params"]["clientOrderId"] == expected_cid
+    assert row["client_order_id"] == expected_cid
+    assert row["remote_order_id"] == "ord-1"
+    assert row["status"] == "submitted"
