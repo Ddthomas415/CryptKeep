@@ -1,8 +1,11 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import logging
 from typing import Any, List, Protocol
 from services.journal.canonical_execdb import CanonicalJournal
 from services.risk.risk_daily import RiskDailyDB
+
+_LOG = logging.getLogger(__name__)
 
 class FillSink(Protocol):
     def on_fill(self, fill: Any, *args, **kwargs: Any) -> Any: ...
@@ -16,9 +19,12 @@ class CanonicalFillSink:
         try:
             self.j.ensure_schema()
         except Exception:
-            pass
+            _LOG.exception("fill_sink.ensure_schema_failed exec_db=%s", self.exec_db)
 
     def on_fill(self, fill: Any, *args, **kwargs):
+        venue = "unknown"
+        fid = ""
+        symbol = ""
         try:
             if isinstance(fill, dict):
                 get = fill.get
@@ -78,9 +84,21 @@ class CanonicalFillSink:
                         fee_usd=float(fee),
                     )
             except Exception:
-                pass
+                _LOG.exception(
+                    "fill_sink.risk_daily_apply_failed exec_db=%s venue=%s symbol=%s fill_id=%s",
+                    self.exec_db,
+                    venue,
+                    symbol,
+                    fid,
+                )
         except Exception:
-            pass
+            _LOG.exception(
+                "fill_sink.record_failed exec_db=%s venue=%s symbol=%s fill_id=%s",
+                self.exec_db,
+                venue,
+                symbol,
+                fid,
+            )
 
 @dataclass
 class AccountingFillSink:
@@ -103,5 +121,6 @@ class CompositeFillSink:
             try:
                 out = s.on_fill(fill, *args, **kwargs)
             except Exception:
+                _LOG.exception("fill_sink.composite_sink_failed sink=%s", type(s).__name__)
                 continue
         return out
