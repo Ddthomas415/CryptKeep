@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 
 import yaml
 
+from services.admin.system_guard import get_state as get_system_guard_state
 from services.execution.client_order_id import make_client_order_id
 from services.execution.execution_latency import ExecutionLatencyTracker
 from services.execution.lifecycle_boundary import (
@@ -383,6 +384,14 @@ def _hard_off_guard(cfg: LiveCfg, *, operation: str = "submit") -> tuple[bool, s
         return False, "LIVE_TRADING env var is not YES"
     return True, "ok"
 
+
+def _system_guard_submit_open() -> tuple[bool, str, dict[str, Any]]:
+    state = dict(get_system_guard_state(fail_closed=True) or {})
+    guard_state = str(state.get("state") or "").upper().strip()
+    if guard_state in {"HALTING", "HALTED"}:
+        return False, f"SYSTEM_GUARD_{guard_state}", state
+    return True, "ok", state
+
 def _list_intents_any(store: ExecutionStore, *, mode: str, exchange: str, symbol: str, statuses: list[str], limit: int) -> list[dict[str, Any]]:
     # ExecutionStore.list_intents only supports one status; do multiple queries
     out: list[dict[str, Any]] = []
@@ -477,6 +486,19 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
         if str(why).startswith("LIVE_SHADOW"):
             return {"ok": True, "note": why, "submitted": 0, "errors": 0, "observe_only": True}
         return {"ok": False, "note": why, "submitted": 0}
+
+    guard_ok, guard_reason, guard_meta = _system_guard_submit_open()
+    if not guard_ok:
+        return {
+            "ok": False,
+            "note": f"LIVE blocked: {guard_reason}",
+            "submitted": 0,
+            "errors": 0,
+            "preflight_blocked": 0,
+            "safety_blocked": 1,
+            "latency_breaches": 0,
+            "system_guard": guard_meta,
+        }
 
     safety_cfg = _load_execution_safety_cfg()
     safety_ok, safety_reason, safety_meta = _execution_safety_pause_open()

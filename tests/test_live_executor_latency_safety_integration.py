@@ -4,10 +4,19 @@ from services.execution import live_executor as le
 from services.execution.safety_gates import SafetyConfig
 
 
+def _guard_running(monkeypatch) -> None:
+    monkeypatch.setattr(
+        le,
+        "get_system_guard_state",
+        lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok", "epoch": 1, "cancel_requested": False},
+    )
+
+
 def test_submit_pending_live_blocks_on_stale_market_freshness(monkeypatch):
     monkeypatch.setenv("LIVE_TRADING", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
 
+    _guard_running(monkeypatch)
     monkeypatch.setattr(le, "_execution_safety_pause_open", lambda **_: (True, "OK", {}))
     monkeypatch.setattr(
         le,
@@ -27,10 +36,41 @@ def test_submit_pending_live_blocks_on_stale_market_freshness(monkeypatch):
     assert "WS_STALE" in str(out["note"])
 
 
+def test_submit_pending_live_blocks_when_system_guard_halting(monkeypatch):
+    monkeypatch.setenv("LIVE_TRADING", "YES")
+    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
+
+    monkeypatch.setattr(le, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
+
+    out = le.submit_pending_live(cfg)
+
+    assert out["ok"] is False
+    assert out["submitted"] == 0
+    assert out["safety_blocked"] == 1
+    assert "SYSTEM_GUARD_HALTING" in str(out["note"])
+    assert out["system_guard"]["state"] == "HALTING"
+
+
+def test_submit_pending_live_blocks_when_system_guard_halted(monkeypatch):
+    monkeypatch.setenv("LIVE_TRADING", "YES")
+    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
+
+    monkeypatch.setattr(le, "get_system_guard_state", lambda **_: {"state": "HALTED", "writer": "operator", "reason": "manual"})
+
+    out = le.submit_pending_live(cfg)
+
+    assert out["ok"] is False
+    assert out["submitted"] == 0
+    assert out["safety_blocked"] == 1
+    assert "SYSTEM_GUARD_HALTED" in str(out["note"])
+    assert out["system_guard"]["state"] == "HALTED"
+
+
 def test_submit_pending_live_records_submit_and_ack_latency(monkeypatch):
     monkeypatch.setenv("LIVE_TRADING", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)
 
+    _guard_running(monkeypatch)
     expected_cid = le.make_client_order_id("coinbase", "intent-1")
 
     class _FakeStore:
@@ -148,6 +188,7 @@ def test_submit_pending_live_uses_local_quote_when_limit_price_missing(monkeypat
     monkeypatch.setenv("LIVE_TRADING", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)
 
+    _guard_running(monkeypatch)
     class _FakeStore:
         def __init__(self):
             self.status_updates = []
@@ -246,6 +287,7 @@ def test_submit_pending_live_blocks_when_limit_price_missing_and_no_local_quote(
     monkeypatch.setenv("LIVE_TRADING", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)
 
+    _guard_running(monkeypatch)
     class _FakeStore:
         def __init__(self):
             self.status_updates = []
@@ -335,6 +377,7 @@ def test_submit_pending_live_enforces_preflight_per_intent(monkeypatch):
     monkeypatch.setenv("LIVE_TRADING", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=2)
 
+    _guard_running(monkeypatch)
     class _FakeStore:
         def __init__(self):
             self.status_updates: list[tuple[str, str, str]] = []
@@ -423,6 +466,7 @@ def test_submit_pending_live_latency_breach_opens_pause_and_stops_batch(monkeypa
     monkeypatch.setenv("LIVE_TRADING", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=2)
 
+    _guard_running(monkeypatch)
     class _FakeStore:
         def __init__(self):
             self.status_updates: list[tuple[str, str, str]] = []
