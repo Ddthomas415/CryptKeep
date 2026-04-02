@@ -9,6 +9,22 @@ class DummyExchange:
         self.cancel_called = []
         self.create_called = []
 
+    def fetch_balance(self) -> dict:
+        return {
+            "free": {
+                "USD": 50000.0,
+                "BTC": 1.0,
+            },
+            "used": {
+                "USD": 0.0,
+                "BTC": 0.0,
+            },
+            "total": {
+                "USD": 50000.0,
+                "BTC": 1.0,
+            },
+        }
+
     async def cancel_order(self, order_id: str, symbol: str) -> dict:
         self.cancel_called.append((order_id, symbol))
         return {"status": "canceled"}
