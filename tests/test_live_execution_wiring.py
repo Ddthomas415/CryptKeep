@@ -102,6 +102,83 @@ def test_live_exchange_adapter_compat_alias_available(monkeypatch):
     assert seen["args"][0] == "BTC/USD"
 
 
+def test_live_exchange_adapter_cancel_order_routes_through_lifecycle_boundary(monkeypatch):
+    dummy_exchange = _patch_adapter_deps(monkeypatch)
+    seen: dict = {}
+
+    def _fake_cancel(ex, *, venue: str, symbol: str, order_id: str, source: str):
+        seen["ex"] = ex
+        seen["venue"] = venue
+        seen["symbol"] = symbol
+        seen["order_id"] = order_id
+        seen["source"] = source
+        return {"status": "canceled"}
+
+    monkeypatch.setattr(live_exchange_adapter, "cancel_order_via_boundary", _fake_cancel)
+    ad = live_exchange_adapter.LiveExchangeAdapter("coinbase")
+    out = ad.cancel_order("BTC/USD", "oid-1")
+    assert out["status"] == "canceled"
+    assert seen == {
+        "ex": dummy_exchange,
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "order_id": "oid-1",
+        "source": "live_exchange_adapter.cancel_order",
+    }
+
+
+def test_live_exchange_adapter_fetch_order_routes_through_lifecycle_boundary(monkeypatch):
+    dummy_exchange = _patch_adapter_deps(monkeypatch)
+    seen: dict = {}
+
+    def _fake_fetch(ex, *, venue: str, symbol: str, order_id: str, source: str):
+        seen["ex"] = ex
+        seen["venue"] = venue
+        seen["symbol"] = symbol
+        seen["order_id"] = order_id
+        seen["source"] = source
+        return {"id": "oid-2", "status": "open"}
+
+    monkeypatch.setattr(live_exchange_adapter, "fetch_order_via_boundary", _fake_fetch)
+    ad = live_exchange_adapter.LiveExchangeAdapter("coinbase")
+    out = ad.fetch_order("BTC/USD", "oid-2")
+    assert out["id"] == "oid-2"
+    assert seen == {
+        "ex": dummy_exchange,
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "order_id": "oid-2",
+        "source": "live_exchange_adapter.fetch_order",
+    }
+
+
+def test_live_exchange_adapter_fetch_my_trades_routes_through_lifecycle_boundary(monkeypatch):
+    dummy_exchange = _patch_adapter_deps(monkeypatch)
+    seen: dict = {}
+
+    def _fake_fetch_trades(ex, *, venue: str, symbol: str, since_ms: int | None = None, limit: int | None = 200, source: str):
+        seen["ex"] = ex
+        seen["venue"] = venue
+        seen["symbol"] = symbol
+        seen["since_ms"] = since_ms
+        seen["limit"] = limit
+        seen["source"] = source
+        return [{"id": "trade-1"}]
+
+    monkeypatch.setattr(live_exchange_adapter, "fetch_my_trades_via_boundary", _fake_fetch_trades)
+    ad = live_exchange_adapter.LiveExchangeAdapter("coinbase")
+    out = ad.fetch_my_trades("BTC/USD", since_ms=123, limit=10)
+    assert out == [{"id": "trade-1"}]
+    assert seen == {
+        "ex": dummy_exchange,
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "since_ms": 123,
+        "limit": 10,
+        "source": "live_exchange_adapter.fetch_my_trades",
+    }
+
+
 def test_live_exchange_adapter_submit_order_binance_params(monkeypatch):
     _patch_adapter_deps(monkeypatch)
     seen: dict = {}

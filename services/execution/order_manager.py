@@ -5,6 +5,7 @@ import time
 from typing import Any, Dict, Optional
 
 from services.execution.normalize_ccxt import normalize_order
+from services.execution.lifecycle_boundary import cancel_order_async_via_boundary
 from services.execution.place_order import place_order_async
 
 from services.execution.event_log import log_event
@@ -81,7 +82,14 @@ class OrderManager:
         cancel_details: dict[str, Any] = {}
         ok = False
         try:
-            resp = await ex.cancel_order(order_id, symbol)
+            resp = await cancel_order_async_via_boundary(
+                ex,
+                venue=venue,
+                symbol=symbol,
+                order_id=order_id,
+                reason=cancel_reason,
+                source="order_manager.cancel_and_replace",
+            )
             ok = True
             cancel_details["response"] = resp
         except Exception as exc:

@@ -220,6 +220,7 @@ def stop(
     stop_tick: bool = True,
     stop_webhook: bool = True,
     stop_signal_adapter: bool = True,
+    stop_risk_gate: bool = True,
     timeout_sec: int = 6,
 ) -> dict:
     ensure_dirs()
@@ -248,11 +249,12 @@ def stop(
                 actions.append({"service": "ops_signal_adapter", "action": "stop_file_written"})
             except Exception as e:
                 actions.append({"service": "ops_signal_adapter", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
-        try:
-            (runtime_dir() / "flags" / "ops_risk_gate_service.stop").write_text(_now_iso() + "\n", encoding="utf-8")
-            actions.append({"service": "ops_risk_gate", "action": "stop_file_written"})
-        except Exception as e:
-            actions.append({"service": "ops_risk_gate", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
+        if stop_risk_gate:
+            try:
+                (runtime_dir() / "flags" / "ops_risk_gate_service.stop").write_text(_now_iso() + "\n", encoding="utf-8")
+                actions.append({"service": "ops_risk_gate", "action": "stop_file_written"})
+            except Exception as e:
+                actions.append({"service": "ops_risk_gate", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
         if stop_dashboard:
             pid = int(pids.get("dashboard") or 0)
             if pid_is_alive(pid):
@@ -271,6 +273,8 @@ def stop(
                 pid = int(pids.get(svc) or 0)
                 if svc == "ops_signal_adapter" and not stop_signal_adapter:
                     continue
+                if svc == "ops_risk_gate" and not stop_risk_gate:
+                    continue
                 if pid and pid_is_alive(pid):
                     alive_any = True
             if not alive_any:
@@ -281,6 +285,7 @@ def stop(
                 (svc == "tick_publisher" and not stop_tick)
                 or (svc == "evidence_webhook" and not stop_webhook)
                 or (svc == "ops_signal_adapter" and not stop_signal_adapter)
+                or (svc == "ops_risk_gate" and not stop_risk_gate)
             ):
                 continue
             pid = int(pids.get(svc) or 0)
@@ -302,7 +307,8 @@ def stop(
             new_pids["evidence_webhook"] = 0
         if stop_signal_adapter:
             new_pids["ops_signal_adapter"] = 0
-        new_pids["ops_risk_gate"] = 0
+        if stop_risk_gate:
+            new_pids["ops_risk_gate"] = 0
         _write_state(new_pids, dict(st.get("meta") or {}))
         return {"ok": True, "actions": actions, "final_state": status()}
     finally:

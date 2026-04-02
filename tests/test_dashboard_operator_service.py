@@ -26,7 +26,7 @@ def test_run_op_returns_rc_and_combined_output(monkeypatch):
         return SimpleNamespace(returncode=3, stdout="hello\n", stderr="world\n")
 
     monkeypatch.setattr(operator_service.subprocess, "run", fake_run)
-    rc, out = operator_service.run_op(["status-all"])
+    rc, out = operator_service.run_op(["start", "--name", "tick_publisher"], current_role="OPERATOR")
     assert rc == 3
     assert "hello" in out
     assert "world" in out
@@ -37,7 +37,11 @@ def test_run_repo_script_returns_rc_and_combined_output(monkeypatch):
         return SimpleNamespace(returncode=1, stdout='{"ok":false}\n', stderr="warn\n")
 
     monkeypatch.setattr(operator_service.subprocess, "run", fake_run)
-    rc, out = operator_service.run_repo_script("scripts/show_live_gate_inputs.py")
+    rc, out = operator_service.run_repo_script(
+        "scripts/run_crypto_edge_collector_loop.py",
+        args=["--stop"],
+        current_role="OPERATOR",
+    )
     assert rc == 1
     assert '{"ok":false}' in out
     assert "warn" in out
@@ -58,6 +62,7 @@ def test_start_repo_script_background_returns_started_pid(monkeypatch):
     rc, out = operator_service.start_repo_script_background(
         "scripts/run_crypto_edge_collector_loop.py",
         args=["--stop"],
+        current_role="OPERATOR",
     )
 
     assert rc == 0
@@ -71,7 +76,7 @@ def test_start_crypto_edge_collector_loop_returns_already_running(monkeypatch):
         lambda: {"ok": True, "pid_alive": True, "pid": 23456, "status": "running"},
     )
 
-    rc, out = operator_service.start_crypto_edge_collector_loop(interval_sec=900.0)
+    rc, out = operator_service.start_crypto_edge_collector_loop(interval_sec=900.0, current_role="OPERATOR")
 
     assert rc == 0
     assert "already running" in out
@@ -86,14 +91,18 @@ def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
     monkeypatch.setattr(
         operator_service,
         "start_repo_script_background",
-        lambda script_relpath, args=None: (0, f"{script_relpath}|{' '.join(str(x) for x in (args or []))}"),
+        lambda script_relpath, args=None, current_role="VIEWER": (
+            0,
+            f"{script_relpath}|{' '.join(str(x) for x in (args or []))}|{current_role}",
+        ),
     )
 
-    rc, out = operator_service.start_crypto_edge_collector_loop(interval_sec=900.0)
+    rc, out = operator_service.start_crypto_edge_collector_loop(interval_sec=900.0, current_role="OPERATOR")
 
     assert rc == 0
     assert "scripts/run_crypto_edge_collector_loop.py" in out
     assert "--interval-sec 900" in out
+    assert "OPERATOR" in out
 
 
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
@@ -124,7 +133,7 @@ def test_run_full_system_diagnostics_wraps_core_service(monkeypatch):
         lambda export_bundle=False: {"ok": True, "status": "warn", "export_bundle": export_bundle},
     )
 
-    out = operator_service.run_full_system_diagnostics(export_bundle=True)
+    out = operator_service.run_full_system_diagnostics(export_bundle=True, current_role="OPERATOR")
 
     assert out["ok"] is True
     assert out["status"] == "warn"
@@ -137,7 +146,7 @@ def test_apply_safe_system_self_repair_wraps_core_service(monkeypatch):
         lambda export_bundle=True: {"ok": True, "removed_count": 2, "export_bundle": export_bundle},
     )
 
-    out = operator_service.apply_safe_system_self_repair(export_bundle=False)
+    out = operator_service.apply_safe_system_self_repair(export_bundle=False, current_role="OPERATOR")
 
     assert out["ok"] is True
     assert out["removed_count"] == 2
@@ -155,7 +164,11 @@ def test_run_dashboard_streamlit_diagnostics_wraps_app_service(monkeypatch):
         },
     )
 
-    out = operator_service.run_dashboard_streamlit_diagnostics(startup_smoke=False, timeout_sec=7.5)
+    out = operator_service.run_dashboard_streamlit_diagnostics(
+        startup_smoke=False,
+        timeout_sec=7.5,
+        current_role="OPERATOR",
+    )
 
     assert out["ok"] is True
     assert out["status"] == "ok"
