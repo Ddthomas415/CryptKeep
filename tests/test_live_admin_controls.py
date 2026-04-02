@@ -22,6 +22,7 @@ def test_kill_switch_get_state_bootstraps_default_file(monkeypatch, tmp_path):
 
 def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     saved: dict[str, object] = {}
+    guard_calls: list[tuple[str, str, str]] = []
 
     def _save(cfg):
         saved["cfg"] = cfg
@@ -32,6 +33,11 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     monkeypatch.setattr(lew, "load_user_yaml", lambda: {"risk": {"live": {"max_trades_per_day": 5}}})
     monkeypatch.setattr(lew, "save_user_yaml", _save)
     monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (True, "env:CBP_LIVE_ARMED"))
+    monkeypatch.setattr(
+        lew,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
+    )
 
     out = lew.enable_live()
 
@@ -41,6 +47,8 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     assert saved["cfg"]["live_trading"]["enabled"] is True
     assert saved["cfg"]["risk"]["enable_live"] is True
     assert saved["cfg"]["execution"]["live_enabled"] is True
+    assert out["system_guard"]["state"] == "RUNNING"
+    assert guard_calls == [("RUNNING", "live_enable_wizard", "enable_live")]
 
 
 
@@ -80,6 +88,35 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     assert out["post"]["kill_switch_armed"] is True
     assert events and events[0][2] == "live_disabled"
     assert events[0][3]["note"] == "operator_stop"
+
+
+def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
+    saved: dict[str, object] = {}
+    guard_calls: list[tuple[str, str, str]] = []
+
+    def _save(cfg):
+        saved["cfg"] = cfg
+        return True, "Saved"
+
+    monkeypatch.setenv("CBP_LIVE_ARMED", "YES")
+    monkeypatch.setattr(lew, "_log_audit", lambda *args, **kwargs: None)
+    monkeypatch.setattr(lew, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
+    monkeypatch.setattr(lew, "save_user_yaml", _save)
+    monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (False, "live_disabled"))
+    monkeypatch.setattr(
+        lew,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
+    )
+
+    out = lew.disable_live()
+
+    assert out["ok"] is True
+    assert out["armed"] is False
+    assert saved["cfg"]["execution"]["live_enabled"] is False
+    assert "CBP_LIVE_ARMED" not in os.environ
+    assert out["system_guard"]["state"] == "HALTED"
+    assert guard_calls == [("HALTED", "live_enable_wizard", "disable_live")]
 
 def test_stop_service_from_pidfile_rejects_unsafe_name():
     from services.admin import service_controls as sc
@@ -162,4 +199,3 @@ def test_stop_service_from_pidfile_invalid_service_name_with_slash():
 
     assert out["ok"] is False
     assert out["error"] == "unsafe_service_name"
-
