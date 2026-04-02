@@ -34,8 +34,21 @@ def test_run_preflight_accepts_extended_signature_without_private_checks(monkeyp
 def test_run_preflight_collects_private_connectivity_and_probe_results(monkeypatch):
     monkeypatch.setattr(ap, "ensure_kill_default", lambda: None)
     monkeypatch.setattr(ap, "kill_state", lambda: {"armed": True, "note": "default"})
-    monkeypatch.setattr(ap, "test_private_connectivity", lambda exchange: {"ok": exchange == "coinbase", "exchange": exchange})
-    monkeypatch.setattr(ap, "run_probes", lambda exchange, probe_keys: {"ok": True, "exchange": exchange, "results": [{"probe": p} for p in probe_keys]})
+    monkeypatch.setattr(
+        ap,
+        "test_private_connectivity",
+        lambda exchange, sandbox=False: {"ok": exchange == "coinbase", "exchange": exchange, "sandbox": bool(sandbox)},
+    )
+    monkeypatch.setattr(
+        ap,
+        "run_probes",
+        lambda exchange, probe_keys, sandbox=False: {
+            "ok": True,
+            "exchange": exchange,
+            "sandbox": bool(sandbox),
+            "results": [{"probe": p} for p in probe_keys],
+        },
+    )
 
     out = asyncio.run(
         ap.run_preflight(

@@ -18,6 +18,11 @@ class _DummyExchange:
         self.sandbox = bool(value)
 
 
+class _NoSandboxExchange:
+    def __init__(self, cfg):
+        self.cfg = dict(cfg or {})
+
+
 def test_make_exchange_uses_explicit_venue_when_env_missing(monkeypatch):
     monkeypatch.delenv("CBP_VENUE", raising=False)
     monkeypatch.setattr(ccxt, "coinbase", _DummyExchange, raising=False)
@@ -27,6 +32,24 @@ def test_make_exchange_uses_explicit_venue_when_env_missing(monkeypatch):
     assert isinstance(ex, _DummyExchange)
     assert ex.cfg["apiKey"] == "k"
     assert ex.cfg["secret"] == "s"
+
+
+def test_make_exchange_enables_sandbox_when_requested(monkeypatch):
+    monkeypatch.delenv("CBP_VENUE", raising=False)
+    monkeypatch.setattr(ccxt, "coinbase", _DummyExchange, raising=False)
+
+    ex = make_exchange("coinbase", {"apiKey": "k", "secret": "s"}, sandbox=True)
+
+    assert isinstance(ex, _DummyExchange)
+    assert ex.sandbox is True
+
+
+def test_make_exchange_requires_sandbox_support_when_requested(monkeypatch):
+    monkeypatch.delenv("CBP_VENUE", raising=False)
+    monkeypatch.setattr(ccxt, "coinbase", _NoSandboxExchange, raising=False)
+
+    with pytest.raises(RuntimeError, match="sandbox_not_supported:coinbase"):
+        make_exchange("coinbase", {"apiKey": "k", "secret": "s"}, sandbox=True, require_sandbox=True)
 
 
 def test_make_exchange_rejects_env_conflict(monkeypatch):
