@@ -92,12 +92,14 @@ def test_op_service_ctl_list_fallback_includes_ops_risk_gate(monkeypatch):
 
 
 def test_op_stop_everything_precedence(monkeypatch):
+    monkeypatch.setattr(op, "_system_guard_halting", lambda reason: {"ok": True, "payload": {"state": "HALTING", "reason": reason}})
     monkeypatch.setattr(op, "_script_call", lambda script, *args: {"ok": True, "script": script, "args": list(args)})
     monkeypatch.setattr(op, "_service_ctl_all", lambda action: {"ok": True, "action": action})
     monkeypatch.setattr(op, "_clean", lambda: {"ok": True})
     payload = op._stop_everything()
     assert payload.get("ok") is True
     assert payload.get("precedence") == [
+        "system_guard.set_state(HALTING)",
         "bot_ctl.stop_all(hard)",
         "service_ctl.stop_all",
         "supervisor_ctl.stop(hard)",
@@ -105,6 +107,7 @@ def test_op_stop_everything_precedence(monkeypatch):
         "watchdog_ctl.stop(hard)",
         "watchdog_ctl.clear_stale(hard)",
     ]
+    assert payload.get("system_guard", {}).get("payload", {}).get("state") == "HALTING"
     assert payload.get("bot", {}).get("script") == "bot_ctl.py"
     assert payload.get("supervisor", {}).get("script") == "supervisor_ctl.py"
     assert payload.get("watchdog", {}).get("script") == "watchdog_ctl.py"
