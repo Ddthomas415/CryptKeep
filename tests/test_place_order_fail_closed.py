@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import sys
 from types import SimpleNamespace
@@ -20,6 +21,39 @@ class DummyExchange:
     def create_order(self, *args, **kwargs):
         self.calls.append((args, kwargs))
         return {"id": "oid-1"}
+
+
+class FundingExchange(DummyExchange):
+    def __init__(
+        self,
+        *,
+        exchange_id: str = "coinbase",
+        free: dict[str, float] | None = None,
+        total: dict[str, float] | None = None,
+        info_rows: list[dict[str, object]] | None = None,
+        portfolio_uuid: str = "p-1",
+    ) -> None:
+        super().__init__()
+        self.id = exchange_id
+        self._portfolio_uuid = portfolio_uuid
+        self._balance = {
+            "free": dict(free or {}),
+            "used": {k: 0.0 for k in dict(free or {})},
+            "total": dict(total or free or {}),
+            "info": {"data": list(info_rows or [])},
+        }
+
+    def fetch_balance(self):
+        return self._balance
+
+    def v3PrivateGetBrokerageKeyPermissions(self):
+        return {"portfolio_uuid": self._portfolio_uuid}
+
+
+class AsyncFundingExchange(FundingExchange):
+    async def create_order(self, *args, **kwargs):
+        self.calls.append((args, kwargs))
+        return {"id": "oid-async-1"}
 
 
 def _set_limit_env(monkeypatch, **overrides) -> None:
@@ -351,5 +385,77 @@ def test_place_order_blocks_before_exchange_create_order_on_invalid_amount(monke
 
     with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:invalid_amount:ValueError"):
         po.place_order(ex, "BTC/USD", "limit", "buy", "bad-qty", 100.0, {})
+
+    assert ex.calls == []
+
+
+def test_place_order_blocks_when_spendable_balance_is_insufficient(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(monkeypatch)
+    ex = FundingExchange(exchange_id="kraken", free={"USD": 10.0})
+
+    with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:insufficient_spendable_balance"):
+        po.place_order(ex, "BTC/USD", "limit", "buy", 1.0, 100.0, {})
+
+    assert ex.calls == []
+
+
+def test_place_order_coinbase_blocks_when_only_staked_balance_is_visible(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(monkeypatch)
+    monkeypatch.setattr(po, "enforce_coinbase_quote_account_available", lambda ex, symbol: None)
+    ex = FundingExchange(
+        exchange_id="coinbase",
+        free={"ADA": 1041.490167},
+        info_rows=[
+            {
+                "name": "Staked ADA",
+                "primary": False,
+                "portfolio_id": "p-1",
+                "balance": {"amount": "1041.490167", "currency": "ADA"},
+                "currency": {"code": "ADA", "rewards": {"apy": "0.01"}},
+                "allow_withdrawals": True,
+            }
+        ],
+    )
+
+    with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:insufficient_spendable_balance asset=ADA"):
+        po.place_order(ex, "ADA/ETH", "limit", "sell", 2.0, 0.000176, {})
+
+    assert ex.calls == []
+
+
+def test_place_order_allows_when_coinbase_spendable_wallet_balance_is_present(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(monkeypatch)
+    monkeypatch.setattr(po, "enforce_coinbase_quote_account_available", lambda ex, symbol: None)
+    ex = FundingExchange(
+        exchange_id="coinbase",
+        free={"USD": 150.0},
+        info_rows=[
+            {
+                "name": "USD Wallet",
+                "primary": True,
+                "portfolio_id": "p-1",
+                "balance": {"amount": "150.0", "currency": "USD"},
+                "currency": {"code": "USD"},
+                "allow_withdrawals": True,
+            }
+        ],
+    )
+
+    out = po.place_order(ex, "BTC/USD", "limit", "buy", 1.0, 100.0, {})
+
+    assert out["id"] == "oid-1"
+    assert len(ex.calls) == 1
+
+
+def test_place_order_async_blocks_when_spendable_balance_is_insufficient(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(monkeypatch)
+    ex = AsyncFundingExchange(exchange_id="kraken", free={"USD": 10.0})
+
+    with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:insufficient_spendable_balance"):
+        asyncio.run(po.place_order_async(ex, "BTC/USD", "limit", "buy", 1.0, 100.0, {}))
 
     assert ex.calls == []

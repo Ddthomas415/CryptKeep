@@ -17,6 +17,175 @@ from services.os.app_paths import data_dir, ensure_dirs
 
 _LOG = logging.getLogger(__name__)
 
+
+def _float_or_none(value: Any) -> float | None:
+    try:
+        out = float(value)
+    except Exception:
+        return None
+    if not math.isfinite(out):
+        return None
+    return out
+
+
+def _split_symbol(symbol: str) -> tuple[str, str]:
+    if "/" not in str(symbol):
+        raise RuntimeError(f"CBP_ORDER_BLOCKED:unsupported_symbol_format:{symbol}")
+    base, quote = str(symbol).split("/", 1)
+    return base.upper(), quote.upper()
+
+
+def _coinbase_portfolio_uuid(ex: Any) -> str | None:
+    try:
+        resp = ex.v3PrivateGetBrokerageKeyPermissions()
+    except Exception:
+        return None
+    if not isinstance(resp, dict):
+        return None
+    out = str(resp.get("portfolio_uuid") or "").strip()
+    return out or None
+
+
+def _coinbase_row_currency_code(row: dict[str, Any]) -> str:
+    cur = row.get("currency")
+    if isinstance(cur, dict):
+        return str(cur.get("code") or "").upper()
+    return str(cur or "").upper()
+
+
+def _coinbase_row_amount(row: dict[str, Any]) -> float | None:
+    candidates = (
+        ((row.get("available_balance") or {}).get("value")),
+        ((row.get("available_balance") or {}).get("amount")),
+        row.get("available_balance"),
+        ((row.get("balance") or {}).get("amount")),
+        ((row.get("balance") or {}).get("value")),
+        row.get("balance"),
+    )
+    for candidate in candidates:
+        out = _float_or_none(candidate)
+        if out is not None:
+            return out
+    return None
+
+
+def _coinbase_row_trade_spendable(row: dict[str, Any]) -> bool:
+    name = str(row.get("name") or "").strip().lower()
+    if name.startswith("staked "):
+        return False
+    if row.get("allow_withdrawals") is False:
+        return False
+    rewards = {}
+    cur = row.get("currency")
+    if isinstance(cur, dict):
+        rewards = cur.get("rewards") or {}
+    if rewards:
+        return False
+    return True
+
+
+def _coinbase_spendable_from_info_rows(balance: dict[str, Any], *, asset: str, portfolio_uuid: str | None) -> tuple[float | None, str]:
+    rows = (((balance or {}).get("info") or {}).get("data") or [])
+    if not isinstance(rows, list):
+        return None, "coinbase.info_rows_missing"
+
+    matched = []
+    spendable = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        row_pid = str(row.get("portfolio_id") or row.get("portfolio_uuid") or "").strip()
+        if portfolio_uuid and row_pid and row_pid != str(portfolio_uuid):
+            continue
+        if _coinbase_row_currency_code(row) != str(asset).upper():
+            continue
+        matched.append(row)
+        if not _coinbase_row_trade_spendable(row):
+            continue
+        amt = _coinbase_row_amount(row)
+        if amt is not None:
+            spendable.append(float(amt))
+
+    if not matched:
+        return None, "coinbase.info_rows_missing_asset"
+    if spendable:
+        return float(sum(spendable)), "coinbase.info_rows_spendable"
+    return 0.0, "coinbase.info_rows_non_spendable"
+
+
+def _extract_spendable_balance(ex: Any, balance: dict[str, Any], asset: str) -> tuple[float, str]:
+    asset_u = str(asset).upper()
+    free = _float_or_none(((balance or {}).get("free") or {}).get(asset_u))
+
+    ex_id = str(getattr(ex, "id", "") or getattr(ex, "exchange_id", "") or "").lower().strip()
+    if ex_id == "coinbase":
+        row_amount, source = _coinbase_spendable_from_info_rows(
+            balance,
+            asset=asset_u,
+            portfolio_uuid=_coinbase_portfolio_uuid(ex),
+        )
+        if row_amount is not None:
+            if free is None:
+                return float(row_amount), source
+            return float(min(float(free), float(row_amount))), f"{source}+free_min"
+
+    if free is not None:
+        return float(free), "free"
+
+    total = _float_or_none(((balance or {}).get("total") or {}).get(asset_u))
+    if total is not None:
+        return float(total), "total_fallback"
+    return 0.0, "missing_balance"
+
+
+def _funding_fee_buffer_fraction() -> float:
+    raw = os.environ.get("CBP_FUNDING_FEE_BUFFER_FRACTION")
+    if raw is None or str(raw).strip() == "":
+        return 0.005
+    out = _float_or_none(raw)
+    if out is None or out < 0:
+        return 0.005
+    return float(out)
+
+
+def _enforce_funding_gate(ex: Any, *, symbol: str, side: str, amount: Any, price: Any | None, order_type: str) -> None:
+    amount_f = _parse_order_amount(amount)
+    price_f = _parse_order_price(price, order_type=order_type)
+    base, quote = _split_symbol(symbol)
+    side_n = str(side or "").strip().lower()
+    spend_asset = quote if side_n == "buy" else base
+
+    if side_n == "buy":
+        if price_f is None:
+            raise RuntimeError("CBP_ORDER_BLOCKED:funding_unknown_market_buy")
+        required = float(amount_f * price_f * (1.0 + _funding_fee_buffer_fraction()))
+    else:
+        required = float(amount_f)
+
+    try:
+        balance = ex.fetch_balance()
+    except Exception as exc:
+        raise RuntimeError(f"CBP_ORDER_BLOCKED:funding_probe_failed:{type(exc).__name__}:{exc}") from exc
+
+    spendable, source = _extract_spendable_balance(ex, balance, spend_asset)
+    _LOG.info(
+        "place_order_funding_gate",
+        extra={
+            "symbol": str(symbol),
+            "side": side_n,
+            "spend_asset": spend_asset,
+            "required_amount": required,
+            "venue_spendable": spendable,
+            "balance_source": source,
+        },
+    )
+
+    if required > float(spendable):
+        raise RuntimeError(
+            "CBP_ORDER_BLOCKED:insufficient_spendable_balance "
+            f"asset={spend_asset} required={required} spendable={spendable} source={source}"
+        )
+
 def _truthy(v: Optional[str]) -> bool:
     if v is None:
         return False
@@ -375,6 +544,7 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
     exec_db, notional = _enforce_fail_closed(ex, symbol=symbol, side=side, amount=amount, price=price, params=params, order_type=otype)
 
     enforce_coinbase_quote_account_available(ex, symbol)
+    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount, price=price, order_type=otype)
     o = ex.create_order(*args, **kwargs)
 
     # Best-effort: count submits toward daily state (fills will refine pnl later)
@@ -390,6 +560,7 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
 async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
     exec_db, notional = _enforce_fail_closed(ex, symbol=symbol, side=side, amount=amount, price=price, params=params, order_type=otype)
+    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount, price=price, order_type=otype)
     o = await ex.create_order(*args, **kwargs)
 
     try:
