@@ -14,6 +14,7 @@ ALLOWED_OPERATOR_SCRIPTS = {
     "scripts/run_paper_strategy_evidence_collector.py",
 }
 ALLOWED_OP_ARGS = {
+    ("supervisor-status",),
     ("start", "--name", "tick_publisher"),
     ("start", "--name", "intent_reconciler"),
     ("start", "--name", "intent_executor"),

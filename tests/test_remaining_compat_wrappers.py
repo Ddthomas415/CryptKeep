@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -51,13 +52,14 @@ def test_kill_switch_wrapper(monkeypatch, tmp_path):
 
 def test_feed_health_and_ws_gate(tmp_path):
     events_db = tmp_path / "events.sqlite"
+    now_iso = datetime.now(timezone.utc).isoformat()
     con = sqlite3.connect(str(events_db))
     con.execute(
         "CREATE TABLE events(id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, venue TEXT NOT NULL, symbol TEXT NOT NULL, symbol_norm TEXT NOT NULL, event_type TEXT NOT NULL, event_key TEXT, payload BLOB NOT NULL)"
     )
     con.execute(
         "INSERT INTO events(ts, venue, symbol, symbol_norm, event_type, event_key, payload) VALUES(?,?,?,?,?,?,?)",
-        ("2026-03-09T12:00:00+00:00", "coinbase", "BTC-USD", "BTC-USD", "trade", None, b"{}"),
+        (now_iso, "coinbase", "BTC-USD", "BTC-USD", "trade", None, b"{}"),
     )
     con.commit()
     con.close()

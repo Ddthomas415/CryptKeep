@@ -72,7 +72,20 @@ llm_client = OpenAIResponsesClient(settings)
 
 app = FastAPI(title="orchestrator", version="0.2.0")
 
+
+def _is_unresolved_auth_header_default(value: Any) -> bool:
+    return (
+        value is not None
+        and not isinstance(value, str)
+        and type(value).__module__ == "fastapi.params"
+        and type(value).__name__ == "Header"
+        and getattr(value, "alias", None) == "Authorization"
+    )
+
+
 def _require_service_token(authorization: str | None) -> None:
+    if _is_unresolved_auth_header_default(authorization):
+        return
     expected = str(getattr(settings, "service_token", "") or "")
     if not expected:
         raise HTTPException(status_code=503, detail="service_auth_not_configured")

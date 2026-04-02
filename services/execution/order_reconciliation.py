@@ -17,6 +17,26 @@ class SafeToRetryAfterReconciliation(RuntimeError):
     pass
 
 
+def _fetch_order_compat(
+    client: Any,
+    *,
+    venue: str,
+    symbol: str,
+    order_id: str,
+    source: str,
+) -> dict[str, Any] | None:
+    build = getattr(client, "build", None)
+    if callable(build):
+        client = build()
+    return fetch_order_via_boundary(
+        client,
+        venue=venue,
+        symbol=symbol,
+        order_id=order_id,
+        source=source,
+    )
+
+
 def reconcile_ambiguous_submission(
     *,
     venue: str,
@@ -28,8 +48,8 @@ def reconcile_ambiguous_submission(
 ) -> ReconciliationResult:
     if remote_order_id:
         try:
-            order = fetch_order_via_boundary(
-                client.build(),
+            order = _fetch_order_compat(
+                client,
                 venue=venue,
                 symbol=symbol,
                 order_id=remote_order_id,

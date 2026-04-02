@@ -654,7 +654,7 @@ def apply_safe_self_repair(*, export_bundle: bool = True) -> dict[str, Any]:
 
     if bool(export_bundle):
         try:
-            export_path = _runtime_relative_str(export_zip_to_runtime())
+            export_path = str(export_zip_to_runtime())
         except Exception as exc:
             failed.append({"action": "export_diagnostics", "error": f"{type(exc).__name__}: {exc}"})
 
@@ -674,5 +674,6 @@ def apply_safe_self_repair(*, export_bundle: bool = True) -> dict[str, Any]:
         "removed_paths": removed,
         "failed_actions": failed,
         "export_created": bool(export_path),
+        "export_path": export_path,
         "diagnostics_after": diagnostics_after,
     }
