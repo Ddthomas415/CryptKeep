@@ -1503,6 +1503,27 @@ def _load_local_kill_switch_state() -> bool | None:
     return bool(payload.get("armed", True))
 
 
+def _load_local_system_guard_state() -> dict[str, Any] | None:
+    try:
+        from services.admin.system_guard import GUARD_PATH, get_state
+    except Exception:
+        return None
+
+    if not Path(GUARD_PATH).exists():
+        return None
+
+    try:
+        payload = get_state(fail_closed=True)
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    state = str(payload.get("state") or "").strip().upper()
+    if not state:
+        return None
+    return {**payload, "state": state}
+
+
 def _load_local_connections_summary() -> dict[str, Any] | None:
     health_rows: list[dict[str, Any]] = []
     ws_rows: list[dict[str, Any]] = []
@@ -1690,6 +1711,29 @@ def _apply_local_summary_overrides(summary: dict[str, Any]) -> dict[str, Any]:
             merged["drawdown_week_pct"] = drawdown_week_pct
         if portfolio_updates:
             merged["portfolio"] = {**portfolio_payload, **portfolio_updates}
+
+    local_system_guard = _load_local_system_guard_state()
+    if isinstance(local_system_guard, dict):
+        state = str(local_system_guard.get("state") or "").strip().upper()
+        if state:
+            merged["system_guard_state"] = state.lower()
+            warnings = merged.get("active_warnings") if isinstance(merged.get("active_warnings"), list) else []
+            updated_warnings = [str(item) for item in warnings if str(item).strip()]
+            if state == "HALTING":
+                merged["risk_status"] = "caution"
+                updated_warnings.append("system_guard_halting")
+            elif state == "HALTED":
+                merged["risk_status"] = "danger"
+                updated_warnings.append("system_guard_halted")
+            if updated_warnings:
+                deduped: list[str] = []
+                seen: set[str] = set()
+                for item in updated_warnings:
+                    if item in seen:
+                        continue
+                    seen.add(item)
+                    deduped.append(item)
+                merged["active_warnings"] = deduped
 
     return merged
 
