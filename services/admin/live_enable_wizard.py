@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 from datetime import datetime, timezone
 from services.admin.config_editor import load_user_yaml, save_user_yaml
+from services.admin.system_guard import set_state as set_system_guard_state
 from services.execution.live_arming import live_enabled_and_armed, set_live_enabled
 from services.os.app_paths import runtime_dir, ensure_dirs
 
@@ -25,8 +26,11 @@ def enable_live() -> dict:
 
     os.environ["CBP_LIVE_ARMED"] = "YES"
     armed, reason = live_enabled_and_armed()
+    guard = None
+    if armed:
+        guard = set_system_guard_state("RUNNING", writer="live_enable_wizard", reason="enable_live")
     _log_audit("ENABLE_LIVE", True, reason)
-    return {"ok": True, "armed": armed, "reason": reason, "msg": "Live enabled + armed", "save": save}
+    return {"ok": True, "armed": armed, "reason": reason, "msg": "Live enabled + armed", "save": save, "system_guard": guard}
 
 def disable_live() -> dict:
     cfg = set_live_enabled(load_user_yaml(), False)
@@ -38,5 +42,6 @@ def disable_live() -> dict:
 
     os.environ.pop("CBP_LIVE_ARMED", None)
     armed, reason = live_enabled_and_armed()
+    guard = set_system_guard_state("HALTED", writer="live_enable_wizard", reason="disable_live")
     _log_audit("DISABLE_LIVE", True, reason)
-    return {"ok": True, "armed": armed, "reason": reason, "msg": "Live disabled", "save": save}
+    return {"ok": True, "armed": armed, "reason": reason, "msg": "Live disabled", "save": save, "system_guard": guard}
