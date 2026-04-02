@@ -3,6 +3,7 @@ import json
 import os
 import time
 from datetime import datetime, timezone
+from services.admin.system_guard import get_state as get_system_guard_state
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution.live_arming import live_enabled_and_armed
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
@@ -60,6 +61,14 @@ def _close_reconcile_adapters(adapters: dict[str, LiveExchangeAdapter]) -> None:
             pass
     adapters.clear()
 
+
+def _system_guard_reconcile_mode() -> tuple[str, dict]:
+    state = dict(get_system_guard_state(fail_closed=False) or {})
+    guard_state = str(state.get("state") or "").upper().strip()
+    if guard_state in {"HALTING", "HALTED"}:
+        return "cleanup", state
+    return "normal", state
+
 def run_forever() -> None:
     ensure_dirs()
     try:
@@ -81,11 +90,21 @@ def run_forever() -> None:
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "ts": _now(), "loops": loops})
                 break
-            armed, reason = live_enabled_and_armed()
-            if not armed:
-                _write_status({"ok": True, "status": "blocked", "reason": reason, "ts": _now(), "loops": loops})
-                time.sleep(1.0)
-                continue
+            reconcile_mode, guard_meta = _system_guard_reconcile_mode()
+            guard_state = str(guard_meta.get("state") or "").upper().strip()
+            if reconcile_mode == "normal":
+                armed, reason = live_enabled_and_armed()
+                if not armed:
+                    _write_status({
+                        "ok": True,
+                        "status": "blocked",
+                        "reason": reason,
+                        "ts": _now(),
+                        "loops": loops,
+                        "system_guard": guard_meta,
+                    })
+                    time.sleep(1.0)
+                    continue
             submitted = qdb.list_intents(limit=60, status="submitted")
             adapters: dict[str, LiveExchangeAdapter] = {}
             try:
@@ -147,7 +166,16 @@ def run_forever() -> None:
                         _write_status({"ok": True, "status": "running", "ts": _now(), "note": "reconcile_error", "error": f"{type(e).__name__}:{e}"})
             finally:
                 _close_reconcile_adapters(adapters)
-            _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "fills_seen_total": fills_seen})
+            status_value = guard_state.lower() if reconcile_mode == "cleanup" and guard_state else "running"
+            _write_status({
+                "ok": True,
+                "status": status_value,
+                "ts": _now(),
+                "loops": loops,
+                "fills_seen_total": fills_seen,
+                "reconcile_mode": reconcile_mode,
+                "system_guard": guard_meta,
+            })
             time.sleep(1.5)
     finally:
         _release_lock()
