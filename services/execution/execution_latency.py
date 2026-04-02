@@ -18,6 +18,22 @@ class ExecutionLatencyTracker:
     submit_ts: Dict[str, int] = field(default_factory=dict)
     ack_ts: Dict[str, int] = field(default_factory=dict)
 
+    def record_measurement(
+        self,
+        *,
+        name: str,
+        value_ms: float,
+        meta: Dict[str, Any] | None = None,
+        category: str = "execution",
+    ) -> None:
+        self.store.log_latency(
+            ts_ms=now_ms(),
+            category=str(category),
+            name=str(name),
+            value_ms=max(0.0, float(value_ms)),
+            meta=meta or {},
+        )
+
     def record_submit(self, *, client_order_id: str, exchange: str, symbol: str, side: str, qty: float) -> None:
         ts = now_ms()
         self.submit_ts[client_order_id] = ts

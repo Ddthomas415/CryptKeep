@@ -126,7 +126,51 @@ class _ExecutionSafetyCircuitState:
 _EXECUTION_SAFETY_CIRCUIT = _ExecutionSafetyCircuitState()
 
 
+def _record_execution_metric(
+    *,
+    name: str,
+    value_ms: float,
+    meta: dict[str, Any] | None = None,
+    tracker: Any | None = None,
+    latency_db_path: str | None = None,
+) -> None:
+    payload = dict(meta or {})
+    try:
+        if tracker is not None:
+            record_measurement = getattr(tracker, "record_measurement", None)
+            if callable(record_measurement):
+                record_measurement(name=name, value_ms=value_ms, meta=payload, category="execution")
+                return
+            store = getattr(tracker, "store", None)
+            log_latency = getattr(store, "log_latency", None)
+            if callable(log_latency):
+                log_latency(
+                    ts_ms=_now_ms(),
+                    category="execution",
+                    name=name,
+                    value_ms=max(0.0, float(value_ms)),
+                    meta=payload,
+                )
+                return
+        db_path = str(latency_db_path or (data_dir() / "market_ws.sqlite"))
+        SQLiteMarketWsStore(path=db_path).log_latency(
+            ts_ms=_now_ms(),
+            category="execution",
+            name=name,
+            value_ms=max(0.0, float(value_ms)),
+            meta=payload,
+        )
+    except Exception:
+        pass
+
+
+def _measure_ms(start_ts: float) -> float:
+    return max(0.0, (time.perf_counter() - float(start_ts)) * 1000.0)
+
+
 def _load_execution_safety_cfg(cfg_path: str = "config/trading.yaml") -> SafetyConfig:
+    started = time.perf_counter()
+    latency_db_path = str(data_dir() / "market_ws.sqlite")
     try:
         cfg = yaml.safe_load(Path(cfg_path).read_text(encoding="utf-8")) or {}
     except Exception:
@@ -134,14 +178,22 @@ def _load_execution_safety_cfg(cfg_path: str = "config/trading.yaml") -> SafetyC
     sec = cfg.get("execution_safety") or {}
     if not isinstance(sec, dict):
         sec = {}
-    return SafetyConfig(
+    latency_db_path = str(sec.get("latency_db_path") or latency_db_path)
+    out = SafetyConfig(
         enabled=bool(sec.get("enabled", True)),
         max_ws_recv_age_ms=int(sec.get("max_ws_recv_age_ms", 1500) or 1500),
         max_ack_ms=int(sec.get("max_ack_ms", 3000) or 3000),
         pause_seconds_on_breach=int(sec.get("pause_seconds_on_breach", 30) or 30),
         require_ws_fresh_for_live=bool(sec.get("require_ws_fresh_for_live", True)),
-        latency_db_path=str(sec.get("latency_db_path") or (data_dir() / "market_ws.sqlite")),
+        latency_db_path=latency_db_path,
     )
+    _record_execution_metric(
+        name="execution_safety_cfg_load_ms",
+        value_ms=_measure_ms(started),
+        meta={"cfg_path": str(cfg_path)},
+        latency_db_path=latency_db_path,
+    )
+    return out
 
 
 def _latency_tracker(cfg: SafetyConfig) -> ExecutionLatencyTracker:
@@ -270,9 +322,11 @@ class LiveCfg:
 
 def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
     ensure_dirs()
+    started = time.perf_counter()
     cfg = yaml.safe_load(open(path, "r", encoding="utf-8").read()) or {}
     live = cfg.get("live") or {}
     ex_cfg = cfg.get("execution") or {}
+    sec = cfg.get("execution_safety") if isinstance(cfg.get("execution_safety"), dict) else {}
 
     exchange_id = str(live.get("exchange_id") or "").strip().lower()
     if not exchange_id:
@@ -283,7 +337,7 @@ def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
     if not symbol:
         raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
 
-    return LiveCfg(
+    out = LiveCfg(
         enabled=bool(live.get("enabled", False)),
         observe_only=_boolish(live.get("observe_only", live.get("shadow_mode", False)), default=False),
         sandbox=bool(live.get("sandbox", False)),
@@ -296,6 +350,13 @@ def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
         reconcile_lookback_ms=int(live.get("reconcile_lookback_ms") or ex_cfg.get("live_reconcile_lookback_ms") or (6 * 60 * 60 * 1000)),
         reconcile_trades_limit=int(live.get("reconcile_limit_trades") or ex_cfg.get("live_reconcile_limit_trades") or 200),
     )
+    _record_execution_metric(
+        name="live_cfg_load_ms",
+        value_ms=_measure_ms(started),
+        meta={"cfg_path": str(path), "exchange": exchange_id, "symbol": symbol},
+        latency_db_path=str(sec.get("latency_db_path") or (data_dir() / "market_ws.sqlite")),
+    )
+    return out
 
 
 def _is_live_shadow(cfg: LiveCfg) -> bool:
@@ -623,11 +684,24 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
         cid = str((row_d or {}).get("client_order_id") or "").strip() or _client_id_from_reason(reason)
         known_trade_ids = _existing_trade_ids(store, intent_id=intent_id)
 
+        fetch_order_started = time.perf_counter()
         try:
             o = client.fetch_order(order_id=remote_id, symbol=str(it["symbol"]))
         except Exception:
+            _record_execution_metric(
+                name="reconcile_fetch_order_ms",
+                value_ms=_measure_ms(fetch_order_started),
+                meta={"exchange": cfg.exchange_id, "symbol": str(it["symbol"]), "intent_id": intent_id, "ok": False},
+                tracker=latency_tracker,
+            )
             # keep tracking; don't spam submits
             continue
+        _record_execution_metric(
+            name="reconcile_fetch_order_ms",
+            value_ms=_measure_ms(fetch_order_started),
+            meta={"exchange": cfg.exchange_id, "symbol": str(it["symbol"]), "intent_id": intent_id, "ok": True},
+            tracker=latency_tracker,
+        )
 
         status = str(o.get("status") or "").lower()
         filled = float(o.get("filled") or 0.0)
@@ -642,6 +716,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
             since_ms = max(0, _now_ms() - int(max(0, cfg.reconcile_lookback_ms)))
             fetch_trades = getattr(client, "fetch_my_trades", None)
             if callable(fetch_trades):
+                fetch_trades_started = time.perf_counter()
                 try:
                     got = fetch_trades(
                         symbol=str(it["symbol"]),
@@ -652,6 +727,17 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                         trades = [dict(x or {}) for x in got]
                 except Exception:
                     trades = []
+                _record_execution_metric(
+                    name="reconcile_fetch_trades_ms",
+                    value_ms=_measure_ms(fetch_trades_started),
+                    meta={
+                        "exchange": cfg.exchange_id,
+                        "symbol": str(it["symbol"]),
+                        "intent_id": intent_id,
+                        "trade_count": len(trades),
+                    },
+                    tracker=latency_tracker,
+                )
 
             for tr in trades:
                 if not _trade_matches_intent(tr, remote_id=remote_id, client_id=cid):
@@ -784,9 +870,25 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -
         if not want:
             continue
         try:
+            fetch_open_orders_started = time.perf_counter()
             oo = client.fetch_open_orders(symbol=sym) or []
         except Exception:
             oo = []
+            _record_execution_metric(
+                name="reconcile_open_orders_fetch_ms",
+                value_ms=_measure_ms(fetch_open_orders_started),
+                meta={"exchange": ex_id, "symbol": sym, "ok": False},
+                tracker=client,
+                latency_db_path=str(data_dir() / "market_ws.sqlite"),
+            )
+        else:
+            _record_execution_metric(
+                name="reconcile_open_orders_fetch_ms",
+                value_ms=_measure_ms(fetch_open_orders_started),
+                meta={"exchange": ex_id, "symbol": sym, "ok": True, "open_orders": len(oo)},
+                tracker=client,
+                latency_db_path=str(data_dir() / "market_ws.sqlite"),
+            )
         for o in oo:
             cid = _extract_client_id(o)
             if cid and cid in want:

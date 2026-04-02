@@ -397,3 +397,121 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
     assert out["latency_fills_recorded"] == 1
     assert len(fake_latency.fill_calls) == 1
     assert fake_latency.fill_calls[0]["client_order_id"] == "cid-9"
+
+
+def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
+    monkeypatch.setenv("LIVE_TRADING", "YES")
+    cfg = le.LiveCfg(
+        enabled=True,
+        exchange_id="coinbase",
+        exec_db=":memory:",
+        symbol="BTC/USD",
+        reconcile_limit=1,
+        reconcile_trades=True,
+        reconcile_trades_limit=5,
+    )
+
+    class _FakeStore:
+        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+            if status == "submitted":
+                return [{"intent_id": "intent-1", "symbol": symbol, "reason": "remote_id=ord-1"}]
+            return []
+
+        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
+            return None
+
+        def add_fill(self, **kwargs):
+            return None
+
+    class _FakeDedupe:
+        def get_by_intent(self, exchange_id: str, intent_id: str):
+            return {"client_order_id": "cid-1", "remote_order_id": "ord-1"}
+
+        def mark_terminal(self, exchange_id: str, intent_id: str, terminal_status: str):
+            return None
+
+    class _FakeClient:
+        @staticmethod
+        def fetch_order(*, order_id: str, symbol: str):
+            return {"id": order_id, "status": "closed", "filled": 0.5, "average": 100.0, "fee": {"cost": 0.1, "currency": "USD"}}
+
+        @staticmethod
+        def fetch_my_trades(*, symbol: str, since: int | None = None, limit: int | None = None):
+            return [
+                {
+                    "id": "trade-1",
+                    "order": "ord-1",
+                    "clientOrderId": "cid-1",
+                    "amount": 0.5,
+                    "price": 100.0,
+                    "fee": {"cost": 0.1, "currency": "USD"},
+                    "timestamp": 1,
+                }
+            ]
+
+    class _FakeLatency:
+        def __init__(self):
+            self.metric_calls: list[dict] = []
+            self.fill_calls: list[dict] = []
+
+        def record_submit(self, **kwargs):
+            return None
+
+        def record_ack(self, **kwargs):
+            return None
+
+        def record_fill(self, **kwargs):
+            self.fill_calls.append(dict(kwargs))
+
+        def record_measurement(self, **kwargs):
+            self.metric_calls.append(dict(kwargs))
+
+    fake_store = _FakeStore()
+    fake_dedupe = _FakeDedupe()
+    fake_latency = _FakeLatency()
+
+    monkeypatch.setattr(le, "_load_execution_safety_cfg", lambda *_, **__: SafetyConfig(enabled=True))
+    monkeypatch.setattr(le, "_latency_tracker", lambda *_args, **_kwargs: fake_latency)
+    monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
+    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
+    monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _FakeClient())
+
+    out = le.reconcile_live(cfg)
+    assert out["ok"] is True
+    names = {call["name"] for call in fake_latency.metric_calls}
+    assert "reconcile_fetch_order_ms" in names
+    assert "reconcile_fetch_trades_ms" in names
+
+
+def test_reconcile_open_orders_records_fetch_latency_measurement(monkeypatch, tmp_path):
+    seen: list[dict] = []
+
+    class _FakeStore:
+        def list_needs_reconcile(self, *, exchange_id: str, limit: int = 200):
+            return [{"symbol": "BTC/USD", "client_order_id": "cid-1", "intent_id": "intent-1"}]
+
+        def set_remote_id_if_empty(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+            return None
+
+        def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+            return None
+
+    class _FakeClient:
+        @staticmethod
+        def fetch_open_orders(*, symbol: str):
+            return [{"id": "ord-1", "clientOrderId": "cid-1"}]
+
+    class _FakeWsStore:
+        def __init__(self, path=None):
+            self.path = path
+
+        def log_latency(self, **kwargs):
+            seen.append(dict(kwargs))
+
+    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeStore())
+    monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _FakeClient())
+    monkeypatch.setattr(le, "SQLiteMarketWsStore", _FakeWsStore)
+
+    out = le.reconcile_open_orders(str(tmp_path / "execution.sqlite"), "coinbase", limit=10)
+    assert out["ok"] is True
+    assert any(row["name"] == "reconcile_open_orders_fetch_ms" for row in seen)
