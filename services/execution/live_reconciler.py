@@ -3,7 +3,7 @@ import json
 import os
 import time
 from datetime import datetime, timezone
-from services.admin.system_guard import get_state as get_system_guard_state
+from services.admin.system_guard import get_state as get_system_guard_state, set_state as set_system_guard_state
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution.live_arming import live_enabled_and_armed
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
@@ -68,6 +68,22 @@ def _system_guard_reconcile_mode() -> tuple[str, dict]:
     if guard_state in {"HALTING", "HALTED"}:
         return "cleanup", state
     return "normal", state
+
+
+def _maybe_promote_system_guard_halted(qdb: LiveIntentQueueSQLite, guard_meta: dict) -> dict:
+    state = str((guard_meta or {}).get("state") or "").upper().strip()
+    if state != "HALTING":
+        return dict(guard_meta or {})
+    try:
+        remaining = qdb.list_intents(limit=1, status="submitted")
+    except Exception:
+        return dict(guard_meta or {})
+    if remaining:
+        return dict(guard_meta or {})
+    try:
+        return set_system_guard_state("HALTED", writer="live_reconciler", reason="cleanup_complete")
+    except Exception:
+        return dict(guard_meta or {})
 
 def run_forever() -> None:
     ensure_dirs()
@@ -166,6 +182,9 @@ def run_forever() -> None:
                         _write_status({"ok": True, "status": "running", "ts": _now(), "note": "reconcile_error", "error": f"{type(e).__name__}:{e}"})
             finally:
                 _close_reconcile_adapters(adapters)
+            if reconcile_mode == "cleanup":
+                guard_meta = _maybe_promote_system_guard_halted(qdb, guard_meta)
+                guard_state = str(guard_meta.get("state") or "").upper().strip()
             status_value = guard_state.lower() if reconcile_mode == "cleanup" and guard_state else "running"
             _write_status({
                 "ok": True,
