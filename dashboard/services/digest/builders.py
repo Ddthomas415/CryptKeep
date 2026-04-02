@@ -60,6 +60,7 @@ from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import build_strategy_workbench
 from services.admin.config_editor import load_user_yaml
 from services.admin.live_guard import live_allowed
+from services.admin.system_guard import get_state as get_system_guard_state
 from services.bot.start_manager import decide_start
 from services.execution.live_arming import is_live_enabled, live_enabled_and_armed
 
@@ -75,6 +76,32 @@ CLAIM_BOUNDARIES = [
     "Strategy digest uses persisted synthetic multi-window evidence when available, not live profitability proof.",
 ]
 _SEVERITY_RANK = {"critical": 0, "important": 1, "watch": 2, "info": 3}
+
+
+def _system_guard_health(state: str) -> HealthState:
+    normalized = str(state or "").strip().upper()
+    if normalized == "RUNNING":
+        return "ok"
+    if normalized == "HALTING":
+        return "warn"
+    if normalized == "HALTED":
+        return "critical"
+    return "unknown"
+
+
+def _system_guard_label(state: str) -> str:
+    return str(state or "unknown").strip().replace("_", " ").title()
+
+
+def _system_guard_caveat(payload: dict[str, Any]) -> str | None:
+    writer = str(payload.get("writer") or "").strip()
+    reason = str(payload.get("reason") or "").strip()
+    parts: list[str] = []
+    if writer:
+        parts.append(f"writer={writer}")
+    if reason:
+        parts.append(f"reason={reason}")
+    return " · ".join(parts) or None
 
 
 def _load_trading_cfg() -> dict[str, Any]:
@@ -252,9 +279,19 @@ def _runtime_context(*, trading_cfg: dict[str, Any], user_cfg: dict[str, Any]) -
         armed, arming_reason = live_enabled_and_armed()
     except Exception as exc:
         armed, arming_reason = False, f"arming_failed:{type(exc).__name__}"
+    try:
+        system_guard = dict(get_system_guard_state(fail_closed=True) or {})
+    except Exception as exc:
+        system_guard = {
+            "state": "HALTED",
+            "writer": "digest",
+            "reason": f"system_guard_failed:{type(exc).__name__}",
+            "epoch": 0,
+        }
 
     kill_state = dict(guard_details.get("kill_switch") or {}) if isinstance(guard_details, dict) else {}
     kill_armed = bool(kill_state.get("armed", False))
+    system_guard_state = str(system_guard.get("state") or "UNKNOWN").strip().upper()
     return {
         "mode_value": mode_value,
         "mode_label": mode_label,
@@ -268,6 +305,8 @@ def _runtime_context(*, trading_cfg: dict[str, Any], user_cfg: dict[str, Any]) -
         "armed": bool(armed),
         "arming_reason": str(arming_reason or "unknown"),
         "kill_armed": kill_armed,
+        "system_guard": system_guard,
+        "system_guard_state": system_guard_state,
     }
 
 
@@ -290,17 +329,32 @@ def build_runtime_truth_digest(
         mode_state = "ok"
 
     kill_armed = bool(runtime_context.get("kill_armed"))
+    system_guard = dict(runtime_context.get("system_guard") or {})
+    system_guard_state = str(runtime_context.get("system_guard_state") or "UNKNOWN").strip().upper()
     kill_switch = _pill(
         value="Armed" if kill_armed else "Disarmed",
         label="Kill Switch",
         state="critical" if kill_armed else "ok",
         caveat=str(runtime_context.get("guard_reason") or "") if kill_armed else None,
     )
+    system_guard_pill = _pill(
+        value=_system_guard_label(system_guard_state),
+        label="System Guard",
+        state=_system_guard_health(system_guard_state),
+        caveat=_system_guard_caveat(system_guard),
+    )
 
     if mode_value == "paper":
         boundary_value = "Healthy"
         boundary_state = "ok"
         boundary_caveat = "Final live-order boundary is present but inactive while runtime remains in paper mode."
+    elif system_guard_state in {"HALTING", "HALTED"}:
+        boundary_value = "Blocked"
+        boundary_state = _system_guard_health(system_guard_state)
+        boundary_caveat = (
+            f"System Guard is {_system_guard_label(system_guard_state).lower()}; "
+            "live submit is fail-closed until the shared guard returns to running."
+        )
     elif bool(runtime_context.get("guard_allowed")):
         boundary_value = "Healthy"
         boundary_state = "ok"
@@ -358,6 +412,7 @@ def build_runtime_truth_digest(
             caveat=boundary_caveat,
         ),
         kill_switch=kill_switch,
+        system_guard=system_guard_pill,
         collector_freshness=_pill(
             value=collector_value,
             label="Collector Freshness",
@@ -882,6 +937,8 @@ def build_safety_warnings_digest(
     items: list[SafetyWarningItem] = []
     mode_value = str(runtime_context.get("mode_value") or "unknown")
     start_decision = runtime_context.get("start_decision")
+    system_guard = dict(runtime_context.get("system_guard") or {})
+    system_guard_state = str(runtime_context.get("system_guard_state") or "UNKNOWN").strip().upper()
     if bool(runtime_context.get("kill_armed")):
         items.append(
             {
@@ -891,6 +948,17 @@ def build_safety_warnings_digest(
                 "source": "live_guard",
                 "as_of": as_of,
                 "caveat": str(runtime_context.get("guard_reason") or None),
+            }
+        )
+    if system_guard_state in {"HALTING", "HALTED"}:
+        items.append(
+            {
+                "severity": "important" if system_guard_state == "HALTING" else "critical",
+                "title": f"System Guard is {_system_guard_label(system_guard_state)}",
+                "summary": "Live submit is fail-closed on the shared guard state until the runtime returns to RUNNING.",
+                "source": "system_guard",
+                "as_of": as_of,
+                "caveat": _system_guard_caveat(system_guard),
             }
         )
     if mode_value != "paper" and not bool(getattr(start_decision, "ok", False)):
@@ -963,7 +1031,11 @@ def build_safety_warnings_digest(
                 "caveat": None,
             }
         )
-    live_boundary_status = "healthy" if mode_value == "paper" or bool(runtime_context.get("guard_allowed")) else "blocked"
+    live_boundary_status = (
+        "healthy"
+        if mode_value == "paper" or (bool(runtime_context.get("guard_allowed")) and system_guard_state == "RUNNING")
+        else "blocked"
+    )
     kill_switch_state = "armed" if bool(runtime_context.get("kill_armed")) else "disarmed"
     return SafetyWarningsData(
         **_base_section(
@@ -975,6 +1047,7 @@ def build_safety_warnings_digest(
         items=items[:6],
         live_boundary_status=live_boundary_status,
         kill_switch_state=kill_switch_state,
+        system_guard_state=str(system_guard_state or "unknown").lower(),
     )
 
 

@@ -142,13 +142,14 @@ def render_runtime_truth_strip(payload: RuntimeTruthData) -> None:
             subtitle="Fast top-level truth for runtime mode, boundary state, and digest freshness.",
             payload=payload,
         )
-        truth_cols = st.columns(6)
+        truth_cols = st.columns(7)
         for col, key in zip(
             truth_cols,
             (
                 "mode",
                 "live_order_authority",
                 "kill_switch",
+                "system_guard",
                 "collector_freshness",
                 "leaderboard_age",
                 "copilot_trust_layer",
@@ -314,6 +315,14 @@ def render_safety_warnings(payload: SafetyWarningsData) -> None:
             [
                 {"text": f"Boundary: {_status_label(payload.get('live_boundary_status'))}", "tone": _tone_from_health(payload.get('live_boundary_status'))},
                 {"text": f"Kill Switch: {_status_label(payload.get('kill_switch_state'))}", "tone": "danger" if str(payload.get('kill_switch_state') or '').lower() == 'armed' else 'success'},
+                {
+                    "text": f"System Guard: {_status_label(payload.get('system_guard_state'))}",
+                    "tone": {
+                        "running": "success",
+                        "halting": "warning",
+                        "halted": "danger",
+                    }.get(str(payload.get("system_guard_state") or "").lower(), "muted"),
+                },
             ]
         )
         items = list(payload.get("items") or [])
