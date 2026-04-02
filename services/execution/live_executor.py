@@ -10,6 +10,10 @@ import yaml
 
 from services.execution.client_order_id import make_client_order_id
 from services.execution.execution_latency import ExecutionLatencyTracker
+from services.execution.lifecycle_boundary import (
+    fetch_my_trades_via_boundary,
+    fetch_order_via_boundary,
+)
 from services.execution.safety_gates import SafetyConfig
 from services.execution.exchange_client import ExchangeClient
 from services.journal.fill_sink import CanonicalFillSink
@@ -406,6 +410,67 @@ def _local_gate_price(cfg: "LiveCfg", *, side: str) -> float | None:
         return None
     return px if px > 0.0 else None
 
+
+def _open_reconcile_session(client: Any) -> tuple[Any, bool]:
+    build = getattr(client, "build", None)
+    if callable(build):
+        return build(), True
+    return client, False
+
+
+def _close_reconcile_session(session: Any, *, owned: bool) -> None:
+    if not owned:
+        return
+    try:
+        if hasattr(session, "close"):
+            session.close()
+    except Exception:
+        pass
+
+
+def _fetch_order_for_reconcile(
+    client: Any,
+    session: Any,
+    *,
+    owned: bool,
+    venue: str,
+    symbol: str,
+    order_id: str,
+) -> dict[str, Any]:
+    if owned:
+        return fetch_order_via_boundary(
+            session,
+            venue=venue,
+            symbol=symbol,
+            order_id=order_id,
+            source="live_executor.reconcile_live",
+        )
+    fetch = getattr(client, "fetch_order")
+    return fetch(order_id=order_id, symbol=symbol)
+
+
+def _fetch_trades_for_reconcile(
+    client: Any,
+    session: Any,
+    *,
+    owned: bool,
+    venue: str,
+    symbol: str,
+    since_ms: int | None,
+    limit: int,
+) -> list[dict[str, Any]]:
+    if owned:
+        return fetch_my_trades_via_boundary(
+            session,
+            venue=venue,
+            symbol=symbol,
+            since_ms=since_ms,
+            limit=limit,
+            source="live_executor.reconcile_live",
+        )
+    fetch = getattr(client, "fetch_my_trades")
+    return list(fetch(symbol=symbol, since=since_ms, limit=limit) or [])
+
 def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     ok, why = _hard_off_guard(cfg, operation="submit")
     if not ok:
@@ -683,167 +748,186 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
     trade_fills_added = 0
     latency_fills_recorded = 0
     checked = 0
+    session: Any | None = None
+    session_owned = False
+    try:
+        for it in intents:
+            if checked >= int(cfg.reconcile_limit):
+                break
+            checked += 1
 
-    for it in intents:
-        if checked >= int(cfg.reconcile_limit):
-            break
-        checked += 1
+            intent_id = str(it["intent_id"])
+            reason = str(it.get("reason") or "")
+            remote_id = _remote_id_from_reason(reason)
+            if not remote_id:
+                row_d = store_dedupe.get_by_intent(cfg.exchange_id, intent_id)
+                remote_id = (row_d or {}).get("remote_order_id")
+            if not remote_id:
+                continue
 
-        intent_id = str(it["intent_id"])
-        reason = str(it.get("reason") or "")
-        remote_id = _remote_id_from_reason(reason)
-        if not remote_id:
             row_d = store_dedupe.get_by_intent(cfg.exchange_id, intent_id)
-            remote_id = (row_d or {}).get("remote_order_id")
-        if not remote_id:
-            continue
+            cid = str((row_d or {}).get("client_order_id") or "").strip() or _client_id_from_reason(reason)
+            known_trade_ids = _existing_trade_ids(store, intent_id=intent_id)
 
-        row_d = store_dedupe.get_by_intent(cfg.exchange_id, intent_id)
-        cid = str((row_d or {}).get("client_order_id") or "").strip() or _client_id_from_reason(reason)
-        known_trade_ids = _existing_trade_ids(store, intent_id=intent_id)
-
-        fetch_order_started = time.perf_counter()
-        try:
-            o = client.fetch_order(order_id=remote_id, symbol=str(it["symbol"]))
-        except Exception:
+            if session is None:
+                session, session_owned = _open_reconcile_session(client)
+            fetch_order_started = time.perf_counter()
+            try:
+                o = _fetch_order_for_reconcile(
+                    client,
+                    session,
+                    owned=session_owned,
+                    venue=cfg.exchange_id,
+                    symbol=str(it["symbol"]),
+                    order_id=remote_id,
+                )
+            except Exception:
+                _record_execution_metric(
+                    name="reconcile_fetch_order_ms",
+                    value_ms=_measure_ms(fetch_order_started),
+                    meta={"exchange": cfg.exchange_id, "symbol": str(it["symbol"]), "intent_id": intent_id, "ok": False},
+                    tracker=latency_tracker,
+                )
+                # keep tracking; don't spam submits
+                continue
             _record_execution_metric(
                 name="reconcile_fetch_order_ms",
                 value_ms=_measure_ms(fetch_order_started),
-                meta={"exchange": cfg.exchange_id, "symbol": str(it["symbol"]), "intent_id": intent_id, "ok": False},
+                meta={"exchange": cfg.exchange_id, "symbol": str(it["symbol"]), "intent_id": intent_id, "ok": True},
                 tracker=latency_tracker,
             )
-            # keep tracking; don't spam submits
-            continue
-        _record_execution_metric(
-            name="reconcile_fetch_order_ms",
-            value_ms=_measure_ms(fetch_order_started),
-            meta={"exchange": cfg.exchange_id, "symbol": str(it["symbol"]), "intent_id": intent_id, "ok": True},
-            tracker=latency_tracker,
-        )
 
-        status = str(o.get("status") or "").lower()
-        filled = float(o.get("filled") or 0.0)
-        avg = float(o.get("average") or (o.get("price") or 0.0) or 0.0)
-        fee = o.get("fee") or {}
-        fee_cost = float(fee.get("cost") or 0.0)
-        fee_ccy = str(fee.get("currency") or "").upper() or "USD"
+            status = str(o.get("status") or "").lower()
+            filled = float(o.get("filled") or 0.0)
+            avg = float(o.get("average") or (o.get("price") or 0.0) or 0.0)
+            fee = o.get("fee") or {}
+            fee_cost = float(fee.get("cost") or 0.0)
+            fee_ccy = str(fee.get("currency") or "").upper() or "USD"
 
-        trade_filled_qty = 0.0
-        if bool(cfg.reconcile_trades):
-            trades: list[dict[str, Any]] = []
-            since_ms = max(0, _now_ms() - int(max(0, cfg.reconcile_lookback_ms)))
-            fetch_trades = getattr(client, "fetch_my_trades", None)
-            if callable(fetch_trades):
-                fetch_trades_started = time.perf_counter()
-                try:
-                    got = fetch_trades(
-                        symbol=str(it["symbol"]),
-                        since=since_ms,
-                        limit=int(max(1, cfg.reconcile_trades_limit)),
-                    )
-                    if isinstance(got, list):
-                        trades = [dict(x or {}) for x in got]
-                except Exception:
-                    trades = []
-                _record_execution_metric(
-                    name="reconcile_fetch_trades_ms",
-                    value_ms=_measure_ms(fetch_trades_started),
-                    meta={
-                        "exchange": cfg.exchange_id,
-                        "symbol": str(it["symbol"]),
-                        "intent_id": intent_id,
-                        "trade_count": len(trades),
-                    },
-                    tracker=latency_tracker,
-                )
-
-            for tr in trades:
-                if not _trade_matches_intent(tr, remote_id=remote_id, client_id=cid):
-                    continue
-                qty = float(tr.get("amount") or tr.get("qty") or 0.0)
-                px = float(tr.get("price") or 0.0)
-                if qty <= 0.0 or px <= 0.0:
-                    continue
-                trade_filled_qty += qty
-                trade_id = _trade_id(tr)
-                if not trade_id or trade_id in known_trade_ids:
-                    continue
-                t_fee_cost, t_fee_ccy = _trade_fee_parts(tr)
-                t_ts_ms = _trade_ts_ms(tr)
-                store.add_fill(
-                    intent_id=intent_id,
-                    ts_ms=t_ts_ms,
-                    price=px,
-                    qty=qty,
-                    fee=t_fee_cost,
-                    fee_ccy=t_fee_ccy,
-                    meta={
-                        "remote_order_id": remote_id,
-                        "status": status,
-                        "trade_id": trade_id,
-                        "raw_trade": {
-                            "id": tr.get("id"),
-                            "order": tr.get("order"),
-                            "timestamp": tr.get("timestamp"),
-                            "price": tr.get("price"),
-                            "amount": tr.get("amount"),
-                            "fee": tr.get("fee"),
+            trade_filled_qty = 0.0
+            if bool(cfg.reconcile_trades):
+                trades: list[dict[str, Any]] = []
+                since_ms = max(0, _now_ms() - int(max(0, cfg.reconcile_lookback_ms)))
+                fetch_trades = getattr(client, "fetch_my_trades", None)
+                if session_owned or callable(fetch_trades):
+                    if session is None:
+                        session, session_owned = _open_reconcile_session(client)
+                    fetch_trades_started = time.perf_counter()
+                    try:
+                        got = _fetch_trades_for_reconcile(
+                            client,
+                            session,
+                            owned=session_owned,
+                            venue=cfg.exchange_id,
+                            symbol=str(it["symbol"]),
+                            since_ms=since_ms,
+                            limit=int(max(1, cfg.reconcile_trades_limit)),
+                        )
+                        if isinstance(got, list):
+                            trades = [dict(x or {}) for x in got]
+                    except Exception:
+                        trades = []
+                    _record_execution_metric(
+                        name="reconcile_fetch_trades_ms",
+                        value_ms=_measure_ms(fetch_trades_started),
+                        meta={
+                            "exchange": cfg.exchange_id,
+                            "symbol": str(it["symbol"]),
+                            "intent_id": intent_id,
+                            "trade_count": len(trades),
                         },
-                    },
-                )
-                known_trade_ids.add(trade_id)
-                fills_added += 1
-                trade_fills_added += 1
-                if cid:
-                    try:
-                        latency_tracker.record_fill(
-                            client_order_id=cid,
-                            exchange=cfg.exchange_id,
-                            symbol=str(it["symbol"]),
-                            price=px,
-                            qty=qty,
-                        )
-                        latency_fills_recorded += 1
-                    except Exception:
-                        pass
+                        tracker=latency_tracker,
+                    )
 
-        # Trade-level reconciliation handles partial fills + fees.
-        # Keep synthetic fallback when closed fills are available but per-trade rows are not.
-        if status in ("closed", "filled") and filled > 0 and avg > 0:
-            if trade_filled_qty <= 0.0:
-                store.add_fill(
-                    intent_id=intent_id,
-                    ts_ms=_now_ms(),
-                    price=avg,
-                    qty=filled,
-                    fee=fee_cost,
-                    fee_ccy=fee_ccy,
-                    meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
-                )
-                fills_added += 1
-                if cid:
-                    try:
-                        latency_tracker.record_fill(
-                            client_order_id=cid,
-                            exchange=cfg.exchange_id,
-                            symbol=str(it["symbol"]),
-                            price=avg,
-                            qty=filled,
-                        )
-                        latency_fills_recorded += 1
-                    except Exception:
-                        pass
-            store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
-            try:
-                store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
-            except Exception:
-                pass
-        elif status in ("canceled", "cancelled", "rejected", "expired"):
-            store.set_intent_status(intent_id=intent_id, status="canceled", reason=f"remote_id={remote_id}:{status}")
-            try:
-                store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
-            except Exception:
-                pass
+                for tr in trades:
+                    if not _trade_matches_intent(tr, remote_id=remote_id, client_id=cid):
+                        continue
+                    qty = float(tr.get("amount") or tr.get("qty") or 0.0)
+                    px = float(tr.get("price") or 0.0)
+                    if qty <= 0.0 or px <= 0.0:
+                        continue
+                    trade_filled_qty += qty
+                    trade_id = _trade_id(tr)
+                    if not trade_id or trade_id in known_trade_ids:
+                        continue
+                    t_fee_cost, t_fee_ccy = _trade_fee_parts(tr)
+                    t_ts_ms = _trade_ts_ms(tr)
+                    store.add_fill(
+                        intent_id=intent_id,
+                        ts_ms=t_ts_ms,
+                        price=px,
+                        qty=qty,
+                        fee=t_fee_cost,
+                        fee_ccy=t_fee_ccy,
+                        meta={
+                            "remote_order_id": remote_id,
+                            "status": status,
+                            "trade_id": trade_id,
+                            "raw_trade": {
+                                "id": tr.get("id"),
+                                "order": tr.get("order"),
+                                "timestamp": tr.get("timestamp"),
+                                "price": tr.get("price"),
+                                "amount": tr.get("amount"),
+                                "fee": tr.get("fee"),
+                            },
+                        },
+                    )
+                    known_trade_ids.add(trade_id)
+                    fills_added += 1
+                    trade_fills_added += 1
+                    if cid:
+                        try:
+                            latency_tracker.record_fill(
+                                client_order_id=cid,
+                                exchange=cfg.exchange_id,
+                                symbol=str(it["symbol"]),
+                                price=px,
+                                qty=qty,
+                            )
+                            latency_fills_recorded += 1
+                        except Exception:
+                            pass
+
+            # Trade-level reconciliation handles partial fills + fees.
+            # Keep synthetic fallback when closed fills are available but per-trade rows are not.
+            if status in ("closed", "filled") and filled > 0 and avg > 0:
+                if trade_filled_qty <= 0.0:
+                    store.add_fill(
+                        intent_id=intent_id,
+                        ts_ms=_now_ms(),
+                        price=avg,
+                        qty=filled,
+                        fee=fee_cost,
+                        fee_ccy=fee_ccy,
+                        meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
+                    )
+                    fills_added += 1
+                    if cid:
+                        try:
+                            latency_tracker.record_fill(
+                                client_order_id=cid,
+                                exchange=cfg.exchange_id,
+                                symbol=str(it["symbol"]),
+                                price=avg,
+                                qty=filled,
+                            )
+                            latency_fills_recorded += 1
+                        except Exception:
+                            pass
+                store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
+                try:
+                    store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
+                except Exception:
+                    pass
+            elif status in ("canceled", "cancelled", "rejected", "expired"):
+                store.set_intent_status(intent_id=intent_id, status="canceled", reason=f"remote_id={remote_id}:{status}")
+                try:
+                    store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
+                except Exception:
+                    pass
+    finally:
+        _close_reconcile_session(session, owned=session_owned)
 
     return {
         "ok": True,

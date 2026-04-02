@@ -45,9 +45,10 @@ def test_active_adapter_lifecycle_paths_use_centralized_lifecycle_boundary() -> 
     assert "ad.fetch_my_trades(" in live_reconciler
 
 
-def test_live_executor_reconcile_paths_still_use_exchange_client_direct_fetches() -> None:
+def test_live_executor_reconcile_paths_use_boundary_fetches_with_shared_session() -> None:
     live_executor = Path("services/execution/live_executor.py").read_text()
 
-    assert "client.fetch_order(order_id=remote_id, symbol=str(it[\"symbol\"]))" in live_executor
-    assert "fetch_trades = getattr(client, \"fetch_my_trades\", None)" in live_executor
+    assert "fetch_order_via_boundary(" in live_executor
+    assert "fetch_my_trades_via_boundary(" in live_executor
+    assert "_open_reconcile_session(client)" in live_executor
     assert "client.fetch_open_orders(symbol=sym)" in live_executor

@@ -670,6 +670,108 @@ def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
     assert "reconcile_fetch_trades_ms" in names
 
 
+def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeypatch):
+    monkeypatch.setenv("LIVE_TRADING", "YES")
+    cfg = le.LiveCfg(
+        enabled=True,
+        exchange_id="coinbase",
+        exec_db=":memory:",
+        symbol="BTC/USD",
+        reconcile_limit=1,
+        reconcile_trades=True,
+        reconcile_trades_limit=5,
+    )
+
+    class _FakeStore:
+        def __init__(self):
+            self.fills: list[dict] = []
+            self.status_updates: list[tuple[str, str, str]] = []
+
+        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+            if status == "submitted":
+                return [{"intent_id": "intent-1", "symbol": symbol, "reason": "remote_id=ord-1 client_id=cid-1"}]
+            return []
+
+        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
+            self.status_updates.append((intent_id, status, reason))
+
+        def add_fill(self, **kwargs):
+            self.fills.append(dict(kwargs))
+
+    class _FakeDedupe:
+        def get_by_intent(self, exchange_id: str, intent_id: str):
+            return {"client_order_id": "cid-1", "remote_order_id": "ord-1"}
+
+        def mark_terminal(self, exchange_id: str, intent_id: str, terminal_status: str):
+            return None
+
+    class _FakeLatency:
+        def __init__(self):
+            self.metric_calls: list[dict] = []
+
+        def record_fill(self, **kwargs):
+            return None
+
+        def record_measurement(self, **kwargs):
+            self.metric_calls.append(dict(kwargs))
+
+    class _FakeSession:
+        def __init__(self):
+            self.order_calls: list[tuple[str, str]] = []
+            self.trade_calls: list[tuple[str, int | None, int | None]] = []
+            self.close_calls = 0
+
+        def fetch_order(self, order_id: str, symbol: str):
+            self.order_calls.append((order_id, symbol))
+            return {"id": order_id, "status": "closed", "filled": 0.5, "average": 100.0, "fee": {"cost": 0.1, "currency": "USD"}}
+
+        def fetch_my_trades(self, symbol: str, since: int | None = None, limit: int | None = None):
+            self.trade_calls.append((symbol, since, limit))
+            return [
+                {
+                    "id": "trade-1",
+                    "order": "ord-1",
+                    "clientOrderId": "cid-1",
+                    "amount": 0.5,
+                    "price": 100.0,
+                    "fee": {"cost": 0.1, "currency": "USD"},
+                    "timestamp": 1,
+                }
+            ]
+
+        def close(self):
+            self.close_calls += 1
+
+    class _FakeClient:
+        def __init__(self):
+            self.build_calls = 0
+            self.session = _FakeSession()
+
+        def build(self):
+            self.build_calls += 1
+            return self.session
+
+    fake_store = _FakeStore()
+    fake_dedupe = _FakeDedupe()
+    fake_latency = _FakeLatency()
+    fake_client = _FakeClient()
+
+    monkeypatch.setattr(le, "_load_execution_safety_cfg", lambda *_, **__: SafetyConfig(enabled=True))
+    monkeypatch.setattr(le, "_latency_tracker", lambda *_args, **_kwargs: fake_latency)
+    monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
+    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
+    monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: fake_client)
+
+    out = le.reconcile_live(cfg)
+    assert out["ok"] is True
+    assert out["fills_added"] == 1
+    assert fake_client.build_calls == 1
+    assert fake_client.session.order_calls == [("ord-1", "BTC/USD")]
+    assert len(fake_client.session.trade_calls) == 1
+    assert fake_client.session.trade_calls[0][0] == "BTC/USD"
+    assert fake_client.session.close_calls == 1
+
+
 def test_reconcile_open_orders_records_fetch_latency_measurement(monkeypatch, tmp_path):
     seen: list[dict] = []
 
