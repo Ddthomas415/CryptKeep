@@ -63,6 +63,7 @@ def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: True)
+    monkeypatch.setattr(view_data, "_load_local_system_guard_state", lambda: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
     monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
     monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
@@ -72,6 +73,9 @@ def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
     assert summary["execution_enabled"] is True
     assert summary["approval_required"] is False
     assert summary["kill_switch"] is True
+    assert summary["system_guard_state"] == "halting"
+    assert summary["risk_status"] == "caution"
+    assert "system_guard_halting" in summary["active_warnings"]
     assert summary["portfolio"]["total_value"] == 1500.0
     assert summary["portfolio"]["cash"] == 450.0
 
@@ -98,6 +102,7 @@ def test_dashboard_summary_prefers_local_watchlist_prices(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_system_guard_state", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
     monkeypatch.setattr(
@@ -141,6 +146,7 @@ def test_dashboard_summary_uses_settings_watchlist_when_missing(monkeypatch) -> 
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_system_guard_state", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "_load_local_risk_overlay", lambda portfolio_total_value=0.0: None)
     monkeypatch.setattr(
@@ -193,6 +199,7 @@ def test_load_local_risk_overlay_uses_ops_gate_and_blocks(monkeypatch) -> None:
     monkeypatch.setattr("storage.ops_signal_store_sqlite.OpsSignalStoreSQLite", FakeOpsSignalStore)
     monkeypatch.setattr("storage.risk_blocks_store_sqlite.RiskBlocksStoreSQLite", FakeRiskBlocksStore)
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: False)
+    monkeypatch.setattr(view_data, "_load_local_system_guard_state", lambda: None)
 
     payload = view_data._load_local_risk_overlay(portfolio_total_value=1000.0)
     assert payload == {
@@ -264,6 +271,7 @@ def test_dashboard_summary_applies_local_risk_overlay(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_system_guard_state", lambda: {"state": "HALTED", "writer": "operator", "reason": "manual"})
     monkeypatch.setattr(view_data, "_load_local_connections_summary", lambda: None)
     monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"watchlist_defaults": []}})
     monkeypatch.setattr(view_data, "_get_market_snapshot", lambda asset, exchange="coinbase": None)
@@ -284,7 +292,8 @@ def test_dashboard_summary_applies_local_risk_overlay(monkeypatch) -> None:
     summary = view_data.get_dashboard_summary()
     assert summary["risk_status"] == "danger"
     assert summary["blocked_trades_count"] == 3
-    assert summary["active_warnings"] == ["kill_switch_armed"]
+    assert summary["active_warnings"] == ["kill_switch_armed", "system_guard_halted"]
+    assert summary["system_guard_state"] == "halted"
     assert summary["drawdown_today_pct"] == 8.2
     assert summary["portfolio"]["exposure_used_pct"] == 55.5
     assert summary["portfolio"]["leverage"] == 2.1
@@ -318,6 +327,7 @@ def test_dashboard_summary_applies_local_connections_overlay(monkeypatch) -> Non
     monkeypatch.setattr(view_data, "_load_local_portfolio_snapshot", lambda _prices: None)
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "_load_local_kill_switch_state", lambda: None)
+    monkeypatch.setattr(view_data, "_load_local_system_guard_state", lambda: None)
     monkeypatch.setattr(
         view_data,
         "_load_local_connections_summary",
