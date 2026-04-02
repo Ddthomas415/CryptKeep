@@ -43,6 +43,7 @@ def test_active_adapter_lifecycle_paths_use_centralized_lifecycle_boundary() -> 
 
     assert "ad.fetch_order(" in live_reconciler
     assert "ad.fetch_my_trades(" in live_reconciler
+    assert "_adapter_for_reconcile_pass(" in live_reconciler
 
 
 def test_live_executor_reconcile_paths_use_boundary_fetches_with_shared_session() -> None:

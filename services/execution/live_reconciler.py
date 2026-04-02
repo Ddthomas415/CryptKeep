@@ -43,6 +43,23 @@ def request_stop() -> dict:
     STOP_FILE.write_text(_now() + "\n", encoding="utf-8")
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
+
+def _adapter_for_reconcile_pass(adapters: dict[str, LiveExchangeAdapter], venue: str) -> LiveExchangeAdapter:
+    ad = adapters.get(venue)
+    if ad is None:
+        ad = LiveExchangeAdapter(venue)
+        adapters[venue] = ad
+    return ad
+
+
+def _close_reconcile_adapters(adapters: dict[str, LiveExchangeAdapter]) -> None:
+    for ad in adapters.values():
+        try:
+            ad.close()
+        except Exception:
+            pass
+    adapters.clear()
+
 def run_forever() -> None:
     ensure_dirs()
     try:
@@ -70,66 +87,66 @@ def run_forever() -> None:
                 time.sleep(1.0)
                 continue
             submitted = qdb.list_intents(limit=60, status="submitted")
-            for it in submitted:
-                venue = normalize_venue(it["venue"])
-                symbol = normalize_symbol(it["symbol"])
-                ex_oid = (it.get("exchange_order_id") or "").strip()
-                if not ex_oid:
-                    continue
-                ad = None
-                try:
-                    ad = LiveExchangeAdapter(venue)
-                    o = ad.fetch_order(symbol, ex_oid)
-                    st = str(o.get("status") or "").lower().strip() or "unknown"
-                    if st in ("closed","filled"):
-                        qdb.update_status(it["intent_id"], "filled", last_error=None)
-                        ldb.upsert_order({
-                            "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
-                            "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
-                            "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
-                            "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
-                        })
-                    elif st in ("canceled","cancelled"):
-                        qdb.update_status(it["intent_id"], "canceled", last_error=None)
-                    elif st in ("rejected",):
-                        qdb.update_status(it["intent_id"], "rejected", last_error=str(o.get("rejectReason") or o.get("info") or "rejected"))
-                    else:
-                        pass
-                    since_ms = None
+            adapters: dict[str, LiveExchangeAdapter] = {}
+            try:
+                for it in submitted:
+                    venue = normalize_venue(it["venue"])
+                    symbol = normalize_symbol(it["symbol"])
+                    ex_oid = (it.get("exchange_order_id") or "").strip()
+                    if not ex_oid:
+                        continue
                     try:
-                        since_ms = int(float(qdb.get_state(f"trades_since_ms:{venue}:{symbol}") or "0")) or None
-                    except Exception:
+                        ad = _adapter_for_reconcile_pass(adapters, venue)
+                        o = ad.fetch_order(symbol, ex_oid)
+                        st = str(o.get("status") or "").lower().strip() or "unknown"
+                        if st in ("closed","filled"):
+                            qdb.update_status(it["intent_id"], "filled", last_error=None)
+                            ldb.upsert_order({
+                                "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
+                                "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                                "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                                "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
+                            })
+                        elif st in ("canceled","cancelled"):
+                            qdb.update_status(it["intent_id"], "canceled", last_error=None)
+                        elif st in ("rejected",):
+                            qdb.update_status(it["intent_id"], "rejected", last_error=str(o.get("rejectReason") or o.get("info") or "rejected"))
+                        else:
+                            pass
                         since_ms = None
-                    trades = ad.fetch_my_trades(symbol, since_ms=since_ms, limit=200)
-                    max_ts = 0
-                    for tr in trades or []:
-                        tid = str(tr.get("id") or tr.get("tradeId") or "")
-                        ts = tr.get("timestamp")
-                        if ts:
-                            max_ts = max(max_ts, int(ts))
-                        if not tid:
-                            continue
-                        ldb.insert_fill({
-                            "trade_id": tid,
-                            "ts": str(tr.get("datetime") or _now()),
-                            "venue": venue,
-                            "symbol": symbol,
-                            "side": str(tr.get("side") or it["side"]).lower(),
-                            "qty": float(tr.get("amount") or tr.get("qty") or 0.0),
-                            "price": float(tr.get("price") or 0.0),
-                            "fee": (tr.get("fee") or {}).get("cost") if isinstance(tr.get("fee"), dict) else None,
-                            "fee_currency": (tr.get("fee") or {}).get("currency") if isinstance(tr.get("fee"), dict) else None,
-                            "client_order_id": it.get("client_order_id"),
-                            "exchange_order_id": ex_oid,
-                        })
-                        fills_seen += 1
-                    if max_ts:
-                        qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts + 1))
-                except Exception as e:
-                    _write_status({"ok": True, "status": "running", "ts": _now(), "note": "reconcile_error", "error": f"{type(e).__name__}:{e}"})
-                finally:
-                    if ad:
-                        ad.close()
+                        try:
+                            since_ms = int(float(qdb.get_state(f"trades_since_ms:{venue}:{symbol}") or "0")) or None
+                        except Exception:
+                            since_ms = None
+                        trades = ad.fetch_my_trades(symbol, since_ms=since_ms, limit=200)
+                        max_ts = 0
+                        for tr in trades or []:
+                            tid = str(tr.get("id") or tr.get("tradeId") or "")
+                            ts = tr.get("timestamp")
+                            if ts:
+                                max_ts = max(max_ts, int(ts))
+                            if not tid:
+                                continue
+                            ldb.insert_fill({
+                                "trade_id": tid,
+                                "ts": str(tr.get("datetime") or _now()),
+                                "venue": venue,
+                                "symbol": symbol,
+                                "side": str(tr.get("side") or it["side"]).lower(),
+                                "qty": float(tr.get("amount") or tr.get("qty") or 0.0),
+                                "price": float(tr.get("price") or 0.0),
+                                "fee": (tr.get("fee") or {}).get("cost") if isinstance(tr.get("fee"), dict) else None,
+                                "fee_currency": (tr.get("fee") or {}).get("currency") if isinstance(tr.get("fee"), dict) else None,
+                                "client_order_id": it.get("client_order_id"),
+                                "exchange_order_id": ex_oid,
+                            })
+                            fills_seen += 1
+                        if max_ts:
+                            qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts + 1))
+                    except Exception as e:
+                        _write_status({"ok": True, "status": "running", "ts": _now(), "note": "reconcile_error", "error": f"{type(e).__name__}:{e}"})
+            finally:
+                _close_reconcile_adapters(adapters)
             _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "fills_seen_total": fills_seen})
             time.sleep(1.5)
     finally:
