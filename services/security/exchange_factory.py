@@ -6,10 +6,25 @@ from typing import Any
 from services.security.binance_guard import require_binance_allowed
 
 
+class VenueResolutionError(ValueError):
+    pass
+
+
+def resolve_exchange_id(exchange_id: str | None) -> str:
+    explicit = str(exchange_id or "").lower().strip()
+    env_v = str(os.environ.get("CBP_VENUE") or "").lower().strip()
+    if explicit and env_v and explicit != env_v:
+        raise VenueResolutionError(f"CBP_VENUE conflict: explicit={explicit!r} env={env_v!r}")
+    resolved = explicit or env_v
+    if not resolved:
+        raise VenueResolutionError("venue is required: pass exchange_id or set CBP_VENUE")
+    return resolved
+
+
 def make_exchange(exchange_id: str, creds: dict, *, enable_rate_limit: bool = True) -> Any:
     import ccxt  # type: ignore
 
-    ex_id = str(os.environ.get("CBP_VENUE") or exchange_id or "coinbase").lower().strip()
+    ex_id = resolve_exchange_id(exchange_id)
     require_binance_allowed(ex_id)
 
     klass = getattr(ccxt, ex_id)
