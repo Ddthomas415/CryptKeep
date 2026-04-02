@@ -1,23 +1,17 @@
 from __future__ import annotations
 
-import os
 from typing import Any, Optional, Dict
 
 import ccxt  # type: ignore
+from services.security.exchange_factory import resolve_exchange_id
 
 def get_adapter(venue: str, *, sandbox: Optional[bool] = None, **kwargs: Any):
-    # Env override: CLI sets CBP_VENUE; if present, it wins over any default/hardcoded venue
-    _env_venue = os.environ.get("CBP_VENUE")
-    if _env_venue:
-        venue = str(_env_venue).lower()
-
     """Return a CCXT exchange instance for `venue`.
 
     Compatibility shim for legacy imports:
         from services.execution.adapters.factory import get_adapter
     """
-    if not venue:
-        raise ValueError("venue is required")
+    venue = resolve_exchange_id(venue)
 
     raw = venue.strip()
     ccxt_id = raw.lower().replace(" ", "").replace("-", "").replace("_", "")
