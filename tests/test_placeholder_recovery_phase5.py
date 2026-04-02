@@ -39,13 +39,27 @@ def test_retry_sync_and_async():
 def test_connectivity_wrappers(monkeypatch):
     import services.admin.connectivity as connectivity
 
-    monkeypatch.setattr(connectivity, "test_private_connectivity", lambda ex: {"ok": ex == "coinbase"})
-    monkeypatch.setattr(connectivity, "run_probes", lambda ex, keys: {"ok": True, "results": []})
+    seen = {}
 
-    one = connectivity.check_exchange_connectivity("coinbase")
+    def _fake_private(ex, sandbox=False):
+        seen["private_sandbox"] = bool(sandbox)
+        return {"ok": ex == "coinbase", "sandbox": bool(sandbox)}
+
+    def _fake_probes(ex, keys, sandbox=False):
+        seen["probe_sandbox"] = bool(sandbox)
+        return {"ok": True, "sandbox": bool(sandbox), "results": []}
+
+    monkeypatch.setattr(connectivity, "test_private_connectivity", _fake_private)
+    monkeypatch.setattr(connectivity, "run_probes", _fake_probes)
+
+    one = connectivity.check_exchange_connectivity("coinbase", sandbox=True)
     assert one["ok"] is True
-    many = connectivity.check_many_connectivity(["coinbase", "gateio"])
+    assert one["sandbox"] is True
+    assert seen["private_sandbox"] is True
+    assert seen["probe_sandbox"] is True
+    many = connectivity.check_many_connectivity(["coinbase", "gateio"], sandbox=True)
     assert many["ok"] is False
+    assert many["sandbox"] is True
     assert many["count"] == 2
 
 

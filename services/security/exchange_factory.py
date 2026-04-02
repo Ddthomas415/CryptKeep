@@ -21,7 +21,14 @@ def resolve_exchange_id(exchange_id: str | None) -> str:
     return resolved
 
 
-def make_exchange(exchange_id: str, creds: dict, *, enable_rate_limit: bool = True) -> Any:
+def make_exchange(
+    exchange_id: str,
+    creds: dict,
+    *,
+    enable_rate_limit: bool = True,
+    sandbox: bool = False,
+    require_sandbox: bool = False,
+) -> Any:
     import ccxt  # type: ignore
 
     ex_id = resolve_exchange_id(exchange_id)
@@ -46,7 +53,18 @@ def make_exchange(exchange_id: str, creds: dict, *, enable_rate_limit: bool = Tr
         if isinstance(cfg["options"], dict):
             cfg["options"].setdefault("adjustForTimeDifference", True)
 
-    return klass(cfg)
+    ex = klass(cfg)
+    if bool(sandbox) and not hasattr(ex, "set_sandbox_mode"):
+        if require_sandbox:
+            raise RuntimeError(f"sandbox_not_supported:{ex_id}")
+        return ex
+    if hasattr(ex, "set_sandbox_mode"):
+        try:
+            ex.set_sandbox_mode(bool(sandbox))
+        except Exception as exc:
+            if require_sandbox and bool(sandbox):
+                raise RuntimeError(f"sandbox_enable_failed:{type(exc).__name__}:{exc}") from exc
+    return ex
 
 
 def _cbp_guard_binance(ex_id) -> None:

@@ -35,15 +35,15 @@ def _close_exchange(ex: Any) -> None:
     except Exception:
         pass
 
-def exchange_has_flags(exchange_id: str, creds: dict) -> dict:
-    ex = make_exchange(exchange_id, creds)
+def exchange_has_flags(exchange_id: str, creds: dict, *, sandbox: bool = False) -> dict:
+    ex = make_exchange(exchange_id, creds, sandbox=bool(sandbox), require_sandbox=bool(sandbox))
     try:
         has = getattr(ex, "has", None)
         return dict(has) if isinstance(has, dict) else {}
     finally:
         _close_exchange(ex)
 
-def run_probe(exchange_id: str, probe_key: str) -> dict:
+def run_probe(exchange_id: str, probe_key: str, *, sandbox: bool = False) -> dict:
     ex_id = str(exchange_id).lower().strip()
     key = str(probe_key).lower().strip()
 
@@ -56,13 +56,15 @@ def run_probe(exchange_id: str, probe_key: str) -> dict:
             "ok": False,
             "exchange": ex_id,
             "probe": key,
+            "sandbox": bool(sandbox),
             "reason": "missing_credentials",
             "source": str(creds.get("source") or "unknown"),
             "ts": _now(),
         }
 
-    ex = make_exchange(ex_id, creds)
+    ex = None
     try:
+        ex = make_exchange(ex_id, creds, sandbox=bool(sandbox), require_sandbox=bool(sandbox))
         fn = PROBES[key]["fn"]
         res = fn(ex)
 
@@ -75,15 +77,36 @@ def run_probe(exchange_id: str, probe_key: str) -> dict:
         if isinstance(res, list):
             summary["list_count"] = len(res)
 
-        return {"ok": True, "exchange": ex_id, "probe": key, "ts": _now(), "summary": summary}
+        return {
+            "ok": True,
+            "exchange": ex_id,
+            "probe": key,
+            "sandbox": bool(sandbox),
+            "ts": _now(),
+            "summary": summary,
+        }
     except Exception as e:
-        return {"ok": False, "exchange": ex_id, "probe": key, "ts": _now(), "reason": type(e).__name__, "error": str(e)[:700]}
+        return {
+            "ok": False,
+            "exchange": ex_id,
+            "probe": key,
+            "sandbox": bool(sandbox),
+            "ts": _now(),
+            "reason": type(e).__name__,
+            "error": str(e)[:700],
+        }
     finally:
-        _close_exchange(ex)
+        if ex is not None:
+            _close_exchange(ex)
 
-def run_probes(exchange_id: str, probe_keys: list[str]) -> dict:
-    out = {"exchange": str(exchange_id).lower().strip(), "ts": _now(), "results": []}
+def run_probes(exchange_id: str, probe_keys: list[str], *, sandbox: bool = False) -> dict:
+    out = {
+        "exchange": str(exchange_id).lower().strip(),
+        "sandbox": bool(sandbox),
+        "ts": _now(),
+        "results": [],
+    }
     for k in probe_keys or []:
-        out["results"].append(run_probe(exchange_id, k))
+        out["results"].append(run_probe(exchange_id, k, sandbox=bool(sandbox)))
     out["ok"] = all(bool(r.get("ok")) for r in out["results"]) if out["results"] else False
     return out

@@ -16,18 +16,28 @@ class _FakeExchange:
 
 def test_private_connectivity_uses_loader_and_closes_client(monkeypatch):
     fake_exchange = _FakeExchange()
+    seen = {}
 
     monkeypatch.setattr(
         private_connectivity,
         "load_exchange_credentials",
         lambda exchange: {"source": "keyring", "apiKey": "k", "secret": "s"},
     )
-    monkeypatch.setattr(private_connectivity, "make_exchange", lambda exchange, creds: fake_exchange)
+    monkeypatch.setattr(
+        private_connectivity,
+        "make_exchange",
+        lambda exchange, creds, sandbox=False, require_sandbox=False: (
+            seen.update({"sandbox": bool(sandbox), "require_sandbox": bool(require_sandbox)}) or fake_exchange
+        ),
+    )
 
-    out = private_connectivity.test_private_connectivity("coinbase")
+    out = private_connectivity.test_private_connectivity("coinbase", sandbox=True)
 
     assert out["ok"] is True
+    assert out["sandbox"] is True
     assert out["balance_total_asset_count"] == 2
+    assert seen["sandbox"] is True
+    assert seen["require_sandbox"] is True
     assert fake_exchange.closed is True
 
 
@@ -41,5 +51,6 @@ def test_private_connectivity_reports_missing_credentials_source(monkeypatch):
     out = private_connectivity.test_private_connectivity("coinbase")
 
     assert out["ok"] is False
+    assert out["sandbox"] is False
     assert out["reason"] == "missing_credentials"
     assert out["source"] == "env"
