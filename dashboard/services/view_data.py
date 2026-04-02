@@ -15,6 +15,11 @@ from services.setup.config_manager import DEFAULT_CFG, deep_merge
 REPO_ROOT = Path(__file__).resolve().parents[2]
 API_BASE_URL = os.environ.get("CK_API_BASE_URL", "http://localhost:8000").rstrip("/")
 PHASE1_ORCHESTRATOR_URL = os.environ.get("CK_PHASE1_ORCHESTRATOR_URL", "http://localhost:8002").rstrip("/")
+PHASE1_SERVICE_TOKEN = (
+    os.environ.get("CK_PHASE1_SERVICE_TOKEN")
+    or os.environ.get("SERVICE_TOKEN")
+    or ""
+).strip()
 API_TIMEOUT_SECONDS = float(os.environ.get("CK_API_TIMEOUT_SECONDS", "0.6"))
 
 
@@ -1457,6 +1462,8 @@ def _request_envelope_from_base(
     if payload is not None:
         body = json.dumps(payload).encode("utf-8")
         headers["Content-Type"] = "application/json"
+    if base_url.rstrip("/") == PHASE1_ORCHESTRATOR_URL and PHASE1_SERVICE_TOKEN:
+        headers["Authorization"] = f"Bearer {PHASE1_SERVICE_TOKEN}"
     req = urllib.request.Request(
         url,
         data=body,

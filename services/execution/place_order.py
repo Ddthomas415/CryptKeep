@@ -59,13 +59,14 @@ def _killswitch_fail_closed() -> bool:
 
 
 def _log_killswitch_probe_failure(*, stage: str, exc: Exception, fail_closed: bool) -> None:
+    reason = str(exc).strip() or type(exc).__name__
     _LOG.warning(
         "place_order_killswitch_probe_failed",
         extra={
             "source": "services.risk.killswitch",
             "stage": stage,
             "failure_type": type(exc).__name__,
-            "reason": type(exc).__name__,
+            "reason": reason,
             "fallback": "fail_closed_block" if fail_closed else "best_effort_allow",
         },
     )

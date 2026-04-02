@@ -399,8 +399,8 @@ def main() -> int:
         return 2
 
     if args.cmd == "supervisor-status":
-        print(json.dumps({"ok": False, "error": "disabled_command"}))
-        return 2
+        print(json.dumps(_supervisor_status()))
+        return 0
 
     if args.cmd == "supervisor-stop":
         print(json.dumps({"ok": False, "error": "disabled_command"}))

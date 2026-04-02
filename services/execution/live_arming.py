@@ -94,9 +94,22 @@ def is_live_enabled(cfg: dict[str, Any] | None = None) -> bool:
 
 def set_live_enabled(cfg: dict[str, Any] | None, enabled: bool) -> dict[str, Any]:
     out = dict(cfg or {})
+    value = bool(enabled)
+
+    live = dict(out.get("live") if isinstance(out.get("live"), dict) else {})
+    live["enabled"] = value
+    out["live"] = live
+
+    live_trading = dict(out.get("live_trading") if isinstance(out.get("live_trading"), dict) else {})
+    live_trading["enabled"] = value
+    out["live_trading"] = live_trading
+
+    risk = dict(out.get("risk") if isinstance(out.get("risk"), dict) else {})
+    risk["enable_live"] = value
+    out["risk"] = risk
 
     execution = dict(out.get("execution") if isinstance(out.get("execution"), dict) else {})
-    execution["live_enabled"] = bool(enabled)
+    execution["live_enabled"] = value
     out["execution"] = execution
     return out
 
@@ -108,7 +121,10 @@ def live_enabled_and_armed() -> tuple[bool, str]:
 
     armed_env = [
         ("CBP_EXECUTION_ARMED", os.environ.get("CBP_EXECUTION_ARMED")),
+        ("CBP_LIVE_ARMED", os.environ.get("CBP_LIVE_ARMED")),
+        ("CBP_LIVE_ENABLED", os.environ.get("CBP_LIVE_ENABLED")),
         ("ENABLE_LIVE_TRADING", os.environ.get("ENABLE_LIVE_TRADING")),
+        ("LIVE_TRADING", os.environ.get("LIVE_TRADING")),
     ]
     for name, value in armed_env:
         if _truthy(value):

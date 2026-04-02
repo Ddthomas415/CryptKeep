@@ -2,9 +2,6 @@ from __future__ import annotations
 
 import os
 import time
-from services.execution.lifecycle_boundary import fetch_open_orders_via_boundary
-from services.execution.lifecycle_boundary import fetch_order_via_boundary
-from services.execution.lifecycle_boundary import fetch_my_trades_via_boundary
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -627,13 +624,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
         known_trade_ids = _existing_trade_ids(store, intent_id=intent_id)
 
         try:
-            o = fetch_order_via_boundary(
-                client.build(),
-                venue=ex_id,
-                symbol=str(it["symbol"]),
-                order_id=remote_id,
-                source="live_executor.reconcile_remote_order",
-            )
+            o = client.fetch_order(order_id=remote_id, symbol=str(it["symbol"]))
         except Exception:
             # keep tracking; don't spam submits
             continue
@@ -649,19 +640,18 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
         if bool(cfg.reconcile_trades):
             trades: list[dict[str, Any]] = []
             since_ms = max(0, _now_ms() - int(max(0, cfg.reconcile_lookback_ms)))
-            try:
-                got = fetch_my_trades_via_boundary(
-                    client.build(),
-                    venue=ex_id,
-                    symbol=str(it["symbol"]),
-                    since_ms=since_ms,
-                    limit=int(max(1, cfg.reconcile_trades_limit)),
-                    source="live_executor.reconcile_remote_trades",
-                )
-                if isinstance(got, list):
-                    trades = [dict(x or {}) for x in got]
-            except Exception:
-                trades = []
+            fetch_trades = getattr(client, "fetch_my_trades", None)
+            if callable(fetch_trades):
+                try:
+                    got = fetch_trades(
+                        symbol=str(it["symbol"]),
+                        since=since_ms,
+                        limit=int(max(1, cfg.reconcile_trades_limit)),
+                    )
+                    if isinstance(got, list):
+                        trades = [dict(x or {}) for x in got]
+                except Exception:
+                    trades = []
 
             for tr in trades:
                 if not _trade_matches_intent(tr, remote_id=remote_id, client_id=cid):
@@ -794,12 +784,7 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -
         if not want:
             continue
         try:
-            oo = fetch_open_orders_via_boundary(
-                client.build(),
-                venue=ex_id,
-                symbol=sym,
-                source="live_executor.reconcile_open_orders",
-            ) or []
+            oo = client.fetch_open_orders(symbol=sym) or []
         except Exception:
             oo = []
         for o in oo:
