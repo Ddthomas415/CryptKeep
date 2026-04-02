@@ -33,6 +33,7 @@ class RuntimeTruthData(DigestSectionBase):
     mode: TruthPillData
     live_order_authority: TruthPillData
     kill_switch: TruthPillData
+    system_guard: TruthPillData
     collector_freshness: TruthPillData
     leaderboard_age: TruthPillData
     copilot_trust_layer: TruthPillData
@@ -123,6 +124,7 @@ class SafetyWarningsData(DigestSectionBase):
     items: list[SafetyWarningItem]
     live_boundary_status: str
     kill_switch_state: str
+    system_guard_state: str
 
 
 class FreshnessRow(TypedDict):
