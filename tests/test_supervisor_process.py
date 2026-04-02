@@ -31,6 +31,7 @@ def test_supervisor_process_start_reports_ok_false_when_already_running(monkeypa
         streamlit_cmd=["python", "-m", "streamlit", "run", "dashboard/app.py"],
         watchdog_cmd=["python", "scripts/watchdog.py", "--loop"],
         cwd=tmp_path,
+        current_role="ADMIN",
     )
 
     assert out.get("ok") is False

@@ -347,3 +347,54 @@ def test_build_settings_profile_metrics_formats_workspace_profile() -> None:
         "value": "Masked",
         "delta": "Audit export on",
     }
+
+
+def test_build_settings_profile_metrics_prefers_delivery_channels_over_categories() -> None:
+    metrics = build_settings_profile_metrics(
+        {
+            "general": {
+                "watchlist_defaults": ["BTC"],
+            },
+            "notifications": {
+                "email_enabled": True,
+                "telegram": False,
+                "discord": True,
+                "webhook": True,
+                "delivery_mode": "digest",
+                "categories": {
+                    "top_opportunities": True,
+                    "provider_failures": True,
+                },
+            },
+            "ai": {
+                "tone": "balanced",
+                "evidence_verbosity": "standard",
+            },
+            "security": {
+                "secret_masking": False,
+                "audit_export_allowed": False,
+            },
+        }
+    )
+
+    assert metrics[1] == {
+        "label": "Alert Targets",
+        "value": "Email, Discord +1",
+        "delta": "Channels enabled",
+    }
+
+
+def test_build_settings_profile_metrics_reports_digest_only_without_channels() -> None:
+    metrics = build_settings_profile_metrics(
+        {
+            "notifications": {
+                "delivery_mode": "digest",
+            },
+        }
+    )
+
+    assert metrics[1] == {
+        "label": "Alert Targets",
+        "value": "Digest Only",
+        "delta": "Channels enabled",
+    }
