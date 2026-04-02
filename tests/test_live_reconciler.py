@@ -179,6 +179,12 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
     monkeypatch.setattr(lr, "_release_lock", lambda: None)
     monkeypatch.setattr(lr, "_write_status", lambda obj: statuses.append(dict(obj)))
     monkeypatch.setattr(lr, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
+    guard_calls: list[tuple[str, str, str]] = []
+    monkeypatch.setattr(
+        lr,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
+    )
     monkeypatch.setattr(lr, "live_enabled_and_armed", lambda: (False, "not_armed"))
     monkeypatch.setattr(lr, "LiveIntentQueueSQLite", lambda: _FakeQueue())
     monkeypatch.setattr(lr, "LiveTradingSQLite", lambda: _FakeTrading())
@@ -195,6 +201,7 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
     assert len(instances) == 1
     assert instances[0].close_calls == 1
     assert any(item.get("status") == "halting" and item.get("reconcile_mode") == "cleanup" for item in statuses)
+    assert guard_calls == []
 
 
 def test_live_reconciler_guard_halted_reports_cleanup_without_arming(monkeypatch, tmp_path):
@@ -231,4 +238,48 @@ def test_live_reconciler_guard_halted_reports_cleanup_without_arming(monkeypatch
 
     lr.run_forever()
 
+    assert any(item.get("status") == "halted" and item.get("reconcile_mode") == "cleanup" for item in statuses)
+
+
+def test_live_reconciler_promotes_halting_to_halted_when_cleanup_complete(monkeypatch, tmp_path):
+    stop_file = tmp_path / "live_reconciler.stop"
+    statuses: list[dict] = []
+    guard_calls: list[tuple[str, str, str]] = []
+
+    class _FakeQueue:
+        def list_intents(self, *, limit: int = 60, status: str):
+            assert status == "submitted"
+            return []
+
+    class _FakeTrading:
+        pass
+
+    monkeypatch.setattr(lr, "STOP_FILE", stop_file)
+    monkeypatch.setattr(lr, "FLAGS", tmp_path)
+    monkeypatch.setattr(lr, "LOCKS", tmp_path)
+    monkeypatch.setattr(lr, "STATUS_FILE", tmp_path / "live_reconciler.status.json")
+    monkeypatch.setattr(lr, "LOCK_FILE", tmp_path / "live_reconciler.lock")
+    monkeypatch.setattr(lr, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(lr, "_acquire_lock", lambda: True)
+    monkeypatch.setattr(lr, "_release_lock", lambda: None)
+    monkeypatch.setattr(lr, "_write_status", lambda obj: statuses.append(dict(obj)))
+    monkeypatch.setattr(lr, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
+    monkeypatch.setattr(
+        lr,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(lr, "live_enabled_and_armed", lambda: (False, "not_armed"))
+    monkeypatch.setattr(lr, "LiveIntentQueueSQLite", lambda: _FakeQueue())
+    monkeypatch.setattr(lr, "LiveTradingSQLite", lambda: _FakeTrading())
+
+    def _sleep(_seconds: float):
+        if not stop_file.exists():
+            stop_file.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(lr.time, "sleep", _sleep)
+
+    lr.run_forever()
+
+    assert guard_calls == [("HALTED", "live_reconciler", "cleanup_complete")]
     assert any(item.get("status") == "halted" and item.get("reconcile_mode") == "cleanup" for item in statuses)
