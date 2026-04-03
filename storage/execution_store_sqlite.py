@@ -47,11 +47,50 @@ CREATE TABLE IF NOT EXISTS fills(
   qty REAL NOT NULL,
   fee REAL NOT NULL,
   fee_ccy TEXT NOT NULL,
-  meta_json TEXT
+  meta_json TEXT,
+  trade_id TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_fills_intent_ts ON fills(intent_id, ts_ms);
 """
+
+_ALLOWED_STATUS_TRANSITIONS = {
+    "pending": {"submitted", "canceled", "error"},
+    "submitted": {"filled", "canceled", "error"},
+    "filled": set(),
+    "canceled": set(),
+    "error": set(),
+}
+
+
+def _normalize_status(status: Any) -> str:
+    return str(status or "").strip().lower()
+
+
+def _transition_allowed(current: str, nxt: str) -> bool:
+    if current == nxt:
+        return True
+    return nxt in _ALLOWED_STATUS_TRANSITIONS.get(current, set())
+
+
+def _trade_id_from_meta(meta: Optional[Dict[str, Any]]) -> str | None:
+    if not isinstance(meta, dict):
+        return None
+    for key in ("trade_id", "tradeId", "fill_id", "fillId", "id"):
+        value = meta.get(key)
+        if value:
+            trade_id = str(value).strip()
+            if trade_id:
+                return trade_id
+    raw_trade = meta.get("raw_trade")
+    if isinstance(raw_trade, dict):
+        for key in ("trade_id", "tradeId", "fill_id", "fillId", "id"):
+            value = raw_trade.get(key)
+            if value:
+                trade_id = str(value).strip()
+                if trade_id:
+                    return trade_id
+    return None
 
 @dataclass
 class ExecutionStore:
@@ -63,6 +102,16 @@ class ExecutionStore:
             self.path = str(data_dir() / "execution.sqlite")
         with _conn(self.path) as c:
             c.executescript(DDL)
+            cols = {str(row["name"]) for row in c.execute("PRAGMA table_info(fills)").fetchall()}
+            if "trade_id" not in cols:
+                c.execute("ALTER TABLE fills ADD COLUMN trade_id TEXT")
+            c.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_fills_intent_trade_id
+                ON fills(intent_id, trade_id)
+                WHERE trade_id IS NOT NULL
+                """
+            )
             c.commit()
 
     def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200) -> List[Dict[str, Any]]:
@@ -89,18 +138,29 @@ class ExecutionStore:
 
     def set_intent_status(self, *, intent_id: str, status: str, reason: Optional[str] = None) -> None:
         with _conn(self.path) as c:
+            row = c.execute(
+                "SELECT status FROM intents WHERE intent_id=?",
+                (str(intent_id),),
+            ).fetchone()
+            if row is None:
+                return
+            current = _normalize_status(row["status"])
+            nxt = _normalize_status(status)
+            if not _transition_allowed(current, nxt):
+                return
             c.execute(
                 "UPDATE intents SET status=?, reason=? WHERE intent_id=?",
-                (str(status), reason, str(intent_id)),
+                (str(nxt), reason, str(intent_id)),
             )
             c.commit()
 
     def add_fill(self, *, intent_id: str, ts_ms: int, price: float, qty: float, fee: float, fee_ccy: str, meta: Optional[Dict[str, Any]] = None) -> None:
+        trade_id = _trade_id_from_meta(meta)
         with _conn(self.path) as c:
             c.execute(
                 """
-                INSERT INTO fills(intent_id, ts_ms, price, qty, fee, fee_ccy, meta_json)
-                VALUES(?,?,?,?,?,?,?)
+                INSERT OR IGNORE INTO fills(intent_id, ts_ms, price, qty, fee, fee_ccy, meta_json, trade_id)
+                VALUES(?,?,?,?,?,?,?,?)
                 """,
                 (
                     str(intent_id),
@@ -110,6 +170,7 @@ class ExecutionStore:
                     float(fee),
                     str(fee_ccy),
                     json.dumps(meta or {}, default=str)[:200000],
+                    trade_id,
                 ),
             )
             c.commit()
@@ -118,7 +179,7 @@ class ExecutionStore:
         with _conn(self.path) as c:
             rows = c.execute(
                 """
-                SELECT meta_json
+                SELECT trade_id, meta_json
                 FROM fills
                 WHERE intent_id=?
                 ORDER BY id DESC
@@ -129,11 +190,13 @@ class ExecutionStore:
 
         out: List[str] = []
         for r in rows:
-            try:
-                meta = json.loads(r["meta_json"] or "{}")
-            except Exception:
-                meta = {}
-            tid = str((meta or {}).get("trade_id") or "").strip()
+            tid = str(r["trade_id"] or "").strip()
+            if not tid:
+                try:
+                    meta = json.loads(r["meta_json"] or "{}")
+                except Exception:
+                    meta = {}
+                tid = str((meta or {}).get("trade_id") or "").strip()
             if tid:
                 out.append(tid)
         return out
