@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from typing import Any
 
 from services.execution.venue_capabilities import retry_is_safe_after_ambiguous_ack
 from services.execution.lifecycle_boundary import fetch_order_via_boundary
+
+_LOG = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -17,6 +20,13 @@ class SafeToRetryAfterReconciliation(RuntimeError):
     pass
 
 
+def _safe_close(ex: Any, *, where: str) -> None:
+    try:
+        ex.close()
+    except Exception as exc:
+        _LOG.warning("exchange close failed in %s: %s: %s", where, type(exc).__name__, exc)
+
+
 def _fetch_order_compat(
     client: Any,
     *,
@@ -25,16 +35,23 @@ def _fetch_order_compat(
     order_id: str,
     source: str,
 ) -> dict[str, Any] | None:
+    built_client: Any | None = None
+    fetch_client = client
     build = getattr(client, "build", None)
     if callable(build):
-        client = build()
-    return fetch_order_via_boundary(
-        client,
-        venue=venue,
-        symbol=symbol,
-        order_id=order_id,
-        source=source,
-    )
+        built_client = build()
+        fetch_client = built_client
+    try:
+        return fetch_order_via_boundary(
+            fetch_client,
+            venue=venue,
+            symbol=symbol,
+            order_id=order_id,
+            source=source,
+        )
+    finally:
+        if built_client is not None:
+            _safe_close(built_client, where="_fetch_order_compat")
 
 
 def reconcile_ambiguous_submission(
