@@ -27,12 +27,11 @@ from services.risk.live_risk_gates_phase82 import (
     LiveRiskGates,
     phase83_incr_trade_counter,
 )  # PHASE82_LIVE_GATES
-from services.risk.journal_introspection_phase83 import JournalSignals
+from services.risk.risk_daily import RiskDailyDB
 from services.risk.staleness_guard import is_snapshot_fresh
 from storage.execution_store_sqlite import ExecutionStore
 from storage.market_ws_store_sqlite import SQLiteMarketWsStore
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
-from storage.pnl_store_sqlite import PnLStoreSQLite
 from storage.ws_status_sqlite import WSStatusSQLite
 
 # ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
@@ -563,13 +562,7 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
         cid = make_client_order_id(cfg.exchange_id, intent_id)
         try:
             # PHASE82_LIVE_GATES enforce
-            pnl_store = PnLStoreSQLite()
-            pnl_today = pnl_store.get_today_realized() or {}
-            rpnl = float((pnl_today.get('realized_pnl') or 0.0))
-            if pnl_today.get("updated_ts") is None:
-                fallback = JournalSignals(exec_db=cfg.exec_db).realized_pnl_today_usd()
-                if fallback is not None:
-                    rpnl = float(fallback)
+            rpnl = float(RiskDailyDB(cfg.exec_db).realized_today_usd())
             lp = (float(it['limit_price']) if it.get('limit_price') is not None else None)
             if lp is None:
                 side0 = str(it.get('side') or '').lower()
