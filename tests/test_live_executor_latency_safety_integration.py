@@ -66,6 +66,92 @@ def test_submit_pending_live_blocks_when_system_guard_halted(monkeypatch):
     assert out["system_guard"]["state"] == "HALTED"
 
 
+def test_submit_pending_live_uses_risk_daily_for_gate_one_loss_block(monkeypatch, tmp_path):
+    monkeypatch.setenv("LIVE_TRADING", "YES")
+    exec_db = str(tmp_path / "execution.sqlite")
+    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=exec_db, symbol="BTC/USD", max_submit_per_tick=1)
+
+    _guard_running(monkeypatch)
+    le.RiskDailyDB(exec_db).add_pnl(realized_pnl_usd=-75.0)
+
+    class _FakeStore:
+        def __init__(self):
+            self.status_updates: list[tuple[str, str, str]] = []
+
+        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+            if status != "pending":
+                return []
+            return [
+                {
+                    "intent_id": "intent-1",
+                    "symbol": symbol,
+                    "side": "buy",
+                    "order_type": "limit",
+                    "qty": 0.25,
+                    "limit_price": 100.0,
+                    "reason": "",
+                }
+            ]
+
+        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
+            self.status_updates.append((intent_id, status, reason))
+
+    class _FakeGateDB:
+        def __init__(self, exec_db: str):
+            self.exec_db = exec_db
+
+        def killswitch_on(self) -> bool:
+            return False
+
+    captured = {}
+
+    class _FakeGates:
+        def __init__(self, limits, db):
+            self.limits = limits
+            self.db = db
+
+        def check_live(self, *, it, realized_pnl_usd: float):
+            captured["realized_pnl_usd"] = float(realized_pnl_usd)
+            return False, "MAX_DAILY_LOSS_EXCEEDED", {"realized_pnl_usd": float(realized_pnl_usd)}
+
+    class _NeverSubmitClient:
+        def submit_order(self, **kwargs):
+            raise AssertionError("submit_order should not run when gate 1 blocks on realized pnl")
+
+    class _FakeLatency:
+        def record_submit(self, **kwargs):
+            return None
+
+        def record_ack(self, **kwargs):
+            return None
+
+        def record_fill(self, **kwargs):
+            return None
+
+    fake_store = _FakeStore()
+
+    monkeypatch.setattr(le, "_execution_safety_pause_open", lambda **_: (True, "OK", {}))
+    monkeypatch.setattr(le, "_load_execution_safety_cfg", lambda *_, **__: SafetyConfig(enabled=True))
+    monkeypatch.setattr(le, "_check_market_freshness_for_live", lambda *_args, **_kwargs: (True, "OK", {}))
+    monkeypatch.setattr(le, "_latency_tracker", lambda *_args, **_kwargs: _FakeLatency())
+    monkeypatch.setattr(le.LiveRiskLimits, "from_trading_yaml", staticmethod(lambda _path: object()))
+    monkeypatch.setattr(le, "LiveGateDB", _FakeGateDB)
+    monkeypatch.setattr(le, "LiveRiskGates", _FakeGates)
+    monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
+    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: object())
+    monkeypatch.setattr(le, "_check_preflight_gate", lambda *_args, **_kwargs: (True, "OK", {}))
+    monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _NeverSubmitClient())
+
+    out = le.submit_pending_live(cfg)
+
+    assert out["ok"] is True
+    assert out["submitted"] == 0
+    assert captured["realized_pnl_usd"] == -75.0
+    assert fake_store.status_updates == [
+        ("intent-1", "pending", "live_gate_block:MAX_DAILY_LOSS_EXCEEDED")
+    ]
+
+
 def test_submit_pending_live_records_submit_and_ack_latency(monkeypatch):
     monkeypatch.setenv("LIVE_TRADING", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)
@@ -99,9 +185,12 @@ def test_submit_pending_live_records_submit_and_ack_latency(monkeypatch):
         def get_by_intent(self, exchange_id: str, intent_id: str):
             return {"client_order_id": expected_cid, "remote_order_id": "ord-1"}
 
-    class _FakePnL:
-        def get_today_realized(self):
-            return {"realized_pnl": 0.0, "updated_ts": "now"}
+    class _FakeRiskDaily:
+        def __init__(self, exec_db: str):
+            self.exec_db = exec_db
+
+        def realized_today_usd(self) -> float:
+            return 0.0
 
     class _FakeGateDB:
         def __init__(self, exec_db: str):
@@ -163,8 +252,7 @@ def test_submit_pending_live_records_submit_and_ack_latency(monkeypatch):
     monkeypatch.setattr(le, "LiveRiskGates", _FakeGates)
     monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
     monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
-    monkeypatch.setattr(le, "PnLStoreSQLite", _FakePnL)
-    monkeypatch.setattr(le, "JournalSignals", lambda exec_db: None)
+    monkeypatch.setattr(le, "RiskDailyDB", _FakeRiskDaily)
     monkeypatch.setattr(le, "_check_preflight_gate", lambda *_args, **_kwargs: (True, "OK", {}))
     monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: fake_client)
     monkeypatch.setattr(le, "phase83_incr_trade_counter", lambda *_, **__: None)
@@ -216,9 +304,12 @@ def test_submit_pending_live_uses_local_quote_when_limit_price_missing(monkeypat
             cid = le.make_client_order_id(exchange_id, intent_id)
             return {"client_order_id": cid, "remote_order_id": "ord-1"}
 
-    class _FakePnL:
-        def get_today_realized(self):
-            return {"realized_pnl": 0.0, "updated_ts": "now"}
+    class _FakeRiskDaily:
+        def __init__(self, exec_db: str):
+            self.exec_db = exec_db
+
+        def realized_today_usd(self) -> float:
+            return 0.0
 
     class _FakeGateDB:
         def __init__(self, exec_db: str):
@@ -268,8 +359,7 @@ def test_submit_pending_live_uses_local_quote_when_limit_price_missing(monkeypat
     monkeypatch.setattr(le, "LiveRiskGates", _FakeGates)
     monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
     monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
-    monkeypatch.setattr(le, "PnLStoreSQLite", _FakePnL)
-    monkeypatch.setattr(le, "JournalSignals", lambda exec_db: None)
+    monkeypatch.setattr(le, "RiskDailyDB", _FakeRiskDaily)
     monkeypatch.setattr(le, "_check_preflight_gate", lambda *_args, **_kwargs: (True, "OK", {}))
     monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: fake_client)
     monkeypatch.setattr(le, "get_best_bid_ask_last", lambda venue, symbol: {"ts_ms": 1000, "bid": 99.0, "ask": 101.0, "last": 100.0})
@@ -314,9 +404,12 @@ def test_submit_pending_live_blocks_when_limit_price_missing_and_no_local_quote(
         def get_by_intent(self, exchange_id: str, intent_id: str):
             return {"client_order_id": le.make_client_order_id(exchange_id, intent_id), "remote_order_id": None}
 
-    class _FakePnL:
-        def get_today_realized(self):
-            return {"realized_pnl": 0.0, "updated_ts": "now"}
+    class _FakeRiskDaily:
+        def __init__(self, exec_db: str):
+            self.exec_db = exec_db
+
+        def realized_today_usd(self) -> float:
+            return 0.0
 
     class _FakeGateDB:
         def __init__(self, exec_db: str):
@@ -358,8 +451,7 @@ def test_submit_pending_live_blocks_when_limit_price_missing_and_no_local_quote(
     monkeypatch.setattr(le, "LiveRiskGates", _FakeGates)
     monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
     monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
-    monkeypatch.setattr(le, "PnLStoreSQLite", _FakePnL)
-    monkeypatch.setattr(le, "JournalSignals", lambda exec_db: None)
+    monkeypatch.setattr(le, "RiskDailyDB", _FakeRiskDaily)
     monkeypatch.setattr(le, "_check_preflight_gate", lambda *_args, **_kwargs: (True, "OK", {}))
     monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _NeverSubmitClient())
     monkeypatch.setattr(le, "get_best_bid_ask_last", lambda venue, symbol: None)
@@ -397,9 +489,12 @@ def test_submit_pending_live_enforces_preflight_per_intent(monkeypatch):
         def get_by_intent(self, exchange_id: str, intent_id: str):
             return {"client_order_id": le.make_client_order_id(exchange_id, intent_id), "remote_order_id": None}
 
-    class _FakePnL:
-        def get_today_realized(self):
-            return {"realized_pnl": 0.0, "updated_ts": "now"}
+    class _FakeRiskDaily:
+        def __init__(self, exec_db: str):
+            self.exec_db = exec_db
+
+        def realized_today_usd(self) -> float:
+            return 0.0
 
     class _FakeGateDB:
         def __init__(self, exec_db: str):
@@ -446,8 +541,7 @@ def test_submit_pending_live_enforces_preflight_per_intent(monkeypatch):
     monkeypatch.setattr(le, "LiveRiskGates", _FakeGates)
     monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
     monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
-    monkeypatch.setattr(le, "PnLStoreSQLite", _FakePnL)
-    monkeypatch.setattr(le, "JournalSignals", lambda exec_db: None)
+    monkeypatch.setattr(le, "RiskDailyDB", _FakeRiskDaily)
     monkeypatch.setattr(le, "_check_preflight_gate", _preflight_block)
     monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _NeverSubmitClient())
 
@@ -487,9 +581,12 @@ def test_submit_pending_live_latency_breach_opens_pause_and_stops_batch(monkeypa
             cid = le.make_client_order_id(exchange_id, intent_id)
             return {"client_order_id": cid, "remote_order_id": f"remote-{intent_id}"}
 
-    class _FakePnL:
-        def get_today_realized(self):
-            return {"realized_pnl": 0.0, "updated_ts": "now"}
+    class _FakeRiskDaily:
+        def __init__(self, exec_db: str):
+            self.exec_db = exec_db
+
+        def realized_today_usd(self) -> float:
+            return 0.0
 
     class _FakeGateDB:
         def __init__(self, exec_db: str):
@@ -545,8 +642,7 @@ def test_submit_pending_live_latency_breach_opens_pause_and_stops_batch(monkeypa
     monkeypatch.setattr(le, "LiveRiskGates", _FakeGates)
     monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
     monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
-    monkeypatch.setattr(le, "PnLStoreSQLite", _FakePnL)
-    monkeypatch.setattr(le, "JournalSignals", lambda exec_db: None)
+    monkeypatch.setattr(le, "RiskDailyDB", _FakeRiskDaily)
     monkeypatch.setattr(le, "_check_preflight_gate", lambda *_args, **_kwargs: (True, "OK", {}))
     monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: fake_client)
     monkeypatch.setattr(le, "phase83_incr_trade_counter", lambda *_, **__: None)
