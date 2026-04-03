@@ -56,8 +56,19 @@ class LiveIntentQueueSQLite:
         con = _connect()
         try:
             con.execute(
-                "INSERT OR REPLACE INTO live_trade_intents(intent_id, created_ts, ts, source, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, updated_ts) "
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO live_trade_intents(intent_id, created_ts, ts, source, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, updated_ts) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+                "ON CONFLICT(intent_id) DO UPDATE SET "
+                "ts=excluded.ts, "
+                "source=excluded.source, "
+                "venue=excluded.venue, "
+                "symbol=excluded.symbol, "
+                "side=excluded.side, "
+                "order_type=excluded.order_type, "
+                "qty=excluded.qty, "
+                "limit_price=excluded.limit_price, "
+                "status=excluded.status, "
+                "updated_ts=excluded.updated_ts",
                 (
                     str(row["intent_id"]),
                     str(row.get("created_ts") or _now()),
