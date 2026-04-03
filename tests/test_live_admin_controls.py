@@ -56,6 +56,8 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     saved: dict[str, object] = {}
     events: list[tuple[str, str, str, dict | None]] = []
     kill = {"armed": False, "note": "before"}
+    guard_calls: list[tuple[str, str, str]] = []
+    guard_state = {"state": "RUNNING", "writer": "test", "reason": "before"}
     cfg_state = {"live": {"enabled": True}, "risk": {"enable_live": True}}
 
     def _save(cfg, dry_run=False):
@@ -73,6 +75,21 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     monkeypatch.setattr(ldw, "save_user_yaml", _save)
     monkeypatch.setattr(ldw, "get_kill", lambda: dict(kill))
     monkeypatch.setattr(ldw, "set_armed", _set_armed)
+
+    def _get_guard(**_kwargs):
+        return dict(guard_state)
+
+    def _set_guard(state, *, writer, reason=""):
+        guard_calls.append((state, writer, reason))
+        guard_state.update({"state": state, "writer": writer, "reason": reason})
+        return dict(guard_state)
+
+    monkeypatch.setattr(ldw, "get_system_guard_state", _get_guard)
+    monkeypatch.setattr(
+        ldw,
+        "set_system_guard_state",
+        _set_guard,
+    )
     monkeypatch.setattr(ldw, "run_id", lambda: "run-123")
     monkeypatch.setattr(ldw, "log_event", lambda venue, symbol, event, *, ref_id=None, payload=None: events.append((venue, symbol, event, payload)))
 
@@ -86,8 +103,12 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     assert saved["cfg"]["execution"]["live_enabled"] is False
     assert out["post"]["live_enabled"] is False
     assert out["post"]["kill_switch_armed"] is True
+    assert out["post"]["system_guard"]["state"] == "HALTED"
+    assert out["system_guard"]["state"] == "HALTED"
+    assert guard_calls == [("HALTED", "live_disable_wizard", "operator_stop")]
     assert events and events[0][2] == "live_disabled"
     assert events[0][3]["note"] == "operator_stop"
+    assert events[0][3]["post"]["system_guard"]["state"] == "HALTED"
 
 
 def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
