@@ -7,26 +7,85 @@ def test_resume_gate_blocks_when_not_safe(monkeypatch):
     import services.admin.resume_gate as resume_gate
 
     importlib.reload(resume_gate)
-    monkeypatch.setattr(resume_gate, "live_allowed", lambda: (False, "kill_switch_armed", {"a": 1}))
+    monkeypatch.setattr(
+        resume_gate,
+        "live_allowed",
+        lambda **kwargs: (False, "system_guard_halting", {"a": 1, "kwargs": kwargs}),
+    )
     monkeypatch.setattr(resume_gate, "set_armed", lambda state, note="": {"armed": state, "note": note})
 
     out = resume_gate.resume_if_safe(note="test")
     assert out["ok"] is False
     assert out["resumed"] is False
-    assert out["reason"] == "kill_switch_armed"
+    assert out["reason"] == "system_guard_halting"
 
 
 def test_resume_gate_disarms_when_safe(monkeypatch):
     import services.admin.resume_gate as resume_gate
 
     importlib.reload(resume_gate)
-    monkeypatch.setattr(resume_gate, "live_allowed", lambda: (True, "ok", {"live_enabled": True}))
+    monkeypatch.setattr(
+        resume_gate,
+        "live_allowed",
+        lambda **kwargs: (
+            True,
+            "ok",
+            {
+                "live_enabled": True,
+                "system_guard": {"state": "HALTED"},
+                "kwargs": kwargs,
+            },
+        ),
+    )
     monkeypatch.setattr(resume_gate, "set_armed", lambda state, note="": {"armed": state, "note": note})
+    monkeypatch.setattr(
+        resume_gate,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
+    )
 
     out = resume_gate.resume_if_safe(note="safe")
     assert out["ok"] is True
     assert out["resumed"] is True
     assert out["kill_switch"]["armed"] is False
+    assert out["system_guard"]["state"] == "RUNNING"
+    assert out["details"]["kwargs"] == {
+        "allow_kill_switch_armed": True,
+        "allow_system_guard_halted": True,
+    }
+
+
+def test_resume_gate_rolls_back_kill_switch_when_system_guard_restore_fails(monkeypatch):
+    import services.admin.resume_gate as resume_gate
+
+    importlib.reload(resume_gate)
+    calls: list[tuple[bool, str]] = []
+    monkeypatch.setattr(
+        resume_gate,
+        "live_allowed",
+        lambda **kwargs: (True, "ok", {"live_enabled": True, "kwargs": kwargs}),
+    )
+    monkeypatch.setattr(
+        resume_gate,
+        "set_armed",
+        lambda state, note="": calls.append((bool(state), str(note))) or {"armed": state, "note": note},
+    )
+
+    def _raise_guard(*args, **kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(resume_gate, "set_system_guard_state", _raise_guard)
+
+    out = resume_gate.resume_if_safe(note="safe")
+
+    assert out["ok"] is False
+    assert out["resumed"] is False
+    assert out["reason"] == "system_guard_resume_failed:RuntimeError"
+    assert out["kill_switch"]["armed"] is True
+    assert calls == [
+        (False, "safe"),
+        (True, "safe:rollback_system_guard_failed"),
+    ]
 
 
 def test_startup_reconcile_runs_all(monkeypatch):

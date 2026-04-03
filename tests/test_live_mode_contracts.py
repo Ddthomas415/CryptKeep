@@ -10,6 +10,7 @@ from services.preflight import preflight as pf
 
 def test_live_guard_accepts_current_live_config_shape(monkeypatch):
     monkeypatch.setattr(live_guard, "kill_state", lambda: {"armed": False, "note": "manual"})
+    monkeypatch.setattr(live_guard, "get_system_guard_state", lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok"})
     monkeypatch.setattr(live_guard, "load_user_config", lambda: {"live": {"enabled": True}})
 
     allowed, reason, details = live_guard.live_allowed()
@@ -17,6 +18,19 @@ def test_live_guard_accepts_current_live_config_shape(monkeypatch):
     assert allowed is True
     assert reason == "ok"
     assert details["live_enabled"] is True
+    assert details["system_guard"]["state"] == "RUNNING"
+
+
+def test_live_guard_blocks_when_system_guard_halted(monkeypatch):
+    monkeypatch.setattr(live_guard, "kill_state", lambda: {"armed": False, "note": "manual"})
+    monkeypatch.setattr(live_guard, "get_system_guard_state", lambda **_: {"state": "HALTED", "writer": "watchdog", "reason": "stale"})
+    monkeypatch.setattr(live_guard, "load_user_config", lambda: {"live": {"enabled": True}})
+
+    allowed, reason, details = live_guard.live_allowed()
+
+    assert allowed is False
+    assert reason == "system_guard_halted"
+    assert details["system_guard"]["state"] == "HALTED"
 
 
 

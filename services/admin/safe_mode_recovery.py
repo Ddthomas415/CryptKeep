@@ -14,7 +14,9 @@ def auto_disable_if_needed() -> dict:
     if not auto: return {"ok": True, "did_action": False, "reason": "auto_disable_disabled_in_config", "status": st, "ts": _now()}
     enable_live = bool(st.get("risk_enable_live", False))
     ks_armed = bool(st.get("kill_switch_armed", True))
-    if enable_live or (not ks_armed):
+    guard_state = str((st.get("system_guard") or {}).get("state") or "").upper().strip()
+    guard_safe = guard_state in {"HALTING", "HALTED"}
+    if enable_live or (not ks_armed) or (not guard_safe):
         out = disable_live_now(note="auto_recovery_on_start")
         return {"ok": bool(out.get("ok")), "did_action": True, "reason": "auto_recovery_on_start", "result": out, "ts": _now()}
     return {"ok": True, "did_action": False, "reason": "already_safe", "status": st, "ts": _now()}
