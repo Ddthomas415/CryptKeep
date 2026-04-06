@@ -21,6 +21,20 @@ class LiveRiskLimits:
     kill_switch_file: str = ""
 
     @staticmethod
+    def from_dict(cfg: dict) -> Optional["LiveRiskLimits"]:
+        risk = (cfg.get("risk") or {}).get("live") or {}
+        try:
+            mdl = float(risk.get("max_daily_loss_usd"))
+            mnt = float(risk.get("max_notional_per_trade_usd"))
+            mtd = int(risk.get("max_trades_per_day"))
+            mpn = float(risk.get("max_position_notional_usd"))
+        except Exception:
+            return None
+        if not (mdl > 0 and mnt > 0 and mtd > 0 and mpn > 0):
+            return None
+        return LiveRiskLimits(mdl, mnt, mtd, mpn)
+
+    @staticmethod
     def from_trading_yaml(path: str = "config/trading.yaml") -> Optional["LiveRiskLimits"]:
         ensure_dirs()
         p = Path(path)

@@ -38,6 +38,27 @@ from storage.ws_status_sqlite import WSStatusSQLite
 
 _LOG = logging.getLogger(__name__)
 
+# Module-level cache for config that does not change tick-to-tick.
+# Keyed by file path, value is (mtime_float, parsed_config).
+_yaml_cache: dict[str, tuple[float, dict]] = {}
+
+def _load_yaml_cached(path: str) -> dict:
+    """Load a YAML file with mtime-based cache."""
+    p = Path(path)
+    try:
+        mtime = p.stat().st_mtime
+    except FileNotFoundError:
+        return {}
+    cached = _yaml_cache.get(path)
+    if cached is not None and cached[0] == mtime:
+        return cached[1]
+    try:
+        data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except Exception:
+        data = {}
+    _yaml_cache[path] = (mtime, data)
+    return data
+
 # ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
 DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or [""])[0]
 
@@ -180,10 +201,7 @@ def _measure_ms(start_ts: float) -> float:
 def _load_execution_safety_cfg(cfg_path: str = "config/trading.yaml") -> SafetyConfig:
     started = time.perf_counter()
     latency_db_path = str(data_dir() / "market_ws.sqlite")
-    try:
-        cfg = yaml.safe_load(Path(cfg_path).read_text(encoding="utf-8")) or {}
-    except Exception:
-        cfg = {}
+    cfg = _load_yaml_cached(cfg_path)
     sec = cfg.get("execution_safety") or {}
     if not isinstance(sec, dict):
         sec = {}
@@ -533,7 +551,8 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     latency_tracker = _latency_tracker(safety_cfg)
 
     # PHASE82_LIVE_GATES init
-    limits = LiveRiskLimits.from_trading_yaml('config/trading.yaml')
+    _cfg_cached = _load_yaml_cached('config/trading.yaml')
+    limits = LiveRiskLimits.from_dict(_cfg_cached)
     gate_db = LiveGateDB(exec_db=cfg.exec_db)
     gates = LiveRiskGates(limits=limits, db=gate_db) if limits else None
     if not gates:
