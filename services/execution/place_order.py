@@ -6,6 +6,7 @@ import os
 from services.execution.coinbase_portfolio_guard import enforce_coinbase_quote_account_available
 from services.security.binance_guard import require_binance_allowed
 import time
+import threading
 from typing import Any, Dict, Optional, Tuple
 from services.os.app_paths import data_dir, ensure_dirs
 
@@ -16,6 +17,15 @@ from services.os.app_paths import data_dir, ensure_dirs
 # CBP_PHASE4_CHOKEPOINT_RISK_MARKET_V1
 
 _LOG = logging.getLogger(__name__)
+
+# Limit concurrent exchange order calls to prevent API burst bans.
+# Override with CBP_ORDER_CONCURRENCY env var.
+_ORDER_SEMAPHORE = threading.Semaphore(
+    int(os.environ.get("CBP_ORDER_CONCURRENCY") or "3")
+)
+_ASYNC_ORDER_SEMAPHORE = asyncio.Semaphore(
+    int(os.environ.get("CBP_ORDER_CONCURRENCY") or "3")
+)
 
 
 def _float_or_none(value: Any) -> float | None:
@@ -559,7 +569,8 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
             f"CBP_ORDER_BLOCKED:precision_normalization_failed:{type(exc).__name__}:{exc}"
         ) from exc
 
-    o = ex.create_order(symbol, otype, side, amount_n, price_n, params)
+    with _ORDER_SEMAPHORE:
+        o = ex.create_order(symbol, otype, side, amount_n, price_n, params)
 
     # Best-effort: count submits toward daily state (fills will refine pnl later)
     try:
@@ -575,7 +586,8 @@ async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
     exec_db, notional = _enforce_fail_closed(ex, symbol=symbol, side=side, amount=amount, price=price, params=params, order_type=otype)
     _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount, price=price, order_type=otype)
-    o = await ex.create_order(*args, **kwargs)
+    async with _ASYNC_ORDER_SEMAPHORE:
+        o = await ex.create_order(*args, **kwargs)
 
     try:
         from services.risk import risk_daily as rd  # type: ignore
