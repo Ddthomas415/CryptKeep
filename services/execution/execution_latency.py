@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
+import logging
 from typing import Any, Dict, Optional
+from collections import OrderedDict
 
 from storage.market_ws_store_sqlite import SQLiteMarketWsStore
+
+_LOG = logging.getLogger(__name__)
 
 
 def now_ms() -> int:
@@ -15,8 +19,13 @@ def now_ms() -> int:
 class ExecutionLatencyTracker:
     store: SQLiteMarketWsStore
     # client_order_id -> timestamps
-    submit_ts: Dict[str, int] = field(default_factory=dict)
-    ack_ts: Dict[str, int] = field(default_factory=dict)
+    submit_ts: OrderedDict = field(default_factory=OrderedDict)
+    ack_ts: OrderedDict = field(default_factory=OrderedDict)
+    _MAX_TRACKED: int = field(default=10_000, init=False, repr=False)
+
+    def _evict(self, d: OrderedDict) -> None:
+        while len(d) > self._MAX_TRACKED:
+            d.popitem(last=False)
 
     def record_measurement(
         self,
@@ -37,6 +46,7 @@ class ExecutionLatencyTracker:
     def record_submit(self, *, client_order_id: str, exchange: str, symbol: str, side: str, qty: float) -> None:
         ts = now_ms()
         self.submit_ts[client_order_id] = ts
+        self._evict(self.submit_ts)
         self.store.log_latency(
             ts_ms=ts,
             category="execution",
@@ -48,7 +58,10 @@ class ExecutionLatencyTracker:
     def record_ack(self, *, client_order_id: str, exchange: str, symbol: str, exchange_order_id: str | None = None) -> None:
         ts = now_ms()
         self.ack_ts[client_order_id] = ts
+        self._evict(self.ack_ts)
         sub = self.submit_ts.get(client_order_id)
+        if sub is None:
+            _LOG.warning("record_ack called with no matching submit client_order_id=%s", client_order_id)
         ack_ms = int(ts - sub) if sub is not None else 0
         self.store.log_latency(
             ts_ms=ts,
