@@ -131,8 +131,25 @@ def run_forever() -> None:
                     if not ex_oid:
                         continue
                     try:
+                        try:
+                            _submitted_ts_ms = int(it.get("ts_ms") or 0)
+                        except Exception:
+                            _submitted_ts_ms = 0
+                        _stale_after_ms = int(os.environ.get("CBP_STALE_ORDER_MS") or "300000")
+                        _age_ms = max(0, _now_ms() - _submitted_ts_ms) if _submitted_ts_ms else 0
+
                         ad = _adapter_for_reconcile_pass(adapters, venue)
                         o = ad.fetch_order(symbol, ex_oid)
+                        if (not o) and _submitted_ts_ms and _age_ms >= _stale_after_ms:
+                            qdb.update_status(it["intent_id"], "error", last_error="stale_order_not_found")
+                            ldb.upsert_order({
+                                "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
+                                "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                                "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                                "exchange_order_id": ex_oid, "status": "error", "last_error": "stale_order_not_found",
+                            })
+                            continue
+
                         st = str(o.get("status") or "").lower().strip() or "unknown"
                         if st in ("closed","filled"):
                             qdb.update_status(it["intent_id"], "filled", last_error=None)
@@ -146,6 +163,17 @@ def run_forever() -> None:
                             qdb.update_status(it["intent_id"], "canceled", last_error=None)
                         elif st in ("rejected",):
                             qdb.update_status(it["intent_id"], "rejected", last_error=str(o.get("rejectReason") or o.get("info") or "rejected"))
+                        elif st in ("open", "new", "partially_filled", "partiallyfilled"):
+                            if _submitted_ts_ms and _age_ms >= _stale_after_ms:
+                                qdb.update_status(it["intent_id"], "error", last_error=f"stale_open_order:{_age_ms}ms")
+                                ldb.upsert_order({
+                                    "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
+                                    "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                                    "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                                    "exchange_order_id": ex_oid, "status": "error", "last_error": f"stale_open_order:{_age_ms}ms",
+                                })
+                            else:
+                                pass
                         else:
                             pass
                         since_ms = None
