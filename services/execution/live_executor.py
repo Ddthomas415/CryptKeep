@@ -832,6 +832,18 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
 
             status = str(o.get("status") or "").lower()
             filled = float(o.get("filled") or 0.0)
+            total_qty = float(it.get("qty") or 0.0)
+            if status in ("open", "partially_filled"):
+                if filled > 0.0 and filled < total_qty:
+                    store.set_intent_status(
+                        intent_id=intent_id,
+                        status="partially_filled",
+                        reason=f"remote_id={remote_id} filled={filled}/{total_qty}",
+                    )
+                    _LOG.info(
+                        "reconcile partial fill intent=%s filled=%.6f/%.6f",
+                        intent_id, filled, total_qty,
+                    )
             avg = float(o.get("average") or (o.get("price") or 0.0) or 0.0)
             fee = o.get("fee") or {}
             fee_cost = float(fee.get("cost") or 0.0)
