@@ -60,6 +60,25 @@ def run_preflight(cfg_path: str = "config/trading.yaml") -> PreflightResult:
                 "ERROR" if not live_enabled else "INFO",
             )
         )
+        # Validate place_order limit env vars — missing ones raise RuntimeError at
+        # first order submission, not at boot. Catch them here instead.
+        for _env_var in (
+            "CBP_MAX_TRADES_PER_DAY",
+            "CBP_MAX_DAILY_LOSS",
+            "CBP_MAX_DAILY_NOTIONAL",
+            "CBP_MAX_ORDER_NOTIONAL",
+        ):
+            _val = os.environ.get(_env_var)
+            _ok = False
+            _detail = f"{_env_var} is not set"
+            if _val is not None:
+                try:
+                    _f = float(_val)
+                    _ok = _f > 0
+                    _detail = f"{_env_var}={_val}" if _ok else f"{_env_var}={_val} must be > 0"
+                except ValueError:
+                    _detail = f"{_env_var}={_val!r} is not a valid float"
+            checks.append(_check(f"live_env_{_env_var.lower()}", _ok, _detail, "ERROR" if not _ok else "INFO"))
     else:
         checks.append(_check("live_enabled", True, f"paper mode (live_enabled={live_enabled})", "INFO"))
 
