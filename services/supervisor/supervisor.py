@@ -13,12 +13,15 @@ from typing import Any, Dict, Optional
 
 from services.os.app_paths import runtime_dir, ensure_dirs, code_root
 from services.os.ports import resolve_preferred_port
+from services.admin.live_disable_wizard import disable_live_now
+from services.logging.app_logger import get_logger
 
 FLAGS_DIR = runtime_dir() / "flags"
 LOCKS_DIR = runtime_dir() / "locks"
 STATE_FILE = FLAGS_DIR / "supervisor.state.json"
 LOCK_FILE = LOCKS_DIR / "supervisor.lock"
-MANAGED_SERVICES = ("dashboard", "tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate")
+_LOG = get_logger("supervisor")
+MANAGED_SERVICES = ("dashboard", "tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate", "live_executor", "live_reconciler")
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -224,6 +227,10 @@ def stop(
     timeout_sec: int = 6,
 ) -> dict:
     ensure_dirs()
+    try:
+        disable_live_now(note="supervisor_stop")
+    except Exception as exc:
+        _LOG.warning("supervisor.stop: disable_live_now failed — continuing: %s", exc)
     lk = _acquire_lock()
     if not lk.get("ok"):
         return {"ok": False, "reason": lk.get("reason"), "details": lk}
