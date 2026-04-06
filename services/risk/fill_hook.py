@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # CBP_FILL_HOOK_UPDATES_RISK_DAILY_V1
+import logging
 
 import hashlib
 from dataclasses import dataclass
@@ -8,6 +9,8 @@ from typing import Any, Dict, Optional
 
 from services.risk.fill_ledger import FillLedgerDB
 from services.risk.risk_daily import RiskDailyDB
+
+_LOG = logging.getLogger(__name__)
 
 def _get(o: Any, k: str, default=None):
     if isinstance(o, dict):
@@ -55,7 +58,11 @@ def normalize_fill(fill: Any) -> CanonFill:
         if isinstance(fill, dict):
             meta["raw_keys"] = list(fill.keys())[:50]
     except Exception:
-        pass
+        _LOG.exception(
+            "fill_hook normalize_fill metadata capture failed venue=%s fill_id=%s",
+            _get(fill, "venue", ""),
+            _get(fill, "fill_id", ""),
+        )
 
     return CanonFill(symbol=symbol, realized_pnl_usd=float(realized), fee_usd=float(fee), meta=meta)
 
