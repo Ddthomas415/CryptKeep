@@ -72,6 +72,9 @@ first_run:
 
 risk:
   live:
+    # Per-symbol cooldown (controlled via env vars):
+    #   CBP_SYMBOL_LOSS_LIMIT=3      consecutive losses before locking a symbol
+    #   CBP_SYMBOL_LOCK_MINUTES=60   lock duration in minutes
     # HARD gates enforced before any live submit
     max_daily_loss_usd: 25
     max_notional_per_trade_usd: 25
