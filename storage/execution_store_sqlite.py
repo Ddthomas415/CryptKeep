@@ -56,7 +56,8 @@ CREATE INDEX IF NOT EXISTS idx_fills_intent_ts ON fills(intent_id, ts_ms);
 
 _ALLOWED_STATUS_TRANSITIONS = {
     "pending": {"submitted", "canceled", "error"},
-    "submitted": {"filled", "canceled", "error"},
+    "submitted": {"filled", "canceled", "error", "partially_filled"},
+    "partially_filled": {"filled", "canceled", "error"},
     "filled": set(),
     "canceled": set(),
     "error": set(),
