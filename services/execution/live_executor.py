@@ -590,6 +590,21 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             )
             _LOG.info("market_quality_gate blocked intent=%s reason=%s", intent_id, mq_reason)
             continue
+
+        _sym_lock = store.get_symbol_lock(str(it.get("symbol") or ""))
+        if _sym_lock is not None:
+            _lock_remaining_sec = max(0, (_sym_lock["locked_until_ms"] - _now_ms()) // 1000)
+            store.set_intent_status(
+                intent_id=intent_id,
+                status="pending",
+                reason=f"symbol_locked:{_sym_lock['reason']} remaining={_lock_remaining_sec}s",
+            )
+            _LOG.info(
+                "symbol_lock blocked intent=%s symbol=%s remaining=%ss",
+                intent_id, it.get("symbol"), _lock_remaining_sec,
+            )
+            continue
+
         meta = dict(it.get("meta") or {})
         reason0 = str(it.get("reason") or "")
         rid0 = _remote_id_from_reason(reason0)
@@ -980,6 +995,7 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                         except Exception:
                             pass
                 store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
+
                 try:
                     store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
                 except Exception:

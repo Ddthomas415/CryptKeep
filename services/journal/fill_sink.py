@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import os
 import logging
 from typing import Any, List, Protocol
 from services.journal.canonical_execdb import CanonicalJournal
@@ -91,6 +92,34 @@ class CanonicalFillSink:
                     symbol,
                     fid,
                 )
+
+            try:
+                if fid and symbol:
+                    from storage.execution_store_sqlite import ExecutionStore
+                    _store = ExecutionStore(path=self.exec_db)
+                    _realized_val = 0.0 if pnl is None else float(pnl)
+                    if _realized_val < 0:
+                        _loss_limit = int(os.environ.get("CBP_SYMBOL_LOSS_LIMIT") or "3")
+                        _lock_ms = int(os.environ.get("CBP_SYMBOL_LOCK_MINUTES") or "60") * 60 * 1000
+                        _count = _store.increment_symbol_loss(
+                            str(symbol),
+                            loss_limit=_loss_limit,
+                            lock_duration_ms=_lock_ms,
+                        )
+                        _LOG.info(
+                            "fill_sink.symbol_loss_counted symbol=%s count=%s limit=%s",
+                            symbol, _count, _loss_limit,
+                        )
+                    else:
+                        _store.set_symbol_lock(
+                            str(symbol),
+                            locked_until_ms=0,
+                            loss_count=0,
+                            reason="reset_on_profit",
+                        )
+            except Exception:
+                _LOG.exception("fill_sink.symbol_loss_update_failed symbol=%s", symbol)
+
         except Exception:
             _LOG.exception(
                 "fill_sink.record_failed exec_db=%s venue=%s symbol=%s fill_id=%s",
