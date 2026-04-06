@@ -48,6 +48,10 @@ def _killswitch_file_on(path: str) -> bool:
     except Exception:
         return False
 
+# OWNERSHIP: LiveGateDB writes bot_state and daily_limits to execution.sqlite.
+# This is the canonical daily_limits store for live-mode gate enforcement.
+# A separate DailyLimitsSQLite (storage/daily_limits_sqlite.py) writes to
+# data/daily_limits.sqlite — different file, different use case.
 class LiveGateDB:
     def __init__(self, exec_db: str):
         self.exec_db = exec_db
