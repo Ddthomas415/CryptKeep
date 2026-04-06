@@ -105,6 +105,10 @@ def record_fill(exec_db: str, fill: Any) -> CanonFill:
             fee_usd=float(cf.fee_usd),
         )
     except Exception:
-        pass
+        _LOG.exception(
+            "fill_hook apply_fill_once failed venue=%s fill_id=%s",
+            str(venue),
+            str(fill_id),
+        )
 
     return cf
