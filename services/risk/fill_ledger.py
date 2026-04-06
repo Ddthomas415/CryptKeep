@@ -18,8 +18,10 @@ class FillLedgerDB:
         self._ensure()
 
     def _conn(self) -> sqlite3.Connection:
-        con = sqlite3.connect(self.exec_db)
+        con = sqlite3.connect(self.exec_db, timeout=30)
         con.row_factory = sqlite3.Row
+        con.execute("PRAGMA journal_mode=WAL;")
+        con.execute("PRAGMA synchronous=NORMAL;")
         return con
 
     def _ensure(self) -> None:
@@ -32,12 +34,17 @@ class FillLedgerDB:
                   symbol TEXT NOT NULL,
                   realized_pnl_usd REAL NOT NULL DEFAULT 0,
                   fee_usd REAL NOT NULL DEFAULT 0,
-                  meta_json TEXT NOT NULL DEFAULT '{}'
+                  meta_json TEXT NOT NULL DEFAULT '{}',
+                  fill_id TEXT
                 );
                 """
             )
             con.execute("CREATE INDEX IF NOT EXISTS idx_fill_ledger_ts ON fill_ledger(ts)")
             con.execute("CREATE INDEX IF NOT EXISTS idx_fill_ledger_symbol ON fill_ledger(symbol)")
+            con.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_fill_ledger_fill_id "
+                "ON fill_ledger(fill_id) WHERE fill_id IS NOT NULL"
+            )
 
     def insert_fill(
         self,
@@ -46,12 +53,13 @@ class FillLedgerDB:
         realized_pnl_usd: float = 0.0,
         fee_usd: float = 0.0,
         meta: dict[str, Any] | None = None,
+        fill_id: str | None = None,
     ) -> dict[str, Any]:
         payload = json.dumps(meta or {}, sort_keys=True)
         with self._conn() as con:
             cur = con.execute(
-                "INSERT INTO fill_ledger(ts, symbol, realized_pnl_usd, fee_usd, meta_json) VALUES(?,?,?,?,?)",
-                (_now(), str(symbol), float(realized_pnl_usd or 0.0), float(fee_usd or 0.0), payload),
+                "INSERT OR IGNORE INTO fill_ledger(ts, symbol, realized_pnl_usd, fee_usd, meta_json, fill_id) VALUES(?,?,?,?,?,?)",
+                (_now(), str(symbol), float(realized_pnl_usd or 0.0), float(fee_usd or 0.0), payload, fill_id or None),
             )
             row_id = int(cur.lastrowid)
         return {"ok": True, "id": row_id, "symbol": str(symbol)}
