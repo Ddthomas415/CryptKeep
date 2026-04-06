@@ -17,7 +17,6 @@ services:
       - ../data:/app/data
       - ../logs:/app/logs
       - ../build:/app/build
-      - ..:/app
     ports:
       - "${BACKEND_HOST_PORT:-9000}:9000"
     command: ["python", "-m", "uvicorn", "gateway.main:app", "--host", "0.0.0.0", "--port", "9000"]
@@ -49,7 +48,6 @@ services:
       - ../data:/app/data
       - ../logs:/app/logs
       - ../build:/app/build
-      - ..:/app
     ports:
       - "${DASHBOARD_HOST_PORT:-18501}:8501"
     depends_on:
