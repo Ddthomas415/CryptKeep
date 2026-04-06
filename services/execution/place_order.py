@@ -545,7 +545,21 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
 
     enforce_coinbase_quote_account_available(ex, symbol)
     _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount, price=price, order_type=otype)
-    o = ex.create_order(*args, **kwargs)
+
+    # Normalize amount/price to the exchange's accepted precision.
+    amount_n = _parse_order_amount(amount)
+    price_n = _parse_order_price(price, order_type=otype)
+    try:
+        if hasattr(ex, "amount_to_precision") and amount_n is not None:
+            amount_n = float(ex.amount_to_precision(symbol, amount_n))
+        if hasattr(ex, "price_to_precision") and price_n is not None:
+            price_n = float(ex.price_to_precision(symbol, price_n))
+    except Exception as exc:
+        raise RuntimeError(
+            f"CBP_ORDER_BLOCKED:precision_normalization_failed:{type(exc).__name__}:{exc}"
+        ) from exc
+
+    o = ex.create_order(symbol, otype, side, amount_n, price_n, params)
 
     # Best-effort: count submits toward daily state (fills will refine pnl later)
     try:
