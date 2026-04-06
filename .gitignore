@@ -65,3 +65,5 @@ attic/**/.pytest_cache/
 scripts/manual_repo_audit.sh.pre_*
 
 phase1_research_copilot/.env
+
+config/user.yaml
