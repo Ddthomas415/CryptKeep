@@ -132,7 +132,7 @@ def run_forever() -> None:
                         continue
                     try:
                         try:
-                            _submitted_ts_ms = int(it.get("ts_ms") or 0)
+                            _submitted_ts_ms = int(it.get("updated_ts") or it.get("created_ts") or 0)
                         except Exception:
                             _submitted_ts_ms = 0
                         _stale_after_ms = int(os.environ.get("CBP_STALE_ORDER_MS") or "300000")
