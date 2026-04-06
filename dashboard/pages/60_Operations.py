@@ -814,6 +814,70 @@ with tab_research:
 
 with tab_safety:
     with st.container(border=True):
+        st.markdown("### Live Trading Control")
+        st.caption(
+            "Halt immediately arms the kill switch and sets system guard to HALTED. "
+            "Resume checks all guards before re-enabling. Both actions are logged."
+        )
+        try:
+            from services.admin.live_guard import live_allowed
+            _lga_ok, _lga_reason, _lga_details = live_allowed()
+            if _lga_ok:
+                st.success(f"Live trading: ALLOWED — {_lga_reason}")
+            else:
+                st.warning(f"Live trading: BLOCKED — {_lga_reason}")
+        except Exception as _lga_exc:
+            st.info(f"Live guard status unavailable: {_lga_exc}")
+
+        _lt_col0, _lt_col1 = st.columns(2)
+        with _lt_col0:
+            if st.button(
+                "🛑 Halt Live Trading",
+                width="stretch",
+                key="ops_live_halt",
+                type="primary",
+            ):
+                try:
+                    from services.admin.live_disable_wizard import disable_live_now
+                    _halt_result = disable_live_now(note="dashboard_operator_halt")
+                    if _halt_result.get("ok"):
+                        st.success("Live trading halted. Kill switch armed, system guard HALTED.")
+                    else:
+                        st.error(f"Halt failed: {_halt_result}")
+                    set_operator_result(
+                        action="Halt Live Trading",
+                        rc=0 if _halt_result.get("ok") else 1,
+                        output=str(_halt_result),
+                    )
+                except Exception as _exc:
+                    st.error(f"Halt error: {_exc}")
+                    set_operator_result(action="Halt Live Trading", rc=1, output=str(_exc))
+                st.rerun()
+
+        with _lt_col1:
+            if st.button(
+                "▶ Resume Live Trading",
+                width="stretch",
+                key="ops_live_resume",
+            ):
+                try:
+                    from services.admin.resume_gate import resume_if_safe
+                    _resume_result = resume_if_safe(note="dashboard_operator_resume")
+                    if _resume_result.get("ok"):
+                        st.success("Live trading resumed. Kill switch disarmed, system guard RUNNING.")
+                    else:
+                        st.warning(f"Resume blocked: {_resume_result.get('reason')} — {_resume_result}")
+                    set_operator_result(
+                        action="Resume Live Trading",
+                        rc=0 if _resume_result.get("ok") else 1,
+                        output=str(_resume_result),
+                    )
+                except Exception as _exc:
+                    st.error(f"Resume error: {_exc}")
+                    set_operator_result(action="Resume Live Trading", rc=1, output=str(_exc))
+                st.rerun()
+
+    with st.container(border=True):
         st.markdown("### Safety Snapshots")
         st.caption("Live safety snapshots and reconcile helpers should be checked before recovery actions.")
         s0, s1 = st.columns(2)
