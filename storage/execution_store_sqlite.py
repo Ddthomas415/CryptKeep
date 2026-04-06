@@ -52,6 +52,14 @@ CREATE TABLE IF NOT EXISTS fills(
 );
 
 CREATE INDEX IF NOT EXISTS idx_fills_intent_ts ON fills(intent_id, ts_ms);
+
+CREATE TABLE IF NOT EXISTS symbol_locks(
+  symbol TEXT PRIMARY KEY,
+  locked_until_ms INTEGER NOT NULL,
+  loss_count INTEGER NOT NULL DEFAULT 0,
+  reason TEXT,
+  created_ts_ms INTEGER NOT NULL
+);
 """
 
 _ALLOWED_STATUS_TRANSITIONS = {
@@ -113,6 +121,19 @@ class ExecutionStore:
                 WHERE trade_id IS NOT NULL
                 """
             )
+            tables = {str(r[0]) for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+            if "symbol_locks" not in tables:
+                c.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS symbol_locks(
+                        symbol TEXT PRIMARY KEY,
+                        locked_until_ms INTEGER NOT NULL,
+                        loss_count INTEGER NOT NULL DEFAULT 0,
+                        reason TEXT,
+                        created_ts_ms INTEGER NOT NULL
+                    )
+                    """
+                )
             c.commit()
 
     def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200) -> List[Dict[str, Any]]:
@@ -203,6 +224,75 @@ class ExecutionStore:
         return out
 
     # Optional helper (not required by live_executor, but useful)
+
+    def get_symbol_lock(self, symbol: str) -> Dict[str, Any] | None:
+        with _conn(self.path) as c:
+            row = c.execute(
+                """
+                SELECT symbol, locked_until_ms, loss_count, reason, created_ts_ms
+                FROM symbol_locks
+                WHERE symbol=?
+                """,
+                (str(symbol),),
+            ).fetchone()
+        if row is None:
+            return None
+        if int(row["locked_until_ms"]) <= _now_ms():
+            return None
+        return dict(row)
+
+    def set_symbol_lock(self, symbol: str, locked_until_ms: int, loss_count: int, reason: str) -> None:
+        with _conn(self.path) as c:
+            c.execute(
+                """
+                INSERT INTO symbol_locks(symbol, locked_until_ms, loss_count, reason, created_ts_ms)
+                VALUES(?,?,?,?,?)
+                ON CONFLICT(symbol) DO UPDATE SET
+                    locked_until_ms=excluded.locked_until_ms,
+                    loss_count=excluded.loss_count,
+                    reason=excluded.reason,
+                    created_ts_ms=excluded.created_ts_ms
+                """,
+                (str(symbol), int(locked_until_ms), int(loss_count), str(reason), _now_ms()),
+            )
+            c.commit()
+
+    def increment_symbol_loss(self, symbol: str, *, loss_limit: int, lock_duration_ms: int) -> int:
+        with _conn(self.path) as c:
+            row = c.execute(
+                "SELECT loss_count FROM symbol_locks WHERE symbol=?",
+                (str(symbol),),
+            ).fetchone()
+            current = int(row["loss_count"]) if row else 0
+            new_count = current + 1
+            if new_count >= loss_limit:
+                locked_until = _now_ms() + int(lock_duration_ms)
+                c.execute(
+                    """
+                    INSERT INTO symbol_locks(symbol, locked_until_ms, loss_count, reason, created_ts_ms)
+                    VALUES(?,?,?,?,?)
+                    ON CONFLICT(symbol) DO UPDATE SET
+                        locked_until_ms=excluded.locked_until_ms,
+                        loss_count=excluded.loss_count,
+                        reason=excluded.reason,
+                        created_ts_ms=excluded.created_ts_ms
+                    """,
+                    (str(symbol), locked_until, new_count, f"consecutive_losses={new_count}", _now_ms()),
+                )
+            else:
+                c.execute(
+                    """
+                    INSERT INTO symbol_locks(symbol, locked_until_ms, loss_count, reason, created_ts_ms)
+                    VALUES(?,0,?,?,?)
+                    ON CONFLICT(symbol) DO UPDATE SET
+                        loss_count=excluded.loss_count,
+                        reason=excluded.reason
+                    """,
+                    (str(symbol), new_count, f"loss_count={new_count}", _now_ms()),
+                )
+            c.commit()
+        return new_count
+
     def upsert_intent(self, row: Dict[str, Any]) -> None:
         with _conn(self.path) as c:
             c.execute(
