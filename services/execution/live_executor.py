@@ -1,6 +1,8 @@
 from __future__ import annotations
+from services.risk.market_quality_guard import check_market_quality
 
 import os
+import logging
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +35,8 @@ from storage.execution_store_sqlite import ExecutionStore
 from storage.market_ws_store_sqlite import SQLiteMarketWsStore
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
 from storage.ws_status_sqlite import WSStatusSQLite
+
+_LOG = logging.getLogger(__name__)
 
 # ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
 DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or [""])[0]
@@ -553,6 +557,20 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             break
 
         intent_id = str(it["intent_id"])
+        try:
+            mq_ok, mq_reason = check_market_quality(cfg.exchange_id, str(it.get("symbol") or ""))
+        except Exception as exc:
+            _LOG.warning("market_quality_guard error symbol=%s: %s", it.get("symbol"), exc)
+            mq_ok, mq_reason = True, "guard_error_passthrough"
+
+        if not mq_ok:
+            store.set_intent_status(
+                intent_id=intent_id,
+                status="pending",
+                reason=f"market_quality_block:{mq_reason}",
+            )
+            _LOG.info("market_quality_gate blocked intent=%s reason=%s", intent_id, mq_reason)
+            continue
         meta = dict(it.get("meta") or {})
         reason0 = str(it.get("reason") or "")
         rid0 = _remote_id_from_reason(reason0)

@@ -13,12 +13,21 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
 import argparse
+import logging
+from services.admin.live_disable_wizard import disable_live_now
 from services.runtime.process_supervisor import stop_process, status
+
+logger = logging.getLogger(__name__)
 
 ALL_SERVICES = ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
 
 
 def main() -> int:
+    try:
+        disable_live_now(note="stop_bot")
+    except Exception as exc:
+        logger.warning("disable_live_now failed during stop_bot: %s", exc)
+
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--all",
