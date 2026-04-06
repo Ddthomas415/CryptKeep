@@ -1,6 +1,13 @@
 from __future__ import annotations
 
 import sqlite3
+
+# OWNERSHIP: DailyLimitsSQLite writes to data/daily_limits.sqlite (a separate file).
+# This is NOT the same store used by LiveGateDB in services/risk/live_risk_gates_phase82.py,
+# which writes daily_limits to execution.sqlite.
+# Use DailyLimitsSQLite for: standalone paper-mode daily tracking.
+# Use LiveGateDB for: live-mode gate enforcement in submit_pending_live().
+# Do not add new daily limit logic here without updating the ownership comment.
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
