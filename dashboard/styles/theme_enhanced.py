@@ -391,5 +391,37 @@ button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit
   opacity: 0.65 !important;
 }
 
+
+/* Login form layout */
+.stForm {
+  max-width: 520px;
+  margin: 0 auto;
+  background: rgba(10, 16, 28, 0.78);
+  border: 1px solid rgba(117, 136, 173, 0.22);
+  border-radius: 18px;
+  padding: 1.25rem 1.25rem 1rem 1.25rem;
+  box-shadow: 0 18px 40px rgba(1, 7, 18, 0.24);
+}
+
+/* Login labels */
+.stForm label {
+  color: var(--ck-muted-strong) !important;
+  font-weight: 600 !important;
+}
+
+/* Login inputs */
+.stForm input[type="text"],
+.stForm input[type="password"] {
+  width: 100% !important;
+  min-height: 42px !important;
+  border-radius: 12px !important;
+}
+
+/* Password toggle button */
+.stForm button[aria-label*="password"],
+.stForm button[title*="password"] {
+  border-radius: 10px !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
