@@ -415,12 +415,45 @@ button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit
   width: 100% !important;
   min-height: 42px !important;
   border-radius: 12px !important;
+  background: rgba(14, 22, 38, 0.92) !important;
+  color: #edf3ff !important;
+  border: 1px solid rgba(117, 136, 173, 0.32) !important;
+}
+.stForm input[type="text"]::placeholder,
+.stForm input[type="password"]::placeholder {
+  color: rgba(142, 157, 190, 0.72) !important;
 }
 
 /* Password toggle button */
 .stForm button[aria-label*="password"],
 .stForm button[title*="password"] {
   border-radius: 10px !important;
+}
+
+
+/* ── FIX: Auth panel dark background — prevents white-on-white ── */
+[data-testid="stExpander"] div[data-testid="stVerticalBlockBorderWrapper"],
+[data-testid="stExpander"] > div,
+.stMain [data-testid="stVerticalBlockBorderWrapper"]:first-of-type {
+  background: linear-gradient(180deg, rgba(12,19,34,0.98) 0%, rgba(8,13,24,0.96) 100%) !important;
+}
+
+/* Metric values in auth panel — keep light text on dark background */
+[data-testid="stMetricValue"] { color: var(--ck-text) !important; }
+[data-testid="stMetricLabel"] { color: var(--ck-muted) !important; }
+
+/* Sign in button — exact selector */
+[data-testid="stBaseButton-secondaryFormSubmit"] {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
+  border: 1px solid #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  min-width: 120px !important;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.4) !important;
+}
+[data-testid="stBaseButton-secondaryFormSubmit"]:hover {
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%) !important;
+  transform: translateY(-1px) !important;
 }
 
 </style>
