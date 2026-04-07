@@ -1360,7 +1360,12 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
     structural_health = load_crypto_edge_staleness_summary()
     structural_digest = load_crypto_edge_staleness_digest()
     collector_runtime = load_crypto_edge_collector_runtime()
-    operations_snapshot = get_operations_snapshot()
+    try:
+        operations_snapshot = get_operations_snapshot()
+    except PermissionError:
+        operations_snapshot = {}
+    except Exception:
+        operations_snapshot = {}
     leaderboard_summary = build_leaderboard_summary_digest(as_of=as_of, strategy_context=strategy_context)
     runtime_truth = build_runtime_truth_digest(
         as_of=as_of,
