@@ -331,5 +331,42 @@ small, .caption {
 hr, [data-testid="stDivider"] {
   border-color: rgba(117,136,173,0.1);
 }
+
+/* ── FIX: Sign in button needs high contrast ── */
+[data-testid="stForm"] [data-testid="stButton"] > button,
+[data-testid="stForm"] button[type="submit"],
+form [data-testid="stButton"] > button {
+  background: linear-gradient(180deg, #57a5ff 0%, #3d8fe8 100%) !important;
+  border-color: rgba(87,165,255,0.8) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 16px rgba(87,165,255,0.35) !important;
+  min-width: 100px;
+}
+[data-testid="stForm"] [data-testid="stButton"] > button:hover {
+  background: linear-gradient(180deg, #6db3ff 0%, #4d9ef5 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(87,165,255,0.45) !important;
+}
+
+/* ── FIX: Mono font only for code/captions, not body text ── */
+[data-testid="stCaptionContainer"] p,
+small, .caption,
+[data-testid="stCodeBlock"] pre,
+[data-testid="stCode"] pre,
+code {
+  font-family: var(--ck-mono) !important;
+}
+
+/* Body text and headings stay on Sora */
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stText"],
+[data-testid="stButton"] > button,
+label, .stSelectbox label,
+[data-baseweb="select"] {
+  font-family: var(--ck-font) !important;
+}
+
+
 </style>
 """, unsafe_allow_html=True)
