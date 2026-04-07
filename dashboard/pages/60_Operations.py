@@ -133,6 +133,65 @@ render_prompt_actions(
     key_prefix="ops",
 )
 
+with st.container(border=True):
+    st.markdown("### AI Copilot")
+    st.caption(
+        "Read-only analysis of current system state. "
+        "The copilot cannot arm trading, submit orders, or modify any data."
+    )
+    _cop_question = st.text_area(
+        "Ask the copilot",
+        placeholder="e.g. Why are intents staying in submitted state? What's causing the symbol lock on BTC/USDT?",
+        height=80,
+        key="ops_copilot_question",
+    )
+    _cop_notes = st.text_input(
+        "Additional context (optional)",
+        placeholder="e.g. This started after the last deploy at 14:30 UTC",
+        key="ops_copilot_notes",
+    )
+    _cop_col0, _cop_col1 = st.columns(2)
+    with _cop_col0:
+        if st.button("Analyze System", width="stretch", key="ops_copilot_analyze"):
+            with st.spinner("Collecting system context and consulting AI..."):
+                try:
+                    from services.ai_copilot.incident_analyst import analyze_incident
+                    _result = analyze_incident(
+                        question=str(_cop_question or ""),
+                        extra_notes=str(_cop_notes or ""),
+                    )
+                    st.session_state["ops_copilot_result"] = _result
+                except Exception as _exc:
+                    st.session_state["ops_copilot_result"] = {
+                        "ok": False,
+                        "error": str(_exc),
+                        "analysis": None,
+                    }
+    with _cop_col1:
+        if st.button("Quick Health Check", width="stretch", key="ops_copilot_health"):
+            with st.spinner("Running health check..."):
+                try:
+                    from services.ai_copilot.incident_analyst import quick_health_check
+                    _result = quick_health_check()
+                    st.session_state["ops_copilot_result"] = _result
+                except Exception as _exc:
+                    st.session_state["ops_copilot_result"] = {
+                        "ok": False,
+                        "error": str(_exc),
+                        "analysis": None,
+                    }
+
+    _cop_result = st.session_state.get("ops_copilot_result")
+    if _cop_result:
+        if not _cop_result.get("ok"):
+            st.error(f"Copilot error: {_cop_result.get('error')}")
+        else:
+            st.markdown(_cop_result.get("analysis") or "(empty response)")
+            st.caption(
+                f"Model: {_cop_result.get('model')} · "
+                f"Context: {_cop_result.get('context_chars', 0):,} chars"
+            )
+
 render_operations_status_summary(snapshot)
 render_structural_edge_health_summary(
     structural_edge_health,
