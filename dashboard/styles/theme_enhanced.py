@@ -368,5 +368,28 @@ label, .stSelectbox label,
 }
 
 
+
+/* Exact Streamlit login submit button selector */
+button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit"] {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
+  border: 1px solid #dc2626 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10) !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit"]:hover,
+button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit"]:focus-visible {
+  background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%) !important;
+  border-color: #991b1b !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 16px rgba(220,38,38,0.28) !important;
+}
+
+button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit"]:disabled {
+  opacity: 0.65 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
