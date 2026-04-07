@@ -40,7 +40,6 @@ render_page_header(
     "AI recommendations with the same research/evidence detail model used by Markets.",
     badges=[
         {"label": "Asset", "value": str(detail.get("asset") or default_asset)},
-        {"label": "Status", "value": str(detail.get("status") or "monitor").replace("_", " ").title()},
     ],
 )
 

@@ -27,6 +27,7 @@ def _matches_filter(row: dict[str, object], *, source_filter: str, freshness_fil
 
 
 AUTH_STATE = require_authenticated_role("VIEWER")
+CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 render_app_sidebar()
 
 workspace = load_crypto_edge_workspace()
@@ -38,18 +39,6 @@ render_page_header(
     "Crypto-native structural edge workspace for funding, basis, and cross-venue dislocation analysis.",
     badges=[
         {"label": "Mode", "value": "Research Only"},
-        {
-            "label": "Data",
-            "value": str(workspace.get("data_origin_label") or "Stored Snapshots")
-            if bool(workspace.get("has_any_data"))
-            else "No Snapshots",
-        },
-        {
-            "label": "Freshness",
-            "value": str(workspace.get("freshness_summary") or "Unknown")
-            if bool(workspace.get("has_any_data"))
-            else "N/A",
-        },
     ],
 )
 
@@ -133,11 +122,12 @@ with collector_cols[0]:
         collector_action = "Start Live Collector Loop"
         collector_rc, collector_output = start_crypto_edge_collector_loop(
             interval_sec=collector_interval_sec,
+            current_role=CURRENT_ROLE,
         )
 with collector_cols[1]:
     if st.button("Stop Live Collector Loop", width="stretch", key="research_collector_stop"):
         collector_action = "Stop Live Collector Loop"
-        collector_rc, collector_output = stop_crypto_edge_collector_loop()
+        collector_rc, collector_output = stop_crypto_edge_collector_loop(current_role=CURRENT_ROLE)
 
 render_action_result(action=collector_action, rc=collector_rc, output=collector_output)
 

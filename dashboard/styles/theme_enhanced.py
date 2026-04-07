@@ -456,5 +456,50 @@ button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit
   transform: translateY(-1px) !important;
 }
 
+
+/* Fix 1: Sign in button */
+[data-testid="stBaseButton-secondaryFormSubmit"] {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
+  border: 1px solid #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  min-width: 120px !important;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.4) !important;
+}
+[data-testid="stBaseButton-secondaryFormSubmit"]:hover {
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%) !important;
+  box-shadow: 0 6px 20px rgba(37,99,235,0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Fix 2: Caption opacity */
+[data-testid="stCaptionContainer"] {
+  opacity: 1 !important;
+}
+[data-testid="stCaptionContainer"] p {
+  color: var(--ck-muted) !important;
+  font-family: var(--ck-mono) !important;
+  font-size: 0.75rem !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
+
+def inject_signin_button() -> None:
+    import streamlit as st
+    st.markdown("""<style>
+[data-testid="stBaseButton-secondaryFormSubmit"] {
+  background: linear-gradient(180deg,#3b82f6 0%,#2563eb 100%) !important;
+  border: 1px solid #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  min-width: 120px !important;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.4) !important;
+  transition: all 0.2s ease !important;
+}
+[data-testid="stBaseButton-secondaryFormSubmit"]:hover {
+  background: linear-gradient(180deg,#60a5fa 0%,#3b82f6 100%) !important;
+  box-shadow: 0 6px 20px rgba(37,99,235,0.5) !important;
+  transform: translateY(-1px) !important;
+}
+</style>""", unsafe_allow_html=True)
