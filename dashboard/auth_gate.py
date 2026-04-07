@@ -6,6 +6,7 @@ import time
 from typing import Any, Dict, Literal
 
 import streamlit as st
+from dashboard.styles.theme_enhanced import inject_enhanced_theme
 
 from services.security.auth_capabilities import auth_capabilities
 from services.security.user_auth_store import (
@@ -251,6 +252,7 @@ def _render_signed_in_mfa_controls(username: str) -> None:
 
 
 def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]:
+    inject_enhanced_theme()
     if _bypass_requested_outside_dev():
         st.error("BYPASS_DASHBOARD_AUTH is set outside APP_ENV=dev. Auth bypass is refused.")
 
