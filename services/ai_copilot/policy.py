@@ -33,5 +33,6 @@ PROHIBITED_ACTIONS = [
 ]
 
 MAX_CONTEXT_CHARS = 12_000
-COPILOT_MODEL = "claude-sonnet-4-20250514"
+DEFAULT_PROVIDER = "anthropic"   # anthropic | openai | google
+DEFAULT_MODEL = "claude-sonnet-4-20250514"
 MAX_TOKENS = 1024
