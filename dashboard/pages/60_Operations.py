@@ -81,7 +81,10 @@ render_page_header(
     ],
 )
 
-snapshot = get_operations_snapshot()
+try:
+    snapshot = get_operations_snapshot()
+except PermissionError:
+    snapshot = {}
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
@@ -234,7 +237,10 @@ with tab_service_logs:
         st.markdown("### Service Controls")
         st.caption("Inspect a service, then start, stop, restart, or tail logs without leaving Operations.")
 
-        services = list_services()
+        try:
+            services = list_services()
+        except PermissionError:
+            services = []
         service_name = st.selectbox("Service", services, index=0)
         lines = st.number_input("Lines", min_value=20, max_value=500, value=120, step=10)
         b0, b1, b2, b3 = st.columns(4)
