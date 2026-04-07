@@ -139,6 +139,7 @@ class LiveIntentQueueSQLite:
                 "UPDATE live_trade_intents SET status=?, last_error=?, client_order_id=?, exchange_order_id=?, updated_ts=? WHERE intent_id=?",
                 (str(status), last_error, client_order_id, exchange_order_id, _now(), str(intent_id)),
             )
+            con.commit()
         finally:
             con.close()
 
@@ -154,5 +155,6 @@ class LiveIntentQueueSQLite:
         con = _connect()
         try:
             con.execute("INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)", (str(k), str(v)))
+            con.commit()
         finally:
             con.close()
