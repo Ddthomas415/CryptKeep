@@ -188,6 +188,7 @@ with st.container(border=True):
         else:
             st.markdown(_cop_result.get("analysis") or "(empty response)")
             st.caption(
+                f"Provider: {_cop_result.get('provider')} · "
                 f"Model: {_cop_result.get('model')} · "
                 f"Context: {_cop_result.get('context_chars', 0):,} chars"
             )

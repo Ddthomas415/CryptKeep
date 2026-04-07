@@ -5,7 +5,7 @@ import os
 from typing import Any, Dict
 
 from services.ai_copilot.context_collector import collect_incident_context
-from services.ai_copilot.policy import COPILOT_MODEL, MAX_TOKENS
+from services.ai_copilot.providers import call_llm
 
 _LOG = logging.getLogger(__name__)
 
@@ -32,32 +32,24 @@ Format your response as:
 
 
 def analyze_incident(question: str = "", extra_notes: str = "") -> Dict[str, Any]:
-    api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("CBP_ANTHROPIC_API_KEY")
-    if not api_key:
-        return {
-            "ok": False,
-            "error": "ANTHROPIC_API_KEY not set. Add it to .env as CBP_ANTHROPIC_API_KEY.",
-            "analysis": None,
-        }
-
     context = collect_incident_context(extra_notes=extra_notes)
     user_message = f"Operator question: {question}\n\n{context}" if question else context
 
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model=COPILOT_MODEL,
-            max_tokens=MAX_TOKENS,
-            system=_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_message}],
-        )
-        analysis = message.content[0].text if message.content else "(no response)"
+        result = call_llm(system=_SYSTEM_PROMPT, user=user_message)
+        if not result.get("ok"):
+            return {
+                "ok": False,
+                "error": result.get("error"),
+                "analysis": None,
+            }
+
         return {
             "ok": True,
-            "analysis": analysis,
+            "analysis": result.get("text") or "(no response)",
             "error": None,
-            "model": COPILOT_MODEL,
+            "model": result.get("model"),
+            "provider": result.get("provider"),
             "context_chars": len(context),
         }
     except Exception as exc:
