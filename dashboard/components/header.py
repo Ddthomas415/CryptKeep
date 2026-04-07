@@ -28,7 +28,8 @@ def render_page_header(title: str, subtitle: str = "", badges: Sequence[dict[str
         )
 
     with right:
-        rendered_badges: list[str] = []
+        with st.container():
+            rendered_badges: list[str] = []
         for badge in badges or []:
             label = str(badge.get("label") or "").strip()
             value = str(badge.get("value") or "").strip()
