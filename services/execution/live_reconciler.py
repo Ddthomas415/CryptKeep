@@ -156,8 +156,6 @@ def run_forever() -> None:
                         ad = _adapter_for_reconcile_pass(adapters, venue)
                         if it.get("intent_id") == "drill-stale-001":
                             _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
-                        if it.get("intent_id") == "drill-stale-001":
-                            _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
                         o = ad.fetch_order(symbol, ex_oid)
                         if (not o) and _submitted_ts_ms and _age_ms >= _stale_after_ms:
                             qdb.update_status(it["intent_id"], "error", last_error="stale_order_not_found")
@@ -235,7 +233,7 @@ def run_forever() -> None:
                                 "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
                                 "exchange_order_id": ex_oid, "status": "error", "last_error": f"stale_order_fetch_error:{_err}",
                             })
-                        _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_except", "error": _err, "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
+                        _write_status({"ok": True, "status": "running", "ts": _now(), "note": "reconcile_error", "error": _err})
             finally:
                 _close_reconcile_adapters(adapters)
             if reconcile_mode == "cleanup":
