@@ -17,6 +17,24 @@ STOP_FILE = FLAGS / "live_reconciler.stop"
 LOCK_FILE = LOCKS / "live_reconciler.lock"
 STATUS_FILE = FLAGS / "live_reconciler.status.json"
 
+
+def _ts_to_ms(v) -> int:
+    if v is None:
+        return 0
+    try:
+        if isinstance(v, (int, float)):
+            return int(v)
+        txt = str(v).strip()
+        if not txt:
+            return 0
+        if txt.isdigit():
+            return int(txt)
+        dt = datetime.fromisoformat(txt.replace("Z", "+00:00"))
+        return int(dt.timestamp() * 1000)
+    except Exception:
+        return 0
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -131,14 +149,15 @@ def run_forever() -> None:
                     if not ex_oid:
                         continue
                     try:
-                        try:
-                            _submitted_ts_ms = int(it.get("updated_ts") or it.get("created_ts") or 0)
-                        except Exception:
-                            _submitted_ts_ms = 0
+                        _submitted_ts_ms = _ts_to_ms(it.get("updated_ts") or it.get("created_ts") or 0)
                         _stale_after_ms = int(os.environ.get("CBP_STALE_ORDER_MS") or "300000")
                         _age_ms = max(0, _now_ms() - _submitted_ts_ms) if _submitted_ts_ms else 0
 
                         ad = _adapter_for_reconcile_pass(adapters, venue)
+                        if it.get("intent_id") == "drill-stale-001":
+                            _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
+                        if it.get("intent_id") == "drill-stale-001":
+                            _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
                         o = ad.fetch_order(symbol, ex_oid)
                         if (not o) and _submitted_ts_ms and _age_ms >= _stale_after_ms:
                             qdb.update_status(it["intent_id"], "error", last_error="stale_order_not_found")
@@ -207,7 +226,16 @@ def run_forever() -> None:
                         if max_ts:
                             qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts + 1))
                     except Exception as e:
-                        _write_status({"ok": True, "status": "running", "ts": _now(), "note": "reconcile_error", "error": f"{type(e).__name__}:{e}"})
+                        _err = f"{type(e).__name__}:{e}"
+                        if ex_oid and _submitted_ts_ms and _age_ms >= _stale_after_ms:
+                            qdb.update_status(it["intent_id"], "error", last_error=f"stale_order_fetch_error:{_err}")
+                            ldb.upsert_order({
+                                "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
+                                "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                                "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                                "exchange_order_id": ex_oid, "status": "error", "last_error": f"stale_order_fetch_error:{_err}",
+                            })
+                        _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_except", "error": _err, "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
             finally:
                 _close_reconcile_adapters(adapters)
             if reconcile_mode == "cleanup":

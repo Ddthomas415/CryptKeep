@@ -502,4 +502,26 @@ def inject_signin_button() -> None:
   box-shadow: 0 6px 20px rgba(37,99,235,0.5) !important;
   transform: translateY(-1px) !important;
 }
+
+/* ── A11Y FIX 4: Empty/unlabelled buttons — MAJOR ── */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stExpandSidebarButton"] {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+/* ── A11Y FIX 5: Heading visual hierarchy — MODERATE ── */
+[data-testid="stMarkdownContainer"] h2 {
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  margin-top: 1.5rem !important;
+  color: var(--ck-text) !important;
+}
+[data-testid="stMarkdownContainer"] h3 {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: var(--ck-text) !important;
+}
+
 </style>""", unsafe_allow_html=True)
