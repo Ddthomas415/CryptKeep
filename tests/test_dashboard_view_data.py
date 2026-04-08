@@ -12,6 +12,7 @@ def test_dashboard_summary_uses_defaults_when_sources_unavailable(monkeypatch) -
     assert summary["mode"] == "research_only"
     assert summary["risk_status"] == "safe"
     assert float(summary["portfolio"]["total_value"]) > 0
+    assert [item["asset"] for item in summary["watchlist"]] == ["BTC", "ETH"]
     assert summary["data_provenance"] == {
         "source": "dashboard_fallback",
         "fallback": True,
