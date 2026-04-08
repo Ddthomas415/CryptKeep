@@ -13,7 +13,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
-from dashboard.styles.theme_enhanced import inject_enhanced_theme, inject_signin_button
+from dashboard.styles.theme_enhanced import inject_signin_button
 from dashboard.components.activity import render_activity_panel
 from dashboard.components.asset_detail import build_assistant_status_summary
 from dashboard.components.cards import render_feature_hero, render_kpi_cards, render_prompt_actions
@@ -41,7 +41,6 @@ from dashboard.services.view_data import get_overview_view
 
 st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with_upwards_trend:")
 
-inject_enhanced_theme()
 inject_signin_button()
 
 AUTH_STATE = require_authenticated_role("VIEWER")

@@ -313,8 +313,36 @@ def _render_signed_in_mfa_controls(username: str) -> None:
         st.rerun()
 
 
+def _render_signed_in_sidebar_account(state: Dict[str, Any], caps: dict[str, Any]) -> None:
+    username = str(state.get("username") or "unknown")
+    role = str(state.get("role") or "VIEWER")
+    source = str(state.get("source") or "unknown")
+
+    with st.sidebar:
+        st.markdown("<div class='ck-nav-label'>Account</div>", unsafe_allow_html=True)
+        st.caption(f"Signed in as `{username}` ({role}) via `{source}`")
+        if str(caps.get("auth_scope") or "") == "remote_public_candidate":
+            if bool(caps.get("remote_access_hardened")):
+                st.success("Remote/public candidate mode has MFA plus outer access control configured.")
+            else:
+                st.warning(
+                    "Remote/public candidate mode still requires an enforced outer access-control layer "
+                    "before exposure."
+                )
+        for violation in list(caps.get("runtime_guard_violations") or []):
+            st.error(f"Runtime guard: {violation}")
+        for warning in list(caps.get("runtime_guard_warnings") or []):
+            st.warning(f"Runtime guard: {warning}")
+        with st.expander("Account Security", expanded=False):
+            st.caption(f"Session timeout: {_get_security_timeout_minutes()} minute(s)")
+            _render_signed_in_mfa_controls(username)
+            if st.button("Sign out", key="auth_sign_out"):
+                logout()
+                st.rerun()
+
+
 def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]:
-    inject_enhanced_theme()
+    inject_enhanced_theme(force=True)
     if _bypass_requested_outside_dev():
         st.error("BYPASS_DASHBOARD_AUTH is set outside APP_ENV=dev. Auth bypass is refused.")
 
@@ -352,53 +380,46 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
     if not bool(state.get("ok")):
         _inject_signed_out_layout()
 
-    with st.expander("Authentication", expanded=not bool(state.get("ok"))):
-        st.caption(
-            "Sign in with keychain-backed credentials. "
-            "Env fallback is development-only and must be explicitly enabled."
-        )
-
-        c0, c1, c2, c3 = st.columns([1, 1, 1.2, 1.1])
-        c0.metric("Keychain", "OK" if bool(caps.get("os_keychain")) else "Unavailable")
-        c1.metric("Env fallback", "ON" if bool(caps.get("env_credentials")) else "OFF")
-        c2.metric("Scope", str(caps.get("auth_scope_label") or "Local/private only"))
-        c3.metric("Built-in MFA", "Yes" if bool(caps.get("built_in_mfa")) else "No")
-        st.caption(f"Recommended: {caps.get('recommended')}")
-        if caps.get("detail"):
-            st.caption(f"Credential store: {caps.get('detail')}")
-        if caps.get("scope_detail"):
-            st.caption(f"Scope: {caps.get('scope_detail')}")
-        if caps.get("mfa_detail"):
-            st.caption(f"MFA: {caps.get('mfa_detail')}")
-        if str(caps.get("outer_access_control") or "").strip():
-            st.caption(f"Outer access control: {caps.get('outer_access_control')}")
-        if str(caps.get("auth_scope") or "") == "remote_public_candidate":
-            if bool(caps.get("remote_access_hardened")):
-                st.success("Remote/public candidate mode has MFA plus outer access control configured.")
-            else:
-                st.warning(
-                    "Remote/public candidate mode still requires an enforced outer access-control layer "
-                    "before exposure."
-                )
-        for violation in list(caps.get("runtime_guard_violations") or []):
-            st.error(f"Runtime guard: {violation}")
-        for warning in list(caps.get("runtime_guard_warnings") or []):
-            st.warning(f"Runtime guard: {warning}")
-
-        timeout_minutes = _get_security_timeout_minutes()
-        st.caption(f"Session timeout: {timeout_minutes} minute(s)")
-
-        if bool(state.get("ok")):
-            _touch_auth_session()
-            st.success(
-                f"Signed in as `{state.get('username')}` "
-                f"({state.get('role')}) via `{state.get('source')}`"
+    if bool(state.get("ok")):
+        _touch_auth_session()
+        _render_signed_in_sidebar_account(state, caps)
+    else:
+        with st.expander("Authentication", expanded=True):
+            st.caption(
+                "Sign in with keychain-backed credentials. "
+                "Env fallback is development-only and must be explicitly enabled."
             )
-            _render_signed_in_mfa_controls(str(state.get("username") or ""))
-            if st.button("Sign out", key="auth_sign_out"):
-                logout()
-                st.rerun()
-        else:
+
+            c0, c1, c2, c3 = st.columns([1, 1, 1.2, 1.1])
+            c0.metric("Keychain", "OK" if bool(caps.get("os_keychain")) else "Unavailable")
+            c1.metric("Env fallback", "ON" if bool(caps.get("env_credentials")) else "OFF")
+            c2.metric("Scope", str(caps.get("auth_scope_label") or "Local/private only"))
+            c3.metric("Built-in MFA", "Yes" if bool(caps.get("built_in_mfa")) else "No")
+            st.caption(f"Recommended: {caps.get('recommended')}")
+            if caps.get("detail"):
+                st.caption(f"Credential store: {caps.get('detail')}")
+            if caps.get("scope_detail"):
+                st.caption(f"Scope: {caps.get('scope_detail')}")
+            if caps.get("mfa_detail"):
+                st.caption(f"MFA: {caps.get('mfa_detail')}")
+            if str(caps.get("outer_access_control") or "").strip():
+                st.caption(f"Outer access control: {caps.get('outer_access_control')}")
+            if str(caps.get("auth_scope") or "") == "remote_public_candidate":
+                if bool(caps.get("remote_access_hardened")):
+                    st.success("Remote/public candidate mode has MFA plus outer access control configured.")
+                else:
+                    st.warning(
+                        "Remote/public candidate mode still requires an enforced outer access-control layer "
+                        "before exposure."
+                    )
+            for violation in list(caps.get("runtime_guard_violations") or []):
+                st.error(f"Runtime guard: {violation}")
+            for warning in list(caps.get("runtime_guard_warnings") or []):
+                st.warning(f"Runtime guard: {warning}")
+
+            timeout_minutes = _get_security_timeout_minutes()
+            st.caption(f"Session timeout: {timeout_minutes} minute(s)")
+
             if bool(pending_mfa.get("active")):
                 st.caption(f"MFA required for `{pending_mfa.get('username')}`.")
                 with st.form("auth_mfa_form"):
