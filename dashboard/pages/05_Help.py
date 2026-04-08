@@ -43,6 +43,11 @@ WORKSPACE_ROWS = [
         "use_when": "You need to start/stop managed services, inspect logs, or run controlled operator workflows.",
     },
     {
+        "page": "Copilot Reports",
+        "purpose": "Read-only AI evidence packets for repo review, safety posture, drift, simulations, and strategy-lab output.",
+        "use_when": "You want to inspect what the copilot found without giving it any control authority.",
+    },
+    {
         "page": "Automation",
         "purpose": "Paper-safe automation defaults and scheduling controls.",
         "use_when": "You need to review or change runtime defaults without touching execution authority.",
