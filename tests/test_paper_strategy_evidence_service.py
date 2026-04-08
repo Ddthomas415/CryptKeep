@@ -440,6 +440,66 @@ def test_load_runtime_status_marks_dead_process(tmp_path, monkeypatch) -> None:
     assert out["pid_alive"] is False
 
 
+def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setattr(svc, "data_dir", lambda: tmp_path / "data")
+    monkeypatch.setattr(svc, "code_root", lambda: tmp_path)
+
+    evidence_dir = tmp_path / "data" / "strategy_evidence"
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    latest_evidence = evidence_dir / "strategy_evidence.latest.json"
+    latest_evidence.write_text('{"ok": true}', encoding="utf-8")
+    latest_history = evidence_dir / "strategy_evidence.20260408T191149Z.json"
+    latest_history.write_text('{"ok": true}', encoding="utf-8")
+
+    decision_dir = tmp_path / "docs" / "strategies"
+    decision_dir.mkdir(parents=True, exist_ok=True)
+    latest_record = decision_dir / "decision_record_2026-04-08.md"
+    latest_record.write_text("# latest\n", encoding="utf-8")
+
+    old_root = tmp_path / "old"
+    old_root.mkdir(parents=True, exist_ok=True)
+    old_latest = old_root / "strategy_evidence.latest.json"
+    old_latest.write_text('{"ok": true}', encoding="utf-8")
+    old_history = old_root / "strategy_evidence.20260407T174933Z.json"
+    old_history.write_text('{"ok": true}', encoding="utf-8")
+    old_record = old_root / "decision_record_2026-04-07.md"
+    old_record.write_text("# stale\n", encoding="utf-8")
+
+    svc.status_file().parent.mkdir(parents=True, exist_ok=True)
+    svc.status_file().write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "has_status": True,
+                "status": "stopped",
+                "reason": "stop_requested",
+                "ts": "2026-04-07T17:49:34Z",
+                "symbol": "BTC/USD",
+                "venue": "coinbase",
+                "evidence": {
+                    "ok": True,
+                    "latest_path": str(old_latest),
+                    "history_path": str(old_history),
+                },
+                "decision_record": {
+                    "ok": True,
+                    "path": str(old_record),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = svc.load_runtime_status()
+
+    assert out["evidence"]["latest_path"] == str(latest_evidence)
+    assert out["evidence"]["history_path"] == str(latest_history)
+    assert out["evidence"]["source"] == "filesystem_latest"
+    assert out["decision_record"]["path"] == str(latest_record)
+    assert out["decision_record"]["source"] == "filesystem_latest"
+
+
 def test_tick_publisher_reusable_requires_matching_fresh_symbol() -> None:
     cfg = svc.PaperStrategyEvidenceServiceCfg(symbol="2Z/USD", venue="coinbase", tick_publish_interval_sec=2.0)
     now_ms = 1_700_000_000_000
