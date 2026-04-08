@@ -46,6 +46,17 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
     monkeypatch.setattr("services.ai_copilot.strategy_lab._latest_evidence_path", lambda: Path("/tmp/strategy_evidence.latest.json"))
     monkeypatch.setattr("services.ai_copilot.strategy_lab._load_json", lambda path: sample_payload)
     monkeypatch.setattr(
+        "services.ai_copilot.strategy_lab.load_evidence_runtime_status",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "stopped",
+            "completed_strategies": 3,
+            "total_strategies": 3,
+            "summary_text": "Paper evidence collector is stopped after a complete run.",
+        },
+    )
+    monkeypatch.setattr(
         "services.ai_copilot.strategy_lab.build_loss_replay",
         lambda **kwargs: {
             "losing_trade_count": 2,
@@ -58,6 +69,7 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
     report = build_strategy_lab_report()
 
     assert report["ok"] is True
+    assert report["severity"] == "ok"
     assert report["selected_strategy"] == "ema_cross"
     assert report["loss_replay"]["losing_trade_count"] == 2
     assert any("Top strategy changed" in item for item in report["recommendations"])
@@ -66,6 +78,7 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
 
 def test_build_strategy_lab_report_handles_missing_evidence(monkeypatch):
     monkeypatch.setattr("services.ai_copilot.strategy_lab._latest_evidence_path", lambda: Path("/tmp/missing.latest.json"))
+    monkeypatch.setattr("services.ai_copilot.strategy_lab.load_evidence_runtime_status", lambda: {})
 
     report = build_strategy_lab_report(include_loss_replay=False)
 
@@ -73,6 +86,58 @@ def test_build_strategy_lab_report_handles_missing_evidence(monkeypatch):
     assert report["severity"] == "warn"
     assert report["top_rows"] == []
     assert any("Run a fresh strategy evidence cycle" in item for item in report["recommendations"])
+
+
+def test_build_strategy_lab_report_warns_when_evidence_is_partial_or_thin(monkeypatch):
+    sample_payload = {
+        "as_of": "2026-04-08T00:00:00Z",
+        "symbol": "BTC/USD",
+        "paper_history": {"status": "available", "fills_count": 2, "strategy_count": 1, "journal_path": "/tmp/trade_journal.sqlite"},
+        "comparison": {"summary_text": "Unchanged."},
+        "aggregate_leaderboard": {
+            "rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "candidate": "breakout_default",
+                    "rank": 1,
+                    "decision": "improve",
+                    "leaderboard_score": 0.57,
+                    "avg_return_pct": 15.0,
+                    "max_drawdown_pct": 8.4,
+                    "closed_trades": 1,
+                    "evidence_status": "paper_thin",
+                    "confidence_label": "low",
+                    "paper_history_note": "1 closed trade, thin sample.",
+                    "biggest_weakness": "Thin sample.",
+                    "next_improvement": "Run more windows.",
+                }
+            ]
+        },
+    }
+
+    monkeypatch.setattr("services.ai_copilot.strategy_lab._latest_evidence_path", lambda: Path("/tmp/strategy_evidence.latest.json"))
+    monkeypatch.setattr("services.ai_copilot.strategy_lab._load_json", lambda path: sample_payload)
+    monkeypatch.setattr(
+        "services.ai_copilot.strategy_lab.load_evidence_runtime_status",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "stopped",
+            "completed_strategies": 1,
+            "total_strategies": 3,
+            "summary_text": "Paper evidence collector is stopped (1/3 complete).",
+        },
+    )
+    monkeypatch.setattr("services.ai_copilot.strategy_lab.build_loss_replay", lambda **kwargs: {"losing_trade_count": 0, "closed_trade_count": 0, "summary": {}, "loss_replays": []})
+
+    report = build_strategy_lab_report()
+
+    assert report["ok"] is True
+    assert report["severity"] == "warn"
+    assert "partial evidence" in report["summary"]
+    assert report["collector_runtime"]["completed_strategies"] == 1
+    assert any("Finish the current paper evidence cycle" in item for item in report["recommendations"])
+    assert any("promotion-ready" in item for item in report["recommendations"])
 
 
 def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
@@ -85,6 +150,7 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
         "selected_strategy": "ema_cross",
         "symbol": "BTC/USD",
         "top_rows": [{"strategy": "ema_cross", "rank": 1, "decision": "keep", "leaderboard_score": 0.8, "max_drawdown_pct": 2.0}],
+        "collector_runtime": {"status": "stopped", "completed_strategies": 3, "total_strategies": 3, "summary_text": "Complete run."},
         "paper_history": {"status": "available", "fills_count": 12, "strategy_count": 3, "caveat": ""},
         "comparison": {"summary_text": "Unchanged.", "top_strategy_changed": False, "improved_count": 0, "degraded_count": 0},
         "loss_replay": {"available": True, "losing_trade_count": 1, "closed_trade_count": 4},
@@ -102,3 +168,4 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert "# CryptKeep Strategy Lab" in markdown
     assert "ema_cross" in markdown
+    assert "## Evidence Runtime" in markdown
