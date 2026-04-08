@@ -9,7 +9,7 @@ from services.ai_copilot.drift_auditor import build_drift_report, write_drift_re
 def test_build_drift_report_detects_expected_repo_mismatch():
     report = build_drift_report()
 
-    assert report["severity"] == "warn"
+    assert report["severity"] == "ok"
     issue_blob = "\n".join(report["issues"])
     exchange_check = next(item for item in report["checks"] if item["name"] == "exchange_support_drift")
     assert exchange_check["ok"] is True
@@ -20,6 +20,10 @@ def test_build_drift_report_detects_expected_repo_mismatch():
     assert fallback_check["ok"] is True
     assert fallback_check["summary_fallback_labeled"] is True
     assert "dashboard_fallback_truth" not in issue_blob
+    universe_check = next(item for item in report["checks"] if item["name"] == "default_universe_drift")
+    assert universe_check["ok"] is True
+    assert universe_check["dashboard_watchlist_assets"] == ["BTC", "ETH"]
+    assert "default_universe_drift" not in issue_blob
 
 
 def test_write_drift_report_writes_files(tmp_path, monkeypatch):
@@ -35,7 +39,7 @@ def test_write_drift_report_writes_files(tmp_path, monkeypatch):
     assert markdown_path.exists()
 
     payload = json.loads(json_path.read_text(encoding="utf-8"))
-    assert payload["severity"] == "warn"
+    assert payload["severity"] == "ok"
     markdown = markdown_path.read_text(encoding="utf-8")
     assert "# CryptKeep Drift Audit" in markdown
-    assert "default_universe_drift" in markdown
+    assert "No concrete repo drift was detected" in markdown

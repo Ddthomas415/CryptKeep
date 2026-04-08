@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from dashboard.services import view_data as dashboard_view_data
 from services.ai_copilot.policy import report_root
 from services.os.app_paths import code_root
 
@@ -180,7 +181,7 @@ def _dashboard_fallback_truth_check() -> dict[str, Any]:
     view_data_text = _read_text(rel_path)
     function_names = _python_function_names(rel_path)
     fallback_functions = sorted(name for name in function_names if name.startswith("_default_"))
-    watchlist_assets = _extract_watchlist_assets(_read_text(rel_path))
+    watchlist_assets = sorted(dashboard_view_data._repo_default_watchlist_assets())
     summary_fallback_labeled = '"data_provenance"' in view_data_text and '"dashboard_fallback"' in view_data_text
     has_unlabeled_fallback_truth = bool(fallback_functions) and not summary_fallback_labeled
     return {
@@ -196,7 +197,7 @@ def _dashboard_fallback_truth_check() -> dict[str, Any]:
 
 def _default_universe_check() -> dict[str, Any]:
     trading_symbols = _extract_trading_symbols()
-    watchlist_assets = _extract_watchlist_assets(_read_text("dashboard/services/view_data.py"))
+    watchlist_assets = sorted(dashboard_view_data._repo_default_watchlist_assets())
     symbol_bases = sorted({item.split("/")[0].upper() for item in trading_symbols})
     drift = sorted(set(watchlist_assets) - set(symbol_bases))
     return {

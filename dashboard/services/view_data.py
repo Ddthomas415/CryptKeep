@@ -7,6 +7,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from dashboard.services.intelligence import build_opportunity_snapshot
 from services.admin.config_editor import CONFIG_PATH, load_user_yaml, save_user_yaml
 from services.execution.live_arming import set_live_enabled
@@ -39,6 +41,40 @@ def _attach_data_provenance(
     return enriched
 
 
+def _repo_default_watchlist_assets() -> list[str]:
+    fallback_assets = ["BTC", "ETH"]
+    path = REPO_ROOT / "config" / "trading.yaml"
+    if not path.exists():
+        return fallback_assets
+    try:
+        raw_cfg = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return fallback_assets
+    if not isinstance(raw_cfg, dict):
+        return fallback_assets
+    raw_symbols = raw_cfg.get("symbols") if isinstance(raw_cfg.get("symbols"), list) else []
+    resolved: list[str] = []
+    for item in raw_symbols:
+        asset = _normalize_asset_symbol(item)
+        if asset and asset not in resolved:
+            resolved.append(asset)
+    return resolved or fallback_assets
+
+
+def _default_watchlist_rows() -> list[dict[str, Any]]:
+    templates: dict[str, dict[str, Any]] = {
+        "BTC": {"price": 84250.12, "change_24h_pct": 2.4, "signal": "watch"},
+        "ETH": {"price": 4421.34, "change_24h_pct": 1.3, "signal": "monitor"},
+        "SOL": {"price": 187.42, "change_24h_pct": 6.9, "signal": "research"},
+    }
+    rows: list[dict[str, Any]] = []
+    for asset in _repo_default_watchlist_assets():
+        template = dict(templates.get(asset, {"price": 0.0, "change_24h_pct": 0.0, "signal": "watch"}))
+        template["asset"] = asset
+        rows.append(template)
+    return rows
+
+
 def _default_dashboard_summary() -> dict[str, Any]:
     return {
         "mode": "research_only",
@@ -54,11 +90,7 @@ def _default_dashboard_summary() -> dict[str, Any]:
             "exposure_used_pct": 18.4,
             "leverage": 1.0,
         },
-        "watchlist": [
-            {"asset": "BTC", "price": 84250.12, "change_24h_pct": 2.4, "signal": "watch"},
-            {"asset": "ETH", "price": 4421.34, "change_24h_pct": 1.3, "signal": "monitor"},
-            {"asset": "SOL", "price": 187.42, "change_24h_pct": 6.9, "signal": "research"},
-        ],
+        "watchlist": _default_watchlist_rows(),
     }
 
 
@@ -164,7 +196,7 @@ def _default_settings_payload() -> dict[str, Any]:
             "default_currency": "USD",
             "startup_page": "/dashboard",
             "default_mode": "research_only",
-            "watchlist_defaults": ["BTC", "ETH", "SOL"],
+            "watchlist_defaults": _repo_default_watchlist_assets(),
         },
         "notifications": {
             "email": False,
