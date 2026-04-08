@@ -7,6 +7,7 @@ from dashboard.components.cards import render_feature_hero, render_prompt_action
 from dashboard.components.header import render_page_header
 from dashboard.components.sidebar import render_app_sidebar
 from dashboard.services.copilot_reports import (
+    build_copilot_report_focus,
     list_copilot_reports,
     load_copilot_report_bundle,
     summarize_copilot_reports,
@@ -103,12 +104,27 @@ else:
     selected = reports[selected_idx]
     bundle = load_copilot_report_bundle(str(selected.get("stem") or ""))
     payload = dict(bundle.get("payload") or {})
+    severity = str(selected.get("severity") or "unknown")
+    kind = str(selected.get("kind") or "unknown")
+    focus = build_copilot_report_focus(kind=kind, severity=severity, payload=payload)
 
     st.caption(
-        f"Kind: {str(selected.get('kind') or 'unknown').replace('_', ' ').title()} · "
-        f"Severity: {str(selected.get('severity') or 'unknown')} · "
+        f"Kind: {kind.replace('_', ' ').title()} · "
+        f"Severity: {severity} · "
         f"File: {str(selected.get('stem') or '')}"
     )
+
+    tone = str(focus.get("tone") or "info")
+    message = str(focus.get("message") or "").strip()
+    if message:
+        if tone == "error":
+            st.error(message)
+        elif tone == "warning":
+            st.warning(message)
+        elif tone == "success":
+            st.success(message)
+        else:
+            st.info(message)
 
     overview_col, counts_col = st.columns(2)
     with overview_col:
@@ -121,6 +137,18 @@ else:
                 "kind": str(selected.get("kind") or "unknown"),
                 "severity": str(selected.get("severity") or "unknown"),
                 "generated_at": str(selected.get("generated_at") or ""),
+            }
+        )
+
+    focus_details = dict(focus.get("details") or {})
+    if kind == "strategy_lab" and focus_details:
+        st.markdown("#### Evidence Runtime")
+        st.write(
+            {
+                "status": str(focus_details.get("status") or "unknown"),
+                "completed_strategies": int(focus_details.get("completed_strategies") or 0),
+                "total_strategies": int(focus_details.get("total_strategies") or 0),
+                "summary": str(focus_details.get("summary_text") or ""),
             }
         )
 

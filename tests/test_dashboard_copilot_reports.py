@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from dashboard.services.copilot_reports import (
+    build_copilot_report_focus,
     list_copilot_reports,
     load_copilot_report_bundle,
     summarize_copilot_reports,
@@ -74,3 +75,24 @@ def test_load_copilot_report_bundle_reads_markdown(tmp_path, monkeypatch):
     assert bundle["kind"] == "safety_audit"
     assert bundle["payload"]["severity"] == "warn"
     assert "# Safety Audit" in bundle["markdown"]
+
+
+def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_detail() -> None:
+    focus = build_copilot_report_focus(
+        kind="strategy_lab",
+        severity="warn",
+        payload={
+            "summary": "Strategy lab report is based on partial evidence.",
+            "collector_runtime": {
+                "status": "stopped",
+                "completed_strategies": 1,
+                "total_strategies": 3,
+                "summary_text": "Paper evidence collector is stopped (1/3 complete).",
+            },
+        },
+    )
+
+    assert focus["tone"] == "warning"
+    assert "partial evidence" in focus["message"]
+    assert "1/3 complete" in focus["message"]
+    assert focus["details"]["completed_strategies"] == 1
