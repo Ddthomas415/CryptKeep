@@ -930,7 +930,7 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
             "Paper slippage (bps)": 4.0,
             "Require keys for live": True,
             "Default signal quantity": 0.25,
-            "Default signal venue": "kraken",
+            "Default signal venue": "gateio",
             "Signal order type": "limit",
         },
     )
@@ -948,7 +948,7 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
         "paper_fee_bps": 9.0,
         "paper_slippage_bps": 4.0,
         "require_keys_for_live": True,
-        "default_venue": "kraken",
+        "default_venue": "gateio",
         "default_qty": 0.25,
         "order_type": "limit",
     }

@@ -10,7 +10,7 @@ import yaml
 from services.execution.live_arming import is_live_enabled
 from services.os.app_paths import data_dir, ensure_dirs
 
-SUPPORTED_EXCHANGES = {"coinbase", "binance", "gateio"}
+SUPPORTED_EXCHANGES = ("coinbase", "binance", "gateio")
 
 @dataclass
 class PreflightResult:

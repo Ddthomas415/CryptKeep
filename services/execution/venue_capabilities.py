@@ -13,6 +13,7 @@ class VenueCapabilities:
 _CAPS = {
     "binance": VenueCapabilities("binance", True, 1800),
     "coinbase": VenueCapabilities("coinbase", True, None),
+    "gateio": VenueCapabilities("gateio", True, 1800),
 }
 
 
