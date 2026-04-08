@@ -108,6 +108,11 @@ SAFETY_ROWS = [
         "truth": "Promotion readiness is an operator review contract, not execution authority.",
         "implication": "A ladder card can explain blockers, but it cannot bypass the final live-order gate.",
     },
+    {
+        "boundary": "Research acceptance",
+        "truth": "Research confidence is stricter than promotion readiness and should be used before trusting an edge claim.",
+        "implication": "A strategy can be review-eligible and still fail the repo's research-confidence standard.",
+    },
 ]
 
 TROUBLESHOOTING_ROWS = [
@@ -405,6 +410,10 @@ with safety_tab:
     )
     st.info(
         "Allowed claims: paper-first runtime, guarded raw live-order boundary, read-only research collection, and synthetic-plus-paper evidence quality labels."
+    )
+    st.caption(
+        "Research confidence is a stricter standard than promotion readiness. See "
+        "`docs/safety/strategy_research_acceptance.md` before treating a top-ranked strategy as a credible edge."
     )
     st.warning(
         "Disallowed claims: proven profitability, validated end-to-end live readiness, proven stock support, or promotion readiness based only on synthetic evidence."
