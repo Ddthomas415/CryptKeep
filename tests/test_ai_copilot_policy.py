@@ -18,5 +18,8 @@ def test_policy_defaults_and_path_guards(tmp_path, monkeypatch):
 
     assert report_root.is_dir()
     assert config_path.parent.is_dir()
-    assert str(report_root).endswith("runtime/ai_reports")
-    assert str(config_path).endswith("runtime/config/ai_copilot.yaml")
+    assert report_root.name == "ai_reports"
+    assert report_root.parent.name == "runtime"
+    assert config_path.name == "ai_copilot.yaml"
+    assert config_path.parent.name == "config"
+    assert config_path.parent.parent.name == "runtime"
