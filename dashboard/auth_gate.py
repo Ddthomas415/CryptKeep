@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import logging
 import os
 import time
@@ -9,15 +10,6 @@ import streamlit as st
 from dashboard.styles.theme_enhanced import inject_enhanced_theme
 
 from services.security.auth_capabilities import auth_capabilities
-from services.security.user_auth_store import (
-    begin_mfa_enrollment,
-    confirm_mfa_enrollment,
-    disable_mfa_for_user,
-    ensure_bootstrap_user_from_env,
-    get_user_mfa_status,
-    verify_login,
-    verify_mfa_code,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +26,57 @@ FAILED_LOGIN_LOCKOUT_UNTIL_KEY = "cbp_auth_lockout_until"
 DEFAULT_SESSION_TIMEOUT_MINUTES = 30
 DEFAULT_LOCKOUT_THRESHOLD = 5
 DEFAULT_LOCKOUT_SECONDS = 300  # 5 minutes
+
+
+def _load_user_auth_store() -> tuple[Any | None, str | None]:
+    try:
+        return importlib.import_module("services.security.user_auth_store"), None
+    except Exception as exc:
+        logger.warning("user_auth_store unavailable: %s", exc)
+        return None, f"auth_store_unavailable:{type(exc).__name__}"
+
+
+def _call_user_auth_store(name: str, /, *args: Any, **kwargs: Any) -> dict[str, Any]:
+    mod, error = _load_user_auth_store()
+    if mod is None:
+        return {"ok": False, "reason": error}
+    fn = getattr(mod, name, None)
+    if not callable(fn):
+        return {"ok": False, "reason": f"auth_store_missing:{name}"}
+    try:
+        out = fn(*args, **kwargs)
+    except Exception as exc:
+        logger.warning("user_auth_store call failed name=%s error=%s", name, exc)
+        return {"ok": False, "reason": f"auth_store_call_failed:{name}:{type(exc).__name__}"}
+    return out if isinstance(out, dict) else {"ok": True, "value": out}
+
+
+def begin_mfa_enrollment(*, username: str) -> dict[str, Any]:
+    return _call_user_auth_store("begin_mfa_enrollment", username=username)
+
+
+def confirm_mfa_enrollment(*, username: str, code: str) -> dict[str, Any]:
+    return _call_user_auth_store("confirm_mfa_enrollment", username=username, code=code)
+
+
+def disable_mfa_for_user(*, username: str) -> dict[str, Any]:
+    return _call_user_auth_store("disable_mfa_for_user", username=username)
+
+
+def ensure_bootstrap_user_from_env() -> dict[str, Any]:
+    return _call_user_auth_store("ensure_bootstrap_user_from_env")
+
+
+def get_user_mfa_status(*, username: str) -> dict[str, Any]:
+    return _call_user_auth_store("get_user_mfa_status", username=username)
+
+
+def verify_login(username: str, password: str) -> dict[str, Any]:
+    return _call_user_auth_store("verify_login", username=username, password=password)
+
+
+def verify_mfa_code(*, username: str, code: str) -> dict[str, Any]:
+    return _call_user_auth_store("verify_mfa_code", username=username, code=code)
 
 
 def _inject_signed_out_layout() -> None:

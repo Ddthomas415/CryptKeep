@@ -130,3 +130,18 @@ def test_auth_capabilities_surfaces_runtime_guard_violation_for_unhardened_remot
 
     assert out["runtime_guard_ok"] is False
     assert any("outer access-control layer" in msg for msg in out["runtime_guard_violations"])
+
+
+def test_auth_capabilities_fails_closed_when_auth_store_import_fails(monkeypatch):
+    monkeypatch.setattr(ac, "_load_user_auth_store", lambda: (None, "user_auth_store unavailable: ImportError: bad arch"))
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("CBP_ALLOW_ENV_LOGIN", raising=False)
+    monkeypatch.delenv("CBP_AUTH_USERNAME", raising=False)
+    monkeypatch.delenv("CBP_AUTH_PASSWORD", raising=False)
+
+    out = ac.auth_capabilities()
+
+    assert out["os_keychain"] is False
+    assert out["env_credentials"] is False
+    assert out["recommended"] == "unavailable"
+    assert out["detail"] == "user_auth_store unavailable: ImportError: bad arch"
