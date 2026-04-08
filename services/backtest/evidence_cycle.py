@@ -539,6 +539,11 @@ def _paper_history_note(paper_row: dict[str, Any] | None) -> str:
     )
 
 
+RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES = 30
+RESEARCH_ACCEPTANCE_MIN_REPRESENTED_WINDOWS = 3
+RESEARCH_ACCEPTANCE_MAX_DRAWDOWN_PCT = 10.0
+
+
 def _evidence_status_for_row(
     *,
     row: dict[str, Any],
@@ -580,6 +585,67 @@ def _evidence_status_for_row(
         "medium",
         "Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.",
     )
+
+
+def _research_acceptance_for_row(
+    *,
+    row: dict[str, Any],
+    paper_row: dict[str, Any] | None,
+    evidence_status: str,
+    confidence_label: str,
+) -> dict[str, Any]:
+    paper_closed_trades = int(_fnum((paper_row or {}).get("closed_trades"), 0.0))
+    represented_windows = int(_fnum(row.get("closed_trade_window_count"), 0.0))
+    post_cost_return = _fnum(row.get("net_return_after_costs_pct"), _fnum(row.get("avg_return_pct"), 0.0))
+    slippage_sensitivity = _fnum(row.get("slippage_sensitivity_pct"), 0.0)
+    stressed_post_cost_return = post_cost_return - slippage_sensitivity
+    max_drawdown_pct = _fnum(row.get("max_drawdown_pct"), 0.0)
+    blockers: list[str] = []
+
+    if paper_closed_trades < RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES:
+        blockers.append(
+            f"Persisted paper history only has {paper_closed_trades} closed trade(s); "
+            f"the current research floor requires {RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES}."
+        )
+    if represented_windows < RESEARCH_ACCEPTANCE_MIN_REPRESENTED_WINDOWS:
+        blockers.append(
+            f"Only {represented_windows} represented window(s) produced realized closed trades; "
+            f"the current research floor requires {RESEARCH_ACCEPTANCE_MIN_REPRESENTED_WINDOWS}."
+        )
+    if post_cost_return <= 0.0:
+        blockers.append("Post-cost return is not positive.")
+    if stressed_post_cost_return <= 0.0:
+        blockers.append("Stressed slippage turns the current post-cost result non-positive.")
+    if max_drawdown_pct > RESEARCH_ACCEPTANCE_MAX_DRAWDOWN_PCT:
+        blockers.append(
+            f"Max drawdown is {max_drawdown_pct:.2f}%; the current research floor requires "
+            f"{RESEARCH_ACCEPTANCE_MAX_DRAWDOWN_PCT:.2f}% or less."
+        )
+    if str(evidence_status or "").strip().lower() != "paper_supported":
+        blockers.append(
+            f"Evidence status is {str(evidence_status or 'unknown').strip() or 'unknown'}; "
+            "the current research floor requires paper_supported."
+        )
+    if str(confidence_label or "").strip().lower() not in {"medium", "high"}:
+        blockers.append(
+            f"Confidence is {str(confidence_label or 'unknown').strip() or 'unknown'}; "
+            "the current research floor requires at least medium confidence."
+        )
+
+    strategy_name = str(row.get("strategy") or "").strip() or "current strategy"
+    if blockers:
+        return {
+            "accepted": False,
+            "status": "not_accepted",
+            "summary": f"`{strategy_name}` does not meet the current research-acceptance floor yet.",
+            "blockers": blockers,
+        }
+    return {
+        "accepted": True,
+        "status": "accepted",
+        "summary": f"`{strategy_name}` meets the current research-acceptance floor from persisted evidence.",
+        "blockers": [],
+    }
 
 
 def _weakness_for_row(row: dict[str, Any], hypothesis: dict[str, Any] | None) -> str:
@@ -748,6 +814,12 @@ def run_strategy_evidence_cycle(
         row["next_improvement"] = _improvement_for_row(row, hypothesis)
         row["paper_history"] = dict(paper_row or {})
         row["paper_history_note"] = _paper_history_note(paper_row)
+        row["research_acceptance"] = _research_acceptance_for_row(
+            row=row,
+            paper_row=paper_row,
+            evidence_status=evidence_status,
+            confidence_label=confidence_label,
+        )
         decisions.append(
             {
                 "candidate": str(row.get("candidate") or ""),
@@ -1127,6 +1199,8 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 f"- evidence status: `{str(row.get('evidence_status') or 'unknown')}`",
                 f"- confidence: `{str(row.get('confidence_label') or 'unknown')}`",
                 f"- paper-history: {str(row.get('paper_history_note') or 'No strategy-attributed persisted paper-history fills are available yet.')}",
+                f"- research acceptance: `{str(((row.get('research_acceptance') or {}).get('status')) or 'unknown')}`",
+                f"- research summary: {str(((row.get('research_acceptance') or {}).get('summary')) or 'No research-acceptance summary recorded.')}",
                 "",
                 f"Decision: `{str(row.get('decision') or 'unknown')}`",
                 "",
@@ -1140,6 +1214,9 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 "",
             ]
         )
+        for blocker in list(((row.get("research_acceptance") or {}).get("blockers")) or []):
+            out.append(f"- Research blocker: {str(blocker)}")
+        out.extend([""])
     out.extend(
         [
             "## Forced Decision Set",
