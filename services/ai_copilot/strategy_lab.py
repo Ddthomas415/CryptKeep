@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from services.analytics.paper_loss_replay import build_loss_replay
+from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_evidence_runtime_status
 from services.ai_copilot.policy import report_root
 from services.backtest.evidence_cycle import evidence_dir
 
@@ -68,11 +69,69 @@ def _top_rows_snapshot(rows: list[dict[str, Any]], *, limit: int = 3) -> list[di
     return out
 
 
+def _collector_runtime_summary() -> dict[str, Any]:
+    payload = dict(load_evidence_runtime_status() or {})
+    return {
+        "ok": bool(payload.get("ok", True)),
+        "has_status": bool(payload.get("has_status")),
+        "status": str(payload.get("status") or "unknown"),
+        "reason": str(payload.get("reason") or ""),
+        "summary_text": str(payload.get("summary_text") or ""),
+        "completed_strategies": int(payload.get("completed_strategies") or 0),
+        "total_strategies": int(payload.get("total_strategies") or 0),
+        "results_count": len(list(payload.get("results") or [])),
+        "latest_path": str(((payload.get("evidence") or {}).get("latest_path")) or ""),
+    }
+
+
+def _collector_incomplete(runtime: dict[str, Any]) -> bool:
+    total = int(runtime.get("total_strategies") or 0)
+    completed = int(runtime.get("completed_strategies") or 0)
+    return total > 0 and completed < total
+
+
+def _derive_severity(
+    *,
+    ok: bool,
+    top_row: dict[str, Any],
+    paper_history: dict[str, Any],
+    collector_runtime: dict[str, Any],
+) -> tuple[str, str]:
+    if not ok:
+        return ("warn", "No persisted strategy evidence leaderboard is available yet.")
+
+    selected_strategy = str(top_row.get("strategy") or "").strip()
+    evidence_status = str(top_row.get("evidence_status") or "").strip().lower()
+    paper_history_status = str(paper_history.get("status") or "").strip().lower()
+    fills_count = int(paper_history.get("fills_count") or 0)
+
+    if _collector_incomplete(collector_runtime):
+        completed = int(collector_runtime.get("completed_strategies") or 0)
+        total = int(collector_runtime.get("total_strategies") or 0)
+        return (
+            "warn",
+            f"Strategy lab report for `{selected_strategy}` is based on partial evidence; "
+            f"the current collector run is only {completed}/{total} complete.",
+        )
+    if paper_history_status != "available":
+        return (
+            "warn",
+            f"Strategy lab report for `{selected_strategy}` is missing persisted paper-history support.",
+        )
+    if fills_count < 10 or evidence_status in {"paper_thin", "insufficient", "missing", "strategy_missing"}:
+        return (
+            "warn",
+            f"Strategy lab report for `{selected_strategy}` is still thin and not promotion-grade.",
+        )
+    return ("ok", f"Strategy lab report built from persisted evidence for `{selected_strategy}`.")
+
+
 def _recommendations(
     *,
     payload: dict[str, Any],
     top_row: dict[str, Any],
     paper_history: dict[str, Any],
+    collector_runtime: dict[str, Any],
     loss_replay: dict[str, Any] | None,
 ) -> list[str]:
     recommendations: list[str] = []
@@ -86,6 +145,9 @@ def _recommendations(
 
     top_strategy = str(top_row.get("strategy") or "").strip()
     top_decision = str(top_row.get("decision") or "").strip().lower()
+    top_evidence_status = str(top_row.get("evidence_status") or "").strip().lower()
+    if _collector_incomplete(collector_runtime):
+        recommendations.append("Finish the current paper evidence cycle before treating the current top rank as stable.")
     if top_strategy:
         recommendations.append(f"Keep `{top_strategy}` as the current lab focus until a new evidence cycle changes the top ranking.")
     if top_decision == "improve":
@@ -99,6 +161,8 @@ def _recommendations(
         recommendations.append("Grow persisted paper-history evidence before treating leaderboard rank as promotion-grade.")
     elif int(paper_history.get("fills_count") or 0) < 10:
         recommendations.append("Paper-history exists but remains thin; add more fills before changing parameters from this report.")
+    if top_evidence_status in {"paper_thin", "insufficient", "missing", "strategy_missing"}:
+        recommendations.append("Do not treat the current top strategy as promotion-ready while evidence status remains thin or insufficient.")
 
     if isinstance(loss_replay, dict) and int(loss_replay.get("losing_trade_count") or 0) > 0:
         recommendations.append("Review the latest losing replay rows before changing the top strategy preset or thresholds.")
@@ -124,6 +188,7 @@ def build_strategy_lab_report(
     selected_symbol = str(symbol or payload.get("symbol") or top_row.get("symbol") or "").strip()
     paper_history = _paper_history_summary(payload)
     comparison = dict(payload.get("comparison") or {})
+    collector_runtime = _collector_runtime_summary()
 
     loss_replay: dict[str, Any] | None = None
     if include_loss_replay and selected_strategy:
@@ -135,11 +200,11 @@ def build_strategy_lab_report(
         )
 
     ok = bool(payload) and bool(rows)
-    severity = "ok" if ok else "warn"
-    summary = (
-        f"Strategy lab report built from persisted evidence for `{selected_strategy}`."
-        if ok and selected_strategy
-        else "No persisted strategy evidence leaderboard is available yet."
+    severity, summary = _derive_severity(
+        ok=ok,
+        top_row=top_row,
+        paper_history=paper_history,
+        collector_runtime=collector_runtime,
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -151,6 +216,7 @@ def build_strategy_lab_report(
         "symbol": selected_symbol,
         "selected_strategy": selected_strategy,
         "top_rows": _top_rows_snapshot(rows),
+        "collector_runtime": collector_runtime,
         "paper_history": paper_history,
         "comparison": {
             "has_previous": bool(comparison.get("has_previous")),
@@ -174,6 +240,7 @@ def build_strategy_lab_report(
             payload=payload,
             top_row=top_row,
             paper_history=paper_history,
+            collector_runtime=collector_runtime,
             loss_replay=loss_replay,
         ),
     }
@@ -205,6 +272,18 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
         lines.append("- `(none)`")
 
     paper_history = dict(report.get("paper_history") or {})
+    collector_runtime = dict(report.get("collector_runtime") or {})
+    lines.extend(
+        [
+            "",
+            "## Evidence Runtime",
+            f"- status: `{collector_runtime.get('status')}`",
+            f"- completed: `{collector_runtime.get('completed_strategies')}` / `{collector_runtime.get('total_strategies')}`",
+        ]
+    )
+    if str(collector_runtime.get("summary_text") or "").strip():
+        lines.append(f"- summary: {collector_runtime.get('summary_text')}")
+
     lines.extend(
         [
             "",
