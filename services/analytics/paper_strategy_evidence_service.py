@@ -22,7 +22,7 @@ from services.execution.paper_runner import request_stop as request_paper_engine
 from services.market_data.symbol_utils import split_symbol
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.market_data.system_status_publisher import request_stop as request_tick_publisher_stop
-from services.os.app_paths import code_root, ensure_dirs, runtime_dir
+from services.os.app_paths import code_root, data_dir, ensure_dirs, runtime_dir
 from services.strategy_runner.ema_crossover_runner import request_stop as request_strategy_runner_stop
 from storage.position_state_sqlite import PositionStateSQLite
 
@@ -95,6 +95,105 @@ def _write_pid_state(obj: dict[str, Any]) -> None:
 
 def _load_json(path: Path) -> dict[str, Any]:
     return dict(json.loads(path.read_text(encoding="utf-8")) or {})
+
+
+def _path_mtime(path: Path) -> float:
+    try:
+        return float(path.stat().st_mtime)
+    except Exception:
+        return 0.0
+
+
+def _latest_strategy_evidence_artifacts() -> dict[str, Any]:
+    root = (data_dir() / "strategy_evidence").resolve()
+    latest_path = (root / "strategy_evidence.latest.json").resolve()
+    history_paths = sorted(
+        path.resolve()
+        for path in root.glob("strategy_evidence.*.json")
+        if path.name != "strategy_evidence.latest.json"
+    )
+    out: dict[str, Any] = {}
+    if latest_path.exists():
+        out["ok"] = True
+        out["latest_path"] = str(latest_path)
+    if history_paths:
+        out["history_path"] = str(history_paths[-1])
+    return out
+
+
+def _latest_decision_record_artifact() -> dict[str, Any]:
+    root = (code_root() / "docs" / "strategies").resolve()
+    records = sorted(path.resolve() for path in root.glob("decision_record_*.md"))
+    if not records:
+        return {}
+    return {
+        "ok": True,
+        "path": str(records[-1]),
+    }
+
+
+def _path_is_within(path: Path, root: Path) -> bool:
+    try:
+        resolved = path.resolve()
+        target_root = root.resolve()
+    except Exception:
+        return False
+    return resolved == target_root or target_root in resolved.parents
+
+
+def _prefer_latest_path(current_path: str, latest_path: str, *, expected_root: Path | None = None) -> bool:
+    current = Path(str(current_path or "")).expanduser().resolve() if str(current_path or "").strip() else None
+    latest = Path(str(latest_path or "")).expanduser().resolve() if str(latest_path or "").strip() else None
+    if latest is None or not latest.exists():
+        return False
+    if current is None or not current.exists():
+        return True
+    if current == latest:
+        return False
+    if expected_root is not None and not _path_is_within(current, expected_root):
+        return True
+    return _path_mtime(latest) >= _path_mtime(current)
+
+
+def _refresh_artifact_references(payload: dict[str, Any]) -> dict[str, Any]:
+    out = dict(payload)
+
+    latest_evidence = _latest_strategy_evidence_artifacts()
+    evidence = dict(out.get("evidence") or {})
+    evidence_root = (data_dir() / "strategy_evidence").resolve()
+    if latest_evidence:
+        if _prefer_latest_path(
+            str(evidence.get("latest_path") or ""),
+            str(latest_evidence.get("latest_path") or ""),
+            expected_root=evidence_root,
+        ):
+            evidence["latest_path"] = str(latest_evidence.get("latest_path") or "")
+            evidence["source"] = "filesystem_latest"
+        if _prefer_latest_path(
+            str(evidence.get("history_path") or ""),
+            str(latest_evidence.get("history_path") or ""),
+            expected_root=evidence_root,
+        ):
+            evidence["history_path"] = str(latest_evidence.get("history_path") or "")
+            evidence["source"] = "filesystem_latest"
+        if evidence:
+            evidence["ok"] = bool(evidence.get("ok", True))
+            out["evidence"] = evidence
+
+    latest_record = _latest_decision_record_artifact()
+    decision_record = dict(out.get("decision_record") or {})
+    decision_root = (code_root() / "docs" / "strategies").resolve()
+    if latest_record and _prefer_latest_path(
+        str(decision_record.get("path") or ""),
+        str(latest_record.get("path") or ""),
+        expected_root=decision_root,
+    ):
+        decision_record["path"] = str(latest_record.get("path") or "")
+        decision_record["ok"] = bool(decision_record.get("ok", True))
+        decision_record["source"] = "filesystem_latest"
+        out["decision_record"] = decision_record
+
+    return out
 
 
 def _clear_pid_state() -> None:
@@ -232,7 +331,7 @@ def load_runtime_status() -> dict[str, Any]:
         payload["reason"] = "pid_alive_waiting_for_status"
         payload["has_status"] = True
 
-    return payload
+    return _refresh_artifact_references(payload)
 
 
 def _strategy_summary_map(journal_path: str = "", *, symbol: str = "") -> dict[str, dict[str, Any]]:
