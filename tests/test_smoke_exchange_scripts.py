@@ -36,6 +36,8 @@ def test_per_exchange_wrappers_call_exchange_main(monkeypatch):
     assert smoke_binance.main() == 0
     assert smoke_gateio.main() == 0
     assert calls[0][:2] == ["--exchange", "coinbase"]
+    assert "--sandbox" not in calls[0]
     assert calls[1][:2] == ["--exchange", "binance"]
+    assert "--sandbox" in calls[1]
     assert calls[2][:2] == ["--exchange", "gateio"]
-
+    assert "--sandbox" in calls[2]

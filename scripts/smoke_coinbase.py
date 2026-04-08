@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 
 
 def main() -> int:
-    return smoke_exchange.main(["--exchange", "coinbase", "--sandbox", "--orderbook"])
+    return smoke_exchange.main(["--exchange", "coinbase", "--orderbook"])
 
 
 if __name__ == "__main__":
