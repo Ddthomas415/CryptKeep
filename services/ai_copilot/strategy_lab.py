@@ -10,6 +10,10 @@ from services.analytics.paper_strategy_evidence_service import load_runtime_stat
 from services.ai_copilot.policy import report_root
 from services.backtest.evidence_cycle import evidence_dir
 
+RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES = 30
+RESEARCH_ACCEPTANCE_MIN_REPRESENTED_WINDOWS = 3
+RESEARCH_ACCEPTANCE_MAX_DRAWDOWN_PCT = 10.0
+
 
 def _latest_evidence_path() -> Path:
     return (evidence_dir() / "strategy_evidence.latest.json").resolve()
@@ -90,12 +94,157 @@ def _collector_incomplete(runtime: dict[str, Any]) -> bool:
     return total > 0 and completed < total
 
 
+def _paper_history_row(top_row: dict[str, Any]) -> dict[str, Any]:
+    return dict(top_row.get("paper_history") or {})
+
+
+def _normalized_evidence_status(top_row: dict[str, Any]) -> str:
+    text = str(top_row.get("evidence_status") or "").strip().lower()
+    if text == "supported":
+        return "paper_supported"
+    return text
+
+
+def _normalized_confidence_label(top_row: dict[str, Any]) -> str:
+    return str(top_row.get("confidence_label") or "").strip().lower()
+
+
+def _post_cost_return_pct(top_row: dict[str, Any]) -> float:
+    raw = top_row.get("net_return_after_costs_pct")
+    if raw is None:
+        raw = top_row.get("avg_return_pct")
+    try:
+        return float(raw or 0.0)
+    except Exception:
+        return 0.0
+
+
+def _slippage_sensitivity_pct(top_row: dict[str, Any]) -> float:
+    try:
+        return float(top_row.get("slippage_sensitivity_pct") or 0.0)
+    except Exception:
+        return 0.0
+
+
+def _stressed_post_cost_return_pct(top_row: dict[str, Any]) -> float:
+    return _post_cost_return_pct(top_row) - _slippage_sensitivity_pct(top_row)
+
+
+def _build_research_acceptance(
+    *,
+    ok: bool,
+    top_row: dict[str, Any],
+    collector_runtime: dict[str, Any],
+) -> dict[str, Any]:
+    thresholds = {
+        "min_persisted_paper_closed_trades": RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES,
+        "min_represented_windows": RESEARCH_ACCEPTANCE_MIN_REPRESENTED_WINDOWS,
+        "max_drawdown_pct": RESEARCH_ACCEPTANCE_MAX_DRAWDOWN_PCT,
+    }
+    measures = {
+        "persisted_paper_closed_trades": 0,
+        "represented_windows": 0,
+        "active_windows": 0,
+        "post_cost_return_pct": 0.0,
+        "stressed_post_cost_return_pct": 0.0,
+        "max_drawdown_pct": 0.0,
+        "slippage_sensitivity_pct": 0.0,
+        "evidence_status": "",
+        "confidence_label": "",
+    }
+    if not ok or not top_row:
+        return {
+            "accepted": False,
+            "status": "not_accepted",
+            "summary": "Research acceptance could not be evaluated because no persisted top-strategy evidence row is available.",
+            "blockers": ["No persisted top-strategy evidence row is available."],
+            "thresholds": thresholds,
+            "measures": measures,
+        }
+
+    paper_row = _paper_history_row(top_row)
+    evidence_status = _normalized_evidence_status(top_row)
+    confidence_label = _normalized_confidence_label(top_row)
+    paper_closed_trades = int(paper_row.get("closed_trades") or 0)
+    represented_windows = int(top_row.get("closed_trade_window_count") or 0)
+    active_windows = int(top_row.get("active_window_count") or 0)
+    post_cost_return = _post_cost_return_pct(top_row)
+    stressed_post_cost_return = _stressed_post_cost_return_pct(top_row)
+    max_drawdown_pct = float(top_row.get("max_drawdown_pct") or 0.0)
+    slippage_sensitivity_pct = _slippage_sensitivity_pct(top_row)
+
+    measures = {
+        "persisted_paper_closed_trades": int(paper_closed_trades),
+        "represented_windows": int(represented_windows),
+        "active_windows": int(active_windows),
+        "post_cost_return_pct": float(post_cost_return),
+        "stressed_post_cost_return_pct": float(stressed_post_cost_return),
+        "max_drawdown_pct": float(max_drawdown_pct),
+        "slippage_sensitivity_pct": float(slippage_sensitivity_pct),
+        "evidence_status": evidence_status,
+        "confidence_label": confidence_label,
+    }
+
+    blockers: list[str] = []
+    if _collector_incomplete(collector_runtime):
+        completed = int(collector_runtime.get("completed_strategies") or 0)
+        total = int(collector_runtime.get("total_strategies") or 0)
+        blockers.append(f"Current evidence cycle is partial at {completed}/{total} completed strategies.")
+    if paper_closed_trades < RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES:
+        blockers.append(
+            f"Persisted paper history only has {paper_closed_trades} closed trade(s); "
+            f"the current research floor requires {RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES}."
+        )
+    if represented_windows < RESEARCH_ACCEPTANCE_MIN_REPRESENTED_WINDOWS:
+        blockers.append(
+            f"Only {represented_windows} represented window(s) produced realized closed trades; "
+            f"the current research floor requires {RESEARCH_ACCEPTANCE_MIN_REPRESENTED_WINDOWS}."
+        )
+    if post_cost_return <= 0.0:
+        blockers.append("Post-cost return is not positive.")
+    if stressed_post_cost_return <= 0.0:
+        blockers.append("Stressed slippage turns the current post-cost result non-positive.")
+    if max_drawdown_pct > RESEARCH_ACCEPTANCE_MAX_DRAWDOWN_PCT:
+        blockers.append(
+            f"Max drawdown is {max_drawdown_pct:.2f}%; the current research floor requires "
+            f"{RESEARCH_ACCEPTANCE_MAX_DRAWDOWN_PCT:.2f}% or less."
+        )
+    if evidence_status != "paper_supported":
+        blockers.append(
+            f"Evidence status is {evidence_status or 'unknown'}; the current research floor requires paper_supported."
+        )
+    if confidence_label not in {"medium", "high"}:
+        blockers.append(
+            f"Confidence is {confidence_label or 'unknown'}; the current research floor requires at least medium confidence."
+        )
+
+    strategy_name = str(top_row.get("strategy") or "").strip() or "current top strategy"
+    if blockers:
+        return {
+            "accepted": False,
+            "status": "not_accepted",
+            "summary": f"`{strategy_name}` does not meet the current research-acceptance floor yet.",
+            "blockers": blockers,
+            "thresholds": thresholds,
+            "measures": measures,
+        }
+    return {
+        "accepted": True,
+        "status": "accepted",
+        "summary": f"`{strategy_name}` meets the current research-acceptance floor from persisted evidence.",
+        "blockers": [],
+        "thresholds": thresholds,
+        "measures": measures,
+    }
+
+
 def _derive_severity(
     *,
     ok: bool,
     top_row: dict[str, Any],
     paper_history: dict[str, Any],
     collector_runtime: dict[str, Any],
+    research_acceptance: dict[str, Any],
 ) -> tuple[str, str]:
     if not ok:
         return ("warn", "No persisted strategy evidence leaderboard is available yet.")
@@ -113,6 +262,11 @@ def _derive_severity(
             f"Strategy lab report for `{selected_strategy}` is based on partial evidence; "
             f"the current collector run is only {completed}/{total} complete.",
         )
+    if not bool(research_acceptance.get("accepted")):
+        return (
+            "warn",
+            str(research_acceptance.get("summary") or f"Strategy lab report for `{selected_strategy}` is not research-accepted."),
+        )
     if paper_history_status != "available":
         return (
             "warn",
@@ -121,9 +275,9 @@ def _derive_severity(
     if fills_count < 10 or evidence_status in {"paper_thin", "insufficient", "missing", "strategy_missing"}:
         return (
             "warn",
-            f"Strategy lab report for `{selected_strategy}` is still thin and not promotion-grade.",
+            str(research_acceptance.get("summary") or f"Strategy lab report for `{selected_strategy}` is still thin and not promotion-grade."),
         )
-    return ("ok", f"Strategy lab report built from persisted evidence for `{selected_strategy}`.")
+    return ("ok", str(research_acceptance.get("summary") or f"Strategy lab report built from persisted evidence for `{selected_strategy}`."))
 
 
 def _recommendations(
@@ -132,6 +286,7 @@ def _recommendations(
     top_row: dict[str, Any],
     paper_history: dict[str, Any],
     collector_runtime: dict[str, Any],
+    research_acceptance: dict[str, Any],
     loss_replay: dict[str, Any] | None,
 ) -> list[str]:
     recommendations: list[str] = []
@@ -163,6 +318,10 @@ def _recommendations(
         recommendations.append("Paper-history exists but remains thin; add more fills before changing parameters from this report.")
     if top_evidence_status in {"paper_thin", "insufficient", "missing", "strategy_missing"}:
         recommendations.append("Do not treat the current top strategy as promotion-ready while evidence status remains thin or insufficient.")
+    if not bool(research_acceptance.get("accepted")):
+        recommendations.append("Do not treat the current top strategy as a credible edge until the research-acceptance blockers are cleared.")
+        for blocker in list(research_acceptance.get("blockers") or []):
+            recommendations.append(f"Research acceptance blocker: {str(blocker)}")
 
     if isinstance(loss_replay, dict) and int(loss_replay.get("losing_trade_count") or 0) > 0:
         recommendations.append("Review the latest losing replay rows before changing the top strategy preset or thresholds.")
@@ -200,11 +359,17 @@ def build_strategy_lab_report(
         )
 
     ok = bool(payload) and bool(rows)
+    research_acceptance = _build_research_acceptance(
+        ok=ok,
+        top_row=top_row,
+        collector_runtime=collector_runtime,
+    )
     severity, summary = _derive_severity(
         ok=ok,
         top_row=top_row,
         paper_history=paper_history,
         collector_runtime=collector_runtime,
+        research_acceptance=research_acceptance,
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -218,6 +383,7 @@ def build_strategy_lab_report(
         "top_rows": _top_rows_snapshot(rows),
         "collector_runtime": collector_runtime,
         "paper_history": paper_history,
+        "research_acceptance": research_acceptance,
         "comparison": {
             "has_previous": bool(comparison.get("has_previous")),
             "summary_text": str(comparison.get("summary_text") or ""),
@@ -241,6 +407,7 @@ def build_strategy_lab_report(
             top_row=top_row,
             paper_history=paper_history,
             collector_runtime=collector_runtime,
+            research_acceptance=research_acceptance,
             loss_replay=loss_replay,
         ),
     }
@@ -273,6 +440,7 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
 
     paper_history = dict(report.get("paper_history") or {})
     collector_runtime = dict(report.get("collector_runtime") or {})
+    research_acceptance = dict(report.get("research_acceptance") or {})
     lines.extend(
         [
             "",
@@ -295,6 +463,17 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
     )
     if str(paper_history.get("caveat") or "").strip():
         lines.append(f"- caveat: {paper_history.get('caveat')}")
+
+    lines.extend(
+        [
+            "",
+            "## Research Acceptance",
+            f"- status: `{research_acceptance.get('status') or 'unknown'}`",
+            f"- summary: {research_acceptance.get('summary') or '(none)'}",
+        ]
+    )
+    for blocker in list(research_acceptance.get("blockers") or []):
+        lines.append(f"- blocker: {blocker}")
 
     comparison = dict(report.get("comparison") or {})
     lines.extend(

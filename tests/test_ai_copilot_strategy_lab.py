@@ -31,13 +31,18 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
                     "decision": "improve",
                     "leaderboard_score": 0.81,
                     "avg_return_pct": 5.2,
+                    "net_return_after_costs_pct": 5.2,
                     "max_drawdown_pct": 2.1,
-                    "closed_trades": 9,
-                    "evidence_status": "supported",
+                    "closed_trades": 34,
+                    "closed_trade_window_count": 3,
+                    "active_window_count": 3,
+                    "slippage_sensitivity_pct": 1.1,
+                    "evidence_status": "paper_supported",
                     "confidence_label": "medium",
                     "paper_history_note": "Supported by paper history.",
                     "biggest_weakness": "Thin loser sample.",
                     "next_improvement": "Study the latest losing exit cluster.",
+                    "paper_history": {"closed_trades": 34, "fills": 68, "net_realized_pnl": 212.5},
                 }
             ]
         },
@@ -71,6 +76,7 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
     assert report["ok"] is True
     assert report["severity"] == "ok"
     assert report["selected_strategy"] == "ema_cross"
+    assert report["research_acceptance"]["accepted"] is True
     assert report["loss_replay"]["losing_trade_count"] == 2
     assert any("Top strategy changed" in item for item in report["recommendations"])
     assert any("Study the latest losing exit cluster." in item for item in report["recommendations"])
@@ -103,13 +109,18 @@ def test_build_strategy_lab_report_warns_when_evidence_is_partial_or_thin(monkey
                     "decision": "improve",
                     "leaderboard_score": 0.57,
                     "avg_return_pct": 15.0,
+                    "net_return_after_costs_pct": 15.0,
                     "max_drawdown_pct": 8.4,
                     "closed_trades": 1,
+                    "closed_trade_window_count": 1,
+                    "active_window_count": 1,
+                    "slippage_sensitivity_pct": 16.0,
                     "evidence_status": "paper_thin",
                     "confidence_label": "low",
                     "paper_history_note": "1 closed trade, thin sample.",
                     "biggest_weakness": "Thin sample.",
                     "next_improvement": "Run more windows.",
+                    "paper_history": {"closed_trades": 1, "fills": 2, "net_realized_pnl": 4.0},
                 }
             ]
         },
@@ -134,10 +145,13 @@ def test_build_strategy_lab_report_warns_when_evidence_is_partial_or_thin(monkey
 
     assert report["ok"] is True
     assert report["severity"] == "warn"
+    assert report["research_acceptance"]["accepted"] is False
     assert "partial evidence" in report["summary"]
+    assert "does not meet the current research-acceptance floor" in report["research_acceptance"]["summary"]
     assert report["collector_runtime"]["completed_strategies"] == 1
     assert any("Finish the current paper evidence cycle" in item for item in report["recommendations"])
-    assert any("promotion-ready" in item for item in report["recommendations"])
+    assert any("credible edge" in item for item in report["recommendations"])
+    assert any("Research acceptance blocker:" in item for item in report["recommendations"])
 
 
 def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
@@ -152,6 +166,7 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
         "top_rows": [{"strategy": "ema_cross", "rank": 1, "decision": "keep", "leaderboard_score": 0.8, "max_drawdown_pct": 2.0}],
         "collector_runtime": {"status": "stopped", "completed_strategies": 3, "total_strategies": 3, "summary_text": "Complete run."},
         "paper_history": {"status": "available", "fills_count": 12, "strategy_count": 3, "caveat": ""},
+        "research_acceptance": {"status": "accepted", "summary": "ema_cross meets the current research-acceptance floor.", "blockers": []},
         "comparison": {"summary_text": "Unchanged.", "top_strategy_changed": False, "improved_count": 0, "degraded_count": 0},
         "loss_replay": {"available": True, "losing_trade_count": 1, "closed_trade_count": 4},
         "recommendations": ["Keep it paper-only."],
@@ -169,3 +184,4 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
     assert "# CryptKeep Strategy Lab" in markdown
     assert "ema_cross" in markdown
     assert "## Evidence Runtime" in markdown
+    assert "## Research Acceptance" in markdown
