@@ -2001,7 +2001,7 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
             },
             "signals": {
                 "auto_route_to_paper": True,
-                "default_venue": "kraken",
+                "default_venue": "gateio",
                 "default_qty": 0.25,
                 "order_type": "limit",
             },
@@ -2035,7 +2035,7 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
     assert payload["paper_fee_bps"] == 9.0
     assert payload["paper_slippage_bps"] == 4.0
     assert payload["require_keys_for_live"] is False
-    assert payload["default_venue"] == "kraken"
+    assert payload["default_venue"] == "gateio"
     assert payload["default_qty"] == 0.25
     assert payload["order_type"] == "limit"
     assert payload["operations_snapshot"] == {
@@ -2070,7 +2070,7 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
             "paper_fee_bps": 11.0,
             "paper_slippage_bps": 6.5,
             "require_keys_for_live": False,
-            "default_venue": "kraken",
+            "default_venue": "gateio",
             "default_qty": 0.5,
             "order_type": "limit",
         }
@@ -2086,7 +2086,7 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
     assert execution["paper_slippage_bps"] == 6.5
     assert execution["require_keys_for_live"] is False
     assert saved_cfg["signals"]["auto_route_to_paper"] is True
-    assert saved_cfg["signals"]["default_venue"] == "kraken"
+    assert saved_cfg["signals"]["default_venue"] == "gateio"
     assert saved_cfg["signals"]["default_qty"] == 0.5
     assert saved_cfg["signals"]["order_type"] == "limit"
     assert saved_cfg["dashboard_ui"]["automation"]["schedule"] == "every 15 min"

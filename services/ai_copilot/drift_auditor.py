@@ -35,6 +35,45 @@ def _python_assignment_literal(rel_path: str, name: str, default: Any) -> Any:
     return default
 
 
+def _dashboard_venue_options() -> list[str]:
+    rel_path = "dashboard/pages/50_Automation.py"
+    path = _root() / rel_path
+    if not path.exists():
+        return []
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    imported_names: dict[str, str] = {}
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and node.module:
+            for alias in node.names:
+                local_name = alias.asname or alias.name
+                imported_names[local_name] = f"{node.module.replace('.', '/')}.py::{alias.name}"
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            if not isinstance(target, ast.Name) or target.id != "venue_options":
+                continue
+            try:
+                value = ast.literal_eval(node.value)
+                return sorted(value)
+            except Exception:
+                pass
+            if (
+                isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Name)
+                and node.value.func.id == "list"
+                and len(node.value.args) == 1
+                and isinstance(node.value.args[0], ast.Name)
+            ):
+                imported_ref = imported_names.get(node.value.args[0].id)
+                if imported_ref:
+                    module_rel_path, imported_name = imported_ref.split("::", 1)
+                    imported_value = _python_assignment_literal(module_rel_path, imported_name, [])
+                    return sorted(imported_value)
+            return []
+    return []
+
+
 def _python_assignment_dict_keys(rel_path: str, name: str) -> list[str]:
     path = _root() / rel_path
     if not path.exists():
@@ -109,7 +148,7 @@ def _extract_trading_symbols() -> list[str]:
 def _exchange_support_check() -> dict[str, Any]:
     docs_exchanges = sorted(_markdown_bullets_after_heading("docs/EXCHANGES.md", "## Venues configured"))
     preflight_supported = sorted(_python_assignment_literal("services/preflight/preflight.py", "SUPPORTED_EXCHANGES", set()))
-    dashboard_venues = sorted(_python_assignment_literal("dashboard/pages/50_Automation.py", "venue_options", []))
+    dashboard_venues = _dashboard_venue_options()
     venue_caps = _python_assignment_dict_keys("services/execution/venue_capabilities.py", "_CAPS")
 
     mismatch = not (
