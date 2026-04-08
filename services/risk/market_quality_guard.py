@@ -109,3 +109,12 @@ def check(venue: str, symbol: str) -> Dict[str, Any]:
         "last": last,
         "price_used": price,
     }
+
+
+def check_market_quality(venue: str, symbol: str) -> tuple[bool, str]:
+    """
+    Compatibility wrapper for live-executor callers that still expect the
+    historical `(ok, reason)` contract instead of the full detail payload.
+    """
+    out = check(venue, symbol)
+    return bool(out.get("ok")), str(out.get("reason") or "ok")

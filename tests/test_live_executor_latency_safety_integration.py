@@ -10,6 +10,7 @@ def _guard_running(monkeypatch) -> None:
         "get_system_guard_state",
         lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok", "epoch": 1, "cancel_requested": False},
     )
+    monkeypatch.setattr(le, "check_market_quality", lambda *_args, **_kwargs: (True, "ok"))
 
 
 def test_submit_pending_live_blocks_on_stale_market_freshness(monkeypatch):

@@ -107,3 +107,20 @@ def test_market_quality_guard_symbol_threshold_overrides(monkeypatch):
     out = mqg.check("coinbase", "btc-usd")
     assert out["ok"] is False
     assert out["reason"] == "spread_too_wide"
+
+
+def test_market_quality_guard_compat_wrapper_returns_tuple(monkeypatch):
+    monkeypatch.setattr(
+        mqg,
+        "load_user_yaml",
+        lambda: {"market_quality_guard": {"enabled": True, "block_when_unknown": True}},
+    )
+    monkeypatch.setattr(mqg, "get_best_bid_ask_last", lambda venue, symbol: None)
+
+    out = mqg.check("coinbase", "BTC/USD")
+    ok, reason = mqg.check_market_quality("coinbase", "BTC/USD")
+
+    assert out["ok"] is False
+    assert out["reason"] == "no_quote_data"
+    assert ok is out["ok"]
+    assert reason == out["reason"]

@@ -13,6 +13,7 @@ dependencies = [
   "keyring",
   "argon2-cffi>=25.1.0",
   "ccxt>=4.0",
+  "anthropic",
   "SQLAlchemy>=2.0",
   "redis>=7.4.0",
   "psycopg[binary]>=3.3.0",
