@@ -390,6 +390,55 @@ def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> No
     assert payload["scorecard_snapshot"]["source_name"] == home_digest.DIGEST_SOURCE_MAP["scorecard_snapshot_artifact"]
 
 
+def test_build_mode_truth_digest_warns_when_promotion_review_is_clear_but_research_confidence_is_not() -> None:
+    payload = home_digest.build_mode_truth_digest(
+        as_of="2026-03-19T12:00:00Z",
+        runtime_context={
+            "mode_value": "sandbox_live",
+            "mode_label": "Sandbox Live",
+            "normalized_live_enabled": True,
+            "guard_allowed": True,
+            "armed": True,
+            "start_decision": _Decision(ok=True, mode="live", status="OK", reasons=[], note="Sandbox start allowed"),
+        },
+        promotion_readiness={
+            "current_stage_label": "Sandbox Live",
+            "target_stage_label": "Tiny Live",
+            "status": "ok",
+            "summary": "Current evidence is strong enough to review promotion from Sandbox Live to Tiny Live.",
+            "pass_criteria": [],
+            "rollback_criteria": [],
+            "blockers": [],
+        },
+        strategy_context={
+            "raw_rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "candidate": "breakout_default",
+                    "evidence_status": "paper_supported",
+                    "confidence_label": "medium",
+                    "closed_trades": 6,
+                    "closed_trade_window_count": 1,
+                    "net_return_after_costs_pct": 12.0,
+                    "max_drawdown_pct": 4.0,
+                    "slippage_sensitivity_pct": 0.3,
+                    "research_acceptance": {
+                        "accepted": False,
+                        "status": "not_accepted",
+                        "summary": "`breakout_donchian` does not meet the current research-acceptance floor yet.",
+                        "blockers": [
+                            "Persisted paper history only has 6 closed trade(s); the current research floor requires 30."
+                        ],
+                    },
+                }
+            ]
+        },
+    )
+
+    assert payload["promotion_status"] == "warn"
+    assert any("research-acceptance floor" in item for item in payload["promotion_blockers"])
+
+
 def test_load_home_digest_surfaces_system_guard_blocking(monkeypatch) -> None:
     monkeypatch.setattr(
         home_digest,
