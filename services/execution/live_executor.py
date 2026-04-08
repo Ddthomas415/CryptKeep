@@ -593,7 +593,8 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             _LOG.info("market_quality_gate blocked intent=%s reason=%s", intent_id, mq_reason)
             continue
 
-        _sym_lock = store.get_symbol_lock(str(it.get("symbol") or ""))
+        _get_symbol_lock = getattr(store, "get_symbol_lock", None)
+        _sym_lock = _get_symbol_lock(str(it.get("symbol") or "")) if callable(_get_symbol_lock) else None
         if _sym_lock is not None:
             _lock_remaining_sec = max(0, (_sym_lock["locked_until_ms"] - _now_ms()) // 1000)
             store.set_intent_status(

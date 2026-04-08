@@ -7,10 +7,18 @@ import types
 
 def _import_live_executor_with_guard_stub():
     sys.modules.pop("services.execution.live_executor", None)
+    original_guard = sys.modules.get("services.risk.market_quality_guard")
     mod = types.ModuleType("services.risk.market_quality_guard")
-    mod.check_market_quality = lambda *args, **kwargs: {"ok": True}
+    mod.check = lambda *args, **kwargs: {"ok": True, "reason": "ok"}
+    mod.check_market_quality = lambda *args, **kwargs: (True, "ok")
     sys.modules["services.risk.market_quality_guard"] = mod
-    return importlib.import_module("services.execution.live_executor")
+    try:
+        return importlib.import_module("services.execution.live_executor")
+    finally:
+        if original_guard is None:
+            sys.modules.pop("services.risk.market_quality_guard", None)
+        else:
+            sys.modules["services.risk.market_quality_guard"] = original_guard
 
 
 def test_hard_off_guard_accepts_persisted_live_arm_signal(monkeypatch):

@@ -810,12 +810,12 @@ def test_research_page_starts_collector_loop_from_dashboard(monkeypatch) -> None
     monkeypatch.setattr(
         operator_service,
         "start_crypto_edge_collector_loop",
-        lambda interval_sec, plan_file="sample_data/crypto_edges/live_collector_plan.json": captured.update({"interval_sec": interval_sec, "plan_file": plan_file}) or (0, "started"),
+        lambda interval_sec, plan_file="sample_data/crypto_edges/live_collector_plan.json", current_role="VIEWER": captured.update({"interval_sec": interval_sec, "plan_file": plan_file}) or (0, "started"),
     )
     monkeypatch.setattr(
         operator_service,
         "stop_crypto_edge_collector_loop",
-        lambda: (0, "stopped"),
+        lambda current_role="VIEWER": (0, "stopped"),
     )
 
     _load_dashboard_module(
@@ -981,7 +981,7 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
     )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
     monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
-    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
+    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None, current_role="VIEWER": (0, "{}"))
     monkeypatch.setattr(
         operator_service,
         "run_full_system_diagnostics",
@@ -993,9 +993,9 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
             "issues": [{"severity": "warn", "category": "runtime_lock", "title": "Stale lock", "summary": "lock needs cleanup", "repairable": True}],
         },
     )
-    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": []})
-    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True: {"ok": True, "removed_count": 0})
-    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda current_role="VIEWER": {"ok": True, "repair_plan": []})
+    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True, current_role="VIEWER": {"ok": True, "removed_count": 0})
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda current_role="VIEWER": {"ok": True, "exported_to": "/tmp/diag.zip"})
     monkeypatch.setattr(
         operator_service,
         "start_paper_strategy_evidence_collection",
@@ -1168,6 +1168,7 @@ def test_operations_page_shows_paper_evidence_warning(monkeypatch) -> None:
     from dashboard.services import operator as operator_service
     from dashboard.services import operator_tools, strategy_evaluation
     from dashboard.services import strategy_evidence_runtime
+    from services.admin import live_guard
     from services.admin import config_editor, repair_wizard
     from services.execution import idempotency_inspector
     from services.strategies import config_tools, presets
@@ -1229,6 +1230,7 @@ def test_operations_page_shows_paper_evidence_warning(monkeypatch) -> None:
     monkeypatch.setattr(operator_tools, "synthetic_ohlcv", lambda count: [[1, 100, 101, 99, 100, 1.0]] * max(int(count), 1))
     monkeypatch.setattr(idempotency_inspector, "list_recent", lambda limit=10, status="error": {"ok": True, "rows": [], "path": "/tmp/db", "table": "idempotency"})
     monkeypatch.setattr(idempotency_inspector, "filter_rows", lambda rows, venue_filter, symbol_filter: [])
+    monkeypatch.setattr(live_guard, "live_allowed", lambda **_: (True, "ok", {"system_guard": "RUNNING"}))
     monkeypatch.setattr(repair_wizard, "preflight_self_check", lambda: {"ok": True})
     monkeypatch.setattr(repair_wizard, "preview_reset", lambda include_locks=False: {"ok": True, "include_locks": include_locks})
     monkeypatch.setattr(repair_wizard, "execute_reset", lambda confirm_text="", include_locks=False: {"ok": False, "reason": "not_confirmed"})
@@ -1333,7 +1335,7 @@ def test_operations_page_starts_collector_loop(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
-    monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
+    monkeypatch.setattr(operator_service, "run_op", lambda args, current_role="VIEWER": (0, "ok"))
     monkeypatch.setattr(
         operator_service,
         "run_full_system_diagnostics",
@@ -1345,9 +1347,9 @@ def test_operations_page_starts_collector_loop(monkeypatch) -> None:
             "issues": [],
         },
     )
-    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": []})
-    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True: {"ok": True, "removed_count": 0})
-    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda current_role="VIEWER": {"ok": True, "repair_plan": []})
+    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True, current_role="VIEWER": {"ok": True, "removed_count": 0})
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda current_role="VIEWER": {"ok": True, "exported_to": "/tmp/diag.zip"})
     monkeypatch.setattr(
         operator_service,
         "start_crypto_edge_collector_loop",
@@ -1482,7 +1484,7 @@ def test_operations_page_starts_paper_evidence_collector(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
-    monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
+    monkeypatch.setattr(operator_service, "run_op", lambda args, current_role="VIEWER": (0, "ok"))
     monkeypatch.setattr(
         operator_service,
         "run_full_system_diagnostics",
@@ -1637,7 +1639,7 @@ def test_operations_page_applies_safe_self_repair(monkeypatch) -> None:
     )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
     monkeypatch.setattr(operator_service, "run_op", lambda args: (0, "ok"))
-    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
+    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None, current_role="VIEWER": (0, "{}"))
     monkeypatch.setattr(
         operator_service,
         "run_full_system_diagnostics",

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from services.admin import live_guard
@@ -131,7 +133,23 @@ risk:
         encoding="utf-8",
     )
 
-    out = pf.run_preflight(str(cfg_path))
+    env_vars = {
+        "CBP_MAX_TRADES_PER_DAY": "10",
+        "CBP_MAX_DAILY_LOSS": "100",
+        "CBP_MAX_DAILY_NOTIONAL": "1000",
+        "CBP_MAX_ORDER_NOTIONAL": "100",
+    }
+    old_env = {name: os.environ.get(name) for name in env_vars}
+    try:
+        for name, value in env_vars.items():
+            os.environ[name] = value
+        out = pf.run_preflight(str(cfg_path))
+    finally:
+        for name, previous in old_env.items():
+            if previous is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = previous
     checks = {row["name"]: row for row in out.checks}
 
     assert out.ok is True
