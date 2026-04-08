@@ -22,7 +22,13 @@ from typing import Any, Dict
 import yaml
 
 from services.os.app_paths import runtime_dir
-from services.runtime.process_supervisor import is_running, start_process, status, stop_process
+from services.runtime.process_supervisor import (
+    is_running,
+    request_system_guard_halt,
+    start_process,
+    status,
+    stop_process,
+)
 
 MANAGED_SERVICES = ("pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler")
 STATUS_PATH = runtime_dir() / "flags" / "bot_runner.status.json"
@@ -180,12 +186,21 @@ def run_loop(*, cfg_path: str = "config/trading.yaml", interval_sec: float = 2.0
         if STOP_EVENT.wait(max(0.1, float(interval_sec))):
             break
 
-    # On shutdown, stop services managed by this bot runner.
+    # On shutdown, raise shared halt state before tearing down managed services.
+    system_guard = request_system_guard_halt(writer="bot_runner", reason="bot_runner_shutdown")
     shutdown = []
     for name in MANAGED_SERVICES:
         if is_running(name):
             shutdown.append(stop_process(name))
-    write_status({"ok": True, "status": "stopped", "stopped": shutdown, "ts_epoch": time.time()})
+    write_status(
+        {
+            "ok": bool(system_guard.get("ok")),
+            "status": "stopped",
+            "system_guard": system_guard,
+            "stopped": shutdown,
+            "ts_epoch": time.time(),
+        }
+    )
     return 0
 
 
