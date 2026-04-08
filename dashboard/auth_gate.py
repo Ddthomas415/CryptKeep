@@ -36,6 +36,25 @@ DEFAULT_LOCKOUT_THRESHOLD = 5
 DEFAULT_LOCKOUT_SECONDS = 300  # 5 minutes
 
 
+def _inject_signed_out_layout() -> None:
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"],
+        [data-testid="collapsedControl"] {
+          display: none !important;
+        }
+        [data-testid="stAppViewContainer"] [data-testid="stMainBlockContainer"] {
+          max-width: 1120px;
+          padding-left: 2rem;
+          padding-right: 2rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def has_role(current_role: str, required_role: Role) -> bool:
     order = {"VIEWER": 0, "OPERATOR": 1, "ADMIN": 2}
     cur = str(current_role or "VIEWER").strip().upper()
@@ -286,6 +305,9 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
         _clear_auth_session()
         state = _session_get()
         state["error"] = "session_expired"
+
+    if not bool(state.get("ok")):
+        _inject_signed_out_layout()
 
     with st.expander("Authentication", expanded=not bool(state.get("ok"))):
         st.caption(

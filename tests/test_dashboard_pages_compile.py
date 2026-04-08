@@ -32,3 +32,9 @@ def test_dashboard_app_no_longer_preloads_services_package() -> None:
     text = (REPO_ROOT / "dashboard/app.py").read_text(encoding="utf-8")
     assert 'sys.modules["services"]' not in text
     assert "spec_from_file_location(" not in text
+
+
+def test_dashboard_app_no_longer_monkeypatches_streamlit_button() -> None:
+    text = (REPO_ROOT / "dashboard/app.py").read_text(encoding="utf-8")
+    assert "Start Live Bot" not in text
+    assert "st.button = " not in text

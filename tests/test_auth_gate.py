@@ -33,6 +33,7 @@ class _FakeStreamlit:
         self.infos: list[str] = []
         self.successes: list[str] = []
         self.captions: list[str] = []
+        self.markdowns: list[str] = []
 
     def error(self, message: str) -> None:
         self.errors.append(str(message))
@@ -48,6 +49,9 @@ class _FakeStreamlit:
 
     def caption(self, message: str) -> None:
         self.captions.append(str(message))
+
+    def markdown(self, message: str, unsafe_allow_html: bool = False) -> None:
+        self.markdowns.append(str(message))
 
     def metric(self, *args, **kwargs) -> None:
         return None
@@ -193,6 +197,38 @@ def test_require_authenticated_role_warns_when_remote_scope_is_not_hardened(monk
         auth_gate.require_authenticated_role("VIEWER")
 
     assert any("outer access-control layer" in msg.lower() for msg in fake.warnings)
+
+
+def test_require_authenticated_role_hides_sidebar_when_signed_out(monkeypatch) -> None:
+    fake = _FakeStreamlit()
+
+    monkeypatch.setattr(auth_gate, "st", fake)
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("BYPASS_DASHBOARD_AUTH", raising=False)
+    monkeypatch.setattr(
+        auth_gate,
+        "auth_capabilities",
+        lambda: {
+            "os_keychain": True,
+            "env_credentials": False,
+            "recommended": "os_keychain",
+            "detail": None,
+            "auth_scope_label": "Remote/public candidate",
+            "scope_detail": "Remote/public use requires stronger controls.",
+            "built_in_mfa": True,
+            "mfa_detail": "Built-in TOTP MFA is available.",
+            "outer_access_control": "cloudflare_access",
+            "remote_access_hardened": True,
+            "runtime_guard_violations": [],
+            "runtime_guard_warnings": [],
+        },
+    )
+    monkeypatch.setattr(auth_gate, "ensure_bootstrap_user_from_env", lambda: {"ok": True, "skipped": True})
+
+    with pytest.raises(_StopCalled):
+        auth_gate.require_authenticated_role("VIEWER")
+
+    assert any('[data-testid="stSidebar"]' in text for text in fake.markdowns)
 
 
 def test_require_authenticated_role_surfaces_runtime_guard_violation_for_remote_scope(monkeypatch) -> None:

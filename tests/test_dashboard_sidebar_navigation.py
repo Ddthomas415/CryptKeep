@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from dashboard.components.sidebar import DEFAULT_NAV_ITEMS
+from dashboard.components import sidebar as sidebar_component
+from dashboard.components.sidebar import DEFAULT_BRAND_PILLS, DEFAULT_NAV_ITEMS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -58,6 +59,10 @@ def test_default_nav_items_contract() -> None:
     assert DEFAULT_NAV_ITEMS == EXPECTED_NAV_ITEMS
 
 
+def test_default_brand_pills_are_neutral() -> None:
+    assert DEFAULT_BRAND_PILLS == ("Role Gated", "Workflow Shell")
+
+
 def test_sidebar_rendered_across_dashboard_pages() -> None:
     for relative_path in SIDEBAR_ENABLED_FILES:
         file_path = REPO_ROOT / relative_path
@@ -81,3 +86,34 @@ def test_legacy_ui_page_is_retired_stub() -> None:
     assert "Legacy UI (Retired)" in source
     assert "importlib.util" not in source
     assert "CBP_ENABLE_LEGACY_UI" not in source
+
+
+def test_render_app_sidebar_renders_neutral_default_pills(monkeypatch) -> None:
+    calls: list[str] = []
+
+    class _SidebarCtx:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    class _FakeStreamlit:
+        def __init__(self) -> None:
+            self.sidebar = _SidebarCtx()
+
+        def markdown(self, text: str, unsafe_allow_html: bool = False) -> None:
+            calls.append(str(text))
+
+        def page_link(self, path: str, *, label: str, icon: str) -> None:
+            calls.append(f"{path}|{label}|{icon}")
+
+    monkeypatch.setattr(sidebar_component, "st", _FakeStreamlit())
+
+    sidebar_component.render_app_sidebar()
+
+    rendered = "\n".join(calls)
+    assert "Research Only" not in rendered
+    assert "Paper Safe" not in rendered
+    assert "Role Gated" in rendered
+    assert "Workflow Shell" in rendered

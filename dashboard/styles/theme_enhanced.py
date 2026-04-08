@@ -1,8 +1,11 @@
 from __future__ import annotations
-import streamlit as st
 
 
 def inject_enhanced_theme() -> None:
+    import streamlit as st
+
+    if st.session_state.get("_ck_theme_injected"):
+        return
     st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@400;600;700;800&display=swap');
@@ -484,6 +487,7 @@ button[data-testid="stBaseButton-secondaryFormSubmit"][kind="secondaryFormSubmit
 
 </style>
 """, unsafe_allow_html=True)
+    st.session_state["_ck_theme_injected"] = True
 
 def inject_signin_button() -> None:
     import streamlit as st

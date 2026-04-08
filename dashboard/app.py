@@ -44,18 +44,6 @@ st.set_page_config(page_title="CryptKeep", layout="wide", page_icon=":chart_with
 inject_enhanced_theme()
 inject_signin_button()
 
-_st_button = st.button
-
-
-def _disabled_button(label: str, *args, **kwargs):
-    if isinstance(label, str) and "Start Live Bot" in label:
-        kwargs["disabled"] = True
-        return False
-    return _st_button(label, *args, **kwargs)
-
-
-st.button = _disabled_button
-
 AUTH_STATE = require_authenticated_role("VIEWER")
 render_app_sidebar()
 
