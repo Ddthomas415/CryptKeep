@@ -386,6 +386,7 @@ def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> No
     assert payload["runtime_truth"]["leaderboard_age"]["value"] == "15m old"
     assert any("execution.live_enabled remains false" in item for item in payload["mode_truth"]["promotion_blockers"])
     assert not any(item["title"] == "Persisted strategy evidence is unavailable" for item in payload["attention_now"]["items"])
+    assert any(item["title"] == "Top strategy is not research-accepted" for item in payload["attention_now"]["items"])
     assert payload["scorecard_snapshot"]["source_name"] == home_digest.DIGEST_SOURCE_MAP["scorecard_snapshot_artifact"]
 
 
