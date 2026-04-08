@@ -5,13 +5,12 @@ from html import escape
 
 import streamlit as st
 
-from dashboard.styles.theme import inject_theme
+from dashboard.styles.theme_enhanced import inject_enhanced_theme
 
 
 def render_page_header(title: str, subtitle: str = "", badges: Sequence[dict[str, str]] | None = None) -> None:
     if not st.session_state.get("_ck_theme_injected"):
-        inject_theme()
-        st.session_state["_ck_theme_injected"] = True
+        inject_enhanced_theme()
 
     left, right = st.columns((2.4, 1))
 

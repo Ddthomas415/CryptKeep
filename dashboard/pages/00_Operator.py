@@ -8,6 +8,7 @@ from dashboard.components.sidebar import render_app_sidebar
 
 AUTH_STATE = require_authenticated_role("OPERATOR")
 render_app_sidebar(
+    brand_pills=("Operator Access", "Compatibility"),
     secondary_nav_items=(
         ("pages/00_Operator.py", "Operator (Legacy)", "↩️"),
         ("pages/99_Legacy_UI.py", "Legacy UI", "🗃️"),

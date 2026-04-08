@@ -70,7 +70,7 @@ from services.strategies.presets import list_presets
 
 
 AUTH_STATE = require_authenticated_role("OPERATOR")
-render_app_sidebar()
+render_app_sidebar(brand_pills=("Operator Access", "Guarded Controls"))
 
 render_page_header(
     "Operations",

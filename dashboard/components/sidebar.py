@@ -22,6 +22,11 @@ DEFAULT_NAV_ITEMS: tuple[NavItem, ...] = (
     ("pages/70_Settings.py", "Settings", "🔒"),
 )
 
+DEFAULT_BRAND_PILLS: tuple[str, ...] = (
+    "Role Gated",
+    "Workflow Shell",
+)
+
 
 def _page_link(path: str, *, label: str, icon: str) -> None:
     if hasattr(st, "page_link"):
@@ -35,20 +40,25 @@ def render_app_sidebar(
     title: str = "CryptKeep",
     subtitle: str = "AI Trading Copilot",
     nav_items: Sequence[NavItem] = DEFAULT_NAV_ITEMS,
+    brand_pills: Sequence[str] = DEFAULT_BRAND_PILLS,
     secondary_nav_items: Sequence[NavItem] | None = None,
     secondary_title: str = "Admin / Legacy",
     show_legacy_note: bool = False,
 ) -> None:
+    rendered_pills = [
+        f"<span class='ck-brand-pill'>{escape(str(item).strip())}</span>"
+        for item in brand_pills
+        if str(item).strip()
+    ]
+    pills_html = f"<div class='ck-brand-pills'>{''.join(rendered_pills)}</div>" if rendered_pills else ""
+
     with st.sidebar:
         st.markdown(
             f"""
             <div class="ck-brand">
               <div class="ck-brand-title">{escape(title)}</div>
               <div class="ck-brand-subtitle">{escape(subtitle)}</div>
-              <div class="ck-brand-pills">
-                <span class="ck-brand-pill">Research Only</span>
-                <span class="ck-brand-pill">Paper Safe</span>
-              </div>
+              {pills_html}
             </div>
             <div class="ck-nav-label">Workspace</div>
             """,
