@@ -23,6 +23,22 @@ PHASE1_SERVICE_TOKEN = (
 API_TIMEOUT_SECONDS = float(os.environ.get("CK_API_TIMEOUT_SECONDS", "0.6"))
 
 
+def _attach_data_provenance(
+    payload: dict[str, Any],
+    *,
+    source: str,
+    fallback: bool,
+    message: str,
+) -> dict[str, Any]:
+    enriched = dict(payload)
+    enriched["data_provenance"] = {
+        "source": str(source),
+        "fallback": bool(fallback),
+        "message": str(message).strip(),
+    }
+    return enriched
+
+
 def _default_dashboard_summary() -> dict[str, Any]:
     return {
         "mode": "research_only",
@@ -1741,12 +1757,27 @@ def _apply_local_summary_overrides(summary: dict[str, Any]) -> dict[str, Any]:
 def get_dashboard_summary() -> dict[str, Any]:
     envelope = _fetch_envelope("/api/v1/dashboard/summary")
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return _apply_local_summary_overrides(dict(envelope["data"]))
+        return _attach_data_provenance(
+            _apply_local_summary_overrides(dict(envelope["data"])),
+            source="api_with_local_overlays",
+            fallback=False,
+            message="Workspace status is using runtime/API data with local overlays.",
+        )
 
     mock = _read_mock_envelope("dashboard.json")
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
-        return _apply_local_summary_overrides(dict(mock["data"]))
-    return _apply_local_summary_overrides(_default_dashboard_summary())
+        return _attach_data_provenance(
+            _apply_local_summary_overrides(dict(mock["data"])),
+            source="mock_bundle_with_local_overlays",
+            fallback=True,
+            message="Workspace status is using bundled mock data because live dashboard summary data was unavailable.",
+        )
+    return _attach_data_provenance(
+        _apply_local_summary_overrides(_default_dashboard_summary()),
+        source="dashboard_fallback",
+        fallback=True,
+        message="Workspace status is using static fallback/sample data because no live or mock dashboard summary was available.",
+    )
 
 
 def _gate_state_to_risk_status(gate_state: Any, *, kill_switch_on: bool = False) -> str:

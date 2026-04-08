@@ -12,6 +12,11 @@ def test_dashboard_summary_uses_defaults_when_sources_unavailable(monkeypatch) -
     assert summary["mode"] == "research_only"
     assert summary["risk_status"] == "safe"
     assert float(summary["portfolio"]["total_value"]) > 0
+    assert summary["data_provenance"] == {
+        "source": "dashboard_fallback",
+        "fallback": True,
+        "message": "Workspace status is using static fallback/sample data because no live or mock dashboard summary was available.",
+    }
 
 
 def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
@@ -78,6 +83,11 @@ def test_dashboard_summary_applies_local_runtime_overrides(monkeypatch) -> None:
     assert "system_guard_halting" in summary["active_warnings"]
     assert summary["portfolio"]["total_value"] == 1500.0
     assert summary["portfolio"]["cash"] == 450.0
+    assert summary["data_provenance"] == {
+        "source": "api_with_local_overlays",
+        "fallback": False,
+        "message": "Workspace status is using runtime/API data with local overlays.",
+    }
 
 
 def test_dashboard_summary_prefers_local_watchlist_prices(monkeypatch) -> None:

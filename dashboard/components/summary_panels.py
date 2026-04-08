@@ -214,9 +214,37 @@ def build_overview_status_metrics(summary: dict[str, Any] | None) -> list[dict[s
     ]
 
 
+def build_overview_truth_message(summary: dict[str, Any] | None) -> dict[str, str] | None:
+    payload = summary if isinstance(summary, dict) else {}
+    provenance = payload.get("data_provenance") if isinstance(payload.get("data_provenance"), dict) else {}
+    if not provenance:
+        return None
+    source = str(provenance.get("source") or "").strip().replace("_", " ")
+    message = str(provenance.get("message") or "").strip()
+    if bool(provenance.get("fallback")):
+        return {
+            "tone": "warning",
+            "text": message or "Workspace status is using fallback/sample data.",
+        }
+    if source:
+        return {
+            "tone": "caption",
+            "text": f"Truth source: {source}.",
+        }
+    return None
+
+
 def render_overview_status_summary(summary: dict[str, Any] | None) -> None:
     with st.container(border=True):
         st.markdown("### Workspace Status")
+        truth_message = build_overview_truth_message(summary)
+        if isinstance(truth_message, dict):
+            text = str(truth_message.get("text") or "").strip()
+            tone = str(truth_message.get("tone") or "").strip()
+            if text and tone == "warning":
+                st.warning(text)
+            elif text:
+                st.caption(text)
         metric_items = build_overview_status_metrics(summary)
         metric_cols = st.columns(len(metric_items))
         for col, item in zip(metric_cols, metric_items, strict=False):
