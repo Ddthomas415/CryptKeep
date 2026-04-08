@@ -1,6 +1,6 @@
 from __future__ import annotations
 from services.admin.config_editor import load_user_yaml, save_user_yaml
-from services.execution.live_arming import set_live_enabled, verify_and_consume
+from services.execution.live_arming import set_live_armed_state, set_live_enabled, verify_and_consume
 from services.preflight.preflight import run_preflight
 
 
@@ -31,6 +31,7 @@ def enable_live(*, token: str, checklist: dict) -> dict:
     save = {"ok": ok, "message": msg}
     if not ok:
         return {"ok": False, "reason": "config_save_failed", "save": save, "preflight": preflight}
+    armed_state = set_live_armed_state(True, writer="execution_live_enable", reason="token_enable_live")
     return {
         "ok": True,
         "changed": {
@@ -39,6 +40,7 @@ def enable_live(*, token: str, checklist: dict) -> dict:
             "risk.enable_live": True,
             "execution.live_enabled": True,
         },
+        "armed_state": armed_state,
         "save": save,
         "preflight": preflight,
     }

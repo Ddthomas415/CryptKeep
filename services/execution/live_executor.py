@@ -11,6 +11,7 @@ from typing import Any, Dict, Optional
 import yaml
 
 from services.admin.system_guard import get_state as get_system_guard_state
+from services.execution.live_arming import live_armed_signal
 from services.execution.client_order_id import make_client_order_id
 from services.execution.execution_latency import ExecutionLatencyTracker
 from services.execution.lifecycle_boundary import (
@@ -401,8 +402,9 @@ def _hard_off_guard(cfg: LiveCfg, *, operation: str = "submit") -> tuple[bool, s
         return False, "live.enabled is false"
     if op == "reconcile" and observe_only:
         return True, "ok_shadow"
-    if os.environ.get("LIVE_TRADING") != "YES":
-        return False, "LIVE_TRADING env var is not YES"
+    armed, reason = live_armed_signal()
+    if not armed:
+        return False, reason
     return True, "ok"
 
 

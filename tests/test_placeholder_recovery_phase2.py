@@ -37,6 +37,12 @@ def test_resume_gate_disarms_when_safe(monkeypatch):
             },
         ),
     )
+    arm_calls: list[tuple[bool, str, str]] = []
+    monkeypatch.setattr(
+        resume_gate,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
     monkeypatch.setattr(resume_gate, "set_armed", lambda state, note="": {"armed": state, "note": note})
     monkeypatch.setattr(
         resume_gate,
@@ -47,8 +53,10 @@ def test_resume_gate_disarms_when_safe(monkeypatch):
     out = resume_gate.resume_if_safe(note="safe")
     assert out["ok"] is True
     assert out["resumed"] is True
+    assert out["armed_state"]["armed"] is True
     assert out["kill_switch"]["armed"] is False
     assert out["system_guard"]["state"] == "RUNNING"
+    assert arm_calls == [(True, "resume_gate", "safe")]
     assert out["details"]["kwargs"] == {
         "allow_kill_switch_armed": True,
         "allow_system_guard_halted": True,
@@ -70,6 +78,12 @@ def test_resume_gate_rolls_back_kill_switch_when_system_guard_restore_fails(monk
         "set_armed",
         lambda state, note="": calls.append((bool(state), str(note))) or {"armed": state, "note": note},
     )
+    arm_calls: list[tuple[bool, str, str]] = []
+    monkeypatch.setattr(
+        resume_gate,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
 
     def _raise_guard(*args, **kwargs):
         raise RuntimeError("boom")
@@ -81,11 +95,46 @@ def test_resume_gate_rolls_back_kill_switch_when_system_guard_restore_fails(monk
     assert out["ok"] is False
     assert out["resumed"] is False
     assert out["reason"] == "system_guard_resume_failed:RuntimeError"
+    assert out["armed_state"]["armed"] is False
     assert out["kill_switch"]["armed"] is True
+    assert arm_calls == [
+        (True, "resume_gate", "safe"),
+        (False, "resume_gate", "safe:rollback_system_guard_failed"),
+    ]
     assert calls == [
         (False, "safe"),
         (True, "safe:rollback_system_guard_failed"),
     ]
+
+
+def test_resume_gate_restores_persisted_arm_signal_visible_to_live_arming(monkeypatch, tmp_path):
+    import services.admin.resume_gate as resume_gate
+    from services.execution import live_arming
+
+    importlib.reload(resume_gate)
+    monkeypatch.setattr(live_arming, "STATE_PATH", tmp_path / "live_arming.json")
+    monkeypatch.setattr(live_arming, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
+    monkeypatch.setattr(
+        resume_gate,
+        "live_allowed",
+        lambda **_kwargs: (True, "ok", {"live_enabled": True, "system_guard": {"state": "HALTED"}}),
+    )
+    monkeypatch.setattr(resume_gate, "set_live_armed_state", live_arming.set_live_armed_state)
+    monkeypatch.setattr(resume_gate, "set_armed", lambda state, note="": {"armed": state, "note": note})
+    monkeypatch.setattr(
+        resume_gate,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
+    )
+    for name in ("CBP_LIVE_ARMED", "CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING"):
+        monkeypatch.delenv(name, raising=False)
+
+    out = resume_gate.resume_if_safe(note="safe")
+    armed, reason = live_arming.live_enabled_and_armed()
+
+    assert out["ok"] is True
+    assert armed is True
+    assert reason == "state:live_armed"
 
 
 def test_startup_reconcile_runs_all(monkeypatch):
