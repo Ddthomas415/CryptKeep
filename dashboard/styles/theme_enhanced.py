@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 
-def inject_enhanced_theme() -> None:
+def inject_enhanced_theme(*, force: bool = False) -> None:
     import streamlit as st
 
-    if st.session_state.get("_ck_theme_injected"):
+    if not force and st.session_state.get("_ck_theme_injected"):
         return
     st.markdown("""
 <style>
@@ -58,7 +58,15 @@ html, body, [class*="css"] {
   border-right: 1px solid var(--ck-border);
 }
 [data-testid="stSidebar"] * { color: var(--ck-text); }
-[data-testid="stSidebarNav"], [data-testid="stSidebarNavSeparator"] { display: none; }
+[data-testid="stSidebarHeader"],
+[data-testid="stSidebarNav"],
+[data-testid="stSidebarNavSeparator"],
+[data-testid="stSidebarNavItems"],
+[data-testid="stSidebarNavLinkContainer"],
+[data-testid="stSidebarNavLink"],
+[data-testid="stSidebarNavViewButton"] {
+  display: none !important;
+}
 
 [data-testid="stSidebar"] [data-testid="stPageLink"] a {
   border: 1px solid transparent;

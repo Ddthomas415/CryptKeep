@@ -17,7 +17,7 @@ class _FakeContext:
         return False
 
 
-class _FakeColumn:
+class _FakeColumn(_FakeContext):
     def metric(self, *args, **kwargs):
         return None
 
@@ -34,6 +34,8 @@ class _FakeStreamlit:
         self.successes: list[str] = []
         self.captions: list[str] = []
         self.markdowns: list[str] = []
+        self.expanders: list[str] = []
+        self.sidebar = _FakeContext()
 
     def error(self, message: str) -> None:
         self.errors.append(str(message))
@@ -59,7 +61,8 @@ class _FakeStreamlit:
     def columns(self, spec):
         return [_FakeColumn() for _ in range(len(spec))]
 
-    def expander(self, *args, **kwargs):
+    def expander(self, label: str, *args, **kwargs):
+        self.expanders.append(str(label))
         return _FakeContext()
 
     def form(self, *args, **kwargs):
@@ -229,6 +232,51 @@ def test_require_authenticated_role_hides_sidebar_when_signed_out(monkeypatch) -
         auth_gate.require_authenticated_role("VIEWER")
 
     assert any('[data-testid="stSidebar"]' in text for text in fake.markdowns)
+
+
+def test_require_authenticated_role_moves_signed_in_account_controls_to_sidebar(monkeypatch) -> None:
+    fake = _FakeStreamlit()
+    monkeypatch.setattr(auth_gate, "_now_ts", lambda: 100)
+    fake.session_state[auth_gate.SESSION_KEY] = {
+        "ok": True,
+        "username": "auditor",
+        "role": "ADMIN",
+        "source": "keychain",
+        "error": "",
+        "login_at": 100,
+        "last_activity_at": 100,
+    }
+
+    monkeypatch.setattr(auth_gate, "st", fake)
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("BYPASS_DASHBOARD_AUTH", raising=False)
+    monkeypatch.setattr(
+        auth_gate,
+        "auth_capabilities",
+        lambda: {
+            "os_keychain": True,
+            "env_credentials": False,
+            "recommended": "os_keychain",
+            "detail": None,
+            "auth_scope_label": "Local/private only",
+            "scope_detail": "Configured for local/private use.",
+            "built_in_mfa": True,
+            "mfa_detail": "Built-in TOTP MFA is available.",
+            "outer_access_control": "",
+            "remote_access_hardened": False,
+            "runtime_guard_violations": [],
+            "runtime_guard_warnings": [],
+        },
+    )
+    monkeypatch.setattr(auth_gate, "ensure_bootstrap_user_from_env", lambda: {"ok": True, "skipped": True})
+    monkeypatch.setattr(auth_gate, "get_user_mfa_status", lambda **kwargs: {"ok": False})
+
+    out = auth_gate.require_authenticated_role("VIEWER")
+
+    assert out["ok"] is True
+    assert "Authentication" not in fake.expanders
+    assert "Account Security" in fake.expanders
+    assert any("Signed in as `auditor`" in text for text in fake.captions)
 
 
 def test_require_authenticated_role_surfaces_runtime_guard_violation_for_remote_scope(monkeypatch) -> None:
