@@ -6,6 +6,7 @@ from dashboard.components.summary_panels import (
     build_market_snapshot_lines,
     build_operations_status_metrics,
     build_overview_status_metrics,
+    build_overview_truth_message,
     build_portfolio_position_metrics,
     build_settings_profile_metrics,
     build_trade_failure_metrics,
@@ -123,6 +124,40 @@ def test_build_overview_status_metrics_formats_workspace_state() -> None:
         "label": "Exposure",
         "value": "55.5%",
         "delta": "Leverage 2.1x",
+    }
+
+
+def test_build_overview_truth_message_marks_fallback_truth() -> None:
+    message = build_overview_truth_message(
+        {
+            "data_provenance": {
+                "source": "dashboard_fallback",
+                "fallback": True,
+                "message": "Workspace status is using static fallback/sample data because no live or mock dashboard summary was available.",
+            }
+        }
+    )
+
+    assert message == {
+        "tone": "warning",
+        "text": "Workspace status is using static fallback/sample data because no live or mock dashboard summary was available.",
+    }
+
+
+def test_build_overview_truth_message_formats_runtime_source() -> None:
+    message = build_overview_truth_message(
+        {
+            "data_provenance": {
+                "source": "api_with_local_overlays",
+                "fallback": False,
+                "message": "Workspace status is using runtime/API data with local overlays.",
+            }
+        }
+    )
+
+    assert message == {
+        "tone": "caption",
+        "text": "Truth source: api with local overlays.",
     }
 
 

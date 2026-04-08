@@ -177,17 +177,20 @@ def _exchange_support_check() -> dict[str, Any]:
 
 def _dashboard_fallback_truth_check() -> dict[str, Any]:
     rel_path = "dashboard/services/view_data.py"
+    view_data_text = _read_text(rel_path)
     function_names = _python_function_names(rel_path)
     fallback_functions = sorted(name for name in function_names if name.startswith("_default_"))
     watchlist_assets = _extract_watchlist_assets(_read_text(rel_path))
-    has_fallback_truth = bool(fallback_functions)
+    summary_fallback_labeled = '"data_provenance"' in view_data_text and '"dashboard_fallback"' in view_data_text
+    has_unlabeled_fallback_truth = bool(fallback_functions) and not summary_fallback_labeled
     return {
         "name": "dashboard_fallback_truth",
-        "ok": not has_fallback_truth,
-        "severity": "warn" if has_fallback_truth else "ok",
+        "ok": not has_unlabeled_fallback_truth,
+        "severity": "warn" if has_unlabeled_fallback_truth else "ok",
         "fallback_functions": fallback_functions,
+        "summary_fallback_labeled": summary_fallback_labeled,
         "watchlist_assets": watchlist_assets,
-        "issue": "dashboard still contains sample/synthetic default data helpers" if has_fallback_truth else "",
+        "issue": "dashboard summary fallback truth is not explicitly labeled" if has_unlabeled_fallback_truth else "",
     }
 
 
@@ -237,11 +240,14 @@ def build_drift_report() -> dict[str, Any]:
         if severity == "ok"
         else "Concrete repo drift was detected in exchange support or dashboard truth/default surfaces."
     )
-    recommendations = [
-        "Make dashboard venue options derive from the same backend-supported exchange registry.",
-        "Label or remove dashboard fallback/sample data where runtime truth is unavailable.",
-        "Align default dashboard watchlist assets with configured trading symbols or a declared universe source.",
-    ]
+    recommendations: list[str] = []
+    failing_checks = {str(check.get("name") or "") for check in checks if check.get("severity") != "ok"}
+    if "exchange_support_drift" in failing_checks:
+        recommendations.append("Make dashboard venue options derive from the same backend-supported exchange registry.")
+    if "dashboard_fallback_truth" in failing_checks:
+        recommendations.append("Label or remove dashboard fallback/sample data where runtime truth is unavailable.")
+    if "default_universe_drift" in failing_checks:
+        recommendations.append("Align default dashboard watchlist assets with configured trading symbols or a declared universe source.")
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),

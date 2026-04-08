@@ -11,12 +11,15 @@ def test_build_drift_report_detects_expected_repo_mismatch():
 
     assert report["severity"] == "warn"
     issue_blob = "\n".join(report["issues"])
-    assert "dashboard_fallback_truth" in issue_blob
     exchange_check = next(item for item in report["checks"] if item["name"] == "exchange_support_drift")
     assert exchange_check["ok"] is True
     assert "gateio" in exchange_check["preflight_supported"]
     assert "gateio" in exchange_check["dashboard_venues"]
     assert "exchange_support_drift" not in issue_blob
+    fallback_check = next(item for item in report["checks"] if item["name"] == "dashboard_fallback_truth")
+    assert fallback_check["ok"] is True
+    assert fallback_check["summary_fallback_labeled"] is True
+    assert "dashboard_fallback_truth" not in issue_blob
 
 
 def test_write_drift_report_writes_files(tmp_path, monkeypatch):
@@ -35,4 +38,4 @@ def test_write_drift_report_writes_files(tmp_path, monkeypatch):
     assert payload["severity"] == "warn"
     markdown = markdown_path.read_text(encoding="utf-8")
     assert "# CryptKeep Drift Audit" in markdown
-    assert "dashboard_fallback_truth" in markdown
+    assert "default_universe_drift" in markdown
