@@ -1192,7 +1192,13 @@ def build_freshness_panel_digest(
     )
 
 
-def build_mode_truth_digest(*, as_of: str, runtime_context: dict[str, Any], promotion_readiness: dict[str, Any]) -> ModeTruthData:
+def build_mode_truth_digest(
+    *,
+    as_of: str,
+    runtime_context: dict[str, Any],
+    promotion_readiness: dict[str, Any],
+    strategy_context: dict[str, Any],
+) -> ModeTruthData:
     mode_value = str(runtime_context.get("mode_value") or "unknown")
     mode_label = str(runtime_context.get("mode_label") or "Unknown")
     start_decision = runtime_context.get("start_decision")
@@ -1221,6 +1227,24 @@ def build_mode_truth_digest(*, as_of: str, runtime_context: dict[str, Any], prom
     if mode_value != "paper" and not bool(runtime_context.get("armed")):
         reasons.append(str(runtime_context.get("arming_reason") or "live_not_armed"))
     reasons.extend(str(item) for item in list(promotion_readiness.get("blockers") or []) if str(item or "").strip())
+    promotion_status = _normalize_health_state(promotion_readiness.get("status"))
+    strategy_rows = [dict(row) for row in list(strategy_context.get("raw_rows") or []) if isinstance(row, dict)]
+    if strategy_rows:
+        top_row = strategy_rows[0]
+        research_acceptance = dict(top_row.get("research_acceptance") or {})
+        research_summary = str(research_acceptance.get("summary") or "").strip()
+        research_blockers = [
+            str(item).strip()
+            for item in list(research_acceptance.get("blockers") or _top_row_research_acceptance_blockers(top_row))
+            if str(item).strip()
+        ]
+        if research_blockers:
+            reasons.append(
+                research_summary
+                or "Top strategy is not research-accepted yet; promotion readiness does not make the current edge claim credible."
+            )
+            if promotion_status == "ok":
+                promotion_status = "warn"
     return ModeTruthData(
         **_base_section(
             as_of=as_of,
@@ -1234,7 +1258,7 @@ def build_mode_truth_digest(*, as_of: str, runtime_context: dict[str, Any], prom
         blocked=blocked,
         promotion_stage=str(promotion_readiness.get("current_stage_label") or "Paper"),
         promotion_target=str(promotion_readiness.get("target_stage_label") or "") or None,
-        promotion_status=_normalize_health_state(promotion_readiness.get("status")),
+        promotion_status=promotion_status,
         promotion_summary=str(promotion_readiness.get("summary") or "Promotion readiness is unavailable."),
         promotion_pass_criteria=[str(item) for item in list(promotion_readiness.get("pass_criteria") or []) if str(item or "").strip()],
         promotion_rollback_criteria=[str(item) for item in list(promotion_readiness.get("rollback_criteria") or []) if str(item or "").strip()],
@@ -1456,7 +1480,12 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         leaderboard_summary=leaderboard_summary,
         scorecard_snapshot=scorecard_snapshot,
     )
-    mode_truth = build_mode_truth_digest(as_of=as_of, runtime_context=runtime_context, promotion_readiness=promotion_readiness)
+    mode_truth = build_mode_truth_digest(
+        as_of=as_of,
+        runtime_context=runtime_context,
+        promotion_readiness=promotion_readiness,
+        strategy_context=strategy_context,
+    )
     recent_incidents = build_recent_incidents_digest(
         as_of=as_of,
         overview_summary=summary,
