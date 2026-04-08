@@ -151,6 +151,21 @@ else:
                 "summary": str(focus_details.get("summary_text") or ""),
             }
         )
+        st.markdown("#### Research Acceptance")
+        st.write(
+            {
+                "status": str(focus_details.get("research_acceptance_status") or "unknown"),
+                "accepted": bool(focus_details.get("research_acceptance_accepted")),
+                "summary": str(focus_details.get("research_acceptance_summary") or ""),
+            }
+        )
+        blockers = [
+            str(item).strip()
+            for item in list(focus_details.get("research_acceptance_blockers") or [])
+            if str(item).strip()
+        ]
+        for blocker in blockers:
+            st.write(f"blocker: {blocker}")
 
     markdown_tab, json_tab = st.tabs(["Markdown", "JSON"])
     with markdown_tab:

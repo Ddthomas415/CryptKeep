@@ -132,11 +132,20 @@ def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, A
 
     if str(kind or "") == "strategy_lab":
         runtime = dict((payload or {}).get("collector_runtime") or {})
+        research_acceptance = dict((payload or {}).get("research_acceptance") or {})
         details = {
             "status": str(runtime.get("status") or "unknown"),
             "completed_strategies": int(runtime.get("completed_strategies") or 0),
             "total_strategies": int(runtime.get("total_strategies") or 0),
             "summary_text": str(runtime.get("summary_text") or ""),
+            "research_acceptance_status": str(research_acceptance.get("status") or "unknown"),
+            "research_acceptance_summary": str(research_acceptance.get("summary") or ""),
+            "research_acceptance_accepted": bool(research_acceptance.get("accepted")),
+            "research_acceptance_blockers": [
+                str(item).strip()
+                for item in list(research_acceptance.get("blockers") or [])
+                if str(item).strip()
+            ],
         }
         if severity_text in {"warn", "critical"} and details["summary_text"]:
             message = f"{summary} {details['summary_text']}".strip()

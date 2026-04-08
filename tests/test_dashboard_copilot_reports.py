@@ -89,6 +89,15 @@ def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_deta
                 "total_strategies": 3,
                 "summary_text": "Paper evidence collector is stopped (1/3 complete).",
             },
+            "research_acceptance": {
+                "accepted": False,
+                "status": "not_accepted",
+                "summary": "`breakout_donchian` does not meet the current research-acceptance floor yet.",
+                "blockers": [
+                    "Current evidence cycle is partial at 1/3 completed strategies.",
+                    "Persisted paper history only has 1 closed trade(s); the current research floor requires 30.",
+                ],
+            },
         },
     )
 
@@ -96,3 +105,7 @@ def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_deta
     assert "partial evidence" in focus["message"]
     assert "1/3 complete" in focus["message"]
     assert focus["details"]["completed_strategies"] == 1
+    assert focus["details"]["research_acceptance_status"] == "not_accepted"
+    assert focus["details"]["research_acceptance_accepted"] is False
+    assert "research-acceptance floor" in focus["details"]["research_acceptance_summary"]
+    assert len(focus["details"]["research_acceptance_blockers"]) == 2
