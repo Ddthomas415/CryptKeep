@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import importlib
 import os
 from typing import Any
 
 from services.security.auth_runtime_guard import auth_runtime_guard_status
-from services.security.user_auth_store import keychain_available
 
 _AUTH_SCOPE_LABELS = {
     "local_private_only": "Local/private only",
@@ -12,8 +12,24 @@ _AUTH_SCOPE_LABELS = {
 }
 
 
+def _load_user_auth_store() -> tuple[Any | None, str | None]:
+    try:
+        return importlib.import_module("services.security.user_auth_store"), None
+    except Exception as exc:
+        return None, f"user_auth_store unavailable: {type(exc).__name__}: {exc}"
+
+
 def _keychain_available() -> tuple[bool, str | None]:
-    return keychain_available()
+    mod, error = _load_user_auth_store()
+    if mod is None:
+        return False, error
+    keychain_available = getattr(mod, "keychain_available", None)
+    if not callable(keychain_available):
+        return False, "user_auth_store unavailable: missing keychain_available"
+    try:
+        return keychain_available()
+    except Exception as exc:
+        return False, f"keychain_available failed: {type(exc).__name__}: {exc}"
 
 
 def _env_login_available() -> bool:

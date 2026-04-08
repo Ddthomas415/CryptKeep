@@ -283,6 +283,22 @@ def test_login_requires_mfa_when_user_has_mfa_enabled(monkeypatch):
     assert out["ok"] is True
     assert out["mfa_required"] is True
 
+
+def test_verify_login_fails_closed_when_auth_store_is_unavailable(monkeypatch):
+    monkeypatch.setattr(auth_gate, "_load_user_auth_store", lambda: (None, "auth_store_unavailable:ImportError"))
+
+    out = auth_gate.verify_login("user", "pass")
+
+    assert out == {"ok": False, "reason": "auth_store_unavailable:ImportError"}
+
+
+def test_bootstrap_user_fails_closed_when_auth_store_is_unavailable(monkeypatch):
+    monkeypatch.setattr(auth_gate, "_load_user_auth_store", lambda: (None, "auth_store_unavailable:ImportError"))
+
+    out = auth_gate.ensure_bootstrap_user_from_env()
+
+    assert out == {"ok": False, "reason": "auth_store_unavailable:ImportError"}
+
 def test_logout_clears_session_state(monkeypatch):
     from dashboard import auth_gate
 
