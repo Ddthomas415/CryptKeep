@@ -50,6 +50,29 @@ Hard rules:
 - no config writes
 - no database mutation
 
+### Drift Auditor
+
+Entry points:
+
+- `services/ai_copilot/drift_auditor.py`
+- `scripts/run_ai_drift_audit.py`
+
+Purpose:
+
+- detect concrete repo mismatch between docs, backend support, dashboard options, and fallback/default truth surfaces
+
+Initial checks:
+
+- backend exchange support vs dashboard venue list
+- docs exchange list vs backend exchange support
+- fallback/sample dashboard truth helpers
+- dashboard default watchlist assets vs configured trading symbols
+
+Hard rules:
+
+- read-only only
+- no code or config mutation
+
 ### Repo Reviewer
 
 Entry points:
@@ -91,7 +114,6 @@ Every copilot review should preserve:
 
 ## Planned jobs
 
-- `drift_auditor.py`
 - `sim_runner.py`
 - `strategy_lab.py`
 
