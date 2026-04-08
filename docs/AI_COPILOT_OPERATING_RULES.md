@@ -73,6 +73,31 @@ Hard rules:
 - read-only only
 - no code or config mutation
 
+### Simulation Runner
+
+Entry points:
+
+- `services/ai_copilot/sim_runner.py`
+- `scripts/run_ai_simulation.py`
+
+Purpose:
+
+- run only approved offline paper/replay jobs
+- capture their output as JSON + Markdown evidence packets
+- keep the first lab-runner surface strictly read-only
+
+Initial jobs:
+
+- `paper_diagnostics` via `scripts/report_paper_run_diagnostics.py`
+- `paper_loss_replay` via `scripts/replay_paper_losses.py`
+
+Hard rules:
+
+- no live commands
+- no config writes
+- no database mutation
+- reject any job outside the fixed allowlist
+
 ### Repo Reviewer
 
 Entry points:
@@ -114,7 +139,6 @@ Every copilot review should preserve:
 
 ## Planned jobs
 
-- `sim_runner.py`
 - `strategy_lab.py`
 
 These should remain read-only, paper-only, or draft-only until explicitly
