@@ -23,6 +23,7 @@ def test_kill_switch_get_state_bootstraps_default_file(monkeypatch, tmp_path):
 def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     saved: dict[str, object] = {}
     guard_calls: list[tuple[str, str, str]] = []
+    arm_calls: list[tuple[bool, str, str]] = []
 
     def _save(cfg):
         saved["cfg"] = cfg
@@ -33,6 +34,11 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     monkeypatch.setattr(lew, "load_user_yaml", lambda: {"risk": {"live": {"max_trades_per_day": 5}}})
     monkeypatch.setattr(lew, "save_user_yaml", _save)
     monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (True, "env:CBP_LIVE_ARMED"))
+    monkeypatch.setattr(
+        lew,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
     monkeypatch.setattr(
         lew,
         "set_system_guard_state",
@@ -47,7 +53,9 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     assert saved["cfg"]["live_trading"]["enabled"] is True
     assert saved["cfg"]["risk"]["enable_live"] is True
     assert saved["cfg"]["execution"]["live_enabled"] is True
+    assert out["armed_state"]["armed"] is True
     assert out["system_guard"]["state"] == "RUNNING"
+    assert arm_calls == [(True, "live_enable_wizard", "enable_live")]
     assert guard_calls == [("RUNNING", "live_enable_wizard", "enable_live")]
 
 
@@ -57,6 +65,7 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     events: list[tuple[str, str, str, dict | None]] = []
     kill = {"armed": False, "note": "before"}
     guard_calls: list[tuple[str, str, str]] = []
+    arm_calls: list[tuple[bool, str, str]] = []
     guard_state = {"state": "RUNNING", "writer": "test", "reason": "before"}
     cfg_state = {"live": {"enabled": True}, "risk": {"enable_live": True}}
 
@@ -75,6 +84,11 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     monkeypatch.setattr(ldw, "save_user_yaml", _save)
     monkeypatch.setattr(ldw, "get_kill", lambda: dict(kill))
     monkeypatch.setattr(ldw, "set_armed", _set_armed)
+    monkeypatch.setattr(
+        ldw,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
 
     def _get_guard(**_kwargs):
         return dict(guard_state)
@@ -104,7 +118,9 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     assert out["post"]["live_enabled"] is False
     assert out["post"]["kill_switch_armed"] is True
     assert out["post"]["system_guard"]["state"] == "HALTED"
+    assert out["armed_state"]["armed"] is False
     assert out["system_guard"]["state"] == "HALTED"
+    assert arm_calls == [(False, "live_disable_wizard", "operator_stop")]
     assert guard_calls == [("HALTED", "live_disable_wizard", "operator_stop")]
     assert events and events[0][2] == "live_disabled"
     assert events[0][3]["note"] == "operator_stop"
@@ -114,6 +130,7 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
 def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
     saved: dict[str, object] = {}
     guard_calls: list[tuple[str, str, str]] = []
+    arm_calls: list[tuple[bool, str, str]] = []
 
     def _save(cfg):
         saved["cfg"] = cfg
@@ -126,6 +143,11 @@ def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
     monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (False, "live_disabled"))
     monkeypatch.setattr(
         lew,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        lew,
         "set_system_guard_state",
         lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
     )
@@ -134,10 +156,40 @@ def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
 
     assert out["ok"] is True
     assert out["armed"] is False
+    assert out["armed_state"]["armed"] is False
     assert saved["cfg"]["execution"]["live_enabled"] is False
     assert "CBP_LIVE_ARMED" not in os.environ
+    assert arm_calls == [(False, "live_enable_wizard", "disable_live")]
     assert out["system_guard"]["state"] == "HALTED"
     assert guard_calls == [("HALTED", "live_enable_wizard", "disable_live")]
+
+
+def test_live_disable_wizard_clears_persisted_arm_state(monkeypatch, tmp_path):
+    from services.execution import live_arming
+
+    cfg_state = {"execution": {"live_enabled": True}}
+    kill = {"armed": False, "note": "before"}
+    guard_state = {"state": "RUNNING", "writer": "test", "reason": "before"}
+    monkeypatch.setattr(live_arming, "STATE_PATH", tmp_path / "live_arming.json")
+    live_arming.set_live_armed_state(True, writer="test", reason="pre")
+    monkeypatch.setattr(ldw, "load_user_yaml", lambda: dict(cfg_state))
+    monkeypatch.setattr(ldw, "save_user_yaml", lambda cfg, dry_run=False: (True, "Saved"))
+    monkeypatch.setattr(ldw, "get_kill", lambda: dict(kill))
+    monkeypatch.setattr(ldw, "set_armed", lambda state, note="": {"armed": state, "note": note})
+    monkeypatch.setattr(ldw, "set_live_armed_state", live_arming.set_live_armed_state)
+    monkeypatch.setattr(ldw, "get_system_guard_state", lambda **_kwargs: dict(guard_state))
+    monkeypatch.setattr(
+        ldw,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(ldw, "run_id", lambda: "run-123")
+    monkeypatch.setattr(ldw, "log_event", lambda *args, **kwargs: None)
+
+    out = ldw.disable_live_now(note="operator_stop")
+
+    assert out["ok"] is True
+    assert live_arming.get_live_armed_state()["armed"] is False
 
 def test_stop_service_from_pidfile_rejects_unsafe_name():
     from services.admin import service_controls as sc

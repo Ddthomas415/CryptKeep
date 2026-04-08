@@ -17,6 +17,7 @@ CHECKLIST = {
 
 def test_enable_live_uses_normalized_live_contract(monkeypatch):
     saved: dict[str, object] = {}
+    arm_calls: list[tuple[bool, str, str]] = []
 
     def _save(cfg):
         saved["cfg"] = cfg
@@ -26,6 +27,11 @@ def test_enable_live_uses_normalized_live_contract(monkeypatch):
     monkeypatch.setattr(le, "verify_and_consume", lambda token: {"ok": True, "token": token})
     monkeypatch.setattr(le, "load_user_yaml", lambda: {"risk": {"live": {"max_trades_per_day": 3}}})
     monkeypatch.setattr(le, "save_user_yaml", _save)
+    monkeypatch.setattr(
+        le,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
 
     out = le.enable_live(token="abc123", checklist=CHECKLIST)
 
@@ -35,6 +41,8 @@ def test_enable_live_uses_normalized_live_contract(monkeypatch):
     assert saved["cfg"]["live_trading"]["enabled"] is True
     assert saved["cfg"]["risk"]["enable_live"] is True
     assert saved["cfg"]["execution"]["live_enabled"] is True
+    assert out["armed_state"]["armed"] is True
+    assert arm_calls == [(True, "execution_live_enable", "token_enable_live")]
 
 def test_enable_live_rejects_incomplete_checklist(monkeypatch):
     from services.execution import live_enable as le
@@ -73,4 +81,3 @@ def test_enable_live_returns_token_failed_when_verification_fails(monkeypatch):
     assert out["reason"] == "token_failed"
     assert out["token"]["reason"] == "token_mismatch"
     assert out["preflight"]["ok"] is True
-

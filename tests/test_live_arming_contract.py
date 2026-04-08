@@ -78,3 +78,18 @@ def test_live_enabled_and_armed_accepts_legacy_arm_env(monkeypatch):
     assert armed is True
     assert reason == "env:ENABLE_LIVE_TRADING"
 
+
+def test_live_enabled_and_armed_accepts_persisted_arm_state(monkeypatch):
+    monkeypatch.setattr(la, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
+    for name in ("CBP_LIVE_ARMED", "CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(
+        la,
+        "get_live_armed_state",
+        lambda: {"armed": True, "writer": "resume_gate", "reason": "resume", "ts_epoch": 1.0},
+    )
+
+    armed, reason = la.live_enabled_and_armed()
+
+    assert armed is True
+    assert reason == "state:live_armed"

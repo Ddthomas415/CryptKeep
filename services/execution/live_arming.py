@@ -20,7 +20,7 @@ def _load() -> dict:
             return json.loads(STATE_PATH.read_text(encoding="utf-8"))
     except Exception:
         pass
-    return {"version": 1, "active": None}
+    return {"version": 1, "active": None, "armed": None}
 
 
 def _save(st: dict) -> None:
@@ -30,6 +30,15 @@ def _save(st: dict) -> None:
 
 def _sha256(s: str) -> str:
     return hashlib.sha256(str(s).encode("utf-8")).hexdigest()
+
+
+def _armed_payload(*, armed: bool, writer: str, reason: str) -> dict[str, Any]:
+    return {
+        "armed": bool(armed),
+        "writer": str(writer or "live_arming"),
+        "reason": str(reason or ""),
+        "ts_epoch": float(time.time()),
+    }
 
 
 def _truthy(value: Any) -> bool:
@@ -114,11 +123,27 @@ def set_live_enabled(cfg: dict[str, Any] | None, enabled: bool) -> dict[str, Any
     return out
 
 
-def live_enabled_and_armed() -> tuple[bool, str]:
-    cfg = load_user_yaml()
-    if not is_live_enabled(cfg):
-        return False, "live_disabled"
+def get_live_armed_state() -> dict[str, Any]:
+    st = _load()
+    payload = st.get("armed")
+    if not isinstance(payload, dict):
+        return _armed_payload(armed=False, writer="live_arming", reason="default")
+    return _armed_payload(
+        armed=_bool_value(payload.get("armed"), default=False),
+        writer=str(payload.get("writer") or "live_arming"),
+        reason=str(payload.get("reason") or ""),
+    ) | {"ts_epoch": float(payload.get("ts_epoch") or time.time())}
 
+
+def set_live_armed_state(armed: bool, *, writer: str, reason: str) -> dict[str, Any]:
+    st = _load()
+    payload = _armed_payload(armed=bool(armed), writer=str(writer or "live_arming"), reason=str(reason or ""))
+    st["armed"] = payload
+    _save(st)
+    return payload
+
+
+def live_armed_signal() -> tuple[bool, str]:
     armed_env = [
         ("CBP_EXECUTION_ARMED", os.environ.get("CBP_EXECUTION_ARMED")),
         ("CBP_LIVE_ARMED", os.environ.get("CBP_LIVE_ARMED")),
@@ -129,7 +154,17 @@ def live_enabled_and_armed() -> tuple[bool, str]:
     for name, value in armed_env:
         if _truthy(value):
             return True, f"env:{name}"
+    persisted = get_live_armed_state()
+    if bool(persisted.get("armed")):
+        return True, "state:live_armed"
     return False, "live_not_armed"
+
+
+def live_enabled_and_armed() -> tuple[bool, str]:
+    cfg = load_user_yaml()
+    if not is_live_enabled(cfg):
+        return False, "live_disabled"
+    return live_armed_signal()
 
 
 def live_risk_cfg() -> dict[str, float | int]:
@@ -161,9 +196,8 @@ def issue_token(*, ttl_minutes: int = 30) -> dict:
 def status() -> dict:
     st = _load()
     a = st.get("active")
-    if not isinstance(a, dict):
-        return {"ok": True, "active": None, "path": str(STATE_PATH)}
-    return {"ok": True, "active": a, "path": str(STATE_PATH)}
+    active = a if isinstance(a, dict) else None
+    return {"ok": True, "active": active, "armed": get_live_armed_state(), "path": str(STATE_PATH)}
 
 
 def verify_and_consume(token: str) -> dict:
