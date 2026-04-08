@@ -8,6 +8,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional
+from services.admin.system_guard import set_state as set_system_guard_state
 from services.os.app_paths import runtime_dir, ensure_dirs, code_root
 from services.logging.app_logger import get_logger
 
@@ -65,6 +66,23 @@ def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
     proc = subprocess.Popen(cmd, cwd=str(code_root()), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kwargs)
     _write_pid(name, proc.pid)
     return {"ok": True, "note": "started", "name": name, "pid": proc.pid, "cmd": cmd}
+
+
+def request_system_guard_halt(*, writer: str, reason: str) -> Dict[str, object]:
+    try:
+        payload = set_system_guard_state("HALTING", writer=str(writer or "process_supervisor"), reason=str(reason or "runtime_stop"))
+        return {"ok": True, "payload": payload}
+    except Exception as exc:
+        logger.exception(
+            "process_supervisor: system_guard halt failed writer=%s reason=%s",
+            writer,
+            reason,
+        )
+        return {
+            "ok": False,
+            "reason": f"system_guard_write_failed:{type(exc).__name__}",
+            "error": str(exc),
+        }
 
 def stop_process(name: str, timeout_sec: float = 5.0) -> Dict[str, object]:
     pid = _read_pid(name)

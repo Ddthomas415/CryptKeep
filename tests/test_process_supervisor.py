@@ -55,6 +55,35 @@ def test_stop_process_not_running():
     assert out.get("note") == "not_running"
 
 
+def test_request_system_guard_halt_writes_halting(monkeypatch):
+    calls: list[dict[str, str]] = []
+
+    def _set_state(state, *, writer, reason):
+        calls.append({"state": state, "writer": writer, "reason": reason})
+        return {"state": state, "writer": writer, "reason": reason}
+
+    monkeypatch.setattr(ps, "set_system_guard_state", _set_state)
+
+    out = ps.request_system_guard_halt(writer="bot_runner", reason="shutdown")
+
+    assert out["ok"] is True
+    assert out["payload"]["state"] == "HALTING"
+    assert calls == [{"state": "HALTING", "writer": "bot_runner", "reason": "shutdown"}]
+
+
+def test_request_system_guard_halt_surfaces_write_failure(monkeypatch):
+    def _raise(*_args, **_kwargs):
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(ps, "set_system_guard_state", _raise)
+
+    out = ps.request_system_guard_halt(writer="bot_runner", reason="shutdown")
+
+    assert out["ok"] is False
+    assert out["reason"] == "system_guard_write_failed:RuntimeError"
+    assert out["error"] == "disk full"
+
+
 def test_status_shape(monkeypatch):
     monkeypatch.setattr(ps, "is_running", lambda name: name == "a")
     monkeypatch.setattr(ps, "_read_pid", lambda name: 11 if name == "a" else None)
