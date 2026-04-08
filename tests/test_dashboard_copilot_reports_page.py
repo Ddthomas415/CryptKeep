@@ -114,6 +114,12 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
                     "total_strategies": 3,
                     "summary_text": "Paper evidence collector is stopped (1/3 complete).",
                 },
+                "research_acceptance": {
+                    "accepted": False,
+                    "status": "not_accepted",
+                    "summary": "Top strategy is not research-accepted yet.",
+                    "blockers": ["Persisted paper history only has 1 closed trade(s)."],
+                },
             },
             "markdown": "# Strategy Lab\n",
         },
@@ -128,3 +134,5 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
 
     assert any("partial evidence" in msg.lower() or "1/3 complete" in msg.lower() for msg in fake_streamlit.warnings)
     assert any(isinstance(item, dict) and item.get("completed_strategies") == 1 for item in fake_streamlit.writes)
+    assert any(isinstance(item, dict) and item.get("status") == "not_accepted" for item in fake_streamlit.writes)
+    assert any(isinstance(item, str) and "Persisted paper history only has 1 closed trade" in item for item in fake_streamlit.writes)
