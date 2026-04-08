@@ -22,6 +22,12 @@ DEFAULT_NAV_ITEMS: tuple[NavItem, ...] = (
     ("pages/70_Settings.py", "Settings", "🔒"),
 )
 
+OPERATOR_NAV_ITEMS: tuple[NavItem, ...] = (
+    ("pages/65_Copilot_Reports.py", "Copilot Reports", "🤖"),
+    ("pages/00_Operator.py", "Operator (Legacy)", "↩️"),
+    ("pages/99_Legacy_UI.py", "Legacy UI", "🗃️"),
+)
+
 DEFAULT_BRAND_PILLS: tuple[str, ...] = (
     "Role Gated",
     "Workflow Shell",
@@ -35,6 +41,23 @@ def _page_link(path: str, *, label: str, icon: str) -> None:
         st.markdown(f"- {icon} {label}")
 
 
+def _has_role(current_role: str, required_role: str) -> bool:
+    order = {"VIEWER": 0, "OPERATOR": 1, "ADMIN": 2}
+    cur = str(current_role or "VIEWER").strip().upper()
+    req = str(required_role or "VIEWER").strip().upper()
+    return order.get(cur, 0) >= order.get(req, 0)
+
+
+def _default_secondary_nav_items() -> tuple[NavItem, ...]:
+    session = st.session_state.get("cbp_auth_session")
+    if not isinstance(session, dict):
+        return ()
+    role = str(session.get("role") or "VIEWER")
+    if not _has_role(role, "OPERATOR"):
+        return ()
+    return OPERATOR_NAV_ITEMS
+
+
 def render_app_sidebar(
     *,
     title: str = "CryptKeep",
@@ -42,9 +65,12 @@ def render_app_sidebar(
     nav_items: Sequence[NavItem] = DEFAULT_NAV_ITEMS,
     brand_pills: Sequence[str] = DEFAULT_BRAND_PILLS,
     secondary_nav_items: Sequence[NavItem] | None = None,
-    secondary_title: str = "Admin / Legacy",
+    secondary_title: str = "Operator / Reports",
     show_legacy_note: bool = False,
 ) -> None:
+    resolved_secondary_nav_items = (
+        tuple(secondary_nav_items) if secondary_nav_items is not None else _default_secondary_nav_items()
+    )
     rendered_pills = [
         f"<span class='ck-brand-pill'>{escape(str(item).strip())}</span>"
         for item in brand_pills
@@ -66,9 +92,9 @@ def render_app_sidebar(
         )
         for path, label, icon in nav_items:
             _page_link(path, label=label, icon=icon)
-        if secondary_nav_items:
+        if resolved_secondary_nav_items:
             st.markdown(f"<div class='ck-nav-label'>{escape(secondary_title)}</div>", unsafe_allow_html=True)
-            for path, label, icon in secondary_nav_items:
+            for path, label, icon in resolved_secondary_nav_items:
                 _page_link(path, label=label, icon=icon)
         if show_legacy_note:
             st.markdown(

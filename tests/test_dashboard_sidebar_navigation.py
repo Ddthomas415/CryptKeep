@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from dashboard.components import sidebar as sidebar_component
-from dashboard.components.sidebar import DEFAULT_BRAND_PILLS, DEFAULT_NAV_ITEMS
+from dashboard.components.sidebar import DEFAULT_BRAND_PILLS, DEFAULT_NAV_ITEMS, OPERATOR_NAV_ITEMS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -63,6 +63,14 @@ def test_default_brand_pills_are_neutral() -> None:
     assert DEFAULT_BRAND_PILLS == ("Role Gated", "Workflow Shell")
 
 
+def test_operator_secondary_nav_items_contract() -> None:
+    assert OPERATOR_NAV_ITEMS == (
+        ("pages/65_Copilot_Reports.py", "Copilot Reports", "🤖"),
+        ("pages/00_Operator.py", "Operator (Legacy)", "↩️"),
+        ("pages/99_Legacy_UI.py", "Legacy UI", "🗃️"),
+    )
+
+
 def test_sidebar_rendered_across_dashboard_pages() -> None:
     for relative_path in SIDEBAR_ENABLED_FILES:
         file_path = REPO_ROOT / relative_path
@@ -101,6 +109,7 @@ def test_render_app_sidebar_renders_neutral_default_pills(monkeypatch) -> None:
     class _FakeStreamlit:
         def __init__(self) -> None:
             self.sidebar = _SidebarCtx()
+            self.session_state: dict[str, object] = {}
 
         def markdown(self, text: str, unsafe_allow_html: bool = False) -> None:
             calls.append(str(text))
@@ -117,3 +126,66 @@ def test_render_app_sidebar_renders_neutral_default_pills(monkeypatch) -> None:
     assert "Paper Safe" not in rendered
     assert "Role Gated" in rendered
     assert "Workflow Shell" in rendered
+
+
+def test_render_app_sidebar_hides_operator_secondary_nav_for_viewers(monkeypatch) -> None:
+    calls: list[str] = []
+
+    class _SidebarCtx:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    class _FakeStreamlit:
+        def __init__(self) -> None:
+            self.sidebar = _SidebarCtx()
+            self.session_state = {"cbp_auth_session": {"role": "VIEWER"}}
+
+        def markdown(self, text: str, unsafe_allow_html: bool = False) -> None:
+            calls.append(str(text))
+
+        def page_link(self, path: str, *, label: str, icon: str) -> None:
+            calls.append(f"{path}|{label}|{icon}")
+
+    monkeypatch.setattr(sidebar_component, "st", _FakeStreamlit())
+
+    sidebar_component.render_app_sidebar()
+
+    rendered = "\n".join(calls)
+    assert "Copilot Reports" not in rendered
+    assert "Operator (Legacy)" not in rendered
+    assert "Legacy UI" not in rendered
+
+
+def test_render_app_sidebar_adds_operator_secondary_nav_for_operator_role(monkeypatch) -> None:
+    calls: list[str] = []
+
+    class _SidebarCtx:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    class _FakeStreamlit:
+        def __init__(self) -> None:
+            self.sidebar = _SidebarCtx()
+            self.session_state = {"cbp_auth_session": {"role": "OPERATOR"}}
+
+        def markdown(self, text: str, unsafe_allow_html: bool = False) -> None:
+            calls.append(str(text))
+
+        def page_link(self, path: str, *, label: str, icon: str) -> None:
+            calls.append(f"{path}|{label}|{icon}")
+
+    monkeypatch.setattr(sidebar_component, "st", _FakeStreamlit())
+
+    sidebar_component.render_app_sidebar()
+
+    rendered = "\n".join(calls)
+    assert "Operator / Reports" in rendered
+    assert "pages/65_Copilot_Reports.py|Copilot Reports|🤖" in rendered
+    assert "pages/00_Operator.py|Operator (Legacy)|↩️" in rendered
+    assert "pages/99_Legacy_UI.py|Legacy UI|🗃️" in rendered
