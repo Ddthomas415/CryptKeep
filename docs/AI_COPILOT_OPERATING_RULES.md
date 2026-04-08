@@ -98,6 +98,32 @@ Hard rules:
 - no database mutation
 - reject any job outside the fixed allowlist
 
+### Strategy Lab
+
+Entry points:
+
+- `services/ai_copilot/strategy_lab.py`
+- `scripts/run_ai_strategy_lab.py`
+
+Purpose:
+
+- summarize the latest persisted strategy evidence and paper-history posture
+- attach recent losing replay rows for the selected top strategy
+- recommend next experiments without changing live, paper, or config state
+
+Initial inputs:
+
+- `strategy_evidence.latest.json`
+- persisted paper-history summary from the evidence payload
+- loser replay rows from `paper_loss_replay`
+
+Hard rules:
+
+- read-only only
+- no config writes
+- no database mutation
+- no live strategy promotion or parameter application
+
 ### Repo Reviewer
 
 Entry points:
@@ -138,8 +164,6 @@ Every copilot review should preserve:
 - approval-required yes/no
 
 ## Planned jobs
-
-- `strategy_lab.py`
 
 These should remain read-only, paper-only, or draft-only until explicitly
 approved to broaden their scope.
