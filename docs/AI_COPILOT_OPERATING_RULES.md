@@ -31,6 +31,25 @@ Hard rule:
 
 - read-only only
 
+### Safety Auditor
+
+Entry points:
+
+- `services/ai_copilot/safety_auditor.py`
+- `scripts/run_ai_safety_audit.py`
+
+Purpose:
+
+- inspect current guard posture
+- verify required safety docs and critical code surfaces exist
+- report whether the current runtime is `ok`, `warn`, or `critical`
+
+Hard rules:
+
+- no live control changes
+- no config writes
+- no database mutation
+
 ### Repo Reviewer
 
 Entry points:
@@ -72,7 +91,6 @@ Every copilot review should preserve:
 
 ## Planned jobs
 
-- `safety_auditor.py`
 - `drift_auditor.py`
 - `sim_runner.py`
 - `strategy_lab.py`
