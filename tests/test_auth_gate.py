@@ -35,6 +35,7 @@ class _FakeStreamlit:
         self.captions: list[str] = []
         self.markdowns: list[str] = []
         self.expanders: list[str] = []
+        self.page_links: list[tuple[str, str, str]] = []
         self.sidebar = _FakeContext()
 
     def error(self, message: str) -> None:
@@ -54,6 +55,9 @@ class _FakeStreamlit:
 
     def markdown(self, message: str, unsafe_allow_html: bool = False) -> None:
         self.markdowns.append(str(message))
+
+    def page_link(self, path: str, *, label: str, icon: str) -> None:
+        self.page_links.append((str(path), str(label), str(icon)))
 
     def metric(self, *args, **kwargs) -> None:
         return None
@@ -232,6 +236,8 @@ def test_require_authenticated_role_hides_sidebar_when_signed_out(monkeypatch) -
         auth_gate.require_authenticated_role("VIEWER")
 
     assert any('[data-testid="stSidebar"]' in text for text in fake.markdowns)
+    assert any("session-scoped" in text.lower() for text in fake.infos)
+    assert ("app.py", "Start at Overview", "📋") in fake.page_links
 
 
 def test_require_authenticated_role_moves_signed_in_account_controls_to_sidebar(monkeypatch) -> None:

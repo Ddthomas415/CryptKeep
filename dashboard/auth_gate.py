@@ -389,6 +389,12 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                 "Sign in with keychain-backed credentials. "
                 "Env fallback is development-only and must be explicitly enabled."
             )
+            st.info(
+                "Dashboard login is session-scoped. Start from Overview, then use the sidebar after sign-in. "
+                "Direct bookmarked page URLs may start a fresh sign-in flow."
+            )
+            if hasattr(st, "page_link"):
+                st.page_link("app.py", label="Start at Overview", icon="📋")
 
             c0, c1, c2, c3 = st.columns([1, 1, 1.2, 1.1])
             c0.metric("Keychain", "OK" if bool(caps.get("os_keychain")) else "Unavailable")
