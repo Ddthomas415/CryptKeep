@@ -253,6 +253,35 @@ def _evidence_note_for_row(row: dict[str, Any]) -> str:
     return ""
 
 
+def _top_row_research_acceptance_blockers(row: dict[str, Any]) -> list[str]:
+    paper_history = dict(row.get("paper_history") or {})
+    evidence_status = str(row.get("evidence_status") or "").strip().lower()
+    confidence_label = str(row.get("confidence_label") or "").strip().lower()
+    paper_closed_trades = int(paper_history.get("closed_trades") or row.get("closed_trades") or 0)
+    represented_windows = int(row.get("closed_trade_window_count") or 0)
+    post_cost_return = _coerce_float(row.get("net_return_after_costs_pct"), _coerce_float(row.get("avg_return_pct"), 0.0))
+    slippage_sensitivity = _coerce_float(row.get("slippage_sensitivity_pct"), 0.0)
+    stressed_post_cost_return = post_cost_return - slippage_sensitivity
+    max_drawdown = _coerce_float(row.get("max_drawdown_pct"), 0.0)
+
+    blockers: list[str] = []
+    if paper_closed_trades < 30:
+        blockers.append(f"Persisted paper history only shows {paper_closed_trades} closed trade(s); research floor is 30.")
+    if represented_windows < 3:
+        blockers.append(f"Only {represented_windows} represented window(s) produced realized participation; research floor is 3.")
+    if post_cost_return <= 0.0:
+        blockers.append("Post-cost return is not positive.")
+    if stressed_post_cost_return <= 0.0:
+        blockers.append("Stressed slippage turns the current post-cost result non-positive.")
+    if max_drawdown > 10.0:
+        blockers.append(f"Max drawdown is {max_drawdown:.2f}%; research floor is 10.00% or less.")
+    if evidence_status != "paper_supported":
+        blockers.append(f"Evidence status is {evidence_status or 'unknown'}; research floor requires paper_supported.")
+    if confidence_label not in {"medium", "high"}:
+        blockers.append(f"Confidence is {confidence_label or 'unknown'}; research floor requires at least medium.")
+    return blockers
+
+
 def _candidate_title(value: Any) -> str:
     return str(value or "Unknown").replace("_", " ").title()
 
@@ -504,6 +533,20 @@ def _build_attention_candidates(
                     "source": "strategy_evidence",
                     "as_of": as_of,
                     "link_target": "/Home",
+                }
+            )
+        research_blockers = _top_row_research_acceptance_blockers(top_row)
+        if research_blockers:
+            items.append(
+                {
+                    "id": "strategy-research-not-accepted",
+                    "severity": "important",
+                    "title": "Top strategy is not research-accepted",
+                    "why_it_matters": str(top_row.get("evidence_note") or research_blockers[0] or "Current strategy evidence is still too thin to treat as a credible edge."),
+                    "next_action": "Finish the evidence cycle and clear the research-acceptance blockers before treating the current edge claim as credible.",
+                    "source": "strategy_evidence",
+                    "as_of": as_of,
+                    "link_target": "/Copilot_Reports",
                 }
             )
     if not bool(getattr(start_decision, "ok", False)):
