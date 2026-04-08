@@ -109,3 +109,41 @@ def summarize_copilot_reports(*, limit: int = 50) -> dict[str, Any]:
         "latest_kind": str(latest.get("kind") or ""),
         "latest_generated_at": str(latest.get("generated_at") or ""),
     }
+
+
+def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, Any]) -> dict[str, Any]:
+    kind_text = str(kind or "unknown").replace("_", " ").title()
+    severity_text = str(severity or "unknown").strip().lower()
+    summary = str((payload or {}).get("summary") or "No summary recorded.").strip()
+
+    tone = "info"
+    title = f"{kind_text} report"
+    message = summary
+    details: dict[str, Any] = {}
+
+    if severity_text == "critical":
+        tone = "error"
+        title = f"{kind_text} needs immediate operator review"
+    elif severity_text == "warn":
+        tone = "warning"
+        title = f"{kind_text} needs operator attention"
+    elif severity_text == "ok":
+        tone = "success"
+
+    if str(kind or "") == "strategy_lab":
+        runtime = dict((payload or {}).get("collector_runtime") or {})
+        details = {
+            "status": str(runtime.get("status") or "unknown"),
+            "completed_strategies": int(runtime.get("completed_strategies") or 0),
+            "total_strategies": int(runtime.get("total_strategies") or 0),
+            "summary_text": str(runtime.get("summary_text") or ""),
+        }
+        if severity_text in {"warn", "critical"} and details["summary_text"]:
+            message = f"{summary} {details['summary_text']}".strip()
+
+    return {
+        "tone": tone,
+        "title": title,
+        "message": message,
+        "details": details,
+    }

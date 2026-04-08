@@ -23,6 +23,11 @@ class _FakeStreamlit:
     def __init__(self) -> None:
         self.session_state: dict[str, object] = {}
         self.sidebar = _DummyBlock()
+        self.warnings: list[str] = []
+        self.errors: list[str] = []
+        self.successes: list[str] = []
+        self.infos: list[str] = []
+        self.writes: list[object] = []
 
     def __getattr__(self, _name: str):
         return lambda *args, **kwargs: None
@@ -43,6 +48,21 @@ class _FakeStreamlit:
     def selectbox(self, label, options, index=0, **kwargs):
         values = list(options)
         return values[index] if values else None
+
+    def warning(self, message):
+        self.warnings.append(str(message))
+
+    def error(self, message):
+        self.errors.append(str(message))
+
+    def success(self, message):
+        self.successes.append(str(message))
+
+    def info(self, message):
+        self.infos.append(str(message))
+
+    def write(self, value):
+        self.writes.append(value)
 
 
 def test_copilot_reports_page_imports(monkeypatch) -> None:
@@ -77,7 +97,7 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
             {
                 "stem": "strategy_lab_smoke",
                 "kind": "strategy_lab",
-                "severity": "ok",
+                "severity": "warn",
                 "generated_at": "2026-04-08T00:00:00+00:00",
             }
         ],
@@ -86,7 +106,15 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
         copilot_reports,
         "load_copilot_report_bundle",
         lambda stem: {
-            "payload": {"summary": "Strategy lab summary."},
+            "payload": {
+                "summary": "Strategy lab summary.",
+                "collector_runtime": {
+                    "status": "stopped",
+                    "completed_strategies": 1,
+                    "total_strategies": 3,
+                    "summary_text": "Paper evidence collector is stopped (1/3 complete).",
+                },
+            },
             "markdown": "# Strategy Lab\n",
         },
     )
@@ -97,3 +125,6 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
+
+    assert any("partial evidence" in msg.lower() or "1/3 complete" in msg.lower() for msg in fake_streamlit.warnings)
+    assert any(isinstance(item, dict) and item.get("completed_strategies") == 1 for item in fake_streamlit.writes)
