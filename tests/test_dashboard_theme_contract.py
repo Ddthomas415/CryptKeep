@@ -20,3 +20,6 @@ def test_inject_enhanced_theme_sets_shared_flag_once(monkeypatch):
 
     assert fake_st.session_state["_ck_theme_injected"] is True
     assert len(calls) == 1
+    assert '[data-testid="stHeader"]' in calls[0]
+    assert '[data-testid="stToolbar"]' in calls[0]
+    assert '[data-testid="stAppDeployButton"]' in calls[0]

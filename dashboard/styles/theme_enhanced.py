@@ -46,6 +46,12 @@ html, body, [class*="css"] {
   color: var(--ck-text);
 }
 
+[data-testid="stHeader"],
+[data-testid="stToolbar"],
+[data-testid="stAppDeployButton"] {
+  display: none !important;
+}
+
 [data-testid="stSidebar"] {
   min-width: 260px; max-width: 260px;
   background: linear-gradient(180deg, rgba(9,14,26,0.99) 0%, rgba(7,11,21,0.98) 100%);
