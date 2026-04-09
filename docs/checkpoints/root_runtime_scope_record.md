@@ -40,7 +40,7 @@ Related blocker record:
   - `services/execution/live_executor.py`
 - hidden-default cleanup may still remain outside the fully verified canonical operator path
 - live lifecycle authority is not yet fully boundary-governed on all active paths
-- live-mode source of truth is not yet singular
+- live-mode source of truth is singular on the canonical root-runtime path
 - Coinbase is the only venue with confirmed private authenticated connectivity from the current environment
 - Binance sandbox/testnet returned HTTP `451` from the current location on April 8, 2026
 - Gate.io is not currently usable from the operator environment
@@ -49,7 +49,6 @@ Related blocker record:
 - one reachable sandbox/testnet venue for lifecycle proof
 - private lifecycle runtime proof
 - live lifecycle authority decision
-- live-mode source-of-truth consolidation
 - docs/config alignment
 - hidden-default fencing or removal on launch-capable paths
 

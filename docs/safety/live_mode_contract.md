@@ -140,8 +140,7 @@ Final-order boundary envs:
 If you need one practical operator reading of the current code, use this:
 
 1. Persisted live enablement:
-   - `execution.live_enabled` is the most practical canonical persisted flag
-   - compatibility helpers still mirror it into `live.enabled`, `live_trading.enabled`, and `risk.enable_live`
+   - `execution.live_enabled` is the canonical persisted flag on the active root-runtime path
 2. Sandbox selector:
    - `live.sandbox`
 3. Final order arming:
@@ -165,12 +164,9 @@ That bias should remain.
 
 These are real and should be treated as unresolved contract debt, not hidden features:
 
-1. Multiple persisted live-enable flags exist.
-   - canonical runtime helpers now use `execution.live_enabled`, but older configs and historical docs still mention legacy flags.
-2. Outer arming helpers and the final boundary do not use exactly the same env list.
-   - older admin/runtime helpers historically treated persisted arm state and legacy envs as active runtime arming signals
-   - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py::_is_armed()` is narrower and remains the final execution authority
-3. Some legacy/live-runtime flows still reason from top-level `mode`, others from `execution.executor_mode`, others from normalized `live_enabled`.
+1. Some legacy/live-runtime flows still reason from top-level `mode`, others from `execution.executor_mode`, others from normalized `live_enabled`.
+2. Sandbox intent is still separate from persisted live-enable truth.
+   - `live.sandbox` remains a distinct selector and should stay explicit in operator-facing flows.
 
 ## Recommended Cleanup Direction
 
