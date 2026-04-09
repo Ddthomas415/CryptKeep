@@ -126,7 +126,7 @@ def test_resume_gate_restores_persisted_arm_signal_visible_to_live_arming(monkey
         "set_system_guard_state",
         lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
     )
-    for name in ("CBP_LIVE_ARMED", "CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING"):
+    for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING", "CBP_LIVE_ARMED"):
         monkeypatch.delenv(name, raising=False)
 
     out = resume_gate.resume_if_safe(note="safe")
@@ -134,7 +134,7 @@ def test_resume_gate_restores_persisted_arm_signal_visible_to_live_arming(monkey
 
     assert out["ok"] is True
     assert armed is True
-    assert reason == "state:live_armed"
+    assert reason == "env:CBP_EXECUTION_ARMED"
 
 
 def test_startup_reconcile_runs_all(monkeypatch):

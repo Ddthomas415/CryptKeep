@@ -118,7 +118,11 @@ def _live_arming_state() -> dict:
     try:
         from services.execution.live_arming import live_enabled_and_armed
         armed, reason = live_enabled_and_armed()
-        return {"armed": bool(armed), "reason": reason, "CBP_LIVE_ARMED": os.getenv("CBP_LIVE_ARMED", "")}
+        return {
+            "armed": bool(armed),
+            "reason": reason,
+            "CBP_EXECUTION_ARMED": os.getenv("CBP_EXECUTION_ARMED", ""),
+        }
     except Exception as e:
         return {"armed": False, "reason": f"live_arming_unavailable:{type(e).__name__}:{e}"}
 

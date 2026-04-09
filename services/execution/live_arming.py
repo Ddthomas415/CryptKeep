@@ -146,17 +146,12 @@ def set_live_armed_state(armed: bool, *, writer: str, reason: str) -> dict[str, 
 def live_armed_signal() -> tuple[bool, str]:
     armed_env = [
         ("CBP_EXECUTION_ARMED", os.environ.get("CBP_EXECUTION_ARMED")),
-        ("CBP_LIVE_ARMED", os.environ.get("CBP_LIVE_ARMED")),
         ("CBP_LIVE_ENABLED", os.environ.get("CBP_LIVE_ENABLED")),
-        ("ENABLE_LIVE_TRADING", os.environ.get("ENABLE_LIVE_TRADING")),
-        ("LIVE_TRADING", os.environ.get("LIVE_TRADING")),
+        ("CBP_EXECUTION_LIVE_ENABLED", os.environ.get("CBP_EXECUTION_LIVE_ENABLED")),
     ]
     for name, value in armed_env:
         if _truthy(value):
             return True, f"env:{name}"
-    persisted = get_live_armed_state()
-    if bool(persisted.get("armed")):
-        return True, "state:live_armed"
     return False, "live_not_armed"
 
 

@@ -21,10 +21,10 @@ def _import_live_executor_with_guard_stub():
             sys.modules["services.risk.market_quality_guard"] = original_guard
 
 
-def test_hard_off_guard_accepts_persisted_live_arm_signal(monkeypatch):
+def test_hard_off_guard_accepts_canonical_live_arm_signal(monkeypatch):
     le = _import_live_executor_with_guard_stub()
-    monkeypatch.delenv("LIVE_TRADING", raising=False)
-    monkeypatch.setattr(le, "live_armed_signal", lambda: (True, "state:live_armed"))
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
+    monkeypatch.setattr(le, "live_armed_signal", lambda: (True, "env:CBP_EXECUTION_ARMED"))
     cfg = le.LiveCfg(enabled=True, observe_only=False, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
 
     ok, reason = le._hard_off_guard(cfg, operation="submit")
@@ -35,7 +35,7 @@ def test_hard_off_guard_accepts_persisted_live_arm_signal(monkeypatch):
 
 def test_hard_off_guard_blocks_when_no_live_arm_signal(monkeypatch):
     le = _import_live_executor_with_guard_stub()
-    monkeypatch.delenv("LIVE_TRADING", raising=False)
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
     monkeypatch.setattr(le, "live_armed_signal", lambda: (False, "live_not_armed"))
     cfg = le.LiveCfg(enabled=True, observe_only=False, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
 

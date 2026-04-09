@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 import logging
+import os
 from services.admin.kill_switch import get_state as get_kill, set_armed
 from services.admin.system_guard import get_state as get_system_guard_state
 from services.admin.system_guard import set_state as set_system_guard_state
@@ -37,6 +38,9 @@ def disable_live_now(note: str = "wizard_disable_live") -> dict:
     save_out = {"ok": ok, "message": msg}
     if not ok:
         return {"ok": False, "reason": "config_save_failed", "save": save_out, "prev": prev}
+    os.environ.pop("CBP_EXECUTION_ARMED", None)
+    os.environ.pop("CBP_LIVE_ENABLED", None)
+    os.environ.pop("CBP_EXECUTION_LIVE_ENABLED", None)
     ks2 = set_armed(True, note=str(note))
     armed_state = set_live_armed_state(False, writer="live_disable_wizard", reason=str(note))
     guard = set_system_guard_state("HALTED", writer="live_disable_wizard", reason=str(note))

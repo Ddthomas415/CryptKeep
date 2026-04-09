@@ -125,11 +125,9 @@ Operator/start gating:
 
 Live arming compatibility envs:
 
-- `CBP_LIVE_ARMED`
 - `CBP_EXECUTION_ARMED`
 - `CBP_LIVE_ENABLED`
 - `CBP_EXECUTION_LIVE_ENABLED`
-- `LIVE_TRADING`
 
 Final-order boundary envs:
 
@@ -176,8 +174,8 @@ These are real and should be treated as unresolved contract debt, not hidden fea
 1. Multiple persisted live-enable flags exist.
    - `is_live_enabled(...)` intentionally normalizes them, but that also means there is not yet one exclusive persisted source of truth.
 2. Outer arming helpers and the final boundary do not use exactly the same env list.
-   - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py::live_enabled_and_armed()` accepts `CBP_LIVE_ARMED` and `LIVE_TRADING`
-   - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py::_is_armed()` does not
+   - older admin/runtime helpers historically treated persisted arm state and legacy envs as active runtime arming signals
+   - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py::_is_armed()` is narrower and remains the final execution authority
 3. Some legacy/live-runtime flows still reason from top-level `mode`, others from `execution.executor_mode`, others from normalized `live_enabled`.
 
 ## Recommended Cleanup Direction

@@ -10,7 +10,7 @@ The current live-mode contract says the intended direction is:
 
 - persisted live-enable source: `execution.live_enabled`
 - sandbox selector: `live.sandbox`
-- final-order arming envs:
+- operator real-live confirmation envs:
   - `ENABLE_LIVE_TRADING=YES`
   - `CONFIRM_LIVE=YES`
 
@@ -24,11 +24,9 @@ From `services/execution/live_arming.py`:
   - `execution.live_enabled`
 - `set_live_enabled(...)` writes back to all four surfaces
 - `live_enabled_and_armed()` accepts multiple arming env vars:
-  - `CBP_LIVE_ARMED`
   - `CBP_EXECUTION_ARMED`
   - `CBP_LIVE_ENABLED`
-  - `ENABLE_LIVE_TRADING`
-  - `LIVE_TRADING`
+  - `CBP_EXECUTION_LIVE_ENABLED`
 
 ## Confirmed ambiguity
 The repo documentation also explicitly records that live-mode truth is not yet singular:
@@ -46,12 +44,12 @@ Persisted/config surfaces:
 - `live.sandbox`
 
 Arming env surfaces:
-- `ENABLE_LIVE_TRADING`
-- `CONFIRM_LIVE`
+- `CBP_EXECUTION_ARMED`
+- `CBP_LIVE_ENABLED`
+- `CBP_EXECUTION_LIVE_ENABLED`
 
 Compatibility/legacy arming surfaces mentioned in the contract:
-- `CBP_LIVE_ARMED`
-- `LIVE_TRADING`
+- persisted `live_arming.json` state
 
 ## Why this is still a blocker
 Different runtime layers can still reason from different live-mode knobs.

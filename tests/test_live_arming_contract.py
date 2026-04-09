@@ -30,17 +30,17 @@ def test_set_live_enabled_normalizes_all_compatibility_shapes():
 
 def test_live_enabled_and_armed_requires_enable_and_arm_signal(monkeypatch):
     monkeypatch.setattr(la, "load_user_yaml", lambda: {"live": {"enabled": True}})
-    for name in ("CBP_LIVE_ARMED", "CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING"):
+    for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING", "CBP_LIVE_ARMED"):
         monkeypatch.delenv(name, raising=False)
 
     armed, reason = la.live_enabled_and_armed()
     assert armed is False
     assert reason == "live_not_armed"
 
-    monkeypatch.setenv("CBP_LIVE_ARMED", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     armed, reason = la.live_enabled_and_armed()
     assert armed is True
-    assert reason == "env:CBP_LIVE_ARMED"
+    assert reason == "env:CBP_EXECUTION_ARMED"
 
 
 
@@ -67,21 +67,21 @@ def test_live_risk_cfg_reads_nested_and_legacy_fallbacks(monkeypatch):
         "min_order_notional_quote": 15.0,
     }
 
-def test_live_enabled_and_armed_accepts_legacy_arm_env(monkeypatch):
+def test_live_enabled_and_armed_rejects_enable_live_trading_as_runtime_arm_signal(monkeypatch):
     monkeypatch.setattr(la, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
-    for name in ("CBP_LIVE_ARMED", "CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING"):
+    for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING", "CBP_LIVE_ARMED"):
         monkeypatch.delenv(name, raising=False)
 
     monkeypatch.setenv("ENABLE_LIVE_TRADING", "1")
     armed, reason = la.live_enabled_and_armed()
 
-    assert armed is True
-    assert reason == "env:ENABLE_LIVE_TRADING"
+    assert armed is False
+    assert reason == "live_not_armed"
 
 
-def test_live_enabled_and_armed_accepts_persisted_arm_state(monkeypatch):
+def test_live_enabled_and_armed_rejects_persisted_arm_state_without_boundary_env(monkeypatch):
     monkeypatch.setattr(la, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
-    for name in ("CBP_LIVE_ARMED", "CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING"):
+    for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING", "CBP_LIVE_ARMED"):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setattr(
         la,
@@ -91,5 +91,5 @@ def test_live_enabled_and_armed_accepts_persisted_arm_state(monkeypatch):
 
     armed, reason = la.live_enabled_and_armed()
 
-    assert armed is True
-    assert reason == "state:live_armed"
+    assert armed is False
+    assert reason == "live_not_armed"

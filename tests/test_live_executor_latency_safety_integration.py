@@ -14,7 +14,7 @@ def _guard_running(monkeypatch) -> None:
 
 
 def test_submit_pending_live_blocks_on_stale_market_freshness(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
 
     _guard_running(monkeypatch)
@@ -38,7 +38,7 @@ def test_submit_pending_live_blocks_on_stale_market_freshness(monkeypatch):
 
 
 def test_submit_pending_live_blocks_when_system_guard_halting(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
 
     monkeypatch.setattr(le, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
@@ -53,7 +53,7 @@ def test_submit_pending_live_blocks_when_system_guard_halting(monkeypatch):
 
 
 def test_submit_pending_live_blocks_when_system_guard_halted(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
 
     monkeypatch.setattr(le, "get_system_guard_state", lambda **_: {"state": "HALTED", "writer": "operator", "reason": "manual"})
@@ -68,7 +68,7 @@ def test_submit_pending_live_blocks_when_system_guard_halted(monkeypatch):
 
 
 def test_submit_pending_live_uses_risk_daily_for_gate_one_loss_block(monkeypatch, tmp_path):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     exec_db = str(tmp_path / "execution.sqlite")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=exec_db, symbol="BTC/USD", max_submit_per_tick=1)
 
@@ -154,7 +154,7 @@ def test_submit_pending_live_uses_risk_daily_for_gate_one_loss_block(monkeypatch
 
 
 def test_submit_pending_live_records_submit_and_ack_latency(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)
 
     _guard_running(monkeypatch)
@@ -274,7 +274,7 @@ def test_submit_pending_live_records_submit_and_ack_latency(monkeypatch):
 
 
 def test_submit_pending_live_uses_local_quote_when_limit_price_missing(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)
 
     _guard_running(monkeypatch)
@@ -375,7 +375,7 @@ def test_submit_pending_live_uses_local_quote_when_limit_price_missing(monkeypat
 
 
 def test_submit_pending_live_blocks_when_limit_price_missing_and_no_local_quote(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)
 
     _guard_running(monkeypatch)
@@ -467,7 +467,7 @@ def test_submit_pending_live_blocks_when_limit_price_missing_and_no_local_quote(
 
 
 def test_submit_pending_live_enforces_preflight_per_intent(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=2)
 
     _guard_running(monkeypatch)
@@ -558,7 +558,7 @@ def test_submit_pending_live_enforces_preflight_per_intent(monkeypatch):
 
 
 def test_submit_pending_live_latency_breach_opens_pause_and_stops_batch(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=2)
 
     _guard_running(monkeypatch)
@@ -665,7 +665,7 @@ def test_submit_pending_live_latency_breach_opens_pause_and_stops_batch(monkeypa
 
 
 def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", reconcile_limit=5)
 
     class _FakeStore:
@@ -728,7 +728,7 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
 
 
 def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(
         enabled=True,
         exchange_id="coinbase",
@@ -812,7 +812,7 @@ def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):
 
 
 def test_reconcile_live_reuses_built_session_for_order_and_trade_fetches(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(
         enabled=True,
         exchange_id="coinbase",
