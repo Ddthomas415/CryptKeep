@@ -39,7 +39,7 @@ Related blocker record:
   - `scripts/bot_ctl.py`
   - `services/execution/live_executor.py`
 - hidden-default cleanup may still remain outside the fully verified canonical operator path
-- live lifecycle authority is not yet fully boundary-governed on all active paths
+- live lifecycle authority is boundary-governed on the canonical root-runtime path
 - live-mode source of truth is singular on the canonical root-runtime path
 - Coinbase is the only venue with confirmed private authenticated connectivity from the current environment
 - Binance sandbox/testnet returned HTTP `451` from the current location on April 8, 2026
@@ -48,7 +48,6 @@ Related blocker record:
 ## Confirmed blockers within this scope
 - one reachable sandbox/testnet venue for lifecycle proof
 - private lifecycle runtime proof
-- live lifecycle authority decision
 - docs/config alignment
 - hidden-default fencing or removal on launch-capable paths
 

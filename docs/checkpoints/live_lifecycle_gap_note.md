@@ -1,6 +1,6 @@
 # Live Lifecycle Gap Note
 
-Status: READY_FOR_INDEPENDENT_REVIEW
+Status: LANDED
 
 ## Objective
 Record the remaining live lifecycle authority state on the root runtime path after the active open-order reconcile path was boundary-routed.
@@ -72,4 +72,4 @@ This note no longer records an active open-order reconcile bypass on the canonic
 High
 
 ## Review lane
-READY_FOR_INDEPENDENT_REVIEW
+Closed by independent review and publication

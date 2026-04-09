@@ -7,8 +7,8 @@ Status: INCOMPLETE
 - Scope record present: yes
 - Trading config comment aligned: yes
 - External sandbox proof present: blocked by venue availability from current environment
-- Private authenticated connectivity proof present: partial
-- Live lifecycle authority fully governed: no
+- Private authenticated connectivity proof present: yes, for Coinbase read-only with `sandbox=False`
+- Live lifecycle authority fully governed: yes, on the canonical root-runtime path
 - Live-mode source of truth singular: yes, on the canonical root-runtime path
 
 ## Scope
@@ -70,34 +70,6 @@ Review lane:
 
 ---
 
-### 3. Prove private authenticated connectivity
-Why it exists:
-- Live-readiness cannot advance without private exchange proof.
-
-Evidence:
-- Coinbase private authenticated connectivity is captured in:
-  - `docs/checkpoints/private_connectivity_and_readonly_lifecycle_evidence.md`
-- Confirmed successful for Coinbase with:
-  - credentials source: keyring
-  - `sandbox=False`
-  - read-style probes for balance, open orders, and trade history
-- Binance private connectivity is still externally blocked from the current location because Binance testnet returned HTTP `451` on April 8, 2026
-
-Close condition:
-- Redacted record showing:
-  - private auth success/failure
-  - permission/read probe result
-  - venue used
-  - credential source used
-
-Risk:
-- Low
-
-Review lane:
-- Same-thread acceptable
-
----
-
 ### 4. Prove private lifecycle runtime flow
 Why it exists:
 - Paper-only classification cannot advance without real placement/fetch/cancel/reconcile evidence.
@@ -121,30 +93,6 @@ Risk:
 Review lane:
 - Validation same-thread acceptable
 - Implementation requires independent review
-
----
-
-### 5. Resolve active live lifecycle authority gap
-Why it exists:
-- Active live reconcile/fetch paths still use direct exchange lifecycle reads.
-
-Evidence:
-- services/execution/live_executor.py
-- services/execution/exchange_client.py
-- docs/safety/lifecycle_matrix.md
-- docs/checkpoints/live_lifecycle_gap_note.md
-
-Close condition:
-- Either:
-  - all active live lifecycle paths route through one governed lifecycle boundary
-- Or:
-  - the supported live path is explicitly narrowed and documented to exclude bypassed paths
-
-Risk:
-- High
-
-Review lane:
-- READY_FOR_INDEPENDENT_REVIEW
 
 ---
 
@@ -193,5 +141,9 @@ Close condition:
 - Align REMAINING_TASKS.md with actual remaining work
 
 ## Recent landed fix
+- Private authenticated connectivity for one supported venue is documented:
+  - `docs/checkpoints/private_connectivity_and_readonly_lifecycle_evidence.md`
 - Live-mode source of truth on the canonical root-runtime path is now singular and published:
   - `49dd99c` — `execution: persist canonical live enable contract`
+- Live lifecycle authority on the canonical root-runtime path is now boundary-routed and published:
+  - `ffc8686` — `execution: route open-order reconcile through boundary`
