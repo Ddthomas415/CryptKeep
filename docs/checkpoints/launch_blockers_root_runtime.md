@@ -1,6 +1,6 @@
 # Root Runtime Launch Blockers
 
-Status: INCOMPLETE
+Status: FROZEN_WITH_EXTERNAL_EXCEPTION
 
 ## Snapshot
 - Repo truth docs updated: yes
@@ -21,80 +21,41 @@ Canonical scope record:
 Next actions board:
 - docs/checkpoints/root_runtime_next_actions.md
 
-## Confirmed launch blockers
+## Frozen scope outcome
+- The canonical launch scope is now frozen in:
+  - `docs/checkpoints/root_runtime_scope_record.md`
+- No remaining repo-side implementation blockers are shown on that frozen canonical path.
 
-### 1. Freeze launch scope
-Why it exists:
-- The repo direction and the active runtime/config story are not fully aligned.
+## Deferred external exception
 
-Evidence:
-- README.md
-- DECISIONS.md
-- config/trading.yaml
-
-Close condition:
-- One canonical scope record names:
-  - in-scope tree
-  - operator path
-  - deployment path
-  - supported venue path
-  - out-of-scope companion surfaces
-
-Risk:
-- Medium
-
-Review lane:
-- Same-thread acceptable if doc-only
-
----
-
-### 2. Configure one sandbox venue locally
-Why it exists:
-- External runtime validation cannot start without local sandbox credentials/config.
-
-Evidence:
-- Coinbase credentials are present through the approved keyring path
-- Binance credentials are present through the approved keyring path
-- Coinbase authenticated proof only works in this repo/client path with `sandbox=False`
-- Binance sandbox/testnet returned HTTP `451` from `testnet.binance.vision` on April 8, 2026
-- Gate.io is not presently reachable/usable from the current operator environment
-
-Close condition:
-- One supported and reachable sandbox/testnet venue is configured locally through the approved mechanism
-
-Risk:
-- Medium
-
-Review lane:
-- Same-thread acceptable if no execution-path code changes
-
----
-
-### 4. Prove private lifecycle runtime flow
-Why it exists:
-- Paper-only classification cannot advance without real placement/fetch/cancel/reconcile evidence.
-
-Evidence:
+### Sandbox lifecycle proof is deferred in this environment
+Why it remains deferred:
 - Coinbase authenticated read-only proof is complete, but no supported Coinbase sandbox path is available in the current repo/client combination
 - Binance sandbox lifecycle proof is blocked by external HTTP `451` venue restriction from the current location
 - Gate.io sandbox lifecycle proof is blocked by current operator-environment access constraints
 
-Close condition:
-- Redacted sandbox evidence for:
+What is already proven:
+- private authenticated connectivity for one supported venue
+- boundary-governed live lifecycle authority on the canonical root-runtime path
+- singular live-mode source of truth on the canonical root-runtime path
+
+What is still missing:
+- redacted sandbox evidence for:
   - order placement
   - fetch/status reconciliation
   - cancel
   - post-cancel verification
 
+Close condition:
+- run the lifecycle proof in an environment with one reachable supported sandbox/testnet venue
+- or make an explicit launch decision to accept the environment-blocked exception
+
 Risk:
-- Low for validation
-- High if runtime code changes are needed
+- Medium as a launch decision
+- High if runtime code changes are needed later
 
 Review lane:
-- Validation same-thread acceptable
-- Implementation requires independent review
-
----
+- Human decision / external environment
 
 ## Launch-support tasks
 
@@ -113,13 +74,15 @@ Close condition:
   - kill-switch drill
   - reconciliation halt/resume drill
   - rollback drill
-  - supported venue lifecycle evidence, or an explicit environment-blocked exception record
+  - supported venue lifecycle evidence, or the explicit environment-blocked exception record documented here
 
 ## Non-blocking repo discipline
 - Keep compatibility layers frozen
 - Align REMAINING_TASKS.md with actual remaining work
 
 ## Recent landed fix
+- Canonical root-runtime launch scope is now frozen:
+  - `docs/checkpoints/root_runtime_scope_record.md`
 - Private authenticated connectivity for one supported venue is documented:
   - `docs/checkpoints/private_connectivity_and_readonly_lifecycle_evidence.md`
 - Live-mode source of truth on the canonical root-runtime path is now singular and published:

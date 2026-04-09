@@ -28,6 +28,7 @@ Observed results during probe:
 ## Interpretation
 This proves authenticated read-only lifecycle access for the chosen venue.
 It does not yet prove the full lifecycle runtime flow because no fresh order was placed, fetched by id, cancelled, and post-cancel verified.
+For the current operator environment, this is also the maximum reachable proof currently available without a supported reachable sandbox/testnet venue.
 
 ## Current venue constraints
 - Coinbase:
