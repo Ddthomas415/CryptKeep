@@ -6,11 +6,16 @@ Status: OPEN
 Record the currently active live lifecycle authority gap on the root runtime path without changing runtime behavior.
 
 ## Confirmed active bypass callers
-The active live reconcile path still performs direct lifecycle reads from `services/execution/live_executor.py`:
+The remaining active live lifecycle bypass now appears narrower than the older note implied.
 
-- `live_executor.py:617` -> `client.fetch_order(...)`
-- `live_executor.py:634` -> `fetch_my_trades(...)`
-- `live_executor.py:773` -> `client.fetch_open_orders(...)`
+Current active direct lifecycle read still shown in `services/execution/live_executor.py`:
+
+- `reconcile_open_orders(...)` -> `client.fetch_open_orders(...)`
+
+Current active live reconcile helpers that are already boundary-routed:
+
+- `_fetch_order_for_reconcile(...)` -> `fetch_order_via_boundary(...)`
+- `_fetch_trades_for_reconcile(...)` -> `fetch_my_trades_via_boundary(...)`
 
 ## Direct venue methods behind those callers
 Those calls resolve to thin direct exchange methods in `services/execution/exchange_client.py`:
@@ -22,8 +27,10 @@ Those calls resolve to thin direct exchange methods in `services/execution/excha
 ## Updated status
 Active live-executor lifecycle reads have now been boundary-routed for:
 - fetch_order
-- fetch_open_orders
 - fetch_my_trades
+
+The remaining active direct lifecycle read shown in the root runtime path is:
+- fetch_open_orders in `reconcile_open_orders(...)`
 
 Current classification from repo reachability checks:
 - `fill_confirmation.py` still contains a direct `fetch_order(...)` call
@@ -49,7 +56,7 @@ The repo's lifecycle documentation already describes this as partial lifecycle h
 
 ## Why this is still a blocker
 Submit-path authority and lifecycle-path authority are not yet equivalent.
-The active live reconcile path still depends on direct exchange lifecycle reads instead of one fully governed lifecycle boundary.
+The remaining active open-order reconcile path still depends on a direct exchange lifecycle read instead of one fully governed lifecycle boundary.
 
 ## Close condition
 One of the following must be true:
