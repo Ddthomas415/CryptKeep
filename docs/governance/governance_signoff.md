@@ -9,15 +9,15 @@ Effective Date: 2026-03-21
 
 | Control Area | Expected Canonical Module | Actual Repo File(s) | Present? | Gap? | Blocking? | Notes |
 |---|---|---|---|---|---|---|
-| Deployment truth | deployment_truth.py | TBD | no | yes | yes | Need actual file/path mapping |
-| Campaign state | campaign_state.py | TBD | no | yes | yes | Need actual file/path mapping |
+| Deployment truth | deployment_truth.py | `services/governance/deployment_truth.py` | yes | no | no | Canonical wrapper exists and reads deployment posture from settings + auth runtime guard |
+| Campaign state | campaign_state.py | `services/governance/campaign_state.py` | yes | no | no | Canonical wrapper exposes the governed campaign state set |
 | Campaign fingerprint | campaign_fingerprint.py | phase1_research_copilot/news_ingestion/main.py, services/admin/journal_exchange_reconcile.py | partial | yes | no | Fingerprint logic exists but may be fragmented |
-| Campaign state machine | campaign_state_machine.py | TBD | no | yes | yes | Need actual file/path mapping |
-| Campaign validation | campaign_validation.py | scripts/run_paper_strategy_evidence_collector.py, services/analytics/paper_strategy_evidence_service.py | partial | yes | yes | Validation likely distributed |
-| Invalidation | invalidation.py | services/backtest/evidence_cycle.py, dashboard/services/strategy_evaluation.py | partial | yes | yes | Invalidation language exists; enforcement unclear |
-| Decision engine | decision_engine.py | services/backtest/evidence_cycle.py, dashboard/services/digest/builders.py | partial | yes | yes | Decision labels exist; governance constraints need review |
-| Claims guard | claims_guard.py | dashboard/auth_gate.py, docs/safety/*, dashboard/services/view_data.py | partial | yes | yes | Deployment vs product claims split still needs explicit guard |
-| Operator overrides | operator_overrides.py | services/profiles/bundles.py, services/live_router/router.py, dashboard/services/view_data.py, dashboard/pages/70_Settings.py | yes | yes | yes | Overrides exist; need governed mutation path |
+| Campaign state machine | campaign_state_machine.py | `services/governance/campaign_state_machine.py` | yes | no | no | Canonical wrapper blocks invalid-to-running transitions |
+| Campaign validation | campaign_validation.py | `services/governance/campaign_validation.py`, `scripts/run_paper_strategy_evidence_collector.py`, `services/analytics/paper_strategy_evidence_service.py` | yes | yes | yes | Wrapper exists, but validation depth is still minimal and distributed beyond the wrapper |
+| Invalidation | invalidation.py | `services/governance/invalidation.py`, `services/backtest/evidence_cycle.py`, `dashboard/services/strategy_evaluation.py` | yes | yes | yes | Wrapper exists, but terminal invalidation enforcement outside status language is still not fully proven |
+| Decision engine | decision_engine.py | `services/governance/decision_engine.py`, `services/backtest/evidence_cycle.py`, `dashboard/services/digest/builders.py` | yes | yes | yes | Canonical wrapper exists, but governed decision authority is still broader than this thin module |
+| Claims guard | claims_guard.py | `services/governance/claims_guard.py`, `dashboard/services/digest/builders.py`, `services/security/auth_capabilities.py` | yes | yes | yes | Wrapper exists, but repo-wide product/deployment claim enforcement is still only partial |
+| Operator overrides | operator_overrides.py | `services/governance/operator_overrides.py`, `services/profiles/bundles.py` | yes | yes | yes | Canonical wrapper exists, but full governed mutation authority still needs a single path |
 
 ## Auth / MFA Verified State
 
@@ -33,14 +33,14 @@ Effective Date: 2026-03-21
 
 | Control Area | Actual Repo File | Assessment | Gap | Blocking |
 |---|---|---|---|---|
-| Evidence collection | `services/analytics/paper_strategy_evidence_service.py` | TBD | TBD | TBD |
-| Evidence reclassification | `services/backtest/evidence_cycle.py` | TBD | TBD | TBD |
-| Strategy decision surfacing | `dashboard/services/strategy_evaluation.py` | TBD | TBD | TBD |
-| CAUTION / invalidation enforcement | `services/backtest/evidence_cycle.py` + related callers | TBD | TBD | TBD |
+| Evidence collection | `services/analytics/paper_strategy_evidence_service.py` | **Present** — bounded collection path owns campaign iteration, runtime status, evidence rerun trigger, and decision-record regeneration gates | Immutable campaign spec / deep spec freeze is still not fully proven in this layer | No |
+| Evidence reclassification | `services/backtest/evidence_cycle.py` | **Present** — assigns evidence status, confidence, decision labels, comparison output, and `research_acceptance` per strategy row | Terminal invalidation and immutable lineage/fingerprint binding are still not fully proven here | **Yes** |
+| Strategy decision surfacing | `dashboard/services/strategy_evaluation.py`, `dashboard/services/digest/builders.py`, `dashboard/services/copilot_reports.py` | **Present** — research-only workbench, Home digest, and Copilot Reports now surface thin or non-credible evidence explicitly | Surfacing is present, but it is not itself the authoritative promotion gate | No |
+| CAUTION / invalidation enforcement | `services/backtest/evidence_cycle.py`, `dashboard/services/promotion_ladder.py` + related callers | **Partial** — thin/synthetic evidence is blocked from promotion-grade outcomes, but terminal invalidation remains not fully proven | Need explicit end-to-end proof that invalid states cannot reach governed campaign continuation | **Yes** |
 
 ### Working Notes — Evidence / Decision Audit
 
-Use the code inspection above to replace TBD values with:
+Use the code inspection above to replace placeholder values with:
 - Present
 - Partial
 - Missing
