@@ -6,6 +6,7 @@
 | `services/execution/lifecycle_boundary.py` | `cancel_order_via_boundary` | cancel | No | Yes | No | Yes | Governed lifecycle cancel boundary for active paths |
 | `services/execution/lifecycle_boundary.py` | `fetch_order_via_boundary` | fetch | No | Yes | No | Yes | Governed lifecycle fetch boundary for active paths |
 | `services/execution/lifecycle_boundary.py` | `fetch_my_trades_via_boundary` | fetch | No | Yes | No | Yes | Governed lifecycle trade-reconcile boundary for active paths |
+| `services/execution/lifecycle_boundary.py` | `fetch_open_orders_via_boundary` | fetch | No | Yes | No | Yes | Governed open-order reconcile boundary for active paths |
 | `services/execution/live_exchange_adapter.py` | `cancel_order` | cancel | No | No | No | Yes | Routes through `lifecycle_boundary.cancel_order_via_boundary(...)` |
 | `services/execution/live_exchange_adapter.py` | `fetch_order` | fetch | No | No | No | Yes | Routes through `lifecycle_boundary.fetch_order_via_boundary(...)` |
 | `services/execution/live_exchange_adapter.py` | `fetch_my_trades` | fetch | No | No | No | Yes | Routes through `lifecycle_boundary.fetch_my_trades_via_boundary(...)` |
@@ -13,7 +14,7 @@
 | `services/execution/order_manager.py` | cancel helper | cancel | No | No | No | Yes | Routes through `lifecycle_boundary.cancel_order_async_via_boundary(...)` |
 | `services/execution/order_manager.py` | `cancel_and_replace` | cancel/replace | Partial | No | No | Yes | Cancel leg routes through lifecycle boundary; replace leg re-enters submit boundary via `submit_limit(...)` |
 | `services/execution/live_executor.py` | `reconcile_live` | reconcile/fetch | No | Partial | No | Yes | Uses lifecycle-boundary helpers for order/trade fetches; session ownership determines whether the direct CCXT session or client wrapper is used |
-| `services/execution/live_executor.py` | `reconcile_open_orders` | reconcile/fetch | No | Yes | No | Yes | Still uses `ExchangeClient.fetch_open_orders(...)` directly |
+| `services/execution/live_executor.py` | `reconcile_open_orders` | reconcile/fetch | No | No | No | Yes | Routes open-order reconcile fetches through `lifecycle_boundary.fetch_open_orders_via_boundary(...)` when a shared reconcile session is available |
 | `services/execution/exchange_client.py` | `submit_order` | submit | Yes | No | Yes | Yes | Legacy/non-preferred helper; uses `place_order(...)` |
 | `services/execution/exchange_client.py` | `cancel_intent` | cancel | No | Yes | Yes | Yes | Direct `ex.cancel_order(...)`; lifecycle path separate from submit authority |
 | `services/execution/exchange_client.py` | `fetch_order` | fetch | No | Yes | Yes | Yes | Direct `ex.fetch_order(...)` |
@@ -30,9 +31,9 @@
 - Raw order submission is centralized behind `services/execution/place_order.py`.
 - Active adapter and order-manager cancel/fetch paths now funnel through `services/execution/lifecycle_boundary.py`.
 - `services/execution/live_executor.py::reconcile_live` now routes order/trade fetches through lifecycle-boundary helpers.
-- `services/execution/live_executor.py::reconcile_open_orders` still performs open-order reconcile fetches through `services/execution/exchange_client.py`.
+- `services/execution/live_executor.py::reconcile_open_orders` now routes open-order reconcile fetches through lifecycle-boundary helpers when the shared reconcile session is available.
 - `cancel_and_replace` is still a mixed lifecycle path: lifecycle-boundary cancel followed by boundary-governed resubmit.
-- Fetch/reconcile paths remain separate operational surfaces and are not yet fully governed by the lifecycle boundary.
+- Active live fetch/reconcile paths are now lifecycle-boundary governed on the canonical root-runtime path.
 - `services/execution/exchange_client.py` remains a legacy/non-preferred lifecycle helper.
 - Submit safety is stronger and better proven than cancel/reconcile lifecycle safety.
 - No dedicated exchange-native amend/edit path was found in `services/execution`; replace behavior is currently cancel-then-resubmit.

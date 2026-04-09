@@ -945,3 +945,49 @@ def test_reconcile_open_orders_records_fetch_latency_measurement(monkeypatch, tm
     out = le.reconcile_open_orders(str(tmp_path / "execution.sqlite"), "coinbase", limit=10)
     assert out["ok"] is True
     assert any(row["name"] == "reconcile_open_orders_fetch_ms" for row in seen)
+
+
+def test_reconcile_open_orders_uses_boundary_session_when_client_builds(monkeypatch, tmp_path):
+    class _FakeStore:
+        def list_needs_reconcile(self, *, exchange_id: str, limit: int = 200):
+            return [{"symbol": "BTC/USD", "client_order_id": "cid-1", "intent_id": "intent-1"}]
+
+        def set_remote_id_if_empty(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+            return None
+
+        def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+            return None
+
+    class _FakeSession:
+        def __init__(self):
+            self.open_order_calls: list[str] = []
+            self.close_calls = 0
+
+        def fetch_open_orders(self, symbol: str):
+            self.open_order_calls.append(symbol)
+            return [{"id": "ord-1", "clientOrderId": "cid-1"}]
+
+        def close(self):
+            self.close_calls += 1
+
+    class _FakeClient:
+        def __init__(self):
+            self.build_calls = 0
+            self.session = _FakeSession()
+
+        def build(self):
+            self.build_calls += 1
+            return self.session
+
+    fake_client = _FakeClient()
+
+    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeStore())
+    monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: fake_client)
+
+    out = le.reconcile_open_orders(str(tmp_path / "execution.sqlite"), "coinbase", limit=10)
+
+    assert out["ok"] is True
+    assert out["matched_open"] == 1
+    assert fake_client.build_calls == 1
+    assert fake_client.session.open_order_calls == ["BTC/USD"]
+    assert fake_client.session.close_calls == 1

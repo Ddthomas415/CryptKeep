@@ -15,6 +15,7 @@ from services.execution.live_arming import live_armed_signal
 from services.execution.client_order_id import make_client_order_id
 from services.execution.execution_latency import ExecutionLatencyTracker
 from services.execution.lifecycle_boundary import (
+    fetch_open_orders_via_boundary,
     fetch_my_trades_via_boundary,
     fetch_order_via_boundary,
 )
@@ -502,6 +503,25 @@ def _fetch_trades_for_reconcile(
         )
     fetch = getattr(client, "fetch_my_trades")
     return list(fetch(symbol=symbol, since=since_ms, limit=limit) or [])
+
+
+def _fetch_open_orders_for_reconcile(
+    client: Any,
+    session: Any,
+    *,
+    owned: bool,
+    venue: str,
+    symbol: str,
+) -> list[dict[str, Any]]:
+    if owned:
+        return fetch_open_orders_via_boundary(
+            session,
+            venue=venue,
+            symbol=symbol,
+            source="live_executor.reconcile_open_orders",
+        )
+    fetch = getattr(client, "fetch_open_orders")
+    return list(fetch(symbol=symbol) or [])
 
 def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     ok, why = _hard_off_guard(cfg, operation="submit")
@@ -1042,47 +1062,57 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -
     ex_id = (exchange_id or "").lower().strip()
     store = OrderDedupeStore(exec_db=exec_db)
     client = ExchangeClient(exchange_id=ex_id, sandbox=False)
+    session, session_owned = _open_reconcile_session(client)
     rows = store.list_needs_reconcile(exchange_id=ex_id, limit=int(limit))
     by_sym = {}
-    for r in rows:
-        sym = str(r.get("symbol") or "")
-        if sym:
-            by_sym.setdefault(sym, []).append(r)
-    matched = 0
-    for sym, rs in by_sym.items():
-        want = {str(r.get("client_order_id") or ""): str(r.get("intent_id") or "") for r in rs}
-        want = {k:v for k,v in want.items() if k}
-        if not want:
-            continue
-        try:
-            fetch_open_orders_started = time.perf_counter()
-            oo = client.fetch_open_orders(symbol=sym) or []
-        except Exception:
-            oo = []
-            _record_execution_metric(
-                name="reconcile_open_orders_fetch_ms",
-                value_ms=_measure_ms(fetch_open_orders_started),
-                meta={"exchange": ex_id, "symbol": sym, "ok": False},
-                tracker=client,
-                latency_db_path=str(data_dir() / "market_ws.sqlite"),
-            )
-        else:
-            _record_execution_metric(
-                name="reconcile_open_orders_fetch_ms",
-                value_ms=_measure_ms(fetch_open_orders_started),
-                meta={"exchange": ex_id, "symbol": sym, "ok": True, "open_orders": len(oo)},
-                tracker=client,
-                latency_db_path=str(data_dir() / "market_ws.sqlite"),
-            )
-        for o in oo:
-            cid = _extract_client_id(o)
-            if cid and cid in want:
-                intent_id = want[cid]
-                rid = o.get("id")
-                if rid:
-                    store.set_remote_id_if_empty(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
-                    store.mark_submitted(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
-                    matched += 1
+    try:
+        for r in rows:
+            sym = str(r.get("symbol") or "")
+            if sym:
+                by_sym.setdefault(sym, []).append(r)
+        matched = 0
+        for sym, rs in by_sym.items():
+            want = {str(r.get("client_order_id") or ""): str(r.get("intent_id") or "") for r in rs}
+            want = {k:v for k,v in want.items() if k}
+            if not want:
+                continue
+            try:
+                fetch_open_orders_started = time.perf_counter()
+                oo = _fetch_open_orders_for_reconcile(
+                    client,
+                    session,
+                    owned=session_owned,
+                    venue=ex_id,
+                    symbol=sym,
+                )
+            except Exception:
+                oo = []
+                _record_execution_metric(
+                    name="reconcile_open_orders_fetch_ms",
+                    value_ms=_measure_ms(fetch_open_orders_started),
+                    meta={"exchange": ex_id, "symbol": sym, "ok": False},
+                    tracker=client,
+                    latency_db_path=str(data_dir() / "market_ws.sqlite"),
+                )
+            else:
+                _record_execution_metric(
+                    name="reconcile_open_orders_fetch_ms",
+                    value_ms=_measure_ms(fetch_open_orders_started),
+                    meta={"exchange": ex_id, "symbol": sym, "ok": True, "open_orders": len(oo)},
+                    tracker=client,
+                    latency_db_path=str(data_dir() / "market_ws.sqlite"),
+                )
+            for o in oo:
+                cid = _extract_client_id(o)
+                if cid and cid in want:
+                    intent_id = want[cid]
+                    rid = o.get("id")
+                    if rid:
+                        store.set_remote_id_if_empty(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
+                        store.mark_submitted(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
+                        matched += 1
+    finally:
+        _close_reconcile_session(session, owned=session_owned)
     return {"ok": True, "rows": len(rows), "matched_open": matched}
 
 def _env_symbol(default: str = "BTC/USD") -> str:

@@ -30,6 +30,7 @@ def test_active_adapter_lifecycle_paths_use_centralized_lifecycle_boundary() -> 
     assert "def cancel_order_via_boundary(" in lifecycle_boundary
     assert "def fetch_order_via_boundary(" in lifecycle_boundary
     assert "def fetch_my_trades_via_boundary(" in lifecycle_boundary
+    assert "def fetch_open_orders_via_boundary(" in lifecycle_boundary
 
     assert "cancel_order_via_boundary(" in live_adapter
     assert "fetch_order_via_boundary(" in live_adapter
@@ -50,7 +51,8 @@ def test_active_adapter_lifecycle_paths_use_centralized_lifecycle_boundary() -> 
 def test_live_executor_reconcile_paths_use_boundary_fetches_with_shared_session() -> None:
     live_executor = Path("services/execution/live_executor.py").read_text()
 
+    assert "fetch_open_orders_via_boundary(" in live_executor
     assert "fetch_order_via_boundary(" in live_executor
     assert "fetch_my_trades_via_boundary(" in live_executor
     assert "_open_reconcile_session(client)" in live_executor
-    assert "client.fetch_open_orders(symbol=sym)" in live_executor
+    assert "_fetch_open_orders_for_reconcile(" in live_executor
