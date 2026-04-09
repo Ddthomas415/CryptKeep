@@ -1058,10 +1058,10 @@ def _extract_client_id(o: dict) -> str:
                 return str(v)
     return ""
 
-def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200) -> dict:
+def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200, sandbox: bool = False) -> dict:
     ex_id = (exchange_id or "").lower().strip()
     store = OrderDedupeStore(exec_db=exec_db)
-    client = ExchangeClient(exchange_id=ex_id, sandbox=False)
+    client = ExchangeClient(exchange_id=ex_id, sandbox=bool(sandbox))
     session, session_owned = _open_reconcile_session(client)
     rows = store.list_needs_reconcile(exchange_id=ex_id, limit=int(limit))
     by_sym = {}
