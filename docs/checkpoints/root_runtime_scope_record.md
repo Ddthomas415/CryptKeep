@@ -7,6 +7,7 @@ Status: PROVISIONAL
 - Paper default: yes
 - Live-ready: no
 - External sandbox proof present: no
+- Private authenticated connectivity proof present: yes, for Coinbase read-only with `sandbox=False`
 - Runtime story unified: no
 
 ## Purpose
@@ -40,10 +41,12 @@ Related blocker record:
 - hidden-default cleanup may still remain outside the fully verified canonical operator path
 - live lifecycle authority is not yet fully boundary-governed on all active paths
 - live-mode source of truth is not yet singular
+- Coinbase is the only venue with confirmed private authenticated connectivity from the current environment
+- Binance sandbox/testnet returned HTTP `451` from the current location on April 8, 2026
+- Gate.io is not currently usable from the operator environment
 
 ## Confirmed blockers within this scope
-- sandbox venue configuration
-- private authenticated connectivity proof
+- one reachable sandbox/testnet venue for lifecycle proof
 - private lifecycle runtime proof
 - live lifecycle authority decision
 - live-mode source-of-truth consolidation

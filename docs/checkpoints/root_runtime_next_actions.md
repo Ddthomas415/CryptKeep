@@ -3,9 +3,14 @@
 Status: OPEN
 
 ## External-proof blockers
-- [ ] Configure one supported sandbox venue locally
-- [ ] Prove private authenticated connectivity
+- [ ] Configure one supported and reachable sandbox/testnet venue locally
+- [x] Prove private authenticated connectivity for one supported venue
 - [ ] Prove private lifecycle runtime flow
+
+Notes:
+- Coinbase private authenticated read-only proof is complete through the keyring-backed path with `sandbox=False`
+- Binance testnet is blocked from the current location/network by HTTP `451`
+- Gate.io is not currently usable from the operator environment
 
 ## High-risk implementation blockers
 - [ ] Resolve active live lifecycle authority gap
