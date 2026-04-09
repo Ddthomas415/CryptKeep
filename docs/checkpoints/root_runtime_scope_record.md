@@ -1,14 +1,14 @@
 # Root Runtime Scope Record
 
-Status: PROVISIONAL
+Status: FROZEN
 
 ## Current status
-- Scope frozen: not yet
+- Scope frozen: yes
 - Paper default: yes
 - Live-ready: no
-- External sandbox proof present: no
+- External sandbox proof present: deferred in current environment
 - Private authenticated connectivity proof present: yes, for Coinbase read-only with `sandbox=False`
-- Runtime story unified: no
+- Runtime story unified: yes, on the canonical root-runtime path
 
 ## Purpose
 This record freezes the currently supported launch scope for the root runtime baseline only.
@@ -16,6 +16,22 @@ It is intentionally narrow and should be updated only by explicit scope decision
 
 Related blocker record:
 - docs/checkpoints/launch_blockers_root_runtime.md
+
+## Frozen supported path
+- In-scope tree:
+  - root repo baseline only
+- Canonical operator path:
+  - `scripts/bot_ctl.py` -> `scripts/run_bot_safe.py`
+- Deployment path:
+  - local/manual operator execution from the root repo checkout using the repo venv
+- Supported venue path:
+  - Coinbase private authenticated read-only proof with `sandbox=False`
+  - sandbox lifecycle proof is deferred in this environment because no supported sandbox/testnet venue is currently reachable
+- Out-of-scope companion surfaces:
+  - `services/execution/paper_runner`
+  - `scripts/run_paper_engine.py`
+  - `scripts/run_live_trader.py`
+  - companion trees and broader governance/program surfaces unless explicitly pulled into scope
 
 ## In scope
 - Root repo baseline
@@ -46,9 +62,8 @@ Related blocker record:
 - Gate.io is not currently usable from the operator environment
 
 ## Confirmed blockers within this scope
-- one reachable sandbox/testnet venue for lifecycle proof
-- private lifecycle runtime proof
-- docs/config alignment
+- one reachable sandbox/testnet venue for lifecycle proof, or an explicit launch decision to accept the environment-blocked exception
+- private lifecycle runtime proof remains deferred in this environment because no reachable supported sandbox/testnet venue is available
 
 ## Explicitly excluded until separately approved
 - remote/public deployment hardening
@@ -56,8 +71,5 @@ Related blocker record:
 - broader governance/campaign completion work
 - deprecated/compatibility surfaces as canonical runtime paths
 
-## Exit condition
-This record stops being provisional when:
-1. one supported launch path is explicitly approved
-2. one sandbox venue is configured
-3. the root runtime blocker list is updated against that frozen path
+## Change control
+This frozen scope record should change only when a new explicit launch-scope decision is made.
