@@ -6,7 +6,8 @@ Status: INCOMPLETE
 - Repo truth docs updated: yes
 - Scope record present: yes
 - Trading config comment aligned: yes
-- External sandbox proof present: no
+- External sandbox proof present: blocked by venue availability from current environment
+- Private authenticated connectivity proof present: partial
 - Live lifecycle authority fully governed: no
 - Live-mode source of truth singular: no
 
@@ -52,11 +53,14 @@ Why it exists:
 - External runtime validation cannot start without local sandbox credentials/config.
 
 Evidence:
-- config/user.yaml not present
-- no matching venue/live env vars present in the inspected shell
+- Coinbase credentials are present through the approved keyring path
+- Binance credentials are present through the approved keyring path
+- Coinbase authenticated proof only works in this repo/client path with `sandbox=False`
+- Binance sandbox/testnet returned HTTP `451` from `testnet.binance.vision` on April 8, 2026
+- Gate.io is not presently reachable/usable from the current operator environment
 
 Close condition:
-- One supported venue is configured locally with sandbox credentials through the approved mechanism
+- One supported and reachable sandbox/testnet venue is configured locally through the approved mechanism
 
 Risk:
 - Medium
@@ -71,7 +75,13 @@ Why it exists:
 - Live-readiness cannot advance without private exchange proof.
 
 Evidence:
-- No private connectivity evidence captured yet
+- Coinbase private authenticated connectivity is captured in:
+  - `docs/checkpoints/private_connectivity_and_readonly_lifecycle_evidence.md`
+- Confirmed successful for Coinbase with:
+  - credentials source: keyring
+  - `sandbox=False`
+  - read-style probes for balance, open orders, and trade history
+- Binance private connectivity is still externally blocked from the current location because Binance testnet returned HTTP `451` on April 8, 2026
 
 Close condition:
 - Redacted record showing:
@@ -91,6 +101,11 @@ Review lane:
 ### 4. Prove private lifecycle runtime flow
 Why it exists:
 - Paper-only classification cannot advance without real placement/fetch/cancel/reconcile evidence.
+
+Evidence:
+- Coinbase authenticated read-only proof is complete, but no supported Coinbase sandbox path is available in the current repo/client combination
+- Binance sandbox lifecycle proof is blocked by external HTTP `451` venue restriction from the current location
+- Gate.io sandbox lifecycle proof is blocked by current operator-environment access constraints
 
 Close condition:
 - Redacted sandbox evidence for:
@@ -191,7 +206,7 @@ Close condition:
   - kill-switch drill
   - reconciliation halt/resume drill
   - rollback drill
-  - sandbox lifecycle evidence
+  - supported venue lifecycle evidence, or an explicit environment-blocked exception record
 
 ## Non-blocking repo discipline
 - Keep compatibility layers frozen
