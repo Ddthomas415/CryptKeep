@@ -49,7 +49,6 @@ Related blocker record:
 - one reachable sandbox/testnet venue for lifecycle proof
 - private lifecycle runtime proof
 - docs/config alignment
-- hidden-default fencing or removal on launch-capable paths
 
 ## Explicitly excluded until separately approved
 - remote/public deployment hardening
