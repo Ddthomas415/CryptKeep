@@ -1,9 +1,9 @@
 # Live Mode Source-of-Truth Note
 
-Status: OPEN
+Status: LANDED
 
 ## Objective
-Record the current live-mode source-of-truth ambiguity for the root runtime path without changing runtime behavior.
+Record the canonical live-mode source-of-truth contract for the root runtime path after the runtime/helpers were aligned.
 
 ## Confirmed repo truth
 The current live-mode contract says the intended direction is:
@@ -26,15 +26,20 @@ From `services/execution/live_arming.py`:
   - `CBP_LIVE_ENABLED`
   - `CBP_EXECUTION_LIVE_ENABLED`
 
-## Confirmed ambiguity
-The repo documentation also explicitly records that live-mode truth is not yet singular:
+## Confirmed current state
+The canonical root-runtime contract is now singular on the active helper and final-boundary path:
 
-- `docs/safety/live_mode_contract.md:177`
-  - older config layers and historical docs still mention legacy flags, so singular persisted truth still requires cleanup outside the canonical runtime helpers
-- `docs/safety/live_mode_contract.md:178`
-  - outer arming helpers and the final boundary do not use exactly the same env list
-- `docs/safety/live_mode_contract.md:181`
-  - some flows still reason from top-level `mode`, others from `execution.executor_mode`, others from normalized `live_enabled`
+- persisted live-enable source:
+  - `execution.live_enabled`
+- runtime arming env contract:
+  - `CBP_EXECUTION_ARMED`
+  - `CBP_LIVE_ENABLED`
+  - `CBP_EXECUTION_LIVE_ENABLED`
+- final submit boundary:
+  - `services/execution/place_order.py::_is_armed()`
+  - uses the same runtime arming env list
+- docs/tests:
+  - updated to the canonical persisted flag on the active root-runtime path
 
 ## Current control surfaces
 Persisted/config surfaces:
@@ -49,21 +54,28 @@ Arming env surfaces:
 Compatibility/legacy arming surfaces mentioned in the contract:
 - persisted `live_arming.json` state
 
-## Why this is still a blocker
-Different runtime layers can still reason from different live-mode knobs.
-That means operator intent, sandbox intent, and final order authorization are not yet represented by one singular, consistent contract.
+## Remaining non-blocking ambiguity
+The broader repo still contains other mode-selection surfaces that are separate from this landed fix:
 
-## Close condition
-All of the following must be true:
+- some flows still reason from top-level `mode`
+- some flows still reason from `execution.executor_mode`
+- sandbox intent is still represented separately by `live.sandbox`
 
-1. One exclusive persisted live-enable source is defined and used.
-2. One sandbox selector is defined and used.
-3. One final arming contract is defined and used.
-4. Docs and tests match the implemented contract.
-5. Compatibility inputs, if retained temporarily, are explicitly secondary and cannot redefine canonical truth.
+Those are real contract-shaping concerns, but they are not the same blocker as persisted live-enable truth on the canonical root-runtime path.
+
+## Landed evidence
+- `services/execution/live_arming.py`
+- `services/execution/place_order.py`
+- `services/admin/live_enable_wizard.py`
+- `services/admin/live_disable_wizard.py`
+- `services/admin/resume_gate.py`
+- `tests/test_live_arming_contract.py`
+- `tests/test_live_mode_contracts.py`
+- commit landed:
+  - `49dd99c` — `execution: persist canonical live enable contract`
 
 ## Risk
 High
 
 ## Review lane
-READY_FOR_INDEPENDENT_REVIEW
+Closed by independent review and publication

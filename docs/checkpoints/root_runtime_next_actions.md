@@ -14,11 +14,11 @@ Notes:
 
 ## High-risk implementation blockers
 - [ ] Resolve active live lifecycle authority gap
-- [ ] Collapse live-mode source of truth
 - [ ] Remove or fence hidden defaults on launch-capable paths
 
 Recent landed fix:
 - docs/checkpoints/coinbase_portfolio_quote_guard_note.md
+- docs/checkpoints/live_mode_source_of_truth_note.md
 
 ## Already documented
 - [x] Scope record created

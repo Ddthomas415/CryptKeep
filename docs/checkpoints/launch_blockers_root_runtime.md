@@ -9,7 +9,7 @@ Status: INCOMPLETE
 - External sandbox proof present: blocked by venue availability from current environment
 - Private authenticated connectivity proof present: partial
 - Live lifecycle authority fully governed: no
-- Live-mode source of truth singular: no
+- Live-mode source of truth singular: yes, on the canonical root-runtime path
 
 ## Scope
 This note tracks the visible launch blockers for the root runtime baseline only.
@@ -148,26 +148,6 @@ Review lane:
 
 ---
 
-### 6. Collapse live-mode source of truth
-Why it exists:
-- Multiple persisted live-enable flags and inconsistent arming inputs still exist.
-
-Evidence:
-- docs/safety/live_mode_contract.md
-- docs/checkpoints/live_mode_source_of_truth_note.md
-
-Close condition:
-- One persisted live-enable source
-- One sandbox selector
-- One final arming contract
-- Matching docs/tests
-
-Risk:
-- High
-
-Review lane:
-- READY_FOR_INDEPENDENT_REVIEW
-
 ## Launch-support tasks
 
 ### A. Align docs/config with actual supported state
@@ -211,3 +191,7 @@ Close condition:
 ## Non-blocking repo discipline
 - Keep compatibility layers frozen
 - Align REMAINING_TASKS.md with actual remaining work
+
+## Recent landed fix
+- Live-mode source of truth on the canonical root-runtime path is now singular and published:
+  - `49dd99c` — `execution: persist canonical live enable contract`
