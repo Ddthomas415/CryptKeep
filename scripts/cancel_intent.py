@@ -16,19 +16,20 @@ import yaml
 from services.execution.exchange_client import ExchangeClient
 from services.os.app_paths import data_dir, ensure_dirs
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ensure_dirs()
     ap = argparse.ArgumentParser()
     ap.add_argument("--exchange", required=True)
     ap.add_argument("--symbol", required=True)
     ap.add_argument("--intent-id", required=True)
-    args = ap.parse_args()
+    ap.add_argument("--sandbox", action="store_true")
+    args = ap.parse_args(argv)
 
     cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8").read()) or {}
     ex_cfg = cfg.get("execution") or {}
     exec_db = str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite"))
 
-    client = ExchangeClient(exchange_id=args.exchange.lower().strip(), sandbox=False)
+    client = ExchangeClient(exchange_id=args.exchange.lower().strip(), sandbox=bool(args.sandbox))
     out = client.cancel_intent(exec_db=exec_db, intent_id=str(args.intent_id), symbol=str(args.symbol))
     print(json.dumps(out, indent=2))
     return 0 if out.get("ok") else 2

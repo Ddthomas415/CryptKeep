@@ -5,10 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-APPROVED_SANDBOX_FALSE_SCRIPTS = {
-    "scripts/cancel_intent.py",
-    "scripts/reconcile_order_dedupe.py",
-}
+APPROVED_SANDBOX_FALSE_SCRIPTS: set[str] = set()
 
 
 def _sandbox_false_scripts() -> set[str]:
@@ -40,3 +37,11 @@ def test_reconcile_order_dedupe_script_is_read_only_reconcile() -> None:
     assert "submit_order(" not in text
     assert "place_order(" not in text
     assert ".create_" + "order(" not in text
+
+
+def test_lifecycle_helper_scripts_accept_explicit_sandbox_flag() -> None:
+    cancel_text = (ROOT / "scripts" / "cancel_intent.py").read_text(encoding="utf-8", errors="replace")
+    reconcile_text = (ROOT / "scripts" / "reconcile_order_dedupe.py").read_text(encoding="utf-8", errors="replace")
+
+    assert '--sandbox' in cancel_text
+    assert '--sandbox' in reconcile_text

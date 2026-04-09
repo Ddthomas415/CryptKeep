@@ -32,18 +32,19 @@ def _extract_client_id(o: dict) -> Optional[str]:
                 return str(v)
     return None
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ensure_dirs()
     ap = argparse.ArgumentParser()
     ap.add_argument("--exchange", required=True)
     ap.add_argument("--symbol", required=True)
     ap.add_argument("--exec-db", default=os.environ.get("EXEC_DB_PATH") or os.environ.get("CBP_DB_PATH") or str(data_dir() / "execution.sqlite"))
     ap.add_argument("--limit", type=int, default=100)
-    args = ap.parse_args()
+    ap.add_argument("--sandbox", action="store_true")
+    args = ap.parse_args(argv)
 
     ex_id = args.exchange.lower().strip()
     store = OrderDedupeStore(exec_db=args.exec_db)
-    client = ExchangeClient(exchange_id=ex_id, sandbox=False)
+    client = ExchangeClient(exchange_id=ex_id, sandbox=bool(args.sandbox))
 
     rows = store.list_needs_reconcile(exchange_id=ex_id, limit=args.limit)
 
