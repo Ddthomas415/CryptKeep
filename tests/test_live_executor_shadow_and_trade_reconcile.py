@@ -5,7 +5,7 @@ from services.execution.safety_gates import SafetyConfig
 
 
 def test_submit_pending_live_shadow_mode_is_observe_only(monkeypatch):
-    monkeypatch.delenv("LIVE_TRADING", raising=False)
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
     cfg = le.LiveCfg(enabled=False, observe_only=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
 
     out = le.submit_pending_live(cfg)
@@ -16,7 +16,7 @@ def test_submit_pending_live_shadow_mode_is_observe_only(monkeypatch):
 
 
 def test_reconcile_live_shadow_mode_allows_read_only_without_live_arming(monkeypatch, tmp_path):
-    monkeypatch.delenv("LIVE_TRADING", raising=False)
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
     cfg = le.LiveCfg(
         enabled=False,
         observe_only=True,
@@ -33,7 +33,7 @@ def test_reconcile_live_shadow_mode_allows_read_only_without_live_arming(monkeyp
 
 
 def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
-    monkeypatch.setenv("LIVE_TRADING", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(
         enabled=True,
         exchange_id="coinbase",

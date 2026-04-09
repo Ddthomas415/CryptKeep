@@ -63,7 +63,7 @@ def generate_carryover_md() -> str:
 ### Live trading safety gates (DO NOT enable casually)
 Requires BOTH:
 1) `live_trading.enabled: true` in config
-2) ENV `CBP_LIVE_ARMED=YES`
+2) ENV `CBP_EXECUTION_ARMED=YES`
 Plus Live Safety Pack (whitelist, qty bounds, dry_run, etc.)
 """
     prior_artifacts = """\

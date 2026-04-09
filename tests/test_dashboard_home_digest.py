@@ -459,7 +459,7 @@ def test_load_home_digest_surfaces_system_guard_blocking(monkeypatch) -> None:
         },
     )
     monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: True)
-    monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (True, "env:CBP_LIVE_ARMED"))
+    monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (True, "env:CBP_EXECUTION_ARMED"))
     monkeypatch.setattr(
         home_digest,
         "live_allowed",

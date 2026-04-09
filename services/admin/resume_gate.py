@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Dict
 
 from services.admin.kill_switch import set_armed
@@ -28,10 +29,12 @@ def resume_if_safe(*, note: str = "resume_if_safe") -> Dict[str, Any]:
             "reason": f"live_arm_restore_failed:{type(exc).__name__}",
             "details": dict(details or {}),
         }
+    os.environ["CBP_EXECUTION_ARMED"] = "YES"
     kill_switch = set_armed(False, note=note)
     try:
         system_guard = set_system_guard_state("RUNNING", writer="resume_gate", reason=str(note))
     except Exception as exc:
+        os.environ.pop("CBP_EXECUTION_ARMED", None)
         rollback_arm = set_live_armed_state(False, writer="resume_gate", reason=f"{note}:rollback_system_guard_failed")
         rollback = set_armed(True, note=f"{note}:rollback_system_guard_failed")
         return {

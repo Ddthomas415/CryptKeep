@@ -28,7 +28,7 @@ def enable_live() -> dict:
         _log_audit("ENABLE_LIVE", False, msg)
         return {"ok": False, "msg": msg, "save": save}
 
-    os.environ["CBP_LIVE_ARMED"] = "YES"
+    os.environ["CBP_EXECUTION_ARMED"] = "YES"
     armed_state = set_live_armed_state(True, writer="live_enable_wizard", reason="enable_live")
     armed, reason = live_enabled_and_armed()
     guard = None
@@ -53,7 +53,9 @@ def disable_live() -> dict:
         _log_audit("DISABLE_LIVE", False, msg)
         return {"ok": False, "msg": msg, "save": save}
 
-    os.environ.pop("CBP_LIVE_ARMED", None)
+    os.environ.pop("CBP_EXECUTION_ARMED", None)
+    os.environ.pop("CBP_LIVE_ENABLED", None)
+    os.environ.pop("CBP_EXECUTION_LIVE_ENABLED", None)
     armed_state = set_live_armed_state(False, writer="live_enable_wizard", reason="disable_live")
     armed, reason = live_enabled_and_armed()
     guard = set_system_guard_state("HALTED", writer="live_enable_wizard", reason="disable_live")

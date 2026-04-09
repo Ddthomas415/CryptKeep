@@ -29,11 +29,11 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
         saved["cfg"] = cfg
         return True, "Saved"
 
-    monkeypatch.delenv("CBP_LIVE_ARMED", raising=False)
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
     monkeypatch.setattr(lew, "_log_audit", lambda *args, **kwargs: None)
     monkeypatch.setattr(lew, "load_user_yaml", lambda: {"risk": {"live": {"max_trades_per_day": 5}}})
     monkeypatch.setattr(lew, "save_user_yaml", _save)
-    monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (True, "env:CBP_LIVE_ARMED"))
+    monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (True, "env:CBP_EXECUTION_ARMED"))
     monkeypatch.setattr(
         lew,
         "set_live_armed_state",
@@ -48,7 +48,7 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     out = lew.enable_live()
 
     assert out["ok"] is True
-    assert os.environ["CBP_LIVE_ARMED"] == "YES"
+    assert os.environ["CBP_EXECUTION_ARMED"] == "YES"
     assert saved["cfg"]["live"]["enabled"] is True
     assert saved["cfg"]["live_trading"]["enabled"] is True
     assert saved["cfg"]["risk"]["enable_live"] is True
@@ -136,7 +136,7 @@ def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
         saved["cfg"] = cfg
         return True, "Saved"
 
-    monkeypatch.setenv("CBP_LIVE_ARMED", "YES")
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     monkeypatch.setattr(lew, "_log_audit", lambda *args, **kwargs: None)
     monkeypatch.setattr(lew, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
     monkeypatch.setattr(lew, "save_user_yaml", _save)
@@ -158,7 +158,7 @@ def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
     assert out["armed"] is False
     assert out["armed_state"]["armed"] is False
     assert saved["cfg"]["execution"]["live_enabled"] is False
-    assert "CBP_LIVE_ARMED" not in os.environ
+    assert "CBP_EXECUTION_ARMED" not in os.environ
     assert arm_calls == [(False, "live_enable_wizard", "disable_live")]
     assert out["system_guard"]["state"] == "HALTED"
     assert guard_calls == [("HALTED", "live_enable_wizard", "disable_live")]
