@@ -3,33 +3,27 @@ from __future__ import annotations
 from services.execution import live_arming as la
 
 
-def test_is_live_enabled_accepts_current_and_legacy_shapes():
-    assert la.is_live_enabled({"live": {"enabled": True}}) is True
-    assert la.is_live_enabled({"live_trading": {"enabled": True}}) is True
-    assert la.is_live_enabled({"risk": {"enable_live": True}}) is True
+def test_is_live_enabled_accepts_only_canonical_shape():
+    assert la.is_live_enabled({"live": {"enabled": True}}) is False
+    assert la.is_live_enabled({"live_trading": {"enabled": True}}) is False
+    assert la.is_live_enabled({"risk": {"enable_live": True}}) is False
     assert la.is_live_enabled({"execution": {"live_enabled": True}}) is True
     assert la.is_live_enabled({"live": {"enabled": "false"}}) is False
 
 
-def test_set_live_enabled_normalizes_all_compatibility_shapes():
+def test_set_live_enabled_writes_only_canonical_shape():
     cfg = la.set_live_enabled({"risk": {"live": {"max_trades_per_day": 5}}}, True)
 
-    assert cfg["live"]["enabled"] is True
-    assert cfg["live_trading"]["enabled"] is True
-    assert cfg["risk"]["enable_live"] is True
     assert cfg["execution"]["live_enabled"] is True
     assert cfg["risk"]["live"]["max_trades_per_day"] == 5
 
     cfg = la.set_live_enabled(cfg, False)
 
-    assert cfg["live"]["enabled"] is False
-    assert cfg["live_trading"]["enabled"] is False
-    assert cfg["risk"]["enable_live"] is False
     assert cfg["execution"]["live_enabled"] is False
 
 
 def test_live_enabled_and_armed_requires_enable_and_arm_signal(monkeypatch):
-    monkeypatch.setattr(la, "load_user_yaml", lambda: {"live": {"enabled": True}})
+    monkeypatch.setattr(la, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
     for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING", "CBP_LIVE_ARMED"):
         monkeypatch.delenv(name, raising=False)
 

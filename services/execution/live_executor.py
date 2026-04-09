@@ -399,7 +399,7 @@ def _hard_off_guard(cfg: LiveCfg, *, operation: str = "submit") -> tuple[bool, s
     if op == "submit" and observe_only:
         return False, "LIVE_SHADOW observe-only mode: submissions disabled"
     if not cfg.enabled and not observe_only:
-        return False, "live.enabled is false"
+        return False, "execution.live_enabled is false"
     if op == "reconcile" and observe_only:
         return True, "ok_shadow"
     armed, reason = live_armed_signal()

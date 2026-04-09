@@ -17,12 +17,10 @@ The current live-mode contract says the intended direction is:
 ## Confirmed code behavior
 From `services/execution/live_arming.py`:
 
-- `is_live_enabled(...)` accepts multiple persisted/config inputs:
-  - `live.enabled`
-  - `live_trading.enabled`
-  - `risk.enable_live`
+- `is_live_enabled(...)` now reads only:
   - `execution.live_enabled`
-- `set_live_enabled(...)` writes back to all four surfaces
+- `set_live_enabled(...)` now writes only:
+  - `execution.live_enabled`
 - `live_enabled_and_armed()` accepts multiple arming env vars:
   - `CBP_EXECUTION_ARMED`
   - `CBP_LIVE_ENABLED`
@@ -32,7 +30,7 @@ From `services/execution/live_arming.py`:
 The repo documentation also explicitly records that live-mode truth is not yet singular:
 
 - `docs/safety/live_mode_contract.md:177`
-  - `is_live_enabled(...)` normalizes multiple inputs, so there is not yet one exclusive persisted source of truth
+  - older config layers and historical docs still mention legacy flags, so singular persisted truth still requires cleanup outside the canonical runtime helpers
 - `docs/safety/live_mode_contract.md:178`
   - outer arming helpers and the final boundary do not use exactly the same env list
 - `docs/safety/live_mode_contract.md:181`

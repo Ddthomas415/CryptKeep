@@ -35,9 +35,6 @@ def enable_live(*, token: str, checklist: dict) -> dict:
     return {
         "ok": True,
         "changed": {
-            "live.enabled": True,
-            "live_trading.enabled": True,
-            "risk.enable_live": True,
             "execution.live_enabled": True,
         },
         "armed_state": armed_state,

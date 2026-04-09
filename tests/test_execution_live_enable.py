@@ -37,9 +37,6 @@ def test_enable_live_uses_normalized_live_contract(monkeypatch):
 
     assert out["ok"] is True
     assert out["preflight"]["ok"] is True
-    assert saved["cfg"]["live"]["enabled"] is True
-    assert saved["cfg"]["live_trading"]["enabled"] is True
-    assert saved["cfg"]["risk"]["enable_live"] is True
     assert saved["cfg"]["execution"]["live_enabled"] is True
     assert out["armed_state"]["armed"] is True
     assert arm_calls == [(True, "execution_live_enable", "token_enable_live")]

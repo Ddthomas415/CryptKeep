@@ -54,10 +54,7 @@ Intended meaning:
 Key config/runtime signals:
 
 - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py::is_live_enabled(...)`
-  normalizes these persisted flags:
-  - `live.enabled`
-  - `live_trading.enabled`
-  - `risk.enable_live`
+  reads:
   - `execution.live_enabled`
 - `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
   - reads `live.sandbox`
@@ -105,9 +102,6 @@ Operational meaning:
 
 Primary normalized live-enable inputs:
 
-- `live.enabled`
-- `live_trading.enabled`
-- `risk.enable_live`
 - `execution.live_enabled`
 
 Mode/sandbox selectors:
@@ -172,7 +166,7 @@ That bias should remain.
 These are real and should be treated as unresolved contract debt, not hidden features:
 
 1. Multiple persisted live-enable flags exist.
-   - `is_live_enabled(...)` intentionally normalizes them, but that also means there is not yet one exclusive persisted source of truth.
+   - canonical runtime helpers now use `execution.live_enabled`, but older configs and historical docs still mention legacy flags.
 2. Outer arming helpers and the final boundary do not use exactly the same env list.
    - older admin/runtime helpers historically treated persisted arm state and legacy envs as active runtime arming signals
    - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py::_is_armed()` is narrower and remains the final execution authority
