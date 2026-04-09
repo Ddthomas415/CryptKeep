@@ -13,11 +13,11 @@ Notes:
 - Gate.io is not currently usable from the operator environment
 
 ## High-risk implementation blockers
-- [ ] Resolve active live lifecycle authority gap
 - [ ] Remove or fence hidden defaults on launch-capable paths
 
 Recent landed fix:
 - docs/checkpoints/coinbase_portfolio_quote_guard_note.md
+- docs/checkpoints/live_lifecycle_gap_note.md
 - docs/checkpoints/live_mode_source_of_truth_note.md
 
 ## Already documented
