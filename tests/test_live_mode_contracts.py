@@ -13,7 +13,7 @@ from services.preflight import preflight as pf
 def test_live_guard_accepts_current_live_config_shape(monkeypatch):
     monkeypatch.setattr(live_guard, "kill_state", lambda: {"armed": False, "note": "manual"})
     monkeypatch.setattr(live_guard, "get_system_guard_state", lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok"})
-    monkeypatch.setattr(live_guard, "load_user_config", lambda: {"live": {"enabled": True}})
+    monkeypatch.setattr(live_guard, "load_user_config", lambda: {"execution": {"live_enabled": True}})
 
     allowed, reason, details = live_guard.live_allowed()
 
@@ -26,7 +26,7 @@ def test_live_guard_accepts_current_live_config_shape(monkeypatch):
 def test_live_guard_blocks_when_system_guard_halted(monkeypatch):
     monkeypatch.setattr(live_guard, "kill_state", lambda: {"armed": False, "note": "manual"})
     monkeypatch.setattr(live_guard, "get_system_guard_state", lambda **_: {"state": "HALTED", "writer": "watchdog", "reason": "stale"})
-    monkeypatch.setattr(live_guard, "load_user_config", lambda: {"live": {"enabled": True}})
+    monkeypatch.setattr(live_guard, "load_user_config", lambda: {"execution": {"live_enabled": True}})
 
     allowed, reason, details = live_guard.live_allowed()
 
@@ -38,7 +38,7 @@ def test_live_guard_blocks_when_system_guard_halted(monkeypatch):
 
 def test_intent_executor_live_allowed_accepts_current_live_shape(monkeypatch):
     monkeypatch.setattr(intent_executor, "_killswitch_state", lambda: (False, ""))
-    ok, reason = intent_executor._live_allowed({"live": {"enabled": True}})
+    ok, reason = intent_executor._live_allowed({"execution": {"live_enabled": True}})
 
     assert ok is True
     assert reason == "live_allowed"
@@ -51,7 +51,7 @@ def test_intent_executor_live_allowed_blocks_on_probe_failure(monkeypatch):
         lambda: (True, "services.risk.killswitch.import_failed:ModuleNotFoundError"),
     )
 
-    ok, reason = intent_executor._live_allowed({"live": {"enabled": True}})
+    ok, reason = intent_executor._live_allowed({"execution": {"live_enabled": True}})
 
     assert ok is False
     assert reason == "services.risk.killswitch.import_failed:ModuleNotFoundError"
@@ -64,7 +64,7 @@ def test_intent_executor_live_allowed_blocks_on_cooldown(monkeypatch):
         lambda: (True, "services.risk.killswitch.snapshot.cooldown_active"),
     )
 
-    ok, reason = intent_executor._live_allowed({"live": {"enabled": True}})
+    ok, reason = intent_executor._live_allowed({"execution": {"live_enabled": True}})
 
     assert ok is False
     assert reason == "services.risk.killswitch.snapshot.cooldown_active"
@@ -97,7 +97,7 @@ def test_execute_one_blocks_live_intent_before_adapter_on_probe_failure(monkeypa
     monkeypatch.setattr(intent_executor, "log_event", lambda **kwargs: events.append(kwargs))
     monkeypatch.setattr(intent_executor, "get_adapter", lambda **kwargs: pytest.fail("adapter should not be reached"))
 
-    out = intent_executor.execute_one({"live": {"enabled": True}})
+    out = intent_executor.execute_one({"execution": {"live_enabled": True}})
 
     assert out["blocked"] is True
     assert out["reason"] == "services.risk.killswitch.snapshot_failed:RuntimeError"
@@ -124,9 +124,8 @@ symbols:
   - BTC/USD
 execution:
   executor_mode: live
+  live_enabled: true
   db_path: __DB_PATH__
-live:
-  enabled: true
 risk:
   max_daily_loss_quote: 0
 """.replace("__DB_PATH__", str(db_path)),

@@ -15,7 +15,7 @@ Authentication:
 - Optional bootstrap (first user creation): `CBP_AUTH_BOOTSTRAP_USER`, `CBP_AUTH_BOOTSTRAP_PASSWORD`, `CBP_AUTH_BOOTSTRAP_ROLE`.
 
 Execution is fail-closed:
-- Requires config mode=live AND live.enabled=true
+- Requires config mode=live AND execution.live_enabled=true
 - Requires ENABLE_LIVE_TRADING=YES (existing live gate)
 - Requires ENABLE_REPAIR_EXECUTION=YES
 - If plan includes FLATTEN_POSITIONS, also requires ENABLE_FLATTEN=YES

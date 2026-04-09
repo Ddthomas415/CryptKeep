@@ -62,7 +62,7 @@ def generate_carryover_md() -> str:
 - `python3 scripts/run_intent_reconciler.py run`
 ### Live trading safety gates (DO NOT enable casually)
 Requires BOTH:
-1) `live_trading.enabled: true` in config
+1) `execution.live_enabled: true` in config
 2) ENV `CBP_EXECUTION_ARMED=YES`
 Plus Live Safety Pack (whitelist, qty bounds, dry_run, etc.)
 """

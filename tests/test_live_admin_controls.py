@@ -49,9 +49,6 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
 
     assert out["ok"] is True
     assert os.environ["CBP_EXECUTION_ARMED"] == "YES"
-    assert saved["cfg"]["live"]["enabled"] is True
-    assert saved["cfg"]["live_trading"]["enabled"] is True
-    assert saved["cfg"]["risk"]["enable_live"] is True
     assert saved["cfg"]["execution"]["live_enabled"] is True
     assert out["armed_state"]["armed"] is True
     assert out["system_guard"]["state"] == "RUNNING"
@@ -67,7 +64,7 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     guard_calls: list[tuple[str, str, str]] = []
     arm_calls: list[tuple[bool, str, str]] = []
     guard_state = {"state": "RUNNING", "writer": "test", "reason": "before"}
-    cfg_state = {"live": {"enabled": True}, "risk": {"enable_live": True}}
+    cfg_state = {"execution": {"live_enabled": True}, "risk": {"live": {"max_trades_per_day": 5}}}
 
     def _save(cfg, dry_run=False):
         saved["cfg"] = cfg
@@ -111,9 +108,6 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
 
     assert out["ok"] is True
     assert saved["dry_run"] is False
-    assert saved["cfg"]["live"]["enabled"] is False
-    assert saved["cfg"]["live_trading"]["enabled"] is False
-    assert saved["cfg"]["risk"]["enable_live"] is False
     assert saved["cfg"]["execution"]["live_enabled"] is False
     assert out["post"]["live_enabled"] is False
     assert out["post"]["kill_switch_armed"] is True

@@ -148,7 +148,7 @@ def test_compute_first_run_status_reports_normalized_live_enabled(monkeypatch, t
     monkeypatch.setattr(frw, "ensure_user_yaml_exists", lambda: True)
     monkeypatch.setattr(frw, "ensure_kill_default", lambda: None)
     monkeypatch.setattr(frw, "kill_state", lambda: {"armed": True, "note": "default"})
-    monkeypatch.setattr(frw, "load_user_yaml", lambda: {"live": {"enabled": True}})
+    monkeypatch.setattr(frw, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
 
     out = frw.compute_first_run_status()
 
@@ -501,4 +501,3 @@ def test_guided_setup_apply_state_without_patch_still_returns_state(monkeypatch)
     assert out["summary"]["exchange"] == "coinbase"
     assert out["preflight"]["ok"] is False
     assert out["status"]["config_ok"] is False
-

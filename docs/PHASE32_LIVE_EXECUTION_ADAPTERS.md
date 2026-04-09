@@ -10,8 +10,8 @@ What this adds:
 
 Hard safety gate:
 Live orders will NOT be sent unless:
-1) config/trading.yaml -> live.enabled: true
-2) environment variable LIVE_TRADING=YES
+1) config/trading.yaml -> execution.live_enabled: true
+2) environment variable CBP_EXECUTION_ARMED=YES
 
 Credentials:
 Set per-exchange env vars:
@@ -23,7 +23,7 @@ Run (if enabled):
 - Submit an intent:
   python scripts/live_submit_intent.py --symbol BTC/USDT --side buy --qty 0.001
 - Process + reconcile:
-  LIVE_TRADING=YES python scripts/live_executor_tick.py
+  CBP_EXECUTION_ARMED=YES python scripts/live_executor_tick.py
 
 Notes:
 - Reconciliation now uses trade-level fetch (`fetch_my_trades`) when available for partial fills + fee accuracy, with synthetic closed-order fallback.
