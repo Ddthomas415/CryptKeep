@@ -33,6 +33,10 @@ Why it remains deferred:
 - Coinbase authenticated read-only proof is complete, but no supported Coinbase sandbox path is available in the current repo/client combination
 - Binance sandbox lifecycle proof is blocked by external HTTP `451` venue restriction from the current location
 - Gate.io sandbox lifecycle proof is blocked by current operator-environment access constraints
+- Direct network probes captured on April 9, 2026 strengthened that classification:
+  - `curl https://testnet.binance.vision/api/v3/ping` -> HTTP `451`
+  - `curl https://fx-api-testnet.gateio.ws/api/v4/futures/usdt/contracts` -> HTTP `502`
+  - `traceroute testnet.binance.vision` resolved and routed beyond local/DNS layers, so the Binance failure is upstream venue restriction rather than a local DNS problem
 
 What is already proven:
 - private authenticated connectivity for one supported venue

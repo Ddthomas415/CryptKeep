@@ -40,6 +40,26 @@ For the current operator environment, this is also the maximum reachable proof c
 - Gate.io:
   - not currently usable from the operator environment, so no authenticated proof was attempted
 
+## Direct network probes
+Additional direct probe evidence captured on April 9, 2026:
+
+- Binance testnet public ping:
+  - `curl https://testnet.binance.vision/api/v3/ping`
+  - returned HTTP `451`
+  - response body: service unavailable from a restricted location
+- Gate.io testnet futures contracts:
+  - `curl https://fx-api-testnet.gateio.ws/api/v4/futures/usdt/contracts`
+  - returned HTTP `502`
+  - upstream server: `openresty`
+- Traceroute to `testnet.binance.vision`:
+  - resolved and routed beyond local/DNS layers
+  - this strengthens the current classification that the Binance failure is upstream venue restriction, not a local name-resolution problem
+
+Interpretation:
+- Binance testnet is externally restricted from the current operator environment
+- Gate.io testnet is currently not usable from the current operator environment
+- this environment still lacks one reachable supported sandbox/testnet venue for lifecycle proof
+
 ## Remaining proof required
 - sandbox/private order placement
 - order fetch/status reconciliation for the placed order
