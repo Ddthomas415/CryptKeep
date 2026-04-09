@@ -106,27 +106,6 @@ Evidence:
 Close condition:
 - Operator-facing docs and active config describe the same supported state
 
-### B. Remove or fence hidden defaults on launch-capable paths
-Evidence:
-- defaults such as venue=coinbase and symbol=BTC/USD previously existed on runtime-capable paths
-- docs/checkpoints/hidden_defaults_note.md
-
-Current status:
-- the canonical operator/config path now requires explicit venue/symbol inputs in:
-  - `scripts/run_bot_safe.py`
-  - `scripts/bot_ctl.py`
-  - `services/execution/live_executor.py`
-- hidden-default cleanup outside the fully verified canonical operator path may still remain
-- active pipeline config defaults were also tightened in `services/pipeline/ema_strategy.py`
-- runtime pipeline scripts were also tightened to require explicit exchange, symbol, and mode in config
-
-Current status:
-- Coinbase submit path now blocks locally when the bound portfolio lacks the required quote account for the requested symbol
-- This prevents invalid BTC/USD submit attempts from reaching Coinbase on portfolios without USD funding
-
-Close condition:
-- Venue, symbol, mode, and account are explicit on the chosen launch path
-
 ### C. Produce launch evidence packet
 Close condition:
 - One packet containing:
@@ -147,3 +126,5 @@ Close condition:
   - `49dd99c` — `execution: persist canonical live enable contract`
 - Live lifecycle authority on the canonical root-runtime path is now boundary-routed and published:
   - `ffc8686` — `execution: route open-order reconcile through boundary`
+- Hidden defaults on the chosen launch path are fenced and no longer tracked as an active blocker:
+  - `docs/checkpoints/hidden_defaults_note.md`

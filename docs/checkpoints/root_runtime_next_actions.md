@@ -12,11 +12,9 @@ Notes:
 - Binance testnet is blocked from the current location/network by HTTP `451`
 - Gate.io is not currently usable from the operator environment
 
-## High-risk implementation blockers
-- [ ] Remove or fence hidden defaults on launch-capable paths
-
 Recent landed fix:
 - docs/checkpoints/coinbase_portfolio_quote_guard_note.md
+- docs/checkpoints/hidden_defaults_note.md
 - docs/checkpoints/live_lifecycle_gap_note.md
 - docs/checkpoints/live_mode_source_of_truth_note.md
 

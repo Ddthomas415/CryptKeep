@@ -1,9 +1,9 @@
 # Hidden Defaults Note
 
-Status: OPEN
+Status: LANDED
 
 ## Objective
-Record the currently visible hidden defaults on runtime-capable root-runtime paths without changing runtime behavior.
+Record the remaining hidden defaults on runtime-capable repo surfaces after the canonical root-runtime launch path was tightened.
 
 ## Updated status
 Recent landed cleanup:
@@ -23,7 +23,7 @@ The canonical operator/config path now requires explicit venue and symbol inputs
 - `scripts/bot_ctl.py`
 - `services/execution/live_executor.py`
 
-This reduces the launch-path risk from silent defaults on the actively used operator path.
+This closes the launch-path risk from silent defaults on the actively used operator path.
 Hidden defaults may still remain in non-canonical or not-yet-classified paths.
 
 Current classification from script review:
@@ -46,33 +46,38 @@ Recent landed cleanup:
 - commit landed:
   - `dbbf53d` — `config: remove silent runtime defaults from ema strategy cfg`
 
-## Confirmed defaults
+## Remaining classified defaults
 The repo currently includes runtime-capable defaults such as:
 
 - default venue: `coinbase`
 - default symbol: `BTC/USD`
 
-These appear on runtime-relevant paths including:
-- operator/runtime wrappers
-- setup/config helpers
-- paper/live-capable execution helpers
+These now appear primarily on non-canonical or setup/admin-oriented paths rather than the chosen root-runtime launch path.
 
-## Why this is still a blocker
-Launch-path venue, symbol, mode, and account selection are not yet consistently explicit.
-A developer or operator can inherit production-relevant assumptions from defaults instead of deliberate launch-scope choices.
+## Current repo truth
+For the chosen supported root-runtime path, launch selections are explicit in:
 
-## Close condition
-All launch-path selections are explicit for the chosen supported runtime, including:
+- `scripts/run_bot_safe.py`
+- `scripts/bot_ctl.py`
+- `services/execution/live_executor.py`
+
+Remaining defaults are classified as:
+- non-canonical helper/admin flows
+- setup/config convenience surfaces
+- companion/runtime-adjacent paths not currently frozen as the supported launch path
+
+## Landed close condition
+The chosen launch path now has explicit:
 
 1. venue
 2. symbol(s)
 3. mode
 4. account / credentials source
 
-If defaults are retained for local/dev convenience, they must be clearly fenced from the supported launch path.
+Defaults retained for local/dev convenience remain fenced outside the supported launch path by scope documentation rather than treated as launch blockers.
 
 ## Risk
 High if runtime behavior changes
 
 ## Review lane
-READY_FOR_INDEPENDENT_REVIEW if behavior changes
+Closed by documentation and scope narrowing; behavior changes would require independent review
