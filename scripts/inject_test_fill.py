@@ -37,7 +37,7 @@ def main() -> int:
         "side": args.side,
         "qty": args.qty,
         "price": args.price,
-        "ts": datetime.datetime.utcnow().isoformat() + "Z",
+        "ts": datetime.datetime.now(datetime.UTC).isoformat().replace("+00:00", "Z"),
         "fee_usd": 0.0,
         "realized_pnl_usd": 0.0,
     }
