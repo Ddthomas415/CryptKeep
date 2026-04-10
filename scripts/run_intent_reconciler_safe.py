@@ -14,6 +14,7 @@ _REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import time
 import traceback
 import runpy
+from services.config_loader import runtime_trading_config_available
 from services.os import app_paths
 
 
@@ -31,9 +32,8 @@ def log(msg: str):
     _append(_log_path(), f"[{ts}] {msg}\n")
 
 def _prereqs_ok() -> tuple[bool, str]:
-    cfg = _REPO / "config" / "trading.yaml"
-    if not cfg.exists():
-        return False, "missing config/trading.yaml"
+    if not runtime_trading_config_available():
+        return False, "missing runtime trading config"
     return True, "ok"
 
 def main() -> int:
