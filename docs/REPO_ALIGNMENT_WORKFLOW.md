@@ -86,6 +86,7 @@ Use these wrappers when running from repo root:
 - Runs `scripts/check_repo_alignment.py`
 - Runs `scripts/preflight_check.py`
 - Runs full `pytest`
+  - `scripts/preflight_check.py` now treats merged runtime config availability as valid, not just legacy `config/trading.yaml`
 
 `make test-runtime`
 - Runs top-level `tests/` excluding files named `test_checkpoints*`

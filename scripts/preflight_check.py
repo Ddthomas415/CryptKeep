@@ -14,6 +14,8 @@ import json
 import os
 import platform
 import subprocess
+from services.config_loader import runtime_trading_config_available
+from services.os.app_paths import config_dir
 
 def emit(ok: bool, msg: str, **extra):
     payload = {"ok": bool(ok), "msg": msg}
@@ -45,8 +47,15 @@ def main() -> int:
         return 2
 
     # config presence
-    cfg = _REPO / "config" / "trading.yaml"
-    emit(cfg.exists(), "config/trading.yaml present" if cfg.exists() else "config/trading.yaml missing", path=str(cfg))
+    legacy_cfg = _REPO / "config" / "trading.yaml"
+    runtime_cfg = config_dir() / "user.yaml"
+    cfg_ok = runtime_trading_config_available()
+    emit(
+        cfg_ok,
+        "runtime trading config available" if cfg_ok else "runtime trading config missing",
+        legacy_path=str(legacy_cfg),
+        runtime_path=str(runtime_cfg),
+    )
 
     # wizard_state is OPTIONAL: never fail preflight on it
     try:
