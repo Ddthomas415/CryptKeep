@@ -12,7 +12,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import argparse
 import json
 
-import yaml
+from services.config_loader import load_runtime_trading_config
 from services.execution.exchange_client import ExchangeClient
 from services.os.app_paths import data_dir, ensure_dirs
 
@@ -25,7 +25,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sandbox", action="store_true")
     args = ap.parse_args(argv)
 
-    cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8").read()) or {}
+    cfg = load_runtime_trading_config()
     ex_cfg = cfg.get("execution") or {}
     exec_db = str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite"))
 
