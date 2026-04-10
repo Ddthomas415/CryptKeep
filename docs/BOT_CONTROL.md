@@ -2,7 +2,7 @@
 
 The dashboard has a single authoritative control panel:
 - Start PAPER Bot (always allowed)
-- Start LIVE Bot (blocked unless gates + risk + confirmations pass)
+- Start LIVE Bot (blocked unless execution.live_enabled + gates + risk + confirmations pass)
 - Stop Bot
 
 LIVE confirmations (only required when live.sandbox=false):

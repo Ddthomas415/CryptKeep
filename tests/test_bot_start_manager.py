@@ -3,8 +3,17 @@ from __future__ import annotations
 from services.bot import start_manager as sm
 
 
+def test_load_cfg_uses_runtime_trading_loader(monkeypatch):
+    monkeypatch.setattr(sm, "load_runtime_trading_config", lambda path="config/trading.yaml": {"loaded_from": path})
+
+    cfg = sm._load_cfg()
+
+    assert cfg == {"loaded_from": "config/trading.yaml"}
+
+
 def test_decide_start_live_accepts_risk_live_shape(monkeypatch):
     monkeypatch.setattr(sm, "_ui_gate", lambda _cfg: (True, "OK", []))
+    monkeypatch.setattr(sm, "is_live_enabled", lambda cfg=None: True)
 
     decision = sm.decide_start(
         "live",
@@ -22,6 +31,22 @@ def test_decide_start_live_accepts_risk_live_shape(monkeypatch):
 
     assert decision.ok is True
     assert decision.status == "OK"
+
+
+def test_decide_start_live_blocks_when_live_enablement_is_false(monkeypatch):
+    monkeypatch.setattr(sm, "is_live_enabled", lambda cfg=None: False)
+
+    decision = sm.decide_start(
+        "live",
+        {
+            "live": {"sandbox": True},
+            "execution": {"live_enabled": False},
+        },
+    )
+
+    assert decision.ok is False
+    assert decision.status == "BLOCK"
+    assert decision.reasons == ["execution.live_enabled is false"]
 
 
 def test_start_routes_paper_to_cli_paper(monkeypatch):
@@ -59,6 +84,7 @@ def test_start_routes_live_to_cli_live(monkeypatch):
         },
     )
     monkeypatch.setattr(sm, "_ui_gate", lambda _cfg: (True, "OK", []))
+    monkeypatch.setattr(sm, "is_live_enabled", lambda cfg=None: True)
     monkeypatch.setattr(
         sm,
         "start_process",
@@ -70,3 +96,26 @@ def test_start_routes_live_to_cli_live(monkeypatch):
     assert decision.ok is True
     assert captured == {"mode": "live", "module": "services.bot.cli_live"}
     assert status.mode == "live"
+
+
+def test_start_does_not_launch_live_process_when_live_enablement_is_false(monkeypatch):
+    launched = {"called": False}
+
+    monkeypatch.setattr(
+        sm,
+        "_load_cfg",
+        lambda: {
+            "live": {"sandbox": True},
+            "execution": {"live_enabled": False},
+        },
+    )
+    monkeypatch.setattr(sm, "is_live_enabled", lambda cfg=None: False)
+    monkeypatch.setattr(sm, "start_process", lambda **kwargs: launched.__setitem__("called", True))
+    monkeypatch.setattr(sm, "read_status", lambda: sm.ProcStatus(False, None, "paper", 0, "", ""))
+
+    decision, status = sm.start("live")
+
+    assert decision.ok is False
+    assert decision.reasons == ["execution.live_enabled is false"]
+    assert launched["called"] is False
+    assert status.running is False
