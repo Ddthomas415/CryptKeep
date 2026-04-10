@@ -28,9 +28,9 @@ Hidden defaults may still remain in non-canonical or not-yet-classified paths.
 
 Current classification from script review:
 - `scripts/run_reconcile_safe_steps.py` still has venue/symbol defaults, but appears to be an admin/helper entrypoint
-- `scripts/run_bot_runner.py` still has mode/venue/symbol defaults in `desired_state(...)`
-- latest caller grep only showed `tests/test_run_bot_runner.py`
-- these scripts are not yet proven to be part of the active canonical runtime path, so they remain classified rather than patched
+- `scripts/run_bot_runner.py` no longer silently defaults mode/venue/symbol and now fails closed on missing runtime config
+- latest caller grep still only showed `tests/test_run_bot_runner.py`
+- it remains non-canonical, but the hidden-default classification for that runner is now closed
 - `services/setup/config_manager.py` still contains broad defaults (`coinbase`, `BTC/USD`, `paper`)
 - current caller review places it primarily on setup/admin flows rather than the tightened canonical runtime path
 - it remains classified rather than patched in the current pass
