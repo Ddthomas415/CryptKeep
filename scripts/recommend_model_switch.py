@@ -16,7 +16,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import json
 from pathlib import Path
 
-import yaml
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import data_dir, ensure_dirs
 from services.learning.model_registry import ModelRegistry, RegistryCfg
 
@@ -42,7 +42,7 @@ def _score_wf(rep: dict) -> tuple[float,float,int]:
         return (float("nan"), float("inf"), 0)
 
 def main() -> int:
-    cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8").read()) or {}
+    cfg = load_runtime_trading_config()
     learn = cfg.get("learning") or {}
 
     min_windows = int(learn.get("wf_min_windows_used") or 3)

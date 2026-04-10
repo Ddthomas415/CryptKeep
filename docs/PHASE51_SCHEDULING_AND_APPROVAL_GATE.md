@@ -7,6 +7,7 @@ What runs automatically:
 
 2) Recommend+Apply (safe-by-design):
    - scripts/recommend_model_switch.py writes data/learning/recommended_model.json
+     - reads merged runtime trading config for `learning.*` thresholds and current active model
    - scripts/apply_pending_model_switch.py applies ONLY if:
        - data/learning/model_switch_approval.json exists
        - approval model_id matches the recommended model_id
