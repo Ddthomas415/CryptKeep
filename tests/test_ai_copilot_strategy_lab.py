@@ -43,6 +43,20 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
                     "biggest_weakness": "Thin loser sample.",
                     "next_improvement": "Study the latest losing exit cluster.",
                     "paper_history": {"closed_trades": 34, "fills": 68, "net_realized_pnl": 212.5},
+                    "walk_forward": {
+                        "available": True,
+                        "status": "ok",
+                        "research_only": True,
+                        "bars": 240,
+                        "window_count": 4,
+                        "summary": {
+                            "avg_test_return_pct": 1.6,
+                            "avg_test_max_drawdown_pct": 2.3,
+                            "non_negative_test_window_ratio": 0.75,
+                            "total_test_trades": 10,
+                            "total_test_closed_trades": 5,
+                        },
+                    },
                 }
             ]
         },
@@ -77,6 +91,9 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
     assert report["severity"] == "ok"
     assert report["selected_strategy"] == "ema_cross"
     assert report["research_acceptance"]["accepted"] is True
+    assert report["walk_forward"]["available"] is True
+    assert report["walk_forward"]["window_count"] == 4
+    assert report["walk_forward"]["summary"]["avg_test_return_pct"] == 1.6
     assert report["loss_replay"]["losing_trade_count"] == 2
     assert any("Top strategy changed" in item for item in report["recommendations"])
     assert any("Study the latest losing exit cluster." in item for item in report["recommendations"])
@@ -121,6 +138,14 @@ def test_build_strategy_lab_report_warns_when_evidence_is_partial_or_thin(monkey
                     "biggest_weakness": "Thin sample.",
                     "next_improvement": "Run more windows.",
                     "paper_history": {"closed_trades": 1, "fills": 2, "net_realized_pnl": 4.0},
+                    "walk_forward": {
+                        "available": False,
+                        "status": "insufficient_candles",
+                        "research_only": True,
+                        "bars": 20,
+                        "window_count": 0,
+                        "summary": {},
+                    },
                 }
             ]
         },
@@ -163,7 +188,29 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
         "summary": "Strategy lab report built.",
         "selected_strategy": "ema_cross",
         "symbol": "BTC/USD",
-        "top_rows": [{"strategy": "ema_cross", "rank": 1, "decision": "keep", "leaderboard_score": 0.8, "max_drawdown_pct": 2.0}],
+        "top_rows": [
+            {
+                "strategy": "ema_cross",
+                "rank": 1,
+                "decision": "keep",
+                "leaderboard_score": 0.8,
+                "max_drawdown_pct": 2.0,
+                "walk_forward": {"status": "ok"},
+            }
+        ],
+        "walk_forward": {
+            "available": True,
+            "status": "ok",
+            "research_only": True,
+            "bars": 240,
+            "window_count": 4,
+            "summary": {
+                "avg_test_return_pct": 1.6,
+                "avg_test_max_drawdown_pct": 2.3,
+                "non_negative_test_window_ratio": 0.75,
+                "total_test_closed_trades": 5,
+            },
+        },
         "collector_runtime": {"status": "stopped", "completed_strategies": 3, "total_strategies": 3, "summary_text": "Complete run."},
         "paper_history": {"status": "available", "fills_count": 12, "strategy_count": 3, "caveat": ""},
         "research_acceptance": {"status": "accepted", "summary": "ema_cross meets the current research-acceptance floor.", "blockers": []},
@@ -185,3 +232,4 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
     assert "ema_cross" in markdown
     assert "## Evidence Runtime" in markdown
     assert "## Research Acceptance" in markdown
+    assert "## Walk-Forward" in markdown

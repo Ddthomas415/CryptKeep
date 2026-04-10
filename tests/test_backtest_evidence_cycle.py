@@ -114,6 +114,32 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
             "caveat": "No persisted trade journal exists yet.",
         },
     )
+    monkeypatch.setattr(
+        evidence_cycle,
+        "run_anchored_walk_forward",
+        lambda **kwargs: {
+            "ok": True,
+            "research_only": True,
+            "bars": 240,
+            "warmup_bars": 20,
+            "min_train_bars": 120,
+            "test_bars": 30,
+            "step_bars": 30,
+            "window_count": 3,
+            "summary": {
+                "window_count": 3,
+                "positive_test_window_count": 2,
+                "non_negative_test_window_ratio": 2.0 / 3.0,
+                "avg_test_return_pct": 1.25,
+                "median_like_test_return_pct": 1.10,
+                "worst_test_return_pct": -0.50,
+                "best_test_return_pct": 2.50,
+                "avg_test_max_drawdown_pct": 3.20,
+                "total_test_trades": 6,
+                "total_test_closed_trades": 3,
+            },
+        },
+    )
     windows = [
         {"window_id": "w1", "label": "One", "warmup_bars": 5, "candles": [["1", 0, 0, 0, 0, 0]]},
         {"window_id": "w2", "label": "Two", "warmup_bars": 5, "candles": [["2", 0, 0, 0, 0, 0]]},
@@ -130,6 +156,10 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
     assert rows[0]["decision"] == "keep"
     assert rows[0]["evidence_status"] == "synthetic_only"
     assert rows[0]["confidence_label"] == "low"
+    assert rows[0]["walk_forward"]["available"] is True
+    assert rows[0]["walk_forward"]["status"] == "ok"
+    assert rows[0]["walk_forward"]["window_count"] == 3
+    assert rows[0]["walk_forward"]["summary"]["avg_test_return_pct"] == 1.25
     assert rows[1]["decision"] == "freeze"
     assert rows[1]["evidence_status"] == "insufficient"
     assert out["paper_history"]["status"] == "missing"
@@ -738,6 +768,17 @@ def test_render_decision_record_includes_decision_summary() -> None:
                     "best_window_id": "w1",
                     "worst_window_id": "w2",
                     "paper_history_note": "1 closed trade, positive net realized pnl.",
+                    "walk_forward": {
+                        "available": True,
+                        "status": "ok",
+                        "window_count": 3,
+                        "summary": {
+                            "avg_test_return_pct": 1.1,
+                            "avg_test_max_drawdown_pct": 2.4,
+                            "non_negative_test_window_ratio": 2.0 / 3.0,
+                            "total_test_closed_trades": 3,
+                        },
+                    },
                     "research_acceptance": {
                         "status": "not_accepted",
                         "summary": "`breakout_donchian` does not meet the current research-acceptance floor yet.",
@@ -771,7 +812,10 @@ def test_render_decision_record_includes_decision_summary() -> None:
     assert "- paper-history: 1 closed trade, positive net realized pnl." in text
     assert "- research acceptance: `not_accepted`" in text
     assert "- research summary: `breakout_donchian` does not meet the current research-acceptance floor yet." in text
+    assert "- walk-forward: `ok`" in text
+    assert "- walk-forward windows: `3`" in text
     assert "- Research blocker: Persisted paper history only has 1 closed trade(s); the current research floor requires 30." in text
+    assert "- Walk-forward summary: +1.10% average test return, 2.40% average test drawdown, 67% non-negative test windows, 3 closed test trade(s)." in text
     assert "- `breakout_donchian`" in text
     assert "- extend persisted evidence comparison beyond the immediately previous artifact" in text
     assert "- improve deterministic windows where strategies still show no realized closed-trade participation" in text

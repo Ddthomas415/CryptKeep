@@ -10,7 +10,9 @@ from typing import Any, Dict, Iterable, List
 
 from services.analytics.journal_analytics import fifo_pnl_from_fills
 from services.backtest.leaderboard import rank_strategy_rows, run_strategy_leaderboard
+from services.backtest.walk_forward import run_anchored_walk_forward
 from services.os.app_paths import code_root, data_dir, ensure_dirs
+from services.strategies.presets import apply_preset
 from services.strategies.hypotheses import get_strategy_hypothesis
 
 
@@ -676,6 +678,95 @@ def _improvement_for_row(row: dict[str, Any], hypothesis: dict[str, Any] | None)
     return "Rerun the same evidence pack after the next smallest strategy rule adjustment."
 
 
+def _combined_walk_forward_candles(window_defs: list[dict[str, Any]]) -> list[list[Any]]:
+    rows: list[list[Any]] = []
+    for item in list(window_defs or []):
+        for candle in list(item.get("candles") or []):
+            if isinstance(candle, (list, tuple)) and len(candle) >= 5:
+                rows.append(list(candle))
+    return rows
+
+
+def _walk_forward_cfg_for_row(*, base_cfg: dict[str, Any], row: dict[str, Any]) -> dict[str, Any]:
+    cfg = dict(base_cfg or {})
+    candidate = str(row.get("candidate") or "").strip()
+    if candidate:
+        try:
+            cfg = apply_preset(cfg, candidate)
+        except Exception:
+            cfg = dict(cfg or {})
+    strategy_name = str(row.get("strategy") or "").strip()
+    strategy_cfg = dict(cfg.get("strategy") or {})
+    if strategy_name:
+        strategy_cfg["name"] = strategy_name
+    cfg["strategy"] = strategy_cfg
+    return cfg
+
+
+def _walk_forward_summary_for_row(
+    *,
+    row: dict[str, Any],
+    base_cfg: dict[str, Any],
+    symbol: str,
+    combined_candles: list[list[Any]],
+    warmup_bars: int,
+    initial_cash: float,
+    fee_bps: float,
+    slippage_bps: float,
+) -> dict[str, Any]:
+    try:
+        result = run_anchored_walk_forward(
+            cfg=_walk_forward_cfg_for_row(base_cfg=base_cfg, row=row),
+            symbol=str(symbol or ""),
+            candles=list(combined_candles or []),
+            warmup_bars=max(1, int(warmup_bars)),
+            min_train_bars=max(120, int(warmup_bars) + 1),
+            test_bars=30,
+            step_bars=30,
+            max_windows=5,
+            initial_cash=float(initial_cash),
+            fee_bps=float(fee_bps),
+            slippage_bps=float(slippage_bps),
+        )
+    except Exception as exc:
+        result = {
+            "ok": False,
+            "reason": f"error:{type(exc).__name__}",
+            "research_only": True,
+            "bars": int(len(combined_candles or [])),
+            "warmup_bars": int(max(1, int(warmup_bars))),
+            "min_train_bars": int(max(120, int(warmup_bars) + 1)),
+            "test_bars": 30,
+            "step_bars": 30,
+            "window_count": 0,
+            "summary": {},
+        }
+    summary = dict(result.get("summary") or {})
+    return {
+        "available": bool(result.get("ok")),
+        "status": "ok" if bool(result.get("ok")) else str(result.get("reason") or "unavailable"),
+        "research_only": bool(result.get("research_only", True)),
+        "bars": int(result.get("bars") or 0),
+        "warmup_bars": int(result.get("warmup_bars") or 0),
+        "min_train_bars": int(result.get("min_train_bars") or 0),
+        "test_bars": int(result.get("test_bars") or 0),
+        "step_bars": int(result.get("step_bars") or 0),
+        "window_count": int(result.get("window_count") or 0),
+        "summary": {
+            "window_count": int(summary.get("window_count") or 0),
+            "positive_test_window_count": int(summary.get("positive_test_window_count") or 0),
+            "non_negative_test_window_ratio": float(summary.get("non_negative_test_window_ratio") or 0.0),
+            "avg_test_return_pct": float(summary.get("avg_test_return_pct") or 0.0),
+            "median_like_test_return_pct": float(summary.get("median_like_test_return_pct") or 0.0),
+            "worst_test_return_pct": float(summary.get("worst_test_return_pct") or 0.0),
+            "best_test_return_pct": float(summary.get("best_test_return_pct") or 0.0),
+            "avg_test_max_drawdown_pct": float(summary.get("avg_test_max_drawdown_pct") or 0.0),
+            "total_test_trades": int(summary.get("total_test_trades") or 0),
+            "total_test_closed_trades": int(summary.get("total_test_closed_trades") or 0),
+        },
+    }
+
+
 def _aggregate_rows(window_reports: list[dict[str, Any]]) -> list[dict[str, Any]]:
     grouped: dict[str, dict[str, Any]] = {}
     for window in window_reports:
@@ -764,6 +855,8 @@ def run_strategy_evidence_cycle(
 ) -> dict[str, Any]:
     as_of = _now_iso()
     window_defs = [dict(item) for item in list(windows or default_evidence_windows())]
+    combined_walk_forward_candles = _combined_walk_forward_candles(window_defs)
+    walk_forward_warmup = max([int(item.get("warmup_bars") or 20) for item in window_defs] or [20])
     paper_history = load_paper_history_evidence(journal_path=paper_history_path, symbol=str(symbol or ""))
     paper_history_by_strategy = {
         str(item.get("strategy") or ""): dict(item)
@@ -819,6 +912,16 @@ def run_strategy_evidence_cycle(
             paper_row=paper_row,
             evidence_status=evidence_status,
             confidence_label=confidence_label,
+        )
+        row["walk_forward"] = _walk_forward_summary_for_row(
+            row=row,
+            base_cfg=dict(base_cfg or {}),
+            symbol=str(symbol or ""),
+            combined_candles=combined_walk_forward_candles,
+            warmup_bars=walk_forward_warmup,
+            initial_cash=float(initial_cash),
+            fee_bps=float(fee_bps),
+            slippage_bps=float(slippage_bps),
         )
         decisions.append(
             {
@@ -1201,6 +1304,8 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 f"- paper-history: {str(row.get('paper_history_note') or 'No strategy-attributed persisted paper-history fills are available yet.')}",
                 f"- research acceptance: `{str(((row.get('research_acceptance') or {}).get('status')) or 'unknown')}`",
                 f"- research summary: {str(((row.get('research_acceptance') or {}).get('summary')) or 'No research-acceptance summary recorded.')}",
+                f"- walk-forward: `{str(((row.get('walk_forward') or {}).get('status')) or 'unknown')}`",
+                f"- walk-forward windows: `{int(((row.get('walk_forward') or {}).get('window_count')) or 0)}`",
                 "",
                 f"Decision: `{str(row.get('decision') or 'unknown')}`",
                 "",
@@ -1216,6 +1321,18 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
         )
         for blocker in list(((row.get("research_acceptance") or {}).get("blockers")) or []):
             out.append(f"- Research blocker: {str(blocker)}")
+        walk_forward = dict(row.get("walk_forward") or {})
+        walk_forward_summary = dict(walk_forward.get("summary") or {})
+        if bool(walk_forward.get("available")):
+            out.append(
+                "- Walk-forward summary: "
+                f"{float(walk_forward_summary.get('avg_test_return_pct') or 0.0):+.2f}% average test return, "
+                f"{float(walk_forward_summary.get('avg_test_max_drawdown_pct') or 0.0):.2f}% average test drawdown, "
+                f"{int(round(float(walk_forward_summary.get('non_negative_test_window_ratio') or 0.0) * 100.0))}% non-negative test windows, "
+                f"{int(walk_forward_summary.get('total_test_closed_trades') or 0)} closed test trade(s)."
+            )
+        elif str(walk_forward.get("status") or "").strip():
+            out.append(f"- Walk-forward status: {str(walk_forward.get('status') or '').strip()}")
         out.extend([""])
     out.extend(
         [

@@ -53,6 +53,8 @@ def _paper_history_summary(payload: dict[str, Any]) -> dict[str, Any]:
 def _top_rows_snapshot(rows: list[dict[str, Any]], *, limit: int = 3) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for row in rows[: max(1, int(limit))]:
+        walk_forward = dict(row.get("walk_forward") or {})
+        walk_forward_summary = dict(walk_forward.get("summary") or {})
         out.append(
             {
                 "strategy": str(row.get("strategy") or ""),
@@ -68,9 +70,38 @@ def _top_rows_snapshot(rows: list[dict[str, Any]], *, limit: int = 3) -> list[di
                 "paper_history_note": str(row.get("paper_history_note") or ""),
                 "biggest_weakness": str(row.get("biggest_weakness") or ""),
                 "next_improvement": str(row.get("next_improvement") or ""),
+                "walk_forward": {
+                    "available": bool(walk_forward.get("available")),
+                    "status": str(walk_forward.get("status") or ""),
+                    "window_count": int(walk_forward.get("window_count") or 0),
+                    "avg_test_return_pct": float(walk_forward_summary.get("avg_test_return_pct") or 0.0),
+                    "non_negative_test_window_ratio": float(walk_forward_summary.get("non_negative_test_window_ratio") or 0.0),
+                },
             }
         )
     return out
+
+
+def _walk_forward_summary(top_row: dict[str, Any]) -> dict[str, Any]:
+    walk_forward = dict(top_row.get("walk_forward") or {})
+    summary = dict(walk_forward.get("summary") or {})
+    return {
+        "available": bool(walk_forward.get("available")),
+        "status": str(walk_forward.get("status") or ""),
+        "research_only": bool(walk_forward.get("research_only", True)),
+        "bars": int(walk_forward.get("bars") or 0),
+        "window_count": int(walk_forward.get("window_count") or 0),
+        "summary": {
+            "avg_test_return_pct": float(summary.get("avg_test_return_pct") or 0.0),
+            "median_like_test_return_pct": float(summary.get("median_like_test_return_pct") or 0.0),
+            "worst_test_return_pct": float(summary.get("worst_test_return_pct") or 0.0),
+            "best_test_return_pct": float(summary.get("best_test_return_pct") or 0.0),
+            "avg_test_max_drawdown_pct": float(summary.get("avg_test_max_drawdown_pct") or 0.0),
+            "non_negative_test_window_ratio": float(summary.get("non_negative_test_window_ratio") or 0.0),
+            "total_test_trades": int(summary.get("total_test_trades") or 0),
+            "total_test_closed_trades": int(summary.get("total_test_closed_trades") or 0),
+        },
+    }
 
 
 def _collector_runtime_summary() -> dict[str, Any]:
@@ -381,6 +412,7 @@ def build_strategy_lab_report(
         "symbol": selected_symbol,
         "selected_strategy": selected_strategy,
         "top_rows": _top_rows_snapshot(rows),
+        "walk_forward": _walk_forward_summary(top_row),
         "collector_runtime": collector_runtime,
         "paper_history": paper_history,
         "research_acceptance": research_acceptance,
@@ -431,9 +463,11 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
     top_rows = list(report.get("top_rows") or [])
     if top_rows:
         for row in top_rows:
+            walk_forward = dict(row.get("walk_forward") or {})
             lines.append(
                 f"- `{row.get('strategy')}` rank `{row.get('rank')}` decision `{row.get('decision')}` "
-                f"score `{float(row.get('leaderboard_score') or 0.0):.6f}` drawdown `{float(row.get('max_drawdown_pct') or 0.0):.2f}%`"
+                f"score `{float(row.get('leaderboard_score') or 0.0):.6f}` drawdown `{float(row.get('max_drawdown_pct') or 0.0):.2f}%` "
+                f"walk-forward `{str(walk_forward.get('status') or 'unknown')}`"
             )
     else:
         lines.append("- `(none)`")
@@ -441,6 +475,8 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
     paper_history = dict(report.get("paper_history") or {})
     collector_runtime = dict(report.get("collector_runtime") or {})
     research_acceptance = dict(report.get("research_acceptance") or {})
+    walk_forward = dict(report.get("walk_forward") or {})
+    walk_forward_summary = dict(walk_forward.get("summary") or {})
     lines.extend(
         [
             "",
@@ -474,6 +510,26 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
     )
     for blocker in list(research_acceptance.get("blockers") or []):
         lines.append(f"- blocker: {blocker}")
+
+    lines.extend(
+        [
+            "",
+            "## Walk-Forward",
+            f"- status: `{walk_forward.get('status') or 'unknown'}`",
+            f"- research only: `{bool(walk_forward.get('research_only', True))}`",
+            f"- windows: `{walk_forward.get('window_count')}`",
+            f"- bars: `{walk_forward.get('bars')}`",
+        ]
+    )
+    if bool(walk_forward.get("available")):
+        lines.extend(
+            [
+                f"- avg test return: `{float(walk_forward_summary.get('avg_test_return_pct') or 0.0):+.2f}%`",
+                f"- avg test drawdown: `{float(walk_forward_summary.get('avg_test_max_drawdown_pct') or 0.0):.2f}%`",
+                f"- non-negative test windows: `{float(walk_forward_summary.get('non_negative_test_window_ratio') or 0.0) * 100.0:.0f}%`",
+                f"- closed test trades: `{int(walk_forward_summary.get('total_test_closed_trades') or 0)}`",
+            ]
+        )
 
     comparison = dict(report.get("comparison") or {})
     lines.extend(
