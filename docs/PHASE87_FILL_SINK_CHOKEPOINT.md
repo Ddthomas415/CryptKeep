@@ -16,5 +16,6 @@ Route all fills through a single method to ensure canonical tables and live gate
 
 ## Verification
 - CLI: `python3 scripts/inject_test_fill.py`
+- default path uses merged runtime trading config for `execution.db_path`
 - CLI: `python3 scripts/run_user_stream_fills.py --exchange coinbase --symbol BTC/USD`
 - Dashboard: "Inject synthetic test fill" button

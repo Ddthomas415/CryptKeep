@@ -11,8 +11,8 @@ except ModuleNotFoundError:
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
-
-import argparse, json, datetime, yaml
+import argparse, json, datetime
+from services.config_loader import load_runtime_trading_config
 from services.journal.fill_sink import CanonicalFillSink
 from services.os.app_paths import data_dir, ensure_dirs
 
@@ -26,7 +26,7 @@ def main() -> int:
     ap.add_argument("--venue", default="test")
     args = ap.parse_args()
 
-    cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8")) or {}
+    cfg = load_runtime_trading_config()
     exec_db = str(cfg.get("execution", {}).get("db_path") or (data_dir() / "execution.sqlite"))
 
     sink = CanonicalFillSink(exec_db=exec_db)

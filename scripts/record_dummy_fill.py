@@ -15,9 +15,8 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 import argparse
 import json
-from pathlib import Path
-import yaml
 
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import data_dir, ensure_dirs
 from services.risk.fill_hook import record_fill
 from services.risk.risk_daily import RiskDailyDB
@@ -30,8 +29,7 @@ def main() -> int:
     ap.add_argument("--fee", type=float, default=0.0)
     args = ap.parse_args()
 
-    cfg_path = Path("config/trading.yaml")
-    cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) if cfg_path.exists() else {}
+    cfg = load_runtime_trading_config()
     ex_cfg = (cfg.get("execution") or {})
     exec_db = str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite"))
 
