@@ -14,19 +14,19 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
 import json
-import yaml
 
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import data_dir, ensure_dirs
 from services.risk.live_risk_gates_phase82 import LiveRiskLimits, LiveGateDB
 from services.risk.journal_introspection_phase83 import JournalSignals
 
 def main() -> int:
     ensure_dirs()
-    cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8").read()) or {}
+    cfg = load_runtime_trading_config()
     ex_cfg = cfg.get("execution") or {}
     exec_db = str(ex_cfg.get("db_path") or (data_dir() / "execution.sqlite"))
 
-    limits = LiveRiskLimits.from_trading_yaml("config/trading.yaml")
+    limits = LiveRiskLimits.from_dict(cfg)
     db = LiveGateDB(exec_db=exec_db)
     js = JournalSignals(exec_db=exec_db)
 

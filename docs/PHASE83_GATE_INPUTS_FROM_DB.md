@@ -7,6 +7,7 @@
 
 - Adds CLI:
   - `python3 scripts/show_live_gate_inputs.py`
+  - reads merged runtime trading config for `execution.db_path` and displayed live risk limits
 
 - Patches executor (only if Phase 82 marker exists):
   - if accounting doesn't expose realized pnl today, uses JournalSignals fallback
@@ -18,4 +19,3 @@
 ## Safety behavior
 - LIVE remains blocked if daily PnL cannot be determined (fail-closed).
 - Trade counter should only be incremented after a confirmed LIVE submit; this phase provides the helper.
-
