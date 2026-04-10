@@ -6,6 +6,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
+from services.config_loader import runtime_trading_config_available
 from services.os.app_paths import data_dir, ensure_dirs
 from services.os.ports import can_bind, resolve_preferred_port
 
@@ -41,7 +42,9 @@ def run_preflight(cfg: PreflightConfig = PreflightConfig()) -> Dict[str, Any]:
 
     # Config presence
     ty = Path(cfg.trading_yaml)
+    runtime_cfg_available = runtime_trading_config_available(cfg.trading_yaml)
     out["config"] = {
+        "runtime_trading_config_available": runtime_cfg_available,
         "trading_yaml_exists": ty.exists(),
         "trading_yaml_path": str(ty),
     }
@@ -85,8 +88,8 @@ def run_preflight(cfg: PreflightConfig = PreflightConfig()) -> Dict[str, Any]:
 
     # Overall
     hard_fails = []
-    if not out["config"]["trading_yaml_exists"]:
-        hard_fails.append("missing config/trading.yaml")
+    if not out["config"]["runtime_trading_config_available"]:
+        hard_fails.append("missing runtime trading config")
     if not out["network"]["bind_ok"]:
         hard_fails.append(f"no available UI port near {cfg.port}")
     if import_status.get("streamlit","").startswith("FAIL"):

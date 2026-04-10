@@ -136,11 +136,38 @@ def test_run_preflight_reports_blocked_when_config_missing(monkeypatch, tmp_path
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": False)
 
     out = run_preflight(PreflightConfig(trading_yaml=str(tmp_path / "missing.yaml")))
 
     assert out["status"] == "BLOCKED"
-    assert "missing config/trading.yaml" in out["blocked_reasons"]
+    assert "missing runtime trading config" in out["blocked_reasons"]
+
+
+def test_run_preflight_accepts_runtime_only_default_config(monkeypatch, tmp_path):
+    from services.diagnostics import preflight as pf
+
+    monkeypatch.setattr(pf, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(pf, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(pf, "can_bind", lambda host, port: True)
+    monkeypatch.setattr(pf, "file_writable", lambda path: True)
+
+    real_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name in {"streamlit", "ccxt"}:
+            return object()
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": True)
+
+    out = run_preflight()
+
+    assert out["status"] == "OK"
+    assert out["config"]["runtime_trading_config_available"] is True
+    assert out["config"]["trading_yaml_path"].endswith("config/trading.yaml")
+    assert out["blocked_reasons"] == []
 
 
 def test_run_preflight_ok_when_requirements_present(monkeypatch, tmp_path):
@@ -162,6 +189,7 @@ def test_run_preflight_ok_when_requirements_present(monkeypatch, tmp_path):
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": True)
 
     out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
 
@@ -201,6 +229,7 @@ def test_run_preflight_auto_switches_when_requested_port_busy(monkeypatch, tmp_p
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": True)
 
     out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
 
@@ -241,6 +270,7 @@ def test_run_preflight_blocked_when_no_alternative_port_available(monkeypatch, t
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": True)
 
     out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
 
@@ -269,6 +299,7 @@ def test_run_preflight_blocked_when_import_missing(monkeypatch, tmp_path):
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": True)
 
     out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
 
@@ -296,6 +327,7 @@ def test_run_preflight_blocked_when_data_dir_not_writable(monkeypatch, tmp_path)
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": True)
 
     out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
 
@@ -324,6 +356,7 @@ def test_run_preflight_blocked_when_ccxt_missing(monkeypatch, tmp_path):
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr("builtins.__import__", fake_import)
+    monkeypatch.setattr(pf, "runtime_trading_config_available", lambda path="config/trading.yaml": True)
 
     out = run_preflight(PreflightConfig(trading_yaml=str(cfg)))
 
