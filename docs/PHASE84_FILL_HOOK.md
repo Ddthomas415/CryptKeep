@@ -12,3 +12,6 @@ Wherever your code processes fills, call:
 
 ## Smoke test
 python3 scripts/record_dummy_fill.py --symbol BTC-USD --pnl 3.5 --fee 0.2
+
+Default config path:
+- uses merged runtime trading config for `execution.db_path`
