@@ -57,7 +57,8 @@ Key config/runtime signals:
   reads:
   - `execution.live_enabled`
 - `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
-  - reads `live.sandbox`
+  - reads merged runtime config, `execution.live_enabled`, and `live.sandbox`
+  - blocks live start if `execution.live_enabled` is false
   - if `live.sandbox == true`, live start does not require the extra real-live confirmation envs
 
 Operational meaning:

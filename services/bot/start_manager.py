@@ -4,9 +4,9 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
-import yaml
-
 from services.bot.process_manager import start_process, stop_process, read_status, ProcStatus
+from services.config_loader import load_runtime_trading_config
+from services.execution.live_arming import is_live_enabled
 
 @dataclass(frozen=True)
 class StartDecision:
@@ -17,10 +17,7 @@ class StartDecision:
     note: str
 
 def _load_cfg(path: str = "config/trading.yaml") -> Dict[str, Any]:
-    try:
-        return yaml.safe_load(open(path, "r", encoding="utf-8").read()) or {}
-    except Exception:
-        return {}
+    return load_runtime_trading_config(path)
 
 def _risk_check(cfg: Dict[str, Any]) -> Tuple[bool, List[str]]:
     r = cfg.get("risk") or {}
@@ -72,6 +69,8 @@ def decide_start(mode: str, cfg: Optional[Dict[str, Any]] = None) -> StartDecisi
     if mode == "live":
         live = cfg.get("live") or {}
         sandbox = bool(live.get("sandbox", True))
+        if not is_live_enabled(cfg):
+            return StartDecision(False, mode, "BLOCK", ["execution.live_enabled is false"], "Enable execution.live_enabled before starting live mode")
 
         ok_gate, gate_status, gate_reasons = _ui_gate(cfg)
         if not ok_gate:
