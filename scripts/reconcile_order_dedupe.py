@@ -15,6 +15,7 @@ import json
 import os
 from typing import Optional
 
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import data_dir, ensure_dirs
 from services.execution.exchange_client import ExchangeClient
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
@@ -34,10 +35,17 @@ def _extract_client_id(o: dict) -> Optional[str]:
 
 def main(argv: list[str] | None = None) -> int:
     ensure_dirs()
+    runtime_cfg = load_runtime_trading_config()
+    execution_cfg = runtime_cfg.get("execution") or {}
     ap = argparse.ArgumentParser()
     ap.add_argument("--exchange", required=True)
     ap.add_argument("--symbol", required=True)
-    ap.add_argument("--exec-db", default=os.environ.get("EXEC_DB_PATH") or os.environ.get("CBP_DB_PATH") or str(data_dir() / "execution.sqlite"))
+    ap.add_argument(
+        "--exec-db",
+        default=os.environ.get("EXEC_DB_PATH")
+        or os.environ.get("CBP_DB_PATH")
+        or str(execution_cfg.get("db_path") or (data_dir() / "execution.sqlite")),
+    )
     ap.add_argument("--limit", type=int, default=100)
     ap.add_argument("--sandbox", action="store_true")
     args = ap.parse_args(argv)

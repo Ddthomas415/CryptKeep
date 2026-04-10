@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import yaml
+from services.config_loader import load_runtime_trading_config, runtime_trading_config_available
 from services.execution.live_arming import is_live_enabled
 from services.os.app_paths import data_dir, ensure_dirs
 
@@ -24,12 +24,11 @@ def run_preflight(cfg_path: str = "config/trading.yaml") -> PreflightResult:
     checks: List[Dict[str, Any]] = []
     ensure_dirs()
 
-    p = Path(cfg_path)
-    if not p.exists():
+    if not runtime_trading_config_available(cfg_path):
         checks.append(_check("config_exists", False, f"Missing {cfg_path}. Use Setup Wizard to generate it.", "ERROR"))
         return PreflightResult(ok=False, checks=checks)
 
-    cfg = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    cfg = load_runtime_trading_config(cfg_path)
 
     # Exchange support
     ex_id = str((cfg.get("pipeline") or {}).get("exchange_id") or "coinbase").lower().strip()

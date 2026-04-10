@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional
 
 import yaml
 
+from services.config_loader import load_runtime_trading_config
 from services.admin.system_guard import get_state as get_system_guard_state
 from services.execution.live_arming import live_armed_signal
 from services.execution.client_order_id import make_client_order_id
@@ -203,7 +204,7 @@ def _measure_ms(start_ts: float) -> float:
 def _load_execution_safety_cfg(cfg_path: str = "config/trading.yaml") -> SafetyConfig:
     started = time.perf_counter()
     latency_db_path = str(data_dir() / "market_ws.sqlite")
-    cfg = _load_yaml_cached(cfg_path)
+    cfg = load_runtime_trading_config(cfg_path)
     sec = cfg.get("execution_safety") or {}
     if not isinstance(sec, dict):
         sec = {}
@@ -352,7 +353,7 @@ class LiveCfg:
 def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
     ensure_dirs()
     started = time.perf_counter()
-    cfg = yaml.safe_load(open(path, "r", encoding="utf-8").read()) or {}
+    cfg = load_runtime_trading_config(path)
     live = cfg.get("live") or {}
     ex_cfg = cfg.get("execution") or {}
     sec = cfg.get("execution_safety") if isinstance(cfg.get("execution_safety"), dict) else {}
@@ -367,7 +368,7 @@ def cfg_from_yaml(path: str = "config/trading.yaml") -> LiveCfg:
         raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
 
     out = LiveCfg(
-        enabled=bool(live.get("enabled", False)),
+        enabled=_boolish(ex_cfg.get("live_enabled", live.get("enabled", False)), default=False),
         observe_only=_boolish(live.get("observe_only", live.get("shadow_mode", False)), default=False),
         sandbox=bool(live.get("sandbox", False)),
         exchange_id=exchange_id,
@@ -573,7 +574,7 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     latency_tracker = _latency_tracker(safety_cfg)
 
     # PHASE82_LIVE_GATES init
-    _cfg_cached = _load_yaml_cached('config/trading.yaml')
+    _cfg_cached = load_runtime_trading_config()
     limits = LiveRiskLimits.from_dict(_cfg_cached)
     gate_db = LiveGateDB(exec_db=cfg.exec_db)
     gates = LiveRiskGates(limits=limits, db=gate_db) if limits else None
