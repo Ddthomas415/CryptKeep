@@ -166,6 +166,26 @@ else:
         ]
         for blocker in blockers:
             st.write(f"blocker: {blocker}")
+        st.markdown("#### Walk-Forward")
+        st.write(
+            {
+                "status": str(focus_details.get("walk_forward_status") or "unknown"),
+                "available": bool(focus_details.get("walk_forward_available")),
+                "research_only": bool(focus_details.get("walk_forward_research_only", True)),
+                "bars": int(focus_details.get("walk_forward_bars") or 0),
+                "window_count": int(focus_details.get("walk_forward_window_count") or 0),
+            }
+        )
+        if bool(focus_details.get("walk_forward_available")):
+            walk_forward_summary = dict(focus_details.get("walk_forward_summary") or {})
+            st.write(
+                {
+                    "avg_test_return_pct": float(walk_forward_summary.get("avg_test_return_pct") or 0.0),
+                    "avg_test_max_drawdown_pct": float(walk_forward_summary.get("avg_test_max_drawdown_pct") or 0.0),
+                    "non_negative_test_window_ratio": float(walk_forward_summary.get("non_negative_test_window_ratio") or 0.0),
+                    "total_test_closed_trades": int(walk_forward_summary.get("total_test_closed_trades") or 0),
+                }
+            )
 
     markdown_tab, json_tab = st.tabs(["Markdown", "JSON"])
     with markdown_tab:

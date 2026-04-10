@@ -98,6 +98,20 @@ def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_deta
                     "Persisted paper history only has 1 closed trade(s); the current research floor requires 30.",
                 ],
             },
+            "walk_forward": {
+                "available": True,
+                "status": "ok",
+                "research_only": True,
+                "bars": 240,
+                "window_count": 4,
+                "summary": {
+                    "avg_test_return_pct": 1.6,
+                    "avg_test_max_drawdown_pct": 2.3,
+                    "non_negative_test_window_ratio": 0.75,
+                    "total_test_trades": 10,
+                    "total_test_closed_trades": 5,
+                },
+            },
         },
     )
 
@@ -109,3 +123,7 @@ def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_deta
     assert focus["details"]["research_acceptance_accepted"] is False
     assert "research-acceptance floor" in focus["details"]["research_acceptance_summary"]
     assert len(focus["details"]["research_acceptance_blockers"]) == 2
+    assert focus["details"]["walk_forward_available"] is True
+    assert focus["details"]["walk_forward_status"] == "ok"
+    assert focus["details"]["walk_forward_window_count"] == 4
+    assert focus["details"]["walk_forward_summary"]["avg_test_return_pct"] == 1.6
