@@ -32,6 +32,7 @@ Current classification from script review:
 - latest caller grep still only showed `tests/test_run_bot_runner.py`
 - it remains non-canonical, but the hidden-default classification for that runner is now closed
 - `scripts/run_tick_publisher.py` no longer treats legacy `config/trading.yaml` presence as the prerequisite truth and now accepts merged runtime config availability
+- `scripts/run_intent_executor_safe.py` and `scripts/run_intent_reconciler_safe.py` no longer treat legacy `config/trading.yaml` presence as the prerequisite truth and now accept merged runtime config availability
 - `services/setup/config_manager.py` still contains broad defaults (`coinbase`, `BTC/USD`, `paper`)
 - current caller review places it primarily on setup/admin flows rather than the tightened canonical runtime path
 - it remains classified rather than patched in the current pass
