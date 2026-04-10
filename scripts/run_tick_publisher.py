@@ -14,6 +14,7 @@ import json
 import time
 import traceback
 from services.os.app_paths import data_dir, runtime_dir, ensure_dirs
+from services.config_loader import runtime_trading_config_available
 
 def _log_path() -> Path:
     ensure_dirs()
@@ -33,12 +34,11 @@ def log(msg: str):
 def main() -> int:
     try:
         # Prereqs we can check without forcing API calls
-        cfg = _REPO / "config" / "trading.yaml"
         rules_db = data_dir() / "execution.sqlite"
 
         missing = []
-        if not cfg.exists():
-            missing.append("config/trading.yaml missing")
+        if not runtime_trading_config_available():
+            missing.append("runtime trading config missing")
         if not rules_db.exists():
             # not fatal; just means no market rules cached yet
             missing.append(".cbp_state/data/execution.sqlite missing (ok for fresh install)")
