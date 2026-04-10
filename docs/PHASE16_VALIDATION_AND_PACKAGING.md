@@ -7,6 +7,7 @@ One-command validation:
 
 Preflight alone:
 - python scripts/preflight.py
+  - uses merged runtime trading config and accepts `.cbp_state/runtime/config/user.yaml` when the legacy file is absent
 
 Packaging (PyInstaller):
 - macOS:  bash packaging/pyinstaller/build_macos.sh

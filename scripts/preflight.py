@@ -18,6 +18,7 @@ import importlib
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any, Optional
 from services.os.ports import can_bind, resolve_preferred_port
+from services.config_loader import load_runtime_trading_config, runtime_trading_config_available
 
 REQUIRED_IMPORTS = [
     "streamlit",
@@ -29,7 +30,6 @@ REQUIRED_IMPORTS = [
 ]
 
 REQUIRED_PATHS = [
-    "config/trading.yaml",
     "dashboard/app.py",
 ]
 
@@ -86,12 +86,15 @@ def run() -> Dict[str, Any]:
         )
     )
 
-    # Config sanity (read YAML)
+    # Config sanity (merged runtime config)
     cfg_ok = False
     cfg_detail = ""
     try:
-        import yaml
-        cfg = yaml.safe_load((root / "config/trading.yaml").read_text(encoding="utf-8"))
+        if not runtime_trading_config_available():
+            raise FileNotFoundError(
+                "Missing runtime trading config. Create config/trading.yaml or .cbp_state/runtime/config/user.yaml."
+            )
+        cfg = load_runtime_trading_config()
         cfg_ok = isinstance(cfg, dict)
         # minimal keys
         live = (cfg or {}).get("live") or {}
@@ -101,7 +104,7 @@ def run() -> Dict[str, Any]:
     except Exception as e:
         cfg_ok = False
         cfg_detail = f"{type(e).__name__}: {e}"
-    checks.append(Check("config_yaml_parse", cfg_ok, cfg_detail))
+    checks.append(Check("runtime_trading_config", cfg_ok, cfg_detail))
 
     ok = all(c.ok for c in checks if not c.name.startswith("port_free")) and True
     # port_free is informational (you may already be running); don't fail preflight on it
