@@ -133,6 +133,8 @@ def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, A
     if str(kind or "") == "strategy_lab":
         runtime = dict((payload or {}).get("collector_runtime") or {})
         research_acceptance = dict((payload or {}).get("research_acceptance") or {})
+        walk_forward = dict((payload or {}).get("walk_forward") or {})
+        walk_forward_summary = dict(walk_forward.get("summary") or {})
         details = {
             "status": str(runtime.get("status") or "unknown"),
             "completed_strategies": int(runtime.get("completed_strategies") or 0),
@@ -146,6 +148,21 @@ def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, A
                 for item in list(research_acceptance.get("blockers") or [])
                 if str(item).strip()
             ],
+            "walk_forward_available": bool(walk_forward.get("available")),
+            "walk_forward_status": str(walk_forward.get("status") or "unknown"),
+            "walk_forward_research_only": bool(walk_forward.get("research_only", True)),
+            "walk_forward_bars": int(walk_forward.get("bars") or 0),
+            "walk_forward_window_count": int(walk_forward.get("window_count") or 0),
+            "walk_forward_summary": {
+                "avg_test_return_pct": float(walk_forward_summary.get("avg_test_return_pct") or 0.0),
+                "median_like_test_return_pct": float(walk_forward_summary.get("median_like_test_return_pct") or 0.0),
+                "worst_test_return_pct": float(walk_forward_summary.get("worst_test_return_pct") or 0.0),
+                "best_test_return_pct": float(walk_forward_summary.get("best_test_return_pct") or 0.0),
+                "avg_test_max_drawdown_pct": float(walk_forward_summary.get("avg_test_max_drawdown_pct") or 0.0),
+                "non_negative_test_window_ratio": float(walk_forward_summary.get("non_negative_test_window_ratio") or 0.0),
+                "total_test_trades": int(walk_forward_summary.get("total_test_trades") or 0),
+                "total_test_closed_trades": int(walk_forward_summary.get("total_test_closed_trades") or 0),
+            },
         }
         if severity_text in {"warn", "critical"} and details["summary_text"]:
             message = f"{summary} {details['summary_text']}".strip()

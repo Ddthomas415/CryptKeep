@@ -120,6 +120,19 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
                     "summary": "Top strategy is not research-accepted yet.",
                     "blockers": ["Persisted paper history only has 1 closed trade(s)."],
                 },
+                "walk_forward": {
+                    "available": True,
+                    "status": "ok",
+                    "research_only": True,
+                    "bars": 240,
+                    "window_count": 4,
+                    "summary": {
+                        "avg_test_return_pct": 1.6,
+                        "avg_test_max_drawdown_pct": 2.3,
+                        "non_negative_test_window_ratio": 0.75,
+                        "total_test_closed_trades": 5,
+                    },
+                },
             },
             "markdown": "# Strategy Lab\n",
         },
@@ -136,3 +149,5 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
     assert any(isinstance(item, dict) and item.get("completed_strategies") == 1 for item in fake_streamlit.writes)
     assert any(isinstance(item, dict) and item.get("status") == "not_accepted" for item in fake_streamlit.writes)
     assert any(isinstance(item, str) and "Persisted paper history only has 1 closed trade" in item for item in fake_streamlit.writes)
+    assert any(isinstance(item, dict) and item.get("window_count") == 4 and item.get("status") == "ok" for item in fake_streamlit.writes)
+    assert any(isinstance(item, dict) and item.get("avg_test_return_pct") == 1.6 for item in fake_streamlit.writes)
