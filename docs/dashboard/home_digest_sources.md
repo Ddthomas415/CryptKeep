@@ -7,13 +7,13 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### Runtime Truth Strip
 - Builder: `build_runtime_truth_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
+  - `/Users/baitus/Downloads/crypto-bot-pro/services/config_loader.py` merged runtime trading config overlaying `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` on `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
   - `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
   - `/Users/baitus/Downloads/crypto-bot-pro/services/admin/live_guard.py`
   - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py`
   - `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/crypto_edge_research.py`
 - Notes:
-  - Runtime mode truth is config-driven.
+  - Runtime mode truth is driven by the merged runtime config, not the legacy file alone.
   - Live-order authority remains conservative and reflects current guard posture, not a deep end-to-end live self-test.
 
 ### What Needs Attention Now
@@ -76,7 +76,7 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### Mode Truth Card
 - Builder: `build_mode_truth_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
+  - `/Users/baitus/Downloads/crypto-bot-pro/services/config_loader.py` merged runtime trading config overlaying `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` on `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
   - `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
   - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py`
 - Notes:

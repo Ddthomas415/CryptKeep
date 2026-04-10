@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
-
-import yaml
 
 from dashboard.services.crypto_edge_research import (
     load_crypto_edge_collector_runtime,
@@ -59,14 +56,12 @@ from dashboard.services.operator import get_operations_snapshot
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import build_strategy_workbench
 from services.admin.config_editor import load_user_yaml
+from services.config_loader import load_runtime_trading_config
 from services.admin.live_guard import live_allowed
 from services.admin.system_guard import get_state as get_system_guard_state
 from services.bot.start_manager import decide_start
 from services.execution.live_arming import is_live_enabled, live_enabled_and_armed
 
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-TRADING_CFG_PATH = REPO_ROOT / "config" / "trading.yaml"
 CLAIM_BOUNDARIES = [
     "Crypto-first platform.",
     "Paper-heavy defaults remain active.",
@@ -105,22 +100,19 @@ def _system_guard_caveat(payload: dict[str, Any]) -> str | None:
 
 
 def _load_trading_cfg() -> dict[str, Any]:
-    try:
-        payload = yaml.safe_load(TRADING_CFG_PATH.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return {}
-    return payload if isinstance(payload, dict) else {}
+    return load_runtime_trading_config()
 
 
 def _runtime_mode_meta(trading_cfg: dict[str, Any]) -> tuple[RuntimeModeValue, str, str]:
-    mode = str(trading_cfg.get("mode") or "paper").strip().lower()
+    execution_cfg = trading_cfg.get("execution") if isinstance(trading_cfg.get("execution"), dict) else {}
+    mode = str(trading_cfg.get("mode") or execution_cfg.get("executor_mode") or "paper").strip().lower()
     live_cfg = trading_cfg.get("live") if isinstance(trading_cfg.get("live"), dict) else {}
     sandbox = bool(live_cfg.get("sandbox", True))
     if mode != "live":
-        return "paper", "Paper", "config/trading.yaml keeps runtime in paper mode."
+        return "paper", "Paper", "Merged runtime config keeps the runtime in paper mode."
     if sandbox:
-        return "sandbox_live", "Sandbox Live", "config/trading.yaml requests live mode with sandbox enabled."
-    return "real_live", "Real Live", "config/trading.yaml requests real live mode and needs explicit confirmations."
+        return "sandbox_live", "Sandbox Live", "Merged runtime config requests live mode with sandbox enabled."
+    return "real_live", "Real Live", "Merged runtime config requests real live mode and needs explicit confirmations."
 
 
 def _configured_strategy_name(user_cfg: dict[str, Any], trading_cfg: dict[str, Any]) -> str:
