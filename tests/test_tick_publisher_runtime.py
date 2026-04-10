@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from scripts import run_tick_publisher as tick_wrapper
 from services.market_data import system_status_publisher
 
 
@@ -67,3 +68,35 @@ def test_fetch_status_includes_symbol_specific_ticks(monkeypatch) -> None:
             "exchange_ts_ms": 111111,
         }
     ]
+
+
+def test_tick_wrapper_accepts_runtime_only_config_for_prereqs(monkeypatch, tmp_path) -> None:
+    logs: list[str] = []
+
+    monkeypatch.setattr(tick_wrapper, "_REPO", tmp_path)
+    monkeypatch.setattr(tick_wrapper, "runtime_trading_config_available", lambda: True)
+    monkeypatch.setattr(tick_wrapper, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(tick_wrapper, "log", logs.append)
+    (tmp_path / "execution.sqlite").write_text("", encoding="utf-8")
+    monkeypatch.setattr(system_status_publisher, "run_tick_publisher", lambda: None)
+
+    out = tick_wrapper.main()
+
+    assert out == 0
+    assert logs[0] == "tick_publisher starting (prereqs present)"
+
+
+def test_tick_wrapper_reports_missing_runtime_config(monkeypatch, tmp_path) -> None:
+    logs: list[str] = []
+
+    monkeypatch.setattr(tick_wrapper, "_REPO", tmp_path)
+    monkeypatch.setattr(tick_wrapper, "runtime_trading_config_available", lambda: False)
+    monkeypatch.setattr(tick_wrapper, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(tick_wrapper, "log", logs.append)
+    monkeypatch.setattr(system_status_publisher, "run_tick_publisher", lambda: None)
+
+    out = tick_wrapper.main()
+
+    assert out == 0
+    assert logs[0].startswith("tick_publisher starting in IDLE mode:")
+    assert "runtime trading config missing" in logs[0]
