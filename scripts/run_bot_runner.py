@@ -16,11 +16,9 @@ import json
 import signal
 import threading
 import time
-from pathlib import Path
 from typing import Any, Dict
 
-import yaml
-
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import runtime_dir
 from services.runtime.process_supervisor import (
     is_running,
@@ -47,22 +45,29 @@ def _normalize_symbols(value: Any) -> list[str]:
     else:
         parts = []
     out = [_normalize_symbol(x) for x in parts]
-    return out or ["BTC/USD"]
+    return out
 
 
 def load_trading_cfg(path: str = "config/trading.yaml") -> dict[str, Any]:
-    try:
-        return yaml.safe_load(Path(path).read_text(encoding="utf-8", errors="replace")) or {}
-    except Exception:
-        return {}
+    return load_runtime_trading_config(path)
 
 
 def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
-    mode = str(cfg.get("mode") or "paper").strip().lower()
+    execution = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}
+    mode = str(cfg.get("mode") or "").strip().lower()
+    if not mode:
+        mode = str(execution.get("executor_mode") or "").strip().lower()
+    if mode not in {"paper", "live"}:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_or_invalid_config:execution.executor_mode")
+
     live = cfg.get("live") if isinstance(cfg.get("live"), dict) else {}
-    live_enabled = bool(live.get("enabled", False))
-    venue = str(live.get("exchange_id") or cfg.get("venue") or "coinbase").strip().lower()
+    live_enabled = bool(execution.get("live_enabled", live.get("enabled", False)))
+    venue = str(live.get("exchange_id") or cfg.get("venue") or "").strip().lower()
+    if not venue:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
     symbols = _normalize_symbols(cfg.get("symbols"))
+    if not symbols:
+        raise RuntimeError(r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
     with_reconcile = mode == "live" or live_enabled
     return {
         "mode": mode,
@@ -162,7 +167,19 @@ def run_loop(*, cfg_path: str = "config/trading.yaml", interval_sec: float = 2.0
 
     while not STOP_EVENT.is_set():
         cfg = load_trading_cfg(cfg_path)
-        state = desired_state(cfg)
+        try:
+            state = desired_state(cfg)
+        except RuntimeError as exc:
+            payload = {
+                "ok": False,
+                "status": "blocked",
+                "error": str(exc),
+                "cfg_path": str(cfg_path),
+                "ts_epoch": time.time(),
+            }
+            write_status(payload)
+            print(payload)
+            return 2
         sig = state_signature(state)
 
         force_restart = last_sig is not None and sig != last_sig

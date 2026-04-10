@@ -1,12 +1,22 @@
 from __future__ import annotations
 
+import pytest
+
 from scripts import run_bot_runner as rbr
+
+
+def test_load_trading_cfg_uses_runtime_trading_loader(monkeypatch):
+    monkeypatch.setattr(rbr, "load_runtime_trading_config", lambda path="config/trading.yaml": {"loaded_from": path})
+
+    cfg = rbr.load_trading_cfg()
+
+    assert cfg == {"loaded_from": "config/trading.yaml"}
 
 
 def test_desired_state_live_enables_reconcile():
     cfg = {
-        "mode": "live",
-        "live": {"enabled": True, "exchange_id": "binance"},
+        "execution": {"executor_mode": "live", "live_enabled": True},
+        "live": {"enabled": False, "exchange_id": "binance"},
         "symbols": ["eth/usdt"],
     }
     st = rbr.desired_state(cfg)
@@ -19,11 +29,34 @@ def test_desired_state_live_enables_reconcile():
 
 
 def test_desired_state_paper_disables_reconcile():
-    cfg = {"mode": "paper", "live": {"enabled": False}, "symbols": "btc/usd"}
+    cfg = {
+        "execution": {"executor_mode": "paper", "live_enabled": False},
+        "live": {"exchange_id": "coinbase"},
+        "symbols": "btc/usd",
+    }
     st = rbr.desired_state(cfg)
     assert st["mode"] == "paper"
     assert st["with_reconcile"] is False
     assert rbr.desired_services(st) == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate"]
+
+
+def test_desired_state_requires_explicit_exchange_id():
+    cfg = {"execution": {"executor_mode": "paper", "live_enabled": False}, "symbols": ["BTC/USD"]}
+
+    with pytest.raises(RuntimeError) as exc:
+        rbr.desired_state(cfg)
+    assert str(exc.value) == "CBP_CONFIG_REQUIRED:missing_config:live.exchange_id"
+
+
+def test_desired_state_requires_explicit_symbols():
+    cfg = {
+        "execution": {"executor_mode": "paper", "live_enabled": False},
+        "live": {"exchange_id": "coinbase"},
+    }
+
+    with pytest.raises(RuntimeError) as exc:
+        rbr.desired_state(cfg)
+    assert str(exc.value) == r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]"
 
 
 def test_apply_state_converges_services(monkeypatch):
@@ -86,7 +119,15 @@ def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):
     stopped: list[str] = []
     statuses: list[dict[str, object]] = []
 
-    monkeypatch.setattr(rbr, "load_trading_cfg", lambda _path="config/trading.yaml": {"mode": "paper", "live": {"enabled": False}})
+    monkeypatch.setattr(
+        rbr,
+        "load_trading_cfg",
+        lambda _path="config/trading.yaml": {
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"exchange_id": "coinbase"},
+            "symbols": ["BTC/USD"],
+        },
+    )
     monkeypatch.setattr(
         rbr,
         "apply_state",
@@ -119,7 +160,15 @@ def test_run_loop_shutdown_surfaces_guard_failure_but_still_stops(monkeypatch):
     stopped: list[str] = []
     statuses: list[dict[str, object]] = []
 
-    monkeypatch.setattr(rbr, "load_trading_cfg", lambda _path="config/trading.yaml": {"mode": "paper", "live": {"enabled": False}})
+    monkeypatch.setattr(
+        rbr,
+        "load_trading_cfg",
+        lambda _path="config/trading.yaml": {
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"exchange_id": "coinbase"},
+            "symbols": ["BTC/USD"],
+        },
+    )
     monkeypatch.setattr(
         rbr,
         "apply_state",
@@ -145,3 +194,15 @@ def test_run_loop_shutdown_surfaces_guard_failure_but_still_stops(monkeypatch):
     assert stopped == ["executor", "reconciler"]
     assert statuses[-1]["ok"] is False
     assert statuses[-1]["system_guard"]["reason"] == "system_guard_write_failed:RuntimeError"
+
+
+def test_run_loop_blocks_on_missing_required_runtime_config(monkeypatch):
+    statuses: list[dict[str, object]] = []
+
+    monkeypatch.setattr(rbr, "load_trading_cfg", lambda _path="config/trading.yaml": {})
+    monkeypatch.setattr(rbr, "apply_state", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("should not apply state")))
+    monkeypatch.setattr(rbr, "write_status", lambda payload: statuses.append(dict(payload)))
+
+    assert rbr.run_loop(once=True) == 2
+    assert statuses[-1]["status"] == "blocked"
+    assert statuses[-1]["error"] == "CBP_CONFIG_REQUIRED:missing_or_invalid_config:execution.executor_mode"
