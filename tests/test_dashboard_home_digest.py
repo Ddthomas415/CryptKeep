@@ -12,6 +12,28 @@ class _Decision:
         self.note = note
 
 
+def test_load_trading_cfg_uses_runtime_trading_config(monkeypatch) -> None:
+    expected = {"execution": {"executor_mode": "live"}}
+    monkeypatch.setattr(home_digest, "load_runtime_trading_config", lambda: expected)
+
+    assert home_digest._load_trading_cfg() is expected
+
+
+def test_runtime_mode_meta_prefers_execution_executor_mode() -> None:
+    mode_value, label, note = home_digest._runtime_mode_meta(
+        {"execution": {"executor_mode": "live"}, "live": {"sandbox": True}}
+    )
+
+    assert mode_value == "sandbox_live"
+    assert label == "Sandbox Live"
+    assert note == "Merged runtime config requests live mode with sandbox enabled."
+
+
+def test_digest_source_map_uses_merged_runtime_config_labels() -> None:
+    assert "merged runtime trading config" in home_digest.DIGEST_SOURCE_MAP["runtime_truth"]
+    assert "merged runtime trading config" in home_digest.DIGEST_SOURCE_MAP["mode_truth"]
+
+
 def test_load_home_digest_reports_paper_truth(monkeypatch) -> None:
     monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
     monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {})
