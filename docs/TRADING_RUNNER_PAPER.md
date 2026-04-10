@@ -21,7 +21,8 @@ Kill switch:
 - Runner stops on next tick.
 
 Config:
-- `config/trading.yaml`
+- merged runtime trading config
+  - `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` overlays `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml` on the default path
 
 Notes:
 - This runner is safe: paper only. Live execution is not enabled in Phase 321.

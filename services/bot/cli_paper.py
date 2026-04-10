@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 import traceback
-import yaml
 
+from services.config_loader import load_runtime_trading_config
 from services.execution import paper_runner
 
 
 def main() -> int:
-    try:
-        cfg = yaml.safe_load(open("config/trading.yaml", "r", encoding="utf-8").read()) or {}
-    except Exception:
-        cfg = {}
+    cfg = load_runtime_trading_config()
 
     try:
         if hasattr(paper_runner, "main") and callable(getattr(paper_runner, "main")):

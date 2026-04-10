@@ -14,6 +14,27 @@ def test_cli_paper_dispatches_to_execution_runner(monkeypatch):
     assert calls["run_forever"] == 1
 
 
+def test_cli_paper_run_paper_receives_runtime_trading_config(monkeypatch):
+    captured: dict[str, object] = {}
+
+    monkeypatch.delattr(cli_paper.paper_runner, "main", raising=False)
+    monkeypatch.delattr(cli_paper.paper_runner, "run_forever", raising=False)
+    monkeypatch.setattr(
+        cli_paper,
+        "load_runtime_trading_config",
+        lambda: {"execution": {"executor_mode": "paper"}, "symbols": ["BTC/USD"]},
+    )
+
+    def _run_paper(cfg):
+        captured["cfg"] = cfg
+        return 0
+
+    monkeypatch.setattr(cli_paper.paper_runner, "run_paper", _run_paper, raising=False)
+
+    assert cli_paper.main() == 0
+    assert captured["cfg"] == {"execution": {"executor_mode": "paper"}, "symbols": ["BTC/USD"]}
+
+
 def test_cli_live_dispatches_to_execution_runner(monkeypatch):
     calls = {"run_forever_live": 0}
 
