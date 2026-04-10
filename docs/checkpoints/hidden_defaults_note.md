@@ -15,6 +15,7 @@ Recent landed cleanup:
   - `symbols[0]`
   - `pipeline.exchange_id`
   - `execution.executor_mode`
+- `scripts/run_pipeline_loop.py` and `scripts/run_pipeline_once.py` now read merged runtime config on the default path instead of raw legacy YAML
 - commit landed:
   - `87cafb0` — `config: require explicit pipeline exchange, symbol, and mode`
 

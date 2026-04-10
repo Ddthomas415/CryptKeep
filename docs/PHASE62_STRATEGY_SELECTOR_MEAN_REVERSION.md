@@ -16,6 +16,9 @@ Updates:
   - pipeline.strategy: "ema" | "mean_reversion"
 
 Config:
+Uses merged runtime trading config on the default path:
+- `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` overlays `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
+
 pipeline:
   strategy: ema
   # mean reversion params

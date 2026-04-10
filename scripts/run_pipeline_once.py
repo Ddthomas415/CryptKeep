@@ -14,13 +14,13 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
 
-import yaml
+from services.config_loader import load_runtime_trading_config
 from services.pipeline.pipeline_router import build_pipeline, RouterCfg
 from services.os.app_paths import data_dir, ensure_dirs
 
 def main() -> int:
     ensure_dirs()
-    cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8").read()) or {}
+    cfg = load_runtime_trading_config()
     pipe = cfg.get("pipeline") or {}
     ex = cfg.get("execution") or {}
 
