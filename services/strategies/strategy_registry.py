@@ -3,6 +3,7 @@ from __future__ import annotations
 from services.strategies.ema_cross import signal_from_ohlcv as ema_cross
 from services.strategies.mean_reversion_rsi import signal_from_ohlcv as mean_rev_rsi
 from services.strategies.breakout_donchian import signal_from_ohlcv as breakout_donchian
+from services.strategies.momentum import compute_signal as momentum_compute_signal
 
 SUPPORTED = {
     "ema_cross": ema_cross,
