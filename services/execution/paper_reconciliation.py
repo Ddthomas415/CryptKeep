@@ -11,6 +11,7 @@ except Exception:
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from services.execution.position_math import apply_allocation_fill
+from services.execution.outcome_logger import log_strategy_outcome
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -257,10 +258,16 @@ def reconcile_execution_plan_intents(
             _upsert_position_best_effort(pdb, new_pos)
             _close_or_fill_intent_best_effort(qdb, row, status="filled", fill_price=fill_price)
 
-            filled.append({
+            filled_row = {
                 "symbol": symbol,
                 "action": action,
-                "fill_price": round(fill_price, 8),
+                "planned_reference_price": round(planned_reference_price, 8) if planned_reference_price > 0 else 0.0,
+                "planned_reference_price_venue": planned_reference_price_venue,
+                "planned_reference_price_source": planned_reference_price_source,
+                "planned_reference_price_ts": planned_reference_price_ts,
+                "actual_fill_price": round(fill_price, 8),
+                "fill_price_source": fill_price_source,
+                "fill_vs_plan_pct": round(fill_vs_plan_pct, 4),
                 "target_alloc_pct": round(target_alloc, 4),
                 "current_alloc_pct": round(current_alloc, 4),
                 "delta_alloc_pct": round(delta_alloc, 4),
@@ -273,7 +280,23 @@ def reconcile_execution_plan_intents(
                 "new_qty": float(applied["new_qty"]),
                 "qty_delta": float(applied["qty_delta"]),
                 "position_event": applied.get("position_event"),
-            })
+            }
+
+            outcome_meta = {
+                "selected_strategy": meta.get("selected_strategy"),
+                "selected_strategy_reason": meta.get("selected_strategy_reason"),
+                "regime": meta.get("regime"),
+                "volume_surge": meta.get("volume_surge"),
+                "volume_ratio": meta.get("volume_ratio"),
+                "signal_reason": meta.get("signal_reason"),
+                "intent_strategy_id": row.get("strategy"),
+                "venue": row.get("venue"),
+                **filled_row,
+            }
+
+            log_strategy_outcome(outcome_meta)
+            filled.append(filled_row)
+
         except Exception as e:
             errors.append({**row, "error": f"{type(e).__name__}:{e}"})
 
