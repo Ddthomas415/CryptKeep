@@ -8,6 +8,7 @@ from services.os.app_paths import runtime_dir, ensure_dirs
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
+from services.execution.outcome_logger import log_strategy_outcome
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -97,6 +98,7 @@ def reconcile_once(
             intents_updated += 1
             fills = pdb.list_fills_for_order(order_id, limit=5000)
             pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
+            meta = dict(it.get("meta") or {})
             try:
                 cash = float(pdb.get_state("cash_quote") or "0.0")
             except Exception:
@@ -106,7 +108,7 @@ def reconcile_once(
             except Exception:
                 realized = None
             for f in fills:
-                jdb.insert_fill({
+                journal_row = {
                     "fill_id": f["fill_id"],
                     "journal_ts": _now(),
                     "intent_id": it.get("intent_id"),
@@ -126,6 +128,18 @@ def reconcile_once(
                     "pos_qty": pos.get("qty"),
                     "pos_avg_price": pos.get("avg_price"),
                     "realized_pnl_total": realized,
+                }
+                jdb.insert_fill(journal_row)
+                log_strategy_outcome({
+                    "selected_strategy": meta.get("selected_strategy"),
+                    "selected_strategy_reason": meta.get("selected_strategy_reason"),
+                    "regime": meta.get("regime"),
+                    "volume_surge": meta.get("volume_surge"),
+                    "volume_ratio": meta.get("volume_ratio"),
+                    "signal_reason": meta.get("signal_reason"),
+                    "intent_strategy_id": it.get("strategy_id"),
+                    "intent_id": it.get("intent_id"),
+                    **journal_row,
                 })
                 fills_journaled += 1
 
