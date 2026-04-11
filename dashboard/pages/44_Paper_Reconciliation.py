@@ -9,7 +9,7 @@ AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 
 st.title("Paper Reconciliation")
-st.caption("Apply queued execution-plan intents into paper positions and mark intents filled. Uses live market prices when available, otherwise falls back to the default fill price.")
+st.caption("Apply queued execution-plan intents into paper positions and mark intents filled. Uses live market prices when available, otherwise falls back to the default fill price. Reconciliation now applies allocation-aware position math.")
 
 col0, col1, col2 = st.columns([1, 1, 1])
 with col0:

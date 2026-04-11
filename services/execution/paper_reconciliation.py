@@ -10,6 +10,7 @@ except Exception:
 
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
+from services.execution.position_math import apply_allocation_fill
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -184,23 +185,24 @@ def reconcile_execution_plan_intents(
         exposure_pct = _safe_float(pos.get("exposure_pct"), _safe_float(pos.get("notional_pct"), 0.0))
 
         try:
-            if action == "buy":
-                new_qty = qty + max(delta_alloc, 0.0)
-                new_exposure = exposure_pct + max(delta_alloc, 0.0)
-                new_avg = fill_price if qty <= 0 else ((avg_price * qty) + (fill_price * max(delta_alloc, 0.0))) / max(new_qty, 1e-9)
-            else:
-                sell_amt = max(abs(delta_alloc), 0.0)
-                new_qty = max(0.0, qty - sell_amt)
-                new_exposure = max(0.0, exposure_pct - sell_amt)
-                new_avg = avg_price if new_qty > 0 else 0.0
+            applied = apply_allocation_fill(
+                action=action,
+                fill_price=fill_price,
+                delta_alloc_pct=delta_alloc,
+                current_qty=qty,
+                current_avg_price=avg_price,
+                current_exposure_pct=exposure_pct,
+            )
+            if not bool(applied.get("ok")):
+                raise RuntimeError(str(applied.get("reason") or "apply_allocation_fill_failed"))
 
             new_pos = {
                 **pos,
                 "symbol": symbol,
-                "qty": round(new_qty, 8),
-                "avg_price": round(new_avg, 8),
-                "exposure_pct": round(new_exposure, 4),
-                "notional_pct": round(new_exposure, 4),
+                "qty": float(applied["new_qty"]),
+                "avg_price": float(applied["new_avg_price"]),
+                "exposure_pct": float(applied["new_exposure_pct"]),
+                "notional_pct": float(applied["new_exposure_pct"]),
                 "strategy": strategy,
                 "last_fill_price": round(fill_price, 8),
                 "updated_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -216,7 +218,12 @@ def reconcile_execution_plan_intents(
                 "target_alloc_pct": round(target_alloc, 4),
                 "current_alloc_pct": round(current_alloc, 4),
                 "delta_alloc_pct": round(delta_alloc, 4),
-                "new_exposure_pct": round(new_exposure, 4),
+                "old_exposure_pct": round(exposure_pct, 4),
+                "new_exposure_pct": float(applied["new_exposure_pct"]),
+                "old_qty": round(qty, 8),
+                "new_qty": float(applied["new_qty"]),
+                "qty_delta": float(applied["qty_delta"]),
+                "position_event": applied.get("position_event"),
             })
         except Exception as e:
             errors.append({**row, "error": f"{type(e).__name__}:{e}"})
