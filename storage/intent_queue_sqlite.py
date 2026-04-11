@@ -117,7 +117,7 @@ class IntentQueueSQLite:
     def list_intents(self, limit: int = 500, status: str | None = None) -> List[Dict[str, Any]]:
         con = _connect()
         try:
-            q = ("SELECT intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, updated_ts "
+            q = ("SELECT intent_id, created_ts, ts, source, strategy_id, action, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, meta, updated_ts "
                  "FROM trade_intents")
             args = []
             if status:
@@ -129,8 +129,9 @@ class IntentQueueSQLite:
             return [
                 {
                     "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "strategy_id": r[4],
-                    "venue": r[5], "symbol": r[6], "side": r[7], "order_type": r[8], "qty": r[9], "limit_price": r[10],
-                    "status": r[11], "last_error": r[12], "client_order_id": r[13], "linked_order_id": r[14], "updated_ts": r[15],
+                    "action": r[5], "venue": r[6], "symbol": r[7], "side": r[8], "order_type": r[9], "qty": r[10], "limit_price": r[11],
+                    "status": r[12], "last_error": r[13], "client_order_id": r[14], "linked_order_id": r[15],
+                    "meta": json.loads(r[16]) if r[16] else None, "updated_ts": r[17],
                 }
                 for r in rows
             ]
@@ -141,15 +142,16 @@ class IntentQueueSQLite:
         con = _connect()
         try:
             rows = con.execute(
-                ("SELECT intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, updated_ts "
+                ("SELECT intent_id, created_ts, ts, source, strategy_id, action, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, meta, updated_ts "
                  "FROM trade_intents WHERE status='queued' ORDER BY created_ts ASC LIMIT ?"),
                 (int(limit),),
             ).fetchall()
             return [
                 {
                     "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "strategy_id": r[4],
-                    "venue": r[5], "symbol": r[6], "side": r[7], "order_type": r[8], "qty": r[9], "limit_price": r[10],
-                    "status": r[11], "last_error": r[12], "client_order_id": r[13], "linked_order_id": r[14], "updated_ts": r[15],
+                    "action": r[5], "venue": r[6], "symbol": r[7], "side": r[8], "order_type": r[9], "qty": r[10], "limit_price": r[11],
+                    "status": r[12], "last_error": r[13], "client_order_id": r[14], "linked_order_id": r[15],
+                    "meta": json.loads(r[16]) if r[16] else None, "updated_ts": r[17],
                 }
                 for r in rows
             ]
