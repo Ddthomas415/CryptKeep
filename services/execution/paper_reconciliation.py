@@ -174,16 +174,29 @@ def reconcile_execution_plan_intents(
             skipped.append({**row, "skip_reason": "invalid_intent"})
             continue
 
+        meta = dict(row.get("meta") or {})
+
+        planned_reference_price = _safe_float(meta.get("reference_price"), 0.0)
+        planned_reference_price_venue = str(meta.get("reference_price_venue") or "")
+        planned_reference_price_source = str(meta.get("reference_price_source") or "")
+        planned_reference_price_ts = str(meta.get("reference_price_ts") or "")
+
         fill_price = _safe_float(fill_price_map.get(symbol), 0.0)
+        fill_price_source = "explicit_fill_price_map"
         if fill_price <= 0:
             fill_price = _safe_float(live_price_map.get(symbol), 0.0)
+            fill_price_source = "live_market_price"
         if fill_price <= 0:
             fill_price = default_fill_price
+            fill_price_source = "default_fill_price"
         if fill_price <= 0:
             skipped.append({**row, "skip_reason": "invalid_fill_price"})
             continue
 
-        meta = dict(row.get("meta") or {})
+        fill_vs_plan_pct = 0.0
+        if planned_reference_price > 0 and fill_price > 0:
+            fill_vs_plan_pct = ((fill_price - planned_reference_price) / planned_reference_price) * 100.0
+
         target_alloc = _safe_float(row.get("target_alloc_pct"), _safe_float(meta.get("target_alloc_pct"), 0.0))
         current_alloc = _safe_float(row.get("current_alloc_pct"), _safe_float(meta.get("current_alloc_pct"), 0.0))
         delta_alloc = _safe_float(row.get("delta_alloc_pct"), _safe_float(meta.get("delta_alloc_pct"), 0.0))
