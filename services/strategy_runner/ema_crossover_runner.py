@@ -140,7 +140,15 @@ def _cfg() -> dict:
     venue = str(env_v or s.get("venue") or (pf_venues[0] if pf_venues else "coinbase")).lower().strip()
 
     env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
-    symbol = str(env_syms[0] if env_syms else (s.get("symbol") or (pf_symbols[0] if pf_symbols else default_symbol))).strip()
+    cfg_symbols = s.get("symbols") if isinstance(s.get("symbols"), list) else []
+    symbols = (
+        env_syms
+        or [x for x in cfg_symbols if str(x).strip()]
+        or [x for x in pf_symbols if str(x).strip()]
+        or [str(s.get("symbol") or default_symbol).strip()]
+    )
+    symbols = [str(x).strip() for x in symbols if str(x).strip()]
+    symbol = str(symbols[0] if symbols else default_symbol).strip()
     strategy_block, strategy_preset = _strategy_block_from_runner_cfg(s)
     env_min_bars_raw = str(os.environ.get("CBP_STRATEGY_MIN_BARS") or "").strip()
     env_min_bars = int(env_min_bars_raw) if env_min_bars_raw else 0
@@ -163,6 +171,7 @@ def _cfg() -> dict:
         "strategy_preset": str(strategy_preset),
         "venue": venue,
         "symbol": symbol,
+        "symbols": symbols,
         "fast_n": int(s.get("fast_n", 12) or 12),
         "slow_n": int(s.get("slow_n", 26) or 26),
         "min_bars": int(min_bars),
@@ -754,4 +763,4 @@ def run_forever() -> None:
 
 
 # ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----
-DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
+DEFAULT_SYMBOL = "BTC/USD"
