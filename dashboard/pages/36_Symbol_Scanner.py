@@ -4,8 +4,6 @@ import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
 from dashboard.services.symbol_scanner import run_symbol_scan
-from dashboard.services.view_data import _repo_default_watchlist_assets
-
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
@@ -15,56 +13,53 @@ st.caption("Read-only scanner powered by Coinbase market-wide movers data.")
 
 col0, col1 = st.columns([1, 1])
 with col0:
-    venue = st.selectbox("Venue", ["coinbase"], index=0, key="scanner_venue")
-with col1:
     run_now = st.button("Scan Coinbase Market", width="stretch", key="scanner_run")
+with col1:
+    rows_per_section = st.slider("Rows per section", min_value=10, max_value=50, value=20, step=5)
 
 if "scanner_result" not in st.session_state:
     st.session_state["scanner_result"] = None
 
 if run_now:
-    with st.spinner("Scanning symbols..."):
-        st.session_state["scanner_result"] = run_symbol_scan(
-            venue=venue,
-            symbols=_repo_default_watchlist_assets(),
-        )
+    with st.spinner("Scanning Coinbase market..."):
+        st.session_state["scanner_result"] = run_symbol_scan(venue="coinbase", symbols=[])
 
 result = st.session_state.get("scanner_result")
 
 if result is None:
-    st.info("Run the scanner to load ranked symbols.")
+    st.info("Click 'Scan Coinbase Market' to scan all active Coinbase spot markets.")
     st.stop()
 
 if not result.get("ok"):
-    st.error(result.get("error") or "Scanner failed")
+    st.error("Market scan failed.")
     st.stop()
 
 c0, c1, c2, c3 = st.columns(4)
-c0.metric("Scanned", int(result.get("scanned", 0)))
-c1.metric("Pumps", len(result.get("pumps", [])))
-c2.metric("Dumps", len(result.get("dumps", [])))
-c3.metric("Errors", len(result.get("errors", [])))
+c0.metric("Markets Scanned", int(result.get("scanned", 0)))
+c1.metric("Errors", len(result.get("errors", [])))
+c2.metric("Source", str(result.get("source", "")))
+c3.metric("Timestamp", str(result.get("ts", "")))
 
-st.caption(f"Timestamp: {result.get('ts')}")
-
-def _show_table(title: str, rows: list[dict]) -> None:
+def _show(title: str, rows: list[dict]) -> None:
     st.subheader(title)
     if not rows:
-        st.caption("None")
+        st.caption("None found")
         return
-    st.dataframe(rows, width="stretch")
+    st.dataframe(rows[:rows_per_section], use_container_width=True)
 
-_show_table("Pumps", result.get("pumps", []))
-_show_table("Dumps", result.get("dumps", []))
-_show_table("Volume Surges", result.get("volume_surges", []))
-_show_table("Oversold", result.get("oversold", []))
+_show("🔥 Hot Coins", result.get("hot", []))
+_show("📈 Momentum", result.get("momentum", []))
+_show("🚀 Top Gainers", result.get("gainers", []))
+_show("📉 Top Losers", result.get("losers", []))
+_show("🔊 Most Active", result.get("most_active", []))
+_show("⚡ Most Volatile", result.get("most_volatile", []))
 
-with st.expander("All Ranked Symbols"):
-    st.dataframe(result.get("all", []), width="stretch")
+with st.expander("All Markets Ranked"):
+    st.dataframe(result.get("all", []), use_container_width=True)
 
-with st.expander("Scanner Errors"):
+with st.expander("Errors"):
     errs = result.get("errors", [])
     if errs:
-        st.dataframe(errs, width="stretch")
+        st.dataframe(errs, use_container_width=True)
     else:
-        st.caption("No scanner errors.")
+        st.caption("No errors.")

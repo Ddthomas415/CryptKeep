@@ -38,6 +38,64 @@ def _rsi(closes: list[float], period: int = 14) -> float | None:
     return 100.0 - (100.0 / (1.0 + rs))
 
 
+def _score_row(row: dict[str, Any], volume_floor: float) -> float:
+    change_pct = _safe(row.get("change_pct"), 0.0)
+    quote_volume = _safe(row.get("volume_24h"), 0.0)
+    volatility_pct = _safe(row.get("volatility_pct"), 0.0)
+    rsi_val = row.get("rsi")
+    volume_surge = _safe(row.get("volume_surge"), 1.0)
+
+    score = 0.0
+
+    # Momentum
+    if change_pct > 0:
+        score += min(change_pct * 2.0, 30.0)
+    else:
+        score += max(change_pct * 0.5, -10.0)
+
+    # Relative activity
+    if volume_floor > 0:
+        rel = quote_volume / volume_floor
+        score += min(rel * 8.0, 25.0)
+
+    # Volatility
+    score += min(volatility_pct * 0.8, 20.0)
+
+    # RSI context
+    if rsi_val is not None:
+        rsi_f = _safe(rsi_val, 50.0)
+        if rsi_f < 30:
+            score += 12.0
+        elif rsi_f < 45:
+            score += 6.0
+        elif rsi_f > 80:
+            score -= 8.0
+        elif rsi_f > 70:
+            score -= 4.0
+
+    # Volume surge
+    if volume_surge >= 2.0:
+        score += 12.0
+    elif volume_surge >= 1.5:
+        score += 7.0
+
+    return round(max(0.0, min(score, 100.0)), 2)
+
+
+def _classify_signal(change_pct: float, rsi_val: float | None) -> str:
+    if change_pct >= PUMP_THRESHOLD_PCT:
+        return "pump"
+    if change_pct <= DUMP_THRESHOLD_PCT:
+        return "dump"
+    if rsi_val is not None and rsi_val < 30:
+        return "oversold"
+    if rsi_val is not None and rsi_val > 70:
+        return "overbought"
+    if change_pct >= 5.0:
+        return "momentum"
+    return "neutral"
+
+
 def _scan_from_local_watchlist(*, venue: str, symbols: list[str]) -> dict[str, Any]:
     results: list[dict[str, Any]] = []
 
@@ -65,15 +123,7 @@ def _scan_from_local_watchlist(*, venue: str, symbols: list[str]) -> dict[str, A
                 avg = (sum(prior) / len(prior)) if prior else 0.0
                 volume_surge = (recent / avg) if avg > 0 else 1.0
 
-            signal = "neutral"
-            if change_pct >= PUMP_THRESHOLD_PCT:
-                signal = "pump"
-            elif change_pct <= DUMP_THRESHOLD_PCT:
-                signal = "dump"
-            elif rsi_val is not None and rsi_val < 30:
-                signal = "oversold"
-            elif rsi_val is not None and rsi_val > 70:
-                signal = "overbought"
+            signal = _classify_signal(change_pct, rsi_val)
 
             results.append({
                 "symbol": asset,
@@ -97,6 +147,11 @@ def _scan_from_local_watchlist(*, venue: str, symbols: list[str]) -> dict[str, A
             })
 
     valid = [r for r in results if "error" not in r]
+    volume_floor = sorted([_safe(r.get("volume_24h"), 0.0) for r in valid], reverse=True)
+    volume_floor = volume_floor[max(0, min(len(volume_floor) - 1, 9))] if volume_floor else 0.0
+
+    for row in valid:
+        row["hot_score"] = _score_row(row, volume_floor)
 
     pumps = sorted(
         [r for r in valid if r["change_pct"] >= PUMP_THRESHOLD_PCT],
@@ -116,6 +171,12 @@ def _scan_from_local_watchlist(*, venue: str, symbols: list[str]) -> dict[str, A
         [r for r in valid if r.get("rsi") is not None and r["rsi"] < 30],
         key=lambda r: r["rsi"],
     )
+    momentum = sorted(
+        [r for r in valid if r["change_pct"] >= 5.0],
+        key=lambda r: (r["change_pct"], r["volume_24h"]),
+        reverse=True,
+    )
+    hot = sorted(valid, key=lambda r: r["hot_score"], reverse=True)
 
     return {
         "ok": True,
@@ -128,6 +189,8 @@ def _scan_from_local_watchlist(*, venue: str, symbols: list[str]) -> dict[str, A
         "dumps": dumps,
         "volume_surges": volume_surges,
         "oversold": oversold,
+        "momentum": momentum,
+        "hot": hot[:25],
         "all": sorted(valid, key=lambda r: abs(r["change_pct"]), reverse=True),
         "errors": [r for r in results if "error" in r],
     }
@@ -147,6 +210,8 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
             "dumps": [],
             "volume_surges": [],
             "oversold": [],
+            "momentum": [],
+            "hot": [],
             "all": [],
             "errors": movers.get("errors", []) or [{"error": "coinbase_movers_failed"}],
         }
@@ -167,11 +232,8 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
         if not volatility_pct and last > 0 and high > 0 and low > 0:
             volatility_pct = ((high - low) / last) * 100.0
 
-        signal = "neutral"
-        if change_pct >= PUMP_THRESHOLD_PCT:
-            signal = "pump"
-        elif change_pct <= DUMP_THRESHOLD_PCT:
-            signal = "dump"
+        rsi_val = row.get("rsi")
+        signal = _classify_signal(change_pct, rsi_val)
 
         normalized.append({
             "symbol": symbol,
@@ -180,13 +242,19 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
             "volume_24h": round(volume_24h, 2),
             "volume_surge": _safe(row.get("volume_surge"), 1.0),
             "volatility_pct": round(volatility_pct, 2),
-            "rsi": row.get("rsi"),
+            "rsi": rsi_val,
             "high": high,
             "low": low,
             "signal": signal,
             "snapshot_source": "coinbase_movers",
             "snapshot_timestamp": str(movers.get("ts") or ""),
         })
+
+    volumes = sorted([_safe(r.get("volume_24h"), 0.0) for r in normalized], reverse=True)
+    volume_floor = volumes[max(0, min(len(volumes) - 1, 24))] if volumes else 0.0
+
+    for row in normalized:
+        row["hot_score"] = _score_row(row, volume_floor)
 
     pumps = sorted(
         [r for r in normalized if r["change_pct"] >= PUMP_THRESHOLD_PCT],
@@ -207,6 +275,12 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
         if r.get("rsi") is not None and _safe(r.get("rsi"), 100.0) < 30.0
     ]
     oversold = sorted(oversold, key=lambda r: _safe(r.get("rsi"), 100.0))
+    momentum = sorted(
+        [r for r in normalized if r["change_pct"] >= 5.0],
+        key=lambda r: (r["change_pct"], r["volume_24h"]),
+        reverse=True,
+    )
+    hot = sorted(normalized, key=lambda r: r["hot_score"], reverse=True)
 
     return {
         "ok": True,
@@ -219,6 +293,8 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
         "dumps": dumps,
         "volume_surges": volume_surges,
         "oversold": oversold,
+        "momentum": momentum,
+        "hot": hot[:25],
         "all": normalized,
         "errors": list(movers.get("errors") or []),
         "gainers": list(movers.get("gainers") or []),
