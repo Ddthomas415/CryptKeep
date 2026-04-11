@@ -15,7 +15,12 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
         return default
 
 
-def load_outcomes(limit: int = 1000) -> list[dict[str, Any]]:
+def load_outcomes(
+    limit: int = 1000,
+    *,
+    require_selected_strategy: bool = False,
+    require_regime: bool = False,
+) -> list[dict[str, Any]]:
     if not STORE_FILE.exists():
         return []
     rows: list[dict[str, Any]] = []
@@ -28,7 +33,12 @@ def load_outcomes(limit: int = 1000) -> list[dict[str, Any]]:
                 rows.append(json.loads(line))
             except Exception:
                 continue
-    return rows[-limit:]
+    rows = rows[-limit:]
+    if require_selected_strategy:
+        rows = [r for r in rows if r.get("selected_strategy")]
+    if require_regime:
+        rows = [r for r in rows if r.get("regime")]
+    return rows
 
 
 def _avg(vals: list[float]) -> float:

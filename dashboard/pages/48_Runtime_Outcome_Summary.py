@@ -13,7 +13,7 @@ st.caption("Summary of realized paper outcomes by selected strategy and regime."
 
 limit = st.slider("Rows to load", min_value=50, max_value=5000, value=500, step=50)
 
-rows = load_outcomes(limit=limit)
+rows = load_outcomes(limit=limit, require_selected_strategy=True, require_regime=True)
 summary = summarize_outcomes(rows)
 
 c0, c1 = st.columns(2)
