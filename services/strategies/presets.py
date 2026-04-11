@@ -19,6 +19,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_adds_per_symbol": 2,
             "min_profit_to_add_pct": 1.5,
             "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
         },
         "strategy": {
             "name": "ema_cross",
@@ -45,6 +48,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_adds_per_symbol": 2,
             "min_profit_to_add_pct": 1.5,
             "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
         },
         "strategy": {
             "name": "mean_reversion_rsi",
@@ -74,6 +80,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_adds_per_symbol": 2,
             "min_profit_to_add_pct": 1.5,
             "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
         },
         "strategy": {
             "name": "breakout_donchian",
@@ -101,6 +110,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_adds_per_symbol": 2,
             "min_profit_to_add_pct": 1.5,
             "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
         },
         "strategy": {
             "name": "momentum",
@@ -126,6 +138,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_adds_per_symbol": 2,
             "min_profit_to_add_pct": 1.5,
             "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
         },
         "strategy": {
             "name": "volatility_reversal",
@@ -151,6 +166,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_adds_per_symbol": 2,
             "min_profit_to_add_pct": 1.5,
             "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
         },
         "strategy": {
             "name": "gap_fill",
@@ -175,6 +193,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_adds_per_symbol": 2,
             "min_profit_to_add_pct": 1.5,
             "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
         },
         "strategy": {
             "name": "breakout_volume",

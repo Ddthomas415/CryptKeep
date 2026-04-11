@@ -23,6 +23,7 @@ from services.strategies.strategy_registry import compute_signal
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
 from services.risk.kill_conditions import build_kill_limits, should_block_symbol, evaluate_risk_block_kill
 from services.risk.position_scaling import build_scaling_limits, summarize_position_for_scaling, evaluate_scale_in
+from services.risk.performance_kill import build_performance_limits, evaluate_exit_outcome, update_drawdown_state, evaluate_performance_kill
 from services.validation.paper_multi_symbol_validation import collect_runtime_rows, validate_multi_symbol_state
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
@@ -476,6 +477,7 @@ def run_forever() -> None:
     risk_limits = build_risk_limits(cfg)
     kill_limits = build_kill_limits(cfg)
     scaling_limits = build_scaling_limits(cfg)
+    performance_limits = build_performance_limits(cfg)
 
     # Breakout/post-entry exit defaults.
     # These are runner-level controls and should be explicitly versioned in strategy config
@@ -535,6 +537,9 @@ def run_forever() -> None:
                 k_kill_until = f"kill_until:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_risk_block_count = f"risk_block_count:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_scale_count = f"scale_count:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_loss_streak = f"loss_streak:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_cum_pnl = f"cum_pnl:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_peak_pnl = f"peak_pnl:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
 
                 try:
                     prices = json.loads(sdb.get(k_prices) or "[]")
@@ -897,6 +902,54 @@ def run_forever() -> None:
                     sdb.set(k_trailing_peak, str(float(m)))
                     sdb.set(k_bars_held, "0")
                 elif action == "sell":
+                    entry_price_val = float(str(sdb.get(k_entry_price) or "0").strip() or 0.0)
+                    exit_eval = evaluate_exit_outcome(
+                        entry_price=entry_price_val,
+                        exit_price=float(m),
+                    )
+                    if bool(exit_eval.get("ok")):
+                        prior_cum = float(str(sdb.get(k_cum_pnl) or "0").strip() or 0.0)
+                        prior_peak = float(str(sdb.get(k_peak_pnl) or "0").strip() or 0.0)
+                        dd_state = update_drawdown_state(
+                            cumulative_pnl_pct=prior_cum,
+                            peak_pnl_pct=prior_peak,
+                            trade_pnl_pct=float(exit_eval.get("pnl_pct", 0.0)),
+                        )
+                        sdb.set(k_cum_pnl, str(dd_state["cumulative_pnl_pct"]))
+                        sdb.set(k_peak_pnl, str(dd_state["peak_pnl_pct"]))
+
+                        loss_streak = int(str(sdb.get(k_loss_streak) or "0").strip() or 0)
+                        loss_streak = (loss_streak + 1) if bool(exit_eval.get("is_loss")) else 0
+                        sdb.set(k_loss_streak, str(loss_streak))
+
+                        perf_kill = evaluate_performance_kill(
+                            loops=loops,
+                            consecutive_losing_exits=loss_streak,
+                            drawdown_pct=float(dd_state.get("drawdown_pct", 0.0)),
+                            limits=performance_limits,
+                        )
+                        if bool(perf_kill.get("triggered")):
+                            sdb.set(k_kill_until, str(int(perf_kill.get("kill_until_loop", 0))))
+                            _write_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "venue": cfg["venue"],
+                                    "symbol": symbol,
+                                    "symbols": symbols,
+                                    "strategy_id": cfg.get("strategy_id"),
+                                    "signal_action": action,
+                                    "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                    "performance_exit": exit_eval,
+                                    "performance_state": dd_state,
+                                    "loss_streak": loss_streak,
+                                    "kill_reason": perf_kill.get("reason"),
+                                    "kill_until_loop": perf_kill.get("kill_until_loop"),
+                                    "note": "kill_triggered_performance",
+                                }
+                            )
                     for k in (k_entry_price, k_trailing_peak, k_bars_held):
                         try:
                             sdb.delete(k)
