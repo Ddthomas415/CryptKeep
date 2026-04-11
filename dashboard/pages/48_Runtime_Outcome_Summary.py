@@ -29,5 +29,8 @@ st.dataframe(summary.get("by_regime", []), use_container_width=True)
 st.subheader("Strategy × Regime")
 st.dataframe(summary.get("by_strategy_regime", []), use_container_width=True)
 
+st.subheader("By Selection Reason")
+st.dataframe(summary.get("by_reason", []), use_container_width=True)
+
 with st.expander("Raw Outcomes"):
     st.dataframe(rows, use_container_width=True)

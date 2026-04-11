@@ -79,11 +79,27 @@ def summarize_outcomes(rows: list[dict[str, Any]]) -> dict[str, Any]:
         })
     pair_rows.sort(key=lambda r: (r["count"], r["avg_fill_vs_plan_pct"]), reverse=True)
 
+    by_reason: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        reason = str(row.get("selected_strategy_reason") or "unknown").strip() or "unknown"
+        by_reason[reason].append(row)
+
+    reason_rows = []
+    for reason, items in by_reason.items():
+        reason_rows.append({
+            "selected_strategy_reason": reason,
+            "count": len(items),
+            "avg_fill_vs_plan_pct": _avg([_safe_float(x.get("fill_vs_plan_pct"), 0.0) for x in items]),
+            "avg_delta_alloc_pct": _avg([_safe_float(x.get("delta_alloc_pct"), 0.0) for x in items]),
+        })
+    reason_rows.sort(key=lambda r: (r["count"], r["avg_fill_vs_plan_pct"]), reverse=True)
+
     return {
         "count": len(rows),
         "by_strategy": strategy_rows,
         "by_regime": regime_rows,
         "by_strategy_regime": pair_rows,
+        "by_reason": reason_rows,
     }
 
 
