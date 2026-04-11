@@ -1,5 +1,7 @@
+
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from dashboard.services.view_data import _load_local_ohlcv
@@ -13,8 +15,16 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
         return default
 
 
+def _clamp(v: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, v))
+
+
 def _closes(rows: list[list[Any]]) -> list[float]:
     return [_safe_float(r[4], 0.0) for r in rows if isinstance(r, (list, tuple)) and len(r) >= 5]
+
+
+def _volumes(rows: list[list[Any]]) -> list[float]:
+    return [_safe_float(r[5], 0.0) for r in rows if isinstance(r, (list, tuple)) and len(r) >= 6]
 
 
 def _window_return_pct(closes: list[float], entry_idx: int, forward_bars: int) -> float:
@@ -27,34 +37,136 @@ def _window_return_pct(closes: list[float], entry_idx: int, forward_bars: int) -
     return ((exit_ - entry) / entry) * 100.0
 
 
+def _rsi_from_window(closes: list[float], anchor_idx: int, period: int = 14) -> float:
+    start = anchor_idx - period
+    if start < 1 or anchor_idx >= len(closes):
+        return 50.0
+    gains = 0.0
+    losses = 0.0
+    for i in range(start + 1, anchor_idx + 1):
+        delta = closes[i] - closes[i - 1]
+        if delta > 0:
+            gains += delta
+        else:
+            losses += abs(delta)
+    if losses <= 1e-12:
+        return 100.0
+    rs = gains / max(losses, 1e-12)
+    return 100.0 - (100.0 / (1.0 + rs))
+
+
+def _realized_vol_pct(closes: list[float], anchor_idx: int, window: int = 20) -> float:
+    start = anchor_idx - window + 1
+    if start < 1:
+        return 0.0
+    rets = []
+    for i in range(start, anchor_idx + 1):
+        prev = closes[i - 1]
+        cur = closes[i]
+        if prev > 0 and cur > 0:
+            rets.append((cur - prev) / prev)
+    if len(rets) < 2:
+        return 0.0
+    mu = sum(rets) / len(rets)
+    var = sum((r - mu) ** 2 for r in rets) / max(len(rets) - 1, 1)
+    return math.sqrt(max(var, 0.0)) * 100.0
+
+
+def _volume_surge_ratio(volumes: list[float], anchor_idx: int, short_window: int = 4, long_window: int = 24) -> float:
+    if anchor_idx < long_window or anchor_idx >= len(volumes):
+        return 1.0
+    short_vals = volumes[max(0, anchor_idx - short_window + 1):anchor_idx + 1]
+    long_vals = volumes[max(0, anchor_idx - long_window + 1):anchor_idx + 1]
+    short_avg = sum(short_vals) / max(len(short_vals), 1)
+    long_avg = sum(long_vals) / max(len(long_vals), 1)
+    if long_avg <= 1e-12:
+        return 1.0
+    return short_avg / long_avg
+
+
+def _historical_features(
+    *,
+    closes: list[float],
+    volumes: list[float],
+    anchor_idx: int,
+) -> dict[str, float]:
+    ret_1 = _window_return_pct(closes, anchor_idx - 1, 1) if anchor_idx >= 1 else 0.0
+    ret_4 = _window_return_pct(closes, anchor_idx - 4, 4) if anchor_idx >= 4 else 0.0
+    ret_24 = _window_return_pct(closes, anchor_idx - 24, 24) if anchor_idx >= 24 else 0.0
+    rsi = _rsi_from_window(closes, anchor_idx, 14)
+    vol_pct = _realized_vol_pct(closes, anchor_idx, 20)
+    volume_ratio = _volume_surge_ratio(volumes, anchor_idx, 4, 24)
+    return {
+        "ret_1": round(ret_1, 4),
+        "ret_4": round(ret_4, 4),
+        "ret_24": round(ret_24, 4),
+        "rsi": round(rsi, 4),
+        "volatility_pct": round(vol_pct, 4),
+        "volume_ratio": round(volume_ratio, 4),
+    }
+
+
 def _score_from_history(
     *,
     closes: list[float],
+    volumes: list[float],
     anchor_idx: int,
     ranking_config: dict[str, Any],
-) -> float:
+) -> dict[str, Any]:
     cfg = build_ranker_config({"ranking": dict(ranking_config or {})})
 
     if anchor_idx < 24:
-        return -999.0
+        return {"score": -999.0, "features": {}, "breakdown": {}}
 
-    now = closes[anchor_idx]
-    prev_1 = closes[anchor_idx - 1]
-    prev_4 = closes[anchor_idx - 4]
-    prev_24 = closes[anchor_idx - 24]
+    feats = _historical_features(
+        closes=closes,
+        volumes=volumes,
+        anchor_idx=anchor_idx,
+    )
 
-    if min(now, prev_1, prev_4, prev_24) <= 0:
-        return -999.0
+    score_momentum = _clamp(
+        feats["ret_4"] * cfg["momentum_mult"],
+        cfg["momentum_min"],
+        cfg["momentum_max"],
+    )
+    score_hot = _clamp(
+        feats["ret_24"] * cfg["hot_mult"],
+        cfg["hot_min"],
+        cfg["hot_max"],
+    )
+    score_volume = _clamp(
+        max(feats["volume_ratio"] - 1.0, 0.0) * cfg["volume_z_mult"],
+        cfg["volume_min"],
+        cfg["volume_max"],
+    )
 
-    ret_1 = ((now - prev_1) / prev_1) * 100.0
-    ret_4 = ((now - prev_4) / prev_4) * 100.0
-    ret_24 = ((now - prev_24) / prev_24) * 100.0
+    score_rsi = 0.0
+    if 45.0 <= feats["rsi"] <= 70.0:
+        score_rsi = cfg["rsi_bonus_healthy"]
+    elif feats["rsi"] > 80.0:
+        score_rsi = cfg["rsi_penalty_overbought"]
+    elif feats["rsi"] < 25.0:
+        score_rsi = cfg["rsi_penalty_oversold"]
 
-    momentum_score = max(cfg["momentum_min"], min(cfg["momentum_max"], ret_4 * cfg["momentum_mult"]))
-    hot_score = max(cfg["hot_min"], min(cfg["hot_max"], ret_24 * cfg["hot_mult"]))
-    volume_score = 0.0  # no historical volume features in this first pass
+    score_volatility = 0.0
+    if feats["volatility_pct"] >= 10.0:
+        score_volatility = cfg["volatility_penalty_high"]
+    elif 2.0 <= feats["volatility_pct"] <= 8.0:
+        score_volatility = cfg["volatility_bonus_mid"]
 
-    return round(momentum_score + hot_score + volume_score, 4)
+    total = score_momentum + score_hot + score_volume + score_rsi + score_volatility
+
+    return {
+        "score": round(total, 4),
+        "features": feats,
+        "breakdown": {
+            "momentum": round(score_momentum, 4),
+            "hot": round(score_hot, 4),
+            "volume": round(score_volume, 4),
+            "rsi": round(score_rsi, 4),
+            "volatility": round(score_volatility, 4),
+        },
+    }
 
 
 def backtest_historical_selector(
@@ -70,18 +182,19 @@ def backtest_historical_selector(
     ranking_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     target = symbols or ["BTC/USD", "ETH/USD", "SOL/USD", "AVAX/USD", "LINK/USD", "DOGE/USD"]
-    series: dict[str, list[float]] = {}
+    series: dict[str, dict[str, list[float]]] = {}
 
     for sym in target:
         rows = _load_local_ohlcv(venue, sym, timeframe=timeframe, limit=lookback_limit) or []
         closes = _closes(rows)
+        volumes = _volumes(rows)
         if len(closes) >= (min_history_bars + forward_bars + 1):
-            series[sym] = closes
+            series[sym] = {"closes": closes, "volumes": volumes}
 
     if not series:
         return {"ok": False, "reason": "no_series"}
 
-    max_len = min(len(v) for v in series.values())
+    max_len = min(len(v["closes"]) for v in series.values())
     start_idx = min_history_bars
     end_idx = max_len - forward_bars - 1
 
@@ -93,16 +206,25 @@ def backtest_historical_selector(
         baseline_ranked = []
         composite_ranked = []
 
-        for sym, closes in series.items():
+        for sym, pack in series.items():
+            closes = pack["closes"]
+            volumes = pack["volumes"]
+
             r24 = _window_return_pct(closes, anchor_idx - 24, 24) if anchor_idx >= 24 else -999.0
             baseline_ranked.append({"symbol": sym, "score": r24})
 
-            comp = _score_from_history(
+            scored = _score_from_history(
                 closes=closes,
+                volumes=volumes,
                 anchor_idx=anchor_idx,
                 ranking_config=ranking_config or {},
             )
-            composite_ranked.append({"symbol": sym, "score": comp})
+            composite_ranked.append({
+                "symbol": sym,
+                "score": scored["score"],
+                "features": scored["features"],
+                "breakdown": scored["breakdown"],
+            })
 
         baseline_ranked.sort(key=lambda r: r["score"], reverse=True)
         composite_ranked.sort(key=lambda r: r["score"], reverse=True)
@@ -111,11 +233,11 @@ def backtest_historical_selector(
         composite_selected = composite_ranked[:top_n]
 
         baseline_returns = [
-            _window_return_pct(series[row["symbol"]], anchor_idx, forward_bars)
+            _window_return_pct(series[row["symbol"]]["closes"], anchor_idx, forward_bars)
             for row in baseline_selected
         ]
         composite_returns = [
-            _window_return_pct(series[row["symbol"]], anchor_idx, forward_bars)
+            _window_return_pct(series[row["symbol"]]["closes"], anchor_idx, forward_bars)
             for row in composite_selected
         ]
 
@@ -132,6 +254,15 @@ def backtest_historical_selector(
             "baseline_avg_return_pct": round(baseline_avg, 4),
             "composite_avg_return_pct": round(composite_avg, 4),
             "delta_avg_return_pct": round(composite_avg - baseline_avg, 4),
+            "composite_top_features": [
+                {
+                    "symbol": r["symbol"],
+                    "score": r["score"],
+                    "features": r.get("features", {}),
+                    "breakdown": r.get("breakdown", {}),
+                }
+                for r in composite_selected[:3]
+            ],
         })
 
     def _summary(vals: list[float]) -> dict[str, Any]:

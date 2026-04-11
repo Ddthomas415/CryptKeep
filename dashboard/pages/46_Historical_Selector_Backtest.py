@@ -64,3 +64,25 @@ st.json(composite)
 
 st.subheader("Anchor Results")
 st.dataframe(result.get("anchors", []), use_container_width=True)
+
+st.subheader("Composite Feature Samples")
+feature_rows = []
+for anchor in (result.get("anchors") or [])[:10]:
+    for item in (anchor.get("composite_top_features") or []):
+        feature_rows.append({
+            "anchor_idx": anchor.get("anchor_idx"),
+            "symbol": item.get("symbol"),
+            "score": item.get("score"),
+            "ret_1": (item.get("features") or {}).get("ret_1"),
+            "ret_4": (item.get("features") or {}).get("ret_4"),
+            "ret_24": (item.get("features") or {}).get("ret_24"),
+            "rsi": (item.get("features") or {}).get("rsi"),
+            "volatility_pct": (item.get("features") or {}).get("volatility_pct"),
+            "volume_ratio": (item.get("features") or {}).get("volume_ratio"),
+            "score_momentum": (item.get("breakdown") or {}).get("momentum"),
+            "score_hot": (item.get("breakdown") or {}).get("hot"),
+            "score_volume": (item.get("breakdown") or {}).get("volume"),
+            "score_rsi": (item.get("breakdown") or {}).get("rsi"),
+            "score_volatility": (item.get("breakdown") or {}).get("volatility"),
+        })
+st.dataframe(feature_rows, use_container_width=True)
