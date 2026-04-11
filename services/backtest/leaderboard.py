@@ -65,6 +65,7 @@ def default_strategy_candidates(base_cfg: Dict[str, Any] | None = None) -> List[
         {"candidate": "ema_cross_default", "cfg": apply_preset(cfg, "ema_cross_default")},
         {"candidate": "mean_reversion_default", "cfg": apply_preset(cfg, "mean_reversion_default")},
         {"candidate": "breakout_default", "cfg": apply_preset(cfg, "breakout_default")},
+        {"candidate": "momentum_default", "cfg": apply_preset(cfg, "momentum_default")},
     ]
 
 

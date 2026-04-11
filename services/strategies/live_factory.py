@@ -13,6 +13,4 @@ def load_live_strategy() -> tuple[object, dict]:
         slow = int(strat.get("ema_slow", 26) or 26)
         return EMACrossoverLive(fast=fast, slow=slow), {"name": name, "ema_fast": fast, "ema_slow": slow}
 
-    fast = int(strat.get("ema_fast", 12) or 12)
-    slow = int(strat.get("ema_slow", 26) or 26)
-    return EMACrossoverLive(fast=fast, slow=slow), {"name": "ema_crossover_fallback", "ema_fast": fast, "ema_slow": slow}
+    raise ValueError(f"unsupported_live_strategy:{name}")
