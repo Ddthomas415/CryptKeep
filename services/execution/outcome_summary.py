@@ -85,3 +85,51 @@ def summarize_outcomes(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "by_regime": regime_rows,
         "by_strategy_regime": pair_rows,
     }
+
+
+def recent_strategy_regime_score(
+    strategy: str,
+    regime: str,
+    *,
+    limit: int = 200,
+    min_count: int = 3,
+) -> dict[str, Any]:
+    rows = load_outcomes(limit=limit)
+    strategy = str(strategy or "").strip()
+    regime = str(regime or "").strip()
+
+    matched = [
+        r for r in rows
+        if str(r.get("selected_strategy") or r.get("intent_strategy_id") or "").strip() == strategy
+        and str(r.get("regime") or "").strip() == regime
+    ]
+
+    count = len(matched)
+    if count < min_count:
+        return {
+            "count": count,
+            "avg_fill_vs_plan_pct": 0.0,
+            "avg_delta_alloc_pct": 0.0,
+            "score": 0.0,
+            "enough_data": False,
+        }
+
+    avg_fill = _avg([_safe_float(x.get("fill_vs_plan_pct"), 0.0) for x in matched])
+    avg_delta = _avg([_safe_float(x.get("delta_alloc_pct"), 0.0) for x in matched])
+
+    score = avg_fill
+    if avg_delta > 0:
+        score += min(avg_delta * 0.1, 1.5)
+
+    if score > 3.0:
+        score = 3.0
+    elif score < -3.0:
+        score = -3.0
+
+    return {
+        "count": count,
+        "avg_fill_vs_plan_pct": avg_fill,
+        "avg_delta_alloc_pct": avg_delta,
+        "score": round(score, 4),
+        "enough_data": True,
+    }
