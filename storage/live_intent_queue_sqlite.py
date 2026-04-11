@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 import sqlite3
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
@@ -14,6 +15,7 @@ CREATE TABLE IF NOT EXISTS live_trade_intents (
   created_ts TEXT NOT NULL,
   ts TEXT NOT NULL,
   source TEXT NOT NULL,
+  strategy_id TEXT,
   venue TEXT NOT NULL,
   symbol TEXT NOT NULL,
   side TEXT NOT NULL,
@@ -24,6 +26,7 @@ CREATE TABLE IF NOT EXISTS live_trade_intents (
   last_error TEXT,
   client_order_id TEXT,
   exchange_order_id TEXT,
+  meta TEXT,
   updated_ts TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_lti_status_ts ON live_trade_intents(status, created_ts);
@@ -42,6 +45,15 @@ def _connect() -> sqlite3.Connection:
     con = sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False)
     con.execute("PRAGMA journal_mode=WAL;")
     con.execute("PRAGMA synchronous=NORMAL;")
+    try:
+        cols = [r[1] for r in con.execute("PRAGMA table_info(live_trade_intents)").fetchall()]
+        if cols:
+            if "strategy_id" not in cols:
+                con.execute("ALTER TABLE live_trade_intents ADD COLUMN strategy_id TEXT")
+            if "meta" not in cols:
+                con.execute("ALTER TABLE live_trade_intents ADD COLUMN meta TEXT")
+    except Exception:
+        pass
     for stmt in SCHEMA.strip().split(";"):
         s = stmt.strip()
         if s:
@@ -56,11 +68,12 @@ class LiveIntentQueueSQLite:
         con = _connect()
         try:
             con.execute(
-                "INSERT INTO live_trade_intents(intent_id, created_ts, ts, source, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, updated_ts) "
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+                "INSERT INTO live_trade_intents(intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, meta, updated_ts) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
                 "ON CONFLICT(intent_id) DO UPDATE SET "
                 "ts=excluded.ts, "
                 "source=excluded.source, "
+                "strategy_id=excluded.strategy_id, "
                 "venue=excluded.venue, "
                 "symbol=excluded.symbol, "
                 "side=excluded.side, "
@@ -68,12 +81,14 @@ class LiveIntentQueueSQLite:
                 "qty=excluded.qty, "
                 "limit_price=excluded.limit_price, "
                 "status=excluded.status, "
+                "meta=excluded.meta, "
                 "updated_ts=excluded.updated_ts",
                 (
                     str(row["intent_id"]),
                     str(row.get("created_ts") or _now()),
                     str(row["ts"]),
                     str(row["source"]),
+                    row.get("strategy_id"),
                     str(row["venue"]),
                     str(row["symbol"]),
                     str(row["side"]),
@@ -84,6 +99,7 @@ class LiveIntentQueueSQLite:
                     row.get("last_error"),
                     row.get("client_order_id"),
                     row.get("exchange_order_id"),
+                    json.dumps(row.get("meta")) if row.get("meta") is not None else None,
                     _now(),
                 ),
             )
@@ -93,7 +109,7 @@ class LiveIntentQueueSQLite:
     def list_intents(self, limit: int = 500, status: str | None = None) -> List[Dict[str, Any]]:
         con = _connect()
         try:
-            q = ("SELECT intent_id, created_ts, ts, source, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, updated_ts "
+            q = ("SELECT intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, meta, updated_ts "
                  "FROM live_trade_intents")
             args = []
             if status:
@@ -104,9 +120,10 @@ class LiveIntentQueueSQLite:
             rows = con.execute(q, tuple(args)).fetchall()
             return [
                 {
-                    "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "venue": r[4], "symbol": r[5],
-                    "side": r[6], "order_type": r[7], "qty": r[8], "limit_price": r[9], "status": r[10],
-                    "last_error": r[11], "client_order_id": r[12], "exchange_order_id": r[13], "updated_ts": r[14],
+                    "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "strategy_id": r[4], "venue": r[5], "symbol": r[6],
+                    "side": r[7], "order_type": r[8], "qty": r[9], "limit_price": r[10], "status": r[11],
+                    "last_error": r[12], "client_order_id": r[13], "exchange_order_id": r[14],
+                    "meta": json.loads(r[15]) if r[15] else None, "updated_ts": r[16],
                 }
                 for r in rows
             ]
@@ -117,15 +134,16 @@ class LiveIntentQueueSQLite:
         con = _connect()
         try:
             rows = con.execute(
-                ("SELECT intent_id, created_ts, ts, source, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, updated_ts "
+                ("SELECT intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, meta, updated_ts "
                  "FROM live_trade_intents WHERE status='queued' ORDER BY created_ts ASC LIMIT ?"),
                 (int(limit),),
             ).fetchall()
             return [
                 {
-                    "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "venue": r[4], "symbol": r[5],
-                    "side": r[6], "order_type": r[7], "qty": r[8], "limit_price": r[9], "status": r[10],
-                    "last_error": r[11], "client_order_id": r[12], "exchange_order_id": r[13], "updated_ts": r[14],
+                    "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "strategy_id": r[4], "venue": r[5], "symbol": r[6],
+                    "side": r[7], "order_type": r[8], "qty": r[9], "limit_price": r[10], "status": r[11],
+                    "last_error": r[12], "client_order_id": r[13], "exchange_order_id": r[14],
+                    "meta": json.loads(r[15]) if r[15] else None, "updated_ts": r[16],
                 }
                 for r in rows
             ]
