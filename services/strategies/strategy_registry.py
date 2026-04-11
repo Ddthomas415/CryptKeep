@@ -19,7 +19,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
         name = "ema_cross"
 
     if not bool(st.get("trade_enabled", True)):
-        return {"ok": True, "action": "hold", "reason": "trade_disabled", "strategy": name}
+        return {"ok": True, "action": "hold", "reason": "trade_disabled", "strategy": name, "symbol": symbol}
 
     fn = SUPPORTED[name]
 
@@ -38,6 +38,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
             "strategy": name,
             "symbol": symbol,
         }
+
     if name == "mean_reversion_rsi":
         return {
             **fn(
@@ -56,6 +57,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
             "strategy": name,
             "symbol": symbol,
         }
+
     if name == "breakout_donchian":
         return {
             **fn(
@@ -68,6 +70,17 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
                 min_channel_width_pct=float(st["min_channel_width_pct"]) if "min_channel_width_pct" in st else None,
                 breakout_buffer_pct=float(st["breakout_buffer_pct"]) if "breakout_buffer_pct" in st else None,
                 require_directional_confirmation=bool(st.get("require_directional_confirmation", False)),
+            ),
+            "strategy": name,
+            "symbol": symbol,
+        }
+
+    if name == "momentum":
+        return {
+            **fn(
+                cfg=cfg,
+                symbol=symbol,
+                ohlcv=ohlcv,
             ),
             "strategy": name,
             "symbol": symbol,
