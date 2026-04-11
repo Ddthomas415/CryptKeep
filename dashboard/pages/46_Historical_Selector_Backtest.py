@@ -4,7 +4,7 @@ import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
 from services.backtest.historical_selector_backtest import backtest_historical_selector
-from services.backtest.backtest_run_store import append_historical_selector_run, load_historical_selector_runs, summarize_saved_runs
+from services.backtest.backtest_run_store import append_historical_selector_run, load_historical_selector_runs, summarize_saved_runs, summarize_historical_runs_by_preset
 from services.market_data.ranking_presets import RANKING_PRESETS, merge_ranking_config
 
 AUTH_STATE = require_authenticated_role("VIEWER")
@@ -106,6 +106,9 @@ for anchor in (result.get("anchors") or [])[:10]:
 st.dataframe(feature_rows, use_container_width=True)
 
 
-st.subheader("Saved Run Comparison")
+st.subheader("Preset Summary")
 saved_runs = load_historical_selector_runs(limit=100)
+st.dataframe(summarize_historical_runs_by_preset(saved_runs), use_container_width=True)
+
+st.subheader("Saved Run Comparison")
 st.dataframe(summarize_saved_runs(saved_runs), use_container_width=True)
