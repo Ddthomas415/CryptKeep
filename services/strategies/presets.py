@@ -61,6 +61,41 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
 
+    "volatility_reversal_default": {
+        "strategy": {
+            "name": "volatility_reversal",
+            "rsi_len": 14,
+            "rsi_oversold": 28.0,
+            "rsi_exit": 50.0,
+            "sma_len": 20,
+            "min_dump_bars": 3,
+            "min_dump_pct": 8.0,
+            "require_volume_spike": True,
+        },
+    },
+    "gap_fill_default": {
+        "strategy": {
+            "name": "gap_fill",
+            "rsi_len": 14,
+            "rsi_buy": 40.0,
+            "rsi_sell": 60.0,
+            "sma_len": 20,
+            "min_gap_pct": 3.0,
+            "gap_fill_target_pct": 0.618,
+        },
+    },
+    "breakout_volume_default": {
+        "strategy": {
+            "name": "breakout_volume",
+            "donchian_len": 20,
+            "sma_len": 50,
+            "min_volume_ratio": 2.0,
+            "breakout_buffer_pct": 0.1,
+            "min_channel_width_pct": 1.0,
+            "require_close_above": True,
+        },
+    },
+
 }
 
 

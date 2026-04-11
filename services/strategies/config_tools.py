@@ -7,10 +7,13 @@ from services.strategies.presets import apply_preset
 from services.strategies.validation import validate_strategy_config
 
 
-_SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum"}
+_SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "volatility_reversal", "gap_fill", "breakout_volume"}
 _INT_FIELDS = {
     "ema_cross": ("ema_fast", "ema_slow", "filter_window"),
     "momentum": ("min_change_pct", "max_rsi_entry", "rsi_exit", "sma_period", "rsi_period"),
+    "volatility_reversal": ("rsi_len", "rsi_oversold", "rsi_exit", "sma_len", "min_dump_bars", "min_dump_pct"),
+    "gap_fill": ("rsi_len", "rsi_buy", "rsi_sell", "sma_len", "min_gap_pct", "gap_fill_target_pct"),
+    "breakout_volume": ("donchian_len", "sma_len", "min_volume_ratio", "breakout_buffer_pct", "min_channel_width_pct"),
     "mean_reversion_rsi": ("rsi_len", "sma_len", "filter_window"),
     "breakout_donchian": ("donchian_len", "filter_window"),
 }
@@ -22,6 +25,9 @@ _FLOAT_FIELDS = {
 _BOOL_FIELDS = {
     "ema_cross": (),
     "momentum": (),
+    "volatility_reversal": ("require_volume_spike",),
+    "gap_fill": (),
+    "breakout_volume": ("require_close_above",),
     "mean_reversion_rsi": ("require_reversal_confirmation",),
     "breakout_donchian": ("require_directional_confirmation",),
 }

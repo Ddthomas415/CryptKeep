@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 
-SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum"}
+SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "volatility_reversal", "gap_fill", "breakout_volume"}
 
 
 def _num(v: Any) -> bool:

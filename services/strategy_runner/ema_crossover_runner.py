@@ -44,12 +44,18 @@ _STRATEGY_ALIASES = {
     "breakout_donchian": "breakout_donchian",
     "donchian": "breakout_donchian",
     "momentum": "momentum",
+    "volatility_reversal": "volatility_reversal",
+    "gap_fill": "gap_fill",
+    "breakout_volume": "breakout_volume",
 }
 _DEFAULT_PRESET_BY_STRATEGY = {
     "ema_cross": "ema_cross_default",
     "mean_reversion_rsi": "mean_reversion_default",
     "breakout_donchian": "breakout_default",
     "momentum": "momentum_default",
+    "volatility_reversal": "volatility_reversal_default",
+    "gap_fill": "gap_fill_default",
+    "breakout_volume": "breakout_volume_default",
 }
 _EMA_FIELDS = (
     "ema_fast",
@@ -90,6 +96,40 @@ _MOMENTUM_FIELDS = (
     "sma_period",
     "rsi_period",
     "stop_below_sma",
+)
+
+_VOLATILITY_REVERSAL_FIELDS = (
+    "rsi_len",
+    "rsi_oversold",
+    "rsi_exit",
+    "sma_len",
+    "min_dump_bars",
+    "min_dump_pct",
+    "max_volatility_pct",
+    "min_volume_ratio",
+    "require_volume_spike",
+)
+
+_GAP_FILL_FIELDS = (
+    "rsi_len",
+    "rsi_buy",
+    "rsi_sell",
+    "sma_len",
+    "min_gap_pct",
+    "gap_fill_target_pct",
+    "min_volume_ratio",
+)
+
+_BREAKOUT_VOLUME_FIELDS = (
+    "donchian_len",
+    "sma_len",
+    "filter_window",
+    "min_volume_ratio",
+    "min_volatility_pct",
+    "min_trend_efficiency",
+    "breakout_buffer_pct",
+    "min_channel_width_pct",
+    "require_close_above",
 )
 
 def _now() -> str:
@@ -230,6 +270,21 @@ def _legacy_strategy_params(s: dict, strategy_name: str) -> dict:
         return params
     if strategy_name == "momentum":
         for field in _MOMENTUM_FIELDS:
+            if field in s:
+                params[field] = s.get(field)
+        return params
+    if strategy_name == "volatility_reversal":
+        for field in _VOLATILITY_REVERSAL_FIELDS:
+            if field in s:
+                params[field] = s.get(field)
+        return params
+    if strategy_name == "gap_fill":
+        for field in _GAP_FILL_FIELDS:
+            if field in s:
+                params[field] = s.get(field)
+        return params
+    if strategy_name == "breakout_volume":
+        for field in _BREAKOUT_VOLUME_FIELDS:
             if field in s:
                 params[field] = s.get(field)
         return params
@@ -438,7 +493,7 @@ def run_forever() -> None:
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued": enqueued})
                 break
             # Optional: choose best venue
-            if bool(cfg.get("auto_select_best_venue")):
+            if bool(cfg.get("auto_select_best_venue")) and symbols:
                 candidates = cfg.get("venue_candidates")
                 if not isinstance(candidates, list) or not candidates:
                     # fall back to preflight venues if present
@@ -449,14 +504,16 @@ def run_forever() -> None:
                 current_venue = normalize_venue(cfg["venue"])
                 cfg["venue"] = current_venue
 
+                probe_symbol = symbols[0]
+
                 if bool(cfg.get("switch_only_when_blocked", True)):
-                    g = mq_check(cfg["venue"], symbol)
+                    g = mq_check(cfg["venue"], probe_symbol)
                     if not g.get("ok"):
-                        bv = best_venue(candidates, symbol, require_ok=True)
+                        bv = best_venue(candidates, probe_symbol, require_ok=True)
                         if bv and bv.get("venue") and bv["venue"] != cfg["venue"]:
                             cfg["venue"] = str(bv["venue"])
                 else:
-                    bv = best_venue(candidates, symbol, require_ok=True)
+                    bv = best_venue(candidates, probe_symbol, require_ok=True)
                     if bv and bv.get("venue"):
                         cfg["venue"] = str(bv["venue"])
 
@@ -490,73 +547,73 @@ def run_forever() -> None:
 
                 timeframe = _public_ohlcv_timeframe(sym_cfg)
                 if timeframe:
-                    ohlcv = _fetch_public_ohlcv(sym_cfg)
-                if not ohlcv:
-                    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
-                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                    continue
-                prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
-                if loops % 5 == 0:
-                    sdb.set(k_prices, json.dumps(prices))
-                if len(ohlcv) < int(cfg["min_bars"]):
-                    _write_status(
-                        {
-                            "ok": True,
-                            "status": "running",
-                            "pid": os.getpid(),
-                            "ts": _now(),
-                            "mid": float(ohlcv[-1][4]),
-                            "bars": len(ohlcv),
-                            "note": "warming",
-                            "enqueued": enqueued,
-                            "strategy_id": cfg["strategy_id"],
-                            "strategy_source": cfg["signal_source"],
-                        }
+                    ohlcv = _fetch_public_ohlcv(sym_cfg) or []
+                    if not ohlcv:
+                        _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                        continue
+                    prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
+                    if loops % 5 == 0:
+                        sdb.set(k_prices, json.dumps(prices))
+                    if len(ohlcv) < int(cfg["min_bars"]):
+                        _write_status(
+                            {
+                                "ok": True,
+                                "status": "running",
+                                "pid": os.getpid(),
+                                "ts": _now(),
+                                "mid": float(ohlcv[-1][4]),
+                                "bars": len(ohlcv),
+                                "note": "warming",
+                                "enqueued": enqueued,
+                                "strategy_id": cfg["strategy_id"],
+                                "strategy_source": cfg["signal_source"],
+                            }
+                        )
+                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                        continue
+                    ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
+                    m = float(ohlcv[-1][4])
+                    signal = compute_signal(
+                        cfg={"strategy": dict(cfg.get("strategy") or {})},
+                        symbol=symbol,
+                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
-                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                    continue
-                ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
-                m = float(ohlcv[-1][4])
-                signal = compute_signal(
-                    cfg={"strategy": dict(cfg.get("strategy") or {})},
-                    symbol=symbol,
-                    ohlcv=ohlcv[-int(cfg["min_bars"]):],
-                )
-                bars = len(ohlcv)
-            else:
-                tick = _fetch_mid(sym_cfg)
-                if not tick:
-                    _write_status(
-                        {
-                            "ok": True,
-                            "status": "running",
-                            "pid": os.getpid(),
-                            "ts": _now(),
-                            "note": _no_fresh_tick_note(),
-                            "loops": loops,
-                            "enqueued": enqueued,
-                        }
-                    )
-                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                    continue
-                m, ts_ms = tick
-                prices.append(float(m))
-                if len(prices) > int(cfg["max_bars"]):
-                    prices = prices[-int(cfg["max_bars"]):]
-                if loops % 5 == 0:
-                    sdb.set(k_prices, json.dumps(prices))
-                if len(prices) < int(cfg["min_bars"]):
-                    _write_status(
-                        {
-                            "ok": True,
-                            "status": "running",
-                            "pid": os.getpid(),
-                            "ts": _now(),
-                            "mid": m,
-                            "bars": len(prices),
-                            "note": "warming",
-                            "enqueued": enqueued,
-                            "strategy_id": cfg["strategy_id"],
+                    bars = len(ohlcv)
+                else:
+                    tick = _fetch_mid(sym_cfg)
+                    if not tick:
+                        _write_status(
+                            {
+                                "ok": True,
+                                "status": "running",
+                                "pid": os.getpid(),
+                                "ts": _now(),
+                                "note": _no_fresh_tick_note(),
+                                "loops": loops,
+                                "enqueued": enqueued,
+                            }
+                        )
+                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                        continue
+                    m, ts_ms = tick
+                    prices.append(float(m))
+                    if len(prices) > int(cfg["max_bars"]):
+                        prices = prices[-int(cfg["max_bars"]):]
+                    if loops % 5 == 0:
+                        sdb.set(k_prices, json.dumps(prices))
+                    if len(prices) < int(cfg["min_bars"]):
+                        _write_status(
+                            {
+                                "ok": True,
+                                "status": "running",
+                                "pid": os.getpid(),
+                                "ts": _now(),
+                                "mid": m,
+                                "bars": len(prices),
+                                "note": "warming",
+                                "enqueued": enqueued,
+                                "strategy_id": cfg["strategy_id"],
                             "strategy_source": cfg["signal_source"],
                         }
                     )
@@ -736,7 +793,6 @@ def run_forever() -> None:
                 "signal_reason": signal.get("reason") if 'signal' in locals() and isinstance(signal, dict) else None,
                 "symbols": symbols,
                 "symbol": symbol,
-                "symbols": symbols,
                 "signal_ok": bool(signal.get("ok", False)) if 'signal' in locals() and isinstance(signal, dict) else None,
                 "signal_changed": bool(changed) if 'changed' in locals() else None,
                 "signal_indicators": signal.get("ind") if 'signal' in locals() and isinstance(signal, dict) else None,
