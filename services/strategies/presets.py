@@ -22,6 +22,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "ema_cross",
@@ -51,6 +54,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "mean_reversion_rsi",
@@ -83,6 +89,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "breakout_donchian",
@@ -113,6 +122,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "momentum",
@@ -141,6 +153,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "volatility_reversal",
@@ -169,6 +184,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "gap_fill",
@@ -196,6 +214,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "breakout_volume",
@@ -224,6 +245,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "funding_extreme",
@@ -247,6 +271,9 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_consecutive_losing_exits": 3,
             "max_strategy_drawdown_pct": 10.0,
             "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
         },
         "strategy": {
             "name": "open_interest_shift",
