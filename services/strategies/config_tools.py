@@ -7,9 +7,10 @@ from services.strategies.presets import apply_preset
 from services.strategies.validation import validate_strategy_config
 
 
-_SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian"}
+_SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum"}
 _INT_FIELDS = {
     "ema_cross": ("ema_fast", "ema_slow", "filter_window"),
+    "momentum": ("min_change_pct", "max_rsi_entry", "rsi_exit", "sma_period", "rsi_period"),
     "mean_reversion_rsi": ("rsi_len", "sma_len", "filter_window"),
     "breakout_donchian": ("donchian_len", "filter_window"),
 }
@@ -20,6 +21,7 @@ _FLOAT_FIELDS = {
 }
 _BOOL_FIELDS = {
     "ema_cross": (),
+    "momentum": (),
     "mean_reversion_rsi": ("require_reversal_confirmation",),
     "breakout_donchian": ("require_directional_confirmation",),
 }

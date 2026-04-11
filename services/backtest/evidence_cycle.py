@@ -111,7 +111,7 @@ def _normalize_strategy_name(value: Any) -> str | None:
     text = str(value or "").strip().lower()
     if not text:
         return None
-    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian"}:
+    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum"}:
         return text
     if "ema" in text and ("cross" in text or "xover" in text or "crossover" in text):
         return "ema_cross"
