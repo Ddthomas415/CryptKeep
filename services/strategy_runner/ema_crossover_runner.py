@@ -43,11 +43,13 @@ _STRATEGY_ALIASES = {
     "breakout": "breakout_donchian",
     "breakout_donchian": "breakout_donchian",
     "donchian": "breakout_donchian",
+    "momentum": "momentum",
 }
 _DEFAULT_PRESET_BY_STRATEGY = {
     "ema_cross": "ema_cross_default",
     "mean_reversion_rsi": "mean_reversion_default",
     "breakout_donchian": "breakout_default",
+    "momentum": "momentum_default",
 }
 _EMA_FIELDS = (
     "ema_fast",
@@ -79,6 +81,15 @@ _BREAKOUT_FIELDS = (
     "min_channel_width_pct",
     "breakout_buffer_pct",
     "require_directional_confirmation",
+)
+
+_MOMENTUM_FIELDS = (
+    "min_change_pct",
+    "max_rsi_entry",
+    "rsi_exit",
+    "sma_period",
+    "rsi_period",
+    "stop_below_sma",
 )
 
 def _now() -> str:
@@ -214,6 +225,11 @@ def _legacy_strategy_params(s: dict, strategy_name: str) -> dict:
         return params
     if strategy_name == "breakout_donchian":
         for field in _BREAKOUT_FIELDS:
+            if field in s:
+                params[field] = s.get(field)
+        return params
+    if strategy_name == "momentum":
+        for field in _MOMENTUM_FIELDS:
             if field in s:
                 params[field] = s.get(field)
         return params
