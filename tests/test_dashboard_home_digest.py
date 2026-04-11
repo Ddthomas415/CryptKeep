@@ -354,6 +354,14 @@ def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> No
                     "evidence_status": "paper_supported",
                     "confidence_label": "medium",
                     "evidence_note": "Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.",
+                    "strategy_feedback": {
+                        "summary_text": "18 closed trade(s), +54.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate.",
+                    },
+                    "feedback_weighting": {
+                        "status": "boost",
+                        "adjustment": 0.045,
+                        "summary": "Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost.",
+                    },
                 }
             ],
             "decisions": [
@@ -405,6 +413,8 @@ def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> No
 
     assert payload["leaderboard_summary"]["source_name"] == home_digest.DIGEST_SOURCE_MAP["leaderboard_summary_artifact"]
     assert payload["leaderboard_summary"]["rows"][0]["recommendation"] == "keep"
+    assert "18 closed trade(s), +54.00 net realized PnL" in payload["leaderboard_summary"]["rows"][0]["caveat"]
+    assert "research leaderboard applies a small boost" in payload["leaderboard_summary"]["rows"][0]["caveat"]
     assert payload["runtime_truth"]["leaderboard_age"]["value"] == "15m old"
     assert any("execution.live_enabled remains false" in item for item in payload["mode_truth"]["promotion_blockers"])
     assert not any(item["title"] == "Persisted strategy evidence is unavailable" for item in payload["attention_now"]["items"])

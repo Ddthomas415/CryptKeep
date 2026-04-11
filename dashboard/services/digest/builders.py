@@ -245,6 +245,16 @@ def _evidence_note_for_row(row: dict[str, Any]) -> str:
     return ""
 
 
+def _strategy_feedback_note_for_row(row: dict[str, Any]) -> str:
+    feedback = dict(row.get("strategy_feedback") or {})
+    return str(feedback.get("summary_text") or "").strip()
+
+
+def _feedback_weighting_note_for_row(row: dict[str, Any]) -> str:
+    weighting = dict(row.get("feedback_weighting") or {})
+    return str(weighting.get("summary") or "").strip()
+
+
 def _top_row_research_acceptance_blockers(row: dict[str, Any]) -> list[str]:
     paper_history = dict(row.get("paper_history") or {})
     evidence_status = str(row.get("evidence_status") or "").strip().lower()
@@ -755,7 +765,16 @@ def build_leaderboard_summary_digest(*, as_of: str, strategy_context: dict[str, 
     rows: list[LeaderboardStrategyRow] = []
     for raw in raw_rows[:5]:
         best_regime, worst_regime = _regime_extremes(raw)
-        row_caveat_parts = [part for part in (_evidence_note_for_row(raw), caveat) if part]
+        row_caveat_parts = [
+            part
+            for part in (
+                _evidence_note_for_row(raw),
+                _strategy_feedback_note_for_row(raw),
+                _feedback_weighting_note_for_row(raw),
+                caveat,
+            )
+            if part
+        ]
         rows.append(
             {
                 "strategy_id": str(raw.get("strategy") or raw.get("candidate") or "unknown"),

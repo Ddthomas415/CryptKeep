@@ -31,9 +31,13 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 - Upstream sources:
   - `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/strategy_evaluation.py`
   - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/leaderboard.py`
+- Persisted-artifact row metadata may also include:
+  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/evidence_cycle.py` row-level `strategy_feedback`
+  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/evidence_cycle.py` row-level `feedback_weighting`
 - Notes:
   - Current leaderboard is synthetic and built on demand from preset candidates.
   - The digest does not persist leaderboard history yet.
+  - When persisted strategy evidence exists, row caveats may include research-only paper-feedback and feedback-weighting summaries to explain why the ranking moved.
 
 ### Scorecard Snapshot
 - Builder: `build_scorecard_snapshot_digest(...)`
