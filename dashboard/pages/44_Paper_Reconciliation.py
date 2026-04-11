@@ -9,12 +9,14 @@ AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 
 st.title("Paper Reconciliation")
-st.caption("Apply queued execution-plan intents into paper positions and mark intents filled.")
+st.caption("Apply queued execution-plan intents into paper positions and mark intents filled. Uses live market prices when available, otherwise falls back to the default fill price.")
 
-col0, col1 = st.columns([1, 1])
+col0, col1, col2 = st.columns([1, 1, 1])
 with col0:
-    default_fill_price = st.number_input("Default fill price", min_value=0.01, value=100.0, step=1.0)
+    venue = st.selectbox("Venue", ["coinbase", "kraken"], index=0)
 with col1:
+    default_fill_price = st.number_input("Default fill price", min_value=0.01, value=100.0, step=1.0)
+with col2:
     run_now = st.button("Run Reconciliation", width="stretch")
 
 if "paper_recon_result" not in st.session_state:
@@ -24,6 +26,7 @@ if run_now:
     with st.spinner("Reconciling queued intents..."):
         st.session_state["paper_recon_result"] = reconcile_execution_plan_intents(
             default_fill_price=float(default_fill_price),
+            venue=str(venue),
         )
 
 result = st.session_state.get("paper_recon_result")

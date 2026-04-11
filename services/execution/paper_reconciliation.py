@@ -3,6 +3,11 @@ from __future__ import annotations
 import time
 from typing import Any
 
+try:
+    import ccxt
+except Exception:
+    ccxt = None
+
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 
@@ -16,6 +21,41 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
 
 def _norm_symbol(v: Any) -> str:
     return str(v or "").strip().upper()
+
+
+
+
+def _build_price_map(*, symbols: list[str], venue: str = "coinbase") -> dict[str, float]:
+    out: dict[str, float] = {}
+    if ccxt is None:
+        return out
+
+    ex_cls = getattr(ccxt, venue, None)
+    if ex_cls is None:
+        return out
+
+    ex = ex_cls({"enableRateLimit": True})
+    try:
+        for symbol in symbols:
+            sym = _norm_symbol(symbol)
+            if not sym:
+                continue
+            try:
+                ticker = ex.fetch_ticker(sym)
+                px = _safe_float(ticker.get("last"), 0.0)
+                if px <= 0:
+                    px = _safe_float(ticker.get("bid"), 0.0) or _safe_float(ticker.get("ask"), 0.0)
+                if px > 0:
+                    out[sym] = px
+            except Exception:
+                continue
+    finally:
+        try:
+            ex.close()
+        except Exception:
+            pass
+
+    return out
 
 
 def _list_open_intents(qdb: Any) -> list[dict[str, Any]]:
@@ -95,6 +135,7 @@ def reconcile_execution_plan_intents(
     *,
     fill_price_map: dict[str, float] | None = None,
     default_fill_price: float = 100.0,
+    venue: str = "coinbase",
 ) -> dict[str, Any]:
     qdb = IntentQueueSQLite()
     pdb = PaperTradingSQLite()
@@ -102,6 +143,9 @@ def reconcile_execution_plan_intents(
     open_intents = _list_open_intents(qdb)
     positions = _list_positions(pdb)
     fill_price_map = dict(fill_price_map or {})
+
+    all_symbols = [_norm_symbol(r.get("symbol")) for r in open_intents if _norm_symbol(r.get("symbol"))]
+    live_price_map = _build_price_map(symbols=all_symbols, venue=venue)
 
     filled: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
@@ -120,7 +164,11 @@ def reconcile_execution_plan_intents(
             skipped.append({**row, "skip_reason": "invalid_intent"})
             continue
 
-        fill_price = _safe_float(fill_price_map.get(symbol), default_fill_price)
+        fill_price = _safe_float(fill_price_map.get(symbol), 0.0)
+        if fill_price <= 0:
+            fill_price = _safe_float(live_price_map.get(symbol), 0.0)
+        if fill_price <= 0:
+            fill_price = default_fill_price
         if fill_price <= 0:
             skipped.append({**row, "skip_reason": "invalid_fill_price"})
             continue
