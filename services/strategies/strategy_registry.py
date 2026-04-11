@@ -9,6 +9,7 @@ SUPPORTED = {
     "ema_cross": ema_cross,
     "mean_reversion_rsi": mean_rev_rsi,
     "breakout_donchian": breakout_donchian,
+    "momentum": momentum_compute_signal,
 }
 
 def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
