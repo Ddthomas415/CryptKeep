@@ -13,6 +13,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_total_exposure_pct": 80.0,
             "max_strategy_exposure_pct": 50.0,
             "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
         },
         "strategy": {
             "name": "ema_cross",
@@ -33,6 +35,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_total_exposure_pct": 80.0,
             "max_strategy_exposure_pct": 50.0,
             "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
         },
         "strategy": {
             "name": "mean_reversion_rsi",
@@ -56,6 +60,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_total_exposure_pct": 80.0,
             "max_strategy_exposure_pct": 50.0,
             "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
         },
         "strategy": {
             "name": "breakout_donchian",
@@ -77,6 +83,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_total_exposure_pct": 80.0,
             "max_strategy_exposure_pct": 50.0,
             "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
         },
         "strategy": {
             "name": "momentum",
@@ -96,6 +104,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_total_exposure_pct": 80.0,
             "max_strategy_exposure_pct": 50.0,
             "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
         },
         "strategy": {
             "name": "volatility_reversal",
@@ -115,6 +125,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_total_exposure_pct": 80.0,
             "max_strategy_exposure_pct": 50.0,
             "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
         },
         "strategy": {
             "name": "gap_fill",
@@ -133,6 +145,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "max_total_exposure_pct": 80.0,
             "max_strategy_exposure_pct": 50.0,
             "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
         },
         "strategy": {
             "name": "breakout_volume",

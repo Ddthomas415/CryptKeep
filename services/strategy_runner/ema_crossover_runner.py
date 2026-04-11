@@ -21,6 +21,7 @@ from services.strategies.config_tools import build_strategy_block
 from services.strategies.presets import get_preset
 from services.strategies.strategy_registry import compute_signal
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
+from services.risk.kill_conditions import build_kill_limits, should_block_symbol, evaluate_risk_block_kill
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
@@ -471,6 +472,7 @@ def run_forever() -> None:
     pdb = PaperTradingSQLite()
     sdb = StrategyStateSQLite()
     risk_limits = build_risk_limits(cfg)
+    kill_limits = build_kill_limits(cfg)
 
     # Breakout/post-entry exit defaults.
     # These are runner-level controls and should be explicitly versioned in strategy config
@@ -527,6 +529,8 @@ def run_forever() -> None:
                 k_entry_price = f"entry_price:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_trailing_peak = f"trailing_peak:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_bars_held = f"bars_held:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_kill_until = f"kill_until:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_risk_block_count = f"risk_block_count:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
 
                 try:
                     prices = json.loads(sdb.get(k_prices) or "[]")
@@ -751,6 +755,26 @@ def run_forever() -> None:
                 elif decision == "sell":
                     if (not cfg["position_aware"]) or (pos_qty > 0.0):
                         action = "sell"
+            kill_until_loop = int(str(sdb.get(k_kill_until) or "0").strip() or 0)
+            kill_gate = should_block_symbol(loops=loops, kill_until_loop=kill_until_loop)
+            if not bool(kill_gate.get("ok")):
+                _write_status(
+                    {
+                        "ok": True,
+                        "status": "running",
+                        "pid": os.getpid(),
+                        "ts": _now(),
+                        "venue": cfg["venue"],
+                        "symbol": symbol,
+                        "symbols": symbols,
+                        "strategy_id": cfg.get("strategy_id"),
+                        "note": "kill_cooldown",
+                        "kill_reason": kill_gate.get("reason"),
+                        "kill_remaining_loops": kill_gate.get("remaining_loops"),
+                    }
+                )
+                continue
+
             if action and action == last_emitted_action:
                 action = None
             if action:
@@ -769,24 +793,59 @@ def run_forever() -> None:
                         open_intents_for_symbol=0,
                     )
                     if not bool(risk_check.get("ok")):
-                        _write_status(
-                            {
-                                "ok": True,
-                                "status": "running",
-                                "pid": os.getpid(),
-                                "ts": _now(),
-                                "venue": cfg["venue"],
-                                "symbol": symbol,
-                                "symbols": symbols,
-                                "strategy_id": cfg.get("strategy_id"),
-                                "signal_action": action,
-                                "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                                "risk_reason": risk_check.get("reason"),
-                                "risk_exposure": exposure,
-                                "note": "risk_blocked_entry",
-                            }
+                        risk_block_count = int(str(sdb.get(k_risk_block_count) or "0").strip() or 0) + 1
+                        sdb.set(k_risk_block_count, str(risk_block_count))
+
+                        kill_eval = evaluate_risk_block_kill(
+                            loops=loops,
+                            consecutive_risk_blocks=risk_block_count,
+                            limits=kill_limits,
                         )
+                        if bool(kill_eval.get("triggered")):
+                            sdb.set(k_kill_until, str(int(kill_eval.get("kill_until_loop", 0))))
+                            _write_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "venue": cfg["venue"],
+                                    "symbol": symbol,
+                                    "symbols": symbols,
+                                    "strategy_id": cfg.get("strategy_id"),
+                                    "signal_action": action,
+                                    "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                    "risk_reason": risk_check.get("reason"),
+                                    "risk_exposure": exposure,
+                                    "risk_block_count": risk_block_count,
+                                    "kill_reason": kill_eval.get("reason"),
+                                    "kill_until_loop": kill_eval.get("kill_until_loop"),
+                                    "note": "kill_triggered_risk_blocks",
+                                }
+                            )
+                        else:
+                            _write_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "venue": cfg["venue"],
+                                    "symbol": symbol,
+                                    "symbols": symbols,
+                                    "strategy_id": cfg.get("strategy_id"),
+                                    "signal_action": action,
+                                    "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                    "risk_reason": risk_check.get("reason"),
+                                    "risk_exposure": exposure,
+                                    "risk_block_count": risk_block_count,
+                                    "note": "risk_blocked_entry",
+                                }
+                            )
                         continue
+
+                    sdb.set(k_risk_block_count, "0")
+                    sdb.set(k_kill_until, "0")
                     sdb.set(k_entry_price, str(float(m)))
                     sdb.set(k_trailing_peak, str(float(m)))
                     sdb.set(k_bars_held, "0")
