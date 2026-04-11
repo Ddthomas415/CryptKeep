@@ -5,6 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from services.backtest.selector_backtest import backtest_selector_comparison
 from services.market_data.ranking_presets import RANKING_PRESETS, merge_ranking_config
+from services.backtest.selector_run_store import append_selector_run, load_selector_runs, summarize_selector_runs
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
@@ -28,8 +29,12 @@ with col5:
 with col6:
     run_now = st.button("Run Selector Backtest", width="stretch")
 
+run_label = st.text_input("Run label", value="")
+
 if "selector_backtest_result" not in st.session_state:
     st.session_state["selector_backtest_result"] = None
+if "selector_run_saved" not in st.session_state:
+    st.session_state["selector_run_saved"] = None
 
 if run_now:
     with st.spinner("Comparing selectors..."):
@@ -43,6 +48,12 @@ if run_now:
             ranking_config=ranking_config,
             timeframe=timeframe,
             forward_bars=forward_bars,
+        )
+        st.session_state["selector_run_saved"] = append_selector_run(
+            result=st.session_state["selector_backtest_result"],
+            label=(run_label or preset_name),
+            ranking_config=ranking_config,
+            preset_name=preset_name,
         )
 
 result = st.session_state.get("selector_backtest_result")
@@ -106,3 +117,8 @@ for w in (result.get("multi_window") or []):
         "delta_total_return_pct": d.get("total_return_pct"),
     })
 st.dataframe(mw_rows, use_container_width=True)
+
+
+st.subheader("Saved Selector Runs")
+saved_runs = load_selector_runs(limit=100)
+st.dataframe(summarize_selector_runs(saved_runs), use_container_width=True)
