@@ -74,3 +74,24 @@ st.dataframe(baseline.get("rows", []), use_container_width=True)
 
 st.subheader("Composite Rows")
 st.dataframe(composite.get("rows", []), use_container_width=True)
+
+st.subheader("Multi-Window Comparison")
+mw_rows = []
+for w in (result.get("multi_window") or []):
+    b = dict(w.get("baseline_summary") or {})
+    c = dict(w.get("composite_summary") or {})
+    d = dict(w.get("delta") or {})
+    mw_rows.append({
+        "timeframe": w.get("timeframe"),
+        "forward_bars": w.get("forward_bars"),
+        "baseline_avg_return_pct": b.get("avg_return_pct"),
+        "composite_avg_return_pct": c.get("avg_return_pct"),
+        "delta_avg_return_pct": d.get("avg_return_pct"),
+        "baseline_hit_rate": b.get("hit_rate"),
+        "composite_hit_rate": c.get("hit_rate"),
+        "delta_hit_rate": d.get("hit_rate"),
+        "baseline_total_return_pct": b.get("total_return_pct"),
+        "composite_total_return_pct": c.get("total_return_pct"),
+        "delta_total_return_pct": d.get("total_return_pct"),
+    })
+st.dataframe(mw_rows, use_container_width=True)

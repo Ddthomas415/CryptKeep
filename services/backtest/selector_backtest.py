@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 from typing import Any
@@ -78,6 +79,54 @@ def _summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _compare_window(
+    *,
+    venue: str,
+    baseline_rows: list[dict[str, Any]],
+    composite_rows: list[dict[str, Any]],
+    timeframe: str,
+    forward_bars: int,
+) -> dict[str, Any]:
+    composite_eval = _attach_forward_returns(
+        rows=composite_rows,
+        venue=venue,
+        timeframe=timeframe,
+        forward_bars=forward_bars,
+    )
+    baseline_eval = _attach_forward_returns(
+        rows=baseline_rows,
+        venue=venue,
+        timeframe=timeframe,
+        forward_bars=forward_bars,
+    )
+
+    composite_summary = _summarize(composite_eval)
+    baseline_summary = _summarize(baseline_eval)
+
+    return {
+        "timeframe": timeframe,
+        "forward_bars": forward_bars,
+        "baseline_summary": baseline_summary,
+        "composite_summary": composite_summary,
+        "delta": {
+            "avg_return_pct": round(
+                _safe_float(composite_summary.get("avg_return_pct")) - _safe_float(baseline_summary.get("avg_return_pct")),
+                4,
+            ),
+            "hit_rate": round(
+                _safe_float(composite_summary.get("hit_rate")) - _safe_float(baseline_summary.get("hit_rate")),
+                4,
+            ),
+            "total_return_pct": round(
+                _safe_float(composite_summary.get("total_return_pct")) - _safe_float(baseline_summary.get("total_return_pct")),
+                4,
+            ),
+        },
+        "baseline_rows": baseline_eval,
+        "composite_rows": composite_eval,
+    }
+
+
 def backtest_selector_comparison(
     *,
     venue: str = "coinbase",
@@ -86,6 +135,7 @@ def backtest_selector_comparison(
     ranking_config: dict[str, Any] | None = None,
     timeframe: str = "1h",
     forward_bars: int = 1,
+    multi_windows: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     composite = build_rotation_candidates(
         venue=venue,
@@ -122,21 +172,30 @@ def backtest_selector_comparison(
     composite_rows = list(composite.get("selected_rows") or [])
     baseline_rows = list(baseline.get("rows") or [])[:top_n]
 
-    composite_rows = _attach_forward_returns(
-        rows=composite_rows,
+    primary = _compare_window(
         venue=venue,
-        timeframe=timeframe,
-        forward_bars=forward_bars,
-    )
-    baseline_rows = _attach_forward_returns(
-        rows=baseline_rows,
-        venue=venue,
+        baseline_rows=baseline_rows,
+        composite_rows=composite_rows,
         timeframe=timeframe,
         forward_bars=forward_bars,
     )
 
-    composite_summary = _summarize(composite_rows)
-    baseline_summary = _summarize(baseline_rows)
+    windows = list(multi_windows or [
+        {"timeframe": "1h", "forward_bars": 1},
+        {"timeframe": "1h", "forward_bars": 4},
+        {"timeframe": "1h", "forward_bars": 24},
+    ])
+
+    multi_window = [
+        _compare_window(
+            venue=venue,
+            baseline_rows=baseline_rows,
+            composite_rows=composite_rows,
+            timeframe=str(w.get("timeframe") or "1h"),
+            forward_bars=int(w.get("forward_bars") or 1),
+        )
+        for w in windows
+    ]
 
     return {
         "ok": True,
@@ -147,27 +206,15 @@ def backtest_selector_comparison(
         "baseline": {
             "name": "hot_score_baseline",
             "symbols": [str(r.get("symbol") or "") for r in baseline_rows],
-            "summary": baseline_summary,
-            "rows": baseline_rows,
+            "summary": primary["baseline_summary"],
+            "rows": primary["baseline_rows"],
         },
         "composite": {
             "name": "composite_ranker",
             "symbols": [str(r.get("symbol") or "") for r in composite_rows],
-            "summary": composite_summary,
-            "rows": composite_rows,
+            "summary": primary["composite_summary"],
+            "rows": primary["composite_rows"],
         },
-        "delta": {
-            "avg_return_pct": round(
-                _safe_float(composite_summary.get("avg_return_pct")) - _safe_float(baseline_summary.get("avg_return_pct")),
-                4,
-            ),
-            "hit_rate": round(
-                _safe_float(composite_summary.get("hit_rate")) - _safe_float(baseline_summary.get("hit_rate")),
-                4,
-            ),
-            "total_return_pct": round(
-                _safe_float(composite_summary.get("total_return_pct")) - _safe_float(baseline_summary.get("total_return_pct")),
-                4,
-            ),
-        },
+        "delta": primary["delta"],
+        "multi_window": multi_window,
     }
