@@ -5,7 +5,8 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from services.market_data.rotation_engine import build_rotation_candidates
 from services.risk.allocation_engine import build_allocation_limits, allocate_budget
-from services.risk.execution_planner import build_execution_plan
+from services.risk.execution_planner import build_execution_plan, summarize_current_allocations
+from storage.paper_trading_sqlite import PaperTradingSQLite
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
@@ -35,8 +36,21 @@ if run_now:
             correlation_matrix=((rotation.get("correlation") or {}).get("matrix") or {}),
         )
 
-        # dashboard scaffold: assume no current positions yet
-        current_allocations = {}
+        pdb = PaperTradingSQLite()
+        positions = []
+        try:
+            if hasattr(pdb, "list_positions"):
+                positions = list(pdb.list_positions() or [])
+            elif hasattr(pdb, "get_all_positions"):
+                positions = list(pdb.get_all_positions() or [])
+            elif hasattr(pdb, "positions"):
+                positions = list(pdb.positions() or [])
+        except Exception:
+            positions = []
+
+        current_allocations = summarize_current_allocations(
+            positions=positions,
+        )
 
         plan = build_execution_plan(
             target_rows=list(allocation.get("rows") or []),
@@ -64,6 +78,16 @@ c0.metric("Targets", len(allocation.get("rows") or []))
 c1.metric("Buys", len(plan.get("buys") or []))
 c2.metric("Sells", len(plan.get("sells") or []))
 c3.metric("Holds", len(plan.get("holds") or []))
+
+current_allocations = {}
+for row in plan.get("rows") or []:
+    sym = str(row.get("symbol") or "").strip()
+    cur = float(row.get("current_alloc_pct") or 0.0)
+    if sym and cur > 0:
+        current_allocations[sym] = cur
+
+st.subheader("Current Allocations")
+st.write(current_allocations)
 
 st.subheader("Execution Plan")
 st.dataframe(plan.get("rows", []), use_container_width=True)
