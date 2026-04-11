@@ -48,7 +48,7 @@ if run_now:
         })
 
         alloc = allocate_budget(
-            ranked_rows=list(rotation.get("rows") or []),
+            ranked_rows=list(rotation.get("selected_rows") or rotation.get("rows") or []),
             limits=limits,
             top_n=top_n,
             correlation_matrix=(corr.get("matrix") or {}),
