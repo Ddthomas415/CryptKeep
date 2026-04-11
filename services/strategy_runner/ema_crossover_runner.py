@@ -22,6 +22,7 @@ from services.strategies.presets import get_preset
 from services.strategies.strategy_registry import compute_signal
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
 from services.risk.kill_conditions import build_kill_limits, should_block_symbol, evaluate_risk_block_kill
+from services.risk.position_scaling import build_scaling_limits, summarize_position_for_scaling, evaluate_scale_in
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
@@ -473,6 +474,7 @@ def run_forever() -> None:
     sdb = StrategyStateSQLite()
     risk_limits = build_risk_limits(cfg)
     kill_limits = build_kill_limits(cfg)
+    scaling_limits = build_scaling_limits(cfg)
 
     # Breakout/post-entry exit defaults.
     # These are runner-level controls and should be explicitly versioned in strategy config
@@ -531,6 +533,7 @@ def run_forever() -> None:
                 k_bars_held = f"bars_held:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_kill_until = f"kill_until:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_risk_block_count = f"risk_block_count:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_scale_count = f"scale_count:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
 
                 try:
                     prices = json.loads(sdb.get(k_prices) or "[]")
@@ -647,6 +650,7 @@ def run_forever() -> None:
                     sdb.set(k_last_action, decision)
             action = None
             pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
+            scale_count = int(str(sdb.get(k_scale_count) or "0").strip() or 0)
 
             all_positions = []
             try:
@@ -785,6 +789,33 @@ def run_forever() -> None:
 
                 # Keep exit-state in sync with newly emitted intents.
                 if action == "buy":
+                    position_summary = summarize_position_for_scaling(pos, float(m))
+                    scale_check = evaluate_scale_in(
+                        position_summary=position_summary,
+                        adds_used=scale_count,
+                        limits=scaling_limits,
+                    )
+                    if bool(scale_check.get("is_scale")) and not bool(scale_check.get("ok")):
+                        _write_status(
+                            {
+                                "ok": True,
+                                "status": "running",
+                                "pid": os.getpid(),
+                                "ts": _now(),
+                                "venue": cfg["venue"],
+                                "symbol": symbol,
+                                "symbols": symbols,
+                                "strategy_id": cfg.get("strategy_id"),
+                                "signal_action": action,
+                                "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                "scale_reason": scale_check.get("reason"),
+                                "scale_count": scale_count,
+                                "position_summary": position_summary,
+                                "note": "scale_blocked_entry",
+                            }
+                        )
+                        continue
+
                     risk_check = evaluate_entry(
                         symbol=symbol,
                         strategy_name=str(cfg.get("strategy_id") or ""),
@@ -846,6 +877,8 @@ def run_forever() -> None:
 
                     sdb.set(k_risk_block_count, "0")
                     sdb.set(k_kill_until, "0")
+                    if bool(position_summary.get("has_position")):
+                        sdb.set(k_scale_count, str(scale_count + 1))
                     sdb.set(k_entry_price, str(float(m)))
                     sdb.set(k_trailing_peak, str(float(m)))
                     sdb.set(k_bars_held, "0")
