@@ -987,6 +987,14 @@ def run_forever() -> None:
                     "last_error": None,
                     "client_order_id": None,
                     "linked_order_id": None,
+                    "meta": {
+                        "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                        "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
+                        "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
+                        "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
+                        "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
+                        "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                    },
                 })
                 enqueued += 1
                 last_emitted_action = action
