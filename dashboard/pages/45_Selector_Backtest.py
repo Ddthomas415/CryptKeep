@@ -5,7 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from services.backtest.selector_backtest import backtest_selector_comparison
 from services.market_data.ranking_presets import RANKING_PRESETS, merge_ranking_config
-from services.backtest.selector_run_store import append_selector_run, load_selector_runs, summarize_selector_runs
+from services.backtest.selector_run_store import append_selector_run, load_selector_runs, summarize_selector_runs, summarize_selector_runs_by_preset
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
@@ -119,6 +119,9 @@ for w in (result.get("multi_window") or []):
 st.dataframe(mw_rows, use_container_width=True)
 
 
-st.subheader("Saved Selector Runs")
+st.subheader("Preset Summary")
 saved_runs = load_selector_runs(limit=100)
+st.dataframe(summarize_selector_runs_by_preset(saved_runs), use_container_width=True)
+
+st.subheader("Saved Selector Runs")
 st.dataframe(summarize_selector_runs(saved_runs), use_container_width=True)
