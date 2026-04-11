@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import json
 import os
 import time
@@ -8,6 +9,7 @@ from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
 from services.execution.live_arming import live_enabled_and_armed, live_risk_cfg
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
+from services.live_router.router import decide_order
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
 from services.risk.staleness_guard import is_snapshot_fresh
@@ -124,15 +126,56 @@ def run_forever() -> None:
                     continue
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
                 qdb.update_status(it["intent_id"], "queued", client_order_id=client_order_id)
+
+                meta = dict(it.get("meta") or {})
+                ai_context = {
+                    "regime": meta.get("regime"),
+                    "volume_surge": meta.get("volume_surge"),
+                    "volume_ratio": meta.get("volume_ratio"),
+                    "selected_strategy": meta.get("selected_strategy"),
+                    "selected_strategy_reason": meta.get("selected_strategy_reason"),
+                    "candidate_scores": meta.get("candidate_scores"),
+                    "signal_reason": meta.get("signal_reason"),
+                }
+
+                decision = asyncio.run(
+                    decide_order(
+                        venue=venue,
+                        symbol_norm=symbol,
+                        delta_qty=(float(it["qty"]) if str(it["side"]).lower() == "buy" else -float(it["qty"])),
+                        overrides={
+                            "reference_price": float(it.get("limit_price") or (mq.get("last") or 0.0) or 0.0),
+                            "ai_context": ai_context,
+                        },
+                    )
+                )
+
+                if not bool(decision.allowed):
+                    qdb.update_status(it["intent_id"], "rejected", last_error=f"router:{decision.reason}", client_order_id=client_order_id)
+                    ldb.upsert_order({
+                        "client_order_id": client_order_id,
+                        "venue": venue,
+                        "symbol": symbol,
+                        "side": it["side"],
+                        "order_type": it["order_type"],
+                        "qty": float(it["qty"]),
+                        "limit_price": it.get("limit_price"),
+                        "exchange_order_id": None,
+                        "status": "rejected",
+                        "last_error": f"router:{decision.reason}",
+                    })
+                    rejected += 1
+                    continue
+
                 ad = None
                 try:
                     ad = LiveExchangeAdapter(venue)
                     resp = ad.submit_order(
                         canonical_symbol=symbol,
-                        side=it["side"],
-                        order_type=it["order_type"],
-                        qty=float(it["qty"]),
-                        limit_price=(float(it["limit_price"]) if it.get("limit_price") is not None else None),
+                        side=decision.side,
+                        order_type=decision.order_type,
+                        qty=float(decision.qty),
+                        limit_price=decision.limit_price,
                         client_order_id=client_order_id,
                     )
                     ex_oid = str(resp.get("id") or resp.get("orderId") or "")
