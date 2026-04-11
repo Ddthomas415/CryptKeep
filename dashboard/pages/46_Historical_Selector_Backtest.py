@@ -73,6 +73,7 @@ for anchor in (result.get("anchors") or [])[:10]:
             "anchor_idx": anchor.get("anchor_idx"),
             "symbol": item.get("symbol"),
             "score": item.get("score"),
+            "regime": item.get("regime"),
             "ret_1": (item.get("features") or {}).get("ret_1"),
             "ret_4": (item.get("features") or {}).get("ret_4"),
             "ret_24": (item.get("features") or {}).get("ret_24"),

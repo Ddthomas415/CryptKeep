@@ -6,6 +6,7 @@ from typing import Any
 
 from dashboard.services.view_data import _load_local_ohlcv
 from services.market_data.composite_ranker import build_ranker_config
+from services.market_data.regime_detector import detect_regime
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -116,7 +117,7 @@ def _score_from_history(
     cfg = build_ranker_config({"ranking": dict(ranking_config or {})})
 
     if anchor_idx < 24:
-        return {"score": -999.0, "features": {}, "breakdown": {}}
+        return {"score": -999.0, "features": {}, "breakdown": {}, "regime": "unknown"}
 
     feats = _historical_features(
         closes=closes,
@@ -124,40 +125,78 @@ def _score_from_history(
         anchor_idx=anchor_idx,
     )
 
+    ohlcv_stub = []
+    start = max(0, anchor_idx - 30)
+    for i in range(start, anchor_idx + 1):
+        c = closes[i]
+        v = volumes[i] if i < len(volumes) else 0.0
+        ohlcv_stub.append([i, c, c, c, c, v])
+
+    regime_info = detect_regime(ohlcv_stub, period=14)
+    regime = str(regime_info.get("regime") or "unknown")
+
+    momentum_mult = cfg["momentum_mult"]
+    hot_mult = cfg["hot_mult"]
+    volume_mult = cfg["volume_z_mult"]
+    rsi_bonus = cfg["rsi_bonus_healthy"]
+    overbought_penalty = cfg["rsi_penalty_overbought"]
+    oversold_penalty = cfg["rsi_penalty_oversold"]
+    vol_bonus = cfg["volatility_bonus_mid"]
+    vol_penalty = cfg["volatility_penalty_high"]
+
+    if regime == "trending_up":
+        momentum_mult *= 1.4
+        hot_mult *= 1.25
+        volume_mult *= 1.15
+    elif regime == "trending_down":
+        momentum_mult *= 0.6
+        hot_mult *= 0.5
+        overbought_penalty *= 1.25
+    elif regime == "ranging":
+        momentum_mult *= 0.65
+        hot_mult *= 0.6
+        rsi_bonus *= 1.4
+        oversold_penalty = 0.0
+    elif regime == "high_volatility":
+        momentum_mult *= 0.8
+        volume_mult *= 1.25
+        vol_penalty *= 1.35
+
     score_momentum = _clamp(
-        feats["ret_4"] * cfg["momentum_mult"],
+        feats["ret_4"] * momentum_mult,
         cfg["momentum_min"],
         cfg["momentum_max"],
     )
     score_hot = _clamp(
-        feats["ret_24"] * cfg["hot_mult"],
+        feats["ret_24"] * hot_mult,
         cfg["hot_min"],
         cfg["hot_max"],
     )
     score_volume = _clamp(
-        max(feats["volume_ratio"] - 1.0, 0.0) * cfg["volume_z_mult"],
+        max(feats["volume_ratio"] - 1.0, 0.0) * volume_mult,
         cfg["volume_min"],
         cfg["volume_max"],
     )
 
     score_rsi = 0.0
     if 45.0 <= feats["rsi"] <= 70.0:
-        score_rsi = cfg["rsi_bonus_healthy"]
+        score_rsi = rsi_bonus
     elif feats["rsi"] > 80.0:
-        score_rsi = cfg["rsi_penalty_overbought"]
+        score_rsi = overbought_penalty
     elif feats["rsi"] < 25.0:
-        score_rsi = cfg["rsi_penalty_oversold"]
+        score_rsi = oversold_penalty
 
     score_volatility = 0.0
     if feats["volatility_pct"] >= 10.0:
-        score_volatility = cfg["volatility_penalty_high"]
+        score_volatility = vol_penalty
     elif 2.0 <= feats["volatility_pct"] <= 8.0:
-        score_volatility = cfg["volatility_bonus_mid"]
+        score_volatility = vol_bonus
 
     total = score_momentum + score_hot + score_volume + score_rsi + score_volatility
 
     return {
         "score": round(total, 4),
+        "regime": regime,
         "features": feats,
         "breakdown": {
             "momentum": round(score_momentum, 4),
@@ -222,6 +261,7 @@ def backtest_historical_selector(
             composite_ranked.append({
                 "symbol": sym,
                 "score": scored["score"],
+                "regime": scored.get("regime"),
                 "features": scored["features"],
                 "breakdown": scored["breakdown"],
             })
@@ -258,6 +298,7 @@ def backtest_historical_selector(
                 {
                     "symbol": r["symbol"],
                     "score": r["score"],
+                    "regime": r.get("regime"),
                     "features": r.get("features", {}),
                     "breakdown": r.get("breakdown", {}),
                 }
