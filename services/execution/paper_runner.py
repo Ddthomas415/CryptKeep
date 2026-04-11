@@ -119,10 +119,13 @@ def run_forever() -> None:
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
     venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or DEFAULT_VENUE)).lower().strip()
-    symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
+    symbols = [x.strip() for x in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
+    if not symbols:
+        cfg_symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
+        symbols = [cfg_symbol] if cfg_symbol else [DEFAULT_SYMBOL]
     interval = float(p.get("loop_interval_sec", 1.0) or 1.0)
     max_intents_per_loop = int(p.get("max_intents_per_loop", 20) or 20)
-    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "venue": venue, "symbol": symbol, "ts": _now()})
+    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "venue": venue, "symbols": symbols, "ts": _now()})
     try:
         while True:
             if STOP_FILE.exists():
@@ -131,18 +134,24 @@ def run_forever() -> None:
             queue_cycle = _consume_queued_intents_once(qdb=qdb, eng=eng, limit=max_intents_per_loop)
             rec = eng.evaluate_open_orders()
             recon = reconcile_once(qdb=qdb, pdb=eng.db, jdb=jdb, max_intents=max_intents_per_loop)
-            mtm = eng.mark_to_market(venue, symbol)
+            mtm_by_symbol = {}
+            for symbol in symbols:
+                try:
+                    mtm_by_symbol[symbol] = eng.mark_to_market(venue, symbol)
+                except Exception as e:
+                    mtm_by_symbol[symbol] = {"ok": False, "reason": f"{type(e).__name__}:{e}"}
+
             _write_status({
                 "ok": True,
                 "status": "running",
                 "pid": os.getpid(),
                 "ts": _now(),
                 "venue": venue,
-                "symbol": symbol,
+                "symbols": symbols,
                 "queue": queue_cycle,
                 "reconcile": {"open_seen": rec.get("open_orders_seen"), "filled": rec.get("filled"), "rejected": rec.get("rejected")},
                 "intent_reconcile": recon,
-                "mtm": {"cash": mtm.get("cash_quote"), "equity": mtm.get("equity_quote"), "unreal": mtm.get("unrealized_pnl"), "realized": mtm.get("realized_pnl"), "mid": mtm.get("mid")},
+                "mtm": mtm_by_symbol,
             })
             time.sleep(max(0.25, interval))
     finally:
@@ -152,4 +161,4 @@ def run_forever() -> None:
 
 # ---- runtime defaults (prefer env set by bot_ctl / run_bot_safe) ----
 DEFAULT_VENUE = (os.environ.get("CBP_VENUE") or "coinbase").lower().strip()
-DEFAULT_SYMBOL = ([x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()] or ["BTC/USD"])[0]
+DEFAULT_SYMBOL = "BTC/USD"

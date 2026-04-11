@@ -299,7 +299,7 @@ def _synth_ohlcv(prices: List[float], *, ts_ms: int | None = None) -> list[list[
 def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None) -> dict:
     return compute_signal(
         cfg={"strategy": dict(cfg.get("strategy") or {})},
-        symbol=str(cfg.get("symbol") or ""),
+        symbol=symbol,
         ohlcv=_synth_ohlcv(prices, ts_ms=ts_ms),
     )
 
@@ -380,7 +380,10 @@ def run_forever() -> None:
     # - source of truth for current position is PaperTradingSQLite.get_position()
     ensure_dirs()
     cfg = _cfg()
-    require_known_flat_or_override(venue=cfg["venue"], symbol=cfg["symbol"])
+    symbols = list(cfg.get("symbols") or [cfg.get("symbol")])
+    symbols = [str(x).strip() for x in symbols if str(x).strip()]
+    for symbol in symbols:
+        require_known_flat_or_override(venue=cfg["venue"], symbol=symbol)
     if not cfg["enabled"]:
         _write_status({"ok": False, "reason": "disabled", "ts": _now()})
         return
@@ -395,27 +398,6 @@ def run_forever() -> None:
     qdb = IntentQueueSQLite()
     pdb = PaperTradingSQLite()
     sdb = StrategyStateSQLite()
-    k_prices = f"prices:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    k_last_action = f"last_action:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    k_last_emitted_action = f"last_emitted_action:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    k_warm = f"warmed:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    k_entry_price = f"entry_price:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    k_trailing_peak = f"trailing_peak:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    k_bars_held = f"bars_held:{cfg['venue']}:{cfg['symbol']}:{cfg['strategy_id']}"
-    try:
-        prices = json.loads(sdb.get(k_prices) or "[]")
-        if not isinstance(prices, list):
-            prices = []
-        prices = [float(x) for x in prices if isinstance(x, (int,float)) and math.isfinite(float(x))]
-    except Exception:
-        prices = []
-    warmed = (sdb.get(k_warm) or "") == "1"
-    last_action = str(sdb.get(k_last_action) or "hold").strip().lower()
-    if last_action not in ("buy", "sell", "hold"):
-        last_action = "hold"
-    last_emitted_action = str(sdb.get(k_last_emitted_action) or "hold").strip().lower()
-    if last_emitted_action not in ("buy", "sell", "hold"):
-        last_emitted_action = "hold"
 
     # Breakout/post-entry exit defaults.
     # These are runner-level controls and should be explicitly versioned in strategy config
@@ -452,19 +434,47 @@ def run_forever() -> None:
                 cfg["venue"] = current_venue
 
                 if bool(cfg.get("switch_only_when_blocked", True)):
-                    g = mq_check(cfg["venue"], cfg["symbol"])
+                    g = mq_check(cfg["venue"], symbol)
                     if not g.get("ok"):
-                        bv = best_venue(candidates, cfg["symbol"], require_ok=True)
+                        bv = best_venue(candidates, symbol, require_ok=True)
                         if bv and bv.get("venue") and bv["venue"] != cfg["venue"]:
                             cfg["venue"] = str(bv["venue"])
                 else:
-                    bv = best_venue(candidates, cfg["symbol"], require_ok=True)
+                    bv = best_venue(candidates, symbol, require_ok=True)
                     if bv and bv.get("venue"):
                         cfg["venue"] = str(bv["venue"])
 
-            timeframe = _public_ohlcv_timeframe(cfg)
-            if timeframe:
-                ohlcv = _fetch_public_ohlcv(cfg)
+            for symbol in symbols:
+                k_prices = f"prices:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_last_action = f"last_action:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_last_emitted_action = f"last_emitted_action:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_warm = f"warmed:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_entry_price = f"entry_price:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_trailing_peak = f"trailing_peak:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_bars_held = f"bars_held:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+
+                try:
+                    prices = json.loads(sdb.get(k_prices) or "[]")
+                    if not isinstance(prices, list):
+                        prices = []
+                    prices = [float(x) for x in prices if isinstance(x, (int, float)) and math.isfinite(float(x))]
+                except Exception:
+                    prices = []
+
+                warmed = (sdb.get(k_warm) or "") == "1"
+                last_action = str(sdb.get(k_last_action) or "hold").strip().lower()
+                if last_action not in ("buy", "sell", "hold"):
+                    last_action = "hold"
+                last_emitted_action = str(sdb.get(k_last_emitted_action) or "hold").strip().lower()
+                if last_emitted_action not in ("buy", "sell", "hold"):
+                    last_emitted_action = "hold"
+
+                sym_cfg = dict(cfg)
+                sym_cfg["symbol"] = symbol
+
+                timeframe = _public_ohlcv_timeframe(sym_cfg)
+                if timeframe:
+                    ohlcv = _fetch_public_ohlcv(sym_cfg)
                 if not ohlcv:
                     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
                     time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
@@ -493,12 +503,12 @@ def run_forever() -> None:
                 m = float(ohlcv[-1][4])
                 signal = compute_signal(
                     cfg={"strategy": dict(cfg.get("strategy") or {})},
-                    symbol=str(cfg.get("symbol") or ""),
+                    symbol=symbol,
                     ohlcv=ohlcv[-int(cfg["min_bars"]):],
                 )
                 bars = len(ohlcv)
             else:
-                tick = _fetch_mid(cfg)
+                tick = _fetch_mid(sym_cfg)
                 if not tick:
                     _write_status(
                         {
@@ -557,7 +567,7 @@ def run_forever() -> None:
                     last_action = decision
                     sdb.set(k_last_action, decision)
             action = None
-            pos = pdb.get_position(cfg["symbol"]) or {"qty": 0.0, "avg_price": 0.0}
+            pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
             pos_qty = float(pos.get("qty") or 0.0)
 
             # Track entry/hold state for strategy-aware exit controls.
@@ -677,7 +687,7 @@ def run_forever() -> None:
                     "source": "strategy",
                     "strategy_id": cfg["strategy_id"],
                     "venue": cfg["venue"],
-                    "symbol": cfg["symbol"],
+                    "symbol": symbol,
                     "side": action,
                     "order_type": cfg["order_type"],
                     "qty": float(qty),
@@ -708,6 +718,9 @@ def run_forever() -> None:
                 "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,
                 "signal_action": decision if 'decision' in locals() else None,
                 "signal_reason": signal.get("reason") if 'signal' in locals() and isinstance(signal, dict) else None,
+                "symbols": symbols,
+                "symbol": symbol,
+                "symbols": symbols,
                 "signal_ok": bool(signal.get("ok", False)) if 'signal' in locals() and isinstance(signal, dict) else None,
                 "signal_changed": bool(changed) if 'changed' in locals() else None,
                 "signal_indicators": signal.get("ind") if 'signal' in locals() and isinstance(signal, dict) else None,
