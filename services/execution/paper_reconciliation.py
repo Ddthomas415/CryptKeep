@@ -161,7 +161,7 @@ def reconcile_execution_plan_intents(
             continue
 
         symbol = _norm_symbol(row.get("symbol"))
-        action = str(row.get("action") or "").strip().lower()
+        action = str(row.get("action") or row.get("side") or "").strip().lower()
         if action not in {"buy", "sell"} or not symbol:
             skipped.append({**row, "skip_reason": "invalid_intent"})
             continue
