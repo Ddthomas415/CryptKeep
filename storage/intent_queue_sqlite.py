@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 import sqlite3
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS trade_intents (
   ts TEXT NOT NULL,
   source TEXT NOT NULL,
   strategy_id TEXT,
+  action TEXT,
   venue TEXT NOT NULL,
   symbol TEXT NOT NULL,
   side TEXT NOT NULL,
@@ -25,6 +27,7 @@ CREATE TABLE IF NOT EXISTS trade_intents (
   last_error TEXT,
   client_order_id TEXT,
   linked_order_id TEXT,
+  meta TEXT,
   updated_ts TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_ti_status_ts ON trade_intents(status, created_ts);
@@ -43,6 +46,15 @@ def _connect() -> sqlite3.Connection:
     con = sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False)
     con.execute("PRAGMA journal_mode=WAL;")
     con.execute("PRAGMA synchronous=NORMAL;")
+    try:
+        cols = [r[1] for r in con.execute("PRAGMA table_info(trade_intents)").fetchall()]
+        if cols:
+            if "action" not in cols:
+                con.execute("ALTER TABLE trade_intents ADD COLUMN action TEXT")
+            if "meta" not in cols:
+                con.execute("ALTER TABLE trade_intents ADD COLUMN meta TEXT")
+    except Exception:
+        pass
     for stmt in SCHEMA.strip().split(";"):
         s = stmt.strip()
         if s:
@@ -57,14 +69,15 @@ class IntentQueueSQLite:
         con = _connect()
         try:
             con.execute(
-                "INSERT OR REPLACE INTO trade_intents(intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, updated_ts) "
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT OR REPLACE INTO trade_intents(intent_id, created_ts, ts, source, strategy_id, action, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, meta, updated_ts) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     str(row["intent_id"]),
                     str(row.get("created_ts") or _now()),
                     str(row["ts"]),
                     str(row["source"]),
                     row.get("strategy_id"),
+                    row.get("action"),
                     str(row["venue"]),
                     str(row["symbol"]),
                     str(row["side"]),
@@ -75,6 +88,7 @@ class IntentQueueSQLite:
                     row.get("last_error"),
                     row.get("client_order_id"),
                     row.get("linked_order_id"),
+                    json.dumps(row.get("meta")) if row.get("meta") is not None else None,
                     _now(),
                 ),
             )
@@ -85,7 +99,7 @@ class IntentQueueSQLite:
         con = _connect()
         try:
             r = con.execute(
-                "SELECT intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, updated_ts "
+                "SELECT intent_id, created_ts, ts, source, strategy_id, action, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, meta, updated_ts "
                 "FROM trade_intents WHERE intent_id=?",
                 (str(intent_id),),
             ).fetchone()
@@ -93,8 +107,9 @@ class IntentQueueSQLite:
                 return None
             return {
                 "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "strategy_id": r[4],
-                "venue": r[5], "symbol": r[6], "side": r[7], "order_type": r[8], "qty": r[9], "limit_price": r[10],
-                "status": r[11], "last_error": r[12], "client_order_id": r[13], "linked_order_id": r[14], "updated_ts": r[15],
+                "action": r[5], "venue": r[6], "symbol": r[7], "side": r[8], "order_type": r[9], "qty": r[10], "limit_price": r[11],
+                "status": r[12], "last_error": r[13], "client_order_id": r[14], "linked_order_id": r[15],
+                "meta": json.loads(r[16]) if r[16] else None, "updated_ts": r[17],
             }
         finally:
             con.close()
