@@ -208,6 +208,53 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
 
+    "funding_extreme_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
+            "enable_position_scaling": True,
+            "max_adds_per_symbol": 2,
+            "min_profit_to_add_pct": 1.5,
+            "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
+        },
+        "strategy": {
+            "name": "funding_extreme",
+            "long_crowded_threshold": 0.05,
+            "short_crowded_threshold": -0.01,
+        },
+    },
+    "open_interest_shift_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
+            "enable_position_scaling": True,
+            "max_adds_per_symbol": 2,
+            "min_profit_to_add_pct": 1.5,
+            "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
+        },
+        "strategy": {
+            "name": "open_interest_shift",
+            "oi_rise_threshold_pct": 5.0,
+            "oi_drop_threshold_pct": -5.0,
+        },
+    },
+
 }
 
 
