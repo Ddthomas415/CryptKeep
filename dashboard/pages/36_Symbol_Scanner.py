@@ -40,6 +40,13 @@ c1.metric("Errors", len(result.get("errors", [])))
 c2.metric("Source", str(result.get("source", "")))
 c3.metric("Timestamp", str(result.get("ts", "")))
 
+mr = result.get("market_regime") or {}
+if mr:
+    m0, m1, m2 = st.columns(3)
+    m0.metric("Market Regime", str(mr.get("regime", "unknown")))
+    m1.metric("Fear & Greed", str(mr.get("fg_value", mr.get("fear_greed", {}).get("value", ""))))
+    m2.metric("Market Signal", str(mr.get("signal", "neutral")))
+
 def _show(title: str, rows: list[dict]) -> None:
     st.subheader(title)
     if not rows:
@@ -49,6 +56,9 @@ def _show(title: str, rows: list[dict]) -> None:
 
 _show("🔥 Hot Coins", result.get("hot", []))
 _show("📈 Momentum", result.get("momentum", []))
+_show("🔊 Volume Surges", result.get("volume_surges", []))
+_show("🚨 Pump / Dump Alerts", (result.get("pumps", [])[:rows_per_section] + result.get("dumps", [])[:rows_per_section]))
+_show("🕳️ Gap Alerts", result.get("gap_alerts", []))
 _show("🚀 Top Gainers", result.get("gainers", []))
 _show("📉 Top Losers", result.get("losers", []))
 _show("🔊 Most Active", result.get("most_active", []))

@@ -5,6 +5,9 @@ import time
 from typing import Any
 
 from dashboard.services.coinbase_movers import fetch_coinbase_movers
+from services.market_data.alternative_data import get_market_regime
+from services.market_data.regime_detector import detect_regime
+from services.market_data.volume_surge_detector import detect_volume_surge, detect_pump_pattern, detect_overnight_gap
 from dashboard.services.view_data import _get_market_snapshot, _load_local_ohlcv
 
 
@@ -125,6 +128,11 @@ def _scan_from_local_watchlist(*, venue: str, symbols: list[str]) -> dict[str, A
 
             signal = _classify_signal(change_pct, rsi_val)
 
+            regime_info = detect_regime(candles_1h or []) if candles_1h else {"regime": "unknown"}
+            surge_info = detect_volume_surge(candles_1h or []) if candles_1h else {"surge": False, "ratio": 1.0, "z_score": 0.0}
+            pump_info = detect_pump_pattern(candles_1h or []) if candles_1h else {"pump": False, "dump": False}
+            gap_info = detect_overnight_gap(candles_1d or []) if candles_1d else {"gap": False, "gap_pct": 0.0, "direction": "none"}
+
             results.append({
                 "symbol": asset,
                 "last": round(last, 6) if last else 0.0,
@@ -136,6 +144,15 @@ def _scan_from_local_watchlist(*, venue: str, symbols: list[str]) -> dict[str, A
                 "high": high,
                 "low": low,
                 "signal": signal,
+                "regime": regime_info.get("regime", "unknown"),
+                "atr_pct": regime_info.get("atr_pct", 0.0),
+                "volume_z": surge_info.get("z_score", 0.0),
+                "volume_label": surge_info.get("label", "normal"),
+                "pump_flag": bool(pump_info.get("pump")),
+                "dump_flag": bool(pump_info.get("dump")),
+                "gap_flag": bool(gap_info.get("gap")),
+                "gap_pct": gap_info.get("gap_pct", 0.0),
+                "gap_direction": gap_info.get("direction", "none"),
                 "snapshot_source": str(snapshot.get("source") or ""),
                 "snapshot_timestamp": str(snapshot.get("timestamp") or ""),
             })
@@ -218,6 +235,7 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
 
     all_rows = list(movers.get("all") or [])
 
+    market_regime = get_market_regime()
     normalized: list[dict[str, Any]] = []
     for row in all_rows:
         symbol = str(row.get("symbol") or "")
@@ -246,6 +264,9 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
             "high": high,
             "low": low,
             "signal": signal,
+            "regime": market_regime.get("regime", "unknown"),
+            "fg_value": market_regime.get("fg_value", 50),
+            "fg_signal": market_regime.get("signal", "neutral"),
             "snapshot_source": "coinbase_movers",
             "snapshot_timestamp": str(movers.get("ts") or ""),
         })
@@ -282,6 +303,12 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
     )
     hot = sorted(normalized, key=lambda r: r["hot_score"], reverse=True)
 
+    gap_alerts = sorted(
+        [r for r in normalized if abs(_safe(r.get("change_pct"), 0.0)) >= 5.0],
+        key=lambda r: abs(_safe(r.get("change_pct"), 0.0)),
+        reverse=True,
+    )[:25]
+
     return {
         "ok": True,
         "runner_ok": True,
@@ -289,12 +316,14 @@ def _scan_from_coinbase_movers(*, limit: int = 200) -> dict[str, Any]:
         "scanned": int(movers.get("scanned", len(normalized))),
         "requested": int(movers.get("scanned", len(normalized))),
         "source": "coinbase_movers",
+        "market_regime": market_regime,
         "pumps": pumps,
         "dumps": dumps,
         "volume_surges": volume_surges,
         "oversold": oversold,
         "momentum": momentum,
         "hot": hot[:25],
+        "gap_alerts": gap_alerts,
         "all": normalized,
         "errors": list(movers.get("errors") or []),
         "gainers": list(movers.get("gainers") or []),
