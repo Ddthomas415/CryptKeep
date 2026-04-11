@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from services.market_data.rotation_engine import build_rotation_candidates
+from services.backtest.forward_returns import compute_forward_return_pct_from_ohlcv
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -12,18 +13,39 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
         return default
 
 
+def _attach_forward_returns(
+    *,
+    rows: list[dict[str, Any]],
+    venue: str,
+    timeframe: str,
+    forward_bars: int,
+) -> list[dict[str, Any]]:
+    out = []
+    for row in list(rows or []):
+        sym = str(row.get("symbol") or "").strip()
+        if not sym:
+            out.append(dict(row))
+            continue
+        fr = compute_forward_return_pct_from_ohlcv(
+            venue=venue,
+            symbol=sym,
+            timeframe=timeframe,
+            forward_bars=forward_bars,
+        )
+        out.append({
+            **row,
+            "forward_return_pct": _safe_float(fr.get("return_pct"), 0.0),
+            "forward_return_ok": bool(fr.get("ok")),
+            "forward_entry_price": fr.get("entry_price"),
+            "forward_exit_price": fr.get("exit_price"),
+            "forward_bars": forward_bars,
+            "forward_timeframe": timeframe,
+        })
+    return out
+
+
 def _future_return_pct(row: dict[str, Any]) -> float:
-    # Scaffold: use whatever forward-return fields exist, else fall back to change_pct proxy.
-    for key in (
-        "forward_return_pct_1h",
-        "forward_return_pct_4h",
-        "forward_return_pct_24h",
-        "future_return_pct",
-        "next_return_pct",
-    ):
-        if key in row:
-            return _safe_float(row.get(key), 0.0)
-    return _safe_float(row.get("change_pct"), 0.0)
+    return _safe_float(row.get("forward_return_pct"), 0.0)
 
 
 def _summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -62,6 +84,8 @@ def backtest_selector_comparison(
     top_n: int = 10,
     max_abs_corr: float = 0.85,
     ranking_config: dict[str, Any] | None = None,
+    timeframe: str = "1h",
+    forward_bars: int = 1,
 ) -> dict[str, Any]:
     composite = build_rotation_candidates(
         venue=venue,
@@ -98,6 +122,19 @@ def backtest_selector_comparison(
     composite_rows = list(composite.get("selected_rows") or [])
     baseline_rows = list(baseline.get("rows") or [])[:top_n]
 
+    composite_rows = _attach_forward_returns(
+        rows=composite_rows,
+        venue=venue,
+        timeframe=timeframe,
+        forward_bars=forward_bars,
+    )
+    baseline_rows = _attach_forward_returns(
+        rows=baseline_rows,
+        venue=venue,
+        timeframe=timeframe,
+        forward_bars=forward_bars,
+    )
+
     composite_summary = _summarize(composite_rows)
     baseline_summary = _summarize(baseline_rows)
 
@@ -105,6 +142,8 @@ def backtest_selector_comparison(
         "ok": True,
         "venue": venue,
         "top_n": top_n,
+        "timeframe": timeframe,
+        "forward_bars": forward_bars,
         "baseline": {
             "name": "hot_score_baseline",
             "symbols": [str(r.get("symbol") or "") for r in baseline_rows],
