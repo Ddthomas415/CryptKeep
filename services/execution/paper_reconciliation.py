@@ -182,6 +182,11 @@ def reconcile_execution_plan_intents(
         est_qty_delta = abs(_safe_float(row.get("est_qty_delta"), _safe_float(meta.get("est_qty_delta"), 0.0)))
         est_notional_delta = abs(_safe_float(row.get("est_notional_delta"), _safe_float(meta.get("est_notional_delta"), 0.0)))
 
+        if est_qty_delta <= 0:
+            est_qty_delta = abs(_safe_float(row.get("qty"), 0.0))
+        if est_notional_delta <= 0 and est_qty_delta > 0 and fill_price > 0:
+            est_notional_delta = est_qty_delta * fill_price
+
         pos = _find_position(positions, symbol)
         qty = _safe_float(pos.get("qty"), 0.0)
         avg_price = _safe_float(pos.get("avg_price"), 0.0)
