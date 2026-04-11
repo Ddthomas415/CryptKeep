@@ -4,6 +4,7 @@ import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
 from services.backtest.selector_backtest import backtest_selector_comparison
+from services.market_data.ranking_presets import RANKING_PRESETS, merge_ranking_config
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
@@ -11,18 +12,20 @@ CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 st.title("Selector Backtest")
 st.caption("Compare old hot-score selection against the new composite ranker.")
 
-col0, col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1, 1])
+col0, col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1, 1])
 with col0:
     top_n = st.slider("Top N", min_value=3, max_value=15, value=8, step=1)
 with col1:
     max_abs_corr = st.slider("Max abs correlation", min_value=0.30, max_value=0.95, value=0.85, step=0.05)
 with col2:
-    momentum_mult = st.slider("Momentum weight", min_value=0.5, max_value=4.0, value=2.0, step=0.5)
+    preset_name = st.selectbox("Ranking preset", list(RANKING_PRESETS.keys()), index=0)
 with col3:
-    timeframe = st.selectbox("Timeframe", ["1h", "4h", "1d"], index=0)
+    momentum_mult = st.slider("Momentum weight", min_value=0.5, max_value=4.0, value=2.0, step=0.5)
 with col4:
-    forward_bars = st.slider("Forward bars", min_value=1, max_value=24, value=1, step=1)
+    timeframe = st.selectbox("Timeframe", ["1h", "4h", "1d"], index=0)
 with col5:
+    forward_bars = st.slider("Forward bars", min_value=1, max_value=24, value=1, step=1)
+with col6:
     run_now = st.button("Run Selector Backtest", width="stretch")
 
 if "selector_backtest_result" not in st.session_state:
@@ -30,12 +33,14 @@ if "selector_backtest_result" not in st.session_state:
 
 if run_now:
     with st.spinner("Comparing selectors..."):
+        ranking_config = merge_ranking_config(
+            preset_name,
+            {"momentum_mult": momentum_mult},
+        )
         st.session_state["selector_backtest_result"] = backtest_selector_comparison(
             top_n=top_n,
             max_abs_corr=max_abs_corr,
-            ranking_config={
-                "momentum_mult": momentum_mult,
-            },
+            ranking_config=ranking_config,
             timeframe=timeframe,
             forward_bars=forward_bars,
         )
@@ -51,6 +56,12 @@ composite = (result.get("composite") or {})
 delta = result.get("delta") or {}
 
 st.caption(f"Forward window: {result.get('forward_bars')} bar(s) on {result.get('timeframe')}")
+
+with st.expander("Active Ranking Config"):
+    st.json({
+        "preset_name": preset_name,
+        **merge_ranking_config(preset_name, {"momentum_mult": momentum_mult}),
+    })
 
 c0, c1, c2 = st.columns(3)
 c0.metric("Δ Avg Return %", float(delta.get("avg_return_pct", 0.0)))
