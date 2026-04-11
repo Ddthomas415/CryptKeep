@@ -4,6 +4,7 @@ import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
 from services.market_data.rotation_engine import build_rotation_candidates
+from services.market_data.ranking_presets import RANKING_PRESETS, merge_ranking_config
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
@@ -11,16 +12,18 @@ CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 st.title("Rotation & Correlation")
 st.caption("Rotation candidates from market scanner hot list with correlation-aware diversification.")
 
-col0, col1, col2, col3, col4 = st.columns([1, 1, 1, 1, 1])
+col0, col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1, 1])
 with col0:
     top_n = st.slider("Top candidates", min_value=5, max_value=20, value=10, step=1)
 with col1:
     max_abs_corr = st.slider("Max abs correlation", min_value=0.30, max_value=0.95, value=0.85, step=0.05)
 with col2:
-    momentum_mult = st.slider("Momentum weight", min_value=0.5, max_value=4.0, value=2.0, step=0.5)
+    preset_name = st.selectbox("Ranking preset", list(RANKING_PRESETS.keys()), index=0)
 with col3:
-    volume_mult = st.slider("Volume weight", min_value=1.0, max_value=8.0, value=4.0, step=0.5)
+    momentum_mult = st.slider("Momentum weight", min_value=0.5, max_value=4.0, value=2.0, step=0.5)
 with col4:
+    volume_mult = st.slider("Volume weight", min_value=1.0, max_value=8.0, value=4.0, step=0.5)
+with col5:
     run_now = st.button("Build Rotation List", width="stretch")
 
 if "rotation_result" not in st.session_state:
@@ -28,11 +31,14 @@ if "rotation_result" not in st.session_state:
 
 if run_now:
     with st.spinner("Building rotation candidates..."):
-        ranking_config = {
-            "momentum_mult": momentum_mult,
-            "volume_z_mult": volume_mult,
-            "correlation_penalty_threshold": max_abs_corr,
-        }
+        ranking_config = merge_ranking_config(
+            preset_name,
+            {
+                "momentum_mult": momentum_mult,
+                "volume_z_mult": volume_mult,
+                "correlation_penalty_threshold": max_abs_corr,
+            },
+        )
         st.session_state["rotation_result"] = build_rotation_candidates(
             top_n=top_n,
             diversify=True,
