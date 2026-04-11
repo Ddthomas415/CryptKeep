@@ -14,16 +14,20 @@ CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 st.title("Execution Plan")
 st.caption("Build a rebalance plan from diversified rotation candidates and target allocation.")
 
-col0, col1, col2 = st.columns([1, 1, 1])
+col0, col1, col2, col3 = st.columns([1, 1, 1, 1])
 with col0:
     top_n = st.slider("Top candidates", min_value=3, max_value=15, value=8, step=1)
 with col1:
     total_budget = st.slider("Target deployment %", min_value=10.0, max_value=100.0, value=60.0, step=5.0)
 with col2:
+    min_delta_pct = st.slider("Min rebalance delta %", min_value=0.5, max_value=10.0, value=1.0, step=0.5)
+with col3:
     run_now = st.button("Build Execution Plan", width="stretch")
 
 if "execution_plan_result" not in st.session_state:
     st.session_state["execution_plan_result"] = None
+if "execution_queue_result" not in st.session_state:
+    st.session_state["execution_queue_result"] = None
 
 if run_now:
     with st.spinner("Building execution plan..."):
@@ -55,7 +59,7 @@ if run_now:
         plan = build_execution_plan(
             target_rows=list(allocation.get("rows") or []),
             current_allocations=current_allocations,
-            min_rebalance_delta_pct=1.0,
+            min_rebalance_delta_pct=min_delta_pct,
         )
 
         st.session_state["execution_plan_result"] = {
@@ -79,6 +83,15 @@ c1.metric("Buys", len(plan.get("buys") or []))
 c2.metric("Sells", len(plan.get("sells") or []))
 c3.metric("Holds", len(plan.get("holds") or []))
 
+queue_now = st.button("Queue Execution Intents", width="stretch")
+if queue_now:
+    st.session_state["execution_queue_result"] = queue_execution_intents(
+        plan_rows=list(plan.get("rows") or []),
+        strategy_name="allocation_rebalance",
+        venue="coinbase",
+        min_delta_pct=min_delta_pct,
+    )
+
 current_allocations = {}
 for row in plan.get("rows") or []:
     sym = str(row.get("symbol") or "").strip()
@@ -97,3 +110,19 @@ st.dataframe(plan.get("buys", []), use_container_width=True)
 
 st.subheader("Sell List")
 st.dataframe(plan.get("sells", []), use_container_width=True)
+
+queue_result = st.session_state.get("execution_queue_result")
+if queue_result is not None:
+    q0, q1, q2 = st.columns(3)
+    q0.metric("Queued", len(queue_result.get("queued") or []))
+    q1.metric("Skipped", len(queue_result.get("skipped") or []))
+    q2.metric("Errors", len(queue_result.get("errors") or []))
+
+    st.subheader("Queued Intents")
+    st.dataframe(queue_result.get("queued", []), use_container_width=True)
+
+    st.subheader("Skipped Intents")
+    st.dataframe(queue_result.get("skipped", []), use_container_width=True)
+
+    st.subheader("Queue Errors")
+    st.dataframe(queue_result.get("errors", []), use_container_width=True)
