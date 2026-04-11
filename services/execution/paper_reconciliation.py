@@ -105,7 +105,15 @@ def _find_position(positions: list[dict[str, Any]], symbol: str) -> dict[str, An
 
 def _upsert_position_best_effort(pdb: Any, row: dict[str, Any]) -> None:
     if hasattr(pdb, "upsert_position"):
-        pdb.upsert_position(row)
+        try:
+            pdb.upsert_position(row)
+        except TypeError:
+            pdb.upsert_position(
+                str(row.get("symbol") or ""),
+                float(row.get("qty") or 0.0),
+                float(row.get("avg_price") or 0.0),
+                float(row.get("realized_pnl") or 0.0),
+            )
         return
     if hasattr(pdb, "save_position"):
         pdb.save_position(row)
