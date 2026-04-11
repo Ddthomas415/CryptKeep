@@ -65,7 +65,7 @@ html, body, [class*="css"] {
 [data-testid="stSidebarNavLinkContainer"],
 [data-testid="stSidebarNavLink"],
 [data-testid="stSidebarNavViewButton"] {
-  display: none !important;
+  display: block !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stPageLink"] a {
