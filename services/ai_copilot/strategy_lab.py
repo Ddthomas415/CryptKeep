@@ -50,11 +50,36 @@ def _paper_history_summary(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _strategy_feedback_summary(top_row: dict[str, Any]) -> dict[str, Any]:
+    feedback = dict(top_row.get("strategy_feedback") or {})
+    return {
+        "closed_trades": int(feedback.get("closed_trades") or 0),
+        "net_realized_pnl": float(feedback.get("net_realized_pnl") or 0.0),
+        "expectancy_per_closed_trade": float(feedback.get("expectancy_per_closed_trade") or 0.0),
+        "win_rate": float(feedback.get("win_rate") or 0.0),
+        "recent_closed_trades": int(feedback.get("recent_closed_trades") or 0),
+        "recent_net_realized_pnl": float(feedback.get("recent_net_realized_pnl") or 0.0),
+        "summary_text": str(feedback.get("summary_text") or ""),
+    }
+
+
+def _feedback_weighting_summary(top_row: dict[str, Any]) -> dict[str, Any]:
+    weighting = dict(top_row.get("feedback_weighting") or {})
+    return {
+        "status": str(weighting.get("status") or "unknown"),
+        "adjustment": float(weighting.get("adjustment") or 0.0),
+        "summary": str(weighting.get("summary") or ""),
+        "closed_trades": int(weighting.get("closed_trades") or 0),
+        "sample_ratio": float(weighting.get("sample_ratio") or 0.0),
+    }
+
+
 def _top_rows_snapshot(rows: list[dict[str, Any]], *, limit: int = 3) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for row in rows[: max(1, int(limit))]:
         walk_forward = dict(row.get("walk_forward") or {})
         walk_forward_summary = dict(walk_forward.get("summary") or {})
+        feedback_weighting = dict(row.get("feedback_weighting") or {})
         out.append(
             {
                 "strategy": str(row.get("strategy") or ""),
@@ -70,6 +95,8 @@ def _top_rows_snapshot(rows: list[dict[str, Any]], *, limit: int = 3) -> list[di
                 "paper_history_note": str(row.get("paper_history_note") or ""),
                 "biggest_weakness": str(row.get("biggest_weakness") or ""),
                 "next_improvement": str(row.get("next_improvement") or ""),
+                "feedback_weighting_status": str(feedback_weighting.get("status") or ""),
+                "feedback_weighting_adjustment": float(feedback_weighting.get("adjustment") or 0.0),
                 "walk_forward": {
                     "available": bool(walk_forward.get("available")),
                     "status": str(walk_forward.get("status") or ""),
@@ -342,6 +369,10 @@ def _recommendations(
             recommendations.append(next_improvement)
     if top_decision == "freeze":
         recommendations.append("Do not promote the current top strategy; collect more paper evidence before changing guardrails or live scope.")
+    feedback_weighting = dict(top_row.get("feedback_weighting") or {})
+    feedback_summary = str(feedback_weighting.get("summary") or "").strip()
+    if feedback_summary:
+        recommendations.append(feedback_summary)
 
     if str(paper_history.get("status") or "") != "available":
         recommendations.append("Grow persisted paper-history evidence before treating leaderboard rank as promotion-grade.")
@@ -412,6 +443,8 @@ def build_strategy_lab_report(
         "symbol": selected_symbol,
         "selected_strategy": selected_strategy,
         "top_rows": _top_rows_snapshot(rows),
+        "strategy_feedback": _strategy_feedback_summary(top_row),
+        "feedback_weighting": _feedback_weighting_summary(top_row),
         "walk_forward": _walk_forward_summary(top_row),
         "collector_runtime": collector_runtime,
         "paper_history": paper_history,
@@ -464,15 +497,18 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
     if top_rows:
         for row in top_rows:
             walk_forward = dict(row.get("walk_forward") or {})
+            feedback_status = str(row.get("feedback_weighting_status") or "unknown")
             lines.append(
                 f"- `{row.get('strategy')}` rank `{row.get('rank')}` decision `{row.get('decision')}` "
                 f"score `{float(row.get('leaderboard_score') or 0.0):.6f}` drawdown `{float(row.get('max_drawdown_pct') or 0.0):.2f}%` "
-                f"walk-forward `{str(walk_forward.get('status') or 'unknown')}`"
+                f"feedback `{feedback_status}` walk-forward `{str(walk_forward.get('status') or 'unknown')}`"
             )
     else:
         lines.append("- `(none)`")
 
     paper_history = dict(report.get("paper_history") or {})
+    strategy_feedback = dict(report.get("strategy_feedback") or {})
+    feedback_weighting = dict(report.get("feedback_weighting") or {})
     collector_runtime = dict(report.get("collector_runtime") or {})
     research_acceptance = dict(report.get("research_acceptance") or {})
     walk_forward = dict(report.get("walk_forward") or {})
@@ -499,6 +535,28 @@ def render_strategy_lab_markdown(report: dict[str, Any]) -> str:
     )
     if str(paper_history.get("caveat") or "").strip():
         lines.append(f"- caveat: {paper_history.get('caveat')}")
+
+    lines.extend(
+        [
+            "",
+            "## Strategy Feedback",
+            f"- summary: {strategy_feedback.get('summary_text') or '(none)'}",
+            f"- closed trades: `{strategy_feedback.get('closed_trades')}`",
+            f"- expectancy per closed trade: `{float(strategy_feedback.get('expectancy_per_closed_trade') or 0.0):+.2f}`",
+            f"- net realized pnl: `{float(strategy_feedback.get('net_realized_pnl') or 0.0):+.2f}`",
+            f"- win rate: `{float(strategy_feedback.get('win_rate') or 0.0) * 100.0:.1f}%`",
+        ]
+    )
+
+    lines.extend(
+        [
+            "",
+            "## Feedback Weighting",
+            f"- status: `{feedback_weighting.get('status') or 'unknown'}`",
+            f"- adjustment: `{float(feedback_weighting.get('adjustment') or 0.0):+.4f}`",
+            f"- summary: {feedback_weighting.get('summary') or '(none)'}",
+        ]
+    )
 
     lines.extend(
         [

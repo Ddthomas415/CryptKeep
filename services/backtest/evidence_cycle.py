@@ -9,6 +9,10 @@ from statistics import pstdev
 from typing import Any, Dict, Iterable, List
 
 from services.analytics.journal_analytics import fifo_pnl_from_fills
+from services.analytics.strategy_feedback import (
+    build_strategy_feedback_weighting,
+    load_strategy_feedback_ledger,
+)
 from services.backtest.leaderboard import rank_strategy_rows, run_strategy_leaderboard
 from services.backtest.walk_forward import run_anchored_walk_forward
 from services.os.app_paths import code_root, data_dir, ensure_dirs
@@ -843,6 +847,20 @@ def _aggregate_rows(window_reports: list[dict[str, Any]]) -> list[dict[str, Any]
     return aggregates
 
 
+def _rerank_rows_by_leaderboard_score(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    ranked = [dict(item) for item in list(rows or [])]
+    ranked.sort(
+        key=lambda row: (
+            -_fnum(row.get("leaderboard_score"), 0.0),
+            -_fnum(row.get("net_return_after_costs_pct"), 0.0),
+            _fnum(row.get("max_drawdown_pct"), 0.0),
+        )
+    )
+    for idx, row in enumerate(ranked, start=1):
+        row["rank"] = int(idx)
+    return ranked
+
+
 def run_strategy_evidence_cycle(
     *,
     base_cfg: Dict[str, Any] | None = None,
@@ -858,9 +876,15 @@ def run_strategy_evidence_cycle(
     combined_walk_forward_candles = _combined_walk_forward_candles(window_defs)
     walk_forward_warmup = max([int(item.get("warmup_bars") or 20) for item in window_defs] or [20])
     paper_history = load_paper_history_evidence(journal_path=paper_history_path, symbol=str(symbol or ""))
+    strategy_feedback_ledger = load_strategy_feedback_ledger(journal_path=paper_history_path, symbol=str(symbol or ""))
     paper_history_by_strategy = {
         str(item.get("strategy") or ""): dict(item)
         for item in list(paper_history.get("rows") or [])
+        if str(item.get("strategy") or "")
+    }
+    strategy_feedback_by_strategy = {
+        str(item.get("strategy") or ""): dict(item)
+        for item in list(strategy_feedback_ledger.get("rows") or [])
         if str(item.get("strategy") or "")
     }
     window_reports: list[dict[str, Any]] = []
@@ -887,6 +911,21 @@ def run_strategy_evidence_cycle(
         )
 
     aggregate_rows = rank_strategy_rows(_aggregate_rows(window_reports))
+    weighted_rows: list[dict[str, Any]] = []
+    for row in aggregate_rows:
+        feedback_row = strategy_feedback_by_strategy.get(str(row.get("strategy") or ""))
+        feedback_weighting = build_strategy_feedback_weighting(feedback_row)
+        base_score = _fnum(row.get("leaderboard_score"), 0.0)
+        adjusted_score = float(round(base_score + _fnum(feedback_weighting.get("adjustment"), 0.0), 6))
+        row["base_leaderboard_score"] = float(base_score)
+        row["strategy_feedback"] = dict(feedback_row or {})
+        row["feedback_weighting"] = dict(feedback_weighting)
+        row["leaderboard_score"] = float(adjusted_score)
+        components = dict(row.get("leaderboard_components") or {})
+        components["strategy_feedback_adjustment"] = float(_fnum(feedback_weighting.get("adjustment"), 0.0))
+        row["leaderboard_components"] = components
+        weighted_rows.append(row)
+    aggregate_rows = _rerank_rows_by_leaderboard_score(weighted_rows)
     decisions: list[dict[str, Any]] = []
     for row in aggregate_rows:
         hypothesis = get_strategy_hypothesis(str(row.get("strategy") or ""))
@@ -936,6 +975,7 @@ def run_strategy_evidence_cycle(
                 "biggest_weakness": str(row.get("biggest_weakness") or ""),
                 "next_improvement": str(row.get("next_improvement") or ""),
                 "paper_history_note": str(row.get("paper_history_note") or ""),
+                "feedback_weighting_summary": str(((row.get("feedback_weighting") or {}).get("summary")) or ""),
             }
         )
 
@@ -950,6 +990,7 @@ def run_strategy_evidence_cycle(
         "initial_cash": float(initial_cash),
         "windows": window_reports,
         "paper_history": paper_history,
+        "strategy_feedback_ledger": strategy_feedback_ledger,
         "aggregate_leaderboard": {
             "candidate_count": int(len(aggregate_rows)),
             "rows": aggregate_rows,
@@ -1173,6 +1214,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
     decisions = [dict(item) for item in list(payload.get("decisions") or [])]
     windows = [dict(item) for item in list(payload.get("windows") or [])]
     paper_history = dict(payload.get("paper_history") or {})
+    strategy_feedback_ledger = dict(payload.get("strategy_feedback_ledger") or {})
     comparison = dict(payload.get("comparison") or {})
     as_of = str(payload.get("as_of") or _now_iso())
     date_token = as_of.split("T", 1)[0]
@@ -1214,6 +1256,11 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
         out.append(f"- paper-history status: `{str(paper_history.get('status') or 'missing')}`")
         out.append(f"- paper-history journal: `{str(paper_history.get('journal_path') or '')}`")
         out.append(f"- paper-history fills: `{int(paper_history.get('fills_count') or 0)}`")
+    if strategy_feedback_ledger:
+        out.append(f"- strategy-feedback source: `{str(strategy_feedback_ledger.get('source') or 'unknown')}`")
+        out.append(f"- strategy-feedback status: `{str(strategy_feedback_ledger.get('status') or 'missing')}`")
+        out.append(f"- strategy-feedback journal: `{str(strategy_feedback_ledger.get('journal_path') or '')}`")
+        out.append(f"- strategy-feedback strategies: `{int(strategy_feedback_ledger.get('strategy_count') or 0)}`")
     if artifact_path:
         out.append(f"- evidence artifact: `{artifact_path}`")
     out.extend(
@@ -1291,6 +1338,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 f"- candidate: `{str(row.get('candidate') or '')}`",
                 f"- rank: `{int(row.get('rank') or 0)}`",
                 f"- aggregate leaderboard score: `{_fnum(row.get('leaderboard_score'), 0.0):.6f}`",
+                f"- base leaderboard score: `{_fnum(row.get('base_leaderboard_score'), _fnum(row.get('leaderboard_score'), 0.0)):.6f}`",
                 f"- average net return after costs: `{_fnum(row.get('avg_return_pct'), 0.0):+.2f}%`",
                 f"- worst-window return: `{_fnum(row.get('worst_window_return_pct'), 0.0):+.2f}%`",
                 f"- worst drawdown: `{_fnum(row.get('max_drawdown_pct'), 0.0):.2f}%`",
@@ -1302,6 +1350,8 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 f"- evidence status: `{str(row.get('evidence_status') or 'unknown')}`",
                 f"- confidence: `{str(row.get('confidence_label') or 'unknown')}`",
                 f"- paper-history: {str(row.get('paper_history_note') or 'No strategy-attributed persisted paper-history fills are available yet.')}",
+                f"- strategy feedback: {str(((row.get('strategy_feedback') or {}).get('summary_text')) or 'No persisted strategy feedback summary recorded.')}",
+                f"- feedback weighting: `{str(((row.get('feedback_weighting') or {}).get('status')) or 'unknown')}`",
                 f"- research acceptance: `{str(((row.get('research_acceptance') or {}).get('status')) or 'unknown')}`",
                 f"- research summary: {str(((row.get('research_acceptance') or {}).get('summary')) or 'No research-acceptance summary recorded.')}",
                 f"- walk-forward: `{str(((row.get('walk_forward') or {}).get('status')) or 'unknown')}`",
@@ -1312,6 +1362,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
                 "Reason:",
                 f"- {str(row.get('decision_reason') or 'No reason recorded.')}",
                 f"- Evidence note: {str(row.get('evidence_note') or 'No evidence note recorded.')}",
+                f"- Feedback weighting: {str(((row.get('feedback_weighting') or {}).get('summary')) or 'No feedback weighting summary recorded.')}",
                 f"- Biggest weakness: {str(row.get('biggest_weakness') or 'Unknown.')}",
                 "",
                 "Next work:",

@@ -116,6 +116,34 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
     )
     monkeypatch.setattr(
         evidence_cycle,
+        "load_strategy_feedback_ledger",
+        lambda journal_path="", symbol="": {
+            "ok": True,
+            "status": "available",
+            "journal_path": "/tmp/trade_journal.sqlite",
+            "symbol_filter": symbol or None,
+            "source": "trade_journal_sqlite",
+            "as_of": "2026-03-19T12:10:00Z",
+            "fills_count": 20,
+            "strategy_count": 1,
+            "rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "closed_trades": 10,
+                    "net_realized_pnl": 25.0,
+                    "expectancy_per_closed_trade": 2.5,
+                    "win_rate": 0.6,
+                    "recent_closed_trades": 5,
+                    "recent_net_realized_pnl": 9.0,
+                    "summary_text": "10 closed trade(s), +25.00 net realized PnL, +2.50 expectancy per closed trade, 60.0% win rate.",
+                }
+            ],
+            "unmapped_strategy_ids": [],
+            "caveat": "Research-only feedback metadata.",
+        },
+    )
+    monkeypatch.setattr(
+        evidence_cycle,
         "run_anchored_walk_forward",
         lambda **kwargs: {
             "ok": True,
@@ -156,6 +184,9 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
     assert rows[0]["decision"] == "keep"
     assert rows[0]["evidence_status"] == "synthetic_only"
     assert rows[0]["confidence_label"] == "low"
+    assert rows[0]["strategy_feedback"]["closed_trades"] == 10
+    assert rows[0]["feedback_weighting"]["status"] == "boost"
+    assert rows[0]["leaderboard_score"] > rows[0]["base_leaderboard_score"]
     assert rows[0]["walk_forward"]["available"] is True
     assert rows[0]["walk_forward"]["status"] == "ok"
     assert rows[0]["walk_forward"]["window_count"] == 3
@@ -163,6 +194,7 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
     assert rows[1]["decision"] == "freeze"
     assert rows[1]["evidence_status"] == "insufficient"
     assert out["paper_history"]["status"] == "missing"
+    assert out["strategy_feedback_ledger"]["status"] == "available"
 
 
 def test_load_paper_history_evidence_summarizes_trade_journal(tmp_path) -> None:
@@ -213,6 +245,123 @@ def test_load_paper_history_evidence_summarizes_trade_journal(tmp_path) -> None:
     assert out["rows"][0]["strategy"] == "ema_cross"
     assert out["rows"][0]["closed_trades"] == 1
     assert out["rows"][0]["net_realized_pnl"] > 0.0
+
+
+def test_run_strategy_evidence_cycle_re_ranks_with_strategy_feedback_penalty(monkeypatch) -> None:
+    monkeypatch.setattr(
+        evidence_cycle,
+        "run_strategy_leaderboard",
+        lambda **kwargs: {
+            "ok": True,
+            "rows": [
+                {
+                    "candidate": "breakout_default",
+                    "strategy": "breakout_donchian",
+                    "symbol": "BTC/USDT",
+                    "rank": 1,
+                    "leaderboard_score": 0.82,
+                    "net_return_after_costs_pct": 6.0,
+                    "max_drawdown_pct": 5.0,
+                    "regime_robustness": 1.0,
+                    "regime_return_dispersion_pct": 1.0,
+                    "slippage_sensitivity_pct": 0.4,
+                    "closed_trades": 2,
+                    "trade_count": 3,
+                    "exposure_fraction": 0.2,
+                },
+                {
+                    "candidate": "ema_cross_default",
+                    "strategy": "ema_cross",
+                    "symbol": "BTC/USDT",
+                    "rank": 2,
+                    "leaderboard_score": 0.79,
+                    "net_return_after_costs_pct": 5.5,
+                    "max_drawdown_pct": 4.5,
+                    "regime_robustness": 1.0,
+                    "regime_return_dispersion_pct": 1.0,
+                    "slippage_sensitivity_pct": 0.4,
+                    "closed_trades": 2,
+                    "trade_count": 3,
+                    "exposure_fraction": 0.2,
+                },
+            ],
+        },
+    )
+    monkeypatch.setattr(
+        evidence_cycle,
+        "load_paper_history_evidence",
+        lambda journal_path="", symbol="": {
+            "ok": False,
+            "status": "missing",
+            "journal_path": "/tmp/trade_journal.sqlite",
+            "symbol_filter": symbol or None,
+            "source": "trade_journal_sqlite",
+            "as_of": None,
+            "fills_count": 0,
+            "strategy_count": 0,
+            "rows": [],
+            "unmapped_strategy_ids": [],
+            "caveat": "No persisted trade journal exists yet.",
+        },
+    )
+    monkeypatch.setattr(
+        evidence_cycle,
+        "load_strategy_feedback_ledger",
+        lambda journal_path="", symbol="": {
+            "ok": True,
+            "status": "available",
+            "journal_path": "/tmp/trade_journal.sqlite",
+            "symbol_filter": symbol or None,
+            "source": "trade_journal_sqlite",
+            "as_of": "2026-03-19T12:10:00Z",
+            "fills_count": 80,
+            "strategy_count": 2,
+            "rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "closed_trades": 20,
+                    "net_realized_pnl": -15.0,
+                    "expectancy_per_closed_trade": -0.75,
+                    "win_rate": 0.40,
+                    "recent_closed_trades": 5,
+                    "recent_net_realized_pnl": -4.0,
+                    "summary_text": "20 closed trade(s), -15.00 net realized PnL, -0.75 expectancy per closed trade, 40.0% win rate.",
+                },
+                {
+                    "strategy": "ema_cross",
+                    "closed_trades": 20,
+                    "net_realized_pnl": 12.0,
+                    "expectancy_per_closed_trade": 0.60,
+                    "win_rate": 0.55,
+                    "recent_closed_trades": 5,
+                    "recent_net_realized_pnl": 3.0,
+                    "summary_text": "20 closed trade(s), +12.00 net realized PnL, +0.60 expectancy per closed trade, 55.0% win rate.",
+                },
+            ],
+            "unmapped_strategy_ids": [],
+            "caveat": "Research-only feedback metadata.",
+        },
+    )
+    monkeypatch.setattr(
+        evidence_cycle,
+        "run_anchored_walk_forward",
+        lambda **kwargs: {"ok": False, "reason": "insufficient_candles", "research_only": True, "bars": 2, "window_count": 0, "summary": {}},
+    )
+
+    out = evidence_cycle.run_strategy_evidence_cycle(
+        base_cfg={},
+        symbol="BTC/USDT",
+        windows=[
+            {"window_id": "w1", "label": "One", "warmup_bars": 5, "candles": [[1, 0, 0, 0, 0, 0], [2, 0, 0, 0, 0, 0]]},
+        ],
+    )
+
+    rows = out["aggregate_leaderboard"]["rows"]
+    assert rows[0]["strategy"] == "ema_cross"
+    assert rows[0]["feedback_weighting"]["status"] == "boost"
+    assert rows[1]["strategy"] == "breakout_donchian"
+    assert rows[1]["feedback_weighting"]["status"] == "penalty"
+    assert rows[1]["leaderboard_score"] < rows[1]["base_leaderboard_score"]
 
 
 def test_load_paper_history_evidence_filters_by_symbol(tmp_path) -> None:
@@ -722,6 +871,12 @@ def test_render_decision_record_includes_decision_summary() -> None:
             "journal_path": "/tmp/trade_journal.sqlite",
             "fills_count": 4,
         },
+        "strategy_feedback_ledger": {
+            "status": "available",
+            "source": "trade_journal_sqlite",
+            "journal_path": "/tmp/trade_journal.sqlite",
+            "strategy_count": 1,
+        },
         "comparison": {
             "has_previous": True,
             "previous_as_of": "2026-03-18T12:00:00Z",
@@ -758,6 +913,7 @@ def test_render_decision_record_includes_decision_summary() -> None:
                     "strategy": "breakout_donchian",
                     "rank": 1,
                     "leaderboard_score": 0.8123,
+                    "base_leaderboard_score": 0.7873,
                     "avg_return_pct": 6.5,
                     "worst_window_return_pct": -1.2,
                     "max_drawdown_pct": 4.0,
@@ -768,6 +924,18 @@ def test_render_decision_record_includes_decision_summary() -> None:
                     "best_window_id": "w1",
                     "worst_window_id": "w2",
                     "paper_history_note": "1 closed trade, positive net realized pnl.",
+                    "strategy_feedback": {
+                        "closed_trades": 6,
+                        "net_realized_pnl": 18.0,
+                        "expectancy_per_closed_trade": 3.0,
+                        "win_rate": 2.0 / 3.0,
+                        "summary_text": "6 closed trade(s), +18.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate.",
+                    },
+                    "feedback_weighting": {
+                        "status": "boost",
+                        "adjustment": 0.025,
+                        "summary": "Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost.",
+                    },
                     "walk_forward": {
                         "available": True,
                         "status": "ok",
@@ -799,6 +967,8 @@ def test_render_decision_record_includes_decision_summary() -> None:
     assert "Strategy Decision Record — 2026-03-19" in text
     assert "evidence artifact: `/tmp/report.json`" in text
     assert "paper-history source: `trade_journal_sqlite`" in text
+    assert "strategy-feedback source: `trade_journal_sqlite`" in text
+    assert "strategy-feedback status: `available`" in text
     assert "## Run-to-Run Comparison" in text
     assert "top strategy changed: `yes`" in text
     assert "Top strategy changed from ema_cross to breakout_donchian" in text
@@ -810,11 +980,14 @@ def test_render_decision_record_includes_decision_summary() -> None:
     assert "- evidence status: `unknown`" in text
     assert "- confidence: `unknown`" in text
     assert "- paper-history: 1 closed trade, positive net realized pnl." in text
+    assert "- strategy feedback: 6 closed trade(s), +18.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate." in text
+    assert "- feedback weighting: `boost`" in text
     assert "- research acceptance: `not_accepted`" in text
     assert "- research summary: `breakout_donchian` does not meet the current research-acceptance floor yet." in text
     assert "- walk-forward: `ok`" in text
     assert "- walk-forward windows: `3`" in text
     assert "- Research blocker: Persisted paper history only has 1 closed trade(s); the current research floor requires 30." in text
+    assert "- Feedback weighting: Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost." in text
     assert "- Walk-forward summary: +1.10% average test return, 2.40% average test drawdown, 67% non-negative test windows, 3 closed test trade(s)." in text
     assert "- `breakout_donchian`" in text
     assert "- extend persisted evidence comparison beyond the immediately previous artifact" in text

@@ -43,6 +43,22 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
                     "biggest_weakness": "Thin loser sample.",
                     "next_improvement": "Study the latest losing exit cluster.",
                     "paper_history": {"closed_trades": 34, "fills": 68, "net_realized_pnl": 212.5},
+                    "strategy_feedback": {
+                        "closed_trades": 18,
+                        "net_realized_pnl": 54.0,
+                        "expectancy_per_closed_trade": 3.0,
+                        "win_rate": 2.0 / 3.0,
+                        "recent_closed_trades": 5,
+                        "recent_net_realized_pnl": 11.5,
+                        "summary_text": "18 closed trade(s), +54.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate.",
+                    },
+                    "feedback_weighting": {
+                        "status": "boost",
+                        "adjustment": 0.045,
+                        "summary": "Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost.",
+                        "closed_trades": 18,
+                        "sample_ratio": 0.9,
+                    },
                     "walk_forward": {
                         "available": True,
                         "status": "ok",
@@ -91,12 +107,16 @@ def test_build_strategy_lab_report_uses_top_strategy_and_loss_replay(monkeypatch
     assert report["severity"] == "ok"
     assert report["selected_strategy"] == "ema_cross"
     assert report["research_acceptance"]["accepted"] is True
+    assert report["strategy_feedback"]["closed_trades"] == 18
+    assert report["feedback_weighting"]["status"] == "boost"
+    assert report["feedback_weighting"]["adjustment"] == 0.045
     assert report["walk_forward"]["available"] is True
     assert report["walk_forward"]["window_count"] == 4
     assert report["walk_forward"]["summary"]["avg_test_return_pct"] == 1.6
     assert report["loss_replay"]["losing_trade_count"] == 2
     assert any("Top strategy changed" in item for item in report["recommendations"])
     assert any("Study the latest losing exit cluster." in item for item in report["recommendations"])
+    assert any("research leaderboard applies a small boost" in item for item in report["recommendations"])
 
 
 def test_build_strategy_lab_report_handles_missing_evidence(monkeypatch):
@@ -138,6 +158,22 @@ def test_build_strategy_lab_report_warns_when_evidence_is_partial_or_thin(monkey
                     "biggest_weakness": "Thin sample.",
                     "next_improvement": "Run more windows.",
                     "paper_history": {"closed_trades": 1, "fills": 2, "net_realized_pnl": 4.0},
+                    "strategy_feedback": {
+                        "closed_trades": 1,
+                        "net_realized_pnl": 4.0,
+                        "expectancy_per_closed_trade": 4.0,
+                        "win_rate": 1.0,
+                        "recent_closed_trades": 1,
+                        "recent_net_realized_pnl": 4.0,
+                        "summary_text": "1 closed trade(s), +4.00 net realized PnL, +4.00 expectancy per closed trade, 100.0% win rate.",
+                    },
+                    "feedback_weighting": {
+                        "status": "thin",
+                        "adjustment": 0.0,
+                        "summary": "Persisted strategy feedback remains thin at 1 closed trade(s); no leaderboard weighting adjustment is applied yet.",
+                        "closed_trades": 1,
+                        "sample_ratio": 0.05,
+                    },
                     "walk_forward": {
                         "available": False,
                         "status": "insufficient_candles",
@@ -171,12 +207,15 @@ def test_build_strategy_lab_report_warns_when_evidence_is_partial_or_thin(monkey
     assert report["ok"] is True
     assert report["severity"] == "warn"
     assert report["research_acceptance"]["accepted"] is False
+    assert report["strategy_feedback"]["closed_trades"] == 1
+    assert report["feedback_weighting"]["status"] == "thin"
     assert "partial evidence" in report["summary"]
     assert "does not meet the current research-acceptance floor" in report["research_acceptance"]["summary"]
     assert report["collector_runtime"]["completed_strategies"] == 1
     assert any("Finish the current paper evidence cycle" in item for item in report["recommendations"])
     assert any("credible edge" in item for item in report["recommendations"])
     assert any("Research acceptance blocker:" in item for item in report["recommendations"])
+    assert any("feedback remains thin" in item for item in report["recommendations"])
 
 
 def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
@@ -195,9 +234,22 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
                 "decision": "keep",
                 "leaderboard_score": 0.8,
                 "max_drawdown_pct": 2.0,
+                "feedback_weighting_status": "boost",
                 "walk_forward": {"status": "ok"},
             }
         ],
+        "strategy_feedback": {
+            "summary_text": "18 closed trade(s), +54.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate.",
+            "closed_trades": 18,
+            "expectancy_per_closed_trade": 3.0,
+            "net_realized_pnl": 54.0,
+            "win_rate": 2.0 / 3.0,
+        },
+        "feedback_weighting": {
+            "status": "boost",
+            "adjustment": 0.045,
+            "summary": "Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost.",
+        },
         "walk_forward": {
             "available": True,
             "status": "ok",
@@ -231,5 +283,7 @@ def test_write_strategy_lab_report_writes_files(tmp_path, monkeypatch):
     assert "# CryptKeep Strategy Lab" in markdown
     assert "ema_cross" in markdown
     assert "## Evidence Runtime" in markdown
+    assert "## Strategy Feedback" in markdown
+    assert "## Feedback Weighting" in markdown
     assert "## Research Acceptance" in markdown
     assert "## Walk-Forward" in markdown
