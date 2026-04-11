@@ -112,6 +112,19 @@ st.write(current_allocations)
 st.subheader("Execution Plan")
 st.dataframe(plan.get("rows", []), use_container_width=True)
 
+st.subheader("Plan Size Estimates")
+plan_estimates = [
+    {
+        "symbol": r.get("symbol"),
+        "action": r.get("action"),
+        "reference_price": r.get("reference_price"),
+        "est_notional_delta": r.get("est_notional_delta"),
+        "est_qty_delta": r.get("est_qty_delta"),
+    }
+    for r in (plan.get("rows") or [])
+]
+st.dataframe(plan_estimates, use_container_width=True)
+
 st.subheader("Buy List")
 st.dataframe(plan.get("buys", []), use_container_width=True)
 
