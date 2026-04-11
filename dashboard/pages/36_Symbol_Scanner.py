@@ -10,14 +10,14 @@ from dashboard.services.view_data import _repo_default_watchlist_assets
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 
-st.title("Watchlist Scanner")
-st.caption("Read-only scanner for configured symbols from config/trading.yaml using internal platform data.")
+st.title("Market Scanner")
+st.caption("Read-only scanner powered by Coinbase market-wide movers data.")
 
 col0, col1 = st.columns([1, 1])
 with col0:
     venue = st.selectbox("Venue", ["coinbase"], index=0, key="scanner_venue")
 with col1:
-    run_now = st.button("Run Symbol Scan", width="stretch", key="scanner_run")
+    run_now = st.button("Scan Coinbase Market", width="stretch", key="scanner_run")
 
 if "scanner_result" not in st.session_state:
     st.session_state["scanner_result"] = None
