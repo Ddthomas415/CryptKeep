@@ -14,14 +14,16 @@ CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 st.title("Execution Plan")
 st.caption("Build a rebalance plan from diversified rotation candidates and target allocation.")
 
-col0, col1, col2, col3 = st.columns([1, 1, 1, 1])
+col0, col1, col2, col3, col4 = st.columns([1, 1, 1, 1, 1])
 with col0:
     top_n = st.slider("Top candidates", min_value=3, max_value=15, value=8, step=1)
 with col1:
     total_budget = st.slider("Target deployment %", min_value=10.0, max_value=100.0, value=60.0, step=5.0)
 with col2:
-    min_delta_pct = st.slider("Min rebalance delta %", min_value=0.5, max_value=10.0, value=1.0, step=0.5)
+    portfolio_value = st.number_input("Portfolio value", min_value=100.0, value=10000.0, step=500.0)
 with col3:
+    min_delta_pct = st.slider("Min rebalance delta %", min_value=0.5, max_value=10.0, value=1.0, step=0.5)
+with col4:
     run_now = st.button("Build Execution Plan", width="stretch")
 
 if "execution_plan_result" not in st.session_state:
@@ -56,10 +58,15 @@ if run_now:
             positions=positions,
         )
 
+        plan_symbols = [str(r.get("symbol") or "").strip() for r in (allocation.get("rows") or []) if str(r.get("symbol") or "").strip()]
+        price_map = resolve_prices(symbols=plan_symbols, venue="coinbase")
+
         plan = build_execution_plan(
             target_rows=list(allocation.get("rows") or []),
             current_allocations=current_allocations,
             min_rebalance_delta_pct=min_delta_pct,
+            price_map=price_map,
+            portfolio_value=float(portfolio_value),
         )
 
         st.session_state["execution_plan_result"] = {

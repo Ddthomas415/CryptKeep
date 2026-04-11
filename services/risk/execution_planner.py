@@ -37,8 +37,12 @@ def build_execution_plan(
     target_rows: list[dict[str, Any]],
     current_allocations: dict[str, float] | None = None,
     min_rebalance_delta_pct: float = 1.0,
+    price_map: dict[str, float] | None = None,
+    portfolio_value: float = 10000.0,
 ) -> dict[str, Any]:
     current_allocations = dict(current_allocations or {})
+    price_map = {str(k).strip().upper(): _safe_float(v, 0.0) for k, v in dict(price_map or {}).items()}
+    portfolio_value = _safe_float(portfolio_value, 10000.0)
     targets = []
     target_symbols = set()
 
@@ -57,6 +61,10 @@ def build_execution_plan(
         elif delta <= -min_rebalance_delta_pct:
             action = "sell"
 
+        ref_price = _safe_float(price_map.get(sym), 0.0)
+        est_notional_delta = (abs(delta) / 100.0) * portfolio_value
+        est_qty_delta = (est_notional_delta / ref_price) if ref_price > 0 else 0.0
+
         targets.append({
             **row,
             "symbol": sym,
@@ -64,11 +72,18 @@ def build_execution_plan(
             "delta_alloc_pct": round(delta, 4),
             "action": action,
             "priority": round(abs(delta), 4),
+            "reference_price": round(ref_price, 8) if ref_price > 0 else 0.0,
+            "est_notional_delta": round(est_notional_delta, 4),
+            "est_qty_delta": round(est_qty_delta, 8),
         })
 
     # anything currently allocated but not in target set becomes a sell-down candidate
     for sym, current_alloc in current_allocations.items():
         if sym not in target_symbols and _safe_float(current_alloc, 0.0) > 0:
+            ref_price = _safe_float(price_map.get(sym), 0.0)
+            est_notional_delta = (_safe_float(current_alloc, 0.0) / 100.0) * portfolio_value
+            est_qty_delta = (est_notional_delta / ref_price) if ref_price > 0 else 0.0
+
             targets.append({
                 "symbol": sym,
                 "target_alloc_pct": 0.0,
@@ -77,6 +92,9 @@ def build_execution_plan(
                 "action": "sell",
                 "priority": round(abs(_safe_float(current_alloc, 0.0)), 4),
                 "reason": "not_in_target_set",
+                "reference_price": round(ref_price, 8) if ref_price > 0 else 0.0,
+                "est_notional_delta": round(est_notional_delta, 4),
+                "est_qty_delta": round(est_qty_delta, 8),
             })
 
     targets.sort(key=lambda r: _safe_float(r.get("priority"), 0.0), reverse=True)
