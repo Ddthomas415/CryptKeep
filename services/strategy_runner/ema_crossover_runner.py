@@ -20,6 +20,7 @@ from services.security.exchange_factory import make_exchange
 from services.strategies.config_tools import build_strategy_block
 from services.strategies.presets import get_preset
 from services.strategies.strategy_registry import compute_signal
+from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
@@ -469,6 +470,7 @@ def run_forever() -> None:
     qdb = IntentQueueSQLite()
     pdb = PaperTradingSQLite()
     sdb = StrategyStateSQLite()
+    risk_limits = build_risk_limits(cfg)
 
     # Breakout/post-entry exit defaults.
     # These are runner-level controls and should be explicitly versioned in strategy config
@@ -641,6 +643,22 @@ def run_forever() -> None:
                     sdb.set(k_last_action, decision)
             action = None
             pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
+
+            all_positions = []
+            try:
+                if hasattr(pdb, "list_positions"):
+                    all_positions = list(pdb.list_positions() or [])
+                elif hasattr(pdb, "get_all_positions"):
+                    all_positions = list(pdb.get_all_positions() or [])
+                elif hasattr(pdb, "positions"):
+                    all_positions = list(pdb.positions() or [])
+            except Exception:
+                all_positions = []
+
+            exposure = summarize_exposure(
+                positions=all_positions,
+                strategy_name=str(cfg.get("strategy_id") or ""),
+            )
             pos_qty = float(pos.get("qty") or 0.0)
 
             # Track entry/hold state for strategy-aware exit controls.
@@ -743,6 +761,32 @@ def run_forever() -> None:
 
                 # Keep exit-state in sync with newly emitted intents.
                 if action == "buy":
+                    risk_check = evaluate_entry(
+                        symbol=symbol,
+                        strategy_name=str(cfg.get("strategy_id") or ""),
+                        limits=risk_limits,
+                        exposure=exposure,
+                        open_intents_for_symbol=0,
+                    )
+                    if not bool(risk_check.get("ok")):
+                        _write_status(
+                            {
+                                "ok": True,
+                                "status": "running",
+                                "pid": os.getpid(),
+                                "ts": _now(),
+                                "venue": cfg["venue"],
+                                "symbol": symbol,
+                                "symbols": symbols,
+                                "strategy_id": cfg.get("strategy_id"),
+                                "signal_action": action,
+                                "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                                "risk_reason": risk_check.get("reason"),
+                                "risk_exposure": exposure,
+                                "note": "risk_blocked_entry",
+                            }
+                        )
+                        continue
                     sdb.set(k_entry_price, str(float(m)))
                     sdb.set(k_trailing_peak, str(float(m)))
                     sdb.set(k_bars_held, "0")

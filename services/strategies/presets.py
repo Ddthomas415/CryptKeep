@@ -7,6 +7,13 @@ from typing import Any, Dict
 
 PRESETS: Dict[str, Dict[str, Any]] = {
     "ema_cross_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+        },
         "strategy": {
             "name": "ema_cross",
             "trade_enabled": True,
@@ -20,6 +27,13 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
     "mean_reversion_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+        },
         "strategy": {
             "name": "mean_reversion_rsi",
             "trade_enabled": True,
@@ -36,6 +50,13 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
     "breakout_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+        },
         "strategy": {
             "name": "breakout_donchian",
             "trade_enabled": True,
@@ -50,6 +71,13 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
     "momentum_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+        },
         "strategy": {
             "name": "momentum",
             "min_change_pct": 2.0,
@@ -62,6 +90,13 @@ PRESETS: Dict[str, Dict[str, Any]] = {
     },
 
     "volatility_reversal_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+        },
         "strategy": {
             "name": "volatility_reversal",
             "rsi_len": 14,
@@ -74,6 +109,13 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
     "gap_fill_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+        },
         "strategy": {
             "name": "gap_fill",
             "rsi_len": 14,
@@ -85,6 +127,13 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
     "breakout_volume_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+        },
         "strategy": {
             "name": "breakout_volume",
             "donchian_len": 20,
