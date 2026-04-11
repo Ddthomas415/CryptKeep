@@ -7,6 +7,7 @@ from services.market_data.correlation_inputs import load_series_by_symbol
 from services.market_data.composite_ranker import score_row, apply_correlation_penalty
 from services.market_data.correlation_matrix import build_correlation_matrix, diversify_ranked_symbols
 from services.market_data.market_intelligence import build_market_intelligence_snapshot
+from services.market_data.order_book_intelligence import scan_order_book_pressure
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -49,19 +50,27 @@ def build_rotation_candidates(
             continue
         filtered.append(dict(row))
 
+    spot_symbols = [str(r.get("symbol") or "").strip() for r in filtered[:top_n] if str(r.get("symbol") or "").strip()]
     intel = build_market_intelligence_snapshot(
         futures_symbols=["BTC/USDT", "ETH/USDT", "SOL/USDT", "AVAX/USDT", "LINK/USDT"],
-        spot_symbols=[str(r.get("symbol") or "").strip() for r in filtered[:top_n] if str(r.get("symbol") or "").strip()],
+        spot_symbols=spot_symbols,
     )
+    order_book = scan_order_book_pressure(
+        symbols=spot_symbols,
+        venue=venue,
+        depth=10,
+    )
+
     funding_rows = {(str(r.get("symbol") or "").strip()): r for r in ((intel.get("funding") or {}).get("rates") or [])}
     oi_rows = {(str(r.get("symbol") or "").strip().replace("USDT", "USD")): r for r in ((intel.get("open_interest") or {}).get("rows") or [])}
+    order_book_rows = {(str(r.get("symbol") or "").strip()): r for r in ((order_book.get("rows") or []))}
 
     filtered = [
         score_row(
             row=r,
             funding_row=funding_rows.get(str(r.get("symbol") or "").replace("/USD", "/USDT")),
             oi_row=oi_rows.get(str(r.get("symbol") or "").strip()),
-            order_book_row=None,
+            order_book_row=order_book_rows.get(str(r.get("symbol") or "").strip()),
             regime=str((scan.get("market_regime") or {}).get("regime") or r.get("regime") or "unknown"),
         )
         for r in filtered

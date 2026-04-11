@@ -75,6 +75,7 @@ for r in (result.get("selected_rows") or []):
         "funding": b.get("funding"),
         "open_interest": b.get("open_interest"),
         "order_book": b.get("order_book"),
+        "order_book_imbalance": r.get("order_book_imbalance"),
         "rsi": b.get("rsi"),
         "volatility": b.get("volatility"),
     })
