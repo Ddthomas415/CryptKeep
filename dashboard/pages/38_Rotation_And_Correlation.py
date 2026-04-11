@@ -59,6 +59,27 @@ st.write(result.get("selected", []))
 st.subheader("Selected Rows")
 st.dataframe(result.get("selected_rows", []), use_container_width=True)
 
+st.subheader("Score Breakdown")
+score_rows = []
+for r in (result.get("selected_rows") or []):
+    b = dict(r.get("score_breakdown") or {})
+    score_rows.append({
+        "symbol": r.get("symbol"),
+        "composite_score": r.get("composite_score"),
+        "composite_score_penalized": r.get("composite_score_penalized"),
+        "correlation_penalty": r.get("correlation_penalty"),
+        "momentum": b.get("momentum"),
+        "hot": b.get("hot"),
+        "volume": b.get("volume"),
+        "regime": b.get("regime"),
+        "funding": b.get("funding"),
+        "open_interest": b.get("open_interest"),
+        "order_book": b.get("order_book"),
+        "rsi": b.get("rsi"),
+        "volatility": b.get("volatility"),
+    })
+st.dataframe(score_rows, use_container_width=True)
+
 st.subheader("Top Rotation Candidates")
 st.dataframe(result.get("rows", []), use_container_width=True)
 
