@@ -1,6 +1,8 @@
+
 from __future__ import annotations
 
 import math
+import time
 from typing import Any
 
 try:
@@ -21,8 +23,8 @@ def resolve_prices(
     *,
     symbols: list[str],
     venue: str = "coinbase",
-) -> dict[str, float]:
-    out: dict[str, float] = {}
+) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
     if ccxt is None:
         return out
 
@@ -39,10 +41,19 @@ def resolve_prices(
             try:
                 ticker = ex.fetch_ticker(sym)
                 px = _safe_float(ticker.get("last"), 0.0)
+                source = "last"
                 if px <= 0:
-                    px = _safe_float(ticker.get("bid"), 0.0) or _safe_float(ticker.get("ask"), 0.0)
+                    bid = _safe_float(ticker.get("bid"), 0.0)
+                    ask = _safe_float(ticker.get("ask"), 0.0)
+                    px = bid or ask
+                    source = "bid_or_ask"
                 if px > 0:
-                    out[sym] = px
+                    out[sym] = {
+                        "price": px,
+                        "venue": venue,
+                        "price_source": source,
+                        "price_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    }
             except Exception:
                 continue
     finally:

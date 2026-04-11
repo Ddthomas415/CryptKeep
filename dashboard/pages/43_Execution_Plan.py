@@ -118,6 +118,9 @@ plan_estimates = [
         "symbol": r.get("symbol"),
         "action": r.get("action"),
         "reference_price": r.get("reference_price"),
+        "reference_price_venue": r.get("reference_price_venue"),
+        "reference_price_source": r.get("reference_price_source"),
+        "reference_price_ts": r.get("reference_price_ts"),
         "est_notional_delta": r.get("est_notional_delta"),
         "est_qty_delta": r.get("est_qty_delta"),
     }
