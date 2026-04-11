@@ -133,6 +133,8 @@ def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, A
     if str(kind or "") == "strategy_lab":
         runtime = dict((payload or {}).get("collector_runtime") or {})
         research_acceptance = dict((payload or {}).get("research_acceptance") or {})
+        strategy_feedback = dict((payload or {}).get("strategy_feedback") or {})
+        feedback_weighting = dict((payload or {}).get("feedback_weighting") or {})
         walk_forward = dict((payload or {}).get("walk_forward") or {})
         walk_forward_summary = dict(walk_forward.get("summary") or {})
         details = {
@@ -140,6 +142,14 @@ def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, A
             "completed_strategies": int(runtime.get("completed_strategies") or 0),
             "total_strategies": int(runtime.get("total_strategies") or 0),
             "summary_text": str(runtime.get("summary_text") or ""),
+            "strategy_feedback_summary": str(strategy_feedback.get("summary_text") or ""),
+            "strategy_feedback_closed_trades": int(strategy_feedback.get("closed_trades") or 0),
+            "strategy_feedback_net_realized_pnl": float(strategy_feedback.get("net_realized_pnl") or 0.0),
+            "strategy_feedback_expectancy_per_closed_trade": float(strategy_feedback.get("expectancy_per_closed_trade") or 0.0),
+            "strategy_feedback_win_rate": float(strategy_feedback.get("win_rate") or 0.0),
+            "feedback_weighting_status": str(feedback_weighting.get("status") or "unknown"),
+            "feedback_weighting_adjustment": float(feedback_weighting.get("adjustment") or 0.0),
+            "feedback_weighting_summary": str(feedback_weighting.get("summary") or ""),
             "research_acceptance_status": str(research_acceptance.get("status") or "unknown"),
             "research_acceptance_summary": str(research_acceptance.get("summary") or ""),
             "research_acceptance_accepted": bool(research_acceptance.get("accepted")),
