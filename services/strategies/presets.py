@@ -49,6 +49,18 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "require_directional_confirmation": True,
         },
     },
+    "momentum_default": {
+        "strategy": {
+            "name": "momentum",
+            "min_change_pct": 2.0,
+            "max_rsi_entry": 75.0,
+            "rsi_exit": 80.0,
+            "sma_period": 20,
+            "rsi_period": 14,
+            "stop_below_sma": True,
+        },
+    },
+
 }
 
 
