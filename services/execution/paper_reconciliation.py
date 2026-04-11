@@ -178,6 +178,8 @@ def reconcile_execution_plan_intents(
         target_alloc = _safe_float(row.get("target_alloc_pct"), _safe_float(meta.get("target_alloc_pct"), 0.0))
         current_alloc = _safe_float(row.get("current_alloc_pct"), _safe_float(meta.get("current_alloc_pct"), 0.0))
         delta_alloc = _safe_float(row.get("delta_alloc_pct"), _safe_float(meta.get("delta_alloc_pct"), 0.0))
+        est_qty_delta = abs(_safe_float(row.get("est_qty_delta"), _safe_float(meta.get("est_qty_delta"), 0.0)))
+        est_notional_delta = abs(_safe_float(row.get("est_notional_delta"), _safe_float(meta.get("est_notional_delta"), 0.0)))
 
         pos = _find_position(positions, symbol)
         qty = _safe_float(pos.get("qty"), 0.0)
@@ -185,16 +187,60 @@ def reconcile_execution_plan_intents(
         exposure_pct = _safe_float(pos.get("exposure_pct"), _safe_float(pos.get("notional_pct"), 0.0))
 
         try:
-            applied = apply_allocation_fill(
-                action=action,
-                fill_price=fill_price,
-                delta_alloc_pct=delta_alloc,
-                current_qty=qty,
-                current_avg_price=avg_price,
-                current_exposure_pct=exposure_pct,
-            )
+            applied = None
+            applied_source = "allocation_fallback"
+
+            if est_qty_delta > 0 and fill_price > 0:
+                if action == "buy":
+                    new_qty = qty + est_qty_delta
+                    new_exposure = exposure_pct + est_notional_delta
+                    new_avg = fill_price if qty <= 0 or avg_price <= 0 else ((avg_price * qty) + (fill_price * est_qty_delta)) / max(new_qty, 1e-12)
+                    event = "open" if qty <= 0 else "add"
+                    signed_qty_delta = est_qty_delta
+                else:
+                    sell_qty = min(qty, est_qty_delta) if qty > 0 else 0.0
+                    new_qty = max(0.0, qty - sell_qty)
+                    new_exposure = max(0.0, exposure_pct - est_notional_delta)
+                    new_avg = avg_price if new_qty > 1e-12 else 0.0
+                    event = "close" if new_qty <= 1e-12 else "reduce"
+                    signed_qty_delta = -est_qty_delta
+
+                applied = {
+                    "ok": True,
+                    "reason": "applied_estimated_qty",
+                    "new_qty": round(new_qty, 8),
+                    "new_avg_price": round(new_avg, 8),
+                    "new_exposure_pct": round(new_exposure, 4),
+                    "qty_delta": round(signed_qty_delta, 8),
+                    "position_event": event,
+                }
+                applied_source = "estimated_qty"
+
+            elif est_notional_delta > 0 and fill_price > 0:
+                synthetic_delta_alloc = est_notional_delta
+                applied = apply_allocation_fill(
+                    action=action,
+                    fill_price=fill_price,
+                    delta_alloc_pct=synthetic_delta_alloc,
+                    current_qty=qty,
+                    current_avg_price=avg_price,
+                    current_exposure_pct=exposure_pct,
+                )
+                applied_source = "estimated_notional"
+
+            else:
+                applied = apply_allocation_fill(
+                    action=action,
+                    fill_price=fill_price,
+                    delta_alloc_pct=delta_alloc,
+                    current_qty=qty,
+                    current_avg_price=avg_price,
+                    current_exposure_pct=exposure_pct,
+                )
+                applied_source = "allocation_fallback"
+
             if not bool(applied.get("ok")):
-                raise RuntimeError(str(applied.get("reason") or "apply_allocation_fill_failed"))
+                raise RuntimeError(str(applied.get("reason") or "apply_fill_failed"))
 
             new_pos = {
                 **pos,
@@ -218,6 +264,9 @@ def reconcile_execution_plan_intents(
                 "target_alloc_pct": round(target_alloc, 4),
                 "current_alloc_pct": round(current_alloc, 4),
                 "delta_alloc_pct": round(delta_alloc, 4),
+                "est_notional_delta": round(est_notional_delta, 4),
+                "est_qty_delta": round(est_qty_delta, 8),
+                "applied_source": applied_source,
                 "old_exposure_pct": round(exposure_pct, 4),
                 "new_exposure_pct": float(applied["new_exposure_pct"]),
                 "old_qty": round(qty, 8),
