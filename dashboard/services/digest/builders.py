@@ -1369,16 +1369,21 @@ def build_next_best_action_digest(
 
     top_row = next(iter(list(leaderboard_summary.get("rows") or [])), None)
     if top_row:
+        top_row_caveat = str(top_row.get("caveat") or "").strip()
         return NextBestActionData(
             **_base_section(
                 as_of=as_of,
-                caveat="Action is derived from the top synthetic strategy benchmark row.",
+                caveat="Action is derived from the top leaderboard row when no higher-severity attention item is active.",
                 source_name=DIGEST_SOURCE_MAP["next_best_action_leaderboard"],
                 source_age_seconds=0,
             ),
             title=f"Review {_candidate_title(top_row.get('name') or top_row.get('strategy_id') or 'top strategy')}",
-            why="It currently leads the synthetic benchmark and is the best available candidate for deeper review.",
-            recommended_action="Review the top strategy hypothesis and regime weaknesses before considering sandbox promotion.",
+            why=top_row_caveat or "It currently leads the synthetic benchmark and is the best available candidate for deeper review.",
+            recommended_action=(
+                "Review the top strategy hypothesis, persisted feedback weighting, and regime weaknesses before considering sandbox promotion."
+                if top_row_caveat
+                else "Review the top strategy hypothesis and regime weaknesses before considering sandbox promotion."
+            ),
             secondary_actions=[
                 "Check structural-edge freshness before trusting the digest.",
                 "Keep current execution posture conservative until blockers are clear.",

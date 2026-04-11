@@ -104,6 +104,7 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
   - fallback to `leaderboard_summary`
 - Notes:
   - The current recommendation is intentionally conservative.
+  - When the digest falls back to `leaderboard_summary`, the top row caveat may carry persisted research-only strategy-feedback and feedback-weighting rationale into the action explanation.
   - It does not imply that any strategy is validated for promotion.
 
 ## Missing Upstream Summaries
