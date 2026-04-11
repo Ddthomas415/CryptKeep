@@ -20,6 +20,7 @@ from services.security.exchange_factory import make_exchange
 from services.strategies.config_tools import build_strategy_block
 from services.strategies.presets import get_preset
 from services.strategies.strategy_registry import compute_signal
+from services.strategies.strategy_selector import select_strategy
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
 from services.risk.kill_conditions import build_kill_limits, should_block_symbol, evaluate_risk_block_kill
 from services.risk.position_scaling import build_scaling_limits, summarize_position_for_scaling, evaluate_scale_in
@@ -589,8 +590,13 @@ def run_forever() -> None:
                         continue
                     ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
                     m = float(ohlcv[-1][4])
+                    selection = select_strategy(
+                        default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
+                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
+                    )
+                    selected_strategy = str(selection.get("selected_strategy") or cfg.get("strategy_id") or "ema_cross")
                     signal = compute_signal(
-                        cfg={"strategy": dict(cfg.get("strategy") or {})},
+                        cfg={"strategy": {**dict(cfg.get("strategy") or {}), "name": selected_strategy}},
                         symbol=symbol,
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
@@ -634,7 +640,16 @@ def run_forever() -> None:
                     )
                     time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                     continue
-                signal = _strategy_signal(cfg, prices[-int(cfg["min_bars"]):], ts_ms=ts_ms)
+                selection = select_strategy(
+                    default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
+                    ohlcv=_synth_ohlcv(prices[-int(cfg["min_bars"]):], ts_ms=ts_ms),
+                )
+                selected_strategy = str(selection.get("selected_strategy") or cfg.get("strategy_id") or "ema_cross")
+                signal = compute_signal(
+                    cfg={"strategy": {**dict(cfg.get("strategy") or {}), "name": selected_strategy}},
+                    symbol=symbol,
+                    ohlcv=_synth_ohlcv(prices[-int(cfg["min_bars"]):], ts_ms=ts_ms),
+                )
                 bars = len(prices)
             decision = str(signal.get("action") or "hold").lower().strip()
             if decision not in ("buy", "sell", "hold"):
@@ -990,6 +1005,11 @@ def run_forever() -> None:
                 "ts_ms": ts_ms if 'ts_ms' in locals() else None,
                 "bars": bars if 'bars' in locals() else len(prices),
                 "strategy_id": cfg["strategy_id"] if 'cfg' in locals() else None,
+                "selected_strategy": selected_strategy if 'selected_strategy' in locals() else None,
+                "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
+                "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
+                "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
+                "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
                 "strategy_preset": cfg["strategy_preset"] if 'cfg' in locals() else None,
                 "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,
                 "signal_action": decision if 'decision' in locals() else None,
