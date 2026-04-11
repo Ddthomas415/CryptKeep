@@ -23,6 +23,7 @@ from services.strategies.strategy_registry import compute_signal
 from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
 from services.risk.kill_conditions import build_kill_limits, should_block_symbol, evaluate_risk_block_kill
 from services.risk.position_scaling import build_scaling_limits, summarize_position_for_scaling, evaluate_scale_in
+from services.validation.paper_multi_symbol_validation import collect_runtime_rows, validate_multi_symbol_state
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
@@ -663,9 +664,20 @@ def run_forever() -> None:
             except Exception:
                 all_positions = []
 
+            all_positions, all_intents = collect_runtime_rows(
+                paper_db=pdb,
+                intent_db=qdb,
+            )
+
             exposure = summarize_exposure(
                 positions=all_positions,
                 strategy_name=str(cfg.get("strategy_id") or ""),
+            )
+
+            multi_symbol_validation = validate_multi_symbol_state(
+                positions=all_positions,
+                intents=all_intents,
+                max_open_intents_per_symbol=int(risk_limits.get("max_open_intents_per_symbol", 1)),
             )
             pos_qty = float(pos.get("qty") or 0.0)
 
@@ -848,6 +860,7 @@ def run_forever() -> None:
                                     "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
                                     "risk_reason": risk_check.get("reason"),
                                     "risk_exposure": exposure,
+                                    "paper_validation": multi_symbol_validation,
                                     "risk_block_count": risk_block_count,
                                     "kill_reason": kill_eval.get("reason"),
                                     "kill_until_loop": kill_eval.get("kill_until_loop"),
@@ -869,6 +882,7 @@ def run_forever() -> None:
                                     "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
                                     "risk_reason": risk_check.get("reason"),
                                     "risk_exposure": exposure,
+                                    "paper_validation": multi_symbol_validation,
                                     "risk_block_count": risk_block_count,
                                     "note": "risk_blocked_entry",
                                 }
