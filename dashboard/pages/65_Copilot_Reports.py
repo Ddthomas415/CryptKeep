@@ -151,6 +151,24 @@ else:
                 "summary": str(focus_details.get("summary_text") or ""),
             }
         )
+        st.markdown("#### Strategy Feedback")
+        st.write(
+            {
+                "summary": str(focus_details.get("strategy_feedback_summary") or ""),
+                "closed_trades": int(focus_details.get("strategy_feedback_closed_trades") or 0),
+                "net_realized_pnl": float(focus_details.get("strategy_feedback_net_realized_pnl") or 0.0),
+                "expectancy_per_closed_trade": float(focus_details.get("strategy_feedback_expectancy_per_closed_trade") or 0.0),
+                "win_rate": float(focus_details.get("strategy_feedback_win_rate") or 0.0),
+            }
+        )
+        st.markdown("#### Feedback Weighting")
+        st.write(
+            {
+                "status": str(focus_details.get("feedback_weighting_status") or "unknown"),
+                "adjustment": float(focus_details.get("feedback_weighting_adjustment") or 0.0),
+                "summary": str(focus_details.get("feedback_weighting_summary") or ""),
+            }
+        )
         st.markdown("#### Research Acceptance")
         st.write(
             {

@@ -89,6 +89,18 @@ def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_deta
                 "total_strategies": 3,
                 "summary_text": "Paper evidence collector is stopped (1/3 complete).",
             },
+            "strategy_feedback": {
+                "summary_text": "18 closed trade(s), +54.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate.",
+                "closed_trades": 18,
+                "net_realized_pnl": 54.0,
+                "expectancy_per_closed_trade": 3.0,
+                "win_rate": 2.0 / 3.0,
+            },
+            "feedback_weighting": {
+                "status": "boost",
+                "adjustment": 0.045,
+                "summary": "Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost.",
+            },
             "research_acceptance": {
                 "accepted": False,
                 "status": "not_accepted",
@@ -119,6 +131,10 @@ def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_deta
     assert "partial evidence" in focus["message"]
     assert "1/3 complete" in focus["message"]
     assert focus["details"]["completed_strategies"] == 1
+    assert focus["details"]["strategy_feedback_closed_trades"] == 18
+    assert focus["details"]["strategy_feedback_expectancy_per_closed_trade"] == 3.0
+    assert focus["details"]["feedback_weighting_status"] == "boost"
+    assert focus["details"]["feedback_weighting_adjustment"] == 0.045
     assert focus["details"]["research_acceptance_status"] == "not_accepted"
     assert focus["details"]["research_acceptance_accepted"] is False
     assert "research-acceptance floor" in focus["details"]["research_acceptance_summary"]

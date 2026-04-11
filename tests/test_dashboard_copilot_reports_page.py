@@ -114,6 +114,18 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
                     "total_strategies": 3,
                     "summary_text": "Paper evidence collector is stopped (1/3 complete).",
                 },
+                "strategy_feedback": {
+                    "summary_text": "18 closed trade(s), +54.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate.",
+                    "closed_trades": 18,
+                    "net_realized_pnl": 54.0,
+                    "expectancy_per_closed_trade": 3.0,
+                    "win_rate": 2.0 / 3.0,
+                },
+                "feedback_weighting": {
+                    "status": "boost",
+                    "adjustment": 0.045,
+                    "summary": "Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost.",
+                },
                 "research_acceptance": {
                     "accepted": False,
                     "status": "not_accepted",
@@ -147,6 +159,8 @@ def test_copilot_reports_page_imports(monkeypatch) -> None:
 
     assert any("partial evidence" in msg.lower() or "1/3 complete" in msg.lower() for msg in fake_streamlit.warnings)
     assert any(isinstance(item, dict) and item.get("completed_strategies") == 1 for item in fake_streamlit.writes)
+    assert any(isinstance(item, dict) and item.get("closed_trades") == 18 and item.get("expectancy_per_closed_trade") == 3.0 for item in fake_streamlit.writes)
+    assert any(isinstance(item, dict) and item.get("status") == "boost" and item.get("adjustment") == 0.045 for item in fake_streamlit.writes)
     assert any(isinstance(item, dict) and item.get("status") == "not_accepted" for item in fake_streamlit.writes)
     assert any(isinstance(item, str) and "Persisted paper history only has 1 closed trade" in item for item in fake_streamlit.writes)
     assert any(isinstance(item, dict) and item.get("window_count") == 4 and item.get("status") == "ok" for item in fake_streamlit.writes)

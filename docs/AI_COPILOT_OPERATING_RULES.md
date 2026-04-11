@@ -108,6 +108,7 @@ Entry points:
 Purpose:
 
 - summarize the latest persisted strategy evidence and paper-history posture
+- surface persisted strategy-feedback summaries and conservative research-weighting metadata
 - surface descriptive anchored walk-forward summaries from the persisted evidence row
 - attach recent losing replay rows for the selected top strategy
 - recommend next experiments without changing live, paper, or config state
@@ -116,6 +117,7 @@ Initial inputs:
 
 - `strategy_evidence.latest.json`
 - persisted paper-history summary from the evidence payload
+- persisted strategy-feedback summary and feedback-weighting metadata from the evidence payload
 - persisted walk-forward summary from the evidence payload
 - loser replay rows from `paper_loss_replay`
 
@@ -125,6 +127,7 @@ Hard rules:
 - no config writes
 - no database mutation
 - no live strategy promotion or parameter application
+- no live sizing authority from feedback weighting
 
 ### Repo Reviewer
 
