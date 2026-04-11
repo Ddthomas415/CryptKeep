@@ -471,6 +471,76 @@ def test_build_mode_truth_digest_warns_when_promotion_review_is_clear_but_resear
     assert any("research-acceptance floor" in item for item in payload["promotion_blockers"])
 
 
+def test_build_next_best_action_digest_uses_top_row_caveat_when_attention_is_info_only() -> None:
+    payload = home_digest.build_next_best_action_digest(
+        as_of="2026-03-19T12:00:00Z",
+        attention_now={
+            "as_of": "2026-03-19T12:00:00Z",
+            "caveat": None,
+            "source_name": "attention_now",
+            "source_age_seconds": 0,
+            "items": [
+                {
+                    "id": "info-only",
+                    "severity": "info",
+                    "title": "No urgent digest items",
+                    "why_it_matters": "Nothing urgent is active.",
+                    "next_action": "Stay conservative.",
+                    "source": "digest",
+                    "as_of": "2026-03-19T12:00:00Z",
+                    "link_target": None,
+                }
+            ],
+        },
+        leaderboard_summary={
+            "as_of": "2026-03-19T12:00:00Z",
+            "caveat": None,
+            "source_name": "leaderboard",
+            "source_age_seconds": 0,
+            "rows": [
+                {
+                    "strategy_id": "breakout_donchian",
+                    "name": "Breakout Default",
+                    "rank": 1,
+                    "score": 0.57,
+                    "score_label": "0.57",
+                    "post_cost_return_pct": 19.01,
+                    "max_drawdown_pct": 7.83,
+                    "closed_trades": 4,
+                    "best_regime": "bull",
+                    "worst_regime": "bear",
+                    "paper_live_drift": "unknown",
+                    "recommendation": "keep",
+                    "as_of": "2026-03-19T12:00:00Z",
+                    "caveat": "18 closed trade(s), +54.00 net realized PnL, +3.00 expectancy per closed trade, 66.7% win rate. Persisted paper feedback is positive for this strategy (+3.00 expectancy, 66.7% win rate), so the research leaderboard applies a small boost.",
+                }
+            ],
+        },
+        mode_truth={
+            "as_of": "2026-03-19T12:00:00Z",
+            "caveat": None,
+            "source_name": "mode_truth",
+            "source_age_seconds": 0,
+            "current_mode": "paper",
+            "label": "Paper",
+            "allowed": [],
+            "blocked": [],
+            "promotion_stage": "Paper",
+            "promotion_target": "Sandbox Live",
+            "promotion_status": "warn",
+            "promotion_summary": "Paper first.",
+            "promotion_pass_criteria": [],
+            "promotion_rollback_criteria": [],
+            "promotion_blockers": [],
+        },
+    )
+
+    assert payload["source"] == "strategy_leaderboard"
+    assert payload["title"] == "Review Breakout Default"
+    assert "18 closed trade(s), +54.00 net realized PnL" in payload["why"]
+    assert "feedback weighting" in payload["recommended_action"]
+
+
 def test_load_home_digest_surfaces_system_guard_blocking(monkeypatch) -> None:
     monkeypatch.setattr(
         home_digest,
