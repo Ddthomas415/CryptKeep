@@ -8,6 +8,7 @@ from services.market_data.composite_ranker import score_row, apply_correlation_p
 from services.market_data.correlation_matrix import build_correlation_matrix, diversify_ranked_symbols
 from services.market_data.market_intelligence import build_market_intelligence_snapshot
 from services.market_data.order_book_intelligence import scan_order_book_pressure
+from services.strategies.presets import PRESETS
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -26,6 +27,7 @@ def build_rotation_candidates(
     min_volume_24h: float = 100000.0,
     diversify: bool = True,
     max_abs_corr: float = 0.85,
+    ranking_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     scan = run_symbol_scan(venue=venue, symbols=[])
     if not scan.get("ok"):
@@ -72,6 +74,7 @@ def build_rotation_candidates(
             oi_row=oi_rows.get(str(r.get("symbol") or "").strip()),
             order_book_row=order_book_rows.get(str(r.get("symbol") or "").strip()),
             regime=str((scan.get("market_regime") or {}).get("regime") or r.get("regime") or "unknown"),
+            config=ranking_config,
         )
         for r in filtered
     ]
@@ -120,6 +123,7 @@ def build_rotation_candidates(
         "selected": selected,
         "correlation": corr,
         "diversified": bool(diversify),
+        "ranking_config": dict(ranking_config or {}),
         "scanned": scan.get("scanned", 0),
         "ts": scan.get("ts"),
     }
