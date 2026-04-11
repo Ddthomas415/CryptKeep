@@ -25,6 +25,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "ema_cross",
@@ -57,6 +58,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "mean_reversion_rsi",
@@ -92,6 +94,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "breakout_donchian",
@@ -125,6 +128,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "momentum",
@@ -156,6 +160,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "volatility_reversal",
@@ -187,6 +192,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "gap_fill",
@@ -217,6 +223,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "breakout_volume",
@@ -248,6 +255,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "funding_extreme",
@@ -274,6 +282,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
             "target_total_deployment_pct": 60.0,
             "max_symbol_allocation_pct": 20.0,
             "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
         },
         "strategy": {
             "name": "open_interest_shift",
