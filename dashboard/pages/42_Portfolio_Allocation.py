@@ -4,6 +4,7 @@ import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
 from services.market_data.correlation_matrix import build_correlation_matrix
+from services.market_data.correlation_inputs import load_series_by_symbol
 from services.market_data.rotation_engine import build_rotation_candidates
 from services.risk.allocation_engine import build_allocation_limits, allocate_budget
 
@@ -30,10 +31,14 @@ if run_now:
     with st.spinner("Building allocation plan..."):
         rotation = build_rotation_candidates(top_n=top_n)
 
-        # correlation scaffold uses rotation rows only for now
         symbols = [str(r.get("symbol") or "").strip() for r in (rotation.get("rows") or []) if str(r.get("symbol") or "").strip()]
-        fake_series = {sym: [] for sym in symbols}
-        corr = build_correlation_matrix(series_by_symbol=fake_series)
+        series_by_symbol = load_series_by_symbol(
+            venue="coinbase",
+            symbols=symbols,
+            timeframe="1h",
+            limit=120,
+        )
+        corr = build_correlation_matrix(series_by_symbol=series_by_symbol)
 
         limits = build_allocation_limits({
             "risk": {
