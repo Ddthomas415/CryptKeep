@@ -644,17 +644,6 @@ def run_forever() -> None:
                     )
                     time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                     continue
-                selection = select_strategy(
-                    default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
-                    ohlcv=_synth_ohlcv(prices[-int(cfg["min_bars"]):], ts_ms=ts_ms),
-                )
-                selected_strategy = str(selection.get("selected_strategy") or cfg.get("strategy_id") or "ema_cross")
-                signal = compute_signal(
-                    cfg={"strategy": {**dict(cfg.get("strategy") or {}), "name": selected_strategy}},
-                    symbol=symbol,
-                    ohlcv=_synth_ohlcv(prices[-int(cfg["min_bars"]):], ts_ms=ts_ms),
-                )
-                bars = len(prices)
             decision = str(signal.get("action") or "hold").lower().strip()
             if decision not in ("buy", "sell", "hold"):
                 decision = "hold"
