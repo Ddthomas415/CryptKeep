@@ -599,8 +599,16 @@ def run_forever() -> None:
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
                     selected_strategy = str(selection.get("selected_strategy") or cfg.get("strategy_id") or "ema_cross")
+                    selected_params = dict(cfg.get("strategy") or {})
+                    selected_params.pop("name", None)
+                    selected_params.pop("trade_enabled", None)
+                    selected_block = build_strategy_block(
+                        name=selected_strategy,
+                        trade_enabled=bool((cfg.get("strategy") or {}).get("trade_enabled", True)),
+                        params=selected_params,
+                    )
                     signal = compute_signal(
-                        cfg={"strategy": {**dict(cfg.get("strategy") or {}), "name": selected_strategy}},
+                        cfg={"strategy": selected_block},
                         symbol=symbol,
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
