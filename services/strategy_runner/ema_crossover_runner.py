@@ -982,7 +982,7 @@ def run_forever() -> None:
                     "created_ts": _now(),
                     "ts": _now(),
                     "source": "strategy",
-                    "strategy_id": cfg["strategy_id"],
+                    "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
                     "venue": cfg["venue"],
                     "symbol": symbol,
                     "side": action,
