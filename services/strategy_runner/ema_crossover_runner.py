@@ -528,6 +528,10 @@ def run_forever() -> None:
                         cfg["venue"] = str(bv["venue"])
 
             for symbol in symbols:
+                signal = {"ok": True, "action": "hold", "reason": "no_signal"}
+                selection = {}
+                selected_strategy = str(cfg.get("strategy_id") or "ema_cross")
+
                 k_prices = f"prices:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_last_action = f"last_action:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
                 k_last_emitted_action = f"last_emitted_action:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
