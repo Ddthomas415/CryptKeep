@@ -7,7 +7,7 @@ from services.strategies.presets import apply_preset
 from services.strategies.validation import validate_strategy_config
 
 
-_SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "volatility_reversal", "gap_fill", "breakout_volume", "funding_extreme", "open_interest_shift"}
+_SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "pullback_recovery", "volatility_reversal", "gap_fill", "breakout_volume", "funding_extreme", "open_interest_shift"}
 _INT_FIELDS = {
     "ema_cross": ("ema_fast", "ema_slow", "filter_window"),
     "momentum": ("min_change_pct", "max_rsi_entry", "rsi_exit", "sma_period", "rsi_period"),
