@@ -1,11 +1,14 @@
 
 from __future__ import annotations
 
+import os
+
 from typing import Any
 
 from services.market_data.regime_detector import detect_regime
 from services.market_data.volume_surge_detector import detect_volume_surge
 from services.execution.outcome_summary import recent_strategy_regime_score
+from services.signals.candidate_advisor import get_top_candidate
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -84,6 +87,26 @@ def select_strategy(
         total = base_score + evidence_score
         scored.append((name, total, base_score, evidence_score, evidence))
         total_reasons[name] = f"{reason}|base={base_score:.1f}|evidence={evidence_score:.2f}"
+
+    use_candidate_advisor = str(os.environ.get("CBP_USE_CANDIDATE_ADVISOR", "")).strip().lower() in ("1", "true", "yes", "on")
+    if use_candidate_advisor:
+        try:
+            top = get_top_candidate(min_score=35.0)
+            if (
+                isinstance(top, dict)
+                and str(top.get("symbol") or "") == str(os.environ.get("CBP_SYMBOLS") or "")
+                and str(top.get("preferred_strategy") or "")
+            ):
+                preferred = str(top.get("preferred_strategy"))
+                patched = []
+                for name, total, base, ev_score, ev in scored:
+                    if name == preferred:
+                        total = round(float(total) + 100.0, 4)
+                        total_reasons[name] = f"candidate_advisor:{top.get('trade_type')}:{top.get('mapping_reason')}"
+                    patched.append((name, total, base, ev_score, ev))
+                scored = patched
+        except Exception:
+            pass
 
     scored.sort(key=lambda x: x[1], reverse=True)
     chosen, chosen_total, _, _, _ = scored[0]
