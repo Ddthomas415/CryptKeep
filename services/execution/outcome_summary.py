@@ -159,3 +159,82 @@ def recent_strategy_regime_score(
         "score": round(score, 4),
         "enough_data": True,
     }
+
+
+def summarize_closed_trade_outcomes(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    rows = sorted(rows, key=lambda r: str(r.get("ts") or r.get("journal_ts") or ""))
+    closed = []
+    prev_realized = None
+
+    for r in rows:
+        try:
+            pos_qty = float(r.get("pos_qty") or 0.0)
+        except Exception:
+            pos_qty = 0.0
+
+        if abs(pos_qty) > 1e-12:
+            try:
+                prev_realized = float(r.get("realized_pnl_total")) if r.get("realized_pnl_total") is not None else prev_realized
+            except Exception:
+                pass
+            continue
+
+        try:
+            realized = float(r.get("realized_pnl_total")) if r.get("realized_pnl_total") is not None else None
+        except Exception:
+            realized = None
+
+        realized_delta = 0.0
+        if realized is not None and prev_realized is not None:
+            realized_delta = realized - prev_realized
+
+        closed.append({
+            "ts": r.get("ts") or r.get("journal_ts"),
+            "symbol": r.get("symbol"),
+            "selected_strategy": r.get("selected_strategy") or r.get("intent_strategy_id") or "unknown",
+            "regime": r.get("regime") or "unknown",
+            "side": r.get("side"),
+            "signal_reason": r.get("signal_reason"),
+            "realized_pnl_delta": round(realized_delta, 6),
+            "realized_pnl_total": round(realized, 6) if realized is not None else None,
+        })
+
+        if realized is not None:
+            prev_realized = realized
+
+    by_strategy: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    by_pair: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+
+    for r in closed:
+        strategy = str(r.get("selected_strategy") or "unknown")
+        regime = str(r.get("regime") or "unknown")
+        by_strategy[strategy].append(r)
+        by_pair[(strategy, regime)].append(r)
+
+    strategy_rows = []
+    for strategy, items in by_strategy.items():
+        strategy_rows.append({
+            "selected_strategy": strategy,
+            "count": len(items),
+            "avg_realized_pnl_delta": _avg([_safe_float(x.get("realized_pnl_delta"), 0.0) for x in items]),
+            "sum_realized_pnl_delta": round(sum(_safe_float(x.get("realized_pnl_delta"), 0.0) for x in items), 6),
+        })
+    strategy_rows.sort(key=lambda r: (r["sum_realized_pnl_delta"], r["count"]), reverse=True)
+
+    pair_rows = []
+    for (strategy, regime), items in by_pair.items():
+        pair_rows.append({
+            "selected_strategy": strategy,
+            "regime": regime,
+            "count": len(items),
+            "avg_realized_pnl_delta": _avg([_safe_float(x.get("realized_pnl_delta"), 0.0) for x in items]),
+            "sum_realized_pnl_delta": round(sum(_safe_float(x.get("realized_pnl_delta"), 0.0) for x in items), 6),
+        })
+    pair_rows.sort(key=lambda r: (r["sum_realized_pnl_delta"], r["count"]), reverse=True)
+
+    return {
+        "count": len(closed),
+        "closed_rows": closed,
+        "by_strategy": strategy_rows,
+        "by_strategy_regime": pair_rows,
+    }

@@ -3,7 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from dashboard.auth_gate import require_authenticated_role
-from services.execution.outcome_summary import load_outcomes, summarize_outcomes
+from services.execution.outcome_summary import load_outcomes, summarize_outcomes, summarize_closed_trade_outcomes
 
 AUTH_STATE = require_authenticated_role("VIEWER")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
@@ -15,6 +15,7 @@ limit = st.slider("Rows to load", min_value=50, max_value=5000, value=500, step=
 
 rows = load_outcomes(limit=limit, require_selected_strategy=True, require_regime=True)
 summary = summarize_outcomes(rows)
+closed_summary = summarize_closed_trade_outcomes(rows)
 
 c0, c1 = st.columns(2)
 c0.metric("Loaded outcomes", int(summary.get("count", 0)))
@@ -31,6 +32,15 @@ st.dataframe(summary.get("by_strategy_regime", []), use_container_width=True)
 
 st.subheader("By Selection Reason")
 st.dataframe(summary.get("by_reason", []), use_container_width=True)
+
+st.subheader("Closed Trade Summary")
+st.dataframe(closed_summary.get("by_strategy", []), use_container_width=True)
+
+st.subheader("Closed Trade Strategy × Regime")
+st.dataframe(closed_summary.get("by_strategy_regime", []), use_container_width=True)
+
+with st.expander("Closed Trade Rows"):
+    st.dataframe(closed_summary.get("closed_rows", []), use_container_width=True)
 
 with st.expander("Raw Outcomes"):
     st.dataframe(rows, use_container_width=True)
