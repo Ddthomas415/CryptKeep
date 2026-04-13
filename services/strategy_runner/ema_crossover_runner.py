@@ -977,36 +977,72 @@ def run_forever() -> None:
                         except Exception:
                             pass
 
-                qdb.upsert_intent({
-                    "intent_id": intent_id,
-                    "created_ts": _now(),
-                    "ts": _now(),
-                    "source": "strategy",
-                    "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                    "venue": cfg["venue"],
-                    "symbol": symbol,
-                    "side": action,
-                    "order_type": cfg["order_type"],
-                    "qty": float(qty),
-                    "limit_price": None,
-                    "status": "queued",
-                    "last_error": None,
-                    "client_order_id": None,
-                    "linked_order_id": None,
-                    "meta": {
-                        "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                open_strategy_intent_exists = False
+                try:
+                    for row in qdb.list_intents(limit=200):
+                        if (
+                            row.get("source") == "strategy"
+                            and row.get("symbol") == symbol
+                            and row.get("status") in ("queued", "submitted")
+                        ):
+                            open_strategy_intent_exists = True
+                            break
+                except Exception:
+                    open_strategy_intent_exists = False
+
+                if open_strategy_intent_exists:
+                    _write_status({
+                        "ok": True,
+                        "status": "running",
+                        "pid": os.getpid(),
+                        "ts": _now(),
+                        "loops": loops,
+                        "enqueued_total": enqueued,
+                        "mid": m if 'm' in locals() else None,
+                        "venue": cfg["venue"],
+                        "symbol": symbol,
+                        "symbols": symbols,
+                        "strategy_id": cfg.get("strategy_id"),
+                        "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg.get("strategy_id"),
                         "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
                         "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
-                        "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
-                        "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
+                        "signal_ok": signal.get("ok") if isinstance(signal, dict) else None,
+                        "signal_action": action,
                         "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                        "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
-                        "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
-                    },
-                })
-                enqueued += 1
-                last_emitted_action = action
-                sdb.set(k_last_emitted_action, last_emitted_action)
+                        "signal_changed": signal_changed,
+                        "note": "open_strategy_intent_exists",
+                    })
+                else:
+                    qdb.upsert_intent({
+                        "intent_id": intent_id,
+                        "created_ts": _now(),
+                        "ts": _now(),
+                        "source": "strategy",
+                        "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                        "venue": cfg["venue"],
+                        "symbol": symbol,
+                        "side": action,
+                        "order_type": cfg["order_type"],
+                        "qty": float(qty),
+                        "limit_price": None,
+                        "status": "queued",
+                        "last_error": None,
+                        "client_order_id": None,
+                        "linked_order_id": None,
+                        "meta": {
+                            "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                            "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                            "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
+                        },
+                    })
+                    enqueued += 1
+                    last_emitted_action = action
+                    sdb.set(k_last_emitted_action, last_emitted_action)
             elif not exit_action and decision == "hold" and last_emitted_action != "hold":
                 last_emitted_action = "hold"
                 sdb.set(k_last_emitted_action, last_emitted_action)
