@@ -54,7 +54,7 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
     rows = [r for r in list(ohlcv or []) if isinstance(r, (list, tuple)) and len(r) >= 6]
     need = max(fast_sma_period, trend_sma_period, rsi_period) + 5
     if len(rows) < need:
-        return {"action": "hold", "reason": "insufficient_data", "symbol": symbol, "indicators": {}}
+        return {"ok": True, "action": "hold", "reason": "insufficient_data", "symbol": symbol, "indicators": {}}
 
     closes = [_safe(r[4]) for r in rows]
     current = closes[-1]
@@ -98,13 +98,13 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
     }
 
     if rsi is not None and rsi >= exit_rsi:
-        return {"action": "sell", "reason": "rebound_mature_exit", "symbol": symbol, "indicators": indicators}
+        return {"ok": True, "action": "sell", "reason": "rebound_mature_exit", "symbol": symbol, "indicators": indicators}
 
     if stop_below_trend_sma and trend_sma is not None and not trend_ok:
-        return {"action": "hold", "reason": "breakdown_below_trend_sma", "symbol": symbol, "indicators": indicators}
+        return {"ok": True, "action": "hold", "reason": "breakdown_below_trend_sma", "symbol": symbol, "indicators": indicators}
 
     if trend_ok and not_broken and pullback_ok and rebound_ok and rsi_ok:
-        return {"action": "buy", "reason": "pullback_recovery_entry", "symbol": symbol, "indicators": indicators}
+        return {"ok": True, "action": "buy", "reason": "pullback_recovery_entry", "symbol": symbol, "indicators": indicators}
 
     reasons = []
     if not trend_ok:
@@ -117,6 +117,7 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
         reasons.append(f"rsi>{rsi_reentry_max}")
 
     return {
+        "ok": True,
         "action": "hold",
         "reason": ",".join(reasons) if reasons else "no_edge",
         "symbol": symbol,
