@@ -7,6 +7,7 @@ from services.strategies.momentum import compute_signal as momentum_compute_sign
 from services.strategies.volatility_reversal import signal_from_ohlcv as volatility_reversal
 from services.strategies.gap_fill import signal_from_ohlcv as gap_fill
 from services.strategies.breakout_volume import signal_from_ohlcv as breakout_volume
+from services.strategies.pullback_recovery import compute_signal as pullback_recovery_compute_signal
 
 SUPPORTED = {
     "ema_cross": ema_cross,
@@ -16,6 +17,7 @@ SUPPORTED = {
     "volatility_reversal": volatility_reversal,
     "gap_fill": gap_fill,
     "breakout_volume": breakout_volume,
+    "pullback_recovery": pullback_recovery_compute_signal,
 }
 
 def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
@@ -82,6 +84,17 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
         }
 
     if name == "momentum":
+        return {
+            **fn(
+                cfg=cfg,
+                symbol=symbol,
+                ohlcv=ohlcv,
+            ),
+            "strategy": name,
+            "symbol": symbol,
+        }
+
+    if name == "pullback_recovery":
         return {
             **fn(
                 cfg=cfg,
