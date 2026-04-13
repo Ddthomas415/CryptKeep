@@ -25,9 +25,9 @@ Phase 1 safety pack should be rerun before relying on this record.
 - slippage: `5 bps`
 - paper-history source: `trade_journal_sqlite`
 - paper-history status: `available`
-- paper-history journal: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
+- paper-history journal: `<your-repo-path>/.cbp_state/data/trade_journal.sqlite`
 - paper-history fills: `32`
-- evidence artifact: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/strategy_evidence/strategy_evidence.latest.json`
+- evidence artifact: `<your-repo-path>/.cbp_state/data/strategy_evidence/strategy_evidence.latest.json`
 
 Window set:
 - `synthetic_default`: Synthetic Default Benchmark (180 bars)

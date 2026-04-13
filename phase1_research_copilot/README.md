@@ -51,7 +51,7 @@ phase1_research_copilot/
 ```
 
 ## Quick start
-1. `cd /Users/baitus/Downloads/crypto-bot-pro/phase1_research_copilot`
+1. `cd <your-repo-path>/phase1_research_copilot`
 2. `cp .env.example .env`
 3. Set `OPENAI_API_KEY` in `.env` if you want live model reasoning.
 4. `docker compose up --build`

@@ -13,27 +13,27 @@ It is intentionally conservative:
 Current repo anchors:
 
 - strategy evidence and ranking:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/evidence_cycle.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/leaderboard.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/docs/safety/strategy_research_acceptance.md`
+  - `<your-repo-path>/services/backtest/evidence_cycle.py`
+  - `<your-repo-path>/services/backtest/leaderboard.py`
+  - `<your-repo-path>/docs/safety/strategy_research_acceptance.md`
 - strategy registry and current strategy family count:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/strategies/strategy_registry.py`
+  - `<your-repo-path>/services/strategies/strategy_registry.py`
 - signal-source feedback weighting already exists:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/signals/reliability.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/learning/consensus_signal_engine.py`
+  - `<your-repo-path>/services/signals/reliability.py`
+  - `<your-repo-path>/services/learning/consensus_signal_engine.py`
 - research-only crypto-native non-price lane already exists:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/analytics/crypto_edge_collector.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/analytics/crypto_edges.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/docs/research/crypto_structural_edges.md`
+  - `<your-repo-path>/services/analytics/crypto_edge_collector.py`
+  - `<your-repo-path>/services/analytics/crypto_edges.py`
+  - `<your-repo-path>/docs/research/crypto_structural_edges.md`
 - webhook signal intake already exists:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/trader_signals/webhook_server.py`
+  - `<your-repo-path>/services/trader_signals/webhook_server.py`
 - runner-specific trailing stop logic already exists:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/strategy_runner/ema_crossover_runner.py`
+  - `<your-repo-path>/services/strategy_runner/ema_crossover_runner.py`
 - regime-aware scoring already exists:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/parity_engine.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/regimes.py`
+  - `<your-repo-path>/services/backtest/parity_engine.py`
+  - `<your-repo-path>/services/backtest/regimes.py`
 - orderbook checks already exist, but as safety/execution diagnostics rather than alpha generation:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/orderbook_sanity.py`
+  - `<your-repo-path>/services/execution/orderbook_sanity.py`
 
 What that means:
 
@@ -54,7 +54,7 @@ Purpose:
 
 Implementation target:
 
-- add anchored walk-forward runs on top of `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/parity_engine.py`
+- add anchored walk-forward runs on top of `<your-repo-path>/services/backtest/parity_engine.py`
 - write summary artifacts beside the existing evidence-cycle outputs
 - surface walk-forward pass/fail in:
   - strategy evidence rows
@@ -107,7 +107,7 @@ Purpose:
 
 Implementation target:
 
-- keep `/Users/baitus/Downloads/crypto-bot-pro/services/analytics/crypto_edge_collector.py` and `/Users/baitus/Downloads/crypto-bot-pro/services/analytics/crypto_edges.py` research-only
+- keep `<your-repo-path>/services/analytics/crypto_edge_collector.py` and `<your-repo-path>/services/analytics/crypto_edges.py` research-only
 - score whether funding/basis snapshots improve:
   - regime tagging
   - entry filtering
@@ -154,7 +154,7 @@ Purpose:
 
 Implementation target:
 
-- extend `/Users/baitus/Downloads/crypto-bot-pro/services/trader_signals/webhook_server.py`
+- extend `<your-repo-path>/services/trader_signals/webhook_server.py`
 - treat TradingView or other webhook sources as:
   - signal producers
   - not execution authorities
@@ -177,7 +177,7 @@ Purpose:
 
 Implementation target:
 
-- promote current trailing-stop / stop-loss / take-profit / max-bars-hold logic from `/Users/baitus/Downloads/crypto-bot-pro/services/strategy_runner/ema_crossover_runner.py`
+- promote current trailing-stop / stop-loss / take-profit / max-bars-hold logic from `<your-repo-path>/services/strategy_runner/ema_crossover_runner.py`
 - make it a governed shared exit-policy module usable across strategy families
 
 Explicit non-goals:

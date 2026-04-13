@@ -4,8 +4,8 @@ CryptKeep now includes a research-only anchored walk-forward utility for strateg
 
 Code:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/walk_forward.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/tests/test_backtest_walk_forward.py`
+- `<your-repo-path>/services/backtest/walk_forward.py`
+- `<your-repo-path>/tests/test_backtest_walk_forward.py`
 
 Current scope:
 

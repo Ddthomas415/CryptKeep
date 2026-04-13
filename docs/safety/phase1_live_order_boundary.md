@@ -2,8 +2,8 @@
 
 Related notes:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/docs/safety/live_mode_contract.md`
-- `/Users/baitus/Downloads/crypto-bot-pro/docs/safety/live_order_authority_layers.md`
+- `<your-repo-path>/docs/safety/live_mode_contract.md`
+- `<your-repo-path>/docs/safety/live_order_authority_layers.md`
 
 This note captures the current Phase 1 safety posture around the live-order chokepoint.
 

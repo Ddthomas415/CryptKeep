@@ -98,11 +98,18 @@ def select_strategy(
                 and str(top.get("preferred_strategy") or "")
             ):
                 preferred = str(top.get("preferred_strategy"))
+                advisor_reason = f"candidate_advisor:{top.get('trade_type')}:{top.get('mapping_reason')}"
+                scored_names = {name for name, *_ in scored}
+                if preferred not in scored_names:
+                    # Preferred strategy was not in this regime's ranked list —
+                    # inject it with a base score of 0 so the +100 boost can win.
+                    scored.append((preferred, 0.0, 0.0, 0.0, {}))
+                    total_reasons[preferred] = advisor_reason
                 patched = []
                 for name, total, base, ev_score, ev in scored:
                     if name == preferred:
                         total = round(float(total) + 100.0, 4)
-                        total_reasons[name] = f"candidate_advisor:{top.get('trade_type')}:{top.get('mapping_reason')}"
+                        total_reasons[name] = advisor_reason
                     patched.append((name, total, base, ev_score, ev))
                 scored = patched
         except Exception:

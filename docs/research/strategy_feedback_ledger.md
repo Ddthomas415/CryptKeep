@@ -4,8 +4,8 @@ CryptKeep now includes a research-only strategy feedback ledger derived from per
 
 Code:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/services/analytics/strategy_feedback.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/tests/test_strategy_feedback.py`
+- `<your-repo-path>/services/analytics/strategy_feedback.py`
+- `<your-repo-path>/tests/test_strategy_feedback.py`
 
 Current scope:
 

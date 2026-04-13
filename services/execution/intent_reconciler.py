@@ -9,6 +9,7 @@ from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
 from services.execution.outcome_logger import log_strategy_outcome
+from services.os.file_utils import atomic_write
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -21,13 +22,13 @@ def _now() -> str:
 
 def _write_status(obj: dict) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
-    STATUS_FILE.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
     if LOCK_FILE.exists():
         return False
-    LOCK_FILE.write_text(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n", encoding="utf-8")
+    atomic_write(LOCK_FILE, json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
     return True
 
 def _release_lock() -> None:
@@ -40,7 +41,7 @@ def _release_lock() -> None:
 def request_stop() -> dict:
     ensure_dirs()
     FLAGS.mkdir(parents=True, exist_ok=True)
-    STOP_FILE.write_text(_now() + "\n", encoding="utf-8")
+    atomic_write(STOP_FILE, _now() + "\n")
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
 def _cfg() -> dict:

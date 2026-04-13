@@ -22,7 +22,7 @@ Kill switch:
 
 Config:
 - merged runtime trading config
-  - `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` overlays `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml` on the default path
+  - `<your-repo-path>/.cbp_state/runtime/config/user.yaml` overlays `<your-repo-path>/config/trading.yaml` on the default path
 
 Notes:
 - This runner is safe: paper only. Live execution is not enabled in Phase 321.

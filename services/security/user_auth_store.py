@@ -481,3 +481,129 @@ def ensure_bootstrap_user_from_env() -> dict[str, Any]:
     out = upsert_user(username=user, password=pwd, role=role, enabled=True)
     out["bootstrapped"] = bool(out.get("ok"))
     return out
+
+
+# ---------------------------------------------------------------------------
+# Server-side brute-force lockout store (SQLite-backed, survives tab refresh)
+# ---------------------------------------------------------------------------
+import sqlite3
+import threading
+from services.os.app_paths import data_dir
+
+_LOCKOUT_DB_LOCK = threading.Lock()
+_LOCKOUT_TABLE_INIT = False
+
+
+def _lockout_db_path() -> str:
+    p = data_dir() / "auth_lockout.sqlite"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return str(p)
+
+
+def _lockout_conn() -> sqlite3.Connection:
+    global _LOCKOUT_TABLE_INIT
+    con = sqlite3.connect(_lockout_db_path(), check_same_thread=False, timeout=10)
+    con.row_factory = sqlite3.Row
+    with _LOCKOUT_DB_LOCK:
+        if not _LOCKOUT_TABLE_INIT:
+            con.execute("""
+                CREATE TABLE IF NOT EXISTS lockout (
+                    username    TEXT PRIMARY KEY,
+                    fail_count  INTEGER NOT NULL DEFAULT 0,
+                    locked_until REAL NOT NULL DEFAULT 0,
+                    updated_ts  TEXT NOT NULL
+                )
+            """)
+            con.execute("PRAGMA journal_mode=WAL")
+            con.commit()
+            _LOCKOUT_TABLE_INIT = True
+    return con
+
+
+def record_failed_login(
+    username: str,
+    *,
+    threshold: int = 5,
+    lockout_seconds: int = 300,
+) -> dict[str, Any]:
+    """Increment failure counter; lock the account when threshold is reached."""
+    name = _norm_username(username)
+    if not name:
+        return {"ok": False, "reason": "empty_username"}
+    now = time.time()
+    try:
+        with _LOCKOUT_DB_LOCK:
+            con = _lockout_conn()
+            row = con.execute(
+                "SELECT fail_count, locked_until FROM lockout WHERE username=?", (name,)
+            ).fetchone()
+            if row:
+                count = int(row["fail_count"]) + 1
+                locked_until = float(row["locked_until"])
+            else:
+                count = 1
+                locked_until = 0.0
+            if count >= threshold:
+                locked_until = now + lockout_seconds
+            con.execute(
+                """INSERT INTO lockout (username, fail_count, locked_until, updated_ts)
+                   VALUES (?, ?, ?, ?)
+                   ON CONFLICT(username) DO UPDATE SET
+                       fail_count=excluded.fail_count,
+                       locked_until=excluded.locked_until,
+                       updated_ts=excluded.updated_ts""",
+                (name, count, locked_until, _now_iso()),
+            )
+            con.commit()
+            con.close()
+        return {"ok": True, "fail_count": count, "locked_until": locked_until}
+    except Exception as exc:
+        return {"ok": False, "reason": f"lockout_store_error:{type(exc).__name__}"}
+
+
+def clear_failed_logins(username: str) -> dict[str, Any]:
+    """Reset failure counter on successful login."""
+    name = _norm_username(username)
+    if not name:
+        return {"ok": False, "reason": "empty_username"}
+    try:
+        with _LOCKOUT_DB_LOCK:
+            con = _lockout_conn()
+            con.execute(
+                """INSERT INTO lockout (username, fail_count, locked_until, updated_ts)
+                   VALUES (?, 0, 0, ?)
+                   ON CONFLICT(username) DO UPDATE SET
+                       fail_count=0, locked_until=0, updated_ts=excluded.updated_ts""",
+                (name, _now_iso()),
+            )
+            con.commit()
+            con.close()
+        return {"ok": True}
+    except Exception as exc:
+        return {"ok": False, "reason": f"lockout_store_error:{type(exc).__name__}"}
+
+
+def get_lockout_status(username: str) -> dict[str, Any]:
+    """Return current lockout state for a username."""
+    name = _norm_username(username)
+    if not name:
+        return {"locked": False, "remaining_seconds": 0, "fail_count": 0}
+    now = time.time()
+    try:
+        with _LOCKOUT_DB_LOCK:
+            con = _lockout_conn()
+            row = con.execute(
+                "SELECT fail_count, locked_until FROM lockout WHERE username=?", (name,)
+            ).fetchone()
+            con.close()
+        if not row:
+            return {"locked": False, "remaining_seconds": 0, "fail_count": 0}
+        locked_until = float(row["locked_until"])
+        remaining = max(0, locked_until - now)
+        return {
+            "locked": remaining > 0,
+            "remaining_seconds": int(remaining),
+            "fail_count": int(row["fail_count"]),
+        }
+    except Exception:
+        return {"locked": False, "remaining_seconds": 0, "fail_count": 0}

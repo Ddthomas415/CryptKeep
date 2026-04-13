@@ -9,6 +9,7 @@ from services.os.app_paths import runtime_dir, ensure_dirs
 from storage.exec_metrics_sqlite import ExecMetricsSQLite
 from storage.execution_report_sqlite import ExecutionReportSQLite
 from storage.intent_queue_sqlite import IntentQueueSQLite
+from services.os.file_utils import atomic_write
 
 
 def build_handoff_pack(*, limit: int = 200) -> Dict[str, Any]:
@@ -52,5 +53,5 @@ def save_handoff_pack(*, path: str | Path | None = None, limit: int = 200) -> Di
     out = build_handoff_pack(limit=limit)
     target = Path(path) if path else (runtime_dir() / "snapshots" / "execution_handoff.latest.json")
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    atomic_write(target, json.dumps(out, indent=2, sort_keys=True) + "\n")
     return {"ok": True, "path": str(target), "pack_ok": bool(out.get("ok"))}

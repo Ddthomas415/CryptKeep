@@ -1,17 +1,17 @@
 # Home Digest Source Mapping
 
-The Home Digest is an operator-facing summary surface. Page code should consume the section payloads built in `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/home_digest.py` and should not recompute ranking, safety, or freshness logic in UI code.
+The Home Digest is an operator-facing summary surface. Page code should consume the section payloads built in `<your-repo-path>/dashboard/services/home_digest.py` and should not recompute ranking, safety, or freshness logic in UI code.
 
 ## Section Mapping
 
 ### Runtime Truth Strip
 - Builder: `build_runtime_truth_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/config_loader.py` merged runtime trading config overlaying `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` on `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/admin/live_guard.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/crypto_edge_research.py`
+  - `<your-repo-path>/services/config_loader.py` merged runtime trading config overlaying `<your-repo-path>/.cbp_state/runtime/config/user.yaml` on `<your-repo-path>/config/trading.yaml`
+  - `<your-repo-path>/services/bot/start_manager.py`
+  - `<your-repo-path>/services/admin/live_guard.py`
+  - `<your-repo-path>/services/execution/live_arming.py`
+  - `<your-repo-path>/dashboard/services/crypto_edge_research.py`
 - Notes:
   - Runtime mode truth is driven by the merged runtime config, not the legacy file alone.
   - Live-order authority remains conservative and reflects current guard posture, not a deep end-to-end live self-test.
@@ -19,9 +19,9 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### What Needs Attention Now
 - Builder: `build_attention_now_digest(...)`
 - Upstream sources:
-  - Overview summary input from `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/view_data.py`
-  - Operations snapshot from `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/operator.py`
-  - Structural freshness/digest summaries from `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/crypto_edge_research.py`
+  - Overview summary input from `<your-repo-path>/dashboard/services/view_data.py`
+  - Operations snapshot from `<your-repo-path>/dashboard/services/operator.py`
+  - Structural freshness/digest summaries from `<your-repo-path>/dashboard/services/crypto_edge_research.py`
 - Sorting:
   - severity first
   - then recency at digest-build time
@@ -29,11 +29,11 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### Strategy Leaderboard Summary
 - Builder: `build_leaderboard_summary_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/strategy_evaluation.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/leaderboard.py`
+  - `<your-repo-path>/dashboard/services/strategy_evaluation.py`
+  - `<your-repo-path>/services/backtest/leaderboard.py`
 - Persisted-artifact row metadata may also include:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/evidence_cycle.py` row-level `strategy_feedback`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/evidence_cycle.py` row-level `feedback_weighting`
+  - `<your-repo-path>/services/backtest/evidence_cycle.py` row-level `strategy_feedback`
+  - `<your-repo-path>/services/backtest/evidence_cycle.py` row-level `feedback_weighting`
 - Notes:
   - Current leaderboard is synthetic and built on demand from preset candidates.
   - The digest does not persist leaderboard history yet.
@@ -42,8 +42,8 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### Scorecard Snapshot
 - Builder: `build_scorecard_snapshot_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/scorecard.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/backtest/leaderboard.py`
+  - `<your-repo-path>/services/backtest/scorecard.py`
+  - `<your-repo-path>/services/backtest/leaderboard.py`
 - Notes:
   - Highlights are derived from current synthetic benchmark rows.
   - `most_changed` is intentionally unavailable because persisted delta summaries do not exist yet.
@@ -51,8 +51,8 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### Crypto-Edge Freshness Summary
 - Builder: `build_crypto_edge_summary_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/dashboard/services/crypto_edge_research.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/storage/crypto_edge_store_sqlite.py`
+  - `<your-repo-path>/dashboard/services/crypto_edge_research.py`
+  - `<your-repo-path>/storage/crypto_edge_store_sqlite.py`
 - Notes:
   - Missing rows mean no stored live-public snapshot is available.
   - Missing data does not imply the module is unsupported.
@@ -60,8 +60,8 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### Safety / Risk Warnings
 - Builder: `build_safety_warnings_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/admin/live_guard.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
+  - `<your-repo-path>/services/admin/live_guard.py`
+  - `<your-repo-path>/services/bot/start_manager.py`
   - Overview summary risk warnings
   - Structural freshness summary
 - Notes:
@@ -80,9 +80,9 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 ### Mode Truth Card
 - Builder: `build_mode_truth_digest(...)`
 - Upstream sources:
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/config_loader.py` merged runtime trading config overlaying `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` on `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
-  - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py`
+  - `<your-repo-path>/services/config_loader.py` merged runtime trading config overlaying `<your-repo-path>/.cbp_state/runtime/config/user.yaml` on `<your-repo-path>/config/trading.yaml`
+  - `<your-repo-path>/services/bot/start_manager.py`
+  - `<your-repo-path>/services/execution/live_arming.py`
 - Notes:
   - This section explains what is allowed and blocked right now.
   - It is explicit about paper-heavy defaults and promotion blockers.

@@ -20,8 +20,8 @@ Each hypothesis declares:
 
 Code authority:
 
-- machine-readable declarations live in `/Users/baitus/Downloads/crypto-bot-pro/services/strategies/hypotheses.py`
-- tests live in `/Users/baitus/Downloads/crypto-bot-pro/tests/test_strategy_hypotheses.py`
+- machine-readable declarations live in `<your-repo-path>/services/strategies/hypotheses.py`
+- tests live in `<your-repo-path>/tests/test_strategy_hypotheses.py`
 
 This is deliberately descriptive rather than promotional:
 

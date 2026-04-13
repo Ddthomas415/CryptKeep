@@ -220,3 +220,48 @@ The following are still scope questions, not settled facts:
 - whether deprecated compatibility shims should remain for callers or be removed after migration
 
 Those decisions should be made explicitly rather than inferred from file presence.
+
+## Service Family Migration Deadlines
+
+The following parallel/transitional service families are frozen for compatibility
+and scheduled for removal. No new code should be added to transitional families.
+Migration target: **2026-07-01**.
+
+| Transitional (frozen) | Canonical (use this) | Status |
+|---|---|---|
+| `services/strategy/` | `services/strategies/` | Frozen — no new imports |
+| `services/strategy_runner/` | `services/strategies/` + scripts | Frozen — no new imports |
+| `services/paper/` | `services/paper_trader/` | Frozen — no new imports |
+| `services/marketdata/` | `services/market_data/` | Frozen — no new imports |
+
+**Rules until removal:**
+- Do not add new files to transitional families.
+- Do not add new callers that import from transitional families.
+- When adding a feature that would touch a transitional family, add it to the canonical family instead.
+- Migration of existing callers can be done incrementally — file a tracking issue per family.
+
+**Removal process (per family):**
+1. Confirm no active callers remain (grep for imports).
+2. Move any still-needed logic to canonical family.
+3. Delete the transitional directory.
+4. Update this doc.
+
+## Signal / Candidate Layer (System 1)
+
+As of 2026-04, the repo includes a scored signal and candidate ranking layer
+upstream of the strategy runner:
+
+- `services/signals/signal_library.py` — individual signal scores
+- `services/signals/market_ranker.py` — composite score + ranking
+- `services/signals/trade_type_classifier.py` — quick_flip / swing_trade / pass
+- `services/signals/candidate_engine.py` — builds ranked candidate list
+- `services/signals/candidate_strategy_mapper.py` — maps candidate to strategy
+- `services/signals/candidate_store.py` — latest + append-only JSONL history
+- `services/signals/candidate_advisor.py` — top candidate selection
+- `scripts/review_candidate_outcomes.py` — candidate-vs-outcome review loop
+
+The candidate advisor can optionally override strategy selection via
+`CBP_USE_CANDIDATE_ADVISOR=1`. This is behind a flag and should not be enabled
+in live trading until outcome attribution confirms the layer adds signal.
+
+**Current status:** paper-only, evidence accumulation phase.

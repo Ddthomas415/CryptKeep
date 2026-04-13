@@ -13,4 +13,4 @@
   - dry-run prints plan
   - --apply moves non-canonical top-level dirs into attic/legacy_*
 
-Backups saved in: /Users/baitus/Downloads/crypto-bot-pro/attic/phase87_89_20260218_044830
+Backups saved in: <your-repo-path>/attic/phase87_89_20260218_044830

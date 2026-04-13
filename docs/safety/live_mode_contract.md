@@ -30,11 +30,11 @@ Intended meaning:
 
 Where enforced:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/services/preflight/preflight.py`
+- `<your-repo-path>/services/preflight/preflight.py`
   - treats `paper` as safe default
-- `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
+- `<your-repo-path>/services/bot/start_manager.py`
   - `paper` start allowed without live keys
-- `/Users/baitus/Downloads/crypto-bot-pro/services/trading_runner/run_trader.py`
+- `<your-repo-path>/services/trading_runner/run_trader.py`
   - currently `paper` only
 
 Operational meaning:
@@ -53,10 +53,10 @@ Intended meaning:
 
 Key config/runtime signals:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_arming.py::is_live_enabled(...)`
+- `<your-repo-path>/services/execution/live_arming.py::is_live_enabled(...)`
   reads:
   - `execution.live_enabled`
-- `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
+- `<your-repo-path>/services/bot/start_manager.py`
   - reads merged runtime config, `execution.live_enabled`, and `live.sandbox`
   - blocks live start if `execution.live_enabled` is false
   - if `live.sandbox == true`, live start does not require the extra real-live confirmation envs
@@ -65,7 +65,7 @@ Operational meaning:
 
 - the live stack is allowed to run
 - exchange clients can still use sandbox endpoints where the venue supports them
-- final order safety still applies at `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py`
+- final order safety still applies at `<your-repo-path>/services/execution/place_order.py`
 
 ### 3. Real Live
 
@@ -79,14 +79,14 @@ Intended meaning:
 
 Additional real-live requirements today:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/services/bot/start_manager.py`
+- `<your-repo-path>/services/bot/start_manager.py`
   requires:
   - `ENABLE_LIVE_TRADING=YES`
   - `CONFIRM_LIVE=YES`
 
 Final-order arming requirements today:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py::_is_armed()`
+- `<your-repo-path>/services/execution/place_order.py::_is_armed()`
   accepts:
   - `CBP_EXECUTION_ARMED`
   - `CBP_LIVE_ENABLED`
@@ -147,7 +147,7 @@ If you need one practical operator reading of the current code, use this:
 3. Final order arming:
    - `CBP_EXECUTION_ARMED`
 4. Final live-order authority:
-   - `/Users/baitus/Downloads/crypto-bot-pro/services/execution/place_order.py::_enforce_fail_closed(...)`
+   - `<your-repo-path>/services/execution/place_order.py::_enforce_fail_closed(...)`
 
 ## Safe Defaults
 
@@ -191,6 +191,6 @@ Anything else should be treated as compatibility input until explicitly removed 
 
 For review-stage criteria from `paper` to `sandbox live` to `tiny live`, see:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/docs/safety/strategy_promotion_ladder.md`
+- `<your-repo-path>/docs/safety/strategy_promotion_ladder.md`
 
 That note is intentionally operator-facing and conservative. It does not change the final order authority documented here.

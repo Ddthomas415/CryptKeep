@@ -8,9 +8,9 @@ Date: 2026-04-02
 
 The repo currently has three independent fail-closed control surfaces:
 
-- [watchdog.py](/Users/baitus/Downloads/crypto-bot-pro/services/process/watchdog.py)
-- [live_executor.py](/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_executor.py)
-- [live_reconciler.py](/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_reconciler.py)
+- [watchdog.py](<your-repo-path>/services/process/watchdog.py)
+- [live_executor.py](<your-repo-path>/services/execution/live_executor.py)
+- [live_reconciler.py](<your-repo-path>/services/execution/live_reconciler.py)
 
 They each make local safety decisions, but they do not currently share one authoritative halt state. This design defines that state model before any runtime implementation.
 
@@ -19,13 +19,13 @@ They each make local safety decisions, but they do not currently share one autho
 Current behavior is split across:
 
 - watchdog:
-  - stale heartbeat detection in [watchdog.py:55](/Users/baitus/Downloads/crypto-bot-pro/services/process/watchdog.py#L55)
-  - kill switch arming in [watchdog.py:119](/Users/baitus/Downloads/crypto-bot-pro/services/process/watchdog.py#L119)
+  - stale heartbeat detection in [watchdog.py:55](<your-repo-path>/services/process/watchdog.py#L55)
+  - kill switch arming in [watchdog.py:119](<your-repo-path>/services/process/watchdog.py#L119)
 - executor:
-  - market freshness and execution-safety gating in [live_executor.py:212](/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_executor.py#L212)
-  - kill-switch read in [live_executor.py:516](/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_executor.py#L516)
+  - market freshness and execution-safety gating in [live_executor.py:212](<your-repo-path>/services/execution/live_executor.py#L212)
+  - kill-switch read in [live_executor.py:516](<your-repo-path>/services/execution/live_executor.py#L516)
 - reconciler:
-  - independent loop control, stop file, lock file, and status file in [live_reconciler.py:63](/Users/baitus/Downloads/crypto-bot-pro/services/execution/live_reconciler.py#L63)
+  - independent loop control, stop file, lock file, and status file in [live_reconciler.py:63](<your-repo-path>/services/execution/live_reconciler.py#L63)
 
 This means the system can be "blocked" in one surface while another surface keeps running under a different local rule.
 
@@ -37,7 +37,7 @@ The authoritative guard state should live in one runtime file:
 
 Why a new file instead of reusing `kill_switch.json`:
 
-- existing [kill_switch.py](/Users/baitus/Downloads/crypto-bot-pro/services/admin/kill_switch.py) is binary and does not encode lifecycle stage, writer, or transition reason
+- existing [kill_switch.py](<your-repo-path>/services/admin/kill_switch.py) is binary and does not encode lifecycle stage, writer, or transition reason
 - the guard needs to represent cooperative shutdown semantics, not just "armed true/false"
 
 Required fields:

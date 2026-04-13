@@ -17,7 +17,7 @@ Updates:
 
 Config:
 Uses merged runtime trading config on the default path:
-- `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/runtime/config/user.yaml` overlays `/Users/baitus/Downloads/crypto-bot-pro/config/trading.yaml`
+- `<your-repo-path>/.cbp_state/runtime/config/user.yaml` overlays `<your-repo-path>/config/trading.yaml`
 
 pipeline:
   strategy: ema

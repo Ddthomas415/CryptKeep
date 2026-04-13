@@ -3,6 +3,7 @@ import json, time
 import logging
 from dataclasses import dataclass
 from services.os.app_paths import data_dir
+from services.os.file_utils import atomic_write
 
 STATE_PATH = data_dir() / "execution_throttle.json"
 _LOG = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ def _load() -> dict:
 
 def _save(st: dict) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    STATE_PATH.write_text(json.dumps(st, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write(STATE_PATH, json.dumps(st, indent=2, sort_keys=True))
 
 def _key(venue:str,symbol:str)->str:
     return f"{str(venue).lower().strip()}|{str(symbol).upper().strip()}"

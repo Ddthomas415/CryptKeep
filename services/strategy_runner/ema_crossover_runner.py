@@ -376,7 +376,7 @@ def _synth_ohlcv(prices: List[float], *, ts_ms: int | None = None) -> list[list[
 def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None) -> dict:
     return compute_signal(
         cfg={"strategy": dict(cfg.get("strategy") or {})},
-        symbol=symbol,
+        symbol=str(cfg.get("symbol") or ""),
         ohlcv=_synth_ohlcv(prices, ts_ms=ts_ms),
     )
 

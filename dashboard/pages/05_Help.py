@@ -286,7 +286,7 @@ with workflows_tab:
         meta=f"current status: {str(paper_evidence_runtime.get('status') or 'unknown')}",
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "make collect-paper-strategy-evidence PAPER_EVIDENCE_RUNTIME_SEC=900",
         language="bash",
     )
@@ -302,12 +302,12 @@ with workflows_tab:
         "- populated `evidence` and `decision_record` fields"
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "make status-paper-strategy-evidence",
         language="bash",
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "make stop-paper-strategy-evidence",
         language="bash",
     )
@@ -341,17 +341,17 @@ with workflows_tab:
         "4. Use `Apply Safe Self-Repair` only for stale runtime file cleanup. It does not grant execution authority or reset trading state."
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "make system-diagnostics",
         language="bash",
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "./.venv/bin/python scripts/run_system_diagnostics.py --preview-repair",
         language="bash",
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "./.venv/bin/python scripts/run_system_diagnostics.py --repair-safe --export",
         language="bash",
     )
@@ -364,7 +364,7 @@ with workflows_tab:
         "This checks port resolution, dashboard source compilation, and a real headless startup smoke run."
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "./.venv/bin/python scripts/run_system_diagnostics.py --dashboard",
         language="bash",
     )
@@ -432,7 +432,7 @@ with troubleshoot_tab:
         empty_message="Troubleshooting guidance unavailable.",
     )
     st.code(
-        "cd /Users/baitus/Downloads/crypto-bot-pro\n"
+        "cd <your-repo-path>\n"
         "sqlite3 .cbp_state/data/trade_journal.sqlite 'select count(1) as journal_fills from journal_fills;'",
         language="bash",
     )

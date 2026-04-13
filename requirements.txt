@@ -17,3 +17,6 @@ ccxt>=4.0
 
 httpx>=0.27,<1.0
 anthropic
+
+# Minimum version pin — see requirements-pinned.txt for full locked versions
+anthropic>=0.50.0

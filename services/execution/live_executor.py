@@ -3,6 +3,7 @@ from services.risk.market_quality_guard import check_market_quality
 
 import os
 import logging
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,22 +45,26 @@ _LOG = logging.getLogger(__name__)
 # Module-level cache for config that does not change tick-to-tick.
 # Keyed by file path, value is (mtime_float, parsed_config).
 _yaml_cache: dict[str, tuple[float, dict]] = {}
+_yaml_cache_lock = threading.Lock()
 
 def _load_yaml_cached(path: str) -> dict:
-    """Load a YAML file with mtime-based cache."""
+    """Load a YAML file with mtime-based cache (thread-safe)."""
     p = Path(path)
     try:
         mtime = p.stat().st_mtime
     except FileNotFoundError:
         return {}
-    cached = _yaml_cache.get(path)
-    if cached is not None and cached[0] == mtime:
-        return cached[1]
+    with _yaml_cache_lock:
+        cached = _yaml_cache.get(path)
+        if cached is not None and cached[0] == mtime:
+            return cached[1]
+    # Read outside the lock — file I/O should not block other threads
     try:
         data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
     except Exception:
         data = {}
-    _yaml_cache[path] = (mtime, data)
+    with _yaml_cache_lock:
+        _yaml_cache[path] = (mtime, data)
     return data
 
 # ---- runtime defaults (override by env set from scripts/bot_ctl.py) ----

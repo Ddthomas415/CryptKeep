@@ -3,6 +3,7 @@ from __future__ import annotations
 import os, signal, subprocess, sys, time
 from typing import Any
 from services.os.app_paths import data_dir, code_root
+from services.os.file_utils import atomic_write
 
 PID_PATH = data_dir() / "intent_executor.pid"
 
@@ -24,7 +25,7 @@ def _read_pid() -> int | None:
 
 def _write_pid(pid: int):
     PID_PATH.parent.mkdir(parents=True, exist_ok=True)
-    PID_PATH.write_text(str(int(pid)), encoding="utf-8")
+    atomic_write(PID_PATH, str(int(pid)))
 
 def _remove_pid():
     try:

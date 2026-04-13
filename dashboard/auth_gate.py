@@ -79,6 +79,25 @@ def verify_mfa_code(*, username: str, code: str) -> dict[str, Any]:
     return _call_user_auth_store("verify_mfa_code", username=username, code=code)
 
 
+# --- Server-side lockout (survives tab refresh / new sessions) ---
+
+def _server_record_failed_login(username: str) -> dict[str, Any]:
+    return _call_user_auth_store(
+        "record_failed_login",
+        username,
+        threshold=DEFAULT_LOCKOUT_THRESHOLD,
+        lockout_seconds=DEFAULT_LOCKOUT_SECONDS,
+    )
+
+
+def _server_clear_failed_logins(username: str) -> dict[str, Any]:
+    return _call_user_auth_store("clear_failed_logins", username)
+
+
+def _server_lockout_status(username: str) -> dict[str, Any]:
+    return _call_user_auth_store("get_lockout_status", username)
+
+
 def _inject_signed_out_layout() -> None:
     st.markdown(
         """
@@ -176,18 +195,39 @@ def _mark_login_success(username: str, role: str, source: str) -> None:
         "login_at": now,
         "last_activity_at": now,
     }
+    # Clear server-side lockout; session state is display cache only
+    _server_clear_failed_logins(str(username or ""))
     st.session_state[FAILED_LOGIN_COUNT_KEY] = 0
     st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = 0
 
 
-def _register_failed_login() -> None:
-    count = int(st.session_state.get(FAILED_LOGIN_COUNT_KEY, 0) or 0) + 1
+def _register_failed_login(username: str = "") -> None:
+    """Record a failed attempt in the server-side SQLite store (survives refresh/new tab).
+    Session state is kept in sync as a display cache but is not the authority.
+    """
+    result = _server_record_failed_login(str(username or ""))
+    if result.get("ok"):
+        count = int(result.get("fail_count", 1))
+        locked_until = float(result.get("locked_until") or 0)
+    else:
+        # Fallback to session-state only if store is unavailable
+        count = int(st.session_state.get(FAILED_LOGIN_COUNT_KEY, 0) or 0) + 1
+        locked_until = (_now_ts() + DEFAULT_LOCKOUT_SECONDS) if count >= DEFAULT_LOCKOUT_THRESHOLD else 0
     st.session_state[FAILED_LOGIN_COUNT_KEY] = count
-    if count >= DEFAULT_LOCKOUT_THRESHOLD:
-        st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = _now_ts() + DEFAULT_LOCKOUT_SECONDS
+    st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = int(locked_until)
 
 
-def _current_lockout_remaining() -> int:
+def _current_lockout_remaining(username: str = "") -> int:
+    """Check server-side store first; fall back to session state if unavailable."""
+    if username:
+        status = _server_lockout_status(str(username))
+        if isinstance(status, dict) and "remaining_seconds" in status:
+            remaining = int(status.get("remaining_seconds") or 0)
+            # Keep session state in sync
+            if remaining > 0:
+                st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = int(_now_ts() + remaining)
+            return remaining
+    # Fallback: session state (handles store unavailable / anonymous checks)
     until = int(st.session_state.get(FAILED_LOGIN_LOCKOUT_UNTIL_KEY, 0) or 0)
     return max(0, until - _now_ts())
 
@@ -455,7 +495,7 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                             state["error"] = str(out.get("reason") or "invalid_mfa_code")
                             st.session_state[SESSION_KEY] = state
             else:
-                remaining = _current_lockout_remaining()
+                remaining = _current_lockout_remaining(str(st.session_state.get("auth_username") or ""))
                 if remaining > 0:
                     st.error(f"Too many failed login attempts. Try again in {remaining} seconds.")
                 else:
@@ -484,7 +524,7 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                                 _clear_mfa_pending()
                                 st.rerun()
                             else:
-                                _register_failed_login()
+                                _register_failed_login(str(username))
                                 state = _session_get()
                                 state["error"] = str(out.get("reason") or "login_failed")
                                 st.session_state[SESSION_KEY] = state

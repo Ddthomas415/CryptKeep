@@ -12,14 +12,14 @@ Current scope:
 
 Code:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/services/analytics/crypto_edges.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/services/analytics/crypto_edge_collector.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/storage/crypto_edge_store_sqlite.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/scripts/record_crypto_edge_snapshot.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/scripts/load_sample_crypto_edge_data.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/scripts/collect_live_crypto_edge_snapshot.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/scripts/run_crypto_edge_collector_loop.py`
-- `/Users/baitus/Downloads/crypto-bot-pro/tests/test_crypto_edge_analytics.py`
+- `<your-repo-path>/services/analytics/crypto_edges.py`
+- `<your-repo-path>/services/analytics/crypto_edge_collector.py`
+- `<your-repo-path>/storage/crypto_edge_store_sqlite.py`
+- `<your-repo-path>/scripts/record_crypto_edge_snapshot.py`
+- `<your-repo-path>/scripts/load_sample_crypto_edge_data.py`
+- `<your-repo-path>/scripts/collect_live_crypto_edge_snapshot.py`
+- `<your-repo-path>/scripts/run_crypto_edge_collector_loop.py`
+- `<your-repo-path>/tests/test_crypto_edge_analytics.py`
 
 Intent:
 
@@ -46,9 +46,9 @@ make load-sample-crypto-edges
 
 This writes bundled sample snapshots from:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/sample_data/crypto_edges/funding.json`
-- `/Users/baitus/Downloads/crypto-bot-pro/sample_data/crypto_edges/basis.json`
-- `/Users/baitus/Downloads/crypto-bot-pro/sample_data/crypto_edges/quotes.json`
+- `<your-repo-path>/sample_data/crypto_edges/funding.json`
+- `<your-repo-path>/sample_data/crypto_edges/basis.json`
+- `<your-repo-path>/sample_data/crypto_edges/quotes.json`
 
 The loader is still research-only:
 
@@ -66,7 +66,7 @@ make collect-live-crypto-edges
 
 This reads the collection plan from:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/sample_data/crypto_edges/live_collector_plan.json`
+- `<your-repo-path>/sample_data/crypto_edges/live_collector_plan.json`
 
 The collector remains read-only:
 

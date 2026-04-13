@@ -9,6 +9,7 @@ from typing import Any
 
 from services.admin.config_editor import load_user_yaml
 from services.os.app_paths import data_dir
+from services.os.file_utils import atomic_write
 
 
 STATE_PATH = data_dir() / "live_arming.json"
@@ -25,7 +26,7 @@ def _load() -> dict:
 
 def _save(st: dict) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    STATE_PATH.write_text(json.dumps(st, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write(STATE_PATH, json.dumps(st, indent=2, sort_keys=True))
 
 
 def _sha256(s: str) -> str:

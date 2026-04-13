@@ -12,7 +12,7 @@ This note records the current evidence position without changing presets.
 
 Current decision source:
 
-- [decision_record_2026-03-26.md](/Users/baitus/Downloads/crypto-bot-pro/docs/strategies/decision_record_2026-03-26.md)
+- [decision_record_2026-03-26.md](<your-repo-path>/docs/strategies/decision_record_2026-03-26.md)
 
 Current status in that record:
 
@@ -44,7 +44,7 @@ Interpretation:
 
 Paper-history source:
 
-- `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
+- `<your-repo-path>/.cbp_state/data/trade_journal.sqlite`
 
 Repo-native FIFO analytics summary:
 
@@ -74,7 +74,7 @@ Per-symbol breakdown:
 
 ## Hypothesis Alignment
 
-The current hypothesis in [hypotheses.py](/Users/baitus/Downloads/crypto-bot-pro/services/strategies/hypotheses.py) says this strategy is expected to fail in:
+The current hypothesis in [hypotheses.py](<your-repo-path>/services/strategies/hypotheses.py) says this strategy is expected to fail in:
 
 - `bear`
 - `bull`

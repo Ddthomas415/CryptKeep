@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from services.os.app_paths import data_dir
+from services.os.file_utils import atomic_write
 
 STATUS_PATH = data_dir() / "startup_status.json"
 
@@ -25,7 +26,7 @@ def _load() -> dict:
 
 def _save(obj: dict) -> None:
     STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    STATUS_PATH.write_text(json.dumps(obj, ensure_ascii=False, indent=2, default=str)[:2_000_000], encoding="utf-8")
+    atomic_write(STATUS_PATH, json.dumps(obj, ensure_ascii=False, indent=2, default=str)[:2_000_000])
 
 def record_success(*, venue: str, symbols: list[str], report: dict | None = None) -> dict:
     v = str(venue).strip().lower()

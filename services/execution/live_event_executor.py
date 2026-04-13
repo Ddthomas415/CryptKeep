@@ -10,6 +10,7 @@ from typing import Any, Dict
 from services.execution.live_executor import LiveCfg, cfg_from_yaml, reconcile_live, submit_pending_live
 from services.os.app_paths import ensure_dirs, runtime_dir
 from storage.ws_status_sqlite import WSStatusSQLite
+from services.os.file_utils import atomic_write
 
 
 FLAGS = runtime_dir() / "flags"
@@ -27,7 +28,7 @@ def _now_ms() -> int:
 
 def _write_status(payload: Dict[str, Any]) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
-    STATUS_FILE.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write(STATUS_FILE, json.dumps(payload, indent=2, sort_keys=True))
 
 
 @dataclass
@@ -93,7 +94,7 @@ def run_tick(
 def request_stop() -> Dict[str, Any]:
     ensure_dirs()
     FLAGS.mkdir(parents=True, exist_ok=True)
-    STOP_FILE.write_text(_now_iso() + "\n", encoding="utf-8")
+    atomic_write(STOP_FILE, _now_iso() + "\n")
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
 

@@ -15,7 +15,7 @@ Strategies reviewed:
 
 Inputs:
 
-- persisted paper fills from `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
+- persisted paper fills from `<your-repo-path>/.cbp_state/data/trade_journal.sqlite`
 - closed trades reconstructed with `services.analytics.journal_analytics.fifo_pnl_from_fills`
 - market context classified with `services.backtest.regimes.classify_market_regimes`
 
