@@ -100,7 +100,7 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
     if rsi is not None and rsi >= exit_rsi:
         return {"action": "sell", "reason": "rebound_mature_exit", "symbol": symbol, "indicators": indicators}
 
-    if stop_below_trend_sma and trend_sma is not None and current < trend_sma:
+    if stop_below_trend_sma and trend_sma is not None and not trend_ok:
         return {"action": "hold", "reason": "breakdown_below_trend_sma", "symbol": symbol, "indicators": indicators}
 
     if trend_ok and not_broken and pullback_ok and rebound_ok and rsi_ok:
