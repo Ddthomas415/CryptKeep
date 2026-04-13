@@ -7,8 +7,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from services.security.exchange_factory import make_exchange
-from services.signals.candidate_store import write_candidates
 from services.signals.candidate_engine import build_candidate_list
+from services.signals.candidate_store import write_candidates
 
 
 def _parse_args() -> argparse.Namespace:
@@ -66,12 +66,7 @@ def main() -> None:
             ex.close()
 
     candidates = build_candidate_list(symbols_data=rows, min_composite_score=min_score)
-
-    outdir = runtime_dir() / "candidates"
-    outdir.mkdir(parents=True, exist_ok=True)
-    outfile = outdir / "latest_candidates.json"
-    outfile.write_text(json.dumps(candidates, indent=2), encoding="utf-8")
-
+    outfile = write_candidates(candidates)
     print(f"WROTE: {outfile}")
     for row in candidates:
         print(row)
