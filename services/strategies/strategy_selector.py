@@ -37,8 +37,29 @@ def select_strategy(
         ranked = ["volatility_reversal", "gap_fill", "momentum", default_strategy, "ema_cross"]
         reason = "regime_high_volatility"
     elif regime == "low_volatility":
-        ranked = ["mean_reversion_rsi", "breakout_donchian", default_strategy, "ema_cross"]
-        reason = "regime_low_volatility"
+        try_pullback = False
+        closes = [_safe_float(r[4], 0.0) for r in (ohlcv or []) if isinstance(r, (list, tuple)) and len(r) >= 5]
+        if len(closes) >= 50:
+            current = closes[-1]
+            prev = closes[-2] if len(closes) >= 2 else current
+            trend_sma = sum(closes[-50:]) / 50.0 if len(closes) >= 50 else 0.0
+            recent_high = max(closes[-50:]) if len(closes) >= 50 else current
+            pullback_pct = ((recent_high - current) / recent_high * 100.0) if recent_high > 0 else 0.0
+            rebound_pct = ((current - prev) / prev * 100.0) if prev > 0 else 0.0
+            trend_gap_pct = ((trend_sma - current) / trend_sma * 100.0) if trend_sma > 0 else 999.0
+
+            try_pullback = (
+                2.0 <= pullback_pct <= 12.0
+                and rebound_pct >= 0.0
+                and trend_gap_pct <= 1.5
+            )
+
+        if try_pullback:
+            ranked = ["pullback_recovery", "mean_reversion_rsi", "breakout_donchian", default_strategy, "ema_cross"]
+            reason = "regime_low_volatility_pullback_recovery"
+        else:
+            ranked = ["mean_reversion_rsi", "breakout_donchian", default_strategy, "ema_cross"]
+            reason = "regime_low_volatility"
     else:
         ranked = [default_strategy, "ema_cross"]
         reason = "regime_unknown"
