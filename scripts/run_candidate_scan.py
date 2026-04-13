@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from services.security.exchange_factory import make_exchange
+from services.os.app_paths import runtime_dir
 from services.signals.candidate_engine import build_candidate_list
 
 
@@ -65,6 +67,13 @@ def main() -> None:
             ex.close()
 
     candidates = build_candidate_list(symbols_data=rows, min_composite_score=min_score)
+
+    outdir = runtime_dir() / "candidates"
+    outdir.mkdir(parents=True, exist_ok=True)
+    outfile = outdir / "latest_candidates.json"
+    outfile.write_text(json.dumps(candidates, indent=2), encoding="utf-8")
+
+    print(f"WROTE: {outfile}")
     for row in candidates:
         print(row)
 
