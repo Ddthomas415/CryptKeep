@@ -45,7 +45,7 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
     max_pullback_pct = _safe(strategy_cfg.get("max_pullback_pct"), 12.0)
 
     rsi_reentry_max = _safe(strategy_cfg.get("rsi_reentry_max"), 55.0)
-    rebound_confirm_pct = _safe(strategy_cfg.get("rebound_confirm_pct"), 0.25)
+    rebound_confirm_pct = _safe(strategy_cfg.get("rebound_confirm_pct"), 0.0)
 
     exit_rsi = _safe(strategy_cfg.get("exit_rsi"), 68.0)
     stop_below_trend_sma = bool(strategy_cfg.get("stop_below_trend_sma", True))
