@@ -28,7 +28,7 @@ def select_strategy(
     vol_ratio = _safe_float(volume_info.get("ratio"), 1.0)
 
     if regime == "trending_up":
-        ranked = ["momentum", "breakout_volume", "breakout_donchian", default_strategy, "ema_cross"]
+        ranked = ["pullback_recovery", "momentum", "breakout_volume", "breakout_donchian", default_strategy, "ema_cross"]
         reason = "regime_trending_up"
     elif regime == "ranging":
         ranked = ["mean_reversion_rsi", "gap_fill", "volatility_reversal", default_strategy, "ema_cross"]
