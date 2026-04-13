@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -9,10 +10,41 @@ from services.security.exchange_factory import make_exchange
 from services.signals.candidate_engine import build_candidate_list
 
 
+def _parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="Run CryptKeep candidate scan")
+    p.add_argument(
+        "--symbols",
+        type=str,
+        default="DOGE/USD,LTC/USD,ORCA/USD,ADA/EUR,LINK/EUR,AVAX/EUR,XRP/EUR",
+        help="Comma-separated symbol list",
+    )
+    p.add_argument(
+        "--timeframe",
+        type=str,
+        default="1h",
+        help="OHLCV timeframe, e.g. 15m, 1h",
+    )
+    p.add_argument(
+        "--limit",
+        type=int,
+        default=160,
+        help="Fetch limit",
+    )
+    p.add_argument(
+        "--min-score",
+        type=float,
+        default=40.0,
+        help="Minimum composite score to keep",
+    )
+    return p.parse_args()
+
+
 def main() -> None:
-    symbols = ["DOGE/USD", "LTC/USD", "ORCA/USD", "ADA/EUR", "LINK/EUR", "AVAX/EUR", "XRP/EUR"]
-    tf = "1h"
-    limit = 160
+    args = _parse_args()
+    symbols = [s.strip() for s in str(args.symbols).split(",") if s.strip()]
+    tf = str(args.timeframe)
+    limit = int(args.limit)
+    min_score = float(args.min_score)
 
     ex = make_exchange("coinbase", {"apiKey": None, "secret": None}, enable_rate_limit=True)
     rows = []
@@ -32,7 +64,7 @@ def main() -> None:
         if hasattr(ex, "close"):
             ex.close()
 
-    candidates = build_candidate_list(symbols_data=rows, min_composite_score=40.0)
+    candidates = build_candidate_list(symbols_data=rows, min_composite_score=min_score)
     for row in candidates:
         print(row)
 
