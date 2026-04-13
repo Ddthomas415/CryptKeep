@@ -13,18 +13,39 @@ def _safe(v: Any, d: float = 0.0) -> float:
 
 
 def composite_score(scores: dict[str, float]) -> float:
+    """Weighted composite of all available signal scores.
+
+    Weights (must sum to 1.0):
+      momentum            0.22  — price momentum is the primary driver
+      relative_strength   0.18  — cross-universe ranking context
+      volume_surge        0.10  — confirmation signal
+      pullback_recovery   0.15  — swing/recovery setup quality
+      liquidity_safety    0.10  — inverse of best available illiq score
+      volatility_regime   0.10  — are conditions right for entry?
+      trend_quality       0.08  — directional clarity
+      consolidation       0.07  — breakout readiness
+    """
     momentum = _safe(scores.get("momentum_score"))
-    rel = _safe(scores.get("relative_strength_score"))
-    volume = _safe(scores.get("volume_surge_score"))
+    rel      = _safe(scores.get("relative_strength_score"))
+    volume   = _safe(scores.get("volume_surge_score"))
     pullback = _safe(scores.get("pullback_recovery_score"))
-    illiq_risk = _safe(scores.get("illiquidity_risk_score"))
+    # Use v2 illiquidity if available, fall back to v1
+    illiq_v2  = scores.get("illiquidity_risk_score_v2")
+    illiq_v1  = _safe(scores.get("illiquidity_risk_score"))
+    illiq_risk = _safe(illiq_v2) if illiq_v2 is not None else illiq_v1
+    vol_regime = _safe(scores.get("volatility_regime_score"), 50.0)
+    trend_q    = _safe(scores.get("trend_quality_score"), 50.0)
+    consolidate = _safe(scores.get("consolidation_score"), 0.0)
 
     raw = (
-        momentum * 0.30
-        + rel * 0.25
-        + volume * 0.15
-        + pullback * 0.20
+        momentum    * 0.22
+        + rel       * 0.18
+        + volume    * 0.10
+        + pullback  * 0.15
         + (100.0 - illiq_risk) * 0.10
+        + vol_regime  * 0.10
+        + trend_q     * 0.08
+        + consolidate * 0.07
     )
     return round(_clamp(raw), 4)
 

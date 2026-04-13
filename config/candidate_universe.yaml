@@ -1,0 +1,64 @@
+# CryptKeep — Candidate Scan Universe
+# Edited here; run `make scan-candidates` or `python scripts/run_candidate_scan.py` to use.
+#
+# Tiers let you track a broader universe but only surface actionable candidates.
+# All symbols in all tiers are scored; only those above min_composite_score
+# in run_candidate_scan.py are emitted as candidates.
+
+universe:
+  # Primary basket — highest liquidity, scanned every cycle
+  tier1:
+    - BTC/USDT
+    - ETH/USDT
+    - SOL/USDT
+    - BNB/USDT
+    - XRP/USDT
+    - DOGE/USDT
+    - ADA/USDT
+    - AVAX/USDT
+    - LINK/USDT
+    - DOT/USDT
+
+  # Secondary basket — mid-cap, scanned every cycle when tier1 has no strong candidates
+  tier2:
+    - LTC/USDT
+    - MATIC/USDT
+    - UNI/USDT
+    - ATOM/USDT
+    - FIL/USDT
+    - APT/USDT
+    - OP/USDT
+    - ARB/USDT
+    - INJ/USDT
+    - SUI/USDT
+
+  # Watchlist — higher volatility / smaller cap; scan only on explicit request
+  watchlist:
+    - PEPE/USDT
+    - WIF/USDT
+    - JTO/USDT
+    - BONK/USDT
+    - PYTH/USDT
+
+# Coinbase-native pairs (USD quote) for Coinbase exchange
+coinbase_pairs:
+  - BTC/USD
+  - ETH/USD
+  - SOL/USD
+  - DOGE/USD
+  - LTC/USD
+  - LINK/USD
+  - AVAX/USD
+  - ADA/USD
+  - XRP/USD
+  - DOT/USD
+
+# Scan defaults (can be overridden by CLI flags)
+defaults:
+  timeframe: "1h"
+  limit: 200
+  min_composite_score: 38.0
+  # Which tiers to include in a standard scan (tier1, tier2, watchlist, coinbase_pairs)
+  standard_scan_tiers:
+    - tier1
+    - coinbase_pairs

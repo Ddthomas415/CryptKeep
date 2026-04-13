@@ -8,7 +8,7 @@ from typing import Any
 from services.market_data.regime_detector import detect_regime
 from services.market_data.volume_surge_detector import detect_volume_surge
 from services.execution.outcome_summary import recent_strategy_regime_score
-from services.signals.candidate_advisor import get_top_candidate
+from services.signals.candidate_advisor import advise as _advisor_advise
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -89,20 +89,25 @@ def select_strategy(
         total_reasons[name] = f"{reason}|base={base_score:.1f}|evidence={evidence_score:.2f}"
 
     use_candidate_advisor = str(os.environ.get("CBP_USE_CANDIDATE_ADVISOR", "")).strip().lower() in ("1", "true", "yes", "on")
+    advisor_decision = None
     if use_candidate_advisor:
         try:
-            top = get_top_candidate(min_score=35.0)
-            if (
-                isinstance(top, dict)
-                and str(top.get("symbol") or "") == str(os.environ.get("CBP_SYMBOLS") or "")
-                and str(top.get("preferred_strategy") or "")
-            ):
-                preferred = str(top.get("preferred_strategy"))
-                advisor_reason = f"candidate_advisor:{top.get('trade_type')}:{top.get('mapping_reason')}"
+            # Use the formal advise() interface — respects freshness, confidence, and strategy whitelist
+            current_symbol = str(os.environ.get("CBP_SYMBOLS") or "").split(",")[0].strip()
+            advisor_decision = _advisor_advise(
+                symbol=current_symbol,
+                min_score=35.0,
+                min_confidence="low",
+            )
+            if advisor_decision.should_override and advisor_decision.recommendation:
+                rec = advisor_decision.recommendation
+                preferred = rec.preferred_strategy
+                advisor_reason = (
+                    f"candidate_advisor:{rec.trade_type}:{rec.mapping_reason}"
+                    f":conf={rec.confidence}:score={rec.composite_score:.1f}"
+                )
                 scored_names = {name for name, *_ in scored}
                 if preferred not in scored_names:
-                    # Preferred strategy was not in this regime's ranked list —
-                    # inject it with a base score of 0 so the +100 boost can win.
                     scored.append((preferred, 0.0, 0.0, 0.0, {}))
                     total_reasons[preferred] = advisor_reason
                 patched = []
