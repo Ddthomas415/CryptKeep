@@ -46,6 +46,7 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
 
     rsi_reentry_max = _safe(strategy_cfg.get("rsi_reentry_max"), 55.0)
     rebound_confirm_pct = _safe(strategy_cfg.get("rebound_confirm_pct"), 0.0)
+    trend_reclaim_tolerance_pct = _safe(strategy_cfg.get("trend_reclaim_tolerance_pct"), 1.5)
 
     exit_rsi = _safe(strategy_cfg.get("exit_rsi"), 68.0)
     stop_below_trend_sma = bool(strategy_cfg.get("stop_below_trend_sma", True))
@@ -70,7 +71,12 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
     pullback_pct = ((recent_high - current) / recent_high * 100.0) if recent_high > 0 else 0.0
     rebound_pct = ((current - prev) / prev * 100.0) if prev > 0 else 0.0
 
-    trend_ok = bool(trend_sma is not None and current >= trend_sma)
+    trend_gap_pct = ((trend_sma - current) / trend_sma * 100.0) if trend_sma and trend_sma > 0 else 0.0
+    trend_ok = bool(
+        trend_sma is not None and (
+            current >= trend_sma or trend_gap_pct <= trend_reclaim_tolerance_pct
+        )
+    )
     not_broken = bool(recent_low <= current <= recent_high)
     pullback_ok = min_pullback_pct <= pullback_pct <= max_pullback_pct
     rebound_ok = rebound_pct >= rebound_confirm_pct
@@ -86,6 +92,7 @@ def compute_signal(cfg: dict, symbol: str, ohlcv: list) -> dict:
         "pullback_pct": round(pullback_pct, 4),
         "rebound_pct": round(rebound_pct, 4),
         "trend_ok": trend_ok,
+        "trend_gap_pct": round(trend_gap_pct, 4),
         "pullback_ok": pullback_ok,
         "rebound_ok": rebound_ok,
     }
