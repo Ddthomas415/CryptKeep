@@ -1,4 +1,5 @@
 from __future__ import annotations
+import pytest
 
 import importlib
 
@@ -33,6 +34,7 @@ def _reload_service(monkeypatch, tmp_path):
     return svc
 
 
+@pytest.mark.slow
 def test_process_latest_raw_signal_no_data(monkeypatch, tmp_path):
     svc = _reload_service(monkeypatch, tmp_path)
     store = OpsSignalStoreSQLite(path=str(tmp_path / "ops.sqlite"))
@@ -41,6 +43,7 @@ def test_process_latest_raw_signal_no_data(monkeypatch, tmp_path):
     assert out["reason"] == "no_raw_signal"
 
 
+@pytest.mark.slow
 def test_process_latest_raw_signal_writes_and_dedupes(monkeypatch, tmp_path):
     svc = _reload_service(monkeypatch, tmp_path)
     store = OpsSignalStoreSQLite(path=str(tmp_path / "ops.sqlite"))
@@ -57,6 +60,7 @@ def test_process_latest_raw_signal_writes_and_dedupes(monkeypatch, tmp_path):
     assert second["reason"] == "unchanged"
 
 
+@pytest.mark.slow
 def test_process_latest_raw_signal_write_if_unchanged(monkeypatch, tmp_path):
     svc = _reload_service(monkeypatch, tmp_path)
     store = OpsSignalStoreSQLite(path=str(tmp_path / "ops.sqlite"))
@@ -67,6 +71,7 @@ def test_process_latest_raw_signal_write_if_unchanged(monkeypatch, tmp_path):
     assert two["written"] is True
 
 
+@pytest.mark.slow
 def test_run_forever_bounded_loops(monkeypatch, tmp_path):
     svc = _reload_service(monkeypatch, tmp_path)
     store = OpsSignalStoreSQLite(path=str(tmp_path / "ops.sqlite"))

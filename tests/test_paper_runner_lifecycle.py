@@ -1,4 +1,5 @@
 from __future__ import annotations
+import pytest
 
 import importlib
 import json
@@ -21,6 +22,7 @@ def _reload_paper_runner():
     return paper_runner
 
 
+@pytest.mark.slow
 def test_paper_runner_request_stop_writes_flag(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     paper_runner = _reload_paper_runner()
@@ -31,6 +33,7 @@ def test_paper_runner_request_stop_writes_flag(monkeypatch, tmp_path):
     assert paper_runner.STOP_FILE.exists()
 
 
+@pytest.mark.slow
 def test_paper_runner_run_forever_cycles_once_and_releases_lock(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     paper_runner = _reload_paper_runner()

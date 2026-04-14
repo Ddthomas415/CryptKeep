@@ -1,10 +1,12 @@
 from __future__ import annotations
+import pytest
 
 import json
 
 from services.analytics import crypto_edge_collector_service as svc
 
 
+@pytest.mark.slow
 def test_collect_once_writes_live_public_report(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     plan_path = tmp_path / "plan.json"
@@ -33,6 +35,7 @@ def test_collect_once_writes_live_public_report(tmp_path, monkeypatch) -> None:
     assert out["report"]["has_any_data"] is True
 
 
+@pytest.mark.slow
 def test_run_forever_writes_status_and_stops_on_max_loops(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     plan_path = tmp_path / "plan.json"
@@ -63,6 +66,7 @@ def test_run_forever_writes_status_and_stops_on_max_loops(tmp_path, monkeypatch)
     assert status["reason"] == "max_loops"
 
 
+@pytest.mark.slow
 def test_run_forever_honors_stop_request(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     plan_path = tmp_path / "plan.json"
@@ -91,6 +95,7 @@ def test_run_forever_honors_stop_request(tmp_path, monkeypatch) -> None:
     assert out["writes"] == 1
 
 
+@pytest.mark.slow
 def test_load_runtime_status_marks_dead_process(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     svc.status_file().parent.mkdir(parents=True, exist_ok=True)
@@ -133,6 +138,7 @@ def test_load_runtime_status_marks_dead_process(tmp_path, monkeypatch) -> None:
     assert out["poll_interval_sec"] == 300.0
 
 
+@pytest.mark.slow
 def test_run_forever_refuses_duplicate_running_instance(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     plan_path = tmp_path / "plan.json"

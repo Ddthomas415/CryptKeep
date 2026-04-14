@@ -1,4 +1,5 @@
 from __future__ import annotations
+import pytest
 
 import asyncio
 
@@ -29,6 +30,7 @@ class _FakeWSClient:
         self.closed = True
 
 
+@pytest.mark.slow
 def test_user_stream_run_once_routes_trades(monkeypatch, tmp_path):
     cfg = usws.UserStreamWSConfig(exchange_id="coinbase", exec_db=str(tmp_path / "exec.sqlite"), symbol="BTC/USD")
     svc = usws.UserStreamFillService(cfg)
@@ -49,6 +51,7 @@ def test_user_stream_run_once_routes_trades(monkeypatch, tmp_path):
     assert routed[0][2]["exec_db"] == str(tmp_path / "exec.sqlite")
 
 
+@pytest.mark.slow
 def test_user_stream_run_once_handles_missing_client(monkeypatch, tmp_path):
     cfg = usws.UserStreamWSConfig(exchange_id="coinbase", exec_db=str(tmp_path / "exec.sqlite"))
     svc = usws.UserStreamFillService(cfg)
@@ -58,6 +61,7 @@ def test_user_stream_run_once_handles_missing_client(monkeypatch, tmp_path):
     assert out["reason"] == "ws_client_unavailable"
 
 
+@pytest.mark.slow
 def test_user_stream_run_forever_stops_and_closes_client(monkeypatch, tmp_path):
     cfg = usws.UserStreamWSConfig(exchange_id="coinbase", exec_db=str(tmp_path / "exec.sqlite"), retry_sleep_sec=0.01)
     svc = usws.UserStreamFillService(cfg)
@@ -75,4 +79,3 @@ def test_user_stream_run_forever_stops_and_closes_client(monkeypatch, tmp_path):
     assert out["ok"] is True
     assert fake.closed is True
     assert out["loops"] >= 1
-

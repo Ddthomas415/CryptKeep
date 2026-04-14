@@ -136,3 +136,26 @@ governance-smoke:
 	python3 tools/repo_doctor.py --strict
 	./scripts/manual_repo_audit.sh quick
 	./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py
+
+# Fast test suite — skips blocking service-loop tests
+# Use this in CI or when you don't want to wait for loop tests
+test-fast:
+	CBP_SKIP_SLOW=1 $(PYTHON) -m pytest tests/ \
+		--ignore=tests/test_symbol_scanner.py \
+		--ignore=tests/test_dashboard_view_data.py \
+		--ignore=tests/test_dashboard_page_runtime.py \
+		--ignore=tests/test_dashboard_home_digest.py \
+		-q
+
+# Full test suite including slow loop tests (run locally with running services)
+test-full:
+	$(PYTHON) -m pytest tests/ \
+		--ignore=tests/test_symbol_scanner.py \
+		--ignore=tests/test_dashboard_view_data.py \
+		--ignore=tests/test_dashboard_page_runtime.py \
+		--ignore=tests/test_dashboard_home_digest.py \
+		-q
+
+# Slow tests only
+test-slow:
+	$(PYTHON) -m pytest tests/ -m slow -v --tb=short

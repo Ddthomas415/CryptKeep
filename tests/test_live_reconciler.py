@@ -1,4 +1,5 @@
 from __future__ import annotations
+import pytest
 
 from services.execution import live_reconciler as lr
 
@@ -204,6 +205,7 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
     assert guard_calls == []
 
 
+@pytest.mark.slow
 def test_live_reconciler_guard_halted_reports_cleanup_without_arming(monkeypatch, tmp_path):
     stop_file = tmp_path / "live_reconciler.stop"
     statuses: list[dict] = []
@@ -241,6 +243,7 @@ def test_live_reconciler_guard_halted_reports_cleanup_without_arming(monkeypatch
     assert any(item.get("status") == "halted" and item.get("reconcile_mode") == "cleanup" for item in statuses)
 
 
+@pytest.mark.slow
 def test_live_reconciler_promotes_halting_to_halted_when_cleanup_complete(monkeypatch, tmp_path):
     stop_file = tmp_path / "live_reconciler.stop"
     statuses: list[dict] = []

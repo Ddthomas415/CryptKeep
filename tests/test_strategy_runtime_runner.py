@@ -1,4 +1,5 @@
 from __future__ import annotations
+import pytest
 
 import importlib
 import json
@@ -61,6 +62,7 @@ def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_pa
     assert cfg["allow_first_signal_trade"] is True
 
 
+@pytest.mark.slow
 def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     qdb = runner.IntentQueueSQLite()
@@ -207,6 +209,7 @@ def test_strategy_signal_supports_mean_reversion_runtime_prices(monkeypatch, tmp
     assert signal["reason"] == "rsi_oversold_below_sma"
 
 
+@pytest.mark.slow
 def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     qdb = runner.IntentQueueSQLite()
@@ -265,6 +268,7 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     assert queued[0]["side"] == "buy"
 
 
+@pytest.mark.slow
 def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     qdb = runner.IntentQueueSQLite()
@@ -336,6 +340,7 @@ def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch,
     assert intents == []
 
 
+@pytest.mark.slow
 def test_run_forever_exit_action_emits_sell_once_while_condition_persists(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     emitted: list[dict[str, object]] = []

@@ -1,8 +1,10 @@
 from __future__ import annotations
+import pytest
 
 from services.bot import cli_live, cli_paper
 
 
+@pytest.mark.slow
 def test_cli_paper_dispatches_to_execution_runner(monkeypatch):
     calls = {"run_forever": 0}
 
@@ -14,6 +16,7 @@ def test_cli_paper_dispatches_to_execution_runner(monkeypatch):
     assert calls["run_forever"] == 1
 
 
+@pytest.mark.slow
 def test_cli_paper_run_paper_receives_runtime_trading_config(monkeypatch):
     captured: dict[str, object] = {}
 
@@ -35,6 +38,7 @@ def test_cli_paper_run_paper_receives_runtime_trading_config(monkeypatch):
     assert captured["cfg"] == {"execution": {"executor_mode": "paper"}, "symbols": ["BTC/USD"]}
 
 
+@pytest.mark.slow
 def test_cli_live_dispatches_to_execution_runner(monkeypatch):
     calls = {"run_forever_live": 0}
 
@@ -46,6 +50,7 @@ def test_cli_live_dispatches_to_execution_runner(monkeypatch):
     assert calls["run_forever_live"] == 1
 
 
+@pytest.mark.slow
 def test_cli_live_run_live_receives_runtime_trading_config(monkeypatch):
     captured: dict[str, object] = {}
 

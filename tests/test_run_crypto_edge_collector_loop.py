@@ -1,10 +1,12 @@
 from __future__ import annotations
+import pytest
 
 import json
 
 from scripts import run_crypto_edge_collector_loop as script
 
 
+@pytest.mark.slow
 def test_run_crypto_edge_collector_loop_requests_stop(monkeypatch, capsys) -> None:
     monkeypatch.setattr(script, "request_stop", lambda: {"ok": True, "stop_file": "/tmp/stop"})
     monkeypatch.setattr(script.sys, "argv", ["run_crypto_edge_collector_loop.py", "--stop"])
@@ -15,6 +17,7 @@ def test_run_crypto_edge_collector_loop_requests_stop(monkeypatch, capsys) -> No
     assert out["stop_file"] == "/tmp/stop"
 
 
+@pytest.mark.slow
 def test_run_crypto_edge_collector_loop_shows_status(monkeypatch, capsys) -> None:
     monkeypatch.setattr(script, "load_runtime_status", lambda: {"ok": True, "status": "running", "pid": 12345})
     monkeypatch.setattr(script.sys, "argv", ["run_crypto_edge_collector_loop.py", "--status"])
@@ -26,6 +29,7 @@ def test_run_crypto_edge_collector_loop_shows_status(monkeypatch, capsys) -> Non
     assert out["pid"] == 12345
 
 
+@pytest.mark.slow
 def test_run_crypto_edge_collector_loop_runs_with_cfg(monkeypatch, capsys) -> None:
     seen: dict[str, object] = {}
 
