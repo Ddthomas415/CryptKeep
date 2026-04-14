@@ -159,3 +159,18 @@ test-full:
 # Slow tests only
 test-slow:
 	$(PYTHON) -m pytest tests/ -m slow -v --tb=short
+
+# Control kernel
+kernel-status:
+	$(PYTHON) scripts/show_control_kernel_status.py
+
+kernel-status-json:
+	$(PYTHON) scripts/show_control_kernel_status.py --json
+
+kernel-promote:
+	@echo "Usage: make kernel-promote STRATEGY=<id> REASON=<reason>"
+	$(PYTHON) scripts/show_control_kernel_status.py --promote $(STRATEGY) --reason "$(REASON)"
+
+kernel-demote:
+	@echo "Usage: make kernel-demote STRATEGY=<id>"
+	$(PYTHON) scripts/show_control_kernel_status.py --demote $(STRATEGY) --reason "operator_manual_demotion"
