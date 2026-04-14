@@ -21,6 +21,7 @@ from services.strategies.hypotheses import get_strategy_hypothesis
 
 
 from services.backtest.evidence_shared import (
+    _load_evidence_payload,
     _now_iso,
     _fnum,
     _top_strategy_name,
@@ -33,14 +34,6 @@ def evidence_dir() -> Path:
     path = data_dir() / "strategy_evidence"
     path.mkdir(parents=True, exist_ok=True)
     return path
-
-
-def _load_evidence_payload(path: Path) -> dict[str, Any]:
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return {}
-    return dict(payload) if isinstance(payload, dict) else {}
 
 
 def _decision_weight(value: Any) -> int:

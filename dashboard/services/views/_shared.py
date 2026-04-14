@@ -630,7 +630,7 @@ def _load_local_portfolio_snapshot(prices: dict[str, float]) -> dict[str, Any] |
 
     try:
         from services.analytics.portfolio_mtm import build_portfolio_mtm
-        from services.paper.paper_state import PaperState
+        from services.paper_trader.paper_state import PaperState  # canonical
     except Exception:
         build_portfolio_mtm = None
         PaperState = None
@@ -2417,7 +2417,7 @@ def _load_local_portfolio_snapshot(prices: dict[str, float]) -> dict[str, Any] |
 
     try:
         from services.analytics.portfolio_mtm import build_portfolio_mtm
-        from services.paper.paper_state import PaperState
+        from services.paper_trader.paper_state import PaperState  # canonical
     except Exception:
         build_portfolio_mtm = None
         PaperState = None

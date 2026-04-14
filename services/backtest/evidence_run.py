@@ -24,6 +24,22 @@ from services.backtest.evidence_shared import (
     _now_iso,
     _fnum,
 )
+from services.backtest.evidence_paper import load_paper_history_evidence  # noqa: F401
+
+from services.backtest.evidence_windows import (
+    default_evidence_windows,
+    _decision_for_row,
+    _apply_paper_history_adjustment,
+    _paper_history_note,
+    _evidence_status_for_row,
+    _research_acceptance_for_row,
+    _weakness_for_row,
+    _improvement_for_row,
+    _combined_walk_forward_candles,
+    _walk_forward_summary_for_row,
+    _aggregate_rows,
+    _rerank_rows_by_leaderboard_score,
+)
 
 def run_strategy_evidence_cycle(
     *,

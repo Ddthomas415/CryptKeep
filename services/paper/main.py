@@ -1,4 +1,17 @@
 from __future__ import annotations
+"""
+DEPRECATED — this module is in a transitional service family scheduled for
+removal on 2026-07-01. See docs/ARCHITECTURE.md for the migration plan.
+Import from the canonical path instead.
+"""
+import warnings as _warnings
+_warnings.warn(
+    f"{{__name__}} is deprecated and will be removed 2026-07-01. "
+    "See docs/ARCHITECTURE.md for the canonical replacement.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
 from services.markets.symbols import env_symbol
 from services.markets.symbols import env_symbol, normalize_symbol
 import asyncio

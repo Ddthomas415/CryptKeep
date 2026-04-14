@@ -209,4 +209,11 @@ def _build_recent_trend(
         "summary_text": summary_text,
     }
 
+def _load_evidence_payload(path: Path) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    return dict(payload) if isinstance(payload, dict) else {}
+
 
