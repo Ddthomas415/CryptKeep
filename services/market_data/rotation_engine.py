@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from dashboard.services.symbol_scanner import run_symbol_scan
+from services.market_data.symbol_scanner import run_symbol_scan
 from services.market_data.correlation_inputs import load_series_by_symbol
 from services.market_data.composite_ranker import score_row, apply_correlation_penalty
 from services.market_data.correlation_matrix import build_correlation_matrix, diversify_ranked_symbols

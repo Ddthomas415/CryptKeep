@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from dashboard.services.symbol_scanner import run_symbol_scan
+from services.market_data.symbol_scanner import run_symbol_scan
 
 
 DEFAULT_EXCLUDES = {

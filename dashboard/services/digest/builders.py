@@ -62,14 +62,7 @@ from services.admin.system_guard import get_state as get_system_guard_state
 from services.bot.start_manager import decide_start
 from services.execution.live_arming import is_live_enabled, live_enabled_and_armed
 
-CLAIM_BOUNDARIES = [
-    "Crypto-first platform.",
-    "Paper-heavy defaults remain active.",
-    "Live trading stays guarded and fail-closed.",
-    "Stock support is not proven.",
-    "Shorting is not fully validated.",
-    "Strategy digest uses persisted synthetic multi-window evidence when available, not live profitability proof.",
-]
+from services.governance.claim_boundaries import CLAIM_BOUNDARIES  # noqa: F401 (canonical source)
 _SEVERITY_RANK = {"critical": 0, "important": 1, "watch": 2, "info": 3}
 
 

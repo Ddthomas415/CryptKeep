@@ -1,7 +1,18 @@
 from __future__ import annotations
+from typing import Any
+from services.setup.config_manager import DEFAULT_CFG, deep_merge
+from services.admin.config_editor import load_user_yaml, save_user_yaml
 
 # settings_view.py — auto-split from view_data.py
-from dashboard.services.views._shared import *  # noqa: F401,F403
+from services.execution.live_arming import set_live_enabled
+from dashboard.services.views._shared import (  # noqa: F401
+    _apply_local_settings_overrides,
+    _default_settings_payload,
+    _fetch_envelope,
+    _load_automation_operations_snapshot,
+    _read_mock_envelope,
+    _request_envelope,
+)
 
 def get_settings_view() -> dict[str, Any]:
     envelope = _fetch_envelope("/api/v1/settings")

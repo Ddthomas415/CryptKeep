@@ -4,11 +4,11 @@ import math
 import time
 from typing import Any
 
-from dashboard.services.coinbase_movers import fetch_coinbase_movers
+from services.market_data.coinbase_movers import fetch_coinbase_movers
 from services.market_data.alternative_data import get_market_regime
 from services.market_data.regime_detector import detect_regime
 from services.market_data.volume_surge_detector import detect_volume_surge, detect_pump_pattern, detect_overnight_gap
-from dashboard.services.view_data import _get_market_snapshot, _load_local_ohlcv
+from services.market_data.local_data_reader import _get_market_snapshot, _load_local_ohlcv
 
 
 PUMP_THRESHOLD_PCT = 10.0

@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
-from dashboard.services.view_data import _load_local_ohlcv
+from services.market_data.local_data_reader import _load_local_ohlcv
 from services.market_data.composite_ranker import build_ranker_config
 from services.market_data.regime_detector import detect_regime
 

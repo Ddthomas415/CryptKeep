@@ -177,11 +177,18 @@ def _exchange_support_check() -> dict[str, Any]:
 
 
 def _dashboard_fallback_truth_check() -> dict[str, Any]:
-    # view_data.py is now a facade; shared helpers live in views/_shared.py
+    # view_data.py is a facade; helpers are split across views/_shared_*.py
     rel_path = "dashboard/services/view_data.py"
-    shared_path = "dashboard/services/views/_shared.py"
-    view_data_text = _read_text(rel_path) + _read_text(shared_path)
-    function_names = _python_function_names(shared_path) + _python_function_names(rel_path)
+    from pathlib import Path as _Path
+    views_dir = _Path("dashboard/services/views")
+    shared_texts = [_read_text(rel_path)]
+    shared_fns = _python_function_names(rel_path)
+    for _sp in sorted(views_dir.glob("_shared*.py")):
+        _sp_rel = str(_sp)
+        shared_texts.append(_read_text(_sp_rel))
+        shared_fns += _python_function_names(_sp_rel)
+    view_data_text = "\n".join(shared_texts)
+    function_names = shared_fns
     fallback_functions = sorted(name for name in function_names if name.startswith("_default_"))
     watchlist_assets = sorted(dashboard_view_data._repo_default_watchlist_assets())
     summary_fallback_labeled = '"data_provenance"' in view_data_text and '"dashboard_fallback"' in view_data_text

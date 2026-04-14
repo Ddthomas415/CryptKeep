@@ -49,7 +49,7 @@ def _security_policy() -> dict[str, Any]:
     remote_requires_mfa = True
     outer_access_control = ""
     try:
-        from dashboard.services.view_data import get_settings_view
+        from services.market_data.local_data_reader import get_settings_view
 
         data = get_settings_view() or {}
         security = data.get("security") if isinstance(data.get("security"), dict) else {}

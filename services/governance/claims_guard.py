@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from services.security.auth_capabilities import auth_capabilities
-from dashboard.services.digest.builders import CLAIM_BOUNDARIES
+from services.governance.claim_boundaries import CLAIM_BOUNDARIES
 
 
 def validate_claim(claim: dict) -> str | bool:

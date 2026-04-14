@@ -1,3 +1,9 @@
+"""dashboard/role_guard.py — Role-based access control.
+
+This module is canonical in the dashboard layer.
+Services that need require_role should import from:
+  services/security/role_guard.py
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,12 +13,15 @@ Role = Literal["VIEWER", "OPERATOR", "ADMIN"]
 
 ROLE_RANK = {"VIEWER": 0, "OPERATOR": 1, "ADMIN": 2}
 
+
 def has_role(current: Role, required: Role) -> bool:
     return ROLE_RANK.get(str(current), 0) >= ROLE_RANK.get(str(required), 0)
+
 
 def require_role(current: Role, required: Role) -> None:
     if not has_role(current, required):
         raise PermissionError(f"Requires role {required}, current role is {current}")
+
 
 @dataclass(frozen=True)
 class RolePolicy:

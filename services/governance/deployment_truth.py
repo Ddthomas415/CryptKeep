@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from dashboard.services.view_data import get_settings_view
+from services.market_data.local_data_reader import get_settings_view
 from services.security.auth_runtime_guard import auth_runtime_guard_status
 
 

@@ -1,7 +1,19 @@
 from __future__ import annotations
+from typing import Any
 
 # execution_view.py — auto-split from view_data.py
-from dashboard.services.views._shared import *  # noqa: F401,F403
+from dashboard.services.views._shared import (  # noqa: F401
+    _default_activity,
+    _default_positions,
+    _default_recent_fills,
+    _fetch_envelope,
+    _load_local_failed_orders,
+    _load_local_open_orders,
+    _load_local_pending_approvals,
+    _load_local_portfolio_snapshot,
+    _load_local_recent_activity,
+    _load_local_recent_fills,
+)
 
 def get_recent_activity() -> list[str]:
     local_rows = _load_local_recent_activity(limit=6)

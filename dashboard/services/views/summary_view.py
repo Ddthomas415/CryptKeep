@@ -1,7 +1,15 @@
 from __future__ import annotations
+from typing import Any
 
 # summary_view.py — auto-split from view_data.py
-from dashboard.services.views._shared import *  # noqa: F401,F403
+from dashboard.services.views._shared import (  # noqa: F401
+    _apply_local_summary_overrides,
+    _attach_data_provenance,
+    _build_watchlist_preview,
+    _default_dashboard_summary,
+    _fetch_envelope,
+    _read_mock_envelope,
+)
 
 def get_dashboard_summary() -> dict[str, Any]:
     envelope = _fetch_envelope("/api/v1/dashboard/summary")

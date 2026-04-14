@@ -1,7 +1,22 @@
 from __future__ import annotations
+from typing import Any
 
 # market_view.py — auto-split from view_data.py
-from dashboard.services.views._shared import *  # noqa: F401,F403
+from dashboard.services.views._shared import (  # noqa: F401
+    _asset_priority,
+    _default_dashboard_summary,
+    _default_explain_payload,
+    _derive_market_bias,
+    _derive_volume_trend,
+    _enrich_signal_row,
+    _explain_mentions_foreign_asset,
+    _get_market_price_series,
+    _get_market_snapshot,
+    _load_current_regime,
+    _read_mock_envelope,
+    _request_envelope,
+    _request_envelope_from_base,
+)
 
 def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     summary = get_dashboard_summary()

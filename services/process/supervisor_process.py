@@ -7,7 +7,7 @@ import time
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
-from dashboard.role_guard import require_role
+from services.security.role_guard import require_role
 
 from services.os.app_paths import data_dir
 from services.logging.app_logger import get_logger

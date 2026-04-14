@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from dashboard.services.view_data import _load_local_ohlcv
+from services.market_data.local_data_reader import _load_local_ohlcv
 
 
 def load_series_by_symbol(

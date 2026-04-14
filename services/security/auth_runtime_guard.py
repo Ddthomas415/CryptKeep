@@ -4,7 +4,7 @@ import os
 from typing import Any, Dict
 
 try:
-    from dashboard.services.view_data import get_settings_view
+    from services.market_data.local_data_reader import get_settings_view
 except Exception:  # pragma: no cover - dashboard settings are optional at runtime
     get_settings_view = None
 

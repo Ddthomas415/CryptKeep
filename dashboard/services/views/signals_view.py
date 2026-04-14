@@ -1,7 +1,15 @@
 from __future__ import annotations
+from typing import Any
 
 # signals_view.py — auto-split from view_data.py
-from dashboard.services.views._shared import *  # noqa: F401,F403
+from dashboard.services.views._shared import (  # noqa: F401
+    _apply_local_execution_state_to_recommendations,
+    _default_recommendations,
+    _enrich_signal_row,
+    _fetch_envelope,
+    _load_current_regime,
+    _load_local_recommendations,
+)
 
 def get_recommendations() -> list[dict[str, Any]]:
     local_rows = _load_local_recommendations(limit=20)
