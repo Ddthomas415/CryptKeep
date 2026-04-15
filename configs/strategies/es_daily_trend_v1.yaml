@@ -1,0 +1,133 @@
+# configs/strategies/es_daily_trend_v1.yaml
+#
+# Runtime configuration for the ES Daily Trend v1 strategy.
+# Every number here corresponds to a threshold defined in docs/strategies/es_daily_trend_v1.md.
+# Do not change values here without updating that document and the change log.
+#
+# Parent docs:
+#   docs/strategies/es_daily_trend_v1.md  — strategy spec (source of truth for thresholds)
+#   docs/DECISION_FRAMEWORK.md            — promotion logic
+#   docs/CONTROL_KERNEL.md                — runtime safety behavior
+
+strategy:
+  id: es_daily_trend_v1
+  name: "ES Daily Trend v1"
+  version: "1.0.0"
+  stage: paper                    # paper | shadow | capped_live | scaled_live
+                                  # Change only via promotion checklist in the spec doc
+
+  # Signal definition
+  signal:
+    type: sma_crossover           # price > SMA_N → long; price ≤ SMA_N → flat
+    sma_period: 200               # 200-day SMA
+    timeframe: 1d                 # daily bars
+    direction: long_flat_only     # no shorts in v1
+
+  # Entry / exit rules
+  entry:
+    rule: close_above_sma         # enter next open after close crosses above SMA
+    require_regime: true          # entry blocked if regime filter not in TRENDING
+
+  exit:
+    rule: close_below_sma         # exit next open after close crosses below SMA
+
+  stop:
+    type: hard_atr
+    atr_period: 20
+    atr_multiplier: 2.0           # stop = entry_price − 2 × ATR(20)
+
+# Regime filter
+# Source: docs/strategies/es_daily_trend_v1.md §2
+regime:
+  indicator: atr_ratio            # current ATR(20) / 60-day rolling avg ATR(20)
+  lookback_days: 60
+  atr_period: 20
+  thresholds:
+    trending_floor: 0.80          # ATR ratio ≥ 0.80 → TRENDING (entries allowed)
+    chop_ceiling: 0.60            # ATR ratio < 0.60 for chop_days → CHOP (no entries)
+    chop_days: 5                  # consecutive days below chop_ceiling to trigger
+    high_vol_ceiling: 2.50        # ATR ratio > 2.50 → HIGH_VOL (half size or pause)
+
+# Sizing and risk
+# Source: docs/strategies/es_daily_trend_v1.md §3
+risk:
+  capital_at_risk_per_trade_pct: 0.50    # 0.5% of total capital at stop level
+  max_position_notional_pct: 10.0        # hard cap: 10% of total capital notional
+  daily_loss_halt_pct: 1.50              # halt at 1.5% daily loss
+  max_drawdown_pct: 12.0                 # full stop + review at 12% drawdown
+
+  drawdown_rules:
+    halve_size_at_pct: 6.0               # 50% of max_drawdown_pct
+    paper_only_at_pct: 9.0               # 75% of max_drawdown_pct
+
+  capped_live:
+    size_fraction: 0.25                  # 25% of intended position size
+    min_trades: 20                       # minimum completed round trips
+    min_weeks: 8                         # minimum time at capped size (slow system)
+
+# Operational thresholds
+# Source: docs/strategies/es_daily_trend_v1.md §4
+ops:
+  stale_data_timeout_minutes: 30         # no entries if bar timestamp older than this
+  order_reject_halt_count: 3             # halt after N consecutive rejects
+  slippage_warn_multiplier: 1.5          # warn at 1.5× backtest median slippage
+  slippage_halt_multiplier: 3.0          # halt at 3.0× backtest median slippage
+  fill_confirm_timeout_seconds: 300      # flag as unconfirmed after 5 min
+  reconciliation_tolerance: 0.0          # zero unresolved mismatch tolerance
+  kill_switch_test_frequency: weekly     # minimum verification cadence
+
+# Evidence logging
+# All fields below must be populated in every log record.
+# Source: docs/strategies/es_daily_trend_v1.md §5
+evidence:
+  log_path: "data/evidence/es_daily_trend_v1/"
+  required_signal_fields:
+    - timestamp
+    - price
+    - sma_200
+    - atr_ratio
+    - signal_direction
+    - regime_flag
+  required_order_fields:
+    - timestamp
+    - order_type
+    - size
+    - intended_price
+    - stop_level
+    - capital_at_risk_usd
+  required_fill_fields:
+    - timestamp
+    - fill_price
+    - slippage_points
+    - slippage_pct
+    - fees_paid
+  required_session_fields:
+    - regime_at_open
+    - halts_triggered
+    - manual_overrides
+    - reconciliation_result
+    - drawdown_from_peak
+  required_drawdown_fields:
+    - peak_equity
+    - trough_equity
+    - duration_days
+    - recovery_date
+    - action_taken
+
+# Retirement thresholds
+# Source: docs/strategies/es_daily_trend_v1.md §7
+retirement:
+  rolling_expectancy_window_days: 60
+  negative_expectancy_months_to_retire: 2
+  max_drawdown_pct: 12.0                 # same as risk.max_drawdown_pct
+  slippage_trend_months: 3               # rising slippage for N months → review
+  regime_abnormal_threshold_pct: 40.0   # >40% bars flagged → review regime params
+  two_triggers_rule: true               # any 2 triggers firing simultaneously → retire
+
+# What this strategy is not (enforced at config parse time)
+# Source: docs/strategies/es_daily_trend_v1.md §8
+constraints:
+  no_short: true
+  single_instrument: true
+  no_intraday: true
+  no_parameter_optimization: true
