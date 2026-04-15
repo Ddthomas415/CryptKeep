@@ -8,6 +8,7 @@ from services.strategies.volatility_reversal import signal_from_ohlcv as volatil
 from services.strategies.gap_fill import signal_from_ohlcv as gap_fill
 from services.strategies.breakout_volume import signal_from_ohlcv as breakout_volume
 from services.strategies.pullback_recovery import compute_signal as pullback_recovery_compute_signal
+from services.strategies.es_daily_trend import signal_from_ohlcv as es_daily_trend_signal
 
 SUPPORTED = {
     "ema_cross": ema_cross,
@@ -18,6 +19,7 @@ SUPPORTED = {
     "gap_fill": gap_fill,
     "breakout_volume": breakout_volume,
     "pullback_recovery": pullback_recovery_compute_signal,
+    "sma_200_trend": es_daily_trend_signal,      # ES Daily Trend v1 — daily 200-SMA
 }
 
 def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
@@ -154,6 +156,17 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
                 breakout_buffer_pct=float(st.get("breakout_buffer_pct", 0.1)),
                 min_channel_width_pct=float(st.get("min_channel_width_pct", 1.0)),
                 require_close_above=bool(st.get("require_close_above", True)),
+            ),
+            "strategy": name,
+            "symbol": symbol,
+        }
+
+    if name == "sma_200_trend":
+        return {
+            **fn(
+                ohlcv=ohlcv,
+                sma_period=int(st.get("sma_period", 200)),
+                atr_period=int(st.get("atr_period", 20)),
             ),
             "strategy": name,
             "symbol": symbol,

@@ -303,3 +303,45 @@ def decide(
         signal, reg["regime"], kd["action"], size["contracts"], kd["stage"],
     )
     return result
+
+
+# ---------------------------------------------------------------------------
+# Registry adapter
+# ---------------------------------------------------------------------------
+
+def signal_from_ohlcv(
+    ohlcv: list[list],
+    *,
+    sma_period: int = SMA_PERIOD_DEFAULT,
+    atr_period: int = ATR_PERIOD_DEFAULT,
+) -> dict[str, Any]:
+    """Adapter for strategy_registry. Accepts ohlcv rows [ts,o,h,l,c,vol].
+
+    Returns the standard registry signal envelope:
+      {ok, action, reason, signal, regime, sma_200, atr_ratio}
+    """
+    if not ohlcv or len(ohlcv) < sma_period:
+        return {"ok": True, "action": "hold", "reason": "insufficient_history",
+                "signal": "flat", "regime": "insufficient_data"}
+
+    closes = [float(row[4]) for row in ohlcv]
+    highs  = [float(row[2]) for row in ohlcv]
+    lows   = [float(row[3]) for row in ohlcv]
+
+    signal = compute_signal(closes, period=sma_period)
+    reg    = regime_stability(highs, lows, closes, atr_period=atr_period)
+    sma    = compute_sma(closes, sma_period)
+
+    action = "buy" if (signal == "long" and reg["entry_allowed"]) else "hold"
+    reason = f"sma200:{signal}:regime:{reg['regime']}"
+
+    return {
+        "ok":      True,
+        "action":  action,
+        "reason":  reason,
+        "signal":  signal,
+        "regime":  reg["regime"],
+        "sma_200": sma,
+        "atr_ratio": reg.get("atr_ratio"),
+        "entry_allowed": reg["entry_allowed"],
+    }

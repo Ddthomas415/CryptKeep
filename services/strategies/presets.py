@@ -291,6 +291,32 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
 
+    "es_daily_trend_v1": {
+        "risk": {
+            "max_concurrent_positions": 1,
+            "max_symbol_exposure_pct": 10.0,
+            "max_total_exposure_pct": 10.0,
+            "max_strategy_exposure_pct": 10.0,
+            "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 3,
+            "kill_cooldown_loops": 5,
+            "max_abs_correlation": 1.0,
+        },
+        "strategy": {
+            "name": "sma_200_trend",
+            "trade_enabled": True,
+            "sma_period": 200,
+            "atr_period": 20,
+            "atr_stop_multiplier": 2.0,
+            "capital_at_risk_per_trade_pct": 0.50,
+            "max_position_notional_pct": 10.0,
+            "daily_loss_halt_pct": 1.50,
+            "max_drawdown_pct": 12.0,
+            "regime_trending_floor": 0.80,
+            "regime_chop_ceiling": 0.60,
+            "regime_high_vol_ceiling": 2.50,
+        },
+    },
 }
 
 
