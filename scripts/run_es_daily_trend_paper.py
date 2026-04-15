@@ -212,12 +212,11 @@ def main() -> int:
     _LOG.info("starting paper run for %s stage=%s", STRATEGY_ID, stage_msg)
 
     from services.strategies.evidence_logger import EvidenceLogger
-    from services.control.kernel import ControlKernel
-    from services.control.deployment_stage import get_current_stage
+    from services.control.deployment_stage import get_current_stage as _get_stage
     ev = EvidenceLogger(STRATEGY_ID)
     kernel = ControlKernel(STRATEGY_ID)
     kd = kernel.evaluate({})
-    stage_at_start = get_current_stage(STRATEGY_ID).value
+    stage_at_start = _get_stage(STRATEGY_ID).value
 
     result = run_campaign(campaign_cfg)
 
