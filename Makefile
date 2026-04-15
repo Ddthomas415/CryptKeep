@@ -174,3 +174,24 @@ kernel-promote:
 kernel-demote:
 	@echo "Usage: make kernel-demote STRATEGY=<id>"
 	$(PYTHON) scripts/show_control_kernel_status.py --demote $(STRATEGY) --reason "operator_manual_demotion"
+
+# ES Daily Trend v1 — paper run and promotion gates
+STRATEGY_ID ?= es_daily_trend_v1
+
+paper-run:
+	$(PYTHON) scripts/run_es_daily_trend_paper.py
+
+paper-status:
+	$(PYTHON) scripts/run_es_daily_trend_paper.py --status
+
+paper-dry-run:
+	$(PYTHON) scripts/run_es_daily_trend_paper.py --dry-run
+
+check-gates:
+	$(PYTHON) scripts/check_promotion_gates.py
+
+check-gates-json:
+	$(PYTHON) scripts/check_promotion_gates.py --json
+
+promote-strategy:
+	$(PYTHON) scripts/show_control_kernel_status.py --promote $(STRATEGY_ID)

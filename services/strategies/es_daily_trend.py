@@ -15,6 +15,7 @@ import math
 from typing import Any
 
 from services.logging.app_logger import get_logger
+from services.strategies.evidence_logger import EvidenceLogger
 
 _LOG = get_logger("strategy.es_daily_trend")
 
@@ -302,6 +303,24 @@ def decide(
         "es_daily_trend signal=%s regime=%s kernel=%s contracts=%s stage=%s",
         signal, reg["regime"], kd["action"], size["contracts"], kd["stage"],
     )
+
+    # Log signal evidence record
+    try:
+        ev_logger = EvidenceLogger(STRATEGY_ID)
+        from datetime import datetime, timezone
+        ev_logger.log_signal(
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            price=ep,
+            sma_200=sma_val,
+            atr_ratio=reg.get("atr_ratio"),
+            signal_direction=signal,
+            regime_flag=reg.get("regime", "unknown"),
+            kernel_action=kd["action"],
+            entry_allowed=result["new_risk_allowed"],
+        )
+    except Exception as _ev_err:
+        _LOG.warning("evidence_logger failed: %s", _ev_err)
+
     return result
 
 
