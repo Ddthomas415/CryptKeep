@@ -198,7 +198,34 @@ def main() -> int:
     )
 
     _LOG.info("starting paper run for %s stage=%s", STRATEGY_ID, stage_msg)
+
+    from services.strategies.evidence_logger import EvidenceLogger
+    from services.control.kernel import ControlKernel
+    from services.control.deployment_stage import get_current_stage
+    ev = EvidenceLogger(STRATEGY_ID)
+    kernel = ControlKernel(STRATEGY_ID)
+    kd = kernel.evaluate({})
+    stage_at_start = get_current_stage(STRATEGY_ID).value
+
     result = run_campaign(campaign_cfg)
+
+    # Log session record with campaign outcome
+    try:
+        ev.log_session(
+            regime_at_open=stage_at_start,
+            halts_triggered=[r for r in result.get("halt_reasons", [])],
+            manual_overrides=[],
+            reconciliation_result="pass" if result.get("ok") else "campaign_error",
+            drawdown_from_peak=float(result.get("max_drawdown_pct", 0.0)),
+            kill_switch_tested=False,
+            ops_checks_passed=result.get("ok", False),
+            extra={
+                "completed_strategies": result.get("completed_strategies", 0),
+                "campaign_status": result.get("status", "unknown"),
+            },
+        )
+    except Exception as _ev_err:
+        _LOG.warning("session evidence log failed: %s", _ev_err)
 
     if args.json:
         print(json.dumps(result, indent=2, default=str))

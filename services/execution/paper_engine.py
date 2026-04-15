@@ -183,6 +183,33 @@ class PaperEngine:
         fill_id = str(uuid.uuid4())
         self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": _now(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
         self.db.update_order_status(order["order_id"], "filled", None)
+
+        # Evidence logging — strategy-specific, best-effort
+        try:
+            strategy_id = str(order.get("meta", {}).get("selected_strategy") or "")
+            if strategy_id:
+                from services.strategies.evidence_logger import EvidenceLogger
+                intended = float(order.get("price") or price)
+                slip_pts = abs(float(price) - intended)
+                slip_pct = (slip_pts / intended * 100.0) if intended > 0 else 0.0
+                pnl = None
+                if order.get("side") == "sell":
+                    avg = float((self.db.get_position(order["symbol"]) or {}).get("avg_price") or price)
+                    pnl = round((float(price) - avg) * float(qty), 4)
+                EvidenceLogger(strategy_id).log_fill(
+                    timestamp=_now(),
+                    fill_price=float(price),
+                    slippage_points=round(slip_pts, 4),
+                    slippage_pct=round(slip_pct, 4),
+                    fees_paid=round(float(fee), 6),
+                    side=str(order.get("side", "buy")),
+                    size=float(qty),
+                    pnl_usd=pnl,
+                    order_id=str(order.get("order_id", "")),
+                )
+        except Exception:
+            pass  # evidence logging never blocks execution
+
         return {"ok": True, "fill_id": fill_id, "fee": fee}
 
     def evaluate_open_orders(self) -> dict:

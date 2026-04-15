@@ -313,6 +313,67 @@ def evaluate_capped_live_gates(evidence: dict, sessions: list,
 # Main
 # ---------------------------------------------------------------------------
 
+def _slippage_within_baseline(fills: list[dict], multiplier: float = 1.5) -> dict:
+    """Compare observed fill slippage to baseline from config."""
+    if not fills:
+        return {"ok": None, "note": "no fills recorded", "observed_p95": None, "baseline": None}
+    
+    slippages = [abs(float(f.get("slippage_pct") or 0)) for f in fills
+                 if f.get("slippage_pct") is not None]
+    if len(slippages) < 5:
+        return {"ok": None, "note": f"only {len(slippages)} fills with slippage data (need 5+)",
+                "observed_p95": None, "baseline": None}
+    
+    slippages.sort()
+    p95_idx = int(len(slippages) * 0.95)
+    observed_p95 = slippages[min(p95_idx, len(slippages)-1)]
+    
+    # Baseline from config — use the warn threshold as reference
+    cfg = yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
+    warn_mult = float(cfg.get("ops", {}).get("slippage_warn_multiplier", 1.5))
+    
+    # Without a measured backtest baseline, we use 0.1% as a reasonable starting reference
+    # This should be replaced with actual backtest slippage once measured
+    baseline = float(cfg.get("ops", {}).get("baseline_slippage_pct", 0.10))
+    
+    ok = observed_p95 <= baseline * warn_mult
+    return {
+        "ok": ok,
+        "observed_p95": round(observed_p95, 4),
+        "baseline": baseline,
+        "warn_threshold": round(baseline * warn_mult, 4),
+        "note": f"p95={observed_p95:.3f}% vs warn={baseline*warn_mult:.3f}%"
+    }
+
+
+def _check_retirement_triggers(fills: list[dict], sessions: list[dict]) -> dict:
+    """Check retirement conditions from config."""
+    cfg = yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
+    r = cfg.get("retirement", {})
+    
+    window = int(r.get("rolling_expectancy_window_days", 60))
+    pnls = [float(f.get("pnl_usd") or 0) for f in fills if "pnl_usd" in f]
+    
+    triggers = []
+    if len(pnls) >= 10:
+        avg = sum(pnls) / len(pnls)
+        if avg < 0:
+            triggers.append(f"rolling_expectancy_negative: avg={avg:.2f}")
+    
+    max_dd = float(r.get("max_drawdown_pct", 12.0))
+    actual_dd = max((float(s.get("drawdown_from_peak") or 0) for s in sessions), default=0.0)
+    if actual_dd > max_dd:
+        triggers.append(f"drawdown_exceeded: {actual_dd:.1f}% > {max_dd:.1f}%")
+    
+    return {
+        "triggers_fired": triggers,
+        "retirement_required": len(triggers) >= 2,
+        "single_trigger_review": len(triggers) == 1,
+        "note": f"{len(triggers)} retirement trigger(s) active",
+    }
+
+
+
 def run_check(stage_override: str | None = None) -> dict:
     if not CONFIG_PATH.exists():
         return {"error": f"config not found: {CONFIG_PATH}", "ready": False}
@@ -345,18 +406,26 @@ def run_check(stage_override: str | None = None) -> dict:
 
     schema_ok = all(v.get("ok") is not False for v in schema.values())
 
+    slippage_check = _slippage_within_baseline(fills)
+    retirement = _check_retirement_triggers(fills, sessions)
+
+    # Retirement check overrides "ready" regardless of gates
+    retirement_block = retirement["retirement_required"]
+
     return {
         "strategy_id": STRATEGY_ID,
         "stage":       stage.value,
-        "ready":       len(failed) == 0 and len(unknown) == 0 and schema_ok,
+        "ready":       len(failed) == 0 and len(unknown) == 0 and schema_ok and not retirement_block,
         "summary": {
             "pass":    len(passed),
             "fail":    len(failed),
             "unknown": len(unknown),
             "total":   len(gates),
         },
-        "gates":  gates,
-        "schema": schema,
+        "gates":        gates,
+        "schema":       schema,
+        "slippage":     slippage_check,
+        "retirement":   retirement,
         "cognitive_budget": budget_summary(STRATEGY_ID),
     }
 
