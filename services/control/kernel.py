@@ -215,6 +215,26 @@ class ControlKernel:
             actions.append(ACTION_RESTRICT)
             reasons.append(f"alert_count_warn:{alerts}")
 
+        # Retirement check — auto-demote if two triggers are active
+        try:
+            from scripts.check_promotion_gates import _check_retirement_triggers
+            from services.os.app_paths import data_dir
+            from scripts.check_promotion_gates import _load_all_evidence
+            ev_dir = data_dir() / "evidence" / self.strategy_id
+            if ev_dir.exists():
+                evidence = _load_all_evidence(ev_dir)
+                ret = _check_retirement_triggers(evidence["fill"], evidence["session"])
+                if ret.get("retirement_required"):
+                    force_safe_degraded(
+                        self.strategy_id,
+                        reason="retirement_triggered:" + str(ret.get("triggers_fired", [])),
+                        actor="kernel",
+                    )
+                    actions.append(ACTION_HALT)
+                    reasons.append("retirement_required:" + str(ret.get("triggers_fired", [])))
+        except Exception:
+            pass  # retirement check never blocks kernel evaluation
+
         final_action = _worst_action(*actions) if actions else ACTION_ALLOW
         return self._result(final_action, stage, reasons or ["nominal"], metrics)
 

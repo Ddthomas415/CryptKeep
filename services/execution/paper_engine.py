@@ -139,6 +139,25 @@ class PaperEngine:
         self.db.insert_order(row)
         self.evaluate_open_orders()
         out = self.db.get_order_by_client_id(client_order_id)
+
+        # Evidence logging — best-effort, never blocks execution
+        try:
+            strategy_id = str(self.cfg.get("strategy_id", ""))
+            if strategy_id:
+                from services.strategies.evidence_logger import EvidenceLogger
+                EvidenceLogger(strategy_id).log_order(
+                    timestamp=str(ts or _now()),
+                    order_type=order_type,
+                    side=side,
+                    size=qty,
+                    intended_price=float(limit_price or 0.0),
+                    stop_level=0.0,
+                    capital_at_risk_usd=0.0,
+                    order_id=oid,
+                )
+        except Exception:
+            pass
+
         return {"ok": True, "idempotent": False, "order": out}
 
     def cancel_order(self, client_order_id: str) -> dict:

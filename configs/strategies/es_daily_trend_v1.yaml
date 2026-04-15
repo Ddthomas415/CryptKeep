@@ -70,6 +70,7 @@ risk:
 ops:
   stale_data_timeout_minutes: 30         # no entries if bar timestamp older than this
   order_reject_halt_count: 3             # halt after N consecutive rejects
+  baseline_slippage_pct: 0.10            # estimated backtest slippage; replace after first 50 fills
   slippage_warn_multiplier: 1.5          # warn at 1.5× backtest median slippage
   slippage_halt_multiplier: 3.0          # halt at 3.0× backtest median slippage
   fill_confirm_timeout_seconds: 300      # flag as unconfirmed after 5 min
