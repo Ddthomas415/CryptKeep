@@ -16,6 +16,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,30 @@ _LOG = get_logger("strategy.evidence_logger")
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _version_stamp(strategy_id: str, stage: str | None = None) -> dict:
+    """Return version identity fields for every evidence record."""
+    try:
+        from services.control.deployment_stage import get_current_stage
+        _stage = stage or get_current_stage(strategy_id).value
+    except Exception:
+        _stage = stage or "unknown"
+
+    try:
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=Path(__file__).parents[2],
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+    except Exception:
+        commit = "unknown"
+
+    return {
+        "_strategy_id": strategy_id,
+        "_stage":       _stage,
+        "_commit":      commit,
+    }
 
 
 class EvidenceLogger:
@@ -47,6 +72,10 @@ class EvidenceLogger:
         path = self.log_dir / f"{record_type}_{date}.jsonl"
         record.setdefault("_logged_at", _now_iso())
         record.setdefault("strategy_id", self.strategy_id)
+        # Stamp with version identity so every record is attributable
+        stamp = _version_stamp(self.strategy_id)
+        for k, v in stamp.items():
+            record.setdefault(k, v)
         try:
             existing = path.read_text(encoding="utf-8") if path.exists() else ""
             atomic_write(path, existing + json.dumps(record) + "\n")

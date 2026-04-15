@@ -28,6 +28,11 @@ It is the first concrete child of the decision framework.
 
 ---
 
+## Known limitations (v1)
+
+- `daily_loss_halt_pct` in the config is a **declarative target**, not the runtime enforcement source in v1. Actual daily halt is enforced by `services/risk/live_risk_gates_phase82.py` using an absolute USD value. Keep these consistent manually until directly wired.
+- `ops.baseline_slippage_pct: 0.10` is an estimate. Replace with measured median fill slippage after the first 50 fills.
+
 ## 2 — Regime filter
 
 | Parameter | Value | Rationale |
@@ -49,7 +54,7 @@ It is the first concrete child of the decision framework.
 | Capital at risk per trade | 0.5% of total capital at hard stop level |
 | Position size formula | `(capital × 0.005) / (entry_price − stop_price)` |
 | Max position notional | 10% of total capital (hard cap regardless of formula output) |
-| Daily loss halt | 1.5% of total capital |
+| Daily loss halt | 1.5% of total capital — **declarative target in v1**; not yet the runtime enforcement source. See Known Limitations. |
 | Max drawdown before review | 12% |
 | Drawdown at 50% of max | Halve position size |
 | Drawdown at 75% of max | Paper only |

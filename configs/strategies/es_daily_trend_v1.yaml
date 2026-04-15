@@ -53,7 +53,11 @@ regime:
 risk:
   capital_at_risk_per_trade_pct: 0.50    # 0.5% of total capital at stop level
   max_position_notional_pct: 10.0        # hard cap: 10% of total capital notional
-  daily_loss_halt_pct: 1.50              # halt at 1.5% daily loss
+  daily_loss_halt_pct: 1.50              # DECLARATIVE ONLY in v1
+  # Actual daily halt is enforced by services/risk/live_risk_gates_phase82.py
+  # using max_daily_loss_usd (absolute USD). This field is the declared target
+  # and is bridged to CBP_DAILY_LOSS_HALT_PCT env var by the paper runner.
+  # Do not treat this as live-enforced until wired directly into the risk gate.
   max_drawdown_pct: 12.0                 # full stop + review at 12% drawdown
 
   drawdown_rules:
