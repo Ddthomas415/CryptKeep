@@ -15,6 +15,9 @@ strategy:
   version: "1.0.0"
   stage: paper                    # paper | shadow | capped_live | scaled_live
                                   # Change only via promotion checklist in the spec doc
+  symbol: BTC/USDT               # crypto proxy on coinbase; replace with ES/SPY when futures connector available
+  venue: coinbase                 # exchange id (ccxt-compatible)
+  paper_runtime_sec: 3600        # how long each strategy window runs per campaign
 
   # Signal definition
   signal:

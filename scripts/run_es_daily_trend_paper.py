@@ -189,7 +189,7 @@ def main() -> int:
         halt_pct = float(risk.get("daily_loss_halt_pct", 1.5))
         # Write to env so the runner's risk gate can pick it up if it reads it
         # Actual enforcement is via the existing daily loss gate in the risk layer
-        _LOG.info("daily_loss_halt_pct=%.2f%% (from strategy config)", halt_pct)
+        _LOG.info("daily_loss_halt_pct=%s%% (from strategy config)", halt_pct)
         os.environ["CBP_DAILY_LOSS_HALT_PCT"] = str(halt_pct)
     except Exception as _e:
         _LOG.warning("could not set daily_loss_halt_pct: %s", _e)

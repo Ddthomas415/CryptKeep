@@ -14,7 +14,7 @@ It is the first concrete child of the decision framework.
 
 | Field | Value |
 |---|---|
-| **Instrument** | ES (S&P 500 front-month futures) or SPY as proxy |
+| **Instrument** | BTC/USDT on Coinbase (crypto proxy in v1); replace with ES/SPY when futures connector available |
 | **Timeframe** | Daily bars (close-to-close) |
 | **Signal** | Price > 200-day SMA → LONG; price ≤ 200-day SMA → FLAT |
 | **Direction** | Long/flat only. No short until this version is validated. |
