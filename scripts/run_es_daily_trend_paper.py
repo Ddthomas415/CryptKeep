@@ -27,6 +27,7 @@ import yaml
 from services.control.deployment_stage import get_current_stage, Stage, stage_summary
 from services.control.cognitive_budget import budget_summary
 from services.control.kernel import ControlKernel
+from services.control.runtime_identity import RuntimeIdentity, RuntimeIdentityError
 from services.logging.app_logger import get_logger
 
 STRATEGY_ID = "es_daily_trend_v1"
@@ -165,6 +166,15 @@ def main() -> int:
         _print_promotion_check()
         return 0
 
+    # Verify runtime identity before any child process starts
+    try:
+        identity = RuntimeIdentity.from_config(STRATEGY_ID, cfg)
+        identity.verify()
+        identity.log_stamp()
+    except RuntimeIdentityError as e:
+        print(f"BLOCKED: {e}", file=sys.stderr)
+        return 1
+
     # Pre-flight checks
     stage_ok, stage_msg = _check_stage(cfg)
     if not stage_ok:
@@ -245,10 +255,43 @@ def main() -> int:
                     "completed_strategies": completed,
                     "campaign_status": campaign_status,
                     "zero_trade_run": (completed == 0),
+                    **identity.as_dict(),
                 },
             )
         except Exception as _ev_err:
             _LOG.warning("session evidence log failed: %s", _ev_err)
+
+    # Teardown enforcement: verify child processes are gone after campaign
+    # If any are still running after 5s, force-stop and log a warning
+    try:
+        from services.control.managed_component import ManagedComponent
+        from services.os.app_paths import runtime_dir
+        import time as _time
+
+        locks_dir   = runtime_dir() / "locks"
+        status_dir  = runtime_dir() / "snapshots"
+        flags_dir   = runtime_dir() / "flags"
+
+        lingering = []
+        for name in ("strategy_runner", "paper_engine"):
+            mc = ManagedComponent(name, lock_dir=locks_dir, status_dir=status_dir, flags_dir=flags_dir)
+            if mc.is_alive():
+                lingering.append(name)
+
+        if lingering:
+            _LOG.warning("campaign_teardown: %s still alive after run — sending stop", lingering)
+            for name in lingering:
+                mc = ManagedComponent(name, lock_dir=locks_dir, status_dir=status_dir, flags_dir=flags_dir)
+                mc.stop()
+            _time.sleep(3.0)
+            still_alive = [n for n in lingering if ManagedComponent(
+                n, lock_dir=locks_dir, status_dir=status_dir, flags_dir=flags_dir).is_alive()]
+            if still_alive:
+                _LOG.error("campaign_teardown: %s did not stop — manual cleanup needed", still_alive)
+            else:
+                _LOG.info("campaign_teardown: all child processes stopped cleanly")
+    except Exception as _td_err:
+        _LOG.warning("campaign_teardown check failed: %s", _td_err)
 
     if args.json:
         print(json.dumps(result, indent=2, default=str))
