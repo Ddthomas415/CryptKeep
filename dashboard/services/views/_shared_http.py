@@ -26,7 +26,7 @@ API_TIMEOUT_SECONDS = float(os.environ.get("CK_API_TIMEOUT_SECONDS", "0.6"))
 
 
 def _read_mock_envelope(filename: str) -> dict[str, Any] | None:
-    path = REPO_ROOT / "crypto-trading-ai" / "shared" / "mock-data" / filename
+    path = REPO_ROOT / "sample_data" / "mock-data" / filename
     if not path.exists():
         return None
     try:

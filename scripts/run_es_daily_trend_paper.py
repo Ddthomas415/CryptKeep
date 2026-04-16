@@ -182,17 +182,21 @@ def main() -> int:
         _print_status(cfg)
         return 0
 
-    # Apply strategy-specific daily loss halt threshold from config
-    # The standard risk gate uses max_daily_loss_usd; we derive it from the % config
+    # Apply strategy-specific env vars from config
     try:
         import os
         halt_pct = float(risk.get("daily_loss_halt_pct", 1.5))
-        # Write to env so the runner's risk gate can pick it up if it reads it
-        # Actual enforcement is via the existing daily loss gate in the risk layer
         _LOG.info("daily_loss_halt_pct=%s%% (from strategy config)", halt_pct)
         os.environ["CBP_DAILY_LOSS_HALT_PCT"] = str(halt_pct)
+        os.environ["CBP_SYMBOLS"] = symbol
+        os.environ["CBP_VENUE"] = venue
+        # Enable candidate advisor if configured in strategy config
+        use_advisor = str(strategy_cfg.get("use_candidate_advisor", "")).strip().lower()
+        if use_advisor in ("1", "true", "yes"):
+            os.environ["CBP_USE_CANDIDATE_ADVISOR"] = "1"
+            _LOG.info("candidate_advisor enabled via strategy config")
     except Exception as _e:
-        _LOG.warning("could not set daily_loss_halt_pct: %s", _e)
+        _LOG.warning("could not set env vars from strategy config: %s", _e)
 
     # Run the paper evidence collection campaign
     from services.analytics.paper_strategy_evidence_service import (

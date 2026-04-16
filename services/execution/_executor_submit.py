@@ -243,15 +243,15 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
             # LIVE_SUBMIT_SUCCESS_ANCHOR
             try:
                 phase83_incr_trade_counter(cfg.exec_db, gate_db=gate_db)
-            except Exception:
-                pass
+            except Exception as _silent_err:
+                _LOG.debug("suppressed: %s", _silent_err)
 
             # EXEC_GUARD_TRADE_ATTEMPT
             try:
                 from storage.execution_guard_store_sqlite import ExecutionGuardStoreSQLite
                 ExecutionGuardStoreSQLite()._record_trade_attempt_sync()
-            except Exception:
-                pass
+            except Exception as _silent_err:
+                _LOG.debug("suppressed: %s", _silent_err)
             submitted += 1
 
             ack_ms = max(0, _now_ms() - submit_started)

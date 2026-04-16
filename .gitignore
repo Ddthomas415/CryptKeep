@@ -67,3 +67,7 @@ scripts/manual_repo_audit.sh.pre_*
 phase1_research_copilot/.env
 
 config/user.yaml
+-e 
+# Companion projects — not part of active trading system
+crypto-trading-ai/
+phase1_research_copilot/

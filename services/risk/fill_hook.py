@@ -80,8 +80,8 @@ def record_fill(exec_db: str, fill: Any) -> CanonFill:
         else:
             venue = str(getattr(fill, "venue", None) or getattr(fill, "exchange", None) or "unknown")
             fill_id = str(getattr(fill, "fill_id", None) or getattr(fill, "id", None) or "")
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
     # If missing fill_id, synthesize a deterministic one from stable fields
     if not fill_id:

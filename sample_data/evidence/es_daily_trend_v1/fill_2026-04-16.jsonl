@@ -1,0 +1,2 @@
+{"record_type": "fill", "timestamp": "2026-04-16T12:00:00+00:00", "side": "buy", "size": 0.1, "fill_price": 85010.0, "slippage_points": 10.0, "slippage_pct": 0.012, "fees_paid": 1.7, "pnl_usd": null, "_strategy_id": "es_daily_trend_v1", "_stage": "paper", "_commit": "sample"}
+{"record_type": "fill", "timestamp": "2026-04-16T12:00:00+00:00", "side": "sell", "size": 0.1, "fill_price": 88000.0, "slippage_points": 5.0, "slippage_pct": 0.006, "fees_paid": 1.76, "pnl_usd": 298.54, "_strategy_id": "es_daily_trend_v1", "_stage": "paper", "_commit": "sample"}

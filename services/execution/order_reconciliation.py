@@ -74,8 +74,8 @@ def reconcile_ambiguous_submission(
             )
             if order:
                 return ReconciliationResult("confirmed_placed", {"source": "remote_order_id"})
-        except Exception:
-            pass
+        except Exception as _silent_err:
+            _LOG.debug("suppressed: %s", _silent_err)
 
     if client_oid and retry_is_safe_after_ambiguous_ack(
         venue=venue,

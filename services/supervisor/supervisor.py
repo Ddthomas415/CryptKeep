@@ -61,8 +61,8 @@ def _read_json(p: Path) -> dict:
     try:
         if p.exists():
             return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
     return {}
 
 def _write_json(p: Path, obj: dict) -> None:
@@ -90,8 +90,8 @@ def _release_lock() -> None:
     try:
         if LOCK_FILE.exists():
             LOCK_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
 def _spawn_detached(cmd: list[str]) -> int:
     if _is_windows():
@@ -104,8 +104,8 @@ def _spawn_detached(cmd: list[str]) -> int:
 def _open_browser(host: str, port: int) -> None:
     try:
         webbrowser.open(f"http://{host}:{port}", new=1)
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
 def _default_host_port() -> tuple[str, int]:
     host = os.getenv("CBP_HOST", "127.0.0.1").strip() or "127.0.0.1"

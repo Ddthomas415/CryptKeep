@@ -105,8 +105,8 @@ def start_bot(*, venue: str, symbols: list[str], force: bool = False) -> dict:
     except Exception as e:
         try:
             lf.close()
-        except Exception:
-            pass
+        except Exception as _silent_err:
+            _LOG.debug("suppressed: %s", _silent_err)
         return {"ok": False, "reason": f"start_failed:{type(e).__name__}", "error": str(e)}
 
 def stop_bot(*, hard: bool = True) -> dict:

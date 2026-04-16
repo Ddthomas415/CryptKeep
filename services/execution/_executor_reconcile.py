@@ -321,8 +321,8 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                                 qty=qty,
                             )
                             latency_fills_recorded += 1
-                        except Exception:
-                            pass
+                        except Exception as _silent_err:
+                            _LOG.debug("suppressed: %s", _silent_err)
 
             # Trade-level reconciliation handles partial fills + fees.
             # Keep synthetic fallback when closed fills are available but per-trade rows are not.
@@ -348,20 +348,20 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                                 qty=filled,
                             )
                             latency_fills_recorded += 1
-                        except Exception:
-                            pass
+                        except Exception as _silent_err:
+                            _LOG.debug("suppressed: %s", _silent_err)
                 store.set_intent_status(intent_id=intent_id, status="filled", reason=f"remote_id={remote_id}")
 
                 try:
                     store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
-                except Exception:
-                    pass
+                except Exception as _silent_err:
+                    _LOG.debug("suppressed: %s", _silent_err)
             elif status in ("canceled", "cancelled", "rejected", "expired"):
                 store.set_intent_status(intent_id=intent_id, status="canceled", reason=f"remote_id={remote_id}:{status}")
                 try:
                     store_dedupe.mark_terminal(exchange_id=cfg.exchange_id, intent_id=intent_id, terminal_status=status)
-                except Exception:
-                    pass
+                except Exception as _silent_err:
+                    _LOG.debug("suppressed: %s", _silent_err)
     finally:
         _close_reconcile_session(session, owned=session_owned)
 

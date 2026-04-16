@@ -64,8 +64,8 @@ def execute_one(cfg: dict, *, venue: str | None = None, mode: str | None = None)
             log_event(intent_id=intent_id, venue=v, symbol=sym, event="reconcile_found_by_client_oid", status=st,
                       client_oid=client_oid, order_id=oid, payload={"found": found})
             return {"ok": True, "did_work": True, "reconciled": True, "intent_id": intent_id, "order_id": oid}
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
     side = str(it["side"]).lower()
     otype = str(it["order_type"]).lower()
@@ -158,8 +158,8 @@ def reconcile_open(cfg: dict, *, venue: str, mode: str, symbol: str | None = Non
                               client_oid=str(it.get("client_oid") or ""), order_id=oid, payload={"found": found})
                     changed += 1
                     continue
-            except Exception:
-                pass
+            except Exception as _silent_err:
+                _LOG.debug("suppressed: %s", _silent_err)
 
         if not oid:
             continue
@@ -172,8 +172,8 @@ def reconcile_open(cfg: dict, *, venue: str, mode: str, symbol: str | None = Non
                 update_intent(intent_id=intent_id, status="OPEN")
                 changed += 1
                 continue
-        except Exception:
-            pass
+        except Exception as _silent_err:
+            _LOG.debug("suppressed: %s", _silent_err)
 
         # Fetch order check (best effort)
         try:
@@ -185,7 +185,7 @@ def reconcile_open(cfg: dict, *, venue: str, mode: str, symbol: str | None = Non
                 log_event(intent_id=intent_id, venue=str(venue), symbol=sym, event="reconcile_fetch_order", status=norm,
                           client_oid=str(it.get("client_oid") or ""), order_id=str(oid), payload={"order": fo.get("order")})
                 changed += 1
-        except Exception:
-            pass
+        except Exception as _silent_err:
+            _LOG.debug("suppressed: %s", _silent_err)
 
     return {"ok": True, "venue": venue, "mode": mode, "symbol": symbol, "scanned": scanned, "changed": changed}

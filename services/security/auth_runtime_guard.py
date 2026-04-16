@@ -26,8 +26,8 @@ def auth_runtime_guard_status() -> Dict[str, Any]:
         security = data.get("security") if isinstance(data.get("security"), dict) else {}
         auth_scope = str(security.get("auth_scope") or auth_scope).strip().lower() or auth_scope
         outer_access_control = str(security.get("outer_access_control") or "").strip().lower()
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
     violations: list[str] = []
     warnings: list[str] = []

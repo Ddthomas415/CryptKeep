@@ -578,8 +578,8 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
         from services.risk import risk_daily as rd  # type: ignore
         if hasattr(rd, "record_order_attempt"):
             rd.record_order_attempt(notional_usd=notional, exec_db=exec_db)
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
     return o
 
@@ -594,8 +594,8 @@ async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
         from services.risk import risk_daily as rd  # type: ignore
         if hasattr(rd, "record_order_attempt"):
             rd.record_order_attempt(notional_usd=notional, exec_db=exec_db)
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
     return o
 

@@ -198,8 +198,8 @@ def _record_execution_metric(
             value_ms=max(0.0, float(value_ms)),
             meta=payload,
         )
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
 
 def _measure_ms(start_ts: float) -> float:
@@ -463,8 +463,8 @@ def _close_reconcile_session(session: Any, *, owned: bool) -> None:
     try:
         if hasattr(session, "close"):
             session.close()
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
 
 def _fetch_order_for_reconcile(

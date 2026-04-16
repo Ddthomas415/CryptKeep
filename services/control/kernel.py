@@ -231,8 +231,8 @@ class ControlKernel:
                     )
                     actions.append(ACTION_HALT)
                     reasons.append("retirement_required:" + str(ret.get("triggers_fired", [])))
-        except Exception:
-            pass  # retirement check never blocks kernel evaluation
+        except Exception as _silent_err:
+            _LOG.debug("suppressed: %s", _silent_err)  # retirement check never blocks kernel evaluation
 
         final_action = _worst_action(*actions) if actions else ACTION_ALLOW
         return self._result(final_action, stage, reasons or ["nominal"], metrics)

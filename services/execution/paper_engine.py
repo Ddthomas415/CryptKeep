@@ -89,8 +89,8 @@ class PaperEngine:
             try:
                 if hasattr(ex, "close"):
                     ex.close()
-            except Exception:
-                pass
+            except Exception as _silent_err:
+                _LOG.debug("suppressed: %s", _silent_err)
 
     def submit_order(
         self,
@@ -157,8 +157,8 @@ class PaperEngine:
                     capital_at_risk_usd=0.0,
                     order_id=oid,
                 )
-        except Exception:
-            pass
+        except Exception as _silent_err:
+            _LOG.debug("suppressed: %s", _silent_err)
 
         return {"ok": True, "idempotent": False, "order": out}
 
@@ -228,8 +228,8 @@ class PaperEngine:
                     pnl_usd=pnl,
                     order_id=str(order.get("order_id", "")),
                 )
-        except Exception:
-            pass  # evidence logging never blocks execution
+        except Exception as _silent_err:
+            _LOG.debug("suppressed: %s", _silent_err)  # evidence logging never blocks execution
 
         return {"ok": True, "fill_id": fill_id, "fee": fee}
 

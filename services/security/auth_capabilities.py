@@ -58,8 +58,8 @@ def _security_policy() -> dict[str, Any]:
             auth_scope = raw_scope
         remote_requires_mfa = bool(security.get("remote_access_requires_mfa", True))
         outer_access_control = str(security.get("outer_access_control") or "").strip().lower()
-    except Exception:
-        pass
+    except Exception as _silent_err:
+        _LOG.debug("suppressed: %s", _silent_err)
 
     scope_detail = (
         "Configured for local/private use. Remote/public exposure is not hardened by the app."
