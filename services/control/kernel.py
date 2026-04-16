@@ -217,13 +217,12 @@ class ControlKernel:
 
         # Retirement check — auto-demote if two triggers are active
         try:
-            from scripts.check_promotion_gates import _check_retirement_triggers
+            from services.control.retirement_checker import check_retirement_triggers, load_all_evidence
             from services.os.app_paths import data_dir
-            from scripts.check_promotion_gates import _load_all_evidence
             ev_dir = data_dir() / "evidence" / self.strategy_id
             if ev_dir.exists():
-                evidence = _load_all_evidence(ev_dir)
-                ret = _check_retirement_triggers(evidence["fill"], evidence["session"])
+                evidence = load_all_evidence(ev_dir)
+                ret = check_retirement_triggers(evidence["fill"], evidence["session"])
                 if ret.get("retirement_required"):
                     force_safe_degraded(
                         self.strategy_id,

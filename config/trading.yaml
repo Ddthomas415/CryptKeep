@@ -37,7 +37,7 @@ risk:
   max_position_notional: 2000.0
   max_drawdown_frac: 0.10
   min_cash: 0.0
-  enable_live: true
+  enable_live: false  # NEVER commit as true; live arming happens at runtime via live_arming.py
   live:
     # Per-symbol cooldown (controlled via env vars):
     #   CBP_SYMBOL_LOSS_LIMIT=3      consecutive losses before locking a symbol

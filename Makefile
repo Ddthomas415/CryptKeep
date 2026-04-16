@@ -176,6 +176,32 @@ kernel-demote:
 	$(PYTHON) scripts/show_control_kernel_status.py --demote $(STRATEGY) --reason "operator_manual_demotion"
 
 # ES Daily Trend v1 — paper run and promotion gates
+
+# Stop all paper campaign processes cleanly
+paper-stop:
+	$(PYTHON) - <<'PY'
+	import subprocess, pathlib
+	flags = pathlib.Path(".cbp_state/runtime/flags")
+	flags.mkdir(parents=True, exist_ok=True)
+	for stop_flag in ["paper_strategy_evidence.stop", "strategy_runner.stop", "paper_engine.stop"]:
+		(flags / stop_flag).write_text("stop\n", encoding="utf-8")
+	for proc_name in ["run_es_daily_trend_paper", "run_strategy_runner", "run_paper_engine", "run_tick_publisher"]:
+		subprocess.run(["pkill", "-f", f"{proc_name}.py"], capture_output=True)
+	print("Paper campaign stop signals sent. Wait 5s for clean shutdown.")
+	PY
+
+# Status of all paper campaign processes
+paper-ps:
+	@ps aux | grep -E "run_es_daily_trend|run_tick_publisher|run_strategy_runner|run_paper_engine" | grep -v grep || echo "No paper campaign processes running"
+
+# Clean stale locks left by killed processes
+paper-clean-locks:
+	@rm -f .cbp_state/runtime/locks/tick_publisher.lock .cbp_state/runtime/locks/paper_engine.lock .cbp_state/runtime/locks/strategy_runner.lock
+	@rm -f .cbp_state/runtime/snapshots/system_status.latest.json
+	@rm -f .cbp_state/runtime/flags/paper_strategy_evidence.stop
+	@echo "Stale locks and stop flags cleared"
+
+# ES Daily Trend v1 — paper run and promotion gates
 STRATEGY_ID ?= es_daily_trend_v1
 
 paper-run:

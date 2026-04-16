@@ -20,7 +20,7 @@ jobs:
       - name: Install runtime deps
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-pinned.txt
 
       - name: Install dev deps
         run: python -m pip install ruff mypy pytest
@@ -39,21 +39,12 @@ jobs:
         env:
           CBP_SKIP_SLOW: "1"
         run: |
-          python -m pytest \
-            tests/test_smoke.py \
-            tests/test_risk_manager.py \
-            tests/test_user_auth_store.py \
-            tests/test_place_order_fail_closed.py \
-            tests/test_place_order_ops_risk_gate.py \
-            tests/test_reconciliation.py \
-            tests/test_position_accounting.py \
-            tests/test_watchdog_behavior.py \
-            tests/test_system_guard.py \
-            tests/test_paper_strategy_evidence_service.py \
-            tests/test_paper_runner_lifecycle.py \
-            tests/test_promotion_ladder.py \
-            tests/test_strategy_runtime_runner.py \
-            -v --tb=short -q
+          python -m pytest tests/ \
+            --ignore=tests/test_symbol_scanner.py \
+            --ignore=tests/test_dashboard_view_data.py \
+            --ignore=tests/test_dashboard_page_runtime.py \
+            --ignore=tests/test_dashboard_home_digest.py \
+            -q --tb=short
 
       - name: Governance smoke
         run: make test-governance

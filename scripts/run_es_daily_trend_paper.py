@@ -218,25 +218,33 @@ def main() -> int:
     kd = kernel.evaluate({})
     stage_at_start = _get_stage(STRATEGY_ID).value
 
-    result = run_campaign(campaign_cfg)
-
-    # Log session record with campaign outcome
+    result: dict = {"ok": False, "status": "not_started", "completed_strategies": 0}
     try:
-        ev.log_session(
-            regime_at_open=stage_at_start,
-            halts_triggered=[r for r in result.get("halt_reasons", [])],
-            manual_overrides=[],
-            reconciliation_result="pass" if result.get("ok") else "campaign_error",
-            drawdown_from_peak=float(result.get("max_drawdown_pct", 0.0)),
-            kill_switch_tested=False,
-            ops_checks_passed=result.get("ok", False),
-            extra={
-                "completed_strategies": result.get("completed_strategies", 0),
-                "campaign_status": result.get("status", "unknown"),
-            },
-        )
-    except Exception as _ev_err:
-        _LOG.warning("session evidence log failed: %s", _ev_err)
+        result = run_campaign(campaign_cfg)
+    finally:
+        # Session evidence is ALWAYS written, even on failure or zero-trade runs.
+        # A zero-trade run still provides valuable evidence: regime state, ops health,
+        # and the fact that the system ran without critical errors.
+        try:
+            completed = result.get("completed_strategies", 0)
+            campaign_status = result.get("status", "unknown")
+            ev.log_session(
+                regime_at_open=stage_at_start,
+                halts_triggered=list(result.get("halt_reasons") or []),
+                manual_overrides=[],
+                reconciliation_result="pass" if result.get("ok") else "campaign_error",
+                drawdown_from_peak=float(result.get("max_drawdown_pct") or 0.0),
+                kill_switch_tested=False,
+                ops_checks_passed=bool(result.get("ok")),
+                critical_error=(campaign_status not in ("completed", "stopped", "stop_requested")),
+                extra={
+                    "completed_strategies": completed,
+                    "campaign_status": campaign_status,
+                    "zero_trade_run": (completed == 0),
+                },
+            )
+        except Exception as _ev_err:
+            _LOG.warning("session evidence log failed: %s", _ev_err)
 
     if args.json:
         print(json.dumps(result, indent=2, default=str))

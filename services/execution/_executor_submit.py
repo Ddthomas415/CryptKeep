@@ -1,4 +1,6 @@
 from __future__ import annotations
+from services.logging.app_logger import get_logger
+_LOG = get_logger("_executor_submit")
 from services.risk.market_quality_guard import check_market_quality
 
 import os

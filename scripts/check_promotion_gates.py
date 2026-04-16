@@ -60,25 +60,9 @@ def _load_jsonl(path: Path) -> list[dict]:
 
 
 def _load_all_evidence(ev_dir: Path) -> dict[str, list[dict]]:
-    """Load all evidence log files by type."""
-    result: dict[str, list[dict]] = {
-        "signal": [], "order": [], "fill": [], "session": [], "drawdown": []
-    }
-    if not ev_dir.exists():
-        return result
-    for fpath in sorted(ev_dir.glob("*.jsonl")):
-        stem = fpath.stem
-        for key in result:
-            if key in stem:
-                result[key].extend(_load_jsonl(fpath))
-                break
-    # Also load .json files (daily session summaries)
-    for fpath in sorted(ev_dir.glob("session_*.json")):
-        try:
-            result["session"].append(json.loads(fpath.read_text()))
-        except Exception:
-            pass
-    return result
+    """Load all evidence log files by type. Delegates to service layer."""
+    from services.control.retirement_checker import load_all_evidence
+    return load_all_evidence(ev_dir)
 
 
 def _count_round_trips(fills: list[dict]) -> int:
@@ -347,30 +331,15 @@ def _slippage_within_baseline(fills: list[dict], multiplier: float = 1.5) -> dic
 
 
 def _check_retirement_triggers(fills: list[dict], sessions: list[dict]) -> dict:
-    """Check retirement conditions from config."""
+    """Check retirement conditions. Delegates to service layer."""
+    from services.control.retirement_checker import check_retirement_triggers
     cfg = yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
     r = cfg.get("retirement", {})
-    
-    window = int(r.get("rolling_expectancy_window_days", 60))
-    pnls = [float(f.get("pnl_usd") or 0) for f in fills if "pnl_usd" in f]
-    
-    triggers = []
-    if len(pnls) >= 10:
-        avg = sum(pnls) / len(pnls)
-        if avg < 0:
-            triggers.append(f"rolling_expectancy_negative: avg={avg:.2f}")
-    
-    max_dd = float(r.get("max_drawdown_pct", 12.0))
-    actual_dd = max((float(s.get("drawdown_from_peak") or 0) for s in sessions), default=0.0)
-    if actual_dd > max_dd:
-        triggers.append(f"drawdown_exceeded: {actual_dd:.1f}% > {max_dd:.1f}%")
-    
-    return {
-        "triggers_fired": triggers,
-        "retirement_required": len(triggers) >= 2,
-        "single_trigger_review": len(triggers) == 1,
-        "note": f"{len(triggers)} retirement trigger(s) active",
-    }
+    return check_retirement_triggers(
+        fills, sessions,
+        max_drawdown_pct=float(r.get("max_drawdown_pct", 12.0)),
+        rolling_window=int(r.get("rolling_expectancy_window_days", 60)),
+    )
 
 
 

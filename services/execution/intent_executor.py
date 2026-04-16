@@ -1,4 +1,6 @@
 from __future__ import annotations
+from services.logging.app_logger import get_logger
+_LOG = get_logger("intent_executor")
 
 from typing import Any
 

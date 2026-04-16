@@ -536,6 +536,15 @@ def _ensure_component(name: str, *, cfg: "PaperStrategyEvidenceServiceCfg") -> d
                 "status": str(current.get("status") or "running"),
             }
 
+    # Clean up stale lock file if PID is no longer alive
+    lock_file = _runtime_files().get(name, {}).get("lock_file")
+    if lock_file and lock_file.exists() and not bool(current.get("pid_alive")):
+        try:
+            lock_file.unlink(missing_ok=True)
+            logger.info("paper_strategy_evidence_stale_lock_removed", extra={"component": name, "lock": str(lock_file)})
+        except Exception as exc:
+            logger.warning("paper_strategy_evidence_stale_lock_remove_failed", extra={"error_type": type(exc).__name__})
+
     script = {
         "tick_publisher": "scripts/run_tick_publisher.py",
         "paper_engine": "scripts/run_paper_engine.py",
