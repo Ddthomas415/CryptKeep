@@ -14,7 +14,11 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 # Fallback only if no canon file exists.
 DEFAULT_CANON = {
-    "adapters", "assets", "attic", "backtest", "build", "config", "configs", "core", "dashboard",
+    "adapters", "assets", "attic", "backtest", "build", "config",
+    # configs/ is intentional: strategy-specific runtime config with independent lifecycle
+    # See configs/README.md for rationale. NOT the same as config/ (system config).
+    "configs",
+    "core", "dashboard",
     "data", "desktop", "docker", "docs", "logs", "packaging", "phase1_research_copilot",
     "requirements", "sample_data", "scripts", "services", "src-tauri", "storage",
     "tests", "tools",

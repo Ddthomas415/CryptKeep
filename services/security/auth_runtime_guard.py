@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any, Dict
+
+_LOG = logging.getLogger(__name__)
 
 try:
     from services.market_data.local_data_reader import get_settings_view

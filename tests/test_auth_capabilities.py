@@ -106,6 +106,16 @@ def test_auth_capabilities_reports_store_error_without_dev_env_login(monkeypatch
 def test_auth_capabilities_surfaces_runtime_guard_violation_for_unhardened_remote_scope(monkeypatch):
     import services.security.auth_runtime_guard as arg
 
+    # Verify the monkeypatch hits the right call site.
+    # auth_runtime_guard.py binds get_settings_view at module level:
+    #   try: from services.market_data.local_data_reader import get_settings_view
+    # Patching arg.get_settings_view replaces that module-level binding,
+    # which is what auth_runtime_guard_status() calls. This is correct.
+    calls = []
+    def _fake_settings():
+        calls.append(1)
+        return {"security": {"auth_scope": "remote_public_candidate", "outer_access_control": ""}}
+
     monkeypatch.setattr(ac, "_keychain_available", lambda: (True, None))
     monkeypatch.setattr(
         ac,
@@ -119,15 +129,12 @@ def test_auth_capabilities_surfaces_runtime_guard_violation_for_unhardened_remot
             "outer_access_control": "",
         },
     )
-    monkeypatch.setattr(
-        arg,
-        "get_settings_view",
-        lambda: {"security": {"auth_scope": "remote_public_candidate", "outer_access_control": ""}},
-        raising=False,
-    )
+    monkeypatch.setattr(arg, "get_settings_view", _fake_settings, raising=False)
 
     out = ac.auth_capabilities()
 
+    # Confirm the patch actually fired — the call site was reached
+    assert calls, "monkeypatch did not reach get_settings_view — patch target is wrong"
     assert out["runtime_guard_ok"] is False
     assert any("outer access-control layer" in msg for msg in out["runtime_guard_violations"])
 

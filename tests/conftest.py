@@ -36,10 +36,33 @@ def pytest_collection_modifyitems(
     config: pytest.Config,
     items: list[pytest.Item],
 ) -> None:
-    """Auto-skip slow tests when CBP_SKIP_SLOW=1 is set."""
-    if os.environ.get("CBP_SKIP_SLOW", "").strip().lower() not in {"1", "true", "yes"}:
-        return
+    """Auto-skip slow tests when CBP_SKIP_SLOW=1 is set.
+
+    NEVER use pytest_ignore_collect() to suppress tests.
+    Silently ignoring tests makes CI look healthier than it is.
+    Use explicit skip markers so skips show in the output.
+
+    Correct pattern for companion-dependent tests:
+        import pytest
+        pytest.importorskip("phase1_research_copilot",
+                            reason="phase1_research_copilot not present")
+    """
     skip_slow = pytest.mark.skip(reason="CBP_SKIP_SLOW=1 — skipping slow loop tests")
+    skip_phase1 = pytest.mark.skip(
+        reason="phase1_research_copilot not installed — skipped explicitly (not silently ignored)"
+    )
+
+    phase1_absent = True
+    try:
+        import phase1_research_copilot  # noqa: F401
+        phase1_absent = False
+    except ImportError:
+        pass
+
+    slow_enabled = os.environ.get("CBP_SKIP_SLOW", "").strip().lower() in {"1", "true", "yes"}
+
     for item in items:
-        if "slow" in item.keywords:
+        if slow_enabled and "slow" in item.keywords:
             item.add_marker(skip_slow)
+        if phase1_absent and "phase1" in str(item.fspath):
+            item.add_marker(skip_phase1)
