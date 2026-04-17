@@ -243,10 +243,10 @@ def main() -> int:
     _mc_names = ["tick_publisher", "paper_engine", "strategy_runner"]
     for _mc_name in _mc_names:
         _mc = ManagedComponent(
-            name=_mc_name,
-            lock_file=runtime_dir() / "locks" / f"{_mc_name}.lock",
-            status_file=runtime_dir() / "status" / f"{_mc_name}.json",
-            stop_flag_file=runtime_dir() / "flags" / f"{_mc_name}.stop",
+            _mc_name,
+            lock_dir=runtime_dir() / "locks",
+            status_dir=runtime_dir() / "snapshots",
+            flags_dir=runtime_dir() / "flags",
         )
         if _mc.is_stale():
             _mc.clean_stale_lock()
@@ -310,50 +310,19 @@ def main() -> int:
         except Exception as _ev_err:
             _LOG.warning("session evidence log failed: %s", _ev_err)
 
-    # Teardown enforcement: stop components in reverse order, each with its own timeout.
-    # tick_publisher polls every 2s so needs at least 5s to reliably catch the stop flag.
-    _STOP_TIMEOUTS = {
-        "strategy_runner": 8.0,
-        "paper_engine":    8.0,
-        "tick_publisher": 10.0,   # polls at 2s interval; needs extra headroom
-    }
-    _teardown_still_alive: list[str] = []
+    # Teardown: use canonical lifecycle module
     try:
-        from services.analytics.paper_strategy_evidence_service import (
-            _component_runtime, _stop_component, _wait_for_component_stop,
-        )
-        import time as _time
-
-        for _comp in ("strategy_runner", "paper_engine", "tick_publisher"):
-            try:
-                rt = _component_runtime(_comp)
-                if bool(rt.get("pid_alive")):
-                    _LOG.info("campaign_teardown: stopping %s (pid=%s)", _comp, rt.get("pid"))
-                    _stop_component(_comp)
-                    # Give it its full individual timeout
-                    stopped = _wait_for_component_stop(_comp, timeout_sec=_STOP_TIMEOUTS[_comp])
-                    if stopped:
-                        _LOG.info("campaign_teardown: %s stopped cleanly", _comp)
-                    else:
-                        _LOG.error("campaign_teardown: %s still alive after %ss — run 'make paper-stop'",
-                                   _comp, _STOP_TIMEOUTS[_comp])
-                        _teardown_still_alive.append(_comp)
-                else:
-                    _LOG.info("campaign_teardown: %s already stopped", _comp)
-            except Exception as _stop_err:
-                _LOG.warning("campaign_teardown: error stopping %s: %s", _comp, _stop_err)
-                _teardown_still_alive.append(_comp)
-
-        if not _teardown_still_alive:
+        from services.analytics.paper_campaign_lifecycle import teardown_all
+        _td = teardown_all()
+        result["teardown"] = _td
+        if _td["clean"]:
             _LOG.info("campaign_teardown: all child processes stopped cleanly")
+        else:
+            _LOG.error("campaign_teardown: %s still alive — run 'make paper-stop'",
+                       _td["still_alive"])
     except Exception as _td_err:
         _LOG.warning("campaign_teardown check failed: %s", _td_err)
-
-    # Stamp teardown outcome into result for summary reporting
-    result["teardown"] = {
-        "clean": len(_teardown_still_alive) == 0,
-        "still_alive": _teardown_still_alive,
-    }
+        result["teardown"] = {"clean": False, "still_alive": [], "error": str(_td_err)}
 
     if args.json:
         print(json.dumps(result, indent=2, default=str))
