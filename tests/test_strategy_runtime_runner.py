@@ -415,3 +415,76 @@ def test_run_forever_exit_action_emits_sell_once_while_condition_persists(monkey
 
     assert len(emitted) == 1
     assert emitted[0]["side"] == "sell"
+
+
+@pytest.mark.slow
+def test_run_forever_startup_guard_uses_selected_venue_after_auto_selection(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    guarded: list[tuple[str, str]] = []
+    venue_by_symbol = {
+        "BTC/USD": "binance",
+        "ETH/USD": "gateio",
+    }
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "momentum",
+            "strategy": {
+                "name": "momentum",
+                "trade_enabled": True,
+                "min_change_pct": 0.0,
+                "max_rsi_entry": 101.0,
+                "rsi_exit": 150.0,
+                "sma_period": 3,
+                "rsi_period": 2,
+                "stop_below_sma": True,
+            },
+            "strategy_preset": "momentum_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "symbols": ["BTC/USD", "ETH/USD"],
+            "min_bars": 1,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": False,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": True,
+            "switch_only_when_blocked": True,
+            "venue_candidates": ["coinbase", "binance"],
+        },
+    )
+    monkeypatch.setattr(
+        runner,
+        "require_known_flat_or_override",
+        lambda *, venue, symbol: guarded.append((venue, symbol)),
+    )
+    monkeypatch.setattr(runner, "mq_check", lambda venue, symbol: {"ok": False, "reason": "blocked"})
+    monkeypatch.setattr(
+        runner,
+        "best_venue",
+        lambda candidates, symbol, require_ok=True: {"venue": venue_by_symbol[symbol], "symbol": symbol},
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: None)
+
+    sleep_calls = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        sleep_calls["count"] += 1
+        if sleep_calls["count"] >= 1:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert guarded == [("binance", "BTC/USD"), ("gateio", "ETH/USD")]

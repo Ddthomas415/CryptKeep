@@ -452,6 +452,41 @@ def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
             pass
 
 
+def _resolve_venue_candidates(cfg: dict) -> list[str]:
+    candidates = cfg.get("venue_candidates")
+    if not isinstance(candidates, list) or not candidates:
+        base_cfg = load_user_yaml()
+        pf = base_cfg.get("preflight") if isinstance(base_cfg.get("preflight"), dict) else {}
+        candidates = pf.get("venues") if isinstance(pf.get("venues"), list) else [cfg["venue"]]
+    out: list[str] = []
+    for venue in candidates:
+        normalized = normalize_venue(str(venue))
+        if normalized and normalized not in out:
+            out.append(normalized)
+    current = normalize_venue(cfg["venue"])
+    if current and current not in out:
+        out.append(current)
+    return out
+
+
+def _choose_venue_for_symbol(cfg: dict, symbol: str, *, candidates: Optional[list[str]] = None) -> str:
+    current_venue = normalize_venue(cfg["venue"])
+    if not bool(cfg.get("auto_select_best_venue")):
+        return current_venue
+    resolved_candidates = candidates or _resolve_venue_candidates(cfg)
+    if bool(cfg.get("switch_only_when_blocked", True)):
+        gate = mq_check(current_venue, symbol)
+        if not gate.get("ok"):
+            best = best_venue(resolved_candidates, symbol, require_ok=True)
+            if best and best.get("venue"):
+                return normalize_venue(str(best["venue"]))
+        return current_venue
+    best = best_venue(resolved_candidates, symbol, require_ok=True)
+    if best and best.get("venue"):
+        return normalize_venue(str(best["venue"]))
+    return current_venue
+
+
 def run_forever() -> None:
     # Runner emission contract:
     # - emits at most one intent per position transition (flat->long, long->exit)
@@ -464,8 +499,6 @@ def run_forever() -> None:
     cfg = _cfg()
     symbols = list(cfg.get("symbols") or [cfg.get("symbol")])
     symbols = [str(x).strip() for x in symbols if str(x).strip()]
-    for symbol in symbols:
-        require_known_flat_or_override(venue=cfg["venue"], symbol=symbol)
     if not cfg["enabled"]:
         _write_status({"ok": False, "reason": "disabled", "ts": _now()})
         return
@@ -501,55 +534,39 @@ def run_forever() -> None:
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now()})
     loops = 0
     enqueued = 0
+    checked_startup_pairs: set[tuple[str, str]] = set()
     try:
         while True:
             loops += 1
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued": enqueued})
                 break
-            # Optional: choose best venue
-            if bool(cfg.get("auto_select_best_venue")) and symbols:
-                candidates = cfg.get("venue_candidates")
-                if not isinstance(candidates, list) or not candidates:
-                    # fall back to preflight venues if present
-                    base_cfg = load_user_yaml()
-                    pf = base_cfg.get("preflight") if isinstance(base_cfg.get("preflight"), dict) else {}
-                    candidates = pf.get("venues") if isinstance(pf.get("venues"), list) else [cfg["venue"]]
-                candidates = [normalize_venue(str(v)) for v in candidates]
-                current_venue = normalize_venue(cfg["venue"])
-                cfg["venue"] = current_venue
-
-                probe_symbol = symbols[0]
-
-                if bool(cfg.get("switch_only_when_blocked", True)):
-                    g = mq_check(cfg["venue"], probe_symbol)
-                    if not g.get("ok"):
-                        bv = best_venue(candidates, probe_symbol, require_ok=True)
-                        if bv and bv.get("venue") and bv["venue"] != cfg["venue"]:
-                            cfg["venue"] = str(bv["venue"])
-                else:
-                    bv = best_venue(candidates, probe_symbol, require_ok=True)
-                    if bv and bv.get("venue"):
-                        cfg["venue"] = str(bv["venue"])
+            venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
 
             for symbol in symbols:
+                selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
+                startup_pair = (selected_venue, symbol)
+                if startup_pair not in checked_startup_pairs:
+                    require_known_flat_or_override(venue=selected_venue, symbol=symbol)
+                    checked_startup_pairs.add(startup_pair)
+
                 signal = {"ok": True, "action": "hold", "reason": "no_signal"}
                 selection = {}
                 selected_strategy = str(cfg.get("strategy_id") or "ema_cross")
 
-                k_prices = f"prices:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_last_action = f"last_action:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_last_emitted_action = f"last_emitted_action:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_warm = f"warmed:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_entry_price = f"entry_price:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_trailing_peak = f"trailing_peak:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_bars_held = f"bars_held:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_kill_until = f"kill_until:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_risk_block_count = f"risk_block_count:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_scale_count = f"scale_count:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_loss_streak = f"loss_streak:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_cum_pnl = f"cum_pnl:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
-                k_peak_pnl = f"peak_pnl:{cfg['venue']}:{symbol}:{cfg['strategy_id']}"
+                k_prices = f"prices:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_last_action = f"last_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_last_emitted_action = f"last_emitted_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_warm = f"warmed:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_entry_price = f"entry_price:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_trailing_peak = f"trailing_peak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_bars_held = f"bars_held:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_kill_until = f"kill_until:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_risk_block_count = f"risk_block_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_scale_count = f"scale_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_loss_streak = f"loss_streak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_cum_pnl = f"cum_pnl:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_peak_pnl = f"peak_pnl:{selected_venue}:{symbol}:{cfg['strategy_id']}"
 
                 try:
                     prices = json.loads(sdb.get(k_prices) or "[]")
@@ -569,6 +586,7 @@ def run_forever() -> None:
 
                 sym_cfg = dict(cfg)
                 sym_cfg["symbol"] = symbol
+                sym_cfg["venue"] = selected_venue
 
                 timeframe = _public_ohlcv_timeframe(sym_cfg)
                 if timeframe:
@@ -811,7 +829,7 @@ def run_forever() -> None:
                         "status": "running",
                         "pid": os.getpid(),
                         "ts": _now(),
-                        "venue": cfg["venue"],
+                        "venue": selected_venue,
                         "symbol": symbol,
                         "symbols": symbols,
                         "strategy_id": cfg.get("strategy_id"),
@@ -845,7 +863,7 @@ def run_forever() -> None:
                                 "status": "running",
                                 "pid": os.getpid(),
                                 "ts": _now(),
-                                "venue": cfg["venue"],
+                                "venue": selected_venue,
                                 "symbol": symbol,
                                 "symbols": symbols,
                                 "strategy_id": cfg.get("strategy_id"),
@@ -883,7 +901,7 @@ def run_forever() -> None:
                                     "status": "running",
                                     "pid": os.getpid(),
                                     "ts": _now(),
-                                    "venue": cfg["venue"],
+                                    "venue": selected_venue,
                                     "symbol": symbol,
                                     "symbols": symbols,
                                     "strategy_id": cfg.get("strategy_id"),
@@ -905,7 +923,7 @@ def run_forever() -> None:
                                     "status": "running",
                                     "pid": os.getpid(),
                                     "ts": _now(),
-                                    "venue": cfg["venue"],
+                                    "venue": selected_venue,
                                     "symbol": symbol,
                                     "symbols": symbols,
                                     "strategy_id": cfg.get("strategy_id"),
@@ -962,7 +980,7 @@ def run_forever() -> None:
                                     "status": "running",
                                     "pid": os.getpid(),
                                     "ts": _now(),
-                                    "venue": cfg["venue"],
+                                    "venue": selected_venue,
                                     "symbol": symbol,
                                     "symbols": symbols,
                                     "strategy_id": cfg.get("strategy_id"),
@@ -1004,7 +1022,7 @@ def run_forever() -> None:
                         "loops": loops,
                         "enqueued_total": enqueued,
                         "mid": m if 'm' in locals() else None,
-                        "venue": cfg["venue"],
+                        "venue": selected_venue,
                         "symbol": symbol,
                         "symbols": symbols,
                         "strategy_id": cfg.get("strategy_id"),
@@ -1014,7 +1032,7 @@ def run_forever() -> None:
                         "signal_ok": signal.get("ok") if isinstance(signal, dict) else None,
                         "signal_action": action,
                         "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
-                        "signal_changed": signal_changed,
+                        "signal_changed": bool(changed) if 'changed' in locals() else None,
                         "note": "open_strategy_intent_exists",
                     })
                 else:
@@ -1024,7 +1042,7 @@ def run_forever() -> None:
                         "ts": _now(),
                         "source": "strategy",
                         "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                        "venue": cfg["venue"],
+                        "venue": selected_venue,
                         "symbol": symbol,
                         "side": action,
                         "order_type": cfg["order_type"],
