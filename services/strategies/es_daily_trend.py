@@ -354,6 +354,22 @@ def signal_from_ohlcv(
     action = "buy" if (signal == "long" and reg["entry_allowed"]) else "hold"
     reason = f"sma200:{signal}:regime:{reg['regime']}"
 
+    # Log every signal call to evidence — this is the production signal path
+    # (signal_from_ohlcv is called by strategy_registry from ema_crossover_runner)
+    try:
+        from datetime import datetime, timezone as _tz
+        EvidenceLogger(STRATEGY_ID).log_signal(
+            timestamp=datetime.now(_tz.utc).isoformat(),
+            price=float(ohlcv[-1][4]) if ohlcv else 0.0,
+            sma_200=sma,
+            atr_ratio=reg.get("atr_ratio"),
+            signal_direction=signal,
+            regime_flag=reg.get("regime", "unknown"),
+            entry_allowed=reg["entry_allowed"],
+        )
+    except Exception as _ev_err:
+        pass  # evidence logging never blocks signal production
+
     return {
         "ok":      True,
         "action":  action,

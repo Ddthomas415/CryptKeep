@@ -248,6 +248,27 @@ def main() -> int:
     stage_at_start = _get_stage(STRATEGY_ID).value
 
     result: dict = {"ok": False, "status": "not_started", "completed_strategies": 0}
+
+    # Write session_start record so evidence file exists even if campaign crashes
+    try:
+        ev.log_session(
+            regime_at_open=stage_at_start,
+            halts_triggered=[],
+            manual_overrides=[],
+            reconciliation_result="pending",
+            drawdown_from_peak=0.0,
+            ops_checks_passed=True,
+            extra={
+                "phase": "start",
+                "campaign_status": "starting",
+                "completed_strategies": 0,
+                "zero_trade_run": True,
+                **identity.as_dict(),
+            },
+        )
+    except Exception as _ev_start_err:
+        _LOG.warning("session_start evidence log failed: %s", _ev_start_err)
+
     try:
         result = run_campaign(campaign_cfg)
     finally:
@@ -267,6 +288,7 @@ def main() -> int:
                 ops_checks_passed=bool(result.get("ok")),
                 critical_error=(campaign_status not in ("completed", "stopped", "stop_requested")),
                 extra={
+                    "phase": "end",
                     "completed_strategies": completed,
                     "campaign_status": campaign_status,
                     "zero_trade_run": (completed == 0),
@@ -316,10 +338,27 @@ def main() -> int:
         completed = result.get("completed_strategies", 0)
         print(f"\nCampaign: {status} ({reason})")
         print(f"Completed strategies: {completed}")
-        if result.get("evidence"):
-            print(f"Evidence: {result['evidence'].get('latest_path', 'none')}")
-        if result.get("decision_record"):
-            print(f"Decision record: {result['decision_record'].get('path', 'none')}")
+
+        # Report the actual JSONL evidence directory (written by EvidenceLogger)
+        # This is separate from the leaderboard evidence_out in result["evidence"]
+        from services.os.app_paths import data_dir as _data_dir
+        ev_dir = _data_dir() / "evidence" / STRATEGY_ID
+        if ev_dir.exists():
+            files = sorted(ev_dir.glob("*.jsonl"))
+            by_type: dict = {}
+            for f in files:
+                record_type = f.name.split("_")[0]
+                by_type[record_type] = by_type.get(record_type, 0) + 1
+            print(f"Evidence dir: {ev_dir}")
+            print(f"Evidence files: {dict(by_type)}" if by_type else "Evidence files: (none yet)")
+        else:
+            print("Evidence dir: not yet created")
+
+        # Legacy leaderboard evidence (strategy_evidence.latest.json)
+        if result.get("evidence") and result["evidence"].get("latest_path"):
+            print(f"Leaderboard artifact: {result['evidence'].get('latest_path')}")
+        if result.get("decision_record") and result["decision_record"].get("path"):
+            print(f"Decision record: {result['decision_record'].get('path')}")
 
     return 0 if result.get("ok") else 1
 
