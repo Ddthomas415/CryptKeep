@@ -229,6 +229,10 @@ def main() -> int:
             os.environ.get("CBP_PAPER_RUNTIME_SEC")
             or strategy_cfg.get("paper_runtime_sec", 3600.0)
         ),
+        # public_ohlcv_1d: fetch daily OHLCV bars so signal_from_ohlcv() is called.
+        # Without this, ema_crossover_runner falls into the tick-based price path
+        # which never calls compute_signal() via the registry — signal evidence never writes.
+        signal_source="public_ohlcv_1d",
     )
 
     _LOG.info("starting paper run for %s stage=%s", STRATEGY_ID, stage_msg)
