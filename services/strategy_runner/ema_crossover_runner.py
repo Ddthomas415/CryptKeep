@@ -571,6 +571,11 @@ def run_forever() -> None:
                 sym_cfg["symbol"] = symbol
 
                 timeframe = _public_ohlcv_timeframe(sym_cfg)
+                _LOG.debug(
+                    "signal_branch strategy=%s signal_source=%s using=%s",
+                    sym_cfg.get("name"), sym_cfg.get("signal_source"), 
+                    f"public_ohlcv:{timeframe}" if timeframe else "tick_based",
+                )
                 if timeframe:
                     ohlcv = _fetch_public_ohlcv(sym_cfg) or []
                     if not ohlcv:

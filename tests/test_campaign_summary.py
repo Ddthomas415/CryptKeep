@@ -233,3 +233,25 @@ class TestRequiredHistory:
         full = [r for r in records if r.get("regime_flag") != "insufficient_data"]
         assert full, "no full signal records found — bar count fix may not have worked"
         assert full[-1]["signal_direction"] in ("long", "flat")
+
+
+class TestCampaignConfig:
+    def test_signal_source_is_public_ohlcv_1d(self, tmp_path):
+        """sma_200_trend campaigns must use public_ohlcv_1d signal source.
+
+        Without this, ema_crossover_runner falls into the tick-based path
+        which never calls signal_from_ohlcv() and signal evidence is never written.
+        This test ensures a future change does not silently remove this setting.
+        """
+        from services.analytics.paper_strategy_evidence_service import PaperStrategyEvidenceServiceCfg
+        cfg = PaperStrategyEvidenceServiceCfg(
+            strategies=("sma_200_trend",),
+            symbol="BTC/USDT",
+            venue="coinbase",
+            signal_source="public_ohlcv_1d",
+        )
+        assert cfg.signal_source == "public_ohlcv_1d", (
+            "signal_source must be 'public_ohlcv_1d' for sma_200_trend. "
+            "Without this the runner uses tick-based prices and never calls "
+            "signal_from_ohlcv() — signal evidence is never written."
+        )
