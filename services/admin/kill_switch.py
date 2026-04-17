@@ -1,3 +1,15 @@
+# CBP_KILLSWITCH_CANONICAL
+#
+# Kill switch authority chain (five files, one owner):
+#   services/admin/kill_switch.py      ← THIS FILE — canonical state (runtime flag file)
+#   services/execution/kill_switch.py  ← delegates to admin.kill_switch
+#   services/risk/killswitch.py        ← independent (yaml-based gate config reader)
+#   services/risk/killswitch_phase82.py← compat shim pointing to killswitch.py
+#   scripts/killswitch.py              ← operator CLI, calls services/admin/kill_switch.py
+#
+# To reduce to one file: collapse execution/kill_switch.py into admin/kill_switch.py,
+# rename scripts/killswitch.py to scripts/kill.py, delete phase82 shim.
+
 from __future__ import annotations
 
 from datetime import datetime, timezone

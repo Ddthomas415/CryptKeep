@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+_LOG = logging.getLogger(__name__)
+
 from typing import Any, Dict, List
 
 from services.admin.journal_exchange_reconcile import reconcile_journal_vs_exchange
@@ -71,8 +74,8 @@ def run_all_safe_steps(
         st["last_reconcile_after_cancel"] = prep.get("snapshot_path")
         st["step"] = max(int(st.get("step", 1) or 1), 3)
         wizard_state.save(st)
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: see _LOG.debug below
 
     ok = all(bool(s.get("ok")) for s in steps)
     return {

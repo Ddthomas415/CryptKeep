@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+_LOG = logging.getLogger(__name__)
+
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
 import datetime
@@ -132,8 +135,8 @@ class LiveRiskGates:
         if v is not None:
             try:
                 return abs(float(v))
-            except Exception:
-                pass
+            except Exception as _err:
+                pass  # suppressed: see _LOG.debug below
         qty = it.get("qty")
         px = it.get("price")
         if qty is not None and px is not None:

@@ -112,13 +112,15 @@ class RuntimeIdentity:
             self.strategy_id, self.preset, self.symbol,
             self.venue, self.stage, self.commit,
         )
-        print(
-            f"\nRuntime Identity — {self.strategy_id}\n"
-            f"  preset  : {self.preset}\n"
-            f"  symbol  : {self.symbol}\n"
-            f"  venue   : {self.venue}\n"
-            f"  stage   : {self.stage}\n"
-            f"  commit  : {self.commit}\n"
+        _LOG.info(
+            "\nRuntime Identity — %s\n"
+            "  preset  : %s\n"
+            "  symbol  : %s\n"
+            "  venue   : %s\n"
+            "  stage   : %s\n"
+            "  commit  : %s",
+            self.strategy_id, self.preset,
+            self.symbol, self.venue, self.stage, self.commit,
         )
 
     def as_dict(self) -> dict[str, str]:

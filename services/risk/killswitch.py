@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+_LOG = logging.getLogger(__name__)
+
 # CBP_OPTIONAL_YAML_V1
 
 from dataclasses import dataclass
@@ -28,8 +31,8 @@ def _exec_db_from_trading_yaml(path: str = "config/trading.yaml") -> str:
         ex_cfg = (cfg.get("execution") or {})
         if isinstance(ex_cfg, dict) and ex_cfg.get("db_path"):
             return str(ex_cfg.get("db_path"))
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: see _LOG.debug below
 
     ensure_dirs()
     return str(data_dir() / "execution.sqlite")

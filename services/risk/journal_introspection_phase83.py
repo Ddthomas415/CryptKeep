@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+_LOG = logging.getLogger(__name__)
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 import datetime
@@ -70,8 +73,8 @@ class JournalSignals:
                 if r is not None and r["realized_pnl_usd"] is not None:
                     try:
                         return float(r["realized_pnl_usd"])
-                    except Exception:
-                        pass
+                    except Exception as _err:
+                        pass  # suppressed: see _LOG.debug below
 
             # Fallback: sum PnL from fills-like tables if ts+pnl cols exist
             candidates = [t for t in tbls if t.lower() in ("fills", "executions", "trades", "trade_fills")]
@@ -94,8 +97,8 @@ class JournalSignals:
                     try:
                         total += float(r["pnl"])
                         any_rows = True
-                    except Exception:
-                        pass
+                    except Exception as _err:
+                        pass  # suppressed: see _LOG.debug below
                 if any_rows:
                     return float(total)
 
@@ -111,8 +114,8 @@ class JournalSignals:
                 if r is not None and r["trades"] is not None:
                     try:
                         return int(r["trades"])
-                    except Exception:
-                        pass
+                    except Exception as _err:
+                        pass  # suppressed: see _LOG.debug below
 
             candidates = [t for t in tbls if t.lower() in ("orders", "fills", "executions", "trades")]
             start, end = _utc_day_bounds(day)

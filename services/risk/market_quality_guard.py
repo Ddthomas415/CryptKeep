@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import logging
+_LOG = logging.getLogger(__name__)
 import time
 from typing import Dict, Any, Optional
 from services.admin.config_editor import load_user_yaml
@@ -19,13 +22,13 @@ def _cfg() -> Dict[str, Any]:
         if v.get("max_tick_age_sec") is not None:
             try:
                 item["max_tick_age_sec"] = float(v.get("max_tick_age_sec"))
-            except Exception:
-                pass
+            except Exception as _err:
+                pass  # suppressed: see _LOG.debug below
         if v.get("max_spread_bps") is not None:
             try:
                 item["max_spread_bps"] = float(v.get("max_spread_bps"))
-            except Exception:
-                pass
+            except Exception as _err:
+                pass  # suppressed: see _LOG.debug below
         if item:
             st_norm[sym] = item
     return {

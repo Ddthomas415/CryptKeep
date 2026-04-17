@@ -225,6 +225,21 @@ def main() -> int:
 
     _LOG.info("starting paper run for %s stage=%s", STRATEGY_ID, stage_msg)
 
+    # Pre-run: use ManagedComponent to clean any stale locks before starting
+    from services.control.managed_component import ManagedComponent
+    from services.analytics.paper_strategy_evidence_service import runtime_dir
+    _mc_names = ["tick_publisher", "paper_engine", "strategy_runner"]
+    for _mc_name in _mc_names:
+        _mc = ManagedComponent(
+            name=_mc_name,
+            lock_file=runtime_dir() / "locks" / f"{_mc_name}.lock",
+            status_file=runtime_dir() / "status" / f"{_mc_name}.json",
+            stop_flag_file=runtime_dir() / "flags" / f"{_mc_name}.stop",
+        )
+        if _mc.is_stale():
+            _mc.clean_stale_lock()
+            _LOG.info("managed_component stale_lock_cleaned component=%s", _mc_name)
+
     from services.strategies.evidence_logger import EvidenceLogger
     from services.control.deployment_stage import get_current_stage as _get_stage
     ev = EvidenceLogger(STRATEGY_ID)

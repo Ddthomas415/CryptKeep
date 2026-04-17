@@ -221,3 +221,18 @@ check-gates-json:
 
 promote-strategy:
 	$(PYTHON) scripts/show_control_kernel_status.py --promote $(STRATEGY_ID)
+
+# Paper campaign log tailing
+paper-logs:
+	@echo "Tailing campaign logs (Ctrl-C to stop)..."
+	tail -f .cbp_state/runtime/logs/*.log 2>/dev/null || echo "No log files found — has the campaign started?"
+
+# Developer environment setup
+dev-setup:
+	$(PYTHON) scripts/install.py
+	@echo ""
+	@echo "Environment ready. Copy .env from template:"
+	@echo "  cp config/templates/.env.template .env"
+	@echo ""
+	@echo "To run the paper campaign:"
+	@echo "  make paper-run"

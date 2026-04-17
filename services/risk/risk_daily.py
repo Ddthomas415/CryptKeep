@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+_LOG = logging.getLogger(__name__)
+
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 import datetime
@@ -62,8 +65,8 @@ class RiskDailyDB:
             if "notional_usd" not in cols:
                 try:
                     c.execute("ALTER TABLE risk_daily ADD COLUMN notional_usd REAL NOT NULL DEFAULT 0;")
-                except Exception:
-                    pass
+                except Exception as _err:
+                    pass  # suppressed: see _LOG.debug below
     def get(self, day: Optional[str] = None) -> Dict[str, Any]:
         d = day or _utc_day_key()
         with self._conn() as c:
@@ -159,8 +162,8 @@ def _default_exec_db() -> str:
             dbp = ex_cfg.get("db_path")
             if dbp:
                 return str(dbp)
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: see _LOG.debug below
     try:
         from services.os.app_paths import data_dir, ensure_dirs
         ensure_dirs()

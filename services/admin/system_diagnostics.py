@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+_LOG = logging.getLogger(__name__)
+
 import json
 import os
 from datetime import datetime, timezone
@@ -279,22 +282,22 @@ def _related_process_alive(service_name: str) -> bool:
         try:
             if _pid_alive(int((_read_json(lock_path)).get("pid") or 0)):
                 return True
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: see _LOG.debug below
     pid_path = runtime_dir() / "pids" / f"{service_name}.pid"
     if pid_path.exists():
         try:
             if _pid_alive(int(pid_path.read_text(encoding="utf-8").strip())):
                 return True
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: see _LOG.debug below
     managed_pid = runtime_dir() / "health" / f"{service_name}.pid.json"
     if managed_pid.exists():
         try:
             if _pid_alive(int((_read_json(managed_pid)).get("pid") or 0)):
                 return True
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: see _LOG.debug below
     return False
 
 

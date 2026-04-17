@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && adduser --system --ingroup cryptbot --no-create-home --shell /sbin/nologin cryptbot
 
 # Install deps first (better caching)
-COPY requirements.txt /app/requirements.txt
-RUN python -m pip install -r /app/requirements.txt
+COPY requirements-pinned.txt /app/requirements-pinned.txt
+RUN python -m pip install -r /app/requirements-pinned.txt
 
 # Copy repo into image
 COPY . /app
