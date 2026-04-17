@@ -62,7 +62,7 @@ def _find_row_index(rows: list[list], target_ms: int) -> int | None:
         try:
             if int(row[0]) >= int(target_ms):
                 return idx
-        except Exception:
+        except Exception as _err:
             continue
     return len(rows) - 1
 

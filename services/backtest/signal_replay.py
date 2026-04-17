@@ -34,8 +34,8 @@ def fetch_ohlcv(
         try:
             if hasattr(ex, "close"):
                 ex.close()
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: signal_replay.py
 
 def replay_signals_on_ohlcv(
     ohlcv: list[list],

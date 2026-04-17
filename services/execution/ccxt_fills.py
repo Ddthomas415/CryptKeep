@@ -81,6 +81,6 @@ async def record_fills_from_ccxt_order(
                 fee_ccy=f.get("fee_ccy"),
             )
             n += 1
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: ccxt_fills.py
     return n

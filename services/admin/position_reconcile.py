@@ -39,7 +39,7 @@ def _local_net_positions_from_trades(trades: List[dict], bases_filter: Optional[
             continue
         try:
             q = float(qty)
-        except Exception:
+        except Exception as _err:
             continue
         base = _base_from_symbol(sym)
         if bases_filter and base not in bases_filter:

@@ -937,8 +937,8 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
     finally:
         try:
             _stop_component("strategy_runner")
-        except Exception:
-            pass
+        except Exception as _err:
+            logging.getLogger(__name__).debug("suppressed: %s", _err)
         _wait_for_component_stop("strategy_runner", timeout_sec=2.0)
         _clear_pid_state()
 

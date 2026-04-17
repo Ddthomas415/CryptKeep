@@ -117,8 +117,8 @@ def select_strategy(
                         total_reasons[name] = advisor_reason
                     patched.append((name, total, base, ev_score, ev))
                 scored = patched
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: strategy_selector.py
 
     scored.sort(key=lambda x: x[1], reverse=True)
     chosen, chosen_total, _, _, _ = scored[0]

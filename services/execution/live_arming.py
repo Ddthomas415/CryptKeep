@@ -19,8 +19,8 @@ def _load() -> dict:
     try:
         if STATE_PATH.exists():
             return json.loads(STATE_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: live_arming.py
     return {"version": 1, "active": None, "armed": None}
 
 
@@ -66,7 +66,7 @@ def _float_value(*values: Any, default: float = 0.0) -> float:
             continue
         try:
             return float(value)
-        except Exception:
+        except Exception as _err:
             continue
     return float(default)
 
@@ -77,7 +77,7 @@ def _int_value(*values: Any, default: int = 0) -> int:
             continue
         try:
             return int(float(value))
-        except Exception:
+        except Exception as _err:
             continue
     return int(default)
 

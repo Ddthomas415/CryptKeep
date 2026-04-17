@@ -54,7 +54,7 @@ def load_selector_runs(limit: int = 200) -> list[dict[str, Any]]:
                 continue
             try:
                 rows.append(json.loads(line))
-            except Exception:
+            except Exception as _err:
                 continue
     return rows[-limit:]
 

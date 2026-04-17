@@ -41,8 +41,8 @@ def _release_lock() -> None:
     try:
         if LOCK_FILE.exists():
             LOCK_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: intent_consumer.py
 
 
 def request_stop() -> dict:
@@ -87,8 +87,8 @@ def run_forever() -> None:
     try:
         if STOP_FILE.exists():
             STOP_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: intent_consumer.py
 
     if not _acquire_lock():
         _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})

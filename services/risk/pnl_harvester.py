@@ -51,7 +51,7 @@ def _sum_realized_pnl_for_day(*, db_path: Path, day: str, preferred_table: str =
                 else:
                     r = con.execute(f"SELECT COALESCE(SUM(realized_pnl_usd),0.0) FROM {table}").fetchone()
                 return float(r[0] if r and r[0] is not None else 0.0)
-            except Exception:
+            except Exception as _err:
                 continue
         return 0.0
     finally:

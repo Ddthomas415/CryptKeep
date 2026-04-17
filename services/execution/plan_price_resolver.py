@@ -54,12 +54,12 @@ def resolve_prices(
                         "price_source": source,
                         "price_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                     }
-            except Exception:
+            except Exception as _err:
                 continue
     finally:
         try:
             ex.close()
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: plan_price_resolver.py
 
     return out

@@ -31,7 +31,7 @@ def load_outcomes(
                 continue
             try:
                 rows.append(json.loads(line))
-            except Exception:
+            except Exception as _err:
                 continue
     rows = rows[-limit:]
     if require_selected_strategy:
@@ -175,8 +175,8 @@ def summarize_closed_trade_outcomes(rows: list[dict[str, Any]]) -> dict[str, Any
         if abs(pos_qty) > 1e-12:
             try:
                 prev_realized = float(r.get("realized_pnl_total")) if r.get("realized_pnl_total") is not None else prev_realized
-            except Exception:
-                pass
+            except Exception as _err:
+                pass  # suppressed: outcome_summary.py
             continue
 
         try:

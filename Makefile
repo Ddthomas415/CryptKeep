@@ -236,3 +236,47 @@ dev-setup:
 	@echo ""
 	@echo "To run the paper campaign:"
 	@echo "  make paper-run"
+
+# Operational safety scripts
+kill-switch-on:
+	$(PYTHON) scripts/killswitch.py --arm
+
+kill-switch-off:
+	$(PYTHON) scripts/killswitch.py --disarm
+
+kill-switch-status:
+	$(PYTHON) scripts/killswitch.py --status
+
+# Live gate inspection
+gate-inputs:
+	$(PYTHON) scripts/show_live_gate_inputs.py
+
+# Test fill injection (paper testing only)
+inject-test-fill:
+	$(PYTHON) scripts/inject_test_fill.py
+
+# Candidate scan
+candidate-scan:
+	$(PYTHON) scripts/run_candidate_scan.py
+
+candidate-summary:
+	$(PYTHON) scripts/candidate_trade_summary.py
+
+# Live reconciliation (shadow/live stages)
+live-reconcile:
+	$(PYTHON) scripts/live_reconcile.py
+
+# Script index
+script-index:
+	@echo "=== Operational Scripts ==="
+	@echo "  make paper-run          — run paper campaign"
+	@echo "  make check-gates        — promotion gate status"
+	@echo "  make kill-switch-on/off — arm/disarm kill switch"
+	@echo "  make gate-inputs        — show live gate current values"
+	@echo "  make inject-test-fill   — inject a test fill (paper only)"
+	@echo "  make candidate-scan     — run candidate signal scan"
+	@echo "  make live-reconcile     — reconcile live positions"
+	@echo "  make paper-logs         — tail campaign logs"
+	@echo "  make dev-setup          — setup developer environment"
+	@echo ""
+	@echo "Full script list: ls scripts/*.py"

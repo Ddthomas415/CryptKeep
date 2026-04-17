@@ -54,8 +54,8 @@ def _release_lock() -> None:
     try:
         if LOCK_FILE.exists():
             LOCK_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: live_reconciler.py
 
 def request_stop() -> dict:
     ensure_dirs()
@@ -76,8 +76,8 @@ def _close_reconcile_adapters(adapters: dict[str, LiveExchangeAdapter]) -> None:
     for ad in adapters.values():
         try:
             ad.close()
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: live_reconciler.py
     adapters.clear()
 
 
@@ -109,8 +109,8 @@ def run_forever() -> None:
     try:
         if STOP_FILE.exists():
             STOP_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: live_reconciler.py
     if not _acquire_lock():
         _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})
         return

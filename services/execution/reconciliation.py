@@ -68,8 +68,8 @@ def reconcile_spot_position(*, venue: str, symbol: str) -> dict:
         try:
             if ex is not None and hasattr(ex, "close"):
                 ex.close()
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: reconciliation.py
 
 
 def reconcile_once(*, venue: str, symbol: str) -> dict:

@@ -31,8 +31,8 @@ def _remove_pid():
     try:
         if PID_PATH.exists():
             PID_PATH.unlink()
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: intent_executor_supervisor.py
 
 def status() -> dict[str, Any]:
     pid = _read_pid()

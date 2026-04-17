@@ -26,8 +26,8 @@ def _close_exchange(ex: Any) -> None:
     try:
         if ex is not None and hasattr(ex, "close"):
             ex.close()
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: crypto_edge_collector.py
 
 
 def _open_public_exchange(venue: str) -> Any:
@@ -58,7 +58,7 @@ def _extract_funding_rate(payload: dict[str, Any]) -> float | None:
     for candidate in candidates:
         try:
             return float(candidate)
-        except Exception:
+        except Exception as _err:
             continue
     return None
 

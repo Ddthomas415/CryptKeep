@@ -25,6 +25,10 @@ COPY . /app
 RUN mkdir -p /app/data /app/logs /app/build \
   && chown -R cryptbot:cryptbot /app/data /app/logs /app/build
 
+
+# Health check — verify the Python environment is functional
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD python -c "import services; print('ok')" || exit 1
 # Drop privileges — never run as root in production
 USER cryptbot
 

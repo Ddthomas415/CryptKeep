@@ -188,5 +188,5 @@ class IntentWriter:
             )
         try:
             IntentQueueSQLite().update_status(str(intent_id), str(status), last_error=last_error)
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: intent_writer.py

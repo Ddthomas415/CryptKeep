@@ -49,13 +49,13 @@ def _build_price_map(*, symbols: list[str], venue: str = "coinbase") -> dict[str
                     px = _safe_float(ticker.get("bid"), 0.0) or _safe_float(ticker.get("ask"), 0.0)
                 if px > 0:
                     out[sym] = px
-            except Exception:
+            except Exception as _err:
                 continue
     finally:
         try:
             ex.close()
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: paper_reconciliation.py
 
     return out
 

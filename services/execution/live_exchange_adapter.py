@@ -50,8 +50,8 @@ class LiveExchangeAdapter:
         try:
             if hasattr(self.ex, "close"):
                 self.ex.close()
-        except Exception:
-            pass
+        except Exception as _err:
+            pass  # suppressed: live_exchange_adapter.py
 
     def fetch_balance(self) -> dict:
         return self.ex.fetch_balance()

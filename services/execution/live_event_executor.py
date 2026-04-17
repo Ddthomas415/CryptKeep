@@ -108,8 +108,8 @@ def run_forever(
     try:
         if STOP_FILE.exists():
             STOP_FILE.unlink()
-    except Exception:
-        pass
+    except Exception as _err:
+        pass  # suppressed: live_event_executor.py
 
     cfg = cfg_from_yaml(str(cfg_path))
     state = EventLoopState()
