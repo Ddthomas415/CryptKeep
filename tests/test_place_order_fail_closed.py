@@ -10,6 +10,7 @@ import pytest
 from services.execution import place_order as po
 import services.markets as markets_pkg
 import services.risk as risk_pkg
+import services.risk.killswitch as killswitch_mod
 
 
 class DummyExchange:
@@ -160,6 +161,25 @@ def test_killswitch_state_blocks_and_logs_on_invalid_cooldown(monkeypatch, caplo
     assert reason == "services.risk.killswitch.cooldown_read_failed:ValueError"
     record = next(r for r in caplog.records if r.stage == "cooldown_read")
     assert record.fallback == "fail_closed_block"
+
+
+def test_killswitch_state_blocks_when_admin_kill_switch_is_armed(monkeypatch):
+    monkeypatch.delenv("CBP_KILL_SWITCH", raising=False)
+    monkeypatch.delenv("CBP_KILLSWITCH_FAIL_CLOSED", raising=False)
+    monkeypatch.setattr(killswitch_mod, "_admin_armed", lambda: True)
+
+    class _DBOffKillSwitch:
+        @staticmethod
+        def from_config():
+            return SimpleNamespace(is_on=lambda: False)
+
+    monkeypatch.setattr(killswitch_mod, "KillSwitch", _DBOffKillSwitch)
+    monkeypatch.setattr(po, "_load_killswitch_module", lambda: killswitch_mod)
+
+    blocked, reason = po._killswitch_state()
+
+    assert blocked is True
+    assert reason == "services.risk.killswitch.is_on"
 
 
 def test_require_env_float_rejects_non_finite(monkeypatch):
