@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from services.risk.live_risk_gates import LiveGateDB, LiveRiskGates, LiveRiskLimits
+from services.risk.live_risk_gates_phase82 import LiveGateDB, LiveRiskGates, LiveRiskLimits  # canonical
 
 
 @dataclass(frozen=True)

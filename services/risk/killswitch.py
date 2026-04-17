@@ -11,7 +11,7 @@ import os
 # yaml is optional (PyYAML)
 
 from services.os.app_paths import data_dir, ensure_dirs
-from services.risk.live_risk_gates import LiveGateDB
+from services.risk.live_risk_gates_phase82 import LiveGateDB  # canonical
 
 def _exec_db_from_trading_yaml(path: str = "config/trading.yaml") -> str:
     # Prefer env override

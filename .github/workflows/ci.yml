@@ -31,6 +31,11 @@ jobs:
       - name: Ruff lint
         run: python -m ruff check .
 
+      - name: Ruff — enforce no bare excepts in critical paths
+        run: |
+          python -m ruff check services/control/ services/execution/ services/strategies/ services/risk/             --select E722,BLE001 --no-fix
+          echo "No new bare excepts in critical service paths"
+
       - name: Mypy type check
         # Advisory until type coverage improves — failures are visible but non-blocking
         run: python -m mypy services/ core/ --ignore-missing-imports --no-error-summary || true
