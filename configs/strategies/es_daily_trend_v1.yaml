@@ -18,6 +18,7 @@ strategy:
   symbol: BTC/USDT               # crypto proxy on coinbase; replace with ES/SPY when futures connector available
   venue: coinbase                 # exchange id (ccxt-compatible)
   paper_runtime_sec: 3600        # how long each strategy window runs per campaign
+  # Override at runtime for dev/test: CBP_PAPER_RUNTIME_SEC=60 make paper-run
   use_candidate_advisor: false   # set true after candidate scans have run (enables CBP_USE_CANDIDATE_ADVISOR)
 
   # Signal definition

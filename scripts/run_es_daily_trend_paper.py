@@ -224,7 +224,10 @@ def main() -> int:
         symbol=symbol,
         venue=venue,
         per_strategy_runtime_sec=float(
-            cfg.get("strategy", {}).get("paper_runtime_sec", 3600.0)
+            # CBP_PAPER_RUNTIME_SEC allows short runs for dev/test without editing config
+            # Example: CBP_PAPER_RUNTIME_SEC=60 make paper-run
+            os.environ.get("CBP_PAPER_RUNTIME_SEC")
+            or strategy_cfg.get("paper_runtime_sec", 3600.0)
         ),
     )
 

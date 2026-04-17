@@ -280,3 +280,26 @@ script-index:
 	@echo "  make dev-setup          — setup developer environment"
 	@echo ""
 	@echo "Full script list: ls scripts/*.py"
+
+# Short paper run for development/testing (60s instead of 3600s)
+paper-run-short:
+	CBP_PAPER_RUNTIME_SEC=60 $(PYTHON) scripts/run_es_daily_trend_paper.py
+
+# Stop a running paper campaign immediately
+paper-stop-now:
+	$(PYTHON) - <<'PY'
+	import subprocess, pathlib, time
+	flags = pathlib.Path(".cbp_state/runtime/flags")
+	flags.mkdir(parents=True, exist_ok=True)
+	for stop_flag in ["paper_strategy_evidence.stop", "strategy_runner.stop",
+	                  "paper_engine.stop", "tick_publisher.stop"]:
+	    (flags / stop_flag).write_text("stop\n", encoding="utf-8")
+	    print(f"Stop flag written: {stop_flag}")
+	time.sleep(3)
+	for proc in ["run_es_daily_trend_paper", "run_strategy_runner",
+	             "run_paper_engine", "run_tick_publisher"]:
+	    r = subprocess.run(["pkill", "-f", f"{proc}.py"], capture_output=True)
+	    if r.returncode == 0:
+	        print(f"Killed: {proc}")
+	print("Done. Check: make paper-ps")
+	PY
