@@ -84,8 +84,10 @@ def print_campaign_summary(
     print(f"\nCampaign: {status} ({reason})")
     print(f"Completed strategies: {completed}")
 
-    # Report actual JSONL evidence directory
-    summary = evidence_summary(strategy_id)
+    # Report actual JSONL evidence directory.
+    # Prefer the pre-computed summary from run_campaign() result if available,
+    # otherwise read it directly from disk.
+    summary = result.get("jsonl_evidence") or evidence_summary(strategy_id)
     if summary["exists"]:
         print(f"Evidence dir: {summary['ev_dir']}")
         if summary["files_by_type"]:

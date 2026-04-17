@@ -942,6 +942,20 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
         _wait_for_component_stop("strategy_runner", timeout_sec=2.0)
         _clear_pid_state()
 
+    # Include JSONL evidence summary alongside the leaderboard artifact.
+    # The JSONL path is the canonical evidence for strategy runs (written by EvidenceLogger).
+    # The leaderboard artifact (evidence_out) is legacy — populated only when fills exist.
+    _jsonl_evidence: dict = {}
+    try:
+        from services.strategies.campaign_summary import evidence_summary as _ev_summary
+        for _strat in strategies:
+            _sv = _ev_summary(_strat)
+            if _sv["exists"]:
+                _jsonl_evidence = _sv
+                break
+    except Exception:
+        pass
+
     out = {
         "ok": True,
         "has_status": True,
@@ -958,7 +972,8 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
         "started_components": started_components,
         "reused_components": reused_components,
         "results": results,
-        "evidence": evidence_out,
+        "evidence": evidence_out,           # legacy leaderboard artifact
+        "jsonl_evidence": _jsonl_evidence,  # canonical JSONL evidence (new)
         "decision_record": decision_record_out,
     }
     out["summary_text"] = _summary_text(out)

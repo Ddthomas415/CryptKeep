@@ -46,5 +46,10 @@ jobs:
             --ignore=tests/test_dashboard_home_digest.py \
             -q --tb=short
 
+      - name: Paper runner dry-run
+        env:
+          CBP_STATE_DIR: /tmp/cbp_ci_state
+        run: python scripts/run_es_daily_trend_paper.py --dry-run
+
       - name: Governance smoke
         run: make test-governance
