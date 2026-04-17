@@ -354,6 +354,11 @@ def _required_history(strategy_block: dict) -> int:
             int(strategy_block.get("filter_window", 0) or 0) + 2,
             5,
         )
+    if name == "sma_200_trend":
+        return max(
+            int(strategy_block.get("sma_period", 200) or 200) + 10,
+            int(strategy_block.get("atr_period", 20) or 20) + 2,
+        )
     return 5
 
 

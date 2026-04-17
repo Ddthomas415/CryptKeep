@@ -340,6 +340,21 @@ def signal_from_ohlcv(
       {ok, action, reason, signal, regime, sma_200, atr_ratio}
     """
     if not ohlcv or len(ohlcv) < sma_period:
+        # Still log — operator needs to know the data feed is short
+        try:
+            from datetime import datetime, timezone as _tz
+            EvidenceLogger(STRATEGY_ID).log_signal(
+                timestamp=datetime.now(_tz.utc).isoformat(),
+                price=float(ohlcv[-1][4]) if ohlcv else 0.0,
+                sma_200=None,
+                atr_ratio=None,
+                signal_direction="flat",
+                regime_flag="insufficient_data",
+                entry_allowed=False,
+                extra={"reason": "insufficient_history", "bars_received": len(ohlcv)},
+            )
+        except Exception as _ev_err:
+            _LOG.warning("signal evidence logging failed: %s", _ev_err)
         return {"ok": True, "action": "hold", "reason": "insufficient_history",
                 "signal": "flat", "regime": "insufficient_data"}
 
