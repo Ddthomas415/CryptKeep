@@ -178,3 +178,58 @@ class TestTeardownStatusInSummary:
         captured = capsys.readouterr()
         assert "tick_publisher" in captured.out
         assert "paper-stop" in captured.out
+
+
+class TestRequiredHistory:
+    def test_sma_200_trend_requires_210_bars(self):
+        """sma_200_trend must request at least sma_period+10 bars — else signal never fires."""
+        import sys
+        sys.path.insert(0, ".")
+        from services.strategy_runner.ema_crossover_runner import _required_history
+        block = {"name": "sma_200_trend", "sma_period": 200, "atr_period": 20}
+        result = _required_history(block)
+        assert result >= 210, f"_required_history returned {result} — must be >= 210 for sma_200_trend"
+
+    def test_sma_200_trend_custom_period(self):
+        from services.strategy_runner.ema_crossover_runner import _required_history
+        block = {"name": "sma_200_trend", "sma_period": 50, "atr_period": 14}
+        result = _required_history(block)
+        assert result >= 60  # 50 + 10
+
+    def test_unknown_strategy_returns_5(self):
+        from services.strategy_runner.ema_crossover_runner import _required_history
+        block = {"name": "unknown_xyz"}
+        assert _required_history(block) == 5
+
+    def test_signal_insufficient_history_still_logs(self, tmp_path):
+        """signal_from_ohlcv logs even when bar count is too low."""
+        from services.strategies.es_daily_trend import signal_from_ohlcv
+        from services.strategies.campaign_summary import evidence_summary
+
+        # Only 5 bars — way below 200
+        ohlcv = [[i, 100.0, 101.0, 99.0, 100.0, 1000.0] for i in range(5)]
+        result = signal_from_ohlcv(ohlcv)
+
+        assert result["reason"] == "insufficient_history"
+
+        ev = evidence_summary("es_daily_trend_v1")
+        assert ev["exists"], "evidence dir not created"
+        assert "signal" in ev["files_by_type"], "no signal file even for insufficient_history"
+
+    def test_signal_sufficient_history_logs_with_direction(self, tmp_path):
+        """signal_from_ohlcv with 210 bars logs a real signal_direction."""
+        import json
+        from services.strategies.es_daily_trend import signal_from_ohlcv
+        from services.os.app_paths import data_dir
+
+        n = 210
+        ohlcv = [[i, 100.0, 101.0, 99.0, 100.0 + i * 0.1, 1000.0] for i in range(n)]
+        signal_from_ohlcv(ohlcv)
+
+        ev_dir = data_dir() / "evidence" / "es_daily_trend_v1"
+        files = list(ev_dir.glob("signal_*.jsonl"))
+        assert files
+        records = [json.loads(l) for l in files[0].read_text().strip().splitlines() if l.strip()]
+        full = [r for r in records if r.get("regime_flag") != "insufficient_data"]
+        assert full, "no full signal records found — bar count fix may not have worked"
+        assert full[-1]["signal_direction"] in ("long", "flat")

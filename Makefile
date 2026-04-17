@@ -183,7 +183,7 @@ paper-stop:
 	import subprocess, pathlib
 	flags = pathlib.Path(".cbp_state/runtime/flags")
 	flags.mkdir(parents=True, exist_ok=True)
-	for stop_flag in ["paper_strategy_evidence.stop", "strategy_runner.stop", "paper_engine.stop"]:
+	for stop_flag in ["paper_strategy_evidence.stop", "strategy_runner.stop", "paper_engine.stop", "tick_publisher.stop"]:
 		(flags / stop_flag).write_text("stop\n", encoding="utf-8")
 	for proc_name in ["run_es_daily_trend_paper", "run_strategy_runner", "run_paper_engine", "run_tick_publisher"]:
 		subprocess.run(["pkill", "-f", f"{proc_name}.py"], capture_output=True)
