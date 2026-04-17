@@ -15,6 +15,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 import json
 
+from services.admin.kill_switch import get_state as get_admin_kill_switch_state
 from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import data_dir, ensure_dirs
 from services.risk.live_risk_gates_phase82 import LiveRiskLimits, LiveGateDB
@@ -29,10 +30,15 @@ def main() -> int:
     limits = LiveRiskLimits.from_dict(cfg)
     db = LiveGateDB(exec_db=exec_db)
     js = JournalSignals(exec_db=exec_db)
+    admin_state = get_admin_kill_switch_state()
+    admin_armed = bool((admin_state or {}).get("armed", True))
+    db_armed = db.killswitch_on()
 
     out = {
         "exec_db": exec_db,
-        "killswitch": db.killswitch_on(),
+        "killswitch": bool(admin_armed or db_armed),
+        "killswitch_admin": admin_armed,
+        "killswitch_db": db_armed,
         "limits": None if not limits else {
             "max_daily_loss_usd": limits.max_daily_loss_usd,
             "max_notional_per_trade_usd": limits.max_notional_per_trade_usd,
