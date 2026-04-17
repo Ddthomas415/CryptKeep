@@ -298,35 +298,36 @@ def main() -> int:
         except Exception as _ev_err:
             _LOG.warning("session evidence log failed: %s", _ev_err)
 
-    # Teardown enforcement: verify child processes are gone after campaign
-    # If any are still running after 5s, force-stop and log a warning
+    # Teardown enforcement: use the service's own stop/wait infrastructure
+    # rather than reinventing it with ManagedComponent (which has different paths).
     try:
-        from services.control.managed_component import ManagedComponent
-        from services.os.app_paths import runtime_dir
+        from services.analytics.paper_strategy_evidence_service import (
+            _component_runtime, _stop_component, _wait_for_component_stop,
+        )
         import time as _time
 
-        locks_dir   = runtime_dir() / "locks"
-        status_dir  = runtime_dir() / "snapshots"
-        flags_dir   = runtime_dir() / "flags"
+        # Stop all three components in reverse start order
+        for _comp in ("strategy_runner", "paper_engine", "tick_publisher"):
+            try:
+                if bool(_component_runtime(_comp).get("pid_alive")):
+                    _LOG.info("campaign_teardown: stopping %s", _comp)
+                    _stop_component(_comp)
+            except Exception as _stop_err:
+                _LOG.warning("campaign_teardown: stop failed for %s: %s", _comp, _stop_err)
 
-        lingering = []
-        for name in ("strategy_runner", "paper_engine"):
-            mc = ManagedComponent(name, lock_dir=locks_dir, status_dir=status_dir, flags_dir=flags_dir)
-            if mc.is_alive():
-                lingering.append(name)
+        # Wait up to 10s for all to stop
+        deadline = _time.monotonic() + 10.0
+        still_alive = []
+        for _comp in ("strategy_runner", "paper_engine", "tick_publisher"):
+            remaining = max(0.0, deadline - _time.monotonic())
+            stopped = _wait_for_component_stop(_comp, timeout_sec=remaining)
+            if not stopped:
+                still_alive.append(_comp)
 
-        if lingering:
-            _LOG.warning("campaign_teardown: %s still alive after run — sending stop", lingering)
-            for name in lingering:
-                mc = ManagedComponent(name, lock_dir=locks_dir, status_dir=status_dir, flags_dir=flags_dir)
-                mc.stop()
-            _time.sleep(3.0)
-            still_alive = [n for n in lingering if ManagedComponent(
-                n, lock_dir=locks_dir, status_dir=status_dir, flags_dir=flags_dir).is_alive()]
-            if still_alive:
-                _LOG.error("campaign_teardown: %s did not stop — manual cleanup needed", still_alive)
-            else:
-                _LOG.info("campaign_teardown: all child processes stopped cleanly")
+        if still_alive:
+            _LOG.error("campaign_teardown: %s did not stop after 10s — run 'make paper-stop'", still_alive)
+        else:
+            _LOG.info("campaign_teardown: all child processes stopped cleanly")
     except Exception as _td_err:
         _LOG.warning("campaign_teardown check failed: %s", _td_err)
 
