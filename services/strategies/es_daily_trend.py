@@ -368,7 +368,7 @@ def signal_from_ohlcv(
             entry_allowed=reg["entry_allowed"],
         )
     except Exception as _ev_err:
-        pass  # evidence logging never blocks signal production
+        _LOG.warning("signal evidence logging failed (non-blocking): %s", _ev_err)
 
     return {
         "ok":      True,

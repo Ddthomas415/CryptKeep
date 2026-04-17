@@ -192,6 +192,12 @@ def main() -> int:
         _print_status(cfg)
         return 0
 
+    # Extract all config sections before any use
+    strategy_cfg = cfg.get("strategy", {})
+    risk = cfg.get("risk", {})
+    symbol = str(strategy_cfg.get("symbol") or "BTC/USDT").strip()
+    venue = str(strategy_cfg.get("venue") or "coinbase").strip()
+
     # Apply strategy-specific env vars from config
     try:
         import os
@@ -213,11 +219,10 @@ def main() -> int:
         PaperStrategyEvidenceServiceCfg, run_campaign,
     )
 
-    risk = cfg.get("risk", {})
     campaign_cfg = PaperStrategyEvidenceServiceCfg(
         strategies=("sma_200_trend",),
-        symbol=cfg.get("strategy", {}).get("symbol", "BTC/USDT"),
-        venue=cfg.get("strategy", {}).get("venue", "coinbase"),
+        symbol=symbol,
+        venue=venue,
         per_strategy_runtime_sec=float(
             cfg.get("strategy", {}).get("paper_runtime_sec", 3600.0)
         ),
@@ -334,32 +339,8 @@ def main() -> int:
     if args.json:
         print(json.dumps(result, indent=2, default=str))
     else:
-        status = result.get("status", "unknown")
-        reason = result.get("reason", "")
-        completed = result.get("completed_strategies", 0)
-        print(f"\nCampaign: {status} ({reason})")
-        print(f"Completed strategies: {completed}")
-
-        # Report the actual JSONL evidence directory (written by EvidenceLogger)
-        # This is separate from the leaderboard evidence_out in result["evidence"]
-        from services.os.app_paths import data_dir as _data_dir
-        ev_dir = _data_dir() / "evidence" / STRATEGY_ID
-        if ev_dir.exists():
-            files = sorted(ev_dir.glob("*.jsonl"))
-            by_type: dict = {}
-            for f in files:
-                record_type = f.name.split("_")[0]
-                by_type[record_type] = by_type.get(record_type, 0) + 1
-            print(f"Evidence dir: {ev_dir}")
-            print(f"Evidence files: {dict(by_type)}" if by_type else "Evidence files: (none yet)")
-        else:
-            print("Evidence dir: not yet created")
-
-        # Legacy leaderboard evidence (strategy_evidence.latest.json)
-        if result.get("evidence") and result["evidence"].get("latest_path"):
-            print(f"Leaderboard artifact: {result['evidence'].get('latest_path')}")
-        if result.get("decision_record") and result["decision_record"].get("path"):
-            print(f"Decision record: {result['decision_record'].get('path')}")
+        from services.strategies.campaign_summary import print_campaign_summary
+        print_campaign_summary(STRATEGY_ID, result, verbose=True)
 
     return 0 if result.get("ok") else 1
 
