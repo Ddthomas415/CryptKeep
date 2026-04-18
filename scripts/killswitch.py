@@ -16,25 +16,31 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import argparse
 import json
 
-from services.risk.killswitch import KillSwitch
+from services.admin.kill_switch import get_state, set_armed
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--on", action="store_true")
-    ap.add_argument("--off", action="store_true")
+    group = ap.add_mutually_exclusive_group()
+    group.add_argument("--arm", action="store_true")
+    group.add_argument("--disarm", action="store_true")
+    group.add_argument("--status", action="store_true")
+    group.add_argument("--on", action="store_true")
+    group.add_argument("--off", action="store_true")
     args = ap.parse_args()
 
-    if args.on and args.off:
-        print(json.dumps({"ok": False, "error": "choose --on or --off"}, indent=2))
-        return 2
+    if args.arm or args.on:
+        state = set_armed(True, note="scripts.killswitch:arm")
+    elif args.disarm or args.off:
+        state = set_armed(False, note="scripts.killswitch:disarm")
+    else:
+        state = get_state()
 
-    ks = KillSwitch.from_config()
-    if args.on:
-        ks.set(True)
-    elif args.off:
-        ks.set(False)
-
-    print(json.dumps({"ok": True, "killswitch": ks.is_on()}, indent=2))
+    payload = {
+        "ok": True,
+        "killswitch": bool((state or {}).get("armed", True)),
+        "state": state,
+    }
+    print(json.dumps(payload, indent=2))
     return 0
 
 if __name__ == "__main__":
