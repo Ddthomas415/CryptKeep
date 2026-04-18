@@ -28,7 +28,7 @@ py scripts\install.py
 - Ops-risk integration contract: see `docs/OPS_RISK_GATE_INTEGRATION.md`.
 - AI engine scaffold: see `docs/AI_ENGINE.md`.
 - Root install/bootstrap currently supports the root Python platform only.
-- Git hooks: the root `.pre-commit-config.yaml` is the active pre-commit surface. `crypto-trading-ai/` is gitignored — hooks from that path are **not active** and the install instructions referencing it should be ignored.
+- Git hooks: the root `.pre-commit-config.yaml` is the active pre-commit surface. `crypto-trading-ai/` is gitignored, hooks from that path are **not active**, and no nested hook install step is required for the supported baseline.
 - Dashboard API defaults to `CK_API_BASE_URL=http://localhost:8000`.
 - Dashboard research explain fallback can target the Phase 1 copilot with `CK_PHASE1_ORCHESTRATOR_URL=http://localhost:8002`.
 - Phase 1 copilot smoke check: `make phase1-smoke`
