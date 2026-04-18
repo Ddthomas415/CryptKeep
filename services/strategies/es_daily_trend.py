@@ -12,6 +12,7 @@ Config: configs/strategies/es_daily_trend_v1.yaml
 from __future__ import annotations
 
 import math
+import os
 from typing import Any
 
 from services.logging.app_logger import get_logger
@@ -23,6 +24,11 @@ STRATEGY_ID = "es_daily_trend_v1"
 SMA_PERIOD_DEFAULT = 200
 ATR_PERIOD_DEFAULT = 20
 ATR_STOP_MULT_DEFAULT = 2.0
+
+
+def _trace_enabled() -> bool:
+    raw = str(os.environ.get("CBP_DEBUG_CHILD_IO") or "").strip().lower()
+    return raw in {"1", "true", "yes", "on"}
 
 
 # ---------------------------------------------------------------------------
@@ -339,6 +345,13 @@ def signal_from_ohlcv(
     Returns the standard registry signal envelope:
       {ok, action, reason, signal, regime, sma_200, atr_ratio}
     """
+    if _trace_enabled():
+        _LOG.debug(
+            "es_daily_trend.signal_from_ohlcv bars=%s sma_period=%s atr_period=%s",
+            len(ohlcv) if ohlcv else 0,
+            sma_period,
+            atr_period,
+        )
     if not ohlcv or len(ohlcv) < sma_period:
         # Still log — operator needs to know the data feed is short
         try:

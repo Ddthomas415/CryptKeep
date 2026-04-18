@@ -29,6 +29,47 @@ def test_strategy_summary_map_passes_symbol_filter(monkeypatch) -> None:
     assert out["ema_cross"]["fills"] == 1
 
 
+def test_start_process_suppresses_child_io_by_default(monkeypatch) -> None:
+    seen: dict[str, object] = {}
+
+    def _fake_popen(argv, **kwargs):
+        seen["argv"] = list(argv)
+        seen["kwargs"] = dict(kwargs)
+        return object()
+
+    monkeypatch.setattr(svc.subprocess, "Popen", _fake_popen)
+
+    out = svc._start_process(script_relpath="scripts/run_tick_publisher.py", env={})
+
+    assert out is not None
+    kwargs = dict(seen["kwargs"])
+    assert kwargs["stdout"] is svc.subprocess.DEVNULL
+    assert kwargs["stderr"] is svc.subprocess.DEVNULL
+    assert kwargs["stdin"] is svc.subprocess.DEVNULL
+
+
+def test_start_process_exposes_child_io_when_debug_enabled(monkeypatch) -> None:
+    seen: dict[str, object] = {}
+
+    def _fake_popen(argv, **kwargs):
+        seen["argv"] = list(argv)
+        seen["kwargs"] = dict(kwargs)
+        return object()
+
+    monkeypatch.setattr(svc.subprocess, "Popen", _fake_popen)
+
+    out = svc._start_process(
+        script_relpath="scripts/run_tick_publisher.py",
+        env={"CBP_DEBUG_CHILD_IO": "1"},
+    )
+
+    assert out is not None
+    kwargs = dict(seen["kwargs"])
+    assert kwargs["stdout"] is None
+    assert kwargs["stderr"] is None
+    assert kwargs["stdin"] is svc.subprocess.DEVNULL
+
+
 class _FakePositionStateStore:
     def __init__(self) -> None:
         self.rows: dict[tuple[str, str], dict[str, object]] = {}

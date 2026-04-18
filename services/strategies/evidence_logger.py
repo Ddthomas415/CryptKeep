@@ -16,6 +16,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,6 +27,11 @@ from services.os.file_utils import atomic_write
 from services.logging.app_logger import get_logger
 
 _LOG = get_logger("strategy.evidence_logger")
+
+
+def _trace_enabled() -> bool:
+    raw = str(os.environ.get("CBP_DEBUG_CHILD_IO") or "").strip().lower()
+    return raw in {"1", "true", "yes", "on"}
 
 
 def _now_iso() -> str:
@@ -79,8 +85,12 @@ class EvidenceLogger:
         try:
             existing = path.read_text(encoding="utf-8") if path.exists() else ""
             atomic_write(path, existing + json.dumps(record) + "\n")
+            if record_type == "signal" and _trace_enabled():
+                _LOG.debug("evidence_logger signal write path=%s", path)
         except Exception as e:
             _LOG.error("evidence_logger write failed type=%s err=%s", record_type, e)
+            if record_type == "signal" and _trace_enabled():
+                _LOG.debug("evidence_logger signal write failed path=%s err=%s", path, e)
 
     # ------------------------------------------------------------------
     # Signal log — one record per bar evaluated

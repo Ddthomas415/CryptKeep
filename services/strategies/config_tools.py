@@ -7,7 +7,20 @@ from services.strategies.presets import apply_preset
 from services.strategies.validation import validate_strategy_config
 
 
-_SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "pullback_recovery", "volatility_reversal", "gap_fill", "breakout_volume", "funding_extreme", "open_interest_shift"}
+_SUPPORTED = {
+    "ema_cross",
+    "mean_reversion_rsi",
+    "breakout_donchian",
+    "momentum",
+    "pullback_recovery",
+    "volatility_reversal",
+    "gap_fill",
+    "breakout_volume",
+    "funding_extreme",
+    "open_interest_shift",
+    "sma_200_trend",
+}
+
 _INT_FIELDS = {
     "ema_cross": ("ema_fast", "ema_slow", "filter_window"),
     "momentum": ("min_change_pct", "max_rsi_entry", "rsi_exit", "sma_period", "rsi_period"),
@@ -16,12 +29,16 @@ _INT_FIELDS = {
     "breakout_volume": ("donchian_len", "sma_len", "min_volume_ratio", "breakout_buffer_pct", "min_channel_width_pct"),
     "mean_reversion_rsi": ("rsi_len", "sma_len", "filter_window"),
     "breakout_donchian": ("donchian_len", "filter_window"),
+    "sma_200_trend": ("sma_period", "atr_period"),
 }
+
 _FLOAT_FIELDS = {
     "ema_cross": ("min_volatility_pct", "min_volume_ratio", "min_trend_efficiency", "min_cross_gap_pct"),
     "mean_reversion_rsi": ("rsi_buy", "rsi_sell", "max_volatility_pct", "min_volume_ratio", "max_trend_efficiency", "max_sma_distance_pct"),
     "breakout_donchian": ("min_volatility_pct", "min_volume_ratio", "min_trend_efficiency", "min_channel_width_pct", "breakout_buffer_pct"),
+    "sma_200_trend": ("atr_stop_multiplier", "capital_at_risk_per_trade_pct", "max_position_notional_pct", "daily_loss_halt_pct", "max_drawdown_pct", "regime_trending_floor", "regime_chop_ceiling", "regime_high_vol_ceiling"),
 }
+
 _BOOL_FIELDS = {
     "ema_cross": (),
     "momentum": (),
@@ -30,6 +47,7 @@ _BOOL_FIELDS = {
     "breakout_volume": ("require_close_above",),
     "mean_reversion_rsi": ("require_reversal_confirmation",),
     "breakout_donchian": ("require_directional_confirmation",),
+    "sma_200_trend": (),
 }
 
 

@@ -382,11 +382,12 @@ def _repo_script_path(script_relpath: str) -> str:
 
 
 def _start_process(*, script_relpath: str, env: dict[str, str]) -> subprocess.Popen[Any]:
+    debug_child_io = str(env.get("CBP_DEBUG_CHILD_IO") or os.environ.get("CBP_DEBUG_CHILD_IO") or "").strip().lower() in {"1", "true", "yes", "on"}
     kwargs: dict[str, Any] = {
         "cwd": str(code_root()),
         "env": env,
-        "stdout": subprocess.DEVNULL,
-        "stderr": subprocess.DEVNULL,
+        "stdout": None if debug_child_io else subprocess.DEVNULL,
+        "stderr": None if debug_child_io else subprocess.DEVNULL,
         "stdin": subprocess.DEVNULL,
     }
     if os.name == "nt":

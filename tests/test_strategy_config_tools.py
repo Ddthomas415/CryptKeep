@@ -60,3 +60,34 @@ def test_build_strategy_block_preserves_bool_and_ignores_unknown_params():
     assert st["donchian_len"] == 30
     assert st["require_directional_confirmation"] is True
     assert "unused_param" not in st
+
+
+def test_build_strategy_block_sma_200_trend_typed_fields():
+    st = ct.build_strategy_block(
+        name="sma_200_trend",
+        trade_enabled=True,
+        params={
+            "sma_period": 200.9,
+            "atr_period": "20",
+            "atr_stop_multiplier": "2.5",
+            "capital_at_risk_per_trade_pct": "0.5",
+            "max_position_notional_pct": 10,
+            "daily_loss_halt_pct": "2.0",
+            "max_drawdown_pct": "10.0",
+            "regime_trending_floor": "0.8",
+            "regime_chop_ceiling": "0.6",
+            "regime_high_vol_ceiling": "2.5",
+        },
+    )
+    assert st["name"] == "sma_200_trend"
+    assert st["trade_enabled"] is True
+    assert st["sma_period"] == 200
+    assert st["atr_period"] == 20
+    assert st["atr_stop_multiplier"] == 2.5
+    assert st["capital_at_risk_per_trade_pct"] == 0.5
+    assert st["max_position_notional_pct"] == 10.0
+    assert st["daily_loss_halt_pct"] == 2.0
+    assert st["max_drawdown_pct"] == 10.0
+    assert st["regime_trending_floor"] == 0.8
+    assert st["regime_chop_ceiling"] == 0.6
+    assert st["regime_high_vol_ceiling"] == 2.5
