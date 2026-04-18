@@ -3,6 +3,7 @@ from __future__ import annotations
 from services.risk.exit_controls import evaluate_strategy_exit_stack
 
 import json
+import logging
 import math
 import os
 import time
@@ -11,6 +12,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from services.admin.config_editor import load_user_yaml
+from services.logging.app_logger import get_logger
 from services.market_data.multi_venue_view import best_venue
 from services.market_data.symbol_router import map_symbol, normalize_symbol, normalize_venue
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
@@ -37,13 +39,18 @@ SNAPSHOTS = runtime_dir() / "snapshots"
 STOP_FILE = FLAGS / "strategy_runner.stop"
 LOCK_FILE = LOCKS / "strategy_runner.lock"
 STATUS_FILE = FLAGS / "strategy_runner.status.json"
+
+_LOG = logging.getLogger(__name__)
 TICK_SNAPSHOT_FILE = SNAPSHOTS / "system_status.latest.json"
+
+_LOG = get_logger("strategy_runner.ema_crossover_runner")
 
 _STRATEGY_ALIASES = {
     "ema_cross": "ema_cross",
     "ema_crossover": "ema_cross",
     "ema_xover": "ema_cross",
     "ema_xover_v1": "ema_cross",
+    "sma_200_trend": "sma_200_trend",
     "mean_reversion": "mean_reversion_rsi",
     "mean_reversion_rsi": "mean_reversion_rsi",
     "breakout": "breakout_donchian",
@@ -53,15 +60,18 @@ _STRATEGY_ALIASES = {
     "volatility_reversal": "volatility_reversal",
     "gap_fill": "gap_fill",
     "breakout_volume": "breakout_volume",
+    "sma_200_trend": "sma_200_trend",
 }
 _DEFAULT_PRESET_BY_STRATEGY = {
     "ema_cross": "ema_cross_default",
     "mean_reversion_rsi": "mean_reversion_default",
     "breakout_donchian": "breakout_default",
+    "sma_200_trend": "es_daily_trend_v1",
     "momentum": "momentum_default",
     "volatility_reversal": "volatility_reversal_default",
     "gap_fill": "gap_fill_default",
     "breakout_volume": "breakout_volume_default",
+    "sma_200_trend": "es_daily_trend_v1",
 }
 _EMA_FIELDS = (
     "ema_fast",
