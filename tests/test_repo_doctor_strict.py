@@ -14,20 +14,20 @@ def test_repo_doctor_strict_is_clean():
     assert payload.get("noncanonical_top_level_dirs") == []
     assert payload.get("suspicious_top_level_files") == []
     canonical_present = set(payload.get("canonical_present") or [])
+    baseline_present = set(payload.get("supported_baseline_present") or [])
+    allowed_present = set(payload.get("allowed_top_level_present") or [])
     required = {
         "adapters",
-        "attic",
-        "config",
         "core",
         "dashboard",
-        "desktop",
         "docker",
         "docs",
         "scripts",
         "services",
-        "src-tauri",
         "storage",
         "tests",
-        "tools",
     }
-    assert required.issubset(canonical_present)
+    assert baseline_present == canonical_present
+    assert required.issubset(baseline_present)
+    assert {"attic", "build", "config", "crypto-trading-ai", "desktop", "src-tauri", "tools"}.issubset(allowed_present)
+    assert {"attic", "build", "crypto-trading-ai", "desktop", "src-tauri"}.isdisjoint(baseline_present)

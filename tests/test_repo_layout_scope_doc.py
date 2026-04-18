@@ -31,6 +31,8 @@ def test_repo_layout_distinguishes_supported_baseline_from_broader_allowlist() -
     assert "Primary engineering roots for the supported baseline:" in txt
     assert "Additional intentional top-level roots allowed by `CANON`, `CANON.txt`, and" in txt
     assert "Allowed in the repo root does not mean part of the required root install/run/test baseline." in txt
+    assert "`supported_baseline_present` reports the documented baseline roots" in txt
+    assert "`allowed_top_level_present` reports the broader intentional root allowlist used by `--strict`" in txt
 
 
 def test_repo_layout_uses_root_pre_commit_as_hook_source_of_truth() -> None:

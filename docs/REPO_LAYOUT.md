@@ -19,6 +19,10 @@ Additional intentional top-level roots allowed by `CANON`, `CANON.txt`, and
 
 Allowed in the repo root does not mean part of the required root install/run/test baseline.
 
+`tools/repo_doctor.py` reflects that split:
+- `supported_baseline_present` reports the documented baseline roots
+- `allowed_top_level_present` reports the broader intentional root allowlist used by `--strict`
+
 Backtest code location:
 - there is no canonical top-level `backtest/` root in the current tree
 - backtest implementation currently lives under `services/backtest/`
