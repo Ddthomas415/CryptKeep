@@ -493,6 +493,10 @@ def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monke
     latest_history = evidence_dir / "strategy_evidence.20260408T191149Z.json"
     latest_history.write_text('{"ok": true}', encoding="utf-8")
 
+    jsonl_dir = tmp_path / "data" / "evidence" / "ema_cross"
+    jsonl_dir.mkdir(parents=True, exist_ok=True)
+    (jsonl_dir / "signal_2026-04-08.jsonl").write_text('{"signal_direction":"long"}\n', encoding="utf-8")
+
     decision_dir = tmp_path / "docs" / "strategies"
     decision_dir.mkdir(parents=True, exist_ok=True)
     latest_record = decision_dir / "decision_record_2026-04-08.md"
@@ -516,6 +520,7 @@ def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monke
                 "status": "stopped",
                 "reason": "stop_requested",
                 "ts": "2026-04-07T17:49:34Z",
+                "strategies": ["ema_cross"],
                 "symbol": "BTC/USD",
                 "venue": "coinbase",
                 "evidence": {
@@ -537,6 +542,11 @@ def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monke
     assert out["evidence"]["latest_path"] == str(latest_evidence)
     assert out["evidence"]["history_path"] == str(latest_history)
     assert out["evidence"]["source"] == "filesystem_latest"
+    assert out["jsonl_evidence"]["strategy_id"] == "ema_cross"
+    assert out["jsonl_evidence"]["exists"] is True
+    assert out["jsonl_evidence"]["ev_dir"] == str(jsonl_dir)
+    assert out["jsonl_evidence"]["files_by_type"] == {"signal": 1}
+    assert out["jsonl_evidence"]["total_records"] == 1
     assert out["decision_record"]["path"] == str(latest_record)
     assert out["decision_record"]["source"] == "filesystem_latest"
 

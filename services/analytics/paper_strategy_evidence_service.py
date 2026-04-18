@@ -121,6 +121,22 @@ def _latest_strategy_evidence_artifacts() -> dict[str, Any]:
     return out
 
 
+def _latest_jsonl_evidence_summary(strategy_ids: list[str] | tuple[str, ...]) -> dict[str, Any]:
+    try:
+        from services.strategies.campaign_summary import evidence_summary
+    except Exception:
+        return {}
+
+    fallback: dict[str, Any] = {}
+    for strategy_id in [str(item).strip() for item in list(strategy_ids or []) if str(item).strip()]:
+        summary = dict(evidence_summary(strategy_id) or {})
+        if not fallback:
+            fallback = summary
+        if bool(summary.get("exists")):
+            return summary
+    return fallback
+
+
 def _latest_decision_record_artifact() -> dict[str, Any]:
     root = (code_root() / "docs" / "strategies").resolve()
     records = sorted(path.resolve() for path in root.glob("decision_record_*.md"))
@@ -330,6 +346,15 @@ def load_runtime_status() -> dict[str, Any]:
         payload["status"] = "starting"
         payload["reason"] = "pid_alive_waiting_for_status"
         payload["has_status"] = True
+
+    strategy_ids: list[str] = []
+    strategy_ids.extend(str(item).strip() for item in list(payload.get("strategies") or []) if str(item).strip())
+    current_strategy = str(payload.get("current_strategy") or "").strip()
+    if current_strategy and current_strategy not in strategy_ids:
+        strategy_ids.append(current_strategy)
+    jsonl_summary = _latest_jsonl_evidence_summary(strategy_ids)
+    if jsonl_summary:
+        payload["jsonl_evidence"] = jsonl_summary
 
     return _refresh_artifact_references(payload)
 

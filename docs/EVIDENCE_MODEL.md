@@ -39,8 +39,9 @@ exclusively from this directory.
 It is **not** used for promotion decisions. It is a historical leaderboard for
 comparing strategy performance after fills exist.
 
-`run_campaign()` returns this path in `result["evidence"]` for backward compatibility.
-The JSONL path is in `result["jsonl_evidence"]`.
+`run_campaign()` and `load_runtime_status()` return this path in `result["evidence"]`
+for backward compatibility. The canonical JSONL summary is in
+`result["jsonl_evidence"]`.
 
 ---
 
