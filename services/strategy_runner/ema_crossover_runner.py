@@ -404,15 +404,38 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         symbol = map_symbol(cfg["venue"], normalize_symbol(cfg["symbol"]))
         limit = max(int(cfg["min_bars"]), int(cfg["max_bars"]))
         rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
-        return [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
-    except Exception:
-        return []
+        result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
+        if result:
+            return result
+    except Exception as _fetch_err:
+        _LOG.warning("ohlcv_live_fetch_failed venue=%s symbol=%s timeframe=%s err=%s",
+                     cfg.get("venue"), cfg.get("symbol"), timeframe, _fetch_err)
     finally:
         try:
             if ex is not None and hasattr(ex, "close"):
                 ex.close()
         except Exception:
             pass
+
+    # Fallback: use sample OHLCV data for paper/dev mode.
+    # Only activates when CBP_USE_SAMPLE_OHLCV=1 (set in paper runner for dev).
+    if str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip() in ("1", "true", "yes"):
+        import json as _json
+        raw_sym = str(cfg.get("symbol") or "BTC/USDT").replace("/", "_")
+        sample = (
+            __import__("pathlib").Path(__file__).parent.parent.parent
+            / "sample_data" / "ohlcv" / f"{raw_sym}_{timeframe}.json"
+        )
+        if sample.exists():
+            try:
+                rows = _json.loads(sample.read_text())
+                _LOG.info("ohlcv_sample_fallback symbol=%s rows=%d", raw_sym, len(rows))
+                return [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+            except Exception as _se:
+                _LOG.warning("ohlcv_sample_read_failed: %s", _se)
+        else:
+            _LOG.warning("ohlcv_sample_not_found: %s", sample)
+    return []
 
 def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
     q = get_best_bid_ask_last(cfg["venue"], cfg["symbol"])
@@ -580,6 +603,12 @@ def run_forever() -> None:
                     ohlcv = _fetch_public_ohlcv(sym_cfg) or []
                     if not ohlcv:
                         _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                        _LOG.warning(
+                            "ohlcv_fetch_empty strategy=%s symbol=%s timeframe=%s "
+                            "— signal evidence will not be written this loop. "
+                            "Check exchange connectivity.",
+                            sym_cfg.get("name"), sym_cfg.get("symbol"), timeframe,
+                        )
                         time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                         continue
                     prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]

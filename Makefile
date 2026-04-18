@@ -283,7 +283,8 @@ script-index:
 
 # Short paper run for development/testing (60s instead of 3600s)
 paper-run-short:
-	CBP_PAPER_RUNTIME_SEC=60 $(PYTHON) scripts/run_es_daily_trend_paper.py
+	# CBP_USE_SAMPLE_OHLCV=1 allows signal computation without live exchange
+	CBP_PAPER_RUNTIME_SEC=60 CBP_USE_SAMPLE_OHLCV=1 $(PYTHON) scripts/run_es_daily_trend_paper.py
 
 # Stop a running paper campaign immediately
 paper-stop-now:
