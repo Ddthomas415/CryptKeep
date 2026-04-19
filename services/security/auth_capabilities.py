@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 import importlib
+import logging
 import os
 from typing import Any
 
 from services.security.auth_runtime_guard import auth_runtime_guard_status
+
+_LOG = logging.getLogger(__name__)
+
+try:
+    from dashboard.services.view_data import get_settings_view
+except Exception:
+    try:
+        from services.market_data.local_data_reader import get_settings_view
+    except Exception:  # pragma: no cover - dashboard settings are optional at runtime
+        get_settings_view = None
 
 _AUTH_SCOPE_LABELS = {
     "local_private_only": "Local/private only",
@@ -49,9 +60,7 @@ def _security_policy() -> dict[str, Any]:
     remote_requires_mfa = True
     outer_access_control = ""
     try:
-        from services.market_data.local_data_reader import get_settings_view
-
-        data = get_settings_view() or {}
+        data = get_settings_view() or {} if callable(get_settings_view) else {}
         security = data.get("security") if isinstance(data.get("security"), dict) else {}
         raw_scope = str(security.get("auth_scope") or auth_scope).strip().lower()
         if raw_scope in _AUTH_SCOPE_LABELS:
