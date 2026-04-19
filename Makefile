@@ -179,16 +179,7 @@ kernel-demote:
 
 # Stop all paper campaign processes cleanly
 paper-stop:
-	$(PYTHON) - <<'PY'
-	import subprocess, pathlib
-	flags = pathlib.Path(".cbp_state/runtime/flags")
-	flags.mkdir(parents=True, exist_ok=True)
-	for stop_flag in ["paper_strategy_evidence.stop", "strategy_runner.stop", "paper_engine.stop", "tick_publisher.stop"]:
-		(flags / stop_flag).write_text("stop\n", encoding="utf-8")
-	for proc_name in ["run_es_daily_trend_paper", "run_strategy_runner", "run_paper_engine", "run_tick_publisher"]:
-		subprocess.run(["pkill", "-f", f"{proc_name}.py"], capture_output=True)
-	print("Paper campaign stop signals sent. Wait 5s for clean shutdown.")
-	PY
+	$(PYTHON) scripts/paper_stop.py
 
 # Status of all paper campaign processes
 paper-ps:
@@ -288,19 +279,4 @@ paper-run-short:
 
 # Stop a running paper campaign immediately
 paper-stop-now:
-	$(PYTHON) - <<'PY'
-	import subprocess, pathlib, time
-	flags = pathlib.Path(".cbp_state/runtime/flags")
-	flags.mkdir(parents=True, exist_ok=True)
-	for stop_flag in ["paper_strategy_evidence.stop", "strategy_runner.stop",
-	                  "paper_engine.stop", "tick_publisher.stop"]:
-	    (flags / stop_flag).write_text("stop\n", encoding="utf-8")
-	    print(f"Stop flag written: {stop_flag}")
-	time.sleep(3)
-	for proc in ["run_es_daily_trend_paper", "run_strategy_runner",
-	             "run_paper_engine", "run_tick_publisher"]:
-	    r = subprocess.run(["pkill", "-f", f"{proc}.py"], capture_output=True)
-	    if r.returncode == 0:
-	        print(f"Killed: {proc}")
-	print("Done. Check: make paper-ps")
-	PY
+	$(PYTHON) scripts/paper_stop.py --force-now
