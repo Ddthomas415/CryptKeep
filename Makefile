@@ -178,9 +178,6 @@ kernel-demote:
 # ES Daily Trend v1 — paper run and promotion gates
 
 # Stop all paper campaign processes cleanly
-paper-stop:
-	$(PYTHON) scripts/paper_stop.py
-
 # Status of all paper campaign processes
 paper-ps:
 	@ps aux | grep -E "run_es_daily_trend|run_tick_publisher|run_strategy_runner|run_paper_engine" | grep -v grep || echo "No paper campaign processes running"
