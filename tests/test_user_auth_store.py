@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+
 from services.security import user_auth_store as uas
 
 
@@ -12,6 +14,38 @@ class _FakeKeyring:
 
     def set_password(self, service: str, account: str, password: str):
         self._db[(str(service), str(account))] = str(password)
+
+
+def test_lockout_store_round_trip_does_not_deadlock(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path / "state"))
+    monkeypatch.setattr(uas, "_LOCKOUT_TABLE_INIT", False, raising=False)
+
+    result: dict[str, object] = {}
+    errors: list[BaseException] = []
+
+    def _run() -> None:
+        try:
+            result["first"] = uas.record_failed_login("admin", threshold=2, lockout_seconds=300)
+            result["second"] = uas.record_failed_login("admin", threshold=2, lockout_seconds=300)
+            result["status_before_clear"] = uas.get_lockout_status("admin")
+            result["cleared"] = uas.clear_failed_logins("admin")
+            result["status_after_clear"] = uas.get_lockout_status("admin")
+        except BaseException as exc:  # pragma: no cover - assertion uses captured list
+            errors.append(exc)
+
+    worker = threading.Thread(target=_run, daemon=True)
+    worker.start()
+    worker.join(2.0)
+
+    assert not worker.is_alive(), "lockout store operations deadlocked"
+    assert errors == []
+    assert result["first"]["ok"] is True
+    assert result["second"]["ok"] is True
+    assert result["second"]["fail_count"] == 2
+    assert result["status_before_clear"]["locked"] is True
+    assert result["cleared"]["ok"] is True
+    assert result["status_after_clear"]["locked"] is False
+    assert result["status_after_clear"]["fail_count"] == 0
 
 
 def test_upsert_and_verify_keychain_user(monkeypatch):
