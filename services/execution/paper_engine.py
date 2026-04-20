@@ -91,7 +91,7 @@ class PaperEngine:
                 if hasattr(ex, "close"):
                     ex.close()
             except Exception as _silent_err:
-                print("ORDER/FILL EVIDENCE ERROR:", repr(_silent_err))
+                _LOG.debug("suppressed: %s", _silent_err)
 
     def submit_order(
         self,
@@ -163,7 +163,7 @@ class PaperEngine:
                     order_id=oid,
                 )
         except Exception as _silent_err:
-            print("ORDER/FILL EVIDENCE ERROR:", repr(_silent_err))
+            _LOG.debug("suppressed: %s", _silent_err)
 
         return {"ok": True, "idempotent": False, "order": out}
 
@@ -234,7 +234,7 @@ class PaperEngine:
                     order_id=str(order.get("order_id", "")),
                 )
         except Exception as _silent_err:
-            print("ORDER/FILL EVIDENCE ERROR:", repr(_silent_err))  # evidence logging never blocks execution
+            _LOG.debug("suppressed: %s", _silent_err)  # evidence logging never blocks execution
 
         return {"ok": True, "fill_id": fill_id, "fee": fee}
 
