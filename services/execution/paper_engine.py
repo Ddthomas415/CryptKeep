@@ -35,7 +35,7 @@ def _cfg() -> dict:
         "slippage_bps": _float_cfg("slippage_bps", 5.0),
         "use_ccxt_fallback": _bool_cfg("use_ccxt_fallback", True),
         "max_order_qty": _float_cfg("max_order_qty", 1e9),
-        "strategy_id": str(p.get("strategy_id") or "es_daily_trend_v1"),
+        "strategy_id": str(p.get("strategy_id") or ""),
     }
 
 class PaperEngine:
