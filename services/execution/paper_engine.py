@@ -163,7 +163,7 @@ class PaperEngine:
                     order_id=oid,
                 )
         except Exception as _silent_err:
-            _LOG.debug("suppressed: %s", _silent_err)
+            _LOG.warning("order evidence logging failed strategy_id=%s: %s", self.cfg.get("strategy_id",""), _silent_err)
 
         return {"ok": True, "idempotent": False, "order": out}
 
@@ -234,7 +234,7 @@ class PaperEngine:
                     order_id=str(order.get("order_id", "")),
                 )
         except Exception as _silent_err:
-            _LOG.debug("suppressed: %s", _silent_err)  # evidence logging never blocks execution
+            _LOG.warning("fill evidence logging failed strategy_id=%s order_id=%s: %s", self.cfg.get("strategy_id",""), order.get("order_id",""), _silent_err)
 
         return {"ok": True, "fill_id": fill_id, "fee": fee}
 
