@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from services.risk.live_risk_gates_phase82 import LiveGateDB, LiveRiskGates, LiveRiskLimits  # canonical
+from services.risk.live_risk_gates import LiveGateDB, LiveRiskGates, LiveRiskLimits
 
 
 @dataclass(frozen=True)
@@ -22,7 +22,9 @@ def evaluate_live_intent(
 ) -> GateDecision:
     cfg_limits = limits or LiveRiskLimits.from_trading_yaml()
     if cfg_limits is None:
-        return GateDecision(ok=True, reason="limits_unconfigured", details={})
+        import logging
+        logging.getLogger(__name__).critical("RISK_GATE_FAIL_CLOSED: limits_unconfigured")
+        return GateDecision(ok=False, reason="limits_unconfigured", details={})
 
     gate = LiveRiskGates(limits=cfg_limits, db=LiveGateDB(exec_db=exec_db_path))
     allowed, reason, details = gate.check_live(it=dict(intent or {}), realized_pnl_usd=float(realized_pnl_usd))

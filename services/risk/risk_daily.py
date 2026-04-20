@@ -34,6 +34,7 @@ class RiskDailyDB:
         c.row_factory = sqlite3.Row
         c.execute("PRAGMA journal_mode=WAL;")
         c.execute("PRAGMA synchronous=NORMAL;")
+        c.execute("PRAGMA busy_timeout=15000;")
         return c
 
     def _ensure(self) -> None:
