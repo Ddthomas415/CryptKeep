@@ -11,7 +11,7 @@ import os
 # yaml is optional (PyYAML)
 
 from services.os.app_paths import data_dir, ensure_dirs
-from services.risk.live_risk_gates_phase82 import LiveGateDB  # canonical
+from services.risk.live_risk_gates import LiveGateDB  # canonical
 
 
 def _admin_armed() -> bool:

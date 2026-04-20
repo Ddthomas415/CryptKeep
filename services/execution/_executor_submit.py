@@ -29,7 +29,7 @@ from services.journal.fill_sink import CanonicalFillSink
 from services.market_data.tick_reader import get_best_bid_ask_last
 from services.os.app_paths import data_dir, ensure_dirs
 from services.preflight.preflight import run_preflight
-from services.risk.live_risk_gates_phase82 import (
+from services.risk.live_risk_gates import (
     LiveRiskLimits,
     LiveGateDB,
     LiveRiskGates,
