@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sqlite3
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, List, Dict, Any
@@ -26,7 +27,9 @@ CREATE TABLE IF NOT EXISTS paper_orders (
   qty REAL NOT NULL,
   limit_price REAL,
   status TEXT NOT NULL,
-  reject_reason TEXT
+  reject_reason TEXT,
+  strategy_id TEXT,
+  meta_json TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_po_ts ON paper_orders(ts);
 CREATE INDEX IF NOT EXISTS idx_po_symbol ON paper_orders(symbol);
@@ -71,6 +74,12 @@ def _connect() -> sqlite3.Connection:
         s = stmt.strip()
         if s:
             con.execute(s)
+
+    cols = [r[1] for r in con.execute("PRAGMA table_info(paper_orders)").fetchall()]
+    if "strategy_id" not in cols:
+        con.execute("ALTER TABLE paper_orders ADD COLUMN strategy_id TEXT")
+    if "meta_json" not in cols:
+        con.execute("ALTER TABLE paper_orders ADD COLUMN meta_json TEXT")
     return con
 
 class PaperTradingSQLite:
@@ -96,8 +105,8 @@ class PaperTradingSQLite:
         con = _connect()
         try:
             con.execute(
-                "INSERT OR REPLACE INTO paper_orders(order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason) "
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT OR REPLACE INTO paper_orders(order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason, strategy_id, meta_json) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     str(row["order_id"]),
                     str(row["client_order_id"]),
@@ -111,6 +120,8 @@ class PaperTradingSQLite:
                     row.get("limit_price"),
                     str(row["status"]),
                     row.get("reject_reason"),
+                    row.get("strategy_id"),
+                    json.dumps(row.get("meta")) if row.get("meta") is not None else None,
                 ),
             )
         finally:
@@ -120,7 +131,7 @@ class PaperTradingSQLite:
         con = _connect()
         try:
             r = con.execute(
-                "SELECT order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason "
+                "SELECT order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason, strategy_id, meta_json "
                 "FROM paper_orders WHERE client_order_id=?",
                 (str(client_order_id),),
             ).fetchone()
@@ -130,6 +141,7 @@ class PaperTradingSQLite:
                 "order_id": r[0], "client_order_id": r[1], "created_ts": r[2], "ts": r[3],
                 "venue": r[4], "symbol": r[5], "side": r[6], "order_type": r[7],
                 "qty": r[8], "limit_price": r[9], "status": r[10], "reject_reason": r[11],
+                "strategy_id": r[12], "meta": json.loads(r[13]) if r[13] else None,
             }
         finally:
             con.close()
@@ -144,7 +156,7 @@ class PaperTradingSQLite:
     def list_orders(self, limit: int = 500, status: str | None = None) -> List[Dict[str, Any]]:
         con = _connect()
         try:
-            q = ("SELECT order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason "
+            q = ("SELECT order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason, strategy_id, meta_json "
                  "FROM paper_orders")
             args = []
             if status:
@@ -158,6 +170,7 @@ class PaperTradingSQLite:
                     "order_id": r[0], "client_order_id": r[1], "created_ts": r[2], "ts": r[3],
                     "venue": r[4], "symbol": r[5], "side": r[6], "order_type": r[7],
                     "qty": r[8], "limit_price": r[9], "status": r[10], "reject_reason": r[11],
+                    "strategy_id": r[12], "meta": json.loads(r[13]) if r[13] else None,
                 }
                 for r in rows
             ]
@@ -231,7 +244,7 @@ class PaperTradingSQLite:
         con = _connect()
         try:
             r = con.execute(
-                "SELECT order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason "
+                "SELECT order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason, strategy_id, meta_json "
                 "FROM paper_orders WHERE order_id=?",
                 (str(order_id),),
             ).fetchone()
@@ -241,6 +254,7 @@ class PaperTradingSQLite:
                 "order_id": r[0], "client_order_id": r[1], "created_ts": r[2], "ts": r[3],
                 "venue": r[4], "symbol": r[5], "side": r[6], "order_type": r[7],
                 "qty": r[8], "limit_price": r[9], "status": r[10], "reject_reason": r[11],
+                "strategy_id": r[12], "meta": json.loads(r[13]) if r[13] else None,
             }
         finally:
             con.close()

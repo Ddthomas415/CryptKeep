@@ -35,6 +35,7 @@ def _cfg() -> dict:
         "slippage_bps": _float_cfg("slippage_bps", 5.0),
         "use_ccxt_fallback": _bool_cfg("use_ccxt_fallback", True),
         "max_order_qty": _float_cfg("max_order_qty", 1e9),
+        "strategy_id": str(p.get("strategy_id") or "es_daily_trend_v1"),
     }
 
 class PaperEngine:
@@ -90,7 +91,7 @@ class PaperEngine:
                 if hasattr(ex, "close"):
                     ex.close()
             except Exception as _silent_err:
-                _LOG.debug("suppressed: %s", _silent_err)
+                print("ORDER/FILL EVIDENCE ERROR:", repr(_silent_err))
 
     def submit_order(
         self,
@@ -103,6 +104,8 @@ class PaperEngine:
         qty: float,
         limit_price: float | None = None,
         ts: str | None = None,
+        strategy_id: str | None = None,
+        meta: dict | None = None,
     ) -> dict:
         existing = self.db.get_order_by_client_id(client_order_id)
         if existing:
@@ -137,6 +140,8 @@ class PaperEngine:
             "limit_price": limit_price,
             "status": "new",
             "reject_reason": None,
+            "strategy_id": strategy_id or self.cfg.get("strategy_id"),
+            "meta": meta,
         }
         self.db.insert_order(row)
         self.evaluate_open_orders()
@@ -144,7 +149,7 @@ class PaperEngine:
 
         # Evidence logging — best-effort, never blocks execution
         try:
-            strategy_id = str(self.cfg.get("strategy_id", ""))
+            strategy_id = str(self.cfg.get("strategy_id") or "")
             if strategy_id:
                 from services.strategies.evidence_logger import EvidenceLogger
                 EvidenceLogger(strategy_id).log_order(
@@ -158,7 +163,7 @@ class PaperEngine:
                     order_id=oid,
                 )
         except Exception as _silent_err:
-            _LOG.debug("suppressed: %s", _silent_err)
+            print("ORDER/FILL EVIDENCE ERROR:", repr(_silent_err))
 
         return {"ok": True, "idempotent": False, "order": out}
 
@@ -207,7 +212,7 @@ class PaperEngine:
 
         # Evidence logging — strategy-specific, best-effort
         try:
-            strategy_id = str(order.get("meta", {}).get("selected_strategy") or "")
+            strategy_id = str(self.cfg.get("strategy_id") or (order.get("meta") or {}).get("selected_strategy") or order.get("strategy_id") or "")
             if strategy_id:
                 from services.strategies.evidence_logger import EvidenceLogger
                 intended = float(order.get("price") or price)
@@ -229,7 +234,7 @@ class PaperEngine:
                     order_id=str(order.get("order_id", "")),
                 )
         except Exception as _silent_err:
-            _LOG.debug("suppressed: %s", _silent_err)  # evidence logging never blocks execution
+            print("ORDER/FILL EVIDENCE ERROR:", repr(_silent_err))  # evidence logging never blocks execution
 
         return {"ok": True, "fill_id": fill_id, "fee": fee}
 
