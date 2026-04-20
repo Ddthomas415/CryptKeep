@@ -1985,3 +1985,10 @@
 - Makefile cleaned
 - Risk gates hardened with busy_timeout
 - Core paper runtime stable
+
+## Stabilized 2026-04-20
+- Signal evidence contract closed and enforced in repo_doctor
+- Attic removed
+- Makefile cleaned
+- Risk gates hardened with busy_timeout
+- Core paper runtime stable
