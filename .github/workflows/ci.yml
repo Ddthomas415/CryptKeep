@@ -91,6 +91,10 @@ jobs:
           print(f"Evidence files: {[f.name for f in files]}")
           session_files = [f for f in files if f.name.startswith("session_")]
           assert session_files, "No session evidence written — campaign did not complete"
+          signal_files = [f for f in files if f.name.startswith("signal_")]
+          order_files = [f for f in files if f.name.startswith("order_")]
+          assert signal_files, "No signal evidence — signal pipeline broken"
+          assert order_files, "No order evidence — order pipeline broken"
           print("paper-run-short: OK")
           PY
 
