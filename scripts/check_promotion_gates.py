@@ -33,7 +33,7 @@ from services.control.cognitive_budget import budget_summary
 from services.os.app_paths import data_dir
 
 STRATEGY_ID = "es_daily_trend_v1"
-CONFIG_PATH  = Path("configs/strategies/es_daily_trend_v1.yaml")
+REPO_ROOT = Path(__file__).resolve().parents[1]; CONFIG_PATH = REPO_ROOT / "configs/strategies/es_daily_trend_v1.yaml"
 
 
 # ---------------------------------------------------------------------------
