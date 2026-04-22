@@ -182,8 +182,22 @@ class ExchangeClient:
             if extra_params:
                 params.update(extra_params)
 
+            context = ExecutionContext(
+                mode="live",
+                authority="LIVE_SUBMIT_OWNER",
+                origin="exchange_client.submit_order",
+            )
+
             # Preserve the centralized raw-order authority.
-            o = place_order(ex, symbol, order_type, side, float(amount), price, params, context=context)
+            place_order_sig = inspect.signature(place_order)
+            supports_context = any(
+                param.kind is inspect.Parameter.VAR_KEYWORD or name == "context"
+                for name, param in place_order_sig.parameters.items()
+            )
+            if supports_context:
+                o = place_order(ex, symbol, order_type, side, float(amount), price, params, context=context)
+            else:
+                o = place_order(ex, symbol, order_type, side, float(amount), price, params)
 
             if intent_id is not None:
                 store.mark_submitted(

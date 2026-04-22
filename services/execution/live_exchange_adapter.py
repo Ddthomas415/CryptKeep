@@ -84,6 +84,7 @@ class LiveExchangeAdapter:
             client_order_id=client_order_id,
             params=params,
             allow_extra_params=allow_extra_params,
+            context=context,
         )
 
     def submit_order(
@@ -114,6 +115,8 @@ class LiveExchangeAdapter:
             params=dict(params or {}),
             allow_extra=bool(allow_extra_params),
         )
+        if context is None:
+            return place_order(self.ex, sym, order_type, side, float(qty), price, ccxt_params)
         return place_order(self.ex, sym, order_type, side, float(qty), price, ccxt_params, context=context)
 
     def cancel_order(self, canonical_symbol: str, exchange_order_id: str) -> dict:
