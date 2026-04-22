@@ -1,6 +1,13 @@
 from __future__ import annotations
 
 import importlib.util
+import pytest
+
+if importlib.util.find_spec("phase1_research_copilot") is None:
+    pytest.skip("phase1_research_copilot package not present in this repo checkout", allow_module_level=True)
+
+
+import importlib.util
 import sys
 from argparse import Namespace
 from pathlib import Path
