@@ -87,6 +87,22 @@ class TestSchemaValidation:
         result = _validate_schema(records, required, "signal")
         assert result["ok"] is True
 
+    def test_present_null_fields_still_pass_schema(self, tmp_path):
+        from scripts.check_promotion_gates import _validate_schema
+        records = [{
+            "timestamp": "2026-01-01",
+            "price": 100.0,
+            "sma_200": None,
+            "atr_ratio": None,
+            "signal_direction": "flat",
+            "regime_flag": "insufficient_data",
+        }]
+        required = ["timestamp", "price", "sma_200", "atr_ratio", "signal_direction", "regime_flag"]
+        result = _validate_schema(records, required, "signal")
+        assert result["ok"] is True
+        assert result["bad_records"] == 0
+        assert result["missing_fields"] == []
+
 
 class TestGateLogic:
     def _ev_dir(self):

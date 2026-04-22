@@ -490,7 +490,9 @@ import sqlite3
 import threading
 from services.os.app_paths import data_dir
 
-_LOCKOUT_DB_LOCK = threading.Lock()
+# Nested lockout helpers re-enter this lock via _lockout_conn(); use RLock to
+# serialize SQLite access without self-deadlocking the caller thread.
+_LOCKOUT_DB_LOCK = threading.RLock()
 _LOCKOUT_TABLE_INIT = False
 
 

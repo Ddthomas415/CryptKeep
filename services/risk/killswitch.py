@@ -11,7 +11,23 @@ import os
 # yaml is optional (PyYAML)
 
 from services.os.app_paths import data_dir, ensure_dirs
-from services.risk.live_risk_gates_phase82 import LiveGateDB  # canonical
+from services.risk.live_risk_gates import LiveGateDB  # canonical
+
+
+def _admin_armed() -> bool:
+    """
+    Treat the canonical admin/runtime kill switch as part of the effective
+    execution safety boundary.
+    """
+    try:
+        from services.admin.kill_switch import get_state as get_admin_kill_switch_state
+
+        state = get_admin_kill_switch_state()
+        if isinstance(state, dict):
+            return bool(state.get("armed", True))
+    except Exception as exc:
+        _LOG.debug("killswitch_admin_read_failed: %s", exc)
+    return True
 
 def _exec_db_from_trading_yaml(path: str = "config/trading.yaml") -> str:
     # Prefer env override
@@ -58,6 +74,8 @@ def is_on() -> bool:
     """
     Module-level convenience: return True if kill switch is ON.
     """
+    if _admin_armed():
+        return True
     try:
         return bool(KillSwitch.from_config().is_on())
     except Exception:

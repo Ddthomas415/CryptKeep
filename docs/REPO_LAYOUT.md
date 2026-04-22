@@ -1,6 +1,6 @@
 # Repo layout (Gold)
 
-Canonical top-level dirs:
+Primary engineering roots for the supported baseline:
 - adapters/
 - core/
 - dashboard/
@@ -10,6 +10,18 @@ Canonical top-level dirs:
 - services/
 - storage/
 - tests/
+
+Additional intentional top-level roots allowed by `CANON`, `CANON.txt`, and
+`tools/repo_doctor.py`:
+- companion or sidecar workspaces such as `crypto-trading-ai/` and `phase1_research_copilot/`
+- release or packaging surfaces such as `installers/`, `packaging/`, and `src-tauri/`
+- runtime-adjacent roots such as `config/`, `configs/`, `data/`, `assets/`, `attic/`, and `build/`
+
+Allowed in the repo root does not mean part of the required root install/run/test baseline.
+
+`tools/repo_doctor.py` reflects that split:
+- `supported_baseline_present` reports the documented baseline roots
+- `allowed_top_level_present` reports the broader intentional root allowlist used by `--strict`
 
 Backtest code location:
 - there is no canonical top-level `backtest/` root in the current tree
@@ -57,7 +69,8 @@ Non-source workspace material:
 
 Validation entrypoint:
 - root `/.pre-commit-config.yaml` is intentionally minimal
-- active git hooks are currently installed via `core.hooksPath` and point at `crypto-trading-ai/.githooks/pre-commit`
+- root `/.pre-commit-config.yaml` is the supported hook source of truth for the baseline
+- no nested `crypto-trading-ai/` hook path is required for the supported baseline
 - repo-level validation commands live at the main repo root (`make validate-quick`, `python3 scripts/validate.py --quick`)
 
 Managed evidence symbol scope:

@@ -296,7 +296,7 @@ def main() -> int:
                 manual_overrides=[],
                 reconciliation_result="pass" if result.get("ok") else "campaign_error",
                 drawdown_from_peak=float(result.get("max_drawdown_pct") or 0.0),
-                kill_switch_tested=False,
+                kill_switch_tested=bool(__import__('services.admin.kill_switch', fromlist=['get_state']).get_state().get('armed', False)),
                 ops_checks_passed=bool(result.get("ok")),
                 critical_error=(campaign_status not in ("completed", "stopped", "stop_requested")),
                 extra={

@@ -42,26 +42,47 @@ def _merge_dicts(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any
 
 
 def _normalize_runtime_trading_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    import logging
+    import json
+    from services.os.app_paths import config_dir
+    _LOG = logging.getLogger(__name__)
     out = dict(cfg)
     live = dict(out.get("live") or {})
     execution = dict(out.get("execution") or {})
     preflight = dict(out.get("preflight") or {})
 
     if "live_enabled" in execution:
-        live["enabled"] = execution.get("live_enabled")
+        new_val = execution.get("live_enabled")
+        if live.get("enabled") != new_val:
+            _LOG.debug("[CONFIG AUTHORITY] live.enabled <- execution.live_enabled = %s", new_val)
+        live["enabled"] = new_val
     elif "enabled" in live:
-        execution["live_enabled"] = live.get("enabled")
+        new_val = live.get("enabled")
+        if execution.get("live_enabled") != new_val:
+            _LOG.debug("[CONFIG AUTHORITY] execution.live_enabled <- live.enabled = %s", new_val)
+        execution["live_enabled"] = new_val
 
     if not out.get("symbols") and isinstance(preflight.get("symbols"), list):
+        _LOG.debug("[CONFIG AUTHORITY] symbols injected from preflight: %s", preflight.get("symbols"))
         out["symbols"] = list(preflight.get("symbols") or [])
 
     if not live.get("exchange_id"):
         venues = preflight.get("venues")
         if isinstance(venues, list) and venues:
+            _LOG.debug("[CONFIG AUTHORITY] exchange_id injected from preflight.venues[0]: %s", venues[0])
             live["exchange_id"] = venues[0]
 
     out["live"] = live
     out["execution"] = execution
+
+    # Write canonical snapshot for audit and single source of truth
+    try:
+        canonical_path = config_dir() / "canonical_runtime.json"
+        canonical_path.write_text(json.dumps(out, indent=2, default=str))
+        _LOG.debug("[CONFIG AUTHORITY] Canonical config written to %s", canonical_path)
+    except Exception as e:
+        _LOG.warning("[CONFIG AUTHORITY] Could not write canonical snapshot: %s", e)
+
     return out
 
 

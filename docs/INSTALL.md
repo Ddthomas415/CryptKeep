@@ -18,7 +18,8 @@ Sidecar workspaces such as `crypto-trading-ai/`, `src-tauri/`, and packaging/rel
    - `launchers\CryptoBotPro.bat`
 
 ## Notes
-- Install git hooks for this repo with `bash crypto-trading-ai/scripts/install_git_hooks.sh`.
+- Git hooks: the root `.pre-commit-config.yaml` is the supported source of truth for this repo.
+- No nested `crypto-trading-ai/` hook install step is required for the supported baseline.
 - Desktop launcher prefers http://localhost:8502 and automatically moves to the next free local port when 8502 is busy.
 - CLI helpers:
   - `./run_dashboard.sh`

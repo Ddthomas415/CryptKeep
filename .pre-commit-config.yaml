@@ -2,9 +2,8 @@ repos: []
 
 # Root repo note:
 # - This file is intentionally minimal.
-# - Active git-hook behavior is installed via `core.hooksPath` and currently
-#   points at `crypto-trading-ai/.githooks/pre-commit`.
-# - Install that hook path with:
-#   `bash crypto-trading-ai/scripts/install_git_hooks.sh`
+# - This root file is the hook source of truth for the supported baseline.
+# - No nested `crypto-trading-ai/` hook path is required for this repo.
+# - If you use pre-commit locally, install it from the repo root.
 # - Repo-level validation entrypoints remain the Makefile commands and
 #   `python3 scripts/validate.py --quick`.

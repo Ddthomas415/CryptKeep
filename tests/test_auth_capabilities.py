@@ -3,6 +3,40 @@ from __future__ import annotations
 from services.security import auth_capabilities as ac
 
 
+def test_security_policy_uses_module_level_settings_reader(monkeypatch):
+    monkeypatch.setattr(
+        ac,
+        "get_settings_view",
+        lambda: {
+            "security": {
+                "auth_scope": "remote_public_candidate",
+                "remote_access_requires_mfa": True,
+                "outer_access_control": "vpn",
+            }
+        },
+        raising=False,
+    )
+
+    out = ac._security_policy()
+
+    assert out["auth_scope"] == "remote_public_candidate"
+    assert out["remote_access_requires_mfa"] is True
+    assert out["outer_access_control"] == "vpn"
+
+
+def test_security_policy_fails_closed_when_settings_reader_raises(monkeypatch):
+    def _boom():
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(ac, "get_settings_view", _boom, raising=False)
+
+    out = ac._security_policy()
+
+    assert out["auth_scope"] == "local_private_only"
+    assert out["remote_access_requires_mfa"] is True
+    assert out["outer_access_control"] == ""
+
+
 def test_auth_capabilities_prefers_keychain(monkeypatch):
     monkeypatch.setattr(ac, "_keychain_available", lambda: (True, None))
     monkeypatch.setattr(

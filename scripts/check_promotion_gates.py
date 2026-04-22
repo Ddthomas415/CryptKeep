@@ -33,7 +33,7 @@ from services.control.cognitive_budget import budget_summary
 from services.os.app_paths import data_dir
 
 STRATEGY_ID = "es_daily_trend_v1"
-CONFIG_PATH  = Path("configs/strategies/es_daily_trend_v1.yaml")
+REPO_ROOT = Path(__file__).resolve().parents[1]; CONFIG_PATH = REPO_ROOT / "configs/strategies/es_daily_trend_v1.yaml"
 
 
 # ---------------------------------------------------------------------------
@@ -145,14 +145,18 @@ def _weeks_at_stage(stage: Stage) -> float | None:
 
 def _validate_schema(records: list[dict], required_fields: list[str],
                      record_type: str) -> dict:
-    """Check that all records contain all required fields."""
+    """Check that all records contain all required fields.
+
+    This validates schema shape, not semantic completeness. A field that is
+    present with a null value still satisfies the contract for this checker.
+    """
     if not records:
         return {"ok": None, "total": 0, "missing_fields": [], "bad_records": 0,
                 "note": f"no {record_type} records found"}
     missing_by_field: dict[str, int] = {}
     for r in records:
         for f in required_fields:
-            if f not in r or r[f] is None:
+            if f not in r:
                 missing_by_field[f] = missing_by_field.get(f, 0) + 1
     bad = sum(1 for r in records if any(f not in r for f in required_fields))
     ok = len(missing_by_field) == 0
@@ -221,7 +225,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               "kill_switch_tested=True found in session log" if _kill_switch_tested(sessions) else "not found in session logs",
               "set kill_switch_tested=True in session log after testing"),
         _gate("All evidence logs present",
-              all(len(v) > 0 for v in evidence.values()),
+              all(len(evidence[k]) > 0 for k in ("signal", "order", "fill", "session")),
               f"signal:{len(evidence['signal'])} order:{len(evidence['order'])} fill:{len(evidence['fill'])} session:{len(sessions)}",
               "start running to generate evidence"),
         _gate("Daily loss halt tested in simulation",

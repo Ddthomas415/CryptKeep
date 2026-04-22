@@ -7,9 +7,12 @@ from typing import Any, Dict
 _LOG = logging.getLogger(__name__)
 
 try:
-    from services.market_data.local_data_reader import get_settings_view
-except Exception:  # pragma: no cover - dashboard settings are optional at runtime
-    get_settings_view = None
+    from dashboard.services.view_data import get_settings_view
+except Exception:
+    try:
+        from services.market_data.local_data_reader import get_settings_view
+    except Exception:  # pragma: no cover - dashboard settings are optional at runtime
+        get_settings_view = None
 
 
 def _truthy(name: str) -> bool:

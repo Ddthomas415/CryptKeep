@@ -79,7 +79,11 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
 
 
 def desired_services(state: dict[str, Any]) -> list[str]:
-    names = ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate"]
+    names = ["pipeline", "ops_signal_adapter", "ops_risk_gate"]
+    if state.get("mode") == "live" or state.get("live_enabled"):
+        names.append("intent_consumer")
+    else:
+        names.append("executor")
     if bool(state.get("with_reconcile")):
         names.append("reconciler")
     return names

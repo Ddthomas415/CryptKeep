@@ -3,6 +3,7 @@ from __future__ import annotations
 from services.risk.exit_controls import evaluate_strategy_exit_stack
 
 import json
+import logging
 import math
 import os
 import time
@@ -11,6 +12,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from services.admin.config_editor import load_user_yaml
+from services.logging.app_logger import get_logger
 from services.market_data.multi_venue_view import best_venue
 from services.market_data.symbol_router import map_symbol, normalize_symbol, normalize_venue
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
@@ -37,13 +39,18 @@ SNAPSHOTS = runtime_dir() / "snapshots"
 STOP_FILE = FLAGS / "strategy_runner.stop"
 LOCK_FILE = LOCKS / "strategy_runner.lock"
 STATUS_FILE = FLAGS / "strategy_runner.status.json"
+
+_LOG = logging.getLogger(__name__)
 TICK_SNAPSHOT_FILE = SNAPSHOTS / "system_status.latest.json"
+
+_LOG = get_logger("strategy_runner.ema_crossover_runner")
 
 _STRATEGY_ALIASES = {
     "ema_cross": "ema_cross",
     "ema_crossover": "ema_cross",
     "ema_xover": "ema_cross",
     "ema_xover_v1": "ema_cross",
+    "sma_200_trend": "sma_200_trend",
     "mean_reversion": "mean_reversion_rsi",
     "mean_reversion_rsi": "mean_reversion_rsi",
     "breakout": "breakout_donchian",
@@ -53,15 +60,18 @@ _STRATEGY_ALIASES = {
     "volatility_reversal": "volatility_reversal",
     "gap_fill": "gap_fill",
     "breakout_volume": "breakout_volume",
+    "sma_200_trend": "sma_200_trend",
 }
 _DEFAULT_PRESET_BY_STRATEGY = {
     "ema_cross": "ema_cross_default",
     "mean_reversion_rsi": "mean_reversion_default",
     "breakout_donchian": "breakout_default",
+    "sma_200_trend": "es_daily_trend_v1",
     "momentum": "momentum_default",
     "volatility_reversal": "volatility_reversal_default",
     "gap_fill": "gap_fill_default",
     "breakout_volume": "breakout_volume_default",
+    "sma_200_trend": "es_daily_trend_v1",
 }
 _EMA_FIELDS = (
     "ema_fast",
@@ -398,6 +408,24 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
     timeframe = _public_ohlcv_timeframe(cfg)
     if not timeframe:
         return []
+
+    # In sample mode, skip live fetch entirely and go straight to sample data.
+    if str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip() in ("1", "true", "yes"):
+        import json as _json
+        raw_sym = str(cfg.get("symbol") or "BTC/USDT").replace("/", "_")
+        sample = (
+            __import__("pathlib").Path(__file__).parent.parent.parent
+            / "sample_data" / "ohlcv" / f"{raw_sym}_{timeframe}.json"
+        )
+        if sample.exists():
+            try:
+                rows = _json.loads(sample.read_text())
+                _LOG.info("ohlcv_sample_primary symbol=%s rows=%d", raw_sym, len(rows))
+                return [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+            except Exception as _se:
+                _LOG.warning("ohlcv_sample_read_failed: %s", _se)
+        return []
+
     ex = None
     try:
         ex = make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True)
@@ -632,6 +660,10 @@ def run_forever() -> None:
                     prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
                     if loops % 5 == 0:
                         sdb.set(k_prices, json.dumps(prices))
+
+                    __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
+                        f"len(ohlcv)={len(ohlcv)} signal_source={sym_cfg.get('signal_source')} symbol={sym_cfg.get('symbol')}\n"
+                    )
                     if len(ohlcv) < int(cfg["min_bars"]):
                         _write_status(
                             {
@@ -655,7 +687,7 @@ def run_forever() -> None:
                         default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
-                    selected_strategy = str(selection.get("selected_strategy") or cfg.get("strategy_id") or "ema_cross")
+                    selected_strategy = str(cfg.get("strategy_id") or selection.get("selected_strategy") or "ema_cross")
                     raw_cfg = load_user_yaml()
                     raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
                     raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}

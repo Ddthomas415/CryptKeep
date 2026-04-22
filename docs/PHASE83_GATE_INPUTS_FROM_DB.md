@@ -7,7 +7,9 @@
 
 - Adds CLI:
   - `python3 scripts/show_live_gate_inputs.py`
-  - reads merged runtime trading config for `execution.db_path` and displayed live risk limits
+  - reads merged runtime trading config for `execution.db_path`
+  - displays effective kill-switch state plus the admin and DB components
+  - displays live risk limits
 
 - Patches executor (only if Phase 82 marker exists):
   - if accounting doesn't expose realized pnl today, uses JournalSignals fallback

@@ -9,6 +9,11 @@
 #   docs/DECISION_FRAMEWORK.md            — promotion logic
 #   docs/CONTROL_KERNEL.md                — runtime safety behavior
 
+# Runner history window — read by _build_runner_cfg() from top-level config
+min_bars: 210          # must be >= sma_period (200) + _required_history buffer (10)
+max_bars: 400          # OHLCV lookback window
+signal_source: public_ohlcv_1d  # daily bars for SMA-200
+
 strategy:
   id: es_daily_trend_v1
   name: "ES Daily Trend v1"

@@ -12,8 +12,21 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
+# Supported baseline roots for the documented root install/run/test path.
+SUPPORTED_BASELINE_DIRS = {
+    "adapters",
+    "core",
+    "dashboard",
+    "docker",
+    "docs",
+    "scripts",
+    "services",
+    "storage",
+    "tests",
+}
+
 # Fallback only if no canon file exists.
-DEFAULT_CANON = {
+DEFAULT_ALLOWED_TOP_LEVEL_DIRS = {
     "adapters", "assets", "attic", "backtest", "build", "config",
     # configs/ is intentional: strategy-specific runtime config with independent lifecycle
     # See configs/README.md for rationale. NOT the same as config/ (system config).
@@ -42,8 +55,10 @@ ALLOWED_TOP_FILES = {
     "install.py",
     "pyproject.toml",
     "pytest.ini",
+    "requirements-dev-pinned.txt",
     "requirements-dev.txt",
     "requirements-packaging.txt",
+    "requirements-pinned.txt",
     "requirements.txt",
     "run_dashboard.ps1",
     "run_dashboard.sh",
@@ -62,7 +77,7 @@ def _load_canon(root: Path) -> set[str]:
     One entry per line. Blank lines and # comments are ignored.
     File entries are merged into DEFAULT_CANON rather than replacing it.
     """
-    out = set(DEFAULT_CANON)
+    out = set(DEFAULT_ALLOWED_TOP_LEVEL_DIRS)
     for name in ("CANON", "CANON.txt"):
         p = root / name
         if p.exists():
@@ -81,15 +96,18 @@ def main() -> int:
     args = ap.parse_args()
 
     root = Path(".").resolve()
-    canon = _load_canon(root)
+    allowed_top_level = _load_canon(root)
 
     top_dirs = sorted([p.name for p in root.iterdir() if p.is_dir() and p.name not in {".git"}])
     top_files = sorted([p.name for p in root.iterdir() if p.is_file()])
     noncanon = [
         d for d in top_dirs
-        if d not in canon and d not in IGNORED_TOP_LEVEL_DIRS and not d.startswith(".")
+        if d not in allowed_top_level and d not in IGNORED_TOP_LEVEL_DIRS and not d.startswith(".")
     ]
     suspicious_files = [f for f in top_files if not f.startswith(".") and f not in ALLOWED_TOP_FILES]
+    baseline_present = sorted([d for d in SUPPORTED_BASELINE_DIRS if (root / d).exists()])
+    baseline_missing = sorted([d for d in SUPPORTED_BASELINE_DIRS if not (root / d).exists()])
+    allowed_present = sorted([d for d in allowed_top_level if (root / d).exists()])
 
     def find(pattern: str, limit: int = 50):
         out = []
@@ -108,7 +126,11 @@ def main() -> int:
         "root": str(root),
         "top_level_dirs": top_dirs,
         "top_level_files": top_files,
-        "canonical_present": sorted([d for d in canon if (root / d).exists()]),
+        # Backward-compatible alias for callers that still read the older field name.
+        "canonical_present": baseline_present,
+        "supported_baseline_present": baseline_present,
+        "supported_baseline_missing": baseline_missing,
+        "allowed_top_level_present": allowed_present,
         "noncanonical_top_level_dirs": noncanon,
         "suspicious_top_level_files": suspicious_files,
         "pyproject": (root / "pyproject.toml").exists(),
@@ -127,7 +149,9 @@ def main() -> int:
         print("----------")
         print("Top-level dirs:", ", ".join(report["top_level_dirs"]))
         print("Top-level files:", ", ".join(report["top_level_files"]))
-        print("Canonical present:", ", ".join(report["canonical_present"]))
+        print("Supported baseline present:", ", ".join(report["supported_baseline_present"]))
+        print("Supported baseline missing:", ", ".join(report["supported_baseline_missing"]) or "(none)")
+        print("Allowed top-level present:", ", ".join(report["allowed_top_level_present"]))
         print("Non-canonical (likely duplicates):", ", ".join(report["noncanonical_top_level_dirs"]) or "(none)")
         print("Suspicious top-level files:", ", ".join(report["suspicious_top_level_files"]) or "(none)")
         if report["sqlite_sample"]:

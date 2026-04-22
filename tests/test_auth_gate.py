@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from dashboard import auth_gate
+from services.security import user_auth_store as uas
 
 
 class _StopCalled(RuntimeError):
@@ -86,6 +87,12 @@ class _FakeStreamlit:
 
     def stop(self) -> None:
         raise _StopCalled()
+
+
+@pytest.fixture(autouse=True)
+def _isolated_auth_lockout_state(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path / "state"))
+    monkeypatch.setattr(uas, "_LOCKOUT_TABLE_INIT", False, raising=False)
 
 
 def test_get_security_timeout_minutes_reads_settings_view(monkeypatch) -> None:

@@ -21,6 +21,10 @@ def _now() -> str:
 # ---------------------------------------------------------------------------
 
 class TestEvidenceLogger:
+    def test_evidence_logger_has_no_console_print(self):
+        source = Path("services/strategies/evidence_logger.py").read_text(encoding="utf-8")
+        assert "print(" not in source
+
     def test_log_signal_writes_jsonl(self, tmp_path):
         from services.strategies.evidence_logger import EvidenceLogger
         logger = EvidenceLogger("test_strat", log_dir=tmp_path / "ev")

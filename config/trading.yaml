@@ -79,3 +79,14 @@ packaging:
 first_run:
   # If config files are missing, use the First-Run Wizard → Restore Missing Configs.
   enabled: true
+
+# Strategy runner configuration
+# These are read by _cfg() in ema_crossover_runner.py via load_user_yaml()
+strategy_runner:
+  min_bars: 210          # must be >= sma_period (200) + _required_history buffer (10)
+  max_bars: 400          # OHLCV lookback window
+  signal_source: public_ohlcv_1d  # daily bars for SMA-200 trend strategy
+  allow_first_signal_trade: true  # allow entry on first warmed signal
+
+paper_trading:
+  strategy_id: es_daily_trend_v1  # evidence logging target

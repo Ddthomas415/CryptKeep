@@ -13,6 +13,7 @@ from services.execution.client_order_id import (
     make_client_order_id as canonical_make_client_order_id,
 )
 from services.execution.place_order import place_order
+from services.execution.execution_context import ExecutionContext
 from services.execution.risk_gates import require_binance_allowed
 from services.os.app_paths import data_dir, ensure_dirs
 from storage.order_dedupe_store_sqlite import OrderDedupeStore
@@ -182,7 +183,7 @@ class ExchangeClient:
                 params.update(extra_params)
 
             # Preserve the centralized raw-order authority.
-            o = place_order(ex, symbol, order_type, side, float(amount), price, params)
+            o = place_order(ex, symbol, order_type, side, float(amount), price, params, context=context)
 
             if intent_id is not None:
                 store.mark_submitted(

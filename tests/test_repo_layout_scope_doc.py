@@ -26,6 +26,22 @@ def test_repo_layout_mentions_crypto_trading_ai_as_sidecar_workspace() -> None:
     assert "treat as sidecar workspace unless a stronger product-scope decision is documented elsewhere" in txt
 
 
+def test_repo_layout_distinguishes_supported_baseline_from_broader_allowlist() -> None:
+    txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
+    assert "Primary engineering roots for the supported baseline:" in txt
+    assert "Additional intentional top-level roots allowed by `CANON`, `CANON.txt`, and" in txt
+    assert "Allowed in the repo root does not mean part of the required root install/run/test baseline." in txt
+    assert "`supported_baseline_present` reports the documented baseline roots" in txt
+    assert "`allowed_top_level_present` reports the broader intentional root allowlist used by `--strict`" in txt
+
+
+def test_repo_layout_uses_root_pre_commit_as_hook_source_of_truth() -> None:
+    txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
+    assert "root `/.pre-commit-config.yaml` is the supported hook source of truth for the baseline" in txt
+    assert "no nested `crypto-trading-ai/` hook path is required for the supported baseline" in txt
+    assert "crypto-trading-ai/.githooks/pre-commit" not in txt
+
+
 def test_repo_layout_calls_out_overlapping_service_families() -> None:
     txt = (ROOT / "docs" / "REPO_LAYOUT.md").read_text(encoding="utf-8", errors="replace")
     assert "Overlapping service families:" in txt

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import math
 import os
+from pathlib import Path
 import pytest
 
 
@@ -43,6 +44,11 @@ def _ohlc(closes: list[float], spread: float = 1.0):
     highs = [c + spread for c in closes]
     lows  = [c - spread for c in closes]
     return highs, lows, closes
+
+
+def test_es_daily_trend_has_no_console_print():
+    source = Path("services/strategies/es_daily_trend.py").read_text(encoding="utf-8")
+    assert "print(" not in source
 
 
 # ---------------------------------------------------------------------------

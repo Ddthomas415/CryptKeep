@@ -36,28 +36,29 @@ class LiveRiskLimits:
         if not (mdl > 0 and mnt > 0 and mtd > 0 and mpn > 0):
             return None
         return LiveRiskLimits(mdl, mnt, mtd, mpn)
-
     @staticmethod
-    def from_trading_yaml(path: str = "config/trading.yaml") -> Optional["LiveRiskLimits"]:
-        ensure_dirs()
-        p = Path(path)
-        if not p.exists():
-            return None
-        cfg = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-        risk = (cfg.get("risk") or {}).get("live") or {}
-        paths = cfg.get("paths") or {}
+    def from_trading_yaml(path: str = "config/trading.yaml"):
+        """Load limits from canonical runtime config (single source of truth)."""
+        import json
+        import logging
+        from services.os.app_paths import config_dir, data_dir
+        _LOG = logging.getLogger(__name__)
         try:
-            mdl = float(risk.get("max_daily_loss_usd"))
-            mnt = float(risk.get("max_notional_per_trade_usd"))
-            mtd = int(risk.get("max_trades_per_day"))
-            mpn = float(risk.get("max_position_notional_usd"))
-        except Exception:
+            canonical_path = config_dir() / "canonical_runtime.json"
+            if not canonical_path.exists():
+                _LOG.error("Canonical config file not found at %s", canonical_path)
+                return None
+            data = json.loads(canonical_path.read_text())
+            risk_cfg = data.get("risk", {}).get("live", {})
+            mdl = float(risk_cfg.get("max_daily_loss_usd", 500.0))
+            mnt = float(risk_cfg.get("max_notional_per_trade_usd", 10000.0))
+            mtd = int(risk_cfg.get("max_trades_per_day", 20))
+            mpn = float(risk_cfg.get("max_position_notional_usd", 50000.0))
+            ksf = str(risk_cfg.get("kill_switch_file") or (data_dir() / "KILL_SWITCH.flag"))
+            return LiveRiskLimits(mdl, mnt, mtd, mpn, ksf)
+        except Exception as e:
+            _LOG.error("Failed to load canonical risk limits: %s", e)
             return None
-        if not (mdl > 0 and mnt > 0 and mtd > 0 and mpn > 0):
-            return None
-        ksf = str(paths.get("kill_switch_file") or (data_dir() / "KILL_SWITCH.flag"))
-        return LiveRiskLimits(mdl, mnt, mtd, mpn, ksf)
-
 
 def _killswitch_file_on(path: str) -> bool:
     try:

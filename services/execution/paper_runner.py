@@ -67,6 +67,8 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
                 qty=float(it.get("qty") or 0.0),
                 limit_price=(float(it["limit_price"]) if it.get("limit_price") is not None else None),
                 ts=str(it.get("ts") or _now()),
+                strategy_id=it.get("strategy_id"),
+                meta=it.get("meta"),
             )
         except Exception as e:
             qdb.update_status(intent_id, "rejected", last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)

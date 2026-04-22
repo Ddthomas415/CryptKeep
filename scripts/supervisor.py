@@ -30,7 +30,14 @@ def main():
     ap.add_argument("--timeout-sec", type=int, default=6)
     args = ap.parse_args()
     if args.cmd == "status":
-        print(json.dumps(status(), indent=2))
+        result = status()
+        if not result.get("runtime_truth"):
+            try:
+                from run_bot_runner import status as runner_status
+                result["runtime_truth"] = runner_status().get("runtime_truth", {})
+            except Exception:
+                result["runtime_truth"] = {}
+        print(json.dumps(result, indent=2))
         return 0
     if args.cmd == "start":
         out = start(
