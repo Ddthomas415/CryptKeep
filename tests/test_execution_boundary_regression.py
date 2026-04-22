@@ -11,12 +11,14 @@ def test_live_paths_use_centralized_submit_boundary() -> None:
     intent_consumer = Path("services/execution/intent_consumer.py").read_text()
     live_intent_consumer = Path("services/execution/live_intent_consumer.py").read_text()
     live_executor = Path("services/execution/live_executor.py").read_text()
+    executor_submit = Path("services/execution/_executor_submit.py").read_text()
     exchange_client = Path("services/execution/exchange_client.py").read_text()
     live_adapter = Path("services/execution/live_exchange_adapter.py").read_text()
 
     assert "ad.submit_order(" in intent_consumer
     assert "ad.submit_order(" in live_intent_consumer
-    assert "client.submit_order(" in live_executor
+    assert "from services.execution._executor_submit import submit_pending_live" in live_executor
+    assert "client.submit_order(" in executor_submit
     assert "place_order(" in exchange_client
     assert "place_order(" in live_adapter
 
@@ -50,9 +52,15 @@ def test_active_adapter_lifecycle_paths_use_centralized_lifecycle_boundary() -> 
 
 def test_live_executor_reconcile_paths_use_boundary_fetches_with_shared_session() -> None:
     live_executor = Path("services/execution/live_executor.py").read_text()
+    executor_reconcile = Path("services/execution/_executor_reconcile.py").read_text()
+    executor_shared = Path("services/execution/_executor_shared.py").read_text()
 
-    assert "fetch_open_orders_via_boundary(" in live_executor
-    assert "fetch_order_via_boundary(" in live_executor
-    assert "fetch_my_trades_via_boundary(" in live_executor
-    assert "_open_reconcile_session(client)" in live_executor
-    assert "_fetch_open_orders_for_reconcile(" in live_executor
+    assert "from services.execution._executor_reconcile import (" in live_executor
+    assert "fetch_open_orders_via_boundary," in executor_reconcile
+    assert "fetch_order_via_boundary," in executor_reconcile
+    assert "fetch_my_trades_via_boundary," in executor_reconcile
+    assert "fetch_open_orders_via_boundary(" in executor_shared
+    assert "fetch_order_via_boundary(" in executor_shared
+    assert "fetch_my_trades_via_boundary(" in executor_shared
+    assert "_open_reconcile_session(client)" in executor_reconcile
+    assert "_fetch_open_orders_for_reconcile(" in executor_reconcile

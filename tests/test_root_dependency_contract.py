@@ -31,24 +31,14 @@ def test_root_install_docs_name_requirements_txt_as_baseline_source_of_truth() -
     assert "`requirements.txt` is the dependency source of truth and is required by the installer" in install
 
 
-def test_requirements_txt_has_no_duplicate_root_baseline_entries() -> None:
+def test_requirements_txt_delegates_to_pinned_root_baseline() -> None:
     lines = [
         line.strip()
         for line in Path("requirements.txt").read_text(encoding="utf-8").splitlines()
         if line.strip() and not line.strip().startswith("#")
     ]
-    names = [_normalized_req_name(line) for line in lines]
 
-    assert names.count("httpx") == 1
-    assert names.count("fastapi") == 1
-    assert names.count("uvicorn[standard]") == 0
-    assert names.count("pydantic") == 1
-    assert names.count("gate-ws") == 0
-    assert names.count("psutil") == 0
-    assert names.count("pydantic-settings") == 0
-    assert names.count("pytest") == 0
-    assert names.count("pywebview") == 0
-    assert names.count("pyinstaller") == 0
+    assert lines == ["-r requirements-pinned.txt"]
 
 
 def test_pyproject_includes_visible_root_runtime_packages() -> None:
@@ -63,17 +53,17 @@ def test_pyproject_includes_visible_root_runtime_packages() -> None:
     assert "PyYAML>=6.0" in deps
 
 
-def test_root_requirements_and_pyproject_dependencies_are_aligned() -> None:
-    reqs = [
+def test_root_pinned_requirements_cover_visible_pyproject_dependencies() -> None:
+    pinned_reqs = [
         line.strip()
-        for line in Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+        for line in Path("requirements-pinned.txt").read_text(encoding="utf-8").splitlines()
         if line.strip() and not line.strip().startswith("#")
     ]
     deps = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["dependencies"]
+    pinned_names = {_normalized_req_name(line) for line in pinned_reqs}
+    dep_names = {_normalized_req_name(line) for line in deps}
 
-    assert {_normalized_req_line(line) for line in reqs} == {
-        _normalized_req_line(line) for line in deps
-    }
+    assert dep_names <= pinned_names
 
 
 def test_desktop_requirements_carry_packaging_only_dependencies() -> None:

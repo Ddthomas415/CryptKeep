@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import services.execution.live_exchange_adapter as live_exchange_adapter
+from services.execution.execution_context import ExecutionContext
 
 
 def _patch_adapter_deps(monkeypatch):
@@ -66,6 +67,35 @@ def test_live_exchange_adapter_market_order_omits_price(monkeypatch):
         client_order_id="cid-2",
     )
     assert seen["args"][4] is None
+
+
+def test_live_exchange_adapter_passes_context_only_when_provided(monkeypatch):
+    _patch_adapter_deps(monkeypatch)
+    seen: dict = {}
+
+    def _fake_place_order(ex, *args, **kwargs):
+        seen["kwargs"] = kwargs
+        return {"id": "ex-order-ctx"}
+
+    monkeypatch.setattr(live_exchange_adapter, "place_order", _fake_place_order)
+    ad = live_exchange_adapter.LiveExchangeAdapter("coinbase")
+    ctx = ExecutionContext(
+        mode="live",
+        authority="LIVE_SUBMIT_OWNER",
+        origin="test_live_execution_wiring",
+    )
+    out = ad.submit_order(
+        canonical_symbol="BTC/USD",
+        side="buy",
+        order_type="limit",
+        qty=0.1,
+        limit_price=100.0,
+        client_order_id="cid-ctx",
+        context=ctx,
+    )
+
+    assert out["id"] == "ex-order-ctx"
+    assert seen["kwargs"] == {"context": ctx}
 
 
 def test_live_consumers_call_adapter_submit_order():

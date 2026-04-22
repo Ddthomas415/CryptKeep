@@ -1,6 +1,7 @@
 import pytest
 
 from services.execution.client_order_id import make_client_order_id as canonical_make_client_order_id
+from services.execution.execution_context import ExecutionContext
 from services.execution.order_reconciliation import SafeToRetryAfterReconciliation
 from storage.order_dedupe_store_sqlite import OrderDedupeStore as ExecutionOrderDedupeStore
 
@@ -141,3 +142,37 @@ def test_submit_order_uses_execution_dedupe_store_and_canonical_client_id(monkey
     assert row["client_order_id"] == expected_cid
     assert row["remote_order_id"] == "ord-1"
     assert row["status"] == "submitted"
+
+
+def test_submit_order_passes_live_submit_owner_context_when_supported(monkeypatch, tmp_path):
+    from services.execution.exchange_client import ExchangeClient
+
+    captured = {}
+
+    def _fake_place_order(ex, symbol, order_type, side, amount, price, params, context=None):
+        captured["context"] = context
+        return {"id": "ord-2"}
+
+    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummySuccessExchange())
+    monkeypatch.setattr("services.execution.exchange_client.place_order", _fake_place_order)
+
+    exec_db = str(tmp_path / "execution.sqlite")
+    client = ExchangeClient("coinbase")
+
+    out = client.submit_order(
+        intent_id="intent-2",
+        client_id=None,
+        symbol="BTC/USD",
+        side="buy",
+        amount=1.0,
+        price=1.0,
+        order_type="limit",
+        exec_db=exec_db,
+    )
+
+    assert out == {"id": "ord-2"}
+    assert captured["context"] == ExecutionContext(
+        mode="live",
+        authority="LIVE_SUBMIT_OWNER",
+        origin="exchange_client.submit_order",
+    )

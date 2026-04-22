@@ -165,13 +165,13 @@ def test_sizing_helpers():
     assert details["notional"] == 100.0
 
 
-def test_risk_gates_returns_unconfigured_when_limits_missing(monkeypatch):
+def test_risk_gates_fail_closed_when_limits_missing(monkeypatch):
     import services.execution.risk_gates as risk_gates
 
     importlib.reload(risk_gates)
     monkeypatch.setattr(risk_gates.LiveRiskLimits, "from_trading_yaml", staticmethod(lambda: None))
     decision = risk_gates.evaluate_live_intent(intent={"qty": 1, "price": 100}, exec_db_path="/tmp/none.sqlite")
-    assert decision.ok is True
+    assert decision.ok is False
     assert decision.reason == "limits_unconfigured"
 
 

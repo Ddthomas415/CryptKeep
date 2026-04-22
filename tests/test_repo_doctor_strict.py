@@ -29,5 +29,5 @@ def test_repo_doctor_strict_is_clean():
     }
     assert baseline_present == canonical_present
     assert required.issubset(baseline_present)
-    assert {"attic", "build", "config", "crypto-trading-ai", "desktop", "src-tauri", "tools"}.issubset(allowed_present)
+    assert {"config", "desktop", "src-tauri", "tools"}.issubset(allowed_present)
     assert {"attic", "build", "crypto-trading-ai", "desktop", "src-tauri"}.isdisjoint(baseline_present)
