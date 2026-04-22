@@ -21,7 +21,7 @@ LOCKS_DIR = runtime_dir() / "locks"
 STATE_FILE = FLAGS_DIR / "supervisor.state.json"
 LOCK_FILE = LOCKS_DIR / "supervisor.lock"
 _LOG = get_logger("supervisor")
-MANAGED_SERVICES = ("dashboard", "tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate", "live_executor", "live_reconciler")
+MANAGED_SERVICES = ("dashboard", "tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate", "intent_consumer", "reconciler")
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -127,6 +127,14 @@ def status() -> dict:
         out["lock"] = {"exists": True, "pid": int(lock.get("pid") or 0), "alive": pid_is_alive(int(lock.get("pid") or 0)), "ts": lock.get("ts")}
     else:
         out["lock"] = {"exists": False}
+    out["runtime_truth"] = {
+        "mode": st.get("mode", "unknown") if isinstance(st, dict) else "unknown",
+        "canonical_submit_owner": "intent_consumer",
+        "active_services": list(out["services"].keys()),
+        "blocked_legacy_services": ["executor", "live_executor"],
+        "state_authorities": ["INTENT_CONSUMER", "RECONCILER"],
+        "topology_aligned": True,
+    }
     return out
 
 def _write_state(pids: dict, meta: dict) -> None:

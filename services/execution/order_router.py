@@ -6,6 +6,7 @@ from typing import Any, Dict
 from services.admin.config_editor import load_user_yaml
 from services.execution.place_order import place_order as _place_order
 from services.execution.retry_policy import backoff_sleep, is_retryable_exception
+from services.execution.execution_context import ExecutionContext
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
@@ -16,10 +17,10 @@ _PO_SIG = inspect.signature(_place_order)
 _PO_PARAM_NAMES = tuple(_PO_SIG.parameters.keys())
 
 
-def _place_order_ccxt(ex, symbol, type, side, amount, price, params):
+def _place_order_ccxt(ex, symbol, type, side, amount, price, params, context: ExecutionContext | None = None):
     # Preferred: ccxt-like positional call
     try:
-        return _place_order(ex, symbol, type, side, amount, price, params)
+        return _place_order(ex, symbol, type, side, amount, price, params, context=context)
     except TypeError:
         # Fallback: map by parameter names (if place_order signature differs)
         kw = {}
@@ -39,6 +40,8 @@ def _place_order_ccxt(ex, symbol, type, side, amount, price, params):
         if price is not None:
             _set(("price", "limit_price"), price)
         _set(("params", "extra"), params)
+        if "context" in _PO_PARAM_NAMES:
+            kw["context"] = context
         return _place_order(**kw)
 
 
@@ -64,6 +67,7 @@ def place_order_idempotent(
     idempotency_key: str,
     params: Dict[str, Any] | None = None,
     dry_run: bool = True,
+    context: ExecutionContext | None = None,
 ) -> dict:
     v = normalize_venue(venue)
     sym = normalize_symbol(symbol)
@@ -115,6 +119,7 @@ def place_order_idempotent(
                 float(amount),
                 float(price) if price is not None else None,
                 params,
+                context=context,
             )
             idem.put_success(idempotency_key, result)
             return {"ok": True, "result": result, "key": idempotency_key}
