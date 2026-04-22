@@ -82,3 +82,4 @@ If you are changing live-order behavior:
 
 - `<your-repo-path>/docs/safety/phase1_live_order_boundary.md`
 - `<your-repo-path>/docs/safety/live_mode_contract.md`
+- `<your-repo-path>/docs/checkpoints/live_mode_source_of_truth_note.md` for the post-implementation runtime truth summary

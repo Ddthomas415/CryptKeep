@@ -3,79 +3,151 @@
 Status: LANDED
 
 ## Objective
-Record the canonical live-mode source-of-truth contract for the root runtime path after the runtime/helpers were aligned.
+Record the post-implementation runtime truth layer for the hardened live path, separating what the repo already enforces from optional future runtime-truth infrastructure.
 
-## Confirmed repo truth
-The current live-mode contract says the intended direction is:
+## Runtime Truth Enforcement Layer
+You do not want more prose docs. You want the repo to make these questions mechanically answerable:
 
-- persisted live-enable source: `execution.live_enabled`
-- sandbox selector: `live.sandbox`
-- operator real-live confirmation envs:
-  - `ENABLE_LIVE_TRADING=YES`
-  - `CONFIRM_LIVE=YES`
+- who may submit live orders?
+- what services are allowed in live mode?
+- what path actually crossed the broker boundary?
+- which state-write paths are legitimate?
+- what should hard-fail if topology drifts?
 
-## Confirmed code behavior
-From `services/execution/live_arming.py`:
+This runtime truth layer should be described in two parts.
 
-- `is_live_enabled(...)` now reads only:
-  - `execution.live_enabled`
-- `set_live_enabled(...)` now writes only:
-  - `execution.live_enabled`
-- `live_enabled_and_armed()` accepts multiple arming env vars:
-  - `CBP_EXECUTION_ARMED`
-  - `CBP_LIVE_ENABLED`
-  - `CBP_EXECUTION_LIVE_ENABLED`
+## Part A — Implemented Hardening Primitives
 
-## Confirmed current state
-The canonical root-runtime contract is now singular on the active helper and final-boundary path:
+### 1. Submit authority enforcement
+Implemented now:
 
-- persisted live-enable source:
-  - `execution.live_enabled`
-- runtime arming env contract:
-  - `CBP_EXECUTION_ARMED`
-  - `CBP_LIVE_ENABLED`
-  - `CBP_EXECUTION_LIVE_ENABLED`
-- final submit boundary:
-  - `services/execution/place_order.py::_is_armed()`
-  - uses the same runtime arming env list
-- docs/tests:
-  - updated to the canonical persisted flag on the active root-runtime path
+- live submit authority is explicit
+- canonical live submit owner is `intent_consumer`
+- enforcement occurs at the true money-exit boundary: `services/execution/place_order.py`
+- unauthorized live submit attempts fail closed before any broker call
 
-## Current control surfaces
-Persisted/config surfaces:
-- `execution.live_enabled`
-- `live.sandbox`
+### 2. State-write authority enforcement
+Implemented now:
 
-Arming env surfaces:
-- `CBP_EXECUTION_ARMED`
-- `CBP_LIVE_ENABLED`
-- `CBP_EXECUTION_LIVE_ENABLED`
+- submit-side and reconcile-side state writes are guarded
+- canonical allowed authorities are:
+  - `INTENT_CONSUMER`
+  - `RECONCILER`
+- legacy and non-canonical state-write paths are blocked or demoted
 
-Compatibility/legacy arming surfaces mentioned in the contract:
-- persisted `live_arming.json` state
+This is a guarded submit-side and reconcile-side state-write authority model, not a single global state owner.
 
-## Remaining non-blocking ambiguity
-The broader repo still contains other mode-selection surfaces that are separate from this landed fix:
+### 3. Live topology alignment
+Implemented now:
 
-- some flows still reason from top-level `mode`
-- some flows still reason from `execution.executor_mode`
-- sandbox intent is still represented separately by `live.sandbox`
+- canonical live topology is:
+  - `intent_consumer` as submit owner
+  - `pipeline`, `ops_signal_adapter`, and `ops_risk_gate` as support-only services
+  - `reconciler` as reconcile-only
+- legacy executor paths are excluded from the canonical live runtime
 
-Those are real contract-shaping concerns, but they are not the same blocker as persisted live-enable truth on the canonical root-runtime path.
+### 4. Operator-visible runtime truth
+Implemented now in patched status/reporting surfaces for the hardened live topology:
 
-## Landed evidence
-- `services/execution/live_arming.py`
+- canonical submit owner
+- active services
+- blocked legacy services
+- state authority roles
+- topology-aligned status signal
+
+This should be read as status/reporting truth, not as a fully unified supervisor control plane unless the code proves that stronger claim.
+
+## Part B — Optional Next-Layer Runtime Truth Subsystem
+If you want to make future human and AI misinterpretation harder, add a dedicated runtime truth subsystem.
+
+### 1. Topology registry
+A canonical machine-readable spec declaring:
+
+- allowed live nodes
+- blocked live nodes
+- canonical submit owner
+- state authority roles
+- runtime version or fingerprint
+
+### 2. Startup verifier
+Before live services start, verify:
+
+- no disabled-in-live nodes are requested
+- exactly one canonical live submit owner is active
+- requested live topology matches the approved runtime truth spec
+
+### 3. Audit ledger
+Record structured events for:
+
+- startup verified or blocked
+- live submit allowed or blocked
+- topology mismatch
+- disabled node requested
+
+### 4. Runtime truth report
+Expose one read-only report surface showing facts like:
+
+- mode
+- canonical submit owner
+- active services
+- blocked legacy services
+- state authorities
+- topology aligned
+- runtime truth fingerprint
+
+## Design Rules
+
+### Authority rule
+- permission is based on authority
+- origin is audit and observability only
+
+### Money boundary rule
+- the true live submit boundary is `services/execution/place_order.py`
+- not merely adapter-level helper aliases
+
+### State rule
+- current hardening is about guarded write authority
+- not full single-store canonicalization yet
+
+### Topology rule
+- status surfaces should reflect the hardened live topology
+- avoid broader supervisor-control claims unless the code proves them
+
+## Future Explicit Declaration
+A declaration like this is still useful, but it is a future operator-truth enhancement, not a solved architecture statement:
+
+```python
+LIVE_STATE_TRUTH = {
+    "intent_state": "LiveIntentQueueSQLite",
+    "order_state": "LiveTradingSQLite",
+    "execution_audit": "ExecutionStore",
+    "fill_sink": "CanonicalFillSink",
+}
+```
+
+What is hardened today is write authority, not full canonical-state consolidation.
+
+## Short Version
+Build the runtime truth layer around four enforced facts:
+
+1. only `intent_consumer` may submit live orders
+2. all live submission must cross `services/execution/place_order.py`
+3. only currently approved submit-side and reconcile-side state-write paths may mutate guarded live state
+4. patched status surfaces must expose the canonical live topology and blocked legacy paths
+
+Then optionally add:
+
+- topology registry
+- startup verifier
+- audit ledger
+- runtime truth fingerprint
+
+Those make the system self-describing, but the repo already contains the core hardening primitives.
+
+## Landed Evidence
 - `services/execution/place_order.py`
-- `services/admin/live_enable_wizard.py`
-- `services/admin/live_disable_wizard.py`
-- `services/admin/resume_gate.py`
-- `tests/test_live_arming_contract.py`
-- `tests/test_live_mode_contracts.py`
-- commit landed:
-  - `49dd99c` — `execution: persist canonical live enable contract`
-
-## Risk
-High
-
-## Review lane
-Closed by independent review and publication
+- `services/execution/execution_context.py`
+- `services/supervisor/supervisor.py`
+- `tests/test_hardening_smoke.py`
+- `tests/test_execution_boundary_regression.py`
+- `tests/test_no_direct_create_order.py`
