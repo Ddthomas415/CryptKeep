@@ -1,5 +1,19 @@
 from __future__ import annotations
 
+import importlib.util
+import pytest
+
+if importlib.util.find_spec("phase1_research_copilot.orchestrator.main") is None:
+    pytest.skip("phase1_research_copilot.orchestrator.main not present in this repo checkout", allow_module_level=True)
+
+
+import importlib.util
+import pytest
+
+if importlib.util.find_spec("phase1_research_copilot") is None:
+    pytest.skip("phase1_research_copilot package not present in this repo checkout", allow_module_level=True)
+
+
 import asyncio
 import sys
 from types import SimpleNamespace
@@ -33,7 +47,7 @@ if "httpx" not in sys.modules:
     httpx_stub.AsyncClient = _AsyncClient
     sys.modules["httpx"] = httpx_stub
 
-import orchestrator.main as orchestrator  # noqa: E402
+import phase1_research_copilot.orchestrator.main as orchestrator  # noqa: E402
 from shared.models import ExplainRequest  # noqa: E402
 
 

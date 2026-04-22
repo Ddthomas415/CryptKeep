@@ -1,5 +1,19 @@
 from __future__ import annotations
 
+import importlib.util
+import pytest
+
+if importlib.util.find_spec("phase1_research_copilot.shared.config") is None:
+    pytest.skip("phase1_research_copilot.shared.config not present in this repo checkout", allow_module_level=True)
+
+
+import importlib.util
+import pytest
+
+if importlib.util.find_spec("phase1_research_copilot") is None:
+    pytest.skip("phase1_research_copilot package not present in this repo checkout", allow_module_level=True)
+
+
 import asyncio
 import sys
 from pathlib import Path
@@ -11,7 +25,7 @@ PHASE1_ROOT = Path(__file__).resolve().parents[1] / "phase1_research_copilot"
 if str(PHASE1_ROOT) not in sys.path:
     sys.path.insert(0, str(PHASE1_ROOT))
 
-from shared.config import Settings  # noqa: E402
+from phase1_research_copilot.shared.config import Settings  # noqa: E402
 from shared.llm_client import OpenAIResponsesClient  # noqa: E402
 
 

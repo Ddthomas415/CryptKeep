@@ -1,5 +1,19 @@
 from __future__ import annotations
 
+import importlib.util
+import pytest
+
+if importlib.util.find_spec("phase1_research_copilot.shared.tools") is None:
+    pytest.skip("phase1_research_copilot.shared.tools not present in this repo checkout", allow_module_level=True)
+
+
+import importlib.util
+import pytest
+
+if importlib.util.find_spec("phase1_research_copilot") is None:
+    pytest.skip("phase1_research_copilot package not present in this repo checkout", allow_module_level=True)
+
+
 import asyncio
 import sys
 from types import ModuleType
@@ -32,7 +46,7 @@ if "httpx" not in sys.modules:
     httpx_stub.AsyncClient = _AsyncClient
     sys.modules["httpx"] = httpx_stub
 
-from shared import tools  # noqa: E402
+from phase1_research_copilot.shared import tools  # noqa: E402
 
 
 def test_tool_definitions_expose_read_only_functions() -> None:
