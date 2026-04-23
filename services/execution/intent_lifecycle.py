@@ -6,6 +6,15 @@ from typing import Any
 LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_TARGETS = {"rejected", "error"}
 RECONCILER_LIVE_QUEUE_SOURCES = {"submitted"}
+LIVE_QUEUE_STATUS_TRANSITIONS = {
+    "queued": {"queued", "submitted", "rejected"},
+    "submitted": {"submitted", "filled", "canceled", "cancelled", "rejected", "error"},
+    "filled": set(),
+    "canceled": set(),
+    "cancelled": set(),
+    "rejected": set(),
+    "error": set(),
+}
 EXECUTION_STORE_STATUS_TRANSITIONS = {
     "pending": {"submitted", "canceled", "error"},
     "submitted": {"filled", "canceled", "error", "partially_filled"},
@@ -22,6 +31,14 @@ class IntentLifecycleViolation(Exception):
 
 def normalize_live_queue_status(status: Any) -> str:
     return str(status or "").strip().lower()
+
+
+def live_queue_transition_allowed(current_status: Any, next_status: Any) -> bool:
+    current = normalize_live_queue_status(current_status)
+    nxt = normalize_live_queue_status(next_status)
+    if current == nxt:
+        return True
+    return nxt in LIVE_QUEUE_STATUS_TRANSITIONS.get(current, set())
 
 
 def normalize_execution_store_status(status: Any) -> str:
