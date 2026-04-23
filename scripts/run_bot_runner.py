@@ -104,7 +104,7 @@ def command_map() -> dict[str, list[str]]:
         "intent_consumer": [py, "scripts/run_intent_consumer.py"],
         "ops_signal_adapter": [py, "scripts/run_ops_signal_adapter.py", "run"],
         "ops_risk_gate": [py, "scripts/run_ops_risk_gate_service.py", "run"],
-        "reconciler": [py, "scripts/run_intent_reconciler_safe.py"],
+        "reconciler": [py, "scripts/run_live_reconciler.py"],
     }
 
 

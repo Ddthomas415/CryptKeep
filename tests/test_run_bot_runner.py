@@ -40,6 +40,12 @@ def test_desired_state_paper_disables_reconcile():
     assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "executor"]
 
 
+def test_command_map_uses_live_reconciler_for_canonical_reconciler_service():
+    cmds = rbr.command_map()
+    assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer.py"]
+    assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler.py"]
+
+
 def test_desired_state_requires_explicit_exchange_id():
     cfg = {"execution": {"executor_mode": "paper", "live_enabled": False}, "symbols": ["BTC/USD"]}
 
