@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 
+from services.execution.intent_lifecycle import execution_store_transition_allowed
 from storage.execution_store_sqlite import ExecutionStore
 
 
@@ -13,6 +14,12 @@ def _row_status_reason(path: str, intent_id: str) -> tuple[str, str | None]:
         ).fetchone()
     assert row is not None
     return str(row[0]), row[1]
+
+
+def test_execution_store_transition_rules_are_shared_lifecycle_truth() -> None:
+    assert execution_store_transition_allowed("pending", "submitted") is True
+    assert execution_store_transition_allowed("submitted", "filled") is True
+    assert execution_store_transition_allowed("filled", "pending") is False
 
 
 def test_execution_store_blocks_status_regression_and_keeps_forward_progress(tmp_path):
