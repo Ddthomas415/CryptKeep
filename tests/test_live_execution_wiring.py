@@ -16,7 +16,7 @@ def _patch_adapter_deps(monkeypatch):
     monkeypatch.setattr(
         live_exchange_adapter,
         "make_exchange",
-        lambda venue, creds, enable_rate_limit=True: dummy_exchange,
+        lambda venue, creds, enable_rate_limit=True, sandbox=False, require_sandbox=False: dummy_exchange,
     )
     monkeypatch.setattr(live_exchange_adapter, "map_symbol", lambda venue, symbol: "BTC/USD")
     return dummy_exchange
@@ -98,16 +98,42 @@ def test_live_exchange_adapter_passes_context_only_when_provided(monkeypatch):
     assert seen["kwargs"] == {"context": ctx}
 
 
+def test_live_exchange_adapter_passes_sandbox_to_exchange_factory(monkeypatch):
+    seen: dict = {}
+
+    monkeypatch.setattr(
+        live_exchange_adapter,
+        "load_exchange_credentials",
+        lambda venue: {"apiKey": "k", "secret": "s", "password": None, "venue": venue},
+    )
+
+    def _fake_make_exchange(venue, creds, enable_rate_limit=True, sandbox=False, require_sandbox=False):
+        seen["venue"] = venue
+        seen["sandbox"] = sandbox
+        seen["require_sandbox"] = require_sandbox
+        return object()
+
+    monkeypatch.setattr(live_exchange_adapter, "make_exchange", _fake_make_exchange)
+
+    ad = live_exchange_adapter.LiveExchangeAdapter("coinbase", sandbox=True)
+
+    assert ad.creds_meta()["sandbox"] is True
+    assert seen == {"venue": "coinbase", "sandbox": True, "require_sandbox": True}
+
+
 def test_live_consumers_call_adapter_submit_order():
     root = Path(__file__).resolve().parents[1]
     targets = (
         "services/execution/intent_consumer.py",
         "services/execution/live_intent_consumer.py",
+        "services/execution/live_reconciler.py",
     )
     for rel in targets:
         txt = (root / rel).read_text(encoding="utf-8", errors="replace")
-        assert "ad.submit_order(" in txt
-        assert "resp = place_order(" not in txt
+        assert "LiveExchangeAdapter(venue, sandbox=" in txt
+        if "consumer.py" in rel:
+            assert "ad.submit_order(" in txt
+            assert "resp = place_order(" not in txt
 
 
 def test_live_exchange_adapter_compat_alias_available(monkeypatch):

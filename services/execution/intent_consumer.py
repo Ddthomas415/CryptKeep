@@ -3,10 +3,11 @@ import json
 import os
 import time
 from datetime import datetime, timezone
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
-from services.execution.live_arming import live_enabled_and_armed, live_risk_cfg
+from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
@@ -82,6 +83,13 @@ def _risk_commit(db: LiveIntentQueueSQLite, notional_est: float) -> None:
     db.set_state("risk:notional", str(notional + float(notional_est)))
 
 
+def _live_sandbox_enabled() -> bool:
+    try:
+        return is_live_sandbox(load_runtime_trading_config())
+    except Exception:
+        return True
+
+
 def run_forever() -> None:
     ensure_dirs()
     try:
@@ -153,6 +161,7 @@ def run_forever() -> None:
                 time.sleep(0.6)
                 continue
 
+            sandbox = _live_sandbox_enabled()
             for it in batch:
                 venue = normalize_venue(it["venue"])
                 symbol = normalize_symbol(it["symbol"])
@@ -182,7 +191,7 @@ def run_forever() -> None:
                 ad = None
 
                 try:
-                    ad = LiveExchangeAdapter(venue)
+                    ad = LiveExchangeAdapter(venue, sandbox=sandbox)
                     resp = ad.submit_order(
                         canonical_symbol=symbol,
                         side=it["side"],

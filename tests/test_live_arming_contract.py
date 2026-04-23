@@ -11,6 +11,13 @@ def test_is_live_enabled_accepts_only_canonical_shape():
     assert la.is_live_enabled({"live": {"enabled": "false"}}) is False
 
 
+def test_is_live_sandbox_defaults_safe_and_reads_live_sandbox():
+    assert la.is_live_sandbox({}) is True
+    assert la.is_live_sandbox({"live": {"sandbox": True}}) is True
+    assert la.is_live_sandbox({"live": {"sandbox": False}}) is False
+    assert la.is_live_sandbox({"live": {"sandbox": "false"}}) is False
+
+
 def test_set_live_enabled_writes_only_canonical_shape():
     cfg = la.set_live_enabled({"risk": {"live": {"max_trades_per_day": 5}}}, True)
 

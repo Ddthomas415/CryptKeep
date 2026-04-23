@@ -12,8 +12,9 @@ from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
 
 class LiveExchangeAdapter:
-    def __init__(self, venue: str, *, enable_rate_limit: bool = True) -> None:
+    def __init__(self, venue: str, *, enable_rate_limit: bool = True, sandbox: bool = False) -> None:
         self.venue = normalize_venue(venue)
+        self.sandbox = bool(sandbox)
         creds = load_exchange_credentials(self.venue)
         self._creds_meta = {
             k: creds.get(k)
@@ -28,6 +29,7 @@ class LiveExchangeAdapter:
                 "password_present",
             )
         }
+        self._creds_meta["sandbox"] = self.sandbox
         if not creds.get("apiKey") or not creds.get("secret"):
             raise RuntimeError(
                 f"Missing credentials for {self.venue}: "
@@ -42,6 +44,8 @@ class LiveExchangeAdapter:
                 "password": creds.get("password"),
             },
             enable_rate_limit=enable_rate_limit,
+            sandbox=self.sandbox,
+            require_sandbox=self.sandbox,
         )
 
     def creds_meta(self) -> dict:

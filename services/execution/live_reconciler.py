@@ -3,9 +3,10 @@ import json
 import os
 import time
 from datetime import datetime, timezone
+from services.config_loader import load_runtime_trading_config
 from services.admin.system_guard import get_state as get_system_guard_state, set_state as set_system_guard_state
 from services.os.app_paths import runtime_dir, ensure_dirs
-from services.execution.live_arming import live_enabled_and_armed
+from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_reconciler
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
@@ -66,10 +67,17 @@ def request_stop() -> dict:
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
 
-def _adapter_for_reconcile_pass(adapters: dict[str, LiveExchangeAdapter], venue: str) -> LiveExchangeAdapter:
+def _live_sandbox_enabled() -> bool:
+    try:
+        return is_live_sandbox(load_runtime_trading_config())
+    except Exception:
+        return True
+
+
+def _adapter_for_reconcile_pass(adapters: dict[str, LiveExchangeAdapter], venue: str, *, sandbox: bool) -> LiveExchangeAdapter:
     ad = adapters.get(venue)
     if ad is None:
-        ad = LiveExchangeAdapter(venue)
+        ad = LiveExchangeAdapter(venue, sandbox=bool(sandbox))
         adapters[venue] = ad
     return ad
 
@@ -144,6 +152,7 @@ def run_forever() -> None:
                     continue
             submitted = qdb.list_intents(limit=60, status="submitted")
             adapters: dict[str, LiveExchangeAdapter] = {}
+            sandbox = _live_sandbox_enabled()
             try:
                 for it in submitted:
                     venue = normalize_venue(it["venue"])
@@ -156,7 +165,7 @@ def run_forever() -> None:
                         _stale_after_ms = int(os.environ.get("CBP_STALE_ORDER_MS") or "300000")
                         _age_ms = max(0, _now_ms() - _submitted_ts_ms) if _submitted_ts_ms else 0
 
-                        ad = _adapter_for_reconcile_pass(adapters, venue)
+                        ad = _adapter_for_reconcile_pass(adapters, venue, sandbox=sandbox)
                         if it.get("intent_id") == "drill-stale-001":
                             _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
                         o = ad.fetch_order(symbol, ex_oid)
@@ -178,7 +187,13 @@ def run_forever() -> None:
 
                         st = str(o.get("status") or "").lower().strip() or "unknown"
                         if st in ("closed","filled"):
-                            qdb.update_status(it["intent_id"], "filled", last_error=None)
+                            update_live_queue_status_as_reconciler(
+                                qdb,
+                                it,
+                                "filled",
+                                ctx=_RECONCILER_STATE_CONTEXT,
+                                last_error=None,
+                            )
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -186,7 +201,13 @@ def run_forever() -> None:
                                 "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
                             })
                         elif st in ("canceled","cancelled"):
-                            qdb.update_status(it["intent_id"], "canceled", last_error=None)
+                            update_live_queue_status_as_reconciler(
+                                qdb,
+                                it,
+                                "canceled",
+                                ctx=_RECONCILER_STATE_CONTEXT,
+                                last_error=None,
+                            )
                         elif st in ("rejected",):
                             update_live_queue_status_as_reconciler(
                                 qdb,
