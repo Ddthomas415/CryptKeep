@@ -7,6 +7,7 @@ from services.admin.system_guard import get_state as get_system_guard_state, set
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution.live_arming import live_enabled_and_armed
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
+from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_reconciler
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
@@ -17,6 +18,7 @@ LOCKS = runtime_dir() / "locks"
 STOP_FILE = FLAGS / "live_reconciler.stop"
 LOCK_FILE = LOCKS / "live_reconciler.lock"
 STATUS_FILE = FLAGS / "live_reconciler.status.json"
+_RECONCILER_STATE_CONTEXT = LiveStateContext(authority="RECONCILER", origin="live_reconciler")
 
 
 def _ts_to_ms(v) -> int:
@@ -159,7 +161,13 @@ def run_forever() -> None:
                             _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
                         o = ad.fetch_order(symbol, ex_oid)
                         if (not o) and _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                            qdb.update_status(it["intent_id"], "error", last_error="stale_order_not_found")
+                            update_live_queue_status_as_reconciler(
+                                qdb,
+                                it,
+                                "error",
+                                ctx=_RECONCILER_STATE_CONTEXT,
+                                last_error="stale_order_not_found",
+                            )
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -180,10 +188,22 @@ def run_forever() -> None:
                         elif st in ("canceled","cancelled"):
                             qdb.update_status(it["intent_id"], "canceled", last_error=None)
                         elif st in ("rejected",):
-                            qdb.update_status(it["intent_id"], "rejected", last_error=str(o.get("rejectReason") or o.get("info") or "rejected"))
+                            update_live_queue_status_as_reconciler(
+                                qdb,
+                                it,
+                                "rejected",
+                                ctx=_RECONCILER_STATE_CONTEXT,
+                                last_error=str(o.get("rejectReason") or o.get("info") or "rejected"),
+                            )
                         elif st in ("open", "new", "partially_filled", "partiallyfilled"):
                             if _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                                qdb.update_status(it["intent_id"], "error", last_error=f"stale_open_order:{_age_ms}ms")
+                                update_live_queue_status_as_reconciler(
+                                    qdb,
+                                    it,
+                                    "error",
+                                    ctx=_RECONCILER_STATE_CONTEXT,
+                                    last_error=f"stale_open_order:{_age_ms}ms",
+                                )
                                 ldb.upsert_order({
                                     "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                     "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -227,7 +247,13 @@ def run_forever() -> None:
                     except Exception as e:
                         _err = f"{type(e).__name__}:{e}"
                         if ex_oid and _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                            qdb.update_status(it["intent_id"], "error", last_error=f"stale_order_fetch_error:{_err}")
+                            update_live_queue_status_as_reconciler(
+                                qdb,
+                                it,
+                                "error",
+                                ctx=_RECONCILER_STATE_CONTEXT,
+                                last_error=f"stale_order_fetch_error:{_err}",
+                            )
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
