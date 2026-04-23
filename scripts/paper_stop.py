@@ -8,7 +8,6 @@ import sys
 import time
 
 FLAGS_DIR = pathlib.Path(".cbp_state/runtime/flags")
-FLAGS_DIR.mkdir(parents=True, exist_ok=True)
 
 STOP_FLAGS = [
     "paper_strategy_evidence.stop",
@@ -28,6 +27,7 @@ def alive() -> list[str]:
             if subprocess.run(["pgrep", "-f", f"{p}.py"], capture_output=True).returncode == 0]
 
 def write_flags() -> None:
+    FLAGS_DIR.mkdir(parents=True, exist_ok=True)
     for flag in STOP_FLAGS:
         (FLAGS_DIR / flag).write_text("stop\n", encoding="utf-8")
 
