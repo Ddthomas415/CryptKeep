@@ -1,10 +1,13 @@
+from unittest.mock import patch
+
 import services.execution.intent_store as store
 
 
-def test_claim_next_ready_returns_none_when_update_loses_race(monkeypatch):
+def test_claim_next_ready_race_winner_takes_all(monkeypatch):
+    """Explicitly simulate same-row SELECT race and UPDATE rowcount winner/loser."""
     selected = [
-        ("test::BTC::BUY::1m::1234567890",),
-        ("test::BTC::BUY::1m::1234567890",),
+        ("test::BTC::BUY::1m::1730000000000",),
+        ("test::BTC::BUY::1m::1730000000000",),
     ]
     rowcounts = [1, 0]
 
@@ -41,7 +44,7 @@ def test_claim_next_ready_returns_none_when_update_loses_race(monkeypatch):
     loser = store.claim_next_ready()
 
     assert winner == {
-        "intent_id": "test::BTC::BUY::1m::1234567890",
+        "intent_id": "test::BTC::BUY::1m::1730000000000",
         "status": "SENDING",
     }
     assert loser is None
