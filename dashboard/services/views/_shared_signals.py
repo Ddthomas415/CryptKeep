@@ -29,6 +29,12 @@ API_TIMEOUT_SECONDS = float(os.environ.get("CK_API_TIMEOUT_SECONDS", "0.6"))
 from dashboard.services.views._shared_shared import (
     _normalize_asset_symbol,
 )
+
+
+def _view_data():
+    from dashboard.services import view_data
+
+    return view_data
 def _default_recommendations() -> list[dict[str, Any]]:
     return [
         {
@@ -247,7 +253,7 @@ def _enrich_signal_row(
     intelligence = build_opportunity_snapshot(
         signal_row=payload,
         market_row=market_row if isinstance(market_row, dict) else {},
-        reliability=_load_signal_reliability(asset),
+        reliability=_view_data()._load_signal_reliability(asset),
         summary={"risk_status": risk_status, "current_regime": current_regime},
     )
     payload.update(
@@ -363,5 +369,4 @@ def _explain_mentions_foreign_asset(payload: dict[str, Any], asset_symbol: str) 
     ).upper()
     known_assets = {"BTC", "ETH", "SOL"}
     return any(symbol in text for symbol in known_assets if symbol != asset_symbol)
-
 
