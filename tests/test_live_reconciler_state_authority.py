@@ -35,6 +35,21 @@ def test_reconciler_live_queue_update_allows_submitted_to_error() -> None:
     assert qdb.updates == [("intent-1", "error", "stale_order_not_found")]
 
 
+@pytest.mark.parametrize("target", ["filled", "canceled", "rejected"])
+def test_reconciler_live_queue_update_allows_submitted_terminal_targets(target: str) -> None:
+    qdb = _FakeLiveQueue()
+
+    update_live_queue_status_as_reconciler(
+        qdb,
+        {"intent_id": "intent-1", "status": "submitted"},
+        target,
+        ctx=_reconciler_ctx(),
+        last_error=None,
+    )
+
+    assert qdb.updates == [("intent-1", target, None)]
+
+
 def test_reconciler_live_queue_update_blocks_invalid_transition() -> None:
     qdb = _FakeLiveQueue()
 

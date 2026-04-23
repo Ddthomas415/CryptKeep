@@ -4,7 +4,7 @@ from typing import Any
 
 
 LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error"}
-RECONCILER_LIVE_QUEUE_TARGETS = {"rejected", "error"}
+RECONCILER_LIVE_QUEUE_TARGETS = {"filled", "canceled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_SOURCES = {"submitted"}
 LIVE_QUEUE_STATUS_TRANSITIONS = {
     "queued": {"queued", "submitted", "rejected"},
