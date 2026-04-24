@@ -84,10 +84,11 @@ def run_ruff(fix: bool = False) -> None:
     ok("ruff check passed")
 
 def run_mypy() -> None:
+    if importlib.util.find_spec("mypy") is None:
+        info("mypy not installed; skipping mypy")
+        return
     targets = find_python_targets()
-    # mypy on whole repo can be noisy; focus on code folders
-    cmd = [sys.executable, "-m", "mypy"] + targets + ["--ignore-missing-imports"]
-    p = run(cmd, check=False)
+    p = run([sys.executable, "-m", "mypy"] + targets, check=False)
     if p.returncode != 0:
         die("mypy failed", (p.stdout or "") + "\n" + (p.stderr or ""))
     ok("mypy passed")

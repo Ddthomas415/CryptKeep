@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import importlib.util
+
 import pytest
 
 
@@ -12,8 +15,8 @@ def _has_module(name: str) -> bool:
 if not _has_module("phase1_research_copilot"):
     pytest.skip("phase1_research_copilot package not present in this repo checkout", allow_module_level=True)
 
-from __future__ import annotations
-
+if not _has_module("phase1_research_copilot.orchestrator.main"):
+    pytest.skip("phase1_research_copilot.orchestrator.main surface not present in this repo checkout", allow_module_level=True)
 
 import asyncio
 import sys
