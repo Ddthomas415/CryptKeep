@@ -127,7 +127,7 @@ def run_forever() -> None:
     jdb = TradeJournalSQLite()
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
-    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or DEFAULT_VENUE)).lower().strip()
+    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or "coinbase")).lower().strip()
     symbols = [x.strip() for x in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
     if not symbols:
         cfg_symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
@@ -168,6 +168,8 @@ def run_forever() -> None:
         _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now()})
 
 
-# ---- runtime defaults (prefer env set by bot_ctl / run_bot_safe) ----
-DEFAULT_VENUE = (os.environ.get("CBP_VENUE") or "coinbase").lower().strip()
+# ---- runtime defaults ----
+# D07: DEFAULT_VENUE removed — was read from os.environ at module import time,
+# capturing ambient environment before run_forever() was called.
+# run_forever() reads CBP_VENUE at call time and falls back to "coinbase".
 DEFAULT_SYMBOL = "BTC/USD"
