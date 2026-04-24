@@ -27,6 +27,7 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
 if [ -x "./.venv/bin/python" ]; then
   PYTHON_BIN="./.venv/bin/python"
 fi
+export PYTHON_BIN
 : > "$FAILED_LIST"
 
 score=100
