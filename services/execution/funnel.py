@@ -33,12 +33,20 @@ class FunnelExecutor:
         self._submit_fn = submit_fn
 
     def execute(self, intent: FunnelIntent) -> FunnelResult:
-        resp = self._submit_fn(
-            symbol=intent.symbol,
-            side=intent.side,
-            qty=float(intent.qty),
-            price=intent.price,
-            order_type=intent.order_type,
-            client_oid=intent.client_oid,
-        )
-        return FunnelResult(ok=True, reason="submitted", response=resp, details={})
+        try:
+            resp = self._submit_fn(
+                symbol=intent.symbol,
+                side=intent.side,
+                qty=float(intent.qty),
+                price=intent.price,
+                order_type=intent.order_type,
+                client_oid=intent.client_oid,
+            )
+            return FunnelResult(ok=True, reason="submitted", response=resp, details={})
+        except Exception as exc:
+            return FunnelResult(
+                ok=False,
+                reason="submit_exception",
+                response=None,
+                details={"error": str(exc), "exception_type": type(exc).__name__},
+            )
