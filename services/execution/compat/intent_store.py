@@ -1,5 +1,17 @@
 from __future__ import annotations
 
+import warnings as _warnings
+_warnings.warn(
+    "services.execution.intent_store is deprecated. "
+    "No active runtime path writes to Store D (intents.sqlite). "
+    "See audit findings DEFECT-02 and ARCH-01. "
+    "Use storage.intent_queue_sqlite (paper) or "
+    "storage.live_intent_queue_sqlite (live) instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+
 import json, sqlite3, time
 from typing import Any
 

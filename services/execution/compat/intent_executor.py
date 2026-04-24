@@ -1,4 +1,15 @@
 from __future__ import annotations
+
+import warnings as _warnings
+_warnings.warn(
+    "services.execution.intent_executor is deprecated. "
+    "Contains a confirmed NameError (DEFECT-01) and references an unpopulated store. "
+    "No active runtime path calls this module. "
+    "See audit findings DEFECT-01 and ARCH-01.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
 from services.logging.app_logger import get_logger
 _LOG = get_logger("intent_executor")
 
