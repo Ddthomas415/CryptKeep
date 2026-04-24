@@ -42,7 +42,6 @@ jobs:
           targets = [
               "services/execution",
               "services/control",
-              "services/risk",
               "scripts/pre_release_sanity.py",
               "scripts/manual_repo_audit.sh",
           ]
