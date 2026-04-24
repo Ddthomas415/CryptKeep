@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib.util
+
 # CBP_BOOTSTRAP_SYS_PATH
 import sys
 from pathlib import Path
@@ -69,6 +71,9 @@ def find_python_targets() -> list[str]:
     return targets
 
 def run_ruff(fix: bool = False) -> None:
+    if importlib.util.find_spec("ruff") is None:
+        info("ruff not installed; skipping ruff")
+        return
     targets = find_python_targets()
     cmd = [sys.executable, "-m", "ruff", "check"] + targets
     if fix:

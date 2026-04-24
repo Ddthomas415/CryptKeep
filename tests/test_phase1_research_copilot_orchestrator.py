@@ -22,8 +22,13 @@ from pathlib import Path
 
 
 PHASE1_ROOT = Path(__file__).resolve().parents[1] / "phase1_research_copilot"
+if not PHASE1_ROOT.exists():
+    pytest.skip("phase1_research_copilot sidecar not present", allow_module_level=True)
+
 if str(PHASE1_ROOT) not in sys.path:
     sys.path.insert(0, str(PHASE1_ROOT))
+
+
 
 if "httpx" not in sys.modules:
     httpx_stub = ModuleType("httpx")

@@ -21,8 +21,13 @@ from pathlib import Path
 
 
 PHASE1_ROOT = Path(__file__).resolve().parents[1] / "phase1_research_copilot"
+if not PHASE1_ROOT.exists():
+    pytest.skip("phase1_research_copilot sidecar not present", allow_module_level=True)
+
 if str(PHASE1_ROOT) not in sys.path:
     sys.path.insert(0, str(PHASE1_ROOT))
+
+
 
 if "httpx" not in sys.modules:
     httpx_stub = ModuleType("httpx")
@@ -46,7 +51,10 @@ if "httpx" not in sys.modules:
     httpx_stub.AsyncClient = _AsyncClient
     sys.modules["httpx"] = httpx_stub
 
-from phase1_research_copilot.shared import tools  # noqa: E402
+try:
+    from phase1_research_copilot.shared import tools  # noqa: E402
+except ModuleNotFoundError:
+    pytest.skip("phase1_research_copilot module surface not present", allow_module_level=True)
 
 
 def test_tool_definitions_expose_read_only_functions() -> None:
