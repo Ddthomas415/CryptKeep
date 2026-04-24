@@ -5,10 +5,16 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime, UTC
 
+from services.os.paths import data_dir
+
 def run_maintenance() -> int:
     print(f"🚀 Maintenance started {datetime.now(UTC).isoformat()}")
-    for db in ["data/execution.sqlite", "data/daily_limits.sqlite"]:
-        if not Path(db).exists():
+    dbs = [
+        data_dir() / "execution.sqlite",
+        data_dir() / "daily_limits.sqlite",
+    ]
+    for db in dbs:
+        if not db.exists():
             print(f"Skipping missing DB: {db}")
             continue
         print(f"Processing {db}...")
