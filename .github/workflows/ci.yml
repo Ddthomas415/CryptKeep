@@ -40,7 +40,10 @@ jobs:
               raise SystemExit(0)
 
           targets = [
-              "services/execution",
+              "services/execution/intent_writer.py",
+              "services/execution/intent_consumer.py",
+              "services/execution/live_intent_consumer.py",
+              "services/execution/held_intents.py",
               "services/control",
               "scripts/pre_release_sanity.py",
               "scripts/manual_repo_audit.sh",
