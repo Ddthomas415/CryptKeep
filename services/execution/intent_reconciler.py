@@ -8,6 +8,7 @@ from services.os.app_paths import runtime_dir, ensure_dirs
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
+from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.outcome_logger import log_strategy_outcome
 from services.os.file_utils import atomic_write
 
@@ -66,6 +67,7 @@ def reconcile_once(
     jdb = jdb or TradeJournalSQLite()
     submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
     intents_updated = 0
+    ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
     fills_journaled = 0
 
     for it in submitted:
@@ -79,9 +81,11 @@ def reconcile_once(
         if st in ("new",):
             continue
         if st in ("rejected", "canceled"):
-            qdb.update_status(
-                it["intent_id"],
+            paper_queue_status(
+                qdb,
+                it,
                 st,
+                ctx=ctx,
                 last_error=order.get("reject_reason"),
                 client_order_id=it.get("client_order_id"),
                 linked_order_id=order_id,
@@ -89,9 +93,11 @@ def reconcile_once(
             intents_updated += 1
             continue
         if st == "filled":
-            qdb.update_status(
-                it["intent_id"],
+            paper_queue_status(
+                qdb,
+                it,
                 "filled",
+                ctx=ctx,
                 last_error=None,
                 client_order_id=it.get("client_order_id"),
                 linked_order_id=order_id,
@@ -171,6 +177,7 @@ def run_forever() -> None:
     loops = 0
     intents_seen = 0
     intents_updated = 0
+    ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
     fills_journaled = 0
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now(), "journal_count": jdb.count()})
     try:

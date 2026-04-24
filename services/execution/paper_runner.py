@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from services.admin.config_editor import load_user_yaml
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution.intent_reconciler import reconcile_once
+from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.paper_engine import PaperEngine
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
@@ -71,14 +72,16 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
                 meta=it.get("meta"),
             )
         except Exception as e:
-            qdb.update_status(intent_id, "rejected", last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+            paper_queue_status(qdb, {"intent_id": intent_id, "status": "queued"}, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
             rejected += 1
             continue
 
         if not bool(resp.get("ok")):
-            qdb.update_status(
-                intent_id,
+            paper_queue_status(
+                qdb,
+                {"intent_id": intent_id, "status": "queued"},
                 "rejected",
+                ctx=ctx,
                 last_error=str(resp.get("reason") or "paper_submit_failed"),
                 client_order_id=client_order_id,
             )
@@ -88,9 +91,11 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
         order = dict(resp.get("order") or {})
         order_id = str(order.get("order_id") or "").strip() or None
         reject_reason = order.get("reject_reason")
-        qdb.update_status(
-            intent_id,
+        paper_queue_status(
+            qdb,
+            {"intent_id": intent_id, "status": "queued"},
             "submitted",
+            ctx=ctx,
             last_error=reject_reason,
             client_order_id=client_order_id,
             linked_order_id=order_id,

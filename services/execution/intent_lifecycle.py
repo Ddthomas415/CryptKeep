@@ -6,6 +6,8 @@ from typing import Any
 LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_TARGETS = {"filled", "canceled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_SOURCES = {"submitted"}
+SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitted", "rejected"}
+SUBMIT_OWNER_LIVE_QUEUE_SOURCES = {"queued"}
 LIVE_QUEUE_STATUS_TRANSITIONS = {
     "queued": {"queued", "submitted", "rejected"},
     "submitted": {"submitted", "filled", "canceled", "cancelled", "rejected", "error"},
@@ -69,6 +71,28 @@ def validate_reconciler_live_queue_transition(
             f"blocked live queue transition: terminal status {current!r} is immutable"
         )
     if current not in RECONCILER_LIVE_QUEUE_SOURCES:
+        raise IntentLifecycleViolation(
+            f"blocked live queue transition: invalid source {current!r} for {nxt!r}"
+        )
+    return nxt
+
+
+def validate_submit_owner_live_queue_transition(
+    *,
+    current_status: Any,
+    next_status: Any,
+) -> str:
+    current = normalize_live_queue_status(current_status)
+    nxt = normalize_live_queue_status(next_status)
+    if nxt not in SUBMIT_OWNER_LIVE_QUEUE_TARGETS:
+        raise IntentLifecycleViolation(
+            f"blocked live queue transition: unsupported submit-owner target {nxt!r}"
+        )
+    if current in LIVE_QUEUE_TERMINAL_STATUSES:
+        raise IntentLifecycleViolation(
+            f"blocked live queue transition: terminal status {current!r} is immutable"
+        )
+    if current not in SUBMIT_OWNER_LIVE_QUEUE_SOURCES:
         raise IntentLifecycleViolation(
             f"blocked live queue transition: invalid source {current!r} for {nxt!r}"
         )

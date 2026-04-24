@@ -1,11 +1,16 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
 import sqlite3
-from pathlib import Path
 from datetime import datetime, UTC
+
+from services.os.app_paths import data_dir
+
 
 def run_maintenance():
     print(f"Maintenance started {datetime.now(UTC).isoformat()}")
-    for db in ["data/execution.sqlite", "data/daily_limits.sqlite"]:
-        if not Path(db).exists():
+    for db in [data_dir() / "execution.sqlite", data_dir() / "daily_limits.sqlite"]:
+        if not db.exists():
             continue
         conn = sqlite3.connect(db, timeout=60)
         try:
@@ -18,6 +23,7 @@ def run_maintenance():
         finally:
             conn.close()
     print("Maintenance complete")
+
 
 if __name__ == "__main__":
     run_maintenance()
