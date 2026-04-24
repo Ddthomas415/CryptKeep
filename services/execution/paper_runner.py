@@ -50,6 +50,7 @@ def request_stop() -> dict:
 
 def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
     queued = qdb.next_queued(limit=int(limit))
+    ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
     submitted = 0
     rejected = 0
     idempotent = 0
