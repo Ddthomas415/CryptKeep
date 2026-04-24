@@ -1,0 +1,17 @@
+.env.docker
+.gitignore
+.pre-commit-config.yaml
+AGENTS.md
+CHECKPOINTS.md
+DECISIONS.md
+install.py
+Makefile
+pyproject.toml
+pytest.ini
+README.md
+REMAINING_TASKS.md
+requirements-dev-pinned.txt
+requirements-dev.txt
+requirements-packaging.txt
+requirements-pinned.txt
+requirements.txt

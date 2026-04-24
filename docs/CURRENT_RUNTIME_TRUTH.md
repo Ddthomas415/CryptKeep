@@ -84,3 +84,21 @@ make promote-strategy STRATEGY_ID=es_daily_trend_v1
 2. Candidate pipeline is built but not wired to the runner — runner still reads strategy from config.
 3. `ema_crossover_runner.py` is the runtime for all strategies despite its name.
 4. `crypto-trading-ai/` and `phase1_research_copilot/` are companion projects in the repo root — not part of the active trading system.
+
+## Reading the repo layout
+
+`build/`, `dist/`, `data/`, `logs/`, and `attic/` are gitignored and will not appear
+when reading the tracked repo structure. To see only tracked content:
+
+    tree -L 2 --gitignore
+
+This hides build output, runtime state, logs, and companion project directories
+that are present locally but not tracked by git.
+
+## Out-of-scope stubs
+
+`src-tauri/` is a scaffolding stub for a future Tauri desktop wrapper (3 files:
+`Cargo.toml`, `tauri.conf.json`, `src/main.rs`). It has zero runtime role and is
+not part of the active operator path. Removal is gated on updating the four doc
+references that name it: docs/REPO_LAYOUT.md, docs/GOLDEN_PATH.md,
+docs/HANDOFF.md, docs/INSTALL.md.
