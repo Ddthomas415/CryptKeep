@@ -41,16 +41,16 @@ validate:
 	$(PYTHON) scripts/validate.py
 
 pre-release-sanity:
-	$(PYTHON) scripts/pre_release_sanity.py
+	$(PYTHON) scripts/release/pre_release_sanity.py
 
 pre-release-sanity-quick:
-	$(PYTHON) scripts/pre_release_sanity.py --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
+	$(PYTHON) scripts/release/pre_release_sanity.py --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
 
 pre-release-sanity-json-quick:
-	@$(PYTHON) scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
+	@$(PYTHON) scripts/release/pre_release_sanity.py --json --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
 
 pre-release-sanity-json-fast:
-	@CBP_PRE_RELEASE_SKIP_PYTEST=1 $(PYTHON) scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy
+	@CBP_PRE_RELEASE_SKIP_PYTEST=1 $(PYTHON) scripts/release/pre_release_sanity.py --json --skip-ruff --skip-mypy
 
 remaining-tasks:
 	$(PYTHON) scripts/rebuild_remaining_tasks.py
@@ -71,25 +71,25 @@ collect-live-crypto-edges:
 	$(PYTHON) scripts/collect_live_crypto_edge_snapshot.py --plan-file sample_data/crypto_edges/live_collector_plan.json --print-report
 
 collect-live-crypto-edges-loop:
-	$(PYTHON) scripts/run_crypto_edge_collector_loop.py --plan-file sample_data/crypto_edges/live_collector_plan.json --interval-sec $(CRYPTO_EDGE_INTERVAL_SEC)
+	$(PYTHON) scripts/data/run_crypto_edge_collector_loop.py --plan-file sample_data/crypto_edges/live_collector_plan.json --interval-sec $(CRYPTO_EDGE_INTERVAL_SEC)
 
 stop-live-crypto-edges-loop:
-	$(PYTHON) scripts/run_crypto_edge_collector_loop.py --stop
+	$(PYTHON) scripts/data/run_crypto_edge_collector_loop.py --stop
 
 status-live-crypto-edges-loop:
-	$(PYTHON) scripts/run_crypto_edge_collector_loop.py --status
+	$(PYTHON) scripts/data/run_crypto_edge_collector_loop.py --status
 
 collect-paper-strategy-evidence:
-	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --runtime-sec $(PAPER_EVIDENCE_RUNTIME_SEC)
+	$(PYTHON) scripts/data/run_paper_strategy_evidence_collector.py --runtime-sec $(PAPER_EVIDENCE_RUNTIME_SEC)
 
 stop-paper-strategy-evidence:
-	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --stop
+	$(PYTHON) scripts/data/run_paper_strategy_evidence_collector.py --stop
 
 status-paper-strategy-evidence:
-	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --status
+	$(PYTHON) scripts/data/run_paper_strategy_evidence_collector.py --status
 
 strategy-evidence-cycle:
-	$(PYTHON) scripts/run_strategy_evidence_cycle.py --write-decision-record
+	$(PYTHON) scripts/data/run_strategy_evidence_cycle.py --write-decision-record
 
 system-diagnostics:
 	$(PYTHON) scripts/run_system_diagnostics.py
@@ -193,13 +193,13 @@ paper-clean-locks:
 STRATEGY_ID ?= es_daily_trend_v1
 
 paper-run:
-	$(PYTHON) scripts/run_es_daily_trend_paper.py
+	$(PYTHON) scripts/dev/run_es_daily_trend_paper.py
 
 paper-status:
-	$(PYTHON) scripts/run_es_daily_trend_paper.py --status
+	$(PYTHON) scripts/dev/run_es_daily_trend_paper.py --status
 
 paper-dry-run:
-	$(PYTHON) scripts/run_es_daily_trend_paper.py --dry-run
+	$(PYTHON) scripts/dev/run_es_daily_trend_paper.py --dry-run
 
 check-gates:
 	$(PYTHON) scripts/check_promotion_gates.py
@@ -237,22 +237,22 @@ kill-switch-status:
 
 # Live gate inspection
 gate-inputs:
-	$(PYTHON) scripts/show_live_gate_inputs.py
+	$(PYTHON) scripts/live/show_live_gate_inputs.py
 
 # Test fill injection (paper testing only)
 inject-test-fill:
-	$(PYTHON) scripts/inject_test_fill.py
+	$(PYTHON) scripts/dev/inject_test_fill.py
 
 # Candidate scan
 candidate-scan:
-	$(PYTHON) scripts/run_candidate_scan.py
+	$(PYTHON) scripts/data/run_candidate_scan.py
 
 candidate-summary:
 	$(PYTHON) scripts/candidate_trade_summary.py
 
 # Live reconciliation (shadow/live stages)
 live-reconcile:
-	$(PYTHON) scripts/live_reconcile.py
+	$(PYTHON) scripts/dev/live_reconcile.py
 
 # Script index
 script-index:
@@ -272,7 +272,7 @@ script-index:
 # Short paper run for development/testing (60s instead of 3600s)
 paper-run-short:
 	# CBP_USE_SAMPLE_OHLCV=1 allows signal computation without live exchange
-	CBP_PAPER_RUNTIME_SEC=60 CBP_USE_SAMPLE_OHLCV=1 $(PYTHON) scripts/run_es_daily_trend_paper.py
+	CBP_PAPER_RUNTIME_SEC=60 CBP_USE_SAMPLE_OHLCV=1 $(PYTHON) scripts/dev/run_es_daily_trend_paper.py
 
 # Stop a running paper campaign immediately
 paper-stop-now:
