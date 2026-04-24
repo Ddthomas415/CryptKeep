@@ -1,4 +1,5 @@
 from __future__ import annotations
+from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
 import json
 import os
 import time
@@ -163,6 +164,7 @@ def run_forever() -> None:
 
             sandbox = _live_sandbox_enabled()
             for it in batch:
+                ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="intent_consumer")
                 venue = normalize_venue(it["venue"])
                 symbol = normalize_symbol(it["symbol"])
                 mq = mq_check(venue, symbol)
