@@ -120,3 +120,16 @@ def paper_queue_status(
         kwargs["linked_order_id"] = linked_order_id
 
     qdb.update_status(intent_id, status, **kwargs)
+
+def paper_queue_hold_release(
+    qdb: Any,
+    intent: dict[str, Any],
+    status: str,
+    *,
+    ctx: LiveStateContext | None,
+    reason: str | None = None,
+) -> None:
+    """Narrow helper for hold/release transitions on the paper queue surface."""
+    if status not in ("held", "queued"):
+        raise ValueError("paper_queue_hold_release only accepts held/queued")
+    paper_queue_status(qdb, intent, status, ctx=ctx, last_error=reason)
