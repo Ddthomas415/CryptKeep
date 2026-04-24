@@ -1,0 +1,24 @@
+name: script-path-integrity
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'Makefile'
+      - '.github/workflows/script_path_integrity.yml'
+  push:
+    paths:
+      - 'scripts/**'
+      - 'Makefile'
+      - '.github/workflows/script_path_integrity.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate script paths
+        run: python scripts/validate_script_paths.py --strict
