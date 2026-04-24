@@ -127,6 +127,12 @@ def live_armed_signal() -> tuple[bool, str]:
     for name, value in armed_env:
         if _truthy(value):
             return True, f"env:{name}"
+
+    armed_state = get_live_armed_state()
+    if _bool_value(armed_state.get("armed"), default=False):
+        writer = str(armed_state.get("writer") or "live_arming")
+        return True, f"state:{writer}"
+
     return False, "live_not_armed"
 
 
