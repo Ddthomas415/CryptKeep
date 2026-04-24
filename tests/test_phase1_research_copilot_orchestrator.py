@@ -1,17 +1,18 @@
-from __future__ import annotations
-
 import importlib.util
 import pytest
 
-if importlib.util.find_spec("phase1_research_copilot.orchestrator.main") is None:
-    pytest.skip("phase1_research_copilot.orchestrator.main not present in this repo checkout", allow_module_level=True)
+
+def _has_module(name: str) -> bool:
+    try:
+        return importlib.util.find_spec(name) is not None
+    except ModuleNotFoundError:
+        return False
 
 
-import importlib.util
-import pytest
-
-if importlib.util.find_spec("phase1_research_copilot") is None:
+if not _has_module("phase1_research_copilot"):
     pytest.skip("phase1_research_copilot package not present in this repo checkout", allow_module_level=True)
+
+from __future__ import annotations
 
 
 import asyncio
