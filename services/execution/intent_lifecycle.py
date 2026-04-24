@@ -9,13 +9,14 @@ RECONCILER_LIVE_QUEUE_SOURCES = {"submitted"}
 SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitted", "rejected"}
 SUBMIT_OWNER_LIVE_QUEUE_SOURCES = {"queued"}
 LIVE_QUEUE_STATUS_TRANSITIONS = {
-    "queued": {"queued", "submitted", "rejected"},
-    "submitted": {"submitted", "filled", "canceled", "cancelled", "rejected", "error"},
+    "queued": {"queued", "submitted", "rejected", "held"},
+    "submitted": {"submitted", "filled", "canceled", "cancelled", "rejected", "error", "held"},
     "filled": set(),
     "canceled": set(),
     "cancelled": set(),
     "rejected": set(),
     "error": set(),
+    "held": {"queued", "rejected"},
 }
 EXECUTION_STORE_STATUS_TRANSITIONS = {
     "pending": {"submitted", "canceled", "error"},

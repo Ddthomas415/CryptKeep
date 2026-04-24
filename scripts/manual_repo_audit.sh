@@ -263,10 +263,10 @@ if [ "$MODE" = "quick" ]; then
   run_shell_check pytest_collect 90 './.venv/bin/python -m pytest --collect-only -q'
 else
   run_shell_check pytest_collect 180 './.venv/bin/python -m pytest --collect-only -q'
-  run_shell_check test_repo_doctor 90 'pytest -q tests/test_repo_doctor_strict.py'
-  run_shell_check test_user_stream 90 'pytest -q tests/test_user_stream_ws.py'
-  run_shell_check test_dedupe 90 'pytest -q tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py'
-  run_shell_check test_evidence_collector 120 'pytest -q tests/test_run_paper_strategy_evidence_collector.py'
+  run_shell_check test_repo_doctor 90 './.venv/bin/python -m pytest -q tests/test_repo_doctor_strict.py'
+  run_shell_check test_user_stream 90 './.venv/bin/python -m pytest -q tests/test_user_stream_ws.py'
+  run_shell_check test_dedupe 90 './.venv/bin/python -m pytest -q tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py'
+  run_shell_check test_evidence_collector 120 './.venv/bin/python -m pytest -q tests/test_run_paper_strategy_evidence_collector.py'
 fi
 
 # -------- 7. Strategy / evidence alignment --------
