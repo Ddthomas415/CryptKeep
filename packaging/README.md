@@ -1,22 +1,7 @@
-# Packaging
+# packaging/
 
-Desktop packaging entrypoints and helpers live here.
+Build assets, installer specifications, signing scripts, and platform-specific
+templates. This directory is not imported at runtime and is not part of the
+operator surface.
 
-Primary config:
-- `packaging/config/app.json`
-
-Primary build entrypoint:
-- `packaging/pyinstaller/build.py`
-
-Top-level wrappers:
-- macOS/Linux: `scripts/build_app.sh`
-- Windows: `scripts/build_app.ps1`
-
-macOS app bundle build:
-- `scripts/build_macos.sh` (forces windowed mode and produces `dist/CryptoBotPro.app`)
-
-Notes:
-- Build on the target OS (no cross-build assumptions).
-- Icons are optional:
-  - `packaging/assets/icon.icns`
-  - `packaging/assets/icon.ico`
+For executable release scripts, see `scripts/release/`.

@@ -1,2 +1,0 @@
-installers
-crypto-trading-ai

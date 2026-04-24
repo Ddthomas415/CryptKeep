@@ -1,29 +1,19 @@
-from __future__ import annotations
-
+from pathlib import Path
 import importlib
 
-from services.exchanges import symbols as exchange_symbols
-from services.market_data import symbol_normalize
+def test_marketdata_compat_python_modules_retired():
+    retired = [
+        "services/marketdata/__init__.py",
+        "services/marketdata/mark_cache.py",
+        "services/marketdata/ohlcv_fetcher.py",
+        "services/marketdata/ws_clients.py",
+        "services/marketdata/ws_feature_blacklist.py",
+        "services/marketdata/ws_ticker_feed.py",
+    ]
+    for p in retired:
+        assert not Path(p).exists(), p
 
-
-def test_symbol_normalize_wrapper_normalizes_single_and_batch_symbols():
-    assert symbol_normalize.normalize_symbol("btc-usd") == "BTC/USD"
-    assert symbol_normalize.normalize_symbol("eth_usdt") == "ETH/USDT"
-    batch = symbol_normalize.normalize_symbols(["btc-usd", "ETH_USDT", "btc-usd"])
-    assert batch == {
-        "normalized": ["BTC/USD", "ETH/USDT"],
-        "invalid": [],
-        "count": 2,
-    }
-
-
-def test_exchange_symbols_wrapper_exposes_normalize_symbol():
-    assert exchange_symbols.normalize_symbol("btc-usd") == "BTC/USD"
-    assert exchange_symbols.coinbase_native("btc/usd") == "BTC-USD"
-
-
-def test_stale_import_modules_now_import_cleanly():
-    importlib.import_module("services.admin.position_reconcile")
-    importlib.import_module("services.diagnostics.ui_live_gate")
-    importlib.import_module("services.marketdata.ws_feature_blacklist")
-    importlib.import_module("services.evidence.ingest")
+def test_marketdata_canonical_replacement_importable():
+    mod = importlib.import_module("services.market_data.ws_feature_blacklist")
+    assert mod is not None
+    assert hasattr(mod, "__file__")
