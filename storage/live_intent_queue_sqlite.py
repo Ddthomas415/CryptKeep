@@ -4,10 +4,7 @@ import sqlite3
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 
-from services.execution.intent_lifecycle import (
-    live_queue_transition_allowed,
-    normalize_live_queue_status,
-)
+from services.execution.intent_lifecycle import normalize_live_queue_status
 from services.os.app_paths import data_dir
 
 DB_PATH = data_dir() / "live_intent_queue.sqlite"
@@ -173,16 +170,7 @@ class LiveIntentQueueSQLite:
     def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, client_order_id: str | None = None, exchange_order_id: str | None = None) -> bool:
         con = _connect()
         try:
-            row = con.execute(
-                "SELECT status FROM live_trade_intents WHERE intent_id=?",
-                (str(intent_id),),
-            ).fetchone()
-            if row is None:
-                return False
-            current = normalize_live_queue_status(row[0])
             nxt = normalize_live_queue_status(status)
-            if not live_queue_transition_allowed(current, nxt):
-                return False
 
             cur = con.execute(
                 """
