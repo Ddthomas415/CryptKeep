@@ -66,25 +66,15 @@ def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
         db.set_state("risk:notional", "0.0")
 
 
-def _risk_ok(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
+def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
     cfg = live_risk_cfg()
-    _risk_reset_if_needed(db)
-    trades = int(float(db.get_state("risk:trades") or "0"))
-    notional = float(db.get_state("risk:notional") or "0.0")
-    if cfg["max_trades_per_day"] > 0 and trades >= cfg["max_trades_per_day"]:
-        return False, "risk:max_trades_per_day"
-    if cfg["max_daily_notional_quote"] > 0 and notional + notional_est > cfg["max_daily_notional_quote"]:
-        return False, "risk:max_daily_notional_quote"
     if cfg["min_order_notional_quote"] > 0 and notional_est < cfg["min_order_notional_quote"]:
         return False, "risk:min_order_notional_quote"
-    return True, None
-
-
-def _risk_commit(db: LiveIntentQueueSQLite, notional_est: float) -> None:
-    trades = int(float(db.get_state("risk:trades") or "0"))
-    notional = float(db.get_state("risk:notional") or "0.0")
-    db.set_state("risk:trades", str(trades + 1))
-    db.set_state("risk:notional", str(notional + float(notional_est)))
+    return db.atomic_risk_claim(
+        max_trades=int(cfg["max_trades_per_day"]),
+        max_notional=float(cfg["max_daily_notional_quote"]),
+        notional_est=float(notional_est),
+    )
 
 
 def _live_sandbox_enabled() -> bool:
@@ -184,7 +174,7 @@ def run_forever() -> None:
                     continue
 
                 notional_est = float(it["qty"]) * float(it.get("limit_price") or (mq.get("last") or 0.0))
-                ok, rreason = _risk_ok(qdb, notional_est)
+                ok, rreason = _risk_check_and_claim(qdb, notional_est)
 
                 if not ok:
                     update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
@@ -219,7 +209,6 @@ def run_forever() -> None:
                         "status": "submitted",
                         "last_error": None,
                     })
-                    _risk_commit(qdb, notional_est)
                     submitted += 1
 
                 except Exception as e:

@@ -184,6 +184,52 @@ class LiveIntentQueueSQLite:
         finally:
             con.close()
 
+    def atomic_risk_claim(
+        self,
+        *,
+        max_trades: int,
+        max_notional: float,
+        notional_est: float,
+    ) -> tuple[bool, str | None]:
+        """Check limits and increment counters atomically under BEGIN IMMEDIATE.
+        Day-rollover and min-notional checks remain in application code.
+        Returns (True, None) if within limits and counters incremented.
+        Returns (False, reason) if any limit exceeded — no mutation occurs."""
+        con = _connect()
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            def _get(k: str) -> str:
+                r = con.execute(
+                    "SELECT v FROM live_consumer_state WHERE k=?", (k,)
+                ).fetchone()
+                return r[0] if r else "0"
+            trades = int(float(_get("risk:trades")))
+            notional = float(_get("risk:notional"))
+            if max_trades > 0 and trades >= max_trades:
+                con.execute("ROLLBACK")
+                return False, "risk:max_trades_per_day"
+            if max_notional > 0 and notional + notional_est > max_notional:
+                con.execute("ROLLBACK")
+                return False, "risk:max_daily_notional_quote"
+            con.execute(
+                "INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)",
+                ("risk:trades", str(trades + 1)),
+            )
+            con.execute(
+                "INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)",
+                ("risk:notional", str(notional + float(notional_est))),
+            )
+            con.execute("COMMIT")
+            return True, None
+        except Exception:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
+        finally:
+            con.close()
+
     def set_state(self, k: str, v: str) -> None:
         con = _connect()
         try:
