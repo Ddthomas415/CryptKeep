@@ -48,10 +48,13 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
-    if LOCK_FILE.exists():
+    payload = json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n"
+    try:
+        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+            fh.write(payload)
+        return True
+    except FileExistsError:
         return False
-    atomic_write(LOCK_FILE, json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-    return True
 
 def _release_lock() -> None:
     try:
