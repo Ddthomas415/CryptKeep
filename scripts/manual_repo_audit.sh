@@ -22,6 +22,12 @@ FAILED_LIST="$OUT_DIR/failed_checks.txt"
 : > "$FAILED_LIST"
 
 MODE="${1:-full}"   # quick | full
+
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+if [ -x "./.venv/bin/python" ]; then
+  PYTHON_BIN="./.venv/bin/python"
+fi
+export PYTHON_BIN
 : > "$FAILED_LIST"
 
 score=100
@@ -260,13 +266,13 @@ run_shell_check automation_files 20 'find . -maxdepth 3 -type f | grep -E "docke
 
 # -------- 6. Testing / validation --------
 if [ "$MODE" = "quick" ]; then
-  run_shell_check pytest_collect 90 './.venv/bin/python -m pytest --collect-only -q'
+  run_shell_check pytest_collect 90 '"$PYTHON_BIN" -m pytest --collect-only -q'
 else
-  run_shell_check pytest_collect 180 './.venv/bin/python -m pytest --collect-only -q'
-  run_shell_check test_repo_doctor 90 'pytest -q tests/test_repo_doctor_strict.py'
-  run_shell_check test_user_stream 90 'pytest -q tests/test_user_stream_ws.py'
-  run_shell_check test_dedupe 90 'pytest -q tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py'
-  run_shell_check test_evidence_collector 120 'pytest -q tests/test_run_paper_strategy_evidence_collector.py'
+  run_shell_check pytest_collect 180 '"$PYTHON_BIN" -m pytest --collect-only -q'
+  run_shell_check test_repo_doctor 90 '"$PYTHON_BIN" -m pytest -q tests/test_repo_doctor_strict.py'
+  run_shell_check test_user_stream 90 '"$PYTHON_BIN" -m pytest -q tests/test_user_stream_ws.py'
+  run_shell_check test_dedupe 90 '"$PYTHON_BIN" -m pytest -q tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py'
+  run_shell_check test_evidence_collector 120 '"$PYTHON_BIN" -m pytest -q tests/test_run_paper_strategy_evidence_collector.py'
 fi
 
 # -------- 7. Strategy / evidence alignment --------
@@ -372,7 +378,7 @@ run_shell_check shell_scripts 60 'command -v shellcheck >/dev/null 2>&1 && find 
 # -------- 13. Tests / governance / evidence --------
 run_shell_check test_inventory 20 'find tests -type f | sort'
 run_shell_check flaky_markers 20 'grep -RniE "xfail|skip|flaky|sleep\\(" tests 2>/dev/null || true'
-run_shell_check targeted_green 120 'python3 -m pytest -q tests/test_user_stream_ws.py tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py tests/test_run_paper_strategy_evidence_collector.py'
+run_shell_check targeted_green 120 '"$PYTHON_BIN" -m pytest -q tests/test_user_stream_ws.py tests/test_order_dedupe_store.py tests/test_order_dedupe_unknown.py tests/test_run_paper_strategy_evidence_collector.py'
 run_shell_check governance_docs 20 'find docs/governance docs/strategies -type f | sort'
 run_shell_check absolute_paths 30 'grep -Rni "/Users/" docs 2>/dev/null || true'
 run_shell_check checklist_pending 20 'grep -n "\\- \\[ \\]" docs/governance/governance_checklist.md 2>/dev/null || true'

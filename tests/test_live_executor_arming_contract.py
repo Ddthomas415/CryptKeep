@@ -6,14 +6,14 @@ import types
 
 
 def _import_live_executor_with_guard_stub():
-    sys.modules.pop("services.execution.live_executor", None)
+    sys.modules.pop("services.execution._executor_shared", None)
     original_guard = sys.modules.get("services.risk.market_quality_guard")
     mod = types.ModuleType("services.risk.market_quality_guard")
     mod.check = lambda *args, **kwargs: {"ok": True, "reason": "ok"}
     mod.check_market_quality = lambda *args, **kwargs: (True, "ok")
     sys.modules["services.risk.market_quality_guard"] = mod
     try:
-        return importlib.import_module("services.execution.live_executor")
+        return importlib.import_module("services.execution._executor_shared")
     finally:
         if original_guard is None:
             sys.modules.pop("services.risk.market_quality_guard", None)

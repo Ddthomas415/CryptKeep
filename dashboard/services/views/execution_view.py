@@ -15,12 +15,18 @@ from dashboard.services.views._shared import (  # noqa: F401
     _load_local_recent_fills,
 )
 
+def _view_data():
+    from dashboard.services import view_data
+
+    return view_data
+
 def get_recent_activity() -> list[str]:
-    local_rows = _load_local_recent_activity(limit=6)
+    vd = _view_data()
+    local_rows = vd._load_local_recent_activity(limit=6)
     if local_rows:
         return local_rows
 
-    envelope = _fetch_envelope("/api/v1/audit/events")
+    envelope = vd._fetch_envelope("/api/v1/audit/events")
     if isinstance(envelope, dict) and envelope.get("status") == "success":
         data = envelope.get("data")
         if isinstance(data, dict) and isinstance(data.get("items"), list):
@@ -35,12 +41,13 @@ def get_recent_activity() -> list[str]:
                     out.append(line)
             if out:
                 return out
-    return _default_activity()
+    return vd._default_activity()
 
 
 
 def get_portfolio_view() -> dict[str, Any]:
-    summary = get_dashboard_summary()
+    vd = _view_data()
+    summary = vd.get_dashboard_summary()
     portfolio = summary.get("portfolio") if isinstance(summary.get("portfolio"), dict) else {}
     watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
 
@@ -50,7 +57,7 @@ def get_portfolio_view() -> dict[str, Any]:
         if isinstance(item, dict) and str(item.get("asset") or "").strip()
     }
 
-    local_snapshot = _load_local_portfolio_snapshot(watch_prices)
+    local_snapshot = vd._load_local_portfolio_snapshot(watch_prices)
     if isinstance(local_snapshot, dict):
         local_portfolio = local_snapshot.get("portfolio") if isinstance(local_snapshot.get("portfolio"), dict) else {}
         local_positions = (
@@ -64,7 +71,7 @@ def get_portfolio_view() -> dict[str, Any]:
                 "positions": local_positions,
             }
 
-    positions = _default_positions()
+    positions = vd._default_positions()
     enriched_positions: list[dict[str, Any]] = []
     for row in positions:
         asset = str(row.get("asset") or "")
@@ -92,10 +99,11 @@ def get_portfolio_view() -> dict[str, Any]:
 
 
 def get_trades_view() -> dict[str, Any]:
-    summary = get_dashboard_summary()
-    pending_approvals = _load_local_pending_approvals(limit=20)
+    vd = _view_data()
+    summary = vd.get_dashboard_summary()
+    pending_approvals = vd._load_local_pending_approvals(limit=20)
     if not pending_approvals:
-        recommendations = get_recommendations()
+        recommendations = vd.get_recommendations()
         pending_approvals = [
             {
                 "id": str(item.get("id") or f"rec_{index + 1}"),
@@ -112,12 +120,12 @@ def get_trades_view() -> dict[str, Any]:
             {"id": "rec_1", "asset": "SOL", "side": "buy", "risk_size_pct": 1.5, "status": "pending_review"}
         ]
 
-    recent_fills = _load_local_recent_fills(limit=20)
+    recent_fills = vd._load_local_recent_fills(limit=20)
     if not recent_fills:
-        recent_fills = _default_recent_fills()
+        recent_fills = vd._default_recent_fills()
 
-    open_orders = _load_local_open_orders(limit=20)
-    failed_orders = _load_local_failed_orders(limit=20)
+    open_orders = vd._load_local_open_orders(limit=20)
+    failed_orders = vd._load_local_failed_orders(limit=20)
 
     return {
         "approval_required": bool(summary.get("approval_required", True)),
@@ -126,5 +134,3 @@ def get_trades_view() -> dict[str, Any]:
         "failed_orders": failed_orders,
         "recent_fills": recent_fills,
     }
-
-

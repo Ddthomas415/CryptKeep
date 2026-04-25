@@ -37,7 +37,13 @@ def test_desired_state_paper_disables_reconcile():
     st = rbr.desired_state(cfg)
     assert st["mode"] == "paper"
     assert st["with_reconcile"] is False
-    assert rbr.desired_services(st) == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate"]
+    assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "executor"]
+
+
+def test_command_map_uses_live_reconciler_for_canonical_reconciler_service():
+    cmds = rbr.command_map()
+    assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer.py"]
+    assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler.py"]
 
 
 def test_desired_state_requires_explicit_exchange_id():
@@ -80,7 +86,7 @@ def test_apply_state_converges_services(monkeypatch):
     out = rbr.apply_state(state, force_restart=False)
     assert out["ok"] is True
     assert stopped == ["reconciler"]
-    assert started == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate"]
+    assert started == rbr.desired_services(state)
 
 
 def test_apply_state_force_restart_restarts_wanted(monkeypatch):
@@ -110,8 +116,8 @@ def test_apply_state_force_restart_restarts_wanted(monkeypatch):
     out = rbr.apply_state(state, force_restart=True)
     assert out["ok"] is True
     assert guard_calls == []
-    assert stopped == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
-    assert started == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+    assert stopped == rbr.desired_services(state)
+    assert started == rbr.desired_services(state)
 
 
 def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):

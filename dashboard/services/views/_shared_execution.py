@@ -33,6 +33,12 @@ from dashboard.services.views._shared_signals import (
     _normalize_signal_action,
 )
 
+
+def _view_data():
+    from dashboard.services import view_data
+
+    return view_data
+
 def _default_activity() -> list[str]:
     return [
         "Generated explanation for SOL",
@@ -446,8 +452,9 @@ def _apply_local_execution_state_to_recommendations(rows: list[dict[str, Any]]) 
         return []
 
     asset_count = len(normalized_rows)
-    pending_rows = _load_local_pending_approvals(limit=max(20, asset_count * 4))
-    fill_rows = _load_local_recent_fills(limit=max(20, asset_count * 4))
+    vd = _view_data()
+    pending_rows = vd._load_local_pending_approvals(limit=max(20, asset_count * 4))
+    fill_rows = vd._load_local_recent_fills(limit=max(20, asset_count * 4))
 
     latest_pending_by_asset: dict[str, dict[str, Any]] = {}
     for row in pending_rows:
@@ -502,6 +509,7 @@ def _resolve_execution_db_path() -> str:
 
 def _load_local_recent_activity(limit: int = 6) -> list[str]:
     normalized_limit = max(1, int(limit or 6))
+    vd = _view_data()
 
     def _dedupe_lines(lines: list[str]) -> list[str]:
         out: list[str] = []
@@ -523,7 +531,7 @@ def _load_local_recent_activity(limit: int = 6) -> list[str]:
 
     if callable(OpsEventStore):
         try:
-            rows = OpsEventStore(exec_db=_resolve_execution_db_path()).list_recent(limit=normalized_limit)
+            rows = OpsEventStore(exec_db=vd._resolve_execution_db_path()).list_recent(limit=normalized_limit)
         except Exception:
             rows = []
         if rows:
@@ -593,5 +601,4 @@ def _load_local_recent_activity(limit: int = 6) -> list[str]:
                 return deduped_decisions
 
     return []
-
 

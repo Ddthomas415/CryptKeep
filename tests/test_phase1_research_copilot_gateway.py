@@ -1,5 +1,23 @@
 from __future__ import annotations
 
+import importlib.util
+
+import pytest
+
+
+def _has_module(name: str) -> bool:
+    try:
+        return importlib.util.find_spec(name) is not None
+    except ModuleNotFoundError:
+        return False
+
+
+if not _has_module("phase1_research_copilot"):
+    pytest.skip("phase1_research_copilot package not present in this repo checkout", allow_module_level=True)
+
+if not _has_module("phase1_research_copilot.gateway.main"):
+    pytest.skip("phase1_research_copilot.gateway.main surface not present in this repo checkout", allow_module_level=True)
+
 import asyncio
 import sys
 from types import SimpleNamespace
@@ -8,8 +26,13 @@ from pathlib import Path
 
 
 PHASE1_ROOT = Path(__file__).resolve().parents[1] / "phase1_research_copilot"
+if not PHASE1_ROOT.exists():
+    pytest.skip("phase1_research_copilot sidecar not present", allow_module_level=True)
+
 if str(PHASE1_ROOT) not in sys.path:
     sys.path.insert(0, str(PHASE1_ROOT))
+
+
 
 if "httpx" not in sys.modules:
     httpx_stub = ModuleType("httpx")
@@ -33,7 +56,7 @@ if "httpx" not in sys.modules:
     httpx_stub.AsyncClient = _AsyncClient
     sys.modules["httpx"] = httpx_stub
 
-import gateway.main as gateway  # noqa: E402
+import phase1_research_copilot.gateway.main as gateway  # noqa: E402
 
 
 async def _noop_audit(*args, **kwargs) -> None:

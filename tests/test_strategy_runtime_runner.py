@@ -92,6 +92,7 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
                 "max_bars": 20,
                 "loop_interval_sec": 0.0,
                 "qty": 0.5,
+                "allow_first_signal_trade": True,
             }
         },
     )
@@ -213,6 +214,13 @@ def test_strategy_signal_supports_mean_reversion_runtime_prices(monkeypatch, tmp
 def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     qdb = runner.IntentQueueSQLite()
+    # Isolate runtime row collection; this test is about breakout enqueue behavior,
+    # not paper DB-backed runtime validation state.
+    monkeypatch.setattr(
+        runner,
+        "collect_runtime_rows",
+        lambda paper_db, intent_db: ([], []),
+    )
 
     monkeypatch.setattr(
         runner,
@@ -237,18 +245,11 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
                 "max_bars": 20,
                 "loop_interval_sec": 0.0,
                 "qty": 0.5,
+                "signal_source": "public_ohlcv_1m",
+                "allow_first_signal_trade": True,
             }
         },
     )
-
-    prices = iter([100.0, 100.0, 100.0, 100.0, 100.0, 101.0])
-
-    def fake_fetch(_cfg):
-        try:
-            price = next(prices)
-        except StopIteration:
-            price = 101.0
-        return price, 1
 
     def fake_sleep(_seconds: float) -> None:
         if runner.STATUS_FILE.exists():
@@ -257,7 +258,22 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
                 runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
                 runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
 
-    monkeypatch.setattr(runner, "_fetch_mid", fake_fetch)
+    monkeypatch.setattr(
+        runner,
+        "_fetch_public_ohlcv",
+        lambda cfg: [
+            [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+        ],
+    )
+    monkeypatch.setattr(
+        runner,
+        "compute_signal",
+        lambda cfg, symbol, ohlcv: {"ok": True, "action": "buy", "reason": "breakout", "ind": {}},
+    )
     monkeypatch.setattr(runner.time, "sleep", fake_sleep)
 
     runner.run_forever()
