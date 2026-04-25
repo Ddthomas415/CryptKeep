@@ -105,7 +105,7 @@ class PaperTradingSQLite:
         con = _connect()
         try:
             con.execute(
-                "INSERT OR REPLACE INTO paper_orders(order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason, strategy_id, meta_json) "
+                "INSERT OR IGNORE INTO paper_orders(order_id, client_order_id, created_ts, ts, venue, symbol, side, order_type, qty, limit_price, status, reject_reason, strategy_id, meta_json) "
                 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     str(row["order_id"]),
