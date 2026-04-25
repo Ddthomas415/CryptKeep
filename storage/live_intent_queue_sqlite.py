@@ -183,15 +183,38 @@ class LiveIntentQueueSQLite:
             nxt = normalize_live_queue_status(status)
             if not live_queue_transition_allowed(current, nxt):
                 return False
+
             cur = con.execute(
-                "UPDATE live_trade_intents SET status=?, last_error=?, client_order_id=?, exchange_order_id=?, updated_ts=? "
-                "WHERE intent_id=? AND status NOT IN ('filled', 'rejected', 'canceled')",
-                (str(nxt), last_error, client_order_id, exchange_order_id, _now(), str(intent_id)),
+                """
+                UPDATE live_trade_intents
+                   SET status=?, last_error=?, client_order_id=?, exchange_order_id=?, updated_ts=?
+                 WHERE intent_id=?
+                   AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled')
+                   AND (
+                        status = ?
+                     OR (status = 'queued' AND ? IN ('submitted', 'rejected', 'held'))
+                     OR (status = 'submitted' AND ? IN ('filled', 'canceled', 'cancelled', 'rejected', 'error', 'held'))
+                     OR (status = 'held' AND ? IN ('queued', 'rejected'))
+                   )
+                """,
+                (
+                    str(nxt),
+                    last_error,
+                    client_order_id,
+                    exchange_order_id,
+                    _now(),
+                    str(intent_id),
+                    str(nxt),
+                    str(nxt),
+                    str(nxt),
+                    str(nxt),
+                ),
             )
             con.commit()
             return cur.rowcount == 1
         finally:
             con.close()
+
 
     def get_state(self, k: str) -> Optional[str]:
         con = _connect()
