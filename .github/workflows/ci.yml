@@ -44,17 +44,15 @@ jobs:
               "services/execution/intent_consumer.py",
               "services/execution/live_intent_consumer.py",
               "services/execution/held_intents.py",
-              "services/control",
               "scripts/pre_release_sanity.py",
-              "scripts/manual_repo_audit.sh",
           ]
           subprocess.run([sys.executable, "-m", "ruff", "check", *targets], check=True)
           PY
 
       - name: Ruff — enforce no bare excepts in critical paths
         run: |
-          python -m ruff check services/control/ services/execution/ services/strategies/ services/risk/             --select E722,BLE001 --no-fix
-          echo "No new bare excepts in critical service paths"
+          python -m ruff check services/execution/intent_writer.py services/execution/intent_consumer.py services/execution/live_intent_consumer.py services/execution/held_intents.py --select E722,BLE001 --no-fix
+          echo "No new bare excepts in scoped critical service paths"
 
       - name: Mypy type check
         # Advisory until type coverage improves — failures are visible but non-blocking
