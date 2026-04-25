@@ -259,3 +259,98 @@ def test_live_exchange_adapter_submit_order_binance_params(monkeypatch):
     assert params["newClientOrderId"] == "cid-b-1"
     assert params["timeInForce"] == "GTC"
     assert "foo" not in params
+
+def test_live_intent_consumer_recovers_existing_remote_order_before_submit(monkeypatch, tmp_path):
+    import importlib
+
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "1")
+    monkeypatch.setenv("CBP_LIVE_ENABLED", "1")
+
+    import services.os.app_paths as app_paths
+    import storage.live_intent_queue_sqlite as queue_mod
+    import storage.live_trading_sqlite as trading_mod
+    import services.execution.live_intent_consumer as consumer
+
+    importlib.reload(app_paths)
+    importlib.reload(queue_mod)
+    importlib.reload(trading_mod)
+    importlib.reload(consumer)
+
+    qdb = queue_mod.LiveIntentQueueSQLite()
+    qdb.upsert_intent({
+        "intent_id": "recover-before-submit",
+        "created_ts": "2026-04-02T12:00:00Z",
+        "ts": "2026-04-02T12:00:00Z",
+        "source": "strategy",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "order_type": "limit",
+        "qty": 0.5,
+        "limit_price": 100.0,
+        "status": "queued",
+        "last_error": None,
+        "client_order_id": "cid-recover-before-submit",
+        "exchange_order_id": None,
+    })
+
+    monkeypatch.setattr(consumer, "live_enabled_and_armed", lambda: (True, "armed"))
+    monkeypatch.setattr(consumer, "is_snapshot_fresh", lambda: (True, None))
+    monkeypatch.setattr(consumer, "_live_sandbox_enabled", lambda: True)
+    monkeypatch.setattr(consumer, "mq_check", lambda venue, symbol: {"ok": True, "last": 100.0})
+    monkeypatch.setattr(consumer, "_risk_check_and_claim", lambda db, notional_est: (True, None))
+
+    class Decision:
+        allowed = True
+        side = "buy"
+        order_type = "limit"
+        qty = 0.5
+        limit_price = 100.0
+        reason = "ok"
+
+    async def fake_decide_order(**kwargs):
+        return Decision()
+
+    monkeypatch.setattr(consumer, "decide_order", fake_decide_order)
+
+    submit_called = {"value": False}
+
+    class FakeAdapter:
+        def __init__(self, venue, sandbox=False):
+            pass
+
+        def find_order_by_client_oid(self, symbol, client_order_id):
+            assert client_order_id == "cid-recover-before-submit"
+            return {"id": "ex-recovered-1", "clientOrderId": client_order_id}
+
+        def submit_order(self, **kwargs):
+            submit_called["value"] = True
+            raise AssertionError("submit_order must not be called when recovery succeeds")
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(consumer, "LiveExchangeAdapter", FakeAdapter)
+
+    loops = {"count": 0}
+
+    def fake_sleep(_seconds):
+        loops["count"] += 1
+        if loops["count"] >= 1:
+            consumer.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            consumer.STOP_FILE.write_text("stop\n")
+
+    monkeypatch.setattr(consumer.time, "sleep", fake_sleep)
+
+    consumer.run_forever()
+
+    row = qdb.list_intents(limit=10)[0]
+    assert row["status"] == "submitted"
+    assert row["client_order_id"] == "cid-recover-before-submit"
+    assert row["exchange_order_id"] == "ex-recovered-1"
+    assert submit_called["value"] is False
+
+    orders = trading_mod.LiveTradingSQLite().list_orders(limit=10)
+    assert orders[0]["status"] == "submitted"
+    assert orders[0]["exchange_order_id"] == "ex-recovered-1"
