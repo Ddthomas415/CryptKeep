@@ -67,6 +67,7 @@ def reconcile_once(
     jdb = jdb or TradeJournalSQLite()
     submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
     intents_updated = 0
+    ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
     fills_journaled = 0
 
     for it in submitted:
