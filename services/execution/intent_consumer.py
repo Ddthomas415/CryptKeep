@@ -1,12 +1,15 @@
 from __future__ import annotations
+import sqlite3
+from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
 import json
 import os
 import time
 from datetime import datetime, timezone
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
-from services.execution.live_arming import live_enabled_and_armed, live_risk_cfg
+from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
@@ -31,10 +34,12 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
-    if LOCK_FILE.exists():
+    try:
+        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+            fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
+        return True
+    except FileExistsError:
         return False
-    atomic_write(LOCK_FILE, json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-    return True
 
 
 def _release_lock() -> None:
@@ -61,25 +66,22 @@ def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
         db.set_state("risk:notional", "0.0")
 
 
-def _risk_ok(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
+def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
     cfg = live_risk_cfg()
-    _risk_reset_if_needed(db)
-    trades = int(float(db.get_state("risk:trades") or "0"))
-    notional = float(db.get_state("risk:notional") or "0.0")
-    if cfg["max_trades_per_day"] > 0 and trades >= cfg["max_trades_per_day"]:
-        return False, "risk:max_trades_per_day"
-    if cfg["max_daily_notional_quote"] > 0 and notional + notional_est > cfg["max_daily_notional_quote"]:
-        return False, "risk:max_daily_notional_quote"
     if cfg["min_order_notional_quote"] > 0 and notional_est < cfg["min_order_notional_quote"]:
         return False, "risk:min_order_notional_quote"
-    return True, None
+    return db.atomic_risk_claim(
+        max_trades=int(cfg["max_trades_per_day"]),
+        max_notional=float(cfg["max_daily_notional_quote"]),
+        notional_est=float(notional_est),
+    )
 
 
-def _risk_commit(db: LiveIntentQueueSQLite, notional_est: float) -> None:
-    trades = int(float(db.get_state("risk:trades") or "0"))
-    notional = float(db.get_state("risk:notional") or "0.0")
-    db.set_state("risk:trades", str(trades + 1))
-    db.set_state("risk:notional", str(notional + float(notional_est)))
+def _live_sandbox_enabled() -> bool:
+    try:
+        return is_live_sandbox(load_runtime_trading_config())
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
+        return True
 
 
 def run_forever() -> None:
@@ -153,7 +155,9 @@ def run_forever() -> None:
                 time.sleep(0.6)
                 continue
 
+            sandbox = _live_sandbox_enabled()
             for it in batch:
+                ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="intent_consumer")
                 venue = normalize_venue(it["venue"])
                 symbol = normalize_symbol(it["symbol"])
                 mq = mq_check(venue, symbol)
@@ -170,19 +174,19 @@ def run_forever() -> None:
                     continue
 
                 notional_est = float(it["qty"]) * float(it.get("limit_price") or (mq.get("last") or 0.0))
-                ok, rreason = _risk_ok(qdb, notional_est)
+                ok, rreason = _risk_check_and_claim(qdb, notional_est)
 
                 if not ok:
-                    qdb.update_status(it["intent_id"], "rejected", last_error=rreason)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
                     rejected += 1
                     continue
 
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
-                qdb.update_status(it["intent_id"], "queued", client_order_id=client_order_id)
+                update_live_queue_status_as_intent_consumer(qdb, it, "queued", ctx=ctx, client_order_id=client_order_id)
                 ad = None
 
                 try:
-                    ad = LiveExchangeAdapter(venue)
+                    ad = LiveExchangeAdapter(venue, sandbox=sandbox)
                     resp = ad.submit_order(
                         canonical_symbol=symbol,
                         side=it["side"],
@@ -192,7 +196,7 @@ def run_forever() -> None:
                         client_order_id=client_order_id,
                     )
                     ex_oid = str(resp.get("id") or resp.get("orderId") or "")
-                    qdb.update_status(it["intent_id"], "submitted", last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid)
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
@@ -205,11 +209,10 @@ def run_forever() -> None:
                         "status": "submitted",
                         "last_error": None,
                     })
-                    _risk_commit(qdb, notional_est)
                     submitted += 1
 
                 except Exception as e:
-                    qdb.update_status(it["intent_id"], "rejected", last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,

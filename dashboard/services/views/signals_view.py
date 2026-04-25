@@ -11,12 +11,18 @@ from dashboard.services.views._shared import (  # noqa: F401
     _load_local_recommendations,
 )
 
-def get_recommendations() -> list[dict[str, Any]]:
-    local_rows = _load_local_recommendations(limit=20)
-    if local_rows:
-        return _apply_local_execution_state_to_recommendations(local_rows)
+def _view_data():
+    from dashboard.services import view_data
 
-    envelope = _fetch_envelope("/api/v1/trading/recommendations")
+    return view_data
+
+def get_recommendations() -> list[dict[str, Any]]:
+    vd = _view_data()
+    local_rows = vd._load_local_recommendations(limit=20)
+    if local_rows:
+        return vd._apply_local_execution_state_to_recommendations(local_rows)
+
+    envelope = vd._fetch_envelope("/api/v1/trading/recommendations")
     if isinstance(envelope, dict) and envelope.get("status") == "success":
         data = envelope.get("data")
         if isinstance(data, dict) and isinstance(data.get("items"), list):
@@ -35,15 +41,16 @@ def get_recommendations() -> list[dict[str, Any]]:
                     }
                 )
             if mapped:
-                return _apply_local_execution_state_to_recommendations(mapped)
-    return _apply_local_execution_state_to_recommendations(_default_recommendations())
+                return vd._apply_local_execution_state_to_recommendations(mapped)
+    return vd._apply_local_execution_state_to_recommendations(vd._default_recommendations())
 
 
 
 def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
-    recommendations = get_recommendations()
-    summary = get_dashboard_summary()
-    current_regime = _load_current_regime() or str(summary.get("risk_status") or "")
+    vd = _view_data()
+    recommendations = vd.get_recommendations()
+    summary = vd.get_dashboard_summary()
+    current_regime = vd._load_current_regime() or str(summary.get("risk_status") or "")
     watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
 
     market_rows: dict[str, dict[str, Any]] = {}
@@ -61,7 +68,7 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
         asset = str(item.get("asset") or "").strip().upper()
         market = market_rows.get(asset, {})
         signals.append(
-            _enrich_signal_row(
+            vd._enrich_signal_row(
                 {
                     "asset": asset,
                     "signal": str(item.get("signal") or "hold"),
@@ -80,7 +87,7 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
         )
 
     if not signals:
-        markets_view = get_markets_view(selected_asset=selected_asset)
+        markets_view = vd.get_markets_view(selected_asset=selected_asset)
         detail = markets_view.get("detail") if isinstance(markets_view.get("detail"), dict) else {}
         fallback_asset = str(detail.get("asset") or selected_asset or "SOL")
         signals = [
@@ -123,7 +130,7 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
             ),
         )["asset"]
 
-    markets_view = get_markets_view(selected_asset=resolved_asset)
+    markets_view = vd.get_markets_view(selected_asset=resolved_asset)
     detail = dict(markets_view.get("detail")) if isinstance(markets_view.get("detail"), dict) else {}
     selected_signal = next((row for row in signals if str(row.get("asset") or "") == resolved_asset), {})
     if detail and isinstance(selected_signal, dict):
@@ -145,5 +152,3 @@ def get_signals_view(selected_asset: str | None = None) -> dict[str, Any]:
         "signals": signals,
         "detail": detail,
     }
-
-

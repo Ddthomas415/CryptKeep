@@ -88,6 +88,12 @@ def is_live_enabled(cfg: dict[str, Any] | None = None) -> bool:
     return _truthy(execution.get("live_enabled"))
 
 
+def is_live_sandbox(cfg: dict[str, Any] | None = None) -> bool:
+    cfg = cfg if isinstance(cfg, dict) else load_user_yaml()
+    live = cfg.get("live") if isinstance(cfg.get("live"), dict) else {}
+    return _bool_value(live.get("sandbox"), default=True)
+
+
 def set_live_enabled(cfg: dict[str, Any] | None, enabled: bool) -> dict[str, Any]:
     out = dict(cfg or {})
     value = bool(enabled)

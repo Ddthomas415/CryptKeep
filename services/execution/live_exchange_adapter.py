@@ -12,8 +12,9 @@ from services.security.credentials_loader import load_exchange_credentials
 from services.security.exchange_factory import make_exchange
 
 class LiveExchangeAdapter:
-    def __init__(self, venue: str, *, enable_rate_limit: bool = True) -> None:
+    def __init__(self, venue: str, *, enable_rate_limit: bool = True, sandbox: bool = False) -> None:
         self.venue = normalize_venue(venue)
+        self.sandbox = bool(sandbox)
         creds = load_exchange_credentials(self.venue)
         self._creds_meta = {
             k: creds.get(k)
@@ -28,6 +29,7 @@ class LiveExchangeAdapter:
                 "password_present",
             )
         }
+        self._creds_meta["sandbox"] = self.sandbox
         if not creds.get("apiKey") or not creds.get("secret"):
             raise RuntimeError(
                 f"Missing credentials for {self.venue}: "
@@ -42,6 +44,8 @@ class LiveExchangeAdapter:
                 "password": creds.get("password"),
             },
             enable_rate_limit=enable_rate_limit,
+            sandbox=self.sandbox,
+            require_sandbox=self.sandbox,
         )
 
     def creds_meta(self) -> dict:
@@ -84,6 +88,7 @@ class LiveExchangeAdapter:
             client_order_id=client_order_id,
             params=params,
             allow_extra_params=allow_extra_params,
+            context=context,
         )
 
     def submit_order(
@@ -114,6 +119,8 @@ class LiveExchangeAdapter:
             params=dict(params or {}),
             allow_extra=bool(allow_extra_params),
         )
+        if context is None:
+            return place_order(self.ex, sym, order_type, side, float(qty), price, ccxt_params)
         return place_order(self.ex, sym, order_type, side, float(qty), price, ccxt_params, context=context)
 
     def cancel_order(self, canonical_symbol: str, exchange_order_id: str) -> dict:

@@ -29,6 +29,10 @@ def test_default_strategy_candidates_returns_supported_defaults():
         "ema_cross_default",
         "mean_reversion_default",
         "breakout_default",
+        "momentum_default",
+        "volatility_reversal_default",
+        "gap_fill_default",
+        "breakout_volume_default",
     ]
     assert out[0]["cfg"]["risk"]["max_order_quote"] == 25.0
 
@@ -186,9 +190,9 @@ def test_run_strategy_leaderboard_returns_ranked_rows():
     )
 
     assert out["ok"] is True
-    assert out["candidate_count"] == 3
+    assert out["candidate_count"] == 7
     assert out["stressed_slippage_bps"] > out["base_slippage_bps"]
-    assert len(out["rows"]) == 3
+    assert len(out["rows"]) == 7
     assert out["rows"][0]["leaderboard_score"] >= out["rows"][-1]["leaderboard_score"]
     assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness", "closed_trades", "trade_count", "exposure_fraction"} <= set(
         out["rows"][0].keys()

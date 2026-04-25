@@ -34,6 +34,12 @@ from dashboard.services.views._shared_http import (
     _fetch_envelope,
 )
 
+
+def _view_data():
+    from dashboard.services import view_data
+
+    return view_data
+
 def _repo_default_watchlist_assets() -> list[str]:
     fallback_assets = ["BTC", "ETH"]
     path = REPO_ROOT / "config" / "trading.yaml"
@@ -207,15 +213,16 @@ def _load_local_market_snapshot(venue: str, symbol: str, *, asset: str) -> dict[
 def _get_market_snapshot(asset: str, *, exchange: str = "coinbase") -> dict[str, Any] | None:
     asset_symbol = str(asset or "").strip().upper()
     venue = str(exchange or "coinbase").strip().lower() or "coinbase"
+    vd = _view_data()
 
-    envelope = _fetch_envelope(f"/api/v1/market/{asset_symbol}/snapshot?exchange={venue}")
+    envelope = vd._fetch_envelope(f"/api/v1/market/{asset_symbol}/snapshot?exchange={venue}")
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
         snapshot = _normalize_market_snapshot(asset_symbol, venue, envelope["data"], source="api")
         if snapshot["last_price"] > 0:
             return snapshot
 
     local_symbol = _canonical_market_symbol(asset_symbol, venue)
-    return _load_local_market_snapshot(venue, local_symbol, asset=asset_symbol)
+    return vd._load_local_market_snapshot(venue, local_symbol, asset=asset_symbol)
 
 
 def _load_local_ohlcv(venue: str, symbol: str, *, timeframe: str = "1h", limit: int = 24) -> list[list]:
@@ -356,8 +363,9 @@ def _get_market_price_series(
     asset_symbol = str(asset or "").strip().upper()
     venue = str(exchange or "coinbase").strip().lower() or "coinbase"
     candle_limit = max(int(limit or 24), 2)
+    vd = _view_data()
 
-    envelope = _fetch_envelope(
+    envelope = vd._fetch_envelope(
         f"/api/v1/market/{asset_symbol}/candles?exchange={venue}&interval={interval}&limit={candle_limit}"
     )
     if isinstance(envelope, dict) and envelope.get("status") == "success":
@@ -370,7 +378,7 @@ def _get_market_price_series(
     quote = "USD" if venue in {"coinbase", "kraken"} else "USDT"
     local_symbol = f"{asset_symbol}/{quote}"
     local_series = _extract_close_series(
-        _load_local_ohlcv(venue, local_symbol, timeframe=interval, limit=candle_limit)
+        vd._load_local_ohlcv(venue, local_symbol, timeframe=interval, limit=candle_limit)
     )
     if local_series:
         return local_series
@@ -424,5 +432,4 @@ def _load_automation_operations_snapshot() -> dict[str, Any]:
     except Exception:
         return {}
     return payload if isinstance(payload, dict) else {}
-
 

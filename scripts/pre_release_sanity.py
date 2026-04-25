@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib.util
+
 # CBP_BOOTSTRAP_SYS_PATH
 import sys
 from pathlib import Path
@@ -69,6 +71,9 @@ def find_python_targets() -> list[str]:
     return targets
 
 def run_ruff(fix: bool = False) -> None:
+    if importlib.util.find_spec("ruff") is None:
+        info("ruff not installed; skipping ruff")
+        return
     targets = find_python_targets()
     cmd = [sys.executable, "-m", "ruff", "check"] + targets
     if fix:
@@ -79,10 +84,11 @@ def run_ruff(fix: bool = False) -> None:
     ok("ruff check passed")
 
 def run_mypy() -> None:
+    if importlib.util.find_spec("mypy") is None:
+        info("mypy not installed; skipping mypy")
+        return
     targets = find_python_targets()
-    # mypy on whole repo can be noisy; focus on code folders
-    cmd = [sys.executable, "-m", "mypy"] + targets + ["--ignore-missing-imports"]
-    p = run(cmd, check=False)
+    p = run([sys.executable, "-m", "mypy"] + targets, check=False)
     if p.returncode != 0:
         die("mypy failed", (p.stdout or "") + "\n" + (p.stderr or ""))
     ok("mypy passed")

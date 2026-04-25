@@ -28,7 +28,14 @@ from services.runtime.process_supervisor import (
     stop_process,
 )
 
-MANAGED_SERVICES = ("pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler")
+MANAGED_SERVICES = (
+    "pipeline",
+    "executor",
+    "intent_consumer",
+    "ops_signal_adapter",
+    "ops_risk_gate",
+    "reconciler",
+)
 STATUS_PATH = runtime_dir() / "flags" / "bot_runner.status.json"
 STOP_EVENT = threading.Event()
 
@@ -94,9 +101,10 @@ def command_map() -> dict[str, list[str]]:
     return {
         "pipeline": [py, "scripts/run_pipeline_loop.py"],
         "executor": [py, "scripts/run_intent_executor_safe.py"],
+        "intent_consumer": [py, "scripts/run_intent_consumer.py"],
         "ops_signal_adapter": [py, "scripts/run_ops_signal_adapter.py", "run"],
         "ops_risk_gate": [py, "scripts/run_ops_risk_gate_service.py", "run"],
-        "reconciler": [py, "scripts/run_intent_reconciler_safe.py"],
+        "reconciler": [py, "scripts/run_live_reconciler.py"],
     }
 
 

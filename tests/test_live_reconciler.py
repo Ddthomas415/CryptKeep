@@ -64,8 +64,9 @@ def test_live_reconciler_reuses_adapter_per_venue_within_single_pass(monkeypatch
     instances: list["_FakeAdapter"] = []
 
     class _FakeAdapter:
-        def __init__(self, venue: str):
+        def __init__(self, venue: str, sandbox: bool = False):
             self.venue = venue
+            self.sandbox = bool(sandbox)
             self.fetch_order_calls: list[tuple[str, str]] = []
             self.fetch_trade_calls: list[tuple[str, int | None, int | None]] = []
             self.close_calls = 0
@@ -93,6 +94,7 @@ def test_live_reconciler_reuses_adapter_per_venue_within_single_pass(monkeypatch
     monkeypatch.setattr(lr, "_write_status", lambda obj: statuses.append(dict(obj)))
     monkeypatch.setattr(lr, "get_system_guard_state", lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok"})
     monkeypatch.setattr(lr, "live_enabled_and_armed", lambda: (True, "armed"))
+    monkeypatch.setattr(lr, "_live_sandbox_enabled", lambda: True)
     monkeypatch.setattr(lr, "LiveIntentQueueSQLite", lambda: _FakeQueue())
     monkeypatch.setattr(lr, "LiveTradingSQLite", lambda: _FakeTrading())
     monkeypatch.setattr(lr, "LiveExchangeAdapter", _FakeAdapter)
@@ -107,6 +109,7 @@ def test_live_reconciler_reuses_adapter_per_venue_within_single_pass(monkeypatch
 
     assert len(instances) == 1
     assert instances[0].venue == "coinbase"
+    assert instances[0].sandbox is True
     assert instances[0].fetch_order_calls == [("BTC/USD", "ord-1"), ("ETH/USD", "ord-2")]
     assert [call[0] for call in instances[0].fetch_trade_calls] == ["BTC/USD", "ETH/USD"]
     assert instances[0].close_calls == 1
@@ -156,8 +159,9 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
             return None
 
     class _FakeAdapter:
-        def __init__(self, venue: str):
+        def __init__(self, venue: str, sandbox: bool = False):
             self.venue = venue
+            self.sandbox = bool(sandbox)
             self.close_calls = 0
             instances.append(self)
 
@@ -187,6 +191,7 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
         lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
     )
     monkeypatch.setattr(lr, "live_enabled_and_armed", lambda: (False, "not_armed"))
+    monkeypatch.setattr(lr, "_live_sandbox_enabled", lambda: True)
     monkeypatch.setattr(lr, "LiveIntentQueueSQLite", lambda: _FakeQueue())
     monkeypatch.setattr(lr, "LiveTradingSQLite", lambda: _FakeTrading())
     monkeypatch.setattr(lr, "LiveExchangeAdapter", _FakeAdapter)
@@ -200,6 +205,7 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
     lr.run_forever()
 
     assert len(instances) == 1
+    assert instances[0].sandbox is True
     assert instances[0].close_calls == 1
     assert any(item.get("status") == "halting" and item.get("reconcile_mode") == "cleanup" for item in statuses)
     assert guard_calls == []

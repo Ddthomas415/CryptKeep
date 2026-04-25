@@ -3,6 +3,10 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
+from services.execution.intent_lifecycle import (
+    live_queue_transition_allowed,
+    normalize_live_queue_status,
+)
 from services.os.app_paths import data_dir
 
 DB_PATH = data_dir() / "intent_queue.sqlite"
@@ -161,9 +165,19 @@ class IntentQueueSQLite:
     def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, client_order_id: str | None = None, linked_order_id: str | None = None) -> None:
         con = _connect()
         try:
+            row = con.execute(
+                "SELECT status FROM trade_intents WHERE intent_id=?",
+                (str(intent_id),),
+            ).fetchone()
+            if row is None:
+                return
+            current = normalize_live_queue_status(row[0])
+            nxt = normalize_live_queue_status(status)
+            if not live_queue_transition_allowed(current, nxt):
+                return
             con.execute(
                 "UPDATE trade_intents SET status=?, last_error=?, client_order_id=?, linked_order_id=?, updated_ts=? WHERE intent_id=?",
-                (str(status), last_error, client_order_id, linked_order_id, _now(), str(intent_id)),
+                (str(nxt), last_error, client_order_id, linked_order_id, _now(), str(intent_id)),
             )
         finally:
             con.close()

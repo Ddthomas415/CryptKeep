@@ -8,6 +8,7 @@ from services.os.app_paths import runtime_dir, ensure_dirs
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
+from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.outcome_logger import log_strategy_outcome
 from services.os.file_utils import atomic_write
 
@@ -26,10 +27,12 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
-    if LOCK_FILE.exists():
+    try:
+        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+            fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
+        return True
+    except FileExistsError:
         return False
-    atomic_write(LOCK_FILE, json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-    return True
 
 def _release_lock() -> None:
     try:
@@ -66,6 +69,7 @@ def reconcile_once(
     jdb = jdb or TradeJournalSQLite()
     submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
     intents_updated = 0
+    ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
     fills_journaled = 0
 
     for it in submitted:
@@ -79,9 +83,11 @@ def reconcile_once(
         if st in ("new",):
             continue
         if st in ("rejected", "canceled"):
-            qdb.update_status(
-                it["intent_id"],
+            paper_queue_status(
+                qdb,
+                it,
                 st,
+                ctx=ctx,
                 last_error=order.get("reject_reason"),
                 client_order_id=it.get("client_order_id"),
                 linked_order_id=order_id,
@@ -89,9 +95,11 @@ def reconcile_once(
             intents_updated += 1
             continue
         if st == "filled":
-            qdb.update_status(
-                it["intent_id"],
+            paper_queue_status(
+                qdb,
+                it,
                 "filled",
+                ctx=ctx,
                 last_error=None,
                 client_order_id=it.get("client_order_id"),
                 linked_order_id=order_id,

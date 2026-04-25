@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from services.admin.config_editor import load_user_yaml
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution.intent_reconciler import reconcile_once
+from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.paper_engine import PaperEngine
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
@@ -28,10 +29,12 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
-    if LOCK_FILE.exists():
+    try:
+        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+            fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
+        return True
+    except FileExistsError:
         return False
-    atomic_write(LOCK_FILE, json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-    return True
 
 def _release_lock() -> None:
     try:
@@ -49,6 +52,7 @@ def request_stop() -> dict:
 
 def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
     queued = qdb.next_queued(limit=int(limit))
+    ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
     submitted = 0
     rejected = 0
     idempotent = 0
@@ -71,14 +75,16 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
                 meta=it.get("meta"),
             )
         except Exception as e:
-            qdb.update_status(intent_id, "rejected", last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+            paper_queue_status(qdb, {"intent_id": intent_id, "status": "queued"}, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
             rejected += 1
             continue
 
         if not bool(resp.get("ok")):
-            qdb.update_status(
-                intent_id,
+            paper_queue_status(
+                qdb,
+                {"intent_id": intent_id, "status": "queued"},
                 "rejected",
+                ctx=ctx,
                 last_error=str(resp.get("reason") or "paper_submit_failed"),
                 client_order_id=client_order_id,
             )
@@ -88,9 +94,11 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
         order = dict(resp.get("order") or {})
         order_id = str(order.get("order_id") or "").strip() or None
         reject_reason = order.get("reject_reason")
-        qdb.update_status(
-            intent_id,
+        paper_queue_status(
+            qdb,
+            {"intent_id": intent_id, "status": "queued"},
             "submitted",
+            ctx=ctx,
             last_error=reject_reason,
             client_order_id=client_order_id,
             linked_order_id=order_id,
@@ -121,7 +129,7 @@ def run_forever() -> None:
     jdb = TradeJournalSQLite()
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
-    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or DEFAULT_VENUE)).lower().strip()
+    venue = str((os.environ.get("CBP_VENUE") or p.get("default_venue") or "coinbase")).lower().strip()
     symbols = [x.strip() for x in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
     if not symbols:
         cfg_symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
@@ -162,6 +170,8 @@ def run_forever() -> None:
         _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now()})
 
 
-# ---- runtime defaults (prefer env set by bot_ctl / run_bot_safe) ----
-DEFAULT_VENUE = (os.environ.get("CBP_VENUE") or "coinbase").lower().strip()
+# ---- runtime defaults ----
+# D07: DEFAULT_VENUE removed — was read from os.environ at module import time,
+# capturing ambient environment before run_forever() was called.
+# run_forever() reads CBP_VENUE at call time and falls back to "coinbase".
 DEFAULT_SYMBOL = "BTC/USD"

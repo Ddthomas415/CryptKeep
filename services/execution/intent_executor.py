@@ -109,8 +109,25 @@ def execute_one(cfg: dict, *, venue: str | None = None, mode: str | None = None)
         )
     )
     if not fresult.ok:
-        qdb.update_status(intent_id=it["intent_id"], status="blocked", reason=fresult.reason)
-        return fresult.details or {}
+        why = str(fresult.reason or "submit_failed")
+        update_intent(intent_id=intent_id, status="FAILED", last_error=why)
+        log_event(
+            intent_id=intent_id,
+            venue=v,
+            symbol=sym,
+            event="place_blocked",
+            status="FAILED",
+            client_oid=client_oid,
+            payload={"reason": why, "details": (fresult.details or {})},
+        )
+        return {
+            "ok": True,
+            "did_work": True,
+            "intent_id": intent_id,
+            "placed": False,
+            "reason": why,
+            "details": (fresult.details or {}),
+        }
     res = fresult.response
     if not res.ok:
         update_intent(intent_id=intent_id, status="FAILED", last_error=str(res.reason or "place_failed"))

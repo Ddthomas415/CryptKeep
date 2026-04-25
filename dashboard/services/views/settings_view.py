@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any
 from services.setup.config_manager import DEFAULT_CFG, deep_merge
-from services.admin.config_editor import load_user_yaml, save_user_yaml
+from services.admin.config_editor import CONFIG_PATH, load_user_yaml, save_user_yaml
 
 # settings_view.py — auto-split from view_data.py
 from services.execution.live_arming import set_live_enabled
@@ -14,20 +14,27 @@ from dashboard.services.views._shared import (  # noqa: F401
     _request_envelope,
 )
 
-def get_settings_view() -> dict[str, Any]:
-    envelope = _fetch_envelope("/api/v1/settings")
-    if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return _apply_local_settings_overrides(deep_merge(_default_settings_payload(), dict(envelope["data"])))
+def _view_data():
+    from dashboard.services import view_data
 
-    mock = _read_mock_envelope("settings.json")
+    return view_data
+
+def get_settings_view() -> dict[str, Any]:
+    vd = _view_data()
+    envelope = vd._fetch_envelope("/api/v1/settings")
+    if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
+        return vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(envelope["data"])))
+
+    mock = vd._read_mock_envelope("settings.json")
     if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
-        return _apply_local_settings_overrides(deep_merge(_default_settings_payload(), dict(mock["data"])))
-    return _apply_local_settings_overrides(_default_settings_payload())
+        return vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(mock["data"])))
+    return vd._apply_local_settings_overrides(vd._default_settings_payload())
 
 
 
 def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
-    cfg = deep_merge(DEFAULT_CFG, load_user_yaml() or {})
+    vd = _view_data()
+    cfg = deep_merge(DEFAULT_CFG, vd.load_user_yaml() or {})
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
     settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
 
@@ -67,11 +74,11 @@ def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
     dashboard_ui["settings"] = settings_overlay
     cfg["dashboard_ui"] = dashboard_ui
 
-    saved, local_message = save_user_yaml(cfg, dry_run=False)
+    saved, local_message = vd.save_user_yaml(cfg, dry_run=False)
     if not saved:
         return {"ok": False, "message": str(local_message or "Local settings save failed.")}
 
-    envelope = _request_envelope("/api/v1/settings", method="PUT", payload=payload)
+    envelope = vd._request_envelope("/api/v1/settings", method="PUT", payload=payload)
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
         return {
             "ok": True,
@@ -88,10 +95,11 @@ def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_automation_view() -> dict[str, Any]:
-    summary = get_dashboard_summary()
-    settings = get_settings_view()
+    vd = _view_data()
+    summary = vd.get_dashboard_summary()
+    settings = vd.get_settings_view()
     general = settings.get("general") if isinstance(settings.get("general"), dict) else {}
-    runtime_cfg = deep_merge(DEFAULT_CFG, load_user_yaml())
+    runtime_cfg = deep_merge(DEFAULT_CFG, vd.load_user_yaml())
     runtime_execution = runtime_cfg.get("execution") if isinstance(runtime_cfg.get("execution"), dict) else {}
     runtime_signals = runtime_cfg.get("signals") if isinstance(runtime_cfg.get("signals"), dict) else {}
     dashboard_ui = runtime_cfg.get("dashboard_ui") if isinstance(runtime_cfg.get("dashboard_ui"), dict) else {}
@@ -123,7 +131,7 @@ def get_automation_view() -> dict[str, Any]:
             )
         ),
         "approval_required_for_live": approval_required,
-        "config_path": str(CONFIG_PATH.resolve()),
+        "config_path": str(vd.CONFIG_PATH.resolve()),
         "executor_mode": executor_mode,
         "live_enabled": live_enabled,
         "executor_poll_sec": float(runtime_execution.get("executor_poll_sec") or DEFAULT_CFG["execution"]["executor_poll_sec"]),
@@ -140,12 +148,13 @@ def get_automation_view() -> dict[str, Any]:
         "default_venue": str(runtime_signals.get("default_venue") or "coinbase"),
         "default_qty": float(runtime_signals.get("default_qty") or 0.001),
         "order_type": str(runtime_signals.get("order_type") or "market").lower().strip(),
-        "operations_snapshot": _load_automation_operations_snapshot(),
+        "operations_snapshot": vd._load_automation_operations_snapshot(),
     }
 
 
 
 def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
+    vd = _view_data()
     enable_automation = bool(payload.get("execution_enabled", False))
     dry_run_mode = bool(payload.get("dry_run_mode", True))
     default_mode = str(payload.get("default_mode") or "research_only")
@@ -165,7 +174,7 @@ def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
     default_qty = float(payload.get("default_qty") or 0.001)
     order_type = str(payload.get("order_type") or "market").strip().lower()
 
-    cfg = deep_merge(DEFAULT_CFG, load_user_yaml())
+    cfg = deep_merge(DEFAULT_CFG, vd.load_user_yaml())
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
     automation_ui = dashboard_ui.get("automation") if isinstance(dashboard_ui.get("automation"), dict) else {}
     signals = cfg.get("signals") if isinstance(cfg.get("signals"), dict) else {}
@@ -207,19 +216,19 @@ def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
     dashboard_ui["automation"] = automation_ui
     cfg["dashboard_ui"] = dashboard_ui
 
-    saved, message = save_user_yaml(cfg, dry_run=False)
-    settings_result = update_settings_view({"general": {"default_mode": default_mode}})
+    saved, message = vd.save_user_yaml(cfg, dry_run=False)
+    settings_result = vd.update_settings_view({"general": {"default_mode": default_mode}})
 
     if saved and bool(settings_result.get("ok")):
         return {
             "ok": True,
             "message": "Automation settings saved.",
-            "config_path": str(CONFIG_PATH.resolve()),
+            "config_path": str(vd.CONFIG_PATH.resolve()),
         }
     if saved:
         return {
             "ok": True,
             "message": f"Runtime automation settings saved. Settings API sync skipped: {settings_result.get('message')}",
-            "config_path": str(CONFIG_PATH.resolve()),
+            "config_path": str(vd.CONFIG_PATH.resolve()),
         }
     return {"ok": False, "message": message}

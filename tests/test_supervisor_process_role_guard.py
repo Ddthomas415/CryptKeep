@@ -1,5 +1,11 @@
 import pytest
 from services.process import supervisor_process as mod
+from services.security.role_guard import require_role
+
+
+def test_require_role_accepts_legacy_uppercase_admin() -> None:
+    require_role("ADMIN", "admin")
+    require_role("admin", "ADMIN")
 
 def test_start_requires_admin_role() -> None:
     with pytest.raises(PermissionError):

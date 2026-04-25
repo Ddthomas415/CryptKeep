@@ -101,7 +101,13 @@ def claim_next_ready(*, venue: str | None = None, mode: str | None = None) -> di
     intent_id = row[0]
     ts = now()
     with con:
-        con.execute("UPDATE intents SET status='SENDING', updated_ts=? WHERE intent_id=? AND status='READY'", (ts, intent_id))
+        update_cur = con.cursor()
+        update_cur.execute(
+            "UPDATE intents SET status='SENDING', updated_ts=? WHERE intent_id=? AND status='READY'",
+            (ts, intent_id),
+        )
+        if update_cur.rowcount == 0:
+            return None
     return get_intent(intent_id)
 
 def update_intent(*, intent_id: str, status: str | None = None, client_oid: str | None = None,
