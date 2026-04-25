@@ -20,9 +20,9 @@ from services.os.file_utils import atomic_write
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
-STOP_FILE = FLAGS / "live_consumer.stop"
-LOCK_FILE = LOCKS / "live_consumer.lock"
-STATUS_FILE = FLAGS / "live_consumer.status.json"
+STOP_FILE = FLAGS / "live_intent_consumer.stop"
+LOCK_FILE = LOCKS / "live_intent_consumer.lock"
+STATUS_FILE = FLAGS / "live_intent_consumer.status.json"
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
