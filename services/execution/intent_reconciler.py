@@ -67,7 +67,6 @@ def reconcile_once(
     jdb = jdb or TradeJournalSQLite()
     submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
     intents_updated = 0
-    ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
     fills_journaled = 0
 
     for it in submitted:
@@ -177,7 +176,6 @@ def run_forever() -> None:
     loops = 0
     intents_seen = 0
     intents_updated = 0
-    ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
     fills_journaled = 0
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now(), "journal_count": jdb.count()})
     try:
