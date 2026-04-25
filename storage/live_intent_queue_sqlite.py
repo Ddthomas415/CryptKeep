@@ -175,7 +175,7 @@ class LiveIntentQueueSQLite:
             cur = con.execute(
                 """
                 UPDATE live_trade_intents
-                   SET status=?, last_error=?, client_order_id=?, exchange_order_id=?, updated_ts=?
+                   SET status=?, last_error=?, client_order_id=COALESCE(?, client_order_id), exchange_order_id=COALESCE(?, exchange_order_id), updated_ts=?
                  WHERE intent_id=?
                    AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled', 'error')
                    AND (
