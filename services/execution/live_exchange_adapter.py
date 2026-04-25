@@ -157,17 +157,40 @@ class LiveExchangeAdapter:
 
     def find_order_by_client_oid(self, canonical_symbol: str, client_oid: str) -> dict | None:
         sym = map_symbol(self.venue, canonical_symbol)
-        try:
-            oo = self.ex.fetch_open_orders(sym) or []
-        except Exception:
-            oo = []
-        for o in oo:
-            ocid = (
-                o.get("clientOrderId")
-                or o.get("client_order_id")
-                or (o.get("info") or {}).get("clientOrderId")
-                or (o.get("info") or {}).get("text")
+
+        def _client_oid(order: dict) -> str:
+            info = order.get("info") if isinstance(order.get("info"), dict) else {}
+            return str(
+                order.get("clientOrderId")
+                or order.get("client_order_id")
+                or info.get("clientOrderId")
+                or info.get("client_order_id")
+                or info.get("text")
+                or ""
             )
-            if ocid and str(ocid) == str(client_oid):
-                return dict(o or {})
+
+        def _find(orders: list[dict]) -> dict | None:
+            for order in orders or []:
+                if not isinstance(order, dict):
+                    continue
+                if _client_oid(order) == str(client_oid):
+                    return dict(order)
+            return None
+
+        try:
+            found = _find(self.ex.fetch_open_orders(sym) or [])
+            if found:
+                return found
+        except Exception:
+            pass
+
+        fetch_closed = getattr(self.ex, "fetch_closed_orders", None)
+        if callable(fetch_closed):
+            try:
+                found = _find(fetch_closed(sym) or [])
+                if found:
+                    return found
+            except Exception:
+                pass
+
         return None
