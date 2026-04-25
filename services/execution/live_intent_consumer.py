@@ -177,6 +177,40 @@ def run_forever() -> None:
                 ad = None
                 try:
                     ad = LiveExchangeAdapter(venue, sandbox=sandbox)
+
+                    recovered = None
+                    try:
+                        recovered = ad.find_order_by_client_oid(symbol, client_order_id)
+                    except Exception:
+                        recovered = None
+
+                    if recovered:
+                        ex_oid = str(recovered.get("id") or recovered.get("orderId") or "").strip()
+                        if ex_oid:
+                            update_live_queue_status_as_intent_consumer(
+                                qdb,
+                                it,
+                                "submitted",
+                                ctx=ctx,
+                                last_error=None,
+                                client_order_id=client_order_id,
+                                exchange_order_id=ex_oid,
+                            )
+                            ldb.upsert_order({
+                                "client_order_id": client_order_id,
+                                "venue": venue,
+                                "symbol": symbol,
+                                "side": it["side"],
+                                "order_type": it["order_type"],
+                                "qty": float(it["qty"]),
+                                "limit_price": it.get("limit_price"),
+                                "exchange_order_id": ex_oid,
+                                "status": "submitted",
+                                "last_error": None,
+                            })
+                            submitted += 1
+                            continue
+
                     resp = ad.submit_order(
                         canonical_symbol=symbol,
                         side=decision.side,
