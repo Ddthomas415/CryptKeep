@@ -12,7 +12,7 @@ import pytest
 import tempfile, os
 from pathlib import Path
 
-from services.risk.live_risk_gates_phase82 import (
+from services.risk.live_risk_gates import (
     LiveRiskLimits, LiveGateDB, LiveRiskGates
 )
 

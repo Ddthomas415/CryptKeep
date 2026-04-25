@@ -7,6 +7,12 @@ New code should import directly from the sub-modules.
 """
 from __future__ import annotations
 
+from services.admin.config_editor import (  # noqa: F401
+    CONFIG_PATH,
+    load_user_yaml,
+    save_user_yaml,
+)
+
 from dashboard.services.views.summary_view import (   # noqa: F401
     get_dashboard_summary,
     get_overview_view,
@@ -60,13 +66,45 @@ from dashboard.services.views._shared import (  # noqa: F401
     _load_local_ohlcv,
     _load_local_portfolio_snapshot,
     _load_local_recent_fills,
+    _load_local_recent_activity,
+    _resolve_execution_db_path,
+    _load_local_recommendations,
     _load_local_pending_approvals,
     _load_local_open_orders,
     _load_local_failed_orders,
+    _load_local_connections_summary,
+    _load_local_risk_overlay,
     _read_mock_envelope,
     _request_envelope_from_base,
     _request_envelope,
     _fetch_envelope,
     _asset_priority,
     _build_watchlist_preview,
+    _apply_local_summary_overrides,
+    _apply_local_settings_overrides,
+    _apply_local_execution_state_to_recommendations,
+    _gate_state_to_risk_status,
+    _load_current_regime,
+    _load_signal_reliability,
+    _explain_mentions_foreign_asset,
 )
+from dashboard.services.views._shared_market import (  # noqa: F401
+    _get_market_price_series,
+    _load_automation_operations_snapshot,
+)
+from dashboard.services.views._shared_signals import (  # noqa: F401
+    _enrich_signal_row,
+)
+from dashboard.services.views._shared_http import (  # noqa: F401
+    PHASE1_ORCHESTRATOR_URL,
+)
+
+
+# facade exports for split view modules/tests
+from dashboard.services.views._shared_ops import (
+    _load_local_kill_switch_state as _ops__load_local_kill_switch_state,
+    _load_local_system_guard_state as _ops__load_local_system_guard_state,
+)
+
+_load_local_kill_switch_state = _ops__load_local_kill_switch_state
+_load_local_system_guard_state = _ops__load_local_system_guard_state

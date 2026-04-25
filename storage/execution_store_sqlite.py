@@ -7,6 +7,10 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, List
 
+from services.execution.intent_lifecycle import (
+    execution_store_transition_allowed,
+    normalize_execution_store_status,
+)
 from services.os.app_paths import data_dir, ensure_dirs
 
 def _now_ms() -> int:
@@ -61,26 +65,6 @@ CREATE TABLE IF NOT EXISTS symbol_locks(
   created_ts_ms INTEGER NOT NULL
 );
 """
-
-_ALLOWED_STATUS_TRANSITIONS = {
-    "pending": {"submitted", "canceled", "error"},
-    "submitted": {"filled", "canceled", "error", "partially_filled"},
-    "partially_filled": {"filled", "canceled", "error"},
-    "filled": set(),
-    "canceled": set(),
-    "error": set(),
-}
-
-
-def _normalize_status(status: Any) -> str:
-    return str(status or "").strip().lower()
-
-
-def _transition_allowed(current: str, nxt: str) -> bool:
-    if current == nxt:
-        return True
-    return nxt in _ALLOWED_STATUS_TRANSITIONS.get(current, set())
-
 
 def _trade_id_from_meta(meta: Optional[Dict[str, Any]]) -> str | None:
     if not isinstance(meta, dict):
@@ -166,9 +150,9 @@ class ExecutionStore:
             ).fetchone()
             if row is None:
                 return
-            current = _normalize_status(row["status"])
-            nxt = _normalize_status(status)
-            if not _transition_allowed(current, nxt):
+            current = normalize_execution_store_status(row["status"])
+            nxt = normalize_execution_store_status(status)
+            if not execution_store_transition_allowed(current, nxt):
                 return
             c.execute(
                 "UPDATE intents SET status=?, reason=? WHERE intent_id=?",

@@ -18,7 +18,7 @@ import json
 from services.admin.kill_switch import get_state as get_admin_kill_switch_state
 from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import data_dir, ensure_dirs
-from services.risk.live_risk_gates_phase82 import LiveRiskLimits, LiveGateDB
+from services.risk.live_risk_gates import LiveRiskLimits, LiveGateDB
 from services.risk.journal_introspection_phase83 import JournalSignals
 
 def main() -> int:

@@ -1,13 +1,15 @@
 from __future__ import annotations
+from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
 import asyncio
 import json
 import os
 import time
 from datetime import datetime, timezone
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
-from services.execution.live_arming import live_enabled_and_armed, live_risk_cfg
+from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from services.live_router.router import decide_order
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
@@ -75,6 +77,14 @@ def _risk_commit(db: LiveIntentQueueSQLite, notional_est: float) -> None:
     db.set_state("risk:trades", str(trades + 1))
     db.set_state("risk:notional", str(notional + float(notional_est)))
 
+
+def _live_sandbox_enabled() -> bool:
+    try:
+        return is_live_sandbox(load_runtime_trading_config())
+    except Exception:
+        return True
+
+
 def run_forever() -> None:
     ensure_dirs()
     try:
@@ -112,7 +122,9 @@ def run_forever() -> None:
                 _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "queue": 0, "submitted": submitted, "rejected": rejected})
                 time.sleep(0.6)
                 continue
+            sandbox = _live_sandbox_enabled()
             for it in batch:
+                ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="live_intent_consumer")
                 venue = normalize_venue(it["venue"])
                 symbol = normalize_symbol(it["symbol"])
                 mq = mq_check(venue, symbol)
@@ -122,11 +134,11 @@ def run_forever() -> None:
                 notional_est = float(it["qty"]) * float(it.get("limit_price") or (mq.get("last") or 0.0) or 0.0)
                 ok, rreason = _risk_ok(qdb, notional_est)
                 if not ok:
-                    qdb.update_status(it["intent_id"], "rejected", last_error=rreason)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
                     rejected += 1
                     continue
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
-                qdb.update_status(it["intent_id"], "queued", client_order_id=client_order_id)
+                update_live_queue_status_as_intent_consumer(qdb, it, "queued", ctx=ctx, client_order_id=client_order_id)
 
                 meta = dict(it.get("meta") or {})
                 ai_context = {
@@ -152,7 +164,7 @@ def run_forever() -> None:
                 )
 
                 if not bool(decision.allowed):
-                    qdb.update_status(it["intent_id"], "rejected", last_error=f"router:{decision.reason}", client_order_id=client_order_id)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"router:{decision.reason}", client_order_id=client_order_id)
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
@@ -170,7 +182,7 @@ def run_forever() -> None:
 
                 ad = None
                 try:
-                    ad = LiveExchangeAdapter(venue)
+                    ad = LiveExchangeAdapter(venue, sandbox=sandbox)
                     resp = ad.submit_order(
                         canonical_symbol=symbol,
                         side=decision.side,
@@ -180,7 +192,7 @@ def run_forever() -> None:
                         client_order_id=client_order_id,
                     )
                     ex_oid = str(resp.get("id") or resp.get("orderId") or "")
-                    qdb.update_status(it["intent_id"], "submitted", last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid)
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
@@ -196,7 +208,7 @@ def run_forever() -> None:
                     _risk_commit(qdb, notional_est)
                     submitted += 1
                 except Exception as e:
-                    qdb.update_status(it["intent_id"], "rejected", last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,

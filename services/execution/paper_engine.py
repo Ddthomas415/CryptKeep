@@ -39,9 +39,11 @@ def _cfg() -> dict:
     }
 
 class PaperEngine:
-    def __init__(self) -> None:
+    def __init__(self, *, clock=None) -> None:
         self.db = PaperTradingSQLite()
         self.cfg = _cfg()
+        # D05: injectable clock for deterministic replay. Default: wall clock.
+        self._clock = clock or (lambda: datetime.now(timezone.utc).isoformat())
         self._ensure_cash_initialized()
 
     def _ensure_cash_initialized(self) -> None:
@@ -131,7 +133,7 @@ class PaperEngine:
         row = {
             "order_id": oid,
             "client_order_id": str(client_order_id),
-            "ts": str(ts or _now()),
+            "ts": str(ts or self._clock()),
             "venue": str(venue).lower().strip(),
             "symbol": str(symbol).strip(),
             "side": side,
@@ -144,6 +146,7 @@ class PaperEngine:
             "meta": meta,
         }
         self.db.insert_order(row)
+        # Evaluation: keep inline call for correctness in non-loop contexts (tests, direct calls)
         self.evaluate_open_orders()
         out = self.db.get_order_by_client_id(client_order_id)
 
@@ -207,7 +210,7 @@ class PaperEngine:
             self.set_cash_quote(cash + proceeds)
             self.set_realized_pnl(self.realized_pnl() + pnl)
         fill_id = str(uuid.uuid4())
-        self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": _now(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
+        self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": self._clock(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
         self.db.update_order_status(order["order_id"], "filled", None)
 
         # Evidence logging — strategy-specific, best-effort

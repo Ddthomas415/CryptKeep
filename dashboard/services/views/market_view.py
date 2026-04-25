@@ -18,10 +18,16 @@ from dashboard.services.views._shared import (  # noqa: F401
     _request_envelope_from_base,
 )
 
+def _view_data():
+    from dashboard.services import view_data
+
+    return view_data
+
 def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
-    summary = get_dashboard_summary()
-    recommendations = get_recommendations()
-    current_regime = _load_current_regime() or str(summary.get("risk_status") or "")
+    vd = _view_data()
+    summary = vd.get_dashboard_summary()
+    recommendations = vd.get_recommendations()
+    current_regime = vd._load_current_regime() or str(summary.get("risk_status") or "")
     risk_status = str(summary.get("risk_status") or "")
 
     recommendation_map: dict[str, dict[str, Any]] = {}
@@ -34,7 +40,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
 
     raw_watchlist = summary.get("watchlist") if isinstance(summary.get("watchlist"), list) else []
     if not raw_watchlist:
-        raw_watchlist = _default_dashboard_summary()["watchlist"]
+        raw_watchlist = vd._default_dashboard_summary()["watchlist"]
 
     watchlist: list[dict[str, Any]] = []
     for item in raw_watchlist:
@@ -46,7 +52,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         recommendation = recommendation_map.get(asset, {})
         change_24h_pct = float(item.get("change_24h_pct") or 0.0)
         watchlist.append(
-            _enrich_signal_row(
+            vd._enrich_signal_row(
                 {
                     "asset": asset,
                     "price": float(item.get("price") or 0.0),
@@ -54,7 +60,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
                     "signal": str(item.get("signal") or recommendation.get("signal") or "watch"),
                     "confidence": float(recommendation.get("confidence") or 0.0),
                     "status": str(recommendation.get("status") or "monitor"),
-                    "volume_trend": str(item.get("volume_trend") or _derive_volume_trend(change_24h_pct)),
+                    "volume_trend": str(item.get("volume_trend") or vd._derive_volume_trend(change_24h_pct)),
                     "execution_state": str(recommendation.get("execution_state") or ""),
                     "evidence": str(recommendation.get("evidence") or ""),
                     "summary": str(recommendation.get("summary") or ""),
@@ -66,7 +72,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         )
 
     if not watchlist:
-        watchlist = list(_default_dashboard_summary()["watchlist"])
+        watchlist = list(vd._default_dashboard_summary()["watchlist"])
 
     requested_asset = str(selected_asset or "").strip().upper()
     if requested_asset:
@@ -74,14 +80,14 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     else:
         selected_row = min(
             enumerate(watchlist),
-            key=lambda item: (_asset_priority(str(item[1].get("signal") or "")), item[0]),
+            key=lambda item: (vd._asset_priority(str(item[1].get("signal") or "")), item[0]),
         )[1]
 
     asset = str(selected_row.get("asset") or "")
     watchlist_price = float(selected_row.get("price") or 0.0)
     change_24h_pct = float(selected_row.get("change_24h_pct") or 0.0)
-    explain = get_research_explain(asset, question=f"Why is {asset} moving?")
-    snapshot = _get_market_snapshot(asset) or {}
+    explain = vd.get_research_explain(asset, question=f"Why is {asset} moving?")
+    snapshot = vd._get_market_snapshot(asset) or {}
     price = float(snapshot.get("last_price") or watchlist_price or 0.0)
     bid = float(snapshot.get("bid") or 0.0)
     ask = float(snapshot.get("ask") or 0.0)
@@ -92,7 +98,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     volume_24h = float(snapshot.get("volume_24h") or 0.0)
 
     related_signals = [
-        _enrich_signal_row(
+        vd._enrich_signal_row(
             {
                 "asset": str(item.get("asset") or ""),
                 "signal": str(item.get("signal") or "hold"),
@@ -120,7 +126,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
     ]
     if not related_signals:
         related_signals = [
-            _enrich_signal_row(
+            vd._enrich_signal_row(
                 {
                 "asset": asset,
                 "signal": str(selected_row.get("signal") or "watch"),
@@ -151,7 +157,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
 
     thesis = current_cause or str(lead_signal.get("summary") or "").strip()
     if not thesis:
-        bias = _derive_market_bias(change_24h_pct)
+        bias = vd._derive_market_bias(change_24h_pct)
         thesis = f"{asset} remains {bias} with {selected_row.get('volume_trend')} activity and watchlist support."
 
     evidence = str(lead_signal.get("evidence") or "").strip()
@@ -197,7 +203,7 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         "confidence": float(explain.get("confidence") or lead_signal.get("confidence") or selected_row.get("confidence") or 0.0),
         "status": str(lead_signal.get("status") or selected_row.get("status") or "monitor"),
         "execution_state": str(lead_signal.get("execution_state") or ""),
-        "market_bias": _derive_market_bias(change_24h_pct),
+        "market_bias": vd._derive_market_bias(change_24h_pct),
         "volume_trend": str(selected_row.get("volume_trend") or "steady"),
         "support": round(price * 0.985, 2),
         "resistance": round(price * 1.015, 2),
@@ -217,11 +223,11 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
         "execution_disabled": bool(explain.get("execution_disabled", True)),
         "evidence": evidence,
         "evidence_items": evidence_items,
-        "price_series": _get_market_price_series(asset, price, change_24h_pct),
+        "price_series": vd._get_market_price_series(asset, price, change_24h_pct),
         "catalysts": catalysts,
         "related_signals": related_signals,
     }
-    detail = _enrich_signal_row(
+    detail = vd._enrich_signal_row(
         detail,
         market_row={
             **(snapshot if isinstance(snapshot, dict) else {}),
@@ -243,9 +249,10 @@ def get_markets_view(selected_asset: str | None = None) -> dict[str, Any]:
 
 
 def get_research_explain(asset: str, question: str | None = None) -> dict[str, Any]:
+    vd = _view_data()
     asset_symbol = str(asset or "").strip().upper() or "SOL"
     resolved_question = question or f"Why is {asset_symbol} moving?"
-    fallback = _default_explain_payload(asset_symbol, resolved_question)
+    fallback = vd._default_explain_payload(asset_symbol, resolved_question)
 
     def _normalize_explain(
         envelope: dict[str, Any] | None,
@@ -262,7 +269,7 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
 
         if not any(key in data for key in ("current_cause", "past_precedent", "future_catalyst")):
             return None
-        if _explain_mentions_foreign_asset(data, asset_symbol):
+        if vd._explain_mentions_foreign_asset(data, asset_symbol):
             return None
 
         data["asset"] = asset_symbol
@@ -277,7 +284,7 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         }
         return data
 
-    primary_envelope = _request_envelope(
+    primary_envelope = vd._request_envelope(
         "/api/v1/research/explain",
         method="POST",
         payload={"asset": asset_symbol, "question": resolved_question},
@@ -291,8 +298,8 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         return primary
 
     phase1 = _normalize_explain(
-        _request_envelope_from_base(
-            PHASE1_ORCHESTRATOR_URL,
+        vd._request_envelope_from_base(
+            vd.PHASE1_ORCHESTRATOR_URL,
             "/v1/explain",
             method="POST",
             payload={"asset": asset_symbol, "question": resolved_question, "lookback_minutes": 60},
@@ -303,7 +310,7 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
     if phase1 is not None:
         return phase1
 
-    mock = _read_mock_envelope("explain-sol.json")
+    mock = vd._read_mock_envelope("explain-sol.json")
     if asset_symbol == "SOL" and isinstance(mock, dict) and isinstance(mock.get("data"), dict):
         data = dict(mock["data"])
         data["asset"] = asset_symbol
@@ -317,5 +324,3 @@ def get_research_explain(asset: str, question: str | None = None) -> dict[str, A
         return data
 
     return fallback
-
-

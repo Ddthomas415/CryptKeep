@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib
 
+from services.execution.intent_lifecycle import live_queue_transition_allowed
+
 
 def _reload_queue(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
@@ -105,3 +107,81 @@ def test_live_intent_queue_update_status_still_updates_mutable_fields(monkeypatc
     assert row["status"] == "submitted"
     assert row["client_order_id"] == "cid-2"
     assert row["exchange_order_id"] == "ord-2"
+
+
+def test_live_intent_queue_transition_rules_are_shared_lifecycle_truth() -> None:
+    assert live_queue_transition_allowed("queued", "submitted") is True
+    assert live_queue_transition_allowed("submitted", "filled") is True
+    assert live_queue_transition_allowed("submitted", "queued") is False
+    assert live_queue_transition_allowed("filled", "error") is False
+
+
+def test_live_intent_queue_update_status_blocks_invalid_transition(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    qdb.upsert_intent(
+        {
+            "intent_id": "intent-3",
+            "created_ts": "2026-04-02T12:00:00Z",
+            "ts": "2026-04-02T12:00:00Z",
+            "source": "strategy",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "market",
+            "qty": 0.5,
+            "limit_price": None,
+            "status": "queued",
+            "last_error": None,
+            "client_order_id": None,
+            "exchange_order_id": None,
+        }
+    )
+    qdb.update_status("intent-3", "submitted", client_order_id="cid-3", exchange_order_id="ord-3")
+
+    qdb.update_status(
+        "intent-3",
+        "queued",
+        last_error="should_not_apply",
+        client_order_id="bad-cid",
+        exchange_order_id="bad-ord",
+    )
+
+    row = qdb.list_intents(limit=5)[0]
+    assert row["status"] == "submitted"
+    assert row["last_error"] is None
+    assert row["client_order_id"] == "cid-3"
+    assert row["exchange_order_id"] == "ord-3"
+
+
+def test_live_intent_queue_update_status_blocks_terminal_overwrite(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    qdb.upsert_intent(
+        {
+            "intent_id": "intent-4",
+            "created_ts": "2026-04-02T12:00:00Z",
+            "ts": "2026-04-02T12:00:00Z",
+            "source": "strategy",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "market",
+            "qty": 0.5,
+            "limit_price": None,
+            "status": "queued",
+            "last_error": None,
+            "client_order_id": None,
+            "exchange_order_id": None,
+        }
+    )
+    qdb.update_status("intent-4", "submitted", client_order_id="cid-4", exchange_order_id="ord-4")
+    qdb.update_status("intent-4", "filled", last_error=None)
+
+    qdb.update_status("intent-4", "error", last_error="late_error")
+
+    row = qdb.list_intents(limit=5)[0]
+    assert row["status"] == "filled"
+    assert row["last_error"] is None

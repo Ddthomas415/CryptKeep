@@ -29,6 +29,12 @@ API_TIMEOUT_SECONDS = float(os.environ.get("CK_API_TIMEOUT_SECONDS", "0.6"))
 from dashboard.services.views._shared_shared import (
     _normalize_asset_symbol,
 )
+
+
+def _view_data():
+    from dashboard.services import view_data
+
+    return view_data
 from dashboard.services.views._shared_market import (
     _repo_default_watchlist_assets,
 )
@@ -178,7 +184,7 @@ def _apply_local_settings_overrides(settings_payload: dict[str, Any]) -> dict[st
         section: dict(value) if isinstance(value, dict) else {}
         for section, value in (settings_payload or {}).items()
     }
-    raw_cfg = load_user_yaml()
+    raw_cfg = _view_data().load_user_yaml()
     if not isinstance(raw_cfg, dict):
         return merged
 
@@ -251,6 +257,5 @@ def _apply_local_settings_overrides(settings_payload: dict[str, Any]) -> dict[st
             paper_trading["max_daily_loss_pct"] = round((max_daily_loss_quote / total_value) * 100, 2)
     merged["paper_trading"] = paper_trading
     return merged
-
 
 
