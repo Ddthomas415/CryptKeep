@@ -36,7 +36,7 @@ def _ts_to_ms(v) -> int:
             return int(txt)
         dt = datetime.fromisoformat(txt.replace("Z", "+00:00"))
         return int(dt.timestamp() * 1000)
-    except (sqlite3.OperationalError, sqlite3.DatabaseError):
+    except (ValueError, TypeError, sqlite3.OperationalError, sqlite3.DatabaseError):
         return 0
 
 
