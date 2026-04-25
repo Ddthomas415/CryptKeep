@@ -185,3 +185,53 @@ def test_live_intent_queue_update_status_blocks_terminal_overwrite(monkeypatch, 
     row = qdb.list_intents(limit=5)[0]
     assert row["status"] == "filled"
     assert row["last_error"] is None
+
+def test_live_intent_queue_stale_writer_cannot_override_newer_committed_state(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    qdb.upsert_intent(
+        {
+            "intent_id": "intent-stale",
+            "created_ts": "2026-04-02T12:00:00Z",
+            "ts": "2026-04-02T12:00:00Z",
+            "source": "strategy",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "market",
+            "qty": 0.5,
+            "limit_price": None,
+            "status": "queued",
+            "last_error": None,
+            "client_order_id": None,
+            "exchange_order_id": None,
+        }
+    )
+
+    assert qdb.update_status("intent-stale", "submitted") is True
+
+    # This is the stale writer's old observation. update_status must not rely
+    # on this value; the SQL predicate must enforce against the current row.
+    observed = qdb.list_intents(limit=10)[0]["status"]
+    assert observed == "submitted"
+
+    # Force a competing committed state change outside the queue API so the
+    # stale writer's assumption no longer matches the persisted row.
+    con = queue_mod._connect()
+    try:
+        con.execute(
+            "UPDATE live_trade_intents SET status=?, updated_ts=? WHERE intent_id=?",
+            ("held", queue_mod._now(), "intent-stale"),
+        )
+        con.commit()
+    finally:
+        con.close()
+
+    # submitted -> filled would have been valid under the stale observation,
+    # but held -> filled is invalid and must fail atomically in SQL.
+    assert qdb.update_status("intent-stale", "filled") is False
+
+    row = qdb.list_intents(limit=10)[0]
+    assert row["status"] == "held"
+
