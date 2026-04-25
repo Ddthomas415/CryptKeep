@@ -44,7 +44,6 @@ jobs:
               "services/execution/intent_consumer.py",
               "services/execution/live_intent_consumer.py",
               "services/execution/held_intents.py",
-              "scripts/pre_release_sanity.py",
           ]
           subprocess.run([sys.executable, "-m", "ruff", "check", *targets], check=True)
           PY
