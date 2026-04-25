@@ -235,3 +235,47 @@ def test_live_intent_queue_stale_writer_cannot_override_newer_committed_state(mo
     row = qdb.list_intents(limit=10)[0]
     assert row["status"] == "held"
 
+
+def test_live_intent_queue_upsert_does_not_overwrite_error_terminal_row(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    base = {
+        "intent_id": "intent-error-terminal",
+        "created_ts": "2026-04-02T12:00:00Z",
+        "ts": "2026-04-02T12:00:00Z",
+        "source": "strategy",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "order_type": "market",
+        "qty": 0.5,
+        "limit_price": None,
+        "status": "queued",
+        "last_error": None,
+        "client_order_id": "cid-original",
+        "exchange_order_id": "ord-original",
+    }
+
+    qdb.upsert_intent(base)
+    assert qdb.update_status("intent-error-terminal", "submitted") is True
+    assert qdb.update_status("intent-error-terminal", "error", last_error="terminal_error") is True
+
+    replacement = dict(base)
+    replacement.update(
+        {
+            "ts": "2099-01-01T00:00:00Z",
+            "source": "strategy_retry",
+            "status": "queued",
+            "client_order_id": "cid-replacement",
+            "exchange_order_id": "ord-replacement",
+        }
+    )
+
+    qdb.upsert_intent(replacement)
+
+    row = qdb.list_intents(limit=10)[0]
+    assert row["status"] == "error"
+    assert row["last_error"] == "terminal_error"
+    assert row["client_order_id"] == "cid-original"
+    assert row["exchange_order_id"] == "ord-original"
