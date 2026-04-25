@@ -81,7 +81,7 @@ def _risk_commit(db: LiveIntentQueueSQLite, notional_est: float) -> None:
 def _live_sandbox_enabled() -> bool:
     try:
         return is_live_sandbox(load_runtime_trading_config())
-    except Exception:
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return True
 
 

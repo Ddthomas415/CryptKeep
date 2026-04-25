@@ -111,7 +111,7 @@ class IntentWriter:
                         "linked_order_id": None,
                     }
                 )
-            except Exception as _mirror_err:
+            except Exception as _mirror_err:  # noqa: BLE001 - propagate storage-layer failure
                 # Mirror failure is not suppressed: an intent in pipeline_intents
                 # with no queue entry will never be executed. Re-raise so callers
                 # can observe the partial write and handle or retry.
@@ -192,7 +192,7 @@ class IntentWriter:
             )
         try:
             IntentQueueSQLite().update_status(str(intent_id), str(status), last_error=last_error)
-        except Exception as _mirror_err:
+        except Exception as _mirror_err:  # noqa: BLE001 - propagate storage-layer failure
             # Status divergence between pipeline_intents and queue is not suppressed.
             # Re-raise so callers observe the incomplete update.
             raise RuntimeError(

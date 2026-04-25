@@ -35,7 +35,7 @@ def _ts_to_ms(v) -> int:
             return int(txt)
         dt = datetime.fromisoformat(txt.replace("Z", "+00:00"))
         return int(dt.timestamp() * 1000)
-    except Exception:
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return 0
 
 
@@ -70,7 +70,7 @@ def request_stop() -> dict:
 def _live_sandbox_enabled() -> bool:
     try:
         return is_live_sandbox(load_runtime_trading_config())
-    except Exception:
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return True
 
 
@@ -105,13 +105,13 @@ def _maybe_promote_system_guard_halted(qdb: LiveIntentQueueSQLite, guard_meta: d
         return dict(guard_meta or {})
     try:
         remaining = qdb.list_intents(limit=1, status="submitted")
-    except Exception:
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return dict(guard_meta or {})
     if remaining:
         return dict(guard_meta or {})
     try:
         return set_system_guard_state("HALTED", writer="live_reconciler", reason="cleanup_complete")
-    except Exception:
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return dict(guard_meta or {})
 
 def run_forever() -> None:
@@ -238,7 +238,7 @@ def run_forever() -> None:
                         since_ms = None
                         try:
                             since_ms = int(float(qdb.get_state(f"trades_since_ms:{venue}:{symbol}") or "0")) or None
-                        except Exception:
+                        except (sqlite3.OperationalError, sqlite3.DatabaseError):
                             since_ms = None
                         trades = ad.fetch_my_trades(symbol, since_ms=since_ms, limit=200)
                         max_ts = 0
