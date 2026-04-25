@@ -235,6 +235,7 @@ def test_live_intent_queue_stale_writer_cannot_override_newer_committed_state(mo
     row = qdb.list_intents(limit=10)[0]
     assert row["status"] == "held"
 
+
 def test_live_intent_queue_upsert_does_not_overwrite_error_terminal_row(monkeypatch, tmp_path):
     queue_mod = _reload_queue(monkeypatch, tmp_path)
     qdb = queue_mod.LiveIntentQueueSQLite()
@@ -278,4 +279,3 @@ def test_live_intent_queue_upsert_does_not_overwrite_error_terminal_row(monkeypa
     assert row["last_error"] == "terminal_error"
     assert row["client_order_id"] == "cid-original"
     assert row["exchange_order_id"] == "ord-original"
-
