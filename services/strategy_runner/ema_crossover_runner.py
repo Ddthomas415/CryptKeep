@@ -572,10 +572,11 @@ def run_forever() -> None:
     # Breakout/post-entry exit defaults.
     # These are runner-level controls and should be explicitly versioned in strategy config
     # before governed evidence runs.
-    cfg.setdefault("stop_loss_pct", 0.03)
-    cfg.setdefault("take_profit_pct", 0.06)
-    cfg.setdefault("trailing_stop_pct", 0.02)
-    cfg.setdefault("max_bars_hold", 60)
+    risk_cfg = cfg.get("risk") if isinstance(cfg.get("risk"), dict) else {}
+    cfg.setdefault("stop_loss_pct", risk_cfg.get("stop_loss_pct", 0.03))
+    cfg.setdefault("take_profit_pct", risk_cfg.get("take_profit_pct", 0.06))
+    cfg.setdefault("trailing_stop_pct", risk_cfg.get("trailing_stop_pct", 0.02))
+    cfg.setdefault("max_bars_hold", risk_cfg.get("max_bars_hold", 60))
 
     # ema_cross_v2 post-entry invalidation defaults
     cfg.setdefault("ema_invalidate_on_low_vol", True)
