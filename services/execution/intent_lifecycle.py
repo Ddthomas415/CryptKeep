@@ -4,8 +4,8 @@ from typing import Any
 
 
 LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error"}
-RECONCILER_LIVE_QUEUE_TARGETS = {"filled", "canceled", "rejected", "error"}
-RECONCILER_LIVE_QUEUE_SOURCES = {"submitted"}
+RECONCILER_LIVE_QUEUE_TARGETS = {"submitted", "filled", "canceled", "rejected", "error"}
+RECONCILER_LIVE_QUEUE_SOURCES = {"submitted", "submit_unknown"}
 SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitted", "rejected", "submit_unknown"}
 SUBMIT_OWNER_LIVE_QUEUE_SOURCES = {"queued"}
 LIVE_QUEUE_STATUS_TRANSITIONS = {
@@ -71,6 +71,16 @@ def validate_reconciler_live_queue_transition(
     if current in LIVE_QUEUE_TERMINAL_STATUSES:
         raise IntentLifecycleViolation(
             f"blocked live queue transition: terminal status {current!r} is immutable"
+        )
+    if current == "submit_unknown" and nxt != "submitted":
+        raise IntentLifecycleViolation(
+            f"blocked live queue transition: invalid submit_unknown target {nxt!r}"
+        )
+    if current == "submitted" and nxt == "submitted":
+        return nxt
+    if current == "submitted" and nxt not in {"filled", "canceled", "rejected", "error"}:
+        raise IntentLifecycleViolation(
+            f"blocked live queue transition: invalid submitted target {nxt!r}"
         )
     if current not in RECONCILER_LIVE_QUEUE_SOURCES:
         raise IntentLifecycleViolation(

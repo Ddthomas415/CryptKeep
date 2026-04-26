@@ -122,6 +122,52 @@ def _maybe_promote_system_guard_halted(qdb: LiveIntentQueueSQLite, guard_meta: d
         return set_system_guard_state("HALTED", writer="live_reconciler", reason="cleanup_complete")
     except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return dict(guard_meta or {})
+def _recover_submit_unknown_by_client_order_id(
+    *,
+    qdb: LiveIntentQueueSQLite,
+    ldb: LiveTradingSQLite,
+    ad: LiveExchangeAdapter,
+    intent: dict,
+    venue: str,
+    symbol: str,
+) -> bool:
+    if str(intent.get("status") or "").strip().lower() != "submit_unknown":
+        return False
+    client_order_id = str(intent.get("client_order_id") or "").strip()
+    if not client_order_id:
+        return False
+
+    recovered = ad.find_order_by_client_oid(symbol, client_order_id)
+    if not recovered:
+        return False
+
+    ex_oid = str(recovered.get("id") or recovered.get("orderId") or "").strip()
+    if not ex_oid:
+        return False
+
+    update_live_queue_status_as_reconciler(
+        qdb,
+        intent,
+        "submitted",
+        ctx=_RECONCILER_STATE_CONTEXT,
+        last_error=None,
+        client_order_id=client_order_id,
+        exchange_order_id=ex_oid,
+    )
+    ldb.upsert_order({
+        "client_order_id": client_order_id,
+        "venue": venue,
+        "symbol": symbol,
+        "side": intent["side"],
+        "order_type": intent["order_type"],
+        "qty": float(intent["qty"]),
+        "limit_price": intent.get("limit_price"),
+        "exchange_order_id": ex_oid,
+        "status": "submitted",
+        "last_error": None,
+    })
+    return True
+
 
 def run_forever() -> None:
     ensure_dirs()
@@ -159,7 +205,7 @@ def run_forever() -> None:
                     })
                     time.sleep(1.0)
                     continue
-            submitted = qdb.list_intents(limit=60, status="submitted")
+            submitted = qdb.list_intents(limit=60, status="submitted") + qdb.list_intents(limit=60, status="submit_unknown")
             adapters: dict[str, LiveExchangeAdapter] = {}
             sandbox = _live_sandbox_enabled()
             try:
@@ -168,6 +214,15 @@ def run_forever() -> None:
                     symbol = normalize_symbol(it["symbol"])
                     ex_oid = (it.get("exchange_order_id") or "").strip()
                     if not ex_oid:
+                        if _recover_submit_unknown_by_client_order_id(
+                            qdb=qdb,
+                            ldb=ldb,
+                            ad=_adapter_for_reconcile_pass(adapters, venue, sandbox=sandbox),
+                            intent=it,
+                            venue=venue,
+                            symbol=symbol,
+                        ):
+                            continue
                         continue
                     try:
                         _submitted_ts_ms = _ts_to_ms(it.get("updated_ts") or it.get("created_ts") or 0)
