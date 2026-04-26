@@ -263,9 +263,12 @@ class LiveIntentQueueSQLite:
             con.close()
 
     def set_state(self, k: str, v: str) -> None:
+        key = str(k)
+        if key in {"risk:day", "risk:trades", "risk:notional"}:
+            raise ValueError(f"reserved live risk state key: {key}")
         con = _connect()
         try:
-            con.execute("INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)", (str(k), str(v)))
+            con.execute("INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)", (key, str(v)))
             con.commit()
         finally:
             con.close()
