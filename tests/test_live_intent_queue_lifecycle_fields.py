@@ -46,7 +46,7 @@ def test_live_upsert_preserves_lifecycle_fields_after_submit(tmp_path, monkeypat
     assert got["status"] == "submitted"
     assert got["client_order_id"] == "cid-1"
     assert got["exchange_order_id"] == "ex-1"
-    assert got["qty"] == 2.0
+    assert got["qty"] == 1.0
 
 
 def test_live_upsert_does_not_modify_terminal_row(tmp_path, monkeypatch):

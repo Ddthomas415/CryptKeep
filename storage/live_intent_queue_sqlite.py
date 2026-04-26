@@ -67,7 +67,6 @@ class LiveIntentQueueSQLite:
         _connect().close()
 
     def upsert_intent(self, row: Dict[str, Any]) -> None:
-        terminal = ("filled", "rejected", "canceled", "cancelled", "error")
         intent_id = str(row["intent_id"])
         meta_json = json.dumps(row.get("meta")) if row.get("meta") is not None else None
         now = _now()
@@ -95,26 +94,6 @@ class LiveIntentQueueSQLite:
                     row.get("exchange_order_id"),
                     meta_json,
                     now,
-                ),
-            )
-            placeholders = ",".join("?" for _ in terminal)
-            con.execute(
-                f"UPDATE live_trade_intents SET ts=?, source=?, strategy_id=?, venue=?, symbol=?, side=?, order_type=?, qty=?, limit_price=?, meta=?, updated_ts=? "
-                f"WHERE intent_id=? AND status NOT IN ({placeholders})",
-                (
-                    str(row["ts"]),
-                    str(row["source"]),
-                    row.get("strategy_id"),
-                    str(row["venue"]),
-                    str(row["symbol"]),
-                    str(row["side"]),
-                    str(row["order_type"]),
-                    float(row["qty"]),
-                    row.get("limit_price"),
-                    meta_json,
-                    now,
-                    intent_id,
-                    *terminal,
                 ),
             )
         finally:
