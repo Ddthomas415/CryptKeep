@@ -225,7 +225,30 @@ def run_forever() -> None:
                         limit_price=decision.limit_price,
                         client_order_id=client_order_id,
                     )
-                    ex_oid = str(resp.get("id") or resp.get("orderId") or "")
+                    ex_oid = str(resp.get("id") or resp.get("orderId") or "").strip()
+                    if not ex_oid:
+                        update_live_queue_status_as_intent_consumer(
+                            qdb,
+                            it,
+                            "submit_unknown",
+                            ctx=ctx,
+                            last_error="submit_response_missing_exchange_order_id",
+                            client_order_id=client_order_id,
+                        )
+                        ldb.upsert_order({
+                            "client_order_id": client_order_id,
+                            "venue": venue,
+                            "symbol": symbol,
+                            "side": it["side"],
+                            "order_type": it["order_type"],
+                            "qty": float(it["qty"]),
+                            "limit_price": it.get("limit_price"),
+                            "exchange_order_id": None,
+                            "status": "submit_unknown",
+                            "last_error": "submit_response_missing_exchange_order_id",
+                        })
+                        continue
+
                     update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid)
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
