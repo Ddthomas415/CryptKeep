@@ -6,16 +6,17 @@ from typing import Any
 LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_TARGETS = {"filled", "canceled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_SOURCES = {"submitted"}
-SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitted", "rejected"}
+SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitted", "rejected", "submit_unknown"}
 SUBMIT_OWNER_LIVE_QUEUE_SOURCES = {"queued"}
 LIVE_QUEUE_STATUS_TRANSITIONS = {
-    "queued": {"queued", "submitted", "rejected", "held"},
+    "queued": {"queued", "submitted", "rejected", "held", "submit_unknown"},
     "submitted": {"submitted", "filled", "canceled", "cancelled", "rejected", "error", "held"},
     "filled": set(),
     "canceled": set(),
     "cancelled": set(),
     "rejected": set(),
     "error": set(),
+    "submit_unknown": {"submitted", "rejected", "error"},
     "held": {"queued", "rejected"},
 }
 EXECUTION_STORE_STATUS_TRANSITIONS = {
