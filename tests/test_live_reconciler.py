@@ -16,6 +16,8 @@ def test_live_reconciler_reuses_adapter_per_venue_within_single_pass(monkeypatch
 
         def list_intents(self, *, limit: int = 60, status: str):
             assert status in {"submitted", "submit_unknown"}
+            if status == "submit_unknown":
+                return []
             return [
                 {
                     "intent_id": "intent-1",
