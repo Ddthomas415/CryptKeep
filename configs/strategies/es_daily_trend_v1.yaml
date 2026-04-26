@@ -70,6 +70,13 @@ risk:
   # Do not treat this as live-enforced until wired directly into the risk gate.
   max_drawdown_pct: 12.0                 # full stop + review at 12% drawdown
 
+  # Disable runner-level intraday exit defaults for this daily-bar strategy.
+  # Exits are governed by exit.rule: close_below_sma, not loop-count time stops.
+  max_bars_hold: 0
+  stop_loss_pct: 0.0
+  trailing_stop_pct: 0.0
+  take_profit_pct: 0.0
+
   drawdown_rules:
     halve_size_at_pct: 6.0               # 50% of max_drawdown_pct
     paper_only_at_pct: 9.0               # 75% of max_drawdown_pct
