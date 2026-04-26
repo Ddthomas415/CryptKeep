@@ -14,6 +14,7 @@ from services.market_data.symbol_router import normalize_venue, normalize_symbol
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
 from services.os.file_utils import atomic_write
+from services.control.managed_component import clean_stale_lock_file
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -60,6 +61,13 @@ def _acquire_lock() -> bool:
             fh.write(payload)
         return True
     except FileExistsError:
+        if clean_stale_lock_file(LOCK_FILE):
+            try:
+                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+                    fh.write(payload)
+                return True
+            except FileExistsError:
+                return False
         return False
 
 def _release_lock() -> None:
