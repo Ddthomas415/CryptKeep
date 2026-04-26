@@ -61,9 +61,7 @@ def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     cur = db.get_state("risk:day") or ""
     if cur != today:
-        db.set_state("risk:day", today)
-        db.set_state("risk:trades", "0")
-        db.set_state("risk:notional", "0.0")
+        db.reset_risk_state_for_day(today)
 
 
 def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
