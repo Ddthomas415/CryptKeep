@@ -15,7 +15,9 @@ def test_live_reconciler_reuses_adapter_per_venue_within_single_pass(monkeypatch
             self.state: dict[str, str] = {}
 
         def list_intents(self, *, limit: int = 60, status: str):
-            assert status == "submitted"
+            assert status in {"submitted", "submit_unknown"}
+            if status == "submit_unknown":
+                return []
             return [
                 {
                     "intent_id": "intent-1",
@@ -127,7 +129,7 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
             self.state: dict[str, str] = {}
 
         def list_intents(self, *, limit: int = 60, status: str):
-            assert status == "submitted"
+            assert status in {"submitted", "submit_unknown"}
             return [
                 {
                     "intent_id": "intent-1",
@@ -218,7 +220,7 @@ def test_live_reconciler_guard_halted_reports_cleanup_without_arming(monkeypatch
 
     class _FakeQueue:
         def list_intents(self, *, limit: int = 60, status: str):
-            assert status == "submitted"
+            assert status in {"submitted", "submit_unknown"}
             return []
 
     class _FakeTrading:
@@ -257,7 +259,7 @@ def test_live_reconciler_promotes_halting_to_halted_when_cleanup_complete(monkey
 
     class _FakeQueue:
         def list_intents(self, *, limit: int = 60, status: str):
-            assert status == "submitted"
+            assert status in {"submitted", "submit_unknown"}
             return []
 
     class _FakeTrading:

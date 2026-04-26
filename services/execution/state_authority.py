@@ -44,6 +44,8 @@ def update_live_queue_status_as_reconciler(
     *,
     ctx: LiveStateContext | None,
     last_error: str | None = None,
+    client_order_id: str | None = None,
+    exchange_order_id: str | None = None,
 ) -> None:
     intent_id = str(intent.get("intent_id") or "").strip()
     if not intent_id:
@@ -53,7 +55,12 @@ def update_live_queue_status_as_reconciler(
         next_status=status,
         ctx=ctx,
     )
-    qdb.update_status(intent_id, nxt, last_error=last_error)
+    kwargs = {"last_error": last_error}
+    if client_order_id is not None:
+        kwargs["client_order_id"] = client_order_id
+    if exchange_order_id is not None:
+        kwargs["exchange_order_id"] = exchange_order_id
+    qdb.update_status(intent_id, nxt, **kwargs)
 
 
 def _validated_submit_owner_live_queue_status(
