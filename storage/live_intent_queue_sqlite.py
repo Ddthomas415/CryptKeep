@@ -236,6 +236,32 @@ class LiveIntentQueueSQLite:
         finally:
             con.close()
 
+    def reset_risk_state_for_day(self, day: str) -> None:
+        con = _connect()
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            con.execute(
+                "INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)",
+                ("risk:day", str(day)),
+            )
+            con.execute(
+                "INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)",
+                ("risk:trades", "0"),
+            )
+            con.execute(
+                "INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)",
+                ("risk:notional", "0.0"),
+            )
+            con.execute("COMMIT")
+        except Exception:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
+        finally:
+            con.close()
+
     def set_state(self, k: str, v: str) -> None:
         con = _connect()
         try:
