@@ -177,8 +177,9 @@ class LiveIntentQueueSQLite:
                    AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled', 'error')
                    AND (
                         status = ?
-                     OR (status = 'queued' AND ? IN ('submitted', 'rejected', 'held'))
+                     OR (status = 'queued' AND ? IN ('submitted', 'rejected', 'held', 'submit_unknown'))
                      OR (status = 'submitted' AND ? IN ('filled', 'canceled', 'cancelled', 'rejected', 'error', 'held'))
+                     OR (status = 'submit_unknown' AND ? IN ('submitted', 'rejected', 'error'))
                      OR (status = 'held' AND ? IN ('queued', 'rejected'))
                    )
                 """,
@@ -189,6 +190,7 @@ class LiveIntentQueueSQLite:
                     exchange_order_id,
                     _now(),
                     str(intent_id),
+                    str(nxt),
                     str(nxt),
                     str(nxt),
                     str(nxt),

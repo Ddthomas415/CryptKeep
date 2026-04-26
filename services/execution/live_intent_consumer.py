@@ -271,7 +271,7 @@ def run_forever() -> None:
                         submitted += 1
                         continue
 
-                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+                    update_live_queue_status_as_intent_consumer(qdb, it, "submit_unknown", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
@@ -281,10 +281,9 @@ def run_forever() -> None:
                         "qty": float(it["qty"]),
                         "limit_price": it.get("limit_price"),
                         "exchange_order_id": None,
-                        "status": "rejected",
+                        "status": "submit_unknown",
                         "last_error": f"{type(e).__name__}:{e}",
                     })
-                    rejected += 1
                 finally:
                     if ad:
                         ad.close()
