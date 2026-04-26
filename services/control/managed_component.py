@@ -50,6 +50,26 @@ def _process_alive(pid: int) -> bool:
         return False
 
 
+def clean_stale_lock_file(lock_file: Path) -> bool:
+    """Remove lock_file if it contains a PID that is no longer running."""
+    try:
+        payload = json.loads(lock_file.read_text(encoding="utf-8"))
+        pid = int(payload.get("pid") or 0)
+    except Exception:
+        return False
+
+    if pid <= 0 or _process_alive(pid):
+        return False
+
+    try:
+        lock_file.unlink()
+        return True
+    except FileNotFoundError:
+        return False
+    except Exception:
+        return False
+
+
 class ManagedComponent:
     """Lifecycle manager for a single named background process.
 

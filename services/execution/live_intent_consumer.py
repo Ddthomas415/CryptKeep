@@ -17,6 +17,7 @@ from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
 from services.risk.staleness_guard import is_snapshot_fresh
 from services.os.file_utils import atomic_write
+from services.control.managed_component import clean_stale_lock_file
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -38,6 +39,13 @@ def _acquire_lock() -> bool:
             fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
         return True
     except FileExistsError:
+        if clean_stale_lock_file(LOCK_FILE):
+            try:
+                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+                    fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
+                return True
+            except FileExistsError:
+                return False
         return False
 
 def _release_lock() -> None:
