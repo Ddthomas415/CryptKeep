@@ -15,7 +15,7 @@ def _reload_queue(monkeypatch, tmp_path):
     return queue_mod
 
 
-def test_live_intent_queue_upsert_preserves_creation_and_link_fields(monkeypatch, tmp_path):
+def test_live_intent_queue_upsert_is_insert_only_for_existing_intent(monkeypatch, tmp_path):
     queue_mod = _reload_queue(monkeypatch, tmp_path)
     qdb = queue_mod.LiveIntentQueueSQLite()
 
@@ -63,12 +63,12 @@ def test_live_intent_queue_upsert_preserves_creation_and_link_fields(monkeypatch
     assert row["client_order_id"] == "cid-1"
     assert row["exchange_order_id"] == "ord-1"
     assert row["last_error"] is None
-    assert row["ts"] == "2026-04-02T12:05:00Z"
-    assert row["source"] == "strategy_refresh"
-    assert row["side"] == "sell"
-    assert row["order_type"] == "limit"
-    assert row["qty"] == 1.25
-    assert row["limit_price"] == 101.5
+    assert row["ts"] == "2026-04-02T12:00:00Z"
+    assert row["source"] == "strategy"
+    assert row["side"] == "buy"
+    assert row["order_type"] == "market"
+    assert row["qty"] == 0.5
+    assert row["limit_price"] is None
 
 
 def test_live_intent_queue_update_status_still_updates_mutable_fields(monkeypatch, tmp_path):
