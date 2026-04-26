@@ -99,7 +99,7 @@ class LiveIntentQueueSQLite:
             )
             placeholders = ",".join("?" for _ in terminal)
             con.execute(
-                f"UPDATE live_trade_intents SET ts=?, source=?, strategy_id=?, venue=?, symbol=?, side=?, order_type=?, qty=?, limit_price=?, status=?, client_order_id=COALESCE(?, client_order_id), exchange_order_id=COALESCE(?, exchange_order_id), meta=?, updated_ts=? "
+                f"UPDATE live_trade_intents SET ts=?, source=?, strategy_id=?, venue=?, symbol=?, side=?, order_type=?, qty=?, limit_price=?, meta=?, updated_ts=? "
                 f"WHERE intent_id=? AND status NOT IN ({placeholders})",
                 (
                     str(row["ts"]),
@@ -111,9 +111,6 @@ class LiveIntentQueueSQLite:
                     str(row["order_type"]),
                     float(row["qty"]),
                     row.get("limit_price"),
-                    str(row["status"]),
-                    row.get("client_order_id"),
-                    row.get("exchange_order_id"),
                     meta_json,
                     now,
                     intent_id,
