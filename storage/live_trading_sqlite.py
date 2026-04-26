@@ -131,8 +131,23 @@ class LiveTradingSQLite:
         con = _connect()
         try:
             con.execute(
-                "INSERT OR REPLACE INTO live_orders(client_order_id, created_ts, venue, symbol, side, order_type, qty, limit_price, exchange_order_id, status, last_error) "
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                """
+                INSERT INTO live_orders(
+                  client_order_id, created_ts, venue, symbol, side, order_type,
+                  qty, limit_price, exchange_order_id, status, last_error
+                )
+                VALUES(?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(client_order_id) DO UPDATE SET
+                  venue=excluded.venue,
+                  symbol=excluded.symbol,
+                  side=excluded.side,
+                  order_type=excluded.order_type,
+                  qty=excluded.qty,
+                  limit_price=excluded.limit_price,
+                  exchange_order_id=excluded.exchange_order_id,
+                  status=excluded.status,
+                  last_error=excluded.last_error
+                """,
                 (
                     str(row["client_order_id"]),
                     str(row.get("created_ts") or _now()),
