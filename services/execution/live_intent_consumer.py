@@ -117,7 +117,7 @@ def run_forever() -> None:
                 _write_status({"ok": True, "status": "blocked", "reason": f"staleness:{stale_reason}", "ts": _now(), "loops": loops})
                 time.sleep(1.0)
                 continue
-            batch = qdb.next_queued(limit=10)
+            batch = qdb.claim_next_queued(limit=10)
             if not batch:
                 _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "queue": 0, "submitted": submitted, "rejected": rejected})
                 time.sleep(0.6)
@@ -138,7 +138,6 @@ def run_forever() -> None:
                     rejected += 1
                     continue
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
-                update_live_queue_status_as_intent_consumer(qdb, it, "queued", ctx=ctx, client_order_id=client_order_id)
 
                 meta = dict(it.get("meta") or {})
                 ai_context = {

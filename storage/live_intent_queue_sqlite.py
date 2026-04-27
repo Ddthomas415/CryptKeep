@@ -143,6 +143,57 @@ class LiveIntentQueueSQLite:
         finally:
             con.close()
 
+    def claim_next_queued(self, limit: int = 20) -> List[Dict[str, Any]]:
+        con = _connect()
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            rows = con.execute(
+                ("SELECT intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, meta, updated_ts "
+                 "FROM live_trade_intents WHERE status='queued' ORDER BY created_ts ASC LIMIT ?"),
+                (int(limit),),
+            ).fetchall()
+
+            claimed = []
+            now = _now()
+            for r in rows:
+                intent_id = str(r[0])
+                client_order_id = str(r[13] or f"live_intent_{intent_id}")
+                cur = con.execute(
+                    """
+                    UPDATE live_trade_intents
+                       SET status='submitting', client_order_id=?, updated_ts=?
+                     WHERE intent_id=?
+                       AND status='queued'
+                    """,
+                    (client_order_id, now, intent_id),
+                )
+                if cur.rowcount != 1:
+                    continue
+                claimed.append((
+                    r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7],
+                    r[8], r[9], r[10], "submitting", r[12], client_order_id,
+                    r[14], r[15], now,
+                ))
+
+            con.execute("COMMIT")
+            return [
+                {
+                    "intent_id": r[0], "created_ts": r[1], "ts": r[2], "source": r[3], "strategy_id": r[4], "venue": r[5], "symbol": r[6],
+                    "side": r[7], "order_type": r[8], "qty": r[9], "limit_price": r[10], "status": r[11],
+                    "last_error": r[12], "client_order_id": r[13], "exchange_order_id": r[14],
+                    "meta": json.loads(r[15]) if r[15] else None, "updated_ts": r[16],
+                }
+                for r in claimed
+            ]
+        except Exception:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
+        finally:
+            con.close()
+
     def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, client_order_id: str | None = None, exchange_order_id: str | None = None) -> bool:
         con = _connect()
         try:
@@ -156,7 +207,8 @@ class LiveIntentQueueSQLite:
                    AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled', 'error')
                    AND (
                         status = ?
-                     OR (status = 'queued' AND ? IN ('submitted', 'rejected', 'held', 'submit_unknown'))
+                     OR (status = 'queued' AND ? IN ('submitting', 'submitted', 'rejected', 'held', 'submit_unknown'))
+                     OR (status = 'submitting' AND ? IN ('submitted', 'rejected', 'submit_unknown'))
                      OR (status = 'submitted' AND ? IN ('filled', 'canceled', 'cancelled', 'rejected', 'error', 'held'))
                      OR (status = 'submit_unknown' AND ? IN ('submitted', 'rejected', 'error'))
                      OR (status = 'held' AND ? IN ('queued', 'rejected'))
@@ -169,6 +221,7 @@ class LiveIntentQueueSQLite:
                     exchange_order_id,
                     _now(),
                     str(intent_id),
+                    str(nxt),
                     str(nxt),
                     str(nxt),
                     str(nxt),

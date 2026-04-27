@@ -6,10 +6,11 @@ from typing import Any
 LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_TARGETS = {"submitted", "filled", "canceled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_SOURCES = {"submitted", "submit_unknown"}
-SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitted", "rejected", "submit_unknown"}
-SUBMIT_OWNER_LIVE_QUEUE_SOURCES = {"queued"}
+SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitting", "submitted", "rejected", "submit_unknown"}
+SUBMIT_OWNER_LIVE_QUEUE_SOURCES = {"queued", "submitting"}
 LIVE_QUEUE_STATUS_TRANSITIONS = {
-    "queued": {"queued", "submitted", "rejected", "held", "submit_unknown"},
+    "queued": {"queued", "submitting", "submitted", "rejected", "held", "submit_unknown"},
+    "submitting": {"submitted", "rejected", "submit_unknown"},
     "submitted": {"submitted", "filled", "canceled", "cancelled", "rejected", "error", "held"},
     "filled": set(),
     "canceled": set(),
