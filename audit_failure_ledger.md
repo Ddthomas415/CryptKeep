@@ -13,3 +13,32 @@ COMMIT: 9592d5b8a3bd414fefa9e90a6054e8f4c2288afa
 | 4 | A4-F1 | TBD | UNVERIFIED | TBD | TBD |
 | 5 | A5-F1 | TBD | UNVERIFIED | TBD | TBD |
 | 6 | A6-F1 | TBD | UNVERIFIED | TBD | TBD |
+
+## A2-F1 remaining caller classification
+
+### Order-store write gated
+- services/execution/intent_consumer.py:197
+- services/execution/intent_consumer.py:214
+- services/execution/live_reconciler.py:156
+- services/execution/live_reconciler.py:246
+- services/execution/live_reconciler.py:264
+- services/execution/live_reconciler.py:296
+- services/execution/live_reconciler.py:347
+- services/execution/live_intent_consumer.py:166
+- services/execution/live_intent_consumer.py:196
+- services/execution/live_intent_consumer.py:231
+- services/execution/live_intent_consumer.py:254
+- services/execution/live_intent_consumer.py:282
+- services/execution/live_intent_consumer.py:307
+
+### Non-order-store transition still ignored
+- services/execution/intent_consumer.py:178
+- services/execution/intent_consumer.py:183
+- services/execution/live_reconciler.py:279
+- services/execution/live_reconciler.py:287
+- services/execution/live_intent_consumer.py:137
+
+### Tests only
+- tests/test_live_queue_submit_owner_authority.py
+- tests/test_live_state_authority_write_result.py
+- tests/test_live_reconciler_state_authority.py
