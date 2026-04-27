@@ -180,7 +180,8 @@ def run_forever() -> None:
                     continue
 
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
-                update_live_queue_status_as_intent_consumer(qdb, it, "queued", ctx=ctx, client_order_id=client_order_id)
+                if not update_live_queue_status_as_intent_consumer(qdb, it, "queued", ctx=ctx, client_order_id=client_order_id):
+                    continue
                 ad = None
 
                 try:
