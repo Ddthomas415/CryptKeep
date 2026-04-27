@@ -276,21 +276,23 @@ def run_forever() -> None:
                                 "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
                             })
                         elif st in ("canceled","cancelled"):
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "canceled",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=None,
-                            )
+                            ):
+                                continue
                         elif st in ("rejected",):
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "rejected",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=str(o.get("rejectReason") or o.get("info") or "rejected"),
-                            )
+                            ):
+                                continue
                         elif st in ("open", "new", "partially_filled", "partiallyfilled"):
                             if _submitted_ts_ms and _age_ms >= _stale_after_ms:
                                 if not update_live_queue_status_as_reconciler(
