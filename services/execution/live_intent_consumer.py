@@ -134,8 +134,8 @@ def run_forever() -> None:
                 notional_est = float(it["qty"]) * float(it.get("limit_price") or (mq.get("last") or 0.0) or 0.0)
                 ok, rreason = _risk_check_and_claim(qdb, notional_est)
                 if not ok:
-                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
-                    rejected += 1
+                    if update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason):
+                        rejected += 1
                     continue
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
 

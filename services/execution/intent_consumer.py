@@ -175,8 +175,8 @@ def run_forever() -> None:
                 ok, rreason = _risk_check_and_claim(qdb, notional_est)
 
                 if not ok:
-                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
-                    rejected += 1
+                    if update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason):
+                        rejected += 1
                     continue
 
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
