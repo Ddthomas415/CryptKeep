@@ -163,7 +163,8 @@ def run_forever() -> None:
                 )
 
                 if not bool(decision.allowed):
-                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"router:{decision.reason}", client_order_id=client_order_id)
+                    if not update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"router:{decision.reason}", client_order_id=client_order_id):
+                        continue
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
@@ -192,7 +193,7 @@ def run_forever() -> None:
                     if recovered:
                         ex_oid = str(recovered.get("id") or recovered.get("orderId") or "").strip()
                         if ex_oid:
-                            update_live_queue_status_as_intent_consumer(
+                            if not update_live_queue_status_as_intent_consumer(
                                 qdb,
                                 it,
                                 "submitted",
@@ -200,7 +201,8 @@ def run_forever() -> None:
                                 last_error=None,
                                 client_order_id=client_order_id,
                                 exchange_order_id=ex_oid,
-                            )
+                            ):
+                                continue
                             ldb.upsert_order({
                                 "client_order_id": client_order_id,
                                 "venue": venue,
@@ -226,14 +228,15 @@ def run_forever() -> None:
                     )
                     ex_oid = str(resp.get("id") or resp.get("orderId") or "").strip()
                     if not ex_oid:
-                        update_live_queue_status_as_intent_consumer(
+                        if not update_live_queue_status_as_intent_consumer(
                             qdb,
                             it,
                             "submit_unknown",
                             ctx=ctx,
                             last_error="submit_response_missing_exchange_order_id",
                             client_order_id=client_order_id,
-                        )
+                        ):
+                            continue
                         ldb.upsert_order({
                             "client_order_id": client_order_id,
                             "venue": venue,
@@ -248,7 +251,8 @@ def run_forever() -> None:
                         })
                         continue
 
-                    update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid)
+                    if not update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid):
+                        continue
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
@@ -275,7 +279,7 @@ def run_forever() -> None:
                             recovered = None
 
                     if recovered:
-                        update_live_queue_status_as_intent_consumer(
+                        if not update_live_queue_status_as_intent_consumer(
                             qdb,
                             it,
                             "submitted",
@@ -283,7 +287,8 @@ def run_forever() -> None:
                             last_error=None,
                             client_order_id=client_order_id,
                             exchange_order_id=ex_oid,
-                        )
+                        ):
+                            continue
                         ldb.upsert_order({
                             "client_order_id": client_order_id,
                             "venue": venue,
@@ -299,7 +304,8 @@ def run_forever() -> None:
                         submitted += 1
                         continue
 
-                    update_live_queue_status_as_intent_consumer(qdb, it, "submit_unknown", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+                    if not update_live_queue_status_as_intent_consumer(qdb, it, "submit_unknown", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id):
+                        continue
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,

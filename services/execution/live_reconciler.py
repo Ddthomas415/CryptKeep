@@ -153,7 +153,7 @@ def _recover_submit_unknown_by_client_order_id(
     if not ex_oid:
         return False
 
-    update_live_queue_status_as_reconciler(
+    if not update_live_queue_status_as_reconciler(
         qdb,
         intent,
         "submitted",
@@ -161,7 +161,8 @@ def _recover_submit_unknown_by_client_order_id(
         last_error=None,
         client_order_id=client_order_id,
         exchange_order_id=ex_oid,
-    )
+    ):
+        return False
     ldb.upsert_order({
         "client_order_id": client_order_id,
         "venue": venue,
@@ -242,13 +243,14 @@ def run_forever() -> None:
                             _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
                         o = ad.fetch_order(symbol, ex_oid)
                         if (not o) and _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "error",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error="stale_order_not_found",
-                            )
+                            ):
+                                continue
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -259,13 +261,14 @@ def run_forever() -> None:
 
                         st = str(o.get("status") or "").lower().strip() or "unknown"
                         if st in ("closed","filled"):
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "filled",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=None,
-                            )
+                            ):
+                                continue
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -290,13 +293,14 @@ def run_forever() -> None:
                             )
                         elif st in ("open", "new", "partially_filled", "partiallyfilled"):
                             if _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                                update_live_queue_status_as_reconciler(
+                                if not update_live_queue_status_as_reconciler(
                                     qdb,
                                     it,
                                     "error",
                                     ctx=_RECONCILER_STATE_CONTEXT,
                                     last_error=f"stale_open_order:{_age_ms}ms",
-                                )
+                                ):
+                                    continue
                                 ldb.upsert_order({
                                     "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                     "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -340,13 +344,14 @@ def run_forever() -> None:
                     except Exception as e:
                         _err = f"{type(e).__name__}:{e}"
                         if ex_oid and _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "error",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=f"stale_order_fetch_error:{_err}",
-                            )
+                            ):
+                                continue
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],

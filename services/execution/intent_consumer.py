@@ -194,7 +194,8 @@ def run_forever() -> None:
                         client_order_id=client_order_id,
                     )
                     ex_oid = str(resp.get("id") or resp.get("orderId") or "")
-                    update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid)
+                    if not update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid):
+                        continue
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
@@ -210,7 +211,8 @@ def run_forever() -> None:
                     submitted += 1
 
                 except Exception as e:
-                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+                    if not update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id):
+                        continue
                     ldb.upsert_order({
                         "client_order_id": client_order_id,
                         "venue": venue,
