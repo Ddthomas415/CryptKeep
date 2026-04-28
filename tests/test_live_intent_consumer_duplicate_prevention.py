@@ -125,6 +125,8 @@ def test_restart_after_submit_before_status_update_does_not_submit_duplicate(mon
         assert str(exc) == "crash_after_exchange_submit_before_local_persist"
 
     assert len(submit_calls) == 1
+    assert dedupe_rows[("coinbase", "i1")]["status"] == "created"
+    assert dedupe_rows[("coinbase", "i1")]["remote_order_id"] is None
 
     setup_common()
     try:
