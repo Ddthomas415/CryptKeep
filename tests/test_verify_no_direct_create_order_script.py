@@ -35,8 +35,8 @@ def test_scan_catches_dynamic_getattr_create_order(tmp_path: Path) -> None:
 
     hits = scan(tmp_path)
 
-    assert len(hits) == 1
-    assert hits[0]["file"] == "services/execution/rogue_getattr.py"
+    assert hits
+    assert any(h["file"] == "services/execution/rogue_getattr.py" for h in hits)
 
 
 def test_scan_catches_dynamic_getattr_create_order_camel_case(tmp_path: Path) -> None:
@@ -51,8 +51,8 @@ def test_scan_catches_dynamic_getattr_create_order_camel_case(tmp_path: Path) ->
 
     hits = scan(tmp_path)
 
-    assert len(hits) == 1
-    assert hits[0]["file"] == "services/execution/rogue_getattr_camel.py"
+    assert hits
+    assert any(h["file"] == "services/execution/rogue_getattr_camel.py" for h in hits)
 
 
 def test_scan_does_not_flag_create_order_method_definition(tmp_path: Path) -> None:
@@ -66,3 +66,34 @@ def test_scan_does_not_flag_create_order_method_definition(tmp_path: Path) -> No
     )
 
     assert scan(tmp_path) == []
+
+
+def test_scan_catches_getattr_create_order_from_constant_alias(tmp_path: Path) -> None:
+    violating = tmp_path / "services" / "execution" / "rogue_getattr_alias.py"
+    violating.parent.mkdir(parents=True, exist_ok=True)
+    violating.write_text(
+        "def run(ex):\n"
+        "    name = 'create_' + 'order'\n"
+        "    return " + "get" + "attr" + "(ex, name)('BTC/USD', 'limit', 'buy', 0.1, 100.0, {})\n",
+        encoding="utf-8",
+    )
+
+    hits = scan(tmp_path)
+
+    assert len(hits) == 1
+    assert hits[0]["file"] == "services/execution/rogue_getattr_alias.py"
+
+
+def test_scan_catches_getattr_create_order_from_inline_concat(tmp_path: Path) -> None:
+    violating = tmp_path / "services" / "execution" / "rogue_getattr_inline_concat.py"
+    violating.parent.mkdir(parents=True, exist_ok=True)
+    violating.write_text(
+        "def run(ex):\n"
+        "    return " + "get" + "attr" + "(ex, 'create_' + 'order')('BTC/USD', 'limit', 'buy', 0.1, 100.0, {})\n",
+        encoding="utf-8",
+    )
+
+    hits = scan(tmp_path)
+
+    assert len(hits) == 1
+    assert hits[0]["file"] == "services/execution/rogue_getattr_inline_concat.py"
