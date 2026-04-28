@@ -12,8 +12,6 @@ except ModuleNotFoundError:
 
 add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-TOKEN1 = ".create_" + "order("
-TOKEN2 = ".create" + "Order("
 PATTERNS = (
     re.compile(r"\.create_order\s*\("),
     re.compile(r"\.createOrder\s*\("),
