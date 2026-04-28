@@ -7,7 +7,7 @@ COMMIT: 9592d5b8a3bd414fefa9e90a6054e8f4c2288afa
 
 | Audit | ID | Title | Status | Proof Command | Notes |
 |---|---|---|---|---|---|
-| 1 | A1-F1 | TBD | UNVERIFIED | TBD | TBD |
+| 1 | A1-F1 | direct create_order authority must remain centralized in place_order.py | VERIFIED_PASS_WITH_BYPASS_GAP | python3 scripts/verify_no_direct_create_order.py --print && python3 -m unittest tests/test_no_direct_create_order.py tests/test_verify_no_direct_create_order_script.py | Verifier covers literal .create_order/.createOrder outside place_order.py. Remaining gap: dynamic getattr/create_order wrapper surfaces and skipped tools directory need classification. |
 | 2 | A2-F1 | live queue update_status result ignored by state_authority callers | RESOLVED | pytest tests/test_live_intent_consumer_order_store_gating.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_state_authority_write_result.py -q && python3 -m py_compile services/execution/intent_consumer.py services/execution/live_intent_consumer.py services/execution/live_reconciler.py services/execution/state_authority.py | 14 focused tests pass. Order-store writes, risk-rejection counters, queued marker, and live_reconciler canceled/rejected transitions now require persisted queue state. |
 | 3 | A3-F1 | live-intent path lacks durable dedupe claim before submit | RESOLVED | pytest tests/test_live_intent_consumer_duplicate_prevention.py -q | Durable pre-submit dedupe claim added; restart duplicate-submit regression passes. |
 | 4 | A4-F1 | live_reconciler misattributes same-symbol fills | RESOLVED | pytest tests/test_live_reconciler_fill_attribution.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_state_authority_write_result.py -q | Same-symbol fill attribution now requires trade order/client ID match. Cursor safety remains separate/unverified. |
@@ -38,3 +38,22 @@ N/A
 - tests/test_live_queue_submit_owner_authority.py
 - tests/test_live_state_authority_write_result.py
 - tests/test_live_reconciler_state_authority.py
+
+## A1-F1 remaining authority classification
+
+### Verified pass
+- `python3 scripts/verify_no_direct_create_order.py --print` returned `{'ok': True, 'violations': 0}`.
+- `python3 -m unittest tests/test_no_direct_create_order.py tests/test_verify_no_direct_create_order_script.py` passed.
+
+### Allowed direct authority
+- `services/execution/place_order.py` is the only allowed direct `.create_order(...)` authority.
+
+### Classified non-runtime / skipped
+- `tools/phase83_apply.py` contains direct create_order strings inside patch-template text and is skipped by the verifier via `SKIP_DIRS`.
+
+### Tests-only wrapper surface
+- `tests/test_live_execution_wiring.py` uses `getattr(ad, "create_order")`; this is test coverage of the adapter surface, not runtime exchange placement.
+
+### Remaining status
+- No runtime direct `create_order` violation reproduced.
+- Dynamic bypass scanning beyond literal `.create_order(` / `.createOrder(` remains a known scanner limitation.
