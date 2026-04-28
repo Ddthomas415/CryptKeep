@@ -46,7 +46,7 @@ def update_live_queue_status_as_reconciler(
     last_error: str | None = None,
     client_order_id: str | None = None,
     exchange_order_id: str | None = None,
-) -> None:
+) -> bool:
     intent_id = str(intent.get("intent_id") or "").strip()
     if not intent_id:
         raise LiveStateViolation("blocked live queue transition: missing intent_id")
@@ -60,7 +60,7 @@ def update_live_queue_status_as_reconciler(
         kwargs["client_order_id"] = client_order_id
     if exchange_order_id is not None:
         kwargs["exchange_order_id"] = exchange_order_id
-    qdb.update_status(intent_id, nxt, **kwargs)
+    return bool(qdb.update_status(intent_id, nxt, **kwargs))
 
 
 def _validated_submit_owner_live_queue_status(
@@ -87,7 +87,7 @@ def update_live_queue_status_as_intent_consumer(
     last_error: str | None = None,
     client_order_id: str | None = None,
     exchange_order_id: str | None = None,
-) -> None:
+) -> bool:
     intent_id = str(intent.get("intent_id") or "").strip()
     if not intent_id:
         raise LiveStateViolation("blocked live queue transition: missing intent_id")
@@ -101,7 +101,7 @@ def update_live_queue_status_as_intent_consumer(
         kwargs["client_order_id"] = client_order_id
     if exchange_order_id is not None:
         kwargs["exchange_order_id"] = exchange_order_id
-    qdb.update_status(intent_id, nxt, **kwargs)
+    return bool(qdb.update_status(intent_id, nxt, **kwargs))
 
 
 def paper_queue_status(

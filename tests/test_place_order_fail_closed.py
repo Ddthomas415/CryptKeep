@@ -479,3 +479,13 @@ def test_place_order_async_blocks_when_spendable_balance_is_insufficient(monkeyp
         asyncio.run(po.place_order_async(ex, "BTC/USD", "limit", "buy", 1.0, 100.0, {}))
 
     assert ex.calls == []
+
+def test_place_order_async_blocks_coinbase_missing_quote_account(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(monkeypatch)
+    ex = AsyncFundingExchange(exchange_id="coinbase", free={})
+
+    with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:portfolio_"):
+        asyncio.run(po.place_order_async(ex, "BTC/USD", "limit", "buy", 1.0, 100.0, {}))
+
+    assert ex.calls == []

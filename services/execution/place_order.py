@@ -586,6 +586,7 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
 async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
     exec_db, notional = _enforce_fail_closed(ex, symbol=symbol, side=side, amount=amount, price=price, params=params, order_type=otype)
+    enforce_coinbase_quote_account_available(ex, symbol)
     _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount, price=price, order_type=otype)
     async with _ASYNC_ORDER_SEMAPHORE:
         o = await ex.create_order(*args, **kwargs)

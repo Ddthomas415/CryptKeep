@@ -111,3 +111,22 @@ def test_submit_unknown_recovery_noops_when_order_not_found():
     assert ad.calls == [("BTC/USD", "cid-1")]
     assert qdb.calls == []
     assert ldb.orders == []
+
+
+def test_submit_unknown_recovery_does_not_write_order_when_queue_update_fails():
+    qdb = FakeQueue()
+    qdb.update_status = lambda *args, **kwargs: False
+    ldb = FakeLiveTrading()
+    ad = FakeAdapter({"id": "ex-1"})
+
+    assert not _recover_submit_unknown_by_client_order_id(
+        qdb=qdb,
+        ldb=ldb,
+        ad=ad,
+        intent=_intent(),
+        venue="coinbase",
+        symbol="BTC/USD",
+    )
+
+    assert ad.calls == [("BTC/USD", "cid-1")]
+    assert ldb.orders == []

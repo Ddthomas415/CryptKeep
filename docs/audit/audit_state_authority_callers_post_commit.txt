@@ -1,0 +1,37 @@
+services/execution/intent_consumer.py:3:from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
+services/execution/intent_consumer.py:178:                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
+services/execution/intent_consumer.py:183:                update_live_queue_status_as_intent_consumer(qdb, it, "queued", ctx=ctx, client_order_id=client_order_id)
+services/execution/intent_consumer.py:197:                    if not update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid):
+services/execution/intent_consumer.py:214:                    if not update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id):
+services/execution/live_reconciler.py:12:from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_reconciler
+services/execution/live_reconciler.py:156:    if not update_live_queue_status_as_reconciler(
+services/execution/live_reconciler.py:246:                            if not update_live_queue_status_as_reconciler(
+services/execution/live_reconciler.py:264:                            if not update_live_queue_status_as_reconciler(
+services/execution/live_reconciler.py:279:                            update_live_queue_status_as_reconciler(
+services/execution/live_reconciler.py:287:                            update_live_queue_status_as_reconciler(
+services/execution/live_reconciler.py:296:                                if not update_live_queue_status_as_reconciler(
+services/execution/live_reconciler.py:347:                            if not update_live_queue_status_as_reconciler(
+services/execution/live_intent_consumer.py:3:from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
+services/execution/live_intent_consumer.py:137:                    update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
+services/execution/live_intent_consumer.py:166:                    if not update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"router:{decision.reason}", client_order_id=client_order_id):
+services/execution/live_intent_consumer.py:196:                            if not update_live_queue_status_as_intent_consumer(
+services/execution/live_intent_consumer.py:231:                        if not update_live_queue_status_as_intent_consumer(
+services/execution/live_intent_consumer.py:254:                    if not update_live_queue_status_as_intent_consumer(qdb, it, "submitted", ctx=ctx, last_error=None, client_order_id=client_order_id, exchange_order_id=ex_oid):
+services/execution/live_intent_consumer.py:282:                        if not update_live_queue_status_as_intent_consumer(
+services/execution/live_intent_consumer.py:307:                    if not update_live_queue_status_as_intent_consumer(qdb, it, "submit_unknown", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id):
+services/execution/state_authority.py:40:def update_live_queue_status_as_reconciler(
+services/execution/state_authority.py:81:def update_live_queue_status_as_intent_consumer(
+tests/test_live_queue_submit_owner_authority.py:4:    update_live_queue_status_as_intent_consumer,
+tests/test_live_queue_submit_owner_authority.py:21:    update_live_queue_status_as_intent_consumer(
+tests/test_live_queue_submit_owner_authority.py:36:        update_live_queue_status_as_intent_consumer(qdb, intent, "submitted", ctx=ctx)
+tests/test_live_queue_submit_owner_authority.py:49:        update_live_queue_status_as_intent_consumer(qdb, intent, "queued", ctx=ctx)
+tests/test_live_state_authority_write_result.py:3:    update_live_queue_status_as_reconciler,
+tests/test_live_state_authority_write_result.py:4:    update_live_queue_status_as_intent_consumer,
+tests/test_live_state_authority_write_result.py:19:    ok = update_live_queue_status_as_reconciler(
+tests/test_live_state_authority_write_result.py:32:    ok = update_live_queue_status_as_intent_consumer(
+tests/test_live_reconciler_state_authority.py:8:    update_live_queue_status_as_reconciler,
+tests/test_live_reconciler_state_authority.py:27:    update_live_queue_status_as_reconciler(
+tests/test_live_reconciler_state_authority.py:42:    update_live_queue_status_as_reconciler(
+tests/test_live_reconciler_state_authority.py:57:        update_live_queue_status_as_reconciler(
+tests/test_live_reconciler_state_authority.py:72:        update_live_queue_status_as_reconciler(
+tests/test_live_reconciler_state_authority.py:97:        update_live_queue_status_as_reconciler(

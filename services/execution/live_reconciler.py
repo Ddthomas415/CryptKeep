@@ -130,6 +130,46 @@ def _maybe_promote_system_guard_halted(qdb: LiveIntentQueueSQLite, guard_meta: d
         return set_system_guard_state("HALTED", writer="live_reconciler", reason="cleanup_complete")
     except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return dict(guard_meta or {})
+def _trade_order_id(tr: dict) -> str:
+    for key in ("order", "orderId", "order_id"):
+        v = tr.get(key)
+        if v:
+            return str(v).strip()
+    info = tr.get("info")
+    if isinstance(info, dict):
+        for key in ("order", "orderId", "order_id", "order_id_str"):
+            v = info.get(key)
+            if v:
+                return str(v).strip()
+    return ""
+
+
+def _trade_client_order_id(tr: dict) -> str:
+    for key in ("clientOrderId", "client_order_id", "clientId", "client_id", "text"):
+        v = tr.get(key)
+        if v:
+            return str(v).strip()
+    info = tr.get("info")
+    if isinstance(info, dict):
+        for key in ("clientOrderId", "client_order_id", "clientId", "client_id", "text"):
+            v = info.get(key)
+            if v:
+                return str(v).strip()
+    return ""
+
+
+def _trade_matches_order(tr: dict, *, exchange_order_id: str, client_order_id: str) -> bool:
+    ex_oid = str(exchange_order_id or "").strip()
+    cid = str(client_order_id or "").strip()
+    tr_oid = _trade_order_id(tr)
+    if ex_oid and tr_oid and tr_oid == ex_oid:
+        return True
+    tr_cid = _trade_client_order_id(tr)
+    if cid and tr_cid and tr_cid == cid:
+        return True
+    return False
+
+
 def _recover_submit_unknown_by_client_order_id(
     *,
     qdb: LiveIntentQueueSQLite,
@@ -153,7 +193,7 @@ def _recover_submit_unknown_by_client_order_id(
     if not ex_oid:
         return False
 
-    update_live_queue_status_as_reconciler(
+    if not update_live_queue_status_as_reconciler(
         qdb,
         intent,
         "submitted",
@@ -161,7 +201,8 @@ def _recover_submit_unknown_by_client_order_id(
         last_error=None,
         client_order_id=client_order_id,
         exchange_order_id=ex_oid,
-    )
+    ):
+        return False
     ldb.upsert_order({
         "client_order_id": client_order_id,
         "venue": venue,
@@ -242,13 +283,14 @@ def run_forever() -> None:
                             _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
                         o = ad.fetch_order(symbol, ex_oid)
                         if (not o) and _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "error",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error="stale_order_not_found",
-                            )
+                            ):
+                                continue
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -259,13 +301,14 @@ def run_forever() -> None:
 
                         st = str(o.get("status") or "").lower().strip() or "unknown"
                         if st in ("closed","filled"):
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "filled",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=None,
-                            )
+                            ):
+                                continue
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -273,30 +316,33 @@ def run_forever() -> None:
                                 "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
                             })
                         elif st in ("canceled","cancelled"):
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "canceled",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=None,
-                            )
+                            ):
+                                continue
                         elif st in ("rejected",):
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "rejected",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=str(o.get("rejectReason") or o.get("info") or "rejected"),
-                            )
+                            ):
+                                continue
                         elif st in ("open", "new", "partially_filled", "partiallyfilled"):
                             if _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                                update_live_queue_status_as_reconciler(
+                                if not update_live_queue_status_as_reconciler(
                                     qdb,
                                     it,
                                     "error",
                                     ctx=_RECONCILER_STATE_CONTEXT,
                                     last_error=f"stale_open_order:{_age_ms}ms",
-                                )
+                                ):
+                                    continue
                                 ldb.upsert_order({
                                     "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                     "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
@@ -315,6 +361,12 @@ def run_forever() -> None:
                         trades = ad.fetch_my_trades(symbol, since_ms=since_ms, limit=200)
                         max_ts = 0
                         for tr in trades or []:
+                            if not _trade_matches_order(
+                                tr,
+                                exchange_order_id=ex_oid,
+                                client_order_id=str(it.get("client_order_id") or ""),
+                            ):
+                                continue
                             tid = str(tr.get("id") or tr.get("tradeId") or "")
                             ts = tr.get("timestamp")
                             if ts:
@@ -340,13 +392,14 @@ def run_forever() -> None:
                     except Exception as e:
                         _err = f"{type(e).__name__}:{e}"
                         if ex_oid and _submitted_ts_ms and _age_ms >= _stale_after_ms:
-                            update_live_queue_status_as_reconciler(
+                            if not update_live_queue_status_as_reconciler(
                                 qdb,
                                 it,
                                 "error",
                                 ctx=_RECONCILER_STATE_CONTEXT,
                                 last_error=f"stale_order_fetch_error:{_err}",
-                            )
+                            ):
+                                continue
                             ldb.upsert_order({
                                 "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
                                 "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],

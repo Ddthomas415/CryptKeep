@@ -77,8 +77,9 @@ class OrderDedupeStore:
         ex = (exchange_id or "").lower().strip()
         now = _now_ms()
         meta_json = json.dumps(meta or {}, default=str)[:200000]
+        inserted = False
         with _conn(self.exec_db) as c:
-            c.execute(
+            cur = c.execute(
                 """
                 INSERT OR IGNORE INTO order_dedupe(
                   exchange_id,intent_id,symbol,client_order_id,remote_order_id,status,created_ts_ms,updated_ts_ms,last_error,meta_json
@@ -86,8 +87,11 @@ class OrderDedupeStore:
                 """,
                 (ex, str(intent_id), str(symbol), str(client_order_id), now, now, meta_json),
             )
+            inserted = cur.rowcount == 1
             c.commit()
         row = self.get_by_intent(ex, str(intent_id))
+        if row is not None:
+            row["_inserted"] = inserted
         if not row:
             raise RuntimeError("order_dedupe claim failed")
         return row
