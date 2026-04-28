@@ -9,7 +9,7 @@ COMMIT: 9592d5b8a3bd414fefa9e90a6054e8f4c2288afa
 |---|---|---|---|---|---|
 | 1 | A1-F1 | TBD | UNVERIFIED | TBD | TBD |
 | 2 | A2-F1 | live queue update_status result ignored by state_authority callers | RESOLVED | pytest tests/test_live_intent_consumer_order_store_gating.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_state_authority_write_result.py -q && python3 -m py_compile services/execution/intent_consumer.py services/execution/live_intent_consumer.py services/execution/live_reconciler.py services/execution/state_authority.py | 14 focused tests pass. Order-store writes, risk-rejection counters, queued marker, and live_reconciler canceled/rejected transitions now require persisted queue state. |
-| 3 | A3-F1 | live-intent path lacks durable dedupe claim before submit | UNVERIFIED | TBD | Need proof for crash-after-submit-before-status-update and restart duplicate behavior. |
+| 3 | A3-F1 | live-intent path lacks durable dedupe claim before submit | RESOLVED | pytest tests/test_live_intent_consumer_duplicate_prevention.py -q | Durable pre-submit dedupe claim added; restart duplicate-submit regression passes. |
 | 4 | A4-F1 | TBD | UNVERIFIED | TBD | TBD |
 | 5 | A5-F1 | TBD | UNVERIFIED | TBD | TBD |
 | 6 | A6-F1 | TBD | UNVERIFIED | TBD | TBD |
