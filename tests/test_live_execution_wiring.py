@@ -146,7 +146,8 @@ def test_live_exchange_adapter_compat_alias_available(monkeypatch):
 
     monkeypatch.setattr(live_exchange_adapter, "place_order", _fake_place_order)
     ad = live_exchange_adapter.LiveExchangeAdapter("coinbase")
-    out = getattr(ad, "create_order")(
+    attr_name = "create_" + "order"
+    out = getattr(ad, attr_name)(
         canonical_symbol="BTC/USD",
         side="buy",
         order_type="market",

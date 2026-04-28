@@ -17,6 +17,8 @@ TOKEN2 = ".create" + "Order("
 PATTERNS = (
     re.compile(r"\.create_order\s*\("),
     re.compile(r"\.createOrder\s*\("),
+    re.compile(r"getattr\s*\([^\n]*[\"']create_order[\"']"),
+    re.compile(r"getattr\s*\([^\n]*[\"']createOrder[\"']"),
 )
 
 ALLOWED = {
