@@ -130,6 +130,46 @@ def _maybe_promote_system_guard_halted(qdb: LiveIntentQueueSQLite, guard_meta: d
         return set_system_guard_state("HALTED", writer="live_reconciler", reason="cleanup_complete")
     except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return dict(guard_meta or {})
+def _trade_order_id(tr: dict) -> str:
+    for key in ("order", "orderId", "order_id"):
+        v = tr.get(key)
+        if v:
+            return str(v).strip()
+    info = tr.get("info")
+    if isinstance(info, dict):
+        for key in ("order", "orderId", "order_id", "order_id_str"):
+            v = info.get(key)
+            if v:
+                return str(v).strip()
+    return ""
+
+
+def _trade_client_order_id(tr: dict) -> str:
+    for key in ("clientOrderId", "client_order_id", "clientId", "client_id", "text"):
+        v = tr.get(key)
+        if v:
+            return str(v).strip()
+    info = tr.get("info")
+    if isinstance(info, dict):
+        for key in ("clientOrderId", "client_order_id", "clientId", "client_id", "text"):
+            v = info.get(key)
+            if v:
+                return str(v).strip()
+    return ""
+
+
+def _trade_matches_order(tr: dict, *, exchange_order_id: str, client_order_id: str) -> bool:
+    ex_oid = str(exchange_order_id or "").strip()
+    cid = str(client_order_id or "").strip()
+    tr_oid = _trade_order_id(tr)
+    if ex_oid and tr_oid and tr_oid == ex_oid:
+        return True
+    tr_cid = _trade_client_order_id(tr)
+    if cid and tr_cid and tr_cid == cid:
+        return True
+    return False
+
+
 def _recover_submit_unknown_by_client_order_id(
     *,
     qdb: LiveIntentQueueSQLite,
@@ -321,6 +361,12 @@ def run_forever() -> None:
                         trades = ad.fetch_my_trades(symbol, since_ms=since_ms, limit=200)
                         max_ts = 0
                         for tr in trades or []:
+                            if not _trade_matches_order(
+                                tr,
+                                exchange_order_id=ex_oid,
+                                client_order_id=str(it.get("client_order_id") or ""),
+                            ):
+                                continue
                             tid = str(tr.get("id") or tr.get("tradeId") or "")
                             ts = tr.get("timestamp")
                             if ts:
