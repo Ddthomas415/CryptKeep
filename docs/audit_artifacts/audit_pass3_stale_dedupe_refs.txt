@@ -1,0 +1,468 @@
+services/app/dashboard_launch.py:120:def port_open(host: str, port: int, timeout: float = 0.5) -> bool:
+services/app/dashboard_launch.py:122:        with socket.create_connection((str(host), int(port)), timeout=float(timeout)):
+services/app/dashboard_launch.py:128:def wait_for_dashboard(host: str, port: int, *, timeout_sec: float = 20.0, sleep_sec: float = 0.25) -> bool:
+services/app/dashboard_launch.py:129:    deadline = time.time() + max(0.0, float(timeout_sec))
+services/app/dashboard_launch.py:131:        if port_open(host, port, timeout=min(1.0, max(0.1, float(sleep_sec)))):
+services/app/dashboard_launch.py:134:    return port_open(host, port, timeout=min(1.0, max(0.1, float(sleep_sec))))
+services/app/dashboard_diagnostics.py:70:    return "startup_timeout"
+services/app/dashboard_diagnostics.py:76:    timeout_sec: float = 15.0,
+services/app/dashboard_diagnostics.py:130:        "timeout_sec": float(timeout_sec),
+services/app/dashboard_diagnostics.py:169:                deadline = time.time() + max(1.0, float(timeout_sec))
+services/app/dashboard_diagnostics.py:189:                    proc.wait(timeout=5)
+services/app/update_checker.py:13:        "timeout_sec": float(u.get("timeout_sec", 5.0) or 5.0),
+services/app/update_checker.py:17:def _safe_fetch_json(url: str, timeout_sec: float) -> dict:
+services/app/update_checker.py:18:    socket.setdefaulttimeout(float(timeout_sec))
+services/app/update_checker.py:20:    with urllib.request.urlopen(req, timeout=float(timeout_sec)) as resp:
+services/app/update_checker.py:31:        data = _safe_fetch_json(cfg["channel_url"], cfg["timeout_sec"])
+services/app/update_checker.py:69:def download_update(download_url: str, dest_path: str, *, timeout_sec: float = 30.0) -> dict:
+services/app/update_checker.py:71:        socket.setdefaulttimeout(float(timeout_sec))
+services/app/update_checker.py:73:        with urllib.request.urlopen(req, timeout=float(timeout_sec)) as resp:
+services/app/preflight_wizard.py:26:def _port_open(host: str, port: int, timeout: float = 0.25) -> bool:
+services/app/preflight_wizard.py:28:        with socket.create_connection((host, int(port)), timeout=timeout):
+services/evidence/webhook_server.py:143:    httpd.timeout = 1.0
+services/update/tufish.py:48:    exp = meta.get("expires_ts")
+services/update/tufish.py:54:        return (now > exp_i), f"now={now} expires_ts={exp_i}"
+services/update/tufish.py:56:        return True, "expires_ts invalid"
+services/security/user_auth_store.py:507:    con = sqlite3.connect(_lockout_db_path(), check_same_thread=False, timeout=10)
+services/market_data/alternative_data.py:12:def _get_json(url: str, timeout: int = 10) -> dict | None:
+services/market_data/alternative_data.py:15:        with urllib.request.urlopen(req, timeout=timeout) as r:
+services/signals/candidate_advisor.py:35:DEFAULT_MAX_AGE_SEC: int = 3600  # 1 hour — candidates older than this are stale
+services/signals/candidate_advisor.py:130:                return _no_rec(f"snapshot_stale:{int(age)}s_old")
+services/runtime/process_supervisor.py:87:def stop_process(name: str, timeout_sec: float = 5.0) -> Dict[str, object]:
+services/runtime/process_supervisor.py:107:    deadline = time.time() + float(timeout_sec)
+services/admin/system_diagnostics.py:56:REPAIRABLE_ACTIONS = {"remove_stale_lock", "remove_stale_pid_file", "remove_stale_stop_file"}
+services/admin/system_diagnostics.py:239:                row["repair_action"] = "remove_stale_lock"
+services/admin/system_diagnostics.py:245:            row["repair_action"] = "remove_stale_lock"
+services/admin/system_diagnostics.py:272:                "repair_action": "remove_stale_pid_file" if not alive else "",
+services/admin/system_diagnostics.py:318:                "repair_action": "remove_stale_stop_file" if not alive else "",
+services/admin/system_diagnostics.py:468:                    issue_id=f"health_stale_{service}",
+services/admin/system_diagnostics.py:471:                    title=f"{service} health is stale",
+services/admin/system_diagnostics.py:482:                    issue_id=f"stale_lock_{row['name']}",
+services/admin/system_diagnostics.py:499:                    issue_id=f"stale_pid_{row['name']}",
+services/admin/system_diagnostics.py:516:                    issue_id=f"stale_stop_{row['name']}",
+services/admin/config_editor.py:121:        if "timeout_sec" in up and not is_float(up["timeout_sec"]):
+services/admin/config_editor.py:122:            errors.append("updates.timeout_sec:must_be_float")
+services/collector/poll_collector.py:89:            out["reason"] = "stale" if age_sec is not None else "unparseable_heartbeat_ts"
+services/desktop/simple_service_manager.py:93:def stop_service(name: str, hard: bool = False, timeout_s: float = 3.0) -> dict:
+services/desktop/simple_service_manager.py:108:        while time.time() - t0 < timeout_s:
+services/desktop/launcher.py:24:    if not port_open(ctx.host, ctx.resolved_port, timeout=0.25):
+services/desktop/launcher.py:27:        wait_for_dashboard(ctx.host, ctx.resolved_port, timeout_sec=20.0, sleep_sec=0.25)
+services/strategy_runner/ema_crossover_runner.py:159:def _no_fresh_tick_note(*, stale_after_sec: float = 30.0) -> str:
+services/strategy_runner/ema_crossover_runner.py:165:        age_sec = stale_after_sec + 1.0
+services/strategy_runner/ema_crossover_runner.py:166:    if age_sec > float(stale_after_sec):
+services/strategy_runner/ema_crossover_runner.py:167:        return "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked"
+services/alerts/email_notifier.py:44:        with smtplib.SMTP(cfg["host"], int(cfg["port"]), timeout=20) as s:
+services/alerts/alert_dispatcher.py:102:        with urllib.request.urlopen(req, timeout=10) as resp:
+services/ai_copilot/context_collector.py:15:        conn = sqlite3.connect(str(db_path), timeout=5)
+services/ai_copilot/sim_runner.py:82:    timeout_sec: int = 30,
+services/ai_copilot/sim_runner.py:98:        timeout=int(timeout_sec or 30),
+services/ai_copilot/sim_runner.py:139:            "timeout_sec": int(timeout_sec or 30),
+services/markets/fetch_binance.py:36:            data = get_json(url, timeout_s=10.0)
+services/markets/fetch_gate.py:10:    data = get_json(url, timeout_s=10.0)
+services/markets/rules.py:47:def get_rules(exec_db: str, venue: str, canonical_symbol: str, ttl_s: float = DEFAULT_TTL_S, refresh_if_stale: bool = True) -> Optional[MarketRules]:
+services/markets/rules.py:52:    if refresh_if_stale:
+services/markets/rules.py:59:    r = get_rules(exec_db, v, cs, ttl_s=ttl_s, refresh_if_stale=True)
+services/markets/http_json.py:5:def get_json(url: str, timeout_s: float = 10.0, headers: Optional[Dict[str,str]] = None) -> Any:
+services/markets/http_json.py:8:    with urllib.request.urlopen(req, timeout=float(timeout_s), context=ctx) as resp:
+services/markets/cache_sqlite.py:27:    c = sqlite3.connect(exec_db, timeout=30)
+services/execution/_executor_shared.py:37:from services.risk.staleness_guard import is_snapshot_fresh
+services/execution/_executor_shared.py:40:from storage.order_dedupe_store_sqlite import OrderDedupeStore
+services/execution/live_arming.py:167:    st["active"] = {"hash": _sha256(token), "issued_epoch": now, "expires_epoch": exp, "consumed": False}
+services/execution/live_arming.py:169:    return {"ok": True, "token": token, "expires_epoch": exp, "path": str(STATE_PATH)}
+services/execution/live_arming.py:187:    if now > float(a.get("expires_epoch") or 0):
+services/execution/event_log.py:27:    c = sqlite3.connect(str(p), timeout=10)
+services/execution/fill_confirmation.py:11:    timeout_sec: int = 30,
+services/execution/fill_confirmation.py:17:    while (time.time() - t0) <= float(timeout_sec):
+services/execution/fill_confirmation.py:31:    return {"ok": True, "final": False, "timeout": True, "attempts": attempts, "order": last}
+services/execution/_executor_reconcile.py:39:from services.risk.staleness_guard import is_snapshot_fresh
+services/execution/_executor_reconcile.py:42:from storage.order_dedupe_store_sqlite import OrderDedupeStore
+services/execution/_executor_reconcile.py:164:    store_dedupe = OrderDedupeStore(exec_db=cfg.exec_db)
+services/execution/_executor_reconcile.py:396:    store = OrderDedupeStore(exec_db=exec_db)
+services/execution/_executor_reconcile.py:445:                        store.mark_submitted(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
+services/execution/intent_consumer.py:16:from services.risk.staleness_guard import is_snapshot_fresh
+services/execution/intent_consumer.py:118:            fresh, stale_reason = is_snapshot_fresh()
+services/execution/intent_consumer.py:135:                    "reason": f"staleness:{stale_reason}",
+services/execution/order_intents.py:84:    def reconcile_stale_new(self, *, max_age_sec: float = 600.0) -> dict:
+services/execution/order_intents.py:93:            return {"ok": True, "staled": len(ids)}
+services/execution/_executor_submit.py:39:from services.risk.staleness_guard import is_snapshot_fresh
+services/execution/_executor_submit.py:42:from storage.order_dedupe_store_sqlite import OrderDedupeStore
+services/execution/_executor_submit.py:127:    store_dedupe = OrderDedupeStore(exec_db=cfg.exec_db)
+services/execution/retry_policy.py:17:        "ratelimitexceeded","requesttimeout","networkerror","exchangeerror",
+services/execution/retry_policy.py:18:        "exchangeunavailable","ddosprotection","temporary","timed out","timeout",
+services/execution/exchange_client.py:19:from storage.order_dedupe_store_sqlite import OrderDedupeStore
+services/execution/exchange_client.py:156:        store = OrderDedupeStore(exec_db=db_path)
+services/execution/exchange_client.py:203:                store.mark_submitted(
+services/execution/exchange_client.py:214:                    store.mark_unknown(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
+services/execution/exchange_client.py:256:        store = OrderDedupeStore(exec_db=exec_db)
+services/execution/live_executor.py:45:from storage.order_dedupe_store_sqlite import OrderDedupeStore  # noqa: F401
+services/execution/live_executor.py:80:    "OrderDedupeStore",
+services/execution/live_executor.py:93:    "OrderDedupeStore",
+services/execution/live_reconciler.py:17:from services.control.managed_component import clean_stale_lock_file
+services/execution/live_reconciler.py:64:        if clean_stale_lock_file(LOCK_FILE):
+services/execution/live_reconciler.py:278:                        _stale_after_ms = int(os.environ.get("CBP_STALE_ORDER_MS") or "300000")
+services/execution/live_reconciler.py:282:                        if it.get("intent_id") == "drill-stale-001":
+services/execution/live_reconciler.py:283:                            _write_status({"ok": True, "status": "running", "ts": _now(), "note": "drill6_seen", "intent_id": it.get("intent_id"), "ex_oid": ex_oid, "age_ms": _age_ms, "stale_after_ms": _stale_after_ms})
+services/execution/live_reconciler.py:285:                        if (not o) and _submitted_ts_ms and _age_ms >= _stale_after_ms:
+services/execution/live_reconciler.py:291:                                last_error="stale_order_not_found",
+services/execution/live_reconciler.py:298:                                "exchange_order_id": ex_oid, "status": "error", "last_error": "stale_order_not_found",
+services/execution/live_reconciler.py:337:                            if _submitted_ts_ms and _age_ms >= _stale_after_ms:
+services/execution/live_reconciler.py:343:                                    last_error=f"stale_open_order:{_age_ms}ms",
+services/execution/live_reconciler.py:350:                                    "exchange_order_id": ex_oid, "status": "error", "last_error": f"stale_open_order:{_age_ms}ms",
+services/execution/live_reconciler.py:394:                        if ex_oid and _submitted_ts_ms and _age_ms >= _stale_after_ms:
+services/execution/live_reconciler.py:400:                                last_error=f"stale_order_fetch_error:{_err}",
+services/execution/live_reconciler.py:407:                                "exchange_order_id": ex_oid, "status": "error", "last_error": f"stale_order_fetch_error:{_err}",
+services/execution/live_intent_consumer.py:18:from storage.order_dedupe_store_sqlite import OrderDedupeStore
+services/execution/live_intent_consumer.py:19:from services.risk.staleness_guard import is_snapshot_fresh
+services/execution/live_intent_consumer.py:21:from services.control.managed_component import clean_stale_lock_file
+services/execution/live_intent_consumer.py:43:        if clean_stale_lock_file(LOCK_FILE):
+services/execution/live_intent_consumer.py:101:    dedupe = OrderDedupeStore()
+services/execution/live_intent_consumer.py:113:            fresh, stale_reason = is_snapshot_fresh()
+services/execution/live_intent_consumer.py:119:                _write_status({"ok": True, "status": "blocked", "reason": f"staleness:{stale_reason}", "ts": _now(), "loops": loops})
+services/execution/live_intent_consumer.py:154:                if (not bool(dedupe_row.get("_inserted"))) and dedupe_status in {"created", "submitted", "unknown"}:
+services/execution/live_intent_consumer.py:246:                        dedupe.mark_unknown(
+services/execution/live_intent_consumer.py:274:                    dedupe.mark_submitted(
+services/execution/live_intent_consumer.py:307:                        dedupe.mark_submitted(
+services/bot/process_manager.py:117:        _clear_status_file(reason="stale_pid")
+services/bot/process_manager.py:118:        return ProcStatus(False, None, None, None, None, None, note="stale_pid_cleared")
+services/profiles/bundles.py:26:            "ws_block_on_stale": True,
+services/profiles/bundles.py:53:            "ws_block_on_stale": False,
+services/profiles/bundles.py:88:            "ws_block_on_stale": False,
+services/profiles/guardrails.py:11:    md.setdefault("ws_block_on_stale", True)
+services/profiles/guardrails.py:30:        # Live mode should fail closed on stale WS conditions.
+services/profiles/guardrails.py:34:        if not bool(md.get("ws_block_on_stale", True)):
+services/profiles/guardrails.py:35:            md["ws_block_on_stale"] = True
+services/profiles/guardrails.py:36:            actions.append("marketdata.ws_block_on_stale=true")
+services/profiles/guardrails.py:60:        if not bool(md.get("ws_block_on_stale", False)):
+services/profiles/guardrails.py:61:            issues.append("marketdata.ws_block_on_stale must be true in live mode")
+services/risk/staleness_guard.py:18:            return False, f"stale:{age:.1f}s"
+services/risk/fill_ledger.py:21:        con = sqlite3.connect(self.exec_db, timeout=30)
+services/risk/risk_daily.py:37:        c.execute("PRAGMA busy_timeout=15000;")
+services/risk/market_quality_guard.py:101:        return {"ok": False, "reason": "stale_tick", "age_sec": age_sec}
+services/risk/live_risk_gates.py:80:        c = sqlite3.connect(self.exec_db, timeout=30)
+services/trading_runner/run_trader.py:99:        stale_seconds=int(aggd.get("stale_seconds") or 10),
+services/control/managed_component.py:5:Eliminates the duplicated lock/status/stop/stale-lock pattern that exists
+services/control/managed_component.py:12:  clean  → removes stale lock if PID is dead
+services/control/managed_component.py:18:    if tick.is_stale():
+services/control/managed_component.py:19:        tick.clean_stale_lock()
+services/control/managed_component.py:23:    tick.wait_stopped(timeout_sec=10.0)
+services/control/managed_component.py:53:def clean_stale_lock_file(lock_file: Path) -> bool:
+services/control/managed_component.py:122:    def is_stale(self) -> bool:
+services/control/managed_component.py:135:            "stale":     self.lock_file.exists() and not alive,
+services/control/managed_component.py:152:    def clean_stale_lock(self) -> bool:
+services/control/managed_component.py:154:        if not self.is_stale():
+services/control/managed_component.py:158:            _LOG.info("managed_component.stale_lock_removed component=%s lock=%s",
+services/control/managed_component.py:162:            _LOG.warning("managed_component.stale_lock_remove_failed component=%s err=%s",
+services/control/managed_component.py:171:        timeout_sec: float = 5.0,
+services/control/managed_component.py:176:        Cleans stale lock first. Raises RuntimeError if it fails to start.
+services/control/managed_component.py:178:        self.clean_stale_lock()
+services/control/managed_component.py:190:        deadline = time.monotonic() + timeout_sec
+services/control/managed_component.py:211:    def wait_stopped(self, timeout_sec: float = 10.0) -> bool:
+services/control/managed_component.py:213:        deadline = time.monotonic() + timeout_sec
+services/control/managed_component.py:218:        _LOG.warning("managed_component.stop_timeout component=%s timeout=%s",
+services/control/managed_component.py:219:                     self.name, timeout_sec)
+services/ws/last_price_provider.py:19:    allow_stale: bool = False,
+services/ws/last_price_provider.py:26:    if not allow_stale and age > int(max_age_ms):
+services/ws/last_price_provider.py:27:        return {"ok": False, "reason": "stale_quote", "venue": str(venue), "symbol": str(symbol), "age_ms": int(age)}
+services/supervisor/supervisor.py:80:        # stale lock
+services/supervisor/supervisor.py:84:            return {"ok": False, "reason": "stale_lock_unremovable", "lock": cur}
+services/supervisor/supervisor.py:242:    timeout_sec: int = 6,
+services/supervisor/supervisor.py:296:        deadline = time.time() + float(timeout_sec)
+services/supervisor/supervisor_daemon.py:124:    def stop_service(self, name: str, timeout_sec: float = 8.0) -> None:
+services/supervisor/supervisor_daemon.py:141:        while time.time() - t0 < timeout_sec:
+services/analytics/paper_campaign_lifecycle.py:6:Owns: component start/stop/wait, runtime file paths, stale lock cleanup.
+services/analytics/paper_campaign_lifecycle.py:69:def clean_stale_lock(name: str) -> bool:
+services/analytics/paper_campaign_lifecycle.py:78:            _LOG.info("stale_lock_cleaned component=%s", name)
+services/analytics/paper_campaign_lifecycle.py:81:            _LOG.warning("stale_lock_clean_failed component=%s err=%s", name, _err)
+services/analytics/paper_campaign_lifecycle.py:95:def wait_stopped(name: str, timeout_sec: float = 10.0) -> bool:
+services/analytics/paper_campaign_lifecycle.py:97:    deadline = time.monotonic() + timeout_sec
+services/analytics/paper_campaign_lifecycle.py:106:                 timeouts: dict[str, float] | None = None) -> dict[str, Any]:
+services/analytics/paper_campaign_lifecycle.py:108:    _timeouts = timeouts or {"strategy_runner": 8.0, "paper_engine": 8.0, "tick_publisher": 10.0}
+services/analytics/paper_campaign_lifecycle.py:115:            stopped = wait_stopped(name, timeout_sec=_timeouts.get(name, 8.0))
+services/analytics/paper_campaign_lifecycle.py:119:                _LOG.error("teardown %s still alive after timeout — run make paper-stop", name)
+services/analytics/paper_strategy_evidence_service.py:430:def _wait_for(predicate, *, timeout_sec: float, sleep_sec: float = 0.2) -> bool:
+services/analytics/paper_strategy_evidence_service.py:431:    deadline = time.time() + max(0.0, float(timeout_sec))
+services/analytics/paper_strategy_evidence_service.py:555:            _wait_for_component_stop(name, timeout_sec=10.0)
+services/analytics/paper_strategy_evidence_service.py:565:    # Clean up stale lock file if PID is no longer alive
+services/analytics/paper_strategy_evidence_service.py:570:            logger.info("paper_strategy_evidence_stale_lock_removed", extra={"component": name, "lock": str(lock_file)})
+services/analytics/paper_strategy_evidence_service.py:572:            logger.warning("paper_strategy_evidence_stale_lock_remove_failed", extra={"error_type": type(exc).__name__})
+services/analytics/paper_strategy_evidence_service.py:584:        timeout_sec=5.0,
+services/analytics/paper_strategy_evidence_service.py:608:def _wait_for_component_stop(name: str, *, timeout_sec: float = 10.0) -> bool:
+services/analytics/paper_strategy_evidence_service.py:609:    return _wait_for(lambda: not bool(_component_runtime(name).get("pid_alive")), timeout_sec=timeout_sec, sleep_sec=0.2)
+services/analytics/paper_strategy_evidence_service.py:625:        timeout_sec=5.0,
+services/analytics/paper_strategy_evidence_service.py:651:        _wait_for_component_stop("strategy_runner", timeout_sec=10.0)
+services/analytics/paper_strategy_evidence_service.py:689:            "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked": (
+services/analytics/paper_strategy_evidence_service.py:690:                f"Strategy runner is waiting for fresh market ticks{target}; the tick snapshot is stale, so the publisher may be stopped or network access may be blocked."
+services/analytics/paper_strategy_evidence_service.py:906:            _wait_for_component_stop(name, timeout_sec=10.0)
+services/analytics/paper_strategy_evidence_service.py:968:        _wait_for_component_stop("strategy_runner", timeout_sec=2.0)
+services/process/watchdog_process.py:95:def stop_watchdog(*, hard: bool = True, soft_timeout_sec: float = 6.0) -> dict:
+services/process/watchdog_process.py:105:        return {"ok": True, "stopped": True, "reason": "stale_pid"}
+services/process/watchdog_process.py:117:    t_end = time.time() + float(soft_timeout_sec)
+services/process/watchdog_process.py:137:        return {"ok": True, "stopped": True, "pid": pid, "mode": ("hard" if hard else "soft_timeout")}
+services/process/watchdog_process.py:140:def clear_stale() -> dict:
+services/process/watchdog.py:59:    wd.setdefault("stale_after_sec", 120)
+services/process/watchdog.py:60:    wd.setdefault("auto_stop_on_stale", False)      # safest default: do NOT kill process automatically
+services/process/watchdog.py:61:    wd.setdefault("stop_hard", True)                # if auto_stop_on_stale=True, hard kill allowed after soft timeout (stop_bot handles soft->hard)
+services/process/watchdog.py:62:    wd.setdefault("write_crash_snapshot_on_stale", True)
+services/process/watchdog.py:82:        "stale_after_sec": float(wd.get("stale_after_sec", 120) or 120),
+services/process/watchdog.py:94:        # No heartbeat while bot claims running -> treat as stale
+services/process/watchdog.py:96:        stale = True
+services/process/watchdog.py:100:            stale = age >= float(out["stale_after_sec"])
+services/process/watchdog.py:103:            stale = True
+services/process/watchdog.py:106:    out["heartbeat_stale"] = bool(stale)
+services/process/watchdog.py:108:    if not stale:
+services/process/watchdog.py:115:    if bool(wd.get("write_crash_snapshot_on_stale", True)):
+services/process/watchdog.py:118:                reason="watchdog_heartbeat_stale",
+services/process/watchdog.py:121:                extra={"heartbeat_age_sec": age, "stale_after_sec": out["stale_after_sec"]},
+services/process/watchdog.py:129:    sg = _system_guard_halting("watchdog:heartbeat_stale")
+services/process/watchdog.py:133:    ks = _kill_switch_on("watchdog:heartbeat_stale")
+services/process/watchdog.py:137:    if bool(wd.get("auto_stop_on_stale", False)):
+services/process/bot_process.py:120:        # stale pid file
+services/process/bot_process.py:122:        return {"ok": True, "stopped": True, "reason": "not_running_stale_pid"}
+services/process/supervisor_process.py:137:def stop(*, hard: bool = False, soft_timeout_sec: float = 6.0, current_role: str = "VIEWER") -> dict:
+services/process/supervisor_process.py:163:    t_end = time.time() + float(soft_timeout_sec)
+services/process/supervisor_process.py:184:        return {"ok": True, "stopped": True, "mode": ("hard" if hard else "soft_timeout"), "errors": errors}
+services/process/supervisor_process.py:185:    return {"ok": False, "stopped": False, "still_running": still, "mode": ("hard" if hard else "soft_timeout"), "errors": errors}
+services/process/supervisor_process.py:187:def clear_stale(*, current_role: str = "VIEWER") -> dict:
+storage/order_dedupe_store_sqlite.py:20:    c = sqlite3.connect(path, timeout=30)
+storage/order_dedupe_store_sqlite.py:47:class OrderDedupeStore:
+storage/order_dedupe_store_sqlite.py:114:    def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: Optional[str]) -> None:
+storage/order_dedupe_store_sqlite.py:134:    def mark_unknown(self, *, exchange_id: str, intent_id: str, error: str) -> None:
+storage/ops_signal_store_sqlite.py:15:    c = sqlite3.connect(path, timeout=30)
+storage/daily_limits_sqlite.py:47:        con = sqlite3.connect(self._db_path, timeout=30, isolation_level=None, check_same_thread=False)
+storage/idempotency_sqlite.py:92:class OrderDedupeStore(IdempotencySQLite):
+storage/execution_store_sqlite.py:21:    c = sqlite3.connect(path, timeout=30)
+storage/crypto_edge_store_sqlite.py:101:        conn = sqlite3.connect(str(db_path), timeout=30)
+storage/ws_status_sqlite.py:166:    def stale_symbols(self, *, max_recv_age_ms: int, now_ms: int) -> List[Dict[str, Any]]:
+tests/test_run_trader_compat.py:23:    prices, detail = aggregate_prices(rows, AggregationConfig(mode="median", stale_seconds=0))
+tests/test_run_trader_compat.py:29:        AggregationConfig(mode="median", stale_seconds=0, primary_exchange_by_symbol={"BTC/USD": "coinbase"}),
+tests/test_live_reconciler_order_store_gating.py:83:def test_stale_not_found_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_reconciler_order_store_gating.py:163:def test_stale_open_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_reconciler_order_store_gating.py:241:def test_stale_fetch_error_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_phase1_research_copilot_orchestrator.py:144:    async def fake_crypto_edge_staleness() -> dict:
+tests/test_phase1_research_copilot_orchestrator.py:174:    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_summary", fake_crypto_edge_staleness)
+tests/test_phase1_research_copilot_orchestrator.py:175:    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_digest", fake_crypto_edge_digest)
+tests/test_phase1_research_copilot_orchestrator.py:195:    assert payload["evidence_bundle"]["crypto_edge_staleness"]["needs_attention"] is True
+tests/test_phase1_research_copilot_orchestrator.py:342:    async def fake_crypto_edge_staleness() -> dict:
+tests/test_phase1_research_copilot_orchestrator.py:373:    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_summary", fake_crypto_edge_staleness)
+tests/test_phase1_research_copilot_orchestrator.py:374:    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_digest", fake_crypto_edge_digest)
+tests/test_phase1_research_copilot_orchestrator.py:397:    assert payload["evidence_bundle"]["crypto_edge_staleness"]["needs_attention"] is True
+tests/test_phase1_research_copilot_orchestrator.py:475:    async def fake_crypto_edge_staleness() -> dict:
+tests/test_phase1_research_copilot_orchestrator.py:505:    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_summary", fake_crypto_edge_staleness)
+tests/test_phase1_research_copilot_orchestrator.py:506:    monkeypatch.setattr(orchestrator, "get_crypto_edge_staleness_digest", fake_crypto_edge_digest)
+tests/test_bot_process_manager.py:30:def test_stop_process_clears_stale_pid_status_file(monkeypatch, tmp_path):
+tests/test_bot_process_manager.py:52:    assert out.note == "stale_pid_cleared"
+tests/test_preflight_wizard_ports.py:30:    monkeypatch.setattr(pw, "_port_open", lambda host, port, timeout=0.25: False)
+tests/test_dashboard_operator_service.py:159:        lambda startup_smoke=True, timeout_sec=15.0: {
+tests/test_dashboard_operator_service.py:163:            "timeout_sec": timeout_sec,
+tests/test_dashboard_operator_service.py:169:        timeout_sec=7.5,
+tests/test_dashboard_operator_service.py:176:    assert out["timeout_sec"] == 7.5
+tests/test_placeholder_recovery_phase4.py:81:        "marketdata": {"ws_enabled": False, "ws_use_for_trading": True, "ws_block_on_stale": False},
+tests/test_placeholder_recovery_phase4.py:86:    assert out["marketdata"]["ws_block_on_stale"] is True
+tests/test_live_executor_shadow_and_trade_reconcile.py:117:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
+tests/test_market_quality_guard.py:45:def test_market_quality_guard_spread_and_staleness(monkeypatch):
+tests/test_market_quality_guard.py:65:    out_stale = mqg.check("coinbase", "BTC/USD")
+tests/test_market_quality_guard.py:66:    assert out_stale["ok"] is False
+tests/test_market_quality_guard.py:67:    assert out_stale["reason"] == "stale_tick"
+tests/test_dashboard_view_data.py:78:            monkeypatch.setattr(view_data, "_load_local_system_guard_state", lambda: {"state": "HALTING", "writer": "watchdog", "reason": "stale"}, raising=False)
+tests/test_dashboard_view_data.py:1782:                    "last_error": "exchange timeout",
+tests/test_dashboard_view_data.py:1852:            "reason": "exchange timeout",
+tests/test_live_intent_consumer_duplicate_prevention.py:32:        def mark_submitted(self, **kwargs):
+tests/test_live_intent_consumer_duplicate_prevention.py:36:        def mark_unknown(self, **kwargs):
+tests/test_live_intent_consumer_duplicate_prevention.py:119:        monkeypatch.setattr(lic, "OrderDedupeStore", lambda: FakeDedupe())
+tests/test_live_intent_consumer_duplicate_prevention.py:128:    assert dedupe_rows[("coinbase", "i1")]["status"] == "created"
+tests/test_dashboard_crypto_edge_research.py:131:def test_load_crypto_edge_staleness_summary_flags_attention(monkeypatch) -> None:
+tests/test_dashboard_crypto_edge_research.py:155:    payload = crypto_edge_research.load_crypto_edge_staleness_summary()
+tests/test_dashboard_crypto_edge_research.py:163:def test_load_crypto_edge_staleness_digest_includes_change_and_action(monkeypatch) -> None:
+tests/test_dashboard_crypto_edge_research.py:166:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_crypto_edge_research.py:196:    payload = crypto_edge_research.load_crypto_edge_staleness_digest()
+tests/test_phase1_research_copilot_smoke.py:128:    def fake_request_json(url: str, *, method: str = "GET", payload=None, timeout: float = 5.0):
+tests/test_phase1_research_copilot_smoke.py:156:        timeout=5.0,
+tests/test_dashboard_page_runtime.py:225:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_page_runtime.py:230:        "load_crypto_edge_staleness_digest",
+tests/test_dashboard_page_runtime.py:730:    def fake_load_crypto_edge_staleness_digest() -> dict[str, Any]:
+tests/test_dashboard_page_runtime.py:753:        "load_crypto_edge_staleness_digest",
+tests/test_dashboard_page_runtime.py:754:        fake_load_crypto_edge_staleness_digest,
+tests/test_dashboard_page_runtime.py:807:        "load_crypto_edge_staleness_digest",
+tests/test_dashboard_page_runtime.py:1135:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_page_runtime.py:1279:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_page_runtime.py:1429:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_page_runtime.py:1582:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_page_runtime.py:1654:    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda current_role="VIEWER": {"ok": True, "repair_plan": [{"action": "remove_stale_lock"}]})
+tests/test_dashboard_page_runtime.py:1733:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_page_runtime.py:1863:                "session_timeout_minutes": 60,
+tests/test_dashboard_page_runtime.py:1937:            "Session timeout (minutes)": 90,
+tests/test_dashboard_page_runtime.py:2007:        "session_timeout_minutes": 90,
+tests/test_collector_poll_collector.py:41:def test_collector_status_marks_old_heartbeat_stale(tmp_path):
+tests/test_collector_poll_collector.py:58:    assert out["reason"] == "stale"
+tests/test_live_mode_contracts.py:28:    monkeypatch.setattr(live_guard, "get_system_guard_state", lambda **_: {"state": "HALTED", "writer": "watchdog", "reason": "stale"})
+tests/test_dashboard_diagnostics.py:17:    def wait(self, timeout=None):
+tests/test_dashboard_diagnostics.py:37:    def wait(self, timeout=None):
+tests/test_dashboard_diagnostics.py:88:    out = dd.run_dashboard_diagnostics(startup_smoke=True, timeout_sec=1.0)
+tests/test_dashboard_diagnostics.py:114:    out = dd.run_dashboard_diagnostics(startup_smoke=True, timeout_sec=1.0)
+tests/test_dashboard_diagnostics.py:142:    out = dd.run_dashboard_diagnostics(startup_smoke=True, timeout_sec=1.0)
+tests/test_watchdog_behavior.py:11:def test_watchdog_stale_heartbeat_triggers_snapshot_and_kill_switch(monkeypatch, tmp_path):
+tests/test_watchdog_behavior.py:21:            "stale_after_sec": 60,
+tests/test_watchdog_behavior.py:22:            "auto_stop_on_stale": False,
+tests/test_watchdog_behavior.py:23:            "write_crash_snapshot_on_stale": True,
+tests/test_watchdog_behavior.py:40:    assert out.get("heartbeat_stale") is True
+tests/test_watchdog_behavior.py:58:            "stale_after_sec": 60,
+tests/test_watchdog_behavior.py:59:            "auto_stop_on_stale": False,
+tests/test_watchdog_behavior.py:60:            "write_crash_snapshot_on_stale": True,
+tests/test_watchdog_behavior.py:74:    assert out.get("heartbeat_stale") is False
+tests/test_watchdog_behavior.py:90:            "stale_after_sec": 10,
+tests/test_watchdog_behavior.py:91:            "auto_stop_on_stale": True,
+tests/test_watchdog_behavior.py:93:            "write_crash_snapshot_on_stale": False,
+tests/test_watchdog_behavior.py:128:    out = watchdog._system_guard_halting("watchdog:heartbeat_stale")
+tests/test_watchdog_behavior.py:132:        "system_guard": {"state": "HALTING", "writer": "watchdog", "reason": "watchdog:heartbeat_stale"},
+tests/test_watchdog_behavior.py:134:    assert captured["call"] == ("HALTING", "watchdog", "watchdog:heartbeat_stale")
+tests/test_watchdog_behavior.py:146:    out = watchdog._kill_switch_on("watchdog:heartbeat_stale")
+tests/test_watchdog_behavior.py:148:    assert out == {"ok": True, "kill_switch": {"armed": True, "note": "watchdog:heartbeat_stale"}}
+tests/test_watchdog_behavior.py:149:    assert captured["call"] == (True, "watchdog:heartbeat_stale")
+tests/test_live_reconciler.py:188:    monkeypatch.setattr(lr, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
+tests/test_live_reconciler.py:277:    monkeypatch.setattr(lr, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
+tests/test_auth_gate.py:98:def test_get_security_timeout_minutes_reads_settings_view(monkeypatch) -> None:
+tests/test_auth_gate.py:101:    monkeypatch.setattr(view_data, "get_settings_view", lambda: {"security": {"session_timeout_minutes": 90}})
+tests/test_auth_gate.py:103:    assert auth_gate._get_security_timeout_minutes() == 90
+tests/test_auth_gate.py:106:def test_auth_session_expires_based_on_last_activity(monkeypatch) -> None:
+tests/test_auth_gate.py:118:    monkeypatch.setattr(auth_gate, "_get_security_timeout_minutes", lambda: 1)
+tests/test_watchdog_ctl_smoke.py:23:def test_watchdog_ctl_clear_stale_shape():
+tests/test_watchdog_ctl_smoke.py:24:    p = _run(["clear_stale", "--hard"])
+tests/test_system_guard.py:25:    second = system_guard.set_state("HALTING", writer="watchdog", reason="stale")
+tests/test_system_guard.py:66:    halted_by_watchdog = watchdog._system_guard_halting("watchdog:heartbeat_stale")
+tests/test_dashboard_home_digest.py:74:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_home_digest.py:86:        "load_crypto_edge_staleness_digest",
+tests/test_dashboard_home_digest.py:204:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_home_digest.py:216:        "load_crypto_edge_staleness_digest",
+tests/test_dashboard_home_digest.py:221:            "while_away_summary": "Data is stale.",
+tests/test_dashboard_home_digest.py:235:            "summary_text": "Collector runtime is stale.",
+tests/test_dashboard_home_digest.py:303:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_home_digest.py:308:        "load_crypto_edge_staleness_digest",
+tests/test_dashboard_home_digest.py:397:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_home_digest.py:402:        "load_crypto_edge_staleness_digest",
+tests/test_dashboard_home_digest.py:551:    monkeypatch.setattr(home_digest, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "heartbeat_stale"})
+tests/test_dashboard_home_digest.py:583:        "load_crypto_edge_staleness_summary",
+tests/test_dashboard_home_digest.py:588:        "load_crypto_edge_staleness_digest",
+tests/test_supervisor_process_role_guard.py:18:def test_clear_stale_requires_admin_role() -> None:
+tests/test_supervisor_process_role_guard.py:20:        mod.clear_stale(current_role="OPERATOR")
+tests/test_live_lifecycle_script_sandbox.py:61:    monkeypatch.setattr(reconcile_order_dedupe, "OrderDedupeStore", _FakeStore)
+tests/test_live_lifecycle_script_sandbox.py:113:    monkeypatch.setattr(reconcile_order_dedupe, "OrderDedupeStore", _FakeStore)
+tests/test_live_lifecycle_script_sandbox.py:167:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeStore())
+tests/test_op_control_surface.py:87:    monkeypatch.setattr(op, "_run", lambda _cmd, timeout=None: (2, "", "failed"))
+tests/test_op_control_surface.py:109:        "watchdog_ctl.clear_stale(hard)",
+tests/test_market_snapshot_readers.py:7:from services.risk import staleness_guard
+tests/test_market_snapshot_readers.py:11:def test_staleness_guard_accepts_valid_snapshot_json(monkeypatch, tmp_path):
+tests/test_market_snapshot_readers.py:14:    monkeypatch.setattr(staleness_guard, "LATEST_SNAPSHOT", snap)
+tests/test_market_snapshot_readers.py:16:    fresh, reason = staleness_guard.is_snapshot_fresh(max_age_sec=5.0)
+tests/test_system_diagnostics.py:9:def test_run_full_diagnostics_detects_stale_runtime_files(monkeypatch, tmp_path: Path) -> None:
+tests/test_system_diagnostics.py:54:    assert ("remove_stale_lock", "tick_publisher.lock") in actions
+tests/test_system_diagnostics.py:55:    assert ("remove_stale_pid_file", "paper_engine.pid") in actions
+tests/test_system_diagnostics.py:56:    assert ("remove_stale_stop_file", "strategy_runner.stop") in actions
+tests/test_system_diagnostics.py:62:    stale_lock = runtime / "tick_publisher.lock"
+tests/test_system_diagnostics.py:63:    stale_pid = runtime / "paper_engine.pid"
+tests/test_system_diagnostics.py:64:    stale_lock.write_text("{}", encoding="utf-8")
+tests/test_system_diagnostics.py:65:    stale_pid.write_text("123", encoding="utf-8")
+tests/test_system_diagnostics.py:74:                {"action": "remove_stale_lock", "path": str(stale_lock)},
+tests/test_system_diagnostics.py:75:                {"action": "remove_stale_pid_file", "path": str(stale_pid)},
+tests/test_system_diagnostics.py:88:    assert stale_lock.exists() is False
+tests/test_system_diagnostics.py:89:    assert stale_pid.exists() is False
+tests/test_phase1_research_copilot_tools.py:74:        "get_crypto_edge_staleness_summary",
+tests/test_phase1_research_copilot_tools.py:75:        "get_crypto_edge_staleness_digest",
+tests/test_phase1_research_copilot_tools.py:248:def test_get_crypto_edge_staleness_summary_uses_dashboard_loader(monkeypatch) -> None:
+tests/test_phase1_research_copilot_tools.py:253:        "load_crypto_edge_staleness_summary",
+tests/test_phase1_research_copilot_tools.py:264:    payload = asyncio.run(tools.get_crypto_edge_staleness_summary())
+tests/test_phase1_research_copilot_tools.py:271:def test_get_crypto_edge_staleness_digest_uses_dashboard_loader(monkeypatch) -> None:
+tests/test_phase1_research_copilot_tools.py:276:        "load_crypto_edge_staleness_digest",
+tests/test_phase1_research_copilot_tools.py:288:    payload = asyncio.run(tools.get_crypto_edge_staleness_digest())
+tests/test_paper_strategy_evidence_service.py:189:    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+tests/test_paper_strategy_evidence_service.py:256:    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+tests/test_paper_strategy_evidence_service.py:309:    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+tests/test_paper_strategy_evidence_service.py:370:    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+tests/test_paper_strategy_evidence_service.py:413:            "runner_note": "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked",
+tests/test_paper_strategy_evidence_service.py:418:    assert "tick snapshot is stale" in summary
+tests/test_paper_strategy_evidence_service.py:484:def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monkeypatch) -> None:
+tests/test_paper_strategy_evidence_service.py:512:    old_record.write_text("# stale\n", encoding="utf-8")
+tests/test_paper_strategy_evidence_service.py:617:    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+tests/test_paper_strategy_evidence_service.py:619:    monkeypatch.setattr(svc, "_wait_for", lambda predicate, *, timeout_sec, sleep_sec=0.2: True)
+tests/test_order_dedupe_store.py:1:from storage.order_dedupe_store_sqlite import OrderDedupeStore
+tests/test_order_dedupe_store.py:5:    s = OrderDedupeStore(exec_db=db)
+tests/test_order_dedupe_store.py:11:def test_mark_submitted(tmp_path):
+tests/test_order_dedupe_store.py:13:    s = OrderDedupeStore(exec_db=db)
+tests/test_order_dedupe_store.py:15:    s.mark_submitted(exchange_id="binance", intent_id="i1", remote_order_id="r1")
+tests/test_run_dashboard_script.py:14:    def wait(self, timeout=None):
+tests/test_exchange_client_retry_flow.py:6:from storage.order_dedupe_store_sqlite import OrderDedupeStore as ExecutionOrderDedupeStore
+tests/test_exchange_client_retry_flow.py:23:    def mark_submitted(self, **kwargs):
+tests/test_exchange_client_retry_flow.py:26:    def mark_unknown(self, **kwargs):
+tests/test_exchange_client_retry_flow.py:54:    monkeypatch.setattr("services.execution.exchange_client.OrderDedupeStore", lambda *a, **k: store)
+tests/test_exchange_client_retry_flow.py:56:    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(RuntimeError("network timeout")))
+tests/test_exchange_client_retry_flow.py:85:    monkeypatch.setattr("services.execution.exchange_client.OrderDedupeStore", lambda *a, **k: store)
+tests/test_exchange_client_retry_flow.py:87:    monkeypatch.setattr(ExchangeClient, "build", lambda self: DummyExchange(RuntimeError("network timeout")))
+tests/test_exchange_client_retry_flow.py:138:    row = ExecutionOrderDedupeStore(exec_db=exec_db).get_by_intent("coinbase", "intent-1")
+tests/test_live_intent_queue_integrity.py:189:def test_live_intent_queue_stale_writer_cannot_override_newer_committed_state(monkeypatch, tmp_path):
+tests/test_live_intent_queue_integrity.py:195:            "intent_id": "intent-stale",
+tests/test_live_intent_queue_integrity.py:212:    assert qdb.update_status("intent-stale", "submitted") is True
+tests/test_live_intent_queue_integrity.py:214:    # This is the stale writer's old observation. update_status must not rely
+tests/test_live_intent_queue_integrity.py:220:    # stale writer's assumption no longer matches the persisted row.
+tests/test_live_intent_queue_integrity.py:225:            ("held", queue_mod._now(), "intent-stale"),
+tests/test_live_intent_queue_integrity.py:231:    # submitted -> filled would have been valid under the stale observation,
+tests/test_live_intent_queue_integrity.py:233:    assert qdb.update_status("intent-stale", "filled") is False
+tests/test_run_trader_integration_minimal.py:47:            "stale_seconds": 0,
+tests/test_run_trader_integration_minimal.py:78:        return await asyncio.wait_for(task, timeout=5.0)
+tests/test_retry_reconciliation_regression.py:6:    assert "mark_unknown(" in text
+tests/test_strategy_runtime_runner.py:178:def test_no_fresh_tick_note_when_snapshot_stale(monkeypatch, tmp_path):
+tests/test_strategy_runtime_runner.py:184:    note = runner._no_fresh_tick_note(stale_after_sec=30.0)
+tests/test_strategy_runtime_runner.py:186:    assert note == "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked"
+tests/test_dashboard_kpi_builders.py:163:                "session_timeout_minutes": 60,
+tests/test_supervisor_ops_risk_gate.py:99:    out = sv.stop(stop_dashboard=False, stop_tick=False, stop_webhook=False, stop_risk_gate=True, timeout_sec=0)
+tests/test_supervisor_ops_risk_gate.py:129:    out = sv.stop(stop_dashboard=False, stop_tick=True, stop_webhook=False, stop_signal_adapter=False, stop_risk_gate=False, timeout_sec=0)
+tests/test_supervisor_ops_risk_gate.py:165:        timeout_sec=0,
+tests/test_run_system_diagnostics.py:19:    monkeypatch.setattr(script, "preview_safe_self_repair", lambda: {"ok": True, "repair_plan": [{"action": "remove_stale_lock"}]})
+tests/test_run_system_diagnostics.py:24:    assert out["repair_plan"][0]["action"] == "remove_stale_lock"
+tests/test_run_system_diagnostics.py:41:        lambda startup_smoke=True, timeout_sec=15.0: {
+tests/test_run_system_diagnostics.py:45:            "timeout_sec": timeout_sec,
+tests/test_run_system_diagnostics.py:51:        ["run_system_diagnostics.py", "--dashboard", "--dashboard-no-smoke", "--dashboard-timeout-sec", "7.5"],
+tests/test_run_system_diagnostics.py:58:    assert out["timeout_sec"] == 7.5
+tests/test_process_supervisor.py:6:def test_is_running_clears_stale_pid(monkeypatch):
+tests/test_placeholder_recovery_phase3.py:38:def test_ws_status_and_staleness(monkeypatch, tmp_path):
+tests/test_placeholder_recovery_phase3.py:47:    stale = db.stale_symbols(max_recv_age_ms=100, now_ms=1200)
+tests/test_placeholder_recovery_phase3.py:48:    assert stale and stale[0]["symbol"] == "BTC/USD"
+tests/test_admin_guard_recovery.py:4:def test_safe_mode_recovery_reapplies_disable_when_system_guard_is_stale_running(monkeypatch):
+tests/test_admin_guard_recovery.py:14:            "system_guard": {"state": "RUNNING", "writer": "legacy", "reason": "stale"},
+tests/test_managed_component.py:34:    def test_no_lock_is_not_stale(self, tmp_path):
+tests/test_managed_component.py:36:        assert mc.is_stale() is False
+tests/test_managed_component.py:38:    def test_lock_with_dead_pid_is_stale(self, tmp_path):
+tests/test_managed_component.py:42:            assert mc.is_stale() is True
+tests/test_managed_component.py:49:        assert mc.is_stale() is False
+tests/test_managed_component.py:66:        assert "stale" in s
+tests/test_managed_component.py:76:    def test_clean_stale_lock_removes_file(self, tmp_path):
+tests/test_managed_component.py:80:            result = mc.clean_stale_lock()
+tests/test_managed_component.py:84:    def test_clean_stale_lock_no_op_if_alive(self, tmp_path):
+tests/test_managed_component.py:87:        result = mc.clean_stale_lock()
+tests/test_managed_component.py:107:        result = mc.wait_stopped(timeout_sec=1.0)
+tests/test_managed_component.py:110:    def test_wait_stopped_returns_false_on_timeout(self, tmp_path):
+tests/test_managed_component.py:113:        result = mc.wait_stopped(timeout_sec=0.3)
+tests/test_compat_wrappers.py:25:def test_stale_import_modules_now_import_cleanly():
+tests/test_live_executor_latency_safety_integration.py:16:def test_submit_pending_live_blocks_on_stale_market_freshness(monkeypatch):
+tests/test_live_executor_latency_safety_integration.py:44:    monkeypatch.setattr(le, "get_system_guard_state", lambda **_: {"state": "HALTING", "writer": "watchdog", "reason": "stale"})
+tests/test_live_executor_latency_safety_integration.py:142:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: object())
+tests/test_live_executor_latency_safety_integration.py:255:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
+tests/test_live_executor_latency_safety_integration.py:362:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
+tests/test_live_executor_latency_safety_integration.py:454:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
+tests/test_live_executor_latency_safety_integration.py:544:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
+tests/test_live_executor_latency_safety_integration.py:645:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
+tests/test_live_executor_latency_safety_integration.py:719:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
+tests/test_live_executor_latency_safety_integration.py:804:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
+tests/test_live_executor_latency_safety_integration.py:903:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
+tests/test_live_executor_latency_safety_integration.py:926:        def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+tests/test_live_executor_latency_safety_integration.py:941:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeStore())
+tests/test_live_executor_latency_safety_integration.py:958:        def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+tests/test_live_executor_latency_safety_integration.py:984:    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeStore())
+tests/test_order_dedupe_unknown.py:1:from storage.order_dedupe_store_sqlite import OrderDedupeStore
+tests/test_order_dedupe_unknown.py:3:def test_mark_unknown(tmp_path):
+tests/test_order_dedupe_unknown.py:5:    s = OrderDedupeStore(exec_db=db)
+tests/test_order_dedupe_unknown.py:7:    s.mark_unknown(exchange_id="binance", intent_id="i1", error="timeout")
+tests/test_order_dedupe_unknown.py:10:    assert "timeout" in (r.get("last_error") or "")
+tests/test_order_router_retry_flow.py:19:    monkeypatch.setattr(order_router, "_place_order_ccxt", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("timeout")))
+tests/test_order_router_retry_flow.py:55:            raise RuntimeError("timeout")
+tests/test_governance_blockers_minimum.py:79:    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+tests/test_live_reconciler_state_authority.py:32:        last_error="stale_order_not_found",
+tests/test_live_reconciler_state_authority.py:35:    assert qdb.updates == [("intent-1", "error", "stale_order_not_found")]

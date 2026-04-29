@@ -1,0 +1,248 @@
+services/paper/paper_broker.py:40:        return self.engine.submit_order(
+services/strategies/config_tools.py:15:    "pullback_recovery",
+services/strategies/evidence_logger.py:206:        recovery_tested: bool = False,
+services/strategies/evidence_logger.py:222:            "recovery_tested":       recovery_tested,
+services/strategies/evidence_logger.py:242:        recovery_date: str | None = None,
+services/strategies/evidence_logger.py:257:            "recovery_date": recovery_date,
+services/strategies/pullback_recovery.py:107:        return {"ok": True, "action": "buy", "reason": "pullback_recovery_entry", "symbol": symbol, "indicators": indicators}
+services/strategies/volatility_reversal.py:31:    - RSI recovers above rsi_exit
+services/strategies/volatility_reversal.py:83:    # EXIT: RSI recovered
+services/strategies/volatility_reversal.py:85:        return {"ok": True, "action": "sell", "reason": "rsi_recovered_exit", "ind": ind}
+services/strategies/strategy_registry.py:10:from services.strategies.pullback_recovery import compute_signal as pullback_recovery_compute_signal
+services/strategies/strategy_registry.py:21:    "pullback_recovery": pullback_recovery_compute_signal,
+services/strategies/strategy_registry.py:99:    if name == "pullback_recovery":
+services/strategies/strategy_selector.py:34:        ranked = ["pullback_recovery", "momentum", "breakout_volume", "breakout_donchian", default_strategy, "ema_cross"]
+services/strategies/strategy_selector.py:61:            ranked = ["pullback_recovery", "mean_reversion_rsi", "breakout_donchian", default_strategy, "ema_cross"]
+services/strategies/strategy_selector.py:62:            reason = "regime_low_volatility_pullback_recovery"
+services/signals/trade_type_classifier.py:35:    pullback  = _safe(scores.get("pullback_recovery_score"))
+services/signals/trade_type_classifier.py:54:        return {"trade_type": "swing_trade", "reason": "pullback_recovery_profile"}
+services/signals/candidate_strategy_mapper.py:12:  - pullback_recovery: best when pullback_recovery_score >= 70 AND trend_quality_score >= 50
+services/signals/candidate_strategy_mapper.py:45:    pullback     = _safe(scores.get("pullback_recovery_score"))
+services/signals/candidate_strategy_mapper.py:64:    # Swing trade mapping — rank order: pullback_recovery > mean_reversion > breakout
+services/signals/candidate_strategy_mapper.py:67:        # Strong pullback profile + clean trend = pullback_recovery
+services/signals/candidate_strategy_mapper.py:71:                "preferred_strategy": "pullback_recovery",
+services/signals/market_ranker.py:22:      pullback_recovery   0.15  — swing/recovery setup quality
+services/signals/market_ranker.py:31:    pullback = _safe(scores.get("pullback_recovery_score"))
+services/signals/signal_library.py:86:def pullback_recovery_score(ohlcv: list, *, trend_bars: int = 50) -> float:
+services/signals/signal_library.py:152:        "pullback_recovery_score": pullback_recovery_score(ohlcv),
+services/signals/candidate_advisor.py:27:    "pullback_recovery",
+services/setup/config_manager.py:49:        # live reconciliation knobs (read-only recovery)
+services/admin/safe_mode_recovery.py:20:        out = disable_live_now(note="auto_recovery_on_start")
+services/admin/safe_mode_recovery.py:21:        return {"ok": bool(out.get("ok")), "did_action": True, "reason": "auto_recovery_on_start", "result": out, "ts": _now()}
+services/backtest/evidence_windows.py:53:            "notes": "Tight base, sharp breakout, retrace, and controlled recovery.",
+services/backtest/evidence_cycle.py:396:            "notes": "Tight base, sharp breakout, retrace, and controlled recovery.",
+services/ai_copilot/safety_auditor.py:70:        return "Safety posture is guarded: system guard is HALTED, so live trading remains blocked until operator recovery."
+services/ai_copilot/safety_auditor.py:89:        recs.append("Let reconciler/operator cleanup complete before attempting recovery.")
+services/ai_copilot/safety_auditor.py:91:        recs.append("Use the approved operator recovery flow before restoring RUNNING state.")
+services/ai_copilot/policy.py:16:    "submit_order",
+services/execution/intent_lifecycle.py:8:RECONCILER_LIVE_QUEUE_SOURCES = {"submitted", "submit_unknown"}
+services/execution/intent_lifecycle.py:9:SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitting", "submitted", "rejected", "submit_unknown"}
+services/execution/intent_lifecycle.py:12:    "queued": {"queued", "submitting", "submitted", "rejected", "held", "submit_unknown"},
+services/execution/intent_lifecycle.py:13:    "submitting": {"submitted", "rejected", "submit_unknown"},
+services/execution/intent_lifecycle.py:20:    "submit_unknown": {"submitted", "rejected", "error"},
+services/execution/intent_lifecycle.py:76:    if current == "submit_unknown" and nxt != "submitted":
+services/execution/intent_lifecycle.py:78:            f"blocked live queue transition: invalid submit_unknown target {nxt!r}"
+services/execution/order_reconciliation.py:86:            order = client.find_order_by_client_oid(symbol=symbol, client_oid=client_oid)
+services/execution/intent_executor.py:59:        found = adapter.find_order_by_client_oid(symbol=sym, client_oid=client_oid)
+services/execution/intent_executor.py:91:        submit_fn=lambda **kw: adapter.submit_order(
+services/execution/intent_executor.py:169:                found = adapter.find_order_by_client_oid(symbol=sym, client_oid=str(it["client_oid"]))
+services/execution/_executor_reconcile.py:445:                        store.mark_submitted(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
+services/execution/intent_consumer.py:189:                    resp = ad.submit_order(
+services/execution/paper_engine.py:98:    def submit_order(
+services/execution/_executor_submit.py:216:            order = client.submit_order(
+services/execution/live_exchange_adapter.py:81:        # Backward-compatible alias; use submit_order in new call sites.
+services/execution/live_exchange_adapter.py:82:        return self.submit_order(
+services/execution/live_exchange_adapter.py:94:    def submit_order(
+services/execution/live_exchange_adapter.py:158:    def find_order_by_client_oid(self, canonical_symbol: str, client_oid: str) -> dict | None:
+services/execution/exchange_client.py:140:    def submit_order(
+services/execution/exchange_client.py:188:                origin="exchange_client.submit_order",
+services/execution/exchange_client.py:203:                store.mark_submitted(
+services/execution/exchange_client.py:214:                    store.mark_unknown(exchange_id=self.exchange_id, intent_id=str(intent_id), error=msg)
+services/execution/exchange_client.py:230:            _safe_close(ex, where="submit_order")
+services/execution/exchange_client.py:297:    def find_order_by_client_oid(self, symbol: str, client_oid: str) -> dict | None:
+services/execution/live_reconciler.py:173:def _recover_submit_unknown_by_client_order_id(
+services/execution/live_reconciler.py:182:    if str(intent.get("status") or "").strip().lower() != "submit_unknown":
+services/execution/live_reconciler.py:188:    recovered = ad.find_order_by_client_oid(symbol, client_order_id)
+services/execution/live_reconciler.py:189:    if not recovered:
+services/execution/live_reconciler.py:192:    ex_oid = str(recovered.get("id") or recovered.get("orderId") or "").strip()
+services/execution/live_reconciler.py:257:            submitted = qdb.list_intents(limit=60, status="submitted") + qdb.list_intents(limit=60, status="submit_unknown")
+services/execution/live_reconciler.py:266:                        if _recover_submit_unknown_by_client_order_id(
+services/execution/live_intent_consumer.py:122:            batch = qdb.claim_next_queued(limit=10)
+services/execution/live_intent_consumer.py:143:                dedupe_row = dedupe.claim(
+services/execution/live_intent_consumer.py:202:                    recovered = None
+services/execution/live_intent_consumer.py:204:                        recovered = ad.find_order_by_client_oid(symbol, client_order_id)
+services/execution/live_intent_consumer.py:206:                        recovered = None
+services/execution/live_intent_consumer.py:208:                    if recovered:
+services/execution/live_intent_consumer.py:209:                        ex_oid = str(recovered.get("id") or recovered.get("orderId") or "").strip()
+services/execution/live_intent_consumer.py:236:                    resp = ad.submit_order(
+services/execution/live_intent_consumer.py:246:                        dedupe.mark_unknown(
+services/execution/live_intent_consumer.py:254:                            "submit_unknown",
+services/execution/live_intent_consumer.py:269:                            "status": "submit_unknown",
+services/execution/live_intent_consumer.py:274:                    dedupe.mark_submitted(
+services/execution/live_intent_consumer.py:295:                    recovered = None
+services/execution/live_intent_consumer.py:297:                        recovered = ad.find_order_by_client_oid(symbol, client_order_id) if ad else None
+services/execution/live_intent_consumer.py:299:                        recovered = None
+services/execution/live_intent_consumer.py:301:                    if recovered:
+services/execution/live_intent_consumer.py:302:                        ex_oid = str(recovered.get("id") or recovered.get("orderId") or "").strip()
+services/execution/live_intent_consumer.py:304:                            recovered = None
+services/execution/live_intent_consumer.py:306:                    if recovered:
+services/execution/live_intent_consumer.py:307:                        dedupe.mark_submitted(
+services/execution/live_intent_consumer.py:337:                    if not update_live_queue_status_as_intent_consumer(qdb, it, "submit_unknown", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id):
+services/execution/live_intent_consumer.py:348:                        "status": "submit_unknown",
+services/execution/paper_runner.py:65:            resp = eng.submit_order(
+storage/order_dedupe_store_sqlite.py:96:            raise RuntimeError("order_dedupe claim failed")
+storage/order_dedupe_store_sqlite.py:114:    def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: Optional[str]) -> None:
+storage/order_dedupe_store_sqlite.py:134:    def mark_unknown(self, *, exchange_id: str, intent_id: str, error: str) -> None:
+storage/live_intent_queue_sqlite.py:146:    def claim_next_queued(self, limit: int = 20) -> List[Dict[str, Any]]:
+storage/live_intent_queue_sqlite.py:210:                     OR (status = 'queued' AND ? IN ('submitting', 'submitted', 'rejected', 'held', 'submit_unknown'))
+storage/live_intent_queue_sqlite.py:211:                     OR (status = 'submitting' AND ? IN ('submitted', 'rejected', 'submit_unknown'))
+storage/live_intent_queue_sqlite.py:213:                     OR (status = 'submit_unknown' AND ? IN ('submitted', 'rejected', 'error'))
+tests/test_live_reconciler_fill_attribution.py:13:            if status == "submit_unknown":
+tests/test_live_reconciler_order_store_gating.py:10:            if status == "submit_unknown":
+tests/test_live_reconciler_order_store_gating.py:89:            if status == "submit_unknown":
+tests/test_live_reconciler_order_store_gating.py:169:            if status == "submit_unknown":
+tests/test_live_reconciler_order_store_gating.py:247:            if status == "submit_unknown":
+tests/test_execution_boundary_regression.py:7:    assert "adapter.submit_order(" in text
+tests/test_execution_boundary_regression.py:18:    assert "ad.submit_order(" in intent_consumer
+tests/test_execution_boundary_regression.py:19:    assert "ad.submit_order(" in live_intent_consumer
+tests/test_execution_boundary_regression.py:21:    assert "client.submit_order(" in executor_submit
+tests/test_live_reconciler_submit_unknown_recovery.py:1:from services.execution.live_reconciler import _recover_submit_unknown_by_client_order_id
+tests/test_live_reconciler_submit_unknown_recovery.py:22:    def __init__(self, recovered):
+tests/test_live_reconciler_submit_unknown_recovery.py:23:        self.recovered = recovered
+tests/test_live_reconciler_submit_unknown_recovery.py:26:    def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_reconciler_submit_unknown_recovery.py:28:        return self.recovered
+tests/test_live_reconciler_submit_unknown_recovery.py:34:        "status": "submit_unknown",
+tests/test_live_reconciler_submit_unknown_recovery.py:47:def test_submit_unknown_recovery_promotes_to_submitted():
+tests/test_live_reconciler_submit_unknown_recovery.py:52:    assert _recover_submit_unknown_by_client_order_id(
+tests/test_live_reconciler_submit_unknown_recovery.py:78:def test_submit_unknown_recovery_noops_without_client_order_id():
+tests/test_live_reconciler_submit_unknown_recovery.py:83:    assert not _recover_submit_unknown_by_client_order_id(
+tests/test_live_reconciler_submit_unknown_recovery.py:97:def test_submit_unknown_recovery_noops_when_order_not_found():
+tests/test_live_reconciler_submit_unknown_recovery.py:102:    assert not _recover_submit_unknown_by_client_order_id(
+tests/test_live_reconciler_submit_unknown_recovery.py:116:def test_submit_unknown_recovery_does_not_write_order_when_queue_update_fails():
+tests/test_live_reconciler_submit_unknown_recovery.py:122:    assert not _recover_submit_unknown_by_client_order_id(
+tests/test_live_intent_consumer_duplicate_prevention.py:32:        def mark_submitted(self, **kwargs):
+tests/test_live_intent_consumer_duplicate_prevention.py:36:        def mark_unknown(self, **kwargs):
+tests/test_live_intent_consumer_duplicate_prevention.py:43:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_duplicate_prevention.py:80:        def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_intent_consumer_duplicate_prevention.py:83:        def submit_order(self, **kwargs):
+tests/test_order_reconciliation_behavior.py:16:    def find_order_by_client_oid(self, symbol: str, client_oid: str):
+tests/test_paper_engine_honesty.py:4:def test_paper_submit_order_can_fill_in_same_call(monkeypatch, tmp_path):
+tests/test_paper_engine_honesty.py:28:    out = eng.submit_order(
+tests/test_live_intent_queue_claim_race.py:23:def test_claim_next_queued_winner_takes_row(tmp_path, monkeypatch):
+tests/test_live_intent_queue_claim_race.py:29:    first = db1.claim_next_queued(limit=10)
+tests/test_live_intent_queue_claim_race.py:30:    second = db2.claim_next_queued(limit=10)
+tests/test_find_order_by_client_oid.py:7:def test_exchange_client_find_order_by_client_oid_matches_open_order():
+tests/test_find_order_by_client_oid.py:14:    row = ExchangeClient.find_order_by_client_oid(client, "BTC/USD", "cbp-123")
+tests/test_find_order_by_client_oid.py:20:def test_live_exchange_adapter_find_order_by_client_oid_matches_open_order():
+tests/test_find_order_by_client_oid.py:28:    row = LiveExchangeAdapter.find_order_by_client_oid(adapter, "BTC/USD", "cbp-xyz")
+tests/test_find_order_by_client_oid.py:33:def test_live_exchange_adapter_find_order_by_client_oid_falls_back_to_closed_orders():
+tests/test_find_order_by_client_oid.py:42:    row = LiveExchangeAdapter.find_order_by_client_oid(adapter, "BTC/USD", "cbp-closed")
+tests/test_live_reconciler.py:18:            assert status in {"submitted", "submit_unknown"}
+tests/test_live_reconciler.py:19:            if status == "submit_unknown":
+tests/test_live_reconciler.py:132:            assert status in {"submitted", "submit_unknown"}
+tests/test_live_reconciler.py:223:            assert status in {"submitted", "submit_unknown"}
+tests/test_live_reconciler.py:262:            assert status in {"submitted", "submit_unknown"}
+tests/test_strategy_registry.py:20:                    "momentum", "pullback_recovery", "volatility_reversal",
+tests/test_candidate_layer.py:30:        "pullback_recovery_score": 0.0,
+tests/test_candidate_layer.py:45:            pullback_recovery_score=75.0,
+tests/test_candidate_layer.py:66:            pullback_recovery_score=5.0,
+tests/test_candidate_layer.py:77:            pullback_recovery_score=90.0,
+tests/test_candidate_layer.py:103:    def test_swing_high_pullback_maps_to_pullback_recovery(self):
+tests/test_candidate_layer.py:106:            "scores": {"pullback_recovery_score": 80.0},
+tests/test_candidate_layer.py:108:        assert r["preferred_strategy"] == "pullback_recovery"
+tests/test_candidate_layer.py:113:            "scores": {"pullback_recovery_score": 50.0},
+tests/test_candidate_layer.py:214:             "trade_type": "swing_trade", "preferred_strategy": "pullback_recovery",
+tests/test_candidate_layer.py:224:             "trade_type": "swing_trade", "preferred_strategy": "pullback_recovery",
+tests/test_candidate_layer.py:263:             "trade_type": "swing_trade", "preferred_strategy": "pullback_recovery",
+tests/test_candidate_layer.py:362:             "trade_type": "swing_trade", "preferred_strategy": "pullback_recovery",
+tests/test_candidate_layer.py:366:        # pullback_recovery should NOT be boosted when flag is off
+tests/test_candidate_layer.py:375:             "trade_type": "swing_trade", "preferred_strategy": "pullback_recovery",
+tests/test_candidate_layer.py:380:        # When advisor boosts pullback_recovery by 100 pts it should win
+tests/test_candidate_layer.py:381:        assert result.get("selected_strategy") == "pullback_recovery"
+tests/test_candidate_layer.py:396:             "trade_type": "swing_trade", "preferred_strategy": "pullback_recovery",
+tests/test_candidate_layer.py:402:        assert result.get("selected_strategy") != "pullback_recovery"
+tests/test_live_script_contracts.py:28:    assert "submit_order(" not in text
+tests/test_live_script_contracts.py:37:    assert "submit_order(" not in text
+tests/test_live_trading_order_identity.py:18:        "status": "submit_unknown",
+tests/test_paper_engine_integration.py:44:    out = eng.submit_order(
+tests/test_paper_engine_integration.py:107:    out = eng.submit_order(
+tests/test_order_dedupe_store.py:11:def test_mark_submitted(tmp_path):
+tests/test_order_dedupe_store.py:15:    s.mark_submitted(exchange_id="binance", intent_id="i1", remote_order_id="r1")
+tests/test_exchange_client_retry_flow.py:23:    def mark_submitted(self, **kwargs):
+tests/test_exchange_client_retry_flow.py:26:    def mark_unknown(self, **kwargs):
+tests/test_exchange_client_retry_flow.py:67:        client.submit_order(
+tests/test_exchange_client_retry_flow.py:98:        client.submit_order(
+tests/test_exchange_client_retry_flow.py:111:def test_submit_order_uses_execution_dedupe_store_and_canonical_client_id(monkeypatch, tmp_path):
+tests/test_exchange_client_retry_flow.py:126:    out = client.submit_order(
+tests/test_exchange_client_retry_flow.py:147:def test_submit_order_passes_live_submit_owner_context_when_supported(monkeypatch, tmp_path):
+tests/test_exchange_client_retry_flow.py:162:    out = client.submit_order(
+tests/test_exchange_client_retry_flow.py:177:        origin="exchange_client.submit_order",
+tests/test_live_submit_unknown_lifecycle.py:22:def test_queued_can_transition_to_submit_unknown(tmp_path, monkeypatch):
+tests/test_live_submit_unknown_lifecycle.py:30:        "submit_unknown",
+tests/test_live_submit_unknown_lifecycle.py:36:    assert got["status"] == "submit_unknown"
+tests/test_live_submit_unknown_lifecycle.py:41:def test_submit_unknown_can_resolve_to_submitted(tmp_path, monkeypatch):
+tests/test_live_submit_unknown_lifecycle.py:46:    assert db.update_status("i1", "submit_unknown", client_order_id="cid-1")
+tests/test_live_submit_unknown_lifecycle.py:54:def test_submit_unknown_can_resolve_to_error(tmp_path, monkeypatch):
+tests/test_live_submit_unknown_lifecycle.py:59:    assert db.update_status("i1", "submit_unknown", client_order_id="cid-1")
+tests/test_live_submit_unknown_lifecycle.py:60:    assert db.update_status("i1", "error", last_error="unresolved_submit_unknown")
+tests/test_live_submit_unknown_lifecycle.py:64:    assert got["last_error"] == "unresolved_submit_unknown"
+tests/test_retry_reconciliation_regression.py:6:    assert "mark_unknown(" in text
+tests/test_live_intent_consumer_order_store_gating.py:4:def test_recovered_before_submit_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_intent_consumer_order_store_gating.py:12:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:49:        def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_intent_consumer_order_store_gating.py:102:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:139:        def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_intent_consumer_order_store_gating.py:142:        def submit_order(self, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:195:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:232:        def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_intent_consumer_order_store_gating.py:235:        def submit_order(self, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:280:def test_exception_submit_unknown_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_intent_consumer_order_store_gating.py:288:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:325:        def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_intent_consumer_order_store_gating.py:328:        def submit_order(self, **kwargs):
+tests/test_live_reconciler_cursor_safety.py:12:            if status == "submit_unknown":
+tests/test_live_execution_wiring.py:25:def test_live_exchange_adapter_submit_order_routes_through_place_order(monkeypatch):
+tests/test_live_execution_wiring.py:37:    out = ad.submit_order(
+tests/test_live_execution_wiring.py:49:    assert seen["kwargs"].get("source") in (None, "live_exchange_adapter.submit_order")
+tests/test_live_execution_wiring.py:63:    ad.submit_order(
+tests/test_live_execution_wiring.py:90:    out = ad.submit_order(
+tests/test_live_execution_wiring.py:127:def test_live_consumers_call_adapter_submit_order():
+tests/test_live_execution_wiring.py:138:            assert "ad.submit_order(" in txt
+tests/test_live_execution_wiring.py:228:def test_live_exchange_adapter_submit_order_binance_params(monkeypatch):
+tests/test_live_execution_wiring.py:238:    out = ad.submit_order(
+tests/test_live_execution_wiring.py:253:def test_live_intent_consumer_recovers_existing_remote_order_before_submit(monkeypatch, tmp_path):
+tests/test_live_execution_wiring.py:272:        "intent_id": "recover-before-submit",
+tests/test_live_execution_wiring.py:284:        "client_order_id": "cid-recover-before-submit",
+tests/test_live_execution_wiring.py:313:        def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_execution_wiring.py:314:            assert client_order_id == "cid-recover-before-submit"
+tests/test_live_execution_wiring.py:315:            return {"id": "ex-recovered-1", "clientOrderId": client_order_id}
+tests/test_live_execution_wiring.py:317:        def submit_order(self, **kwargs):
+tests/test_live_execution_wiring.py:319:            raise AssertionError("submit_order must not be called when recovery succeeds")
+tests/test_live_execution_wiring.py:340:    assert row["client_order_id"] == "cid-recover-before-submit"
+tests/test_live_execution_wiring.py:341:    assert row["exchange_order_id"] == "ex-recovered-1"
+tests/test_live_execution_wiring.py:346:    assert orders[0]["exchange_order_id"] == "ex-recovered-1"
+tests/test_live_execution_wiring.py:349:def test_live_intent_consumer_missing_submit_exchange_id_becomes_submit_unknown(monkeypatch, tmp_path):
+tests/test_live_execution_wiring.py:407:        def find_order_by_client_oid(self, symbol, client_order_id):
+tests/test_live_execution_wiring.py:410:        def submit_order(self, **kwargs):
+tests/test_live_execution_wiring.py:431:    assert row["status"] == "submit_unknown"
+tests/test_live_execution_wiring.py:437:    assert orders[0]["status"] == "submit_unknown"
+tests/test_placeholder_recovery_phase3.py:97:        def submit_order(self, **kwargs):
+tests/test_admin_guard_recovery.py:4:def test_safe_mode_recovery_reapplies_disable_when_system_guard_is_stale_running(monkeypatch):
+tests/test_admin_guard_recovery.py:5:    from services.admin import safe_mode_recovery as smr
+tests/test_admin_guard_recovery.py:27:    assert out["reason"] == "auto_recovery_on_start"
+tests/test_admin_guard_recovery.py:31:def test_safe_mode_recovery_skips_when_kill_switch_and_system_guard_are_already_safe(monkeypatch):
+tests/test_admin_guard_recovery.py:32:    from services.admin import safe_mode_recovery as smr
+tests/test_paper_runner_lifecycle.py:117:        def submit_order(self, **kwargs) -> dict:
+tests/test_live_executor_latency_safety_integration.py:119:        def submit_order(self, **kwargs):
+tests/test_live_executor_latency_safety_integration.py:120:            raise AssertionError("submit_order should not run when gate 1 blocks on realized pnl")
+tests/test_live_executor_latency_safety_integration.py:223:        def submit_order(self, **kwargs):
+tests/test_live_executor_latency_safety_integration.py:337:        def submit_order(self, **kwargs):
+tests/test_live_executor_latency_safety_integration.py:431:        def submit_order(self, **kwargs):
+tests/test_live_executor_latency_safety_integration.py:432:            raise AssertionError("submit_order should not run without a local gate price")
+tests/test_live_executor_latency_safety_integration.py:516:        def submit_order(self, **kwargs):
+tests/test_live_executor_latency_safety_integration.py:517:            raise AssertionError("submit_order should not be called when preflight blocks")
+tests/test_live_executor_latency_safety_integration.py:611:        def submit_order(self, **kwargs):
+tests/test_live_executor_latency_safety_integration.py:926:        def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+tests/test_live_executor_latency_safety_integration.py:958:        def mark_submitted(self, *, exchange_id: str, intent_id: str, remote_order_id: str):
+tests/test_order_dedupe_unknown.py:3:def test_mark_unknown(tmp_path):
+tests/test_order_dedupe_unknown.py:7:    s.mark_unknown(exchange_id="binance", intent_id="i1", error="timeout")

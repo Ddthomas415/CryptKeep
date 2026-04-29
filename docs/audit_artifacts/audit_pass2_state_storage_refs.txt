@@ -1,0 +1,856 @@
+storage/order_idempotency_sqlite.py:71:    def upsert_new(self, row: dict) -> dict:
+storage/risk_ledger_store_sqlite.py:112:    def upsert_daily_venue(
+storage/risk_ledger_store_sqlite.py:160:    def upsert_daily(
+storage/risk_ledger_store_sqlite.py:189:    def upsert_position(
+storage/exec_metrics_sqlite.py:54:    def insert(self, *, decision_id: str | None, intent_id: str | None, venue: str, symbol: str, side: str,
+storage/order_dedupe_store_sqlite.py:56:            c.commit()
+storage/order_dedupe_store_sqlite.py:80:        inserted = False
+storage/order_dedupe_store_sqlite.py:90:            inserted = cur.rowcount == 1
+storage/order_dedupe_store_sqlite.py:91:            c.commit()
+storage/order_dedupe_store_sqlite.py:94:            row["_inserted"] = inserted
+storage/order_dedupe_store_sqlite.py:112:            c.commit()
+storage/order_dedupe_store_sqlite.py:132:            c.commit()
+storage/order_dedupe_store_sqlite.py:151:            c.commit()
+storage/order_dedupe_store_sqlite.py:170:            c.commit()
+storage/order_dedupe_store_sqlite.py:186:            c.commit()
+storage/signals_store_sqlite.py:56:    async def upsert_signal(self, payload: Dict[str, Any]) -> bool:
+storage/signals_store_sqlite.py:57:        return await asyncio.to_thread(self._upsert_sync, payload)
+storage/signals_store_sqlite.py:59:    def _upsert_sync(self, payload: Dict[str, Any]) -> bool:
+storage/signals_store_sqlite.py:69:                return False
+storage/signals_store_sqlite.py:86:            return True
+storage/signals_store_sqlite.py:88:            return False
+storage/ops_signal_store_sqlite.py:61:            c.commit()
+storage/ops_signal_store_sqlite.py:63:    def insert_raw_signal(self, snapshot: RawSignalSnapshot | Dict[str, Any]) -> int:
+storage/ops_signal_store_sqlite.py:74:            c.commit()
+storage/ops_signal_store_sqlite.py:77:    def insert_risk_gate(self, signal: RiskGateSignal | Dict[str, Any]) -> int:
+storage/ops_signal_store_sqlite.py:99:            c.commit()
+storage/order_tracker_store_sqlite.py:64:    def upsert_order(self, venue: str, symbol: str, order_id: str, placed_ts_ms: int, side: str, qty: float, price: float) -> None:
+storage/signal_reliability_sqlite.py:51:    def upsert(self, row: Dict[str, Any]) -> None:
+storage/risk_blocks_store_sqlite.py:58:    def insert(self, rec: dict) -> None:
+storage/trade_history_sqlite.py:64:    def upsert_trade(self, row: Dict[str, Any]) -> Dict[str, Any]:
+storage/strategy_state_store_sqlite.py:64:    def upsert(
+storage/market_store_sqlite.py:59:    def upsert_ticker(
+storage/market_store_sqlite.py:80:    def upsert_ohlcv(
+storage/intent_queue_sqlite.py:72:    def upsert_intent(self, row: Dict[str, Any]) -> None:
+storage/intent_queue_sqlite.py:165:    def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, client_order_id: str | None = None, linked_order_id: str | None = None) -> None:
+storage/intent_queue_sqlite.py:193:    def set_state(self, k: str, v: str) -> None:
+storage/meta_decisions_sqlite.py:50:    def insert(self, row: Dict[str, Any]) -> None:
+storage/evidence_signals_sqlite.py:93:    def upsert_source(self, source_id: str, source_type: str, display_name: str, consent_confirmed: bool) -> Dict[str, Any]:
+storage/evidence_signals_sqlite.py:123:    def insert_raw_event(self, event_id: str, source_id: str, payload_json: str) -> None:
+storage/evidence_signals_sqlite.py:133:    def insert_quarantine(self, quarantine_id: str, event_id: str, source_id: str, reason: str, payload_json: str) -> None:
+storage/evidence_signals_sqlite.py:153:    def insert_signal(
+storage/evidence_signals_sqlite.py:256:    def insert_score(
+storage/paper_trading_sqlite.py:97:    def set_state(self, k: str, v: str) -> None:
+storage/paper_trading_sqlite.py:104:    def insert_order(self, row: Dict[str, Any]) -> None:
+storage/paper_trading_sqlite.py:180:    def insert_fill(self, row: Dict[str, Any]) -> None:
+storage/paper_trading_sqlite.py:201:    def upsert_position(self, symbol: str, qty: float, avg_price: float, realized_pnl: float) -> None:
+storage/paper_trading_sqlite.py:232:    def insert_equity(self, ts: str, cash_quote: float, equity_quote: float, unrealized_pnl: float, realized_pnl: float) -> None:
+storage/decision_audit_store_sqlite.py:57:    def upsert_decision(
+storage/reconciliation_store_sqlite.py:52:    def insert_balance_snapshot(self, ts_ms: int, exchange: str, quote_ccy: str, payload: dict[str, Any]) -> None:
+storage/reconciliation_store_sqlite.py:62:    def insert_drift_report(self, ts_ms: int, exchange: str, severity: str, summary: str, payload: dict[str, Any]) -> None:
+storage/fill_reconciler_store_sqlite.py:90:                return True
+storage/fill_reconciler_store_sqlite.py:92:                return False
+storage/portfolio_store_sqlite.py:63:    def upsert_cash(self, *, exchange: str, cash: float, quote_ccy: str = "USD") -> None:
+storage/portfolio_store_sqlite.py:77:    def upsert_cash_quote(self, *, exchange: str, quote_ccy: str, cash: float) -> None:
+storage/portfolio_store_sqlite.py:157:    def upsert_position(self, *, exchange: str, symbol: str, qty: float) -> None:
+storage/live_trading_sqlite.py:130:    def upsert_order(self, row: Dict[str, Any]) -> None:
+storage/live_trading_sqlite.py:186:    def insert_fill(self, row: Dict[str, Any]) -> None:
+storage/signal_inbox_sqlite.py:51:    def upsert_signal(self, sig: Dict[str, Any]) -> None:
+storage/live_intent_queue_sqlite.py:69:    def upsert_intent(self, row: Dict[str, Any]) -> None:
+storage/live_intent_queue_sqlite.py:146:    def claim_next_queued(self, limit: int = 20) -> List[Dict[str, Any]]:
+storage/live_intent_queue_sqlite.py:197:    def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, client_order_id: str | None = None, exchange_order_id: str | None = None) -> bool:
+storage/live_intent_queue_sqlite.py:232:            con.commit()
+storage/live_intent_queue_sqlite.py:246:    def atomic_risk_claim(
+storage/live_intent_queue_sqlite.py:269:                return False, "risk:max_trades_per_day"
+storage/live_intent_queue_sqlite.py:272:                return False, "risk:max_daily_notional_quote"
+storage/live_intent_queue_sqlite.py:282:            return True, None
+storage/live_intent_queue_sqlite.py:318:    def set_state(self, k: str, v: str) -> None:
+storage/live_intent_queue_sqlite.py:325:            con.commit()
+storage/execution_store_sqlite.py:121:            c.commit()
+storage/execution_store_sqlite.py:161:            c.commit()
+storage/execution_store_sqlite.py:182:            c.commit()
+storage/execution_store_sqlite.py:242:            c.commit()
+storage/execution_store_sqlite.py:277:            c.commit()
+storage/execution_store_sqlite.py:280:    def upsert_intent(self, row: Dict[str, Any]) -> None:
+storage/execution_store_sqlite.py:314:            c.commit()
+storage/trade_journal_sqlite.py:55:    def insert_fill(self, row: dict) -> None:
+storage/position_state_sqlite.py:46:    def upsert(
+storage/crypto_edge_store_sqlite.py:110:            conn.commit()
+storage/crypto_edge_store_sqlite.py:149:            conn.commit()
+storage/crypto_edge_store_sqlite.py:190:            conn.commit()
+storage/crypto_edge_store_sqlite.py:229:            conn.commit()
+storage/order_manager_store_sqlite.py:97:    def upsert_order_snapshot(self, venue: str, symbol: str, order_id: str, snapshot: dict) -> None:
+storage/ws_status_sqlite.py:65:    def upsert_status(
+services/journal/order_event_store.py:29:    con.commit()
+services/paper/paper_state.py:36:        self.db.set_state("cash_quote", str(float(value)))
+services/paper/paper_state.py:46:        self.db.set_state("realized_pnl", str(float(value)))
+services/paper_trader/paper_state.py:23:        self.db.set_state("cash_quote", str(float(value)))
+services/paper_trader/paper_state.py:33:        self.db.set_state("realized_pnl", str(float(value)))
+services/paper_trader/paper_execution_venue.py:71:        return False
+services/reconciliation/exchange_reconciler.py:140:    recon.insert_balance_snapshot(ts, exchange_id, primary_quote, {"totals": totals, "quote_ccys": quote_ccys})
+services/reconciliation/exchange_reconciler.py:229:    recon.insert_drift_report(ts, exchange_id, sev, summary, drift)
+services/pipeline/mean_reversion_strategy.py:107:        self.state.upsert(
+services/pipeline/mean_reversion_strategy.py:171:        self.state.upsert(
+services/pipeline/ema_strategy.py:69:        self.state.upsert(
+services/pipeline/ema_strategy.py:120:        self.state.upsert(
+services/config_loader.py:91:        return True
+services/config_loader.py:95:        return False
+services/trader_signals/webhook_server.py:22:        return True
+services/trader_signals/webhook_server.py:63:        return True, "ok"
+services/trader_signals/webhook_server.py:76:            return False, f"rate_limited:{n}>={max_per_hour}"
+services/trader_signals/webhook_server.py:77:        return True, "ok"
+services/trader_signals/webhook_server.py:79:        return True, "ok"
+services/trader_signals/webhook_server.py:142:                ok = await self.store.upsert_signal(norm)
+services/app/dashboard_launch.py:123:            return True
+services/app/dashboard_launch.py:125:        return False
+services/app/dashboard_launch.py:132:            return True
+services/app/preflight_wizard.py:29:            return True
+services/app/preflight_wizard.py:31:        return False
+services/app/preflight_wizard.py:38:        return False
+services/app/preflight_wizard.py:44:        return True, None
+services/app/preflight_wizard.py:46:        return False, f"{type(e).__name__}: {e}"
+services/app/preflight_wizard.py:69:            return True, None
+services/app/preflight_wizard.py:70:        return False, str(errors)
+services/app/preflight_wizard.py:72:        return True, None
+services/app/preflight_wizard.py:219:def wizard_guided_setup_apply_preset_state(preset: str) -> dict:
+services/app/preflight_wizard.py:234:        state = wizard_guided_setup_apply_preset_state(str(ui.get("preset", "safe_paper")))
+services/evidence/ingest.py:79:    return store.upsert_source(
+services/evidence/ingest.py:122:    store.insert_raw_event(event_id=event_id, source_id=sid, payload_json=json.dumps(payload, default=str, sort_keys=True))
+services/evidence/ingest.py:131:        store.insert_quarantine(
+services/evidence/ingest.py:142:        store.insert_quarantine(
+services/evidence/ingest.py:152:    store.insert_signal(
+services/evidence/scoring.py:98:    store.insert_score(
+services/evidence/webhook_server.py:48:        return False
+services/update/tufish.py:29:        return False
+services/update/tufish.py:34:            return False
+services/update/tufish.py:36:        return True
+services/update/tufish.py:38:        return False
+services/update/tufish.py:43:            return True
+services/update/tufish.py:44:    return False
+services/update/tufish.py:50:        return False, None  # allow but caller can enforce presence
+services/update/tufish.py:56:        return True, "expires_ts invalid"
+services/security/direct_origin_guard.py:26:        return True
+services/security/direct_origin_guard.py:35:    return True
+services/security/user_auth_store.py:135:        return False
+services/security/user_auth_store.py:140:            return True
+services/security/user_auth_store.py:141:    return False
+services/security/user_auth_store.py:182:        return True, None
+services/security/user_auth_store.py:184:        return False, f"{type(e).__name__}: {e}"
+services/security/user_auth_store.py:263:def upsert_user(*, username: str, password: str, role: str = "VIEWER", enabled: bool = True) -> dict[str, Any]:
+services/security/user_auth_store.py:481:    out = upsert_user(username=user, password=pwd, role=role, enabled=True)
+services/security/user_auth_store.py:520:            con.commit()
+services/security/user_auth_store.py:559:            con.commit()
+services/security/user_auth_store.py:581:            con.commit()
+services/security/auth_capabilities.py:36:        return False, error
+services/security/auth_capabilities.py:39:        return False, "user_auth_store unavailable: missing keychain_available"
+services/security/auth_capabilities.py:43:        return False, f"keychain_available failed: {type(exc).__name__}: {exc}"
+services/market_data/system_status_publisher.py:25:        return False
+services/market_data/system_status_publisher.py:27:    return True
+services/strategies/live_consensus_filter.py:36:    return True
+services/signals/reliability.py:147:        db.upsert(row)
+services/signals/routing.py:26:        return True
+services/signals/routing.py:65:    db.upsert_intent(it)
+services/signals/webhook_server.py:17:        return False
+services/signals/webhook_server.py:53:            self.inbox.upsert_signal({
+services/runtime/process_supervisor.py:11:from services.admin.system_guard import set_state as set_system_guard_state
+services/runtime/process_supervisor.py:46:        return False
+services/runtime/process_supervisor.py:50:        return True
+services/runtime/process_supervisor.py:53:        return False
+services/runtime/dynamic_symbol_selector.py:27:        return False
+services/runtime/dynamic_symbol_selector.py:29:        return False
+services/runtime/dynamic_symbol_selector.py:32:        return False
+services/runtime/dynamic_symbol_selector.py:34:        return False
+services/runtime/dynamic_symbol_selector.py:35:    return True
+services/setup/config_manager.py:181:        "risk_preset_state": {
+services/admin/watchdog.py:11:        if pid <= 0: return False
+services/admin/watchdog.py:13:        return True
+services/admin/watchdog.py:15:        return False
+services/admin/system_diagnostics.py:134:        return False
+services/admin/system_diagnostics.py:136:        return False
+services/admin/system_diagnostics.py:139:        return True
+services/admin/system_diagnostics.py:141:        return False
+services/admin/system_diagnostics.py:143:        return True
+services/admin/system_diagnostics.py:145:        return False
+services/admin/system_diagnostics.py:153:        return False
+services/admin/system_diagnostics.py:155:        return False
+services/admin/system_diagnostics.py:157:        return False
+services/admin/system_diagnostics.py:160:        return True
+services/admin/system_diagnostics.py:162:        return False
+services/admin/system_diagnostics.py:284:                return True
+services/admin/system_diagnostics.py:291:                return True
+services/admin/system_diagnostics.py:298:                return True
+services/admin/system_diagnostics.py:301:    return False
+services/admin/live_guard.py:29:        return False, "system_guard_halting", details
+services/admin/live_guard.py:31:        return False, "system_guard_halted", details
+services/admin/live_guard.py:33:        return False, "kill_switch_armed", details
+services/admin/live_guard.py:39:        return False, "risk_enable_live_false", details
+services/admin/live_guard.py:42:    return True, "ok", details
+services/admin/config_editor.py:24:        return False, "cfg must be dict"
+services/admin/config_editor.py:29:            return True, "Dry run OK"
+services/admin/config_editor.py:32:        return True, "Saved"
+services/admin/config_editor.py:34:        return False, f"Save failed: {type(e).__name__}: {e}"
+services/admin/config_editor.py:140:        return True
+services/admin/config_editor.py:144:        return True
+services/admin/config_editor.py:146:        return False
+services/admin/config_editor.py:155:            return False
+services/admin/config_editor.py:157:        return True
+services/admin/config_editor.py:159:        return False
+services/admin/resume_gate.py:7:from services.admin.system_guard import set_state as set_system_guard_state
+services/admin/wizard_state.py:71:            return False
+services/admin/wizard_state.py:92:            return False
+services/admin/system_guard.py:85:def set_state(
+services/admin/repair_reset.py:11:        return False
+services/admin/repair_reset.py:17:                return False
+services/admin/repair_reset.py:19:            return False
+services/admin/repair_reset.py:20:    return True
+services/admin/live_enable_wizard.py:5:from services.admin.system_guard import set_state as set_system_guard_state
+services/admin/live_disable_wizard.py:7:from services.admin.system_guard import set_state as set_system_guard_state
+services/meta/meta_strategy_runner.py:64:            meta_db.insert({
+services/meta/meta_strategy_runner.py:106:            qdb.upsert_intent(it)
+services/ai_engine/model.py:73:                return False, "buy_below_threshold", p_up
+services/ai_engine/model.py:74:            return True, "ok", p_up
+services/ai_engine/model.py:77:                return False, "sell_above_threshold", p_up
+services/ai_engine/model.py:78:            return True, "ok", p_up
+services/ai_engine/model.py:79:        return True, "side_not_trade", p_up
+services/desktop/simple_service_manager.py:61:        return True
+services/desktop/simple_service_manager.py:63:        return False
+services/desktop/service_manager.py:63:    return False
+services/strategy_runner/ema_crossover_runner.py:180:        return False
+services/strategy_runner/ema_crossover_runner.py:182:    return True
+services/strategy_runner/ema_crossover_runner.py:1106:                    qdb.upsert_intent({
+services/alerts/alert_router.py:24:        return False
+services/alerts/alert_router.py:27:        return True
+services/run_context.py:29:            return False
+services/run_context.py:33:        return True
+services/run_context.py:35:        return False
+services/run_context.py:44:            return False
+services/run_context.py:50:                    return True
+services/run_context.py:53:        return False
+services/run_context.py:55:        return False
+services/markets/math_utils.py:6:        return True
+services/markets/rules.py:7:from services.markets.cache_sqlite import get as cache_get, upsert as cache_upsert, is_fresh, any_fresh, default_exec_db
+services/markets/rules.py:43:    cache_upsert(exec_db, r)
+services/markets/cache_sqlite.py:46:def upsert(exec_db: str, rules: MarketRules) -> None:
+services/markets/cache_sqlite.py:76:            return False
+services/markets/cache_sqlite.py:84:            return False
+services/execution/_executor_shared.py:250:        return True, "WS_FRESHNESS_DISABLED", {"enforced": False}
+services/execution/_executor_shared.py:260:            return True, "WS_FRESH_OK", {
+services/execution/_executor_shared.py:266:        return False, "WS_STALE", {
+services/execution/_executor_shared.py:276:        return True, "WS_FRESH_OK_SNAPSHOT", {"source": "snapshot", "max_age_sec": max_age_sec}
+services/execution/_executor_shared.py:277:    return False, "WS_MISSING_OR_STALE", {"source": "snapshot", "reason": snap_reason, "max_age_sec": max_age_sec}
+services/execution/_executor_shared.py:287:        return False, "ACK_LATENCY_PAUSED", {
+services/execution/_executor_shared.py:292:    return True, "OK", {}
+services/execution/_executor_shared.py:304:        return True, "PREFLIGHT_GATE_DISABLED", {"enforced": False}
+services/execution/_executor_shared.py:308:        return False, "CIRCUIT_BREAKER_PAUSED", {
+services/execution/_executor_shared.py:319:        return True, "OK", {"checks": checks}
+services/execution/_executor_shared.py:339:        return False, "CIRCUIT_BREAKER_TRIPPED", meta
+services/execution/_executor_shared.py:341:    return False, "PREFLIGHT_FAILED", meta
+services/execution/_executor_shared.py:399:        return True
+services/execution/_executor_shared.py:407:        return False, "LIVE_SHADOW observe-only mode: submissions disabled"
+services/execution/_executor_shared.py:409:        return False, "execution.live_enabled is false"
+services/execution/_executor_shared.py:411:        return True, "ok_shadow"
+services/execution/_executor_shared.py:414:        return False, reason
+services/execution/_executor_shared.py:415:    return True, "ok"
+services/execution/_executor_shared.py:422:        return False, f"SYSTEM_GUARD_{guard_state}", state
+services/execution/_executor_shared.py:423:    return True, "ok", state
+services/execution/live_arming.py:135:            return True, f"env:{name}"
+services/execution/live_arming.py:136:    return False, "live_not_armed"
+services/execution/live_arming.py:142:        return False, "live_disabled"
+services/execution/intent_lifecycle.py:45:        return True
+services/execution/intent_lifecycle.py:57:        return True
+services/execution/execution_plan_writer.py:139:            if hasattr(qdb, "upsert_intent"):
+services/execution/execution_plan_writer.py:140:                qdb.upsert_intent(payload)
+services/execution/execution_plan_writer.py:141:            elif hasattr(qdb, "insert_intent"):
+services/execution/execution_plan_writer.py:142:                qdb.insert_intent(payload)
+services/execution/event_log.py:49:    c.commit()
+services/execution/reconciliation.py:57:        PositionStateSQLite().upsert(
+services/execution/exec_metrics.py:17:    store.insert(
+services/execution/intent_writer.py:95:                IntentQueueSQLite().upsert_intent(
+services/execution/intent_writer.py:194:            IntentQueueSQLite().update_status(str(intent_id), str(status), last_error=last_error)
+services/execution/_executor_reconcile.py:137:        return True
+services/execution/_executor_reconcile.py:140:        return True
+services/execution/_executor_reconcile.py:141:    return False
+services/execution/intent_consumer.py:40:        return True
+services/execution/intent_consumer.py:42:        return False
+services/execution/intent_consumer.py:70:        return False, "risk:min_order_notional_quote"
+services/execution/intent_consumer.py:71:    return db.atomic_risk_claim(
+services/execution/intent_consumer.py:82:        return True
+services/execution/intent_consumer.py:200:                    ldb.upsert_order({
+services/execution/intent_consumer.py:217:                    ldb.upsert_order({
+services/execution/paper_engine.py:52:            self.db.set_state("cash_quote", str(self.cfg["starting_cash_quote"]))
+services/execution/paper_engine.py:54:            self.db.set_state("realized_pnl", "0.0")
+services/execution/paper_engine.py:64:        self.db.set_state("cash_quote", str(float(x)))
+services/execution/paper_engine.py:74:        self.db.set_state("realized_pnl", str(float(x)))
+services/execution/paper_engine.py:148:        self.db.insert_order(row)
+services/execution/paper_engine.py:198:            self.db.upsert_position(order["symbol"], new_qty, new_avg, realized)
+services/execution/paper_engine.py:209:            self.db.upsert_position(order["symbol"], new_qty, new_avg, realized2)
+services/execution/paper_engine.py:213:        self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": self._clock(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
+services/execution/paper_engine.py:305:        self.db.insert_equity(_now(), cash, equity, unreal, realized)
+services/execution/intent_reconciler.py:33:        return True
+services/execution/intent_reconciler.py:35:        return False
+services/execution/intent_reconciler.py:141:                jdb.insert_fill(journal_row)
+services/execution/venue_capabilities.py:31:        return False
+services/execution/venue_capabilities.py:34:        return False
+services/execution/venue_capabilities.py:36:        return True
+services/execution/order_intents.py:36:        conn.commit()
+services/execution/order_intents.py:72:                conn.commit()
+services/execution/order_intents.py:92:            conn.commit()
+services/execution/retry_policy.py:15:        return False
+services/execution/intent_executor_supervisor.py:13:        return True
+services/execution/intent_executor_supervisor.py:15:        return False
+services/execution/order_manager.py:50:            self.store.upsert_order_snapshot(venue, symbol, oid, {
+services/execution/live_reconciler.py:8:from services.admin.system_guard import get_state as get_system_guard_state, set_state as set_system_guard_state
+services/execution/live_reconciler.py:62:        return True
+services/execution/live_reconciler.py:68:                return True
+services/execution/live_reconciler.py:70:                return False
+services/execution/live_reconciler.py:71:        return False
+services/execution/live_reconciler.py:91:        return True
+services/execution/live_reconciler.py:166:        return True
+services/execution/live_reconciler.py:169:        return True
+services/execution/live_reconciler.py:170:    return False
+services/execution/live_reconciler.py:183:        return False
+services/execution/live_reconciler.py:186:        return False
+services/execution/live_reconciler.py:190:        return False
+services/execution/live_reconciler.py:194:        return False
+services/execution/live_reconciler.py:205:        return False
+services/execution/live_reconciler.py:206:    ldb.upsert_order({
+services/execution/live_reconciler.py:218:    return True
+services/execution/live_reconciler.py:294:                            ldb.upsert_order({
+services/execution/live_reconciler.py:312:                            ldb.upsert_order({
+services/execution/live_reconciler.py:346:                                ldb.upsert_order({
+services/execution/live_reconciler.py:376:                            ldb.insert_fill({
+services/execution/live_reconciler.py:391:                            qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts + 1))
+services/execution/live_reconciler.py:403:                            ldb.upsert_order({
+services/execution/live_intent_consumer.py:41:        return True
+services/execution/live_intent_consumer.py:47:                return True
+services/execution/live_intent_consumer.py:49:                return False
+services/execution/live_intent_consumer.py:50:        return False
+services/execution/live_intent_consumer.py:74:        return False, "risk:min_order_notional_quote"
+services/execution/live_intent_consumer.py:75:    return db.atomic_risk_claim(
+services/execution/live_intent_consumer.py:86:        return True
+services/execution/live_intent_consumer.py:122:            batch = qdb.claim_next_queued(limit=10)
+services/execution/live_intent_consumer.py:154:                if (not bool(dedupe_row.get("_inserted"))) and dedupe_status in {"created", "submitted", "unknown"}:
+services/execution/live_intent_consumer.py:183:                    ldb.upsert_order({
+services/execution/live_intent_consumer.py:221:                            ldb.upsert_order({
+services/execution/live_intent_consumer.py:260:                        ldb.upsert_order({
+services/execution/live_intent_consumer.py:281:                    ldb.upsert_order({
+services/execution/live_intent_consumer.py:317:                        ldb.upsert_order({
+services/execution/live_intent_consumer.py:334:                    ldb.upsert_order({
+services/execution/safety.py:45:        return False, "min_order_notional"
+services/execution/safety.py:49:        return False, "max_trades_per_day"
+services/execution/safety.py:53:            return False, "max_daily_loss"
+services/execution/safety.py:54:    return True, "ok"
+services/execution/intent_store.py:34:    con.commit()
+services/execution/state_authority.py:63:    return bool(qdb.update_status(intent_id, nxt, **kwargs))
+services/execution/state_authority.py:104:    return bool(qdb.update_status(intent_id, nxt, **kwargs))
+services/execution/state_authority.py:129:    qdb.update_status(intent_id, status, **kwargs)
+services/execution/paper_runner.py:35:        return True
+services/execution/paper_runner.py:37:        return False
+services/execution/paper_reconciliation.py:106:def _upsert_position_best_effort(pdb: Any, row: dict[str, Any]) -> None:
+services/execution/paper_reconciliation.py:107:    if hasattr(pdb, "upsert_position"):
+services/execution/paper_reconciliation.py:109:            pdb.upsert_position(row)
+services/execution/paper_reconciliation.py:111:            pdb.upsert_position(
+services/execution/paper_reconciliation.py:121:    if hasattr(pdb, "insert_position"):
+services/execution/paper_reconciliation.py:122:        pdb.insert_position(row)
+services/execution/paper_reconciliation.py:135:    if hasattr(qdb, "upsert_intent"):
+services/execution/paper_reconciliation.py:136:        qdb.upsert_intent(updated)
+services/execution/paper_reconciliation.py:284:            _upsert_position_best_effort(pdb, new_pos)
+services/execution/place_order.py:86:        return False
+services/execution/place_order.py:88:        return False
+services/execution/place_order.py:94:        return False
+services/execution/place_order.py:95:    return True
+services/execution/place_order.py:202:        return False
+services/execution/place_order.py:237:        return True
+services/execution/place_order.py:257:        return True, "env:CBP_KILL_SWITCH"
+services/execution/place_order.py:266:            return True, f"services.risk.killswitch.import_failed:{type(exc).__name__}"
+services/execution/place_order.py:267:        return False, ""
+services/execution/place_order.py:274:                return True, "services.risk.killswitch.is_on"
+services/execution/place_order.py:278:                return True, f"services.risk.killswitch.is_on_failed:{type(exc).__name__}"
+services/execution/place_order.py:279:            return False, ""
+services/execution/place_order.py:288:                return True, f"services.risk.killswitch.snapshot_failed:{type(exc).__name__}"
+services/execution/place_order.py:289:            return False, ""
+services/execution/place_order.py:295:                return True, "services.risk.killswitch.snapshot_failed:TypeError"
+services/execution/place_order.py:296:            return False, ""
+services/execution/place_order.py:299:            return True, "services.risk.killswitch.snapshot.kill_switch"
+services/execution/place_order.py:308:                return True, f"services.risk.killswitch.cooldown_read_failed:{type(exc).__name__}"
+services/execution/place_order.py:309:            return False, ""
+services/execution/place_order.py:312:            return True, "services.risk.killswitch.snapshot.cooldown_active"
+services/execution/place_order.py:318:            return True, "services.risk.killswitch.missing_probe:RuntimeError"
+services/execution/place_order.py:320:    return False, ""
+services/execution/place_order.py:325:        return True, "env:CBP_EXECUTION_ARMED"
+services/execution/place_order.py:327:        return True, "env:CBP_LIVE_ENABLED"
+services/execution/place_order.py:329:        return True, "env:CBP_EXECUTION_LIVE_ENABLED"
+services/execution/place_order.py:330:    return False, "not_armed"
+services/execution/place_order.py:400:        return False
+services/execution/place_order.py:406:        return False
+services/execution/place_order.py:408:        return True
+services/execution/place_order.py:410:        return True
+services/execution/place_order.py:411:    return False
+services/execution/sizing.py:40:        return False, "qty_nonpositive", {"qty": q}
+services/execution/sizing.py:42:        return False, "price_nonpositive", {"price": p}
+services/execution/sizing.py:45:        return False, "min_qty", {"qty": q, "min_qty": float(min_qty), "notional": n}
+services/execution/sizing.py:47:        return False, "min_notional", {"notional": n, "min_notional": float(min_notional)}
+services/execution/sizing.py:48:    return True, "ok", {"qty": q, "price": p, "notional": n}
+services/diagnostics/preflight.py:22:        return True
+services/diagnostics/preflight.py:24:        return False
+services/governance/campaign_validation.py:8:        return False
+services/governance/campaign_state_machine.py:6:        return False
+services/governance/campaign_state_machine.py:7:    return True
+services/portfolio/portfolio_store.py:20:            self.db.upsert_cash(exchange=str(exchange), cash=float(cash), quote_ccy=str(quote_ccy))
+services/portfolio/portfolio_store.py:22:        self.db.upsert_cash(exchange=str(exchange), cash=float(cash))
+services/portfolio/portfolio_store.py:25:        self.db.upsert_cash_quote(exchange=str(exchange), quote_ccy=str(quote_ccy), cash=float(cash))
+services/portfolio/portfolio_store.py:34:        self.db.upsert_position(exchange=str(exchange), symbol=str(symbol), qty=float(qty))
+services/portfolio/fill_event_store.py:18:        self.store.upsert_trade(row)
+services/bot/start_manager.py:26:        return True, ["risk_disabled"]
+services/bot/start_manager.py:33:            return False
+services/bot/start_manager.py:59:        return False, "BLOCK", ["ui_gate_missing_or_error"]
+services/bot/process_manager.py:70:        return False
+services/bot/process_manager.py:78:            return True
+services/bot/process_manager.py:80:        return False
+services/ops/risk_gate_service.py:61:    gate_id = db.insert_risk_gate(new_gate)
+services/ops/live_signal_adapter.py:20:        return self.store.insert_raw_signal(snap)
+services/ops/live_signal_adapter.py:24:        return self.store.insert_risk_gate(gate)
+services/ops/risk_gate_contract.py:107:        return False, "full_stop"
+services/ops/risk_gate_contract.py:111:        return False, "reductions_only"
+services/ops/risk_gate_contract.py:112:    return True, "ok"
+services/ops/telemetry_snapshot_builder.py:103:        return False
+services/ops/risk_gate_engine.py:134:                return True
+services/ops/risk_gate_engine.py:135:    return False
+services/ops/risk_gate_engine.py:201:    raw_id = db.insert_raw_signal(snap)
+services/ops/risk_gate_engine.py:202:    gate_id = db.insert_risk_gate(gate)
+services/os/ports.py:21:        return True
+services/os/ports.py:23:        return False
+services/live_router/router.py:29:        return False
+services/monitoring/ws_health_logger.py:28:    db.upsert_status(
+services/data/multi_exchange_collector.py:64:                store.upsert_ticker(
+services/data/multi_exchange_collector.py:82:                    store.upsert_ohlcv(
+services/risk/killswitch.py:30:    return True
+services/risk/killswitch.py:75:    Module-level convenience: return True if kill switch is ON.
+services/risk/killswitch.py:78:        return True
+services/risk/killswitch.py:82:        return False
+services/risk/staleness_guard.py:10:        return False, "snapshot_missing"
+services/risk/staleness_guard.py:15:            return False, "no_ts_ms"
+services/risk/staleness_guard.py:18:            return False, f"stale:{age:.1f}s"
+services/risk/staleness_guard.py:19:        return True, None
+services/risk/staleness_guard.py:21:        return False, f"parse_error:{type(e).__name__}"
+services/risk/fill_ledger.py:49:    def insert_fill(
+services/risk/fill_hook.py:93:    FillLedgerDB(exec_db).insert_fill(
+services/risk/exit_rules.py:4:    return False
+services/risk/risk_daily.py:126:            return False
+services/risk/risk_daily.py:136:                return False
+services/risk/risk_daily.py:139:                return False
+services/risk/risk_daily.py:141:        # Only after dedupe insert succeeds do we update the rollup
+services/risk/risk_daily.py:145:            return False
+services/risk/risk_daily.py:146:        return True
+services/risk/live_risk_gates.py:67:        return False
+services/risk/live_risk_gates.py:153:            return False, "KILL_SWITCH_ON", {}
+services/risk/live_risk_gates.py:157:            return False, "CANNOT_ESTIMATE_NOTIONAL_USD", {}
+services/risk/live_risk_gates.py:160:            return False, "MAX_NOTIONAL_PER_TRADE_EXCEEDED", {"notional_usd": n}
+services/risk/live_risk_gates.py:164:            return False, "MAX_TRADES_PER_DAY_EXCEEDED", dict(row)
+services/risk/live_risk_gates.py:167:            return False, "MAX_DAILY_LOSS_EXCEEDED", {"realized_pnl_usd": float(realized_pnl_usd)}
+services/risk/live_risk_gates.py:169:        return True, "OK", {"notional_usd": n, "daily": row}
+services/logging/app_logger.py:73:        return True
+services/control/runtime_identity.py:27:def _get_commit() -> str:
+services/control/managed_component.py:44:        return True
+services/control/managed_component.py:46:        return False
+services/control/managed_component.py:48:        return True  # exists but we can't signal — treat as alive
+services/control/managed_component.py:50:        return False
+services/control/managed_component.py:59:        return False
+services/control/managed_component.py:62:        return False
+services/control/managed_component.py:66:        return True
+services/control/managed_component.py:68:        return False
+services/control/managed_component.py:70:        return False
+services/control/managed_component.py:155:            return False
+services/control/managed_component.py:160:            return True
+services/control/managed_component.py:164:            return False
+services/control/managed_component.py:216:                return True
+services/control/managed_component.py:220:        return False
+services/control/deployment_stage.py:179:        return True, f"allowed_in_{stage.value}"
+services/control/deployment_stage.py:180:    return False, f"action_{action}_blocked_in_{stage.value}"
+services/imitation/overlay_guard.py:10:        return True
+services/imitation/overlay_guard.py:12:        return False
+services/imitation/external_signal_store.py:47:        self.store.upsert_signal(row)
+services/supervisor/supervisor.py:34:        return False
+services/supervisor/supervisor.py:45:                return False
+services/supervisor/supervisor.py:50:                    return False
+services/supervisor/supervisor.py:56:            return True
+services/supervisor/supervisor.py:58:        return False
+services/supervisor/supervisor_daemon.py:34:        return False
+services/supervisor/supervisor_daemon.py:38:        return True
+services/supervisor/supervisor_daemon.py:40:        return False
+services/analytics/paper_campaign_lifecycle.py:52:        return False
+services/analytics/paper_campaign_lifecycle.py:58:            return False
+services/analytics/paper_campaign_lifecycle.py:62:            return True
+services/analytics/paper_campaign_lifecycle.py:64:            return False
+services/analytics/paper_campaign_lifecycle.py:66:        return False
+services/analytics/paper_campaign_lifecycle.py:74:        return False
+services/analytics/paper_campaign_lifecycle.py:79:            return True
+services/analytics/paper_campaign_lifecycle.py:82:    return False
+services/analytics/paper_campaign_lifecycle.py:100:            return True
+services/analytics/paper_campaign_lifecycle.py:102:    return False
+services/analytics/crypto_edge_collector_service.py:70:        return True
+services/analytics/crypto_edge_collector_service.py:72:        return False
+services/analytics/crypto_edge_collector_service.py:74:        return True
+services/analytics/crypto_edge_collector_service.py:76:        return False
+services/analytics/paper_strategy_evidence_service.py:156:        return False
+services/analytics/paper_strategy_evidence_service.py:164:        return False
+services/analytics/paper_strategy_evidence_service.py:166:        return True
+services/analytics/paper_strategy_evidence_service.py:168:        return False
+services/analytics/paper_strategy_evidence_service.py:170:        return True
+services/analytics/paper_strategy_evidence_service.py:226:        return True
+services/analytics/paper_strategy_evidence_service.py:228:        return False
+services/analytics/paper_strategy_evidence_service.py:230:        return True
+services/analytics/paper_strategy_evidence_service.py:232:        return False
+services/analytics/paper_strategy_evidence_service.py:399:            return True
+services/analytics/paper_strategy_evidence_service.py:401:            return True
+services/analytics/paper_strategy_evidence_service.py:402:    return False
+services/analytics/paper_strategy_evidence_service.py:434:            return True
+services/analytics/paper_strategy_evidence_service.py:505:    store.upsert(**seeded_row)
+services/analytics/paper_strategy_evidence_service.py:523:        return False
+services/analytics/paper_strategy_evidence_service.py:526:        return False
+services/preflight/preflight.py:92:        con.commit()
+services/process/watchdog_process.py:45:        return False
+services/process/watchdog_process.py:49:            return True
+services/process/watchdog_process.py:54:        return False
+services/process/watchdog.py:48:        from services.admin.system_guard import set_state
+services/process/watchdog.py:50:        payload = set_state("HALTING", writer="watchdog", reason=reason)
+services/process/bot_process.py:38:        return False
+services/process/bot_process.py:42:            return True
+services/process/bot_process.py:48:        return False
+services/process/supervisor_process.py:47:        return False
+services/process/supervisor_process.py:51:            return True
+services/process/supervisor_process.py:56:        return False
+tests/test_op_disabled_high_risk_commands.py:13:    assert payload.get("precedence", [])[0] == "system_guard.set_state(HALTING)"
+tests/test_live_reconciler_fill_attribution.py:46:        def update_status(self, *args, **kwargs):
+tests/test_live_reconciler_fill_attribution.py:47:            return True
+tests/test_live_reconciler_fill_attribution.py:52:        def set_state(self, key, value):
+tests/test_live_reconciler_fill_attribution.py:56:        def upsert_order(self, row):
+tests/test_live_reconciler_fill_attribution.py:59:        def insert_fill(self, row):
+tests/test_live_reconciler_order_store_gating.py:4:def test_filled_branch_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_reconciler_order_store_gating.py:6:    upserts = []
+tests/test_live_reconciler_order_store_gating.py:28:        def update_status(self, *args, **kwargs):
+tests/test_live_reconciler_order_store_gating.py:29:            return False
+tests/test_live_reconciler_order_store_gating.py:34:        def set_state(self, key, value):
+tests/test_live_reconciler_order_store_gating.py:38:        def upsert_order(self, row):
+tests/test_live_reconciler_order_store_gating.py:39:            upserts.append(dict(row))
+tests/test_live_reconciler_order_store_gating.py:41:        def insert_fill(self, row):
+tests/test_live_reconciler_order_store_gating.py:80:    assert upserts == []
+tests/test_live_reconciler_order_store_gating.py:83:def test_stale_not_found_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_reconciler_order_store_gating.py:85:    upserts = []
+tests/test_live_reconciler_order_store_gating.py:107:        def update_status(self, *args, **kwargs):
+tests/test_live_reconciler_order_store_gating.py:108:            return False
+tests/test_live_reconciler_order_store_gating.py:113:        def set_state(self, key, value):
+tests/test_live_reconciler_order_store_gating.py:117:        def upsert_order(self, row):
+tests/test_live_reconciler_order_store_gating.py:118:            upserts.append(dict(row))
+tests/test_live_reconciler_order_store_gating.py:120:        def insert_fill(self, row):
+tests/test_live_reconciler_order_store_gating.py:160:    assert upserts == []
+tests/test_live_reconciler_order_store_gating.py:163:def test_stale_open_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_reconciler_order_store_gating.py:165:    upserts = []
+tests/test_live_reconciler_order_store_gating.py:185:        def update_status(self, *args, **kwargs):
+tests/test_live_reconciler_order_store_gating.py:186:            return False
+tests/test_live_reconciler_order_store_gating.py:191:        def set_state(self, key, value):
+tests/test_live_reconciler_order_store_gating.py:195:        def upsert_order(self, row):
+tests/test_live_reconciler_order_store_gating.py:196:            upserts.append(dict(row))
+tests/test_live_reconciler_order_store_gating.py:198:        def insert_fill(self, row):
+tests/test_live_reconciler_order_store_gating.py:238:    assert upserts == []
+tests/test_live_reconciler_order_store_gating.py:241:def test_stale_fetch_error_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_reconciler_order_store_gating.py:243:    upserts = []
+tests/test_live_reconciler_order_store_gating.py:263:        def update_status(self, *args, **kwargs):
+tests/test_live_reconciler_order_store_gating.py:264:            return False
+tests/test_live_reconciler_order_store_gating.py:269:        def set_state(self, key, value):
+tests/test_live_reconciler_order_store_gating.py:273:        def upsert_order(self, row):
+tests/test_live_reconciler_order_store_gating.py:274:            upserts.append(dict(row))
+tests/test_live_reconciler_order_store_gating.py:276:        def insert_fill(self, row):
+tests/test_live_reconciler_order_store_gating.py:316:    assert upserts == []
+tests/test_phase1_research_copilot_orchestrator.py:12:        return False
+tests/test_phase1_research_copilot_orchestrator.py:33:    sys.path.insert(0, str(PHASE1_ROOT))
+tests/test_phase1_research_copilot_orchestrator.py:45:            return False
+tests/test_more_compat_wrappers.py:93:    inbox.upsert_signal(
+tests/test_more_compat_wrappers.py:105:    inbox.upsert_signal(
+tests/test_more_compat_wrappers.py:119:    reliability.upsert(
+tests/test_more_compat_wrappers.py:138:    reliability.upsert(
+tests/test_live_intent_upsert_insert_only.py:24:def test_upsert_existing_intent_is_insert_only(tmp_path, monkeypatch):
+tests/test_live_intent_upsert_insert_only.py:28:    db.upsert_intent(_row())
+tests/test_live_intent_upsert_insert_only.py:30:    db.upsert_intent(
+tests/test_remaining_compat_wrappers.py:64:    con.commit()
+tests/test_remaining_compat_wrappers.py:111:    market.upsert_ticker(ts_ms=1, exchange="coinbase", symbol="BTC-USD", bid=99.0, ask=101.0, last=100.0)
+tests/test_remaining_compat_wrappers.py:116:    portfolio.upsert_cash(exchange="coinbase", cash=123.45)
+tests/test_remaining_compat_wrappers.py:117:    portfolio.upsert_position(exchange="coinbase", symbol="BTC-USD", qty=0.5)
+tests/test_remaining_compat_wrappers.py:122:    recon.insert_balance_snapshot(1, "coinbase", "USD", {"cash": 1})
+tests/test_remaining_compat_wrappers.py:123:    recon.insert_drift_report(2, "coinbase", "OK", "ok", {"x": 1})
+tests/test_dashboard_copilot_reports_page.py:16:        return False
+tests/test_execution_claim_race.py:34:            return False
+tests/test_live_reconciler_submit_unknown_recovery.py:8:    def update_status(self, intent_id, status, **kwargs):
+tests/test_live_reconciler_submit_unknown_recovery.py:10:        return True
+tests/test_live_reconciler_submit_unknown_recovery.py:17:    def upsert_order(self, row):
+tests/test_live_reconciler_submit_unknown_recovery.py:118:    qdb.update_status = lambda *args, **kwargs: False
+tests/test_ops_risk_gate_service.py:50:    store.insert_raw_signal(_raw_snapshot())
+tests/test_ops_risk_gate_service.py:67:    store.insert_raw_signal(_raw_snapshot())
+tests/test_ops_risk_gate_service.py:78:    store.insert_raw_signal(_raw_snapshot())
+tests/test_paper_scenario_roundtrip.py:24:sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+tests/test_user_auth_store.py:51:def test_upsert_and_verify_keychain_user(monkeypatch):
+tests/test_user_auth_store.py:55:    out = uas.upsert_user(username="Admin", password="pw-123", role="admin", enabled=True)
+tests/test_user_auth_store.py:164:    uas.upsert_user(username="Admin", password="pw-123", role="admin", enabled=True)
+tests/test_user_auth_store.py:196:    uas.upsert_user(username="Admin", password="pw-123", role="admin", enabled=True)
+tests/test_user_auth_store.py:216:    uas.upsert_user(username="Admin", password="pw-123", role="admin", enabled=True)
+tests/test_dashboard_view_data.py:2099:        return True, "Saved"
+tests/test_live_intent_consumer_duplicate_prevention.py:23:                out["_inserted"] = True
+tests/test_live_intent_consumer_duplicate_prevention.py:29:            out["_inserted"] = False
+tests/test_live_intent_consumer_duplicate_prevention.py:43:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_duplicate_prevention.py:60:        def update_status(self, *args, **kwargs):
+tests/test_live_intent_consumer_duplicate_prevention.py:61:            return True
+tests/test_live_intent_consumer_duplicate_prevention.py:69:        def atomic_risk_claim(self, **kwargs):
+tests/test_live_intent_consumer_duplicate_prevention.py:70:            return True, None
+tests/test_live_intent_consumer_duplicate_prevention.py:73:        def upsert_order(self, row):
+tests/test_campaign_summary.py:187:        sys.path.insert(0, ".")
+tests/test_phase1_research_copilot_gateway.py:12:        return False
+tests/test_phase1_research_copilot_gateway.py:33:    sys.path.insert(0, str(PHASE1_ROOT))
+tests/test_phase1_research_copilot_gateway.py:45:            return False
+tests/test_intent_queue_integrity.py:16:def test_intent_queue_update_status_allows_submit_and_updates_mutable_fields(monkeypatch, tmp_path):
+tests/test_intent_queue_integrity.py:20:    qdb.upsert_intent(
+tests/test_intent_queue_integrity.py:40:    qdb.update_status(
+tests/test_intent_queue_integrity.py:55:def test_intent_queue_update_status_blocks_invalid_backward_transition(monkeypatch, tmp_path):
+tests/test_intent_queue_integrity.py:59:    qdb.upsert_intent(
+tests/test_intent_queue_integrity.py:78:    qdb.update_status(
+tests/test_intent_queue_integrity.py:86:    qdb.update_status(
+tests/test_intent_queue_integrity.py:102:def test_intent_queue_update_status_blocks_terminal_overwrite(monkeypatch, tmp_path):
+tests/test_intent_queue_integrity.py:106:    qdb.upsert_intent(
+tests/test_intent_queue_integrity.py:125:    qdb.update_status(
+tests/test_intent_queue_integrity.py:131:    qdb.update_status("intent-3", "filled", last_error=None)
+tests/test_intent_queue_integrity.py:133:    qdb.update_status("intent-3", "rejected", last_error="late_error")
+tests/test_intent_writer_execution_bridge.py:80:    def _fail_upsert(self, row):
+tests/test_intent_writer_execution_bridge.py:83:    monkeypatch.setattr(writer_mod.IntentQueueSQLite, "upsert_intent", _fail_upsert)
+tests/test_intent_writer_execution_bridge.py:118:    monkeypatch.setattr(writer_mod.IntentQueueSQLite, "update_status", _fail_update)
+tests/test_intent_writer_execution_bridge.py:127:    upsert_calls = []
+tests/test_intent_writer_execution_bridge.py:129:    def _track_upsert(self, row):
+tests/test_intent_writer_execution_bridge.py:130:        upsert_calls.append(row)
+tests/test_intent_writer_execution_bridge.py:132:    monkeypatch.setattr(writer_mod.IntentQueueSQLite, "upsert_intent", _track_upsert)
+tests/test_intent_writer_execution_bridge.py:147:    assert upsert_calls == []
+tests/test_dashboard_page_runtime.py:19:        return False
+tests/test_ops_signal_store_sqlite.py:10:    rid = store.insert_raw_signal(
+tests/test_ops_signal_store_sqlite.py:33:    gid = store.insert_risk_gate(
+tests/test_phase1_research_copilot_llm_client.py:12:        return False
+tests/test_phase1_research_copilot_llm_client.py:33:    sys.path.insert(0, str(PHASE1_ROOT))
+tests/test_live_intent_queue_claim_race.py:23:def test_claim_next_queued_winner_takes_row(tmp_path, monkeypatch):
+tests/test_live_intent_queue_claim_race.py:27:    db1.upsert_intent(_queued_intent())
+tests/test_live_intent_queue_claim_race.py:29:    first = db1.claim_next_queued(limit=10)
+tests/test_live_intent_queue_claim_race.py:30:    second = db2.claim_next_queued(limit=10)
+tests/test_live_intent_queue_claim_race.py:41:    db.upsert_intent(_queued_intent())
+tests/test_exchange_reconciler_multi_quote.py:24:    portfolio.upsert_cash(exchange="coinbase", cash=1000.0, quote_ccy="USD")
+tests/test_exchange_reconciler_multi_quote.py:25:    portfolio.upsert_cash_quote(exchange="coinbase", quote_ccy="USDT", cash=2000.0)
+tests/test_exchange_reconciler_multi_quote.py:74:    portfolio.upsert_cash_quote(exchange="coinbase", quote_ccy="USDT", cash=300.0)
+tests/test_watchdog_behavior.py:122:    def _set_state(state: str, *, writer: str, reason: str = "") -> dict:
+tests/test_watchdog_behavior.py:126:    monkeypatch.setattr(system_guard, "set_state", _set_state)
+tests/test_live_reconciler.py:46:        def update_status(self, intent_id: str, status: str, last_error: str | None = None):
+tests/test_live_reconciler.py:52:        def set_state(self, key: str, value: str):
+tests/test_live_reconciler.py:60:        def upsert_order(self, row: dict):
+tests/test_live_reconciler.py:63:        def insert_fill(self, row: dict):
+tests/test_live_reconciler.py:147:        def update_status(self, intent_id: str, status: str, last_error: str | None = None):
+tests/test_live_reconciler.py:153:        def set_state(self, key: str, value: str):
+tests/test_live_reconciler.py:157:        def upsert_order(self, row: dict):
+tests/test_live_reconciler.py:160:        def insert_fill(self, row: dict):
+tests/test_live_consumer_state_risk_reset.py:15:def test_non_reserved_state_keys_still_use_generic_set_state(tmp_path, monkeypatch):
+tests/test_live_consumer_state_risk_reset.py:19:    db.set_state("trades_since_ms:coinbase:BTC/USD", "123")
+tests/test_live_consumer_state_risk_reset.py:24:def test_reserved_risk_keys_are_not_writable_through_generic_set_state(tmp_path, monkeypatch):
+tests/test_live_consumer_state_risk_reset.py:32:            db.set_state(key, "bad")
+tests/test_live_intent_queue_lifecycle_fields.py:24:def test_live_upsert_preserves_lifecycle_fields_after_submit(tmp_path, monkeypatch):
+tests/test_live_intent_queue_lifecycle_fields.py:28:    db.upsert_intent(_row())
+tests/test_live_intent_queue_lifecycle_fields.py:29:    assert db.update_status(
+tests/test_live_intent_queue_lifecycle_fields.py:36:    db.upsert_intent(
+tests/test_live_intent_queue_lifecycle_fields.py:52:def test_live_upsert_does_not_modify_terminal_row(tmp_path, monkeypatch):
+tests/test_live_intent_queue_lifecycle_fields.py:56:    db.upsert_intent(_row())
+tests/test_live_intent_queue_lifecycle_fields.py:57:    assert db.update_status("i1", "rejected", last_error="x")
+tests/test_live_intent_queue_lifecycle_fields.py:59:    db.upsert_intent(_row(status="queued", qty=9.0, meta={"v": 2}))
+tests/test_no_legacy_state_paths.py:27:        return True
+tests/test_no_legacy_state_paths.py:29:        return True
+tests/test_no_legacy_state_paths.py:31:        return True
+tests/test_no_legacy_state_paths.py:32:    return False
+tests/test_market_rules_validation.py:9:from services.markets.cache_sqlite import ensure_schema, upsert, get, is_fresh, any_fresh
+tests/test_market_rules_validation.py:22:def test_cache_upsert_and_get(tmp_exec_db):
+tests/test_market_rules_validation.py:24:    upsert(tmp_exec_db, r)
+tests/test_market_rules_validation.py:34:    upsert(tmp_exec_db, r)
+tests/test_market_rules_validation.py:42:    upsert(tmp_exec_db, r)
+tests/test_market_rules_validation.py:51:    upsert(tmp_exec_db, r)
+tests/test_market_rules_validation.py:60:    upsert(tmp_exec_db, r)
+tests/test_market_rules_validation.py:69:    upsert(tmp_exec_db, r)
+tests/test_market_rules_validation.py:94:    upsert(db, r)
+tests/test_live_admin_controls.py:30:        return True, "Saved"
+tests/test_live_admin_controls.py:74:        return True, "Saved"
+tests/test_live_admin_controls.py:131:        return True, "Saved"
+tests/test_strategy_feedback.py:55:        con.commit()
+tests/test_auth_gate.py:18:        return False
+tests/test_auth_gate.py:80:        return False
+tests/test_auth_gate.py:83:        return False
+tests/test_system_guard.py:20:def test_system_guard_set_state_writes_and_increments_epoch(monkeypatch, tmp_path):
+tests/test_system_guard.py:24:    first = system_guard.set_state("RUNNING", writer="operator", reason="boot")
+tests/test_system_guard.py:25:    second = system_guard.set_state("HALTING", writer="watchdog", reason="stale")
+tests/test_live_queue_submit_owner_authority.py:12:    def update_status(self, intent_id, status, **kwargs):
+tests/test_paper_queue_authority.py:8:    def update_status(self, intent_id, status, **kwargs):
+tests/test_ops_risk_gate_script.py:35:    store.insert_raw_signal(
+tests/test_backtest_evidence_cycle.py:236:        con.commit()
+tests/test_backtest_evidence_cycle.py:405:        con.commit()
+tests/test_backtest_evidence_cycle.py:725:        con.commit()
+tests/test_op_control_surface.py:103:        "system_guard.set_state(HALTING)",
+tests/test_live_trading_order_identity.py:4:def test_upsert_order_preserves_created_ts_when_order_status_updates(tmp_path, monkeypatch):
+tests/test_live_trading_order_identity.py:8:    db.upsert_order({
+tests/test_live_trading_order_identity.py:21:    db.upsert_order({
+tests/test_checkpoints_recent_checklist_content_quality.py:54:            return True
+tests/test_checkpoints_recent_checklist_content_quality.py:55:    return False
+tests/test_first_run_wizard.py:18:        return True, "Saved"
+tests/test_first_run_wizard.py:57:        return True, "Dry run OK"
+tests/test_phase1_research_copilot_tools.py:12:        return False
+tests/test_phase1_research_copilot_tools.py:32:    sys.path.insert(0, str(PHASE1_ROOT))
+tests/test_phase1_research_copilot_tools.py:44:            return False
+tests/test_paper_strategy_evidence_service.py:81:    def upsert(
+tests/test_paper_strategy_evidence_service.py:123:    store.upsert(
+tests/test_ops_signal_adapter_service.py:27:    con.commit()
+tests/test_ops_signal_adapter_service.py:42:    con.commit()
+tests/test_ops_signal_adapter_service.py:66:    con.commit()
+tests/test_ops_signal_adapter_service.py:83:    con.commit()
+tests/test_ops_signal_adapter_service.py:108:    con.commit()
+tests/test_dashboard_sidebar_navigation.py:107:            return False
+tests/test_dashboard_sidebar_navigation.py:139:            return False
+tests/test_dashboard_sidebar_navigation.py:170:            return False
+tests/test_live_trading_fill_identity.py:28:    db.insert_fill(_fill())
+tests/test_live_trading_fill_identity.py:29:    db.insert_fill(_fill(
+tests/test_live_trading_fill_identity.py:50:    db.insert_fill(_fill())
+tests/test_live_trading_fill_identity.py:51:    db.insert_fill(_fill(ts="2026-04-26T00:01:00Z", qty=9.0))
+tests/test_live_trading_fill_identity.py:84:    con.commit()
+tests/test_live_trading_fill_identity.py:94:    db.insert_fill(_fill(
+tests/test_live_trading_fill_identity.py:107:    db.insert_fill(_fill(
+tests/test_evidence_and_risk_recovery.py:79:        con.commit()
+tests/test_idempotency_inspector.py:30:        conn.commit()
+tests/test_paper_loss_replay.py:48:        con.commit()
+tests/test_paper_loss_replay.py:111:        con.commit()
+tests/test_live_intent_queue_integrity.py:18:def test_live_intent_queue_upsert_is_insert_only_for_existing_intent(monkeypatch, tmp_path):
+tests/test_live_intent_queue_integrity.py:22:    qdb.upsert_intent(
+tests/test_live_intent_queue_integrity.py:41:    qdb.upsert_intent(
+tests/test_live_intent_queue_integrity.py:74:def test_live_intent_queue_update_status_still_updates_mutable_fields(monkeypatch, tmp_path):
+tests/test_live_intent_queue_integrity.py:78:    qdb.upsert_intent(
+tests/test_live_intent_queue_integrity.py:97:    qdb.update_status(
+tests/test_live_intent_queue_integrity.py:119:def test_live_intent_queue_update_status_blocks_invalid_transition(monkeypatch, tmp_path):
+tests/test_live_intent_queue_integrity.py:123:    qdb.upsert_intent(
+tests/test_live_intent_queue_integrity.py:141:    qdb.update_status("intent-3", "submitted", client_order_id="cid-3", exchange_order_id="ord-3")
+tests/test_live_intent_queue_integrity.py:143:    qdb.update_status(
+tests/test_live_intent_queue_integrity.py:158:def test_live_intent_queue_update_status_blocks_terminal_overwrite(monkeypatch, tmp_path):
+tests/test_live_intent_queue_integrity.py:162:    qdb.upsert_intent(
+tests/test_live_intent_queue_integrity.py:180:    qdb.update_status("intent-4", "submitted", client_order_id="cid-4", exchange_order_id="ord-4")
+tests/test_live_intent_queue_integrity.py:181:    qdb.update_status("intent-4", "filled", last_error=None)
+tests/test_live_intent_queue_integrity.py:183:    qdb.update_status("intent-4", "error", last_error="late_error")
+tests/test_live_intent_queue_integrity.py:193:    qdb.upsert_intent(
+tests/test_live_intent_queue_integrity.py:212:    assert qdb.update_status("intent-stale", "submitted") is True
+tests/test_live_intent_queue_integrity.py:214:    # This is the stale writer's old observation. update_status must not rely
+tests/test_live_intent_queue_integrity.py:227:        con.commit()
+tests/test_live_intent_queue_integrity.py:233:    assert qdb.update_status("intent-stale", "filled") is False
+tests/test_live_intent_queue_integrity.py:239:def test_live_intent_queue_upsert_does_not_overwrite_error_terminal_row(monkeypatch, tmp_path):
+tests/test_live_intent_queue_integrity.py:260:    qdb.upsert_intent(base)
+tests/test_live_intent_queue_integrity.py:261:    assert qdb.update_status("intent-error-terminal", "submitted") is True
+tests/test_live_intent_queue_integrity.py:262:    assert qdb.update_status("intent-error-terminal", "error", last_error="terminal_error") is True
+tests/test_live_intent_queue_integrity.py:275:    qdb.upsert_intent(replacement)
+tests/test_live_submit_unknown_lifecycle.py:26:    db.upsert_intent(_row())
+tests/test_live_submit_unknown_lifecycle.py:28:    assert db.update_status(
+tests/test_live_submit_unknown_lifecycle.py:45:    db.upsert_intent(_row())
+tests/test_live_submit_unknown_lifecycle.py:46:    assert db.update_status("i1", "submit_unknown", client_order_id="cid-1")
+tests/test_live_submit_unknown_lifecycle.py:47:    assert db.update_status("i1", "submitted", exchange_order_id="ex-1")
+tests/test_live_submit_unknown_lifecycle.py:58:    db.upsert_intent(_row())
+tests/test_live_submit_unknown_lifecycle.py:59:    assert db.update_status("i1", "submit_unknown", client_order_id="cid-1")
+tests/test_live_submit_unknown_lifecycle.py:60:    assert db.update_status("i1", "error", last_error="unresolved_submit_unknown")
+tests/test_run_trader_integration_minimal.py:24:    market.upsert_ticker(
+tests/test_paper_strategy_journal_flow.py:46:    qdb.upsert_intent(
+tests/test_strategy_runtime_runner.py:294:    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+tests/test_strategy_runtime_runner.py:365:        def upsert_intent(self, row):
+tests/test_portfolio_store_multi_quote.py:9:    store.upsert_cash(exchange="coinbase", cash=1000.0)
+tests/test_portfolio_store_multi_quote.py:10:    store.upsert_cash_quote(exchange="coinbase", quote_ccy="usdt", cash=250.5)
+tests/test_portfolio_store_multi_quote.py:31:    store.upsert_cash_quote(exchange="coinbase", quote_ccy="USDT", cash=800.0)
+tests/test_portfolio_store_multi_quote.py:32:    store.upsert_cash_quote(exchange="coinbase", quote_ccy="USD", cash=1200.0)
+tests/test_live_intent_consumer_order_store_gating.py:4:def test_recovered_before_submit_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_intent_consumer_order_store_gating.py:6:    upserts = []
+tests/test_live_intent_consumer_order_store_gating.py:12:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:29:        def update_status(self, *args, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:30:            return False
+tests/test_live_intent_consumer_order_store_gating.py:38:        def atomic_risk_claim(self, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:39:            return True, None
+tests/test_live_intent_consumer_order_store_gating.py:42:        def upsert_order(self, row):
+tests/test_live_intent_consumer_order_store_gating.py:43:            upserts.append(dict(row))
+tests/test_live_intent_consumer_order_store_gating.py:91:    assert upserts == []
+tests/test_live_intent_consumer_order_store_gating.py:94:def test_submit_success_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_intent_consumer_order_store_gating.py:96:    upserts = []
+tests/test_live_intent_consumer_order_store_gating.py:102:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:119:        def update_status(self, *args, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:120:            return False
+tests/test_live_intent_consumer_order_store_gating.py:128:        def atomic_risk_claim(self, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:129:            return True, None
+tests/test_live_intent_consumer_order_store_gating.py:132:        def upsert_order(self, row):
+tests/test_live_intent_consumer_order_store_gating.py:133:            upserts.append(dict(row))
+tests/test_live_intent_consumer_order_store_gating.py:184:    assert upserts == []
+tests/test_live_intent_consumer_order_store_gating.py:187:def test_missing_exchange_order_id_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_intent_consumer_order_store_gating.py:189:    upserts = []
+tests/test_live_intent_consumer_order_store_gating.py:195:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:212:        def update_status(self, *args, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:213:            return False
+tests/test_live_intent_consumer_order_store_gating.py:221:        def atomic_risk_claim(self, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:222:            return True, None
+tests/test_live_intent_consumer_order_store_gating.py:225:        def upsert_order(self, row):
+tests/test_live_intent_consumer_order_store_gating.py:226:            upserts.append(dict(row))
+tests/test_live_intent_consumer_order_store_gating.py:277:    assert upserts == []
+tests/test_live_intent_consumer_order_store_gating.py:280:def test_exception_submit_unknown_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
+tests/test_live_intent_consumer_order_store_gating.py:282:    upserts = []
+tests/test_live_intent_consumer_order_store_gating.py:288:        def claim_next_queued(self, limit=10):
+tests/test_live_intent_consumer_order_store_gating.py:305:        def update_status(self, *args, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:306:            return False
+tests/test_live_intent_consumer_order_store_gating.py:314:        def atomic_risk_claim(self, **kwargs):
+tests/test_live_intent_consumer_order_store_gating.py:315:            return True, None
+tests/test_live_intent_consumer_order_store_gating.py:318:        def upsert_order(self, row):
+tests/test_live_intent_consumer_order_store_gating.py:319:            upserts.append(dict(row))
+tests/test_live_intent_consumer_order_store_gating.py:370:    assert upserts == []
+tests/test_placeholder_recovery_phase7.py:24:    market.upsert_ticker(ts_ms=1000, exchange="coinbase", symbol="BTC/USD", bid=99.0, ask=101.0, last=100.0)
+tests/test_placeholder_recovery_phase7.py:25:    market.upsert_ticker(ts_ms=2000, exchange="coinbase", symbol="BTC/USD", bid=109.0, ask=111.0, last=110.0)
+tests/test_placeholder_recovery_phase7.py:26:    market.upsert_ticker(ts_ms=1500, exchange="coinbase", symbol="ETH/USD", bid=49.0, ask=51.0, last=50.0)
+tests/test_placeholder_recovery_phase7.py:98:    con.commit()
+tests/test_live_reconciler_cursor_safety.py:30:        def update_status(self, *args, **kwargs):
+tests/test_live_reconciler_cursor_safety.py:31:            return True
+tests/test_live_reconciler_cursor_safety.py:36:        def set_state(self, key, value):
+tests/test_live_reconciler_cursor_safety.py:41:        def upsert_order(self, row):
+tests/test_live_reconciler_cursor_safety.py:44:        def insert_fill(self, row):
+tests/test_live_reconciler_cursor_safety.py:45:            raise AssertionError("unmatched trade must not be inserted")
+tests/test_config_editor_compat.py:331:    assert out["risk_preset_state"]["exchange_allowlist"] == ["kraken"]
+tests/test_config_editor_compat.py:332:    assert out["risk_preset_state"]["symbol_allowlist"] == ["ETH/USD", "BTC/USD"]
+tests/test_config_editor_compat.py:333:    assert out["risk_preset_state"]["max_notional"] == 100.0
+tests/test_intent_emission_gate.py:31:    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+tests/test_execution_live_enable.py:24:        return True, "Saved"
+tests/test_live_execution_wiring.py:271:    qdb.upsert_intent({
+tests/test_live_execution_wiring.py:367:    qdb.upsert_intent({
+tests/test_process_supervisor.py:61:    def _set_state(state, *, writer, reason):
+tests/test_process_supervisor.py:65:    monkeypatch.setattr(ps, "set_system_guard_state", _set_state)
+tests/test_placeholder_recovery_phase3.py:21:    db.upsert_trade(
+tests/test_placeholder_recovery_phase3.py:44:    db.upsert_status(exchange="coinbase", symbol="BTC/USD", status="ok", recv_ts_ms=1000, lag_ms=50.0)
+tests/test_live_state_authority_write_result.py:12:    def update_status(self, intent_id, status, **kwargs):
+tests/test_live_state_authority_write_result.py:14:        return False
+tests/test_preflight_wizard_bridges.py:65:def test_wizard_guided_setup_apply_preset_state_delegates(monkeypatch):
+tests/test_preflight_wizard_bridges.py:83:    out = pw.wizard_guided_setup_apply_preset_state("safe_paper")
+tests/test_preflight_wizard_bridges.py:142:    def _apply_preset_state(preset):
+tests/test_preflight_wizard_bridges.py:150:    monkeypatch.setattr(pw, "wizard_guided_setup_apply_preset_state", _apply_preset_state)
+tests/test_paper_runner_lifecycle.py:96:    qdb.upsert_intent(
+tests/test_placeholder_recovery_phase2.py:182:    db.upsert_daily_venue("2026-03-09", "coinbase", trades_count=3, notional_usd=120.0, realized_pnl_usd=4.5)
+tests/test_placeholder_recovery_phase2.py:187:    db.upsert_daily("2026-03-09", "coinbase", "BTC/USD", trades_count=2, notional_usd=80.0, realized_pnl_usd=3.0)
+tests/test_placeholder_recovery_phase2.py:192:    db.upsert_position(venue="coinbase", symbol="BTC/USD", qty=0.25, avg_cost=20000.0)
+tests/test_live_executor_latency_safety_integration.py:105:            return False
+tests/test_live_executor_latency_safety_integration.py:116:            return False, "MAX_DAILY_LOSS_EXCEEDED", {"realized_pnl_usd": float(realized_pnl_usd)}
+tests/test_live_executor_latency_safety_integration.py:201:            return False
+tests/test_live_executor_latency_safety_integration.py:209:            return True, "ok", {}
+tests/test_live_executor_latency_safety_integration.py:320:            return False
+tests/test_live_executor_latency_safety_integration.py:331:            return True, "ok", {}
+tests/test_live_executor_latency_safety_integration.py:420:            return False
+tests/test_live_executor_latency_safety_integration.py:505:            return False
+tests/test_live_executor_latency_safety_integration.py:513:            return True, "ok", {}
+tests/test_live_executor_latency_safety_integration.py:534:        return False, "PREFLIGHT_FAILED", {"error": "db_writable"}
+tests/test_live_executor_latency_safety_integration.py:597:            return False
+tests/test_live_executor_latency_safety_integration.py:605:            return True, "ok", {}
+tests/test_reconciliation.py:22:    def upsert(self, **kwargs):
+tests/test_execution_store_integrity.py:28:    store.upsert_intent(
+tests/test_placeholder_recovery_phase6.py:50:    db.upsert_intent(
+tests/test_show_live_gate_inputs.py:33:            return False
+tests/test_show_live_gate_inputs.py:79:            return False
+tests/test_intent_reconciler.py:24:        def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, **_kwargs) -> None:
+tests/test_intent_reconciler.py:64:        def insert_fill(self, row: dict) -> None:
+tests/test_live_reconciler_state_authority.py:16:    def update_status(self, intent_id: str, status: str, *, last_error: str | None = None) -> None:
