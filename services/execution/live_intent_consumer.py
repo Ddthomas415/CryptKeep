@@ -304,6 +304,11 @@ def run_forever() -> None:
                             recovered = None
 
                     if recovered:
+                        dedupe.mark_submitted(
+                            exchange_id=venue,
+                            intent_id=str(it["intent_id"]),
+                            remote_order_id=ex_oid,
+                        )
                         if not update_live_queue_status_as_intent_consumer(
                             qdb,
                             it,
