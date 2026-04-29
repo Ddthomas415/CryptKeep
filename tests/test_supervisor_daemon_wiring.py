@@ -50,6 +50,13 @@ def test_supervisor_daemon_rewrites_python_cmd_to_current_interpreter(monkeypatc
     assert captured["cmd"][0] == sys.executable
 
 
+def test_services_config_market_ws_uses_ws_ticker_feed_safe_script():
+    cfg = yaml.safe_load((ROOT / "config" / "services.yaml").read_text(encoding="utf-8")) or {}
+    services = cfg.get("services") or {}
+    market_ws = services.get("market_ws") or {}
+    assert market_ws.get("cmd") == ["python", "scripts/run_ws_ticker_feed_safe.py", "run"]
+
+
 def test_services_config_enabled_services_reference_existing_scripts():
     cfg = yaml.safe_load((ROOT / "config" / "services.yaml").read_text(encoding="utf-8")) or {}
     services = cfg.get("services") or {}

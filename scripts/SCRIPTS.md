@@ -43,6 +43,7 @@ Use `make script-index` for a quick operational reference.
 |---|---|
 | `run_tick_publisher.py` | Market data tick publisher |
 | `run_ws_ticker_feed.py` | WebSocket ticker feed |
+| `run_ws_ticker_feed_safe.py` | Managed-safe wrapper for WebSocket ticker feed |
 | `collect_live_crypto_edge_snapshot.py` | Live edge snapshot |
 | `run_crypto_edge_collector_loop.py` | Continuous edge collection |
 
@@ -54,6 +55,8 @@ Use `make script-index` for a quick operational reference.
 | `live_reconcile.py` | Reconcile live positions |
 | `live_executor_tick.py` | Single live executor tick |
 | `run_live_trader.py` | Live trader loop |
+| `run_intent_consumer_safe.py` | Managed-safe wrapper for canonical live submit owner |
+| `run_live_reconciler_safe.py` | Managed-safe wrapper for canonical live reconciler |
 
 ## Build and Release
 

@@ -164,7 +164,7 @@ def test_build_overview_truth_message_formats_runtime_source() -> None:
 def test_build_operations_status_metrics_formats_service_state() -> None:
     metrics = build_operations_status_metrics(
         {
-            "services": ["tick_publisher", "intent_executor", "audit_tail"],
+            "services": ["tick_publisher", "intent_consumer", "audit_tail"],
             "tracked_services": 3,
             "healthy_services": 2,
             "attention_services": 1,
@@ -176,7 +176,7 @@ def test_build_operations_status_metrics_formats_service_state() -> None:
     assert metrics[0] == {
         "label": "Tracked Services",
         "value": "3",
-        "delta": "tick_publisher, intent_executor +1",
+        "delta": "tick_publisher, intent_consumer +1",
     }
     assert metrics[1] == {
         "label": "Healthy",

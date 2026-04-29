@@ -9,10 +9,10 @@ def test_list_services_parses_cli_output(monkeypatch):
     monkeypatch.setattr(
         operator_service,
         "run_op",
-        lambda _args: (0, "tick_publisher\nintent_reconciler\nintent_executor\n"),
+        lambda _args: (0, "tick_publisher\nreconciler\nintent_consumer\n"),
     )
     out = operator_service.list_services()
-    assert out == ["tick_publisher", "intent_reconciler", "intent_executor"]
+    assert out == ["tick_publisher", "reconciler", "intent_consumer"]
 
 
 def test_list_services_fallback_when_cli_fails(monkeypatch):
@@ -106,19 +106,19 @@ def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
 
 
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
-    monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_executor"])
+    monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_consumer"])
     monkeypatch.setattr(
         "services.admin.health.list_health",
         lambda: [
             {"service": "tick_publisher", "status": "RUNNING", "ts": "2026-03-12T10:00:00Z"},
-            {"service": "intent_executor", "status": "ERROR", "ts": "2026-03-12T10:05:00Z"},
+            {"service": "intent_consumer", "status": "ERROR", "ts": "2026-03-12T10:05:00Z"},
             {"service": "audit_tail", "status": "STARTING", "ts": "2026-03-12T09:58:00Z"},
         ],
     )
 
     payload = operator_service.get_operations_snapshot()
     assert payload == {
-        "services": ["tick_publisher", "intent_executor", "audit_tail"],
+        "services": ["tick_publisher", "intent_consumer", "audit_tail"],
         "tracked_services": 3,
         "healthy_services": 2,
         "attention_services": 1,

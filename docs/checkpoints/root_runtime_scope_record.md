@@ -2,6 +2,14 @@
 
 Status: FROZEN
 
+Historical note:
+- This checkpoint preserves an earlier frozen launch-scope story.
+- References below to `scripts/bot_ctl.py` -> `scripts/run_bot_safe.py` describe the historical path at checkpoint time.
+- Current canonical operator/runtime truth is documented in:
+  - `docs/CURRENT_RUNTIME_TRUTH.md`
+  - `docs/PROCESS_CONTROL.md`
+  - `docs/BOT_CONTROL.md`
+
 ## Current status
 - Scope frozen: yes
 - Paper default: yes
@@ -20,7 +28,7 @@ Related blocker record:
 ## Frozen supported path
 - In-scope tree:
   - root repo baseline only
-- Canonical operator path:
+- Historical operator path at checkpoint time:
   - `scripts/bot_ctl.py` -> `scripts/run_bot_safe.py`
 - Deployment path:
   - local/manual operator execution from the root repo checkout using the repo venv
@@ -35,7 +43,7 @@ Related blocker record:
 
 ## In scope
 - Root repo baseline
-- Canonical operator path: `scripts/bot_ctl.py` -> `scripts/run_bot_safe.py`
+- Historical operator path at checkpoint time: `scripts/bot_ctl.py` -> `scripts/run_bot_safe.py`
 - Canonical strategy/runtime family: `services.strategy_runner.ema_crossover_runner`
 - Local/manual operator flow
 - Paper-first posture with guarded live-capable surfaces present in repo
@@ -50,11 +58,11 @@ Related blocker record:
 - `DECISIONS.md` defines the canonical repo direction
 - `config/trading.yaml` still presents paper-mode / "live not implemented yet" language
 - runtime-capable paths previously included hidden defaults such as `coinbase` and `BTC/USD`
-- the canonical operator/config path now requires explicit venue/symbol inputs in:
+- the historical root-runtime operator/config path at checkpoint time required explicit venue/symbol inputs in:
   - `scripts/run_bot_safe.py`
   - `scripts/bot_ctl.py`
   - `services/execution/live_executor.py`
-- hidden-default cleanup may still remain outside the fully verified canonical operator path
+- hidden-default cleanup may still remain outside the fully verified historical checkpoint path
 - live lifecycle authority is boundary-governed on the canonical root-runtime path
 - live-mode source of truth is singular on the canonical root-runtime path
 - Coinbase is the only venue with confirmed private authenticated connectivity from the current environment

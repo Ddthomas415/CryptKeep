@@ -11,6 +11,15 @@ def test_load_cfg_uses_runtime_trading_loader(monkeypatch):
     assert cfg == {"loaded_from": "config/trading.yaml"}
 
 
+def test_start_manager_is_marked_compatibility_only():
+    assert sm.COMPATIBILITY_ONLY is True
+    assert sm.CANONICAL_CONTROL_SURFACE == {
+        "start": "scripts/start_bot.py",
+        "stop": "scripts/stop_bot.py",
+        "status": "scripts/bot_status.py",
+    }
+
+
 def test_decide_start_live_accepts_risk_live_shape(monkeypatch):
     monkeypatch.setattr(sm, "_ui_gate", lambda _cfg: (True, "OK", []))
     monkeypatch.setattr(sm, "is_live_enabled", lambda cfg=None: True)

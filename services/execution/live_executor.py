@@ -144,6 +144,11 @@ def _now_ms(*args, **kwargs):
     return _now_ms_impl(*args, **kwargs)
 
 
+def _on_fill(fill, *, exec_db: str | None = None):
+    _sync_live_executor_compat()
+    return _shared._on_fill(fill, exec_db=exec_db)
+
+
 def submit_pending_live(cfg: LiveCfg):
     _sync_live_executor_compat()
     return _submit_pending_live_impl(cfg)

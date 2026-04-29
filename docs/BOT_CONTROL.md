@@ -1,21 +1,33 @@
-# Bot Control (Single Source) — Phase 6
+# Bot Control Topology
 
-The dashboard has a single authoritative control panel:
-- Start PAPER Bot (always allowed)
-- Start LIVE Bot (blocked unless execution.live_enabled + gates + risk + confirmations pass)
-- Stop Bot
+## Canonical operator control plane
+- `scripts/start_bot.py`
+- `scripts/stop_bot.py`
+- `scripts/bot_status.py`
+- managed-service startup through supervisor / `service_ctl`
 
-LIVE confirmations (only required when live.sandbox=false):
-- ENABLE_LIVE_TRADING=YES
-- CONFIRM_LIVE=YES
+This is the operator-facing startup and stop path for current runtime control.
 
-Process state:
-- data/bot_process.json (pid, mode, log path)
-Logs:
-- data/logs/live_bot.log
-- data/logs/paper_bot.log
+## Canonical runtime truth
+- process-supervisor service state
+- `runtime/flags/*.status.json`
+- `runtime/health/*.json`
 
-Note:
-- If your repo does not yet implement services.bot.paper_runner or live_runner entrypoints,
-  the subprocess will exit and logs will show the missing entrypoint. This phase only
-  consolidates control and safety checks.
+## Compatibility-only legacy plane
+- `scripts/bot_ctl.py`
+- `services.process.bot_process`
+- `scripts/run_bot_safe.py`
+- `data/bot_process.json`
+- `data/bot_heartbeat.json`
+
+These legacy surfaces remain only for compatibility with older callers. They are not the canonical startup or stop path.
+
+## Decision-only compatibility surface
+- `services.bot.start_manager.decide_start(...)`
+
+This surface is still used for start/readiness decision messaging, but it is not the runtime process owner.
+
+## Live confirmations
+Real live start still requires:
+- `ENABLE_LIVE_TRADING=YES`
+- `CONFIRM_LIVE=YES`

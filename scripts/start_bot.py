@@ -15,7 +15,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import argparse
 from services.runtime.process_supervisor import start_process, status
 
-CORE_SERVICES = ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate"]
+CORE_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate"]
 ALL_SERVICES = CORE_SERVICES + ["reconciler"]
 
 
@@ -26,7 +26,7 @@ def main() -> int:
 
     py = sys.executable
 
-    # Start pipeline + executor loops, telemetry adapter, and the ops risk-gate service.
+    # Start pipeline + paper executor loop, telemetry adapter, and the ops risk-gate service.
     r1 = start_process("pipeline", [py, "scripts/run_pipeline_loop.py"])
     r2 = start_process("executor", [py, "scripts/run_intent_executor_safe.py"])
     r3 = start_process("ops_signal_adapter", [py, "scripts/run_ops_signal_adapter.py", "run"])
@@ -35,7 +35,7 @@ def main() -> int:
     out = {"pipeline": r1, "executor": r2, "ops_signal_adapter": r3, "ops_risk_gate": r4}
 
     if args.with_reconcile:
-        out["reconciler"] = start_process("reconciler", [py, "scripts/run_intent_reconciler_safe.py"])
+        out["reconciler"] = start_process("reconciler", [py, "scripts/run_live_reconciler_safe.py", "run"])
 
     out["status"] = status(ALL_SERVICES)
     print(out)

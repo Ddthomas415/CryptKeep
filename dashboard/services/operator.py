@@ -8,7 +8,7 @@ from dashboard.role_guard import require_role
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_SERVICES = ("tick_publisher", "intent_reconciler", "intent_executor")
+DEFAULT_SERVICES = ("tick_publisher", "reconciler", "intent_consumer")
 ALLOWED_OPERATOR_SCRIPTS = {
     "scripts/run_crypto_edge_collector_loop.py",
     "scripts/run_paper_strategy_evidence_collector.py",
@@ -17,14 +17,14 @@ ALLOWED_OP_ARGS = {
     ("supervisor-status",),
     ("stop-everything",),
     ("start", "--name", "tick_publisher"),
-    ("start", "--name", "intent_reconciler"),
-    ("start", "--name", "intent_executor"),
+    ("start", "--name", "reconciler"),
+    ("start", "--name", "intent_consumer"),
     ("stop", "--name", "tick_publisher"),
-    ("stop", "--name", "intent_reconciler"),
-    ("stop", "--name", "intent_executor"),
+    ("stop", "--name", "reconciler"),
+    ("stop", "--name", "intent_consumer"),
     ("restart", "--name", "tick_publisher"),
-    ("restart", "--name", "intent_reconciler"),
-    ("restart", "--name", "intent_executor"),
+    ("restart", "--name", "reconciler"),
+    ("restart", "--name", "intent_consumer"),
 }
 
 

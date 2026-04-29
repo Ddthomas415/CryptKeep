@@ -44,7 +44,7 @@ def start() -> dict[str, Any]:
         return {"ok": True, "already_running": True, "pid": cur, "detail": status()}
 
     _remove_pid()
-    cmd = [sys.executable, "scripts/run_intent_executor.py"]
+    cmd = [sys.executable, "scripts/run_intent_executor_safe.py"]
     kwargs: dict[str, Any] = {
         "cwd": str(code_root()),
         "stdout": subprocess.DEVNULL,

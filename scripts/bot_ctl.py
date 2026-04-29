@@ -24,11 +24,29 @@ REPO = Path(__file__).resolve().parents[1]
 PROC_PATH = data_dir() / "bot_process.json"
 LOG_PATH = data_dir() / "logs" / "bot.log"
 logger = get_logger("bot_ctl")
+LEGACY_COMPATIBILITY_NOTE = (
+    "Legacy compatibility surface; canonical operator control uses "
+    "scripts/start_bot.py, scripts/stop_bot.py, and scripts/bot_status.py."
+)
+CANONICAL_CONTROL_SURFACE = {
+    "start": "scripts/start_bot.py",
+    "stop": "scripts/stop_bot.py",
+    "status": "scripts/bot_status.py",
+}
 
 
 def _emit(obj) -> None:
     sys.stdout.write(json.dumps(obj))
     sys.stdout.write("\n")
+
+
+def _legacy_meta() -> dict:
+    return {
+        "control_plane": "legacy_compatibility",
+        "compatibility_only": True,
+        "warning": LEGACY_COMPATIBILITY_NOTE,
+        "canonical_surface": dict(CANONICAL_CONTROL_SURFACE),
+    }
 
 
 def _pid_alive(pid: int) -> bool:
@@ -79,6 +97,7 @@ def cmd_status(_args) -> int:
             "state": st,
             "log_path": str(LOG_PATH),
             "proc_path": str(PROC_PATH),
+            **_legacy_meta(),
         }
     )
     return 0
@@ -88,7 +107,7 @@ def cmd_start(args) -> int:
     st = _load_state()
     pid = st.get("pid")
     if isinstance(pid, int) and pid and _pid_alive(pid):
-        _emit({"ok": True, "started": False, "running": True, "pid": pid, "msg": "already running"})
+        _emit({"ok": True, "started": False, "running": True, "pid": pid, "msg": "already running", **_legacy_meta()})
         return 0
 
     ensure_dirs()
@@ -116,7 +135,16 @@ def cmd_start(args) -> int:
     }
     _save_state(state)
 
-    _emit({"ok": True, "started": True, "pid": p.pid, "log_path": str(LOG_PATH), "proc_path": str(PROC_PATH)})
+    _emit(
+        {
+            "ok": True,
+            "started": True,
+            "pid": p.pid,
+            "log_path": str(LOG_PATH),
+            "proc_path": str(PROC_PATH),
+            **_legacy_meta(),
+        }
+    )
     return 0
 
 
@@ -125,24 +153,24 @@ def cmd_stop(args) -> int:
     pid = st.get("pid")
 
     if not isinstance(pid, int) or not pid:
-        _emit({"ok": True, "stopped": True, "reason": "no_pid"})
+        _emit({"ok": True, "stopped": True, "reason": "no_pid", **_legacy_meta()})
         return 0
 
     if not _pid_alive(pid):
         _clear_state()
-        _emit({"ok": True, "stopped": True, "reason": "not_running_stale_pid"})
+        _emit({"ok": True, "stopped": True, "reason": "not_running_stale_pid", **_legacy_meta()})
         return 0
 
     sig = signal.SIGKILL if args.hard else signal.SIGTERM
     try:
         os.kill(pid, sig)
     except Exception as e:
-        _emit({"ok": False, "stopped": False, "pid": pid, "error": str(e)})
+        _emit({"ok": False, "stopped": False, "pid": pid, "error": str(e), **_legacy_meta()})
         return 1
 
     # best-effort cleanup
     _clear_state()
-    _emit({"ok": True, "stopped": True, "pid": pid, "hard": bool(args.hard)})
+    _emit({"ok": True, "stopped": True, "pid": pid, "hard": bool(args.hard), **_legacy_meta()})
     return 0
 
 
@@ -151,7 +179,13 @@ def main() -> int:
     common.add_argument("--venue", required=True)
     common.add_argument("--symbols", required=True, help="Comma list")
 
-    ap = argparse.ArgumentParser(prog="bot_ctl.py")
+    ap = argparse.ArgumentParser(
+        prog="bot_ctl.py",
+        description=(
+            "Legacy compatibility wrapper for the older single-process bot surface. "
+            "Canonical operator control uses start_bot.py / stop_bot.py / bot_status.py."
+        ),
+    )
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("status")

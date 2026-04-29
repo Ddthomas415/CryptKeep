@@ -101,10 +101,10 @@ def command_map() -> dict[str, list[str]]:
     return {
         "pipeline": [py, "scripts/run_pipeline_loop.py"],
         "executor": [py, "scripts/run_intent_executor_safe.py"],
-        "intent_consumer": [py, "scripts/run_intent_consumer.py"],
+        "intent_consumer": [py, "scripts/run_intent_consumer_safe.py", "run"],
         "ops_signal_adapter": [py, "scripts/run_ops_signal_adapter.py", "run"],
         "ops_risk_gate": [py, "scripts/run_ops_risk_gate_service.py", "run"],
-        "reconciler": [py, "scripts/run_live_reconciler.py"],
+        "reconciler": [py, "scripts/run_live_reconciler_safe.py", "run"],
     }
 
 

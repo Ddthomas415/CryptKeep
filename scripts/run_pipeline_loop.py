@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 # CBP_BOOTSTRAP_SYS_PATH
 import sys
@@ -17,7 +18,16 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import time
 from services.config_loader import load_runtime_trading_config
 from services.pipeline.pipeline_router import build_pipeline, RouterCfg
-from services.os.app_paths import data_dir, ensure_dirs
+from services.os.app_paths import data_dir, ensure_dirs, runtime_dir
+from services.os.file_utils import atomic_write
+
+FLAGS = runtime_dir() / "flags"
+STATUS_FILE = FLAGS / "pipeline.status.json"
+
+
+def _write_status(obj: dict) -> None:
+    FLAGS.mkdir(parents=True, exist_ok=True)
+    atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")
 
 def main() -> int:
     ensure_dirs()
@@ -65,10 +75,52 @@ def main() -> int:
     ))
 
     print({"ok": True, "note": "pipeline_loop_start", "poll_sec": poll, "strategy": str(pipe.get("strategy") or "ema"), "exchange": p.cfg.exchange_id if hasattr(p, "cfg") else None, "symbol": symbol})
-
-    while True:
-        print(p.run_once())
-        time.sleep(poll)
+    loops = 0
+    _write_status(
+        {
+            "ok": True,
+            "status": "running",
+            "pid": os.getpid(),
+            "poll_sec": poll,
+            "exchange": p.cfg.exchange_id if hasattr(p, "cfg") else None,
+            "symbol": symbol,
+            "ts_epoch": time.time(),
+            "loops": loops,
+        }
+    )
+    try:
+        while True:
+            out = p.run_once()
+            print(out)
+            loops += 1
+            _write_status(
+                {
+                    "ok": True,
+                    "status": "running",
+                    "pid": os.getpid(),
+                    "poll_sec": poll,
+                    "exchange": p.cfg.exchange_id if hasattr(p, "cfg") else None,
+                    "symbol": symbol,
+                    "ts_epoch": time.time(),
+                    "loops": loops,
+                    "last_result": out,
+                }
+            )
+            time.sleep(poll)
+    except KeyboardInterrupt:
+        _write_status(
+            {
+                "ok": True,
+                "status": "stopped",
+                "pid": os.getpid(),
+                "poll_sec": poll,
+                "exchange": p.cfg.exchange_id if hasattr(p, "cfg") else None,
+                "symbol": symbol,
+                "ts_epoch": time.time(),
+                "loops": loops,
+            }
+        )
+        return 0
 
 if __name__ == "__main__":
     raise SystemExit(main())

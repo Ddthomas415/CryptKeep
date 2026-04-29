@@ -34,9 +34,10 @@ def specs_default() -> list[ServiceSpec]:
     _, logs, _, _ = _runtime_paths()
     py = sys.executable
     return [
+        ServiceSpec("market_ws",        [py, "-u", str(REPO / "scripts" / "run_ws_ticker_feed_safe.py"), "run"], logs / "market_ws.log"),
         ServiceSpec("tick_publisher",   [py, "-u", str(REPO / "scripts" / "run_tick_publisher.py")],   logs / "tick_publisher.log"),
-        ServiceSpec("intent_executor",  [py, "-u", str(REPO / "scripts" / "run_intent_executor.py")],  logs / "intent_executor.log"),
-        ServiceSpec("intent_reconciler",[py, "-u", str(REPO / "scripts" / "run_intent_reconciler.py")],logs / "intent_reconciler.log"),
+        ServiceSpec("intent_consumer",  [py, "-u", str(REPO / "scripts" / "run_intent_consumer_safe.py"), "run"],  logs / "intent_consumer.log"),
+        ServiceSpec("reconciler",      [py, "-u", str(REPO / "scripts" / "run_live_reconciler_safe.py"), "run"], logs / "reconciler.log"),
         ServiceSpec("ops_signal_adapter",[py, "-u", str(REPO / "scripts" / "run_ops_signal_adapter.py"), "run"], logs / "ops_signal_adapter.log"),
         ServiceSpec("ops_risk_gate",    [py, "-u", str(REPO / "scripts" / "run_ops_risk_gate_service.py"), "run"], logs / "ops_risk_gate.log"),
     ]

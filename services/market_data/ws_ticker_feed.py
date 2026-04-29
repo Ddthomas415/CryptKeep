@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, AsyncIterator, Dict
 
 from services.market_data.ws_common import normalize_ticker_message
+from services.monitoring.ws_health_logger import log_ws_health
 from services.market_data import ws_feature_blacklist as blacklist
 
 
@@ -78,6 +79,18 @@ class WSTickerFeed:
             raw = await fn(self.symbol)
             self._errors = 0
             q = normalize_ticker_message(raw if isinstance(raw, dict) else {}, venue=self.venue, symbol=self.symbol)
+            # Persist only successful quotes so freshness never treats a transport
+            # error as a fresh market-data heartbeat.
+            try:
+                log_ws_health(
+                    exchange=self.venue,
+                    symbol=str(q.get("symbol") or self.symbol),
+                    connected=True,
+                    recv_ts_ms=int(q.get("ts_ms") or 0),
+                    meta={"feature": self.FEATURE},
+                )
+            except Exception:
+                pass
             return {"ok": True, "quote": q}
         except Exception as e:
             self._errors += 1
@@ -100,4 +113,3 @@ class WSTickerFeed:
                 yield out["quote"]
                 continue
             await asyncio.sleep(max(0.05, float(self.cfg.error_sleep_sec)))
-

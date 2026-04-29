@@ -5,7 +5,7 @@ services:
     enabled: true
     auto_restart: true
     restart_backoff_ms: 1500
-    cmd: ["python", "scripts/run_tick_publisher.py", "run"]
+    cmd: ["python", "scripts/run_ws_ticker_feed_safe.py", "run"]
 
   ops_risk_gate:
     enabled: true

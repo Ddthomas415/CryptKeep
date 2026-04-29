@@ -53,8 +53,10 @@ def test_next_ticker_error_threshold_auto_disables(monkeypatch):
 
 def test_next_ticker_success_resets_errors_and_normalizes(monkeypatch):
     ex = _ExchangeErrThenOk()
+    logged: list[dict] = []
     monkeypatch.setattr(wtf.blacklist, "is_disabled", lambda **kwargs: {"ok": True, "disabled": False})
     monkeypatch.setattr(wtf.blacklist, "disable", lambda **kwargs: {"ok": True, "key": "k"})
+    monkeypatch.setattr(wtf, "log_ws_health", lambda **kwargs: logged.append(kwargs) or {"ok": True})
     feed = wtf.WSTickerFeed(
         exchange=ex,
         venue="coinbase",
@@ -71,4 +73,12 @@ def test_next_ticker_success_resets_errors_and_normalizes(monkeypatch):
     assert q["bid"] == 100.0
     assert q["ask"] == 101.0
     assert feed._errors == 0
-
+    assert logged == [
+        {
+            "exchange": "coinbase",
+            "symbol": "BTC/USD",
+            "connected": True,
+            "recv_ts_ms": 1234,
+            "meta": {"feature": "watchTicker"},
+        }
+    ]

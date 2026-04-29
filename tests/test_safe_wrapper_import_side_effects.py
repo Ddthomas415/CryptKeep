@@ -21,7 +21,10 @@ def _load(path: Path):
     [
         "scripts/run_intent_executor_safe.py",
         "scripts/run_intent_reconciler_safe.py",
+        "scripts/run_intent_consumer_safe.py",
+        "scripts/run_live_reconciler_safe.py",
         "scripts/run_tick_publisher.py",
+        "scripts/run_ws_ticker_feed_safe.py",
     ],
 )
 def test_safe_wrapper_import_has_no_state_side_effects(monkeypatch, tmp_path, rel_path: str):

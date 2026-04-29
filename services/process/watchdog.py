@@ -8,8 +8,11 @@ from typing import Any
 from services.os.app_paths import data_dir
 from services.admin.config_editor import load_user_yaml
 from services.logging.app_logger import get_logger
-from services.process.heartbeat import read_heartbeat
-from services.process.bot_process import status as bot_status, stop_bot
+from services.process.bot_runtime_truth import (
+    canonical_bot_status as bot_status,
+    read_heartbeat,
+    stop_bot,
+)
 from services.process.crash_snapshot import write_crash_snapshot
 
 WD_PATH = data_dir() / "watchdog_last.json"

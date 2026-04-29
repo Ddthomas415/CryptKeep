@@ -8,7 +8,7 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 - Builder: `build_runtime_truth_digest(...)`
 - Upstream sources:
   - `<your-repo-path>/services/config_loader.py` merged runtime trading config overlaying `<your-repo-path>/.cbp_state/runtime/config/user.yaml` on `<your-repo-path>/config/trading.yaml`
-  - `<your-repo-path>/services/bot/start_manager.py`
+  - `<your-repo-path>/services/bot/start_manager.py::decide_start(...)` decision-only compatibility gate
   - `<your-repo-path>/services/admin/live_guard.py`
   - `<your-repo-path>/services/execution/live_arming.py`
   - `<your-repo-path>/dashboard/services/crypto_edge_research.py`
@@ -61,7 +61,7 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 - Builder: `build_safety_warnings_digest(...)`
 - Upstream sources:
   - `<your-repo-path>/services/admin/live_guard.py`
-  - `<your-repo-path>/services/bot/start_manager.py`
+  - `<your-repo-path>/services/bot/start_manager.py::decide_start(...)` decision-only compatibility gate
   - Overview summary risk warnings
   - Structural freshness summary
 - Notes:
@@ -81,7 +81,7 @@ The Home Digest is an operator-facing summary surface. Page code should consume 
 - Builder: `build_mode_truth_digest(...)`
 - Upstream sources:
   - `<your-repo-path>/services/config_loader.py` merged runtime trading config overlaying `<your-repo-path>/.cbp_state/runtime/config/user.yaml` on `<your-repo-path>/config/trading.yaml`
-  - `<your-repo-path>/services/bot/start_manager.py`
+  - `<your-repo-path>/services/bot/start_manager.py::decide_start(...)` decision-only compatibility gate
   - `<your-repo-path>/services/execution/live_arming.py`
 - Notes:
   - This section explains what is allowed and blocked right now.

@@ -13,6 +13,18 @@ def _reload_process_manager():
     return process_manager
 
 
+def test_process_manager_is_marked_compatibility_only(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    pm = _reload_process_manager()
+
+    assert pm.COMPATIBILITY_ONLY is True
+    assert pm.CANONICAL_CONTROL_SURFACE == {
+        "start": "scripts/start_bot.py",
+        "stop": "scripts/stop_bot.py",
+        "status": "scripts/bot_status.py",
+    }
+
+
 def test_start_process_returns_existing_running_status(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     pm = _reload_process_manager()

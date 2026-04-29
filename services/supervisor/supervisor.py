@@ -21,7 +21,7 @@ LOCKS_DIR = runtime_dir() / "locks"
 STATE_FILE = FLAGS_DIR / "supervisor.state.json"
 LOCK_FILE = LOCKS_DIR / "supervisor.lock"
 _LOG = get_logger("supervisor")
-MANAGED_SERVICES = ("dashboard", "tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate", "intent_consumer", "reconciler")
+MANAGED_SERVICES = ("dashboard", "tick_publisher", "market_ws", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate", "intent_consumer", "reconciler")
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -146,6 +146,7 @@ def start(
     start_tick: bool = True,
     start_webhook: bool = True,
     start_signal_adapter: bool = True,
+    start_risk_gate: bool = True,
     host: str | None = None,
     port: int | None = None,
     open_browser: bool = True,
@@ -171,6 +172,10 @@ def start(
             if not pid_is_alive(pid):
                 pid = _spawn_detached([sys.executable, "scripts/run_tick_publisher.py", "run"])
                 pids["tick_publisher"] = pid
+            pid = int(pids.get("market_ws") or 0)
+            if not pid_is_alive(pid):
+                pid = _spawn_detached([sys.executable, "scripts/run_ws_ticker_feed_safe.py", "run"])
+                pids["market_ws"] = pid
         if start_webhook:
             pid = int(pids.get("evidence_webhook") or 0)
             if not pid_is_alive(pid):
@@ -181,10 +186,11 @@ def start(
             if not pid_is_alive(pid):
                 pid = _spawn_detached([sys.executable, "scripts/run_ops_signal_adapter.py", "run"])
                 pids["ops_signal_adapter"] = pid
-        pid = int(pids.get("ops_risk_gate") or 0)
-        if not pid_is_alive(pid):
-            pid = _spawn_detached([sys.executable, "scripts/run_ops_risk_gate_service.py", "run"])
-            pids["ops_risk_gate"] = pid
+        if start_risk_gate:
+            pid = int(pids.get("ops_risk_gate") or 0)
+            if not pid_is_alive(pid):
+                pid = _spawn_detached([sys.executable, "scripts/run_ops_risk_gate_service.py", "run"])
+                pids["ops_risk_gate"] = pid
         if with_dashboard:
             pid = int(pids.get("dashboard") or 0)
             if not pid_is_alive(pid):
@@ -205,9 +211,10 @@ def start(
             "auto_switched_port": bool(resolution.auto_switched),
             "with_dashboard": with_dashboard,
             "start_tick": start_tick,
+            "start_market_ws": start_tick,
             "start_webhook": start_webhook,
             "start_signal_adapter": start_signal_adapter,
-            "start_risk_gate": True,
+            "start_risk_gate": start_risk_gate,
         }
         _write_state(pids, meta)
         return {
@@ -252,6 +259,11 @@ def stop(
                 actions.append({"service": "tick_publisher", "action": "stop_file_written"})
             except Exception as e:
                 actions.append({"service": "tick_publisher", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
+            try:
+                (runtime_dir() / "flags" / "market_ws.stop").write_text(_now_iso() + "\n", encoding="utf-8")
+                actions.append({"service": "market_ws", "action": "stop_file_written"})
+            except Exception as e:
+                actions.append({"service": "market_ws", "action": "stop_file_failed", "error": f"{type(e).__name__}: {e}"})
         if stop_webhook:
             try:
                 (runtime_dir() / "flags" / "evidence_webhook.stop").write_text(_now_iso() + "\n", encoding="utf-8")
@@ -284,20 +296,23 @@ def stop(
         deadline = time.time() + float(timeout_sec)
         while time.time() < deadline:
             alive_any = False
-            for svc in ("tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate"):
+            for svc in ("tick_publisher", "market_ws", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate"):
                 pid = int(pids.get(svc) or 0)
                 if svc == "ops_signal_adapter" and not stop_signal_adapter:
                     continue
                 if svc == "ops_risk_gate" and not stop_risk_gate:
+                    continue
+                if svc == "market_ws" and not stop_tick:
                     continue
                 if pid and pid_is_alive(pid):
                     alive_any = True
             if not alive_any:
                 break
             time.sleep(0.25)
-        for svc in ("tick_publisher", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate"):
+        for svc in ("tick_publisher", "market_ws", "evidence_webhook", "ops_signal_adapter", "ops_risk_gate"):
             if (
                 (svc == "tick_publisher" and not stop_tick)
+                or (svc == "market_ws" and not stop_tick)
                 or (svc == "evidence_webhook" and not stop_webhook)
                 or (svc == "ops_signal_adapter" and not stop_signal_adapter)
                 or (svc == "ops_risk_gate" and not stop_risk_gate)
@@ -318,6 +333,7 @@ def stop(
             new_pids["dashboard"] = 0
         if stop_tick:
             new_pids["tick_publisher"] = 0
+            new_pids["market_ws"] = 0
         if stop_webhook:
             new_pids["evidence_webhook"] = 0
         if stop_signal_adapter:

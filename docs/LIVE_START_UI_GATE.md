@@ -1,14 +1,29 @@
-# Live Start UI Gate (Phase 219)
+# Live Start UI Gate
 
-The Dashboard Start button refuses LIVE starts unless:
+The visible live-start decision layers currently shown in source are:
 
-- Startup reconciliation status is fresh (startup_status.json)
-- live_safety.live_enabled is true
-- all selected symbols are confirmed for that venue (live_safety.confirmations[venue])
-- user explicitly ARMS LIVE and types `LIVE`
+- `services.bot.start_manager.decide_start(...)`
+- `services.diagnostics.ui_live_gate.evaluate_live_ui_gate(...)`
 
-Safety:
-- If gating code errors, LIVE start fails closed.
+## Current visible gate checks
 
-Auto-disarm:
-- After Start and after Stop, ARM LIVE and phrase fields reset.
+`services.bot.start_manager.decide_start(...)` blocks live start when:
+
+- `execution.live_enabled` is false
+- the UI gate returns `BLOCK`
+- live risk configuration is invalid
+- real-live confirmation envs are missing:
+  - `ENABLE_LIVE_TRADING=YES`
+  - `CONFIRM_LIVE=YES`
+
+`services.diagnostics.ui_live_gate.evaluate_live_ui_gate(...)` blocks when:
+
+- the collector is not running
+- a configured feed is missing
+- a configured feed is in `BLOCK`
+- the WS gate blocks
+
+## Current repo truth
+
+- The visible current UI gate code does not read `startup_status.json`.
+- If gate code errors, the visible decision path fails closed.

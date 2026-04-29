@@ -1,86 +1,63 @@
 # Current Runtime Truth
 
-**Last updated:** 2026-04-16  
-**Commit:** ff55388 (pre this session) → updated after audit
+**Last updated:** 2026-04-29
 
-This document states what is actually runnable right now, without ambiguity.
-It is the single authoritative answer to "what is the system doing?"
+This document is the current operator-facing runtime truth for startup, stop, and status behavior.
+Historical checkpoint records under `docs/checkpoints/` may preserve earlier launch paths and are not canonical unless reaffirmed here.
 
----
+## Canonical operator control plane
 
-## What is runnable
+- `python scripts/start_bot.py [--with_reconcile]`
+- `python scripts/stop_bot.py [--all|--pipeline|--executor|--intent_consumer|--ops_signal_adapter|--ops_risk_gate|--reconciler]`
+- `python scripts/bot_status.py`
+- managed startup through supervisor / `service_ctl`
 
-| Component | Status | Command |
-|---|---|---|
-| Paper campaign (es_daily_trend_v1) | ✅ Runnable | `make paper-run` |
-| Promotion gate check | ✅ Runnable | `make check-gates` |
-| Kernel status | ✅ Runnable | `make kernel-status` |
-| Tick publisher | ✅ Starts automatically via paper campaign | — |
-| Paper engine | ✅ Starts automatically via paper campaign | — |
-| Dashboard | ✅ Runnable (separate process) | `make dashboard` |
+## Canonical runtime truth sources
 
-## What is NOT runnable without additional setup
+- `services.runtime.process_supervisor.status(...)`
+- `runtime/flags/*.status.json`
+- `runtime/health/*.json`
+- `runtime/flags/bot_runner.status.json`
+- watchdog / crash-snapshot reads through `services/process/bot_runtime_truth.py`
 
-| Component | Blocker |
-|---|---|
-| Live trading | `enable_live` must be set at runtime via `live_arming.py`; never in committed config |
-| ES futures (actual) | No ES futures connector; running BTC/USDT on Coinbase as crypto proxy |
-| Candidate pipeline to runner | Wired into `strategy_selector` but runner reads from config directly |
-| Multi-strategy campaigns | v1 is single-strategy only |
+## Canonical managed service set
 
-## Active strategy
+- `market_ws` for the supervised WS freshness writer path
+- `pipeline`
+- `executor` for the paper execution path
+- `intent_consumer` for the live submit-owner path
+- `ops_signal_adapter`
+- `ops_risk_gate`
+- `reconciler` when enabled
 
-| Field | Value |
-|---|---|
-| Strategy ID | `es_daily_trend_v1` |
-| Instrument | **BTC/USDT on Coinbase** (crypto proxy; ES futures when connector available) |
-| Signal | price > 200-day SMA → LONG; price ≤ SMA → FLAT |
-| Stage | paper |
-| Config | `configs/strategies/es_daily_trend_v1.yaml` |
-| Spec | `docs/strategies/es_daily_trend_v1.md` |
+## Current startup behavior shown in source
 
-The strategy spec is named "ES Daily Trend" because that is the intended instrument.
-The actual running instrument in v1 is BTC/USDT. This is documented and intentional.
+- `scripts/start_bot.py` starts supervised services; it is not a wrapper around `bot_ctl.py`.
+- `scripts/run_intent_consumer_safe.py` and `scripts/run_live_reconciler_safe.py` gate managed `run` mode on `runtime_trading_config_available()` and enter IDLE / SAFE-IDLE on startup failure.
+- `scripts/run_bot_runner.py` derives desired managed services from merged runtime config and writes `runtime/flags/bot_runner.status.json`.
+- `services/process/bot_runtime_truth.py` no longer silently downgrades to legacy bot state unless `CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK=YES`.
 
-## Current promotion gate status
+## Compatibility-only legacy surfaces
 
-```
-make check-gates
-```
+- `scripts/bot_ctl.py`
+- `scripts/run_bot_safe.py`
+- `services.process.bot_process`
+- `services.bot.start_manager.start(...)`
+- `services.bot.start_manager.stop()`
+- `services.bot.process_manager`
+- `data/bot_process.json`
+- `data/bot_heartbeat.json`
 
-Gates will show UNKNOWN until 30 days of paper evidence accumulate.
-The one FAIL gate (no evidence logs) becomes PASS after the first `make paper-run` completes.
+These remain for compatibility with older callers. They are not the canonical operator startup or runtime truth path.
 
-## Operational workflow
+## Startup reconciliation status
 
-```bash
-# Daily
-make paper-run           # runs one campaign (1 hour default)
+- `data/startup_status.json` is written by `services/execution/startup_status.py`.
+- `services/execution/startup_reconcile.py` provides reconciliation helpers that can record success or failure.
+- No current in-repo caller was shown enforcing startup-status freshness on the canonical supervised startup path.
+- Treat `startup_status.json` as recorded reconciliation evidence, not as a current canonical launch gate, unless a caller is wired and documented.
 
-# Check
-make check-gates         # see gate status
-make paper-status        # see stage, budget, thresholds
-make paper-ps            # see running processes
+## Historical note
 
-# Clean up after SIGKILL or crash
-make paper-clean-locks   # remove stale lock files
-
-# Stop cleanly
-make paper-stop          # send stop signals to all campaign processes
-
-# Promote (when all gates pass)
-make promote-strategy STRATEGY_ID=es_daily_trend_v1
-```
-
-## What requires manual action
-
-- Kill switch test: after running, set `kill_switch_tested=True` in a session log
-- Daily loss halt test: temporarily set `daily_loss_halt_pct: 0.001` in config, verify halt fires, restore
-- `baseline_slippage_pct`: currently 0.10% (estimated); replace with measured p50 after 50 fills
-
-## Known limitations (v1)
-
-1. `daily_loss_halt_pct` in config is declarative, not the runtime enforcement source. Actual enforcement is in `services/risk/live_risk_gates_phase82.py`.
-2. Candidate pipeline is built but not wired to the runner — runner still reads strategy from config.
-3. `ema_crossover_runner.py` is the runtime for all strategies despite its name.
-4. `crypto-trading-ai/` and `phase1_research_copilot/` are companion projects in the repo root — not part of the active trading system.
+- `docs/checkpoints/root_runtime_scope_record.md` and `docs/checkpoints/hidden_defaults_note.md` preserve earlier `scripts/bot_ctl.py -> scripts/run_bot_safe.py` assumptions for audit history.
+- The current canonical operator path is the supervised `start_bot.py` / `stop_bot.py` / `bot_status.py` surface documented above.

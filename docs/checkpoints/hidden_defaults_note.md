@@ -2,6 +2,14 @@
 
 Status: LANDED
 
+Historical note:
+- This checkpoint records the hidden-default review at the time the older root-runtime path was being tightened.
+- References below to `scripts/run_bot_safe.py` and `scripts/bot_ctl.py` are historical checkpoint context, not the current canonical operator path.
+- Current canonical operator/runtime truth is documented in:
+  - `docs/CURRENT_RUNTIME_TRUTH.md`
+  - `docs/PROCESS_CONTROL.md`
+  - `docs/BOT_CONTROL.md`
+
 ## Objective
 Record the remaining hidden defaults on runtime-capable repo surfaces after the canonical root-runtime launch path was tightened.
 
@@ -19,7 +27,7 @@ Recent landed cleanup:
 - commit landed:
   - `87cafb0` — `config: require explicit pipeline exchange, symbol, and mode`
 
-The canonical operator/config path now requires explicit venue and symbol inputs in:
+The historical root-runtime operator/config path at checkpoint time required explicit venue and symbol inputs in:
 - `scripts/run_bot_safe.py`
 - `scripts/bot_ctl.py`
 - `services/execution/live_executor.py`
@@ -59,7 +67,7 @@ The repo currently includes runtime-capable defaults such as:
 These now appear primarily on non-canonical or setup/admin-oriented paths rather than the chosen root-runtime launch path.
 
 ## Current repo truth
-For the chosen supported root-runtime path, launch selections are explicit in:
+For the historical supported root-runtime path at checkpoint time, launch selections were explicit in:
 
 - `scripts/run_bot_safe.py`
 - `scripts/bot_ctl.py`

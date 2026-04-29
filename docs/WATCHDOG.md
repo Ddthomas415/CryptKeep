@@ -3,7 +3,8 @@
 ## Purpose
 Detect “alive but stuck” bot:
 - PID running
-- heartbeat not updated for stale_after_sec
+- canonical managed-service status not updated for stale_after_sec
+- legacy heartbeat fallback still supported when canonical status is absent
 
 ## Actions (on stale heartbeat)
 - Write crash snapshot (data/crash_snapshot.json)

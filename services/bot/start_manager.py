@@ -8,6 +8,18 @@ from services.bot.process_manager import start_process, stop_process, read_statu
 from services.config_loader import load_runtime_trading_config
 from services.execution.live_arming import is_live_enabled
 
+COMPATIBILITY_ONLY = True
+COMPATIBILITY_NOTE = (
+    "Compatibility-only startup surface. Canonical operator control uses "
+    "scripts/start_bot.py, scripts/stop_bot.py, scripts/bot_status.py, and "
+    "process-supervisor managed services."
+)
+CANONICAL_CONTROL_SURFACE = {
+    "start": "scripts/start_bot.py",
+    "stop": "scripts/stop_bot.py",
+    "status": "scripts/bot_status.py",
+}
+
 @dataclass(frozen=True)
 class StartDecision:
     ok: bool

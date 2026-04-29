@@ -37,7 +37,7 @@ def test_intent_executor_supervisor_start_uses_code_root_cwd(monkeypatch, tmp_pa
 
     assert out.get("ok") is True
     assert out.get("pid") == 8642
-    assert captured["cmd"] == [ies.sys.executable, "scripts/run_intent_executor.py"]
+    assert captured["cmd"] == [ies.sys.executable, "scripts/run_intent_executor_safe.py"]
     assert captured["cwd"] == str(tmp_path / "repo")
 
 

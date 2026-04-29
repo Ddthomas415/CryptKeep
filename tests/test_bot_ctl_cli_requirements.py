@@ -44,3 +44,21 @@ def test_bot_ctl_stop_all_does_not_require_venue_or_symbols(monkeypatch):
         rc = bot_ctl.main()
 
     assert rc == 0
+
+
+def test_bot_ctl_status_emits_compatibility_metadata(monkeypatch):
+    monkeypatch.setattr(bot_ctl, "_load_state", lambda: {})
+    captured: dict[str, object] = {}
+    monkeypatch.setattr(bot_ctl, "_emit", lambda obj: captured.update(obj))
+
+    with patch("sys.argv", ["bot_ctl.py", "status"]):
+        rc = bot_ctl.main()
+
+    assert rc == 0
+    assert captured["compatibility_only"] is True
+    assert captured["control_plane"] == "legacy_compatibility"
+    assert captured["canonical_surface"] == {
+        "start": "scripts/start_bot.py",
+        "stop": "scripts/stop_bot.py",
+        "status": "scripts/bot_status.py",
+    }

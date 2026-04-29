@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from services.execution import live_executor as le
 from services.fills import user_stream_router as usr
 
 
@@ -65,6 +66,12 @@ def test_route_fill_event_falls_back_to_fill_sink_when_hook_missing(monkeypatch)
     assert calls["sink"] == 1
 
 
+def test_resolve_live_executor_hook_finds_public_live_executor_hook():
+    hook = usr._resolve_live_executor_hook()
+    assert callable(hook)
+    assert hook is le._on_fill
+
+
 def test_route_ccxt_trade_rejects_invalid_shape():
     out = usr.route_ccxt_trade(
         "coinbase",
@@ -74,4 +81,3 @@ def test_route_ccxt_trade_rejects_invalid_shape():
     )
     assert out["ok"] is False
     assert out["reason"] == "invalid_trade_shape"
-

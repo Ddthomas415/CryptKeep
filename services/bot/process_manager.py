@@ -18,6 +18,16 @@ STATUS_PATH = data_dir() / "bot_process.json"
 LOG_DIR = data_dir() / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 _LOG = logging.getLogger(__name__)
+COMPATIBILITY_ONLY = True
+COMPATIBILITY_NOTE = (
+    "Compatibility-only process owner for legacy services.bot startup flows. "
+    "Canonical operator control uses process-supervisor managed services."
+)
+CANONICAL_CONTROL_SURFACE = {
+    "start": "scripts/start_bot.py",
+    "stop": "scripts/stop_bot.py",
+    "status": "scripts/bot_status.py",
+}
 
 @dataclass(frozen=True)
 class ProcStatus:

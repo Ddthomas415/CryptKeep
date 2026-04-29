@@ -16,6 +16,24 @@ from services.process.crash_snapshot import write_crash_snapshot
 PROC_PATH = data_dir() / "bot_process.json"
 LOG_DIR = data_dir() / "logs"
 BOT_LOG = LOG_DIR / "bot.log"
+LEGACY_COMPATIBILITY_NOTE = (
+    "Legacy compatibility surface; canonical operator control uses "
+    "scripts/start_bot.py, scripts/stop_bot.py, and scripts/bot_status.py."
+)
+CANONICAL_CONTROL_SURFACE = {
+    "start": "scripts/start_bot.py",
+    "stop": "scripts/stop_bot.py",
+    "status": "scripts/bot_status.py",
+}
+
+
+def _legacy_meta() -> dict[str, Any]:
+    return {
+        "mode": "legacy_compatibility",
+        "compatibility_only": True,
+        "warning": LEGACY_COMPATIBILITY_NOTE,
+        "canonical_surface": dict(CANONICAL_CONTROL_SURFACE),
+    }
 
 def _iso_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -51,9 +69,24 @@ def status() -> dict:
     st = _read()
     pid = st.get("pid")
     if not pid:
-        return {"ok": True, "running": False, "state": st, "log_path": str(BOT_LOG), "proc_path": str(PROC_PATH)}
+        return {
+            "ok": True,
+            "running": False,
+            "state": st,
+            "log_path": str(BOT_LOG),
+            "proc_path": str(PROC_PATH),
+            **_legacy_meta(),
+        }
     alive = _pid_alive(int(pid))
-    return {"ok": True, "running": bool(alive), "pid": int(pid), "state": st, "log_path": str(BOT_LOG), "proc_path": str(PROC_PATH)}
+    return {
+        "ok": True,
+        "running": bool(alive),
+        "pid": int(pid),
+        "state": st,
+        "log_path": str(BOT_LOG),
+        "proc_path": str(PROC_PATH),
+        **_legacy_meta(),
+    }
 
 def start_bot(*, venue: str, symbols: list[str], force: bool = False) -> dict:
     st = status()
@@ -101,25 +134,32 @@ def start_bot(*, venue: str, symbols: list[str], force: bool = False) -> dict:
             "force": bool(force),
         }
         _write(obj)
-        return {"ok": True, "started": True, "pid": p.pid, "log_path": str(BOT_LOG), "proc_path": str(PROC_PATH)}
+        return {
+            "ok": True,
+            "started": True,
+            "pid": p.pid,
+            "log_path": str(BOT_LOG),
+            "proc_path": str(PROC_PATH),
+            **_legacy_meta(),
+        }
     except Exception as e:
         try:
             lf.close()
         except Exception as _silent_err:
             _LOG.debug("suppressed: %s", _silent_err)
-        return {"ok": False, "reason": f"start_failed:{type(e).__name__}", "error": str(e)}
+        return {"ok": False, "reason": f"start_failed:{type(e).__name__}", "error": str(e), **_legacy_meta()}
 
 def stop_bot(*, hard: bool = True) -> dict:
     st = _read()
     pid = st.get("pid")
     if not pid:
-        return {"ok": True, "stopped": True, "reason": "no_pid"}
+        return {"ok": True, "stopped": True, "reason": "no_pid", **_legacy_meta()}
 
     pid = int(pid)
     if not _pid_alive(pid):
         # stale pid file
         _write({})
-        return {"ok": True, "stopped": True, "reason": "not_running_stale_pid"}
+        return {"ok": True, "stopped": True, "reason": "not_running_stale_pid", **_legacy_meta()}
 
     try:
         if os.name != "nt":
@@ -137,14 +177,14 @@ def stop_bot(*, hard: bool = True) -> dict:
             subprocess.check_call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         time.sleep(0.4)
     except Exception as e:
-        return {"ok": False, "reason": f"stop_failed:{type(e).__name__}", "error": str(e)}
+        return {"ok": False, "reason": f"stop_failed:{type(e).__name__}", "error": str(e), **_legacy_meta()}
 
     # clear pid file if process is gone
     if not _pid_alive(pid):
         _write({})
-    return {"ok": True, "stopped": True, "pid": pid}
+    return {"ok": True, "stopped": True, "pid": pid, **_legacy_meta()}
 
 def stop_all(*, hard: bool = True) -> dict:
     # currently only tracks bot; future-proof structure
     r = stop_bot(hard=hard)
-    return {"ok": True, "bot": r}
+    return {"ok": True, "bot": r, **_legacy_meta()}

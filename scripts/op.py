@@ -93,7 +93,7 @@ def _service_ctl_list() -> list[str]:
             return names
     logger.warning("op: service_ctl list failed rc=%s err=%s", rc, (err or "").strip())
     # fallback for tests / minimal usability
-    return ["tick_publisher", "intent_executor", "intent_reconciler", "ops_signal_adapter", "ops_risk_gate"]
+    return ["market_ws", "tick_publisher", "intent_consumer", "reconciler", "ops_signal_adapter", "ops_risk_gate"]
 
 
 def _service_ctl_call(name: str, action: str, *, lines: int | None = None) -> dict:
@@ -246,7 +246,7 @@ def _stop_everything() -> dict:
     # Precedence: raise shared halt state first, then stop bot, then service workers,
     # then supervisor/watchdog controllers, then clear stale locks.
     system_guard = _system_guard_halting(reason="operator_stop_everything")
-    bot = _script_call("bot_ctl.py", "stop_all", "--hard")
+    bot = _script_call("stop_bot.py", "--all")
     services = _service_ctl_all("stop")
     supervisor = _script_call("supervisor_ctl.py", "stop", "--hard")
     stop_flag = _script_call("stop_supervisor.py")
@@ -265,7 +265,7 @@ def _stop_everything() -> dict:
         "ok": ok,
         "precedence": [
             "system_guard.set_state(HALTING)",
-            "bot_ctl.stop_all(hard)",
+            "stop_bot.py(--all)",
             "service_ctl.stop_all",
             "supervisor_ctl.stop(hard)",
             "stop_supervisor.flag",

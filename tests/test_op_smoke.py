@@ -13,6 +13,7 @@ def run_op(args: list[str]) -> str:
 
 def test_op_list_contains_tick_publisher():
     out = run_op(["list"])
+    assert "market_ws" in out.splitlines()
     assert "tick_publisher" in out.splitlines()
 
 def test_op_status_all_json():
@@ -20,6 +21,7 @@ def test_op_status_all_json():
     obj = json.loads(out)
     assert "services" in obj
     names = {x["name"] for x in obj["services"]}
+    assert "market_ws" in names
     assert "tick_publisher" in names
 
 def test_op_diag_json():

@@ -108,3 +108,20 @@ def test_stop_bot_posix_soft_only(monkeypatch, tmp_path):
     assert out.get("stopped") is True
     assert kills == [(4321, int(signal.SIGTERM))]
     assert writes and writes[-1] == {}
+
+
+def test_status_marks_legacy_compatibility(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path / "state"))
+    bp = _reload_bot_process()
+
+    monkeypatch.setattr(bp, "_read", lambda: {})
+
+    out = bp.status()
+
+    assert out.get("compatibility_only") is True
+    assert out.get("mode") == "legacy_compatibility"
+    assert out.get("canonical_surface") == {
+        "start": "scripts/start_bot.py",
+        "stop": "scripts/stop_bot.py",
+        "status": "scripts/bot_status.py",
+    }

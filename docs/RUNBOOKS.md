@@ -131,12 +131,15 @@ print(json.dumps(get_state_report(), indent=2))
 
 Check for: any intents stuck in `submitted` state, any fills with no matching intent, any reconciliation exceptions.
 
-### Step 3 — Read recent logs
+### Step 3 — Read recent managed-service logs
 
 ```bash
-tail -100 data/logs/live_executor.log | grep -E "ERROR|WARNING|EXCEPTION"
-tail -100 data/logs/live_reconciler.log | grep -E "ERROR|WARNING|stale"
+tail -100 .cbp_state/runtime/logs/market_ws.log | grep -E "ERROR|WARNING|SAFE-IDLE|watchTicker"
+tail -100 .cbp_state/runtime/logs/intent_consumer.log | grep -E "ERROR|WARNING|EXCEPTION"
+tail -100 .cbp_state/runtime/logs/reconciler.log | grep -E "ERROR|WARNING|stale"
 ```
+
+If `CBP_STATE_DIR` is set, use `$CBP_STATE_DIR/runtime/logs/...` instead of `.cbp_state/runtime/logs/...`.
 
 ### Step 4 — Identify cause from the checklist below
 
@@ -181,11 +184,11 @@ condition before retrying.
 
 ### Step 7 — Monitor for one full cycle after resume
 
-Watch the executor and reconciler logs for 5 minutes after resuming to confirm
+Watch the market WS, intent consumer, and reconciler logs for 5 minutes after resuming to confirm
 normal operation:
 
 ```bash
-tail -f data/logs/live_executor.log
+tail -f .cbp_state/runtime/logs/market_ws.log .cbp_state/runtime/logs/intent_consumer.log .cbp_state/runtime/logs/reconciler.log
 ```
 
 ---

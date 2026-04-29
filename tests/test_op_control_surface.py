@@ -86,6 +86,7 @@ def test_op_service_ctl_all_aggregate(monkeypatch):
 def test_op_service_ctl_list_fallback_includes_ops_risk_gate(monkeypatch):
     monkeypatch.setattr(op, "_run", lambda _cmd, timeout=None: (2, "", "failed"))
     names = op._service_ctl_list()
+    assert "market_ws" in names
     assert "tick_publisher" in names
     assert "ops_signal_adapter" in names
     assert "ops_risk_gate" in names
@@ -100,7 +101,7 @@ def test_op_stop_everything_precedence(monkeypatch):
     assert payload.get("ok") is True
     assert payload.get("precedence") == [
         "system_guard.set_state(HALTING)",
-        "bot_ctl.stop_all(hard)",
+        "stop_bot.py(--all)",
         "service_ctl.stop_all",
         "supervisor_ctl.stop(hard)",
         "stop_supervisor.flag",
@@ -108,6 +109,7 @@ def test_op_stop_everything_precedence(monkeypatch):
         "watchdog_ctl.clear_stale(hard)",
     ]
     assert payload.get("system_guard", {}).get("payload", {}).get("state") == "HALTING"
-    assert payload.get("bot", {}).get("script") == "bot_ctl.py"
+    assert payload.get("bot", {}).get("script") == "stop_bot.py"
+    assert payload.get("bot", {}).get("args") == ["--all"]
     assert payload.get("supervisor", {}).get("script") == "supervisor_ctl.py"
     assert payload.get("watchdog", {}).get("script") == "watchdog_ctl.py"

@@ -42,8 +42,8 @@ def test_desired_state_paper_disables_reconcile():
 
 def test_command_map_uses_live_reconciler_for_canonical_reconciler_service():
     cmds = rbr.command_map()
-    assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer.py"]
-    assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler.py"]
+    assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
+    assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
 
 
 def test_desired_state_requires_explicit_exchange_id():
