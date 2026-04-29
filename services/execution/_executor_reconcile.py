@@ -435,6 +435,7 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200, s
                     tracker=client,
                     latency_db_path=str(data_dir() / "market_ws.sqlite"),
                 )
+            matched_intents = set()
             for o in oo:
                 cid = _extract_client_id(o)
                 if cid and cid in want:
@@ -443,7 +444,27 @@ def reconcile_open_orders(exec_db: str, exchange_id: str, *, limit: int = 200, s
                     if rid:
                         store.set_remote_id_if_empty(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
                         store.mark_submitted(exchange_id=ex_id, intent_id=intent_id, remote_order_id=str(rid))
+                        matched_intents.add(intent_id)
                         matched += 1
+
+            now_ms = int(time.time() * 1000)
+            stale_after_ms = 5 * 60 * 1000
+            for r in rs:
+                intent_id = str(r.get("intent_id") or "")
+                if not intent_id or intent_id in matched_intents:
+                    continue
+                if str(r.get("status") or "") != "created":
+                    continue
+                raw_ts_ms = r.get("created_ts_ms")
+                if raw_ts_ms is None or raw_ts_ms == "":
+                    raw_ts_ms = r.get("updated_ts_ms")
+                created_ts_ms = int(raw_ts_ms) if raw_ts_ms not in (None, "") else now_ms
+                if now_ms - created_ts_ms >= stale_after_ms:
+                    store.mark_error(
+                        exchange_id=ex_id,
+                        intent_id=intent_id,
+                        error="stale_created_dedupe_not_found_in_open_orders",
+                    )
     finally:
         _close_reconcile_session(session, owned=session_owned)
     return {"ok": True, "rows": len(rows), "matched_open": matched}
