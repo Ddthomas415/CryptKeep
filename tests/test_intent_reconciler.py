@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+
 from services.execution.intent_reconciler import reconcile_once
 
 
@@ -85,3 +87,25 @@ def test_reconcile_once_journals_filled_strategy_intent() -> None:
         "fills_journaled": 1,
         "journal_count": 1,
     }
+
+
+def test_intent_reconciler_acquire_lock_reclaims_stale_lock(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    import services.os.app_paths as app_paths
+    import services.execution.intent_reconciler as intent_reconciler
+
+    importlib.reload(app_paths)
+    importlib.reload(intent_reconciler)
+
+    intent_reconciler.LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    intent_reconciler.LOCK_FILE.write_text('{"pid": 999999, "ts": "2026-03-19T12:00:00Z"}\n', encoding="utf-8")
+
+    def fake_clean(lock_file):
+        lock_file.unlink()
+        return True
+
+    monkeypatch.setattr(intent_reconciler, "clean_stale_lock_file", fake_clean)
+
+    assert intent_reconciler._acquire_lock() is True
+    assert intent_reconciler.LOCK_FILE.exists()
+    intent_reconciler._release_lock()

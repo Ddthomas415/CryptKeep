@@ -11,6 +11,7 @@ from services.execution.state_authority import LiveStateContext, paper_queue_sta
 from services.execution.paper_engine import PaperEngine
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
+from services.control.managed_component import clean_stale_lock_file
 from services.os.file_utils import atomic_write
 
 FLAGS = runtime_dir() / "flags"
@@ -34,6 +35,13 @@ def _acquire_lock() -> bool:
             fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
         return True
     except FileExistsError:
+        if clean_stale_lock_file(LOCK_FILE):
+            try:
+                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+                    fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
+                return True
+            except FileExistsError:
+                return False
         return False
 
 def _release_lock() -> None:
@@ -51,7 +59,7 @@ def request_stop() -> dict:
 
 
 def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
-    queued = qdb.next_queued(limit=int(limit))
+    queued = qdb.claim_next_queued(limit=int(limit))
     ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
     submitted = 0
     rejected = 0

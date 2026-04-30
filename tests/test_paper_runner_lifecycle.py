@@ -130,3 +130,20 @@ def test_consume_queued_intents_once_submits_and_links_order(monkeypatch, tmp_pa
     assert row["status"] == "submitted"
     assert row["client_order_id"] == "paper_intent_intent-1"
     assert row["linked_order_id"] == "paper-order-1"
+
+
+def test_paper_runner_acquire_lock_reclaims_stale_lock(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    paper_runner = _reload_paper_runner()
+    paper_runner.LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    paper_runner.LOCK_FILE.write_text('{"pid": 999999, "ts": "2026-03-19T12:00:00Z"}\n', encoding="utf-8")
+
+    def fake_clean(lock_file):
+        lock_file.unlink()
+        return True
+
+    monkeypatch.setattr(paper_runner, "clean_stale_lock_file", fake_clean)
+
+    assert paper_runner._acquire_lock() is True
+    assert paper_runner.LOCK_FILE.exists()
+    paper_runner._release_lock()
