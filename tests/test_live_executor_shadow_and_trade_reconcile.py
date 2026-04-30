@@ -53,7 +53,7 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
         def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
             if status != "submitted":
                 return []
-            return [{"intent_id": "intent-1", "symbol": symbol, "reason": "remote_id=ord-1 client_id=cid-1"}]
+            return [{"intent_id": "intent-1", "symbol": symbol, "side": "buy", "reason": "remote_id=ord-1 client_id=cid-1"}]
 
         def add_fill(self, **kwargs):
             self.fills.append(dict(kwargs))
@@ -88,10 +88,12 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
                 {
                     "id": "trade-1",
                     "order": "ord-1",
+                    "side": "buy",
                     "timestamp": 1_700_000_000_000,
                     "amount": 0.4,
                     "price": 100.0,
                     "fee": {"cost": 0.01, "currency": "USD"},
+                    "realized_pnl_usd": -1.25,
                 }
             ]
 
@@ -110,12 +112,14 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
 
     fake_store = _FakeStore()
     fake_latency = _FakeLatency()
+    sink_fills: list[dict] = []
 
     monkeypatch.setattr(le, "_load_execution_safety_cfg", lambda *_, **__: SafetyConfig(enabled=True))
     monkeypatch.setattr(le, "_latency_tracker", lambda *_args, **_kwargs: fake_latency)
     monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
     monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: _FakeDedupe())
     monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _FakeClient())
+    monkeypatch.setattr(le, "_on_fill", lambda fill, *, exec_db=None: sink_fills.append({"fill": dict(fill), "exec_db": exec_db}) or {"ok": True})
 
     out1 = le.reconcile_live(cfg)
     assert out1["ok"] is True
@@ -125,6 +129,11 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
     assert len(fake_store.fills) == 1
     assert fake_store.fills[0]["meta"]["trade_id"] == "trade-1"
     assert len(fake_latency.fill_calls) == 1
+    assert len(sink_fills) == 1
+    assert sink_fills[0]["exec_db"] == ":memory:"
+    assert sink_fills[0]["fill"]["fill_id"] == "trade-1"
+    assert sink_fills[0]["fill"]["fee_usd"] == 0.01
+    assert sink_fills[0]["fill"]["realized_pnl_usd"] == -1.25
 
     out2 = le.reconcile_live(cfg)
     assert out2["ok"] is True
@@ -132,3 +141,4 @@ def test_reconcile_live_trade_level_partial_fill_is_idempotent(monkeypatch):
     assert out2["trade_fills_added"] == 0
     assert len(fake_store.fills) == 1
     assert len(fake_latency.fill_calls) == 1
+    assert len(sink_fills) == 1

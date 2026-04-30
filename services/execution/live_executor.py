@@ -92,6 +92,7 @@ _RECONCILE_SYNC_ATTRS = (
     "ExchangeClient",
     "OrderDedupeStore",
     "SQLiteMarketWsStore",
+    "_on_fill",
 )
 
 

@@ -676,7 +676,7 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
         def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
             if status != "submitted":
                 return []
-            return [{"intent_id": "intent-9", "symbol": symbol, "reason": "remote_id=ord-9 client_id=cid-9"}]
+            return [{"intent_id": "intent-9", "symbol": symbol, "side": "sell", "reason": "remote_id=ord-9 client_id=cid-9"}]
 
         def add_fill(self, **kwargs):
             self.fills.append(dict(kwargs))
@@ -694,7 +694,15 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
     class _FakeClient:
         @staticmethod
         def fetch_order(*, order_id: str, symbol: str):
-            return {"id": order_id, "status": "closed", "filled": 0.5, "average": 100.0, "fee": {"cost": 0.1, "currency": "USD"}}
+            return {
+                "id": order_id,
+                "status": "closed",
+                "side": "sell",
+                "filled": 0.5,
+                "average": 100.0,
+                "fee": {"cost": 0.1, "currency": "USD"},
+                "realized_pnl_usd": 2.5,
+            }
 
     class _FakeLatency:
         def __init__(self):
@@ -712,12 +720,14 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
     fake_store = _FakeStore()
     fake_dedupe = _FakeDedupe()
     fake_latency = _FakeLatency()
+    sink_fills: list[dict] = []
 
     monkeypatch.setattr(le, "_load_execution_safety_cfg", lambda *_, **__: SafetyConfig(enabled=True))
     monkeypatch.setattr(le, "_latency_tracker", lambda *_args, **_kwargs: fake_latency)
     monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
     monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: fake_dedupe)
     monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _FakeClient())
+    monkeypatch.setattr(le, "_on_fill", lambda fill, *, exec_db=None: sink_fills.append({"fill": dict(fill), "exec_db": exec_db}) or {"ok": True})
 
     out = le.reconcile_live(cfg)
     assert out["ok"] is True
@@ -725,6 +735,12 @@ def test_reconcile_live_records_ack_to_fill_latency(monkeypatch):
     assert out["latency_fills_recorded"] == 1
     assert len(fake_latency.fill_calls) == 1
     assert fake_latency.fill_calls[0]["client_order_id"] == "cid-9"
+    assert len(sink_fills) == 1
+    assert sink_fills[0]["exec_db"] == ":memory:"
+    assert sink_fills[0]["fill"]["fill_id"] == "order:ord-9:closed"
+    assert sink_fills[0]["fill"]["side"] == "sell"
+    assert sink_fills[0]["fill"]["fee_usd"] == 0.1
+    assert sink_fills[0]["fill"]["realized_pnl_usd"] == 2.5
 
 
 def test_reconcile_live_records_fetch_latency_measurements(monkeypatch):

@@ -51,6 +51,7 @@ _yaml_cache_lock = threading.Lock()
 
 from services.execution._executor_shared import (
     _now_ms,
+    _on_fill,
     _remote_id_from_reason,
     _client_id_from_reason,
     _record_execution_metric,
@@ -127,6 +128,45 @@ def _trade_fee_parts(t: Dict[str, Any]) -> tuple[float, str]:
         fee_ccy = str(fee_obj.get("currency") or "USD").upper()
         return fee_cost, (fee_ccy or "USD")
     return 0.0, "USD"
+
+
+def _fee_usd(cost: float, currency: str) -> float:
+    if str(currency or "").upper().strip() not in {"USD", "USDT", "USDC"}:
+        return 0.0
+    return float(cost or 0.0)
+
+
+def _realized_pnl_usd(row: Dict[str, Any]) -> float | None:
+    candidates = ("realized_pnl_usd", "realized_pnl", "realizedPnl", "pnl_usd", "pnl")
+    for key in candidates:
+        if row.get(key) is not None:
+            try:
+                return float(row.get(key))
+            except (TypeError, ValueError):
+                return None
+    info = row.get("info")
+    if isinstance(info, dict):
+        for key in candidates:
+            if info.get(key) is not None:
+                try:
+                    return float(info.get(key))
+                except (TypeError, ValueError):
+                    return None
+    return None
+
+
+def _emit_canonical_fill(*, cfg: LiveCfg, fill: Dict[str, Any]) -> None:
+    try:
+        out = _on_fill(fill, exec_db=cfg.exec_db)
+        if isinstance(out, dict) and not bool(out.get("ok", True)):
+            _LOG.warning("executor_reconcile.canonical_fill_emit_failed fill_id=%s result=%s", fill.get("fill_id"), out)
+    except Exception as exc:
+        _LOG.warning(
+            "executor_reconcile.canonical_fill_emit_error fill_id=%s error=%s:%s",
+            fill.get("fill_id"),
+            type(exc).__name__,
+            exc,
+        )
 
 
 def _trade_matches_intent(trade: Dict[str, Any], *, remote_id: str | None, client_id: str | None) -> bool:
@@ -308,6 +348,24 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
                             },
                         },
                     )
+                    sink_fill: Dict[str, Any] = {
+                        "venue": cfg.exchange_id,
+                        "fill_id": trade_id,
+                        "symbol": str(it["symbol"]),
+                        "side": str(tr.get("side") or it.get("side") or "").lower(),
+                        "qty": qty,
+                        "price": px,
+                        "ts": str(t_ts_ms),
+                        "fee_usd": _fee_usd(t_fee_cost, t_fee_ccy),
+                        "client_order_id": cid,
+                        "order_id": remote_id,
+                        "exchange_order_id": remote_id,
+                        "raw_trade": tr,
+                    }
+                    realized_pnl = _realized_pnl_usd(tr)
+                    if realized_pnl is not None:
+                        sink_fill["realized_pnl_usd"] = realized_pnl
+                    _emit_canonical_fill(cfg=cfg, fill=sink_fill)
                     known_trade_ids.add(trade_id)
                     fills_added += 1
                     trade_fills_added += 1
@@ -328,15 +386,34 @@ def reconcile_live(cfg: LiveCfg) -> Dict[str, Any]:
             # Keep synthetic fallback when closed fills are available but per-trade rows are not.
             if status in ("closed", "filled") and filled > 0 and avg > 0:
                 if trade_filled_qty <= 0.0:
+                    ts_ms = _now_ms()
                     store.add_fill(
                         intent_id=intent_id,
-                        ts_ms=_now_ms(),
+                        ts_ms=ts_ms,
                         price=avg,
                         qty=filled,
                         fee=fee_cost,
                         fee_ccy=fee_ccy,
                         meta={"remote_order_id": remote_id, "status": status, "raw_order": {"id": o.get("id"), "filled": filled, "average": avg, "fee": fee}},
                     )
+                    sink_fill = {
+                        "venue": cfg.exchange_id,
+                        "fill_id": f"order:{remote_id}:closed",
+                        "symbol": str(it["symbol"]),
+                        "side": str(o.get("side") or it.get("side") or "").lower(),
+                        "qty": filled,
+                        "price": avg,
+                        "ts": str(ts_ms),
+                        "fee_usd": _fee_usd(fee_cost, fee_ccy),
+                        "client_order_id": cid,
+                        "order_id": remote_id,
+                        "exchange_order_id": remote_id,
+                        "raw_order": o,
+                    }
+                    realized_pnl = _realized_pnl_usd(o)
+                    if realized_pnl is not None:
+                        sink_fill["realized_pnl_usd"] = realized_pnl
+                    _emit_canonical_fill(cfg=cfg, fill=sink_fill)
                     fills_added += 1
                     if cid:
                         try:
