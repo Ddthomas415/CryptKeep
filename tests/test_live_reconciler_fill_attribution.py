@@ -3,6 +3,7 @@ from services.execution import live_reconciler as lr
 
 def test_same_symbol_trades_are_not_cross_attributed_between_orders(monkeypatch, tmp_path):
     fills = []
+    sink_fills = []
 
     class FakeQueue:
         def __init__(self):
@@ -100,6 +101,12 @@ def test_same_symbol_trades_are_not_cross_attributed_between_orders(monkeypatch,
     monkeypatch.setattr(lr, "LiveIntentQueueSQLite", lambda: FakeQueue())
     monkeypatch.setattr(lr, "LiveTradingSQLite", lambda: FakeTrading())
     monkeypatch.setattr(lr, "LiveExchangeAdapter", FakeAdapter)
+    monkeypatch.setattr(lr, "_default_exec_db_path", lambda: str(tmp_path / "execution.sqlite"))
+    monkeypatch.setattr(
+        lr,
+        "_emit_canonical_fill",
+        lambda *, exec_db, fill: sink_fills.append({"exec_db": exec_db, "fill": dict(fill)}),
+    )
 
     def stop_after_one_sleep(_seconds):
         stop_file.write_text("stop\n", encoding="utf-8")
@@ -111,3 +118,8 @@ def test_same_symbol_trades_are_not_cross_attributed_between_orders(monkeypatch,
     assert fills
     assert all(f["exchange_order_id"] == "ex-1" for f in fills)
     assert not any(f["exchange_order_id"] == "ex-2" for f in fills)
+    assert len(sink_fills) == 1
+    assert sink_fills[0]["exec_db"] == str(tmp_path / "execution.sqlite")
+    assert sink_fills[0]["fill"]["fill_id"] == "trade-1"
+    assert sink_fills[0]["fill"]["fee_usd"] == 0.1
+    assert sink_fills[0]["fill"]["order_id"] == "ex-1"

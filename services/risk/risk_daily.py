@@ -68,34 +68,94 @@ class RiskDailyDB:
                     c.execute("ALTER TABLE risk_daily ADD COLUMN notional_usd REAL NOT NULL DEFAULT 0;")
                 except Exception as _err:
                     pass  # suppressed: see _LOG.debug below
+
+    def _ensure_day_conn(self, c: sqlite3.Connection, day: str) -> None:
+        c.execute(
+            """
+            INSERT OR IGNORE INTO risk_daily(
+              day, trades, realized_pnl_usd, fees_usd, updated_at, notional_usd
+            ) VALUES(?,?,?,?,?,?)
+            """,
+            (str(day), 0, 0.0, 0.0, _utc_iso(), 0.0),
+        )
+
+    def _get_day_conn(self, c: sqlite3.Connection, day: str) -> Dict[str, Any]:
+        row = c.execute(
+            "SELECT day,trades,realized_pnl_usd,fees_usd,updated_at, notional_usd FROM risk_daily WHERE day=?",
+            (str(day),),
+        ).fetchone()
+        return dict(row) if row else {}
+
+    def _apply_pnl_conn(
+        self,
+        c: sqlite3.Connection,
+        *,
+        day: str,
+        realized_pnl_usd: float,
+        fee_usd: float,
+    ) -> None:
+        c.execute(
+            """
+            UPDATE risk_daily
+            SET realized_pnl_usd=realized_pnl_usd+?,
+                fees_usd=fees_usd+?,
+                updated_at=?
+            WHERE day=?
+            """,
+            (float(realized_pnl_usd), float(fee_usd), _utc_iso(), str(day)),
+        )
+
     def get(self, day: Optional[str] = None) -> Dict[str, Any]:
         d = day or _utc_day_key()
         with self._conn() as c:
-            r = c.execute("SELECT day,trades,realized_pnl_usd,fees_usd,updated_at, notional_usd FROM risk_daily WHERE day=?", (d,)).fetchone()
-            if r:
-                return dict(r)
-            c.execute(
-                "INSERT INTO risk_daily(day,trades,realized_pnl_usd,fees_usd,updated_at) VALUES(?,?,?,?,?)",
-                (d, 0, 0.0, 0.0, _utc_iso())
-            )
-            return {"day": d, "trades": 0, "realized_pnl_usd": 0.0, "fees_usd": 0.0, "updated_at": _utc_iso()}
+            self._ensure_day_conn(c, d)
+            return self._get_day_conn(c, d)
 
     def incr_trades(self, n: int = 1, day: Optional[str] = None) -> int:
         d = day or _utc_day_key()
-        with self._conn() as c:
-            row = self.get(d)
-            new_val = int(row["trades"]) + int(n)
-            c.execute("UPDATE risk_daily SET trades=?, updated_at=? WHERE day=?", (new_val, _utc_iso(), d))
-            return new_val
+        c = self._conn()
+        try:
+            c.execute("BEGIN IMMEDIATE")
+            self._ensure_day_conn(c, d)
+            c.execute(
+                "UPDATE risk_daily SET trades=trades+?, updated_at=? WHERE day=?",
+                (int(n), _utc_iso(), d),
+            )
+            row = self._get_day_conn(c, d)
+            c.execute("COMMIT")
+            return int(row["trades"])
+        except Exception:
+            try:
+                c.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
+        finally:
+            c.close()
 
     def add_pnl(self, realized_pnl_usd: float = 0.0, fee_usd: float = 0.0, day: Optional[str] = None) -> Dict[str, Any]:
         d = day or _utc_day_key()
-        with self._conn() as c:
-            row = self.get(d)
-            rp = float(row["realized_pnl_usd"]) + float(realized_pnl_usd)
-            fu = float(row["fees_usd"]) + float(fee_usd)
-            c.execute("UPDATE risk_daily SET realized_pnl_usd=?, fees_usd=?, updated_at=? WHERE day=?", (rp, fu, _utc_iso(), d))
-            return self.get(d)
+        c = self._conn()
+        try:
+            c.execute("BEGIN IMMEDIATE")
+            self._ensure_day_conn(c, d)
+            self._apply_pnl_conn(
+                c,
+                day=d,
+                realized_pnl_usd=float(realized_pnl_usd or 0.0),
+                fee_usd=float(fee_usd or 0.0),
+            )
+            row = self._get_day_conn(c, d)
+            c.execute("COMMIT")
+            return row
+        except Exception:
+            try:
+                c.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
+        finally:
+            c.close()
 
     def realized_today_usd(self) -> float:
         return float(self.get(_utc_day_key()).get("realized_pnl_usd", 0.0))
@@ -126,24 +186,37 @@ class RiskDailyDB:
             return False
 
         d = day or _utc_day_key()
-        with self._conn() as c:
-            try:
-                c.execute(
-                    "INSERT INTO risk_daily_fills(venue, fill_id, day, created_at) VALUES(?,?,?,?)",
-                    (v, fid, d, _utc_iso()),
-                )
-            except sqlite3.IntegrityError:
-                return False
-            except Exception:
-                # fail closed on accounting is too risky; but fill sink treats this as best-effort
-                return False
-
-        # Only after dedupe insert succeeds do we update the rollup
+        c = self._conn()
         try:
-            self.add_pnl(realized_pnl_usd=float(realized_pnl_usd or 0.0), fee_usd=float(fee_usd or 0.0), day=d)
-        except Exception:
+            c.execute("BEGIN IMMEDIATE")
+            c.execute(
+                "INSERT INTO risk_daily_fills(venue, fill_id, day, created_at) VALUES(?,?,?,?)",
+                (v, fid, d, _utc_iso()),
+            )
+            self._ensure_day_conn(c, d)
+            self._apply_pnl_conn(
+                c,
+                day=d,
+                realized_pnl_usd=float(realized_pnl_usd or 0.0),
+                fee_usd=float(fee_usd or 0.0),
+            )
+            c.execute("COMMIT")
+            return True
+        except sqlite3.IntegrityError:
+            try:
+                c.execute("ROLLBACK")
+            except Exception:
+                pass
             return False
-        return True
+        except Exception:
+            try:
+                c.execute("ROLLBACK")
+            except Exception:
+                pass
+            _LOG.exception("risk_daily.apply_fill_once_failed venue=%s fill_id=%s", v, fid)
+            return False
+        finally:
+            c.close()
 
 # CBP_RISK_DAILY_SNAPSHOT_V1
 def _default_exec_db() -> str:
@@ -203,14 +276,28 @@ def record_order_attempt(notional_usd: float | None, exec_db: str | None = None)
     try:
         db = exec_db or _default_exec_db()
         rdb = RiskDailyDB(db)
-        rdb.incr_trades(1)
-        if notional_usd is not None:
-            # update notional_usd if column exists
-            with rdb._conn() as c:
-                cols = {row[1] for row in c.execute("PRAGMA table_info(risk_daily)").fetchall()}
-                if "notional_usd" in cols:
-                    row = rdb.get()
-                    new_val = float(row.get("notional_usd", 0.0) or 0.0) + float(notional_usd)
-                    c.execute("UPDATE risk_daily SET notional_usd=?, updated_at=? WHERE day=?", (new_val, _utc_iso(), row["day"]))
+        day = _utc_day_key()
+        c = rdb._conn()
+        try:
+            c.execute("BEGIN IMMEDIATE")
+            rdb._ensure_day_conn(c, day)
+            c.execute(
+                """
+                UPDATE risk_daily
+                SET trades=trades+?,
+                    notional_usd=notional_usd+?,
+                    updated_at=?
+                WHERE day=?
+                """,
+                (1, float(notional_usd or 0.0), _utc_iso(), day),
+            )
+            c.execute("COMMIT")
+        except Exception:
+            try:
+                c.execute("ROLLBACK")
+            except Exception:
+                pass
+        finally:
+            c.close()
     except Exception:
         return

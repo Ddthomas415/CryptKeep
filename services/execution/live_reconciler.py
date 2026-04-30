@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import logging
 import os
 import sqlite3
 import time
@@ -7,6 +8,7 @@ from datetime import datetime, timezone
 from services.config_loader import load_runtime_trading_config
 from services.admin.system_guard import get_state as get_system_guard_state, set_state as set_system_guard_state
 from services.os.app_paths import runtime_dir, ensure_dirs
+from services.execution._executor_shared import _default_exec_db_path, _on_fill
 from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_reconciler
@@ -22,6 +24,7 @@ STOP_FILE = FLAGS / "live_reconciler.stop"
 LOCK_FILE = LOCKS / "live_reconciler.lock"
 STATUS_FILE = FLAGS / "live_reconciler.status.json"
 _RECONCILER_STATE_CONTEXT = LiveStateContext(authority="RECONCILER", origin="live_reconciler")
+_LOG = logging.getLogger(__name__)
 
 
 def _ts_to_ms(v) -> int:
@@ -170,6 +173,47 @@ def _trade_matches_order(tr: dict, *, exchange_order_id: str, client_order_id: s
     return False
 
 
+def _trade_fee_usd(tr: dict) -> float:
+    fee_obj = tr.get("fee")
+    if not isinstance(fee_obj, dict):
+        return 0.0
+    currency = str(fee_obj.get("currency") or "").upper().strip()
+    if currency not in {"USD", "USDT", "USDC"}:
+        return 0.0
+    try:
+        return float(fee_obj.get("cost") or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _trade_realized_pnl_usd(tr: dict) -> float | None:
+    candidates = ["realized_pnl_usd", "realized_pnl", "realizedPnl", "pnl_usd", "pnl"]
+    for key in candidates:
+        if tr.get(key) is not None:
+            try:
+                return float(tr.get(key))
+            except (TypeError, ValueError):
+                return None
+    info = tr.get("info")
+    if isinstance(info, dict):
+        for key in candidates:
+            if info.get(key) is not None:
+                try:
+                    return float(info.get(key))
+                except (TypeError, ValueError):
+                    return None
+    return None
+
+
+def _emit_canonical_fill(*, exec_db: str, fill: dict) -> None:
+    try:
+        out = _on_fill(fill, exec_db=exec_db)
+        if isinstance(out, dict) and not bool(out.get("ok", True)):
+            _LOG.warning("live_reconciler.canonical_fill_emit_failed fill_id=%s result=%s", fill.get("fill_id"), out)
+    except Exception as exc:
+        _LOG.warning("live_reconciler.canonical_fill_emit_error fill_id=%s error=%s:%s", fill.get("fill_id"), type(exc).__name__, exc)
+
+
 def _recover_submit_unknown_by_client_order_id(
     *,
     qdb: LiveIntentQueueSQLite,
@@ -230,6 +274,7 @@ def run_forever() -> None:
         return
     qdb = LiveIntentQueueSQLite()
     ldb = LiveTradingSQLite()
+    exec_db = _default_exec_db_path()
     loops = 0
     fills_seen = 0
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now()})
@@ -373,7 +418,7 @@ def run_forever() -> None:
                                 max_ts = max(max_ts, int(ts))
                             if not tid:
                                 continue
-                            ldb.insert_fill({
+                            fill_row = {
                                 "trade_id": tid,
                                 "ts": str(tr.get("datetime") or _now()),
                                 "venue": venue,
@@ -385,7 +430,26 @@ def run_forever() -> None:
                                 "fee_currency": (tr.get("fee") or {}).get("currency") if isinstance(tr.get("fee"), dict) else None,
                                 "client_order_id": it.get("client_order_id"),
                                 "exchange_order_id": ex_oid,
-                            })
+                            }
+                            ldb.insert_fill(fill_row)
+                            sink_fill = {
+                                "venue": venue,
+                                "fill_id": tid,
+                                "symbol": symbol,
+                                "side": fill_row["side"],
+                                "qty": fill_row["qty"],
+                                "price": fill_row["price"],
+                                "ts": fill_row["ts"],
+                                "fee_usd": _trade_fee_usd(tr),
+                                "client_order_id": it.get("client_order_id"),
+                                "order_id": ex_oid,
+                                "exchange_order_id": ex_oid,
+                                "raw_trade": tr,
+                            }
+                            realized_pnl = _trade_realized_pnl_usd(tr)
+                            if realized_pnl is not None:
+                                sink_fill["realized_pnl_usd"] = realized_pnl
+                            _emit_canonical_fill(exec_db=exec_db, fill=sink_fill)
                             fills_seen += 1
                         if max_ts:
                             qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts + 1))
