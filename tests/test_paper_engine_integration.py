@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import json
 import sqlite3
 from pathlib import Path
 
@@ -220,6 +221,77 @@ def test_paper_engine_fill_is_idempotent_for_stale_order_snapshot(monkeypatch, t
     pos = eng.db.get_position("BTC/USD")
     assert pos is not None
     assert pos["qty"] == 2.0
+
+
+def test_paper_engine_sell_fill_evidence_uses_realized_pnl_delta(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    _, paper_engine = _reload_paper_modules()
+
+    strategy_id = "paper_pnl_evidence_test"
+    monkeypatch.setattr(
+        paper_engine,
+        "load_user_yaml",
+        lambda: {
+            "paper_trading": {
+                "starting_cash_quote": 1000.0,
+                "fee_bps": 0.0,
+                "slippage_bps": 0.0,
+                "use_ccxt_fallback": False,
+                "strategy_id": strategy_id,
+            }
+        },
+    )
+    current_price = {"value": 100.0}
+    monkeypatch.setattr(
+        paper_engine.PaperEngine,
+        "_price",
+        lambda self, venue, symbol: {
+            "ts_ms": 1,
+            "bid": current_price["value"],
+            "ask": current_price["value"],
+            "last": current_price["value"],
+        },
+    )
+    _allow_submit_gates(monkeypatch, paper_engine)
+
+    eng = paper_engine.PaperEngine()
+    buy = eng.submit_order(
+        client_order_id="paper-pnl-buy",
+        venue="coinbase",
+        symbol="BTC/USD",
+        side="buy",
+        order_type="market",
+        qty=1.0,
+    )
+    assert buy["ok"] is True
+    assert eng.evaluate_open_orders()["filled"] == 1
+
+    current_price["value"] = 120.0
+    sell = eng.submit_order(
+        client_order_id="paper-pnl-sell",
+        venue="coinbase",
+        symbol="BTC/USD",
+        side="sell",
+        order_type="market",
+        qty=1.0,
+    )
+    assert sell["ok"] is True
+    sell_cycle = eng.evaluate_open_orders()
+    assert sell_cycle["filled"] == 1
+    assert sell_cycle["details_sample"][0]["result"]["realized_pnl_usd"] == 20.0
+    assert eng.db.get_position("BTC/USD")["avg_price"] == 0.0
+
+    fill_files = sorted((tmp_path / "data" / "evidence" / strategy_id).glob("fill_*.jsonl"))
+    assert fill_files
+    fills = [
+        json.loads(line)
+        for path in fill_files
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    sell_fills = [f for f in fills if f.get("side") == "sell"]
+    assert len(sell_fills) == 1
+    assert sell_fills[0]["pnl_usd"] == 20.0
 
 
 def test_paper_engine_fill_rolls_back_on_storage_failure(monkeypatch, tmp_path):

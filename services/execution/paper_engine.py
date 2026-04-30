@@ -279,8 +279,7 @@ class PaperEngine:
                 slip_pct = (slip_pts / intended * 100.0) if intended > 0 else 0.0
                 pnl = None
                 if order.get("side") == "sell":
-                    avg = float((self.db.get_position(order["symbol"]) or {}).get("avg_price") or price)
-                    pnl = round((float(price) - avg) * float(qty), 4)
+                    pnl = round(float(result.get("realized_pnl_usd") or 0.0), 4)
                 EvidenceLogger(strategy_id).log_fill(
                     timestamp=_now(),
                     fill_price=float(price),

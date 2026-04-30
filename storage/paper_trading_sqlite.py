@@ -331,6 +331,7 @@ class PaperTradingSQLite:
             realized_pos = float(pos["realized_pnl"])
             cash = float(self._get_state_conn(con, "cash_quote") or "0.0")
             realized_total = float(self._get_state_conn(con, "realized_pnl") or "0.0")
+            fill_realized_pnl = 0.0
 
             if side == "buy":
                 cost = float(price) * float(qty) + float(fee)
@@ -349,12 +350,12 @@ class PaperTradingSQLite:
                     con.execute("COMMIT")
                     return {"ok": False, "reason": "insufficient_position"}
                 proceeds = float(price) * float(qty) - float(fee)
-                pnl = (float(price) - avg) * float(qty)
+                fill_realized_pnl = (float(price) - avg) * float(qty)
                 new_qty = pos_qty - float(qty)
                 new_avg = avg if new_qty > 0 else 0.0
                 new_cash = cash + proceeds
-                new_realized_total = realized_total + pnl
-                new_pos_realized = realized_pos + pnl
+                new_realized_total = realized_total + fill_realized_pnl
+                new_pos_realized = realized_pos + fill_realized_pnl
 
             self._upsert_position_conn(
                 con,
@@ -382,7 +383,13 @@ class PaperTradingSQLite:
                 raise RuntimeError("paper_fill_insert_failed")
             self._update_order_status_conn(con, order_id, "filled", None)
             con.execute("COMMIT")
-            return {"ok": True, "fill_id": fill_id, "fee": float(fee), "idempotent": False}
+            return {
+                "ok": True,
+                "fill_id": fill_id,
+                "fee": float(fee),
+                "realized_pnl_usd": float(fill_realized_pnl),
+                "idempotent": False,
+            }
         except Exception:
             try:
                 con.execute("ROLLBACK")
