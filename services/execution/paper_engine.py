@@ -8,8 +8,13 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
 from services.admin.config_editor import load_user_yaml
+from services.admin.master_read_only import is_master_read_only
+from services.execution.safety import load_gates, should_allow_order
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
+from services.risk.market_quality_guard import check as check_market_quality
+from services.risk.staleness_guard import is_snapshot_fresh
 from services.security.exchange_factory import make_exchange
+from storage.execution_guard_store_sqlite import ExecutionGuardStoreSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 
 def _now() -> str:
@@ -95,6 +100,65 @@ class PaperEngine:
             except Exception as _silent_err:
                 _LOG.debug("suppressed: %s", _silent_err)
 
+    def _pre_submit_gate(
+        self,
+        *,
+        venue: str,
+        symbol: str,
+        order_type: str,
+        side: str,
+        qty: float,
+        limit_price: float | None,
+    ) -> tuple[bool, str | None]:
+        fresh, stale_reason = is_snapshot_fresh()
+        if not fresh:
+            return False, f"staleness:{stale_reason}"
+
+        ro_state = is_master_read_only()
+        ro_on = bool(ro_state[0]) if isinstance(ro_state, tuple) else bool(ro_state)
+        if ro_on:
+            return False, "master_read_only"
+
+        mq = check_market_quality(str(venue).lower().strip(), str(symbol).strip())
+        if not bool(mq.get("ok")):
+            return False, f"market_quality:{str(mq.get('reason') or 'blocked')}"
+
+        reference_price = float(limit_price or mq.get("price_used") or mq.get("last") or 60000.0)
+        if not math.isfinite(reference_price) or reference_price <= 0.0:
+            reference_price = 60000.0
+        try:
+            gates = load_gates()
+            store = ExecutionGuardStoreSQLite()
+            ok_s, why_s = should_allow_order(
+                str(venue).lower().strip(),
+                str(symbol).strip(),
+                str(side).lower().strip(),
+                float(qty),
+                reference_price,
+                gates,
+                store,
+            )
+        except Exception:
+            ok_s, why_s = True, "safety_check_error_ignored"
+        if not ok_s:
+            return False, f"safety:{why_s}"
+
+        if side == "buy":
+            fee_rate = float(self.cfg["fee_bps"]) / 10000.0
+            if order_type == "limit":
+                estimated_fill_price = float(limit_price or 0.0)
+            else:
+                estimated_fill_price = reference_price * (1.0 + (float(self.cfg["slippage_bps"]) / 10000.0))
+            estimated_cost = float(estimated_fill_price) * float(qty) * (1.0 + fee_rate)
+            if self.cash_quote() < estimated_cost:
+                return False, "insufficient_cash"
+        elif side == "sell":
+            pos = self.db.get_position(str(symbol).strip()) or {"qty": 0.0}
+            if float(pos.get("qty") or 0.0) < float(qty):
+                return False, "insufficient_position"
+
+        return True, None
+
     def submit_order(
         self,
         *,
@@ -129,6 +193,16 @@ class PaperEngine:
             limit_price = float(limit_price)
             if not (limit_price > 0.0) or not math.isfinite(limit_price):
                 return {"ok": False, "reason": "bad_limit_price"}
+        gate_ok, gate_reason = self._pre_submit_gate(
+            venue=str(venue),
+            symbol=str(symbol),
+            order_type=order_type,
+            side=side,
+            qty=qty,
+            limit_price=limit_price,
+        )
+        if not gate_ok:
+            return {"ok": False, "reason": str(gate_reason or "paper_submit_gate_blocked")}
         oid = str(uuid.uuid4())
         row = {
             "order_id": oid,
@@ -146,8 +220,6 @@ class PaperEngine:
             "meta": meta,
         }
         self.db.insert_order(row)
-        # Evaluation: keep inline call for correctness in non-loop contexts (tests, direct calls)
-        self.evaluate_open_orders()
         out = self.db.get_order_by_client_id(client_order_id)
 
         # Evidence logging — best-effort, never blocks execution
@@ -183,35 +255,19 @@ class PaperEngine:
         fee_bps = float(self.cfg["fee_bps"])
         fee = (price * qty) * (fee_bps / 10000.0)
         fee_ccy = self.cfg["quote_currency"]
-        pos = self.db.get_position(order["symbol"]) or {"symbol": order["symbol"], "qty": 0.0, "avg_price": 0.0, "realized_pnl": 0.0}
-        pos_qty = float(pos["qty"])
-        avg = float(pos["avg_price"])
-        realized = float(pos["realized_pnl"])
-        cash = self.cash_quote()
-        if order["side"] == "buy":
-            cost = price * qty + fee
-            if cash < cost:
-                self.db.update_order_status(order["order_id"], "rejected", "insufficient_cash")
-                return {"ok": False, "reason": "insufficient_cash"}
-            new_qty = pos_qty + qty
-            new_avg = ((avg * pos_qty) + (price * qty)) / new_qty if new_qty > 0 else 0.0
-            self.db.upsert_position(order["symbol"], new_qty, new_avg, realized)
-            self.set_cash_quote(cash - cost)
-        else:
-            if pos_qty < qty:
-                self.db.update_order_status(order["order_id"], "rejected", "insufficient_position")
-                return {"ok": False, "reason": "insufficient_position"}
-            proceeds = price * qty - fee
-            pnl = (price - avg) * qty
-            realized2 = realized + pnl
-            new_qty = pos_qty - qty
-            new_avg = avg if new_qty > 0 else 0.0
-            self.db.upsert_position(order["symbol"], new_qty, new_avg, realized2)
-            self.set_cash_quote(cash + proceeds)
-            self.set_realized_pnl(self.realized_pnl() + pnl)
-        fill_id = str(uuid.uuid4())
-        self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": self._clock(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
-        self.db.update_order_status(order["order_id"], "filled", None)
+        fill_ts = self._clock()
+        result = self.db.apply_fill(
+            order=order,
+            ts=fill_ts,
+            price=float(price),
+            qty=float(qty),
+            fee=float(fee),
+            fee_currency=str(fee_ccy),
+        )
+        if not result.get("ok"):
+            return result
+        if result.get("idempotent"):
+            return result
 
         # Evidence logging — strategy-specific, best-effort
         try:
@@ -239,7 +295,7 @@ class PaperEngine:
         except Exception as _silent_err:
             _LOG.warning("fill evidence logging failed strategy_id=%s order_id=%s: %s", self.cfg.get("strategy_id",""), order.get("order_id",""), _silent_err)
 
-        return {"ok": True, "fill_id": fill_id, "fee": fee}
+        return result
 
     def evaluate_open_orders(self) -> dict:
         orders = self.db.list_orders(limit=2000, status="new")

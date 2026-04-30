@@ -38,6 +38,14 @@ def test_queued_strategy_intent_becomes_journaled_paper_fill(monkeypatch, tmp_pa
     }
     monkeypatch.setattr(paper_engine, "load_user_yaml", lambda: paper_cfg)
     monkeypatch.setattr(paper_engine.PaperEngine, "_price", lambda self, venue, symbol: {"ts_ms": 1, "bid": 100.0, "ask": 100.0, "last": 100.0})
+    monkeypatch.setattr(paper_engine, "is_snapshot_fresh", lambda: (True, None))
+    monkeypatch.setattr(paper_engine, "is_master_read_only", lambda: (False, {}))
+    monkeypatch.setattr(
+        paper_engine,
+        "check_market_quality",
+        lambda venue, symbol: {"ok": True, "reason": "ok", "price_used": 100.0},
+    )
+    monkeypatch.setattr(paper_engine, "should_allow_order", lambda *args, **kwargs: (True, "ok"))
 
     qdb = intent_queue_sqlite.IntentQueueSQLite()
     jdb = trade_journal_sqlite.TradeJournalSQLite()
@@ -64,12 +72,15 @@ def test_queued_strategy_intent_becomes_journaled_paper_fill(monkeypatch, tmp_pa
     )
 
     queue_cycle = paper_runner._consume_queued_intents_once(qdb=qdb, eng=eng, limit=10)
+    fill_cycle = eng.evaluate_open_orders()
     recon_cycle = intent_reconciler.reconcile_once(qdb=qdb, pdb=eng.db, jdb=jdb, max_intents=10)
 
     intent = qdb.get_intent("intent-1")
     fills = jdb.list_fills(limit=10)
 
     assert queue_cycle == {"queued_seen": 1, "submitted": 1, "rejected": 0, "idempotent": 0}
+    assert fill_cycle["open_orders_seen"] == 1
+    assert fill_cycle["filled"] == 1
     assert recon_cycle["fills_journaled"] == 1
     assert intent is not None
     assert intent["status"] == "filled"

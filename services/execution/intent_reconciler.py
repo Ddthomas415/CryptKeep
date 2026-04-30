@@ -10,6 +10,7 @@ from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
 from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.outcome_logger import log_strategy_outcome
+from services.control.managed_component import clean_stale_lock_file
 from services.os.file_utils import atomic_write
 
 FLAGS = runtime_dir() / "flags"
@@ -32,6 +33,13 @@ def _acquire_lock() -> bool:
             fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
         return True
     except FileExistsError:
+        if clean_stale_lock_file(LOCK_FILE):
+            try:
+                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+                    fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
+                return True
+            except FileExistsError:
+                return False
         return False
 
 def _release_lock() -> None:

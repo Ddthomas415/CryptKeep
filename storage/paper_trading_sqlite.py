@@ -65,6 +65,10 @@ CREATE TABLE IF NOT EXISTS paper_equity (
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
+def _paper_fill_id(order_id: Any, price: Any, qty: Any) -> str:
+    return f"paper:{str(order_id)}:{float(price):.12f}:{float(qty):.12f}"
+
 def _connect() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False)
@@ -100,6 +104,13 @@ class PaperTradingSQLite:
             con.execute("INSERT OR REPLACE INTO paper_state(k,v) VALUES(?,?)", (str(k), str(v)))
         finally:
             con.close()
+
+    def _get_state_conn(self, con: sqlite3.Connection, k: str) -> Optional[str]:
+        r = con.execute("SELECT v FROM paper_state WHERE k=?", (str(k),)).fetchone()
+        return r[0] if r else None
+
+    def _set_state_conn(self, con: sqlite3.Connection, k: str, v: str) -> None:
+        con.execute("INSERT OR REPLACE INTO paper_state(k,v) VALUES(?,?)", (str(k), str(v)))
 
     def insert_order(self, row: Dict[str, Any]) -> None:
         con = _connect()
@@ -153,6 +164,12 @@ class PaperTradingSQLite:
         finally:
             con.close()
 
+    def _update_order_status_conn(self, con: sqlite3.Connection, order_id: str, status: str, reject_reason: str | None = None) -> None:
+        con.execute(
+            "UPDATE paper_orders SET status=?, reject_reason=? WHERE order_id=?",
+            (str(status), reject_reason, str(order_id)),
+        )
+
     def list_orders(self, limit: int = 500, status: str | None = None) -> List[Dict[str, Any]]:
         con = _connect()
         try:
@@ -181,11 +198,26 @@ class PaperTradingSQLite:
         con = _connect()
         try:
             con.execute(
-                "INSERT OR REPLACE INTO paper_fills(fill_id, order_id, ts, price, qty, fee, fee_currency) VALUES(?,?,?,?,?,?,?)",
+                "INSERT OR IGNORE INTO paper_fills(fill_id, order_id, ts, price, qty, fee, fee_currency) VALUES(?,?,?,?,?,?,?)",
                 (str(row["fill_id"]), str(row["order_id"]), str(row["ts"]), float(row["price"]), float(row["qty"]), float(row["fee"]), str(row["fee_currency"])),
             )
         finally:
             con.close()
+
+    def _insert_fill_conn(self, con: sqlite3.Connection, row: Dict[str, Any]) -> int:
+        cur = con.execute(
+            "INSERT OR IGNORE INTO paper_fills(fill_id, order_id, ts, price, qty, fee, fee_currency) VALUES(?,?,?,?,?,?,?)",
+            (
+                str(row["fill_id"]),
+                str(row["order_id"]),
+                str(row["ts"]),
+                float(row["price"]),
+                float(row["qty"]),
+                float(row["fee"]),
+                str(row["fee_currency"]),
+            ),
+        )
+        return int(cur.rowcount or 0)
 
     def list_fills(self, limit: int = 500) -> List[Dict[str, Any]]:
         con = _connect()
@@ -208,6 +240,12 @@ class PaperTradingSQLite:
         finally:
             con.close()
 
+    def _upsert_position_conn(self, con: sqlite3.Connection, symbol: str, qty: float, avg_price: float, realized_pnl: float, *, updated_ts: str) -> None:
+        con.execute(
+            "INSERT OR REPLACE INTO paper_positions(symbol, qty, avg_price, realized_pnl, updated_ts) VALUES(?,?,?,?,?)",
+            (str(symbol), float(qty), float(avg_price), float(realized_pnl), str(updated_ts)),
+        )
+
     def get_position(self, symbol: str) -> Optional[Dict[str, Any]]:
         con = _connect()
         try:
@@ -217,6 +255,15 @@ class PaperTradingSQLite:
             return {"symbol": r[0], "qty": r[1], "avg_price": r[2], "realized_pnl": r[3], "updated_ts": r[4]}
         finally:
             con.close()
+
+    def _get_position_conn(self, con: sqlite3.Connection, symbol: str) -> Optional[Dict[str, Any]]:
+        r = con.execute(
+            "SELECT symbol, qty, avg_price, realized_pnl, updated_ts FROM paper_positions WHERE symbol=?",
+            (str(symbol),),
+        ).fetchone()
+        if not r:
+            return None
+        return {"symbol": r[0], "qty": r[1], "avg_price": r[2], "realized_pnl": r[3], "updated_ts": r[4]}
 
     def list_positions(self, limit: int = 200) -> List[Dict[str, Any]]:
         con = _connect()
@@ -236,6 +283,112 @@ class PaperTradingSQLite:
                 "INSERT OR REPLACE INTO paper_equity(ts, cash_quote, equity_quote, unrealized_pnl, realized_pnl) VALUES(?,?,?,?,?)",
                 (str(ts), float(cash_quote), float(equity_quote), float(unrealized_pnl), float(realized_pnl)),
             )
+        finally:
+            con.close()
+
+    def apply_fill(
+        self,
+        *,
+        order: Dict[str, Any],
+        ts: str,
+        price: float,
+        qty: float,
+        fee: float,
+        fee_currency: str,
+    ) -> Dict[str, Any]:
+        con = _connect()
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            order_row = con.execute(
+                "SELECT order_id, symbol, side, status, reject_reason FROM paper_orders WHERE order_id=?",
+                (str(order["order_id"]),),
+            ).fetchone()
+            if not order_row:
+                con.execute("ROLLBACK")
+                return {"ok": False, "reason": "order_not_found"}
+
+            order_id = str(order_row[0])
+            symbol = str(order_row[1])
+            side = str(order_row[2]).strip().lower()
+            status = str(order_row[3]).strip().lower()
+            fill_id = _paper_fill_id(order_id, price, qty)
+
+            if status == "filled":
+                con.execute("COMMIT")
+                return {"ok": True, "fill_id": fill_id, "fee": float(fee), "idempotent": True}
+            if status in {"rejected", "canceled", "cancelled"}:
+                con.execute("COMMIT")
+                return {"ok": False, "reason": status}
+
+            pos = self._get_position_conn(con, symbol) or {
+                "symbol": symbol,
+                "qty": 0.0,
+                "avg_price": 0.0,
+                "realized_pnl": 0.0,
+            }
+            pos_qty = float(pos["qty"])
+            avg = float(pos["avg_price"])
+            realized_pos = float(pos["realized_pnl"])
+            cash = float(self._get_state_conn(con, "cash_quote") or "0.0")
+            realized_total = float(self._get_state_conn(con, "realized_pnl") or "0.0")
+
+            if side == "buy":
+                cost = float(price) * float(qty) + float(fee)
+                if cash < cost:
+                    self._update_order_status_conn(con, order_id, "rejected", "insufficient_cash")
+                    con.execute("COMMIT")
+                    return {"ok": False, "reason": "insufficient_cash"}
+                new_qty = pos_qty + float(qty)
+                new_avg = ((avg * pos_qty) + (float(price) * float(qty))) / new_qty if new_qty > 0 else 0.0
+                new_cash = cash - cost
+                new_realized_total = realized_total
+                new_pos_realized = realized_pos
+            else:
+                if pos_qty < float(qty):
+                    self._update_order_status_conn(con, order_id, "rejected", "insufficient_position")
+                    con.execute("COMMIT")
+                    return {"ok": False, "reason": "insufficient_position"}
+                proceeds = float(price) * float(qty) - float(fee)
+                pnl = (float(price) - avg) * float(qty)
+                new_qty = pos_qty - float(qty)
+                new_avg = avg if new_qty > 0 else 0.0
+                new_cash = cash + proceeds
+                new_realized_total = realized_total + pnl
+                new_pos_realized = realized_pos + pnl
+
+            self._upsert_position_conn(
+                con,
+                symbol,
+                new_qty,
+                new_avg,
+                new_pos_realized,
+                updated_ts=str(ts),
+            )
+            self._set_state_conn(con, "cash_quote", str(float(new_cash)))
+            self._set_state_conn(con, "realized_pnl", str(float(new_realized_total)))
+            inserted = self._insert_fill_conn(
+                con,
+                {
+                    "fill_id": fill_id,
+                    "order_id": order_id,
+                    "ts": str(ts),
+                    "price": float(price),
+                    "qty": float(qty),
+                    "fee": float(fee),
+                    "fee_currency": str(fee_currency),
+                },
+            )
+            if inserted != 1:
+                raise RuntimeError("paper_fill_insert_failed")
+            self._update_order_status_conn(con, order_id, "filled", None)
+            con.execute("COMMIT")
+            return {"ok": True, "fill_id": fill_id, "fee": float(fee), "idempotent": False}
+        except Exception:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
         finally:
             con.close()
 
