@@ -105,8 +105,17 @@ def set_live_enabled(cfg: dict[str, Any] | None, enabled: bool) -> dict[str, Any
 
 
 def get_live_armed_state() -> dict[str, Any]:
-    st = _load()
-    payload = st.get("armed")
+    if not STATE_PATH.exists():
+        return _armed_payload(armed=False, writer="live_arming", reason="default")
+    try:
+        raw = json.loads(STATE_PATH.read_text(encoding="utf-8"))
+    except Exception as err:
+        raise RuntimeError(
+            f"live_arming_state_read_failed:{type(err).__name__}:{err}"
+        ) from err
+    if not isinstance(raw, dict):
+        return _armed_payload(armed=False, writer="live_arming", reason="default")
+    payload = raw.get("armed")
     if not isinstance(payload, dict):
         return _armed_payload(armed=False, writer="live_arming", reason="default")
     return _armed_payload(
