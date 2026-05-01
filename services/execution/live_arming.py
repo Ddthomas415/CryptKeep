@@ -125,15 +125,58 @@ def set_live_armed_state(armed: bool, *, writer: str, reason: str) -> dict[str, 
 
 
 def live_armed_signal() -> tuple[bool, str]:
+    """
+    Return whether live execution is armed.
+
+    Precedence:
+      1. Explicit env value wins.
+         - truthy env -> armed
+         - non-empty falsey env -> not armed
+      2. If no env override exists, fall back to persisted live_arming.json.
+      3. Persisted arming must be fresh.
+
+    This fixes Drill 6: sibling processes that do not inherit resume_gate.py's
+    in-process env var can still read the persisted arming state.
+    """
     armed_env = [
         ("CBP_EXECUTION_ARMED", os.environ.get("CBP_EXECUTION_ARMED")),
         ("CBP_LIVE_ENABLED", os.environ.get("CBP_LIVE_ENABLED")),
         ("CBP_EXECUTION_LIVE_ENABLED", os.environ.get("CBP_EXECUTION_LIVE_ENABLED")),
     ]
+
     for name, value in armed_env:
+        if value is None or str(value).strip() == "":
+            continue
         if _truthy(value):
             return True, f"env:{name}"
-    return False, "live_not_armed"
+        return False, f"env_false:{name}"
+
+    try:
+        state = get_live_armed_state()
+    except Exception as err:
+        return False, f"persisted_error:{type(err).__name__}"
+
+    if not _bool_value(state.get("armed"), default=False):
+        return False, "live_not_armed"
+
+    try:
+        ts_epoch = float(state.get("ts_epoch") or 0.0)
+    except Exception:
+        return False, "persisted_invalid_ts"
+
+    if ts_epoch <= 0.0:
+        return False, "persisted_missing_ts"
+
+    try:
+        max_age_s = float(os.environ.get("CBP_LIVE_ARMING_MAX_AGE_S") or "300")
+    except Exception:
+        max_age_s = 300.0
+
+    age_s = time.time() - ts_epoch
+    if age_s > max_age_s:
+        return False, f"persisted_stale:{age_s:.0f}s"
+
+    return True, "persisted:live_arming.json"
 
 
 def live_enabled_and_armed() -> tuple[bool, str]:
