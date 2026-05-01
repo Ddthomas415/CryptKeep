@@ -7,6 +7,7 @@ import logging
 from typing import Any, List, Protocol
 from services.journal.canonical_execdb import CanonicalJournal
 from services.risk.risk_daily import RiskDailyDB
+from storage.live_position_store_sqlite import LivePositionStore
 from services.os.app_paths import data_dir
 
 _LOG = logging.getLogger(__name__)
@@ -99,9 +100,46 @@ class CanonicalFillSink:
 
             # CBP_FILL_SINK_UPDATES_RISK_DAILY_V1
             try:
-                # Apply realized PnL/fees to risk_daily exactly once per (venue, fill_id)
+                # Apply realized PnL/fees to risk_daily exactly once per (venue, fill_id).
+                # If exchange PnL is missing, compute locally from live position cost basis.
                 if fid:
-                    realized = 0.0 if pnl is None else float(pnl)
+                    if pnl is None:
+                        try:
+                            pos_result = LivePositionStore(exec_db=self.exec_db).apply_fill(
+                                venue=str(venue),
+                                symbol=str(symbol),
+                                fill_id=str(fid),
+                                side=str(side),
+                                qty=float(qty),
+                                price=float(price),
+                            )
+                        except Exception as pos_err:
+                            _write_risk_sink_failed(fill, pos_err)
+                            _LOG.exception(
+                                "fill_sink.position_store_failed exec_db=%s venue=%s symbol=%s fill_id=%s",
+                                self.exec_db,
+                                venue,
+                                symbol,
+                                fid,
+                            )
+                            return None
+
+                        if not bool(pos_result.get("ok")):
+                            err = RuntimeError(f"position_store_not_ok:{pos_result.get('reason')}")
+                            _write_risk_sink_failed(fill, err)
+                            _LOG.error(
+                                "fill_sink.position_store_not_ok exec_db=%s venue=%s symbol=%s fill_id=%s reason=%s",
+                                self.exec_db,
+                                venue,
+                                symbol,
+                                fid,
+                                pos_result.get("reason"),
+                            )
+                            return None
+
+                        pnl = float(pos_result.get("realized_pnl_usd") or 0.0)
+
+                    realized = float(pnl)
                     RiskDailyDB(self.exec_db).apply_fill_once(
                         venue=str(venue),
                         fill_id=str(fid),
