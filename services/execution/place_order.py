@@ -497,12 +497,19 @@ def _enforce_system_health() -> None:
         ) from err
 
     state = str(health.get("state") or "UNKNOWN")
+    reasons_list = health.get("reasons") or []
+    reasons = "; ".join(str(r) for r in reasons_list)
+
     if state in ("DEGRADED", "HALTED"):
-        reasons = "; ".join(health.get("reasons") or [])
+        _LOG.error(
+            "system_health_block",
+            extra={"state": state, "reasons": reasons_list},
+        )
         raise RuntimeError(
             f"CBP_ORDER_BLOCKED:system_health:{state} reasons=[{reasons}]"
         )
 
+    _LOG.info("system_health_ok", extra={"state": state})
 
 def _enforce_fail_closed(
     ex: Any,
