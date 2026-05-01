@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import json
 import logging
 import os
@@ -9,6 +10,7 @@ from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution.intent_reconciler import reconcile_once
 from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.paper_engine import PaperEngine
+from services.live_router.router import decide_order
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
 from services.control.managed_component import clean_stale_lock_file
@@ -58,17 +60,111 @@ def request_stop() -> dict:
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
 
+async def _decide_batch(intents: list[dict]) -> list[tuple[dict, object]]:
+    async def _decide_one(it: dict) -> object:
+        side = str(it.get("side") or "").strip().lower()
+        qty = float(it.get("qty") or 0.0)
+
+        if side not in ("buy", "sell"):
+            raise ValueError(f"invalid_side:{side!r}")
+        if qty <= 0.0:
+            raise ValueError(f"invalid_qty:{qty}")
+
+        delta_qty = qty if side == "buy" else -qty
+        overrides: dict = dict(it.get("meta") or {})
+
+        lp = it.get("limit_price")
+        if lp is not None:
+            router_ov = dict(overrides.get("router") or {})
+            router_ov.setdefault("limit_price", float(lp))
+            overrides["router"] = router_ov
+
+        return await decide_order(
+            venue=str(it.get("venue") or "coinbase"),
+            symbol_norm=str(it.get("symbol") or ""),
+            delta_qty=delta_qty,
+            overrides=overrides,
+        )
+
+    results = await asyncio.gather(
+        *[_decide_one(it) for it in intents],
+        return_exceptions=True,
+    )
+    return list(zip(intents, results))
+
+
 def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
     queued = qdb.claim_next_queued(limit=int(limit))
     ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
     submitted = 0
     rejected = 0
     idempotent = 0
-    for it in queued:
+
+    if not queued:
+        return {
+            "queued_seen": 0,
+            "submitted": 0,
+            "rejected": 0,
+            "idempotent": 0,
+        }
+
+    try:
+        decisions = asyncio.run(_decide_batch(queued))
+    except Exception as e:
+        _LOG.exception("paper_runner.decide_batch_failed: %s", e)
+        for it in queued:
+            intent_id = str(it.get("intent_id") or "").strip()
+            if not intent_id:
+                continue
+            paper_queue_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"decide_batch_failed:{type(e).__name__}:{e}",
+                client_order_id=str(it.get("client_order_id") or f"paper_intent_{intent_id}"),
+            )
+            rejected += 1
+        return {
+            "queued_seen": int(len(queued)),
+            "submitted": 0,
+            "rejected": int(rejected),
+            "idempotent": 0,
+        }
+
+    for it, decision_or_exc in decisions:
         intent_id = str(it.get("intent_id") or "").strip()
         if not intent_id:
             continue
+
         client_order_id = str(it.get("client_order_id") or f"paper_intent_{intent_id}")
+
+        if isinstance(decision_or_exc, Exception):
+            paper_queue_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"decide_order:{type(decision_or_exc).__name__}:{decision_or_exc}",
+                client_order_id=client_order_id,
+            )
+            rejected += 1
+            continue
+
+        decision = decision_or_exc
+        if not bool(getattr(decision, "allowed", False)):
+            reason = str(getattr(decision, "reason", "blocked"))
+            paper_queue_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"decide_order:{reason}",
+                client_order_id=client_order_id,
+            )
+            rejected += 1
+            continue
+
         try:
             resp = eng.submit_order(
                 client_order_id=client_order_id,
@@ -83,14 +179,21 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
                 meta=it.get("meta"),
             )
         except Exception as e:
-            paper_queue_status(qdb, {"intent_id": intent_id, "status": "queued"}, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id)
+            paper_queue_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"{type(e).__name__}:{e}",
+                client_order_id=client_order_id,
+            )
             rejected += 1
             continue
 
         if not bool(resp.get("ok")):
             paper_queue_status(
                 qdb,
-                {"intent_id": intent_id, "status": "queued"},
+                it,
                 "rejected",
                 ctx=ctx,
                 last_error=str(resp.get("reason") or "paper_submit_failed"),
@@ -104,7 +207,7 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
         reject_reason = order.get("reject_reason")
         paper_queue_status(
             qdb,
-            {"intent_id": intent_id, "status": "queued"},
+            it,
             "submitted",
             ctx=ctx,
             last_error=reject_reason,
