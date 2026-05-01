@@ -81,7 +81,7 @@ class CanonicalFillSink:
                 raw = None
 
             if not (symbol and side and qty is not None and price is not None):
-                return
+                return {"ok": False, "reason": "record_failed:missing_required_fields"}
 
             self.j.record_fill(
                 venue=str(venue),
@@ -122,7 +122,7 @@ class CanonicalFillSink:
                                 symbol,
                                 fid,
                             )
-                            return None
+                            return {"ok": False, "reason": f"position_store_failed:{type(pos_err).__name__}:{pos_err}"}
 
                         if not bool(pos_result.get("ok")):
                             err = RuntimeError(f"position_store_not_ok:{pos_result.get('reason')}")
@@ -135,7 +135,7 @@ class CanonicalFillSink:
                                 fid,
                                 pos_result.get("reason"),
                             )
-                            return None
+                            return {"ok": False, "reason": f"position_store_not_ok:{pos_result.get('reason')}"}
 
                         pnl = float(pos_result.get("realized_pnl_usd") or 0.0)
 
@@ -155,6 +155,7 @@ class CanonicalFillSink:
                     symbol,
                     fid,
                 )
+                return {"ok": False, "reason": f"risk_daily_apply_failed:{type(e).__name__}:{e}"}
 
             try:
                 if fid and symbol:
@@ -184,7 +185,8 @@ class CanonicalFillSink:
             except Exception:
                 _LOG.exception("fill_sink.symbol_loss_update_failed symbol=%s", symbol)
 
-        except Exception:
+            return {"ok": True}
+        except Exception as record_err:
             _LOG.exception(
                 "fill_sink.record_failed exec_db=%s venue=%s symbol=%s fill_id=%s",
                 self.exec_db,
@@ -192,6 +194,7 @@ class CanonicalFillSink:
                 symbol,
                 fid,
             )
+            return {"ok": False, "reason": f"record_failed:{type(record_err).__name__}:{record_err}"}
 
 @dataclass
 class AccountingFillSink:
