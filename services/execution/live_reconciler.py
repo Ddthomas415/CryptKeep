@@ -205,13 +205,23 @@ def _trade_realized_pnl_usd(tr: dict) -> float | None:
     return None
 
 
-def _emit_canonical_fill(*, exec_db: str, fill: dict) -> None:
+def _emit_canonical_fill(*, exec_db: str, fill: dict) -> bool:
+    """Return True only when canonical fill accounting succeeds."""
     try:
         out = _on_fill(fill, exec_db=exec_db)
         if isinstance(out, dict) and not bool(out.get("ok", True)):
-            _LOG.warning("live_reconciler.canonical_fill_emit_failed fill_id=%s result=%s", fill.get("fill_id"), out)
+            _LOG.warning(
+                "live_reconciler.canonical_fill_emit_failed fill_id=%s result=%s",
+                fill.get("fill_id"), out,
+            )
+            return False
+        return True
     except Exception as exc:
-        _LOG.warning("live_reconciler.canonical_fill_emit_error fill_id=%s error=%s:%s", fill.get("fill_id"), type(exc).__name__, exc)
+        _LOG.warning(
+            "live_reconciler.canonical_fill_emit_error fill_id=%s error=%s:%s",
+            fill.get("fill_id"), type(exc).__name__, exc,
+        )
+        return False
 
 
 def _recover_submit_unknown_by_client_order_id(
@@ -345,21 +355,10 @@ def run_forever() -> None:
                             continue
 
                         st = str(o.get("status") or "").lower().strip() or "unknown"
-                        if st in ("closed","filled"):
-                            if not update_live_queue_status_as_reconciler(
-                                qdb,
-                                it,
-                                "filled",
-                                ctx=_RECONCILER_STATE_CONTEXT,
-                                last_error=None,
-                            ):
-                                continue
-                            ldb.upsert_order({
-                                "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
-                                "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
-                                "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
-                                "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
-                            })
+                        _pending_fill_transition = False
+
+                        if st in ("closed", "filled"):
+                            _pending_fill_transition = True
                         elif st in ("canceled","cancelled"):
                             if not update_live_queue_status_as_reconciler(
                                 qdb,
@@ -400,11 +399,14 @@ def run_forever() -> None:
                             pass
                         since_ms = None
                         try:
-                            since_ms = int(float(qdb.get_state(f"trades_since_ms:{venue}:{symbol}") or "0")) or None
+                            _raw_cursor = int(float(qdb.get_state(f"trades_since_ms:{venue}:{symbol}") or "0"))
+                            _overlap_ms = int(os.environ.get("CBP_RECONCILER_CURSOR_OVERLAP_MS") or "60000")
+                            since_ms = max(0, _raw_cursor - _overlap_ms) or None
                         except (sqlite3.OperationalError, sqlite3.DatabaseError):
                             since_ms = None
                         trades = ad.fetch_my_trades(symbol, since_ms=since_ms, limit=200)
                         max_ts = 0
+                        _loop_accounted_fills = 0
                         for tr in trades or []:
                             if not _trade_matches_order(
                                 tr,
@@ -449,10 +451,44 @@ def run_forever() -> None:
                             realized_pnl = _trade_realized_pnl_usd(tr)
                             if realized_pnl is not None:
                                 sink_fill["realized_pnl_usd"] = realized_pnl
-                            _emit_canonical_fill(exec_db=exec_db, fill=sink_fill)
+                            _emit_ok = _emit_canonical_fill(exec_db=exec_db, fill=sink_fill)
+                            if not _emit_ok:
+                                _LOG.warning(
+                                    "live_reconciler.fill_not_accounted intent_id=%s fill_id=%s",
+                                    it.get("intent_id"), sink_fill.get("fill_id"),
+                                )
+                                continue
                             fills_seen += 1
+                            _loop_accounted_fills += 1
                         if max_ts:
                             qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts + 1))
+
+                        if _pending_fill_transition:
+                            if _loop_accounted_fills > 0:
+                                _transitioned = update_live_queue_status_as_reconciler(
+                                    qdb,
+                                    it,
+                                    "filled",
+                                    ctx=_RECONCILER_STATE_CONTEXT,
+                                    last_error=None,
+                                )
+                                if _transitioned:
+                                    ldb.upsert_order({
+                                        "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
+                                        "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                                        "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                                        "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
+                                    })
+                                else:
+                                    _LOG.warning(
+                                        "live_reconciler.filled_transition_failed intent_id=%s ex_oid=%s",
+                                        it.get("intent_id"), ex_oid,
+                                    )
+                            else:
+                                _LOG.info(
+                                    "live_reconciler.filled_transition_deferred intent_id=%s ex_oid=%s zero_accounted_fills",
+                                    it.get("intent_id"), ex_oid,
+                                )
                     except Exception as e:
                         _err = f"{type(e).__name__}:{e}"
                         if ex_oid and _submitted_ts_ms and _age_ms >= _stale_after_ms:
