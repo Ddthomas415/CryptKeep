@@ -487,6 +487,23 @@ def _check_risk_sink_flag() -> None:
     )
 
 
+def _enforce_system_health() -> None:
+    try:
+        from services.risk.system_health import get_system_health
+        health = get_system_health()
+    except Exception as err:
+        raise RuntimeError(
+            f"CBP_ORDER_BLOCKED:system_health_check_failed:{type(err).__name__}:{err}"
+        ) from err
+
+    state = str(health.get("state") or "UNKNOWN")
+    if state in ("DEGRADED", "HALTED"):
+        reasons = "; ".join(health.get("reasons") or [])
+        raise RuntimeError(
+            f"CBP_ORDER_BLOCKED:system_health:{state} reasons=[{reasons}]"
+        )
+
+
 def _enforce_fail_closed(
     ex: Any,
     *,
@@ -499,6 +516,7 @@ def _enforce_fail_closed(
 ) -> Tuple[str, float | None]:
     # 0) Risk sink health — fail closed before evaluating stale limits.
     _check_risk_sink_flag()
+    _enforce_system_health()
 
     amount_f = _parse_order_amount(amount)
     price_f = _parse_order_price(price, order_type=order_type)
