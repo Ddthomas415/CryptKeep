@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import math
+import json
 import os
 from services.execution.coinbase_portfolio_guard import enforce_coinbase_quote_account_available
 from services.security.binance_guard import require_binance_allowed
@@ -453,6 +454,39 @@ def _enforce_ops_risk_gate(*, params: Dict[str, Any]) -> None:
         f"{reason}:state={gate.gate_state.value}:hazards={hazards}"
     )
 
+def _check_risk_sink_flag() -> None:
+    """
+    Fail-closed guard for risk_daily accounting failures.
+
+    If fill_sink marks risk_daily unhealthy, block all new orders until a
+    human or repair command verifies accounting and removes the flag.
+    """
+    flag = data_dir() / "risk_sink_failed.flag"
+
+    if not flag.exists():
+        return
+
+    try:
+        payload = json.loads(flag.read_text(encoding="utf-8"))
+    except Exception as err:
+        raise RuntimeError(
+            f"CBP_ORDER_BLOCKED:risk_sink_flag_unreadable "
+            f"path={flag} error={type(err).__name__}:{err}"
+        )
+
+    venue = str(payload.get("venue") or "unknown")
+    fill_id = str(payload.get("fill_id") or "unknown")
+    failed_at = payload.get("failed_at", "unknown")
+    error = str(payload.get("error") or payload.get("reason") or "unknown")
+
+    raise RuntimeError(
+        f"CBP_ORDER_BLOCKED:risk_daily_update_failed "
+        f"venue={venue} fill_id={fill_id} failed_at={failed_at} "
+        f"error={error} path={flag} "
+        f"(repair risk_daily, verify accounting, then remove flag)"
+    )
+
+
 def _enforce_fail_closed(
     ex: Any,
     *,
@@ -463,6 +497,9 @@ def _enforce_fail_closed(
     params: Dict[str, Any],
     order_type: str,
 ) -> Tuple[str, float | None]:
+    # 0) Risk sink health — fail closed before evaluating stale limits.
+    _check_risk_sink_flag()
+
     amount_f = _parse_order_amount(amount)
     price_f = _parse_order_price(price, order_type=order_type)
 

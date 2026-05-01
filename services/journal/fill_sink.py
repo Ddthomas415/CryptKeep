@@ -1,15 +1,39 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import json
+import time
 import os
 import logging
 from typing import Any, List, Protocol
 from services.journal.canonical_execdb import CanonicalJournal
 from services.risk.risk_daily import RiskDailyDB
+from services.os.app_paths import data_dir
 
 _LOG = logging.getLogger(__name__)
 
 class FillSink(Protocol):
     def on_fill(self, fill: Any, *args, **kwargs: Any) -> Any: ...
+
+def _write_risk_sink_failed(fill: dict, err: Exception) -> None:
+    """
+    Atomically mark risk_daily accounting unhealthy.
+
+    place_order.py reads this flag and blocks new orders until repair.
+    """
+    flag = data_dir() / "risk_sink_failed.flag"
+    tmp = flag.with_suffix(".tmp")
+
+    payload = {
+        "failed_at": time.time(),
+        "venue": str(fill.get("venue") or "unknown"),
+        "fill_id": str(fill.get("fill_id") or fill.get("id") or "unknown"),
+        "symbol": str(fill.get("symbol") or "unknown"),
+        "error": f"{type(err).__name__}:{err}",
+    }
+
+    tmp.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+    tmp.replace(flag)
+
 
 @dataclass
 class CanonicalFillSink:
@@ -84,7 +108,8 @@ class CanonicalFillSink:
                         realized_pnl_usd=float(realized),
                         fee_usd=float(fee),
                     )
-            except Exception:
+            except Exception as e:
+                _write_risk_sink_failed(fill, e)
                 _LOG.exception(
                     "fill_sink.risk_daily_apply_failed exec_db=%s venue=%s symbol=%s fill_id=%s",
                     self.exec_db,
