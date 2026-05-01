@@ -49,3 +49,31 @@ Build "Crypto Bot Pro" as an installable desktop app for macOS + Windows that ru
 - Reconciliation: restart mid-run does NOT create duplicate orders
 - Backtest/live parity verified on a baseline strategy
 - Desktop installers: macOS app + Windows MSI/EXE installer
+
+## Decision: P1F — reconciliation runner & launch mode
+
+Date: 2026-05-01
+
+Context:
+- Coinbase sandbox not supported
+- System health gate + invariant protection in place
+- Reconciliation is manual-only (no scheduler)
+
+Decision:
+- Run reconciliation manually (no cron / no background runner)
+- Use live endpoints (CBP_SANDBOX=0) with fail-closed protections
+- Rely on:
+  - system_health gate
+  - risk accounting invariant
+  - risk_sink_failed.flag blocking
+
+Rationale:
+- Minimizes automation risk
+- Prevents silent failures
+- Keeps operator in control of recovery flows
+
+Consequence:
+- Requires disciplined daily run:
+    scripts/check_risk_accounting_invariant.py
+    scripts/reconcile_positions.py
+
