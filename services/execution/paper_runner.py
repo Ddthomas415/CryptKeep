@@ -154,6 +154,7 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
         decision = decision_or_exc
         if not bool(getattr(decision, "allowed", False)):
             reason = str(getattr(decision, "reason", "blocked"))
+            _LOG.info("paper_runner.decide_order_blocked intent_id=%s reason=%s", intent_id, reason)
             paper_queue_status(
                 qdb,
                 it,
@@ -215,6 +216,7 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
             linked_order_id=order_id,
         )
         submitted += 1
+        _LOG.info("paper_runner.intent_submitted intent_id=%s symbol=%s side=%s qty=%s", intent_id, it.get("symbol"), it.get("side"), it.get("qty"))
         if bool(resp.get("idempotent")):
             idempotent += 1
 
