@@ -29,10 +29,11 @@ def main() -> int:
     # Start pipeline + paper executor loop, telemetry adapter, and the ops risk-gate service.
     r1 = start_process("pipeline", [py, "scripts/run_pipeline_loop.py"])
     r2 = start_process("executor", [py, "scripts/run_intent_executor_safe.py"])
-    r3 = start_process("ops_signal_adapter", [py, "scripts/run_ops_signal_adapter.py", "run"])
-    r4 = start_process("ops_risk_gate", [py, "scripts/run_ops_risk_gate_service.py", "run"])
+    r3 = start_process("intent_consumer", [py, "scripts/run_live_intent_consumer.py", "run"])
+    r4 = start_process("ops_signal_adapter", [py, "scripts/run_ops_signal_adapter.py", "run"])
+    r5 = start_process("ops_risk_gate", [py, "scripts/run_ops_risk_gate_service.py", "run"])
 
-    out = {"pipeline": r1, "executor": r2, "ops_signal_adapter": r3, "ops_risk_gate": r4}
+    out = {"pipeline": r1, "executor": r2, "intent_consumer": r3, "ops_signal_adapter": r4, "ops_risk_gate": r5}
 
     if args.with_reconcile:
         out["reconciler"] = start_process("reconciler", [py, "scripts/run_live_reconciler_safe.py", "run"])
