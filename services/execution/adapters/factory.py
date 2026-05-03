@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any, Optional, Dict
 
-import ccxt  # type: ignore
 from services.security.exchange_factory import resolve_exchange_id
 
 def get_adapter(venue: str, *, sandbox: Optional[bool] = None, **kwargs: Any):
@@ -11,6 +10,12 @@ def get_adapter(venue: str, *, sandbox: Optional[bool] = None, **kwargs: Any):
     Compatibility shim for legacy imports:
         from services.execution.adapters.factory import get_adapter
     """
+    mode = str(kwargs.pop("mode", "") or "").lower().strip()
+    if mode == "paper":
+        from services.execution.adapters.paper import PaperEngineAdapter
+        return PaperEngineAdapter(venue=venue)
+
+    import ccxt  # type: ignore  # live path only
     venue = resolve_exchange_id(venue)
 
     raw = venue.strip()

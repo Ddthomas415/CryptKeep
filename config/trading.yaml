@@ -69,6 +69,16 @@ execution_safety:
 
 # reconciliation.quote_ccys can list additional quote currencies to report (informational).
 # Primary enforcement/sync uses portfolio.quote_ccy only.
+# Supervised executor configuration — read by run_pipeline_loop.py and run_intent_executor.py
+# executor_mode: paper routes to PaperEngineAdapter (no network, synthetic fills)
+# executor_mode: live routes to CCXT live adapter (requires arming + credentials)
+execution:
+  executor_mode: paper
+  venue: coinbase
+  symbol: BTC/USD
+  loop_interval_sec: 2
+  reconcile_every_sec: 30
+
 reconciliation_quote_note: true
 
 packaging:
