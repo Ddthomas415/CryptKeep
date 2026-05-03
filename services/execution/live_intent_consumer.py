@@ -131,13 +131,34 @@ def run_forever() -> None:
                 symbol = normalize_symbol(it["symbol"])
                 mq = mq_check(venue, symbol)
                 if not mq.get("ok"):
+                    mq_reason = f"mq_blocked:{mq.get('reason', 'unknown')}"
                     _write_status({"ok": True, "status": "running", "ts": _now(), "note": "market_quality_blocked", "blocked": mq, "intent": it.get("intent_id")})
+                    wrote = update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=mq_reason)
+                    if wrote:
+                        rejected += 1
+                    else:
+                        _LOG.error("live_intent_consumer.mq_rejection_write_failed intent_id=%s reason=%s", it.get("intent_id"), mq_reason)
+                        escalated = update_live_queue_status_as_intent_consumer(
+                            qdb, it, "submit_unknown", ctx=ctx,
+                            last_error=f"mq_rejected_write_failed:{mq_reason}",
+                        )
+                        if not escalated:
+                            _LOG.error("live_intent_consumer.mq_submit_unknown_write_failed intent_id=%s reason=%s", it.get("intent_id"), mq_reason)
                     continue
                 notional_est = float(it["qty"]) * float(it.get("limit_price") or (mq.get("last") or 0.0) or 0.0)
                 ok, rreason = _risk_check_and_claim(qdb, notional_est)
                 if not ok:
-                    if update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason):
+                    wrote = update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)
+                    if wrote:
                         rejected += 1
+                    else:
+                        _LOG.error("live_intent_consumer.risk_rejection_write_failed intent_id=%s reason=%s", it.get("intent_id"), rreason)
+                        escalated = update_live_queue_status_as_intent_consumer(
+                            qdb, it, "submit_unknown", ctx=ctx,
+                            last_error=f"risk_rejected_write_failed:{rreason}",
+                        )
+                        if not escalated:
+                            _LOG.error("live_intent_consumer.risk_submit_unknown_write_failed intent_id=%s reason=%s", it.get("intent_id"), rreason)
                     continue
                 client_order_id = it.get("client_order_id") or f"live_intent_{it['intent_id']}"
                 dedupe_row = dedupe.claim(
