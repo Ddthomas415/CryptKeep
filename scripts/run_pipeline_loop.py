@@ -72,6 +72,8 @@ def main() -> int:
         ema_slow=int(pipe.get("ema_slow") or 26),
         bb_window=int(pipe.get("bb_window") or 20),
         bb_k=float(pipe.get("bb_k") or 2.0),
+        sma_period=int(pipe.get("sma_period") or 200),
+        atr_period=int(pipe.get("atr_period") or 20),
     ))
 
     print({"ok": True, "note": "pipeline_loop_start", "poll_sec": poll, "strategy": str(pipe.get("strategy") or "ema"), "exchange": p.cfg.exchange_id if hasattr(p, "cfg") else None, "symbol": symbol})
