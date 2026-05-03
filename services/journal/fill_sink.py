@@ -187,12 +187,14 @@ class CanonicalFillSink:
 
             return {"ok": True}
         except Exception as record_err:
-            _LOG.exception(
+            _write_risk_sink_failed({"venue": venue, "fill_id": fid, "symbol": symbol}, record_err)
+            _LOG.error(
                 "fill_sink.record_failed exec_db=%s venue=%s symbol=%s fill_id=%s",
                 self.exec_db,
                 venue,
                 symbol,
                 fid,
+                exc_info=True,
             )
             return {"ok": False, "reason": f"record_failed:{type(record_err).__name__}:{record_err}"}
 
@@ -212,11 +214,18 @@ class CompositeFillSink:
     sinks: List[FillSink]
 
     def on_fill(self, fill: Any, *args, **kwargs):
-        out = None
+        any_failed = False
+        last_out = None
         for s in self.sinks:
             try:
-                out = s.on_fill(fill, *args, **kwargs)
+                result = s.on_fill(fill, *args, **kwargs)
+                if isinstance(result, dict) and result.get("ok") is False:
+                    any_failed = True
+                else:
+                    last_out = result
             except Exception:
                 _LOG.exception("fill_sink.composite_sink_failed sink=%s", type(s).__name__)
-                continue
-        return out
+                any_failed = True
+        if any_failed:
+            return {"ok": False, "reason": "composite_sink_partial_failure"}
+        return last_out

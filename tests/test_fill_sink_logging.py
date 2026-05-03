@@ -71,7 +71,7 @@ def test_canonical_fill_sink_logs_record_failure(monkeypatch, caplog):
     assert any(r.msg == "fill_sink.record_failed exec_db=%s venue=%s symbol=%s fill_id=%s" for r in caplog.records)
 
 
-def test_composite_fill_sink_logs_sink_failure_and_continues(caplog):
+def test_composite_fill_sink_logs_sink_failure_and_returns_not_ok(caplog):
     events: list[str] = []
 
     class _BrokenSink:
@@ -81,13 +81,14 @@ def test_composite_fill_sink_logs_sink_failure_and_continues(caplog):
     class _GoodSink:
         def on_fill(self, fill, *args, **kwargs):
             events.append(str(fill.get("fill_id")))
-            return "ok"
+            return {"ok": True}
 
     sink = fill_sink.CompositeFillSink(sinks=[_BrokenSink(), _GoodSink()])
 
     with caplog.at_level(logging.ERROR):
         out = sink.on_fill({"fill_id": "fill-3"})
 
-    assert out == "ok"
     assert events == ["fill-3"]
     assert any(r.msg == "fill_sink.composite_sink_failed sink=%s" for r in caplog.records)
+    assert isinstance(out, dict)
+    assert out.get("ok") is False
