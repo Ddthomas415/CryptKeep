@@ -79,6 +79,24 @@ execution:
   loop_interval_sec: 2
   reconcile_every_sec: 30
 
+# Supervised pipeline configuration — read by run_pipeline_loop.py
+# strategy: ema | mean_reversion | es_daily_trend
+# ES Daily Trend support is available, but EMA remains the default until explicitly changed.
+pipeline:
+  strategy: ema
+  exchange_id: coinbase
+  symbol: BTC/USD
+  timeframe: 5m
+  ohlcv_limit: 200
+  ema_fast: 12
+  ema_slow: 26
+  sma_period: 200
+  atr_period: 20
+  fixed_qty: 0.0
+  quote_notional: 100.0
+  only_on_new_bar: true
+  poll_sec: 10
+
 reconciliation_quote_note: true
 
 packaging:
