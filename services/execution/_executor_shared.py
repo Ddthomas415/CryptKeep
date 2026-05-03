@@ -81,22 +81,30 @@ def _default_exec_db_path() -> str:
 
 def _on_fill(fill: Dict[str, Any], *, exec_db: str | None = None) -> Dict[str, Any]:
     """
-    Canonical fill choke point for live feeds.
-    User-stream/REST fill adapters should call this helper so fills always flow
-    through the same sink and idempotent journal path.
+    Record a live fill into canonical/risk accounting.
+
+    Important: propagate CanonicalFillSink soft failures. A sink returning
+    {"ok": False} must make callers treat the fill as unaccounted.
     """
     db_path = str(exec_db or _default_exec_db_path())
     try:
-        CanonicalFillSink(exec_db=db_path).on_fill(dict(fill or {}))
+        result = CanonicalFillSink(exec_db=db_path).on_fill(dict(fill or {}))
+        if isinstance(result, dict) and result.get("ok") is False:
+            return {
+                "ok": False,
+                "exec_db": db_path,
+                "error": result.get("reason", "fill_sink_returned_not_ok"),
+            }
         return {
             "ok": True,
             "exec_db": db_path,
-            "venue": str((fill or {}).get("venue") or (fill or {}).get("exchange") or ""),
-            "fill_id": str((fill or {}).get("fill_id") or (fill or {}).get("id") or ""),
         }
-    except Exception as e:
-        return {"ok": False, "exec_db": db_path, "error": f"{type(e).__name__}:{e}"}
-
+    except Exception as err:
+        return {
+            "ok": False,
+            "exec_db": db_path,
+            "error": f"{type(err).__name__}:{err}",
+        }
 
 def _now_ms() -> int:
     return int(time.time() * 1000)

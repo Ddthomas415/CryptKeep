@@ -67,8 +67,11 @@ def _check_accounting_invariant() -> str | None:
             missing = int(row[0]) if row else 0
         finally:
             con.close()
-    except sqlite3.OperationalError:
-        return None
+    except sqlite3.OperationalError as err:
+        if "no such table" in str(err):
+            return None
+        _LOG.warning("system_health.accounting_invariant_check_failed: %s", err)
+        return f"accounting_invariant_check_failed:OperationalError:{err}"
     except Exception as err:
         _LOG.warning("system_health.accounting_invariant_check_failed: %s", err)
         return f"accounting_invariant_check_failed:{type(err).__name__}:{err}"
@@ -78,6 +81,74 @@ def _check_accounting_invariant() -> str | None:
             "accounting_invariant_violated:"
             f"{missing}_canonical_fills_missing_from_risk_daily_fills"
         )
+    return None
+
+
+
+def _check_live_trading_vs_canonical() -> str | None:
+    """
+    Detect fills present in live_trading.sqlite but absent from canonical_fills.
+    Missing live_fills is first-run safe. Missing canonical_fills while live_fills exists
+    is DEGRADED because live fills have already been observed.
+    """
+    live_db = _data_dir() / "live_trading.sqlite"
+    if not live_db.exists():
+        return None
+
+    exec_db = _exec_db()
+    con = None
+    try:
+        con = sqlite3.connect(exec_db, timeout=5)
+
+        # sqlite ATTACH does not consistently accept parameters across builds.
+        live_db_sql = str(live_db).replace("'", "''")
+        con.execute(f"ATTACH DATABASE '{live_db_sql}' AS live_db")
+
+        live_exists = con.execute(
+            "SELECT 1 FROM live_db.sqlite_master WHERE type='table' AND name='live_fills'"
+        ).fetchone()
+        if not live_exists:
+            return None
+
+        canonical_exists = con.execute(
+            "SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='canonical_fills'"
+        ).fetchone()
+        if not canonical_exists:
+            row = con.execute(
+                "SELECT COUNT(*) FROM live_db.live_fills WHERE trade_id IS NOT NULL AND trade_id != ''"
+            ).fetchone()
+            live_count = int(row[0]) if row else 0
+            if live_count > 0:
+                return f"live_trading_vs_canonical_gap:{live_count}_live_fills_missing_from_canonical_fills"
+            return None
+
+        row = con.execute("""
+            SELECT COUNT(*)
+            FROM live_db.live_fills lf
+            LEFT JOIN main.canonical_fills cf
+                ON lf.venue = cf.venue
+                AND lf.trade_id = cf.fill_id
+            WHERE cf.fill_id IS NULL
+              AND lf.trade_id IS NOT NULL
+              AND lf.trade_id != ''
+        """).fetchone()
+        missing = int(row[0]) if row else 0
+    except sqlite3.OperationalError as err:
+        _LOG.warning("system_health.live_trading_vs_canonical_check_failed: %s", err)
+        return f"live_trading_vs_canonical_check_failed:OperationalError:{err}"
+    except Exception as err:
+        _LOG.warning("system_health.live_trading_vs_canonical_check_failed: %s", err)
+        return f"live_trading_vs_canonical_check_failed:{type(err).__name__}:{err}"
+    finally:
+        if con is not None:
+            try:
+                con.execute("DETACH DATABASE live_db")
+            except Exception:
+                pass
+            con.close()
+
+    if missing > 0:
+        return f"live_trading_vs_canonical_gap:{missing}_live_fills_missing_from_canonical_fills"
     return None
 
 
@@ -95,6 +166,10 @@ def get_system_health() -> dict[str, Any]:
     invariant_reason = _check_accounting_invariant()
     if invariant_reason is not None:
         reasons.append(invariant_reason)
+
+    live_gap_reason = _check_live_trading_vs_canonical()
+    if live_gap_reason is not None:
+        reasons.append(live_gap_reason)
 
     if reasons:
         return {"state": "DEGRADED", "reasons": reasons}

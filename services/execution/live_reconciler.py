@@ -406,6 +406,8 @@ def run_forever() -> None:
                             since_ms = None
                         trades = ad.fetch_my_trades(symbol, since_ms=since_ms, limit=200)
                         max_ts = 0
+                        max_ts_accounted = 0
+                        cursor_blocked = False
                         _loop_accounted_fills = 0
                         for tr in trades or []:
                             if not _trade_matches_order(
@@ -416,8 +418,9 @@ def run_forever() -> None:
                                 continue
                             tid = str(tr.get("id") or tr.get("tradeId") or "")
                             ts = tr.get("timestamp")
-                            if ts:
-                                max_ts = max(max_ts, int(ts))
+                            tr_ts = int(ts) if ts else 0
+                            if tr_ts:
+                                max_ts = max(max_ts, tr_ts)
                             if not tid:
                                 continue
                             fill_row = {
@@ -454,14 +457,20 @@ def run_forever() -> None:
                             _emit_ok = _emit_canonical_fill(exec_db=exec_db, fill=sink_fill)
                             if not _emit_ok:
                                 _LOG.warning(
-                                    "live_reconciler.fill_not_accounted intent_id=%s fill_id=%s",
+                                    "live_reconciler.fill_not_accounted intent_id=%s fill_id=%s — cursor will not advance past this fill",
                                     it.get("intent_id"), sink_fill.get("fill_id"),
                                 )
+                                cursor_blocked = True
                                 continue
                             fills_seen += 1
                             _loop_accounted_fills += 1
-                        if max_ts:
-                            qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts + 1))
+                            # Cursor may only advance through a contiguous prefix of
+                            # successfully accounted fills. If an earlier fill failed,
+                            # later successes must not move the cursor past it.
+                            if tr_ts and not cursor_blocked:
+                                max_ts_accounted = max(max_ts_accounted, tr_ts)
+                        if max_ts_accounted:
+                            qdb.set_state(f"trades_since_ms:{venue}:{symbol}", str(max_ts_accounted + 1))
 
                         if _pending_fill_transition:
                             if _loop_accounted_fills > 0:
@@ -488,6 +497,13 @@ def run_forever() -> None:
                                 _LOG.info(
                                     "live_reconciler.filled_transition_deferred intent_id=%s ex_oid=%s zero_accounted_fills",
                                     it.get("intent_id"), ex_oid,
+                                )
+                                update_live_queue_status_as_reconciler(
+                                    qdb,
+                                    it,
+                                    "submitted",
+                                    ctx=_RECONCILER_STATE_CONTEXT,
+                                    last_error="filled_deferred:zero_accounted_fills",
                                 )
                     except Exception as e:
                         _err = f"{type(e).__name__}:{e}"
