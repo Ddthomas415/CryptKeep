@@ -63,6 +63,19 @@ Review lane:
 
 ## Launch-support tasks
 
+### P3. Pipeline exit evidence capture before live
+Problem:
+- supervised pipeline child stdout/stderr are not persisted, so an unhandled pipeline exit can leave no durable crash log for postmortem review
+- `pipeline.status.json` can remain at the last successful `running` write if the process exits before writing a failure state
+
+Visible evidence:
+- `services/runtime/process_supervisor.py` starts child processes with stdout/stderr redirected to `subprocess.DEVNULL`
+- direct foreground pipeline run writes actionable output to `/tmp/pipeline_exit.log`, but supervised startup does not create an equivalent `pipeline.log`
+
+Close condition:
+- supervised `pipeline` startup captures stdout/stderr to a durable runtime log, for example `runtime/logs/pipeline.log`
+- pipeline unhandled exits leave a failure status or log entry that includes the exception/reason before any live run is considered ready
+
 ### A. Align docs/config with actual supported state
 Evidence:
 - config/trading.yaml now states that paper is the default and that live-capable surfaces exist, but live readiness is not yet established

@@ -63,7 +63,18 @@ def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
     else:
         kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
 
-    proc = subprocess.Popen(cmd, cwd=str(code_root()), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kwargs)
+    # Persist stdout/stderr to a named log file so exits leave durable evidence.
+    log_path = runtime_dir() / "logs" / f"{name}.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_fh = open(log_path, "a", buffering=1)
+
+    proc = subprocess.Popen(
+        cmd,
+        cwd=str(code_root()),
+        stdout=log_fh,
+        stderr=log_fh,
+        **kwargs,
+    )
     _write_pid(name, proc.pid)
     return {"ok": True, "note": "started", "name": name, "pid": proc.pid, "cmd": cmd}
 
