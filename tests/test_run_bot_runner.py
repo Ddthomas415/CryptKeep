@@ -50,7 +50,7 @@ def test_desired_state_surfaces_symbol_selection_metadata(monkeypatch):
         rbr,
         "resolve_managed_symbol_selection",
         lambda cfg, *, venue, mode, live_enabled: {
-            "symbols": ["BTC/USD", "SOL/USD"],
+            "symbols": ["SOL/USD", "BTC/USD"],
             "source": "scanner",
             "reason": "scanner_selected_cached",
             "selected_symbols": ["SOL/USD"],
@@ -181,6 +181,13 @@ def test_apply_state_converges_services(monkeypatch):
     assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD"}
     assert envs["executor"] == {"CBP_SYMBOLS": "BTC/USD"}
     assert envs["ops_signal_adapter"] is None
+
+
+def test_service_env_map_canonicalizes_symbol_order():
+    envs = rbr.service_env_map({"symbols": ["SOL/USD", "BTC/USD", "SOL/USD"]})
+
+    assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD,SOL/USD"}
+    assert envs["executor"] == {"CBP_SYMBOLS": "BTC/USD,SOL/USD"}
 
 
 def test_apply_state_force_restart_restarts_wanted(monkeypatch):

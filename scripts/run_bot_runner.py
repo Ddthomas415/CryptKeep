@@ -86,7 +86,7 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
         if not venue:
             raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
     selection = resolve_managed_symbol_selection(cfg, venue=venue, mode=mode, live_enabled=live_enabled)
-    symbols = list(selection.get("symbols") or [])
+    symbols = _canonical_symbol_set(selection.get("symbols") or [])
     if not symbols:
         raise RuntimeError(r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
     with_reconcile = mode == "live" or live_enabled
@@ -130,7 +130,7 @@ def command_map() -> dict[str, list[str]]:
 
 
 def service_env_map(state: dict[str, Any]) -> dict[str, dict[str, str]]:
-    symbols = [str(x).strip() for x in list(state.get("symbols") or []) if str(x).strip()]
+    symbols = _canonical_symbol_set(state.get("symbols") or [])
     if not symbols:
         return {}
     env = {"CBP_SYMBOLS": ",".join(symbols)}
