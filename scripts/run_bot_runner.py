@@ -99,7 +99,7 @@ def desired_services(state: dict[str, Any]) -> list[str]:
 def command_map() -> dict[str, list[str]]:
     py = sys.executable
     return {
-        "pipeline": [py, "scripts/run_pipeline_loop.py"],
+        "pipeline": [py, "scripts/run_pipeline_safe.py"],
         "executor": [py, "scripts/run_intent_executor_safe.py"],
         "intent_consumer": [py, "scripts/run_intent_consumer_safe.py", "run"],
         "ops_signal_adapter": [py, "scripts/run_ops_signal_adapter.py", "run"],

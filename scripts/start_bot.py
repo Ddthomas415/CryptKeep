@@ -26,8 +26,8 @@ def main() -> int:
 
     py = sys.executable
 
-    # Start pipeline + paper executor loop, telemetry adapter, and the ops risk-gate service.
-    r1 = start_process("pipeline", [py, "scripts/run_pipeline_loop.py"])
+    # Start the managed pipeline loop, paper executor loop, telemetry adapter, and the ops risk-gate service.
+    r1 = start_process("pipeline", [py, "scripts/run_pipeline_safe.py"])
     r2 = start_process("executor", [py, "scripts/run_intent_executor_safe.py"])
     r3 = start_process("intent_consumer", [py, "scripts/run_live_intent_consumer.py", "run"])
     r4 = start_process("ops_signal_adapter", [py, "scripts/run_ops_signal_adapter.py", "run"])
