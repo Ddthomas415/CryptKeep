@@ -14,16 +14,16 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import argparse
 import json
 
-from services.ai_copilot.alert_monitor import (
-    list_recent_incidents,
-    load_runtime_status,
-    process_once,
-    request_stop,
-    run_forever,
-)
-
 
 def main() -> int:
+    from services.ai_copilot.alert_monitor import (
+        list_recent_incidents,
+        load_runtime_status,
+        process_once,
+        request_stop,
+        run_forever,
+    )
+
     ap = argparse.ArgumentParser(description="Run the AI alert monitor and incident-report loop.")
     ap.add_argument("--status", action="store_true", help="Show managed AI alert monitor runtime status")
     ap.add_argument("--stop", action="store_true", help="Request stop for the running monitor loop")

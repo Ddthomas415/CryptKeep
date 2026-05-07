@@ -41,7 +41,7 @@ def test_desired_state_paper_disables_reconcile():
     assert st["mode"] == "paper"
     assert st["with_reconcile"] is False
     assert st["venue"] == "coinbase"
-    assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "executor"]
+    assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "executor"]
 
 
 def test_command_map_uses_safe_wrappers_for_managed_services():
@@ -49,6 +49,7 @@ def test_command_map_uses_safe_wrappers_for_managed_services():
     assert cmds["pipeline"] == [rbr.sys.executable, "scripts/run_pipeline_safe.py"]
     assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
     assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
+    assert cmds["ai_alert_monitor"] == [rbr.sys.executable, "scripts/run_ai_alert_monitor.py"]
 
 
 def test_desired_state_requires_explicit_exchange_id():

@@ -40,6 +40,10 @@ Safety:
 
 AI alert monitor:
 
+Managed runtime note:
+- `python3 scripts/start_bot.py` and `python3 scripts/run_bot_runner.py --once` now include `ai_alert_monitor` in the supervised service set
+- `python3 scripts/stop_bot.py --ai_alert_monitor` stops only the monitor service
+
 ```bash
 python3 scripts/run_ai_alert_monitor.py --status
 python3 scripts/run_ai_alert_monitor.py --recent

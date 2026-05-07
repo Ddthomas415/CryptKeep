@@ -22,10 +22,11 @@ def test_start_bot_starts_ops_risk_gate_by_default(monkeypatch):
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate"]
+    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor"]
     assert cmds["pipeline"] == [start_bot.sys.executable, "scripts/run_pipeline_safe.py"]
     assert cmds["executor"] == [start_bot.sys.executable, "scripts/run_intent_executor_safe.py"]
     assert cmds["intent_consumer"] == [start_bot.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
+    assert cmds["ai_alert_monitor"] == [start_bot.sys.executable, "scripts/run_ai_alert_monitor.py"]
     assert status_calls == [start_bot.ALL_SERVICES]
 
 
@@ -47,7 +48,7 @@ def test_start_bot_with_reconcile_starts_reconciler(monkeypatch):
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py", "--with_reconcile"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "reconciler"]
     assert cmds["intent_consumer"] == [start_bot.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
     assert cmds["reconciler"] == [start_bot.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
 
@@ -96,6 +97,17 @@ def test_stop_bot_can_target_ops_signal_adapter_only(monkeypatch):
 
     assert stop_bot.main() == 0
     assert stopped == ["ops_signal_adapter"]
+
+
+def test_stop_bot_can_target_ai_alert_monitor_only(monkeypatch):
+    stopped: list[str] = []
+
+    monkeypatch.setattr(stop_bot, "stop_process", lambda name: stopped.append(str(name)) or {"ok": True, "name": name})
+    monkeypatch.setattr(stop_bot, "status", lambda _names: {})
+    monkeypatch.setattr(stop_bot.sys, "argv", ["stop_bot.py", "--ai_alert_monitor"])
+
+    assert stop_bot.main() == 0
+    assert stopped == ["ai_alert_monitor"]
 
 
 def test_bot_status_includes_ops_risk_gate(monkeypatch):

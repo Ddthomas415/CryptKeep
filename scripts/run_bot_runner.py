@@ -35,6 +35,7 @@ MANAGED_SERVICES = (
     "ops_signal_adapter",
     "ops_risk_gate",
     "reconciler",
+    "ai_alert_monitor",
 )
 STATUS_PATH = runtime_dir() / "flags" / "bot_runner.status.json"
 STOP_EVENT = threading.Event()
@@ -106,7 +107,7 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
 
 
 def desired_services(state: dict[str, Any]) -> list[str]:
-    names = ["pipeline", "ops_signal_adapter", "ops_risk_gate"]
+    names = ["pipeline", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor"]
     if state.get("mode") == "live" or state.get("live_enabled"):
         names.append("intent_consumer")
     else:
@@ -125,6 +126,7 @@ def command_map() -> dict[str, list[str]]:
         "ops_signal_adapter": [py, "scripts/run_ops_signal_adapter.py", "run"],
         "ops_risk_gate": [py, "scripts/run_ops_risk_gate_service.py", "run"],
         "reconciler": [py, "scripts/run_live_reconciler_safe.py", "run"],
+        "ai_alert_monitor": [py, "scripts/run_ai_alert_monitor.py"],
     }
 
 

@@ -26,6 +26,15 @@ def test_process_once_writes_incident_report_from_new_alert(tmp_path, monkeypatc
             "executor": {"running": True, "pid": 123},
         },
     )
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "paper",
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"enabled": False},
+        },
+    )
     monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "pipeline", "ts_epoch": 1.0})
     monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "DEGRADED", "reasons": ["pipeline_down"]})
     monkeypatch.setattr(
@@ -56,6 +65,15 @@ def test_process_once_writes_incident_report_from_new_alert(tmp_path, monkeypatc
 def test_process_once_idle_without_new_events(tmp_path, monkeypatch):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     monkeypatch.setattr(alert_monitor, "canonical_service_status", lambda: {"executor": {"running": True, "pid": 123}})
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "paper",
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"enabled": False},
+        },
+    )
     monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "executor", "ts_epoch": 1.0})
     monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "HEALTHY"})
     monkeypatch.setattr(alert_monitor, "analyze_incident", lambda **_: (_ for _ in ()).throw(AssertionError("should not analyze")))
@@ -76,6 +94,15 @@ def test_process_once_falls_back_when_copilot_unavailable(tmp_path, monkeypatch)
     )
 
     monkeypatch.setattr(alert_monitor, "canonical_service_status", lambda: {"reconciler": {"running": False, "pid": None}})
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "live",
+            "execution": {"executor_mode": "live", "live_enabled": True},
+            "live": {"enabled": True},
+        },
+    )
     monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "reconciler", "ts_epoch": 1.0})
     monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "DEGRADED"})
     monkeypatch.setattr(alert_monitor, "analyze_incident", lambda **_: {"ok": False, "error": "Missing API key"})
@@ -86,3 +113,37 @@ def test_process_once_falls_back_when_copilot_unavailable(tmp_path, monkeypatch)
     rows = alert_monitor.list_recent_incidents(limit=1)
     assert rows[0]["payload"]["analysis_mode"] == "heuristic_fallback"
     assert "Missing API key" in rows[0]["payload"]["analysis"]
+
+
+def test_process_once_ignores_live_only_services_when_paper_mode_expected(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setattr(
+        alert_monitor,
+        "canonical_service_status",
+        lambda: {
+            "pipeline": {"running": True, "pid": 100},
+            "executor": {"running": True, "pid": 101},
+            "ops_signal_adapter": {"running": True, "pid": 102},
+            "ops_risk_gate": {"running": True, "pid": 103},
+            "intent_consumer": {"running": False, "pid": None},
+            "reconciler": {"running": False, "pid": None},
+            "market_ws": {"running": False, "pid": None},
+        },
+    )
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "paper",
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"enabled": False},
+        },
+    )
+    monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "executor", "ts_epoch": 1.0})
+    monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "HEALTHY"})
+    monkeypatch.setattr(alert_monitor, "analyze_incident", lambda **_: (_ for _ in ()).throw(AssertionError("should not analyze")))
+
+    out = alert_monitor.process_once()
+
+    assert out["status"] == "idle"
+    assert out["reason"] == "no_new_events"

@@ -10,6 +10,7 @@ from typing import Any, Dict
 
 from services.ai_copilot.incident_analyst import analyze_incident
 from services.ai_copilot.policy import report_root
+from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import ensure_dirs, runtime_dir
 from services.process.bot_runtime_truth import canonical_service_status, read_heartbeat
 from services.risk.system_health import get_system_health
@@ -245,11 +246,36 @@ def _new_log_events(previous_counts: dict[str, Any]) -> tuple[list[dict[str, Any
     return events, current_counts
 
 
+def _expected_active_services() -> set[str]:
+    try:
+        cfg = load_runtime_trading_config()
+    except Exception:
+        cfg = {}
+
+    execution = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}
+    live = cfg.get("live") if isinstance(cfg.get("live"), dict) else {}
+    mode = str(cfg.get("mode") or execution.get("executor_mode") or "").strip().lower()
+    live_enabled = bool(execution.get("live_enabled", live.get("enabled", False)))
+    with_reconcile = mode == "live" or live_enabled
+
+    names = {"pipeline", "ops_signal_adapter", "ops_risk_gate", MONITOR_NAME}
+    if mode == "live" or live_enabled:
+        names.add("intent_consumer")
+    else:
+        names.add("executor")
+    if with_reconcile:
+        names.add("reconciler")
+    return names
+
+
 def _service_events(previous_running: dict[str, bool]) -> tuple[list[dict[str, Any]], dict[str, bool], dict[str, Any]]:
     services = canonical_service_status()
+    expected = _expected_active_services()
     current_running = {str(name): bool((row or {}).get("running")) for name, row in services.items()}
     events: list[dict[str, Any]] = []
     for name, is_running in sorted(current_running.items()):
+        if name not in expected:
+            continue
         previous = previous_running.get(name)
         if is_running:
             continue
@@ -413,10 +439,15 @@ def process_once() -> Dict[str, Any]:
     alert_events, alert_count = _new_alert_events(int(cursor.get("alert_line_count") or 0))
     log_events, log_counts = _new_log_events(dict(cursor.get("log_line_counts") or {}))
     service_events, service_running, services = _service_events(dict(cursor.get("service_running") or {}))
+    expected_services = sorted(_expected_active_services())
     runtime = {
         "canonical_services": services,
         "running_services": sorted(name for name, row in services.items() if bool((row or {}).get("running"))),
         "stopped_services": sorted(name for name, row in services.items() if not bool((row or {}).get("running"))),
+        "expected_services": expected_services,
+        "expected_stopped_services": sorted(
+            name for name in expected_services if not bool((services.get(name) or {}).get("running"))
+        ),
     }
     events = [*alert_events, *service_events, *log_events]
     next_cursor = {

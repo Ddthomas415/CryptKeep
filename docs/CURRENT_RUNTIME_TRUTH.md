@@ -29,6 +29,7 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 - `ops_signal_adapter`
 - `ops_risk_gate`
 - `reconciler` when enabled
+- `ai_alert_monitor` for persisted copilot incident monitoring
 
 ## Current startup behavior shown in source
 
