@@ -133,7 +133,7 @@ Config symbols list
   |
   +-- supervised bot runtime
   |     run_bot_runner -> pipeline + executor/intent_consumer
-  |     current behavior: one symbol per service instance
+  |     current behavior: pipeline is single-symbol; executor consumes queued intents by symbol
   |
   +-- strategy runner lane
   |     run_strategy_runner -> ema_crossover_runner
