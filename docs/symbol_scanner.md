@@ -24,5 +24,6 @@ Open the **Symbol Scanner** page in Streamlit.
 ## Notes
 
 - Scanner is read-only.
-- It is not wired directly into execution.
+- Supervised paper mode can consume scanner-ranked symbols through `managed_symbols.source=scanner` with refresh-cached selection and active-symbol preservation.
+- Live execution does not use scanner-driven symbol rotation.
 - Errors per symbol are returned in the scanner result instead of failing the whole scan.

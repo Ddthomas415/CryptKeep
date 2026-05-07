@@ -24,6 +24,15 @@ symbols:
   - BTC/USDT
   - ETH/USDT
 
+managed_symbols:
+  source: scanner   # static | scanner
+  refresh_sec: 300.0
+  top_n: 2
+  min_hot_score: 25.0
+  min_change_pct: 2.5
+  min_volume_24h: 100000.0
+  preserve_active: true
+
 strategy:
   type: ema_crossover
   ema:

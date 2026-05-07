@@ -45,6 +45,35 @@ def test_desired_state_paper_disables_reconcile():
     assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "executor"]
 
 
+def test_desired_state_surfaces_symbol_selection_metadata(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: {
+            "symbols": ["BTC/USD", "SOL/USD"],
+            "source": "scanner",
+            "reason": "scanner_selected_cached",
+            "selected_symbols": ["SOL/USD"],
+            "protected_symbols": ["BTC/USD"],
+            "scan_ok": True,
+        },
+    )
+    cfg = {
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD"]},
+        "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase", "symbols": ["BTC/USD"]},
+    }
+
+    st = rbr.desired_state(cfg)
+
+    assert st["symbols"] == ["BTC/USD", "SOL/USD"]
+    assert st["symbol_source"] == "scanner"
+    assert st["symbol_reason"] == "scanner_selected_cached"
+    assert st["selected_symbols"] == ["SOL/USD"]
+    assert st["protected_symbols"] == ["BTC/USD"]
+    assert st["scan_ok"] is True
+
+
 def test_command_map_uses_safe_wrappers_for_managed_services():
     cmds = rbr.command_map()
     assert cmds["pipeline"] == [rbr.sys.executable, "scripts/run_pipeline_safe.py"]
@@ -118,11 +147,18 @@ def test_apply_state_converges_services(monkeypatch):
     state = {"mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD"], "with_reconcile": False}
 
     started: list[str] = []
+    envs: dict[str, dict[str, str] | None] = {}
     stopped: list[str] = []
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        envs[name] = dict(env) if env else None
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
     monkeypatch.setattr(
         rbr,
         "start_process",
-        lambda name, cmd: started.append(name) or {"ok": True, "name": name, "cmd": cmd},
+        _start_process,
     )
     monkeypatch.setattr(
         rbr,
@@ -136,18 +172,28 @@ def test_apply_state_converges_services(monkeypatch):
     assert out["ok"] is True
     assert stopped == ["reconciler"]
     assert started == rbr.desired_services(state)
+    assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["executor"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["ops_signal_adapter"] is None
 
 
 def test_apply_state_force_restart_restarts_wanted(monkeypatch):
     state = {"mode": "live", "live_enabled": True, "venue": "coinbase", "symbols": ["BTC/USD"], "with_reconcile": True}
 
     started: list[str] = []
+    envs: dict[str, dict[str, str] | None] = {}
     stopped: list[str] = []
     guard_calls: list[dict[str, str]] = []
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        envs[name] = dict(env) if env else None
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
     monkeypatch.setattr(
         rbr,
         "start_process",
-        lambda name, cmd: started.append(name) or {"ok": True, "name": name, "cmd": cmd},
+        _start_process,
     )
     monkeypatch.setattr(
         rbr,
@@ -166,6 +212,32 @@ def test_apply_state_force_restart_restarts_wanted(monkeypatch):
     assert out["ok"] is True
     assert guard_calls == []
     assert stopped == rbr.desired_services(state)
+    assert started == rbr.desired_services(state)
+    assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["intent_consumer"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["reconciler"] == {"CBP_SYMBOLS": "BTC/USD"}
+
+
+def test_apply_state_converge_restarts_running_symbol_services_on_mismatch(monkeypatch):
+    state = {"mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["SOL/USD", "ETH/USD"], "with_reconcile": False}
+
+    started: list[str] = []
+    stopped: list[str] = []
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
+    monkeypatch.setattr(rbr, "start_process", _start_process)
+    monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
+    monkeypatch.setattr(rbr, "is_running", lambda name: name in {"pipeline", "executor"})
+    monkeypatch.setattr(rbr, "_service_symbols_mismatch", lambda name, symbols: name in {"pipeline", "executor"})
+    monkeypatch.setattr(rbr, "status", lambda names: {n: {"running": n in started} for n in names})
+
+    out = rbr.apply_state(state, force_restart=False)
+
+    assert out["ok"] is True
+    assert stopped == ["pipeline", "executor"]
     assert started == rbr.desired_services(state)
 
 

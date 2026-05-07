@@ -9,7 +9,7 @@ This note maps the repo's current multi-symbol surfaces. It is intentionally nar
 - The repo has real multi-symbol components.
 - The current supervised bot runtime can now fan out across an explicit managed symbol list.
 - The only visible in-process multi-symbol execution loop lives in `services/strategy_runner/ema_crossover_runner.py`.
-- Symbol scanning, rotation, and dynamic selection are upstream analytics surfaces, not execution-wired runtime truth.
+- Symbol scanning and dynamic selection now feed the supervised paper runtime when `managed_symbols.source=scanner` is enabled, but they are still not the live execution authority.
 - `live_trader_multi` exists, but the current implementation is dry-run gated and not part of the canonical managed service set.
 
 ## 1. Canonical managed bot runtime
@@ -31,9 +31,9 @@ Source:
 
 Multi-symbol shape in this lane:
 
-- `scripts/run_bot_runner.py` loads `cfg["symbols"]` and preserves the normalized list in desired state.
+- `scripts/run_bot_runner.py` resolves managed symbols through `services/runtime/managed_symbol_selection.py`, then injects that symbol set into managed child processes through `CBP_SYMBOLS`.
 - `scripts/run_pipeline_loop.py` resolves managed symbols from `CBP_SYMBOLS`, then `execution.symbols` / `pipeline.symbols`, then legacy fallback fields, and builds one pipeline instance per symbol.
-- `scripts/run_intent_executor.py` resolves the same managed symbol set and removes the reconcile symbol filter when more than one managed symbol is active.
+- `scripts/run_intent_executor.py` resolves the same managed symbol set from `CBP_SYMBOLS` and removes the reconcile symbol filter when more than one managed symbol is active.
 - `services/execution/intent_executor.py` claims queue work by venue/mode, and each claimed intent carries its own `symbol`.
 
 Current conclusion:
@@ -74,15 +74,15 @@ The repo has multiple upstream multi-symbol analytics surfaces:
 
 Current wiring shape:
 
-- `docs/symbol_scanner.md` explicitly says the scanner is read-only and not wired directly into execution.
+- `docs/symbol_scanner.md` predates the current supervised-paper wiring and is now stale on that point.
 - `services/runtime/dynamic_symbol_selector.py` selects a ranked list of tradeable symbols from scanner output.
-- No visible caller was found for `services/runtime/dynamic_symbol_selector.py` in the current repo search.
+- `services/runtime/managed_symbol_selection.py` is the current caller and uses a refresh-cached scanner result plus active-symbol preservation in paper mode.
 - `services/market_data/rotation_engine.py` is used by dashboard pages and a backtest selector, not by the supervised execution runtime.
 
 Current conclusion:
 
-- This lane is useful for candidate generation, ranking, and operator insight.
-- It is not currently the symbol-selection authority for the canonical managed trading runtime.
+- This lane is now the candidate-selection authority for the supervised paper runtime when explicitly enabled.
+- It is still not the live symbol-selection authority, and it does not replace the broader ownership decision between the supervised runtime family and `strategy_runner`.
 
 ## 4. Multi-exchange data ingestion lane
 
@@ -153,7 +153,7 @@ Config symbols list
 - The repo supports symbol lists in config.
 - The current supervised runtime can execute an explicit managed symbol list in the `pipeline` / `executor` paper path.
 - The older strategy-runner lane does have a real multi-symbol loop.
-- Multi-symbol candidate selection is not yet the execution authority.
+- Multi-symbol candidate selection is now execution-wired for supervised paper mode only.
 - A canonical multi-symbol architecture decision is still outstanding.
 
 ## 9. Next decision to make
