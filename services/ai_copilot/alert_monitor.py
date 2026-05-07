@@ -176,7 +176,7 @@ def load_runtime_status() -> Dict[str, Any]:
         payload["reason"] = "pid_alive_waiting_for_status"
         payload["has_status"] = True
 
-    return payload
+    return _backfill_report_metadata(payload)
 
 
 def _read_alert_lines() -> list[str]:
@@ -432,6 +432,61 @@ def list_recent_incidents(*, limit: int = 10) -> list[dict[str, Any]]:
     return rows[: max(1, int(limit))]
 
 
+def _report_status_fields(row: dict[str, Any] | None) -> dict[str, Any]:
+    if not row:
+        return {}
+    payload = dict(row.get("payload") or {})
+    json_path = str(row.get("json_path") or "")
+    markdown_path = str(Path(json_path).with_suffix(".md")) if json_path else ""
+    return {
+        "last_report_stem": str(row.get("stem") or ""),
+        "last_severity": str(payload.get("severity") or row.get("severity") or ""),
+        "last_summary": str(payload.get("summary") or row.get("summary") or ""),
+        "last_event_count": int(row.get("event_count") or len(list(payload.get("events") or [])) or 0),
+        "json_path": json_path,
+        "markdown_path": markdown_path,
+    }
+
+
+def _find_report_row(*, stem: str | None = None) -> dict[str, Any] | None:
+    stem_txt = str(stem or "").strip()
+    if stem_txt:
+        json_path = report_root() / f"{stem_txt}.json"
+        if not json_path.exists():
+            return None
+        try:
+            payload = _load_json(json_path)
+        except Exception:
+            return None
+        if str(payload.get("monitor_name") or "") != MONITOR_NAME:
+            return None
+        return {
+            "stem": stem_txt,
+            "generated_at": str(payload.get("generated_at") or ""),
+            "severity": str(payload.get("severity") or "unknown"),
+            "summary": str(payload.get("summary") or "").strip(),
+            "event_count": int(len(list(payload.get("events") or []))),
+            "json_path": str(json_path),
+            "payload": payload,
+        }
+    rows = list_recent_incidents(limit=1)
+    return rows[0] if rows else None
+
+
+def _backfill_report_metadata(payload: Dict[str, Any]) -> Dict[str, Any]:
+    out = dict(payload)
+    current_stem = str(out.get("last_report_stem") or "").strip()
+    row = _find_report_row(stem=current_stem) or _find_report_row()
+    fields = _report_status_fields(row)
+    if not fields:
+        return out
+    stem_missing = not current_stem
+    for key, value in fields.items():
+        if stem_missing or out.get(key) in (None, ""):
+            out[key] = value
+    return out
+
+
 def _status_progress_fields(
     current_status: Dict[str, Any],
     *,
@@ -581,6 +636,11 @@ def run_forever(*, poll_interval_sec: float = 30.0, max_loops: int | None = None
             "incidents_written": incidents_written,
             "pid": current_pid,
             "poll_interval_sec": float(poll_interval_sec),
+            **{
+                key: existing.get(key)
+                for key in ("last_report_stem", "last_severity", "last_summary", "last_event_count", "json_path", "markdown_path")
+                if existing.get(key) not in (None, "")
+            },
         }
     )
 

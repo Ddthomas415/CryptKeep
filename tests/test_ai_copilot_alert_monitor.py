@@ -120,6 +120,124 @@ def test_process_once_idle_preserves_loop_progress_metadata(tmp_path, monkeypatc
     assert status["poll_interval_sec"] == 30.0
 
 
+def test_load_runtime_status_backfills_latest_report_metadata(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    reports = tmp_path / "runtime" / "ai_reports"
+    health = tmp_path / "runtime" / "health"
+    reports.mkdir(parents=True, exist_ok=True)
+    health.mkdir(parents=True, exist_ok=True)
+
+    stem = "ai_alert_monitor_20260507T150000Z"
+    payload = {
+        "monitor_name": alert_monitor.MONITOR_NAME,
+        "generated_at": "2026-05-07T15:00:00+00:00",
+        "severity": "critical",
+        "summary": "pipeline down",
+        "events": [{"event_type": "service_down", "service": "pipeline"}],
+    }
+    (reports / f"{stem}.json").write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    (reports / f"{stem}.md").write_text("# incident\n", encoding="utf-8")
+    (health / "ai_alert_monitor.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "has_status": True,
+                "status": "idle",
+                "incidents_written": 1,
+                "last_report_stem": "",
+                "loops": 5,
+                "pid": 321,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (health / "ai_alert_monitor.pid.json").write_text(
+        json.dumps({"pid": 321, "started_ts": "2026-05-07T14:59:00+00:00", "poll_interval_sec": 30.0}) + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(alert_monitor, "_process_alive", lambda pid: pid == 321)
+
+    status = alert_monitor.load_runtime_status()
+
+    assert status["last_report_stem"] == stem
+    assert status["last_severity"] == "critical"
+    assert status["last_summary"] == "pipeline down"
+    assert status["last_event_count"] == 1
+    assert status["json_path"].endswith(f"{stem}.json")
+    assert status["markdown_path"].endswith(f"{stem}.md")
+
+
+def test_process_once_idle_restores_report_pointer_after_blank_restart_status(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    reports = tmp_path / "runtime" / "ai_reports"
+    health = tmp_path / "runtime" / "health"
+    reports.mkdir(parents=True, exist_ok=True)
+    health.mkdir(parents=True, exist_ok=True)
+
+    stem = "ai_alert_monitor_20260507T160000Z"
+    payload = {
+        "monitor_name": alert_monitor.MONITOR_NAME,
+        "generated_at": "2026-05-07T16:00:00+00:00",
+        "severity": "warn",
+        "summary": "log burst",
+        "events": [{"event_type": "log_match", "log": "pipeline.log"}],
+    }
+    (reports / f"{stem}.json").write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    (reports / f"{stem}.md").write_text("# incident\n", encoding="utf-8")
+    (health / "ai_alert_monitor.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "has_status": True,
+                "status": "running",
+                "incidents_written": 1,
+                "last_report_stem": "",
+                "loops": 0,
+                "errors": 0,
+                "pid": 654,
+                "poll_interval_sec": 30.0,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (health / "ai_alert_monitor.pid.json").write_text(
+        json.dumps({"pid": 654, "started_ts": "2026-05-07T15:59:00+00:00", "poll_interval_sec": 30.0}) + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(alert_monitor, "_process_alive", lambda pid: pid == 654)
+    monkeypatch.setattr(alert_monitor, "canonical_service_status", lambda: {"executor": {"running": True, "pid": 123}})
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "paper",
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"enabled": False},
+        },
+    )
+    monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "executor", "ts_epoch": 1.0})
+    monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "HEALTHY"})
+    monkeypatch.setattr(alert_monitor, "analyze_incident", lambda **_: (_ for _ in ()).throw(AssertionError("should not analyze")))
+
+    out = alert_monitor.process_once(
+        status_context={
+            "loops": 8,
+            "errors": 0,
+            "incidents_written": 1,
+            "pid": 654,
+            "poll_interval_sec": 30.0,
+        }
+    )
+
+    assert out["status"] == "idle"
+    status = alert_monitor.load_runtime_status()
+    assert status["last_report_stem"] == stem
+    assert status["last_summary"] == "log burst"
+    assert status["loops"] == 8
+
+
 def test_process_once_falls_back_when_copilot_unavailable(tmp_path, monkeypatch):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     runtime_alerts = tmp_path / "runtime" / "alerts"
