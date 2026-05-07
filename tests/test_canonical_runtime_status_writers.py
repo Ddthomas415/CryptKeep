@@ -39,6 +39,18 @@ def test_run_intent_executor_writes_status_file(monkeypatch, tmp_path):
     payload = json.loads(mod.STATUS_FILE.read_text(encoding="utf-8"))
     assert payload.get("status") == "stopped"
     assert payload.get("venue") == "coinbase"
+    assert not mod.LOCK_FILE.exists()
+
+
+def test_run_intent_executor_writes_lock_exists_status(monkeypatch, tmp_path):
+    mod = _reload_intent_executor(monkeypatch, tmp_path)
+    monkeypatch.setattr(mod, "_acquire_lock", lambda: False)
+
+    assert mod.main() == 0
+
+    payload = json.loads(mod.STATUS_FILE.read_text(encoding="utf-8"))
+    assert payload.get("reason") == "lock_exists"
+    assert payload.get("lock_file") == str(mod.LOCK_FILE)
 
 
 def test_run_pipeline_loop_writes_status_file(monkeypatch, tmp_path):

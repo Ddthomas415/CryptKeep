@@ -16,19 +16,52 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 import time
 from services.admin.config_editor import load_user_yaml
+from services.control.managed_component import clean_stale_lock_file
 from services.execution.intent_executor import execute_one, reconcile_open
-from services.os.app_paths import runtime_dir
+from services.os.app_paths import ensure_dirs, runtime_dir
 from services.os.file_utils import atomic_write
 
 FLAGS = runtime_dir() / "flags"
+LOCKS = runtime_dir() / "locks"
 STATUS_FILE = FLAGS / "intent_executor.status.json"
+LOCK_FILE = LOCKS / "intent_executor.lock"
 
 
 def _write_status(obj: dict) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
     atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")
 
+
+def _acquire_lock() -> bool:
+    LOCKS.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+            fh.write(json.dumps({"pid": os.getpid(), "ts_epoch": time.time()}, indent=2) + "\n")
+        return True
+    except FileExistsError:
+        if clean_stale_lock_file(LOCK_FILE):
+            try:
+                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+                    fh.write(json.dumps({"pid": os.getpid(), "ts_epoch": time.time()}, indent=2) + "\n")
+                return True
+            except FileExistsError:
+                return False
+        return False
+
+
+def _release_lock() -> None:
+    try:
+        if LOCK_FILE.exists():
+            LOCK_FILE.unlink()
+    except Exception:
+        pass
+
 def main():
+    ensure_dirs()
+    if not _acquire_lock():
+        _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts_epoch": time.time()})
+        return 0
+
     cfg = load_user_yaml()
     ex = cfg.get("execution", {}) if isinstance(cfg.get("execution"), dict) else {}
     venue = ex.get("venue", "coinbase")
@@ -90,6 +123,8 @@ def main():
             }
         )
         return 0
+    finally:
+        _release_lock()
 
 if __name__ == "__main__":
     raise SystemExit(main())
