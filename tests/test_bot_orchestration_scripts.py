@@ -3,82 +3,104 @@ from __future__ import annotations
 from scripts import bot_status, start_bot, stop_bot
 
 
-def test_start_bot_starts_ops_risk_gate_by_default(monkeypatch):
-    started: list[str] = []
-    cmds: dict[str, list[str]] = {}
-    envs: dict[str, dict[str, str] | None] = {}
-    status_calls: list[list[str]] = []
+def test_start_bot_converges_paper_mode_without_live_consumer(monkeypatch):
+    applied: list[dict[str, object]] = []
+    written: list[dict[str, object]] = []
 
-    def _start_process(name, cmd, *, env=None):
-        started.append(str(name))
-        cmds[str(name)] = list(cmd)
-        envs[str(name)] = dict(env) if env else None
-        return {"ok": True, "name": name}
-
+    monkeypatch.setattr(start_bot.rbr, "load_trading_cfg", lambda: {"cfg": True})
     monkeypatch.setattr(
-        start_bot,
-        "start_process",
-        _start_process,
-    )
-    monkeypatch.setattr(
-        start_bot,
-        "_service_envs",
-        lambda: {
-            "pipeline": {"CBP_SYMBOLS": "BTC/USD,ETH/USD"},
-            "executor": {"CBP_SYMBOLS": "BTC/USD,ETH/USD"},
-            "intent_consumer": {"CBP_SYMBOLS": "BTC/USD,ETH/USD"},
+        start_bot.rbr,
+        "desired_state",
+        lambda cfg: {
+            "mode": "paper",
+            "live_enabled": False,
+            "venue": "coinbase",
+            "symbols": ["BTC/USD", "ETH/USD"],
+            "with_reconcile": False,
         },
     )
-    monkeypatch.setattr(start_bot, "status", lambda names: status_calls.append(list(names)) or {})
+    monkeypatch.setattr(
+        start_bot.rbr,
+        "apply_state",
+        lambda state, *, force_restart=False: applied.append({"state": dict(state), "force_restart": force_restart}) or {"ok": True, "started": [], "stopped": [], "status": {}},
+    )
+    monkeypatch.setattr(start_bot.rbr, "state_signature", lambda state: "sig-paper")
+    monkeypatch.setattr(start_bot.rbr, "write_status", lambda payload: written.append(dict(payload)))
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor"]
-    assert cmds["pipeline"] == [start_bot.sys.executable, "scripts/run_pipeline_safe.py"]
-    assert cmds["executor"] == [start_bot.sys.executable, "scripts/run_intent_executor_safe.py"]
-    assert cmds["intent_consumer"] == [start_bot.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
-    assert cmds["ai_alert_monitor"] == [start_bot.sys.executable, "scripts/run_ai_alert_monitor.py"]
-    assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD,ETH/USD"}
-    assert envs["executor"] == {"CBP_SYMBOLS": "BTC/USD,ETH/USD"}
-    assert envs["intent_consumer"] == {"CBP_SYMBOLS": "BTC/USD,ETH/USD"}
-    assert envs["ops_signal_adapter"] is None
-    assert status_calls == [start_bot.ALL_SERVICES]
+    assert applied == [
+        {
+            "state": {
+                "mode": "paper",
+                "live_enabled": False,
+                "venue": "coinbase",
+                "symbols": ["BTC/USD", "ETH/USD"],
+                "with_reconcile": False,
+            },
+            "force_restart": False,
+        }
+    ]
+    assert written[-1]["status"] == "converged"
+    assert written[-1]["one_shot"] is True
+    assert written[-1]["signature"] == "sig-paper"
+    assert written[-1]["state"]["with_reconcile"] is False
 
 
-def test_start_bot_with_reconcile_starts_reconciler(monkeypatch):
-    started: list[str] = []
-    cmds: dict[str, list[str]] = {}
-    envs: dict[str, dict[str, str] | None] = {}
+def test_start_bot_with_reconcile_overrides_state(monkeypatch):
+    applied: list[dict[str, object]] = []
 
-    def _start_process(name, cmd, *, env=None):
-        started.append(str(name))
-        cmds[str(name)] = list(cmd)
-        envs[str(name)] = dict(env) if env else None
-        return {"ok": True, "name": name}
-
+    monkeypatch.setattr(start_bot.rbr, "load_trading_cfg", lambda: {"cfg": True})
     monkeypatch.setattr(
-        start_bot,
-        "start_process",
-        _start_process,
-    )
-    monkeypatch.setattr(
-        start_bot,
-        "_service_envs",
-        lambda: {
-            "pipeline": {"CBP_SYMBOLS": "BTC/USD,SOL/USD"},
-            "executor": {"CBP_SYMBOLS": "BTC/USD,SOL/USD"},
-            "intent_consumer": {"CBP_SYMBOLS": "BTC/USD,SOL/USD"},
-            "reconciler": {"CBP_SYMBOLS": "BTC/USD,SOL/USD"},
+        start_bot.rbr,
+        "desired_state",
+        lambda cfg: {
+            "mode": "paper",
+            "live_enabled": False,
+            "venue": "coinbase",
+            "symbols": ["BTC/USD", "SOL/USD"],
+            "with_reconcile": False,
         },
     )
-    monkeypatch.setattr(start_bot, "status", lambda _names: {})
+    monkeypatch.setattr(
+        start_bot.rbr,
+        "apply_state",
+        lambda state, *, force_restart=False: applied.append({"state": dict(state), "force_restart": force_restart}) or {"ok": True, "started": [], "stopped": [], "status": {}},
+    )
+    monkeypatch.setattr(start_bot.rbr, "state_signature", lambda state: "sig-reconcile")
+    monkeypatch.setattr(start_bot.rbr, "write_status", lambda payload: None)
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py", "--with_reconcile"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "reconciler"]
-    assert cmds["intent_consumer"] == [start_bot.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
-    assert cmds["reconciler"] == [start_bot.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
-    assert envs["reconciler"] == {"CBP_SYMBOLS": "BTC/USD,SOL/USD"}
+    assert applied == [
+        {
+            "state": {
+                "mode": "paper",
+                "live_enabled": False,
+                "venue": "coinbase",
+                "symbols": ["BTC/USD", "SOL/USD"],
+                "with_reconcile": True,
+            },
+            "force_restart": False,
+        }
+    ]
+
+
+def test_start_bot_writes_blocked_status_on_invalid_config(monkeypatch):
+    written: list[dict[str, object]] = []
+
+    monkeypatch.setattr(start_bot.rbr, "load_trading_cfg", lambda: {"cfg": True})
+    monkeypatch.setattr(
+        start_bot.rbr,
+        "desired_state",
+        lambda cfg: (_ for _ in ()).throw(RuntimeError("CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id")),
+    )
+    monkeypatch.setattr(start_bot.rbr, "write_status", lambda payload: written.append(dict(payload)))
+    monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py"])
+
+    assert start_bot.main() == 2
+    assert written[-1]["status"] == "blocked"
+    assert written[-1]["error"] == "CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id"
 
 
 def test_stop_bot_defaults_to_all_services(monkeypatch):

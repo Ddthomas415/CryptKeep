@@ -33,7 +33,7 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 
 ## Current startup behavior shown in source
 
-- `scripts/start_bot.py` starts supervised services; it is not a wrapper around `bot_ctl.py`.
+- `scripts/start_bot.py` performs a one-shot supervised converge; it starts wanted services and stops incompatible managed services for the current config/mode.
 - `scripts/run_intent_consumer_safe.py` and `scripts/run_live_reconciler_safe.py` gate managed `run` mode on `runtime_trading_config_available()` and enter IDLE / SAFE-IDLE on startup failure.
 - `scripts/run_bot_runner.py` derives desired managed services from merged runtime config and writes `runtime/flags/bot_runner.status.json`.
 - supervised symbol scope for `pipeline`, `executor`, `intent_consumer`, and `reconciler` is injected through `CBP_SYMBOLS`.
