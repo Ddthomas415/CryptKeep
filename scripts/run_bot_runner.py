@@ -160,6 +160,10 @@ def _normalize_symbols(value: Any) -> list[str]:
     return out
 
 
+def _canonical_symbol_set(value: Any) -> list[str]:
+    return sorted(_normalize_symbols(value))
+
+
 def _running_service_symbols(name: str) -> list[str]:
     path = SERVICE_STATUS_PATHS.get(name)
     if path is None or not path.exists():
@@ -175,10 +179,10 @@ def _running_service_symbols(name: str) -> list[str]:
 
 
 def _service_symbols_mismatch(name: str, expected_symbols: list[str]) -> bool:
-    current = _running_service_symbols(name)
+    current = _canonical_symbol_set(_running_service_symbols(name))
     if not current:
         return False
-    return current != _normalize_symbols(expected_symbols)
+    return current != _canonical_symbol_set(expected_symbols)
 
 
 def state_signature(state: dict[str, Any]) -> str:
@@ -186,7 +190,7 @@ def state_signature(state: dict[str, Any]) -> str:
         "mode": state.get("mode"),
         "live_enabled": bool(state.get("live_enabled")),
         "venue": state.get("venue"),
-        "symbols": list(state.get("symbols") or []),
+        "symbols": _canonical_symbol_set(state.get("symbols") or []),
         "with_reconcile": bool(state.get("with_reconcile")),
     }
     return json.dumps(payload, sort_keys=True, separators=(",", ":"))

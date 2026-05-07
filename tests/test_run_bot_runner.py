@@ -247,6 +247,52 @@ def test_apply_state_converge_restarts_running_symbol_services_on_mismatch(monke
     assert started == rbr.desired_services(state)
 
 
+def test_apply_state_converge_does_not_restart_on_order_only_symbol_change(monkeypatch):
+    state = {"mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["SOL/USD", "ETH/USD"], "with_reconcile": False}
+
+    started: list[str] = []
+    stopped: list[str] = []
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
+    monkeypatch.setattr(rbr, "start_process", _start_process)
+    monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
+    monkeypatch.setattr(rbr, "is_running", lambda name: name in {"pipeline", "executor"})
+    monkeypatch.setattr(
+        rbr,
+        "_running_service_symbols",
+        lambda name: ["ETH/USD", "SOL/USD"] if name in {"pipeline", "executor"} else [],
+    )
+    monkeypatch.setattr(rbr, "status", lambda names: {n: {"running": n in {"pipeline", "executor"}} for n in names})
+
+    out = rbr.apply_state(state, force_restart=False)
+
+    assert out["ok"] is True
+    assert stopped == []
+    assert started == rbr.desired_services(state)
+
+
+def test_state_signature_ignores_symbol_order():
+    left = {
+        "mode": "paper",
+        "live_enabled": False,
+        "venue": "coinbase",
+        "symbols": ["B3/USD", "B3/USDC"],
+        "with_reconcile": False,
+    }
+    right = {
+        "mode": "paper",
+        "live_enabled": False,
+        "venue": "coinbase",
+        "symbols": ["B3/USDC", "B3/USD"],
+        "with_reconcile": False,
+    }
+
+    assert rbr.state_signature(left) == rbr.state_signature(right)
+
+
 def test_run_loop_once_converges_without_shutdown(monkeypatch):
     guard_calls: list[dict[str, str]] = []
     stopped: list[str] = []
