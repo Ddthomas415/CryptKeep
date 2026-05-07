@@ -7,7 +7,15 @@ One page. What runs, in what order, where evidence goes, what is optional.
 CryptKeep is a safety-first paper and guarded-live trading runtime with evidence,
 reconciliation, promotion gates, and operator controls.
 
-## The canonical runtime
+## Scope note
+
+This page documents the canonical paper evidence campaign lane.
+
+For the current supervised operator control plane and runtime truth, use:
+
+- `docs/CURRENT_RUNTIME_TRUTH.md`
+
+## The canonical paper evidence runtime
 
 ```
 make paper-run-short          # dev/test — 60s, sample OHLCV, proves the path

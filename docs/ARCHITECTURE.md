@@ -15,6 +15,11 @@ Focused architecture note:
 
 - `docs/architecture/multi_symbol_architecture_map.md` — current multi-symbol runtime and ownership map
 
+Current runtime-truth note:
+
+- `docs/CURRENT_RUNTIME_TRUTH.md` is the operator-facing source of truth for supervised startup, stop, and status behavior.
+- `docs/GOLDEN_PATH.md` documents the paper evidence campaign lane, not the whole supervised operator control plane.
+
 ## Major Layers
 
 ### 1. Operator / UI Layer
@@ -39,7 +44,7 @@ It is not the final authority for live-order submission.
 
 ### 2. Strategy Runtime Layer
 
-Current strategy runtime execution centers on:
+Current evidence-oriented strategy runtime lane centers on:
 
 - `services/strategy_runner/ema_crossover_runner.py`
 - `scripts/run_strategy_runner.py`
@@ -57,6 +62,8 @@ This layer is responsible for:
 - writing runtime status for operator surfaces
 
 This layer is not the final live-order boundary.
+
+It is also not the current operator-facing supervised control plane. The current managed runtime truth for `start_bot.py` / `stop_bot.py` / `bot_status.py` lives in `docs/CURRENT_RUNTIME_TRUTH.md`.
 
 ### 3. Market Data Layer
 
