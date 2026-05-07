@@ -32,13 +32,15 @@ def test_desired_state_live_enables_reconcile():
 
 def test_desired_state_paper_disables_reconcile():
     cfg = {
-        "execution": {"executor_mode": "paper", "live_enabled": False},
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
         "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase"},
         "symbols": "btc/usd",
     }
     st = rbr.desired_state(cfg)
     assert st["mode"] == "paper"
     assert st["with_reconcile"] is False
+    assert st["venue"] == "coinbase"
     assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "executor"]
 
 
@@ -54,13 +56,42 @@ def test_desired_state_requires_explicit_exchange_id():
 
     with pytest.raises(RuntimeError) as exc:
         rbr.desired_state(cfg)
-    assert str(exc.value) == "CBP_CONFIG_REQUIRED:missing_config:live.exchange_id"
+    assert str(exc.value) == "CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id"
+
+
+def test_desired_state_paper_prefers_actual_paper_venue_over_live_exchange_id():
+    cfg = {
+        "mode": "paper",
+        "symbols": ["BTC/USD"],
+        "live": {"exchange_id": "binance", "enabled": False},
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase"},
+    }
+
+    st = rbr.desired_state(cfg)
+
+    assert st["venue"] == "coinbase"
+
+
+def test_desired_state_paper_rejects_conflicting_execution_and_pipeline_venues():
+    cfg = {
+        "mode": "paper",
+        "symbols": ["BTC/USD"],
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
+        "pipeline": {"exchange_id": "binance"},
+    }
+
+    with pytest.raises(RuntimeError) as exc:
+        rbr.desired_state(cfg)
+
+    assert str(exc.value) == "CBP_CONFIG_REQUIRED:conflicting_config:execution.venue_vs_pipeline.exchange_id"
 
 
 def test_desired_state_requires_explicit_symbols():
     cfg = {
-        "execution": {"executor_mode": "paper", "live_enabled": False},
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
         "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase"},
     }
 
     with pytest.raises(RuntimeError) as exc:
@@ -132,8 +163,9 @@ def test_run_loop_once_converges_without_shutdown(monkeypatch):
         rbr,
         "load_trading_cfg",
         lambda _path="config/trading.yaml": {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["BTC/USD"],
         },
     )
@@ -194,8 +226,9 @@ def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):
         rbr,
         "load_trading_cfg",
         lambda _path="config/trading.yaml": {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["BTC/USD"],
         },
     )
@@ -236,8 +269,9 @@ def test_run_loop_shutdown_surfaces_guard_failure_but_still_stops(monkeypatch):
         rbr,
         "load_trading_cfg",
         lambda _path="config/trading.yaml": {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["BTC/USD"],
         },
     )

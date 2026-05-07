@@ -59,6 +59,23 @@ def load_trading_cfg(path: str = "config/trading.yaml") -> dict[str, Any]:
     return load_runtime_trading_config(path)
 
 
+def _paper_venue(cfg: dict[str, Any], execution: dict[str, Any]) -> str:
+    pipeline = cfg.get("pipeline") if isinstance(cfg.get("pipeline"), dict) else {}
+    execution_venue = str(execution.get("venue") or "").strip().lower()
+    pipeline_venue = str(pipeline.get("exchange_id") or "").strip().lower()
+    root_venue = str(cfg.get("venue") or "").strip().lower()
+
+    candidates = [v for v in (execution_venue, pipeline_venue, root_venue) if v]
+    if not candidates:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id")
+
+    explicit = {v for v in (execution_venue, pipeline_venue) if v}
+    if len(explicit) > 1:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:conflicting_config:execution.venue_vs_pipeline.exchange_id")
+
+    return execution_venue or pipeline_venue or root_venue
+
+
 def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
     execution = cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}
     mode = str(cfg.get("mode") or "").strip().lower()
@@ -69,9 +86,12 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
 
     live = cfg.get("live") if isinstance(cfg.get("live"), dict) else {}
     live_enabled = bool(execution.get("live_enabled", live.get("enabled", False)))
-    venue = str(live.get("exchange_id") or cfg.get("venue") or "").strip().lower()
-    if not venue:
-        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
+    if mode == "paper" and not live_enabled:
+        venue = _paper_venue(cfg, execution)
+    else:
+        venue = str(live.get("exchange_id") or cfg.get("venue") or "").strip().lower()
+        if not venue:
+            raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
     symbols = _normalize_symbols(cfg.get("symbols"))
     if not symbols:
         raise RuntimeError(r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
