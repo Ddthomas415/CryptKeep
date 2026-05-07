@@ -172,6 +172,25 @@ def _install_signal_handlers() -> None:
             continue
 
 
+def _shutdown_managed_services() -> int:
+    # On shutdown, raise shared halt state before tearing down managed services.
+    system_guard = request_system_guard_halt(writer="bot_runner", reason="bot_runner_shutdown")
+    shutdown = []
+    for name in MANAGED_SERVICES:
+        if is_running(name):
+            shutdown.append(stop_process(name))
+    write_status(
+        {
+            "ok": bool(system_guard.get("ok")),
+            "status": "stopped",
+            "system_guard": system_guard,
+            "stopped": shutdown,
+            "ts_epoch": time.time(),
+        }
+    )
+    return 0
+
+
 def run_loop(*, cfg_path: str = "config/trading.yaml", interval_sec: float = 2.0, once: bool = False) -> int:
     STOP_EVENT.clear()
     _install_signal_handlers()
@@ -211,26 +230,16 @@ def run_loop(*, cfg_path: str = "config/trading.yaml", interval_sec: float = 2.0
         last_sig = sig
 
         if once:
-            break
+            one_shot = dict(result)
+            one_shot["status"] = "converged"
+            one_shot["one_shot"] = True
+            one_shot["ts_epoch"] = time.time()
+            write_status(one_shot)
+            return 0
         if STOP_EVENT.wait(max(0.1, float(interval_sec))):
             break
 
-    # On shutdown, raise shared halt state before tearing down managed services.
-    system_guard = request_system_guard_halt(writer="bot_runner", reason="bot_runner_shutdown")
-    shutdown = []
-    for name in MANAGED_SERVICES:
-        if is_running(name):
-            shutdown.append(stop_process(name))
-    write_status(
-        {
-            "ok": bool(system_guard.get("ok")),
-            "status": "stopped",
-            "system_guard": system_guard,
-            "stopped": shutdown,
-            "ts_epoch": time.time(),
-        }
-    )
-    return 0
+    return _shutdown_managed_services()
 
 
 def main() -> int:

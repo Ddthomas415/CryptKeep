@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+
 import pytest
 
 from scripts import run_bot_runner as rbr
@@ -121,6 +123,68 @@ def test_apply_state_force_restart_restarts_wanted(monkeypatch):
     assert started == rbr.desired_services(state)
 
 
+def test_run_loop_once_converges_without_shutdown(monkeypatch):
+    guard_calls: list[dict[str, str]] = []
+    stopped: list[str] = []
+    statuses: list[dict[str, object]] = []
+
+    monkeypatch.setattr(
+        rbr,
+        "load_trading_cfg",
+        lambda _path="config/trading.yaml": {
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"exchange_id": "coinbase"},
+            "symbols": ["BTC/USD"],
+        },
+    )
+    monkeypatch.setattr(
+        rbr,
+        "apply_state",
+        lambda state, *, force_restart=False: {
+            "ok": True,
+            "force_restart": force_restart,
+            "state": state,
+            "started": [{"name": "pipeline"}],
+            "stopped": [],
+            "status": {},
+        },
+    )
+    monkeypatch.setattr(
+        rbr,
+        "request_system_guard_halt",
+        lambda **kwargs: guard_calls.append(dict(kwargs)) or {"ok": True, "payload": {"state": "HALTING"}},
+    )
+    monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
+    monkeypatch.setattr(rbr, "write_status", lambda payload: statuses.append(dict(payload)))
+
+    assert rbr.run_loop(once=True) == 0
+    assert guard_calls == []
+    assert stopped == []
+    assert statuses[-1]["status"] == "converged"
+    assert statuses[-1]["one_shot"] is True
+
+
+class _StopAfterOneWait:
+    def __init__(self):
+        self._event = threading.Event()
+        self.wait_calls = 0
+
+    def clear(self) -> None:
+        self._event.clear()
+        self.wait_calls = 0
+
+    def is_set(self) -> bool:
+        return self._event.is_set()
+
+    def set(self) -> None:
+        self._event.set()
+
+    def wait(self, _timeout: float) -> bool:
+        self.wait_calls += 1
+        self._event.set()
+        return True
+
+
 def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):
     guard_calls: list[dict[str, str]] = []
     stopped: list[str] = []
@@ -155,8 +219,9 @@ def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):
     monkeypatch.setattr(rbr, "is_running", lambda name: name in {"executor", "reconciler"})
     monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
     monkeypatch.setattr(rbr, "write_status", lambda payload: statuses.append(dict(payload)))
+    monkeypatch.setattr(rbr, "STOP_EVENT", _StopAfterOneWait())
 
-    assert rbr.run_loop(once=True) == 0
+    assert rbr.run_loop(once=False) == 0
     assert guard_calls == [{"writer": "bot_runner", "reason": "bot_runner_shutdown"}]
     assert stopped == ["executor", "reconciler"]
     assert statuses[-1]["status"] == "stopped"
@@ -196,8 +261,9 @@ def test_run_loop_shutdown_surfaces_guard_failure_but_still_stops(monkeypatch):
     monkeypatch.setattr(rbr, "is_running", lambda name: name in {"executor", "reconciler"})
     monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
     monkeypatch.setattr(rbr, "write_status", lambda payload: statuses.append(dict(payload)))
+    monkeypatch.setattr(rbr, "STOP_EVENT", _StopAfterOneWait())
 
-    assert rbr.run_loop(once=True) == 0
+    assert rbr.run_loop(once=False) == 0
     assert stopped == ["executor", "reconciler"]
     assert statuses[-1]["ok"] is False
     assert statuses[-1]["system_guard"]["reason"] == "system_guard_write_failed:RuntimeError"
