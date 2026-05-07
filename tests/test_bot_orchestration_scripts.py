@@ -22,8 +22,10 @@ def test_start_bot_starts_ops_risk_gate_by_default(monkeypatch):
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate"]
+    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate"]
+    assert cmds["pipeline"] == [start_bot.sys.executable, "scripts/run_pipeline_safe.py"]
     assert cmds["executor"] == [start_bot.sys.executable, "scripts/run_intent_executor_safe.py"]
+    assert cmds["intent_consumer"] == [start_bot.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
     assert status_calls == [start_bot.ALL_SERVICES]
 
 
@@ -45,7 +47,8 @@ def test_start_bot_with_reconcile_starts_reconciler(monkeypatch):
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py", "--with_reconcile"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+    assert started == ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+    assert cmds["intent_consumer"] == [start_bot.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
     assert cmds["reconciler"] == [start_bot.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
 
 
