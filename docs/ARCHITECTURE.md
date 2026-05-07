@@ -11,6 +11,10 @@ Crypto Bot Pro is a crypto-first operator platform with four major concerns:
 
 The repo is no longer a read-only market-data phase repo. It contains execution paths, paper trading, reconciliation, authentication, and operator controls.
 
+Focused architecture note:
+
+- `docs/architecture/multi_symbol_architecture_map.md` — current multi-symbol runtime and ownership map
+
 ## Major Layers
 
 ### 1. Operator / UI Layer
