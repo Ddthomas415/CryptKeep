@@ -23,6 +23,7 @@ def _status_map(**running):
         "ops_risk_gate",
         "reconciler",
         "market_ws",
+        "ai_alert_monitor",
     )
     out = {}
     for idx, name in enumerate(names, start=1):

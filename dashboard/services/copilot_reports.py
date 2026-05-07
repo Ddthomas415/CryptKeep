@@ -19,6 +19,8 @@ def _parse_iso(value: Any) -> datetime | None:
 
 
 def _classify_report(payload: dict[str, Any]) -> str:
+    if str(payload.get("monitor_name") or "") == "ai_alert_monitor" and "events" in payload:
+        return "incident_monitor"
     if "risk_tier" in payload and "changed_files" in payload:
         return "repo_review"
     if "runtime" in payload and "place_order_contract" in payload:
@@ -176,6 +178,15 @@ def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, A
         }
         if severity_text in {"warn", "critical"} and details["summary_text"]:
             message = f"{summary} {details['summary_text']}".strip()
+    elif str(kind or "") == "incident_monitor":
+        events = list((payload or {}).get("events") or [])
+        runtime = dict((payload or {}).get("runtime") or {})
+        details = {
+            "event_count": len(events),
+            "stopped_services": list(runtime.get("stopped_services") or []),
+            "running_services": list(runtime.get("running_services") or []),
+            "analysis_mode": str((payload or {}).get("analysis_mode") or "unknown"),
+        }
 
     return {
         "tone": tone,

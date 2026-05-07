@@ -21,16 +21,49 @@ def _safe_sqlite_query(db_path: Path, query: str, limit: int = 20) -> list[dict]
         return []
 
 
+def _recent_alerts(limit: int = 10) -> list[dict]:
+    path = runtime_dir() / "alerts" / "critical_alerts.jsonl"
+    if not path.exists():
+        return []
+    try:
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except Exception:
+        return []
+    entries: list[dict] = []
+    for line in reversed(lines):
+        raw = str(line or "").strip()
+        if not raw:
+            continue
+        try:
+            entries.append(json.loads(raw))
+        except Exception:
+            entries.append({"level": "error", "message": raw})
+        if len(entries) >= int(limit):
+            break
+    return entries
+
+
+def _load_runtime_json(*relative_paths: str) -> dict[str, Any]:
+    for rel_path in relative_paths:
+        path = runtime_dir() / rel_path
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if isinstance(data, dict):
+            return data
+    return {}
+
+
 def collect_incident_context(extra_notes: str = "") -> str:
     ctx: Dict[str, Any] = {
         "collected_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
 
-    guard_path = runtime_dir() / "flags" / "system_guard.json"
-    ctx["system_guard"] = json.loads(guard_path.read_text()) if guard_path.exists() else {"state": "missing"}
-
-    ks_path = runtime_dir() / "flags" / "kill_switch.json"
-    ctx["kill_switch"] = json.loads(ks_path.read_text()) if ks_path.exists() else {"armed": "unknown"}
+    ctx["system_guard"] = _load_runtime_json("system_guard.json", "flags/system_guard.json") or {"state": "missing"}
+    ctx["kill_switch"] = _load_runtime_json("kill_switch.json", "flags/kill_switch.json") or {"armed": "unknown"}
 
     exec_db = data_dir() / "execution.sqlite"
     if exec_db.exists():
@@ -64,6 +97,23 @@ def collect_incident_context(extra_notes: str = "") -> str:
                 pass
     ctx["service_health"] = health
 
+    ctx["recent_alerts"] = _recent_alerts(limit=10)
+
+    runtime_logs: Dict[str, str] = {}
+    runtime_logs_dir = runtime_dir() / "logs"
+    if runtime_logs_dir.exists():
+        for log_path in sorted(runtime_logs_dir.glob("*.log")):
+            try:
+                lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+            except Exception:
+                runtime_logs[log_path.name] = "[unreadable]"
+                continue
+            if lines:
+                runtime_logs[log_path.name] = "\n".join(lines[-20:])
+            if len(runtime_logs) >= 6:
+                break
+    ctx["recent_runtime_logs"] = runtime_logs
+
     log_path = data_dir() / "logs" / "bot.log"
     if log_path.exists():
         try:
@@ -81,6 +131,8 @@ def collect_incident_context(extra_notes: str = "") -> str:
         json.dumps(ctx.get("kill_switch"), indent=2),
         "\n--- Service Health ---",
         json.dumps(ctx.get("service_health"), indent=2),
+        "\n--- Recent Alerts ---",
+        json.dumps(ctx.get("recent_alerts"), indent=2),
         "\n--- Recent Intents ---",
         json.dumps(ctx.get("recent_intents"), indent=2),
         "\n--- Symbol Locks ---",
@@ -89,6 +141,8 @@ def collect_incident_context(extra_notes: str = "") -> str:
         json.dumps(ctx.get("risk_daily"), indent=2),
         "\n--- Recent Lifecycle Events ---",
         json.dumps(ctx.get("recent_lifecycle_events"), indent=2),
+        "\n--- Recent Runtime Logs ---",
+        json.dumps(ctx.get("recent_runtime_logs"), indent=2),
         "\n--- Recent Logs ---",
         ctx.get("recent_logs", "(none)"),
     ]

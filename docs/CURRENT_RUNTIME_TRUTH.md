@@ -1,6 +1,6 @@
 # Current Runtime Truth
 
-**Last updated:** 2026-04-29
+**Last updated:** 2026-05-07
 
 This document is the current operator-facing runtime truth for startup, stop, and status behavior.
 Historical checkpoint records under `docs/checkpoints/` may preserve earlier launch paths and are not canonical unless reaffirmed here.
@@ -29,12 +29,17 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 - `ops_signal_adapter`
 - `ops_risk_gate`
 - `reconciler` when enabled
+- `ai_alert_monitor` for persisted copilot incident monitoring
 
 ## Current startup behavior shown in source
 
 - `scripts/start_bot.py` starts supervised services; it is not a wrapper around `bot_ctl.py`.
 - `scripts/run_intent_consumer_safe.py` and `scripts/run_live_reconciler_safe.py` gate managed `run` mode on `runtime_trading_config_available()` and enter IDLE / SAFE-IDLE on startup failure.
 - `scripts/run_bot_runner.py` derives desired managed services from merged runtime config and writes `runtime/flags/bot_runner.status.json`.
+- supervised symbol scope for `pipeline`, `executor`, `intent_consumer`, and `reconciler` is injected through `CBP_SYMBOLS`.
+- `scripts/run_bot_runner.py` and `scripts/start_bot.py` derive that managed symbol set from `services/runtime/managed_symbol_selection.py`.
+- when `managed_symbols.source=scanner`, paper mode uses scanner-ranked candidates with a refresh cache and preserves only fresh non-zero paper positions plus fresh actionable intents (`queued/submitting/submitted` by default).
+- `runtime/flags/bot_runner.status.json` records `selected_symbols`, `protected_symbols`, and `protected_symbol_details` so operator status shows why a symbol stayed in the managed set.
 - `services/process/bot_runtime_truth.py` no longer silently downgrades to legacy bot state unless `CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK=YES`.
 
 ## Compatibility-only legacy surfaces

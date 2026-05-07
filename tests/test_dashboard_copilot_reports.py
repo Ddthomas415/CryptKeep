@@ -143,3 +143,27 @@ def test_build_copilot_report_focus_marks_strategy_lab_warning_with_runtime_deta
     assert focus["details"]["walk_forward_status"] == "ok"
     assert focus["details"]["walk_forward_window_count"] == 4
     assert focus["details"]["walk_forward_summary"]["avg_test_return_pct"] == 1.6
+
+
+def test_list_copilot_reports_classifies_incident_monitor(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    reports_dir = tmp_path / "runtime" / "ai_reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    (reports_dir / "incident.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-05-06T02:00:00+00:00",
+                "monitor_name": "ai_alert_monitor",
+                "severity": "critical",
+                "summary": "pipeline down",
+                "events": [{"event_type": "service_down", "service": "pipeline"}],
+                "runtime": {"stopped_services": ["pipeline"]},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rows = list_copilot_reports(limit=5)
+
+    assert rows[0]["kind"] == "incident_monitor"

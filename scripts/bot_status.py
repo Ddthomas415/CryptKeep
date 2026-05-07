@@ -13,7 +13,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 from services.runtime.process_supervisor import status
 
-ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler", "ai_alert_monitor"]
 
 
 def main() -> int:

@@ -52,7 +52,7 @@ def is_running(name: str) -> bool:
         _clear_pid(name)
         return False
 
-def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
+def start_process(name: str, cmd: list[str], *, env: Dict[str, str] | None = None) -> Dict[str, object]:
     if is_running(name):
         return {"ok": True, "note": "already_running", "name": name, "pid": _read_pid(name), "cmd": cmd}
 
@@ -68,9 +68,14 @@ def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_fh = open(log_path, "a", buffering=1)
 
+    child_env = os.environ.copy()
+    if env:
+        child_env.update({str(k): str(v) for k, v in env.items()})
+
     proc = subprocess.Popen(
         cmd,
         cwd=str(code_root()),
+        env=child_env,
         stdout=log_fh,
         stderr=log_fh,
         **kwargs,

@@ -15,26 +15,61 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
 import time
-from services.admin.config_editor import load_user_yaml
+from services.config_loader import load_runtime_trading_config
+from services.control.managed_component import clean_stale_lock_file
 from services.execution.intent_executor import execute_one, reconcile_open
-from services.os.app_paths import runtime_dir
+from services.os.app_paths import ensure_dirs, runtime_dir
 from services.os.file_utils import atomic_write
+from services.runtime.managed_symbol_config import resolve_managed_symbols
 
 FLAGS = runtime_dir() / "flags"
+LOCKS = runtime_dir() / "locks"
 STATUS_FILE = FLAGS / "intent_executor.status.json"
+LOCK_FILE = LOCKS / "intent_executor.lock"
 
 
 def _write_status(obj: dict) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
     atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")
 
+
+def _acquire_lock() -> bool:
+    LOCKS.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+            fh.write(json.dumps({"pid": os.getpid(), "ts_epoch": time.time()}, indent=2) + "\n")
+        return True
+    except FileExistsError:
+        if clean_stale_lock_file(LOCK_FILE):
+            try:
+                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
+                    fh.write(json.dumps({"pid": os.getpid(), "ts_epoch": time.time()}, indent=2) + "\n")
+                return True
+            except FileExistsError:
+                return False
+        return False
+
+
+def _release_lock() -> None:
+    try:
+        if LOCK_FILE.exists():
+            LOCK_FILE.unlink()
+    except Exception:
+        pass
+
 def main():
-    cfg = load_user_yaml()
+    ensure_dirs()
+    if not _acquire_lock():
+        _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts_epoch": time.time()})
+        return 0
+
+    cfg = load_runtime_trading_config()
     ex = cfg.get("execution", {}) if isinstance(cfg.get("execution"), dict) else {}
     venue = ex.get("venue", "coinbase")
     venue = (os.environ.get("CBP_VENUE") or venue).lower().strip()
     mode = ex.get("mode", "paper")
-    symbol = ex.get("symbol", None)
+    symbols = resolve_managed_symbols(cfg)
+    reconcile_symbol = symbols[0] if len(symbols) == 1 else None
     interval = int(ex.get("loop_interval_sec", 2) or 2)
     reconcile_every = int(ex.get("reconcile_every_sec", 30) or 30)
 
@@ -47,6 +82,8 @@ def main():
             "pid": os.getpid(),
             "venue": venue,
             "mode": mode,
+            "symbol": reconcile_symbol,
+            "symbols": symbols,
             "ts_epoch": time.time(),
             "loops": loops,
         }
@@ -60,7 +97,7 @@ def main():
                     cfg,
                     venue=str(venue),
                     mode=str(mode),
-                    symbol=(str(symbol) if symbol else None),
+                    symbol=reconcile_symbol,
                     limit=400,
                 )
                 last_recon = now
@@ -72,6 +109,8 @@ def main():
                     "pid": os.getpid(),
                     "venue": venue,
                     "mode": mode,
+                    "symbol": reconcile_symbol,
+                    "symbols": symbols,
                     "ts_epoch": now,
                     "loops": loops,
                 }
@@ -85,11 +124,15 @@ def main():
                 "pid": os.getpid(),
                 "venue": venue,
                 "mode": mode,
+                "symbol": reconcile_symbol,
+                "symbols": symbols,
                 "ts_epoch": time.time(),
                 "loops": loops,
             }
         )
         return 0
+    finally:
+        _release_lock()
 
 if __name__ == "__main__":
     raise SystemExit(main())

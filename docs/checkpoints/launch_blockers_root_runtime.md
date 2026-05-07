@@ -76,6 +76,17 @@ Close condition:
 - supervised `pipeline` startup captures stdout/stderr to a durable runtime log, for example `runtime/logs/pipeline.log`
 - pipeline unhandled exits leave a failure status or log entry that includes the exception/reason before any live run is considered ready
 
+### P3A. Canonical AI alert monitor and runtime log analysis
+Problem:
+- the repo-wide oversight watch is read-only and one-shot, not a continuous monitor
+- dashboard and CLI copilot surfaces are split between different context builders
+- AI incident analysis is not wired to `runtime/alerts/critical_alerts.jsonl`, current service status files, or the runtime log directory used by active services
+
+Close condition:
+- one canonical AI monitor watches `runtime/alerts/critical_alerts.jsonl`, status files, and selected runtime logs
+- new alert-worthy events trigger persisted operator-facing incident reports under `runtime/ai_reports/`
+- CLI and dashboard both expose the monitor status and recent incident surface
+
 ### A. Align docs/config with actual supported state
 Evidence:
 - config/trading.yaml now states that paper is the default and that live-capable surfaces exist, but live readiness is not yet established
