@@ -36,6 +36,7 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 - `scripts/start_bot.py` starts supervised services; it is not a wrapper around `bot_ctl.py`.
 - `scripts/run_intent_consumer_safe.py` and `scripts/run_live_reconciler_safe.py` gate managed `run` mode on `runtime_trading_config_available()` and enter IDLE / SAFE-IDLE on startup failure.
 - `scripts/run_bot_runner.py` derives desired managed services from merged runtime config and writes `runtime/flags/bot_runner.status.json`.
+- supervised symbol scope for `pipeline` and `executor` is resolved from `CBP_SYMBOLS`, then `execution.symbols` / `pipeline.symbols`, then legacy fallback symbol fields.
 - `services/process/bot_runtime_truth.py` no longer silently downgrades to legacy bot state unless `CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK=YES`.
 
 ## Compatibility-only legacy surfaces

@@ -32,15 +32,16 @@ def test_desired_state_live_enables_reconcile():
 
 def test_desired_state_paper_disables_reconcile():
     cfg = {
-        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
         "live": {"exchange_id": "coinbase"},
-        "pipeline": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
         "symbols": "btc/usd",
     }
     st = rbr.desired_state(cfg)
     assert st["mode"] == "paper"
     assert st["with_reconcile"] is False
     assert st["venue"] == "coinbase"
+    assert st["symbols"] == ["BTC/USD", "ETH/USD"]
     assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "executor"]
 
 
@@ -98,6 +99,19 @@ def test_desired_state_requires_explicit_symbols():
     with pytest.raises(RuntimeError) as exc:
         rbr.desired_state(cfg)
     assert str(exc.value) == r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]"
+
+
+def test_desired_state_prefers_supervised_symbol_lists_over_root_symbols():
+    cfg = {
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
+        "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
+        "symbols": ["BTC/USDT", "ETH/USDT"],
+    }
+
+    st = rbr.desired_state(cfg)
+
+    assert st["symbols"] == ["BTC/USD", "ETH/USD"]
 
 
 def test_apply_state_converges_services(monkeypatch):

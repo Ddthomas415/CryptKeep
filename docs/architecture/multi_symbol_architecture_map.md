@@ -7,7 +7,7 @@ This note maps the repo's current multi-symbol surfaces. It is intentionally nar
 ## Executive summary
 
 - The repo has real multi-symbol components.
-- The current supervised bot runtime is not a fully multi-symbol execution architecture.
+- The current supervised bot runtime can now fan out across an explicit managed symbol list.
 - The only visible in-process multi-symbol execution loop lives in `services/strategy_runner/ema_crossover_runner.py`.
 - Symbol scanning, rotation, and dynamic selection are upstream analytics surfaces, not execution-wired runtime truth.
 - `live_trader_multi` exists, but the current implementation is dry-run gated and not part of the canonical managed service set.
@@ -32,16 +32,16 @@ Source:
 Multi-symbol shape in this lane:
 
 - `scripts/run_bot_runner.py` loads `cfg["symbols"]` and preserves the normalized list in desired state.
-- `scripts/run_pipeline_loop.py` reads the symbol list, but then picks exactly one symbol via `pipeline.symbol` or `symbols[0]`.
-- `scripts/run_intent_executor.py` reads one `execution.symbol` value for its periodic `reconcile_open(...)` filter.
+- `scripts/run_pipeline_loop.py` resolves managed symbols from `CBP_SYMBOLS`, then `execution.symbols` / `pipeline.symbols`, then legacy fallback fields, and builds one pipeline instance per symbol.
+- `scripts/run_intent_executor.py` resolves the same managed symbol set and removes the reconcile symbol filter when more than one managed symbol is active.
 - `services/execution/intent_executor.py` claims queue work by venue/mode, and each claimed intent carries its own `symbol`.
 
 Current conclusion:
 
 - This supervised lane is config-aware of symbol lists.
-- The active `pipeline` service is still single-symbol per process instance.
-- The `executor` can submit whichever symbol is present on the claimed intent, but the supervised lane does not show one clearly documented multi-symbol intent producer in the same runtime family.
-- Current canonical bot control is therefore not a clearly unified end-to-end multi-symbol execution architecture.
+- The active `pipeline` service can now evaluate a managed list of symbols in one supervised process.
+- The `executor` can submit whichever symbol is present on the claimed intent and reconcile either one managed symbol or the full managed set.
+- Current canonical bot control is materially closer to end-to-end multi-symbol paper readiness, but candidate selection and broader ownership questions are still separate.
 
 ## 2. Strategy-runner multi-symbol lane
 
@@ -133,7 +133,7 @@ Config symbols list
   |
   +-- supervised bot runtime
   |     run_bot_runner -> pipeline + executor/intent_consumer
-  |     current behavior: pipeline is single-symbol; executor consumes queued intents by symbol
+  |     current behavior: pipeline fans out across managed symbols; executor consumes queued intents by symbol
   |
   +-- strategy runner lane
   |     run_strategy_runner -> ema_crossover_runner
@@ -151,7 +151,7 @@ Config symbols list
 ## 8. What is true today
 
 - The repo supports symbol lists in config.
-- The current supervised runtime does not execute those symbols end-to-end in one canonical multi-symbol flow.
+- The current supervised runtime can execute an explicit managed symbol list in the `pipeline` / `executor` paper path.
 - The older strategy-runner lane does have a real multi-symbol loop.
 - Multi-symbol candidate selection is not yet the execution authority.
 - A canonical multi-symbol architecture decision is still outstanding.

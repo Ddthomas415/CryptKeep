@@ -27,6 +27,7 @@ from services.runtime.process_supervisor import (
     status,
     stop_process,
 )
+from services.runtime.managed_symbol_config import resolve_managed_symbols
 
 MANAGED_SERVICES = (
     "pipeline",
@@ -39,21 +40,6 @@ MANAGED_SERVICES = (
 )
 STATUS_PATH = runtime_dir() / "flags" / "bot_runner.status.json"
 STOP_EVENT = threading.Event()
-
-
-def _normalize_symbol(sym: str) -> str:
-    return str(sym).strip().upper().replace("-", "/")
-
-
-def _normalize_symbols(value: Any) -> list[str]:
-    if isinstance(value, str):
-        parts = [x.strip() for x in value.split(",") if x.strip()]
-    elif isinstance(value, list):
-        parts = [str(x).strip() for x in value if str(x).strip()]
-    else:
-        parts = []
-    out = [_normalize_symbol(x) for x in parts]
-    return out
 
 
 def load_trading_cfg(path: str = "config/trading.yaml") -> dict[str, Any]:
@@ -93,7 +79,7 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
         venue = str(live.get("exchange_id") or cfg.get("venue") or "").strip().lower()
         if not venue:
             raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
-    symbols = _normalize_symbols(cfg.get("symbols"))
+    symbols = resolve_managed_symbols(cfg)
     if not symbols:
         raise RuntimeError(r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
     with_reconcile = mode == "live" or live_enabled

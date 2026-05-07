@@ -76,6 +76,9 @@ execution:
   executor_mode: paper
   venue: coinbase
   symbol: BTC/USD
+  symbols:
+    - BTC/USD
+    - ETH/USD
   loop_interval_sec: 2
   reconcile_every_sec: 30
 
@@ -86,6 +89,9 @@ pipeline:
   strategy: ema
   exchange_id: coinbase
   symbol: BTC/USD
+  symbols:
+    - BTC/USD
+    - ETH/USD
   timeframe: 5m
   ohlcv_limit: 200
   ema_fast: 12
