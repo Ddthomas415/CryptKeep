@@ -4,6 +4,7 @@ import json
 import os
 # CBP_BOOTSTRAP_SYS_PATH
 import sys
+import traceback
 from pathlib import Path
 try:
     from _bootstrap import add_repo_root_to_syspath
@@ -78,6 +79,8 @@ def main() -> int:
 
     print({"ok": True, "note": "pipeline_loop_start", "poll_sec": poll, "strategy": str(pipe.get("strategy") or "ema"), "exchange": p.cfg.exchange_id if hasattr(p, "cfg") else None, "symbol": symbol})
     loops = 0
+    errors = 0
+    last_result: dict = {}
     _write_status(
         {
             "ok": True,
@@ -88,13 +91,28 @@ def main() -> int:
             "symbol": symbol,
             "ts_epoch": time.time(),
             "loops": loops,
+            "errors": errors,
         }
     )
     try:
         while True:
-            out = p.run_once()
-            print(out)
-            loops += 1
+            try:
+                out = p.run_once()
+                last_result = out if isinstance(out, dict) else {"ok": True, "result": out}
+                print(last_result)
+                loops += 1
+            except KeyboardInterrupt:
+                raise
+            except Exception as exc:
+                errors += 1
+                last_result = {
+                    "ok": False,
+                    "note": "run_once_failed",
+                    "error_type": type(exc).__name__,
+                    "error": str(exc),
+                }
+                print(last_result)
+                traceback.print_exc()
             _write_status(
                 {
                     "ok": True,
@@ -105,7 +123,10 @@ def main() -> int:
                     "symbol": symbol,
                     "ts_epoch": time.time(),
                     "loops": loops,
-                    "last_result": out,
+                    "errors": errors,
+                    "last_ok": bool(last_result.get("ok")),
+                    "last_reason": str(last_result.get("note") or ""),
+                    "last_result": last_result,
                 }
             )
             time.sleep(poll)
@@ -120,6 +141,10 @@ def main() -> int:
                 "symbol": symbol,
                 "ts_epoch": time.time(),
                 "loops": loops,
+                "errors": errors,
+                "last_ok": bool(last_result.get("ok", True)),
+                "last_reason": str(last_result.get("note") or ""),
+                "last_result": last_result,
             }
         )
         return 0
