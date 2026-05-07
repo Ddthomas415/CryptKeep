@@ -43,16 +43,27 @@ def _recent_alerts(limit: int = 10) -> list[dict]:
     return entries
 
 
+def _load_runtime_json(*relative_paths: str) -> dict[str, Any]:
+    for rel_path in relative_paths:
+        path = runtime_dir() / rel_path
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if isinstance(data, dict):
+            return data
+    return {}
+
+
 def collect_incident_context(extra_notes: str = "") -> str:
     ctx: Dict[str, Any] = {
         "collected_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
 
-    guard_path = runtime_dir() / "flags" / "system_guard.json"
-    ctx["system_guard"] = json.loads(guard_path.read_text()) if guard_path.exists() else {"state": "missing"}
-
-    ks_path = runtime_dir() / "flags" / "kill_switch.json"
-    ctx["kill_switch"] = json.loads(ks_path.read_text()) if ks_path.exists() else {"armed": "unknown"}
+    ctx["system_guard"] = _load_runtime_json("system_guard.json", "flags/system_guard.json") or {"state": "missing"}
+    ctx["kill_switch"] = _load_runtime_json("kill_switch.json", "flags/kill_switch.json") or {"armed": "unknown"}
 
     exec_db = data_dir() / "execution.sqlite"
     if exec_db.exists():
