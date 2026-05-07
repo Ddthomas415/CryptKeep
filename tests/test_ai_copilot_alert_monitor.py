@@ -84,6 +84,42 @@ def test_process_once_idle_without_new_events(tmp_path, monkeypatch):
     assert out["reason"] == "no_new_events"
 
 
+def test_process_once_idle_preserves_loop_progress_metadata(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setattr(alert_monitor, "canonical_service_status", lambda: {"executor": {"running": True, "pid": 123}})
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "paper",
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"enabled": False},
+        },
+    )
+    monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "executor", "ts_epoch": 1.0})
+    monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "HEALTHY"})
+    monkeypatch.setattr(alert_monitor, "analyze_incident", lambda **_: (_ for _ in ()).throw(AssertionError("should not analyze")))
+
+    out = alert_monitor.process_once(
+        status_context={
+            "loops": 17,
+            "errors": 2,
+            "incidents_written": 3,
+            "pid": 456,
+            "poll_interval_sec": 30.0,
+        }
+    )
+
+    assert out["status"] == "idle"
+    status = alert_monitor.load_runtime_status()
+    assert status["status"] == "idle"
+    assert status["loops"] == 17
+    assert status["errors"] == 2
+    assert status["incidents_written"] == 3
+    assert status["pid"] == 456
+    assert status["poll_interval_sec"] == 30.0
+
+
 def test_process_once_falls_back_when_copilot_unavailable(tmp_path, monkeypatch):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     runtime_alerts = tmp_path / "runtime" / "alerts"

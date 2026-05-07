@@ -432,9 +432,30 @@ def list_recent_incidents(*, limit: int = 10) -> list[dict[str, Any]]:
     return rows[: max(1, int(limit))]
 
 
-def process_once() -> Dict[str, Any]:
+def _status_progress_fields(
+    current_status: Dict[str, Any],
+    *,
+    status_context: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    context = dict(status_context or {})
+    payload: Dict[str, Any] = {"has_status": True}
+    for key in ("loops", "errors", "pid"):
+        if key in context:
+            payload[key] = context.get(key)
+        elif key in current_status:
+            payload[key] = current_status.get(key)
+    if "poll_interval_sec" in context:
+        payload["poll_interval_sec"] = float(context.get("poll_interval_sec") or 0.0)
+    elif "poll_interval_sec" in current_status:
+        payload["poll_interval_sec"] = float(current_status.get("poll_interval_sec") or 0.0)
+    return payload
+
+
+def process_once(*, status_context: Dict[str, Any] | None = None) -> Dict[str, Any]:
     ensure_dirs()
     current_status = load_runtime_status()
+    progress = _status_progress_fields(current_status, status_context=status_context)
+    base_incidents = int((status_context or {}).get("incidents_written") or current_status.get("incidents_written") or 0)
     cursor = _load_cursor()
     alert_events, alert_count = _new_alert_events(int(cursor.get("alert_line_count") or 0))
     log_events, log_counts = _new_log_events(dict(cursor.get("log_line_counts") or {}))
@@ -464,9 +485,9 @@ def process_once() -> Dict[str, Any]:
             "reason": "no_new_events",
             "ts": _now_iso(),
             "last_report_stem": str(current_status.get("last_report_stem") or ""),
-            "incidents_written": int(current_status.get("incidents_written") or 0),
+            "incidents_written": base_incidents,
         }
-        _write_status({**dict(current_status), **out})
+        _write_status({**dict(current_status), **progress, **out})
         return out
 
     severity = _event_severity(events)
@@ -501,11 +522,10 @@ def process_once() -> Dict[str, Any]:
         "runtime": runtime,
     }
     paths = _write_incident_report(payload, stem=stem)
-    incidents_written = int(current_status.get("incidents_written") or 0) + 1
+    incidents_written = base_incidents + 1
     _write_status(
         {
             "ok": True,
-            "has_status": True,
             "status": "running",
             "ts": _now_iso(),
             "last_reason": "incident_written",
@@ -519,7 +539,7 @@ def process_once() -> Dict[str, Any]:
             "model": analysis_result.get("model"),
             "json_path": paths["json_path"],
             "markdown_path": paths["markdown_path"],
-            "pid": os.getpid(),
+            **progress,
         }
     )
     return {"ok": True, "status": "incident_written", "severity": severity, "summary": summary, "report_stem": stem, "event_count": len(events)}
@@ -584,7 +604,15 @@ def run_forever(*, poll_interval_sec: float = 30.0, max_loops: int | None = None
             return out
 
         try:
-            last_result = process_once()
+            last_result = process_once(
+                status_context={
+                    "loops": loops,
+                    "errors": errors,
+                    "incidents_written": incidents_written,
+                    "pid": current_pid,
+                    "poll_interval_sec": float(poll_interval_sec),
+                }
+            )
             if str(last_result.get("status") or "") == "incident_written":
                 incidents_written += 1
         except Exception as exc:
