@@ -5,7 +5,17 @@ Shared file I/O utilities — safe atomic writes for all runtime state.
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
+
+
+def _sibling_temp_path(path: Path) -> tuple[int, Path]:
+    fd, raw_path = tempfile.mkstemp(
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        dir=str(path.parent),
+    )
+    return fd, Path(raw_path)
 
 
 def atomic_write(path: Path, text: str, *, encoding: str = "utf-8") -> None:
@@ -16,9 +26,10 @@ def atomic_write(path: Path, text: str, *, encoding: str = "utf-8") -> None:
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
+    fd, tmp = _sibling_temp_path(path)
     try:
-        tmp.write_text(text, encoding=encoding)
+        with os.fdopen(fd, "w", encoding=encoding) as handle:
+            handle.write(text)
         os.replace(tmp, path)
     except Exception:
         # Best-effort cleanup of temp file on failure
@@ -33,9 +44,10 @@ def atomic_write_bytes(path: Path, data: bytes) -> None:
     """Byte-level variant of atomic_write."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
+    fd, tmp = _sibling_temp_path(path)
     try:
-        tmp.write_bytes(data)
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
         os.replace(tmp, path)
     except Exception:
         try:
