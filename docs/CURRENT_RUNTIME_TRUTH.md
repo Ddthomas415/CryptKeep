@@ -38,7 +38,8 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 - `scripts/run_bot_runner.py` derives desired managed services from merged runtime config and writes `runtime/flags/bot_runner.status.json`.
 - supervised symbol scope for `pipeline`, `executor`, `intent_consumer`, and `reconciler` is injected through `CBP_SYMBOLS`.
 - `scripts/run_bot_runner.py` and `scripts/start_bot.py` derive that managed symbol set from `services/runtime/managed_symbol_selection.py`.
-- when `managed_symbols.source=scanner`, paper mode uses scanner-ranked candidates with a refresh cache and preserves busy symbols that still have open paper positions or non-terminal intents.
+- when `managed_symbols.source=scanner`, paper mode uses scanner-ranked candidates with a refresh cache and preserves only fresh non-zero paper positions plus fresh actionable intents (`queued/submitting/submitted` by default).
+- `runtime/flags/bot_runner.status.json` records `selected_symbols`, `protected_symbols`, and `protected_symbol_details` so operator status shows why a symbol stayed in the managed set.
 - `services/process/bot_runtime_truth.py` no longer silently downgrades to legacy bot state unless `CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK=YES`.
 
 ## Compatibility-only legacy surfaces

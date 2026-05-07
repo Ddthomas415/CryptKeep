@@ -76,7 +76,7 @@ Current wiring shape:
 
 - `docs/symbol_scanner.md` predates the current supervised-paper wiring and is now stale on that point.
 - `services/runtime/dynamic_symbol_selector.py` selects a ranked list of tradeable symbols from scanner output.
-- `services/runtime/managed_symbol_selection.py` is the current caller and uses a refresh-cached scanner result plus active-symbol preservation in paper mode.
+- `services/runtime/managed_symbol_selection.py` is the current caller and uses a refresh-cached scanner result plus freshness-bounded active-symbol preservation in paper mode.
 - `services/market_data/rotation_engine.py` is used by dashboard pages and a backtest selector, not by the supervised execution runtime.
 
 Current conclusion:

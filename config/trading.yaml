@@ -32,6 +32,12 @@ managed_symbols:
   min_change_pct: 2.5
   min_volume_24h: 100000.0
   preserve_active: true
+  preserve_position_max_age_sec: 604800.0
+  preserve_intent_max_age_sec: 86400.0
+  preserve_intent_statuses:
+    - queued
+    - submitting
+    - submitted
 
 strategy:
   type: ema_crossover

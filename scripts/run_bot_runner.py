@@ -100,6 +100,7 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
         "symbol_reason": str(selection.get("reason") or ""),
         "selected_symbols": list(selection.get("selected_symbols") or []),
         "protected_symbols": list(selection.get("protected_symbols") or []),
+        "protected_symbol_details": list(selection.get("protected_symbol_details") or []),
         "scan_ok": selection.get("scan_ok"),
     }
 

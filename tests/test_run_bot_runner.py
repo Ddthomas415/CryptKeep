@@ -55,6 +55,9 @@ def test_desired_state_surfaces_symbol_selection_metadata(monkeypatch):
             "reason": "scanner_selected_cached",
             "selected_symbols": ["SOL/USD"],
             "protected_symbols": ["BTC/USD"],
+            "protected_symbol_details": [
+                {"symbol": "BTC/USD", "reasons": [{"source": "intent_queue", "status": "queued", "age_sec": 12.0}]}
+            ],
             "scan_ok": True,
         },
     )
@@ -71,6 +74,9 @@ def test_desired_state_surfaces_symbol_selection_metadata(monkeypatch):
     assert st["symbol_reason"] == "scanner_selected_cached"
     assert st["selected_symbols"] == ["SOL/USD"]
     assert st["protected_symbols"] == ["BTC/USD"]
+    assert st["protected_symbol_details"] == [
+        {"symbol": "BTC/USD", "reasons": [{"source": "intent_queue", "status": "queued", "age_sec": 12.0}]}
+    ]
     assert st["scan_ok"] is True
 
 
