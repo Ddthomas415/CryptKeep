@@ -37,3 +37,17 @@ Safety:
 - does not arm live trading
 - does not write config
 - does not touch databases
+
+AI alert monitor:
+
+```bash
+python3 scripts/run_ai_alert_monitor.py --status
+python3 scripts/run_ai_alert_monitor.py --recent
+python3 scripts/run_ai_alert_monitor.py --once
+```
+
+What it adds:
+- watches `runtime/alerts/critical_alerts.jsonl`
+- scans current runtime service logs for fresh error-like lines
+- persists operator-facing incident reports under `runtime/ai_reports/`
+- exposes monitor status and recent incidents to the dashboard and CLI
