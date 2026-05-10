@@ -47,6 +47,8 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 - Section 4.1 of the launch checklist is a **paper supervised soak** gate, not a full live-path rehearsal.
 - In paper mode, `intent_consumer` is not expected to run, and `reconciler` is not expected when `with_reconcile=false`.
 - The current companion interpretation note for Section 4.1 is [PAPER_SOAK_GATE.md](./PAPER_SOAK_GATE.md).
+- The current safe repo-work workflow during an active soak is documented in
+  [SAFE_WORKTREE_DURING_SOAK.md](./SAFE_WORKTREE_DURING_SOAK.md).
 - The current read-only evidence surface for that gate is `python scripts/report_supervised_soak_status.py`.
 
 ## Compatibility-only legacy surfaces

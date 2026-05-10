@@ -281,6 +281,8 @@ If the audit begins while a paper soak is still active:
 - start with **Runtime Control Plane**
 - then **Paper Soak and Runtime Evidence**
 - then **Dashboard and Operator UI**
+- run the audit from a side worktree instead of the active soak checkout:
+  [SAFE_WORKTREE_DURING_SOAK.md](../SAFE_WORKTREE_DURING_SOAK.md)
 
 That order gives the operator-facing truth surfaces first, before deeper
 subsystem review.

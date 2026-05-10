@@ -84,6 +84,8 @@ choose:
 Until those decisions are written into the checklist itself:
 
 - continue the paper supervised soak unchanged
+- do Git-side repo work from a separate checkout, as documented in
+  [SAFE_WORKTREE_DURING_SOAK.md](./SAFE_WORKTREE_DURING_SOAK.md)
 - use `python scripts/report_supervised_soak_status.py` as the operator-facing
   evidence surface
 - record the current running soak state, not only the current desired scanner
