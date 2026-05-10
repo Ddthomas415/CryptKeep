@@ -9,6 +9,10 @@ multiple passes without requiring a single all-at-once review.
 This is a planning artifact. It is **not** a claim that the listed sections
 have already been audited to completion.
 
+Current handoff artifact:
+
+- [next_agent_handoff_2026_05_10.md](./next_agent_handoff_2026_05_10.md)
+
 ## How to use this document
 
 For each section:
