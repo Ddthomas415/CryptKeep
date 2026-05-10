@@ -21,6 +21,7 @@ Use `make script-index` for a quick operational reference.
 | Script | Purpose |
 |---|---|
 | `report_paper_run_diagnostics.py` | Paper run diagnostic report |
+| `report_supervised_soak_status.py` | Supervised paper-soak Section 4.1 status report |
 | `review_candidate_outcomes.py` | Candidate outcome review |
 | `ingest_evidence.py` | Ingest external evidence |
 | `export_diagnostics.py` | Export system diagnostics |

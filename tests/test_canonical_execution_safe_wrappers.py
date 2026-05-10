@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from scripts import run_intent_consumer_safe as consumer_safe
 from scripts import run_live_reconciler_safe as reconciler_safe
+from scripts import run_pipeline_safe as pipeline_safe
 
 
 def test_intent_consumer_run_mode_nonzero_exit_enters_safe_idle(monkeypatch):
@@ -65,4 +66,32 @@ def test_live_reconciler_invalid_args_do_not_enter_safe_idle(monkeypatch):
     monkeypatch.setattr(reconciler_safe.runpy, "run_module", _raise_exit)
 
     assert reconciler_safe.main(["--bad-flag"]) == 2
+    assert not any("SAFE-IDLE" in message for message in messages)
+
+
+def test_pipeline_nonzero_exit_enters_safe_idle(monkeypatch):
+    messages: list[str] = []
+
+    def _raise_exit(*_args, **_kwargs):
+        raise SystemExit(2)
+
+    def _raise_keyboard_interrupt(_seconds: float) -> None:
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(pipeline_safe, "log", messages.append)
+    monkeypatch.setattr(pipeline_safe, "runtime_trading_config_available", lambda: True)
+    monkeypatch.setattr(pipeline_safe.runpy, "run_module", _raise_exit)
+    monkeypatch.setattr(pipeline_safe.time, "sleep", _raise_keyboard_interrupt)
+
+    assert pipeline_safe.main([]) == 0
+    assert any("exited nonzero" in message for message in messages)
+    assert any("SAFE-IDLE" in message for message in messages)
+
+
+def test_pipeline_invalid_args_do_not_enter_safe_idle(monkeypatch):
+    messages: list[str] = []
+
+    monkeypatch.setattr(pipeline_safe, "log", messages.append)
+
+    assert pipeline_safe.main(["--bad-flag"]) == 2
     assert not any("SAFE-IDLE" in message for message in messages)

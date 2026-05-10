@@ -142,6 +142,31 @@ with st.container(border=True):
         "Read-only analysis of current system state. "
         "The copilot cannot arm trading, submit orders, or modify any data."
     )
+    try:
+        from services.ai_copilot.alert_monitor import load_runtime_status as _load_ai_alert_monitor_status
+        from services.ai_copilot.alert_monitor import list_recent_incidents as _list_ai_alert_monitor_incidents
+
+        _ai_monitor_status = _load_ai_alert_monitor_status()
+        _recent_monitor_incidents = _list_ai_alert_monitor_incidents(limit=3)
+    except Exception as _exc:
+        _ai_monitor_status = {"ok": False, "status": "error", "reason": str(_exc)}
+        _recent_monitor_incidents = []
+
+    _mon0, _mon1, _mon2 = st.columns(3)
+    _mon0.metric("AI Monitor", str(_ai_monitor_status.get("status") or "unknown"))
+    _mon1.metric("Incidents", str(int(_ai_monitor_status.get("incidents_written") or 0)))
+    _mon2.metric("Last Report", str(_ai_monitor_status.get("last_report_stem") or "none"))
+    if _recent_monitor_incidents:
+        with st.expander("Recent AI Monitor Incidents", expanded=False):
+            for _row in _recent_monitor_incidents:
+                st.write(
+                    {
+                        "generated_at": str(_row.get("generated_at") or ""),
+                        "severity": str(_row.get("severity") or "unknown"),
+                        "summary": str(_row.get("summary") or ""),
+                        "event_count": int(_row.get("event_count") or 0),
+                    }
+                )
     _cop_question = st.text_area(
         "Ask the copilot",
         placeholder="e.g. Why are intents staying in submitted state? What's causing the symbol lock on BTC/USDT?",

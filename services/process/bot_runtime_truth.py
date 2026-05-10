@@ -23,7 +23,7 @@ BOT_RUNNING_SERVICES = (
     "reconciler",
 )
 
-CANONICAL_SERVICES = BOT_RUNNING_SERVICES + ("market_ws",)
+CANONICAL_SERVICES = BOT_RUNNING_SERVICES + ("market_ws", "ai_alert_monitor")
 
 CANONICAL_STATUS_FILES = {
     "bot_runner": FLAGS / "bot_runner.status.json",
