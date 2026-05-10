@@ -62,6 +62,7 @@ Current related artifact:
 - [runtime_dashboard_audit_todo.md](./runtime_dashboard_audit_todo.md)
 - [dashboard_runtime_digest_audit_pass1.md](./dashboard_runtime_digest_audit_pass1.md)
 - [dashboard_overview_provenance_audit_pass1.md](./dashboard_overview_provenance_audit_pass1.md)
+- [dashboard_markets_signals_copilot_audit_pass1.md](./dashboard_markets_signals_copilot_audit_pass1.md)
 - [dashboard_operator_ui_audit_pass1.md](./dashboard_operator_ui_audit_pass1.md)
 - [runtime_control_plane_audit_pass1.md](./runtime_control_plane_audit_pass1.md)
 
