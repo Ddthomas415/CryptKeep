@@ -42,6 +42,13 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 - `runtime/flags/bot_runner.status.json` records `selected_symbols`, `protected_symbols`, and `protected_symbol_details` so operator status shows why a symbol stayed in the managed set.
 - `services/process/bot_runtime_truth.py` no longer silently downgrades to legacy bot state unless `CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK=YES`.
 
+## Paper soak interpretation
+
+- Section 4.1 of the launch checklist is a **paper supervised soak** gate, not a full live-path rehearsal.
+- In paper mode, `intent_consumer` is not expected to run, and `reconciler` is not expected when `with_reconcile=false`.
+- The current companion interpretation note for Section 4.1 is [PAPER_SOAK_GATE.md](./PAPER_SOAK_GATE.md).
+- The current read-only evidence surface for that gate is `python scripts/report_supervised_soak_status.py`.
+
 ## Compatibility-only legacy surfaces
 
 - `scripts/bot_ctl.py`
