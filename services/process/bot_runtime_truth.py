@@ -29,7 +29,7 @@ CANONICAL_STATUS_FILES = {
     "bot_runner": FLAGS / "bot_runner.status.json",
     "pipeline": FLAGS / "pipeline.status.json",
     "executor": FLAGS / "intent_executor.status.json",
-    "intent_consumer": FLAGS / "live_consumer.status.json",
+    "intent_consumer": FLAGS / "live_intent_consumer.status.json",
     "ops_signal_adapter": HEALTH / "ops_signal_adapter.json",
     "ops_risk_gate": HEALTH / "ops_risk_gate_service.json",
     "reconciler": FLAGS / "live_reconciler.status.json",
