@@ -87,6 +87,10 @@ Checklist:
 - [ ] Decide policy for recovered transient API failures during soak.
 - [ ] Verify evidence command/output is sufficient for operator sign-off.
 
+Current related artifact:
+
+- [paper_soak_runtime_evidence_audit_pass1.md](./paper_soak_runtime_evidence_audit_pass1.md)
+
 ### 3. Execution, Routing, and Risk Gates
 
 Goal:
