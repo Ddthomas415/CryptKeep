@@ -60,6 +60,7 @@ Checklist:
 Current related artifact:
 
 - [runtime_dashboard_audit_todo.md](./runtime_dashboard_audit_todo.md)
+- [runtime_control_plane_audit_pass1.md](./runtime_control_plane_audit_pass1.md)
 
 ### 2. Paper Soak and Runtime Evidence
 
