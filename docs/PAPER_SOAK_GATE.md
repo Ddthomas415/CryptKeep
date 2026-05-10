@@ -79,6 +79,64 @@ choose:
    warnings within continuous operation, or do they require the Section 4.1
    clock to restart?
 
+## Recorded operator decisions
+
+**Date recorded: 2026-05-10**
+
+These decisions were made explicitly by the operator to close the open policy
+gaps above. They are binding for this soak window and should be reviewed before
+any subsequent soak window.
+
+### Decision 1 — Recovered Coinbase timeout policy
+
+**Policy:** Recovered transient Coinbase API timeouts do **not** reset the
+Section 4.1 clock.
+
+**Reasoning:** All three current-window failure families (Family A, B, C in the
+incident ledger) were external Coinbase network errors — not failures of the
+bot's own code, not topology changes, not accounting gaps. The pipeline
+recovered immediately in all three cases with no topology effect. The soak gate
+tests infrastructure stability, not third-party API uptime. These events are
+classified as warning-quality annotations, not clock-reset events.
+
+**Condition:** This policy holds as long as the recovered error is:
+- an external network/API error (RequestTimeout, NetworkError)
+- followed by immediate pipeline recovery (next loop returns ok=True)
+- accompanied by no topology change (all expected services remain running)
+
+If any future error causes topology loss or does not recover within one loop
+cycle, that event requires explicit operator review before the clock continues.
+
+### Decision 2 — Symbol-window policy
+
+**Policy:** The running soak symbol set is **frozen** for the remainder of the
+current Section 4.1 window. Scanner-driven symbol rotation does not replace the
+running soak set during the same 7-day window.
+
+**Reasoning:** The soak should prove stability for the symbols that will be
+traded live. Running `B3/USD` and `B3/USDC` while the current desired scanner
+state points to `BILL/USD` and `BILL/USDC` means the soak evidence is for
+different symbols than the intended live deployment. The drift is noted as an
+observation but does not invalidate the current window — the running symbol set
+remains the evidence anchor for this window.
+
+**Condition:** If the operator decides to change the live-intended symbol set
+before gate sign-off, the soak window restarts from that decision point.
+
+### Decision 3 — Pre-window critical reports
+
+**Policy:** The three pre-window incident reports (executor down, service down,
+pipeline network burst — all timestamped before `2026-05-07T12:39:53`) are
+**not counted** against the current Section 4.1 window.
+
+**Reasoning:** Those events predate the current supervised soak window start.
+The gate evaluates the runtime from window start forward. Historical incidents
+are contextual background, not current-window failures.
+
+**Condition:** The pre-window executor-down report (`ai_alert_monitor_20260507T140438Z.json`)
+remains a known historical event. If a similar topology failure occurs within
+the current window, it requires immediate review and likely restarts the clock.
+
 ## Safe default until policy is chosen
 
 Until those decisions are written into the checklist itself:
