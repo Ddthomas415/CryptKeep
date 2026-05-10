@@ -90,6 +90,7 @@ Checklist:
 Current related artifact:
 
 - [paper_soak_runtime_evidence_audit_pass1.md](./paper_soak_runtime_evidence_audit_pass1.md)
+- [paper_soak_incident_ledger_pass1.md](./paper_soak_incident_ledger_pass1.md)
 
 ### 3. Execution, Routing, and Risk Gates
 
