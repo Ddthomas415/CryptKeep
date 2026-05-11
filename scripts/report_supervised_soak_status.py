@@ -49,7 +49,13 @@ def _runtime_health() -> Path:
 
 def _running_map() -> dict[str, bool]:
     rows = canonical_service_status()
-    return {str(name): bool((row or {}).get("running")) for name, row in dict(rows or {}).items()}
+    out: dict[str, bool] = {}
+    for name, row in dict(rows or {}).items():
+        item = dict(row or {})
+        running = bool(item.get("running"))
+        healthy = item.get("healthy")
+        out[str(name)] = running if healthy is None else bool(running and healthy)
+    return out
 
 
 def _canonical_desired_services(state: dict[str, Any]) -> list[str]:

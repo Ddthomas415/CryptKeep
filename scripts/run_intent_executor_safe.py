@@ -11,6 +11,8 @@ except ModuleNotFoundError:
 _REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
+import json
+import os
 import time
 import traceback
 import runpy
@@ -31,6 +33,21 @@ def log(msg: str):
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
     _append(_log_path(), f"[{ts}] {msg}\n")
 
+def _status_path() -> Path:
+    path = app_paths.runtime_dir() / "flags" / "intent_executor.status.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+def _write_wrapper_status(status: str, *, reason: str):
+    payload = {
+        "status": str(status),
+        "reason": str(reason),
+        "pid": int(os.getpid()),
+        "ts_epoch": float(time.time()),
+        "wrapper": "run_intent_executor_safe",
+    }
+    _status_path().write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
 def _prereqs_ok() -> tuple[bool, str]:
     if not runtime_trading_config_available():
         return False, "missing runtime trading config"
@@ -40,6 +57,7 @@ def main() -> int:
     ok, why = _prereqs_ok()
     if not ok:
         log("intent_executor starting in IDLE mode: " + why)
+        _write_wrapper_status("blocked", reason=str(why))
         try:
             while True:
                 time.sleep(2.0)
@@ -63,6 +81,7 @@ def main() -> int:
         # We keep it alive to avoid restart thrash.
         try:
             log("intent_executor entering SAFE-IDLE after crash")
+            _write_wrapper_status("safe_idle", reason="wrapper_safe_idle")
             while True:
                 time.sleep(2.0)
         except KeyboardInterrupt:

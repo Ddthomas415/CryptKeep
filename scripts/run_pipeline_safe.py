@@ -22,7 +22,7 @@ from services.os import app_paths
 
 
 def _log_path() -> Path:
-    path = app_paths.runtime_dir() / "logs" / "reconciler.log"
+    path = app_paths.runtime_dir() / "logs" / "pipeline.log"
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -38,7 +38,7 @@ def log(msg: str) -> None:
 
 
 def _status_path() -> Path:
-    path = app_paths.runtime_dir() / "flags" / "live_reconciler.status.json"
+    path = app_paths.runtime_dir() / "flags" / "pipeline.status.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -49,7 +49,7 @@ def _write_wrapper_status(status: str, *, reason: str) -> None:
         "reason": str(reason),
         "pid": int(os.getpid()),
         "ts_epoch": float(time.time()),
-        "wrapper": "run_live_reconciler_safe",
+        "wrapper": "run_pipeline_safe",
     }
     _status_path().write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
 
@@ -69,25 +69,28 @@ def _normalize_exit_code(code: object) -> int:
 
 
 def _managed_run_mode(argv: list[str]) -> bool:
-    return not argv or argv[0] == "run"
+    return not argv or argv == ["run"]
 
 
 def _safe_idle() -> int:
     try:
-        log("reconciler entering SAFE-IDLE after startup failure")
+        log("pipeline entering SAFE-IDLE after startup failure")
         _write_wrapper_status("safe_idle", reason="wrapper_safe_idle")
         while True:
             time.sleep(2.0)
     except KeyboardInterrupt:
-        log("reconciler stopped (KeyboardInterrupt)")
+        log("pipeline stopped (KeyboardInterrupt)")
         return 0
 
 
 def _run_real_module(argv: list[str]) -> None:
     original_argv = list(sys.argv)
-    sys.argv = [str(Path(__file__).resolve()), *argv]
+    forwarded = list(argv)
+    if forwarded[:1] == ["run"]:
+        forwarded = forwarded[1:]
+    sys.argv = [str(Path(__file__).resolve()), *forwarded]
     try:
-        runpy.run_module("scripts.run_live_reconciler", run_name="__main__")
+        runpy.run_module("scripts.run_pipeline_loop", run_name="__main__")
     finally:
         sys.argv = original_argv
 
@@ -95,32 +98,36 @@ def _run_real_module(argv: list[str]) -> None:
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     managed_run = _managed_run_mode(argv)
-    if managed_run:
-        ok, why = _prereqs_ok()
-        if not ok:
-            log("reconciler starting in IDLE mode: " + why)
-            _write_wrapper_status("blocked", reason=str(why))
-            try:
-                while True:
-                    time.sleep(2.0)
-            except KeyboardInterrupt:
-                log("reconciler stopped (KeyboardInterrupt)")
-                return 0
-    log("reconciler wrapper launching real module: scripts.run_live_reconciler")
+    if not managed_run:
+        log(f"pipeline invalid args: {argv!r}")
+        return 2
+
+    ok, why = _prereqs_ok()
+    if not ok:
+        log("pipeline starting in IDLE mode: " + why)
+        _write_wrapper_status("blocked", reason=str(why))
+        try:
+            while True:
+                time.sleep(2.0)
+        except KeyboardInterrupt:
+            log("pipeline stopped (KeyboardInterrupt)")
+            return 0
+
+    log("pipeline wrapper launching real module: scripts.run_pipeline_loop")
     try:
         _run_real_module(argv)
         return 0
     except KeyboardInterrupt:
-        log("reconciler stopped (KeyboardInterrupt)")
+        log("pipeline stopped (KeyboardInterrupt)")
         return 0
     except SystemExit as exc:
         code = _normalize_exit_code(exc.code)
-        if not managed_run or code == 0:
-            return code
-        log(f"reconciler exited nonzero: {exc.code!r}")
+        if code == 0:
+            return 0
+        log(f"pipeline exited nonzero: {exc.code!r}")
         return _safe_idle()
     except Exception as exc:
-        log("reconciler crashed: " + repr(exc))
+        log("pipeline crashed: " + repr(exc))
         log(traceback.format_exc())
         return _safe_idle()
 

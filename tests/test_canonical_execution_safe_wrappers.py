@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
+
 from scripts import run_intent_consumer_safe as consumer_safe
 from scripts import run_live_reconciler_safe as reconciler_safe
+from scripts import run_pipeline_safe as pipeline_safe
 
 
 def test_intent_consumer_run_mode_nonzero_exit_enters_safe_idle(monkeypatch):
@@ -21,6 +24,26 @@ def test_intent_consumer_run_mode_nonzero_exit_enters_safe_idle(monkeypatch):
     assert consumer_safe.main(["run"]) == 0
     assert any("exited nonzero" in message for message in messages)
     assert any("SAFE-IDLE" in message for message in messages)
+
+
+def test_intent_consumer_safe_idle_writes_canonical_status(monkeypatch, tmp_path):
+    def _raise_exit(*_args, **_kwargs):
+        raise SystemExit(2)
+
+    def _raise_keyboard_interrupt(_seconds: float) -> None:
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(consumer_safe, "runtime_trading_config_available", lambda: True)
+    monkeypatch.setattr(consumer_safe.runpy, "run_module", _raise_exit)
+    monkeypatch.setattr(consumer_safe.time, "sleep", _raise_keyboard_interrupt)
+    monkeypatch.setattr(consumer_safe.app_paths, "runtime_dir", lambda: tmp_path)
+
+    assert consumer_safe.main(["run"]) == 0
+
+    payload = json.loads((tmp_path / "flags" / "live_intent_consumer.status.json").read_text(encoding="utf-8"))
+    assert payload["status"] == "safe_idle"
+    assert payload["reason"] == "wrapper_safe_idle"
+    assert payload["wrapper"] == "run_intent_consumer_safe"
 
 
 def test_intent_consumer_invalid_args_do_not_enter_safe_idle(monkeypatch):
@@ -65,4 +88,48 @@ def test_live_reconciler_invalid_args_do_not_enter_safe_idle(monkeypatch):
     monkeypatch.setattr(reconciler_safe.runpy, "run_module", _raise_exit)
 
     assert reconciler_safe.main(["--bad-flag"]) == 2
+    assert not any("SAFE-IDLE" in message for message in messages)
+
+
+def test_pipeline_nonzero_exit_enters_safe_idle(monkeypatch):
+    messages: list[str] = []
+
+    def _raise_exit(*_args, **_kwargs):
+        raise SystemExit(2)
+
+    def _raise_keyboard_interrupt(_seconds: float) -> None:
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(pipeline_safe, "log", messages.append)
+    monkeypatch.setattr(pipeline_safe, "runtime_trading_config_available", lambda: True)
+    monkeypatch.setattr(pipeline_safe.runpy, "run_module", _raise_exit)
+    monkeypatch.setattr(pipeline_safe.time, "sleep", _raise_keyboard_interrupt)
+
+    assert pipeline_safe.main([]) == 0
+    assert any("exited nonzero" in message for message in messages)
+    assert any("SAFE-IDLE" in message for message in messages)
+
+
+def test_pipeline_missing_prereqs_writes_blocked_status(monkeypatch, tmp_path):
+    def _raise_keyboard_interrupt(_seconds: float) -> None:
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(pipeline_safe, "runtime_trading_config_available", lambda: False)
+    monkeypatch.setattr(pipeline_safe.time, "sleep", _raise_keyboard_interrupt)
+    monkeypatch.setattr(pipeline_safe.app_paths, "runtime_dir", lambda: tmp_path)
+
+    assert pipeline_safe.main([]) == 0
+
+    payload = json.loads((tmp_path / "flags" / "pipeline.status.json").read_text(encoding="utf-8"))
+    assert payload["status"] == "blocked"
+    assert payload["reason"] == "missing runtime trading config"
+    assert payload["wrapper"] == "run_pipeline_safe"
+
+
+def test_pipeline_invalid_args_do_not_enter_safe_idle(monkeypatch):
+    messages: list[str] = []
+
+    monkeypatch.setattr(pipeline_safe, "log", messages.append)
+
+    assert pipeline_safe.main(["--bad-flag"]) == 2
     assert not any("SAFE-IDLE" in message for message in messages)
