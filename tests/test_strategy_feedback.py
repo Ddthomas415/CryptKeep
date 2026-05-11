@@ -71,6 +71,56 @@ def test_load_strategy_feedback_ledger_summarizes_strategy_rows(tmp_path) -> Non
     assert row["win_rate"] == 1.0
 
 
+def test_load_strategy_feedback_ledger_maps_es_daily_trend_strategy_id(tmp_path) -> None:
+    db = tmp_path / "trade_journal.sqlite"
+    con = sqlite3.connect(str(db))
+    try:
+        con.execute(
+            """
+            CREATE TABLE journal_fills (
+              fill_id TEXT PRIMARY KEY,
+              journal_ts TEXT NOT NULL,
+              intent_id TEXT,
+              source TEXT,
+              strategy_id TEXT,
+              client_order_id TEXT,
+              order_id TEXT NOT NULL,
+              fill_ts TEXT NOT NULL,
+              venue TEXT NOT NULL,
+              symbol TEXT NOT NULL,
+              side TEXT NOT NULL,
+              qty REAL NOT NULL,
+              price REAL NOT NULL,
+              fee REAL NOT NULL,
+              fee_currency TEXT NOT NULL,
+              cash_quote REAL,
+              pos_qty REAL,
+              pos_avg_price REAL,
+              realized_pnl_total REAL
+            )
+            """
+        )
+        con.executemany(
+            "INSERT INTO journal_fills(fill_id, journal_ts, strategy_id, order_id, fill_ts, venue, symbol, side, qty, price, fee, fee_currency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                ("f1", "2026-04-09T12:00:00Z", "es_daily_trend_v1", "o1", "2026-04-09T12:00:00Z", "paper", "BTC/USD", "buy", 1.0, 100.0, 1.0, "USD"),
+                ("f2", "2026-04-09T12:10:00Z", "es_daily_trend_v1", "o2", "2026-04-09T12:10:00Z", "paper", "BTC/USD", "sell", 1.0, 110.0, 1.0, "USD"),
+            ],
+        )
+        con.commit()
+    finally:
+        con.close()
+
+    out = strategy_feedback.load_strategy_feedback_ledger(journal_path=str(db), symbol="BTC/USD")
+
+    assert out["ok"] is True
+    assert out["unmapped_strategy_ids"] == []
+    assert out["strategy_count"] == 1
+    row = out["rows"][0]
+    assert row["strategy"] == "sma_200_trend"
+    assert row["closed_trades"] == 1
+
+
 def test_build_strategy_feedback_weighting_handles_thin_boost_and_penalty() -> None:
     thin = strategy_feedback.build_strategy_feedback_weighting(
         {
