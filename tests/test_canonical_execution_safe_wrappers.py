@@ -5,6 +5,20 @@ from scripts import run_live_reconciler_safe as reconciler_safe
 from scripts import run_pipeline_safe as pipeline_safe
 
 
+def test_intent_consumer_wraps_live_intent_consumer_module(monkeypatch):
+    calls: list[tuple[str, str]] = []
+
+    monkeypatch.setattr(
+        consumer_safe.runpy,
+        "run_module",
+        lambda mod, run_name="__main__": calls.append((mod, run_name)),
+    )
+
+    consumer_safe._run_real_module(["run"])
+
+    assert calls == [("scripts.run_live_intent_consumer", "__main__")]
+
+
 def test_intent_consumer_run_mode_nonzero_exit_enters_safe_idle(monkeypatch):
     messages: list[str] = []
 
