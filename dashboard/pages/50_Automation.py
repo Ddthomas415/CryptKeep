@@ -219,7 +219,7 @@ render_save_action(
     button_key="ck_automation_save_button",
     session_key="ck_automation_save_result",
     payload=payload,
-    save_fn=update_automation_view,
+    save_fn=lambda body: update_automation_view(body, current_role=str(AUTH_STATE.get("role") or "VIEWER")),
     success_message="Automation settings saved.",
     error_message="Automation settings save failed.",
 )

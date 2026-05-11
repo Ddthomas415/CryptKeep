@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from dashboard.services import view_data
 
 
@@ -1991,7 +1993,7 @@ def test_update_settings_view_reports_success(monkeypatch) -> None:
     )
 
     payload = {"general": {"timezone": "UTC"}}
-    result = view_data.update_settings_view(payload)
+    result = view_data.update_settings_view(payload, current_role="OPERATOR")
     assert result["ok"] is True
     assert result["data"] == payload
     assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
@@ -2010,7 +2012,7 @@ def test_update_settings_view_reports_api_failure(monkeypatch) -> None:
     )
     monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
 
-    result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
+    result = view_data.update_settings_view({"general": {"timezone": "UTC"}}, current_role="OPERATOR")
     assert result["ok"] is True
     assert "sync skipped" in result["message"].lower()
     assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
@@ -2022,9 +2024,16 @@ def test_update_settings_view_reports_local_save_failure(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (False, "disk error"))
     monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
 
-    result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
+    result = view_data.update_settings_view({"general": {"timezone": "UTC"}}, current_role="OPERATOR")
     assert result["ok"] is False
     assert "disk error" in result["message"].lower()
+
+
+def test_update_settings_view_requires_operator(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+
+    with pytest.raises(PermissionError):
+        view_data.update_settings_view({"general": {"timezone": "UTC"}})
 
 
 def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
@@ -2099,7 +2108,7 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
         return True, "Saved"
 
     monkeypatch.setattr(view_data, "save_user_yaml", _fake_save)
-    monkeypatch.setattr(view_data, "update_settings_view", lambda payload: {"ok": True, "data": payload})
+    monkeypatch.setattr(view_data, "update_settings_view", lambda payload, current_role="VIEWER": {"ok": True, "data": payload})
 
     result = view_data.update_automation_view(
         {
@@ -2117,7 +2126,8 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
             "default_venue": "gateio",
             "default_qty": 0.5,
             "order_type": "limit",
-        }
+        },
+        current_role="OPERATOR",
     )
 
     assert result["ok"] is True
@@ -2140,7 +2150,7 @@ def test_update_automation_view_allows_partial_success(monkeypatch) -> None:
     if hasattr(view_data, "load_user_yaml"):
         monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (True, "Saved"))
-    monkeypatch.setattr(view_data, "update_settings_view", lambda payload: {"ok": False, "message": "api down"})
+    monkeypatch.setattr(view_data, "update_settings_view", lambda payload, current_role="VIEWER": {"ok": False, "message": "api down"})
 
     result = view_data.update_automation_view(
         {
@@ -2150,7 +2160,15 @@ def test_update_automation_view_allows_partial_success(monkeypatch) -> None:
             "schedule": "manual",
             "marketplace_routing": "disabled",
             "approval_required_for_live": True,
-        }
+        },
+        current_role="OPERATOR",
     )
     assert result["ok"] is True
     assert "sync skipped" in result["message"].lower()
+
+
+def test_update_automation_view_requires_operator(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+
+    with pytest.raises(PermissionError):
+        view_data.update_automation_view({"execution_enabled": False})

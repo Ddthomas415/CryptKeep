@@ -78,7 +78,8 @@ def test_default_auth_posture_local_private_only():
                     "remote_access_requires_mfa": True,
                     "outer_access_control": "",
                 }
-            }
+            },
+            current_role="OPERATOR",
         )
 
         settings = get_settings_view()
@@ -87,7 +88,7 @@ def test_default_auth_posture_local_private_only():
         assert security.get("auth_scope") == "local_private_only"
         assert security.get("remote_access_requires_mfa") is True
     finally:
-        update_settings_view({"security": original_security})
+        update_settings_view({"security": original_security}, current_role="OPERATOR")
 
 
 def test_auth_capabilities_default_not_hardened():
@@ -105,7 +106,8 @@ def test_auth_capabilities_default_not_hardened():
                     "remote_access_requires_mfa": True,
                     "outer_access_control": "",
                 }
-            }
+            },
+            current_role="OPERATOR",
         )
 
         caps = auth_capabilities()
@@ -114,7 +116,7 @@ def test_auth_capabilities_default_not_hardened():
         assert caps["remote_access_hardened"] is False
         assert "not hardened" in str(caps["scope_detail"]).lower()
     finally:
-        update_settings_view({"security": original_security})
+        update_settings_view({"security": original_security}, current_role="OPERATOR")
 
 
 def test_claim_boundaries_include_expected_guardrails():
@@ -142,7 +144,8 @@ def test_remote_candidate_readback_and_runtime_consumption():
                     "remote_access_requires_mfa": True,
                     "outer_access_control": "cloudflare_access",
                 }
-            }
+            },
+            current_role="OPERATOR",
         )
 
         settings = get_settings_view()
@@ -154,7 +157,7 @@ def test_remote_candidate_readback_and_runtime_consumption():
         assert security.get("outer_access_control") == "cloudflare_access"
         assert status.get("auth_scope") == "remote_public_candidate"
     finally:
-        update_settings_view({"security": original_security})
+        update_settings_view({"security": original_security}, current_role="OPERATOR")
 
 
 def test_apply_bundle_real_schema_still_callable():
