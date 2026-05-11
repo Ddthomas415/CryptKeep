@@ -1441,6 +1441,7 @@ def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> N
                 "signal": "buy",
                 "risk_size_pct": 1.5,
                 "status": "pending_review",
+                "source": "signal_inbox",
             }
         ],
     )
@@ -1449,9 +1450,11 @@ def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> N
     assert payload["approval_required"] is False
     assert payload["pending_approvals"][0]["id"] == "rec_99"
     assert payload["pending_approvals"][0]["side"] == "buy"
+    assert payload["pending_approvals"][0]["source"] == "signal_inbox"
     assert payload["open_orders"] == []
     assert payload["failed_orders"] == []
     assert len(payload["recent_fills"]) >= 1
+    assert payload["recent_fills"][0]["source"] == "synthetic_default"
 
 
 def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
@@ -1471,6 +1474,7 @@ def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
                 "qty": 0.25,
                 "price": 4420.0,
                 "venue": "paper",
+                "source": "pnl_store",
             }
         ],
     )
@@ -1485,9 +1489,31 @@ def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
             "qty": 0.25,
             "price": 4420.0,
             "venue": "paper",
+            "source": "pnl_store",
         }
     ]
     assert payload["pending_approvals"][0]["asset"] == "SOL"
+
+
+def test_trades_view_uses_synthetic_pending_approval_with_source(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"approval_required": True})
+    monkeypatch.setattr(view_data, "_load_local_pending_approvals", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_open_orders", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_failed_orders", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+
+    payload = view_data.get_trades_view()
+    assert payload["pending_approvals"] == [
+        {
+            "id": "rec_1",
+            "asset": "SOL",
+            "side": "buy",
+            "risk_size_pct": 1.5,
+            "status": "pending_review",
+            "source": "synthetic_default",
+        }
+    ]
 
 
 def test_trades_view_prefers_local_pending_approvals(monkeypatch) -> None:
@@ -1672,6 +1698,39 @@ def test_load_local_pending_approvals_prefers_queued_intents(monkeypatch) -> Non
             "created_ts": "2026-03-12T09:00:00Z",
             "source": "signal_router",
         },
+    ]
+
+
+def test_load_local_recent_fills_prefers_pnl_store_and_labels_source(monkeypatch) -> None:
+    class FakePnLStore:
+        def last_fills(self, limit: int = 20):
+            assert limit == 2
+            return [
+                {
+                    "ts": "2026-03-12T10:30:00Z",
+                    "symbol": "btc/usd",
+                    "side": "buy",
+                    "qty": 0.02,
+                    "price": 90500.0,
+                    "venue": "paper",
+                }
+            ]
+
+    monkeypatch.setattr("storage.pnl_store_sqlite.PnLStoreSQLite", FakePnLStore)
+    monkeypatch.setattr("storage.live_trading_sqlite.LiveTradingSQLite", lambda: None)
+    monkeypatch.setattr("storage.execution_audit_reader.list_fills", lambda limit=2: [])
+
+    rows = view_data._load_local_recent_fills(limit=2)
+    assert rows == [
+        {
+            "ts": "2026-03-12T10:30:00Z",
+            "asset": "BTC",
+            "side": "buy",
+            "qty": 0.02,
+            "price": 90500.0,
+            "venue": "paper",
+            "source": "pnl_store",
+        }
     ]
 
 
