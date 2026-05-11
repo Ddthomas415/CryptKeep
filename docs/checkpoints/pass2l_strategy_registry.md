@@ -2,74 +2,93 @@
 
 **Date:** 2026-05-10
 **Pass:** 2L
-**Status:** COMPLETE— H6 confirmed critical
+**Status:** COMPLETE — H6 confirmed; scope corrected after recheck
+
+---
+
+## Recheck performed
+
+After initial commit, full evidence flow was traced:
+
+1. `es_daily_trend_pipeline.py:18` — `STRATEGY_ID = "es_daily_trend_v1"`
+2. Pipeline creates intents with `strategy_id="es_daily_trend_v1"` (line 122)
+3. `paper_runner.py` records fills to `journal_fills` with `strategy_id=it.get("strategy_id")` → `"es_daily_trend_v1"`
+4. `evidence_cycle._normalize_strategy_name("es_daily_trend_v1")` returns `None`
+5. Fills go to `unmapped_strategy_ids` and are skipped in `grouped`
+6. `report_supervised_soak_status.py` does NOT use `evidence_cycle` — confirmed by grep
 
 ---
 
 ## SHOWN findings
 
-### Finding 1 — Unknown strategy name silently falls back to `ema_cross` (Medium)
+### Finding 1 — Unknown strategy falls back to `ema_cross` silently (Medium)
 
 ```python
-name = str(st.get('name', 'ema_cross')).strip()
 if name not in SUPPORTED:
-    name = 'ema_cross'
+    name = "ema_cross"
 ```
 
-A config typo silently runs EMA cross with no error, warning, or log.
-The `'unknown_strategy'` return at the bottom is dead code -- the fallback
-prevents any unknown name from reaching it.
+A config typo silently runs EMA cross. No log. `"unknown_strategy"` return is dead code.
 
 ---
 
-### Finding 2 — `sma_200_trend` registry key vs `es_daily_trend_v1` STRATEGY_ID (High)
+### Finding 2 — `sma_200_trend` vs `es_daily_trend_v1` strategy_id mismatch (High)
 
-Registry key: `'sma_200_trend'`
-EvidenceLogger STRATEGY_ID: `'es_daily_trend_v1'`
+Two separate IDs used across the pipeline:
 
-Fills are filed under `'es_daily_trend_v1'`. `_normalize_strategy_name` in
-`evidence_cycle.py:110` only recognizes:
+| Layer | ID used |
+|---|---|
+| Config strategy.name | `sma_200_trend` |
+| Registry key | `sma_200_trend` |
+| `es_daily_trend_pipeline.STRATEGY_ID` | `es_daily_trend_v1` |
+| Intent `strategy_id` field | `es_daily_trend_v1` |
+| `journal_fills.strategy_id` | `es_daily_trend_v1` |
+| `_normalize_strategy_name()` result | `None` (unmapped) |
+| EvidenceLogger JSONL files | `es_daily_trend_v1/` |
+
+`_normalize_strategy_name` only recognizes:
 `ema_cross`, `mean_reversion_rsi`, `breakout_donchian`, `momentum`.
 
-`_normalize_strategy_name('es_daily_trend_v1')` returns `None`.
+**Scope (corrected after recheck):**
 
-Fills go to `unmapped_strategy_ids`. The evidence cycle's leaderboard and
-`_evidence_status_for_row` do NOT count unmapped fills toward any strategy's
-promotion eligibility.
+- **Soak gate (Section 4.1):** NOT affected. `report_supervised_soak_status.py`
+  checks service uptime and incident counts only. Does not use `evidence_cycle`.
+  The 168-hour soak will still pass Section 4.1.
 
-**THE ENTIRE 168-HOUR SOAK EVIDENCE IS IN `unmapped_strategy_ids` AND IS
-INVISIBLE TO THE PROMOTION GATE.**
+- **Evidence promotion gate:** AFFECTED. When `evidence_cycle.load_paper_history_evidence()`
+  is run after the soak to evaluate promotion readiness, fills under
+  `strategy_id="es_daily_trend_v1"` will appear in `unmapped_strategy_ids` and
+  be skipped. The promotion gate will show `insufficient` evidence even though
+  168 hours of paper fills exist.
 
-Fix: add to `_normalize_strategy_name`:
+- **JSONL evidence files:** NOT affected. EvidenceLogger writes to
+  `data/evidence/es_daily_trend_v1/` using the correct STRATEGY_ID. These are
+  used by `stage_summary()` and `budget_summary()` for the `--check-promotion`
+  command in `run_es_daily_trend_paper.py`.
+
+**Fix:** Add to `_normalize_strategy_name` in `evidence_cycle.py`:
 ```python
-if 'sma_200' in text or 'es_daily_trend' in text:
-    return 'sma_200_trend'
+if "sma_200" in text or "es_daily_trend" in text or "daily_trend" in text:
+    return "sma_200_trend"
 ```
 
-Must be done before any promotion gate evaluation.
+Must be done before any promotion gate evaluation using `load_paper_history_evidence`.
 
 ---
 
 ### Finding 3 — `trade_enabled` gate short-circuits correctly (Strength)
 
-```python
-if not bool(st.get('trade_enabled', True)):
-    return {'ok': True, 'action': 'hold', 'reason': 'trade_disabled', ...}
-```
-
 ---
 
 ### Finding 4 — No catch around `fn()` calls (Noted)
 
-Strategy exceptions propagate to pipeline `run_once()`. Visible in soak
-incident log as `run_once_failed` entries.
+Strategy exceptions propagate to pipeline `run_once()`. Visible as `run_once_failed`.
 
 ---
 
 ### Finding 5 — Registry params match strategy defaults (Strength)
 
-`sma_200_trend` handler passes `sma_period=200`, `atr_period=20` matching
-strategy defaults. Config overrides flow correctly.
+`sma_200_trend` handler passes `sma_period=200`, `atr_period=20` matching strategy defaults.
 
 ---
 
@@ -77,24 +96,13 @@ strategy defaults. Config overrides flow correctly.
 
 | Finding | Severity |
 |---|---|
-| Unknown strategy falls back to ema_cross silently | Medium |
-| sma_200_trend key vs es_daily_trend_v1 ID mismatch | **High** |
-| trade_enabled gate short-circuits | **Strength** |
-| No catch around fn() calls | Noted |
-| Registry params match strategy defaults | **Strength** |
+| Unknown strategy silent fallback | Medium |
+| `es_daily_trend_v1` unmapped in evidence_cycle | **High** |
+| `trade_enabled` gate | **Strength** |
+| No catch around fn() | Noted |
+| Registry params match defaults | **Strength** |
 
----
-
-## Updated High findings
-
-| # | Finding |
-|---|---|
-| H4 | Governance enforcement dead code |
-| H5 | resume_if_safe disconnected from config |
-| H6 | **soak evidence invisible to promotion gate** |
-| H1 | VIEWER partial arming state |
-| H2 | VIEWER writes API keys |
-| H3 | VIEWER corrupts paper state |
+**H6 scope:** Soak gate (Section 4.1) is safe. Promotion gate evaluation is affected.
 
 ---
 
@@ -102,4 +110,4 @@ strategy defaults. Config overrides flow correctly.
 
 **Active role:** AUDITOR
 **Acceptance state:** COMPLETE for Pass 2L
-**URGENT:** H6 fix needed before promotion gate evaluation
+**H6 fix priority:** Before promotion gate evaluation, not before soak completion
