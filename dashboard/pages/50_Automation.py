@@ -12,7 +12,7 @@ from dashboard.components.summary_panels import render_automation_runtime_summar
 from dashboard.services.view_data import get_automation_view, update_automation_view
 from services.preflight.preflight import SUPPORTED_EXCHANGES
 
-AUTH_STATE = require_authenticated_role("VIEWER")
+AUTH_STATE = require_authenticated_role("OPERATOR")
 render_app_sidebar()
 automation_view = get_automation_view()
 default_mode_options = ["research_only", "paper", "live_approval", "live_auto"]

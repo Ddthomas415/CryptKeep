@@ -47,9 +47,10 @@ AUTH_ROLE_REQUIREMENTS = {
     "dashboard/pages/30_Signals.py": "VIEWER",
     "dashboard/pages/35_Research.py": "VIEWER",
     "dashboard/pages/40_Trades.py": "VIEWER",
-    "dashboard/pages/50_Automation.py": "VIEWER",
+    "dashboard/pages/44_Paper_Reconciliation.py": "OPERATOR",
+    "dashboard/pages/50_Automation.py": "OPERATOR",
     "dashboard/pages/60_Operations.py": "OPERATOR",
-    "dashboard/pages/70_Settings.py": "VIEWER",
+    "dashboard/pages/70_Settings.py": "OPERATOR",
     "dashboard/pages/00_Operator.py": "OPERATOR",
     "dashboard/pages/99_Legacy_UI.py": "OPERATOR",
 }

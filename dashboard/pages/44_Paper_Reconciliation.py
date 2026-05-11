@@ -5,7 +5,7 @@ import streamlit as st
 from dashboard.auth_gate import require_authenticated_role
 from services.execution.paper_reconciliation import reconcile_execution_plan_intents
 
-AUTH_STATE = require_authenticated_role("VIEWER")
+AUTH_STATE = require_authenticated_role("OPERATOR")
 CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 
 st.title("Paper Reconciliation")

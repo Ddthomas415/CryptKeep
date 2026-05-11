@@ -17,7 +17,7 @@ from dashboard.components.sidebar import render_app_sidebar
 from dashboard.components.summary_panels import render_settings_profile_summary
 from dashboard.services.view_data import get_settings_view, update_settings_view
 
-AUTH_STATE = require_authenticated_role("VIEWER")
+AUTH_STATE = require_authenticated_role("OPERATOR")
 render_app_sidebar()
 settings_view = get_settings_view()
 
