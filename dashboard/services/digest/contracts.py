@@ -145,6 +145,12 @@ class ModeTruthData(DigestSectionBase):
     label: str
     allowed: list[str]
     blocked: list[str]
+    paper_gate_result: str | None
+    paper_gate_elapsed_hours: float | None
+    paper_gate_remaining_hours: float | None
+    paper_gate_counts: bool
+    paper_gate_runtime_matches_current_desired_state: bool | None
+    paper_gate_entry: str | None
     promotion_stage: str
     promotion_target: str | None
     promotion_status: HealthState

@@ -52,7 +52,7 @@ from dashboard.services.digest.utils import (
     pill as _pill,
     utc_iso as _utc_iso,
 )
-from dashboard.services.operator import get_operations_snapshot
+from dashboard.services.operator import get_operations_snapshot, get_supervised_soak_snapshot
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import build_strategy_workbench
 from services.admin.config_editor import load_user_yaml
@@ -1202,6 +1202,7 @@ def build_mode_truth_digest(
     runtime_context: dict[str, Any],
     promotion_readiness: dict[str, Any],
     strategy_context: dict[str, Any],
+    supervised_soak_snapshot: dict[str, Any] | None = None,
 ) -> ModeTruthData:
     mode_value = str(runtime_context.get("mode_value") or "unknown")
     mode_label = str(runtime_context.get("mode_label") or "Unknown")
@@ -1249,6 +1250,16 @@ def build_mode_truth_digest(
             )
             if promotion_status == "ok":
                 promotion_status = "warn"
+    soak_snapshot = supervised_soak_snapshot if isinstance(supervised_soak_snapshot, dict) else {}
+    soak_result = str(soak_snapshot.get("result") or "").strip() or None
+    soak_elapsed_hours = soak_snapshot.get("elapsed_hours")
+    soak_remaining_hours = soak_snapshot.get("remaining_hours")
+    soak_counts = bool(soak_snapshot.get("counts_for_paper_gate"))
+    soak_runtime_matches_current = None
+    soak_symbols = soak_snapshot.get("symbols")
+    if isinstance(soak_symbols, dict) and "runtime_matches_current_desired_state" in soak_symbols:
+        soak_runtime_matches_current = bool(soak_symbols.get("runtime_matches_current_desired_state"))
+    soak_entry = str(soak_snapshot.get("section_4_1_entry") or "").strip() or None
     return ModeTruthData(
         **_base_section(
             as_of=as_of,
@@ -1260,6 +1271,12 @@ def build_mode_truth_digest(
         label=mode_label,
         allowed=allowed,
         blocked=blocked,
+        paper_gate_result=soak_result,
+        paper_gate_elapsed_hours=soak_elapsed_hours if isinstance(soak_elapsed_hours, (int, float)) else None,
+        paper_gate_remaining_hours=soak_remaining_hours if isinstance(soak_remaining_hours, (int, float)) else None,
+        paper_gate_counts=soak_counts,
+        paper_gate_runtime_matches_current_desired_state=soak_runtime_matches_current,
+        paper_gate_entry=soak_entry,
         promotion_stage=str(promotion_readiness.get("current_stage_label") or "Paper"),
         promotion_target=str(promotion_readiness.get("target_stage_label") or "") or None,
         promotion_status=promotion_status,
@@ -1442,6 +1459,12 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         operations_snapshot = {}
     except Exception:
         operations_snapshot = {}
+    try:
+        supervised_soak_snapshot = get_supervised_soak_snapshot()
+    except PermissionError:
+        supervised_soak_snapshot = {}
+    except Exception:
+        supervised_soak_snapshot = {}
     leaderboard_summary = build_leaderboard_summary_digest(as_of=as_of, strategy_context=strategy_context)
     runtime_truth = build_runtime_truth_digest(
         as_of=as_of,
@@ -1494,6 +1517,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         runtime_context=runtime_context,
         promotion_readiness=promotion_readiness,
         strategy_context=strategy_context,
+        supervised_soak_snapshot=supervised_soak_snapshot,
     )
     recent_incidents = build_recent_incidents_digest(
         as_of=as_of,
