@@ -837,7 +837,7 @@ render_save_action(
     button_key="ck_settings_save_button",
     session_key="ck_settings_save_result",
     payload=payload,
-    save_fn=update_settings_view,
+    save_fn=lambda body: update_settings_view(body, current_role=str(AUTH_STATE.get("role") or "VIEWER")),
     success_message="Settings saved locally and synced when available.",
     error_message="Settings save failed.",
 )
