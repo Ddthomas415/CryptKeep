@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from services.runtime import process_supervisor as ps
 
 
@@ -116,5 +118,49 @@ def test_status_shape(monkeypatch):
     out = ps.status(["a", "b"])
     assert out["a"]["running"] is True
     assert out["a"]["pid"] == 11
+    assert out["a"]["status"] == "running"
+    assert out["a"]["healthy"] is True
     assert out["b"]["running"] is False
     assert out["b"]["pid"] is None
+    assert out["b"]["status"] == "not_running"
+    assert out["b"]["healthy"] is False
+
+
+def test_status_surfaces_safe_idle_payload(monkeypatch, tmp_path):
+    status_path = tmp_path / "flags" / "pipeline.status.json"
+    status_path.parent.mkdir(parents=True, exist_ok=True)
+    status_path.write_text(
+        json.dumps({"status": "safe_idle", "reason": "wrapper_safe_idle", "ts_epoch": 123.0}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(ps, "SERVICE_STATUS_PATHS", {"pipeline": status_path})
+    monkeypatch.setattr(ps, "is_running", lambda name: name == "pipeline")
+    monkeypatch.setattr(ps, "_read_pid", lambda name: 44 if name == "pipeline" else None)
+
+    out = ps.status(["pipeline"])
+
+    assert out["pipeline"]["running"] is True
+    assert out["pipeline"]["pid"] == 44
+    assert out["pipeline"]["status"] == "safe_idle"
+    assert out["pipeline"]["reason"] == "wrapper_safe_idle"
+    assert out["pipeline"]["healthy"] is False
+    assert out["pipeline"]["ts_epoch"] == 123.0
+    assert out["pipeline"]["status_path"] == str(status_path)
+
+
+def test_status_does_not_treat_generic_idle_as_unhealthy(monkeypatch, tmp_path):
+    status_path = tmp_path / "health" / "ai_alert_monitor.json"
+    status_path.parent.mkdir(parents=True, exist_ok=True)
+    status_path.write_text(
+        json.dumps({"status": "idle", "reason": "no_new_events"}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(ps, "SERVICE_STATUS_PATHS", {"ai_alert_monitor": status_path})
+    monkeypatch.setattr(ps, "is_running", lambda name: name == "ai_alert_monitor")
+    monkeypatch.setattr(ps, "_read_pid", lambda name: 55 if name == "ai_alert_monitor" else None)
+
+    out = ps.status(["ai_alert_monitor"])
+
+    assert out["ai_alert_monitor"]["running"] is True
+    assert out["ai_alert_monitor"]["status"] == "idle"
+    assert out["ai_alert_monitor"]["healthy"] is True

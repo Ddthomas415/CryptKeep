@@ -202,3 +202,47 @@ def test_build_report_flags_current_desired_symbol_drift(monkeypatch, tmp_path):
     assert out["symbols"]["runtime_matches_run_state"] is True
     assert out["symbols"]["runtime_matches_current_desired_state"] is False
     assert out["current_desired_state"]["symbols"] == ["BILL/USD", "BILL/USDC"]
+
+
+def test_build_report_does_not_count_safe_idle_service_as_valid_topology(monkeypatch, tmp_path):
+    mod = _reload_module(monkeypatch, tmp_path)
+    flags = tmp_path / "runtime" / "flags"
+    _write_json(
+        flags / "bot_runner.status.json",
+        {
+            "ts_epoch": 1000.0,
+            "state": {
+                "mode": "paper",
+                "live_enabled": False,
+                "with_reconcile": False,
+                "symbols": ["B3/USD", "B3/USDC"],
+            },
+        },
+    )
+    _write_json(flags / "pipeline.status.json", {"symbols": ["B3/USD", "B3/USDC"], "status": "safe_idle"})
+    _write_json(flags / "intent_executor.status.json", {"symbols": ["B3/USD", "B3/USDC"]})
+    monkeypatch.setattr(mod.rbr, "load_trading_cfg", lambda: {"cfg": True})
+    monkeypatch.setattr(
+        mod.rbr,
+        "desired_state",
+        lambda cfg: {"mode": "paper", "live_enabled": False, "with_reconcile": False, "symbols": ["B3/USD", "B3/USDC"]},
+    )
+    monkeypatch.setattr(mod.rbr, "desired_services", lambda state: ["pipeline", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "executor"])
+    monkeypatch.setattr(
+        mod,
+        "supervisor_status",
+        lambda names: {
+            name: (
+                {"running": True, "pid": 1, "status": "safe_idle", "healthy": False}
+                if name == "pipeline"
+                else {"running": name in {"executor", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor"}, "pid": 1, "status": "running", "healthy": True}
+            )
+            for name in names
+        },
+    )
+    monkeypatch.setattr(mod.ai_alert_monitor, "load_runtime_status", lambda: {"status": "idle", "pid_alive": True, "incidents_written": 0, "reason": "no_new_events"})
+
+    out = mod.build_report(now_epoch=1000.0 + 3600.0)
+
+    assert out["counts_for_paper_gate"] is False
+    assert out["topology_matches_run_state"] is False

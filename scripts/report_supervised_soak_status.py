@@ -45,7 +45,13 @@ def _runtime_flags() -> Path:
 
 def _running_map() -> dict[str, bool]:
     rows = supervisor_status(ALL_SERVICES)
-    return {str(name): bool((row or {}).get("running")) for name, row in dict(rows or {}).items()}
+    out: dict[str, bool] = {}
+    for name, row in dict(rows or {}).items():
+        item = dict(row or {})
+        running = bool(item.get("running"))
+        healthy = item.get("healthy")
+        out[str(name)] = running if healthy is None else bool(running and healthy)
+    return out
 
 
 def _current_desired_runtime() -> tuple[dict[str, Any], list[str], str | None]:
