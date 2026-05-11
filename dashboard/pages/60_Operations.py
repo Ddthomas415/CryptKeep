@@ -33,6 +33,7 @@ from dashboard.services.operator import (
     apply_safe_system_self_repair,
     export_diagnostics_bundle,
     get_operations_snapshot,
+    get_supervised_soak_snapshot,
     list_services,
     preview_safe_system_self_repair,
     run_op,
@@ -85,6 +86,10 @@ try:
     snapshot = get_operations_snapshot()
 except PermissionError:
     snapshot = {}
+try:
+    soak_snapshot = get_supervised_soak_snapshot()
+except PermissionError:
+    soak_snapshot = {}
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
@@ -195,6 +200,39 @@ with st.container(border=True):
                 f"Model: {_cop_result.get('model')} · "
                 f"Context: {_cop_result.get('context_chars', 0):,} chars"
             )
+
+with st.container(border=True):
+    st.markdown("### Supervised Paper Soak")
+    st.caption("Canonical Section 4.1 paper-gate evidence from the supervised soak reporter.")
+    if not bool(soak_snapshot.get("ok")):
+        st.info(f"Supervised soak status unavailable: {soak_snapshot.get('reason') or 'unknown'}")
+    else:
+        _soak0, _soak1, _soak2, _soak3 = st.columns(4)
+        _soak0.metric("Section 4.1", str(soak_snapshot.get("result") or "unknown"))
+        _soak1.metric("Elapsed Hours", str(soak_snapshot.get("elapsed_hours") or "unknown"))
+        _soak2.metric("Remaining", str(soak_snapshot.get("remaining_hours") or "unknown"))
+        _soak3.metric("Counts for Gate", "Yes" if bool(soak_snapshot.get("counts_for_paper_gate")) else "No")
+
+        _sym = soak_snapshot.get("symbols") if isinstance(soak_snapshot.get("symbols"), dict) else {}
+        _pipeline = soak_snapshot.get("pipeline") if isinstance(soak_snapshot.get("pipeline"), dict) else {}
+        if not bool(soak_snapshot.get("counts_for_paper_gate")):
+            st.warning("Current runtime does not satisfy the paper-gate topology contract.")
+        if _sym and not bool(_sym.get("runtime_matches_current_desired_state")):
+            st.warning("Running soak symbols differ from current desired symbols.")
+        if int(_pipeline.get("errors") or 0) > 0:
+            st.info(f"Recovered pipeline errors observed during this soak window: {int(_pipeline.get('errors') or 0)}")
+
+        st.write(
+            {
+                "running_symbols": list(_sym.get("run_state") or []),
+                "current_desired_symbols": list(_sym.get("current_desired_state") or []),
+                "topology_matches_run_state": bool(soak_snapshot.get("topology_matches_run_state")),
+                "runtime_matches_current_desired_state": bool(_sym.get("runtime_matches_current_desired_state")),
+            }
+        )
+        _entry = str(soak_snapshot.get("section_4_1_entry") or "").strip()
+        if _entry:
+            st.code(_entry)
 
 render_operations_status_summary(snapshot)
 render_structural_edge_health_summary(

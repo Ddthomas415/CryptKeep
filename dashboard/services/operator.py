@@ -301,3 +301,14 @@ def get_operations_snapshot() -> dict[str, object]:
         "unknown_services": unknown_count,
         "last_health_ts": last_health_ts,
     }
+
+
+def get_supervised_soak_snapshot() -> dict[str, object]:
+    try:
+        from scripts.report_supervised_soak_status import build_report
+    except Exception as exc:
+        return {"ok": False, "reason": f"soak_report_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(build_report() or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"soak_report_failed:{type(exc).__name__}:{exc}"}
