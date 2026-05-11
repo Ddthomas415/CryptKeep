@@ -1,6 +1,6 @@
 # Full Repo Audit Master TODO
 
-**Last updated:** 2026-05-10
+**Last updated:** 2026-05-11
 
 This document is a master planning checklist for a future full-repo audit.
 It is intentionally organized into bounded sections so the audit can be run in
@@ -12,6 +12,13 @@ have already been audited to completion.
 Current handoff artifact:
 
 - [next_agent_handoff_2026_05_10.md](./next_agent_handoff_2026_05_10.md)
+
+Current status overlay:
+
+- [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
+Use the status overlay before treating any historical pass note as a current
+open blocker list.
 
 ## How to use this document
 

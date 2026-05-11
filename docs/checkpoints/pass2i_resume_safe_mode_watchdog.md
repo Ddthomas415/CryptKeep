@@ -4,6 +4,16 @@
 **Pass:** 2I
 **Status:** COMPLETE
 
+## Status update — 2026-05-11
+
+- Historical finding `H5` remains valid as evidence of the resume/control-plane gap at audit time.
+- Independently accepted remediations now exist on:
+  - `codex/resume-gate-coherence` @ `62f50d643`
+  - `codex/live-guard-failclosed` @ `4a1e10ec4`
+- Those remediations have **not** been landed into the active soak checkout.
+- Current blocker status is tracked in:
+  - [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
 ---
 
 ## SHOWN findings

@@ -12,6 +12,13 @@ Previous versions of this document used the title 'Complete Audit Map'
 which implied completeness it did not have. That title was wrong.
 This version corrects the record.
 
+Current blocker/acceptance overlay:
+
+- [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
+Historical findings below should be read as a snapshot from the time of the
+audit pass unless the status overlay says they are still current.
+
 ---
 
 ## Depth taxonomy

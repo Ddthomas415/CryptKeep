@@ -5,6 +5,15 @@
 **Scope:** Trades page source and mode provenance  
 **Status:** COMPLETE
 
+## Status update — 2026-05-11
+
+- A remediation branch now exists for the provenance gaps described here:
+  - `codex/trades-provenance-truth` @ `fba06b3c3`
+- That branch is `READY_FOR_REVIEW`, not independently accepted yet.
+- It has **not** been landed into the active soak checkout.
+- Current blocker status is tracked in:
+  - [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
 ---
 
 ## Scope

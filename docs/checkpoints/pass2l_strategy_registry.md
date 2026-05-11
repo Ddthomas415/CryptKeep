@@ -17,6 +17,15 @@ After initial commit, full evidence flow was traced:
 5. Fills go to `unmapped_strategy_ids` and are skipped in `grouped`
 6. `report_supervised_soak_status.py` does NOT use `evidence_cycle` — confirmed by grep
 
+## Status update — 2026-05-11
+
+- Historical finding `H6` remains valid as evidence of the evidence-cycle blind spot at audit time.
+- Independently accepted remediation now exists on:
+  - `codex/h6-soak-evidence-fix` @ `fa50ff181`
+- That remediation has **not** been landed into the active soak checkout.
+- Current blocker status is tracked in:
+  - [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
 ---
 
 ## SHOWN findings

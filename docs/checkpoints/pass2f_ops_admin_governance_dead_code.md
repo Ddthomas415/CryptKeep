@@ -4,6 +4,15 @@
 **Pass:** 2F
 **Status:** COMPLETE
 
+## Status update — 2026-05-11
+
+- Historical finding `H4` remains valid as evidence of the wiring gap at audit time.
+- Independently accepted remediation now exists on:
+  - `codex/governance-enforcement-wiring` @ `8601aafae`
+- That remediation has **not** been landed into the active soak checkout.
+- Current blocker status is tracked in:
+  - [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
 ---
 
 ## Critical finding

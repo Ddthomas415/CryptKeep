@@ -4,6 +4,15 @@
 **Pass:** 2C — dashboard pages not read in pass 1  
 **Status:** COMPLETE
 
+## Status update — 2026-05-11
+
+- Historical finding `H3` remains valid as evidence of the bug at audit time.
+- Independently accepted remediation now exists on:
+  - `codex/dashboard-operator-guards` @ `847d8edf0`
+- That remediation has **not** been landed into the active soak checkout.
+- Current blocker status is tracked in:
+  - [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
 ---
 
 ## Pages read

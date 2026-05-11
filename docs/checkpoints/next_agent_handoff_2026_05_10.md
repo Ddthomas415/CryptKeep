@@ -9,6 +9,17 @@ worktree without disturbing the active paper soak
 This handoff is for the next agent to resume work without reopening already
 traced questions or accidentally touching the running soak checkout.
 
+## Status overlay
+
+This handoff is a historical snapshot from 2026-05-10.
+
+Current accepted/open status now lives in:
+
+- [audit_findings_status_2026_05_11.md](./audit_findings_status_2026_05_11.md)
+
+Read that overlay before reusing any blocker list from this handoff as if it
+were current.
+
 ## Repo split
 
 ### 1. Active soak checkout — do not disturb except read-only inspection
