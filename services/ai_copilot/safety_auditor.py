@@ -54,12 +54,18 @@ def _place_order_contract() -> dict[str, Any]:
 def _severity_from_runtime(*, docs_ok: bool, code_ok: bool, place_order_ok: bool, live_reason: str) -> str:
     if not docs_ok or not code_ok or not place_order_ok:
         return "critical"
+    if live_reason in {"system_guard_missing", "system_guard_invalid"}:
+        return "critical"
     if live_reason in {"system_guard_halting", "system_guard_halted", "kill_switch_armed"}:
         return "warn"
     return "ok"
 
 
 def _summary_text(*, severity: str, live_reason: str, live_enabled: bool, armed: bool) -> str:
+    if live_reason == "system_guard_missing":
+        return "Safety posture is critical: system guard state is missing, so live trading remains blocked until the guard file is restored."
+    if live_reason == "system_guard_invalid":
+        return "Safety posture is critical: system guard state is invalid, so live trading remains blocked until the guard file is repaired."
     if severity == "critical":
         return "Safety posture is incomplete because one or more required docs or critical code surfaces are missing."
     if live_reason == "kill_switch_armed":
@@ -85,6 +91,10 @@ def _recommendations(*, docs_present: list[dict[str, Any]], code_present: list[d
         recs.append(f"Restore or inspect required safety code paths: {', '.join(missing_code)}.")
     if live_reason == "kill_switch_armed":
         recs.append("Confirm whether the kill switch is intentionally armed before attempting any resume action.")
+    elif live_reason == "system_guard_missing":
+        recs.append("Restore the missing system guard state before attempting any live resume or arming action.")
+    elif live_reason == "system_guard_invalid":
+        recs.append("Repair or replace the invalid system guard state before attempting any live resume or arming action.")
     elif live_reason == "system_guard_halting":
         recs.append("Let reconciler/operator cleanup complete before attempting recovery.")
     elif live_reason == "system_guard_halted":

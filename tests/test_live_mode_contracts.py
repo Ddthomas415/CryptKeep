@@ -35,6 +35,36 @@ def test_live_guard_blocks_when_system_guard_halted(monkeypatch):
     assert details["system_guard"]["state"] == "HALTED"
 
 
+def test_live_guard_blocks_when_system_guard_missing_even_with_resume_allowances(monkeypatch):
+    monkeypatch.setattr(live_guard, "kill_state", lambda: {"armed": False, "note": "manual"})
+    monkeypatch.setattr(live_guard, "get_system_guard_state", lambda **_: {"state": "HALTED", "writer": "system_guard", "reason": "missing"})
+    monkeypatch.setattr(live_guard, "load_user_config", lambda: {"execution": {"live_enabled": True}})
+
+    allowed, reason, details = live_guard.live_allowed(
+        allow_kill_switch_armed=True,
+        allow_system_guard_halted=True,
+    )
+
+    assert allowed is False
+    assert reason == "system_guard_missing"
+    assert details["system_guard"]["reason"] == "missing"
+
+
+def test_live_guard_blocks_when_system_guard_invalid_even_with_resume_allowances(monkeypatch):
+    monkeypatch.setattr(live_guard, "kill_state", lambda: {"armed": False, "note": "manual"})
+    monkeypatch.setattr(live_guard, "get_system_guard_state", lambda **_: {"state": "HALTED", "writer": "system_guard", "reason": "invalid"})
+    monkeypatch.setattr(live_guard, "load_user_config", lambda: {"execution": {"live_enabled": True}})
+
+    allowed, reason, details = live_guard.live_allowed(
+        allow_kill_switch_armed=True,
+        allow_system_guard_halted=True,
+    )
+
+    assert allowed is False
+    assert reason == "system_guard_invalid"
+    assert details["system_guard"]["reason"] == "invalid"
+
+
 
 def test_intent_executor_live_allowed_accepts_current_live_shape(monkeypatch):
     monkeypatch.setattr(intent_executor, "_killswitch_state", lambda: (False, ""))
