@@ -21,10 +21,15 @@ def live_allowed(
       - live trading is enabled in the normalized config contract
     '''
     ks = kill_state()
-    system_guard = get_system_guard_state(fail_closed=False)
+    system_guard = get_system_guard_state(fail_closed=True)
     guard_state = str(system_guard.get("state") or "").upper().strip()
+    guard_reason = str(system_guard.get("reason") or "").lower().strip()
     details: dict[str, Any] = {"kill_switch": ks, "system_guard": system_guard}
 
+    if guard_reason == "missing":
+        return False, "system_guard_missing", details
+    if guard_reason == "invalid":
+        return False, "system_guard_invalid", details
     if guard_state == "HALTING":
         return False, "system_guard_halting", details
     if guard_state == "HALTED" and not bool(allow_system_guard_halted):
