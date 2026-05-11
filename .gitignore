@@ -17,6 +17,8 @@ logs/
 *.sqlite
 *.db
 *.log
+!services/runtime/
+!services/runtime/*.py
 
 # Build artifacts
 dist/

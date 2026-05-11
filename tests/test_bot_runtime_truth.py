@@ -112,6 +112,23 @@ def test_read_heartbeat_can_use_market_ws_status_when_running(monkeypatch, tmp_p
     assert out.get("path") == str(brt.CANONICAL_STATUS_FILES["market_ws"])
 
 
+def test_read_heartbeat_uses_live_intent_consumer_status_when_running(monkeypatch, tmp_path):
+    brt = _reload_bot_runtime_truth(monkeypatch, tmp_path)
+    monkeypatch.setattr(brt, "supervisor_status", lambda _names: _status_map(intent_consumer=True))
+
+    brt.CANONICAL_STATUS_FILES["intent_consumer"].parent.mkdir(parents=True, exist_ok=True)
+    brt.CANONICAL_STATUS_FILES["intent_consumer"].write_text(
+        json.dumps({"status": "running", "ts_epoch": 42.0}),
+        encoding="utf-8",
+    )
+
+    out = brt.read_heartbeat()
+
+    assert out.get("source") == "intent_consumer"
+    assert out.get("ts_epoch") == 42.0
+    assert out.get("path") == str(brt.CANONICAL_STATUS_FILES["intent_consumer"])
+
+
 def test_read_heartbeat_does_not_silently_fallback_by_default(monkeypatch, tmp_path):
     brt = _reload_bot_runtime_truth(monkeypatch, tmp_path)
     monkeypatch.setattr(brt, "supervisor_status", lambda _names: _status_map())
