@@ -49,6 +49,14 @@ def _display_text(value: Any, *, fallback: str = "Unknown") -> str:
     return text or fallback
 
 
+def _format_hours(value: Any) -> str:
+    try:
+        hours = float(value)
+    except Exception:
+        return "Unknown"
+    return f"{hours:.2f}h"
+
+
 def _tone_from_health(state: Any) -> str:
     value = str(state or "").strip().lower()
     return {
@@ -364,6 +372,27 @@ def render_mode_truth_card(payload: ModeTruthData) -> None:
         promotion_pass_criteria = list(payload.get("promotion_pass_criteria") or [])
         promotion_rollback_criteria = list(payload.get("promotion_rollback_criteria") or [])
         blockers = list(payload.get("promotion_blockers") or [])
+        paper_gate_result = _display_text(payload.get("paper_gate_result"), fallback="")
+        paper_gate_entry = _display_text(payload.get("paper_gate_entry"), fallback="")
+        paper_gate_counts = bool(payload.get("paper_gate_counts"))
+        paper_gate_runtime_matches_current = payload.get("paper_gate_runtime_matches_current_desired_state")
+
+        if str(payload.get("current_mode") or "").strip().lower() == "paper" and paper_gate_result:
+            st.markdown("**Paper Gate (Section 4.1)**")
+            render_badge_row(
+                [
+                    {"text": f"Status: {paper_gate_result}", "tone": "success" if paper_gate_result == "ELAPSED_THRESHOLD_MET" else "warning"},
+                    {"text": f"Elapsed: {_format_hours(payload.get('paper_gate_elapsed_hours'))}", "tone": "muted"},
+                    {"text": f"Remaining: {_format_hours(payload.get('paper_gate_remaining_hours'))}", "tone": "muted"},
+                    {"text": f"Counts For Gate: {'Yes' if paper_gate_counts else 'No'}", "tone": "success" if paper_gate_counts else "danger"},
+                ]
+            )
+            if not paper_gate_counts:
+                st.warning("Current runtime state does not currently count for the paper trading gate.")
+            if paper_gate_runtime_matches_current is False:
+                st.warning("Running soak symbols differ from the current desired scanner symbols.")
+            if paper_gate_entry:
+                st.caption(paper_gate_entry)
 
         st.markdown("**Promotion Readiness**")
         render_badge_row(
