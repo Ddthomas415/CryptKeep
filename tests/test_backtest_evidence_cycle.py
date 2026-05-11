@@ -247,6 +247,55 @@ def test_load_paper_history_evidence_summarizes_trade_journal(tmp_path) -> None:
     assert out["rows"][0]["net_realized_pnl"] > 0.0
 
 
+def test_load_paper_history_evidence_maps_es_daily_trend_strategy_id(tmp_path) -> None:
+    db = tmp_path / "trade_journal.sqlite"
+    con = sqlite3.connect(str(db))
+    try:
+        con.execute(
+            """
+            CREATE TABLE journal_fills (
+              fill_id TEXT PRIMARY KEY,
+              journal_ts TEXT NOT NULL,
+              intent_id TEXT,
+              source TEXT,
+              strategy_id TEXT,
+              client_order_id TEXT,
+              order_id TEXT NOT NULL,
+              fill_ts TEXT NOT NULL,
+              venue TEXT NOT NULL,
+              symbol TEXT NOT NULL,
+              side TEXT NOT NULL,
+              qty REAL NOT NULL,
+              price REAL NOT NULL,
+              fee REAL NOT NULL,
+              fee_currency TEXT NOT NULL,
+              cash_quote REAL,
+              pos_qty REAL,
+              pos_avg_price REAL,
+              realized_pnl_total REAL
+            )
+            """
+        )
+        con.executemany(
+            "INSERT INTO journal_fills(fill_id, journal_ts, strategy_id, order_id, fill_ts, venue, symbol, side, qty, price, fee, fee_currency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                ("f1", "2026-03-19T12:00:00Z", "es_daily_trend_v1", "o1", "2026-03-19T12:00:00Z", "paper", "BTC/USD", "buy", 1.0, 100.0, 0.1, "USD"),
+                ("f2", "2026-03-19T12:10:00Z", "es_daily_trend_v1", "o2", "2026-03-19T12:10:00Z", "paper", "BTC/USD", "sell", 1.0, 110.0, 0.1, "USD"),
+            ],
+        )
+        con.commit()
+    finally:
+        con.close()
+
+    out = evidence_cycle.load_paper_history_evidence(journal_path=str(db))
+
+    assert out["status"] == "available"
+    assert out["unmapped_strategy_ids"] == []
+    assert out["strategy_count"] == 1
+    assert out["rows"][0]["strategy"] == "sma_200_trend"
+    assert out["rows"][0]["source_strategy_ids"] == ["es_daily_trend_v1"]
+
+
 def test_run_strategy_evidence_cycle_re_ranks_with_strategy_feedback_penalty(monkeypatch) -> None:
     monkeypatch.setattr(
         evidence_cycle,
