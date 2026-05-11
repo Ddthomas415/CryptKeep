@@ -1,328 +1,162 @@
-# CryptKeep — Complete Audit Map
+# CryptKeep — Audit Coverage Map
 
-**Created:** 2026-05-10  
-**Purpose:** Definitive reference for all audit work — past, present, and future.  
-This document is designed to be carried forward across sessions and updated
-as audit passes are completed.
+**Last updated:** 2026-05-10 (after Pass 2O)
+
+**Honest scope statement:**
+This is a coverage-tracking document, not a claim of completeness.
+The codebase contains approximately 1,400+ Python files. After 15 pass-2
+audit segments (2A–2O), approximately 115–125 files have been read in
+some depth. That is roughly 8–9% of the total codebase.
+
+Previous versions of this document used the title 'Complete Audit Map'
+which implied completeness it did not have. That title was wrong.
+This version corrects the record.
 
 ---
 
-## Audit depth taxonomy
-
-Every surface in this map is assigned one of five depth labels:
+## Depth taxonomy
 
 | Label | Meaning |
 |---|---|
-| `NOT_AUDITED` | Never read. No findings. No coverage. |
-| `DISCOVERED` | File/module identified, purpose understood, not read in depth. |
-| `SAMPLED` | Key sections read. Representative patterns checked. Not exhaustive. |
-| `REVIEWED` | Full read. All functions inspected. Static analysis complete. |
-| `TESTED` | Dynamic analysis performed. Behavior verified by execution or adversarial test. |
-
-Most production code requires `REVIEWED` before pre-live sign-off.
-Critical execution paths require `REVIEWED` + `TESTED`.
+| NOT_AUDITED | Never read |
+| DISCOVERED | Purpose known, not read in depth |
+| SAMPLED | Key sections read, not exhaustive |
+| REVIEWED | Full read, all functions inspected |
+| TESTED | Dynamic / adversarial verification |
 
 ---
 
-## Audit method taxonomy
+## Actual coverage by directory
 
-| Method | Meaning |
-|---|---|
-| `static` | File read only. No execution. |
-| `dynamic` | Code was run and output observed. |
-| `adversarial` | Attempted to trigger the failure mode, not just find it in code. |
-| `doc_review` | Docs read and compared to code truth. |
+| Directory | Files total | Files reviewed | True coverage |
+|---|---|---|---|
+| services/execution/ | 80 | ~12 | 15% |
+| services/strategies/ | 30 | ~5 | 17% |
+| services/market_data/ | 29 | 0 | **0%** |
+| services/admin/ | 26 | 16 | 62% |
+| services/risk/ | 21 | 2 | 10% |
+| services/security/ | 13 | 8 | 62% |
+| services/backtest/ | 17 | 2 | 12% |
+| services/analytics/ | 15 | 1 | 7% |
+| services/signals/ | 13 | 0 | **0%** |
+| services/ai_copilot/ | 12 | 3 | 25% |
+| services/control/ | 9 | 5 | 56% |
+| services/governance/ | 11 | 9 | 82% |
+| services/fills/ | 3 | 2 | 67% |
+| services/pipeline/ | 4 | 3 | 75% |
+| services/runtime/ | 5 | 3 | 60% |
+| services/os/ | 3 | 2 | 67% |
+| All other services/ dirs | ~200+ | ~5 | <3% |
+| storage/ | 46 | 5 | 11% |
+| dashboard/pages/ | 26 | 18 | 69% |
+| dashboard/services/ | ~30 | ~8 | 27% |
+| scripts/ | 145 | ~15 | 10% |
+| tests/ | 668 | 0 content | **0%** |
 
 ---
 
-## Summary — Pass 1 coverage
+## What was actually covered (confirmed)
 
-**Total Python files in repo:** ~1,400+ (services, storage, dashboard, scripts, tests)  
-**Files read in depth (REVIEWED or better):** ~60  
-**Files sampled:** ~40  
-**Files not read:** ~1,300+
+### Execution critical path
+Reviewed: place_order.py, live_intent_consumer.py, live_reconciler.py,
+fill_sink.py, system_health.py, intent_executor.py, adapters/factory.py,
+adapters/paper.py, live_exchange_adapter.py, lifecycle_boundary.py,
+order_params.py, paper_runner.py
 
-Pass 1 is a structured first-pass audit. It establishes the finding landscape
-and identifies the highest-risk surfaces. It is not a complete code review.
+### Admin and arming
+Reviewed: kill_switch.py, live_guard.py, live_enable_wizard.py,
+live_disable_wizard.py, system_guard.py, preflight.py, resume_gate.py,
+safe_mode_recovery.py, safety_policy.py, service_controls.py,
+repair_wizard.py, reconcile_safe_steps.py, config_editor.py, watchdog.py
+
+### Security module
+Reviewed: auth_gate.py, role_guard.py, auth_runtime_guard.py,
+binance_guard.py, credentials_loader.py, direct_origin_guard.py,
+exchange_factory.py, permission_probes.py
+Sampled: auth_capabilities.py, secret_store.py, user_auth_store.py
+
+### Storage
+Reviewed: order_dedupe_store_sqlite.py, file_utils.py
+Sampled: paper_trading_sqlite.py, live_intent_queue_sqlite.py,
+live_trading_sqlite.py, strategy_state_store_sqlite.py,
+trade_journal_sqlite.py
+
+### Governance
+Reviewed: campaign_state_machine.py, decision_engine.py, invalidation.py,
+claims_guard.py, campaign_validation.py, deployment_truth.py,
+operator_overrides.py, campaign_fingerprint.py
+
+### Control plane
+Reviewed: kernel.py, cognitive_budget.py, deployment_stage.py
+Sampled: allocator.py not yet read
+
+### Strategies
+Reviewed: es_daily_trend.py, strategy_registry.py
+Sampled: strategy_selector.py
+
+### Dashboard pages (18 of 26 read)
+Reviewed: 40_Trades, 50_Automation, 70_Settings, 60_Operations,
+65_Copilot_Reports, 44_Paper_Reconciliation, 35_Research, 99_Legacy_UI,
+20_Portfolio, 10_Markets, 30_Signals, plus home/overview/markets passes
 
 ---
 
-## Section 1 — Runtime Control Plane
+## Confirmed NOT_AUDITED (highest risk surfaces not yet read)
 
-**Status:** SAMPLED (prior session) + REVIEWED (this session)
+### Must-read before live deployment
+- services/market_data/ (29 files, 0 reviewed) — OHLCV fetch, WS feeds
+- services/risk/risk_gate.py — runtime risk enforcement
+- services/risk/live_risk_gates.py
+- services/risk/market_quality_guard.py
+- services/risk/position_sizing.py
+- services/risk/daily_limits.py
+- services/signals/ (13 files, 0 reviewed)
+- services/execution/ remaining 68 files
 
-| File | Depth | Notes |
+### Should read before live deployment
+- services/control/allocator.py
+- services/control/runtime_identity.py
+- services/analytics/ (15 files, 1 reviewed)
+- storage/ remaining 41 files (especially risk-adjacent stores)
+- tests/ content audit (668 files, 0 reviewed)
+
+### Lower priority
+- All other services/ directories with 0 coverage
+- Historical PHASE*.md docs in docs/
+
+---
+
+## Open findings (after Passes 1–2O)
+
+| # | Severity | Finding |
 |---|---|---|
-| `scripts/start_bot.py` | REVIEWED | Missing intent_consumer fixed PR #39 |
-| `scripts/stop_bot.py` | REVIEWED | Flag syntax confirmed |
-| `scripts/bot_status.py` | SAMPLED | PID tracking false-negative observed in soak |
-| `services/runtime/process_supervisor.py` | REVIEWED | PID file not atomic; IDLE-on-crash; session detach gap |
-| `services/process/bot_runtime_truth.py` | SAMPLED | canonical_service_status() used by alert monitor |
-| `scripts/run_pipeline_loop.py` | REVIEWED | EMA default; executor_mode read; sma_period/atr_period wired |
-| `scripts/run_bot_runner.py` | DISCOVERED | enabled=false; not in supervised stack |
-
-**Open:** PID file write_text not atomic; market_ws listed in docs but not started.
-
----
-
-## Section 2 — Paper Soak and Runtime Evidence
-
-**Status:** REVIEWED
-
-| File | Depth | Notes |
-|---|---|---|
-| `scripts/report_supervised_soak_status.py` | REVIEWED | counts_for_paper_gate ≠ gate-pass; drift flags confirmed |
-| `docs/PAPER_SOAK_GATE.md` | REVIEWED + updated | Three operator decisions recorded 2026-05-10 |
-| `docs/LAUNCH_CHECKLIST.md` | REVIEWED | Section 4.1 resolved via PAPER_SOAK_GATE.md |
-| `.cbp_state/runtime/ai_reports/*.json` | SAMPLED | 9 incidents; 3 unique current-window families |
-| `.cbp_state/runtime/logs/pipeline.log` | SAMPLED | 3 run_once_failed, all recovered |
-
----
-
-## Section 3 — Execution, Routing, and Risk Gates
-
-**Status:** REVIEWED (key files) + TESTED (via soak)
-
-| File | Depth | Notes |
-|---|---|---|
-| `services/execution/place_order.py` | REVIEWED | Findings 1-2 open; async skips precision |
-| `services/execution/live_intent_consumer.py` | REVIEWED | Findings 3-4 fixed PR #39 |
-| `services/execution/live_reconciler.py` | REVIEWED | Findings 5-7; cursor fixed PR #36 |
-| `services/execution/fill_sink.py` | REVIEWED | Findings 8-9; CompositeFillSink fixed PR #36 |
-| `services/risk/system_health.py` | REVIEWED | Findings 10-11; invariant gap fixed PR #36 |
-| `services/execution/intent_executor.py` | REVIEWED | Mode separation confirmed; _live_allowed canonical |
-| `services/execution/adapters/factory.py` | REVIEWED | mode=paper routes to PaperEngineAdapter (PR #37) |
-| `services/execution/adapters/paper.py` | REVIEWED | New PR #37; interface matches intent_executor |
-| `scripts/run_intent_executor_safe.py` | REVIEWED | IDLE on crash; delegates to paper-era consumer |
-| `scripts/run_live_reconciler_safe.py` | REVIEWED | IDLE on crash |
-| `scripts/run_intent_consumer_safe.py` | REVIEWED | Wraps run_intent_consumer NOT run_live_intent_consumer |
-| `scripts/run_live_intent_consumer.py` | SAMPLED | Correct script; started directly by start_bot.py |
-
-**NOT_AUDITED:** live_exchange_adapter.py, order_router.py, position_tracker.py,
-risk_gate.py, daily_risk.py, reconciliation/ services.
-
----
-
-## Section 4 — Storage and State Integrity
-
-**Status:** SAMPLED (4 of 46 storage files)
-
-| File | Depth | Notes |
-|---|---|---|
-| `services/os/file_utils.py` | REVIEWED | atomic_write correct |
-| `storage/paper_trading_sqlite.py` | SAMPLED | WAL; INSERT OR IGNORE on client_order_id |
-| `storage/live_intent_queue_sqlite.py` | SAMPLED | WAL; BEGIN IMMEDIATE risk claim |
-| `storage/live_trading_sqlite.py` | SAMPLED | INSERT OR IGNORE on fill_key |
-| `storage/strategy_state_store_sqlite.py` | SAMPLED | INSERT OR REPLACE |
-
-**NOT_AUDITED (42 files):** canonical_journal_sqlite.py, risk_ledger_store_sqlite.py,
-order_dedupe_store_sqlite.py, live_position_store_sqlite.py, and 38 others.
-
----
-
-## Section 5 — Market Data and Symbol Management
-
-**Status:** SAMPLED
-
-| File | Depth | Notes |
-|---|---|---|
-| `services/runtime/managed_symbol_selection.py` | REVIEWED | Scanner block in live; fallback; cache TTL |
-| `services/runtime/dynamic_symbol_selector.py` | SAMPLED | Catches all exceptions |
-
-**NOT_AUDITED:** ccxt_market_data.py, ws_market_data.py, managed_symbol_config.py.
-
----
-
-## Section 6 — Dashboard and Operator UI
-
-**Status:** REVIEWED (14 of 26 pages)
-
-| Page | Depth | Key finding |
-|---|---|---|
-| `10_Markets.py` | REVIEWED | Watchlist strips source |
-| `30_Signals.py` | REVIEWED | Recommendation provenance lost |
-| `40_Trades.py` | REVIEWED | Synthetic fallback rows carry no provenance |
-| `50_Automation.py` | REVIEWED | **HIGH: VIEWER can arm live** |
-| `60_Operations.py` | REVIEWED | Correctly requires OPERATOR |
-| `65_Copilot_Reports.py` | REVIEWED | Artifact browser, not current-window truth |
-| `70_Settings.py` | REVIEWED | **HIGH: VIEWER can write API keys** |
-
-**NOT_AUDITED (12 pages):** 05_Help, 20_Portfolio, 35_Research, 36-39 scanner/movers pages,
-40_Market_Intelligence, 41-48 intelligence/backtest pages, 99_Legacy_UI.
-
----
-
-## Section 7 — AI Copilot and Alerting
-
-**Status:** REVIEWED (2 of 11 files)
-
-| File | Depth | Notes |
-|---|---|---|
-| `services/ai_copilot/alert_monitor.py` | REVIEWED | Log dedup; incidents_written cumulative |
-| `services/ai_copilot/context_collector.py` | REVIEWED | Canonical health + last 20 log lines |
-| `services/ai_copilot/safety_auditor.py` | SAMPLED | write_text not atomic |
-
-**NOT_AUDITED (8 files):** policy.py, providers.py, drift_auditor.py,
-incident_analyst.py, oversight_watch.py, pr_reviewer.py, sim_runner.py, strategy_lab.py.
-
----
-
-## Section 8 — Evidence, Promotion, and Governance
-
-**Status:** SAMPLED
-
-| File | Depth | Notes |
-|---|---|---|
-| `services/backtest/evidence_cycle.py` | SAMPLED | evidence_status classification confirmed |
-| `dashboard/services/promotion_ladder.py` | REVIEWED | paper_supported enforced at both gates |
-| `docs/governance/governance_signoff.md` | REVIEWED | 3 Blocking:Yes items from 2026-03-21 |
-| `docs/governance/governance_checklist.md` | REVIEWED | Stale — different branch and strategy |
-
-**NOT_AUDITED:** paper_strategy_evidence_service.py, paper_campaign_lifecycle.py,
-services/governance/ (8 modules), most of services/backtest/.
-
----
-
-## Section 9 — Auth, Roles, and Safety Boundaries
-
-**Status:** REVIEWED
-
-| File | Depth | Notes |
-|---|---|---|
-| `dashboard/auth_gate.py` | REVIEWED | Lockout server-side; bypass dev-only |
-| `dashboard/role_guard.py` | REVIEWED | RolePolicy defined but not enforced on save paths |
-| `dashboard/services/operator.py` | REVIEWED | 12 require_role sites; Operations correct |
-
-**NOT_AUDITED:** auth_runtime_guard.py, exchange_factory.py, binance_guard.py,
-MFA enrollment paths.
-
----
-
-## Section 10 — Release, Validation, and Operator Docs
-
-**Status:** REVIEWED
-
-| File | Depth | Notes |
-|---|---|---|
-| `scripts/validate.py` | REVIEWED | Accurate; --quick and --full both correct |
-| `scripts/pre_release_sanity.py` | REVIEWED | YAML + alignment; structured JSON output |
-| `docs/CURRENT_RUNTIME_TRUTH.md` | REVIEWED | market_ws listed but not started |
-| `docs/LAUNCH_CHECKLIST.md` | REVIEWED | Commands accurate; 4.1 resolved |
-| `REMAINING_TASKS.md` | REVIEWED | Accurately describes current state |
-
----
-
-## Open findings by severity
-
-### High
-
-| # | Finding | Location |
-|---|---|---|
-| H1 | VIEWER can arm live via Automation save | `50_Automation.py` |
-| H2 | VIEWER can write API keys via Settings save | `70_Settings.py` |
-
-### Medium
-
-| # | Finding | Location |
-|---|---|---|
-| M1 | `run_intent_consumer_safe.py` wraps paper-era consumer | `scripts/` |
-| M2 | Safe wrappers IDLE on crash; PID stays alive | `run_*_safe.py` |
-| M3 | `CURRENT_RUNTIME_TRUTH.md` lists market_ws not started | `docs/` |
-| M4 | `execution_enabled` badge reads from stale API source | `50_Automation.py` |
-| M5 | Settings provider status is config-file string, not live probe | `70_Settings.py` |
-| M6 | Recent fills carry no source field | `_shared_execution.py` |
-
-### Low / Noted
-
-| # | Finding | Location |
-|---|---|---|
-| L1 | PID file uses write_text not atomic_write | `process_supervisor.py` |
-| L2 | dry_run_mode override not labeled on Automation page | `50_Automation.py` |
-| L3 | incidents_written is cumulative not unique-failure | `alert_monitor.py` |
-| L4 | AI monitor keywords are substring — false positives possible | `alert_monitor.py` |
-| L5 | safety_auditor.py writes not atomic | `safety_auditor.py` |
-| L6 | Governance signoff frozen 2026-03-21; 3 Blocking:Yes items | `governance_signoff.md` |
-| L7 | Governance checklist stale — different branch/strategy | `governance_checklist.md` |
-| L8 | Synthetic fallback rows carry no provenance on Trades page | `execution_view.py` |
-
----
-
-## Recommended pass 2 — priority order
-
-### Pass 2A — Critical pre-live surfaces (must read before live)
-
-1. `services/execution/live_exchange_adapter.py`
-2. `services/risk/daily_risk.py`
-3. `services/risk/risk_gate.py`
-4. `storage/canonical_journal_sqlite.py`
-5. `storage/risk_ledger_store_sqlite.py`
-6. `storage/order_dedupe_store_sqlite.py`
-7. `services/security/auth_runtime_guard.py`
-
-### Pass 2B — Fix verification (adversarial)
-
-1. H1/H2: confirm VIEWER cannot arm live after role raise
-2. M1: confirm safe wrapper points to live consumer
-3. PR #36: confirm fill accounting holds under live conditions
-
-### Pass 2C — Dashboard pages not yet read
-
-Priority: 44_Paper_Reconciliation, 20_Portfolio, 35_Research, 99_Legacy_UI
-
-### Pass 2D — Services with zero coverage, highest risk
-
-1. `services/fills/` — fill processing pipeline
-2. `services/reconciliation/` — reconciliation logic
-3. `services/governance/` — 8 modules with open blockers
-4. `services/analytics/paper_strategy_evidence_service.py`
-5. `services/strategies/` — trading strategy implementations
-
-### Pass 2E — Test audit
-
-668 tests run, zero reviewed. Minimum: verify critical-path tests cover
-failure cases (fill accounting, arming, reconciler, order dedup).
-
----
-
-## Surfaces with zero coverage — services/
-
-The following service subdirectories have never been read:
-
-`services/admin/` `services/alerts/` `services/app/` `services/bot/`
-`services/collector/` `services/control/` `services/data/`
-`services/data_collector/` `services/desktop/` `services/diagnostics/`
-`services/evidence/` `services/exchanges/` `services/fills/`
-`services/governance/` `services/health/` `services/imitation/`
-`services/journal/` `services/learning/` `services/live_router/`
-`services/live_trader_fleet/` `services/live_trader_multi/`
-`services/logging/` `services/markets/` `services/meta/`
-`services/monitoring/` `services/net/` `services/onboarding/`
-`services/ops/` `services/paper/` `services/paper_trader/`
-`services/portfolio/` `services/preflight/` `services/profiles/`
-`services/reconciliation/` `services/release/` `services/runbooks/`
-`services/setup/` `services/signals/` `services/storage/`
-`services/strategy/` `services/strategy_runner/` `services/supervisor/`
-`services/trader_signals/` `services/trading/` `services/trading_runner/`
-`services/update/` `services/utils/` `services/validation/`
-`services/ws/` `services/ai_engine/` `services/marketdata/`
+| H4 | High | Governance enforcement dead code — never called in production |
+| H5 | High | resume_if_safe disconnected from config — Drill 6 confirmed |
+| H6 | High | Soak evidence invisible to evidence promotion gate |
+| H7 | High | enforce_direct_origin_block dead code — security guard never called |
+| H1 | Medium | VIEWER partial arming state via Automation |
+| H2 | Medium | VIEWER writes API keys via Settings |
+| H3 | Medium | VIEWER corrupts paper state via Paper Reconciliation |
+| M1 | Medium | find_order_by_client_oid swallows exchange exceptions |
+| M2 | Medium | Safe wrapper routes to paper-era consumer |
+| M3 | Medium | CURRENT_RUNTIME_TRUTH.md lists market_ws not started |
 
 ---
 
 ## Audit session log
 
-| Date | Sections | Findings | Commits |
+| Date | Passes | Files covered | New High findings |
 |---|---|---|---|
-| 2026-05-10 | 1–10 pass 1 | H:2, M:6, L:8 | 11 checkpoint notes + this map |
+| 2026-05-10 | Pass 1 (sections 1–10) | ~60 | H1, H2, H3, H4 |
+| 2026-05-10 | Pass 2A–2O | ~60 more | H5, H6, H7 |
 
 ---
 
-## How to use this document
+## How to use this map
 
-1. Read this map first. Do not re-audit REVIEWED surfaces.
-2. Pick the next surface from Pass 2A, 2B, 2C, 2D, or 2E.
-3. Update the depth label for each file read.
-4. Add new findings to the open findings table.
-5. Commit the updated map after each session.
+1. Pick the next surface from 'Must-read before live deployment'.
+2. Read it. Update the coverage table.
+3. Add findings to the open findings table.
+4. Commit this file after each session.
 
-**This map is the single source of truth for audit coverage.
-Do not create new audit planning docs — update this one.**
+Do not create new audit planning docs. Update this one.
