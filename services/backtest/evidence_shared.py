@@ -119,6 +119,8 @@ def _normalize_strategy_name(value: Any) -> str | None:
         return "mean_reversion_rsi"
     if "breakout" in text or "donchian" in text:
         return "breakout_donchian"
+    if "sma_200" in text or "es_daily_trend" in text or "daily_trend" in text:
+        return "sma_200_trend"
     return None
 
 
