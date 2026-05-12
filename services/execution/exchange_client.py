@@ -20,11 +20,14 @@ from storage.order_dedupe_store_sqlite import OrderDedupeStore
 
 # Human Review Required: confirm per-exchange client order id param names.
 def client_id_param(exchange_id: str, client_id: str | None) -> dict:
+    # Human Review Required: confirm per-exchange client order id param names.
     if not client_id:
         return {}
     ex = str(exchange_id).lower()
     if ex == "binance":
         return {"newClientOrderId": client_id}
+    if ex in ("gateio", "gate.io", "gate"):
+        return {"text": client_id}   # GateIO uses 'text', not 'clientOrderId'
     return {"clientOrderId": client_id}
 
 from services.security.credentials_loader import load_exchange_credentials
