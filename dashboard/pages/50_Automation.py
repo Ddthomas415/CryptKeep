@@ -13,6 +13,7 @@ from dashboard.services.view_data import get_automation_view, update_automation_
 from services.preflight.preflight import SUPPORTED_EXCHANGES
 
 AUTH_STATE = require_authenticated_role("VIEWER")
+CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 render_app_sidebar()
 automation_view = get_automation_view()
 default_mode_options = ["research_only", "paper", "live_approval", "live_auto"]
@@ -222,4 +223,6 @@ render_save_action(
     save_fn=update_automation_view,
     success_message="Automation settings saved.",
     error_message="Automation settings save failed.",
+    required_role="OPERATOR",
+    current_role=CURRENT_ROLE,
 )
