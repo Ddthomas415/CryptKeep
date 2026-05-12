@@ -69,6 +69,7 @@ def default_strategy_candidates(base_cfg: Dict[str, Any] | None = None) -> List[
         {"candidate": "volatility_reversal_default", "cfg": apply_preset(cfg, "volatility_reversal_default")},
         {"candidate": "gap_fill_default", "cfg": apply_preset(cfg, "gap_fill_default")},
         {"candidate": "breakout_volume_default", "cfg": apply_preset(cfg, "breakout_volume_default")},
+        {"candidate": "sma_200_trend_default", "cfg": apply_preset(cfg, "sma_200_trend_default")},
     ]
 
 
