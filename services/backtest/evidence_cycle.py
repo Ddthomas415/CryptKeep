@@ -119,6 +119,8 @@ def _normalize_strategy_name(value: Any) -> str | None:
         return "mean_reversion_rsi"
     if "breakout" in text or "donchian" in text:
         return "breakout_donchian"
+    if "sma_200" in text or "es_daily_trend" in text or "daily_trend" in text:
+        return "sma_200_trend"
     return None
 
 
@@ -1225,7 +1227,7 @@ def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -
     retire = [f"`{item['strategy']}`" for item in decisions if str(item.get("decision") or "") == "retire"]
 
     out: list[str] = [
-        f"# Strategy Decision Record — {date_token}",
+        f"# Strategy Decision Record â {date_token}",
         "",
         "## Scope",
         "",
