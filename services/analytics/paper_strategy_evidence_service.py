@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from services.admin.config_editor import load_user_yaml
+from services.governance.invalidation import should_invalidate as _should_invalidate_reason
 from services.backtest.evidence_cycle import (
     load_paper_history_evidence,
     persist_strategy_evidence,
@@ -872,7 +873,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             )
             result = _run_strategy_window(cfg=cfg, strategy_name=strategy_name)
             stop_reason = str(result.get("stop_reason") or "").strip().lower()
-            if stop_reason in {"fingerprint_mismatch", "drift", "contamination"}:
+            if _should_invalidate_reason(stop_reason):
                 out = {
                     "ok": True,
                     "has_status": True,
