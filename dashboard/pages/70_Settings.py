@@ -18,6 +18,7 @@ from dashboard.components.summary_panels import render_settings_profile_summary
 from dashboard.services.view_data import get_settings_view, update_settings_view
 
 AUTH_STATE = require_authenticated_role("VIEWER")
+CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 render_app_sidebar()
 settings_view = get_settings_view()
 
@@ -840,4 +841,6 @@ render_save_action(
     save_fn=update_settings_view,
     success_message="Settings saved locally and synced when available.",
     error_message="Settings save failed.",
+    required_role="OPERATOR",
+    current_role=CURRENT_ROLE,
 )
