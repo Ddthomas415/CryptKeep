@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 from services.signals.normalizer import normalize_signal
+from services.security.direct_origin_guard import enforce_direct_origin_block
 from storage.signal_inbox_sqlite import SignalInboxSQLite
 
 def _now() -> str:
@@ -36,6 +37,13 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         if u.path not in ("/signal", "/signals"):
             self._send(404, {"ok": False, "reason": "not_found", "path": u.path})
+            return
+        try:
+            _auth_scope = str(os.environ.get("CBP_AUTH_SCOPE") or "local_private_only")
+            _outer = str(os.environ.get("CBP_OUTER_ACCESS_CONTROL") or "")
+            enforce_direct_origin_block(auth_scope=_auth_scope, outer_access_control=_outer, headers=dict(self.headers))
+        except PermissionError as _pe:
+            self._send(403, {"ok": False, "reason": "origin_blocked", "detail": str(_pe)})
             return
         try:
             n = int(self.headers.get("Content-Length", "0") or "0")
