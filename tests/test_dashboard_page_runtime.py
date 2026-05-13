@@ -1197,6 +1197,25 @@ def test_operations_page_shows_paper_evidence_warning(monkeypatch) -> None:
             "last_health_ts": "2026-03-18T10:00:00Z",
         },
     )
+    monkeypatch.setattr(
+        operator_service,
+        "get_supervised_soak_snapshot",
+        lambda: {
+            "ok": True,
+            "result": "IN PROGRESS",
+            "elapsed_hours": 70.5,
+            "remaining_hours": 97.5,
+            "counts_for_paper_gate": True,
+            "topology_matches_run_state": True,
+            "symbols": {
+                "run_state": ["B3/USD", "B3/USDC"],
+                "current_desired_state": ["B3/USD", "B3/USDC"],
+                "runtime_matches_current_desired_state": True,
+            },
+            "pipeline": {"errors": 0},
+            "section_4_1_entry": "Section 4.1 — Minimum paper trading duration",
+        },
+    )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
     monkeypatch.setattr(operator_service, "run_op", lambda args, current_role="VIEWER": (0, "ok"))
     monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
