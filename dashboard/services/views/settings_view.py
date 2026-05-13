@@ -5,7 +5,7 @@ from services.setup.config_manager import DEFAULT_CFG, deep_merge
 from services.admin.config_editor import CONFIG_PATH, load_user_yaml, save_user_yaml
 
 # settings_view.py — auto-split from view_data.py
-from services.execution.live_arming import set_live_enabled
+from services.execution.live_arming import is_live_enabled, set_live_enabled
 from dashboard.services.views._shared import (  # noqa: F401
     _apply_local_settings_overrides,
     _default_settings_payload,
@@ -110,9 +110,10 @@ def get_automation_view() -> dict[str, Any]:
     default_mode = str(
         automation_ui.get("default_mode") or general.get("default_mode") or summary.get("mode") or "research_only"
     )
-    execution_enabled = bool(
+    automation_enabled = bool(
         automation_ui.get("enabled", summary.get("execution_enabled", False))
     )
+    execution_enabled = bool(is_live_enabled(runtime_cfg))
     approval_required = bool(
         automation_ui.get("approval_required_for_live", summary.get("approval_required", True))
     )
@@ -121,8 +122,9 @@ def get_automation_view() -> dict[str, Any]:
 
     return {
         "execution_enabled": execution_enabled,
+        "automation_enabled": automation_enabled,
         "dry_run_mode": bool(
-            automation_ui.get("dry_run_mode", not execution_enabled if "dry_run_mode" not in automation_ui else True)
+            automation_ui.get("dry_run_mode", not automation_enabled if "dry_run_mode" not in automation_ui else True)
         ),
         "default_mode": default_mode,
         "schedule": str(automation_ui.get("schedule") or "manual"),

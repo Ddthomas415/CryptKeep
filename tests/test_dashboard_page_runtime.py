@@ -887,12 +887,14 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
     from dashboard.services import view_data
 
     captured: dict[str, Any] = {}
+    header_calls: list[dict[str, Any]] = []
 
     monkeypatch.setattr(
         view_data,
         "get_automation_view",
         lambda: {
             "execution_enabled": False,
+            "automation_enabled": True,
             "dry_run_mode": True,
             "default_mode": "paper",
             "schedule": "manual",
@@ -913,10 +915,16 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
     )
     monkeypatch.setattr(forms, "render_save_action", lambda **kwargs: captured.update(kwargs))
 
+    def _prepare(monkeypatch, _fake_streamlit) -> None:
+        from dashboard.components import header
+
+        monkeypatch.setattr(header, "render_page_header", lambda *args, **kwargs: header_calls.append(dict(kwargs)))
+
     _load_dashboard_module(
         monkeypatch,
         relative_path="dashboard/pages/50_Automation.py",
         module_name="dashboard_test_automation_page",
+        prepare=_prepare,
         streamlit_overrides={
             "Enable automation": True,
             "Dry run mode": False,
@@ -935,6 +943,7 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
         },
     )
 
+    assert header_calls[-1]["badges"] == [{"label": "Execution", "value": "Disabled"}]
     assert captured["button_label"] == "Save automation settings"
     assert captured["payload"] == {
         "execution_enabled": True,

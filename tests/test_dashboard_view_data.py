@@ -1967,7 +1967,8 @@ def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
 
     payload = view_data.get_automation_view()
-    assert payload["execution_enabled"] is True
+    assert payload["execution_enabled"] is False
+    assert payload["automation_enabled"] is True
     assert payload["dry_run_mode"] is False
     assert payload["default_mode"] == "live_approval"
     assert payload["approval_required_for_live"] is False
@@ -2077,7 +2078,8 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
     )
 
     payload = view_data.get_automation_view()
-    assert payload["execution_enabled"] is True
+    assert payload["execution_enabled"] is False
+    assert payload["automation_enabled"] is True
     assert payload["default_mode"] == "live_approval"
     assert payload["schedule"] == "hourly"
     assert payload["marketplace_routing"] == "approval gated"
@@ -2094,6 +2096,24 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
         "healthy_services": 3,
         "attention_services": 1,
     }
+
+
+def test_get_automation_view_uses_canonical_live_arming_for_execution_badge(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "load_user_yaml",
+        lambda: {
+            "execution": {"executor_mode": "live", "live_enabled": True},
+            "dashboard_ui": {"automation": {"enabled": False}},
+        },
+    )
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"execution_enabled": False, "approval_required": True})
+    monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"default_mode": "paper"}})
+
+    payload = view_data.get_automation_view()
+
+    assert payload["execution_enabled"] is True
+    assert payload["automation_enabled"] is False
 
 
 def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> None:

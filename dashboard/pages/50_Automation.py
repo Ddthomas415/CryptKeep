@@ -126,7 +126,10 @@ with form_col:
 
         col_a, col_b = st.columns((1, 1))
         with col_a:
-            enable_automation_value = st.toggle("Enable automation", value=bool(automation_view.get("execution_enabled")))
+            enable_automation_value = st.toggle(
+                "Enable automation",
+                value=bool(automation_view.get("automation_enabled", automation_view.get("execution_enabled"))),
+            )
             dry_run_mode_value = st.toggle("Dry run mode", value=bool(automation_view.get("dry_run_mode")))
             default_mode_value = st.selectbox("Default mode", default_mode_options, index=default_mode_options.index(default_mode))
 
