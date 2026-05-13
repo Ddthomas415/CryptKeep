@@ -30,18 +30,53 @@ def test_desired_state_live_enables_reconcile():
 
 def test_desired_state_paper_disables_reconcile():
     cfg = {
-        "execution": {"executor_mode": "paper", "live_enabled": False},
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
         "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
         "symbols": "btc/usd",
     }
     st = rbr.desired_state(cfg)
     assert st["mode"] == "paper"
     assert st["with_reconcile"] is False
+    assert st["venue"] == "coinbase"
+    assert st["symbols"] == ["BTC/USD", "ETH/USD"]
     assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "executor"]
 
 
-def test_command_map_uses_live_reconciler_for_canonical_reconciler_service():
+def test_desired_state_surfaces_symbol_selection_metadata(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: {
+            "symbols": ["SOL/USD", "BTC/USD"],
+            "source": "scanner",
+            "reason": "scanner_selected",
+            "selected_symbols": ["SOL/USD", "BTC/USD"],
+            "protected_symbols": [],
+            "protected_symbol_details": [],
+            "scan_ok": True,
+        },
+    )
+    cfg = {
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD"]},
+        "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase", "symbols": ["BTC/USD"]},
+    }
+
+    st = rbr.desired_state(cfg)
+
+    assert st["symbols"] == ["BTC/USD", "SOL/USD"]
+    assert st["symbol_source"] == "scanner"
+    assert st["symbol_reason"] == "scanner_selected"
+    assert st["selected_symbols"] == ["SOL/USD", "BTC/USD"]
+    assert st["protected_symbols"] == []
+    assert st["protected_symbol_details"] == []
+    assert st["scan_ok"] is True
+
+
+def test_command_map_uses_expected_managed_entrypoints():
     cmds = rbr.command_map()
+    assert cmds["pipeline"] == [rbr.sys.executable, "scripts/run_pipeline_loop.py"]
     assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
     assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
     assert cmds["ai_alert_monitor"] == [rbr.sys.executable, "scripts/run_ai_alert_monitor.py"]
@@ -52,13 +87,42 @@ def test_desired_state_requires_explicit_exchange_id():
 
     with pytest.raises(RuntimeError) as exc:
         rbr.desired_state(cfg)
-    assert str(exc.value) == "CBP_CONFIG_REQUIRED:missing_config:live.exchange_id"
+    assert str(exc.value) == "CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id"
+
+
+def test_desired_state_paper_prefers_actual_paper_venue_over_live_exchange_id():
+    cfg = {
+        "mode": "paper",
+        "symbols": ["BTC/USD"],
+        "live": {"exchange_id": "binance", "enabled": False},
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase"},
+    }
+
+    st = rbr.desired_state(cfg)
+
+    assert st["venue"] == "coinbase"
+
+
+def test_desired_state_paper_rejects_conflicting_execution_and_pipeline_venues():
+    cfg = {
+        "mode": "paper",
+        "symbols": ["BTC/USD"],
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
+        "pipeline": {"exchange_id": "binance"},
+    }
+
+    with pytest.raises(RuntimeError) as exc:
+        rbr.desired_state(cfg)
+
+    assert str(exc.value) == "CBP_CONFIG_REQUIRED:conflicting_config:execution.venue_vs_pipeline.exchange_id"
 
 
 def test_desired_state_requires_explicit_symbols():
     cfg = {
-        "execution": {"executor_mode": "paper", "live_enabled": False},
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
         "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase"},
     }
 
     with pytest.raises(RuntimeError) as exc:
@@ -66,21 +130,33 @@ def test_desired_state_requires_explicit_symbols():
     assert str(exc.value) == r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]"
 
 
+def test_desired_state_prefers_supervised_symbol_lists_over_root_symbols():
+    cfg = {
+        "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
+        "live": {"exchange_id": "coinbase"},
+        "pipeline": {"exchange_id": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
+        "symbols": ["BTC/USDT", "ETH/USDT"],
+    }
+
+    st = rbr.desired_state(cfg)
+
+    assert st["symbols"] == ["BTC/USD", "ETH/USD"]
+
+
 def test_apply_state_converges_services(monkeypatch):
     state = {"mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD"], "with_reconcile": False}
 
     started: list[str] = []
+    envs: dict[str, dict[str, str] | None] = {}
     stopped: list[str] = []
-    monkeypatch.setattr(
-        rbr,
-        "start_process",
-        lambda name, cmd: started.append(name) or {"ok": True, "name": name, "cmd": cmd},
-    )
-    monkeypatch.setattr(
-        rbr,
-        "stop_process",
-        lambda name: stopped.append(name) or {"ok": True, "name": name},
-    )
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        envs[name] = dict(env) if env else None
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
+    monkeypatch.setattr(rbr, "start_process", _start_process)
+    monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
     monkeypatch.setattr(rbr, "is_running", lambda name: name == "reconciler")
     monkeypatch.setattr(rbr, "status", lambda names: {n: {"running": n in started} for n in names})
 
@@ -88,24 +164,33 @@ def test_apply_state_converges_services(monkeypatch):
     assert out["ok"] is True
     assert stopped == ["reconciler"]
     assert started == rbr.desired_services(state)
+    assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["executor"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["ops_signal_adapter"] is None
+
+
+def test_service_env_map_canonicalizes_symbol_order():
+    envs = rbr.service_env_map({"symbols": ["SOL/USD", "BTC/USD", "SOL/USD"]})
+
+    assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD,SOL/USD"}
+    assert envs["executor"] == {"CBP_SYMBOLS": "BTC/USD,SOL/USD"}
 
 
 def test_apply_state_force_restart_restarts_wanted(monkeypatch):
     state = {"mode": "live", "live_enabled": True, "venue": "coinbase", "symbols": ["BTC/USD"], "with_reconcile": True}
 
     started: list[str] = []
+    envs: dict[str, dict[str, str] | None] = {}
     stopped: list[str] = []
     guard_calls: list[dict[str, str]] = []
-    monkeypatch.setattr(
-        rbr,
-        "start_process",
-        lambda name, cmd: started.append(name) or {"ok": True, "name": name, "cmd": cmd},
-    )
-    monkeypatch.setattr(
-        rbr,
-        "stop_process",
-        lambda name: stopped.append(name) or {"ok": True, "name": name},
-    )
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        envs[name] = dict(env) if env else None
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
+    monkeypatch.setattr(rbr, "start_process", _start_process)
+    monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
     monkeypatch.setattr(
         rbr,
         "request_system_guard_halt",
@@ -119,6 +204,78 @@ def test_apply_state_force_restart_restarts_wanted(monkeypatch):
     assert guard_calls == []
     assert stopped == rbr.desired_services(state)
     assert started == rbr.desired_services(state)
+    assert envs["pipeline"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["intent_consumer"] == {"CBP_SYMBOLS": "BTC/USD"}
+    assert envs["reconciler"] == {"CBP_SYMBOLS": "BTC/USD"}
+
+
+def test_apply_state_converge_restarts_running_symbol_services_on_mismatch(monkeypatch):
+    state = {"mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["SOL/USD", "ETH/USD"], "with_reconcile": False}
+
+    started: list[str] = []
+    stopped: list[str] = []
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
+    monkeypatch.setattr(rbr, "start_process", _start_process)
+    monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
+    monkeypatch.setattr(rbr, "is_running", lambda name: name in {"pipeline", "executor"})
+    monkeypatch.setattr(rbr, "_service_symbols_mismatch", lambda name, symbols: name in {"pipeline", "executor"})
+    monkeypatch.setattr(rbr, "status", lambda names: {n: {"running": n in started} for n in names})
+
+    out = rbr.apply_state(state, force_restart=False)
+
+    assert out["ok"] is True
+    assert stopped == ["pipeline", "executor"]
+    assert started == rbr.desired_services(state)
+
+
+def test_apply_state_converge_does_not_restart_on_order_only_symbol_change(monkeypatch):
+    state = {"mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["SOL/USD", "ETH/USD"], "with_reconcile": False}
+
+    started: list[str] = []
+    stopped: list[str] = []
+
+    def _start_process(name, cmd, *, env=None):
+        started.append(name)
+        return {"ok": True, "name": name, "cmd": cmd, "env": env}
+
+    monkeypatch.setattr(rbr, "start_process", _start_process)
+    monkeypatch.setattr(rbr, "stop_process", lambda name: stopped.append(name) or {"ok": True, "name": name})
+    monkeypatch.setattr(rbr, "is_running", lambda name: name in {"pipeline", "executor"})
+    monkeypatch.setattr(
+        rbr,
+        "_running_service_symbols",
+        lambda name: ["ETH/USD", "SOL/USD"] if name in {"pipeline", "executor"} else [],
+    )
+    monkeypatch.setattr(rbr, "status", lambda names: {n: {"running": n in {"pipeline", "executor"}} for n in names})
+
+    out = rbr.apply_state(state, force_restart=False)
+
+    assert out["ok"] is True
+    assert stopped == []
+    assert started == rbr.desired_services(state)
+
+
+def test_state_signature_ignores_symbol_order():
+    left = {
+        "mode": "paper",
+        "live_enabled": False,
+        "venue": "coinbase",
+        "symbols": ["B3/USD", "B3/USDC"],
+        "with_reconcile": False,
+    }
+    right = {
+        "mode": "paper",
+        "live_enabled": False,
+        "venue": "coinbase",
+        "symbols": ["B3/USDC", "B3/USD"],
+        "with_reconcile": False,
+    }
+
+    assert rbr.state_signature(left) == rbr.state_signature(right)
 
 
 def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):
@@ -130,8 +287,9 @@ def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):
         rbr,
         "load_trading_cfg",
         lambda _path="config/trading.yaml": {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["BTC/USD"],
         },
     )
@@ -171,8 +329,9 @@ def test_run_loop_shutdown_surfaces_guard_failure_but_still_stops(monkeypatch):
         rbr,
         "load_trading_cfg",
         lambda _path="config/trading.yaml": {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["BTC/USD"],
         },
     )

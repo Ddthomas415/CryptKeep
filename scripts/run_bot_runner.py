@@ -27,6 +27,7 @@ from services.runtime.process_supervisor import (
     status,
     stop_process,
 )
+from services.runtime.managed_symbol_selection import resolve_managed_symbol_selection
 
 MANAGED_SERVICES = (
     "pipeline",
@@ -38,6 +39,12 @@ MANAGED_SERVICES = (
     "ai_alert_monitor",
 )
 STATUS_PATH = runtime_dir() / "flags" / "bot_runner.status.json"
+SERVICE_STATUS_PATHS = {
+    "pipeline": runtime_dir() / "flags" / "pipeline.status.json",
+    "executor": runtime_dir() / "flags" / "intent_executor.status.json",
+    "intent_consumer": runtime_dir() / "flags" / "live_intent_consumer.status.json",
+    "reconciler": runtime_dir() / "flags" / "live_reconciler.status.json",
+}
 STOP_EVENT = threading.Event()
 
 
@@ -56,6 +63,27 @@ def _normalize_symbols(value: Any) -> list[str]:
     return out
 
 
+def _canonical_symbol_set(value: Any) -> list[str]:
+    return sorted({sym for sym in _normalize_symbols(value) if sym})
+
+
+def _paper_venue(cfg: dict[str, Any], execution: dict[str, Any]) -> str:
+    pipeline = cfg.get("pipeline") if isinstance(cfg.get("pipeline"), dict) else {}
+    execution_venue = str(execution.get("venue") or "").strip().lower()
+    pipeline_venue = str(pipeline.get("exchange_id") or "").strip().lower()
+    root_venue = str(cfg.get("venue") or "").strip().lower()
+
+    candidates = [venue for venue in (execution_venue, pipeline_venue, root_venue) if venue]
+    if not candidates:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id")
+
+    explicit = {venue for venue in (execution_venue, pipeline_venue) if venue}
+    if len(explicit) > 1:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:conflicting_config:execution.venue_vs_pipeline.exchange_id")
+
+    return execution_venue or pipeline_venue or root_venue
+
+
 def load_trading_cfg(path: str = "config/trading.yaml") -> dict[str, Any]:
     return load_runtime_trading_config(path)
 
@@ -70,10 +98,14 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
 
     live = cfg.get("live") if isinstance(cfg.get("live"), dict) else {}
     live_enabled = bool(execution.get("live_enabled", live.get("enabled", False)))
-    venue = str(live.get("exchange_id") or cfg.get("venue") or "").strip().lower()
-    if not venue:
-        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
-    symbols = _normalize_symbols(cfg.get("symbols"))
+    if mode == "paper" and not live_enabled:
+        venue = _paper_venue(cfg, execution)
+    else:
+        venue = str(live.get("exchange_id") or cfg.get("venue") or "").strip().lower()
+        if not venue:
+            raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:live.exchange_id")
+    selection = resolve_managed_symbol_selection(cfg, venue=venue, mode=mode, live_enabled=live_enabled)
+    symbols = _canonical_symbol_set(selection.get("symbols") or [])
     if not symbols:
         raise RuntimeError(r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
     with_reconcile = mode == "live" or live_enabled
@@ -83,6 +115,12 @@ def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
         "venue": venue,
         "symbols": symbols,
         "with_reconcile": with_reconcile,
+        "symbol_source": str(selection.get("source") or "static"),
+        "symbol_reason": str(selection.get("reason") or ""),
+        "selected_symbols": list(selection.get("selected_symbols") or []),
+        "protected_symbols": list(selection.get("protected_symbols") or []),
+        "protected_symbol_details": list(selection.get("protected_symbol_details") or []),
+        "scan_ok": selection.get("scan_ok"),
     }
 
 
@@ -110,12 +148,46 @@ def command_map() -> dict[str, list[str]]:
     }
 
 
+def service_env_map(state: dict[str, Any]) -> dict[str, dict[str, str]]:
+    symbols = _canonical_symbol_set(state.get("symbols") or [])
+    if not symbols:
+        return {}
+    env = {"CBP_SYMBOLS": ",".join(symbols)}
+    return {
+        "pipeline": dict(env),
+        "executor": dict(env),
+        "intent_consumer": dict(env),
+        "reconciler": dict(env),
+    }
+
+
+def _running_service_symbols(name: str) -> list[str]:
+    path = SERVICE_STATUS_PATHS.get(name)
+    if path is None or not path.exists():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    symbols = _normalize_symbols(payload.get("symbols"))
+    if symbols:
+        return symbols
+    return _normalize_symbols(payload.get("symbol"))
+
+
+def _service_symbols_mismatch(name: str, expected_symbols: list[str]) -> bool:
+    current = _canonical_symbol_set(_running_service_symbols(name))
+    if not current:
+        return False
+    return current != _canonical_symbol_set(expected_symbols)
+
+
 def state_signature(state: dict[str, Any]) -> str:
     payload = {
         "mode": state.get("mode"),
         "live_enabled": bool(state.get("live_enabled")),
         "venue": state.get("venue"),
-        "symbols": list(state.get("symbols") or []),
+        "symbols": _canonical_symbol_set(state.get("symbols") or []),
         "with_reconcile": bool(state.get("with_reconcile")),
     }
     return json.dumps(payload, sort_keys=True, separators=(",", ":"))
@@ -124,6 +196,7 @@ def state_signature(state: dict[str, Any]) -> str:
 def apply_state(state: dict[str, Any], *, force_restart: bool = False) -> dict[str, Any]:
     wanted = desired_services(state)
     cmds = command_map()
+    envs = service_env_map(state)
 
     stopped: list[dict[str, Any]] = []
     started: list[dict[str, Any]] = []
@@ -134,14 +207,17 @@ def apply_state(state: dict[str, Any], *, force_restart: bool = False) -> dict[s
             if is_running(name):
                 stopped.append(stop_process(name))
         for name in wanted:
-            started.append(start_process(name, cmds[name]))
+            started.append(start_process(name, cmds[name], env=envs.get(name)))
     else:
         # Converge path: stop no-longer-wanted services; ensure wanted services are running.
         for name in MANAGED_SERVICES:
             if name not in wanted and is_running(name):
                 stopped.append(stop_process(name))
+        expected_symbols = [str(x).strip() for x in list(state.get("symbols") or []) if str(x).strip()]
         for name in wanted:
-            started.append(start_process(name, cmds[name]))
+            if name in envs and is_running(name) and _service_symbols_mismatch(name, expected_symbols):
+                stopped.append(stop_process(name))
+            started.append(start_process(name, cmds[name], env=envs.get(name)))
 
     return {
         "ok": True,

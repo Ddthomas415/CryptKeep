@@ -62,8 +62,9 @@ def test_build_report_restores_paper_gate_truth_with_symbol_drift(tmp_path, monk
         soak_report.rbr,
         "load_trading_cfg",
         lambda path="config/trading.yaml": {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["B3/USD", "B3/USDC"],
         },
     )

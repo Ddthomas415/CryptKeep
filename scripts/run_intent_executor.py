@@ -15,10 +15,11 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
 import time
-from services.admin.config_editor import load_user_yaml
+from services.config_loader import load_runtime_trading_config
 from services.execution.intent_executor import execute_one, reconcile_open
-from services.os.app_paths import runtime_dir
+from services.os.app_paths import ensure_dirs, runtime_dir
 from services.os.file_utils import atomic_write
+from services.runtime.managed_symbol_config import resolve_managed_symbols
 
 FLAGS = runtime_dir() / "flags"
 STATUS_FILE = FLAGS / "intent_executor.status.json"
@@ -29,12 +30,16 @@ def _write_status(obj: dict) -> None:
     atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")
 
 def main():
-    cfg = load_user_yaml()
+    ensure_dirs()
+    cfg = load_runtime_trading_config()
     ex = cfg.get("execution", {}) if isinstance(cfg.get("execution"), dict) else {}
     venue = ex.get("venue", "coinbase")
     venue = (os.environ.get("CBP_VENUE") or venue).lower().strip()
-    mode = ex.get("mode", "paper")
-    symbol = ex.get("symbol", None)
+    mode = str(ex.get("executor_mode") or ex.get("mode") or "paper").strip().lower()
+    symbols = resolve_managed_symbols(cfg)
+    if not symbols:
+        raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:symbols[0]")
+    reconcile_symbol = symbols[0] if len(symbols) == 1 else None
     interval = int(ex.get("loop_interval_sec", 2) or 2)
     reconcile_every = int(ex.get("reconcile_every_sec", 30) or 30)
 
@@ -47,6 +52,8 @@ def main():
             "pid": os.getpid(),
             "venue": venue,
             "mode": mode,
+            "symbol": reconcile_symbol,
+            "symbols": symbols,
             "ts_epoch": time.time(),
             "loops": loops,
         }
@@ -60,7 +67,7 @@ def main():
                     cfg,
                     venue=str(venue),
                     mode=str(mode),
-                    symbol=(str(symbol) if symbol else None),
+                    symbol=reconcile_symbol,
                     limit=400,
                 )
                 last_recon = now
@@ -72,6 +79,8 @@ def main():
                     "pid": os.getpid(),
                     "venue": venue,
                     "mode": mode,
+                    "symbol": reconcile_symbol,
+                    "symbols": symbols,
                     "ts_epoch": now,
                     "loops": loops,
                 }
@@ -85,6 +94,8 @@ def main():
                 "pid": os.getpid(),
                 "venue": venue,
                 "mode": mode,
+                "symbol": reconcile_symbol,
+                "symbols": symbols,
                 "ts_epoch": time.time(),
                 "loops": loops,
             }

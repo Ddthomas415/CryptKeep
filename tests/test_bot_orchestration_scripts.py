@@ -10,8 +10,9 @@ def test_start_bot_converges_paper_topology(monkeypatch):
         start_bot.rbr,
         "load_trading_cfg",
         lambda: {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["BTC/USD"],
         },
     )
@@ -32,8 +33,9 @@ def test_start_bot_with_reconcile_converges_reconciler(monkeypatch):
         start_bot.rbr,
         "load_trading_cfg",
         lambda: {
-            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
             "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
             "symbols": ["BTC/USD"],
         },
     )
