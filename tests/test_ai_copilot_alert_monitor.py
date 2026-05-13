@@ -1,0 +1,93 @@
+from __future__ import annotations
+
+import json
+
+from services.ai_copilot import alert_monitor
+
+
+def test_process_once_idle_without_new_events(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setattr(
+        alert_monitor,
+        "canonical_service_status",
+        lambda: {
+            "pipeline": {"running": True, "pid": 100},
+            "executor": {"running": True, "pid": 101},
+            "ops_signal_adapter": {"running": True, "pid": 102},
+            "ops_risk_gate": {"running": True, "pid": 103},
+            "ai_alert_monitor": {"running": True, "pid": 104},
+            "intent_consumer": {"running": False, "pid": None},
+            "reconciler": {"running": False, "pid": None},
+        },
+    )
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "paper",
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"enabled": False},
+        },
+    )
+    monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "executor", "ts_epoch": 1.0})
+    monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "HEALTHY"})
+    monkeypatch.setattr(alert_monitor, "analyze_incident", lambda **_: (_ for _ in ()).throw(AssertionError("should not analyze")))
+
+    out = alert_monitor.process_once()
+
+    assert out["status"] == "idle"
+    assert out["reason"] == "no_new_events"
+
+
+def test_process_once_writes_incident_report_from_new_alert(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    runtime_alerts = tmp_path / "runtime" / "alerts"
+    runtime_logs = tmp_path / "runtime" / "logs"
+    runtime_alerts.mkdir(parents=True, exist_ok=True)
+    runtime_logs.mkdir(parents=True, exist_ok=True)
+    (runtime_alerts / "critical_alerts.jsonl").write_text(
+        json.dumps({"ts": "2026-05-06T12:00:00Z", "level": "error", "message": "pipeline exited"}) + "\n",
+        encoding="utf-8",
+    )
+    (runtime_logs / "pipeline.log").write_text("Traceback: NetworkError\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        alert_monitor,
+        "canonical_service_status",
+        lambda: {
+            "pipeline": {"running": False, "pid": None},
+            "executor": {"running": True, "pid": 123},
+            "ai_alert_monitor": {"running": True, "pid": 321},
+        },
+    )
+    monkeypatch.setattr(
+        alert_monitor,
+        "load_runtime_trading_config",
+        lambda: {
+            "mode": "paper",
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "live": {"enabled": False},
+        },
+    )
+    monkeypatch.setattr(alert_monitor, "read_heartbeat", lambda: {"source": "pipeline", "ts_epoch": 1.0})
+    monkeypatch.setattr(alert_monitor, "get_system_health", lambda: {"state": "DEGRADED", "reasons": ["pipeline_down"]})
+    monkeypatch.setattr(
+        alert_monitor,
+        "analyze_incident",
+        lambda **_: {
+            "ok": True,
+            "analysis": "AI summary",
+            "provider": "openai",
+            "model": "gpt-test",
+            "context_chars": 100,
+        },
+    )
+
+    out = alert_monitor.process_once()
+
+    assert out["status"] == "incident_written"
+    rows = alert_monitor.list_recent_incidents(limit=5)
+    assert rows
+    payload = rows[0]["payload"]
+    assert payload["monitor_name"] == alert_monitor.MONITOR_NAME
+    assert payload["analysis"] == "AI summary"

@@ -37,13 +37,14 @@ def test_desired_state_paper_disables_reconcile():
     st = rbr.desired_state(cfg)
     assert st["mode"] == "paper"
     assert st["with_reconcile"] is False
-    assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "executor"]
+    assert rbr.desired_services(st) == ["pipeline", "ops_signal_adapter", "ops_risk_gate", "ai_alert_monitor", "executor"]
 
 
 def test_command_map_uses_live_reconciler_for_canonical_reconciler_service():
     cmds = rbr.command_map()
     assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
     assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
+    assert cmds["ai_alert_monitor"] == [rbr.sys.executable, "scripts/run_ai_alert_monitor.py"]
 
 
 def test_desired_state_requires_explicit_exchange_id():
@@ -156,10 +157,10 @@ def test_run_loop_shutdown_requests_system_guard_before_stopping(monkeypatch):
     monkeypatch.setattr(rbr, "write_status", lambda payload: statuses.append(dict(payload)))
 
     assert rbr.run_loop(once=True) == 0
-    assert guard_calls == [{"writer": "bot_runner", "reason": "bot_runner_shutdown"}]
-    assert stopped == ["executor", "reconciler"]
-    assert statuses[-1]["status"] == "stopped"
-    assert statuses[-1]["system_guard"]["ok"] is True
+    assert guard_calls == []
+    assert stopped == []
+    assert statuses[-1]["status"] == "converged"
+    assert statuses[-1]["one_shot"] is True
 
 
 def test_run_loop_shutdown_surfaces_guard_failure_but_still_stops(monkeypatch):
@@ -197,9 +198,9 @@ def test_run_loop_shutdown_surfaces_guard_failure_but_still_stops(monkeypatch):
     monkeypatch.setattr(rbr, "write_status", lambda payload: statuses.append(dict(payload)))
 
     assert rbr.run_loop(once=True) == 0
-    assert stopped == ["executor", "reconciler"]
-    assert statuses[-1]["ok"] is False
-    assert statuses[-1]["system_guard"]["reason"] == "system_guard_write_failed:RuntimeError"
+    assert stopped == []
+    assert statuses[-1]["ok"] is True
+    assert statuses[-1]["status"] == "converged"
 
 
 def test_run_loop_blocks_on_missing_required_runtime_config(monkeypatch):

@@ -11,12 +11,10 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-
 import argparse
-from services.runtime.process_supervisor import start_process, status
+import time
 
-CORE_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate"]
-ALL_SERVICES = CORE_SERVICES + ["reconciler"]
+from scripts import run_bot_runner as rbr
 
 
 def main() -> int:
@@ -24,22 +22,38 @@ def main() -> int:
     ap.add_argument("--with_reconcile", action="store_true", help="Also start live reconciler loop")
     args = ap.parse_args()
 
-    py = sys.executable
-
-    # Start pipeline + paper executor loop, telemetry adapter, and the ops risk-gate service.
-    r1 = start_process("pipeline", [py, "scripts/run_pipeline_loop.py"])
-    r2 = start_process("executor", [py, "scripts/run_intent_executor_safe.py"])
-    r3 = start_process("intent_consumer", [py, "scripts/run_live_intent_consumer.py", "run"])
-    r4 = start_process("ops_signal_adapter", [py, "scripts/run_ops_signal_adapter.py", "run"])
-    r5 = start_process("ops_risk_gate", [py, "scripts/run_ops_risk_gate_service.py", "run"])
-
-    out = {"pipeline": r1, "executor": r2, "intent_consumer": r3, "ops_signal_adapter": r4, "ops_risk_gate": r5}
+    cfg = rbr.load_trading_cfg()
+    try:
+        state = rbr.desired_state(cfg)
+    except RuntimeError as exc:
+        payload = {
+            "ok": False,
+            "status": "blocked",
+            "error": str(exc),
+            "cfg_path": "config/trading.yaml",
+            "ts_epoch": time.time(),
+        }
+        rbr.write_status(payload)
+        print(payload)
+        return 2
 
     if args.with_reconcile:
-        out["reconciler"] = start_process("reconciler", [py, "scripts/run_live_reconciler_safe.py", "run"])
+        state = dict(state)
+        state["with_reconcile"] = True
 
-    out["status"] = status(ALL_SERVICES)
-    print(out)
+    result = rbr.apply_state(state, force_restart=False)
+    result.update(
+        {
+            "ok": True,
+            "status": "converged",
+            "one_shot": True,
+            "state": state,
+            "signature": rbr.state_signature(state),
+            "ts_epoch": time.time(),
+        }
+    )
+    rbr.write_status(result)
+    print(result)
     return 0
 
 if __name__ == "__main__":
