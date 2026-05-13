@@ -95,10 +95,11 @@ def test_stop_bot_can_target_ops_signal_adapter_only(monkeypatch):
     assert stopped == ["ops_signal_adapter"]
 
 
-def test_bot_status_includes_ops_risk_gate(monkeypatch):
+def test_bot_status_includes_ai_alert_monitor(monkeypatch):
     status_calls: list[list[str]] = []
 
     monkeypatch.setattr(bot_status, "status", lambda names: status_calls.append(list(names)) or {})
 
     assert bot_status.main() == 0
     assert status_calls == [bot_status.ALL_SERVICES]
+    assert "ai_alert_monitor" in bot_status.ALL_SERVICES
