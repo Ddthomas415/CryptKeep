@@ -107,19 +107,7 @@ def default_trade_journal_path() -> Path:
     return (data_dir() / "trade_journal.sqlite").resolve()
 
 
-def _normalize_strategy_name(value: Any) -> str | None:
-    text = str(value or "").strip().lower()
-    if not text:
-        return None
-    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum"}:
-        return text
-    if "ema" in text and ("cross" in text or "xover" in text or "crossover" in text):
-        return "ema_cross"
-    if "mean_reversion" in text or "mean-reversion" in text or "reversion" in text:
-        return "mean_reversion_rsi"
-    if "breakout" in text or "donchian" in text:
-        return "breakout_donchian"
-    return None
+from services.strategies.strategy_name import normalize_strategy_name as _normalize_strategy_name  # noqa: E402
 
 
 def _top_strategy_name(report: dict[str, Any]) -> str | None:
