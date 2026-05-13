@@ -29,10 +29,14 @@ Complete each section in order. Do not skip sections. Record the result
 | 2.3 | `CBP_MAX_DAILY_NOTIONAL` is set and > 0 | Required | | |
 | 2.4 | `CBP_MAX_ORDER_NOTIONAL` is set and > 0 | Required | | |
 | 2.5 | `CBP_MAX_ORDER_NOTIONAL` ≤ `CBP_MAX_DAILY_NOTIONAL` | Logical consistency | | |
-| 2.6 | `config/trading.yaml` `mode:` is set to `live` | Required | | |
-| 2.7 | `config/user.yaml` is in `.gitignore` (not tracked) | Required | | |
+| 2.6 | Merged runtime config resolves to live execution mode | `execution.executor_mode=live` and `execution.live_enabled=true` | | |
+| 2.7 | Runtime user config path is not tracked in git | `.cbp_state/runtime/config/user.yaml` is outside tracked source files | | |
 | 2.8 | API keys are in keyring or `.env`, not in YAML files | Required | | |
-| 2.9 | Preflight passes in live mode with no ERROR checks | `run_preflight()` returns `ok=True` | | |
+| 2.9 | Canonical execution preflight passes in live mode with no ERROR checks | `services.preflight.preflight.run_preflight()` returns `ok=True` | | |
+
+For item 2.9, use the execution preflight surface that the live enable path uses:
+
+`./.venv/bin/python -c 'from services.preflight.preflight import run_preflight; import json; r = run_preflight(); print(json.dumps({"ok": r.ok, "checks": r.checks}, indent=2))'`
 
 ---
 
@@ -141,6 +145,20 @@ PASS if the system behaved as specified — not just if it didn't crash.
 
 ## Section 4 — Paper trading gate
 
+Section 4.1 uses the current supervised paper-soak interpretation in
+[PAPER_SOAK_GATE.md](./PAPER_SOAK_GATE.md).
+
+For the current gate policy:
+
+- recovered external Coinbase API/network warnings annotate the soak window
+  and do **not** reset the clock when topology remains intact and loops keep
+  advancing
+- scanner-selected symbol drift annotates the soak window and does **not**
+  reset the clock while the running soak symbol set remains internally aligned
+- topology break, managed-service restart/churn, stalled loops, required
+  operator intervention, or real critical unavailability **do** reset or block
+  the clock pending review
+
 | # | Check | Threshold | Result | Date |
 |---|---|---|---|---|
 | 4.1 | Minimum paper trading duration | ≥ 7 days of continuous operation | | |
@@ -148,7 +166,7 @@ PASS if the system behaved as specified — not just if it didn't crash.
 | 4.3 | No reconciliation exceptions in paper logs | 0 unresolved exceptions | | |
 | 4.4 | No duplicate fill events in paper run | 0 duplicate trade_ids in fills table | | |
 | 4.5 | Paper PnL is within expected range for the strategy | Not deeply negative over the paper period | | |
-| 4.6 | All Phase 1–4 audit tasks are committed | All 24 build plan tasks closed | | |
+| 4.6 | Current branch launch-blocker review is complete | Current blocker list for the branch is reviewed and signed off | | |
 
 ---
 
