@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import json
+from datetime import datetime, timezone
 
 
 def _reload_bot_runtime_truth(monkeypatch, tmp_path):
@@ -31,6 +32,10 @@ def _status_map(**running):
     return out
 
 
+def _fresh_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
 def test_canonical_bot_status_prefers_process_supervisor(monkeypatch, tmp_path):
     brt = _reload_bot_runtime_truth(monkeypatch, tmp_path)
     monkeypatch.setattr(brt, "supervisor_status", lambda _names: _status_map(intent_consumer=True))
@@ -49,7 +54,7 @@ def test_canonical_service_status_uses_fresh_status_file_when_pid_truth_missing(
 
     brt.CANONICAL_STATUS_FILES["pipeline"].parent.mkdir(parents=True, exist_ok=True)
     brt.CANONICAL_STATUS_FILES["pipeline"].write_text(
-        json.dumps({"status": "running", "pid": 82964, "ts": "2026-05-13T11:12:00+00:00"}),
+        json.dumps({"status": "running", "pid": 82964, "ts": _fresh_iso()}),
         encoding="utf-8",
     )
 
@@ -67,7 +72,7 @@ def test_canonical_service_status_reads_live_intent_consumer_path_without_markin
 
     brt.CANONICAL_STATUS_FILES["intent_consumer"].parent.mkdir(parents=True, exist_ok=True)
     brt.CANONICAL_STATUS_FILES["intent_consumer"].write_text(
-        json.dumps({"status": "blocked", "ts": "2026-05-13T11:12:00+00:00"}),
+        json.dumps({"status": "blocked", "ts": _fresh_iso()}),
         encoding="utf-8",
     )
 
