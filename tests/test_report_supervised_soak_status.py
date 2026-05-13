@@ -42,8 +42,8 @@ def test_build_report_restores_paper_gate_truth_with_symbol_drift(tmp_path, monk
     monkeypatch.setattr(soak_report, "runtime_dir", lambda: runtime)
     monkeypatch.setattr(
         soak_report,
-        "supervisor_status",
-        lambda _names: {
+        "canonical_service_status",
+        lambda: {
             "pipeline": {"running": True},
             "executor": {"running": True},
             "intent_consumer": {"running": False},

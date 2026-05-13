@@ -21,7 +21,7 @@ from typing import Any
 from scripts import run_bot_runner as rbr
 from services.ai_copilot.alert_monitor_status import load_runtime_status
 from services.os.app_paths import runtime_dir
-from services.runtime.process_supervisor import status as supervisor_status
+from services.process.bot_runtime_truth import canonical_service_status
 
 ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler", "ai_alert_monitor"]
 SECTION_ID = "4.1"
@@ -48,7 +48,7 @@ def _runtime_health() -> Path:
 
 
 def _running_map() -> dict[str, bool]:
-    rows = supervisor_status(ALL_SERVICES)
+    rows = canonical_service_status()
     return {str(name): bool((row or {}).get("running")) for name, row in dict(rows or {}).items()}
 
 
