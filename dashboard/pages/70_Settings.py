@@ -26,6 +26,7 @@ notifications = settings_view.get("notifications") if isinstance(settings_view.g
 ai = settings_view.get("ai") if isinstance(settings_view.get("ai"), dict) else {}
 autopilot = settings_view.get("autopilot") if isinstance(settings_view.get("autopilot"), dict) else {}
 providers = settings_view.get("providers") if isinstance(settings_view.get("providers"), dict) else {}
+connections = settings_view.get("connections") if isinstance(settings_view.get("connections"), dict) else {}
 paper_trading = settings_view.get("paper_trading") if isinstance(settings_view.get("paper_trading"), dict) else {}
 security = settings_view.get("security") if isinstance(settings_view.get("security"), dict) else {}
 notification_categories = (
@@ -97,7 +98,9 @@ def _tone_for_enabled(enabled: bool) -> str:
 def _provider_status_tone(provider: dict[str, object]) -> str:
     if not bool(provider.get("enabled")):
         return "muted"
-    status = str(provider.get("status") or "").strip().lower()
+    status = str(provider.get("runtime_status") or provider.get("status") or "").strip().lower()
+    if status == "config_only":
+        return "warning"
     if any(token in status for token in ("error", "fail", "down", "offline")):
         return "danger"
     if any(token in status for token in ("local", "warm", "sync", "staged")):
@@ -108,7 +111,8 @@ def _provider_status_tone(provider: dict[str, object]) -> str:
 def _render_provider_card(provider_name: str, provider: dict[str, object]) -> dict[str, object]:
     label = PROVIDER_LABELS[provider_name]
     description = PROVIDER_DESCRIPTIONS[provider_name]
-    status = str(provider.get("status") or "ready").replace("_", " ").title()
+    runtime_status = str(provider.get("runtime_status") or "config_only").replace("_", " ").title()
+    saved_status = str(provider.get("saved_status_label") or provider.get("status") or "ready").replace("_", " ").title()
     role = str(provider.get("role") or "integration")
     with st.container(border=True):
         render_section_intro(
@@ -118,7 +122,8 @@ def _render_provider_card(provider_name: str, provider: dict[str, object]) -> di
         )
         render_badge_row(
             [
-                {"text": status, "tone": _provider_status_tone(provider)},
+                {"text": runtime_status, "tone": _provider_status_tone(provider)},
+                {"text": f"Saved: {saved_status}", "tone": "muted"},
                 {"text": "Enabled" if bool(provider.get("enabled")) else "Disabled", "tone": _tone_for_enabled(bool(provider.get("enabled")))},
             ]
         )
@@ -146,8 +151,13 @@ def _render_provider_card(provider_name: str, provider: dict[str, object]) -> di
             value=str(provider.get("last_sync") or "Not configured"),
             key=f"settings_provider_{provider_name}_last_sync",
         )
+    persisted_provider = {
+        key: value
+        for key, value in provider.items()
+        if key not in {"runtime_status", "status_source", "saved_status_label"}
+    }
     return {
-        **provider,
+        **persisted_provider,
         "enabled": provider_enabled_value,
         "api_key": provider_api_key_value,
         "role": provider_priority_value,
@@ -582,6 +592,17 @@ with settings_tabs[2]:
             subtitle="Enable or stage the data sources and delivery providers that shape market intelligence, macro context, and outbound alerts.",
             meta="Integration center",
         )
+        live_connected_providers = int(connections.get("connected_providers") or 0) if connections else 0
+        live_failed_providers = int(connections.get("failed") or 0) if connections else 0
+        live_last_sync = str(connections.get("last_sync") or "Unavailable") if connections else "Unavailable"
+        render_badge_row(
+            [
+                {"text": f"Live services: {live_connected_providers}", "tone": "success" if live_connected_providers else "warning"},
+                {"text": f"Failed: {live_failed_providers}", "tone": "danger" if live_failed_providers else "muted"},
+                {"text": f"Last sync: {live_last_sync}", "tone": "accent" if connections else "muted"},
+            ]
+        )
+        st.caption("Provider cards show saved configuration state unless a dedicated runtime probe is wired for that integration.")
         provider_payload: dict[str, dict[str, object]] = {}
         provider_group_cols = st.columns((1, 1, 0.82))
         for group_col, (group_title, group_subtitle, provider_names) in zip(provider_group_cols, PROVIDER_GROUPS, strict=False):

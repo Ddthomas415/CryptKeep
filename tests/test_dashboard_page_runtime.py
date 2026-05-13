@@ -2184,3 +2184,77 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
         "secret_masking": False,
         "audit_export_allowed": False,
     }
+
+
+def test_settings_page_labels_provider_cards_as_config_only(monkeypatch) -> None:
+    from dashboard.components import badges
+    from dashboard.components import forms
+    from dashboard.services import view_data
+
+    badge_rows: list[list[dict[str, object]]] = []
+
+    monkeypatch.setattr(
+        view_data,
+        "get_settings_view",
+        lambda: {
+            "general": {"timezone": "UTC", "default_mode": "research_only"},
+            "notifications": {"delivery_mode": "instant", "categories": {}},
+            "ai": {"tone": "balanced", "autopilot_explanation_depth": "standard"},
+            "autopilot": {"autopilot_enabled": False, "candidate_limit": 12, "scan_interval_minutes": 15},
+            "providers": {
+                "coingecko": {
+                    "enabled": True,
+                    "api_key": "",
+                    "status": "ready",
+                    "saved_status_label": "Ready",
+                    "runtime_status": "config_only",
+                    "status_source": "config",
+                    "role": "Crypto breadth",
+                    "last_sync": "Starter dataset",
+                }
+            },
+            "paper_trading": {
+                "enabled": True,
+                "fee_bps": 7.0,
+                "slippage_bps": 2.0,
+                "approval_required": True,
+                "max_position_size_usd": 5000.0,
+                "max_daily_loss_pct": 2.0,
+            },
+            "security": {
+                "session_timeout_minutes": 60,
+                "secret_masking": True,
+                "audit_export_allowed": True,
+                "auth_scope": "local_private_only",
+                "remote_access_requires_mfa": True,
+                "outer_access_control": "",
+            },
+            "connections": {
+                "connected_exchanges": 1,
+                "connected_providers": 2,
+                "failed": 0,
+                "last_sync": "2026-03-12T10:05:00Z",
+            },
+        },
+    )
+
+    def prepare(monkeypatch, _fake_streamlit) -> None:
+        monkeypatch.setattr(badges, "render_badge_row", lambda rows, *args, **kwargs: badge_rows.append(list(rows)))
+        monkeypatch.setattr(forms, "render_save_action", _noop)
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/70_Settings.py",
+        module_name="dashboard_test_settings_page_config_only_badges",
+        prepare=prepare,
+    )
+
+    badge_texts = [
+        str(item.get("text") or "")
+        for row in badge_rows
+        for item in row
+        if isinstance(item, dict)
+    ]
+    assert "Live services: 2" in badge_texts
+    assert "Config Only" in badge_texts
+    assert "Saved: Ready" in badge_texts

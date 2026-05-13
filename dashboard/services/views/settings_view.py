@@ -23,13 +23,29 @@ def _view_data():
 def get_settings_view() -> dict[str, Any]:
     vd = _view_data()
     envelope = vd._fetch_envelope("/api/v1/settings")
+    payload: dict[str, Any]
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(envelope["data"])))
+        payload = vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(envelope["data"])))
+    else:
+        mock = vd._read_mock_envelope("settings.json")
+        if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
+            payload = vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(mock["data"])))
+        else:
+            payload = vd._apply_local_settings_overrides(vd._default_settings_payload())
 
-    mock = vd._read_mock_envelope("settings.json")
-    if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
-        return vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(mock["data"])))
-    return vd._apply_local_settings_overrides(vd._default_settings_payload())
+    connections = vd._load_local_connections_summary()
+    if isinstance(connections, dict):
+        payload["connections"] = dict(connections)
+
+    providers = payload.get("providers") if isinstance(payload.get("providers"), dict) else {}
+    for provider in providers.values():
+        if not isinstance(provider, dict):
+            continue
+        provider["saved_status_label"] = str(provider.get("status") or "ready").replace("_", " ").title()
+        provider["runtime_status"] = "config_only"
+        provider["status_source"] = "config"
+    payload["providers"] = providers
+    return payload
 
 
 

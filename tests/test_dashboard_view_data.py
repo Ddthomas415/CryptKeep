@@ -1953,6 +1953,51 @@ def test_settings_view_applies_local_overlay(monkeypatch) -> None:
     assert settings["autopilot"]["default_market_universe"] == "core_watchlist"
 
 
+def test_settings_view_exposes_connections_and_marks_provider_status_config_only(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "providers": {
+                    "coingecko": {
+                        "enabled": True,
+                        "api_key": "",
+                        "status": "ready",
+                        "role": "Crypto breadth",
+                        "last_sync": "Starter dataset",
+                    }
+                }
+            },
+        }
+        if path == "/api/v1/settings"
+        else None,
+    )
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_connections_summary",
+        lambda: {
+            "connected_exchanges": 2,
+            "connected_providers": 3,
+            "failed": 1,
+            "last_sync": "2026-03-12T10:05:00Z",
+        },
+    )
+
+    settings = view_data.get_settings_view()
+    assert settings["connections"] == {
+        "connected_exchanges": 2,
+        "connected_providers": 3,
+        "failed": 1,
+        "last_sync": "2026-03-12T10:05:00Z",
+    }
+    assert settings["providers"]["coingecko"]["runtime_status"] == "config_only"
+    assert settings["providers"]["coingecko"]["status_source"] == "config"
+    assert settings["providers"]["coingecko"]["saved_status_label"] == "Ready"
+
+
 def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,
