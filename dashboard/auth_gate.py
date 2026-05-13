@@ -10,6 +10,7 @@ import streamlit as st
 from dashboard.styles.theme_enhanced import inject_enhanced_theme
 
 from services.security.auth_capabilities import auth_capabilities
+from services.security.direct_origin_guard import enforce_direct_origin_block
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +135,24 @@ def _app_env() -> str:
 
 def _truthy_env(name: str) -> bool:
     return str(os.getenv(name, "")).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _request_headers() -> Dict[str, str]:
+    try:
+        headers = dict(getattr(st.context, "headers", {}) or {})
+        return {str(key): str(value) for key, value in headers.items()}
+    except Exception as exc:
+        logger.debug("streamlit context headers unavailable: %s", exc)
+
+    try:
+        from streamlit.web.server.websocket_headers import _get_websocket_headers
+
+        headers = _get_websocket_headers() or {}
+        return {str(key): str(value) for key, value in headers.items()}
+    except Exception as exc:
+        logger.debug("websocket headers unavailable: %s", exc)
+
+    return {}
 
 
 def _dashboard_auth_bypassed() -> bool:
@@ -416,6 +435,28 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
         _clear_auth_session()
         state = _session_get()
         state["error"] = "session_expired"
+
+    try:
+        enforce_direct_origin_block(
+            auth_scope=str(caps.get("auth_scope") or ""),
+            outer_access_control=str(caps.get("outer_access_control") or ""),
+            headers=_request_headers(),
+        )
+    except PermissionError as exc:
+        _inject_signed_out_layout()
+        if str(caps.get("auth_scope") or "") == "remote_public_candidate" and not bool(
+            caps.get("remote_access_hardened")
+        ):
+            st.warning(
+                "Remote/public candidate mode still requires an enforced outer access-control layer "
+                "before exposure."
+            )
+        st.error(f"Direct-origin access is blocked: {exc}")
+        for violation in list(caps.get("runtime_guard_violations") or []):
+            st.error(f"Runtime guard: {violation}")
+        for warning in list(caps.get("runtime_guard_warnings") or []):
+            st.warning(f"Runtime guard: {warning}")
+        st.stop()
 
     if not bool(state.get("ok")):
         _inject_signed_out_layout()
