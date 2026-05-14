@@ -146,6 +146,116 @@ def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_pat
     assert out == []
 
 
+def test_fetch_public_ohlcv_reuses_cache_inside_refresh_floor(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    calls = {"count": 0}
+
+    class FakeExchange:
+        def fetch_ohlcv(self, symbol, timeframe="1m", limit=120):
+            calls["count"] += 1
+            return [
+                [1, 100.0, 101.0, 99.0, 100.5, 1.0],
+                [2, 100.5, 102.0, 100.0, 101.5, 1.0],
+            ]
+
+        def close(self):
+            return None
+
+    monkeypatch.setattr(runner, "make_exchange", lambda venue, creds, enable_rate_limit=True: FakeExchange())
+    monkeypatch.setattr(runner.time, "time", lambda: 1000.0)
+
+    cfg = {
+        "signal_source": "public_ohlcv_1d",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "min_bars": 2,
+        "max_bars": 5,
+    }
+    first = runner._fetch_public_ohlcv(cfg)
+    second = runner._fetch_public_ohlcv(cfg)
+
+    assert first == second
+    assert calls["count"] == 1
+
+
+def test_fetch_public_ohlcv_reuses_stale_cache_when_refresh_fails(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    state = {"mode": "ok"}
+    calls = {"count": 0}
+
+    class FakeExchange:
+        def fetch_ohlcv(self, symbol, timeframe="1m", limit=120):
+            calls["count"] += 1
+            if state["mode"] == "ok":
+                return [
+                    [1, 100.0, 101.0, 99.0, 100.5, 1.0],
+                    [2, 100.5, 102.0, 100.0, 101.5, 1.0],
+                ]
+            raise RuntimeError("boom")
+
+        def close(self):
+            return None
+
+    now = {"value": 1000.0}
+    monkeypatch.setattr(runner, "make_exchange", lambda venue, creds, enable_rate_limit=True: FakeExchange())
+    monkeypatch.setattr(runner.time, "time", lambda: now["value"])
+
+    cfg = {
+        "signal_source": "public_ohlcv_1d",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "min_bars": 2,
+        "max_bars": 5,
+    }
+    first = runner._fetch_public_ohlcv(cfg)
+    state["mode"] = "fail"
+    now["value"] = 1400.0
+    second = runner._fetch_public_ohlcv(cfg)
+
+    assert first == second
+    assert calls["count"] == 2
+
+
+def test_fetch_public_ohlcv_throttles_retries_after_failed_refresh(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    state = {"mode": "ok"}
+    calls = {"count": 0}
+
+    class FakeExchange:
+        def fetch_ohlcv(self, symbol, timeframe="1m", limit=120):
+            calls["count"] += 1
+            if state["mode"] == "ok":
+                return [
+                    [1, 100.0, 101.0, 99.0, 100.5, 1.0],
+                    [2, 100.5, 102.0, 100.0, 101.5, 1.0],
+                ]
+            raise RuntimeError("boom")
+
+        def close(self):
+            return None
+
+    now = {"value": 1000.0}
+    monkeypatch.setattr(runner, "make_exchange", lambda venue, creds, enable_rate_limit=True: FakeExchange())
+    monkeypatch.setattr(runner.time, "time", lambda: now["value"])
+
+    cfg = {
+        "signal_source": "public_ohlcv_1d",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "min_bars": 2,
+        "max_bars": 5,
+    }
+    first = runner._fetch_public_ohlcv(cfg)
+    state["mode"] = "fail"
+    now["value"] = 1400.0
+    second = runner._fetch_public_ohlcv(cfg)
+    now["value"] = 1401.0
+    third = runner._fetch_public_ohlcv(cfg)
+
+    assert first == second == third
+    assert calls["count"] == 2
+
+
 def test_fetch_mid_returns_none_when_ccxt_fallback_raises(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(runner, "get_best_bid_ask_last", lambda venue, symbol: None)

@@ -9,7 +9,7 @@ import os
 import time
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from services.admin.config_editor import load_user_yaml
 from services.logging.app_logger import get_logger
@@ -44,6 +44,7 @@ _LOG = logging.getLogger(__name__)
 TICK_SNAPSHOT_FILE = SNAPSHOTS / "system_status.latest.json"
 
 _LOG = get_logger("strategy_runner.ema_crossover_runner")
+_PUBLIC_OHLCV_CACHE: dict[tuple[str, str, str], dict[str, Any]] = {}
 
 _STRATEGY_ALIASES = {
     "ema_cross": "ema_cross",
@@ -404,6 +405,23 @@ def _public_ohlcv_timeframe(cfg: dict) -> str | None:
     return None
 
 
+def _public_ohlcv_refresh_floor_sec(timeframe: str) -> float:
+    text = str(timeframe or "").strip().lower()
+    if text.endswith("d"):
+        return 300.0
+    if text.endswith("h"):
+        return 60.0
+    return 10.0
+
+
+def _public_ohlcv_cache_key(cfg: dict, timeframe: str) -> tuple[str, str, str]:
+    return (
+        normalize_venue(str(cfg.get("venue") or "")),
+        normalize_symbol(str(cfg.get("symbol") or "")),
+        str(timeframe or "").strip().lower(),
+    )
+
+
 def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
     timeframe = _public_ohlcv_timeframe(cfg)
     if not timeframe:
@@ -426,6 +444,16 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
         return []
 
+    cache_key = _public_ohlcv_cache_key(cfg, timeframe)
+    cache_entry = _PUBLIC_OHLCV_CACHE.get(cache_key) or {}
+    refresh_floor_sec = _public_ohlcv_refresh_floor_sec(timeframe)
+    now_ts = time.time()
+    if cache_entry:
+        age_sec = max(0.0, now_ts - float(cache_entry.get("fetched_at") or 0.0))
+        rows = cache_entry.get("rows")
+        if isinstance(rows, list) and rows and age_sec < refresh_floor_sec:
+            return [list(row) for row in rows if isinstance(row, (list, tuple)) and len(row) >= 6]
+
     ex = None
     try:
         ex = make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True)
@@ -434,10 +462,21 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
         result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
         if result:
+            _PUBLIC_OHLCV_CACHE[cache_key] = {
+                "rows": result,
+                "fetched_at": now_ts,
+            }
             return result
     except Exception as _fetch_err:
         _LOG.warning("ohlcv_live_fetch_failed venue=%s symbol=%s timeframe=%s err=%s",
                      cfg.get("venue"), cfg.get("symbol"), timeframe, _fetch_err)
+        rows = cache_entry.get("rows")
+        if isinstance(rows, list) and rows:
+            _PUBLIC_OHLCV_CACHE[cache_key] = {
+                "rows": [list(row) for row in rows if isinstance(row, (list, tuple)) and len(row) >= 6],
+                "fetched_at": now_ts,
+            }
+            return [list(row) for row in rows if isinstance(row, (list, tuple)) and len(row) >= 6]
     finally:
         try:
             if ex is not None and hasattr(ex, "close"):
