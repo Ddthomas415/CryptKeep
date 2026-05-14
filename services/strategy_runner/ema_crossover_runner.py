@@ -504,6 +504,27 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
             _LOG.warning("ohlcv_sample_not_found: %s", sample)
     return []
 
+
+def _prewarm_public_ohlcv_cache(cfg: dict, symbols: list[str], *, candidates: Optional[list[str]] = None) -> None:
+    timeframe = _public_ohlcv_timeframe(cfg)
+    if not timeframe:
+        return
+    resolved_candidates = candidates or []
+    for symbol in symbols:
+        selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=resolved_candidates)
+        sym_cfg = dict(cfg)
+        sym_cfg["symbol"] = symbol
+        sym_cfg["venue"] = selected_venue
+        rows = _fetch_public_ohlcv(sym_cfg) or []
+        if rows:
+            _LOG.info(
+                "ohlcv_startup_prewarm_ok venue=%s symbol=%s timeframe=%s rows=%s",
+                selected_venue,
+                symbol,
+                timeframe,
+                len(rows),
+            )
+
 def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
     q = get_best_bid_ask_last(cfg["venue"], cfg["symbol"])
     if q:
@@ -626,13 +647,15 @@ def run_forever() -> None:
     loops = 0
     enqueued = 0
     checked_startup_pairs: set[tuple[str, str]] = set()
+    startup_venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
+    _prewarm_public_ohlcv_cache(cfg, symbols, candidates=startup_venue_candidates)
     try:
         while True:
             loops += 1
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued": enqueued})
                 break
-            venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
+            venue_candidates = startup_venue_candidates or (_resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else [])
 
             for symbol in symbols:
                 selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)

@@ -125,6 +125,73 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
     assert queued[0]["side"] == "buy"
 
 
+@pytest.mark.slow
+def test_run_forever_prewarms_daily_ohlcv_before_loop(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "collect_runtime_rows", lambda paper_db, intent_db: ([], []))
+
+    calls = {"count": 0}
+    rows = [
+        [1, 100.0, 101.0, 99.0, 100.5, 1.0],
+        [2, 100.5, 102.0, 100.0, 101.5, 1.0],
+    ]
+
+    class FakeExchange:
+        def fetch_ohlcv(self, symbol, timeframe="1d", limit=120):
+            calls["count"] += 1
+            if calls["count"] == 1:
+                return rows
+            raise RuntimeError("boom")
+
+        def close(self):
+            return None
+
+    monkeypatch.setattr(runner, "make_exchange", lambda venue, creds, enable_rate_limit=True: FakeExchange())
+    monkeypatch.setattr(runner.time, "time", lambda: 1000.0)
+    monkeypatch.setattr(
+        runner,
+        "compute_signal",
+        lambda cfg, symbol, ohlcv: {"ok": True, "action": "hold", "reason": "flat", "ind": {}},
+    )
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda: {
+            "strategy_runner": {
+                "strategy": {
+                    "name": "breakout_donchian",
+                    "trade_enabled": True,
+                    "donchian_len": 2,
+                },
+                "symbol": "BTC/USD",
+                "venue": "coinbase",
+                "min_bars": 2,
+                "max_bars": 5,
+                "loop_interval_sec": 0.0,
+                "qty": 0.5,
+                "signal_source": "public_ohlcv_1d",
+            }
+        },
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if int(status.get("loops") or 0) >= 2:
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+    assert calls["count"] == 1
+    assert status["signal_source"] == "public_ohlcv_1d"
+    assert status["bars"] == 2
+    assert status["note"] is None
+
+
 def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(
