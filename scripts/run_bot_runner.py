@@ -48,8 +48,23 @@ SERVICE_STATUS_PATHS = {
 STOP_EVENT = threading.Event()
 
 
-def load_trading_cfg(path: str = "config/trading.yaml") -> dict[str, Any]:
-    return load_runtime_trading_config(path)
+def _normalize_symbol(sym: str) -> str:
+    return str(sym).strip().upper().replace("-", "/")
+
+
+def _normalize_symbols(value: Any) -> list[str]:
+    if isinstance(value, str):
+        parts = [x.strip() for x in value.split(",") if x.strip()]
+    elif isinstance(value, list):
+        parts = [str(x).strip() for x in value if str(x).strip()]
+    else:
+        parts = []
+    out = [_normalize_symbol(x) for x in parts]
+    return out
+
+
+def _canonical_symbol_set(value: Any) -> list[str]:
+    return sorted({sym for sym in _normalize_symbols(value) if sym})
 
 
 def _paper_venue(cfg: dict[str, Any], execution: dict[str, Any]) -> str:
@@ -58,15 +73,19 @@ def _paper_venue(cfg: dict[str, Any], execution: dict[str, Any]) -> str:
     pipeline_venue = str(pipeline.get("exchange_id") or "").strip().lower()
     root_venue = str(cfg.get("venue") or "").strip().lower()
 
-    candidates = [v for v in (execution_venue, pipeline_venue, root_venue) if v]
+    candidates = [venue for venue in (execution_venue, pipeline_venue, root_venue) if venue]
     if not candidates:
         raise RuntimeError("CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id")
 
-    explicit = {v for v in (execution_venue, pipeline_venue) if v}
+    explicit = {venue for venue in (execution_venue, pipeline_venue) if venue}
     if len(explicit) > 1:
         raise RuntimeError("CBP_CONFIG_REQUIRED:conflicting_config:execution.venue_vs_pipeline.exchange_id")
 
     return execution_venue or pipeline_venue or root_venue
+
+
+def load_trading_cfg(path: str = "config/trading.yaml") -> dict[str, Any]:
+    return load_runtime_trading_config(path)
 
 
 def desired_state(cfg: dict[str, Any]) -> dict[str, Any]:
@@ -119,7 +138,7 @@ def desired_services(state: dict[str, Any]) -> list[str]:
 def command_map() -> dict[str, list[str]]:
     py = sys.executable
     return {
-        "pipeline": [py, "scripts/run_pipeline_safe.py"],
+        "pipeline": [py, "scripts/run_pipeline_loop.py"],
         "executor": [py, "scripts/run_intent_executor_safe.py"],
         "intent_consumer": [py, "scripts/run_intent_consumer_safe.py", "run"],
         "ops_signal_adapter": [py, "scripts/run_ops_signal_adapter.py", "run"],
@@ -140,28 +159,6 @@ def service_env_map(state: dict[str, Any]) -> dict[str, dict[str, str]]:
         "intent_consumer": dict(env),
         "reconciler": dict(env),
     }
-
-
-def _normalize_symbols(value: Any) -> list[str]:
-    if isinstance(value, list):
-        items = value
-    elif value is None:
-        items = []
-    else:
-        items = [value]
-    out: list[str] = []
-    seen: set[str] = set()
-    for item in items:
-        sym = str(item or "").strip().upper()
-        if not sym or sym in seen:
-            continue
-        seen.add(sym)
-        out.append(sym)
-    return out
-
-
-def _canonical_symbol_set(value: Any) -> list[str]:
-    return sorted(_normalize_symbols(value))
 
 
 def _running_service_symbols(name: str) -> list[str]:
@@ -216,8 +213,8 @@ def apply_state(state: dict[str, Any], *, force_restart: bool = False) -> dict[s
         for name in MANAGED_SERVICES:
             if name not in wanted and is_running(name):
                 stopped.append(stop_process(name))
+        expected_symbols = [str(x).strip() for x in list(state.get("symbols") or []) if str(x).strip()]
         for name in wanted:
-            expected_symbols = [str(x).strip() for x in list(state.get("symbols") or []) if str(x).strip()]
             if name in envs and is_running(name) and _service_symbols_mismatch(name, expected_symbols):
                 stopped.append(stop_process(name))
             started.append(start_process(name, cmds[name], env=envs.get(name)))
@@ -251,25 +248,6 @@ def _install_signal_handlers() -> None:
             signal.signal(sig, _handle_signal)
         except Exception:
             continue
-
-
-def _shutdown_managed_services() -> int:
-    # On shutdown, raise shared halt state before tearing down managed services.
-    system_guard = request_system_guard_halt(writer="bot_runner", reason="bot_runner_shutdown")
-    shutdown = []
-    for name in MANAGED_SERVICES:
-        if is_running(name):
-            shutdown.append(stop_process(name))
-    write_status(
-        {
-            "ok": bool(system_guard.get("ok")),
-            "status": "stopped",
-            "system_guard": system_guard,
-            "stopped": shutdown,
-            "ts_epoch": time.time(),
-        }
-    )
-    return 0
 
 
 def run_loop(*, cfg_path: str = "config/trading.yaml", interval_sec: float = 2.0, once: bool = False) -> int:
@@ -320,7 +298,22 @@ def run_loop(*, cfg_path: str = "config/trading.yaml", interval_sec: float = 2.0
         if STOP_EVENT.wait(max(0.1, float(interval_sec))):
             break
 
-    return _shutdown_managed_services()
+    # On shutdown, raise shared halt state before tearing down managed services.
+    system_guard = request_system_guard_halt(writer="bot_runner", reason="bot_runner_shutdown")
+    shutdown = []
+    for name in MANAGED_SERVICES:
+        if is_running(name):
+            shutdown.append(stop_process(name))
+    write_status(
+        {
+            "ok": bool(system_guard.get("ok")),
+            "status": "stopped",
+            "system_guard": system_guard,
+            "stopped": shutdown,
+            "ts_epoch": time.time(),
+        }
+    )
+    return 0
 
 
 def main() -> int:

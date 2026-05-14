@@ -19,9 +19,9 @@ from datetime import datetime
 from typing import Any
 
 from scripts import run_bot_runner as rbr
-from services.ai_copilot import alert_monitor as ai_alert_monitor
+from services.ai_copilot.alert_monitor_status import load_runtime_status
 from services.os.app_paths import runtime_dir
-from services.runtime.process_supervisor import status as supervisor_status
+from services.process.bot_runtime_truth import canonical_service_status
 
 ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler", "ai_alert_monitor"]
 SECTION_ID = "4.1"
@@ -43,16 +43,51 @@ def _runtime_flags() -> Path:
     return runtime_dir() / "flags"
 
 
+def _runtime_health() -> Path:
+    return runtime_dir() / "health"
+
+
 def _running_map() -> dict[str, bool]:
-    rows = supervisor_status(ALL_SERVICES)
-    return {str(name): bool((row or {}).get("running")) for name, row in dict(rows or {}).items()}
+    rows = canonical_service_status()
+    out: dict[str, bool] = {}
+    for name, row in dict(rows or {}).items():
+        item = dict(row or {})
+        running = bool(item.get("running"))
+        healthy = item.get("healthy")
+        out[str(name)] = running if healthy is None else bool(running and healthy)
+    return out
+
+
+def _canonical_desired_services(state: dict[str, Any]) -> list[str]:
+    names = list(rbr.desired_services(state))
+    if "ai_alert_monitor" not in names:
+        insert_at = len(names)
+        if "executor" in names:
+            insert_at = names.index("executor")
+        elif "intent_consumer" in names:
+            insert_at = names.index("intent_consumer")
+        names.insert(insert_at, "ai_alert_monitor")
+    return names
+
+
+def _merge_scanner_selection(state: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(state)
+    selection = _load_json(_runtime_health() / "managed_symbol_selection.json")
+    selected = [str(x) for x in list(selection.get("selected") or []) if str(x)]
+    if selected:
+        payload["symbols"] = selected
+        payload["selected_symbols"] = selected
+        payload["symbol_source"] = str(selection.get("source") or "scanner")
+        payload["symbol_reason"] = "scanner_selected"
+        payload["scan_ok"] = bool(selection.get("ok", True))
+    return payload
 
 
 def _current_desired_runtime() -> tuple[dict[str, Any], list[str], str | None]:
     try:
         cfg = rbr.load_trading_cfg()
-        state = rbr.desired_state(cfg)
-        wanted = rbr.desired_services(state)
+        state = _merge_scanner_selection(rbr.desired_state(cfg))
+        wanted = _canonical_desired_services(state)
         return state, wanted, None
     except Exception as exc:
         return {}, [], f"{type(exc).__name__}: {exc}"
@@ -110,10 +145,10 @@ def build_report(*, now_epoch: float | None = None) -> dict[str, Any]:
     bot_runner = _load_json(flags / "bot_runner.status.json")
     pipeline = _load_json(flags / "pipeline.status.json")
     executor = _load_json(flags / "intent_executor.status.json")
-    monitor = ai_alert_monitor.load_runtime_status()
+    monitor = load_runtime_status()
     running = _running_map()
     run_state = _run_state(bot_runner)
-    run_expected_services = rbr.desired_services(run_state) if run_state else []
+    run_expected_services = _canonical_desired_services(run_state) if run_state else []
     current_state, current_wanted, expected_error = _current_desired_runtime()
 
     start_epoch = None
@@ -197,6 +232,13 @@ def format_section_entry(report: dict[str, Any]) -> str:
     started_ts_local = str(report.get("started_ts_local") or "")
     elapsed_hours = report.get("elapsed_hours")
     elapsed_text = f"~{elapsed_hours} hours" if isinstance(elapsed_hours, (int, float)) else "unknown"
+    if report.get("result") == "IN PROGRESS":
+        status_line = "Status: not eligible for PASS until the 7-day continuous window completes."
+    elif report.get("result") == "ELAPSED_THRESHOLD_MET":
+        status_line = "Status: duration threshold is met; evaluate the remaining paper-gate criteria before marking PASS."
+    else:
+        status_line = "Status: blocked because the current branch cannot fully reconstruct the paper-gate inputs from local runtime truth."
+
     return "\n".join(
         [
             f"Section {SECTION_ID} — {SECTION_TITLE}",
@@ -212,9 +254,7 @@ def format_section_entry(report: dict[str, Any]) -> str:
             f"Run started {started_ts_local} local time.",
             f"Elapsed at check: {elapsed_text}.",
             f"Required: >= {REQUIRED_CONTINUOUS_HOURS / 24:.0f} continuous days.",
-            "Status: not eligible for PASS until the 7-day continuous window completes."
-            if report.get("result") == "IN PROGRESS"
-            else "Status: duration threshold is met; evaluate the remaining paper-gate criteria before marking PASS.",
+            status_line,
         ]
     )
 

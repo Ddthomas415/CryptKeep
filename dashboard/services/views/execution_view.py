@@ -111,13 +111,21 @@ def get_trades_view() -> dict[str, Any]:
                 "side": str(item.get("signal") or "hold"),
                 "risk_size_pct": float(item.get("risk_size_pct") or 0.0),
                 "status": str(item.get("status") or "pending_review"),
+                "source": str(item.get("source") or "recommendation_bridge"),
             }
             for index, item in enumerate(recommendations)
             if str(item.get("status") or "").strip() in {"pending_review", "pending", "watch"}
         ]
     if not pending_approvals:
         pending_approvals = [
-            {"id": "rec_1", "asset": "SOL", "side": "buy", "risk_size_pct": 1.5, "status": "pending_review"}
+            {
+                "id": "rec_1",
+                "asset": "SOL",
+                "side": "buy",
+                "risk_size_pct": 1.5,
+                "status": "pending_review",
+                "source": "synthetic_default",
+            }
         ]
 
     recent_fills = vd._load_local_recent_fills(limit=20)

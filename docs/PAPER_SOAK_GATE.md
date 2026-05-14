@@ -1,16 +1,13 @@
 # Paper Soak Gate Interpretation
 
-**Last updated:** 2026-05-10
+**Last updated:** 2026-05-13
 
-This document defines what current repo/runtime truth already supports for
-Section 4.1 of the launch checklist, and it records the remaining operator
-policy decisions that are still required before Section 4 can be signed off.
+This document defines the current Section 4.1 policy for supervised paper-soak
+evidence. It is a companion to [LAUNCH_CHECKLIST.md](./LAUNCH_CHECKLIST.md):
+the checklist is the compact gate surface, while this note records the current
+runtime interpretation and the operator decisions for the active soak model.
 
-It exists as a companion to [LAUNCH_CHECKLIST.md](./LAUNCH_CHECKLIST.md)
-because that checklist file is a compact gate surface, while the current repo
-needs a more explicit interpretation note for supervised paper-soak evidence.
-
-## Shown repo truth
+## Shown runtime truth
 
 - Section 4 is the **Paper trading gate**.
 - The current canonical supervised paper topology uses:
@@ -22,17 +19,13 @@ needs a more explicit interpretation note for supervised paper-soak evidence.
 - In paper mode:
   - `intent_consumer` is not expected to run
   - `reconciler` is not expected to run when `with_reconcile=false`
-- The paper-soak status should be evaluated from the **running soak state**:
+- The paper-soak state is evaluated from the running supervised runtime:
   - `runtime/flags/bot_runner.status.json`
   - `runtime/flags/pipeline.status.json`
   - `runtime/flags/intent_executor.status.json`
   - `runtime/health/ai_alert_monitor.json`
-- The current scanner-selected symbol set may drift away from the running soak
-  symbol set. That drift does not, by itself, prove the soak is invalid.
 
-## Current interpretation for Section 4.1
-
-Section 4.1 counts when all of the following are true:
+## Section 4.1 counts when
 
 - the supervised runtime is in paper mode
 - the running services match the expected paper topology
@@ -44,70 +37,64 @@ Section 4.1 counts when all of the following are true:
   - `pipeline.loops` increases over time
   - `intent_executor.loops` increases over time
 
-Section 4.1 is therefore **not blocked** merely because:
+Section 4.1 is therefore not blocked merely because:
 
 - `intent_consumer=false`
 - `reconciler=false`
 
 Those are expected in the current paper supervised path.
 
-## Current non-proof
+## Recorded operator policy
 
-The following claims are **not** currently supported by visible repo truth:
+**Date recorded:** 2026-05-13
 
-- that the Section 4.1 clock resets on any recovered transient exchange/API
-  timeout
-- that the Section 4.1 clock continues unchanged after any recovered transient
-  exchange/API timeout
-- that scanner-selected symbol changes must automatically replace the running
-  soak symbol set during the same 7-day window
-- that the running soak symbol set must remain frozen for the full 7-day window
+### Recovered external API/network warnings
 
-Those are policy decisions, not settled repo facts.
+**Policy:** recovered external Coinbase API/network warnings annotate the soak
+window and do **not** reset the Section 4.1 clock.
 
-## Open operator decisions
+**Applies when all are true:**
+- the event is an external network/API failure such as `RequestTimeout` or
+  `NetworkError`
+- the next supervised cycle recovers normally
+- the paper topology remains intact
+- loops continue advancing
+- the event is warning quality, not a service-collapse incident
 
-Before Section 4 can be signed off cleanly, the operator should explicitly
-choose:
+**Clock-reset triggers instead:**
+- topology break
+- managed-service restart/churn in the paper path
+- loops stop advancing
+- operator intervention is required to recover
+- a critical incident shows real service unavailability or corrupted runtime truth
 
-1. **Symbol-window policy**
-   Does Section 4.1 freeze the running symbol set for the entire soak window,
-   or allow scanner-driven symbol rotation during the same window?
+### Scanner symbol drift
 
-2. **Recovered-timeout policy**
-   Do recovered transient pipeline market-data/API errors count as acceptable
-   warnings within continuous operation, or do they require the Section 4.1
-   clock to restart?
+**Policy:** scanner-selected symbol drift annotates the soak window and does
+**not** reset the Section 4.1 clock, as long as the running soak symbol set
+remains internally aligned and the supervised runtime continues advancing.
 
-## Safe default until policy is chosen
+**Interpretation:** the running soak symbol set is the evidence anchor for the
+current Section 4.1 window. Current scanner output is an operator observation,
+not an automatic clock-reset condition.
 
-Until those decisions are written into the checklist itself:
+If the operator deliberately changes the live-intended symbol set and restarts
+the supervised paper stack onto a different symbol window, that decision point
+starts a new soak window.
 
-- continue the paper supervised soak unchanged
-- do Git-side repo work from a separate checkout, as documented in
-  [SAFE_WORKTREE_DURING_SOAK.md](./SAFE_WORKTREE_DURING_SOAK.md)
-- use `python scripts/report_supervised_soak_status.py` as the operator-facing
-  evidence surface
-- record the current running soak state, not only the current desired scanner
-  state
-- do not mark Section 4.1 as `PASS` solely because elapsed time reaches 7 days
-- require explicit human review of:
-  - the final runtime topology
-  - symbol drift during the window
-  - pipeline error history
-  - AI incident history
+## Recommended evidence surface
 
-## Recommended evidence command
+Use:
 
 ```bash
 python scripts/report_supervised_soak_status.py
 ```
 
-That script is read-only and is the current lowest-risk way to capture:
+That read-only surface summarizes:
 
 - elapsed Section 4.1 time
-- running paper topology
-- symbol alignment
+- paper topology
+- running-vs-current symbol state
 - loop progression
 - pipeline error count
 - AI monitor incident summary

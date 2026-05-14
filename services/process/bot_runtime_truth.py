@@ -29,12 +29,14 @@ CANONICAL_STATUS_FILES = {
     "bot_runner": FLAGS / "bot_runner.status.json",
     "pipeline": FLAGS / "pipeline.status.json",
     "executor": FLAGS / "intent_executor.status.json",
-    "intent_consumer": FLAGS / "live_consumer.status.json",
+    "intent_consumer": FLAGS / "live_intent_consumer.status.json",
     "ops_signal_adapter": HEALTH / "ops_signal_adapter.json",
     "ops_risk_gate": HEALTH / "ops_risk_gate_service.json",
     "reconciler": FLAGS / "live_reconciler.status.json",
     "market_ws": HEALTH / "market_ws.json",
+    "ai_alert_monitor": HEALTH / "ai_alert_monitor.json",
 }
+STATUS_FRESHNESS_SEC = 120.0
 LEGACY_RUNTIME_FALLBACK_ENV = "CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK"
 LEGACY_RUNTIME_FALLBACK_NOTE = (
     "Legacy bot runtime fallback is compatibility-only. Canonical runtime truth "
@@ -71,9 +73,54 @@ def _ts_epoch_from_payload(payload: dict[str, Any]) -> float | None:
     return None
 
 
+def _status_truth_from_payload(name: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+    ts_epoch = _ts_epoch_from_payload(payload)
+    if ts_epoch is None:
+        return None
+    age_sec = max(0.0, datetime.now().timestamp() - float(ts_epoch))
+    status_value = str(payload.get("status") or "").strip().lower()
+    positive_statuses = {"running"}
+    if name == "ai_alert_monitor":
+        positive_statuses.add("idle")
+    if status_value not in positive_statuses:
+        return None
+    if age_sec > STATUS_FRESHNESS_SEC:
+        return None
+    pid = payload.get("pid")
+    try:
+        pid = int(pid) if pid is not None else None
+    except Exception:
+        pid = None
+    return {
+        "running": True,
+        "pid": pid,
+        "source": "canonical_status_file",
+        "status": payload.get("status"),
+        "ts_epoch": float(ts_epoch),
+        "fresh": True,
+    }
+
+
 def canonical_service_status() -> dict[str, Any]:
     data = supervisor_status(list(CANONICAL_SERVICES))
-    return data if isinstance(data, dict) else {}
+    out = data if isinstance(data, dict) else {}
+    for name in CANONICAL_SERVICES:
+        row = dict(out.get(name) or {})
+        if bool(row.get("running")):
+            row.setdefault("source", "canonical_process_supervisor")
+            out[name] = row
+            continue
+        payload = _load_json(CANONICAL_STATUS_FILES.get(name, Path()))
+        status_truth = _status_truth_from_payload(name, payload)
+        if status_truth is not None:
+            row.update(status_truth)
+            out[name] = row
+        else:
+            row.setdefault("running", False)
+            row.setdefault("pid", None)
+            row.setdefault("source", "canonical_process_supervisor")
+            out[name] = row
+    return out
 
 
 def _legacy_runtime_fallback_enabled() -> bool:

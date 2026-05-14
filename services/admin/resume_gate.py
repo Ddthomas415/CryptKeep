@@ -7,61 +7,70 @@ from services.admin.config_editor import load_user_yaml, save_user_yaml
 from services.admin.kill_switch import set_armed
 from services.admin.system_guard import set_state as set_system_guard_state
 from services.admin.live_guard import live_allowed
-from services.execution.live_arming import set_live_armed_state, set_live_enabled
+from services.execution.live_arming import is_live_enabled, set_live_armed_state, set_live_enabled
+
+
+def _restore_cfg(cfg: dict[str, Any]) -> dict[str, Any]:
+    ok, msg = save_user_yaml(dict(cfg or {}))
+    return {"ok": bool(ok), "message": str(msg)}
 
 
 def resume_if_safe(*, note: str = "resume_if_safe") -> Dict[str, Any]:
     """
     Restore RUNNING only when the live guard checks pass for a resumable state.
     Returns a structured status payload for dashboard callers.
-
-    Fix H5 (Drill 6): also writes live_enabled: true to the config so that
-    live_enabled_and_armed() passes after a supervised restart.  Without this
-    write, the arming signal was set but is_live_enabled(cfg) still returned
-    False because resume_if_safe never updated the YAML.
     """
+    cfg_before = dict(load_user_yaml() or {})
+    config_changed = False
+    config_save: dict[str, Any] | None = None
+    if not is_live_enabled(cfg_before):
+        cfg_enabled = set_live_enabled(cfg_before, True)
+        ok, msg = save_user_yaml(cfg_enabled)
+        config_save = {"ok": bool(ok), "message": str(msg), "live_enabled": True}
+        if not ok:
+            return {
+                "ok": False,
+                "resumed": False,
+                "reason": "config_save_failed",
+                "save": config_save,
+            }
+        config_changed = True
+
     allowed, reason, details = live_allowed(
         allow_kill_switch_armed=True,
         allow_system_guard_halted=True,
     )
     if not bool(allowed):
-        return {"ok": False, "resumed": False, "reason": str(reason), "details": dict(details or {})}
+        restored = _restore_cfg(cfg_before) if config_changed else None
+        out = {"ok": False, "resumed": False, "reason": str(reason), "details": dict(details or {})}
+        if config_save is not None:
+            out["save"] = config_save
+        if restored is not None:
+            out["config_restore"] = restored
+        return out
     try:
         armed_state = set_live_armed_state(True, writer="resume_gate", reason=str(note))
     except Exception as exc:
-        return {
+        out = {
             "ok": False,
             "resumed": False,
             "reason": f"live_arm_restore_failed:{type(exc).__name__}",
             "details": dict(details or {}),
         }
-    # H5 fix: persist live_enabled: true so live_enabled_and_armed() passes
-    # after a restart where this process's env var is no longer inherited.
-    try:
-        _cfg = load_user_yaml()
-        _updated = set_live_enabled(_cfg, True)
-        _saved, _save_err = save_user_yaml(_updated)
-        if not _saved:
-            details = dict(details or {})
-            details["live_enabled_config_save_warning"] = _save_err
-    except Exception as _cfg_exc:
-        details = dict(details or {})
-        details["live_enabled_config_save_warning"] = f"{type(_cfg_exc).__name__}:{_cfg_exc}"
+        if config_save is not None:
+            out["save"] = config_save
+        if config_changed:
+            out["config_restore"] = _restore_cfg(cfg_before)
+        return out
     os.environ["CBP_EXECUTION_ARMED"] = "YES"
-    kill_switch = set_armed(False, note=note)
     try:
+        kill_switch = set_armed(False, note=note)
         system_guard = set_system_guard_state("RUNNING", writer="resume_gate", reason=str(note))
     except Exception as exc:
         os.environ.pop("CBP_EXECUTION_ARMED", None)
         rollback_arm = set_live_armed_state(False, writer="resume_gate", reason=f"{note}:rollback_system_guard_failed")
         rollback = set_armed(True, note=f"{note}:rollback_system_guard_failed")
-        # Also rollback live_enabled in config
-        try:
-            _rb_cfg = load_user_yaml()
-            save_user_yaml(set_live_enabled(_rb_cfg, False))
-        except Exception:
-            pass
-        return {
+        out = {
             "ok": False,
             "resumed": False,
             "reason": f"system_guard_resume_failed:{type(exc).__name__}",
@@ -69,7 +78,12 @@ def resume_if_safe(*, note: str = "resume_if_safe") -> Dict[str, Any]:
             "kill_switch": rollback,
             "details": dict(details or {}),
         }
-    return {
+        if config_save is not None:
+            out["save"] = config_save
+        if config_changed:
+            out["config_restore"] = _restore_cfg(cfg_before)
+        return out
+    out = {
         "ok": True,
         "resumed": True,
         "reason": "ok",
@@ -78,3 +92,6 @@ def resume_if_safe(*, note: str = "resume_if_safe") -> Dict[str, Any]:
         "system_guard": system_guard,
         "details": dict(details or {}),
     }
+    if config_save is not None:
+        out["save"] = config_save
+    return out

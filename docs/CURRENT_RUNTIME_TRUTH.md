@@ -1,6 +1,6 @@
 # Current Runtime Truth
 
-**Last updated:** 2026-05-07
+**Last updated:** 2026-05-13
 
 This document is the current operator-facing runtime truth for startup, stop, and status behavior.
 Historical checkpoint records under `docs/checkpoints/` may preserve earlier launch paths and are not canonical unless reaffirmed here.
@@ -33,23 +33,36 @@ Historical checkpoint records under `docs/checkpoints/` may preserve earlier lau
 
 ## Current startup behavior shown in source
 
-- `scripts/start_bot.py` performs a one-shot supervised converge; it starts wanted services and stops incompatible managed services for the current config/mode.
+- `scripts/start_bot.py` performs a one-shot supervised converge; it starts
+  wanted services and stops incompatible managed services for the current
+  config/mode.
 - `scripts/run_intent_consumer_safe.py` and `scripts/run_live_reconciler_safe.py` gate managed `run` mode on `runtime_trading_config_available()` and enter IDLE / SAFE-IDLE on startup failure.
 - `scripts/run_bot_runner.py` derives desired managed services from merged runtime config and writes `runtime/flags/bot_runner.status.json`.
-- supervised symbol scope for `pipeline`, `executor`, `intent_consumer`, and `reconciler` is injected through `CBP_SYMBOLS`.
-- `scripts/run_bot_runner.py` and `scripts/start_bot.py` derive that managed symbol set from `services/runtime/managed_symbol_selection.py`.
-- when `managed_symbols.source=scanner`, paper mode uses scanner-ranked candidates with a refresh cache and preserves only fresh non-zero paper positions plus fresh actionable intents (`queued/submitting/submitted` by default).
-- `runtime/flags/bot_runner.status.json` records `selected_symbols`, `protected_symbols`, and `protected_symbol_details` so operator status shows why a symbol stayed in the managed set.
+- supervised symbol scope for `pipeline`, `executor`, `intent_consumer`, and
+  `reconciler` is injected through `CBP_SYMBOLS`
+- `scripts/run_bot_runner.py` and `scripts/start_bot.py` derive that managed
+  symbol set from `services/runtime/managed_symbol_selection.py`
+- when `managed_symbols.source=scanner`, paper mode uses scanner-ranked
+  candidates with a refresh cache and preserves only fresh non-zero paper
+  positions plus fresh actionable intents (`queued/submitting/submitted` by
+  default)
+- `runtime/flags/bot_runner.status.json` records `selected_symbols`,
+  `protected_symbols`, and `protected_symbol_details` so operator status shows
+  why a symbol stayed in the managed set
 - `services/process/bot_runtime_truth.py` no longer silently downgrades to legacy bot state unless `CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK=YES`.
 
 ## Paper soak interpretation
 
-- Section 4.1 of the launch checklist is a **paper supervised soak** gate, not a full live-path rehearsal.
-- In paper mode, `intent_consumer` is not expected to run, and `reconciler` is not expected when `with_reconcile=false`.
-- The current companion interpretation note for Section 4.1 is [PAPER_SOAK_GATE.md](./PAPER_SOAK_GATE.md).
+- Section 4.1 of the launch checklist is a **paper supervised soak** gate,
+  not a full live-path rehearsal.
+- In paper mode, `intent_consumer` is not expected to run, and `reconciler`
+  is not expected when `with_reconcile=false`.
+- The current companion interpretation note for Section 4.1 is
+  [PAPER_SOAK_GATE.md](./PAPER_SOAK_GATE.md).
 - The current safe repo-work workflow during an active soak is documented in
   [SAFE_WORKTREE_DURING_SOAK.md](./SAFE_WORKTREE_DURING_SOAK.md).
-- The current read-only evidence surface for that gate is `python scripts/report_supervised_soak_status.py`.
+- The current read-only evidence surface for that gate is
+  `python scripts/report_supervised_soak_status.py`.
 
 ## Compatibility-only legacy surfaces
 

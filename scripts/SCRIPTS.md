@@ -21,7 +21,7 @@ Use `make script-index` for a quick operational reference.
 | Script | Purpose |
 |---|---|
 | `report_paper_run_diagnostics.py` | Paper run diagnostic report |
-| `report_supervised_soak_status.py` | Supervised paper-soak Section 4.1 status report |
+| `report_supervised_soak_status.py` | Supervised paper-soak Section 4.1 report |
 | `review_candidate_outcomes.py` | Candidate outcome review |
 | `ingest_evidence.py` | Ingest external evidence |
 | `export_diagnostics.py` | Export system diagnostics |
@@ -47,6 +47,7 @@ Use `make script-index` for a quick operational reference.
 | `run_ws_ticker_feed_safe.py` | Managed-safe wrapper for WebSocket ticker feed |
 | `collect_live_crypto_edge_snapshot.py` | Live edge snapshot |
 | `run_crypto_edge_collector_loop.py` | Continuous edge collection |
+| `run_ai_alert_monitor.py` | AI alert monitor status and recent incident reports |
 
 ## Live Trading (shadow/capped_live stages only)
 

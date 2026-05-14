@@ -887,12 +887,14 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
     from dashboard.services import view_data
 
     captured: dict[str, Any] = {}
+    header_calls: list[dict[str, Any]] = []
 
     monkeypatch.setattr(
         view_data,
         "get_automation_view",
         lambda: {
             "execution_enabled": False,
+            "automation_enabled": True,
             "dry_run_mode": True,
             "default_mode": "paper",
             "schedule": "manual",
@@ -913,10 +915,16 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
     )
     monkeypatch.setattr(forms, "render_save_action", lambda **kwargs: captured.update(kwargs))
 
+    def _prepare(monkeypatch, _fake_streamlit) -> None:
+        from dashboard.components import header
+
+        monkeypatch.setattr(header, "render_page_header", lambda *args, **kwargs: header_calls.append(dict(kwargs)))
+
     _load_dashboard_module(
         monkeypatch,
         relative_path="dashboard/pages/50_Automation.py",
         module_name="dashboard_test_automation_page",
+        prepare=_prepare,
         streamlit_overrides={
             "Enable automation": True,
             "Dry run mode": False,
@@ -935,6 +943,7 @@ def test_automation_page_builds_save_payload(monkeypatch) -> None:
         },
     )
 
+    assert header_calls[-1]["badges"] == [{"label": "Execution", "value": "Disabled"}]
     assert captured["button_label"] == "Save automation settings"
     assert captured["payload"] == {
         "execution_enabled": True,
@@ -1188,6 +1197,25 @@ def test_operations_page_shows_paper_evidence_warning(monkeypatch) -> None:
             "last_health_ts": "2026-03-18T10:00:00Z",
         },
     )
+    monkeypatch.setattr(
+        operator_service,
+        "get_supervised_soak_snapshot",
+        lambda: {
+            "ok": True,
+            "result": "IN PROGRESS",
+            "elapsed_hours": 70.5,
+            "remaining_hours": 97.5,
+            "counts_for_paper_gate": True,
+            "topology_matches_run_state": True,
+            "symbols": {
+                "run_state": ["B3/USD", "B3/USDC"],
+                "current_desired_state": ["B3/USD", "B3/USDC"],
+                "runtime_matches_current_desired_state": True,
+            },
+            "pipeline": {"errors": 0},
+            "section_4_1_entry": "Section 4.1 — Minimum paper trading duration",
+        },
+    )
     monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
     monkeypatch.setattr(operator_service, "run_op", lambda args, current_role="VIEWER": (0, "ok"))
     monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
@@ -1307,6 +1335,170 @@ def test_operations_page_shows_paper_evidence_warning(monkeypatch) -> None:
     )
 
     assert warnings == ["Strategy runner is waiting for fresh market ticks for ema_cross; start the tick publisher."]
+
+
+def test_operations_page_shows_supervised_soak_drift_warning(monkeypatch) -> None:
+    from dashboard.components import actions, logs
+    from dashboard.services import crypto_edge_research
+    from dashboard.services import operator as operator_service
+    from dashboard.services import operator_tools, strategy_evaluation
+    from dashboard.services import strategy_evidence_runtime
+    from services.admin import live_guard
+    from services.admin import config_editor, repair_wizard
+    from services.execution import idempotency_inspector
+    from services.strategies import config_tools, presets
+
+    warnings: list[str] = []
+
+    monkeypatch.setattr(actions, "render_system_action_buttons", lambda: None)
+    monkeypatch.setattr(logs, "render_action_result", _noop)
+    monkeypatch.setattr(
+        operator_service,
+        "get_operations_snapshot",
+        lambda: {
+            "tracked_services": 5,
+            "healthy_services": 4,
+            "unknown_services": 1,
+            "attention_services": 1,
+            "last_health_ts": "2026-03-18T10:00:00Z",
+        },
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "get_supervised_soak_snapshot",
+        lambda: {
+            "ok": True,
+            "result": "IN PROGRESS",
+            "elapsed_hours": 70.5,
+            "remaining_hours": 97.5,
+            "counts_for_paper_gate": True,
+            "topology_matches_run_state": True,
+            "symbols": {
+                "run_state": ["B3/USD", "B3/USDC"],
+                "current_desired_state": ["BILL/USD", "BILL/USDC"],
+                "runtime_matches_current_desired_state": False,
+            },
+            "pipeline": {"errors": 0},
+            "section_4_1_entry": "Section 4.1 — Minimum paper trading duration",
+        },
+    )
+    monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
+    monkeypatch.setattr(operator_service, "run_op", lambda args, current_role="VIEWER": (0, "ok"))
+    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
+    monkeypatch.setattr(
+        operator_service,
+        "run_full_system_diagnostics",
+        lambda export_bundle=False, current_role="VIEWER": {
+            "ok": True,
+            "status": "ok",
+            "as_of": "2026-03-18T10:00:00Z",
+            "summary": {"critical_issues": 0, "warning_issues": 0, "repairable_issues": 0},
+            "issues": [],
+        },
+    )
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": []})
+    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True: {"ok": True, "removed_count": 0})
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
+    monkeypatch.setattr(
+        operator_service,
+        "start_paper_strategy_evidence_collection",
+        lambda runtime_sec, strategies=None, symbol="BTC/USD", venue="coinbase", current_role="VIEWER": (0, "started"),
+    )
+    monkeypatch.setattr(operator_service, "stop_paper_strategy_evidence_collection", lambda current_role="VIEWER": (0, "stopped"))
+    monkeypatch.setattr(
+        config_editor,
+        "load_user_yaml",
+        lambda: {"strategy": {"name": "ema_cross", "trade_enabled": True, "ema_fast": 12, "ema_slow": 26}},
+    )
+    monkeypatch.setattr(config_editor, "save_user_yaml", lambda cfg: (True, "saved"))
+    monkeypatch.setattr(config_tools, "supported_strategies", lambda: ["ema_cross", "mean_reversion_rsi", "breakout_donchian"])
+    monkeypatch.setattr(
+        config_tools,
+        "build_strategy_block",
+        lambda name, trade_enabled, params: {"name": name, "trade_enabled": trade_enabled, **params},
+    )
+    monkeypatch.setattr(config_tools, "apply_strategy_block", lambda cfg, block: {**cfg, "strategy": dict(block)})
+    monkeypatch.setattr(config_tools, "validate_cfg", lambda cfg: {"ok": True, "errors": [], "warnings": []})
+    monkeypatch.setattr(config_tools, "apply_preset_and_validate", lambda cfg, preset: (cfg, {"ok": True, "errors": [], "warnings": []}))
+    monkeypatch.setattr(presets, "list_presets", lambda: ["ema_cross_default"])
+    monkeypatch.setattr(operator_tools, "synthetic_ohlcv", lambda count: [[1, 100, 101, 99, 100, 1.0]] * max(int(count), 1))
+    monkeypatch.setattr(idempotency_inspector, "list_recent", lambda limit=10, status="error": {"ok": True, "rows": [], "path": "/tmp/db", "table": "idempotency"})
+    monkeypatch.setattr(idempotency_inspector, "filter_rows", lambda rows, venue_filter, symbol_filter: [])
+    monkeypatch.setattr(live_guard, "live_allowed", lambda **_: (True, "ok", {"system_guard": "RUNNING"}))
+    monkeypatch.setattr(repair_wizard, "preflight_self_check", lambda: {"ok": True})
+    monkeypatch.setattr(repair_wizard, "preview_reset", lambda include_locks=False: {"ok": True, "include_locks": include_locks})
+    monkeypatch.setattr(repair_wizard, "execute_reset", lambda confirm_text="", include_locks=False: {"ok": False, "reason": "not_confirmed"})
+    monkeypatch.setattr(
+        strategy_evaluation,
+        "build_strategy_workbench",
+        lambda **kwargs: {"ok": True, "backtest": {}, "leaderboard": {}, "hypothesis": {}},
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_report",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "store_path": "/tmp/crypto_edge_research.sqlite",
+            "funding_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "basis_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "quote_meta": {"capture_ts": "2026-03-18T10:00:00Z"},
+            "funding": {"count": 1, "annualized_carry_pct": 12.0, "dominant_bias": "long_pays", "rows": [{"symbol": "BTC-PERP"}]},
+            "basis": {"count": 1, "avg_basis_bps": 8.0, "widest_basis_bps": 8.0, "rows": [{"symbol": "BTC-PERP"}]},
+            "dislocations": {"count": 1, "positive_count": 1, "top_dislocation": {"symbol": "BTC/USD", "gross_cross_bps": 6.0}, "rows": [{"symbol": "BTC/USD"}]},
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Recent",
+            "funding": {"dominant_bias": "long_pays", "annualized_carry_pct": 12.0},
+            "basis": {"avg_basis_bps": 8.0, "widest_basis_bps": 8.0},
+            "dislocations": {"positive_count": 1, "top_dislocation": {"symbol": "BTC/USD"}},
+            "summary_text": "Live Public snapshot shows funding bias long_pays.",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: {"ok": True, "has_status": True, "status": "running", "freshness": "Recent"},
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_summary",
+        lambda: {"ok": True, "needs_attention": False, "severity": "ok"},
+    )
+    monkeypatch.setattr(
+        strategy_evidence_runtime,
+        "load_paper_strategy_evidence_runtime",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "running",
+            "freshness": "Fresh",
+            "age_label": "5m old",
+            "current_strategy": "ema_cross",
+            "completed_summary": "0/3",
+            "summary_text": "Paper evidence collector is running.",
+        },
+    )
+
+    def _prepare(monkeypatch, fake_streamlit) -> None:
+        fake_streamlit.warning = lambda message, *args, **kwargs: warnings.append(str(message))
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/60_Operations.py",
+        module_name="dashboard_test_operations_soak_warning",
+        prepare=_prepare,
+    )
+
+    assert "Running soak symbols differ from current desired symbols." in warnings
 
 
 def test_operations_page_starts_collector_loop(monkeypatch) -> None:
@@ -2011,3 +2203,77 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
         "secret_masking": False,
         "audit_export_allowed": False,
     }
+
+
+def test_settings_page_labels_provider_cards_as_config_only(monkeypatch) -> None:
+    from dashboard.components import badges
+    from dashboard.components import forms
+    from dashboard.services import view_data
+
+    badge_rows: list[list[dict[str, object]]] = []
+
+    monkeypatch.setattr(
+        view_data,
+        "get_settings_view",
+        lambda: {
+            "general": {"timezone": "UTC", "default_mode": "research_only"},
+            "notifications": {"delivery_mode": "instant", "categories": {}},
+            "ai": {"tone": "balanced", "autopilot_explanation_depth": "standard"},
+            "autopilot": {"autopilot_enabled": False, "candidate_limit": 12, "scan_interval_minutes": 15},
+            "providers": {
+                "coingecko": {
+                    "enabled": True,
+                    "api_key": "",
+                    "status": "ready",
+                    "saved_status_label": "Ready",
+                    "runtime_status": "config_only",
+                    "status_source": "config",
+                    "role": "Crypto breadth",
+                    "last_sync": "Starter dataset",
+                }
+            },
+            "paper_trading": {
+                "enabled": True,
+                "fee_bps": 7.0,
+                "slippage_bps": 2.0,
+                "approval_required": True,
+                "max_position_size_usd": 5000.0,
+                "max_daily_loss_pct": 2.0,
+            },
+            "security": {
+                "session_timeout_minutes": 60,
+                "secret_masking": True,
+                "audit_export_allowed": True,
+                "auth_scope": "local_private_only",
+                "remote_access_requires_mfa": True,
+                "outer_access_control": "",
+            },
+            "connections": {
+                "connected_exchanges": 1,
+                "connected_providers": 2,
+                "failed": 0,
+                "last_sync": "2026-03-12T10:05:00Z",
+            },
+        },
+    )
+
+    def prepare(monkeypatch, _fake_streamlit) -> None:
+        monkeypatch.setattr(badges, "render_badge_row", lambda rows, *args, **kwargs: badge_rows.append(list(rows)))
+        monkeypatch.setattr(forms, "render_save_action", _noop)
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/70_Settings.py",
+        module_name="dashboard_test_settings_page_config_only_badges",
+        prepare=prepare,
+    )
+
+    badge_texts = [
+        str(item.get("text") or "")
+        for row in badge_rows
+        for item in row
+        if isinstance(item, dict)
+    ]
+    assert "Live services: 2" in badge_texts
+    assert "Config Only" in badge_texts
+    assert "Saved: Ready" in badge_texts

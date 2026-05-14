@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import sys
 from types import SimpleNamespace
+from types import ModuleType
 
 from dashboard.services import operator as operator_service
 
@@ -125,6 +127,16 @@ def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
         "unknown_services": 0,
         "last_health_ts": "2026-03-12T10:05:00Z",
     }
+
+
+def test_get_supervised_soak_snapshot_wraps_report_builder(monkeypatch):
+    fake_mod = ModuleType("scripts.report_supervised_soak_status")
+    fake_mod.build_report = lambda: {"ok": True, "result": "IN PROGRESS", "elapsed_hours": 12.5}
+    monkeypatch.setitem(sys.modules, "scripts.report_supervised_soak_status", fake_mod)
+
+    payload = operator_service.get_supervised_soak_snapshot()
+
+    assert payload == {"ok": True, "result": "IN PROGRESS", "elapsed_hours": 12.5}
 
 
 def test_run_full_system_diagnostics_wraps_core_service(monkeypatch):

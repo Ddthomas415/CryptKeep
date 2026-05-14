@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from dashboard.services import view_data
 
 
@@ -1441,6 +1443,7 @@ def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> N
                 "signal": "buy",
                 "risk_size_pct": 1.5,
                 "status": "pending_review",
+                "source": "signal_inbox",
             }
         ],
     )
@@ -1449,9 +1452,11 @@ def test_trades_view_maps_recommendations_to_pending_approvals(monkeypatch) -> N
     assert payload["approval_required"] is False
     assert payload["pending_approvals"][0]["id"] == "rec_99"
     assert payload["pending_approvals"][0]["side"] == "buy"
+    assert payload["pending_approvals"][0]["source"] == "signal_inbox"
     assert payload["open_orders"] == []
     assert payload["failed_orders"] == []
     assert len(payload["recent_fills"]) >= 1
+    assert payload["recent_fills"][0]["source"] == "synthetic_default"
 
 
 def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
@@ -1471,6 +1476,7 @@ def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
                 "qty": 0.25,
                 "price": 4420.0,
                 "venue": "paper",
+                "source": "pnl_store",
             }
         ],
     )
@@ -1485,9 +1491,31 @@ def test_trades_view_prefers_local_recent_fills(monkeypatch) -> None:
             "qty": 0.25,
             "price": 4420.0,
             "venue": "paper",
+            "source": "pnl_store",
         }
     ]
     assert payload["pending_approvals"][0]["asset"] == "SOL"
+
+
+def test_trades_view_uses_synthetic_pending_approval_with_source(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"approval_required": True})
+    monkeypatch.setattr(view_data, "_load_local_pending_approvals", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_open_orders", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_failed_orders", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "_load_local_recent_fills", lambda limit=20: [])
+    monkeypatch.setattr(view_data, "get_recommendations", lambda: [])
+
+    payload = view_data.get_trades_view()
+    assert payload["pending_approvals"] == [
+        {
+            "id": "rec_1",
+            "asset": "SOL",
+            "side": "buy",
+            "risk_size_pct": 1.5,
+            "status": "pending_review",
+            "source": "synthetic_default",
+        }
+    ]
 
 
 def test_trades_view_prefers_local_pending_approvals(monkeypatch) -> None:
@@ -1672,6 +1700,39 @@ def test_load_local_pending_approvals_prefers_queued_intents(monkeypatch) -> Non
             "created_ts": "2026-03-12T09:00:00Z",
             "source": "signal_router",
         },
+    ]
+
+
+def test_load_local_recent_fills_prefers_pnl_store_and_labels_source(monkeypatch) -> None:
+    class FakePnLStore:
+        def last_fills(self, limit: int = 20):
+            assert limit == 2
+            return [
+                {
+                    "ts": "2026-03-12T10:30:00Z",
+                    "symbol": "btc/usd",
+                    "side": "buy",
+                    "qty": 0.02,
+                    "price": 90500.0,
+                    "venue": "paper",
+                }
+            ]
+
+    monkeypatch.setattr("storage.pnl_store_sqlite.PnLStoreSQLite", FakePnLStore)
+    monkeypatch.setattr("storage.live_trading_sqlite.LiveTradingSQLite", lambda: None)
+    monkeypatch.setattr("storage.execution_audit_reader.list_fills", lambda limit=2: [])
+
+    rows = view_data._load_local_recent_fills(limit=2)
+    assert rows == [
+        {
+            "ts": "2026-03-12T10:30:00Z",
+            "asset": "BTC",
+            "side": "buy",
+            "qty": 0.02,
+            "price": 90500.0,
+            "venue": "paper",
+            "source": "pnl_store",
+        }
     ]
 
 
@@ -1951,6 +2012,51 @@ def test_settings_view_applies_local_overlay(monkeypatch) -> None:
     assert settings["autopilot"]["default_market_universe"] == "core_watchlist"
 
 
+def test_settings_view_exposes_connections_and_marks_provider_status_config_only(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "_fetch_envelope",
+        lambda path: {
+            "status": "success",
+            "data": {
+                "providers": {
+                    "coingecko": {
+                        "enabled": True,
+                        "api_key": "",
+                        "status": "ready",
+                        "role": "Crypto breadth",
+                        "last_sync": "Starter dataset",
+                    }
+                }
+            },
+        }
+        if path == "/api/v1/settings"
+        else None,
+    )
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        view_data,
+        "_load_local_connections_summary",
+        lambda: {
+            "connected_exchanges": 2,
+            "connected_providers": 3,
+            "failed": 1,
+            "last_sync": "2026-03-12T10:05:00Z",
+        },
+    )
+
+    settings = view_data.get_settings_view()
+    assert settings["connections"] == {
+        "connected_exchanges": 2,
+        "connected_providers": 3,
+        "failed": 1,
+        "last_sync": "2026-03-12T10:05:00Z",
+    }
+    assert settings["providers"]["coingecko"]["runtime_status"] == "config_only"
+    assert settings["providers"]["coingecko"]["status_source"] == "config"
+    assert settings["providers"]["coingecko"]["saved_status_label"] == "Ready"
+
+
 def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
     monkeypatch.setattr(
         view_data,
@@ -1965,7 +2071,8 @@ def test_automation_view_uses_settings_and_summary(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
 
     payload = view_data.get_automation_view()
-    assert payload["execution_enabled"] is True
+    assert payload["execution_enabled"] is False
+    assert payload["automation_enabled"] is True
     assert payload["dry_run_mode"] is False
     assert payload["default_mode"] == "live_approval"
     assert payload["approval_required_for_live"] is False
@@ -1991,7 +2098,7 @@ def test_update_settings_view_reports_success(monkeypatch) -> None:
     )
 
     payload = {"general": {"timezone": "UTC"}}
-    result = view_data.update_settings_view(payload)
+    result = view_data.update_settings_view(payload, current_role="OPERATOR")
     assert result["ok"] is True
     assert result["data"] == payload
     assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
@@ -2010,7 +2117,7 @@ def test_update_settings_view_reports_api_failure(monkeypatch) -> None:
     )
     monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
 
-    result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
+    result = view_data.update_settings_view({"general": {"timezone": "UTC"}}, current_role="OPERATOR")
     assert result["ok"] is True
     assert "sync skipped" in result["message"].lower()
     assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
@@ -2022,9 +2129,16 @@ def test_update_settings_view_reports_local_save_failure(monkeypatch) -> None:
     monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (False, "disk error"))
     monkeypatch.setattr(view_data, "_request_envelope", lambda path, method="GET", payload=None: None)
 
-    result = view_data.update_settings_view({"general": {"timezone": "UTC"}})
+    result = view_data.update_settings_view({"general": {"timezone": "UTC"}}, current_role="OPERATOR")
     assert result["ok"] is False
     assert "disk error" in result["message"].lower()
+
+
+def test_update_settings_view_requires_operator(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+
+    with pytest.raises(PermissionError):
+        view_data.update_settings_view({"general": {"timezone": "UTC"}})
 
 
 def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
@@ -2068,7 +2182,8 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
     )
 
     payload = view_data.get_automation_view()
-    assert payload["execution_enabled"] is True
+    assert payload["execution_enabled"] is False
+    assert payload["automation_enabled"] is True
     assert payload["default_mode"] == "live_approval"
     assert payload["schedule"] == "hourly"
     assert payload["marketplace_routing"] == "approval gated"
@@ -2087,6 +2202,24 @@ def test_get_automation_view_prefers_runtime_config(monkeypatch) -> None:
     }
 
 
+def test_get_automation_view_uses_canonical_live_arming_for_execution_badge(monkeypatch) -> None:
+    monkeypatch.setattr(
+        view_data,
+        "load_user_yaml",
+        lambda: {
+            "execution": {"executor_mode": "live", "live_enabled": True},
+            "dashboard_ui": {"automation": {"enabled": False}},
+        },
+    )
+    monkeypatch.setattr(view_data, "get_dashboard_summary", lambda: {"execution_enabled": False, "approval_required": True})
+    monkeypatch.setattr(view_data, "get_settings_view", lambda: {"general": {"default_mode": "paper"}})
+
+    payload = view_data.get_automation_view()
+
+    assert payload["execution_enabled"] is True
+    assert payload["automation_enabled"] is False
+
+
 def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> None:
     saved_cfg: dict[str, object] = {}
 
@@ -2099,7 +2232,7 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
         return True, "Saved"
 
     monkeypatch.setattr(view_data, "save_user_yaml", _fake_save)
-    monkeypatch.setattr(view_data, "update_settings_view", lambda payload: {"ok": True, "data": payload})
+    monkeypatch.setattr(view_data, "update_settings_view", lambda payload, current_role="VIEWER": {"ok": True, "data": payload})
 
     result = view_data.update_automation_view(
         {
@@ -2117,7 +2250,8 @@ def test_update_automation_view_persists_runtime_and_settings(monkeypatch) -> No
             "default_venue": "gateio",
             "default_qty": 0.5,
             "order_type": "limit",
-        }
+        },
+        current_role="OPERATOR",
     )
 
     assert result["ok"] is True
@@ -2140,7 +2274,7 @@ def test_update_automation_view_allows_partial_success(monkeypatch) -> None:
     if hasattr(view_data, "load_user_yaml"):
         monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
     monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (True, "Saved"))
-    monkeypatch.setattr(view_data, "update_settings_view", lambda payload: {"ok": False, "message": "api down"})
+    monkeypatch.setattr(view_data, "update_settings_view", lambda payload, current_role="VIEWER": {"ok": False, "message": "api down"})
 
     result = view_data.update_automation_view(
         {
@@ -2150,7 +2284,15 @@ def test_update_automation_view_allows_partial_success(monkeypatch) -> None:
             "schedule": "manual",
             "marketplace_routing": "disabled",
             "approval_required_for_live": True,
-        }
+        },
+        current_role="OPERATOR",
     )
     assert result["ok"] is True
     assert "sync skipped" in result["message"].lower()
+
+
+def test_update_automation_view_requires_operator(monkeypatch) -> None:
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+
+    with pytest.raises(PermissionError):
+        view_data.update_automation_view({"execution_enabled": False})

@@ -76,3 +76,39 @@ def test_write_safety_report_writes_files(tmp_path, monkeypatch):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert "# CryptKeep Safety Audit" in markdown
     assert "system_guard_halted" in markdown
+
+
+def test_build_safety_report_marks_missing_system_guard_critical(monkeypatch):
+    monkeypatch.setattr(
+        "services.ai_copilot.safety_auditor.get_kill_switch_state",
+        lambda: {"armed": False, "note": "ok"},
+    )
+    monkeypatch.setattr(
+        "services.ai_copilot.safety_auditor.get_system_guard_state",
+        lambda fail_closed=False: {"state": "HALTED", "reason": "missing", "epoch": 0},
+    )
+    monkeypatch.setattr(
+        "services.ai_copilot.safety_auditor.live_allowed",
+        lambda: (
+            False,
+            "system_guard_missing",
+            {"kill_switch": {"armed": False}, "system_guard": {"state": "HALTED", "reason": "missing"}},
+        ),
+    )
+    monkeypatch.setattr(
+        "services.ai_copilot.safety_auditor.get_live_armed_state",
+        lambda: {"armed": False, "writer": "test", "reason": "default"},
+    )
+    monkeypatch.setattr(
+        "services.ai_copilot.safety_auditor.live_enabled_and_armed",
+        lambda: (False, "live_not_armed"),
+    )
+    monkeypatch.setattr("services.ai_copilot.safety_auditor.is_live_enabled", lambda cfg=None: True)
+
+    report = build_safety_report()
+
+    assert report["severity"] == "critical"
+    assert report["runtime"]["live_reason"] == "system_guard_missing"
+    assert "missing system guard state" in str(report["recommendations"][0]).lower() or any(
+        "missing system guard state" in str(item).lower() for item in report["recommendations"]
+    )

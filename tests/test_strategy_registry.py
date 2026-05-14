@@ -42,12 +42,13 @@ class TestSignalRouting:
         assert result["strategy"] == "sma_200_trend"
         assert result["action"] in ("buy", "hold")
 
-    def test_unknown_strategy_falls_back_to_ema_cross(self):
+    def test_unknown_strategy_fails_closed(self):
         cfg = {"strategy": {"name": "nonexistent_strategy_xyz"}}
         result = compute_signal(cfg=cfg, symbol="BTC/USD", ohlcv=_ohlcv())
-        # Falls back to ema_cross per registry logic
-        assert result["action"] in ("buy", "sell", "hold")
-        assert "ok" not in result or result.get("ok") is True
+        assert result["ok"] is False
+        assert result["action"] == "hold"
+        assert result["reason"] == "unknown_strategy"
+        assert result["strategy"] == "nonexistent_strategy_xyz"
 
     def test_trade_disabled_returns_hold(self):
         cfg = {"strategy": {"name": "ema_cross", "trade_enabled": False}}

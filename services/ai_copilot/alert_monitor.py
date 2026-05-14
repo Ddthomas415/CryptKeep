@@ -6,7 +6,7 @@ import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from services.ai_copilot.incident_analyst import analyze_incident
 from services.ai_copilot.policy import report_root
@@ -61,25 +61,25 @@ def _alert_log_path() -> Path:
     return runtime_dir() / "alerts" / "critical_alerts.jsonl"
 
 
-def _write_status(obj: Dict[str, Any]) -> None:
+def _write_status(obj: dict[str, Any]) -> None:
     ensure_dirs()
     _health_dir().mkdir(parents=True, exist_ok=True)
     status_file().write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def _write_pid_state(obj: Dict[str, Any]) -> None:
+def _write_pid_state(obj: dict[str, Any]) -> None:
     ensure_dirs()
     _health_dir().mkdir(parents=True, exist_ok=True)
     pid_file().write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def _write_cursor(obj: Dict[str, Any]) -> None:
+def _write_cursor(obj: dict[str, Any]) -> None:
     ensure_dirs()
     _flags_dir().mkdir(parents=True, exist_ok=True)
     cursor_file().write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def _load_json(path: Path) -> Dict[str, Any]:
+def _load_json(path: Path) -> dict[str, Any]:
     return dict(json.loads(path.read_text(encoding="utf-8")) or {})
 
 
@@ -103,7 +103,7 @@ def _process_alive(pid: int) -> bool:
         return False
 
 
-def _default_cursor() -> Dict[str, Any]:
+def _default_cursor() -> dict[str, Any]:
     return {
         "alert_line_count": 0,
         "log_line_counts": {},
@@ -111,7 +111,7 @@ def _default_cursor() -> Dict[str, Any]:
     }
 
 
-def _load_cursor() -> Dict[str, Any]:
+def _load_cursor() -> dict[str, Any]:
     if not cursor_file().exists():
         return _default_cursor()
     try:
@@ -125,8 +125,63 @@ def _load_cursor() -> Dict[str, Any]:
     return out
 
 
-def load_runtime_status() -> Dict[str, Any]:
-    payload: Dict[str, Any]
+def _find_report_row(*, stem: str | None = None) -> dict[str, Any] | None:
+    stem_txt = str(stem or "").strip()
+    if stem_txt:
+        json_path = report_root() / f"{stem_txt}.json"
+        if not json_path.exists():
+            return None
+        try:
+            payload = _load_json(json_path)
+        except Exception:
+            return None
+        if str(payload.get("monitor_name") or "") != MONITOR_NAME:
+            return None
+        return {
+            "stem": stem_txt,
+            "generated_at": str(payload.get("generated_at") or ""),
+            "severity": str(payload.get("severity") or "unknown"),
+            "summary": str(payload.get("summary") or "").strip(),
+            "event_count": int(len(list(payload.get("events") or []))),
+            "json_path": str(json_path),
+            "payload": payload,
+        }
+    rows = list_recent_incidents(limit=1)
+    return rows[0] if rows else None
+
+
+def _report_status_fields(row: dict[str, Any] | None) -> dict[str, Any]:
+    if not row:
+        return {}
+    payload = dict(row.get("payload") or {})
+    json_path = str(row.get("json_path") or "")
+    markdown_path = str(Path(json_path).with_suffix(".md")) if json_path else ""
+    return {
+        "last_report_stem": str(row.get("stem") or ""),
+        "last_severity": str(payload.get("severity") or row.get("severity") or ""),
+        "last_summary": str(payload.get("summary") or row.get("summary") or ""),
+        "last_event_count": int(row.get("event_count") or len(list(payload.get("events") or [])) or 0),
+        "json_path": json_path,
+        "markdown_path": markdown_path,
+    }
+
+
+def _backfill_report_metadata(payload: dict[str, Any]) -> dict[str, Any]:
+    out = dict(payload)
+    current_stem = str(out.get("last_report_stem") or "").strip()
+    row = _find_report_row(stem=current_stem) or _find_report_row()
+    fields = _report_status_fields(row)
+    if not fields:
+        return out
+    stem_missing = not current_stem
+    for key, value in fields.items():
+        if stem_missing or out.get(key) in (None, ""):
+            out[key] = value
+    return out
+
+
+def load_runtime_status() -> dict[str, Any]:
+    payload: dict[str, Any]
     if status_file().exists():
         try:
             payload = _load_json(status_file())
@@ -146,7 +201,7 @@ def load_runtime_status() -> Dict[str, Any]:
             "summary_text": "AI alert monitor has not written runtime status yet.",
         }
 
-    pid_state: Dict[str, Any] = {}
+    pid_state: dict[str, Any] = {}
     if pid_file().exists():
         try:
             pid_state = _load_json(pid_file())
@@ -432,68 +487,13 @@ def list_recent_incidents(*, limit: int = 10) -> list[dict[str, Any]]:
     return rows[: max(1, int(limit))]
 
 
-def _report_status_fields(row: dict[str, Any] | None) -> dict[str, Any]:
-    if not row:
-        return {}
-    payload = dict(row.get("payload") or {})
-    json_path = str(row.get("json_path") or "")
-    markdown_path = str(Path(json_path).with_suffix(".md")) if json_path else ""
-    return {
-        "last_report_stem": str(row.get("stem") or ""),
-        "last_severity": str(payload.get("severity") or row.get("severity") or ""),
-        "last_summary": str(payload.get("summary") or row.get("summary") or ""),
-        "last_event_count": int(row.get("event_count") or len(list(payload.get("events") or [])) or 0),
-        "json_path": json_path,
-        "markdown_path": markdown_path,
-    }
-
-
-def _find_report_row(*, stem: str | None = None) -> dict[str, Any] | None:
-    stem_txt = str(stem or "").strip()
-    if stem_txt:
-        json_path = report_root() / f"{stem_txt}.json"
-        if not json_path.exists():
-            return None
-        try:
-            payload = _load_json(json_path)
-        except Exception:
-            return None
-        if str(payload.get("monitor_name") or "") != MONITOR_NAME:
-            return None
-        return {
-            "stem": stem_txt,
-            "generated_at": str(payload.get("generated_at") or ""),
-            "severity": str(payload.get("severity") or "unknown"),
-            "summary": str(payload.get("summary") or "").strip(),
-            "event_count": int(len(list(payload.get("events") or []))),
-            "json_path": str(json_path),
-            "payload": payload,
-        }
-    rows = list_recent_incidents(limit=1)
-    return rows[0] if rows else None
-
-
-def _backfill_report_metadata(payload: Dict[str, Any]) -> Dict[str, Any]:
-    out = dict(payload)
-    current_stem = str(out.get("last_report_stem") or "").strip()
-    row = _find_report_row(stem=current_stem) or _find_report_row()
-    fields = _report_status_fields(row)
-    if not fields:
-        return out
-    stem_missing = not current_stem
-    for key, value in fields.items():
-        if stem_missing or out.get(key) in (None, ""):
-            out[key] = value
-    return out
-
-
 def _status_progress_fields(
-    current_status: Dict[str, Any],
+    current_status: dict[str, Any],
     *,
-    status_context: Dict[str, Any] | None = None,
-) -> Dict[str, Any]:
+    status_context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     context = dict(status_context or {})
-    payload: Dict[str, Any] = {"has_status": True}
+    payload: dict[str, Any] = {"has_status": True}
     for key in ("loops", "errors", "pid"):
         if key in context:
             payload[key] = context.get(key)
@@ -506,7 +506,7 @@ def _status_progress_fields(
     return payload
 
 
-def process_once(*, status_context: Dict[str, Any] | None = None) -> Dict[str, Any]:
+def process_once(*, status_context: dict[str, Any] | None = None) -> dict[str, Any]:
     ensure_dirs()
     current_status = load_runtime_status()
     progress = _status_progress_fields(current_status, status_context=status_context)
@@ -600,7 +600,7 @@ def process_once(*, status_context: Dict[str, Any] | None = None) -> Dict[str, A
     return {"ok": True, "status": "incident_written", "severity": severity, "summary": summary, "report_stem": stem, "event_count": len(events)}
 
 
-def run_forever(*, poll_interval_sec: float = 30.0, max_loops: int | None = None) -> Dict[str, Any]:
+def run_forever(*, poll_interval_sec: float = 30.0, max_loops: int | None = None) -> dict[str, Any]:
     ensure_dirs()
     _flags_dir().mkdir(parents=True, exist_ok=True)
     current_pid = int(os.getpid())
@@ -624,7 +624,7 @@ def run_forever(*, poll_interval_sec: float = 30.0, max_loops: int | None = None
     loops = 0
     incidents_written = int(existing.get("incidents_written") or 0)
     errors = 0
-    last_result: Dict[str, Any] = {}
+    last_result: dict[str, Any] = {}
     _write_status(
         {
             "ok": True,
@@ -720,7 +720,7 @@ def run_forever(*, poll_interval_sec: float = 30.0, max_loops: int | None = None
         time.sleep(max(2.0, float(poll_interval_sec)))
 
 
-def request_stop() -> Dict[str, Any]:
+def request_stop() -> dict[str, Any]:
     ensure_dirs()
     _flags_dir().mkdir(parents=True, exist_ok=True)
     stop_file().write_text(_now_iso() + "\n", encoding="utf-8")

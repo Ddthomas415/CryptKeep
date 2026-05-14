@@ -111,14 +111,18 @@ def _normalize_strategy_name(value: Any) -> str | None:
     text = str(value or "").strip().lower()
     if not text:
         return None
-    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum"}:
+    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "sma_200_trend"}:
         return text
+    if text.startswith("es_daily_trend"):
+        return "sma_200_trend"
     if "ema" in text and ("cross" in text or "xover" in text or "crossover" in text):
         return "ema_cross"
     if "mean_reversion" in text or "mean-reversion" in text or "reversion" in text:
         return "mean_reversion_rsi"
     if "breakout" in text or "donchian" in text:
         return "breakout_donchian"
+    if "sma_200" in text and "trend" in text:
+        return "sma_200_trend"
     return None
 
 
@@ -215,5 +219,4 @@ def _load_evidence_payload(path: Path) -> dict[str, Any]:
     except Exception:
         return {}
     return dict(payload) if isinstance(payload, dict) else {}
-
 

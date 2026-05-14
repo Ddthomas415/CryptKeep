@@ -1,10 +1,11 @@
 from __future__ import annotations
 from typing import Any
+from dashboard.role_guard import require_role
 from services.setup.config_manager import DEFAULT_CFG, deep_merge
 from services.admin.config_editor import CONFIG_PATH, load_user_yaml, save_user_yaml
 
 # settings_view.py — auto-split from view_data.py
-from services.execution.live_arming import set_live_enabled
+from services.execution.live_arming import is_live_enabled, set_live_enabled
 from dashboard.services.views._shared import (  # noqa: F401
     _apply_local_settings_overrides,
     _default_settings_payload,
@@ -22,17 +23,34 @@ def _view_data():
 def get_settings_view() -> dict[str, Any]:
     vd = _view_data()
     envelope = vd._fetch_envelope("/api/v1/settings")
+    payload: dict[str, Any]
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(envelope["data"])))
+        payload = vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(envelope["data"])))
+    else:
+        mock = vd._read_mock_envelope("settings.json")
+        if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
+            payload = vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(mock["data"])))
+        else:
+            payload = vd._apply_local_settings_overrides(vd._default_settings_payload())
 
-    mock = vd._read_mock_envelope("settings.json")
-    if isinstance(mock, dict) and isinstance(mock.get("data"), dict):
-        return vd._apply_local_settings_overrides(deep_merge(vd._default_settings_payload(), dict(mock["data"])))
-    return vd._apply_local_settings_overrides(vd._default_settings_payload())
+    connections = vd._load_local_connections_summary()
+    if isinstance(connections, dict):
+        payload["connections"] = dict(connections)
+
+    providers = payload.get("providers") if isinstance(payload.get("providers"), dict) else {}
+    for provider in providers.values():
+        if not isinstance(provider, dict):
+            continue
+        provider["saved_status_label"] = str(provider.get("status") or "ready").replace("_", " ").title()
+        provider["runtime_status"] = "config_only"
+        provider["status_source"] = "config"
+    payload["providers"] = providers
+    return payload
 
 
 
-def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
+def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER") -> dict[str, Any]:
+    require_role(current_role, "OPERATOR")
     vd = _view_data()
     cfg = deep_merge(DEFAULT_CFG, vd.load_user_yaml() or {})
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
@@ -108,9 +126,10 @@ def get_automation_view() -> dict[str, Any]:
     default_mode = str(
         automation_ui.get("default_mode") or general.get("default_mode") or summary.get("mode") or "research_only"
     )
-    execution_enabled = bool(
+    automation_enabled = bool(
         automation_ui.get("enabled", summary.get("execution_enabled", False))
     )
+    execution_enabled = bool(is_live_enabled(runtime_cfg))
     approval_required = bool(
         automation_ui.get("approval_required_for_live", summary.get("approval_required", True))
     )
@@ -119,8 +138,9 @@ def get_automation_view() -> dict[str, Any]:
 
     return {
         "execution_enabled": execution_enabled,
+        "automation_enabled": automation_enabled,
         "dry_run_mode": bool(
-            automation_ui.get("dry_run_mode", not execution_enabled if "dry_run_mode" not in automation_ui else True)
+            automation_ui.get("dry_run_mode", not automation_enabled if "dry_run_mode" not in automation_ui else True)
         ),
         "default_mode": default_mode,
         "schedule": str(automation_ui.get("schedule") or "manual"),
@@ -153,7 +173,8 @@ def get_automation_view() -> dict[str, Any]:
 
 
 
-def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
+def update_automation_view(payload: dict[str, Any], *, current_role: str = "VIEWER") -> dict[str, Any]:
+    require_role(current_role, "OPERATOR")
     vd = _view_data()
     enable_automation = bool(payload.get("execution_enabled", False))
     dry_run_mode = bool(payload.get("dry_run_mode", True))
@@ -217,7 +238,7 @@ def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
     cfg["dashboard_ui"] = dashboard_ui
 
     saved, message = vd.save_user_yaml(cfg, dry_run=False)
-    settings_result = vd.update_settings_view({"general": {"default_mode": default_mode}})
+    settings_result = vd.update_settings_view({"general": {"default_mode": default_mode}}, current_role=current_role)
 
     if saved and bool(settings_result.get("ok")):
         return {

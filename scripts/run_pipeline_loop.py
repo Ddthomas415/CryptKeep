@@ -99,6 +99,7 @@ def _run_cycle(pipelines: list[tuple[str, object]]) -> dict:
         "results": results,
     }
 
+
 def main() -> int:
     ensure_dirs()
     cfg = load_runtime_trading_config()
@@ -106,6 +107,7 @@ def main() -> int:
 
     poll = float(pipe.get("poll_sec") or 10.0)
     first_symbol = symbols[0] if symbols else ""
+
     print({"ok": True, "note": "pipeline_loop_start", "poll_sec": poll, "strategy": str(pipe.get("strategy") or "ema"), "exchange": exchange_id, "symbol": first_symbol, "symbols": symbols})
     loops = 0
     errors = 0
