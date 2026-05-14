@@ -275,6 +275,39 @@ def test_run_campaign_seeds_flat_position_state_before_strategy_window(tmp_path,
     assert row["status"] == "flat"
 
 
+def test_reset_strategy_runner_latches_clears_only_runner_latch_keys(tmp_path, monkeypatch) -> None:
+    class _FakeStrategyStateStore:
+        def __init__(self) -> None:
+            self.rows: dict[str, str] = {}
+
+        def get(self, key: str):
+            return self.rows.get(str(key))
+
+        def set(self, key: str, value: str) -> None:
+            self.rows[str(key)] = str(value)
+
+        def delete(self, key: str) -> None:
+            self.rows.pop(str(key), None)
+
+    store = _FakeStrategyStateStore()
+    store.set("warmed:coinbase:BTC/USD:sma_200_trend", "1")
+    store.set("last_action:coinbase:BTC/USD:sma_200_trend", "buy")
+    store.set("last_emitted_action:coinbase:BTC/USD:sma_200_trend", "buy")
+    store.set("prices:coinbase:BTC/USD:sma_200_trend", "[1,2,3]")
+    monkeypatch.setattr(svc, "StrategyStateSQLite", lambda: store)
+
+    svc._reset_strategy_runner_latches(
+        venue="coinbase",
+        symbol="BTC/USD",
+        strategy_name="sma_200_trend",
+    )
+
+    assert store.get("warmed:coinbase:BTC/USD:sma_200_trend") is None
+    assert store.get("last_action:coinbase:BTC/USD:sma_200_trend") is None
+    assert store.get("last_emitted_action:coinbase:BTC/USD:sma_200_trend") is None
+    assert store.get("prices:coinbase:BTC/USD:sma_200_trend") == "[1,2,3]"
+
+
 def test_run_campaign_skips_evidence_when_no_new_history(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     monkeypatch.setattr(

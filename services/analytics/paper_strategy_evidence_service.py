@@ -28,6 +28,7 @@ from services.market_data.system_status_publisher import request_stop as request
 from services.os.app_paths import code_root, data_dir, ensure_dirs, runtime_dir
 from services.strategy_runner.ema_crossover_runner import request_stop as request_strategy_runner_stop
 from storage.position_state_sqlite import PositionStateSQLite
+from storage.strategy_state_sqlite import StrategyStateSQLite
 
 logger = logging.getLogger(__name__)
 
@@ -532,6 +533,22 @@ def _ensure_known_flat_position_state(*, venue: str, symbol: str) -> dict[str, A
     }
 
 
+def _reset_strategy_runner_latches(*, venue: str, symbol: str, strategy_name: str) -> None:
+    store = StrategyStateSQLite()
+    venue_key = normalize_venue(venue)
+    symbol_key = normalize_symbol(symbol)
+    strategy_key = str(strategy_name).strip()
+    for key in (
+        f"warmed:{venue_key}:{symbol_key}:{strategy_key}",
+        f"last_action:{venue_key}:{symbol_key}:{strategy_key}",
+        f"last_emitted_action:{venue_key}:{symbol_key}:{strategy_key}",
+    ):
+        try:
+            store.delete(key)
+        except Exception:
+            pass
+
+
 def _tick_publisher_reusable(state: dict[str, Any], *, cfg: "PaperStrategyEvidenceServiceCfg") -> bool:
     payload = state.get("status_payload") if isinstance(state.get("status_payload"), dict) else {}
     venue = normalize_venue(str(cfg.venue or DEFAULT_VENUE))
@@ -634,6 +651,11 @@ def _run_strategy_window(
     strategy_name: str,
 ) -> dict[str, Any]:
     before_rows = _strategy_summary_map(cfg.paper_history_path, symbol=str(cfg.symbol or DEFAULT_SYMBOL))
+    _reset_strategy_runner_latches(
+        venue=str(cfg.venue or DEFAULT_VENUE),
+        symbol=str(cfg.symbol or DEFAULT_SYMBOL),
+        strategy_name=strategy_name,
+    )
     proc = _start_process(
         script_relpath="scripts/run_strategy_runner.py",
         env=_component_env(cfg, strategy_name=strategy_name),
