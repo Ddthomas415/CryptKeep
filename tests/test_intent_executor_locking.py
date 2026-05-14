@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import importlib
 import json
-import os
+
+import pytest
 
 
 def _reload_intent_executor(monkeypatch, tmp_path):
@@ -15,22 +16,42 @@ def _reload_intent_executor(monkeypatch, tmp_path):
     return mod
 
 
-def test_intent_executor_reclaims_dead_pid_lock(monkeypatch, tmp_path):
+def test_run_intent_executor_requires_managed_symbols(monkeypatch, tmp_path):
     mod = _reload_intent_executor(monkeypatch, tmp_path)
-    mod.LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
-    mod.LOCK_FILE.write_text(json.dumps({"pid": 999999999, "ts_epoch": 0}) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        mod,
+        "load_runtime_trading_config",
+        lambda: {
+            "execution": {"venue": "coinbase", "executor_mode": "paper"},
+            "pipeline": {"exchange_id": "coinbase"},
+            "symbols": [],
+        },
+    )
 
-    assert mod._acquire_lock()
+    with pytest.raises(RuntimeError) as exc:
+        mod.main()
 
-    payload = json.loads(mod.LOCK_FILE.read_text(encoding="utf-8"))
-    assert payload["pid"] == os.getpid()
-    mod._release_lock()
+    assert str(exc.value) == "CBP_CONFIG_REQUIRED:missing_config:symbols[0]"
 
 
-def test_intent_executor_preserves_live_pid_lock(monkeypatch, tmp_path):
+def test_run_intent_executor_uses_single_symbol_as_reconcile_target(monkeypatch, tmp_path):
     mod = _reload_intent_executor(monkeypatch, tmp_path)
-    mod.LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
-    mod.LOCK_FILE.write_text(json.dumps({"pid": os.getpid(), "ts_epoch": 1}) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        mod,
+        "load_runtime_trading_config",
+        lambda: {
+            "execution": {"venue": "coinbase", "executor_mode": "paper", "loop_interval_sec": 1, "reconcile_every_sec": 1},
+            "pipeline": {"exchange_id": "coinbase"},
+            "symbols": ["BTC/USD"],
+        },
+    )
+    monkeypatch.setattr(mod, "execute_one", lambda cfg, venue, mode: None)
+    monkeypatch.setattr(mod, "reconcile_open", lambda *args, **kwargs: None)
+    monkeypatch.setattr(mod.time, "sleep", lambda _seconds: (_ for _ in ()).throw(KeyboardInterrupt()))
 
-    assert not mod._acquire_lock()
-    assert json.loads(mod.LOCK_FILE.read_text(encoding="utf-8"))["pid"] == os.getpid()
+    assert mod.main() == 0
+
+    payload = json.loads(mod.STATUS_FILE.read_text(encoding="utf-8"))
+    assert payload.get("status") == "stopped"
+    assert payload.get("symbol") == "BTC/USD"
+    assert payload.get("symbols") == ["BTC/USD"]

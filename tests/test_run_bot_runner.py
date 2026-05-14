@@ -5,6 +5,19 @@ import pytest
 from scripts import run_bot_runner as rbr
 
 
+def _static_selection(symbols):
+    items = [str(sym) for sym in list(symbols or [])]
+    return {
+        "symbols": items,
+        "source": "static",
+        "reason": "static_config",
+        "selected_symbols": items,
+        "protected_symbols": [],
+        "protected_symbol_details": [],
+        "scan_ok": None,
+    }
+
+
 def test_load_trading_cfg_uses_runtime_trading_loader(monkeypatch):
     monkeypatch.setattr(rbr, "load_runtime_trading_config", lambda path="config/trading.yaml": {"loaded_from": path})
 
@@ -13,7 +26,12 @@ def test_load_trading_cfg_uses_runtime_trading_loader(monkeypatch):
     assert cfg == {"loaded_from": "config/trading.yaml"}
 
 
-def test_desired_state_live_enables_reconcile():
+def test_desired_state_live_enables_reconcile(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: _static_selection(["ETH/USDT"]),
+    )
     cfg = {
         "execution": {"executor_mode": "live", "live_enabled": True},
         "live": {"enabled": False, "exchange_id": "binance"},
@@ -28,7 +46,12 @@ def test_desired_state_live_enables_reconcile():
     assert "reconciler" in rbr.desired_services(st)
 
 
-def test_desired_state_paper_disables_reconcile():
+def test_desired_state_paper_disables_reconcile(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: _static_selection(["BTC/USD", "ETH/USD"]),
+    )
     cfg = {
         "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
         "live": {"exchange_id": "coinbase"},
@@ -82,7 +105,12 @@ def test_command_map_uses_expected_managed_entrypoints():
     assert cmds["ai_alert_monitor"] == [rbr.sys.executable, "scripts/run_ai_alert_monitor.py"]
 
 
-def test_desired_state_requires_explicit_exchange_id():
+def test_desired_state_requires_explicit_exchange_id(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: _static_selection(["BTC/USD"]),
+    )
     cfg = {"execution": {"executor_mode": "paper", "live_enabled": False}, "symbols": ["BTC/USD"]}
 
     with pytest.raises(RuntimeError) as exc:
@@ -90,7 +118,12 @@ def test_desired_state_requires_explicit_exchange_id():
     assert str(exc.value) == "CBP_CONFIG_REQUIRED:missing_config:pipeline.exchange_id"
 
 
-def test_desired_state_paper_prefers_actual_paper_venue_over_live_exchange_id():
+def test_desired_state_paper_prefers_actual_paper_venue_over_live_exchange_id(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: _static_selection(["BTC/USD"]),
+    )
     cfg = {
         "mode": "paper",
         "symbols": ["BTC/USD"],
@@ -104,7 +137,12 @@ def test_desired_state_paper_prefers_actual_paper_venue_over_live_exchange_id():
     assert st["venue"] == "coinbase"
 
 
-def test_desired_state_paper_rejects_conflicting_execution_and_pipeline_venues():
+def test_desired_state_paper_rejects_conflicting_execution_and_pipeline_venues(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: _static_selection(["BTC/USD"]),
+    )
     cfg = {
         "mode": "paper",
         "symbols": ["BTC/USD"],
@@ -118,7 +156,12 @@ def test_desired_state_paper_rejects_conflicting_execution_and_pipeline_venues()
     assert str(exc.value) == "CBP_CONFIG_REQUIRED:conflicting_config:execution.venue_vs_pipeline.exchange_id"
 
 
-def test_desired_state_requires_explicit_symbols():
+def test_desired_state_requires_explicit_symbols(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: _static_selection([]),
+    )
     cfg = {
         "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
         "live": {"exchange_id": "coinbase"},
@@ -130,7 +173,12 @@ def test_desired_state_requires_explicit_symbols():
     assert str(exc.value) == r"CBP_CONFIG_REQUIRED:missing_config:symbols[0]"
 
 
-def test_desired_state_prefers_supervised_symbol_lists_over_root_symbols():
+def test_desired_state_prefers_supervised_symbol_lists_over_root_symbols(monkeypatch):
+    monkeypatch.setattr(
+        rbr,
+        "resolve_managed_symbol_selection",
+        lambda cfg, *, venue, mode, live_enabled: _static_selection(["BTC/USD", "ETH/USD"]),
+    )
     cfg = {
         "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase", "symbols": ["BTC/USD", "ETH/USD"]},
         "live": {"exchange_id": "coinbase"},
