@@ -204,6 +204,25 @@ else:
                     "total_test_closed_trades": int(walk_forward_summary.get("total_test_closed_trades") or 0),
                 }
             )
+    elif kind == "paper_sim_watch" and focus_details:
+        st.markdown("#### Watch Trigger")
+        st.write(
+            {
+                "watch_name": str(focus_details.get("watch_name") or ""),
+                "trigger": str(focus_details.get("trigger") or ""),
+                "strategy": str(focus_details.get("strategy_label") or ""),
+                "symbol": str(focus_details.get("symbol") or ""),
+                "recommendation": str(focus_details.get("recommendation") or ""),
+            }
+        )
+        st.markdown("#### Desktop Notification")
+        st.write(
+            {
+                "attempted": bool(focus_details.get("notification_attempted")),
+                "sent": bool(focus_details.get("notification_sent")),
+                "reason": str(focus_details.get("notification_reason") or ""),
+            }
+        )
 
     markdown_tab, json_tab = st.tabs(["Markdown", "JSON"])
     with markdown_tab:

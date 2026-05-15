@@ -167,3 +167,54 @@ def test_list_copilot_reports_classifies_incident_monitor(tmp_path, monkeypatch)
     rows = list_copilot_reports(limit=5)
 
     assert rows[0]["kind"] == "incident_monitor"
+
+
+def test_list_copilot_reports_classifies_paper_sim_watch(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    reports_dir = tmp_path / "runtime" / "ai_reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    (reports_dir / "watch.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-05-15T12:00:00+00:00",
+                "monitor_name": "paper_sim_monitor",
+                "watch_name": "next_fill",
+                "trigger": "new_fill",
+                "severity": "info",
+                "summary": "Watch `next_fill` fired.",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "desktop_notification": {"attempted": True, "sent": True, "reason": "notified"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    rows = list_copilot_reports(limit=5)
+
+    assert rows[0]["kind"] == "paper_sim_watch"
+
+
+def test_build_copilot_report_focus_surfaces_paper_sim_watch_notification() -> None:
+    focus = build_copilot_report_focus(
+        kind="paper_sim_watch",
+        severity="warn",
+        payload={
+            "summary": "Watch fired but notification failed.",
+            "watch_name": "position_closed",
+            "trigger": "position_closed",
+            "strategy_label": "es_daily_trend_v1",
+            "symbol": "BTC/USDT",
+            "recommendation": "investigate",
+            "desktop_notification": {"attempted": True, "sent": False, "reason": "notify_exit:1"},
+        },
+    )
+
+    assert focus["tone"] == "warning"
+    assert "notification failed" in focus["message"].lower()
+    assert "notify_exit:1" in focus["message"]
+    assert focus["details"]["watch_name"] == "position_closed"
+    assert focus["details"]["notification_attempted"] is True
+    assert focus["details"]["notification_sent"] is False
+    assert focus["details"]["notification_reason"] == "notify_exit:1"
