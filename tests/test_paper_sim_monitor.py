@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -72,6 +73,102 @@ def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypat
     assert out["recommendation"] == "enough_evidence"
     assert out["recommendation_reason"] == "closed_trade_threshold_met"
     assert "recommendation=enough_evidence" in out["summary_text"]
+
+
+def test_register_and_delete_watch_persist_local_definition(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+    created = svc.register_watch(name="next_fill", trigger="new_fill")
+
+    assert created["ok"] is True
+    assert created["name"] == "next_fill"
+    assert created["trigger"] == "new_fill"
+    assert svc.watches_file().exists()
+    assert svc.list_watches()[0]["name"] == "next_fill"
+
+    deleted = svc.delete_watch(name="next_fill")
+
+    assert deleted["ok"] is True
+    assert svc.list_watches() == []
+
+
+def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.register_watch(name="watch_fill", trigger="new_fill")
+    snapshots = iter(
+        [
+            {
+                "ok": True,
+                "ts": "2026-05-15T02:05:00Z",
+                "monitor_name": svc.MONITOR_NAME,
+                "campaign_status": "running",
+                "campaign_reason": "collecting",
+                "recommendation": "continue",
+                "recommendation_reason": "awaiting_first_trade",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "fills_observed": 0,
+                "round_trips_observed": 0,
+                "current_window_realized_pnl": 0.0,
+                "position_realized_pnl_total": 0.0,
+                "equity_realized_pnl_total": 0.0,
+                "unrealized_pnl": 0.0,
+                "paper_position": {"qty": 0.0},
+                "latest_order": {},
+                "latest_paper_fill": {},
+                "latest_journal_fill": {},
+                "latest_equity": {},
+                "campaign_result": {},
+                "collector": {"status": "running"},
+                "strategy_runner": {"status": "running"},
+                "paper_engine": {"status": "running"},
+                "summary_text": "before",
+            },
+            {
+                "ok": True,
+                "ts": "2026-05-15T02:05:30Z",
+                "monitor_name": svc.MONITOR_NAME,
+                "campaign_status": "running",
+                "campaign_reason": "collecting",
+                "recommendation": "continue",
+                "recommendation_reason": "campaign_progress_visible",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "fills_observed": 1,
+                "round_trips_observed": 0,
+                "current_window_realized_pnl": 0.0,
+                "position_realized_pnl_total": 0.0,
+                "equity_realized_pnl_total": 0.0,
+                "unrealized_pnl": 0.0,
+                "paper_position": {"qty": 0.001},
+                "latest_order": {"order_id": "ord-1", "status": "filled"},
+                "latest_paper_fill": {},
+                "latest_journal_fill": {"fill_id": "fill-1", "side": "buy", "fill_ts": "2026-05-15T02:05:30Z"},
+                "latest_equity": {},
+                "campaign_result": {},
+                "collector": {"status": "running"},
+                "strategy_runner": {"status": "running"},
+                "paper_engine": {"status": "running"},
+                "summary_text": "after",
+            },
+        ]
+    )
+    monkeypatch.setattr(svc, "collect_once", lambda cfg: dict(next(snapshots)))
+    monkeypatch.setattr(svc.time, "sleep", lambda *_args, **_kwargs: None)
+
+    out = svc.run_forever(svc.PaperSimMonitorCfg(poll_interval_sec=0.01), max_loops=2)
+
+    assert out["ok"] is True
+    assert out["status"] == "stopped"
+    assert out["reason"] == "max_loops"
+    assert out["last_watch_reports_written"]
+    report = out["last_watch_reports_written"][0]
+    assert report["watch_name"] == "watch_fill"
+    assert Path(report["json_path"]).exists()
+    assert Path(report["markdown_path"]).exists()
+    status = json.loads(svc.status_file().read_text(encoding="utf-8"))
+    assert status["recent_watch_reports"][0]["watch_name"] == "watch_fill"
+    assert status["watches"][0]["last_report_stem"] == report["report_stem"]
 
 
 def test_collect_once_reports_investigate_for_market_data_block(monkeypatch) -> None:
@@ -166,3 +263,4 @@ def test_run_forever_writes_status_and_history(tmp_path, monkeypatch) -> None:
     assert len(lines) == 1
     event = json.loads(lines[0])
     assert event["trigger_reasons"] == ["initial_snapshot"]
+    assert status["watches"] == []

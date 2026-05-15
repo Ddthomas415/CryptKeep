@@ -29,6 +29,42 @@ def test_run_paper_sim_monitor_shows_status(monkeypatch, capsys) -> None:
     assert out["pid"] == 45678
 
 
+def test_run_paper_sim_monitor_registers_watch(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(
+        script,
+        "register_watch",
+        lambda *, name, trigger: {"ok": True, "name": name, "trigger": trigger},
+    )
+    monkeypatch.setattr(
+        script.sys,
+        "argv",
+        ["run_paper_sim_monitor.py", "--register-watch", "next_fill", "--watch-trigger", "new_fill"],
+    )
+
+    assert script.main() == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["name"] == "next_fill"
+    assert out["trigger"] == "new_fill"
+
+
+def test_run_paper_sim_monitor_lists_watches(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(script, "list_watches", lambda: [{"name": "next_fill", "trigger": "new_fill"}])
+    monkeypatch.setattr(script.sys, "argv", ["run_paper_sim_monitor.py", "--list-watches"])
+
+    assert script.main() == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["watches"][0]["name"] == "next_fill"
+
+
+def test_run_paper_sim_monitor_deletes_watch(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(script, "delete_watch", lambda *, name: {"ok": True, "name": name})
+    monkeypatch.setattr(script.sys, "argv", ["run_paper_sim_monitor.py", "--delete-watch", "next_fill"])
+
+    assert script.main() == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["name"] == "next_fill"
+
+
 def test_run_paper_sim_monitor_collects_once(monkeypatch, capsys) -> None:
     seen: dict[str, object] = {}
 

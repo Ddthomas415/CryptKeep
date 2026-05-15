@@ -8,7 +8,7 @@ Use `make script-index` for a quick operational reference.
 | Script | Make target | Purpose |
 |---|---|---|
 | `run_es_daily_trend_paper.py` | `make paper-run` | Run paper campaign |
-| `run_paper_sim_monitor.py` | `[fill in if used]` | Monitor paper strategy, fills, PnL, and evidence progress |
+| `run_paper_sim_monitor.py` | `[fill in if used]` | Monitor paper strategy, fills, PnL, evidence progress, and named watch triggers |
 | `check_promotion_gates.py` | `make check-gates` | Promotion gate status |
 | `killswitch.py` | `make kill-switch-on/off` | Arm/disarm kill switch |
 | `show_live_gate_inputs.py` | `make gate-inputs` | Live gate current values |
