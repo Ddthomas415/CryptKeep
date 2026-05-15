@@ -53,6 +53,11 @@ def main() -> int:
     ap.add_argument("--evidence-symbol", default="", help="Optional symbol override for the synthetic evidence cycle")
     ap.add_argument("--paper-history-path", default="", help="Optional trade_journal.sqlite path override")
     ap.add_argument("--max-strategies", type=int, default=0, help="Optional cap for test/manual runs")
+    ap.add_argument(
+        "--no-desktop-notify",
+        action="store_true",
+        help="Disable local desktop notifications for auto-supervised paper sim watch triggers.",
+    )
     ap.add_argument("--stop", action="store_true", help="Request stop for the active managed campaign")
     ap.add_argument("--status", action="store_true", help="Show managed campaign runtime status")
     args = ap.parse_args()
@@ -76,6 +81,7 @@ def main() -> int:
         allow_first_signal_trade=bool(args.allow_first_signal_trade),
         evidence_symbol=str(args.evidence_symbol or ""),
         paper_history_path=str(args.paper_history_path or ""),
+        paper_sim_monitor_desktop_notify=not bool(args.no_desktop_notify),
     )
     out = run_campaign(
         cfg,

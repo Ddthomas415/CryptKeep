@@ -508,12 +508,15 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
 def _component_argv(name: str, *, cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
     if name != "paper_sim_monitor":
         return []
-    return [
+    argv = [
         "--interval-sec",
         str(float(cfg.paper_sim_monitor_interval_sec)),
         "--min-closed-trades",
         str(int(cfg.paper_sim_monitor_min_closed_trades_for_enough_evidence)),
     ]
+    if not bool(cfg.paper_sim_monitor_desktop_notify):
+        argv.append("--no-desktop-notify")
+    return argv
 
 
 def _target_symbols(cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
@@ -848,6 +851,7 @@ class PaperStrategyEvidenceServiceCfg:
     enable_paper_sim_monitor: bool = True
     paper_sim_monitor_interval_sec: float = 5.0
     paper_sim_monitor_min_closed_trades_for_enough_evidence: int = 1
+    paper_sim_monitor_desktop_notify: bool = True
 
 
 def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | None = None) -> dict[str, Any]:

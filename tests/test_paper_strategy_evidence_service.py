@@ -230,11 +230,12 @@ def test_component_argv_builds_paper_sim_monitor_args() -> None:
     cfg = svc.PaperStrategyEvidenceServiceCfg(
         paper_sim_monitor_interval_sec=7.5,
         paper_sim_monitor_min_closed_trades_for_enough_evidence=3,
+        paper_sim_monitor_desktop_notify=False,
     )
 
     out = svc._component_argv("paper_sim_monitor", cfg=cfg)
 
-    assert out == ["--interval-sec", "7.5", "--min-closed-trades", "3"]
+    assert out == ["--interval-sec", "7.5", "--min-closed-trades", "3", "--no-desktop-notify"]
 
 
 def test_run_campaign_seeds_flat_position_state_before_strategy_window(tmp_path, monkeypatch) -> None:

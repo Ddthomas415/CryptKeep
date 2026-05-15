@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
+import subprocess
+import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -379,6 +382,7 @@ def _summary_text(
 class PaperSimMonitorCfg:
     poll_interval_sec: float = 300.0
     min_closed_trades_for_enough_evidence: int = 1
+    desktop_notify: bool = True
 
 
 def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
@@ -483,6 +487,45 @@ def _report_severity(recommendation: str) -> str:
     return "warn" if rec == "investigate" else "info"
 
 
+def _osascript_escape(text: str) -> str:
+    return str(text or "").replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _notify_local_desktop(payload: dict[str, Any]) -> dict[str, Any]:
+    if sys.platform != "darwin":
+        return {"attempted": False, "sent": False, "reason": "unsupported_platform"}
+    binary = shutil.which("osascript")
+    if not binary:
+        return {"attempted": False, "sent": False, "reason": "osascript_missing"}
+
+    watch_name = str(payload.get("watch_name") or "paper_sim_watch").strip()
+    strategy_label = str(payload.get("strategy_label") or "unknown_strategy").strip()
+    symbol = str(payload.get("symbol") or "unknown_symbol").strip()
+    recommendation = str(payload.get("recommendation") or "continue").strip()
+    message = (str(payload.get("summary") or "").strip() or f"{strategy_label} on {symbol}")[:220]
+    title = f"CryptKeep: {watch_name}"
+    subtitle = f"{strategy_label} · {symbol} · {recommendation}"
+    script = (
+        f'display notification "{_osascript_escape(message)}" '
+        f'with title "{_osascript_escape(title)}" '
+        f'subtitle "{_osascript_escape(subtitle)}"'
+    )
+    try:
+        proc = subprocess.run(
+            [binary, "-e", script],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+            timeout=5.0,
+            check=False,
+        )
+    except Exception as exc:
+        return {"attempted": True, "sent": False, "reason": f"notify_failed:{type(exc).__name__}"}
+    if int(proc.returncode or 0) != 0:
+        return {"attempted": True, "sent": False, "reason": f"notify_exit:{int(proc.returncode or 0)}"}
+    return {"attempted": True, "sent": True, "reason": "notified"}
+
+
 def _watch_event_key(previous: dict[str, Any] | None, current: dict[str, Any], watch: dict[str, Any]) -> str:
     trigger = str(watch.get("trigger") or "")
     current_fill = dict(current.get("latest_journal_fill") or current.get("latest_paper_fill") or {})
@@ -567,6 +610,7 @@ def _fire_watch_reports(
     previous_snapshot: dict[str, Any] | None,
     current_snapshot: dict[str, Any],
     watches: list[dict[str, Any]],
+    desktop_notify: bool,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     fired: list[dict[str, Any]] = []
     updated_watches: list[dict[str, Any]] = []
@@ -594,6 +638,12 @@ def _fire_watch_reports(
                 "event_key": event_key,
                 "snapshot": current_snapshot,
             }
+            notify_result = (
+                _notify_local_desktop(payload)
+                if bool(desktop_notify)
+                else {"attempted": False, "sent": False, "reason": "disabled"}
+            )
+            payload["desktop_notification"] = notify_result
             paths = _write_watch_report(payload, stem=stem)
             fired.append(
                 {
@@ -605,6 +655,7 @@ def _fire_watch_reports(
                     "json_path": paths["json_path"],
                     "markdown_path": paths["markdown_path"],
                     "event_key": event_key,
+                    "desktop_notification": notify_result,
                 }
             )
             row["last_fired_at"] = str(payload.get("generated_at") or "")
@@ -701,6 +752,9 @@ def load_runtime_status() -> dict[str, Any]:
         or payload.get("min_closed_trades_for_enough_evidence")
         or 0
     )
+    payload["desktop_notify"] = bool(
+        pid_state.get("desktop_notify", payload.get("desktop_notify", True))
+    )
     payload["history_path"] = str(history_file())
     payload["watches_path"] = str(watches_file())
     payload["watches"] = list_watches()
@@ -733,6 +787,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "min_closed_trades_for_enough_evidence": int(
                 existing.get("min_closed_trades_for_enough_evidence") or cfg.min_closed_trades_for_enough_evidence
             ),
+            "desktop_notify": bool(existing.get("desktop_notify", cfg.desktop_notify)),
         }
     try:
         if stop_file().exists():
@@ -749,6 +804,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "started_ts": _now_iso(),
             "poll_interval_sec": float(cfg.poll_interval_sec),
             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+            "desktop_notify": bool(cfg.desktop_notify),
         }
     )
 
@@ -769,6 +825,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "pid": current_pid,
             "poll_interval_sec": float(cfg.poll_interval_sec),
             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+            "desktop_notify": bool(cfg.desktop_notify),
             "history_path": str(history_file()),
             "watches_path": str(watches_file()),
             "watches": list_watches(),
@@ -791,6 +848,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
                         previous_snapshot=previous_snapshot,
                         current_snapshot=final_snapshot,
                         watches=final_watches,
+                        desktop_notify=bool(cfg.desktop_notify),
                     )
                     if updated_watches != final_watches:
                         _save_watches(updated_watches)
@@ -833,6 +891,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
                 "pid": current_pid,
                 "poll_interval_sec": float(cfg.poll_interval_sec),
                 "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+                "desktop_notify": bool(cfg.desktop_notify),
                 "history_path": str(history_file()),
                 "watches_path": str(watches_file()),
                 "watches": final_watches,
@@ -854,6 +913,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             previous_snapshot=previous_snapshot,
             current_snapshot=snapshot,
             watches=watches,
+            desktop_notify=bool(cfg.desktop_notify),
         )
         if updated_watches != watches:
             _save_watches(updated_watches)
@@ -890,6 +950,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "pid": current_pid,
             "poll_interval_sec": float(cfg.poll_interval_sec),
             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+            "desktop_notify": bool(cfg.desktop_notify),
             "history_path": str(history_file()),
             "watches_path": str(watches_file()),
             "watches": updated_watches,

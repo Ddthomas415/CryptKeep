@@ -95,6 +95,7 @@ def test_register_and_delete_watch_persist_local_definition(tmp_path, monkeypatc
 def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     svc.register_watch(name="watch_fill", trigger="new_fill")
+    notify_calls: list[dict[str, object]] = []
     snapshots = iter(
         [
             {
@@ -154,6 +155,11 @@ def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkey
         ]
     )
     monkeypatch.setattr(svc, "collect_once", lambda cfg: dict(next(snapshots)))
+    monkeypatch.setattr(
+        svc,
+        "_notify_local_desktop",
+        lambda payload: notify_calls.append(dict(payload)) or {"attempted": True, "sent": True, "reason": "notified"},
+    )
     monkeypatch.setattr(svc.time, "sleep", lambda *_args, **_kwargs: None)
 
     out = svc.run_forever(svc.PaperSimMonitorCfg(poll_interval_sec=0.01), max_loops=2)
@@ -164,8 +170,10 @@ def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkey
     assert out["last_watch_reports_written"]
     report = out["last_watch_reports_written"][0]
     assert report["watch_name"] == "watch_fill"
+    assert report["desktop_notification"]["sent"] is True
     assert Path(report["json_path"]).exists()
     assert Path(report["markdown_path"]).exists()
+    assert notify_calls
     status = json.loads(svc.status_file().read_text(encoding="utf-8"))
     assert status["recent_watch_reports"][0]["watch_name"] == "watch_fill"
     assert status["watches"][0]["last_report_stem"] == report["report_stem"]
@@ -174,6 +182,11 @@ def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkey
 def test_run_forever_collects_final_snapshot_before_stop(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     svc.register_watch(name="done", trigger="campaign_completed")
+    monkeypatch.setattr(
+        svc,
+        "_notify_local_desktop",
+        lambda payload: {"attempted": True, "sent": True, "reason": "notified"},
+    )
     snapshots = iter(
         [
             {
@@ -248,6 +261,7 @@ def test_run_forever_collects_final_snapshot_before_stop(tmp_path, monkeypatch) 
     assert out["recommendation"] == "enough_evidence"
     assert out["last_watch_reports_written"]
     assert out["last_watch_reports_written"][0]["watch_name"] == "done"
+    assert out["last_watch_reports_written"][0]["desktop_notification"]["sent"] is True
     status = json.loads(svc.status_file().read_text(encoding="utf-8"))
     assert status["campaign_status"] == "completed"
     assert status["recent_watch_reports"][0]["watch_name"] == "done"

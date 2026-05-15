@@ -24,10 +24,11 @@ Current repo truth now partially meets that expectation, but not completely.
   - `--once`
 - `services/analytics/paper_strategy_evidence_service.py` now auto-supervises `paper_sim_monitor` during managed paper evidence campaigns, so the monitor no longer needs a separately started loop for that workflow.
 - Trigger events now write durable watch reports under `.cbp_state/runtime/ai_reports/`.
+- On macOS, named watch triggers now also issue best-effort local desktop notifications from the running monitor process.
 - The Operations dashboard now shows current paper-sim watch status and the most recent trigger result.
 - There is still no shown repo surface that:
   - pushes a follow-up notification back into the operator conversation
-  - wakes the operator asynchronously without a separately running local monitor process
+  - wakes the operator asynchronously outside the local machine/runtime
 
 ## Current fallback
 
@@ -61,7 +62,7 @@ while true; do
 done
 ```
 
-The paper-sim monitor persists watch definitions and writes trigger reports, but it still does not wake the chat thread or push an external notification by itself.
+The paper-sim monitor persists watch definitions, writes trigger reports, and can raise best-effort local desktop notifications on macOS, but it still does not wake the chat thread or push a remote/external notification by itself.
 
 ## Desired outcome
 
@@ -98,8 +99,9 @@ Status against those criteria:
 - `met`: durable watch reports under `runtime/ai_reports`
 - `met`: CLI and dashboard status surfaces
 - `met`: managed paper evidence campaigns auto-start the local monitor
+- `met`: local machine wake-up for named watch triggers on macOS
 - `met`: read-only with respect to trading control
-- `not met`: autonomous operator notification outside the local monitor runtime
+- `not met`: autonomous chat-thread wakeup or remote notification outside the local monitor runtime
 
 ## Non-goals
 

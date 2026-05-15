@@ -37,6 +37,11 @@ def main() -> int:
     ap.add_argument("--delete-watch", default="", help="Delete a named watch")
     ap.add_argument("--interval-sec", type=float, default=300.0, help="Polling interval for monitor loop")
     ap.add_argument(
+        "--no-desktop-notify",
+        action="store_true",
+        help="Disable local desktop notifications for fired named watches.",
+    )
+    ap.add_argument(
         "--min-closed-trades",
         type=int,
         default=1,
@@ -70,6 +75,7 @@ def main() -> int:
     cfg = PaperSimMonitorCfg(
         poll_interval_sec=float(args.interval_sec or 300.0),
         min_closed_trades_for_enough_evidence=int(args.min_closed_trades or 1),
+        desktop_notify=not bool(args.no_desktop_notify),
     )
     if args.once:
         print(json.dumps(collect_once(cfg), indent=2, default=str))
