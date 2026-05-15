@@ -201,6 +201,7 @@ Checklist:
 Current related artifact:
 
 - [ai_copilot_monitoring_gap_2026_05_15.md](./ai_copilot_monitoring_gap_2026_05_15.md)
+- [live_start_attempt_prep_2026_05_15.md](./live_start_attempt_prep_2026_05_15.md)
 
 ### 8. Evidence, Promotion, and Governance
 
