@@ -326,6 +326,23 @@ def test_component_argv_builds_paper_sim_monitor_args() -> None:
     assert out == ["--interval-sec", "7.5", "--min-closed-trades", "3", "--no-desktop-notify"]
 
 
+def test_component_env_includes_strategy_loop_interval_override() -> None:
+    cfg = svc.PaperStrategyEvidenceServiceCfg(
+        strategy_loop_interval_sec=0.2,
+        strategy_min_bars=28,
+        signal_source="public_ohlcv_1d",
+        allow_first_signal_trade=True,
+    )
+
+    out = svc._component_env(cfg, strategy_name="sma_200_trend")
+
+    assert out["CBP_STRATEGY_LOOP_INTERVAL_SEC"] == "0.2"
+    assert out["CBP_STRATEGY_MIN_BARS"] == "28"
+    assert out["CBP_STRATEGY_SIGNAL_SOURCE"] == "public_ohlcv_1d"
+    assert out["CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE"] == "1"
+    assert out["CBP_STRATEGY_NAME"] == "sma_200_trend"
+
+
 def test_run_campaign_seeds_flat_position_state_before_strategy_window(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     seen: dict[str, object] = {}

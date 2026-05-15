@@ -285,6 +285,8 @@ def _paper_state_snapshot_window(symbol: str, *, since_ts: str = "") -> dict[str
     ]
     latest_order = dict(latest_order_rows[0]) if latest_order_rows else {}
     latest_paper_fill: dict[str, Any] = {}
+    window_fill_count = 0
+    window_exit_fill_count = 0
     for row in latest_order_rows:
         fills_for_order = list(store.list_fills_for_order(str(row.get("order_id") or ""), limit=2000) or [])
         matching_fills = [
@@ -292,6 +294,9 @@ def _paper_state_snapshot_window(symbol: str, *, since_ts: str = "") -> dict[str
             for fill in fills_for_order
             if _row_meets_since(dict(fill), since_epoch=since_epoch, keys=["ts"])
         ]
+        window_fill_count += len(matching_fills)
+        if str(row.get("side") or "").strip().lower() == "sell":
+            window_exit_fill_count += len(matching_fills)
         if matching_fills:
             latest_paper_fill = dict(matching_fills[-1])
             break
@@ -301,6 +306,8 @@ def _paper_state_snapshot_window(symbol: str, *, since_ts: str = "") -> dict[str
         "latest_order": latest_order,
         "latest_paper_fill": latest_paper_fill,
         "latest_equity": dict(latest_equity_rows[0]) if latest_equity_rows else {},
+        "window_fill_count": int(window_fill_count),
+        "window_exit_fill_count": int(window_exit_fill_count),
     }
 
 
@@ -468,8 +475,14 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
         or ""
     ).strip()
     strategy_label = strategy_preset or strategy_name
-    round_trips = _result_round_trip_count(result)
-    fills = _result_fill_count(result)
+    round_trips = max(
+        _result_round_trip_count(result),
+        _safe_int(paper_state.get("window_exit_fill_count")),
+    )
+    fills = max(
+        _result_fill_count(result),
+        _safe_int(paper_state.get("window_fill_count")),
+    )
     current_window_realized_pnl = _result_realized_pnl(result, position, latest_equity)
     position_realized_pnl_total = _safe_float(position.get("realized_pnl"))
     equity_realized_pnl_total = _safe_float(latest_equity.get("realized_pnl"))
@@ -596,12 +609,16 @@ def _watch_event_key(previous: dict[str, Any] | None, current: dict[str, Any], w
     previous_fill_id = str(previous_fill.get("fill_id") or "").strip()
     current_qty = _safe_float(current_position.get("qty"))
     previous_qty = _safe_float(previous_position.get("qty"))
+    current_round_trips = _safe_int(current.get("round_trips_observed"))
+    previous_round_trips = _safe_int((previous or {}).get("round_trips_observed"))
 
     if trigger == "new_fill" and current_fill_id and current_fill_id != previous_fill_id:
         return current_fill_id
     if trigger == "position_opened" and previous_qty == 0.0 and current_qty != 0.0:
         return str(current_fill_id or current.get("ts") or "")
-    if trigger == "position_closed" and previous_qty != 0.0 and current_qty == 0.0:
+    if trigger == "position_closed" and current_qty == 0.0 and (
+        previous_qty != 0.0 or current_round_trips > previous_round_trips
+    ):
         return str(current_fill_id or current.get("ts") or "")
     if trigger == "campaign_completed" and current_campaign_status == "completed" and previous_campaign_status != "completed":
         return str(current.get("ts") or "")

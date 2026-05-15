@@ -230,6 +230,8 @@ def _cfg() -> dict:
         or s.get("signal_source")
         or "synthetic_mid_ohlcv"
     ).strip().lower() or "synthetic_mid_ohlcv"
+    env_loop_interval_raw = str(os.environ.get("CBP_STRATEGY_LOOP_INTERVAL_SEC") or "").strip()
+    env_loop_interval = float(env_loop_interval_raw) if env_loop_interval_raw else None
     venue_candidates = s.get("venue_candidates") if isinstance(s.get("venue_candidates"), list) else []
 
     return {
@@ -244,7 +246,7 @@ def _cfg() -> dict:
         "slow_n": int(s.get("slow_n", 26) or 26),
         "min_bars": int(min_bars),
         "max_bars": int(s.get("max_bars", 400) or 400),
-        "loop_interval_sec": float(s.get("loop_interval_sec", 1.0) or 1.0),
+        "loop_interval_sec": float(env_loop_interval if env_loop_interval is not None else (s.get("loop_interval_sec", 1.0) or 1.0)),
         "qty": float(s.get("qty", 0.001) or 0.001),
         "order_type": str(s.get("order_type", "market") or "market").lower().strip(),
         "allow_first_signal_trade": allow_first_signal_trade,

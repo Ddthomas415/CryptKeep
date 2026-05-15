@@ -545,6 +545,8 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
     env["CBP_SYMBOLS"] = str(cfg.symbol or DEFAULT_SYMBOL)
     env["CBP_VENUE"] = str(cfg.venue or DEFAULT_VENUE)
     env["CBP_TICK_PUBLISH_INTERVAL_SEC"] = str(float(cfg.tick_publish_interval_sec))
+    if float(cfg.strategy_loop_interval_sec or 0.0) > 0.0:
+        env["CBP_STRATEGY_LOOP_INTERVAL_SEC"] = str(float(cfg.strategy_loop_interval_sec))
     if int(cfg.strategy_min_bars or 0) > 0:
         env["CBP_STRATEGY_MIN_BARS"] = str(int(cfg.strategy_min_bars))
     if str(cfg.signal_source or "").strip():
@@ -891,6 +893,7 @@ class PaperStrategyEvidenceServiceCfg:
     symbol: str = DEFAULT_SYMBOL
     venue: str = DEFAULT_VENUE
     tick_publish_interval_sec: float = 2.0
+    strategy_loop_interval_sec: float = 0.0
     strategy_min_bars: int = 0
     signal_source: str = ""
     allow_first_signal_trade: bool = False

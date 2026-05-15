@@ -62,6 +62,20 @@ def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_pa
     assert cfg["allow_first_signal_trade"] is True
 
 
+def test_cfg_honors_loop_interval_env_override(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STRATEGY_LOOP_INTERVAL_SEC", "0.2")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda: {"strategy_runner": {"loop_interval_sec": 5.0}},
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["loop_interval_sec"] == 0.2
+
+
 @pytest.mark.slow
 def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
