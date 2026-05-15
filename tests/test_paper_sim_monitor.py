@@ -169,6 +169,43 @@ def test_register_and_delete_watch_persist_local_definition(tmp_path, monkeypatc
     assert svc.list_watches() == []
 
 
+def test_register_watch_preserves_state_by_default_and_can_reset_it(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.watches_file().parent.mkdir(parents=True, exist_ok=True)
+    svc.watches_file().write_text(
+        json.dumps(
+            [
+                {
+                    "name": "next_fill",
+                    "trigger": "new_fill",
+                    "active": True,
+                    "created_at": "2026-05-15T18:00:53Z",
+                    "last_fired_at": "2026-05-15T18:00:54Z",
+                    "last_event_key": "paper:stale-fill",
+                    "last_report_stem": "paper_sim_monitor_watch_20260515T180054Z_next_fill",
+                }
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    preserved = svc.register_watch(name="next_fill", trigger="new_fill")
+    rows = svc.list_watches()
+    assert preserved["ok"] is True
+    assert preserved["reset_state"] is False
+    assert rows[0]["last_fired_at"] == "2026-05-15T18:00:54Z"
+    assert rows[0]["last_event_key"] == "paper:stale-fill"
+
+    reset = svc.register_watch(name="next_fill", trigger="new_fill", reset_state=True)
+    rows = svc.list_watches()
+    assert reset["ok"] is True
+    assert reset["reset_state"] is True
+    assert rows[0]["last_fired_at"] == ""
+    assert rows[0]["last_event_key"] == ""
+    assert rows[0]["last_report_stem"] == ""
+
+
 def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     svc.register_watch(name="watch_fill", trigger="new_fill")

@@ -174,7 +174,7 @@ def list_watches() -> list[dict[str, Any]]:
     return _load_watches()
 
 
-def register_watch(*, name: str, trigger: str) -> dict[str, Any]:
+def register_watch(*, name: str, trigger: str, reset_state: bool = False) -> dict[str, Any]:
     watch_name = str(name or "").strip()
     watch_trigger = str(trigger or "").strip()
     if not watch_name:
@@ -187,6 +187,10 @@ def register_watch(*, name: str, trigger: str) -> dict[str, Any]:
         if str(row.get("name") or "").strip() == watch_name:
             row["trigger"] = watch_trigger
             row["active"] = True
+            if bool(reset_state):
+                row["last_fired_at"] = ""
+                row["last_event_key"] = ""
+                row["last_report_stem"] = ""
             updated = True
             break
     if not updated:
@@ -206,6 +210,7 @@ def register_watch(*, name: str, trigger: str) -> dict[str, Any]:
         "ok": True,
         "name": watch_name,
         "trigger": watch_trigger,
+        "reset_state": bool(reset_state),
         "watch_count": len(rows),
         "watches_path": str(watches_file()),
     }

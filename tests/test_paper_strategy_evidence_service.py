@@ -230,8 +230,8 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     )
     monkeypatch.setattr(
         "services.analytics.paper_sim_monitor.register_watch",
-        lambda name="", trigger="": watch_registrations.append((str(name), str(trigger)))
-        or {"ok": True, "name": name, "trigger": trigger},
+        lambda name="", trigger="", reset_state=False: watch_registrations.append((str(name), str(trigger), bool(reset_state)))
+        or {"ok": True, "name": name, "trigger": trigger, "reset_state": bool(reset_state)},
     )
 
     out = svc.run_campaign(
@@ -253,7 +253,7 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     assert status["completed_strategies"] == 2
     assert status["paper_sim_monitor_watch_seed"]["ok"] is True
     assert started_names == ["tick_publisher", "paper_engine", "paper_sim_monitor"]
-    assert watch_registrations == list(svc.DEFAULT_PAPER_SIM_MONITOR_WATCHES)
+    assert watch_registrations == [(name, trigger, True) for name, trigger in svc.DEFAULT_PAPER_SIM_MONITOR_WATCHES]
     assert stop_calls.count("strategy_runner") >= 1
     assert "paper_sim_monitor" in stop_calls
     assert "tick_publisher" in stop_calls
@@ -298,7 +298,7 @@ def test_run_campaign_continues_when_default_watch_seed_fails(tmp_path, monkeypa
     monkeypatch.setattr(svc, "_stop_component", lambda name: {"ok": True, "component": name})
     monkeypatch.setattr(
         "services.analytics.paper_sim_monitor.register_watch",
-        lambda name="", trigger="": {"ok": False, "reason": "write_failed", "name": name, "trigger": trigger},
+        lambda name="", trigger="", reset_state=False: {"ok": False, "reason": "write_failed", "name": name, "trigger": trigger, "reset_state": bool(reset_state)},
     )
 
     out = svc.run_campaign(

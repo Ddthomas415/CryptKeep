@@ -319,7 +319,7 @@ def _seed_paper_sim_monitor_watches(raw: Any) -> dict[str, Any]:
 
     seeded: list[dict[str, Any]] = []
     for name, trigger in watches:
-        result = dict(monitor_service.register_watch(name=name, trigger=trigger) or {})
+        result = dict(monitor_service.register_watch(name=name, trigger=trigger, reset_state=True) or {})
         seeded.append(result)
         if not bool(result.get("ok")):
             return {
