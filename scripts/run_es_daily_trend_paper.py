@@ -164,6 +164,22 @@ def _build_campaign_cfg(strategy_cfg: dict, *, symbol: str, venue: str):
     )
 
 
+def _apply_strategy_runtime_env(strategy_cfg: dict, risk: dict, *, symbol: str, venue: str) -> None:
+    halt_pct = float(risk.get("daily_loss_halt_pct", 1.5))
+    _LOG.info("daily_loss_halt_pct=%s%% (from strategy config)", halt_pct)
+    os.environ["CBP_DAILY_LOSS_HALT_PCT"] = str(halt_pct)
+    os.environ["CBP_SYMBOLS"] = symbol
+    os.environ["CBP_VENUE"] = venue
+    # The managed child runner reads env at process start. Set this explicitly
+    # in the parent runtime as well as the campaign config.
+    os.environ["CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE"] = "1"
+
+    use_advisor = str(strategy_cfg.get("use_candidate_advisor", "")).strip().lower()
+    if use_advisor in ("1", "true", "yes"):
+        os.environ["CBP_USE_CANDIDATE_ADVISOR"] = "1"
+        _LOG.info("candidate_advisor enabled via strategy config")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="ES Daily Trend v1 paper runner")
     ap.add_argument("--status",           action="store_true", help="Show current status")
@@ -222,17 +238,7 @@ def main() -> int:
 
     # Apply strategy-specific env vars from config
     try:
-        import os
-        halt_pct = float(risk.get("daily_loss_halt_pct", 1.5))
-        _LOG.info("daily_loss_halt_pct=%s%% (from strategy config)", halt_pct)
-        os.environ["CBP_DAILY_LOSS_HALT_PCT"] = str(halt_pct)
-        os.environ["CBP_SYMBOLS"] = symbol
-        os.environ["CBP_VENUE"] = venue
-        # Enable candidate advisor if configured in strategy config
-        use_advisor = str(strategy_cfg.get("use_candidate_advisor", "")).strip().lower()
-        if use_advisor in ("1", "true", "yes"):
-            os.environ["CBP_USE_CANDIDATE_ADVISOR"] = "1"
-            _LOG.info("candidate_advisor enabled via strategy config")
+        _apply_strategy_runtime_env(strategy_cfg, risk, symbol=symbol, venue=venue)
     except Exception as _e:
         _LOG.warning("could not set env vars from strategy config: %s", _e)
 
