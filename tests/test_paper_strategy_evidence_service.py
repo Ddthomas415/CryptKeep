@@ -293,6 +293,8 @@ def test_reset_strategy_runner_latches_clears_only_runner_latch_keys(tmp_path, m
     store.set("warmed:coinbase:BTC/USD:sma_200_trend", "1")
     store.set("last_action:coinbase:BTC/USD:sma_200_trend", "buy")
     store.set("last_emitted_action:coinbase:BTC/USD:sma_200_trend", "buy")
+    store.set("kill_until:coinbase:BTC/USD:sma_200_trend", "51")
+    store.set("risk_block_count:coinbase:BTC/USD:sma_200_trend", "2")
     store.set("prices:coinbase:BTC/USD:sma_200_trend", "[1,2,3]")
     monkeypatch.setattr(svc, "StrategyStateSQLite", lambda: store)
 
@@ -305,6 +307,8 @@ def test_reset_strategy_runner_latches_clears_only_runner_latch_keys(tmp_path, m
     assert store.get("warmed:coinbase:BTC/USD:sma_200_trend") is None
     assert store.get("last_action:coinbase:BTC/USD:sma_200_trend") is None
     assert store.get("last_emitted_action:coinbase:BTC/USD:sma_200_trend") is None
+    assert store.get("kill_until:coinbase:BTC/USD:sma_200_trend") is None
+    assert store.get("risk_block_count:coinbase:BTC/USD:sma_200_trend") is None
     assert store.get("prices:coinbase:BTC/USD:sma_200_trend") == "[1,2,3]"
 
 

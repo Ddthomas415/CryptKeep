@@ -542,6 +542,8 @@ def _reset_strategy_runner_latches(*, venue: str, symbol: str, strategy_name: st
         f"warmed:{venue_key}:{symbol_key}:{strategy_key}",
         f"last_action:{venue_key}:{symbol_key}:{strategy_key}",
         f"last_emitted_action:{venue_key}:{symbol_key}:{strategy_key}",
+        f"kill_until:{venue_key}:{symbol_key}:{strategy_key}",
+        f"risk_block_count:{venue_key}:{symbol_key}:{strategy_key}",
     ):
         try:
             store.delete(key)
