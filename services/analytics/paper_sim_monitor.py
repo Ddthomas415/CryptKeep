@@ -757,6 +757,15 @@ def _change_reasons(previous: dict[str, Any] | None, current: dict[str, Any]) ->
     return reasons or ["heartbeat_only"]
 
 
+def _terminal_monitor_reason(snapshot: dict[str, Any]) -> str:
+    campaign_status = str(snapshot.get("campaign_status") or "").strip().lower()
+    if campaign_status == "completed":
+        return "campaign_completed"
+    if campaign_status in {"failed", "dead"}:
+        return f"campaign_{campaign_status}"
+    return "stop_requested"
+
+
 def load_runtime_status() -> dict[str, Any]:
     payload: dict[str, Any]
     if status_file().exists():
@@ -935,7 +944,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
                 "ok": True,
                 "has_status": True,
                 "status": "stopped",
-                "reason": "stop_requested",
+                "reason": _terminal_monitor_reason(last_snapshot),
                 "ts": _now_iso(),
                 "loops": loops,
                 "changes_written": changes_written,

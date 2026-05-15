@@ -70,6 +70,46 @@ def test_fetch_status_includes_symbol_specific_ticks(monkeypatch) -> None:
     ]
 
 
+def test_fetch_status_uses_sample_ohlcv_ticks_when_enabled(monkeypatch) -> None:
+    monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+    monkeypatch.setenv("CBP_VENUE", "coinbase")
+    monkeypatch.setenv("CBP_SYMBOLS", "BTC/USDT")
+    monkeypatch.setattr(system_status_publisher.time, "time", lambda: 123.456)
+    monkeypatch.setattr(
+        system_status_publisher,
+        "_sample_tick",
+        lambda symbol, timeframe="1d": {
+            "symbol": str(symbol),
+            "ts_ms": 111111,
+            "bid": 44800.0,
+            "ask": 44800.0,
+            "last": 44800.0,
+        },
+    )
+    monkeypatch.setattr(
+        system_status_publisher,
+        "make_exchange",
+        lambda venue, creds, enable_rate_limit=True: (_ for _ in ()).throw(AssertionError("exchange should not be called in sample mode")),
+    )
+
+    out = system_status_publisher.fetch_status()
+
+    assert out["venues"]["coinbase"]["ok"] is True
+    assert out["venues"]["coinbase"]["last"] == 44800.0
+    assert out["ticks"] == [
+        {
+            "venue": "coinbase",
+            "symbol": "BTC/USDT",
+            "symbol_mapped": "BTC/USDT",
+            "bid": 44800.0,
+            "ask": 44800.0,
+            "last": 44800.0,
+            "ts_ms": 123456,
+            "exchange_ts_ms": 111111,
+        }
+    ]
+
+
 def test_tick_wrapper_accepts_runtime_only_config_for_prereqs(monkeypatch, tmp_path) -> None:
     logs: list[str] = []
 

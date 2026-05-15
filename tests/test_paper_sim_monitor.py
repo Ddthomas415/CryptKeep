@@ -388,12 +388,14 @@ def test_run_forever_collects_final_snapshot_before_stop(tmp_path, monkeypatch) 
 
     assert out["ok"] is True
     assert out["status"] == "stopped"
+    assert out["reason"] == "campaign_completed"
     assert out["campaign_status"] == "completed"
     assert out["recommendation"] == "enough_evidence"
     assert out["last_watch_reports_written"]
     assert out["last_watch_reports_written"][0]["watch_name"] == "done"
     assert out["last_watch_reports_written"][0]["desktop_notification"]["sent"] is True
     status = json.loads(svc.status_file().read_text(encoding="utf-8"))
+    assert status["reason"] == "campaign_completed"
     assert status["campaign_status"] == "completed"
     assert status["recent_watch_reports"][0]["watch_name"] == "done"
 
@@ -427,15 +429,15 @@ def test_collect_once_reports_investigate_for_market_data_block(monkeypatch) -> 
     monkeypatch.setattr(svc, "_paper_engine_status", lambda: {"status": "running"})
     monkeypatch.setattr(
         svc,
-        "_paper_state_snapshot",
-        lambda symbol: {
+        "_paper_state_snapshot_window",
+        lambda symbol, since_ts="": {
             "position": {"symbol": symbol, "qty": 0.0, "avg_price": 0.0, "realized_pnl": 0.0},
             "latest_order": {},
             "latest_paper_fill": {},
             "latest_equity": {},
         },
     )
-    monkeypatch.setattr(svc, "_trade_journal_snapshot", lambda: {})
+    monkeypatch.setattr(svc, "_trade_journal_snapshot", lambda symbol, since_ts="": {})
 
     out = svc.collect_once(svc.PaperSimMonitorCfg())
 
