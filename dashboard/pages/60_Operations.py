@@ -46,7 +46,10 @@ from dashboard.services.operator import (
     stop_paper_strategy_evidence_collection,
 )
 from dashboard.services.operator_tools import synthetic_ohlcv
-from dashboard.services.strategy_evidence_runtime import load_paper_strategy_evidence_runtime
+from dashboard.services.strategy_evidence_runtime import (
+    load_paper_sim_monitor_runtime,
+    load_paper_strategy_evidence_runtime,
+)
 from dashboard.services.strategy_evaluation import (
     build_hypothesis_sections,
     build_leaderboard_table_rows,
@@ -94,6 +97,7 @@ live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
 paper_evidence_runtime = load_paper_strategy_evidence_runtime()
+paper_sim_monitor_runtime = load_paper_sim_monitor_runtime()
 system_diagnostics = run_full_system_diagnostics(export_bundle=False, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
@@ -172,6 +176,40 @@ with st.container(border=True):
                         "event_count": int(_row.get("event_count") or 0),
                     }
                 )
+    st.markdown("#### Paper Sim Watch Monitor")
+    _ps0, _ps1, _ps2 = st.columns(3)
+    _ps0.metric("Monitor", str(paper_sim_monitor_runtime.get("status") or "not_started"))
+    _ps1.metric("Watches", str(int(paper_sim_monitor_runtime.get("watch_count") or 0)))
+    _ps2.metric("Recent Reports", str(int(paper_sim_monitor_runtime.get("recent_report_count") or 0)))
+    _ps_alert_text = str(paper_sim_monitor_runtime.get("alert_text") or "").strip()
+    _ps_alert_tone = str(paper_sim_monitor_runtime.get("alert_tone") or "").strip().lower()
+    if _ps_alert_text:
+        if _ps_alert_tone == "warning":
+            st.warning(_ps_alert_text)
+        else:
+            st.info(_ps_alert_text)
+    _last_watch_report = paper_sim_monitor_runtime.get("last_watch_report") if isinstance(paper_sim_monitor_runtime.get("last_watch_report"), dict) else {}
+    if _last_watch_report:
+        st.write(
+            {
+                "paper_sim_monitor": {
+                    "watch_name": str(_last_watch_report.get("watch_name") or ""),
+                    "trigger": str(_last_watch_report.get("trigger") or ""),
+                    "severity": str(_last_watch_report.get("severity") or ""),
+                    "summary": str(_last_watch_report.get("summary") or ""),
+                    "generated_at": str(_last_watch_report.get("generated_at") or ""),
+                }
+            }
+        )
+    elif int(paper_sim_monitor_runtime.get("watch_count") or 0) > 0:
+        st.write(
+            {
+                "paper_sim_monitor": {
+                    "registered_watches": list(paper_sim_monitor_runtime.get("registered_watch_names") or []),
+                    "last_trigger": "none",
+                }
+            }
+        )
     _cop_question = st.text_area(
         "Ask the copilot",
         placeholder="e.g. Why are intents staying in submitted state? What's causing the symbol lock on BTC/USDT?",

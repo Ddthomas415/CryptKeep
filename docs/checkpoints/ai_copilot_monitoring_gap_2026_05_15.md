@@ -2,27 +2,43 @@
 
 ## Status
 
-Deferred follow-up. Do not treat as part of the current ES evidence-window runtime work.
+Partially closed on `fix/p1-pre-live`.
 
 ## Problem
 
 Operator expectation: the repo copilot should be able to monitor an active runtime task and surface meaningful changes without requiring repeated manual check-ins.
 
-Current repo truth does not meet that expectation.
+Current repo truth now partially meets that expectation, but not completely.
 
 ## SHOWN
 
 - `services/ai_copilot/alert_monitor.py` is a continuous runtime incident monitor.
 - `services/ai_copilot/oversight_watch.py` and `scripts/run_ai_oversight_watch.py` are read-only and one-shot, not persistent monitors.
 - `docs/AI_COPILOT_BOUNDARY.md` and `docs/AI_COPILOT_OPERATING_RULES.md` define the copilot layer as advisory.
-- There is no shown repo surface that:
-  - watches a specific paper-evidence objective like `next fill` or `position closed`
-  - persists a user/task-level watch definition
+- `services/analytics/paper_sim_monitor.py` now provides a persistent local monitor for paper-sim/evidence windows.
+- `scripts/run_paper_sim_monitor.py` now supports:
+  - `--register-watch`
+  - `--list-watches`
+  - `--delete-watch`
+  - `--status`
+  - `--once`
+- Trigger events now write durable watch reports under `.cbp_state/runtime/ai_reports/`.
+- The Operations dashboard now shows current paper-sim watch status and the most recent trigger result.
+- There is still no shown repo surface that:
   - pushes a follow-up notification back into the operator conversation
+  - wakes the operator asynchronously without a separately running local monitor process
 
 ## Current fallback
 
-Use a local watcher loop for observation only:
+Run the paper sim monitor as the canonical local watch surface:
+
+```bash
+cd /Users/baitus/Downloads/crypto-bot-pro
+./.venv/bin/python scripts/run_paper_sim_monitor.py --register-watch next_fill --watch-trigger new_fill
+./.venv/bin/python scripts/run_paper_sim_monitor.py --interval-sec 300
+```
+
+Lower-level shell loops remain available for observation only:
 
 ```bash
 cd /Users/baitus/Downloads/crypto-bot-pro
@@ -42,7 +58,7 @@ while true; do
 done
 ```
 
-This observes. It does not notify, schedule, or mutate.
+The paper-sim monitor persists watch definitions and writes trigger reports, but it still does not wake the chat thread or push an external notification by itself.
 
 ## Desired outcome
 
@@ -72,6 +88,14 @@ Start with one narrow monitor family:
 - trigger events write durable incident or watch reports under `.cbp_state/runtime/ai_reports/`
 - CLI and dashboard expose current watch status and most recent trigger result
 - no live control mutation, no config writes outside the explicit watch surface, no direct trading authority
+
+Status against those criteria:
+- `met`: local watch registration
+- `met`: interval evaluation of canonical runtime/evidence state
+- `met`: durable watch reports under `runtime/ai_reports`
+- `met`: CLI and dashboard status surfaces
+- `met`: read-only with respect to trading control
+- `not met`: autonomous operator notification outside the local monitor runtime
 
 ## Non-goals
 
