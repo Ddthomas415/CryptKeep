@@ -2,7 +2,7 @@
 
 ## Status
 
-Partially closed on `fix/p1-pre-live`.
+Substantially closed on `fix/p1-pre-live`.
 
 ## Problem
 
@@ -22,6 +22,7 @@ Current repo truth now partially meets that expectation, but not completely.
   - `--delete-watch`
   - `--status`
   - `--once`
+- `services/analytics/paper_strategy_evidence_service.py` now auto-supervises `paper_sim_monitor` during managed paper evidence campaigns, so the monitor no longer needs a separately started loop for that workflow.
 - Trigger events now write durable watch reports under `.cbp_state/runtime/ai_reports/`.
 - The Operations dashboard now shows current paper-sim watch status and the most recent trigger result.
 - There is still no shown repo surface that:
@@ -30,7 +31,9 @@ Current repo truth now partially meets that expectation, but not completely.
 
 ## Current fallback
 
-Run the paper sim monitor as the canonical local watch surface:
+Managed paper evidence campaigns now start the local paper sim monitor automatically.
+
+Run the paper sim monitor directly only when you want standalone monitoring outside the managed paper evidence workflow:
 
 ```bash
 cd /Users/baitus/Downloads/crypto-bot-pro
@@ -94,6 +97,7 @@ Status against those criteria:
 - `met`: interval evaluation of canonical runtime/evidence state
 - `met`: durable watch reports under `runtime/ai_reports`
 - `met`: CLI and dashboard status surfaces
+- `met`: managed paper evidence campaigns auto-start the local monitor
 - `met`: read-only with respect to trading control
 - `not met`: autonomous operator notification outside the local monitor runtime
 

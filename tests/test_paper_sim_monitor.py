@@ -171,6 +171,88 @@ def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkey
     assert status["watches"][0]["last_report_stem"] == report["report_stem"]
 
 
+def test_run_forever_collects_final_snapshot_before_stop(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.register_watch(name="done", trigger="campaign_completed")
+    snapshots = iter(
+        [
+            {
+                "ok": True,
+                "ts": "2026-05-15T02:05:00Z",
+                "monitor_name": svc.MONITOR_NAME,
+                "campaign_status": "running",
+                "campaign_reason": "collecting",
+                "recommendation": "continue",
+                "recommendation_reason": "awaiting_first_trade",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "fills_observed": 0,
+                "round_trips_observed": 0,
+                "current_window_realized_pnl": 0.0,
+                "position_realized_pnl_total": 0.0,
+                "equity_realized_pnl_total": 0.0,
+                "unrealized_pnl": 0.0,
+                "paper_position": {"qty": 0.0},
+                "latest_order": {},
+                "latest_paper_fill": {},
+                "latest_journal_fill": {},
+                "latest_equity": {},
+                "campaign_result": {},
+                "collector": {"status": "running"},
+                "strategy_runner": {"status": "running"},
+                "paper_engine": {"status": "running"},
+                "summary_text": "before",
+            },
+            {
+                "ok": True,
+                "ts": "2026-05-15T02:06:00Z",
+                "monitor_name": svc.MONITOR_NAME,
+                "campaign_status": "completed",
+                "campaign_reason": "completed",
+                "recommendation": "enough_evidence",
+                "recommendation_reason": "closed_trade_threshold_met",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "fills_observed": 2,
+                "round_trips_observed": 1,
+                "current_window_realized_pnl": 1.25,
+                "position_realized_pnl_total": 1.25,
+                "equity_realized_pnl_total": 1.25,
+                "unrealized_pnl": 0.0,
+                "paper_position": {"qty": 0.0},
+                "latest_order": {"order_id": "ord-2", "status": "filled"},
+                "latest_paper_fill": {},
+                "latest_journal_fill": {"fill_id": "fill-2", "side": "sell", "fill_ts": "2026-05-15T02:06:00Z"},
+                "latest_equity": {},
+                "campaign_result": {},
+                "collector": {"status": "completed"},
+                "strategy_runner": {"status": "stopped"},
+                "paper_engine": {"status": "stopped"},
+                "summary_text": "after",
+            },
+        ]
+    )
+    monkeypatch.setattr(svc, "collect_once", lambda cfg: dict(next(snapshots)))
+
+    def _sleep(_seconds: float) -> None:
+        svc.stop_file().parent.mkdir(parents=True, exist_ok=True)
+        svc.stop_file().write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(svc.time, "sleep", _sleep)
+
+    out = svc.run_forever(svc.PaperSimMonitorCfg(poll_interval_sec=0.01))
+
+    assert out["ok"] is True
+    assert out["status"] == "stopped"
+    assert out["campaign_status"] == "completed"
+    assert out["recommendation"] == "enough_evidence"
+    assert out["last_watch_reports_written"]
+    assert out["last_watch_reports_written"][0]["watch_name"] == "done"
+    status = json.loads(svc.status_file().read_text(encoding="utf-8"))
+    assert status["campaign_status"] == "completed"
+    assert status["recent_watch_reports"][0]["watch_name"] == "done"
+
+
 def test_collect_once_reports_investigate_for_market_data_block(monkeypatch) -> None:
     monkeypatch.setattr(
         svc,

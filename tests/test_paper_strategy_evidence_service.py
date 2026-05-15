@@ -148,6 +148,7 @@ def test_ensure_known_flat_position_state_keeps_existing_row(tmp_path, monkeypat
 def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     stop_calls: list[str] = []
+    started_names: list[str] = []
 
     monkeypatch.setattr(
         svc,
@@ -157,7 +158,13 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     monkeypatch.setattr(
         svc,
         "_ensure_component",
-        lambda name, *, cfg: {"name": name, "started": True, "pid": 123 if name == "tick_publisher" else 456, "status": "running"},
+        lambda name, *, cfg: started_names.append(name)
+        or {
+            "name": name,
+            "started": True,
+            "pid": 123 if name == "tick_publisher" else 456 if name == "paper_engine" else 789,
+            "status": "running",
+        },
     )
     monkeypatch.setattr(
         svc,
@@ -206,15 +213,28 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     assert out["status"] == "completed"
     assert out["reason"] == "completed"
     assert out["completed_strategies"] == 2
-    assert out["started_components"] == {"tick_publisher": 123, "paper_engine": 456}
+    assert out["started_components"] == {"tick_publisher": 123, "paper_engine": 456, "paper_sim_monitor": 789}
     assert out["evidence"]["latest_path"].endswith("strategy_evidence.latest.json")
     assert out["decision_record"]["path"].endswith("decision_record.md")
     status = json.loads(svc.status_file().read_text(encoding="utf-8"))
     assert status["status"] == "completed"
     assert status["completed_strategies"] == 2
+    assert started_names == ["tick_publisher", "paper_engine", "paper_sim_monitor"]
     assert stop_calls.count("strategy_runner") >= 1
+    assert "paper_sim_monitor" in stop_calls
     assert "tick_publisher" in stop_calls
     assert "paper_engine" in stop_calls
+
+
+def test_component_argv_builds_paper_sim_monitor_args() -> None:
+    cfg = svc.PaperStrategyEvidenceServiceCfg(
+        paper_sim_monitor_interval_sec=7.5,
+        paper_sim_monitor_min_closed_trades_for_enough_evidence=3,
+    )
+
+    out = svc._component_argv("paper_sim_monitor", cfg=cfg)
+
+    assert out == ["--interval-sec", "7.5", "--min-closed-trades", "3"]
 
 
 def test_run_campaign_seeds_flat_position_state_before_strategy_window(tmp_path, monkeypatch) -> None:
@@ -753,7 +773,7 @@ def test_ensure_component_restarts_unhealthy_tick_publisher(tmp_path, monkeypatc
     monkeypatch.setattr(svc, "_component_runtime", lambda name: next(states))
     monkeypatch.setattr(svc, "_stop_component", lambda name: stop_calls.append(name) or {"ok": True})
     monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
-    monkeypatch.setattr(svc, "_start_process", lambda *, script_relpath, env: _FakeProc())
+    monkeypatch.setattr(svc, "_start_process", lambda *, script_relpath, env, argv=None: _FakeProc())
     monkeypatch.setattr(svc, "_wait_for", lambda predicate, *, timeout_sec, sleep_sec=0.2: True)
     monkeypatch.setattr(svc.time, "time", lambda: 1_700_000_000.0)
 

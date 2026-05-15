@@ -75,6 +75,10 @@ def _runtime_files() -> dict[str, dict[str, Path]]:
             "lock_file": runtime_dir() / "locks" / "strategy_runner.lock",
             "status_file": runtime_dir() / "flags" / "strategy_runner.status.json",
         },
+        "paper_sim_monitor": {
+            "lock_file": runtime_dir() / "health" / "paper_sim_monitor.pid.json",
+            "status_file": runtime_dir() / "health" / "paper_sim_monitor.json",
+        },
     }
 
 
@@ -449,7 +453,12 @@ def _repo_script_path(script_relpath: str) -> str:
     return str((code_root() / script_relpath).resolve())
 
 
-def _start_process(*, script_relpath: str, env: dict[str, str]) -> subprocess.Popen[Any]:
+def _start_process(
+    *,
+    script_relpath: str,
+    env: dict[str, str],
+    argv: list[str] | tuple[str, ...] | None = None,
+) -> subprocess.Popen[Any]:
     debug_child_io = str(env.get("CBP_DEBUG_CHILD_IO") or os.environ.get("CBP_DEBUG_CHILD_IO") or "").strip().lower() in {"1", "true", "yes", "on"}
     kwargs: dict[str, Any] = {
         "cwd": str(code_root()),
@@ -467,7 +476,8 @@ def _start_process(*, script_relpath: str, env: dict[str, str]) -> subprocess.Po
         kwargs["creationflags"] = creationflags
     else:
         kwargs["start_new_session"] = True
-    return subprocess.Popen([sys.executable, _repo_script_path(script_relpath)], **kwargs)
+    command = [sys.executable, _repo_script_path(script_relpath), *list(argv or ())]
+    return subprocess.Popen(command, **kwargs)
 
 
 def _wait_for(predicate, *, timeout_sec: float, sleep_sec: float = 0.2) -> bool:
@@ -493,6 +503,17 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
     if strategy_name:
         env["CBP_STRATEGY_NAME"] = str(strategy_name)
     return env
+
+
+def _component_argv(name: str, *, cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
+    if name != "paper_sim_monitor":
+        return []
+    return [
+        "--interval-sec",
+        str(float(cfg.paper_sim_monitor_interval_sec)),
+        "--min-closed-trades",
+        str(int(cfg.paper_sim_monitor_min_closed_trades_for_enough_evidence)),
+    ]
 
 
 def _target_symbols(cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
@@ -635,11 +656,16 @@ def _ensure_component(name: str, *, cfg: "PaperStrategyEvidenceServiceCfg") -> d
     script = {
         "tick_publisher": "scripts/run_tick_publisher.py",
         "paper_engine": "scripts/run_paper_engine.py",
+        "paper_sim_monitor": "scripts/run_paper_sim_monitor.py",
     }.get(name)
     if not script:
         raise ValueError(f"unsupported component: {name}")
 
-    proc = _start_process(script_relpath=script, env=_component_env(cfg))
+    proc = _start_process(
+        script_relpath=script,
+        env=_component_env(cfg),
+        argv=_component_argv(name, cfg=cfg),
+    )
     ok = _wait_for(
         lambda: bool(_component_runtime(name).get("pid_alive")) or (proc.poll() is not None),
         timeout_sec=5.0,
@@ -663,6 +689,10 @@ def _stop_component(name: str) -> dict[str, Any]:
         return dict(request_paper_engine_stop())
     if name == "strategy_runner":
         return dict(request_strategy_runner_stop())
+    if name == "paper_sim_monitor":
+        from services.analytics import paper_sim_monitor as paper_sim_monitor_service
+
+        return dict(paper_sim_monitor_service.request_stop())
     raise ValueError(f"unsupported component: {name}")
 
 
@@ -815,6 +845,9 @@ class PaperStrategyEvidenceServiceCfg:
     slippage_bps: float = 5.0
     paper_history_path: str = ""
     write_decision_record: bool = True
+    enable_paper_sim_monitor: bool = True
+    paper_sim_monitor_interval_sec: float = 5.0
+    paper_sim_monitor_min_closed_trades_for_enough_evidence: int = 1
 
 
 def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | None = None) -> dict[str, Any]:
@@ -869,6 +902,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
     campaign_reason = "completed"
     evidence_out: dict[str, Any] = {}
     decision_record_out: dict[str, Any] = {}
+    campaign_finished_ok = False
 
     _write_status(
         {
@@ -890,7 +924,11 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
     )
 
     try:
-        for name in ("tick_publisher", "paper_engine"):
+        managed_components = ["tick_publisher", "paper_engine"]
+        if bool(cfg.enable_paper_sim_monitor):
+            managed_components.append("paper_sim_monitor")
+
+        for name in managed_components:
             comp = _ensure_component(name, cfg=cfg)
             if bool(comp.get("started")):
                 started_components[name] = int(comp.get("pid") or 0)
@@ -965,11 +1003,15 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                 break
 
         for name in reversed(tuple(started_components.keys())):
+            if name == "paper_sim_monitor":
+                continue
             try:
                 _stop_component(name)
             except Exception as exc:
                 logger.warning("paper_strategy_evidence_component_stop_failed", extra={"component": name, "error_type": type(exc).__name__})
         for name in reversed(tuple(started_components.keys())):
+            if name == "paper_sim_monitor":
+                continue
             _wait_for_component_stop(name, timeout_sec=10.0)
 
         if _campaign_has_new_paper_history(results):
@@ -1004,6 +1046,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                     "reason": "paper_history_unchanged",
                     "summary_text": "Decision record was not regenerated because paper-history coverage did not change.",
                 }
+        campaign_finished_ok = True
     except Exception as exc:
         campaign_reason = f"error:{type(exc).__name__}"
         out = {
@@ -1033,6 +1076,12 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
         except Exception as _err:
             logging.getLogger(__name__).debug("suppressed: %s", _err)
         _wait_for_component_stop("strategy_runner", timeout_sec=2.0)
+        if not campaign_finished_ok and "paper_sim_monitor" in started_components:
+            try:
+                _stop_component("paper_sim_monitor")
+            except Exception as _err:
+                logging.getLogger(__name__).debug("suppressed: %s", _err)
+            _wait_for_component_stop("paper_sim_monitor", timeout_sec=2.0)
         _clear_pid_state()
 
     # Include JSONL evidence summary alongside the leaderboard artifact.
@@ -1071,4 +1120,10 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
     }
     out["summary_text"] = _summary_text(out)
     _write_status(out)
+    if "paper_sim_monitor" in started_components:
+        try:
+            _stop_component("paper_sim_monitor")
+        except Exception as _err:
+            logging.getLogger(__name__).debug("suppressed: %s", _err)
+        _wait_for_component_stop("paper_sim_monitor", timeout_sec=2.0)
     return out
