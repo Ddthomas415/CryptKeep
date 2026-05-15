@@ -198,6 +198,10 @@ Checklist:
 - [ ] Verify read-only boundaries in UI and operator workflows.
 - [ ] Verify copilot artifacts are discoverable and interpretable by operators.
 
+Current related artifact:
+
+- [ai_copilot_monitoring_gap_2026_05_15.md](./ai_copilot_monitoring_gap_2026_05_15.md)
+
 ### 8. Evidence, Promotion, and Governance
 
 Goal:
