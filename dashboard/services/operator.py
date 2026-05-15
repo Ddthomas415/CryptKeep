@@ -184,6 +184,30 @@ def stop_paper_strategy_evidence_collection(*, current_role: str = "VIEWER") -> 
     return run_repo_script("scripts/run_paper_strategy_evidence_collector.py", args=["--stop"], current_role=current_role)
 
 
+def register_paper_sim_watch(*, name: str, trigger: str, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
+    try:
+        from services.analytics.paper_sim_monitor import register_watch
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_monitor_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(register_watch(name=str(name or ""), trigger=str(trigger or "")) or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_watch_register_failed:{type(exc).__name__}:{exc}"}
+
+
+def delete_paper_sim_watch(*, name: str, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
+    try:
+        from services.analytics.paper_sim_monitor import delete_watch
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_monitor_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(delete_watch(name=str(name or "")) or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_watch_delete_failed:{type(exc).__name__}:{exc}"}
+
+
 def run_full_system_diagnostics(*, export_bundle: bool = False, current_role: str = "VIEWER") -> dict[str, object]:
     require_role(current_role, "OPERATOR")
     try:

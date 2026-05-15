@@ -31,11 +31,13 @@ from dashboard.services.crypto_edge_research import (
 )
 from dashboard.services.operator import (
     apply_safe_system_self_repair,
+    delete_paper_sim_watch,
     export_diagnostics_bundle,
     get_operations_snapshot,
     get_supervised_soak_snapshot,
     list_services,
     preview_safe_system_self_repair,
+    register_paper_sim_watch,
     run_op,
     run_dashboard_streamlit_diagnostics,
     run_full_system_diagnostics,
@@ -99,6 +101,13 @@ structural_edge_health = load_crypto_edge_staleness_summary()
 paper_evidence_runtime = load_paper_strategy_evidence_runtime()
 paper_sim_monitor_runtime = load_paper_sim_monitor_runtime()
 system_diagnostics = run_full_system_diagnostics(export_bundle=False, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
+PAPER_SIM_WATCH_TRIGGER_OPTIONS = (
+    "new_fill",
+    "position_opened",
+    "position_closed",
+    "campaign_completed",
+    "recommendation_investigate",
+)
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
 
@@ -495,6 +504,83 @@ with tab_strategy:
         subtitle="Managed paper-evidence campaign runtime for sequential strategy collection and artifact refresh.",
         empty_message="Paper evidence collector has not reported status yet. Use the controls above to start a managed campaign.",
     )
+    with st.container(border=True):
+        st.markdown("### Paper Sim Watch Controls")
+        st.caption("Register or remove local paper-sim watch triggers without leaving the Operations dashboard.")
+        configured_watches = [
+            dict(item) for item in list(paper_sim_monitor_runtime.get("watches") or []) if isinstance(item, dict)
+        ]
+        configured_watch_names = [
+            str(item.get("name") or "").strip()
+            for item in configured_watches
+            if str(item.get("name") or "").strip()
+        ]
+        default_watch_name = configured_watch_names[0] if configured_watch_names else "next_fill"
+        watch_name = str(
+            st.text_input(
+                "Paper Sim Watch Name",
+                value=default_watch_name,
+                key="ops_paper_sim_watch_name",
+            )
+            or ""
+        ).strip()
+        watch_trigger = st.selectbox(
+            "Paper Sim Watch Trigger",
+            PAPER_SIM_WATCH_TRIGGER_OPTIONS,
+            index=0,
+            key="ops_paper_sim_watch_trigger",
+        )
+        delete_watch_name = st.selectbox(
+            "Registered Paper Sim Watch",
+            configured_watch_names if configured_watch_names else ["(none)"],
+            index=0,
+            key="ops_paper_sim_watch_delete_name",
+        )
+        watch_action = None
+        watch_rc = None
+        watch_output = None
+        watch_cols = st.columns(2)
+        with watch_cols[0]:
+            if st.button("Register Paper Sim Watch", width="stretch", key="ops_paper_sim_watch_register"):
+                watch_action = "Register Paper Sim Watch"
+                watch_result = register_paper_sim_watch(
+                    name=watch_name,
+                    trigger=str(watch_trigger or ""),
+                    current_role=str(AUTH_STATE.get("role") or "VIEWER"),
+                )
+                watch_rc = 0 if bool(watch_result.get("ok")) else 1
+                watch_output = json.dumps(watch_result, indent=2, sort_keys=True)
+        with watch_cols[1]:
+            if st.button(
+                "Delete Paper Sim Watch",
+                width="stretch",
+                key="ops_paper_sim_watch_delete",
+                disabled=not configured_watch_names,
+            ):
+                watch_action = "Delete Paper Sim Watch"
+                watch_result = delete_paper_sim_watch(
+                    name=str(delete_watch_name or ""),
+                    current_role=str(AUTH_STATE.get("role") or "VIEWER"),
+                )
+                watch_rc = 0 if bool(watch_result.get("ok")) else 1
+                watch_output = json.dumps(watch_result, indent=2, sort_keys=True)
+
+        render_action_result(action=watch_action, rc=watch_rc, output=watch_output)
+        render_table_section(
+            "Registered Paper Sim Watches",
+            [
+                {
+                    "name": str(item.get("name") or ""),
+                    "trigger": str(item.get("trigger") or ""),
+                    "active": bool(item.get("active", True)),
+                    "last_fired_at": str(item.get("last_fired_at") or ""),
+                    "last_report_stem": str(item.get("last_report_stem") or ""),
+                }
+                for item in configured_watches
+            ],
+            subtitle="Persisted local monitor watches used by the auto-supervised paper sim monitor.",
+            empty_message="No paper sim watches are registered yet.",
+        )
 
     with st.container(border=True):
         st.markdown("### Strategy Controls")

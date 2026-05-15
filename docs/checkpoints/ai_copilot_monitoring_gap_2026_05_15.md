@@ -26,6 +26,7 @@ Current repo truth now partially meets that expectation, but not completely.
 - Trigger events now write durable watch reports under `.cbp_state/runtime/ai_reports/`.
 - On macOS, named watch triggers now also issue best-effort local desktop notifications from the running monitor process.
 - The Operations dashboard now shows current paper-sim watch status and the most recent trigger result.
+- The Operations dashboard can now register and remove named paper-sim watches without requiring the CLI.
 - There is still no shown repo surface that:
   - pushes a follow-up notification back into the operator conversation
   - wakes the operator asynchronously outside the local machine/runtime
@@ -90,7 +91,7 @@ Start with one narrow monitor family:
 - operator can register a local watch for a named runtime condition
 - monitor evaluates canonical runtime state and evidence files on an interval
 - trigger events write durable incident or watch reports under `.cbp_state/runtime/ai_reports/`
-- CLI and dashboard expose current watch status and most recent trigger result
+- CLI and dashboard expose current watch status, watch registration, and most recent trigger result
 - no live control mutation, no config writes outside the explicit watch surface, no direct trading authority
 
 Status against those criteria:
