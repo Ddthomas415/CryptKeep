@@ -11,6 +11,8 @@ except ModuleNotFoundError:
 _REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
+import json
+import os
 import runpy
 import time
 import traceback
@@ -35,6 +37,23 @@ def log(msg: str) -> None:
     _append(_log_path(), f"[{ts}] {msg}\n")
 
 
+def _status_path() -> Path:
+    path = app_paths.runtime_dir() / "flags" / "live_intent_consumer.status.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _write_wrapper_status(status: str, *, reason: str) -> None:
+    payload = {
+        "status": str(status),
+        "reason": str(reason),
+        "pid": int(os.getpid()),
+        "ts_epoch": float(time.time()),
+        "wrapper": "run_intent_consumer_safe",
+    }
+    _status_path().write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+
 def _prereqs_ok() -> tuple[bool, str]:
     if not runtime_trading_config_available():
         return False, "missing runtime trading config"
@@ -56,6 +75,7 @@ def _managed_run_mode(argv: list[str]) -> bool:
 def _safe_idle() -> int:
     try:
         log("intent_consumer entering SAFE-IDLE after startup failure")
+        _write_wrapper_status("safe_idle", reason="wrapper_safe_idle")
         while True:
             time.sleep(2.0)
     except KeyboardInterrupt:
@@ -67,7 +87,7 @@ def _run_real_module(argv: list[str]) -> None:
     original_argv = list(sys.argv)
     sys.argv = [str(Path(__file__).resolve()), *argv]
     try:
-        runpy.run_module("scripts.run_intent_consumer", run_name="__main__")
+        runpy.run_module("scripts.run_live_intent_consumer", run_name="__main__")
     finally:
         sys.argv = original_argv
 
@@ -79,13 +99,14 @@ def main(argv: list[str] | None = None) -> int:
         ok, why = _prereqs_ok()
         if not ok:
             log("intent_consumer starting in IDLE mode: " + why)
+            _write_wrapper_status("blocked", reason=str(why))
             try:
                 while True:
                     time.sleep(2.0)
             except KeyboardInterrupt:
                 log("intent_consumer stopped (KeyboardInterrupt)")
                 return 0
-    log("intent_consumer wrapper launching real module: scripts.run_intent_consumer")
+    log("intent_consumer wrapper launching real module: scripts.run_live_intent_consumer")
     try:
         _run_real_module(argv)
         return 0

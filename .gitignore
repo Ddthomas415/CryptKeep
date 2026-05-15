@@ -13,6 +13,8 @@ __pycache__/
 .cbp_state/
 data/
 runtime/
+!services/runtime/
+!services/runtime/*.py
 logs/
 *.sqlite
 *.db

@@ -9,7 +9,7 @@ import os
 import time
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from services.admin.config_editor import load_user_yaml
 from services.logging.app_logger import get_logger
@@ -44,6 +44,7 @@ _LOG = logging.getLogger(__name__)
 TICK_SNAPSHOT_FILE = SNAPSHOTS / "system_status.latest.json"
 
 _LOG = get_logger("strategy_runner.ema_crossover_runner")
+_PUBLIC_OHLCV_CACHE: dict[tuple[str, str, str], dict[str, Any]] = {}
 
 _STRATEGY_ALIASES = {
     "ema_cross": "ema_cross",
@@ -229,6 +230,8 @@ def _cfg() -> dict:
         or s.get("signal_source")
         or "synthetic_mid_ohlcv"
     ).strip().lower() or "synthetic_mid_ohlcv"
+    env_loop_interval_raw = str(os.environ.get("CBP_STRATEGY_LOOP_INTERVAL_SEC") or "").strip()
+    env_loop_interval = float(env_loop_interval_raw) if env_loop_interval_raw else None
     venue_candidates = s.get("venue_candidates") if isinstance(s.get("venue_candidates"), list) else []
 
     return {
@@ -243,7 +246,7 @@ def _cfg() -> dict:
         "slow_n": int(s.get("slow_n", 26) or 26),
         "min_bars": int(min_bars),
         "max_bars": int(s.get("max_bars", 400) or 400),
-        "loop_interval_sec": float(s.get("loop_interval_sec", 1.0) or 1.0),
+        "loop_interval_sec": float(env_loop_interval if env_loop_interval is not None else (s.get("loop_interval_sec", 1.0) or 1.0)),
         "qty": float(s.get("qty", 0.001) or 0.001),
         "order_type": str(s.get("order_type", "market") or "market").lower().strip(),
         "allow_first_signal_trade": allow_first_signal_trade,
@@ -404,6 +407,23 @@ def _public_ohlcv_timeframe(cfg: dict) -> str | None:
     return None
 
 
+def _public_ohlcv_refresh_floor_sec(timeframe: str) -> float:
+    text = str(timeframe or "").strip().lower()
+    if text.endswith("d"):
+        return 300.0
+    if text.endswith("h"):
+        return 60.0
+    return 10.0
+
+
+def _public_ohlcv_cache_key(cfg: dict, timeframe: str) -> tuple[str, str, str]:
+    return (
+        normalize_venue(str(cfg.get("venue") or "")),
+        normalize_symbol(str(cfg.get("symbol") or "")),
+        str(timeframe or "").strip().lower(),
+    )
+
+
 def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
     timeframe = _public_ohlcv_timeframe(cfg)
     if not timeframe:
@@ -426,6 +446,16 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
         return []
 
+    cache_key = _public_ohlcv_cache_key(cfg, timeframe)
+    cache_entry = _PUBLIC_OHLCV_CACHE.get(cache_key) or {}
+    refresh_floor_sec = _public_ohlcv_refresh_floor_sec(timeframe)
+    now_ts = time.time()
+    if cache_entry:
+        age_sec = max(0.0, now_ts - float(cache_entry.get("fetched_at") or 0.0))
+        rows = cache_entry.get("rows")
+        if isinstance(rows, list) and rows and age_sec < refresh_floor_sec:
+            return [list(row) for row in rows if isinstance(row, (list, tuple)) and len(row) >= 6]
+
     ex = None
     try:
         ex = make_exchange(cfg["venue"], {"apiKey": None, "secret": None}, enable_rate_limit=True)
@@ -434,10 +464,21 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
         result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
         if result:
+            _PUBLIC_OHLCV_CACHE[cache_key] = {
+                "rows": result,
+                "fetched_at": now_ts,
+            }
             return result
     except Exception as _fetch_err:
         _LOG.warning("ohlcv_live_fetch_failed venue=%s symbol=%s timeframe=%s err=%s",
                      cfg.get("venue"), cfg.get("symbol"), timeframe, _fetch_err)
+        rows = cache_entry.get("rows")
+        if isinstance(rows, list) and rows:
+            _PUBLIC_OHLCV_CACHE[cache_key] = {
+                "rows": [list(row) for row in rows if isinstance(row, (list, tuple)) and len(row) >= 6],
+                "fetched_at": now_ts,
+            }
+            return [list(row) for row in rows if isinstance(row, (list, tuple)) and len(row) >= 6]
     finally:
         try:
             if ex is not None and hasattr(ex, "close"):
@@ -464,6 +505,27 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         else:
             _LOG.warning("ohlcv_sample_not_found: %s", sample)
     return []
+
+
+def _prewarm_public_ohlcv_cache(cfg: dict, symbols: list[str], *, candidates: Optional[list[str]] = None) -> None:
+    timeframe = _public_ohlcv_timeframe(cfg)
+    if not timeframe:
+        return
+    resolved_candidates = candidates or []
+    for symbol in symbols:
+        selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=resolved_candidates)
+        sym_cfg = dict(cfg)
+        sym_cfg["symbol"] = symbol
+        sym_cfg["venue"] = selected_venue
+        rows = _fetch_public_ohlcv(sym_cfg) or []
+        if rows:
+            _LOG.info(
+                "ohlcv_startup_prewarm_ok venue=%s symbol=%s timeframe=%s rows=%s",
+                selected_venue,
+                symbol,
+                timeframe,
+                len(rows),
+            )
 
 def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
     q = get_best_bid_ask_last(cfg["venue"], cfg["symbol"])
@@ -587,13 +649,15 @@ def run_forever() -> None:
     loops = 0
     enqueued = 0
     checked_startup_pairs: set[tuple[str, str]] = set()
+    startup_venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
+    _prewarm_public_ohlcv_cache(cfg, symbols, candidates=startup_venue_candidates)
     try:
         while True:
             loops += 1
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued": enqueued})
                 break
-            venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
+            venue_candidates = startup_venue_candidates or (_resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else [])
 
             for symbol in symbols:
                 selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
@@ -649,65 +713,81 @@ def run_forever() -> None:
                 if timeframe:
                     ohlcv = _fetch_public_ohlcv(sym_cfg) or []
                     if not ohlcv:
-                        _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
-                        _LOG.warning(
-                            "ohlcv_fetch_empty strategy=%s symbol=%s timeframe=%s "
-                            "— signal evidence will not be written this loop. "
-                            "Check exchange connectivity.",
-                            sym_cfg.get("name"), sym_cfg.get("symbol"), timeframe,
+                        if len(prices) >= int(cfg["min_bars"]):
+                            ts_ms = int(time.time() * 1000)
+                            m = float(prices[-1])
+                            bars = len(prices)
+                            selected_strategy = str(cfg.get("strategy_id") or "ema_cross")
+                            selection = {"selected_strategy_reason": "cached_public_ohlcv_prices"}
+                            signal = _strategy_signal(sym_cfg, prices[-int(cfg["max_bars"]):], ts_ms=ts_ms)
+                            _LOG.warning(
+                                "ohlcv_fetch_empty_reusing_cached_prices strategy=%s symbol=%s timeframe=%s bars=%s",
+                                sym_cfg.get("name"),
+                                sym_cfg.get("symbol"),
+                                timeframe,
+                                len(prices),
+                            )
+                        else:
+                            _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                            _LOG.warning(
+                                "ohlcv_fetch_empty strategy=%s symbol=%s timeframe=%s "
+                                "— signal evidence will not be written this loop. "
+                                "Check exchange connectivity.",
+                                sym_cfg.get("name"), sym_cfg.get("symbol"), timeframe,
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                    else:
+                        prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
+                        if loops % 5 == 0:
+                            sdb.set(k_prices, json.dumps(prices))
+
+                        __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
+                            f"len(ohlcv)={len(ohlcv)} signal_source={sym_cfg.get('signal_source')} symbol={sym_cfg.get('symbol')}\n"
                         )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
-                    if loops % 5 == 0:
-                        sdb.set(k_prices, json.dumps(prices))
-
-                    __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
-                        f"len(ohlcv)={len(ohlcv)} signal_source={sym_cfg.get('signal_source')} symbol={sym_cfg.get('symbol')}\n"
-                    )
-                    if len(ohlcv) < int(cfg["min_bars"]):
-                        _write_status(
-                            {
-                                "ok": True,
-                                "status": "running",
-                                "pid": os.getpid(),
-                                "ts": _now(),
-                                "mid": float(ohlcv[-1][4]),
-                                "bars": len(ohlcv),
-                                "note": "warming",
-                                "enqueued": enqueued,
-                                "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                                "strategy_source": cfg["signal_source"],
-                            }
+                        if len(ohlcv) < int(cfg["min_bars"]):
+                            _write_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "mid": float(ohlcv[-1][4]),
+                                    "bars": len(ohlcv),
+                                    "note": "warming",
+                                    "enqueued": enqueued,
+                                    "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                                    "strategy_source": cfg["signal_source"],
+                                }
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
+                        m = float(ohlcv[-1][4])
+                        selection = select_strategy(
+                            default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
+                            ohlcv=ohlcv[-int(cfg["min_bars"]):],
                         )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
-                    m = float(ohlcv[-1][4])
-                    selection = select_strategy(
-                        default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
-                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
-                    )
-                    selected_strategy = str(cfg.get("strategy_id") or selection.get("selected_strategy") or "ema_cross")
-                    raw_cfg = load_user_yaml()
-                    raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
-                    raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
+                        selected_strategy = str(cfg.get("strategy_id") or selection.get("selected_strategy") or "ema_cross")
+                        raw_cfg = load_user_yaml()
+                        raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
+                        raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
 
-                    selected_params = dict(raw_strategy)
-                    selected_params.pop("name", None)
-                    selected_params.pop("trade_enabled", None)
+                        selected_params = dict(raw_strategy)
+                        selected_params.pop("name", None)
+                        selected_params.pop("trade_enabled", None)
 
-                    selected_block = build_strategy_block(
-                        name=selected_strategy,
-                        trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
-                        params=selected_params,
-                    )
-                    signal = compute_signal(
-                        cfg={"strategy": selected_block},
-                        symbol=symbol,
-                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
-                    )
-                    bars = len(ohlcv)
+                        selected_block = build_strategy_block(
+                            name=selected_strategy,
+                            trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
+                            params=selected_params,
+                        )
+                        signal = compute_signal(
+                            cfg={"strategy": selected_block},
+                            symbol=symbol,
+                            ohlcv=ohlcv[-int(cfg["min_bars"]):],
+                        )
+                        bars = len(ohlcv)
                 else:
                     tick = _fetch_mid(sym_cfg)
                     if not tick:

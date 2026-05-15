@@ -19,7 +19,7 @@ from services.runtime.process_supervisor import stop_process, status
 
 logger = logging.getLogger(__name__)
 
-ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler", "ai_alert_monitor"]
 
 
 def main() -> int:
@@ -32,7 +32,7 @@ def main() -> int:
     ap.add_argument(
         "--all",
         action="store_true",
-        help="Stop pipeline, executor, intent_consumer, ops_signal_adapter, ops_risk_gate, reconciler",
+        help="Stop pipeline, executor, intent_consumer, ops_signal_adapter, ops_risk_gate, reconciler, ai_alert_monitor",
     )
     ap.add_argument("--pipeline", action="store_true")
     ap.add_argument("--executor", action="store_true")
@@ -40,6 +40,7 @@ def main() -> int:
     ap.add_argument("--ops_signal_adapter", action="store_true")
     ap.add_argument("--ops_risk_gate", action="store_true")
     ap.add_argument("--reconciler", action="store_true")
+    ap.add_argument("--ai_alert_monitor", action="store_true")
     args = ap.parse_args()
 
     targets = []
@@ -52,6 +53,7 @@ def main() -> int:
                 args.ops_signal_adapter,
                 args.ops_risk_gate,
                 args.reconciler,
+                args.ai_alert_monitor,
             ]
         )
     ):
@@ -69,6 +71,8 @@ def main() -> int:
             targets.append("ops_risk_gate")
         if args.reconciler:
             targets.append("reconciler")
+        if args.ai_alert_monitor:
+            targets.append("ai_alert_monitor")
 
     out = {t: stop_process(t) for t in targets}
     out["status"] = status(ALL_SERVICES)

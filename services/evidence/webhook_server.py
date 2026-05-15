@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 from services.admin.config_editor import load_user_yaml
 from services.evidence.ingest import ingest_event
 from services.os.app_paths import ensure_dirs, runtime_dir
+from services.security.direct_origin_guard import enforce_direct_origin_block
 
 FLAGS_DIR = runtime_dir() / "flags"
 STOP_FILE = FLAGS_DIR / "evidence_webhook.stop"
@@ -77,6 +78,13 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         if path != "/evidence":
             _write_json(self, 404, {"ok": False, "error": "not_found"})
+            return
+        try:
+            _auth_scope = str(os.environ.get("CBP_AUTH_SCOPE") or "local_private_only")
+            _outer = str(os.environ.get("CBP_OUTER_ACCESS_CONTROL") or "")
+            enforce_direct_origin_block(auth_scope=_auth_scope, outer_access_control=_outer, headers=dict(self.headers))
+        except PermissionError as _pe:
+            _write_json(self, 403, {"ok": False, "error": "origin_blocked", "detail": str(_pe)})
             return
 
         length = int(self.headers.get("Content-Length", "0") or 0)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import json
+from datetime import datetime, timezone
 
 
 def _reload_bot_runtime_truth(monkeypatch, tmp_path):
@@ -23,12 +24,17 @@ def _status_map(**running):
         "ops_risk_gate",
         "reconciler",
         "market_ws",
+        "ai_alert_monitor",
     )
     out = {}
     for idx, name in enumerate(names, start=1):
         alive = bool(running.get(name, False))
         out[name] = {"running": alive, "pid": 1000 + idx if alive else None}
     return out
+
+
+def _fresh_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
 def test_canonical_bot_status_prefers_process_supervisor(monkeypatch, tmp_path):
@@ -40,6 +46,41 @@ def test_canonical_bot_status_prefers_process_supervisor(monkeypatch, tmp_path):
     assert out.get("running") is True
     assert out.get("source") == "canonical_process_supervisor"
     assert out.get("state", {}).get("services", {}).get("intent_consumer", {}).get("running") is True
+
+
+def test_canonical_service_status_uses_fresh_status_file_when_pid_truth_missing(monkeypatch, tmp_path):
+    brt = _reload_bot_runtime_truth(monkeypatch, tmp_path)
+    monkeypatch.setattr(brt, "supervisor_status", lambda _names: _status_map())
+    monkeypatch.setattr(brt, "STATUS_FRESHNESS_SEC", 9999.0)
+
+    brt.CANONICAL_STATUS_FILES["pipeline"].parent.mkdir(parents=True, exist_ok=True)
+    brt.CANONICAL_STATUS_FILES["pipeline"].write_text(
+        json.dumps({"status": "running", "pid": 82964, "ts": _fresh_iso()}),
+        encoding="utf-8",
+    )
+
+    out = brt.canonical_service_status()
+
+    assert out["pipeline"]["running"] is True
+    assert out["pipeline"]["pid"] == 82964
+    assert out["pipeline"]["source"] == "canonical_status_file"
+
+
+def test_canonical_service_status_reads_live_intent_consumer_path_without_marking_blocked_running(monkeypatch, tmp_path):
+    brt = _reload_bot_runtime_truth(monkeypatch, tmp_path)
+    monkeypatch.setattr(brt, "supervisor_status", lambda _names: _status_map())
+    monkeypatch.setattr(brt, "STATUS_FRESHNESS_SEC", 9999.0)
+
+    brt.CANONICAL_STATUS_FILES["intent_consumer"].parent.mkdir(parents=True, exist_ok=True)
+    brt.CANONICAL_STATUS_FILES["intent_consumer"].write_text(
+        json.dumps({"status": "blocked", "ts": _fresh_iso()}),
+        encoding="utf-8",
+    )
+
+    out = brt.canonical_service_status()
+
+    assert str(brt.CANONICAL_STATUS_FILES["intent_consumer"]).endswith("live_intent_consumer.status.json")
+    assert out["intent_consumer"]["running"] is False
 
 
 def test_canonical_bot_status_does_not_silently_fallback_by_default(monkeypatch, tmp_path):

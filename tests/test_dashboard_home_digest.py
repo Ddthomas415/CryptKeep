@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from dashboard.services.digest import builders as home_digest
 
 
@@ -10,6 +12,23 @@ class _Decision:
         self.status = status
         self.reasons = reasons
         self.note = note
+
+
+@pytest.fixture(autouse=True)
+def _stub_supervised_soak_snapshot(monkeypatch):
+    monkeypatch.setattr(
+        home_digest,
+        "get_supervised_soak_snapshot",
+        lambda: {
+            "ok": True,
+            "result": "IN PROGRESS",
+            "counts_for_paper_gate": True,
+            "elapsed_hours": 12.5,
+            "remaining_hours": 155.5,
+            "symbols": {"runtime_matches_current_desired_state": True},
+            "section_4_1_entry": "Section 4.1 entry",
+        },
+    )
 
 
 def test_load_trading_cfg_uses_runtime_trading_config(monkeypatch) -> None:
@@ -110,12 +129,54 @@ def test_load_home_digest_reports_paper_truth(monkeypatch) -> None:
     assert payload["attention_now"]["items"][0]["title"] == "Runtime is paper-first"
     assert payload["leaderboard_summary"]["rows"] == []
     assert payload["mode_truth"]["current_mode"] == "paper"
+    assert payload["mode_truth"]["paper_gate_result"] == "IN PROGRESS"
+    assert payload["mode_truth"]["paper_gate_counts"] is True
+    assert payload["mode_truth"]["paper_gate_elapsed_hours"] == 12.5
     assert payload["mode_truth"]["promotion_stage"] == "Paper"
     assert payload["mode_truth"]["promotion_target"] == "Sandbox Live"
     assert payload["mode_truth"]["promotion_status"] == "warn"
     assert "real live submission" in payload["mode_truth"]["blocked"]
     assert "Stock support is not proven." in payload["claim_boundaries"]
     assert payload["next_best_action"]["title"] == "Runtime is paper-first"
+
+
+def test_build_mode_truth_digest_carries_paper_gate_truth() -> None:
+    payload = home_digest.build_mode_truth_digest(
+        as_of="2026-03-19T12:00:00Z",
+        runtime_context={
+            "mode_value": "paper",
+            "mode_label": "Paper",
+            "normalized_live_enabled": False,
+            "guard_allowed": False,
+            "armed": False,
+            "start_decision": _Decision(ok=True, mode="paper", status="OK", reasons=[], note="Paper start allowed"),
+        },
+        promotion_readiness={
+            "current_stage_label": "Paper",
+            "target_stage_label": "Sandbox Live",
+            "status": "warn",
+            "summary": "Paper gate is still running.",
+            "pass_criteria": [],
+            "rollback_criteria": [],
+            "blockers": [],
+        },
+        strategy_context={"raw_rows": []},
+        supervised_soak_snapshot={
+            "result": "IN PROGRESS",
+            "counts_for_paper_gate": True,
+            "elapsed_hours": 89.49,
+            "remaining_hours": 78.51,
+            "symbols": {"runtime_matches_current_desired_state": False},
+            "section_4_1_entry": "Section 4.1 entry text",
+        },
+    )
+
+    assert payload["paper_gate_result"] == "IN PROGRESS"
+    assert payload["paper_gate_counts"] is True
+    assert payload["paper_gate_elapsed_hours"] == 89.49
+    assert payload["paper_gate_remaining_hours"] == 78.51
+    assert payload["paper_gate_runtime_matches_current_desired_state"] is False
+    assert payload["paper_gate_entry"] == "Section 4.1 entry text"
 
 
 def test_load_home_digest_surfaces_blocked_live_attention(monkeypatch) -> None:
@@ -525,6 +586,12 @@ def test_build_next_best_action_digest_uses_top_row_caveat_when_attention_is_inf
             "label": "Paper",
             "allowed": [],
             "blocked": [],
+            "paper_gate_result": "IN PROGRESS",
+            "paper_gate_elapsed_hours": 12.5,
+            "paper_gate_remaining_hours": 155.5,
+            "paper_gate_counts": True,
+            "paper_gate_runtime_matches_current_desired_state": True,
+            "paper_gate_entry": "Section 4.1 entry",
             "promotion_stage": "Paper",
             "promotion_target": "Sandbox Live",
             "promotion_status": "warn",

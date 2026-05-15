@@ -15,8 +15,18 @@ def render_save_action(
     success_message: str,
     error_message: str,
     button_key: str | None = None,
+    required_role: str | None = None,
+    current_role: str | None = None,
 ) -> None:
     if st.button(button_label, type="primary", key=button_key):
+        if required_role is not None:
+            from dashboard.auth_gate import has_role as _has_role
+            if not _has_role(str(current_role or "VIEWER"), required_role):
+                st.error(
+                    f"{required_role} role required for this action. "
+                    f"Current role: {str(current_role or 'VIEWER').upper()}"
+                )
+                return
         st.session_state[session_key] = save_fn(payload)
 
     result = st.session_state.get(session_key)

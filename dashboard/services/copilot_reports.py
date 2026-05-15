@@ -19,6 +19,10 @@ def _parse_iso(value: Any) -> datetime | None:
 
 
 def _classify_report(payload: dict[str, Any]) -> str:
+    if str(payload.get("monitor_name") or "") == "ai_alert_monitor" and "events" in payload:
+        return "incident_monitor"
+    if str(payload.get("monitor_name") or "") == "paper_sim_monitor" and payload.get("watch_name") and payload.get("trigger"):
+        return "paper_sim_watch"
     if "risk_tier" in payload and "changed_files" in payload:
         return "repo_review"
     if "runtime" in payload and "place_order_contract" in payload:
@@ -176,6 +180,29 @@ def build_copilot_report_focus(*, kind: str, severity: str, payload: dict[str, A
         }
         if severity_text in {"warn", "critical"} and details["summary_text"]:
             message = f"{summary} {details['summary_text']}".strip()
+    elif str(kind or "") == "incident_monitor":
+        events = list((payload or {}).get("events") or [])
+        runtime = dict((payload or {}).get("runtime") or {})
+        details = {
+            "event_count": len(events),
+            "stopped_services": list(runtime.get("stopped_services") or []),
+            "running_services": list(runtime.get("running_services") or []),
+            "analysis_mode": str((payload or {}).get("analysis_mode") or "unknown"),
+        }
+    elif str(kind or "") == "paper_sim_watch":
+        desktop_notification = dict((payload or {}).get("desktop_notification") or {})
+        details = {
+            "watch_name": str((payload or {}).get("watch_name") or ""),
+            "trigger": str((payload or {}).get("trigger") or ""),
+            "strategy_label": str((payload or {}).get("strategy_label") or ""),
+            "symbol": str((payload or {}).get("symbol") or ""),
+            "recommendation": str((payload or {}).get("recommendation") or ""),
+            "notification_attempted": bool(desktop_notification.get("attempted")),
+            "notification_sent": bool(desktop_notification.get("sent")),
+            "notification_reason": str(desktop_notification.get("reason") or ""),
+        }
+        if severity_text in {"warn", "critical"} and details["notification_reason"]:
+            message = f"{summary} Desktop notification: {details['notification_reason']}".strip()
 
     return {
         "tone": tone,

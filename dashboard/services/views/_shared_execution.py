@@ -57,8 +57,22 @@ def _default_positions() -> list[dict[str, Any]]:
 
 def _default_recent_fills() -> list[dict[str, Any]]:
     return [
-        {"ts": "2026-03-11T12:20:00Z", "asset": "BTC", "side": "buy", "qty": 0.01, "price": 83500.0},
-        {"ts": "2026-03-11T11:05:00Z", "asset": "ETH", "side": "sell", "qty": 0.3, "price": 4390.0},
+        {
+            "ts": "2026-03-11T12:20:00Z",
+            "asset": "BTC",
+            "side": "buy",
+            "qty": 0.01,
+            "price": 83500.0,
+            "source": "synthetic_default",
+        },
+        {
+            "ts": "2026-03-11T11:05:00Z",
+            "asset": "ETH",
+            "side": "sell",
+            "qty": 0.3,
+            "price": 4390.0,
+            "source": "synthetic_default",
+        },
     ]
 
 
@@ -95,6 +109,7 @@ def _load_local_recent_fills(limit: int = 20) -> list[dict[str, Any]]:
                     "qty": float(item.get("qty") or 0.0),
                     "price": float(item.get("price") or 0.0),
                     "venue": str(item.get("venue") or ""),
+                    "source": "pnl_store",
                 }
                 for item in fills
                 if isinstance(item, dict) and _normalize_asset_symbol(item.get("symbol"))
@@ -119,6 +134,7 @@ def _load_local_recent_fills(limit: int = 20) -> list[dict[str, Any]]:
                     "qty": float(item.get("qty") or 0.0),
                     "price": float(item.get("price") or 0.0),
                     "venue": str(item.get("venue") or ""),
+                    "source": "live_fills",
                 }
                 for item in fills
                 if isinstance(item, dict) and _normalize_asset_symbol(item.get("symbol"))
@@ -143,6 +159,7 @@ def _load_local_recent_fills(limit: int = 20) -> list[dict[str, Any]]:
                     "qty": float(item.get("qty") or 0.0),
                     "price": float(item.get("price") or 0.0),
                     "venue": str(item.get("venue") or ""),
+                    "source": "execution_audit",
                 }
                 for item in fills
                 if isinstance(item, dict) and _normalize_asset_symbol(item.get("symbol"))
@@ -601,4 +618,3 @@ def _load_local_recent_activity(limit: int = 6) -> list[str]:
                 return deduped_decisions
 
     return []
-

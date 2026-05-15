@@ -32,12 +32,13 @@ from typing import Any
 
 from services.control.deployment_stage import (
     Stage, get_current_stage, force_safe_degraded,
-    action_allowed, stage_summary,
+    action_allowed, stage_summary, load_stage,
 )
 from services.control.cognitive_budget import (
     check_budget, record_alert, clear_alert,
 )
 from services.control.allocator import compute_allocation, allocation_summary
+from services.governance.decision_engine import decide as _governance_decide
 from services.logging.app_logger import get_logger, set_correlation_id
 
 _LOG = get_logger("control.kernel")
@@ -136,6 +137,12 @@ class ControlKernel:
         reasons: list[str] = []
         actions: list[str] = []
         stage = get_current_stage(self.strategy_id)
+
+        # ---- Governance gate: INVALID campaign state blocks all new risk ----
+        rec = load_stage(self.strategy_id)
+        campaign_state = str(rec.get("campaign_state") or "running")
+        if _governance_decide(campaign_state) == "BLOCK":
+            return self._result(ACTION_HALT, stage, [f"governance:campaign_state={campaign_state}"], metrics)
 
         # ---- Safe-Degraded: always halt ----
         if stage == Stage.SAFE_DEGRADED:

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import sys
 from types import SimpleNamespace
+from types import ModuleType
 
 from dashboard.services import operator as operator_service
 
@@ -105,6 +107,76 @@ def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
     assert "OPERATOR" in out
 
 
+def test_start_paper_strategy_evidence_collection_honors_desktop_notification_setting(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_strategy_evidence_service.load_runtime_status",
+        lambda: {"ok": True, "pid_alive": False, "status": "dead"},
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "load_user_yaml",
+        lambda: {
+            "dashboard_ui": {
+                "settings": {
+                    "notifications": {
+                        "desktop_notifications": False,
+                    }
+                }
+            }
+        },
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "start_repo_script_background",
+        lambda script_relpath, args=None, current_role="VIEWER": (
+            0,
+            f"{script_relpath}|{' '.join(str(x) for x in (args or []))}|{current_role}",
+        ),
+    )
+
+    rc, out = operator_service.start_paper_strategy_evidence_collection(
+        runtime_sec=600.0,
+        strategies=["sma_200_trend"],
+        symbol="BTC/USD",
+        venue="coinbase",
+        current_role="OPERATOR",
+    )
+
+    assert rc == 0
+    assert "scripts/run_paper_strategy_evidence_collector.py" in out
+    assert "--no-desktop-notify" in out
+
+
+def test_register_paper_sim_watch_wraps_monitor_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.register_watch",
+        lambda name="", trigger="": {"ok": True, "name": name, "trigger": trigger},
+    )
+
+    out = operator_service.register_paper_sim_watch(
+        name="next_fill",
+        trigger="new_fill",
+        current_role="OPERATOR",
+    )
+
+    assert out["ok"] is True
+    assert out["name"] == "next_fill"
+    assert out["trigger"] == "new_fill"
+
+
+def test_delete_paper_sim_watch_wraps_monitor_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.delete_watch",
+        lambda name="": {"ok": True, "name": name, "watch_count": 0},
+    )
+
+    out = operator_service.delete_paper_sim_watch(name="next_fill", current_role="OPERATOR")
+
+    assert out["ok"] is True
+    assert out["name"] == "next_fill"
+    assert out["watch_count"] == 0
+
+
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
     monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_consumer"])
     monkeypatch.setattr(
@@ -125,6 +197,16 @@ def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
         "unknown_services": 0,
         "last_health_ts": "2026-03-12T10:05:00Z",
     }
+
+
+def test_get_supervised_soak_snapshot_wraps_report_builder(monkeypatch):
+    fake_mod = ModuleType("scripts.report_supervised_soak_status")
+    fake_mod.build_report = lambda: {"ok": True, "result": "IN PROGRESS", "elapsed_hours": 12.5}
+    monkeypatch.setitem(sys.modules, "scripts.report_supervised_soak_status", fake_mod)
+
+    payload = operator_service.get_supervised_soak_snapshot()
+
+    assert payload == {"ok": True, "result": "IN PROGRESS", "elapsed_hours": 12.5}
 
 
 def test_run_full_system_diagnostics_wraps_core_service(monkeypatch):

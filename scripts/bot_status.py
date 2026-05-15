@@ -11,13 +11,14 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-from services.runtime.process_supervisor import status
+from services.process.bot_runtime_truth import canonical_service_status
 
-ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
+ALL_SERVICES = ["pipeline", "executor", "intent_consumer", "ops_signal_adapter", "ops_risk_gate", "reconciler", "ai_alert_monitor"]
 
 
 def main() -> int:
-    print(status(ALL_SERVICES))
+    rows = canonical_service_status()
+    print({name: {"running": bool((rows.get(name) or {}).get("running")), "pid": (rows.get(name) or {}).get("pid")} for name in ALL_SERVICES})
     return 0
 
 if __name__ == "__main__":

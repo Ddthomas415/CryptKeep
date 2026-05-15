@@ -72,3 +72,33 @@ def test_run_pipeline_once_uses_runtime_config(monkeypatch):
     assert captured["cfg"].exchange_id == "coinbase"
     assert captured["cfg"].symbol == "BTC/USD"
     assert captured["cfg"].mode == "paper"
+
+
+def test_run_pipeline_once_runs_all_managed_symbols(monkeypatch):
+    built: list[str] = []
+
+    monkeypatch.setattr(
+        run_pipeline_once,
+        "load_runtime_trading_config",
+        lambda: {
+            "pipeline": {"exchange_id": "coinbase", "strategy": "ema", "symbols": ["BTC/USD", "ETH/USD"]},
+            "execution": {"executor_mode": "paper", "db_path": "/tmp/execution.sqlite", "symbols": ["BTC/USD", "ETH/USD"]},
+            "symbols": ["BTC/USDT", "ETH/USDT"],
+        },
+    )
+
+    class _FakePipeline:
+        def __init__(self, symbol: str):
+            self.symbol = symbol
+
+        def run_once(self):
+            return {"ok": True, "symbol": self.symbol}
+
+    def _build(cfg):
+        built.append(cfg.symbol)
+        return _FakePipeline(cfg.symbol)
+
+    monkeypatch.setattr(run_pipeline_once, "build_pipeline", _build)
+
+    assert run_pipeline_once.main() == 0
+    assert built == ["BTC/USD", "ETH/USD"]

@@ -19,6 +19,7 @@ def _load(path: Path):
 @pytest.mark.parametrize(
     "rel_path",
     [
+        "scripts/run_pipeline_safe.py",
         "scripts/run_intent_executor_safe.py",
         "scripts/run_intent_reconciler_safe.py",
         "scripts/run_intent_consumer_safe.py",

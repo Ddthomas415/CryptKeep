@@ -31,6 +31,8 @@ def test_scripts_use_shared_bootstrap_helper():
         "scripts/run_tick_publisher.py",
         "scripts/run_ws_ticker_feed.py",
         "scripts/run_ws_ticker_feed_safe.py",
+        "scripts/run_ai_alert_monitor.py",
+        "scripts/run_pipeline_safe.py",
         "scripts/run_intent_executor.py",
         "scripts/run_intent_executor_safe.py",
         "scripts/run_intent_consumer_safe.py",

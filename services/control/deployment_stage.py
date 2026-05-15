@@ -30,6 +30,7 @@ from typing import Any
 from services.os.app_paths import data_dir
 from services.os.file_utils import atomic_write
 from services.logging.app_logger import get_logger
+from services.governance.campaign_state_machine import can_transition as _governance_can_transition
 
 _LOG = get_logger("control.deployment_stage")
 
@@ -116,6 +117,11 @@ def promote(strategy_id: str, *, reason: str, actor: str = "system") -> dict[str
 
     if current == Stage.SAFE_DEGRADED:
         return {"ok": False, "reason": "cannot_promote_from_safe_degraded", "stage": current.value}
+
+    # Governance gate: reject promotion if campaign_state is INVALID
+    campaign_state = str(rec.get("campaign_state") or "running")
+    if not _governance_can_transition(campaign_state, "running"):
+        return {"ok": False, "reason": f"governance_blocked:cannot_leave_{campaign_state}", "stage": current.value}
 
     idx = _PROMOTION_ORDER.index(current) if current in _PROMOTION_ORDER else -1
     if idx >= len(_PROMOTION_ORDER) - 1:

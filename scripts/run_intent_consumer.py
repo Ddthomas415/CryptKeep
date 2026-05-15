@@ -14,7 +14,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 
 import argparse
-from services.execution.intent_consumer import run_forever, request_stop
+from services.execution.live_intent_consumer import run_forever, request_stop
 
 def main():
     ap = argparse.ArgumentParser()

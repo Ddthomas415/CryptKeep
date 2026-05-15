@@ -13,6 +13,15 @@ import services.risk as risk_pkg
 import services.risk.killswitch as killswitch_mod
 
 
+@pytest.fixture(autouse=True)
+def _isolate_place_order_data_dir(monkeypatch, tmp_path):
+    data_root = tmp_path / "data"
+    data_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(po, "data_dir", lambda: data_root)
+    monkeypatch.setattr(po, "_enforce_system_health", lambda: None)
+    return data_root
+
+
 class DummyExchange:
     id = "coinbase"
 

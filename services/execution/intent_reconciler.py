@@ -103,16 +103,6 @@ def reconcile_once(
             intents_updated += 1
             continue
         if st == "filled":
-            paper_queue_status(
-                qdb,
-                it,
-                "filled",
-                ctx=ctx,
-                last_error=None,
-                client_order_id=it.get("client_order_id"),
-                linked_order_id=order_id,
-            )
-            intents_updated += 1
             fills = pdb.list_fills_for_order(order_id, limit=5000)
             pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
             meta = dict(it.get("meta") or {})
@@ -159,6 +149,16 @@ def reconcile_once(
                     **journal_row,
                 })
                 fills_journaled += 1
+            paper_queue_status(
+                qdb,
+                it,
+                "filled",
+                ctx=ctx,
+                last_error=None,
+                client_order_id=it.get("client_order_id"),
+                linked_order_id=order_id,
+            )
+            intents_updated += 1
 
     return {
         "submitted_checked": int(len(submitted)),

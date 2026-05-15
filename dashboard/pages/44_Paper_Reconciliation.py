@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from dashboard.auth_gate import require_authenticated_role
+from dashboard.auth_gate import require_authenticated_role, has_role
 from services.execution.paper_reconciliation import reconcile_execution_plan_intents
 
 AUTH_STATE = require_authenticated_role("VIEWER")
@@ -23,8 +23,11 @@ if "paper_recon_result" not in st.session_state:
     st.session_state["paper_recon_result"] = None
 
 if run_now:
-    with st.spinner("Reconciling queued intents..."):
-        st.session_state["paper_recon_result"] = reconcile_execution_plan_intents(
+    if not has_role(CURRENT_ROLE, "OPERATOR"):
+        st.error("Operator role required to run paper reconciliation. Current role: " + CURRENT_ROLE)
+    else:
+        with st.spinner("Reconciling queued intents..."):
+            st.session_state["paper_recon_result"] = reconcile_execution_plan_intents(
             default_fill_price=float(default_fill_price),
             venue=str(venue),
         )

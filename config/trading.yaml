@@ -24,6 +24,21 @@ symbols:
   - BTC/USDT
   - ETH/USDT
 
+managed_symbols:
+  source: scanner   # static | scanner
+  refresh_sec: 300.0
+  top_n: 2
+  min_hot_score: 25.0
+  min_change_pct: 2.5
+  min_volume_24h: 100000.0
+  preserve_active: true
+  preserve_position_max_age_sec: 604800.0
+  preserve_intent_max_age_sec: 86400.0
+  preserve_intent_statuses:
+    - queued
+    - submitting
+    - submitted
+
 strategy:
   type: ema_crossover
   ema:
@@ -76,6 +91,9 @@ execution:
   executor_mode: paper
   venue: coinbase
   symbol: BTC/USD
+  symbols:
+    - BTC/USD
+    - ETH/USD
   loop_interval_sec: 2
   reconcile_every_sec: 30
 
@@ -86,6 +104,9 @@ pipeline:
   strategy: ema
   exchange_id: coinbase
   symbol: BTC/USD
+  symbols:
+    - BTC/USD
+    - ETH/USD
   timeframe: 5m
   ohlcv_limit: 200
   ema_fast: 12

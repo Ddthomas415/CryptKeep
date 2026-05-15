@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -142,6 +143,43 @@ def _check_evidence_logs(evidence_dir: Path) -> bool | None:
     return len(logs) > 0
 
 
+def _build_campaign_cfg(strategy_cfg: dict, *, symbol: str, venue: str):
+    from services.analytics.paper_strategy_evidence_service import PaperStrategyEvidenceServiceCfg
+
+    return PaperStrategyEvidenceServiceCfg(
+        strategies=("sma_200_trend",),
+        symbol=symbol,
+        venue=venue,
+        per_strategy_runtime_sec=float(
+            os.environ.get("CBP_PAPER_RUNTIME_SEC")
+            or strategy_cfg.get("paper_runtime_sec", 3600.0)
+        ),
+        # public_ohlcv_1d: fetch daily OHLCV bars so signal_from_ohlcv() is called.
+        # Without this, ema_crossover_runner falls into the tick-based price path
+        # which never calls compute_signal() via the registry — signal evidence never writes.
+        signal_source="public_ohlcv_1d",
+        # The dedicated ES evidence window is intended to prove first-entry signal emission.
+        # Make that contract explicit here instead of relying on inherited shell env.
+        allow_first_signal_trade=True,
+    )
+
+
+def _apply_strategy_runtime_env(strategy_cfg: dict, risk: dict, *, symbol: str, venue: str) -> None:
+    halt_pct = float(risk.get("daily_loss_halt_pct", 1.5))
+    _LOG.info("daily_loss_halt_pct=%s%% (from strategy config)", halt_pct)
+    os.environ["CBP_DAILY_LOSS_HALT_PCT"] = str(halt_pct)
+    os.environ["CBP_SYMBOLS"] = symbol
+    os.environ["CBP_VENUE"] = venue
+    # The managed child runner reads env at process start. Set this explicitly
+    # in the parent runtime as well as the campaign config.
+    os.environ["CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE"] = "1"
+
+    use_advisor = str(strategy_cfg.get("use_candidate_advisor", "")).strip().lower()
+    if use_advisor in ("1", "true", "yes"):
+        os.environ["CBP_USE_CANDIDATE_ADVISOR"] = "1"
+        _LOG.info("candidate_advisor enabled via strategy config")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="ES Daily Trend v1 paper runner")
     ap.add_argument("--status",           action="store_true", help="Show current status")
@@ -200,40 +238,14 @@ def main() -> int:
 
     # Apply strategy-specific env vars from config
     try:
-        import os
-        halt_pct = float(risk.get("daily_loss_halt_pct", 1.5))
-        _LOG.info("daily_loss_halt_pct=%s%% (from strategy config)", halt_pct)
-        os.environ["CBP_DAILY_LOSS_HALT_PCT"] = str(halt_pct)
-        os.environ["CBP_SYMBOLS"] = symbol
-        os.environ["CBP_VENUE"] = venue
-        # Enable candidate advisor if configured in strategy config
-        use_advisor = str(strategy_cfg.get("use_candidate_advisor", "")).strip().lower()
-        if use_advisor in ("1", "true", "yes"):
-            os.environ["CBP_USE_CANDIDATE_ADVISOR"] = "1"
-            _LOG.info("candidate_advisor enabled via strategy config")
+        _apply_strategy_runtime_env(strategy_cfg, risk, symbol=symbol, venue=venue)
     except Exception as _e:
         _LOG.warning("could not set env vars from strategy config: %s", _e)
 
     # Run the paper evidence collection campaign
-    from services.analytics.paper_strategy_evidence_service import (
-        PaperStrategyEvidenceServiceCfg, run_campaign,
-    )
+    from services.analytics.paper_strategy_evidence_service import run_campaign
 
-    campaign_cfg = PaperStrategyEvidenceServiceCfg(
-        strategies=("sma_200_trend",),
-        symbol=symbol,
-        venue=venue,
-        per_strategy_runtime_sec=float(
-            # CBP_PAPER_RUNTIME_SEC allows short runs for dev/test without editing config
-            # Example: CBP_PAPER_RUNTIME_SEC=60 make paper-run
-            os.environ.get("CBP_PAPER_RUNTIME_SEC")
-            or strategy_cfg.get("paper_runtime_sec", 3600.0)
-        ),
-        # public_ohlcv_1d: fetch daily OHLCV bars so signal_from_ohlcv() is called.
-        # Without this, ema_crossover_runner falls into the tick-based price path
-        # which never calls compute_signal() via the registry — signal evidence never writes.
-        signal_source="public_ohlcv_1d",
-    )
+    campaign_cfg = _build_campaign_cfg(strategy_cfg, symbol=symbol, venue=venue)
 
     _LOG.info("starting paper run for %s stage=%s", STRATEGY_ID, stage_msg)
 

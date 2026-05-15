@@ -10,11 +10,11 @@ Called by: paper_strategy_evidence_service.run_campaign()
 """
 from __future__ import annotations
 
-import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.os.app_paths import data_dir, code_root
+from services.os.app_paths import data_dir, code_root, state_root
 from services.logging.app_logger import get_logger
 
 _LOG = get_logger("analytics.paper_evidence_artifacts")
@@ -51,9 +51,34 @@ def latest_leaderboard_artifact(strategy_id: str | None = None) -> dict[str, Any
     return out
 
 
+def decision_record_dir(*, create: bool = False) -> Path:
+    """Return the canonical decision-record directory for the active state root.
+
+    Normal repo-state runs continue to publish tracked records under docs/strategies.
+    Isolated CBP_STATE_DIR runs keep records under the selected state root so proof
+    runs do not dirty the repo worktree.
+    """
+    repo_state = (code_root() / ".cbp_state").resolve()
+    active_state = state_root().resolve()
+    if active_state == repo_state:
+        root = (code_root() / "docs" / "strategies").resolve()
+    else:
+        root = (data_dir() / "strategy_evidence").resolve()
+    if create:
+        root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def default_decision_record_path(*, report: dict[str, Any] | None = None) -> Path:
+    payload = dict(report or {})
+    as_of = str(payload.get("as_of") or datetime.now(timezone.utc).isoformat())
+    date_token = as_of.split("T", 1)[0]
+    return (decision_record_dir(create=True) / f"decision_record_{date_token}.md").resolve()
+
+
 def latest_decision_record() -> dict[str, Any]:
     """Return the most recent decision record artifact."""
-    root = (code_root() / "docs" / "strategies").resolve()
+    root = decision_record_dir()
     records = sorted(path.resolve() for path in root.glob("decision_record_*.md"))
     if not records:
         return {}

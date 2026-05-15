@@ -3,50 +3,49 @@ from __future__ import annotations
 from scripts import bot_status, start_bot, stop_bot
 
 
-def test_start_bot_starts_ops_risk_gate_by_default(monkeypatch):
-    started: list[str] = []
-    cmds: dict[str, list[str]] = {}
-    status_calls: list[list[str]] = []
-
-    def _start_process(name, cmd):
-        started.append(str(name))
-        cmds[str(name)] = list(cmd)
-        return {"ok": True, "name": name}
+def test_start_bot_converges_paper_topology(monkeypatch):
+    statuses: list[dict[str, object]] = []
 
     monkeypatch.setattr(
-        start_bot,
-        "start_process",
-        _start_process,
+        start_bot.rbr,
+        "load_trading_cfg",
+        lambda: {
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
+            "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
+            "symbols": ["BTC/USD"],
+        },
     )
-    monkeypatch.setattr(start_bot, "status", lambda names: status_calls.append(list(names)) or {})
+    monkeypatch.setattr(start_bot.rbr, "apply_state", lambda state, *, force_restart=False: {"ok": True, "started": [], "stopped": [], "status": {}, "state": state, "force_restart": force_restart})
+    monkeypatch.setattr(start_bot.rbr, "write_status", lambda payload: statuses.append(dict(payload)))
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate"]
-    assert cmds["executor"] == [start_bot.sys.executable, "scripts/run_intent_executor_safe.py"]
-    assert status_calls == [start_bot.ALL_SERVICES]
+    assert statuses[-1]["status"] == "converged"
+    assert statuses[-1]["one_shot"] is True
+    assert statuses[-1]["state"]["mode"] == "paper"
 
 
-def test_start_bot_with_reconcile_starts_reconciler(monkeypatch):
-    started: list[str] = []
-    cmds: dict[str, list[str]] = {}
-
-    def _start_process(name, cmd):
-        started.append(str(name))
-        cmds[str(name)] = list(cmd)
-        return {"ok": True, "name": name}
+def test_start_bot_with_reconcile_converges_reconciler(monkeypatch):
+    statuses: list[dict[str, object]] = []
 
     monkeypatch.setattr(
-        start_bot,
-        "start_process",
-        _start_process,
+        start_bot.rbr,
+        "load_trading_cfg",
+        lambda: {
+            "execution": {"executor_mode": "paper", "live_enabled": False, "venue": "coinbase"},
+            "live": {"exchange_id": "coinbase"},
+            "pipeline": {"exchange_id": "coinbase"},
+            "symbols": ["BTC/USD"],
+        },
     )
-    monkeypatch.setattr(start_bot, "status", lambda _names: {})
+    monkeypatch.setattr(start_bot.rbr, "apply_state", lambda state, *, force_restart=False: {"ok": True, "started": [], "stopped": [], "status": {}, "state": state, "force_restart": force_restart})
+    monkeypatch.setattr(start_bot.rbr, "write_status", lambda payload: statuses.append(dict(payload)))
     monkeypatch.setattr(start_bot.sys, "argv", ["start_bot.py", "--with_reconcile"])
 
     assert start_bot.main() == 0
-    assert started == ["pipeline", "executor", "ops_signal_adapter", "ops_risk_gate", "reconciler"]
-    assert cmds["reconciler"] == [start_bot.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
+    assert statuses[-1]["status"] == "converged"
+    assert statuses[-1]["state"]["with_reconcile"] is True
 
 
 def test_stop_bot_defaults_to_all_services(monkeypatch):
@@ -95,10 +94,12 @@ def test_stop_bot_can_target_ops_signal_adapter_only(monkeypatch):
     assert stopped == ["ops_signal_adapter"]
 
 
-def test_bot_status_includes_ops_risk_gate(monkeypatch):
-    status_calls: list[list[str]] = []
-
-    monkeypatch.setattr(bot_status, "status", lambda names: status_calls.append(list(names)) or {})
+def test_bot_status_includes_ai_alert_monitor(monkeypatch):
+    monkeypatch.setattr(
+        bot_status,
+        "canonical_service_status",
+        lambda: {name: {"running": name == "ai_alert_monitor", "pid": 42 if name == "ai_alert_monitor" else None} for name in bot_status.ALL_SERVICES},
+    )
 
     assert bot_status.main() == 0
-    assert status_calls == [bot_status.ALL_SERVICES]
+    assert "ai_alert_monitor" in bot_status.ALL_SERVICES

@@ -26,7 +26,9 @@ account with ADMIN role. "Any" means any process or script.
 
 - No action in the "ADMIN only" row may be performed from the dashboard.
 - `resume_if_safe()` checks `live_guard` before setting RUNNING — it cannot
-  be bypassed from the UI.
+  be bypassed from the UI. If `execution.live_enabled` was turned off by the
+  halt flow, `resume_if_safe()` restores that persisted flag before re-running
+  the guard checks.
 - `disable_live_now()` is always available to OPERATOR. There is no role
   restriction on halting.
 - A process restart is required for any environment variable change to take

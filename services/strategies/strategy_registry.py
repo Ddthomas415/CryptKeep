@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from services.strategies.ema_cross import signal_from_ohlcv as ema_cross
 from services.strategies.mean_reversion_rsi import signal_from_ohlcv as mean_rev_rsi
 from services.strategies.breakout_donchian import signal_from_ohlcv as breakout_donchian
@@ -22,11 +24,14 @@ SUPPORTED = {
     "sma_200_trend": es_daily_trend_signal,      # ES Daily Trend v1 — daily 200-SMA
 }
 
+_LOG = logging.getLogger(__name__)
+
 def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
     st = cfg.get("strategy") if isinstance(cfg.get("strategy"), dict) else {}
-    name = str(st.get("name", "ema_cross")).strip()
+    name = str(st.get("name") or "ema_cross").strip() or "ema_cross"
     if name not in SUPPORTED:
-        name = "ema_cross"
+        _LOG.warning("unknown strategy requested: %s", name)
+        return {"ok": False, "action": "hold", "reason": "unknown_strategy", "strategy": name, "symbol": symbol}
 
     if not bool(st.get("trade_enabled", True)):
         return {"ok": True, "action": "hold", "reason": "trade_disabled", "strategy": name, "symbol": symbol}
@@ -172,4 +177,4 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
             "symbol": symbol,
         }
 
-    return {"ok": True, "action": "hold", "reason": "unknown_strategy", "strategy": name, "symbol": symbol}
+    return {"ok": False, "action": "hold", "reason": "unknown_strategy", "strategy": name, "symbol": symbol}

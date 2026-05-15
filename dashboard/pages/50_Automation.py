@@ -13,6 +13,7 @@ from dashboard.services.view_data import get_automation_view, update_automation_
 from services.preflight.preflight import SUPPORTED_EXCHANGES
 
 AUTH_STATE = require_authenticated_role("VIEWER")
+CURRENT_ROLE = str(AUTH_STATE.get("role") or "VIEWER")
 render_app_sidebar()
 automation_view = get_automation_view()
 default_mode_options = ["research_only", "paper", "live_approval", "live_auto"]
@@ -126,7 +127,10 @@ with form_col:
 
         col_a, col_b = st.columns((1, 1))
         with col_a:
-            enable_automation_value = st.toggle("Enable automation", value=bool(automation_view.get("execution_enabled")))
+            enable_automation_value = st.toggle(
+                "Enable automation",
+                value=bool(automation_view.get("automation_enabled", automation_view.get("execution_enabled"))),
+            )
             dry_run_mode_value = st.toggle("Dry run mode", value=bool(automation_view.get("dry_run_mode")))
             default_mode_value = st.selectbox("Default mode", default_mode_options, index=default_mode_options.index(default_mode))
 
@@ -219,7 +223,9 @@ render_save_action(
     button_key="ck_automation_save_button",
     session_key="ck_automation_save_result",
     payload=payload,
-    save_fn=update_automation_view,
+    save_fn=lambda body: update_automation_view(body, current_role=str(AUTH_STATE.get("role") or "VIEWER")),
     success_message="Automation settings saved.",
     error_message="Automation settings save failed.",
+    required_role="OPERATOR",
+    current_role=CURRENT_ROLE,
 )

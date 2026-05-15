@@ -28,8 +28,12 @@ def test_run_intent_executor_writes_status_file(monkeypatch, tmp_path):
     mod = _reload_intent_executor(monkeypatch, tmp_path)
     monkeypatch.setattr(
         mod,
-        "load_user_yaml",
-        lambda: {"execution": {"venue": "coinbase", "mode": "paper", "loop_interval_sec": 1, "reconcile_every_sec": 1}},
+        "load_runtime_trading_config",
+        lambda: {
+            "execution": {"venue": "coinbase", "executor_mode": "paper", "loop_interval_sec": 1, "reconcile_every_sec": 1},
+            "pipeline": {"exchange_id": "coinbase"},
+            "symbols": ["BTC/USD", "ETH/USD"],
+        },
     )
     monkeypatch.setattr(mod, "execute_one", lambda cfg, venue, mode: None)
     monkeypatch.setattr(mod, "reconcile_open", lambda *args, **kwargs: None)
@@ -39,6 +43,8 @@ def test_run_intent_executor_writes_status_file(monkeypatch, tmp_path):
     payload = json.loads(mod.STATUS_FILE.read_text(encoding="utf-8"))
     assert payload.get("status") == "stopped"
     assert payload.get("venue") == "coinbase"
+    assert payload.get("symbol") is None
+    assert payload.get("symbols") == ["BTC/USD", "ETH/USD"]
 
 
 def test_run_pipeline_loop_writes_status_file(monkeypatch, tmp_path):
@@ -49,7 +55,7 @@ def test_run_pipeline_loop_writes_status_file(monkeypatch, tmp_path):
         lambda: {
             "pipeline": {"poll_sec": 1, "exchange_id": "coinbase", "strategy": "ema"},
             "execution": {"executor_mode": "paper"},
-            "symbols": ["BTC/USD"],
+            "symbols": ["BTC/USD", "ETH/USD"],
         },
     )
 
@@ -66,3 +72,5 @@ def test_run_pipeline_loop_writes_status_file(monkeypatch, tmp_path):
     payload = json.loads(mod.STATUS_FILE.read_text(encoding="utf-8"))
     assert payload.get("status") == "stopped"
     assert payload.get("exchange") == "coinbase"
+    assert payload.get("symbols") == ["BTC/USD", "ETH/USD"]
+    assert payload.get("last_reason") == "multi_symbol_cycle"

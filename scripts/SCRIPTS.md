@@ -8,6 +8,8 @@ Use `make script-index` for a quick operational reference.
 | Script | Make target | Purpose |
 |---|---|---|
 | `run_es_daily_trend_paper.py` | `make paper-run` | Run paper campaign |
+| `run_paper_strategy_evidence_collector.py` | `[fill in if used]` | Run managed paper strategy evidence campaigns |
+| `run_paper_sim_monitor.py` | `[fill in if used]` | Monitor paper strategy, fills, PnL, evidence progress, named watch triggers, and local desktop notifications |
 | `check_promotion_gates.py` | `make check-gates` | Promotion gate status |
 | `killswitch.py` | `make kill-switch-on/off` | Arm/disarm kill switch |
 | `show_live_gate_inputs.py` | `make gate-inputs` | Live gate current values |
@@ -21,6 +23,7 @@ Use `make script-index` for a quick operational reference.
 | Script | Purpose |
 |---|---|
 | `report_paper_run_diagnostics.py` | Paper run diagnostic report |
+| `report_supervised_soak_status.py` | Supervised paper-soak Section 4.1 report |
 | `review_candidate_outcomes.py` | Candidate outcome review |
 | `ingest_evidence.py` | Ingest external evidence |
 | `export_diagnostics.py` | Export system diagnostics |
@@ -46,6 +49,7 @@ Use `make script-index` for a quick operational reference.
 | `run_ws_ticker_feed_safe.py` | Managed-safe wrapper for WebSocket ticker feed |
 | `collect_live_crypto_edge_snapshot.py` | Live edge snapshot |
 | `run_crypto_edge_collector_loop.py` | Continuous edge collection |
+| `run_ai_alert_monitor.py` | AI alert monitor status and recent incident reports |
 
 ## Live Trading (shadow/capped_live stages only)
 

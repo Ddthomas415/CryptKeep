@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import signal
 import subprocess
@@ -15,6 +16,20 @@ from services.logging.app_logger import get_logger
 ensure_dirs()
 RUNTIME_DIR = runtime_dir()
 logger = get_logger("process_supervisor")
+FLAGS_DIR = RUNTIME_DIR / "flags"
+HEALTH_DIR = RUNTIME_DIR / "health"
+
+SERVICE_STATUS_PATHS = {
+    "pipeline": FLAGS_DIR / "pipeline.status.json",
+    "executor": FLAGS_DIR / "intent_executor.status.json",
+    "intent_consumer": FLAGS_DIR / "live_intent_consumer.status.json",
+    "reconciler": FLAGS_DIR / "live_reconciler.status.json",
+    "ops_signal_adapter": HEALTH_DIR / "ops_signal_adapter.json",
+    "ops_risk_gate": HEALTH_DIR / "ops_risk_gate_service.json",
+    "ai_alert_monitor": HEALTH_DIR / "ai_alert_monitor.json",
+}
+
+UNHEALTHY_STATUSES = {"safe_idle", "blocked", "error", "failed", "crashed"}
 
 def _pidfile(name: str) -> Path:
     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
@@ -40,6 +55,32 @@ def _clear_pid(name: str) -> None:
     except Exception:
         logger.exception("process_supervisor: failed to remove pid file path=%s", p)
 
+def _load_json(path: Path) -> dict[str, object]:
+    try:
+        if not path.exists():
+            return {}
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+def _service_status_payload(name: str) -> dict[str, object]:
+    path = SERVICE_STATUS_PATHS.get(name)
+    if path is None:
+        return {}
+    payload = _load_json(path)
+    if payload:
+        payload["_path"] = str(path)
+    return payload
+
+def _service_healthy(*, running: bool, status_value: object) -> bool:
+    if not running:
+        return False
+    normalized = str(status_value or "").strip().lower()
+    if normalized in UNHEALTHY_STATUSES:
+        return False
+    return True
+
 def is_running(name: str) -> bool:
     pid = _read_pid(name)
     if not pid:
@@ -52,7 +93,7 @@ def is_running(name: str) -> bool:
         _clear_pid(name)
         return False
 
-def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
+def start_process(name: str, cmd: list[str], *, env: Dict[str, str] | None = None) -> Dict[str, object]:
     if is_running(name):
         return {"ok": True, "note": "already_running", "name": name, "pid": _read_pid(name), "cmd": cmd}
 
@@ -68,9 +109,14 @@ def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_fh = open(log_path, "a", buffering=1)
 
+    child_env = os.environ.copy()
+    if env:
+        child_env.update({str(k): str(v) for k, v in env.items()})
+
     proc = subprocess.Popen(
         cmd,
         cwd=str(code_root()),
+        env=child_env,
         stdout=log_fh,
         stderr=log_fh,
         **kwargs,
@@ -145,5 +191,19 @@ def stop_process(name: str, timeout_sec: float = 5.0) -> Dict[str, object]:
 def status(names: list[str]) -> Dict[str, object]:
     out = {}
     for n in names:
-        out[n] = {"running": is_running(n), "pid": _read_pid(n)}
+        running = is_running(n)
+        pid = _read_pid(n)
+        payload = _service_status_payload(n)
+        status_value = payload.get("status") or ("running" if running else "not_running")
+        out[n] = {
+            "running": running,
+            "pid": pid,
+            "status": status_value,
+            "reason": payload.get("reason"),
+            "healthy": _service_healthy(running=running, status_value=status_value),
+        }
+        if payload.get("ts_epoch") is not None:
+            out[n]["ts_epoch"] = payload.get("ts_epoch")
+        if payload.get("_path"):
+            out[n]["status_path"] = payload.get("_path")
     return out

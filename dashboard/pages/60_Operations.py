@@ -31,10 +31,13 @@ from dashboard.services.crypto_edge_research import (
 )
 from dashboard.services.operator import (
     apply_safe_system_self_repair,
+    delete_paper_sim_watch,
     export_diagnostics_bundle,
     get_operations_snapshot,
+    get_supervised_soak_snapshot,
     list_services,
     preview_safe_system_self_repair,
+    register_paper_sim_watch,
     run_op,
     run_dashboard_streamlit_diagnostics,
     run_full_system_diagnostics,
@@ -45,7 +48,10 @@ from dashboard.services.operator import (
     stop_paper_strategy_evidence_collection,
 )
 from dashboard.services.operator_tools import synthetic_ohlcv
-from dashboard.services.strategy_evidence_runtime import load_paper_strategy_evidence_runtime
+from dashboard.services.strategy_evidence_runtime import (
+    load_paper_sim_monitor_runtime,
+    load_paper_strategy_evidence_runtime,
+)
 from dashboard.services.strategy_evaluation import (
     build_hypothesis_sections,
     build_leaderboard_table_rows,
@@ -85,11 +91,23 @@ try:
     snapshot = get_operations_snapshot()
 except PermissionError:
     snapshot = {}
+try:
+    soak_snapshot = get_supervised_soak_snapshot()
+except PermissionError:
+    soak_snapshot = {}
 live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
 paper_evidence_runtime = load_paper_strategy_evidence_runtime()
+paper_sim_monitor_runtime = load_paper_sim_monitor_runtime()
 system_diagnostics = run_full_system_diagnostics(export_bundle=False, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
+PAPER_SIM_WATCH_TRIGGER_OPTIONS = (
+    "new_fill",
+    "position_opened",
+    "position_closed",
+    "campaign_completed",
+    "recommendation_investigate",
+)
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
 
@@ -142,6 +160,75 @@ with st.container(border=True):
         "Read-only analysis of current system state. "
         "The copilot cannot arm trading, submit orders, or modify any data."
     )
+    try:
+        from services.ai_copilot.alert_monitor import load_runtime_status as _load_ai_alert_monitor_status
+        from services.ai_copilot.alert_monitor import list_recent_incidents as _list_ai_alert_monitor_incidents
+
+        _ai_monitor_status = _load_ai_alert_monitor_status()
+        _recent_monitor_incidents = _list_ai_alert_monitor_incidents(limit=3)
+    except Exception as _exc:
+        _ai_monitor_status = {"ok": False, "status": "error", "reason": str(_exc)}
+        _recent_monitor_incidents = []
+
+    _mon0, _mon1, _mon2 = st.columns(3)
+    _mon0.metric("AI Monitor", str(_ai_monitor_status.get("status") or "unknown"))
+    _mon1.metric("Incidents", str(int(_ai_monitor_status.get("incidents_written") or 0)))
+    _mon2.metric("Last Report", str(_ai_monitor_status.get("last_report_stem") or "none"))
+    if _recent_monitor_incidents:
+        with st.expander("Recent AI Monitor Incidents", expanded=False):
+            for _row in _recent_monitor_incidents:
+                st.write(
+                    {
+                        "generated_at": str(_row.get("generated_at") or ""),
+                        "severity": str(_row.get("severity") or "unknown"),
+                        "summary": str(_row.get("summary") or ""),
+                        "event_count": int(_row.get("event_count") or 0),
+                    }
+                )
+    st.markdown("#### Paper Sim Watch Monitor")
+    _ps0, _ps1, _ps2, _ps3 = st.columns(4)
+    _ps0.metric("Monitor", str(paper_sim_monitor_runtime.get("status") or "not_started"))
+    _ps1.metric("Local Alerts", str(paper_sim_monitor_runtime.get("notification_status") or "unknown").replace("_", " ").title())
+    _ps2.metric("Watches", str(int(paper_sim_monitor_runtime.get("watch_count") or 0)))
+    _ps3.metric("Recent Reports", str(int(paper_sim_monitor_runtime.get("recent_report_count") or 0)))
+    _ps_alert_text = str(paper_sim_monitor_runtime.get("alert_text") or "").strip()
+    _ps_alert_tone = str(paper_sim_monitor_runtime.get("alert_tone") or "").strip().lower()
+    if _ps_alert_text:
+        if _ps_alert_tone == "warning":
+            st.warning(_ps_alert_text)
+        else:
+            st.info(_ps_alert_text)
+    _last_watch_report = paper_sim_monitor_runtime.get("last_watch_report") if isinstance(paper_sim_monitor_runtime.get("last_watch_report"), dict) else {}
+    if _last_watch_report:
+        st.write(
+            {
+                "paper_sim_monitor": {
+                    "watch_name": str(_last_watch_report.get("watch_name") or ""),
+                    "trigger": str(_last_watch_report.get("trigger") or ""),
+                    "severity": str(_last_watch_report.get("severity") or ""),
+                    "summary": str(_last_watch_report.get("summary") or ""),
+                    "generated_at": str(_last_watch_report.get("generated_at") or ""),
+                    "desktop_notification": {
+                        "enabled": bool(paper_sim_monitor_runtime.get("desktop_notify_enabled")),
+                        "status": str(paper_sim_monitor_runtime.get("notification_status") or ""),
+                        "reason": str(paper_sim_monitor_runtime.get("notification_reason") or ""),
+                    },
+                }
+            }
+        )
+    elif int(paper_sim_monitor_runtime.get("watch_count") or 0) > 0:
+        st.write(
+            {
+                "paper_sim_monitor": {
+                    "registered_watches": list(paper_sim_monitor_runtime.get("registered_watch_names") or []),
+                    "last_trigger": "none",
+                    "desktop_notification": {
+                        "enabled": bool(paper_sim_monitor_runtime.get("desktop_notify_enabled")),
+                        "status": str(paper_sim_monitor_runtime.get("notification_status") or ""),
+                    },
+                }
+            }
+        )
     _cop_question = st.text_area(
         "Ask the copilot",
         placeholder="e.g. Why are intents staying in submitted state? What's causing the symbol lock on BTC/USDT?",
@@ -195,6 +282,39 @@ with st.container(border=True):
                 f"Model: {_cop_result.get('model')} · "
                 f"Context: {_cop_result.get('context_chars', 0):,} chars"
             )
+
+with st.container(border=True):
+    st.markdown("### Supervised Paper Soak")
+    st.caption("Canonical Section 4.1 paper-gate evidence from the supervised soak reporter.")
+    if not bool(soak_snapshot.get("ok")):
+        st.info(f"Supervised soak status unavailable: {soak_snapshot.get('reason') or 'unknown'}")
+    else:
+        _soak0, _soak1, _soak2, _soak3 = st.columns(4)
+        _soak0.metric("Section 4.1", str(soak_snapshot.get("result") or "unknown"))
+        _soak1.metric("Elapsed Hours", str(soak_snapshot.get("elapsed_hours") or "unknown"))
+        _soak2.metric("Remaining", str(soak_snapshot.get("remaining_hours") or "unknown"))
+        _soak3.metric("Counts for Gate", "Yes" if bool(soak_snapshot.get("counts_for_paper_gate")) else "No")
+
+        _sym = soak_snapshot.get("symbols") if isinstance(soak_snapshot.get("symbols"), dict) else {}
+        _pipeline = soak_snapshot.get("pipeline") if isinstance(soak_snapshot.get("pipeline"), dict) else {}
+        if not bool(soak_snapshot.get("counts_for_paper_gate")):
+            st.warning("Current runtime does not satisfy the paper-gate topology contract.")
+        if _sym and not bool(_sym.get("runtime_matches_current_desired_state")):
+            st.warning("Running soak symbols differ from current desired symbols.")
+        if int(_pipeline.get("errors") or 0) > 0:
+            st.info(f"Recovered pipeline errors observed during this soak window: {int(_pipeline.get('errors') or 0)}")
+
+        st.write(
+            {
+                "running_symbols": list(_sym.get("run_state") or []),
+                "current_desired_symbols": list(_sym.get("current_desired_state") or []),
+                "topology_matches_run_state": bool(soak_snapshot.get("topology_matches_run_state")),
+                "runtime_matches_current_desired_state": bool(_sym.get("runtime_matches_current_desired_state")),
+            }
+        )
+        _entry = str(soak_snapshot.get("section_4_1_entry") or "").strip()
+        if _entry:
+            st.code(_entry)
 
 render_operations_status_summary(snapshot)
 render_structural_edge_health_summary(
@@ -375,6 +495,12 @@ with tab_strategy:
                 "age": str(paper_evidence_runtime.get("age_label") or "Unknown"),
                 "current_strategy": str(paper_evidence_runtime.get("current_strategy") or "-"),
                 "completed": str(paper_evidence_runtime.get("completed_summary") or "0/0"),
+                "watch_seed": (
+                    "Failed"
+                    if not bool(paper_evidence_runtime.get("paper_sim_watch_seed_ok", True))
+                    else "Ok"
+                ),
+                "watch_seed_reason": str(paper_evidence_runtime.get("paper_sim_watch_seed_reason") or ""),
                 "reason": str(paper_evidence_runtime.get("reason") or ""),
                 "summary": str(paper_evidence_runtime.get("summary_text") or ""),
             }
@@ -384,6 +510,83 @@ with tab_strategy:
         subtitle="Managed paper-evidence campaign runtime for sequential strategy collection and artifact refresh.",
         empty_message="Paper evidence collector has not reported status yet. Use the controls above to start a managed campaign.",
     )
+    with st.container(border=True):
+        st.markdown("### Paper Sim Watch Controls")
+        st.caption("Register or remove local paper-sim watch triggers without leaving the Operations dashboard.")
+        configured_watches = [
+            dict(item) for item in list(paper_sim_monitor_runtime.get("watches") or []) if isinstance(item, dict)
+        ]
+        configured_watch_names = [
+            str(item.get("name") or "").strip()
+            for item in configured_watches
+            if str(item.get("name") or "").strip()
+        ]
+        default_watch_name = configured_watch_names[0] if configured_watch_names else "next_fill"
+        watch_name = str(
+            st.text_input(
+                "Paper Sim Watch Name",
+                value=default_watch_name,
+                key="ops_paper_sim_watch_name",
+            )
+            or ""
+        ).strip()
+        watch_trigger = st.selectbox(
+            "Paper Sim Watch Trigger",
+            PAPER_SIM_WATCH_TRIGGER_OPTIONS,
+            index=0,
+            key="ops_paper_sim_watch_trigger",
+        )
+        delete_watch_name = st.selectbox(
+            "Registered Paper Sim Watch",
+            configured_watch_names if configured_watch_names else ["(none)"],
+            index=0,
+            key="ops_paper_sim_watch_delete_name",
+        )
+        watch_action = None
+        watch_rc = None
+        watch_output = None
+        watch_cols = st.columns(2)
+        with watch_cols[0]:
+            if st.button("Register Paper Sim Watch", width="stretch", key="ops_paper_sim_watch_register"):
+                watch_action = "Register Paper Sim Watch"
+                watch_result = register_paper_sim_watch(
+                    name=watch_name,
+                    trigger=str(watch_trigger or ""),
+                    current_role=str(AUTH_STATE.get("role") or "VIEWER"),
+                )
+                watch_rc = 0 if bool(watch_result.get("ok")) else 1
+                watch_output = json.dumps(watch_result, indent=2, sort_keys=True)
+        with watch_cols[1]:
+            if st.button(
+                "Delete Paper Sim Watch",
+                width="stretch",
+                key="ops_paper_sim_watch_delete",
+                disabled=not configured_watch_names,
+            ):
+                watch_action = "Delete Paper Sim Watch"
+                watch_result = delete_paper_sim_watch(
+                    name=str(delete_watch_name or ""),
+                    current_role=str(AUTH_STATE.get("role") or "VIEWER"),
+                )
+                watch_rc = 0 if bool(watch_result.get("ok")) else 1
+                watch_output = json.dumps(watch_result, indent=2, sort_keys=True)
+
+        render_action_result(action=watch_action, rc=watch_rc, output=watch_output)
+        render_table_section(
+            "Registered Paper Sim Watches",
+            [
+                {
+                    "name": str(item.get("name") or ""),
+                    "trigger": str(item.get("trigger") or ""),
+                    "active": bool(item.get("active", True)),
+                    "last_fired_at": str(item.get("last_fired_at") or ""),
+                    "last_report_stem": str(item.get("last_report_stem") or ""),
+                }
+                for item in configured_watches
+            ],
+            subtitle="Persisted local monitor watches used by the auto-supervised paper sim monitor.",
+            empty_message="No paper sim watches are registered yet.",
+        )
 
     with st.container(border=True):
         st.markdown("### Strategy Controls")

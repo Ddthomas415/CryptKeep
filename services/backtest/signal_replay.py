@@ -21,21 +21,34 @@ def fetch_ohlcv(
     timeframe: str = "1h",
     limit: int = 500,
     since_ms: int | None = None,
+    *,
+    timeout_ms: int = 8000,
+    max_retries: int = 2,
 ) -> list[list]:
     v = normalize_venue(venue)
     sym = map_symbol(v, normalize_symbol(canonical_symbol))
-    ex = make_exchange(v, {"apiKey": None, "secret": None}, enable_rate_limit=True)
-    try:
-        kwargs = {"timeframe": timeframe, "limit": int(limit)}
-        if since_ms is not None:
-            kwargs["since"] = int(since_ms)
-        return ex.fetch_ohlcv(sym, **kwargs)
-    finally:
+    last_exc: Exception | None = None
+    for attempt in range(max(1, max_retries + 1)):
+        if attempt > 0:
+            time.sleep(min(2.0 * attempt, 5.0))
+        ex = make_exchange(v, {"apiKey": None, "secret": None, "timeout": timeout_ms}, enable_rate_limit=True)
         try:
-            if hasattr(ex, "close"):
-                ex.close()
-        except Exception as _err:
-            pass  # suppressed: signal_replay.py
+            kwargs = {"timeframe": timeframe, "limit": int(limit)}
+            if since_ms is not None:
+                kwargs["since"] = int(since_ms)
+            return ex.fetch_ohlcv(sym, **kwargs)
+        except Exception as exc:
+            last_exc = exc
+            err_name = type(exc).__name__.lower()
+            if not any(k in err_name for k in ("timeout", "network", "request", "ratelimit")):
+                raise
+        finally:
+            try:
+                if hasattr(ex, "close"):
+                    ex.close()
+            except Exception:
+                pass
+    raise last_exc  # type: ignore[misc]
 
 def replay_signals_on_ohlcv(
     ohlcv: list[list],

@@ -211,6 +211,84 @@ def test_require_authenticated_role_warns_when_remote_scope_is_not_hardened(monk
         auth_gate.require_authenticated_role("VIEWER")
 
     assert any("outer access-control layer" in msg.lower() for msg in fake.warnings)
+    assert any("direct-origin access is blocked" in msg.lower() for msg in fake.errors)
+
+
+def test_require_authenticated_role_blocks_remote_direct_origin_without_trusted_header(monkeypatch) -> None:
+    fake = _FakeStreamlit()
+    monkeypatch.setattr(auth_gate, "st", fake)
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("BYPASS_DASHBOARD_AUTH", raising=False)
+    monkeypatch.setattr(
+        auth_gate,
+        "auth_capabilities",
+        lambda: {
+            "os_keychain": True,
+            "env_credentials": False,
+            "recommended": "os_keychain",
+            "detail": None,
+            "auth_scope": "remote_public_candidate",
+            "auth_scope_label": "Remote/public candidate",
+            "scope_detail": "Remote/public use requires stronger controls.",
+            "built_in_mfa": True,
+            "mfa_detail": "Built-in TOTP MFA is available.",
+            "outer_access_control": "cloudflare_access",
+            "remote_access_hardened": True,
+            "runtime_guard_violations": [],
+            "runtime_guard_warnings": [],
+        },
+    )
+    monkeypatch.setattr(auth_gate, "_request_headers", lambda: {})
+    monkeypatch.setattr(auth_gate, "ensure_bootstrap_user_from_env", lambda: {"ok": True, "skipped": True})
+
+    with pytest.raises(_StopCalled):
+        auth_gate.require_authenticated_role("VIEWER")
+
+    assert any("direct-origin access is blocked" in msg.lower() for msg in fake.errors)
+
+
+def test_require_authenticated_role_allows_remote_trusted_proxy_header(monkeypatch) -> None:
+    fake = _FakeStreamlit()
+    fake.session_state[auth_gate.SESSION_KEY] = {
+        "ok": True,
+        "username": "auditor",
+        "role": "ADMIN",
+        "source": "keychain",
+        "error": "",
+        "login_at": 100,
+        "last_activity_at": 100,
+    }
+    monkeypatch.setattr(auth_gate, "st", fake)
+    monkeypatch.setattr(auth_gate, "_now_ts", lambda: 100)
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("BYPASS_DASHBOARD_AUTH", raising=False)
+    monkeypatch.setattr(
+        auth_gate,
+        "auth_capabilities",
+        lambda: {
+            "os_keychain": True,
+            "env_credentials": False,
+            "recommended": "os_keychain",
+            "detail": None,
+            "auth_scope": "remote_public_candidate",
+            "auth_scope_label": "Remote/public candidate",
+            "scope_detail": "Remote/public use requires stronger controls.",
+            "built_in_mfa": True,
+            "mfa_detail": "Built-in TOTP MFA is available.",
+            "outer_access_control": "cloudflare_access",
+            "remote_access_hardened": True,
+            "runtime_guard_violations": [],
+            "runtime_guard_warnings": [],
+        },
+    )
+    monkeypatch.setattr(auth_gate, "_request_headers", lambda: {"X-Authenticated-Proxy": "1"})
+    monkeypatch.setattr(auth_gate, "ensure_bootstrap_user_from_env", lambda: {"ok": True, "skipped": True})
+    monkeypatch.setattr(auth_gate, "get_user_mfa_status", lambda **kwargs: {"ok": False})
+
+    out = auth_gate.require_authenticated_role("VIEWER")
+
+    assert out["ok"] is True
+    assert not fake.errors
 
 
 def test_require_authenticated_role_hides_sidebar_when_signed_out(monkeypatch) -> None:
