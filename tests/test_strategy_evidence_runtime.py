@@ -46,6 +46,34 @@ def test_load_paper_strategy_evidence_runtime_has_no_alert_for_normal_summary(mo
     assert payload["alert_text"] == ""
 
 
+def test_load_paper_strategy_evidence_runtime_warns_on_watch_seed_failure(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "services.analytics.paper_strategy_evidence_service.load_runtime_status",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "running",
+            "ts": "2026-05-15T12:00:00Z",
+            "completed_strategies": 0,
+            "total_strategies": 1,
+            "summary_text": "Paper evidence collector is running on sma_200_trend (0/1 complete).",
+            "paper_sim_monitor_watch_seed": {
+                "ok": False,
+                "reason": "paper_sim_watch_register_failed:next_fill:write_failed",
+                "watch_count": 1,
+            },
+        },
+    )
+
+    payload = runtime.load_paper_strategy_evidence_runtime()
+
+    assert payload["paper_sim_watch_seed_ok"] is False
+    assert payload["paper_sim_watch_seed_reason"] == "paper_sim_watch_register_failed:next_fill:write_failed"
+    assert payload["paper_sim_watch_seed_count"] == 1
+    assert payload["alert_tone"] == "warning"
+    assert "default watch registration degraded" in payload["alert_text"].lower()
+
+
 def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> None:
     monkeypatch.setattr(
         "services.analytics.paper_sim_monitor.load_runtime_status",

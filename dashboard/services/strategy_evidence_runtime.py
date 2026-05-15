@@ -48,12 +48,27 @@ def load_paper_strategy_evidence_runtime() -> dict[str, Any]:
         if payload.get("total_strategies") is not None
         else "0/0"
     )
+    watch_seed = (
+        dict(payload.get("paper_sim_monitor_watch_seed") or {})
+        if isinstance(payload.get("paper_sim_monitor_watch_seed"), dict)
+        else {}
+    )
+    payload["paper_sim_watch_seed_ok"] = bool(watch_seed.get("ok", True)) if watch_seed else True
+    payload["paper_sim_watch_seed_reason"] = str(watch_seed.get("reason") or "")
+    payload["paper_sim_watch_seed_count"] = int(
+        watch_seed.get("watch_count")
+        or len(list(watch_seed.get("watch_names") or []))
+        or 0
+    )
     if not str(payload.get("summary_text") or "").strip():
         payload["summary_text"] = (
             f"Paper strategy evidence collector status {str(payload.get('status') or 'unknown')}, "
             f"{payload['completed_summary']} strategies complete."
         )
     tone, text = _runtime_alert(payload)
+    if not text and watch_seed and not payload["paper_sim_watch_seed_ok"]:
+        reason = payload["paper_sim_watch_seed_reason"] or "unknown"
+        tone, text = "warning", f"Paper sim default watch registration degraded: {reason}"
     payload["alert_tone"] = tone
     payload["alert_text"] = text
     return payload

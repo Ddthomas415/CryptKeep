@@ -495,6 +495,12 @@ with tab_strategy:
                 "age": str(paper_evidence_runtime.get("age_label") or "Unknown"),
                 "current_strategy": str(paper_evidence_runtime.get("current_strategy") or "-"),
                 "completed": str(paper_evidence_runtime.get("completed_summary") or "0/0"),
+                "watch_seed": (
+                    "Failed"
+                    if not bool(paper_evidence_runtime.get("paper_sim_watch_seed_ok", True))
+                    else "Ok"
+                ),
+                "watch_seed_reason": str(paper_evidence_runtime.get("paper_sim_watch_seed_reason") or ""),
                 "reason": str(paper_evidence_runtime.get("reason") or ""),
                 "summary": str(paper_evidence_runtime.get("summary_text") or ""),
             }
