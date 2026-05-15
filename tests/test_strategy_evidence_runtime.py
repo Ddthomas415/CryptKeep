@@ -54,6 +54,7 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
             "has_status": True,
             "status": "running",
             "ts": "2026-05-15T10:00:00Z",
+            "desktop_notify": True,
             "recommendation": "continue",
             "watches": [{"name": "next_fill", "trigger": "new_fill"}],
             "recent_watch_reports": [
@@ -63,6 +64,7 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
                     "severity": "info",
                     "summary": "Watch `next_fill` fired.",
                     "generated_at": "2026-05-15T10:01:00Z",
+                    "desktop_notification": {"attempted": True, "sent": True, "reason": "notified"},
                 }
             ],
         },
@@ -74,5 +76,8 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
     assert payload["recent_report_count"] == 1
     assert payload["registered_watch_names"] == ["next_fill"]
     assert payload["last_watch_report"]["watch_name"] == "next_fill"
+    assert payload["desktop_notify_enabled"] is True
+    assert payload["notification_status"] == "sent"
+    assert payload["notification_reason"] == "notified"
     assert payload["alert_tone"] == ""
     assert payload["alert_text"] == ""

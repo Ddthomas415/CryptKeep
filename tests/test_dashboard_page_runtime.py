@@ -1446,6 +1446,9 @@ def test_operations_page_surfaces_paper_sim_watch_report(monkeypatch) -> None:
             "ok": True,
             "has_status": True,
             "status": "stopped",
+            "desktop_notify_enabled": True,
+            "notification_status": "sent",
+            "notification_reason": "notified",
             "watch_count": 1,
             "recent_report_count": 1,
             "registered_watch_names": ["next_fill"],
@@ -1471,6 +1474,8 @@ def test_operations_page_surfaces_paper_sim_watch_report(monkeypatch) -> None:
     assert any(
         isinstance(item.get("paper_sim_monitor"), dict)
         and item["paper_sim_monitor"].get("watch_name") == "next_fill"
+        and isinstance(item["paper_sim_monitor"].get("desktop_notification"), dict)
+        and item["paper_sim_monitor"]["desktop_notification"].get("status") == "sent"
         for item in writes
         if isinstance(item, dict)
     )

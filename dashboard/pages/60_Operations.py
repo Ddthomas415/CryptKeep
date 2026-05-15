@@ -177,10 +177,11 @@ with st.container(border=True):
                     }
                 )
     st.markdown("#### Paper Sim Watch Monitor")
-    _ps0, _ps1, _ps2 = st.columns(3)
+    _ps0, _ps1, _ps2, _ps3 = st.columns(4)
     _ps0.metric("Monitor", str(paper_sim_monitor_runtime.get("status") or "not_started"))
-    _ps1.metric("Watches", str(int(paper_sim_monitor_runtime.get("watch_count") or 0)))
-    _ps2.metric("Recent Reports", str(int(paper_sim_monitor_runtime.get("recent_report_count") or 0)))
+    _ps1.metric("Local Alerts", str(paper_sim_monitor_runtime.get("notification_status") or "unknown").replace("_", " ").title())
+    _ps2.metric("Watches", str(int(paper_sim_monitor_runtime.get("watch_count") or 0)))
+    _ps3.metric("Recent Reports", str(int(paper_sim_monitor_runtime.get("recent_report_count") or 0)))
     _ps_alert_text = str(paper_sim_monitor_runtime.get("alert_text") or "").strip()
     _ps_alert_tone = str(paper_sim_monitor_runtime.get("alert_tone") or "").strip().lower()
     if _ps_alert_text:
@@ -198,6 +199,11 @@ with st.container(border=True):
                     "severity": str(_last_watch_report.get("severity") or ""),
                     "summary": str(_last_watch_report.get("summary") or ""),
                     "generated_at": str(_last_watch_report.get("generated_at") or ""),
+                    "desktop_notification": {
+                        "enabled": bool(paper_sim_monitor_runtime.get("desktop_notify_enabled")),
+                        "status": str(paper_sim_monitor_runtime.get("notification_status") or ""),
+                        "reason": str(paper_sim_monitor_runtime.get("notification_reason") or ""),
+                    },
                 }
             }
         )
@@ -207,6 +213,10 @@ with st.container(border=True):
                 "paper_sim_monitor": {
                     "registered_watches": list(paper_sim_monitor_runtime.get("registered_watch_names") or []),
                     "last_trigger": "none",
+                    "desktop_notification": {
+                        "enabled": bool(paper_sim_monitor_runtime.get("desktop_notify_enabled")),
+                        "status": str(paper_sim_monitor_runtime.get("notification_status") or ""),
+                    },
                 }
             }
         )
