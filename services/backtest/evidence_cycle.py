@@ -9,13 +9,14 @@ from statistics import pstdev
 from typing import Any, Dict, Iterable, List
 
 from services.analytics.journal_analytics import fifo_pnl_from_fills
+from services.analytics.paper_evidence_artifacts import default_decision_record_path as canonical_decision_record_path
 from services.analytics.strategy_feedback import (
     build_strategy_feedback_weighting,
     load_strategy_feedback_ledger,
 )
 from services.backtest.leaderboard import rank_strategy_rows, run_strategy_leaderboard
 from services.backtest.walk_forward import run_anchored_walk_forward
-from services.os.app_paths import code_root, data_dir, ensure_dirs
+from services.os.app_paths import data_dir, ensure_dirs
 from services.strategies.presets import apply_preset
 from services.strategies.hypotheses import get_strategy_hypothesis
 
@@ -1206,10 +1207,7 @@ def persist_strategy_evidence(report: dict[str, Any], *, latest_path: str = "") 
 
 
 def default_decision_record_path(*, report: dict[str, Any] | None = None) -> Path:
-    payload = dict(report or {})
-    as_of = str(payload.get("as_of") or _now_iso())
-    date_token = as_of.split("T", 1)[0]
-    return (code_root() / "docs" / "strategies" / f"decision_record_{date_token}.md").resolve()
+    return canonical_decision_record_path(report=report)
 
 
 def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -> str:

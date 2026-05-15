@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from services.admin.health import list_health
+from services.analytics.paper_evidence_artifacts import decision_record_dir
 from services.app.dashboard_diagnostics import run_dashboard_diagnostics
 from services.app.diagnostics_exporter import export_zip_to_runtime
 from services.app.preflight_wizard import run_preflight as run_app_preflight
@@ -166,7 +167,7 @@ def _artifact_summary() -> dict[str, Any]:
     evidence_dir = data_dir() / "strategy_evidence"
     latest_path = evidence_dir / "strategy_evidence.latest.json"
     trade_journal = data_dir() / "trade_journal.sqlite"
-    decision_dir = Path(__file__).resolve().parents[2] / "docs" / "strategies"
+    decision_dir = decision_record_dir()
     decision_records = sorted(decision_dir.glob("decision_record_*.md"))
     latest_record = decision_records[-1] if decision_records else None
     return {

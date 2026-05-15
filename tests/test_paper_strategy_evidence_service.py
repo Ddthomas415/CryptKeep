@@ -645,7 +645,7 @@ def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monke
     jsonl_dir.mkdir(parents=True, exist_ok=True)
     (jsonl_dir / "signal_2026-04-08.jsonl").write_text('{"signal_direction":"long"}\n', encoding="utf-8")
 
-    decision_dir = tmp_path / "docs" / "strategies"
+    decision_dir = tmp_path / "data" / "strategy_evidence"
     decision_dir.mkdir(parents=True, exist_ok=True)
     latest_record = decision_dir / "decision_record_2026-04-08.md"
     latest_record.write_text("# latest\n", encoding="utf-8")
