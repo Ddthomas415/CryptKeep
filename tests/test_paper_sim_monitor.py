@@ -46,8 +46,8 @@ def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypat
     monkeypatch.setattr(svc, "_paper_engine_status", lambda: {"status": "stopped"})
     monkeypatch.setattr(
         svc,
-        "_paper_state_snapshot",
-        lambda symbol: {
+        "_paper_state_snapshot_window",
+        lambda symbol, since_ts="": {
             "position": {"symbol": symbol, "qty": 0.0, "avg_price": 0.0, "realized_pnl": -0.8933},
             "latest_order": {"order_id": "ord-2", "status": "filled"},
             "latest_paper_fill": {"fill_id": "fill-2", "ts": "2026-05-15T01:03:46Z", "price": 81574.41},
@@ -57,7 +57,7 @@ def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypat
     monkeypatch.setattr(
         svc,
         "_trade_journal_snapshot",
-        lambda: {"fill_id": "fill-2", "fill_ts": "2026-05-15T01:03:46Z", "side": "sell", "symbol": "BTC/USDT"},
+        lambda symbol, since_ts="": {"fill_id": "fill-2", "fill_ts": "2026-05-15T01:03:46Z", "side": "sell", "symbol": str(symbol)},
     )
 
     out = svc.collect_once(svc.PaperSimMonitorCfg(min_closed_trades_for_enough_evidence=1))
@@ -73,6 +73,83 @@ def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypat
     assert out["recommendation"] == "enough_evidence"
     assert out["recommendation_reason"] == "closed_trade_threshold_met"
     assert "recommendation=enough_evidence" in out["summary_text"]
+
+
+def test_collect_once_ignores_stale_fill_from_other_symbol(monkeypatch) -> None:
+    class _FakePaperStore:
+        def get_position(self, symbol: str):
+            return {"symbol": symbol, "qty": 0.0, "avg_price": 0.0, "realized_pnl": 0.0}
+
+        def list_positions(self, limit: int = 1):
+            return []
+
+        def list_orders(self, limit: int = 500):
+            return [
+                {"order_id": "ord-stale", "symbol": "BTC/USDT", "status": "filled"},
+                {"order_id": "ord-current", "symbol": "BTC/USD", "status": "open"},
+            ]
+
+        def list_fills_for_order(self, order_id: str, limit: int = 2000):
+            if str(order_id) == "ord-stale":
+                return [{"fill_id": "fill-stale", "order_id": "ord-stale", "ts": "2026-05-15T01:03:46Z", "price": 81574.41, "qty": 0.001, "fee": 0.0, "fee_currency": "USDT"}]
+            return []
+
+        def list_equity(self, limit: int = 1):
+            return [{"ts": "2026-05-15T18:02:30Z", "cash_quote": 10000.0, "equity_quote": 10000.0, "unrealized_pnl": 0.0, "realized_pnl": 0.0}]
+
+    class _FakeJournalStore:
+        def list_fills(self, limit: int = 1000):
+            return [
+                {"fill_id": "fill-stale", "fill_ts": "2026-05-15T01:03:46Z", "side": "sell", "symbol": "BTC/USDT"},
+            ]
+
+    monkeypatch.setattr(
+        svc,
+        "load_campaign_runtime_status",
+        lambda: {
+            "ok": True,
+            "status": "completed",
+            "reason": "completed",
+            "symbol": "BTC/USD",
+            "venue": "coinbase",
+            "current_strategy": "ema_cross",
+            "current_strategy_preset": "ema_cross_default",
+            "results": [
+                {
+                    "strategy": "ema_cross",
+                    "strategy_preset": "ema_cross_default",
+                    "fills_delta": 0,
+                    "closed_trades_delta": 0,
+                    "net_realized_pnl_delta": 0.0,
+                }
+            ],
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "_configured_strategy_runner",
+        lambda: {
+            "strategy": "ema_cross",
+            "symbols": ["BTC/USD"],
+            "primary_symbol": "BTC/USD",
+            "signal_source": "synthetic_mid_ohlcv",
+            "venue": "coinbase",
+        },
+    )
+    monkeypatch.setattr(svc, "_strategy_runner_status", lambda: {"status": "stopped", "strategy_preset": "ema_cross_default"})
+    monkeypatch.setattr(svc, "_paper_engine_status", lambda: {"status": "stopped"})
+    monkeypatch.setattr(svc, "PaperTradingSQLite", lambda: _FakePaperStore())
+    monkeypatch.setattr(svc, "TradeJournalSQLite", lambda: _FakeJournalStore())
+
+    out = svc.collect_once(svc.PaperSimMonitorCfg(min_closed_trades_for_enough_evidence=1))
+
+    assert out["symbol"] == "BTC/USD"
+    assert out["latest_journal_fill"] == {}
+    assert out["latest_paper_fill"] == {}
+    assert out["latest_order"]["symbol"] == "BTC/USD"
+    assert out["recommendation"] == "investigate"
+    assert out["recommendation_reason"] == "completed_without_trade_evidence"
+    assert "no fill yet" in out["summary_text"]
 
 
 def test_register_and_delete_watch_persist_local_definition(tmp_path, monkeypatch) -> None:

@@ -242,26 +242,74 @@ def _configured_strategy_runner() -> dict[str, Any]:
 
 
 def _paper_state_snapshot(symbol: str) -> dict[str, Any]:
+    return _paper_state_snapshot_window(symbol, since_ts="")
+
+
+def _iso_epoch(value: Any) -> float:
+    raw = str(value or "").strip()
+    if not raw:
+        return 0.0
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).timestamp()
+    except Exception:
+        return 0.0
+
+
+def _row_meets_since(row: dict[str, Any], *, since_epoch: float, keys: list[str]) -> bool:
+    if since_epoch <= 0.0:
+        return True
+    for key in keys:
+        value = _iso_epoch(row.get(key))
+        if value > 0.0:
+            return value >= since_epoch
+    return False
+
+
+def _paper_state_snapshot_window(symbol: str, *, since_ts: str = "") -> dict[str, Any]:
     store = PaperTradingSQLite()
     position = store.get_position(symbol) if symbol else None
-    if position is None:
+    if position is None and not symbol:
         positions = list(store.list_positions(limit=1) or [])
         position = dict(positions[0]) if positions else {}
-    latest_order_rows = list(store.list_orders(limit=1) or [])
-    latest_fill_rows = list(store.list_fills(limit=1) or [])
+    since_epoch = _iso_epoch(since_ts)
+    latest_order_rows = [
+        dict(row)
+        for row in list(store.list_orders(limit=500) or [])
+        if not symbol or str(row.get("symbol") or "").strip() == str(symbol).strip()
+        if _row_meets_since(row, since_epoch=since_epoch, keys=["created_ts", "ts"])
+    ]
+    latest_order = dict(latest_order_rows[0]) if latest_order_rows else {}
+    latest_paper_fill: dict[str, Any] = {}
+    for row in latest_order_rows:
+        fills_for_order = list(store.list_fills_for_order(str(row.get("order_id") or ""), limit=2000) or [])
+        matching_fills = [
+            dict(fill)
+            for fill in fills_for_order
+            if _row_meets_since(dict(fill), since_epoch=since_epoch, keys=["ts"])
+        ]
+        if matching_fills:
+            latest_paper_fill = dict(matching_fills[-1])
+            break
     latest_equity_rows = list(store.list_equity(limit=1) or [])
     return {
         "position": dict(position or {}),
-        "latest_order": dict(latest_order_rows[0]) if latest_order_rows else {},
-        "latest_paper_fill": dict(latest_fill_rows[0]) if latest_fill_rows else {},
+        "latest_order": latest_order,
+        "latest_paper_fill": latest_paper_fill,
         "latest_equity": dict(latest_equity_rows[0]) if latest_equity_rows else {},
     }
 
 
-def _trade_journal_snapshot() -> dict[str, Any]:
+def _trade_journal_snapshot(symbol: str, *, since_ts: str = "") -> dict[str, Any]:
     store = TradeJournalSQLite()
-    rows = list(store.list_fills(limit=1) or [])
-    return dict(rows[0]) if rows else {}
+    since_epoch = _iso_epoch(since_ts)
+    rows = list(store.list_fills(limit=1000) or [])
+    for row in rows:
+        if (
+            (not symbol or str(row.get("symbol") or "").strip() == str(symbol).strip())
+            and _row_meets_since(dict(row), since_epoch=since_epoch, keys=["fill_ts", "journal_ts"])
+        ):
+            return dict(row)
+    return {}
 
 
 def _latest_result(payload: dict[str, Any]) -> dict[str, Any]:
@@ -394,12 +442,13 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
     result = _latest_result(campaign)
     symbol = str(campaign.get("symbol") or configured.get("primary_symbol") or "").strip()
     venue = str(campaign.get("venue") or configured.get("venue") or "").strip()
-    paper_state = _paper_state_snapshot(symbol)
+    window_started_ts = str(result.get("started_ts") or campaign.get("started_ts") or "").strip()
+    paper_state = _paper_state_snapshot_window(symbol, since_ts=window_started_ts)
     position = dict(paper_state.get("position") or {})
     latest_order = dict(paper_state.get("latest_order") or {})
     latest_paper_fill = dict(paper_state.get("latest_paper_fill") or {})
     latest_equity = dict(paper_state.get("latest_equity") or {})
-    latest_journal_fill = _trade_journal_snapshot()
+    latest_journal_fill = _trade_journal_snapshot(symbol, since_ts=window_started_ts)
     strategy_name = str(
         campaign.get("current_strategy")
         or result.get("strategy")
