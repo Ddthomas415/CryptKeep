@@ -157,6 +157,29 @@ def _latest_jsonl_evidence_summary(strategy_ids: list[str] | tuple[str, ...]) ->
     return fallback
 
 
+def _jsonl_evidence_strategy_ids(payload: dict[str, Any]) -> list[str]:
+    strategy_ids: list[str] = []
+    seen: set[str] = set()
+
+    def _add(raw: Any) -> None:
+        key = str(raw or "").strip()
+        if not key or key in seen:
+            return
+        strategy_ids.append(key)
+        seen.add(key)
+
+    for item in list(payload.get("strategies") or []):
+        _add(item)
+    _add(payload.get("current_strategy"))
+    _add(payload.get("current_strategy_preset"))
+    for row in list(payload.get("results") or []):
+        if not isinstance(row, dict):
+            continue
+        _add(row.get("strategy_preset"))
+        _add(row.get("strategy"))
+    return strategy_ids
+
+
 def _latest_decision_record_artifact() -> dict[str, Any]:
     root = (code_root() / "docs" / "strategies").resolve()
     records = sorted(path.resolve() for path in root.glob("decision_record_*.md"))
@@ -359,6 +382,10 @@ def load_runtime_status() -> dict[str, Any]:
         payload.get("per_strategy_runtime_sec") or pid_state.get("per_strategy_runtime_sec") or 0.0
     )
 
+    runner_payload = dict((_component_runtime("strategy_runner").get("status_payload") or {}))
+    if not str(payload.get("current_strategy_preset") or "").strip():
+        payload["current_strategy_preset"] = str(runner_payload.get("strategy_preset") or "").strip()
+
     if pid_state and payload.get("status") == "running" and not pid_alive:
         payload["status"] = "dead"
         payload["reason"] = "process_not_running"
@@ -367,11 +394,7 @@ def load_runtime_status() -> dict[str, Any]:
         payload["reason"] = "pid_alive_waiting_for_status"
         payload["has_status"] = True
 
-    strategy_ids: list[str] = []
-    strategy_ids.extend(str(item).strip() for item in list(payload.get("strategies") or []) if str(item).strip())
-    current_strategy = str(payload.get("current_strategy") or "").strip()
-    if current_strategy and current_strategy not in strategy_ids:
-        strategy_ids.append(current_strategy)
+    strategy_ids = _jsonl_evidence_strategy_ids(payload)
     jsonl_summary = _latest_jsonl_evidence_summary(strategy_ids)
     if jsonl_summary:
         payload["jsonl_evidence"] = jsonl_summary
@@ -700,6 +723,7 @@ def _run_strategy_window(
     last_status = dict((_component_runtime("strategy_runner").get("status_payload") or last_status or {}))
     return {
         "strategy": str(strategy_name),
+        "strategy_preset": str(last_status.get("strategy_preset") or ""),
         "started_ts": started_ts,
         "ended_ts": ended_ts,
         "runtime_sec": max(time.time() - loop_started_at, 0.0),
