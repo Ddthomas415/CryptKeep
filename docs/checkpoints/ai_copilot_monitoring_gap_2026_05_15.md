@@ -23,6 +23,7 @@ Current repo truth now partially meets that expectation, but not completely.
   - `--status`
   - `--once`
 - `services/analytics/paper_strategy_evidence_service.py` now auto-supervises `paper_sim_monitor` during managed paper evidence campaigns, so the monitor no longer needs a separately started loop for that workflow.
+- Managed paper evidence campaigns now also seed a canonical default watch set for the auto-supervised paper sim monitor, so useful wake-up triggers do not require a separate manual registration step.
 - Trigger events now write durable watch reports under `.cbp_state/runtime/ai_reports/`.
 - On macOS, named watch triggers now also issue best-effort local desktop notifications from the running monitor process.
 - The Operations dashboard now shows current paper-sim watch status and the most recent trigger result.
@@ -33,7 +34,7 @@ Current repo truth now partially meets that expectation, but not completely.
 
 ## Current fallback
 
-Managed paper evidence campaigns now start the local paper sim monitor automatically.
+Managed paper evidence campaigns now start the local paper sim monitor automatically and seed the default watch set.
 
 Run the paper sim monitor directly only when you want standalone monitoring outside the managed paper evidence workflow:
 
