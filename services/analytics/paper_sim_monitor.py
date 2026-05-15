@@ -661,6 +661,26 @@ def _recent_watch_reports(*, limit: int = 5) -> list[dict[str, Any]]:
     return rows
 
 
+def _merge_watch_reports(
+    existing: list[dict[str, Any]],
+    new_rows: list[dict[str, Any]],
+    *,
+    limit: int = 10,
+) -> list[dict[str, Any]]:
+    merged = [dict(item) for item in list(existing or []) if isinstance(item, dict)]
+    seen = {str(item.get("report_stem") or "").strip() for item in merged if str(item.get("report_stem") or "").strip()}
+    for row in list(new_rows or []):
+        if not isinstance(row, dict):
+            continue
+        stem = str(row.get("report_stem") or "").strip()
+        if stem and stem in seen:
+            continue
+        merged.append(dict(row))
+        if stem:
+            seen.add(stem)
+    return merged[-max(1, int(limit or 10)) :]
+
+
 def _fire_watch_reports(
     *,
     previous_snapshot: dict[str, Any] | None,
@@ -876,6 +896,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
     loops = 0
     changes_written = 0
     last_snapshot: dict[str, Any] = {}
+    run_watch_reports_written: list[dict[str, Any]] = []
     previous_signature: dict[str, Any] | None = None
     previous_snapshot: dict[str, Any] | None = None
     _write_status(
@@ -915,6 +936,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
                         watches=final_watches,
                         desktop_notify=bool(cfg.desktop_notify),
                     )
+                    run_watch_reports_written = _merge_watch_reports(run_watch_reports_written, final_watch_reports)
                     if updated_watches != final_watches:
                         _save_watches(updated_watches)
                     final_watches = updated_watches
@@ -961,7 +983,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
                 "watches_path": str(watches_file()),
                 "watches": final_watches,
                 "recent_watch_reports": _recent_watch_reports(limit=3),
-                "last_watch_reports_written": final_watch_reports,
+                "last_watch_reports_written": run_watch_reports_written,
                 "trigger_reasons": final_trigger_reasons,
                 **last_snapshot,
             }
@@ -980,6 +1002,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             watches=watches,
             desktop_notify=bool(cfg.desktop_notify),
         )
+        run_watch_reports_written = _merge_watch_reports(run_watch_reports_written, fired_watch_reports)
         if updated_watches != watches:
             _save_watches(updated_watches)
         if previous_signature is None or current_signature != previous_signature:
@@ -1020,7 +1043,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "watches_path": str(watches_file()),
             "watches": updated_watches,
             "recent_watch_reports": _recent_watch_reports(limit=3),
-            "last_watch_reports_written": fired_watch_reports,
+            "last_watch_reports_written": run_watch_reports_written,
             "trigger_reasons": change_reasons,
             **snapshot,
         }
