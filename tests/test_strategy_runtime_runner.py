@@ -192,6 +192,66 @@ def test_run_forever_prewarms_daily_ohlcv_before_loop(monkeypatch, tmp_path):
     assert status["note"] is None
 
 
+@pytest.mark.slow
+def test_run_forever_reuses_cached_prices_when_public_ohlcv_fetch_is_empty(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    sdb = runner.StrategyStateSQLite()
+    monkeypatch.setattr(runner, "collect_runtime_rows", lambda paper_db, intent_db: ([], []))
+
+    sdb.set("prices:coinbase:BTC/USD:breakout_donchian", json.dumps([100.0, 101.0, 102.0, 103.0, 104.0]))
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg: [])
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "buy", "reason": "cached_prices", "ind": {}},
+    )
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda: {
+            "strategy_runner": {
+                "strategy": {
+                    "name": "breakout_donchian",
+                    "trade_enabled": True,
+                    "donchian_len": 3,
+                    "filter_window": 3,
+                    "min_volatility_pct": 0.0,
+                    "min_volume_ratio": 0.0,
+                    "min_trend_efficiency": 0.0,
+                    "min_channel_width_pct": 0.0,
+                    "breakout_buffer_pct": 0.0,
+                    "require_directional_confirmation": False,
+                },
+                "symbol": "BTC/USD",
+                "venue": "coinbase",
+                "min_bars": 5,
+                "max_bars": 20,
+                "loop_interval_sec": 0.0,
+                "qty": 0.5,
+                "allow_first_signal_trade": True,
+                "signal_source": "public_ohlcv_1d",
+            }
+        },
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if int(status.get("enqueued_total") or 0) >= 1:
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    queued = qdb.list_intents(limit=10, status="queued")
+    assert len(queued) == 1
+    assert queued[0]["side"] == "buy"
+    assert queued[0]["strategy_id"] == "breakout_donchian"
+
+
 def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(

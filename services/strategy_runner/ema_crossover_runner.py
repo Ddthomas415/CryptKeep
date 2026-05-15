@@ -711,65 +711,81 @@ def run_forever() -> None:
                 if timeframe:
                     ohlcv = _fetch_public_ohlcv(sym_cfg) or []
                     if not ohlcv:
-                        _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
-                        _LOG.warning(
-                            "ohlcv_fetch_empty strategy=%s symbol=%s timeframe=%s "
-                            "— signal evidence will not be written this loop. "
-                            "Check exchange connectivity.",
-                            sym_cfg.get("name"), sym_cfg.get("symbol"), timeframe,
+                        if len(prices) >= int(cfg["min_bars"]):
+                            ts_ms = int(time.time() * 1000)
+                            m = float(prices[-1])
+                            bars = len(prices)
+                            selected_strategy = str(cfg.get("strategy_id") or "ema_cross")
+                            selection = {"selected_strategy_reason": "cached_public_ohlcv_prices"}
+                            signal = _strategy_signal(sym_cfg, prices[-int(cfg["max_bars"]):], ts_ms=ts_ms)
+                            _LOG.warning(
+                                "ohlcv_fetch_empty_reusing_cached_prices strategy=%s symbol=%s timeframe=%s bars=%s",
+                                sym_cfg.get("name"),
+                                sym_cfg.get("symbol"),
+                                timeframe,
+                                len(prices),
+                            )
+                        else:
+                            _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                            _LOG.warning(
+                                "ohlcv_fetch_empty strategy=%s symbol=%s timeframe=%s "
+                                "— signal evidence will not be written this loop. "
+                                "Check exchange connectivity.",
+                                sym_cfg.get("name"), sym_cfg.get("symbol"), timeframe,
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                    else:
+                        prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
+                        if loops % 5 == 0:
+                            sdb.set(k_prices, json.dumps(prices))
+
+                        __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
+                            f"len(ohlcv)={len(ohlcv)} signal_source={sym_cfg.get('signal_source')} symbol={sym_cfg.get('symbol')}\n"
                         )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
-                    if loops % 5 == 0:
-                        sdb.set(k_prices, json.dumps(prices))
-
-                    __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
-                        f"len(ohlcv)={len(ohlcv)} signal_source={sym_cfg.get('signal_source')} symbol={sym_cfg.get('symbol')}\n"
-                    )
-                    if len(ohlcv) < int(cfg["min_bars"]):
-                        _write_status(
-                            {
-                                "ok": True,
-                                "status": "running",
-                                "pid": os.getpid(),
-                                "ts": _now(),
-                                "mid": float(ohlcv[-1][4]),
-                                "bars": len(ohlcv),
-                                "note": "warming",
-                                "enqueued": enqueued,
-                                "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
-                                "strategy_source": cfg["signal_source"],
-                            }
+                        if len(ohlcv) < int(cfg["min_bars"]):
+                            _write_status(
+                                {
+                                    "ok": True,
+                                    "status": "running",
+                                    "pid": os.getpid(),
+                                    "ts": _now(),
+                                    "mid": float(ohlcv[-1][4]),
+                                    "bars": len(ohlcv),
+                                    "note": "warming",
+                                    "enqueued": enqueued,
+                                    "strategy_id": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                                    "strategy_source": cfg["signal_source"],
+                                }
+                            )
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
+                        m = float(ohlcv[-1][4])
+                        selection = select_strategy(
+                            default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
+                            ohlcv=ohlcv[-int(cfg["min_bars"]):],
                         )
-                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                        continue
-                    ts_ms = int(ohlcv[-1][0] or (time.time() * 1000))
-                    m = float(ohlcv[-1][4])
-                    selection = select_strategy(
-                        default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
-                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
-                    )
-                    selected_strategy = str(cfg.get("strategy_id") or selection.get("selected_strategy") or "ema_cross")
-                    raw_cfg = load_user_yaml()
-                    raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
-                    raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
+                        selected_strategy = str(cfg.get("strategy_id") or selection.get("selected_strategy") or "ema_cross")
+                        raw_cfg = load_user_yaml()
+                        raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
+                        raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
 
-                    selected_params = dict(raw_strategy)
-                    selected_params.pop("name", None)
-                    selected_params.pop("trade_enabled", None)
+                        selected_params = dict(raw_strategy)
+                        selected_params.pop("name", None)
+                        selected_params.pop("trade_enabled", None)
 
-                    selected_block = build_strategy_block(
-                        name=selected_strategy,
-                        trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
-                        params=selected_params,
-                    )
-                    signal = compute_signal(
-                        cfg={"strategy": selected_block},
-                        symbol=symbol,
-                        ohlcv=ohlcv[-int(cfg["min_bars"]):],
-                    )
-                    bars = len(ohlcv)
+                        selected_block = build_strategy_block(
+                            name=selected_strategy,
+                            trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
+                            params=selected_params,
+                        )
+                        signal = compute_signal(
+                            cfg={"strategy": selected_block},
+                            symbol=symbol,
+                            ohlcv=ohlcv[-int(cfg["min_bars"]):],
+                        )
+                        bars = len(ohlcv)
                 else:
                     tick = _fetch_mid(sym_cfg)
                     if not tick:
