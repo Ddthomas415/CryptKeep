@@ -476,14 +476,17 @@ def _strategy_delta(
     closed_after = int(after.get("closed_trades") or 0)
     pnl_before = float(before.get("net_realized_pnl") or 0.0)
     pnl_after = float(after.get("net_realized_pnl") or 0.0)
+    fills_delta = int(fills_after - fills_before)
+    latest_fill_ts_total = str(after.get("latest_fill_ts") or "")
     return {
-        "fills_delta": int(fills_after - fills_before),
+        "fills_delta": fills_delta,
         "closed_trades_delta": int(closed_after - closed_before),
         "net_realized_pnl_delta": float(pnl_after - pnl_before),
         "fills_total": int(fills_after),
         "closed_trades_total": int(closed_after),
         "net_realized_pnl_total": float(pnl_after),
-        "latest_fill_ts": str(after.get("latest_fill_ts") or ""),
+        "latest_fill_ts": latest_fill_ts_total if fills_delta > 0 else "",
+        "latest_fill_ts_total": latest_fill_ts_total,
     }
 
 
@@ -820,6 +823,7 @@ def _run_strategy_window(
         "closed_trades_total": int(delta["closed_trades_total"]),
         "net_realized_pnl_total": float(delta["net_realized_pnl_total"]),
         "latest_fill_ts": str(delta["latest_fill_ts"] or ""),
+        "latest_fill_ts_total": str(delta["latest_fill_ts_total"] or ""),
     }
 
 

@@ -31,6 +31,32 @@ def test_strategy_summary_map_passes_symbol_filter(monkeypatch) -> None:
     assert out["ema_cross"]["fills"] == 1
 
 
+def test_strategy_delta_clears_latest_fill_ts_without_new_fill() -> None:
+    out = svc._strategy_delta(
+        "ema_cross",
+        before_rows={
+            "ema_cross": {
+                "fills": 2,
+                "closed_trades": 1,
+                "net_realized_pnl": -1.5,
+                "latest_fill_ts": "2026-04-11T22:45:17.895650+00:00",
+            }
+        },
+        after_rows={
+            "ema_cross": {
+                "fills": 2,
+                "closed_trades": 1,
+                "net_realized_pnl": -1.5,
+                "latest_fill_ts": "2026-04-11T22:45:17.895650+00:00",
+            }
+        },
+    )
+
+    assert out["fills_delta"] == 0
+    assert out["latest_fill_ts"] == ""
+    assert out["latest_fill_ts_total"] == "2026-04-11T22:45:17.895650+00:00"
+
+
 def test_start_process_suppresses_child_io_by_default(monkeypatch) -> None:
     seen: dict[str, object] = {}
 
