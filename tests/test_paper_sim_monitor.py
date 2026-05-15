@@ -179,6 +179,60 @@ def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkey
     assert status["watches"][0]["last_report_stem"] == report["report_stem"]
 
 
+def test_run_forever_does_not_fire_new_fill_watch_on_initial_snapshot(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.register_watch(name="watch_fill", trigger="new_fill")
+    notify_calls: list[dict[str, object]] = []
+    monkeypatch.setattr(
+        svc,
+        "_notify_local_desktop",
+        lambda payload: notify_calls.append(dict(payload)) or {"attempted": True, "sent": True, "reason": "notified"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "collect_once",
+        lambda cfg: {
+            "ok": True,
+            "ts": "2026-05-15T02:05:00Z",
+            "monitor_name": svc.MONITOR_NAME,
+            "campaign_status": "running",
+            "campaign_reason": "collecting",
+            "recommendation": "continue",
+            "recommendation_reason": "awaiting_first_trade",
+            "strategy_label": "es_daily_trend_v1",
+            "symbol": "BTC/USDT",
+            "fills_observed": 1,
+            "round_trips_observed": 0,
+            "current_window_realized_pnl": 0.0,
+            "position_realized_pnl_total": 0.0,
+            "equity_realized_pnl_total": 0.0,
+            "unrealized_pnl": 0.0,
+            "paper_position": {"qty": 0.001},
+            "latest_order": {"order_id": "ord-1", "status": "filled"},
+            "latest_paper_fill": {},
+            "latest_journal_fill": {"fill_id": "fill-1", "side": "buy", "fill_ts": "2026-05-15T02:05:00Z"},
+            "latest_equity": {},
+            "campaign_result": {},
+            "collector": {"status": "running"},
+            "strategy_runner": {"status": "running"},
+            "paper_engine": {"status": "running"},
+            "summary_text": "baseline",
+        },
+    )
+    monkeypatch.setattr(svc.time, "sleep", lambda *_args, **_kwargs: None)
+
+    out = svc.run_forever(svc.PaperSimMonitorCfg(poll_interval_sec=0.01), max_loops=1)
+
+    assert out["ok"] is True
+    assert out["status"] == "stopped"
+    assert out["reason"] == "max_loops"
+    assert out["last_watch_reports_written"] == []
+    assert notify_calls == []
+    status = json.loads(svc.status_file().read_text(encoding="utf-8"))
+    assert status["recent_watch_reports"] == []
+    assert status["watches"][0]["last_report_stem"] == ""
+
+
 def test_run_forever_collects_final_snapshot_before_stop(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     svc.register_watch(name="done", trigger="campaign_completed")

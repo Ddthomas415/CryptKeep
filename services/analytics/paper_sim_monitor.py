@@ -527,6 +527,8 @@ def _notify_local_desktop(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def _watch_event_key(previous: dict[str, Any] | None, current: dict[str, Any], watch: dict[str, Any]) -> str:
+    if previous is None:
+        return ""
     trigger = str(watch.get("trigger") or "")
     current_fill = dict(current.get("latest_journal_fill") or current.get("latest_paper_fill") or {})
     previous_fill = dict((previous or {}).get("latest_journal_fill") or (previous or {}).get("latest_paper_fill") or {})
