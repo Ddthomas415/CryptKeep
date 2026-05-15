@@ -87,7 +87,7 @@ def _run_real_module(argv: list[str]) -> None:
     original_argv = list(sys.argv)
     sys.argv = [str(Path(__file__).resolve()), *argv]
     try:
-        runpy.run_module("scripts.run_intent_consumer", run_name="__main__")
+        runpy.run_module("scripts.run_live_intent_consumer", run_name="__main__")
     finally:
         sys.argv = original_argv
 
@@ -106,7 +106,7 @@ def main(argv: list[str] | None = None) -> int:
             except KeyboardInterrupt:
                 log("intent_consumer stopped (KeyboardInterrupt)")
                 return 0
-    log("intent_consumer wrapper launching real module: scripts.run_intent_consumer")
+    log("intent_consumer wrapper launching real module: scripts.run_live_intent_consumer")
     try:
         _run_real_module(argv)
         return 0

@@ -59,6 +59,24 @@ def test_intent_consumer_invalid_args_do_not_enter_safe_idle(monkeypatch):
     assert not any("SAFE-IDLE" in message for message in messages)
 
 
+def test_intent_consumer_wrapper_runs_live_module(monkeypatch):
+    seen: dict[str, object] = {}
+
+    def _fake_run_module(name: str, *, run_name: str):
+        seen["name"] = name
+        seen["run_name"] = run_name
+        return None
+
+    monkeypatch.setattr(consumer_safe, "runtime_trading_config_available", lambda: True)
+    monkeypatch.setattr(consumer_safe.runpy, "run_module", _fake_run_module)
+
+    assert consumer_safe.main(["run"]) == 0
+    assert seen == {
+        "name": "scripts.run_live_intent_consumer",
+        "run_name": "__main__",
+    }
+
+
 def test_live_reconciler_run_mode_nonzero_exit_enters_safe_idle(monkeypatch):
     messages: list[str] = []
 
