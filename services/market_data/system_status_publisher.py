@@ -16,6 +16,7 @@ LOCK_FILE = LOCKS / "tick_publisher.lock"
 STATUS_FILE = SNAPSHOTS / "system_status.latest.json"
 DEFAULT_POLL_INTERVAL_SEC = 2.0
 SAMPLE_OHLCV_DIR = Path(__file__).resolve().parents[2] / "sample_data" / "ohlcv"
+_SAMPLE_TICK_CURSOR: dict[tuple[str, str], int] = {}
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -66,32 +67,56 @@ def _use_sample_ohlcv_ticks() -> bool:
     return str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
-def _sample_tick(symbol: str, *, timeframe: str = "1d") -> dict | None:
+def _sample_ohlcv_rows(symbol: str, *, timeframe: str = "1d") -> list[list[float]]:
     normalized = normalize_symbol(symbol)
     sample = SAMPLE_OHLCV_DIR / f"{normalized.replace('/', '_')}_{timeframe}.json"
     if not sample.exists():
-        return None
+        return []
     try:
         rows = json.loads(sample.read_text(encoding="utf-8"))
     except Exception:
-        return None
+        return []
     if not isinstance(rows, list):
-        return None
-    for row in reversed(rows):
+        return []
+    out: list[list[float]] = []
+    for row in rows:
         if not isinstance(row, list) or len(row) < 6:
             continue
         try:
-            ts_ms = int(row[0] or 0)
-            close = float(row[4])
+            out.append(
+                [
+                    int(row[0] or 0),
+                    float(row[1]),
+                    float(row[2]),
+                    float(row[3]),
+                    float(row[4]),
+                    float(row[5]),
+                ]
+            )
         except Exception:
             continue
-        return {
-            "symbol": normalized,
-            "ts_ms": ts_ms,
-            "bid": close,
-            "ask": close,
-            "last": close,
-        }
+    return out
+
+
+def _sample_tick(symbol: str, *, timeframe: str = "1d") -> dict | None:
+    normalized = normalize_symbol(symbol)
+    rows = _sample_ohlcv_rows(symbol, timeframe=timeframe)
+    if not rows:
+        return None
+    key = (normalized, str(timeframe or "").strip().lower() or "1d")
+    idx = int(_SAMPLE_TICK_CURSOR.get(key, 0))
+    idx = max(0, min(idx, len(rows) - 1))
+    row = rows[idx]
+    _SAMPLE_TICK_CURSOR[key] = min(idx + 1, len(rows) - 1)
+    ts_ms = int(row[0] or 0)
+    close = float(row[4])
+    return {
+        "symbol": normalized,
+        "ts_ms": ts_ms,
+        "bid": close,
+        "ask": close,
+        "last": close,
+    }
     return None
 
 def fetch_status() -> dict:
