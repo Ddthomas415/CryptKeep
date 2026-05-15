@@ -2113,6 +2113,7 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
                 "email": False,
                 "email_enabled": False,
                 "email_address": "",
+                "desktop_notifications": True,
                 "delivery_mode": "instant",
                 "daily_digest_enabled": True,
                 "weekly_digest_enabled": True,
@@ -2211,6 +2212,7 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
             "Watchlist defaults (comma separated)": "btc, sol, link",
             "Email enabled": True,
             "Notification email": "desk@example.com",
+            "Local desktop alerts": False,
             "Delivery mode": "digest",
             "Daily digest": False,
             "Weekly digest": True,
@@ -2287,6 +2289,7 @@ def test_settings_page_builds_save_payload(monkeypatch) -> None:
     }
     assert captured["payload"]["notifications"]["email_enabled"] is True
     assert captured["payload"]["notifications"]["email_address"] == "desk@example.com"
+    assert captured["payload"]["notifications"]["desktop_notifications"] is False
     assert captured["payload"]["notifications"]["delivery_mode"] == "digest"
     assert captured["payload"]["notifications"]["confidence_threshold"] == 0.81
     assert captured["payload"]["notifications"]["discord"] is True

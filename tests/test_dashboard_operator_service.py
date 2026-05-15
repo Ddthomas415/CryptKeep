@@ -107,6 +107,46 @@ def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
     assert "OPERATOR" in out
 
 
+def test_start_paper_strategy_evidence_collection_honors_desktop_notification_setting(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_strategy_evidence_service.load_runtime_status",
+        lambda: {"ok": True, "pid_alive": False, "status": "dead"},
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "load_user_yaml",
+        lambda: {
+            "dashboard_ui": {
+                "settings": {
+                    "notifications": {
+                        "desktop_notifications": False,
+                    }
+                }
+            }
+        },
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "start_repo_script_background",
+        lambda script_relpath, args=None, current_role="VIEWER": (
+            0,
+            f"{script_relpath}|{' '.join(str(x) for x in (args or []))}|{current_role}",
+        ),
+    )
+
+    rc, out = operator_service.start_paper_strategy_evidence_collection(
+        runtime_sec=600.0,
+        strategies=["sma_200_trend"],
+        symbol="BTC/USD",
+        venue="coinbase",
+        current_role="OPERATOR",
+    )
+
+    assert rc == 0
+    assert "scripts/run_paper_strategy_evidence_collector.py" in out
+    assert "--no-desktop-notify" in out
+
+
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
     monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_consumer"])
     monkeypatch.setattr(

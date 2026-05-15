@@ -6,6 +6,7 @@ import sys
 from collections.abc import Sequence
 from dashboard.role_guard import require_role
 from pathlib import Path
+from services.admin.config_editor import load_user_yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SERVICES = ("tick_publisher", "reconciler", "intent_consumer")
@@ -152,6 +153,24 @@ def start_paper_strategy_evidence_collection(
     strategy_items = [str(item).strip() for item in list(strategies or []) if str(item).strip()]
     if strategy_items:
         args.extend(["--strategies", ",".join(strategy_items)])
+
+    cfg = load_user_yaml() if callable(load_user_yaml) else {}
+    dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg, dict) and isinstance(cfg.get("dashboard_ui"), dict) else {}
+    settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+    notifications_overlay = (
+        settings_overlay.get("notifications")
+        if isinstance(settings_overlay.get("notifications"), dict)
+        else {}
+    )
+    notifications_cfg = cfg.get("notifications") if isinstance(cfg, dict) and isinstance(cfg.get("notifications"), dict) else {}
+    desktop_notifications = bool(
+        notifications_overlay.get(
+            "desktop_notifications",
+            notifications_cfg.get("desktop_notifications", True),
+        )
+    )
+    if not desktop_notifications:
+        args.append("--no-desktop-notify")
 
     return start_repo_script_background(
         "scripts/run_paper_strategy_evidence_collector.py",
