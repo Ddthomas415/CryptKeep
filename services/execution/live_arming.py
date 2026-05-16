@@ -146,7 +146,14 @@ def live_enabled_and_armed() -> tuple[bool, str]:
     cfg = load_user_yaml()
     if not is_live_enabled(cfg):
         return False, "live_disabled"
-    return live_armed_signal()
+
+    # Live execution requires a boundary-provided runtime arm signal.
+    # Persisted arm state alone is advisory/status and must not arm live execution.
+    for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED"):
+        if _truthy(os.environ.get(name)):
+            return True, f"env:{name}"
+
+    return False, "live_not_armed"
 
 
 def live_risk_cfg() -> dict[str, float | int]:
