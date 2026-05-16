@@ -67,7 +67,7 @@ class LiveIntentQueueSQLite:
         _connect().close()
 
     def upsert_intent(self, row: Dict[str, Any]) -> None:
-        terminal = ("filled", "rejected", "canceled")
+        terminal = ("filled", "rejected", "canceled", "cancelled", "error")
         intent_id = str(row["intent_id"])
         meta_json = json.dumps(row.get("meta")) if row.get("meta") is not None else None
         now = _now()
