@@ -19,9 +19,9 @@ from services.os.file_utils import atomic_write
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
-STOP_FILE = FLAGS / "live_consumer.stop"
-LOCK_FILE = LOCKS / "live_consumer.lock"
-STATUS_FILE = FLAGS / "live_consumer.status.json"
+STOP_FILE = FLAGS / "live_intent_consumer.stop"
+LOCK_FILE = LOCKS / "live_intent_consumer.lock"
+STATUS_FILE = FLAGS / "live_intent_consumer.status.json"
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -32,9 +32,21 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
-    if LOCK_FILE.exists():
+    payload = json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n"
+    try:
+        fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
         return False
-    atomic_write(LOCK_FILE, json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+    except Exception:
+        try:
+            if LOCK_FILE.exists():
+                LOCK_FILE.unlink()
+        except Exception:
+            pass
+        raise
     return True
 
 def _release_lock() -> None:
