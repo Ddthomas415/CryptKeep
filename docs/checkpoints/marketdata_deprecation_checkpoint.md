@@ -1,3 +1,5 @@
+Status: RETIRED
+
 # marketdata deprecation checkpoint
 
 ## Target

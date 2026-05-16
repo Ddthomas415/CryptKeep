@@ -1,3 +1,5 @@
+Status: RETIRED
+
 # storage retirement readiness
 
 ## Current status
