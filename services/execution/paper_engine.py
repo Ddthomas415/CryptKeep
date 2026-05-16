@@ -195,23 +195,41 @@ class PaperEngine:
                 return {"ok": False, "reason": "insufficient_cash"}
             new_qty = pos_qty + qty
             new_avg = ((avg * pos_qty) + (price * qty)) / new_qty if new_qty > 0 else 0.0
-            self.db.upsert_position(order["symbol"], new_qty, new_avg, realized)
-            self.set_cash_quote(cash - cost)
+            new_cash = cash - cost
+            new_realized = realized
         else:
             if pos_qty < qty:
                 self.db.update_order_status(order["order_id"], "rejected", "insufficient_position")
                 return {"ok": False, "reason": "insufficient_position"}
             proceeds = price * qty - fee
             pnl = (price - avg) * qty
-            realized2 = realized + pnl
+            new_realized = realized + pnl
             new_qty = pos_qty - qty
             new_avg = avg if new_qty > 0 else 0.0
-            self.db.upsert_position(order["symbol"], new_qty, new_avg, realized2)
-            self.set_cash_quote(cash + proceeds)
-            self.set_realized_pnl(self.realized_pnl() + pnl)
+            new_cash = cash + proceeds
         fill_id = str(uuid.uuid4())
-        self.db.insert_fill({"fill_id": fill_id, "order_id": order["order_id"], "ts": self._clock(), "price": float(price), "qty": float(qty), "fee": float(fee), "fee_currency": str(fee_ccy)})
-        self.db.update_order_status(order["order_id"], "filled", None)
+        fill_row = {
+            "fill_id": fill_id,
+            "order_id": order["order_id"],
+            "ts": self._clock(),
+            "price": float(price),
+            "qty": float(qty),
+            "fee": float(fee),
+            "fee_currency": str(fee_ccy),
+        }
+        filled = self.db.atomic_fill(
+            symbol=order["symbol"],
+            new_qty=new_qty,
+            new_avg=new_avg,
+            realized_pnl=new_realized,
+            new_cash=new_cash,
+            new_realized_state=new_realized,
+            fill_row=fill_row,
+            order_id=order["order_id"],
+            side=order["side"],
+        )
+        if not filled:
+            return {"ok": False, "reason": "order_not_open"}
 
         # Evidence logging — strategy-specific, best-effort
         try:

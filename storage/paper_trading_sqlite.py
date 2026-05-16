@@ -70,6 +70,7 @@ def _connect() -> sqlite3.Connection:
     con = sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False)
     con.execute("PRAGMA journal_mode=WAL;")
     con.execute("PRAGMA synchronous=NORMAL;")
+    con.execute("PRAGMA foreign_keys=ON;")
     for stmt in SCHEMA.strip().split(";"):
         s = stmt.strip()
         if s:
@@ -184,6 +185,67 @@ class PaperTradingSQLite:
                 "INSERT OR REPLACE INTO paper_fills(fill_id, order_id, ts, price, qty, fee, fee_currency) VALUES(?,?,?,?,?,?,?)",
                 (str(row["fill_id"]), str(row["order_id"]), str(row["ts"]), float(row["price"]), float(row["qty"]), float(row["fee"]), str(row["fee_currency"])),
             )
+        finally:
+            con.close()
+
+    def atomic_fill(
+        self,
+        *,
+        symbol: str,
+        new_qty: float,
+        new_avg: float,
+        realized_pnl: float,
+        new_cash: float,
+        new_realized_state: float,
+        fill_row: dict,
+        order_id: str,
+        side: str,
+    ) -> bool:
+        """Claim order and write position/cash/fill atomically."""
+        con = _connect()
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            cur = con.execute(
+                "UPDATE paper_orders SET status='filled', reject_reason=NULL "
+                "WHERE order_id=? AND status='new'",
+                (str(order_id),),
+            )
+            if cur.rowcount == 0:
+                con.execute("ROLLBACK")
+                return False
+            con.execute(
+                "INSERT OR REPLACE INTO paper_positions(symbol, qty, avg_price, realized_pnl, updated_ts) VALUES(?,?,?,?,?)",
+                (str(symbol), float(new_qty), float(new_avg), float(realized_pnl), _now()),
+            )
+            con.execute(
+                "INSERT OR REPLACE INTO paper_state(k,v) VALUES(?,?)",
+                ("cash_quote", str(float(new_cash))),
+            )
+            if side == "sell":
+                con.execute(
+                    "INSERT OR REPLACE INTO paper_state(k,v) VALUES(?,?)",
+                    ("realized_pnl", str(float(new_realized_state))),
+                )
+            con.execute(
+                "INSERT OR REPLACE INTO paper_fills(fill_id, order_id, ts, price, qty, fee, fee_currency) VALUES(?,?,?,?,?,?,?)",
+                (
+                    str(fill_row["fill_id"]),
+                    str(fill_row["order_id"]),
+                    str(fill_row["ts"]),
+                    float(fill_row["price"]),
+                    float(fill_row["qty"]),
+                    float(fill_row["fee"]),
+                    str(fill_row["fee_currency"]),
+                ),
+            )
+            con.execute("COMMIT")
+            return True
+        except Exception:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
         finally:
             con.close()
 

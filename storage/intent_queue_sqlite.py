@@ -70,14 +70,21 @@ class IntentQueueSQLite:
         _connect().close()
 
     def upsert_intent(self, row: Dict[str, Any]) -> None:
+        """Insert new intent or update existing non-terminal intent without row replacement."""
+        terminal = ("filled", "rejected", "canceled")
+        intent_id = str(row["intent_id"])
+        meta_json = json.dumps(row.get("meta")) if row.get("meta") is not None else None
+        now = _now()
+
         con = _connect()
         try:
             con.execute(
-                "INSERT OR REPLACE INTO trade_intents(intent_id, created_ts, ts, source, strategy_id, action, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, meta, updated_ts) "
+                "INSERT OR IGNORE INTO trade_intents"
+                "(intent_id, created_ts, ts, source, strategy_id, action, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, meta, updated_ts) "
                 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
-                    str(row["intent_id"]),
-                    str(row.get("created_ts") or _now()),
+                    intent_id,
+                    str(row.get("created_ts") or now),
                     str(row["ts"]),
                     str(row["source"]),
                     row.get("strategy_id"),
@@ -92,8 +99,33 @@ class IntentQueueSQLite:
                     row.get("last_error"),
                     row.get("client_order_id"),
                     row.get("linked_order_id"),
-                    json.dumps(row.get("meta")) if row.get("meta") is not None else None,
-                    _now(),
+                    meta_json,
+                    now,
+                ),
+            )
+            placeholders = ",".join("?" for _ in terminal)
+            con.execute(
+                f"UPDATE trade_intents SET ts=?, source=?, strategy_id=?, action=?, venue=?, symbol=?, side=?, order_type=?, qty=?, limit_price=?, status=?, last_error=?, client_order_id=?, linked_order_id=?, meta=?, updated_ts=? "
+                f"WHERE intent_id=? AND status NOT IN ({placeholders})",
+                (
+                    str(row["ts"]),
+                    str(row["source"]),
+                    row.get("strategy_id"),
+                    row.get("action"),
+                    str(row["venue"]),
+                    str(row["symbol"]),
+                    str(row["side"]),
+                    str(row["order_type"]),
+                    float(row["qty"]),
+                    row.get("limit_price"),
+                    str(row["status"]),
+                    row.get("last_error"),
+                    row.get("client_order_id"),
+                    row.get("linked_order_id"),
+                    meta_json,
+                    now,
+                    intent_id,
+                    *terminal,
                 ),
             )
         finally:
@@ -176,7 +208,8 @@ class IntentQueueSQLite:
             if not live_queue_transition_allowed(current, nxt):
                 return
             con.execute(
-                "UPDATE trade_intents SET status=?, last_error=?, client_order_id=?, linked_order_id=?, updated_ts=? WHERE intent_id=?",
+                "UPDATE trade_intents SET status=?, last_error=?, client_order_id=?, linked_order_id=?, updated_ts=? "
+                "WHERE intent_id=? AND status NOT IN ('filled', 'rejected', 'canceled')",
                 (str(nxt), last_error, client_order_id, linked_order_id, _now(), str(intent_id)),
             )
         finally:
