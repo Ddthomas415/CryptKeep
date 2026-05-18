@@ -52,6 +52,7 @@ from dashboard.services.digest.utils import (
     pill as _pill,
     utc_iso as _utc_iso,
 )
+from dashboard.services.strategy_evidence_runtime import load_paper_sim_monitor_runtime
 from dashboard.services.operator import get_operations_snapshot
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import build_strategy_workbench
@@ -89,7 +90,7 @@ def _system_guard_caveat(payload: dict[str, Any]) -> str | None:
         parts.append(f"writer={writer}")
     if reason:
         parts.append(f"reason={reason}")
-    return " · ".join(parts) or None
+    return " Â· ".join(parts) or None
 
 
 def _load_trading_cfg() -> dict[str, Any]:
@@ -1525,6 +1526,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         leaderboard_summary=leaderboard_summary,
         mode_truth=mode_truth,
     )
+    paper_sim_monitor = load_paper_sim_monitor_runtime()
     page_status = _page_status(
         attention_now=attention_now,
         safety_warnings=safety_warnings,
@@ -1545,6 +1547,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         mode_truth=mode_truth,
         recent_incidents=recent_incidents,
         next_best_action=next_best_action,
+        paper_sim_monitor=paper_sim_monitor,
     )
 
 
