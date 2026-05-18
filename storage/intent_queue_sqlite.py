@@ -176,7 +176,7 @@ class IntentQueueSQLite:
             if not live_queue_transition_allowed(current, nxt):
                 return
             con.execute(
-                "UPDATE trade_intents SET status=?, last_error=?, client_order_id=?, linked_order_id=?, updated_ts=? WHERE intent_id=?",
+                "UPDATE trade_intents SET status=?, last_error=?, client_order_id=COALESCE(?, client_order_id), linked_order_id=COALESCE(?, linked_order_id), updated_ts=? WHERE intent_id=?",
                 (str(nxt), last_error, client_order_id, linked_order_id, _now(), str(intent_id)),
             )
         finally:
