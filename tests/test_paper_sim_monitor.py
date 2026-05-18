@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -238,6 +239,43 @@ def test_collect_once_ignores_post_window_same_symbol_artifacts(monkeypatch) -> 
     assert "no fill yet" in out["summary_text"]
 
 
+def test_register_watch_preserves_state_by_default_and_can_reset_it(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.watches_file().parent.mkdir(parents=True, exist_ok=True)
+    svc.watches_file().write_text(
+        json.dumps(
+            [
+                {
+                    "name": "next_fill",
+                    "trigger": "new_fill",
+                    "active": True,
+                    "created_at": "2026-05-15T18:00:53Z",
+                    "last_fired_at": "2026-05-15T18:00:54Z",
+                    "last_event_key": "paper:stale-fill",
+                    "last_report_stem": "paper_sim_monitor_watch_20260515T180054Z_next_fill",
+                }
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    preserved = svc.register_watch(name="next_fill", trigger="new_fill")
+    rows = svc.list_watches()
+    assert preserved["ok"] is True
+    assert preserved["reset_state"] is False
+    assert rows[0]["last_fired_at"] == "2026-05-15T18:00:54Z"
+    assert rows[0]["last_event_key"] == "paper:stale-fill"
+
+    reset = svc.register_watch(name="next_fill", trigger="new_fill", reset_state=True)
+    rows = svc.list_watches()
+    assert reset["ok"] is True
+    assert reset["reset_state"] is True
+    assert rows[0]["last_fired_at"] == ""
+    assert rows[0]["last_event_key"] == ""
+    assert rows[0]["last_report_stem"] == ""
+
+
 @pytest.mark.slow
 def test_run_forever_writes_status_and_history(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
@@ -359,6 +397,7 @@ def test_run_forever_collects_final_snapshot_before_stop(tmp_path, monkeypatch) 
 
     assert out["ok"] is True
     assert out["status"] == "stopped"
+    assert out["reason"] == "campaign_completed"
     assert out["campaign_status"] == "completed"
     assert out["recommendation"] == "enough_evidence"
     reasons = list(out["trigger_reasons"])
@@ -371,3 +410,90 @@ def test_run_forever_collects_final_snapshot_before_stop(tmp_path, monkeypatch) 
     assert status["campaign_status"] == "completed"
     lines = [line for line in svc.history_file().read_text(encoding="utf-8").splitlines() if line.strip()]
     assert len(lines) == 2
+
+
+def test_run_forever_writes_watch_report_when_named_watch_fires(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.register_watch(name="watch_fill", trigger="new_fill")
+    notify_calls: list[dict[str, object]] = []
+    snapshots = iter(
+        [
+            {
+                "ok": True,
+                "ts": "2026-05-15T02:05:00Z",
+                "monitor_name": svc.MONITOR_NAME,
+                "campaign_status": "running",
+                "campaign_reason": "collecting",
+                "recommendation": "continue",
+                "recommendation_reason": "awaiting_first_trade",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "fills_observed": 0,
+                "round_trips_observed": 0,
+                "current_window_realized_pnl": 0.0,
+                "position_realized_pnl_total": 0.0,
+                "equity_realized_pnl_total": 0.0,
+                "unrealized_pnl": 0.0,
+                "paper_position": {"qty": 0.0},
+                "latest_order": {},
+                "latest_paper_fill": {},
+                "latest_journal_fill": {},
+                "latest_equity": {},
+                "campaign_result": {},
+                "collector": {"status": "running"},
+                "strategy_runner": {"status": "running"},
+                "paper_engine": {"status": "running"},
+                "summary_text": "before",
+            },
+            {
+                "ok": True,
+                "ts": "2026-05-15T02:05:30Z",
+                "monitor_name": svc.MONITOR_NAME,
+                "campaign_status": "running",
+                "campaign_reason": "collecting",
+                "recommendation": "continue",
+                "recommendation_reason": "campaign_progress_visible",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "fills_observed": 1,
+                "round_trips_observed": 0,
+                "current_window_realized_pnl": 0.0,
+                "position_realized_pnl_total": 0.0,
+                "equity_realized_pnl_total": 0.0,
+                "unrealized_pnl": 0.0,
+                "paper_position": {"qty": 0.001},
+                "latest_order": {"order_id": "ord-1", "status": "filled"},
+                "latest_paper_fill": {},
+                "latest_journal_fill": {"fill_id": "fill-1", "side": "buy", "fill_ts": "2026-05-15T02:05:30Z"},
+                "latest_equity": {},
+                "campaign_result": {},
+                "collector": {"status": "running"},
+                "strategy_runner": {"status": "running"},
+                "paper_engine": {"status": "running"},
+                "summary_text": "after",
+            },
+        ]
+    )
+    monkeypatch.setattr(svc, "collect_once", lambda cfg: dict(next(snapshots)))
+    monkeypatch.setattr(
+        svc,
+        "_notify_local_desktop",
+        lambda payload: notify_calls.append(dict(payload)) or {"attempted": True, "sent": True, "reason": "notified"},
+    )
+    monkeypatch.setattr(svc.time, "sleep", lambda *_args, **_kwargs: None)
+
+    out = svc.run_forever(svc.PaperSimMonitorCfg(poll_interval_sec=0.01), max_loops=2)
+
+    assert out["ok"] is True
+    assert out["status"] == "stopped"
+    assert out["reason"] == "max_loops"
+    assert out["last_watch_reports_written"]
+    report = out["last_watch_reports_written"][0]
+    assert report["watch_name"] == "watch_fill"
+    assert report["desktop_notification"]["sent"] is True
+    assert Path(report["json_path"]).exists()
+    assert Path(report["markdown_path"]).exists()
+    assert notify_calls
+    status = json.loads(svc.status_file().read_text(encoding="utf-8"))
+    assert status["recent_watch_reports"][0]["watch_name"] == "watch_fill"
+    assert status["watches"][0]["last_report_stem"] == report["report_stem"]

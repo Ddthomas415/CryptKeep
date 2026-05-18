@@ -150,6 +150,7 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     stop_calls: list[str] = []
     started_names: list[str] = []
+    seeded_watches: list[tuple[str, str, bool]] = []
 
     monkeypatch.setattr(
         svc,
@@ -202,6 +203,11 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
         "_stop_component",
         lambda name: stop_calls.append(name) or {"ok": True, "component": name},
     )
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.register_watch",
+        lambda name="", trigger="", reset_state=False: seeded_watches.append((str(name), str(trigger), bool(reset_state)))
+        or {"ok": True, "name": name, "trigger": trigger, "reset_state": bool(reset_state)},
+    )
 
     out = svc.run_campaign(
         svc.PaperStrategyEvidenceServiceCfg(
@@ -215,6 +221,8 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     assert out["reason"] == "completed"
     assert out["completed_strategies"] == 2
     assert out["started_components"] == {"tick_publisher": 123, "paper_engine": 456, "paper_sim_monitor": 789}
+    assert out["paper_sim_monitor_watch_seed"]["ok"] is True
+    assert out["paper_sim_monitor_watch_seed"]["watch_count"] == 4
     assert out["evidence"]["latest_path"].endswith("strategy_evidence.latest.json")
     assert out["decision_record"]["path"].endswith("decision_record.md")
     status = json.loads(svc.status_file().read_text(encoding="utf-8"))
@@ -225,6 +233,12 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     assert "paper_sim_monitor" in stop_calls
     assert "tick_publisher" in stop_calls
     assert "paper_engine" in stop_calls
+    assert seeded_watches == [
+        ("next_fill", "new_fill", True),
+        ("position_closed", "position_closed", True),
+        ("campaign_completed", "campaign_completed", True),
+        ("investigate", "recommendation_investigate", True),
+    ]
 
 
 def test_component_argv_builds_paper_sim_monitor_args() -> None:
@@ -236,6 +250,78 @@ def test_component_argv_builds_paper_sim_monitor_args() -> None:
     out = svc._component_argv("paper_sim_monitor", cfg=cfg)
 
     assert out == ["--interval-sec", "7.5", "--min-closed-trades", "3"]
+
+
+def test_component_argv_builds_paper_sim_monitor_args_with_no_desktop_notify() -> None:
+    cfg = svc.PaperStrategyEvidenceServiceCfg(
+        paper_sim_monitor_interval_sec=7.5,
+        paper_sim_monitor_min_closed_trades_for_enough_evidence=3,
+        paper_sim_monitor_desktop_notify=False,
+    )
+
+    out = svc._component_argv("paper_sim_monitor", cfg=cfg)
+
+    assert out == ["--interval-sec", "7.5", "--min-closed-trades", "3", "--no-desktop-notify"]
+
+
+def test_run_campaign_continues_when_default_watch_seed_fails(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+    monkeypatch.setattr(
+        svc,
+        "_component_runtime",
+        lambda name: {"name": name, "pid_alive": False, "pid": 0, "status": "not_started"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_ensure_component",
+        lambda name, *, cfg: {"name": name, "started": True, "pid": 123 if name == "tick_publisher" else 456, "status": "running"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_run_strategy_window",
+        lambda *, cfg, strategy_name: {
+            "strategy": str(strategy_name),
+            "runtime_sec": 1.0,
+            "stop_reason": "runtime_elapsed",
+            "runner_status": "stopped",
+            "enqueued_total": 0,
+            "fills_delta": 0,
+            "closed_trades_delta": 0,
+            "net_realized_pnl_delta": 0.0,
+            "fills_total": 0,
+            "closed_trades_total": 0,
+            "net_realized_pnl_total": 0.0,
+            "latest_fill_ts": "",
+        },
+    )
+    monkeypatch.setattr(svc, "run_strategy_evidence_cycle", lambda **kwargs: (_ for _ in ()).throw(AssertionError("should not rerun evidence")))
+    monkeypatch.setattr(svc, "persist_strategy_evidence", lambda report: (_ for _ in ()).throw(AssertionError("should not persist evidence")))
+    monkeypatch.setattr(svc, "write_decision_record", lambda report, *, artifact_path="": (_ for _ in ()).throw(AssertionError("should not rewrite decision record")))
+    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+    monkeypatch.setattr(svc, "_stop_component", lambda name: {"ok": True, "component": name})
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.register_watch",
+        lambda name="", trigger="", reset_state=False: {
+            "ok": False,
+            "reason": "write_failed",
+            "name": name,
+            "trigger": trigger,
+            "reset_state": bool(reset_state),
+        },
+    )
+
+    out = svc.run_campaign(
+        svc.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            per_strategy_runtime_sec=1.0,
+        )
+    )
+
+    assert out["ok"] is True
+    assert out["status"] == "completed"
+    assert out["paper_sim_monitor_watch_seed"]["ok"] is False
+    assert "paper_sim_watch_register_failed" in str(out["paper_sim_monitor_watch_seed"]["reason"])
 
 
 def test_run_campaign_seeds_flat_position_state_before_strategy_window(tmp_path, monkeypatch) -> None:

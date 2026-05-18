@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
+import subprocess
+import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -10,14 +13,22 @@ from pathlib import Path
 from typing import Any
 
 from services.admin.config_editor import load_user_yaml
+from services.ai_copilot.policy import report_root
 from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
-from services.os.app_paths import ensure_dirs, runtime_dir
+from services.os.app_paths import config_dir, ensure_dirs, runtime_dir
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
 
 logger = logging.getLogger(__name__)
 
 MONITOR_NAME = "paper_sim_monitor"
+WATCH_TRIGGERS = {
+    "new_fill",
+    "position_opened",
+    "position_closed",
+    "campaign_completed",
+    "recommendation_investigate",
+}
 
 
 def _now_iso() -> str:
@@ -48,6 +59,10 @@ def history_file() -> Path:
     return _health_dir() / f"{MONITOR_NAME}.history.jsonl"
 
 
+def watches_file() -> Path:
+    return config_dir() / f"{MONITOR_NAME}.watches.json"
+
+
 def _write_status(obj: dict[str, Any]) -> None:
     ensure_dirs()
     _health_dir().mkdir(parents=True, exist_ok=True)
@@ -69,6 +84,17 @@ def _append_history(obj: dict[str, Any]) -> None:
 
 def _load_json(path: Path) -> dict[str, Any]:
     return dict(json.loads(path.read_text(encoding="utf-8")) or {})
+
+
+def _read_json_list(path: Path) -> list[dict[str, Any]]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, list):
+        return []
+    out: list[dict[str, Any]] = []
+    for item in payload:
+        if isinstance(item, dict):
+            out.append(dict(item))
+    return out
 
 
 def _clear_pid_state() -> None:
@@ -109,6 +135,97 @@ def _strategy_runner_status() -> dict[str, Any]:
 
 def _paper_engine_status() -> dict[str, Any]:
     return _read_json_if_exists(runtime_dir() / "flags" / "paper_engine.status.json")
+
+
+def _load_watches() -> list[dict[str, Any]]:
+    if not watches_file().exists():
+        return []
+    try:
+        rows = _read_json_list(watches_file())
+    except Exception:
+        return []
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        name = str(row.get("name") or "").strip()
+        trigger = str(row.get("trigger") or "").strip()
+        if not name or trigger not in WATCH_TRIGGERS:
+            continue
+        out.append(
+            {
+                "name": name,
+                "trigger": trigger,
+                "active": bool(row.get("active", True)),
+                "created_at": str(row.get("created_at") or ""),
+                "last_fired_at": str(row.get("last_fired_at") or ""),
+                "last_event_key": str(row.get("last_event_key") or ""),
+                "last_report_stem": str(row.get("last_report_stem") or ""),
+            }
+        )
+    return out
+
+
+def _save_watches(rows: list[dict[str, Any]]) -> None:
+    ensure_dirs()
+    config_dir().mkdir(parents=True, exist_ok=True)
+    watches_file().write_text(json.dumps(rows, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def list_watches() -> list[dict[str, Any]]:
+    return _load_watches()
+
+
+def register_watch(*, name: str, trigger: str, reset_state: bool = False) -> dict[str, Any]:
+    watch_name = str(name or "").strip()
+    watch_trigger = str(trigger or "").strip()
+    if not watch_name:
+        return {"ok": False, "reason": "watch_name_required"}
+    if watch_trigger not in WATCH_TRIGGERS:
+        return {"ok": False, "reason": "invalid_trigger", "valid_triggers": sorted(WATCH_TRIGGERS)}
+    rows = _load_watches()
+    updated = False
+    for row in rows:
+        if str(row.get("name") or "").strip() == watch_name:
+            row["trigger"] = watch_trigger
+            row["active"] = True
+            if bool(reset_state):
+                row["last_fired_at"] = ""
+                row["last_event_key"] = ""
+                row["last_report_stem"] = ""
+            updated = True
+            break
+    if not updated:
+        rows.append(
+            {
+                "name": watch_name,
+                "trigger": watch_trigger,
+                "active": True,
+                "created_at": _now_iso(),
+                "last_fired_at": "",
+                "last_event_key": "",
+                "last_report_stem": "",
+            }
+        )
+    _save_watches(rows)
+    return {
+        "ok": True,
+        "name": watch_name,
+        "trigger": watch_trigger,
+        "reset_state": bool(reset_state),
+        "watch_count": len(rows),
+        "watches_path": str(watches_file()),
+    }
+
+
+def delete_watch(*, name: str) -> dict[str, Any]:
+    watch_name = str(name or "").strip()
+    if not watch_name:
+        return {"ok": False, "reason": "watch_name_required"}
+    rows = _load_watches()
+    kept = [row for row in rows if str(row.get("name") or "").strip() != watch_name]
+    if len(kept) == len(rows):
+        return {"ok": False, "reason": "watch_not_found", "name": watch_name}
+    _save_watches(kept)
+    return {"ok": True, "name": watch_name, "watch_count": len(kept), "watches_path": str(watches_file())}
 
 
 def _configured_strategy_runner() -> dict[str, Any]:
@@ -334,6 +451,7 @@ def _summary_text(
 class PaperSimMonitorCfg:
     poll_interval_sec: float = 300.0
     min_closed_trades_for_enough_evidence: int = 1
+    desktop_notify: bool = True
 
 
 def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
@@ -446,6 +564,215 @@ def request_stop() -> dict[str, Any]:
     return {"ok": True, "stop_file": str(stop_file())}
 
 
+def _report_severity(recommendation: str) -> str:
+    rec = str(recommendation or "").strip().lower()
+    return "warn" if rec == "investigate" else "info"
+
+
+def _osascript_escape(text: str) -> str:
+    return str(text or "").replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _notify_local_desktop(payload: dict[str, Any]) -> dict[str, Any]:
+    if sys.platform != "darwin":
+        return {"attempted": False, "sent": False, "reason": "unsupported_platform"}
+    binary = shutil.which("osascript")
+    if not binary:
+        return {"attempted": False, "sent": False, "reason": "osascript_missing"}
+
+    watch_name = str(payload.get("watch_name") or "paper_sim_watch").strip()
+    strategy_label = str(payload.get("strategy_label") or "unknown_strategy").strip()
+    symbol = str(payload.get("symbol") or "unknown_symbol").strip()
+    recommendation = str(payload.get("recommendation") or "continue").strip()
+    message = (str(payload.get("summary") or "").strip() or f"{strategy_label} on {symbol}")[:220]
+    title = f"CryptKeep: {watch_name}"
+    subtitle = f"{strategy_label} · {symbol} · {recommendation}"
+    script = (
+        f'display notification "{_osascript_escape(message)}" '
+        f'with title "{_osascript_escape(title)}" '
+        f'subtitle "{_osascript_escape(subtitle)}"'
+    )
+    try:
+        proc = subprocess.run(
+            [binary, "-e", script],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+            timeout=5.0,
+            check=False,
+        )
+    except Exception as exc:
+        return {"attempted": True, "sent": False, "reason": f"notify_failed:{type(exc).__name__}"}
+    if int(proc.returncode or 0) != 0:
+        return {"attempted": True, "sent": False, "reason": f"notify_exit:{int(proc.returncode or 0)}"}
+    return {"attempted": True, "sent": True, "reason": "notified"}
+
+
+def _watch_event_key(previous: dict[str, Any] | None, current: dict[str, Any], watch: dict[str, Any]) -> str:
+    if previous is None:
+        return ""
+    trigger = str(watch.get("trigger") or "")
+    current_fill = dict(current.get("latest_journal_fill") or current.get("latest_paper_fill") or {})
+    previous_fill = dict((previous or {}).get("latest_journal_fill") or (previous or {}).get("latest_paper_fill") or {})
+    current_position = dict(current.get("paper_position") or {})
+    previous_position = dict((previous or {}).get("paper_position") or {})
+    current_campaign_status = str(current.get("campaign_status") or "").strip().lower()
+    previous_campaign_status = str((previous or {}).get("campaign_status") or "").strip().lower()
+    current_recommendation = str(current.get("recommendation") or "").strip().lower()
+    previous_recommendation = str((previous or {}).get("recommendation") or "").strip().lower()
+    current_fill_id = str(current_fill.get("fill_id") or "").strip()
+    previous_fill_id = str(previous_fill.get("fill_id") or "").strip()
+    current_qty = _safe_float(current_position.get("qty"))
+    previous_qty = _safe_float(previous_position.get("qty"))
+    current_round_trips = _safe_int(current.get("round_trips_observed"))
+    previous_round_trips = _safe_int((previous or {}).get("round_trips_observed"))
+
+    if trigger == "new_fill" and current_fill_id and current_fill_id != previous_fill_id:
+        return current_fill_id
+    if trigger == "position_opened" and previous_qty == 0.0 and current_qty != 0.0:
+        return str(current_fill_id or current.get("ts") or "")
+    if trigger == "position_closed" and current_qty == 0.0 and (
+        previous_qty != 0.0 or current_round_trips > previous_round_trips
+    ):
+        return str(current_fill_id or current.get("ts") or "")
+    if trigger == "campaign_completed" and current_campaign_status == "completed" and previous_campaign_status != "completed":
+        return str(current.get("ts") or "")
+    if trigger == "recommendation_investigate" and current_recommendation == "investigate" and previous_recommendation != "investigate":
+        return f"{current.get('recommendation_reason') or ''}:{current.get('ts') or ''}"
+    return ""
+
+
+def render_watch_markdown(payload: dict[str, Any]) -> str:
+    lines = [
+        f"# Paper Sim Monitor Watch `{payload.get('watch_name')}`",
+        "",
+        f"- Generated: {payload.get('generated_at')}",
+        f"- Trigger: `{payload.get('trigger')}`",
+        f"- Severity: `{payload.get('severity')}`",
+        f"- Summary: {payload.get('summary')}",
+        f"- Recommendation: `{payload.get('recommendation')}`",
+        f"- Strategy: `{payload.get('strategy_label')}`",
+        f"- Symbol: `{payload.get('symbol')}`",
+        "",
+        "## Snapshot",
+        "```json",
+        json.dumps(payload.get("snapshot") or {}, indent=2, sort_keys=True),
+        "```",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def _write_watch_report(payload: dict[str, Any], *, stem: str) -> dict[str, str]:
+    root = report_root()
+    json_path = root / f"{stem}.json"
+    markdown_path = root / f"{stem}.md"
+    json_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    markdown_path.write_text(render_watch_markdown(payload), encoding="utf-8")
+    return {"json_path": str(json_path), "markdown_path": str(markdown_path)}
+
+
+def _recent_watch_reports(*, limit: int = 5) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for path in sorted(report_root().glob(f"{MONITOR_NAME}_watch_*.json"), reverse=True)[: max(1, int(limit or 5))]:
+        try:
+            payload = _load_json(path)
+        except Exception:
+            continue
+        rows.append(
+            {
+                "stem": path.stem,
+                "generated_at": str(payload.get("generated_at") or ""),
+                "watch_name": str(payload.get("watch_name") or ""),
+                "trigger": str(payload.get("trigger") or ""),
+                "summary": str(payload.get("summary") or ""),
+                "severity": str(payload.get("severity") or ""),
+                "json_path": str(path),
+                "markdown_path": str(path.with_suffix(".md")),
+            }
+        )
+    return rows
+
+
+def _merge_watch_reports(
+    existing: list[dict[str, Any]],
+    new_rows: list[dict[str, Any]],
+    *,
+    limit: int = 10,
+) -> list[dict[str, Any]]:
+    merged = [dict(item) for item in list(existing or []) if isinstance(item, dict)]
+    seen = {str(item.get("report_stem") or "").strip() for item in merged if str(item.get("report_stem") or "").strip()}
+    for row in list(new_rows or []):
+        if not isinstance(row, dict):
+            continue
+        stem = str(row.get("report_stem") or "").strip()
+        if stem and stem in seen:
+            continue
+        merged.append(dict(row))
+        if stem:
+            seen.add(stem)
+    return merged[-max(1, int(limit or 10)) :]
+
+
+def _fire_watch_reports(
+    *,
+    previous_snapshot: dict[str, Any] | None,
+    current_snapshot: dict[str, Any],
+    watches: list[dict[str, Any]],
+    desktop_notify: bool,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    fired: list[dict[str, Any]] = []
+    updated_watches: list[dict[str, Any]] = []
+    for watch in watches:
+        row = dict(watch)
+        event_key = _watch_event_key(previous_snapshot, current_snapshot, row)
+        if event_key and event_key != str(row.get("last_event_key") or ""):
+            stem = f"{MONITOR_NAME}_watch_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}_{row['name']}"
+            summary = (
+                f"Watch `{row['name']}` fired on `{row['trigger']}` for "
+                f"{current_snapshot.get('strategy_label') or 'unknown_strategy'} on {current_snapshot.get('symbol') or 'unknown_symbol'}."
+            )
+            payload = {
+                "generated_at": _now_iso(),
+                "monitor_name": MONITOR_NAME,
+                "watch_name": str(row.get("name") or ""),
+                "trigger": str(row.get("trigger") or ""),
+                "severity": _report_severity(str(current_snapshot.get("recommendation") or "")),
+                "summary": summary,
+                "recommendation": str(current_snapshot.get("recommendation") or ""),
+                "recommendation_reason": str(current_snapshot.get("recommendation_reason") or ""),
+                "strategy_label": str(current_snapshot.get("strategy_label") or ""),
+                "symbol": str(current_snapshot.get("symbol") or ""),
+                "venue": str(current_snapshot.get("venue") or ""),
+                "event_key": event_key,
+                "snapshot": current_snapshot,
+            }
+            notify_result = (
+                _notify_local_desktop(payload)
+                if bool(desktop_notify)
+                else {"attempted": False, "sent": False, "reason": "disabled"}
+            )
+            payload["desktop_notification"] = notify_result
+            paths = _write_watch_report(payload, stem=stem)
+            fired.append(
+                {
+                    "watch_name": str(row.get("name") or ""),
+                    "trigger": str(row.get("trigger") or ""),
+                    "report_stem": stem,
+                    "summary": summary,
+                    "severity": payload["severity"],
+                    "json_path": paths["json_path"],
+                    "markdown_path": paths["markdown_path"],
+                    "event_key": event_key,
+                    "desktop_notification": notify_result,
+                }
+            )
+            row["last_fired_at"] = str(payload.get("generated_at") or "")
+            row["last_event_key"] = event_key
+            row["last_report_stem"] = stem
+        updated_watches.append(row)
+    return updated_watches, fired
+
+
 def _signature_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
     latest_fill = dict(snapshot.get("latest_journal_fill") or snapshot.get("latest_paper_fill") or {})
     latest_order = dict(snapshot.get("latest_order") or {})
@@ -485,6 +812,15 @@ def _change_reasons(previous: dict[str, Any] | None, current: dict[str, Any]) ->
     }
     reasons = [label for key, label in labels.items() if previous.get(key) != current.get(key)]
     return reasons or ["heartbeat_only"]
+
+
+def _terminal_monitor_reason(snapshot: dict[str, Any]) -> str:
+    campaign_status = str(snapshot.get("campaign_status") or "").strip().lower()
+    if campaign_status == "completed":
+        return "campaign_completed"
+    if campaign_status in {"failed", "dead"}:
+        return f"campaign_{campaign_status}"
+    return "stop_requested"
 
 
 def load_runtime_status() -> dict[str, Any]:
@@ -533,7 +869,13 @@ def load_runtime_status() -> dict[str, Any]:
         or payload.get("min_closed_trades_for_enough_evidence")
         or 0
     )
+    payload["desktop_notify"] = bool(
+        pid_state.get("desktop_notify", payload.get("desktop_notify", True))
+    )
     payload["history_path"] = str(history_file())
+    payload["watches_path"] = str(watches_file())
+    payload["watches"] = list_watches()
+    payload["recent_watch_reports"] = _recent_watch_reports(limit=3)
 
     if pid_state and payload.get("status") == "running" and not pid_alive:
         payload["status"] = "dead"
@@ -562,6 +904,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "min_closed_trades_for_enough_evidence": int(
                 existing.get("min_closed_trades_for_enough_evidence") or cfg.min_closed_trades_for_enough_evidence
             ),
+            "desktop_notify": bool(existing.get("desktop_notify", cfg.desktop_notify)),
         }
     try:
         if stop_file().exists():
@@ -578,13 +921,16 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "started_ts": _now_iso(),
             "poll_interval_sec": float(cfg.poll_interval_sec),
             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+            "desktop_notify": bool(cfg.desktop_notify),
         }
     )
 
     loops = 0
     changes_written = 0
     last_snapshot: dict[str, Any] = {}
+    run_watch_reports_written: list[dict[str, Any]] = []
     previous_signature: dict[str, Any] | None = None
+    previous_snapshot: dict[str, Any] | None = None
     _write_status(
         {
             "ok": True,
@@ -597,30 +943,57 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "pid": current_pid,
             "poll_interval_sec": float(cfg.poll_interval_sec),
             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+            "desktop_notify": bool(cfg.desktop_notify),
             "history_path": str(history_file()),
+            "watches_path": str(watches_file()),
+            "watches": list_watches(),
+            "recent_watch_reports": _recent_watch_reports(limit=3),
             "summary_text": "Paper sim monitor is starting.",
         }
     )
 
     while True:
         if stop_file().exists():
+            final_watch_reports: list[dict[str, Any]] = []
             final_trigger_reasons = ["stop_requested"]
-            if previous_signature is not None or last_snapshot:
+            final_watches = list_watches()
+            if previous_signature is not None or previous_snapshot is not None:
                 try:
                     final_snapshot = collect_once(cfg)
                     final_signature = _signature_payload(final_snapshot)
                     final_trigger_reasons = _change_reasons(previous_signature, final_signature) + ["stop_requested"]
+                    updated_watches, final_watch_reports = _fire_watch_reports(
+                        previous_snapshot=previous_snapshot,
+                        current_snapshot=final_snapshot,
+                        watches=final_watches,
+                        desktop_notify=bool(cfg.desktop_notify),
+                    )
+                    run_watch_reports_written = _merge_watch_reports(run_watch_reports_written, final_watch_reports)
+                    if updated_watches != final_watches:
+                        _save_watches(updated_watches)
+                    final_watches = updated_watches
                     if previous_signature is None or final_signature != previous_signature:
                         changes_written += 1
                         _append_history(
                             {
                                 "ts": final_snapshot.get("ts") or _now_iso(),
                                 "trigger_reasons": final_trigger_reasons,
+                                "watch_reports_written": final_watch_reports,
                                 **final_snapshot,
                             }
                         )
                         previous_signature = final_signature
+                    elif final_watch_reports:
+                        _append_history(
+                            {
+                                "ts": final_snapshot.get("ts") or _now_iso(),
+                                "trigger_reasons": ["watch_report_written", "stop_requested"],
+                                "watch_reports_written": final_watch_reports,
+                                **final_snapshot,
+                            }
+                        )
                     last_snapshot = dict(final_snapshot)
+                    previous_snapshot = dict(final_snapshot)
                 except Exception as exc:
                     logger.warning(
                         "paper_sim_monitor_final_snapshot_failed",
@@ -637,10 +1010,16 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
                 "pid": current_pid,
                 "poll_interval_sec": float(cfg.poll_interval_sec),
                 "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+                "desktop_notify": bool(cfg.desktop_notify),
                 "history_path": str(history_file()),
+                "watches_path": str(watches_file()),
+                "watches": final_watches,
+                "recent_watch_reports": _recent_watch_reports(limit=3),
+                "last_watch_reports_written": run_watch_reports_written,
                 "trigger_reasons": final_trigger_reasons,
                 **last_snapshot,
             }
+            out["reason"] = _terminal_monitor_reason(last_snapshot)
             _write_status(out)
             _clear_pid_state()
             return out
@@ -649,17 +1028,38 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
         snapshot = collect_once(cfg)
         current_signature = _signature_payload(snapshot)
         change_reasons = _change_reasons(previous_signature, current_signature)
+        watches = list_watches()
+        updated_watches, fired_watch_reports = _fire_watch_reports(
+            previous_snapshot=previous_snapshot,
+            current_snapshot=snapshot,
+            watches=watches,
+            desktop_notify=bool(cfg.desktop_notify),
+        )
+        run_watch_reports_written = _merge_watch_reports(run_watch_reports_written, fired_watch_reports)
+        if updated_watches != watches:
+            _save_watches(updated_watches)
         if previous_signature is None or current_signature != previous_signature:
             changes_written += 1
             _append_history(
                 {
                     "ts": snapshot.get("ts") or _now_iso(),
                     "trigger_reasons": change_reasons,
+                    "watch_reports_written": fired_watch_reports,
                     **snapshot,
                 }
             )
             previous_signature = current_signature
+        elif fired_watch_reports:
+            _append_history(
+                {
+                    "ts": snapshot.get("ts") or _now_iso(),
+                    "trigger_reasons": ["watch_report_written"],
+                    "watch_reports_written": fired_watch_reports,
+                    **snapshot,
+                }
+            )
         last_snapshot = dict(snapshot)
+        previous_snapshot = dict(snapshot)
         out = {
             "ok": True,
             "has_status": True,
@@ -671,7 +1071,12 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
             "pid": current_pid,
             "poll_interval_sec": float(cfg.poll_interval_sec),
             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+            "desktop_notify": bool(cfg.desktop_notify),
             "history_path": str(history_file()),
+            "watches_path": str(watches_file()),
+            "watches": updated_watches,
+            "recent_watch_reports": _recent_watch_reports(limit=3),
+            "last_watch_reports_written": run_watch_reports_written,
             "trigger_reasons": change_reasons,
             **snapshot,
         }

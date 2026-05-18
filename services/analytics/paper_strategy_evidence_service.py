@@ -35,6 +35,12 @@ logger = logging.getLogger(__name__)
 DEFAULT_STRATEGIES = ("ema_cross", "breakout_donchian", "mean_reversion_rsi")
 DEFAULT_VENUE = str(os.environ.get("CBP_VENUE") or "coinbase").strip().lower() or "coinbase"
 DEFAULT_SYMBOL = ([item.strip() for item in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if item.strip()] or ["BTC/USD"])[0]
+DEFAULT_PAPER_SIM_MONITOR_WATCHES = (
+    ("next_fill", "new_fill"),
+    ("position_closed", "position_closed"),
+    ("campaign_completed", "campaign_completed"),
+    ("investigate", "recommendation_investigate"),
+)
 
 
 def _now_iso() -> str:
@@ -291,6 +297,47 @@ def _strategy_list(raw: Any) -> tuple[str, ...]:
     return tuple(canonical or DEFAULT_STRATEGIES)
 
 
+def _paper_sim_monitor_watch_list(raw: Any) -> tuple[tuple[str, str], ...]:
+    out: list[tuple[str, str]] = []
+    for item in list(raw or []):
+        if not isinstance(item, (list, tuple)) or len(item) != 2:
+            continue
+        name = str(item[0] or "").strip()
+        trigger = str(item[1] or "").strip()
+        if not name or not trigger:
+            continue
+        out.append((name, trigger))
+    return tuple(out)
+
+
+def _seed_paper_sim_monitor_watches(raw: Any) -> dict[str, Any]:
+    watches = _paper_sim_monitor_watch_list(raw)
+    if not watches:
+        return {"ok": True, "seeded": [], "watch_count": 0, "reason": "no_default_watches"}
+    try:
+        from services.analytics import paper_sim_monitor as monitor_service
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_monitor_import_failed:{type(exc).__name__}:{exc}"}
+
+    seeded: list[dict[str, Any]] = []
+    for name, trigger in watches:
+        result = dict(monitor_service.register_watch(name=name, trigger=trigger, reset_state=True) or {})
+        seeded.append(result)
+        if not bool(result.get("ok")):
+            return {
+                "ok": False,
+                "reason": f"paper_sim_watch_register_failed:{name}:{result.get('reason') or 'unknown'}",
+                "seeded": seeded,
+                "watch_count": len(seeded),
+            }
+    return {
+        "ok": True,
+        "seeded": seeded,
+        "watch_count": len(seeded),
+        "watch_names": [name for name, _trigger in watches],
+    }
+
+
 def request_stop() -> dict[str, Any]:
     ensure_dirs()
     _flags_dir().mkdir(parents=True, exist_ok=True)
@@ -506,12 +553,15 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
 def _component_argv(name: str, *, cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
     if name != "paper_sim_monitor":
         return []
-    return [
+    argv = [
         "--interval-sec",
         str(float(cfg.paper_sim_monitor_interval_sec)),
         "--min-closed-trades",
         str(int(cfg.paper_sim_monitor_min_closed_trades_for_enough_evidence)),
     ]
+    if not bool(cfg.paper_sim_monitor_desktop_notify):
+        argv.append("--no-desktop-notify")
+    return argv
 
 
 def _target_symbols(cfg: "PaperStrategyEvidenceServiceCfg") -> list[str]:
@@ -823,6 +873,8 @@ class PaperStrategyEvidenceServiceCfg:
     enable_paper_sim_monitor: bool = True
     paper_sim_monitor_interval_sec: float = 5.0
     paper_sim_monitor_min_closed_trades_for_enough_evidence: int = 1
+    paper_sim_monitor_desktop_notify: bool = True
+    paper_sim_monitor_default_watches: tuple[tuple[str, str], ...] = DEFAULT_PAPER_SIM_MONITOR_WATCHES
 
 
 def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | None = None) -> dict[str, Any]:
@@ -877,6 +929,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
     campaign_reason = "completed"
     evidence_out: dict[str, Any] = {}
     decision_record_out: dict[str, Any] = {}
+    monitor_watch_seed_out: dict[str, Any] = {}
     campaign_finished_ok = False
 
     _write_status(
@@ -909,6 +962,13 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                 started_components[name] = int(comp.get("pid") or 0)
             else:
                 reused_components[name] = int(comp.get("pid") or 0)
+        if bool(cfg.enable_paper_sim_monitor):
+            monitor_watch_seed_out = _seed_paper_sim_monitor_watches(cfg.paper_sim_monitor_default_watches)
+            if not bool(monitor_watch_seed_out.get("ok")):
+                logger.warning(
+                    "paper_sim_monitor_watch_seed_failed",
+                    extra={"reason": str(monitor_watch_seed_out.get("reason") or "unknown")},
+                )
 
         for idx, strategy_name in enumerate(strategies, start=1):
             if stop_file().exists():
@@ -940,6 +1000,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                     "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
                     "started_components": started_components,
                     "reused_components": reused_components,
+                    "paper_sim_monitor_watch_seed": monitor_watch_seed_out,
                     "results": results,
                     "summary_text": _summary_text(
                         {
@@ -970,6 +1031,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                     "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
                     "started_components": dict(started_components),
                     "reused_components": dict(reused_components),
+                    "paper_sim_monitor_watch_seed": dict(monitor_watch_seed_out),
                 }
                 _write_status(out)
                 return out
@@ -1042,6 +1104,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
             "started_components": started_components,
             "reused_components": reused_components,
+            "paper_sim_monitor_watch_seed": monitor_watch_seed_out,
             "results": results,
             "summary_text": "Paper strategy evidence collector failed before completing the campaign.",
         }
@@ -1098,6 +1161,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
         "started_components": started_components,
         "reused_components": reused_components,
         "results": results,
+        "paper_sim_monitor_watch_seed": monitor_watch_seed_out,
         "evidence": evidence_out,           # legacy leaderboard artifact
         "jsonl_evidence": _jsonl_evidence,  # canonical JSONL evidence (new)
         "decision_record": decision_record_out,

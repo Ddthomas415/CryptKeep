@@ -29,6 +29,14 @@ Signal source: `public_ohlcv_1d` → fetches daily OHLCV → calls `es_daily_tre
 
 The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
 It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.
+Managed paper campaigns also auto-seed default paper-sim watches:
+- `next_fill`
+- `position_closed`
+- `campaign_completed`
+- `investigate`
+
+When one of those watches fires, the monitor writes JSON/Markdown reports under `.cbp_state/runtime/ai_reports/`
+and attempts a local macOS desktop notification.
 
 ## Where evidence goes
 
