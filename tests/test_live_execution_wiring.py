@@ -300,8 +300,7 @@ def test_live_intent_consumer_recovers_existing_remote_order_before_submit(monke
     monkeypatch.setattr(consumer, "is_snapshot_fresh", lambda: (True, None))
     monkeypatch.setattr(consumer, "_live_sandbox_enabled", lambda: True)
     monkeypatch.setattr(consumer, "mq_check", lambda venue, symbol: {"ok": True, "last": 100.0})
-    monkeypatch.setattr(consumer, "_risk_ok", lambda db, notional_est: (True, None))
-    monkeypatch.setattr(consumer, "_risk_commit", lambda db, notional_est: None)
+    monkeypatch.setattr(consumer, "_risk_check_and_claim", lambda db, notional_est: (True, None))
 
     class Decision:
         allowed = True

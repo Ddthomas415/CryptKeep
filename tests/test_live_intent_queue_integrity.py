@@ -280,3 +280,24 @@ def test_live_intent_queue_stale_writer_cannot_override_newer_committed_state(mo
 
     row = qdb.list_intents(limit=10)[0]
     assert row["status"] == "held"
+
+
+def test_live_intent_queue_atomic_risk_claim_enforces_limits(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    ok1, reason1 = qdb.atomic_risk_claim(
+        max_trades=1,
+        max_notional=100.0,
+        notional_est=40.0,
+    )
+    ok2, reason2 = qdb.atomic_risk_claim(
+        max_trades=1,
+        max_notional=100.0,
+        notional_est=10.0,
+    )
+
+    assert (ok1, reason1) == (True, None)
+    assert (ok2, reason2) == (False, "risk:max_trades_per_day")
+    assert qdb.get_state("risk:trades") == "1"
+    assert qdb.get_state("risk:notional") == "40.0"
