@@ -838,11 +838,18 @@ def _summary_text(payload: dict[str, Any]) -> str:
         return "", strategy_name
 
     status = str(payload.get("status") or "unknown").replace("_", " ")
+    reason = str(payload.get("reason") or "").strip()
     current = str(payload.get("current_strategy") or "").strip()
+    last_completed = str(payload.get("last_completed_strategy") or "").strip()
     completed = int(payload.get("completed_strategies") or 0)
     total = int(payload.get("total_strategies") or 0)
     runner_note, runner_strategy = _latest_runner_note(payload)
     runner_summary = _runner_note_summary(runner_note, strategy_name=(current or runner_strategy))
+    if reason == "persisting_evidence":
+        strategy_name = last_completed or current or runner_strategy
+        if strategy_name:
+            return f"Paper evidence collector is persisting evidence after {strategy_name} ({completed}/{total} complete)."
+        return f"Paper evidence collector is persisting evidence ({completed}/{total} complete)."
     if current:
         base = f"Paper evidence collector is {status} on {current} ({completed}/{total} complete)."
         return f"{base} {runner_summary}".strip() if runner_summary else base
@@ -1053,6 +1060,29 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             _wait_for_component_stop(name, timeout_sec=10.0)
 
         if _campaign_has_new_paper_history(results):
+            progress = {
+                "ok": True,
+                "has_status": True,
+                "status": "running",
+                "reason": "persisting_evidence",
+                "ts": _now_iso(),
+                "pid": current_pid,
+                "strategies": strategies,
+                "completed_strategies": len(results),
+                "total_strategies": len(strategies),
+                "current_strategy": "",
+                "current_strategy_preset": str(results[-1].get("strategy_preset") or "") if results else "",
+                "last_completed_strategy": str(results[-1].get("strategy") or "") if results else "",
+                "symbol": str(cfg.symbol or DEFAULT_SYMBOL),
+                "venue": str(cfg.venue or DEFAULT_VENUE),
+                "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
+                "started_components": started_components,
+                "reused_components": reused_components,
+                "paper_sim_monitor_watch_seed": monitor_watch_seed_out,
+                "results": results,
+            }
+            progress["summary_text"] = _summary_text(progress)
+            _write_status(progress)
             report = run_strategy_evidence_cycle(
                 base_cfg=load_user_yaml(),
                 symbol=str(cfg.evidence_symbol or cfg.symbol or DEFAULT_SYMBOL),

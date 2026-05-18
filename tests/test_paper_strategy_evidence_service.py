@@ -241,6 +241,73 @@ def test_run_campaign_writes_completed_status_and_persists_evidence(tmp_path, mo
     ]
 
 
+def test_run_campaign_surfaces_persisting_evidence_phase_before_evidence_cycle(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    seen: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        svc,
+        "_component_runtime",
+        lambda name: {"name": name, "pid_alive": False, "pid": 0, "status": "not_started"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_ensure_component",
+        lambda name, *, cfg: {"name": name, "started": True, "pid": 123 if name == "tick_publisher" else 456, "status": "running"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_run_strategy_window",
+        lambda *, cfg, strategy_name: {
+            "strategy": str(strategy_name),
+            "strategy_preset": "es_daily_trend_v1",
+            "runtime_sec": 1.0,
+            "stop_reason": "runtime_elapsed",
+            "runner_status": "stopped",
+            "enqueued_total": 1,
+            "fills_delta": 1,
+            "closed_trades_delta": 0,
+            "net_realized_pnl_delta": -0.01,
+            "fills_total": 1,
+            "closed_trades_total": 0,
+            "net_realized_pnl_total": -0.01,
+            "latest_fill_ts": "2026-05-18T00:00:00Z",
+        },
+    )
+
+    def _run_strategy_evidence_cycle(**kwargs):
+        status = json.loads(svc.status_file().read_text(encoding="utf-8"))
+        seen["status"] = status
+        return {"as_of": "2026-03-19T00:00:00Z", "aggregate_leaderboard": {"rows": []}, "decisions": []}
+
+    monkeypatch.setattr(svc, "run_strategy_evidence_cycle", _run_strategy_evidence_cycle)
+    monkeypatch.setattr(svc, "persist_strategy_evidence", lambda report: {"ok": True, "latest_path": str(tmp_path / "strategy_evidence.latest.json")})
+    monkeypatch.setattr(
+        svc,
+        "write_decision_record",
+        lambda report, *, artifact_path="": {"ok": True, "path": str(tmp_path / "decision_record.md"), "artifact_path": artifact_path},
+    )
+    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+    monkeypatch.setattr(svc, "_stop_component", lambda name: {"ok": True, "component": name})
+
+    out = svc.run_campaign(
+        svc.PaperStrategyEvidenceServiceCfg(
+            strategies=("sma_200_trend",),
+            per_strategy_runtime_sec=1.0,
+        )
+    )
+
+    assert out["ok"] is True
+    status = dict(seen["status"])
+    assert status["status"] == "running"
+    assert status["reason"] == "persisting_evidence"
+    assert status["completed_strategies"] == 1
+    assert status["current_strategy"] == ""
+    assert status["current_strategy_preset"] == "es_daily_trend_v1"
+    assert status["last_completed_strategy"] == "sma_200_trend"
+    assert status["summary_text"] == "Paper evidence collector is persisting evidence after sma_200_trend (1/1 complete)."
+
+
 def test_component_argv_builds_paper_sim_monitor_args() -> None:
     cfg = svc.PaperStrategyEvidenceServiceCfg(
         paper_sim_monitor_interval_sec=7.5,
