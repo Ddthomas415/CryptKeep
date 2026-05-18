@@ -122,6 +122,7 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
     queued = qdb.list_intents(limit=10, status="queued")
     assert len(queued) == 1
     assert queued[0]["strategy_id"] == "breakout_donchian"
+    assert queued[0]["meta"]["strategy_preset"] == "breakout_default"
     assert queued[0]["side"] == "buy"
 
 

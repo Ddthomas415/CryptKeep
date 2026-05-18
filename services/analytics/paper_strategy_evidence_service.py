@@ -156,6 +156,33 @@ def _latest_jsonl_evidence_summary(strategy_ids: list[str] | tuple[str, ...]) ->
     return fallback
 
 
+def _jsonl_strategy_candidates(payload: dict[str, Any]) -> list[str]:
+    candidates: list[str] = []
+
+    def _add(value: Any) -> None:
+        text = str(value or "").strip()
+        if text and text not in candidates:
+            candidates.append(text)
+
+    for item in list(payload.get("strategies") or []):
+        _add(item)
+    _add(payload.get("current_strategy"))
+    _add(payload.get("current_strategy_preset"))
+    for row in list(payload.get("results") or []):
+        if not isinstance(row, dict):
+            continue
+        _add(row.get("strategy"))
+        _add(row.get("strategy_preset"))
+    try:
+        runner_payload = _component_runtime("strategy_runner").get("status_payload") or {}
+    except Exception:
+        runner_payload = {}
+    if isinstance(runner_payload, dict):
+        _add(runner_payload.get("strategy_id"))
+        _add(runner_payload.get("strategy_preset"))
+    return candidates
+
+
 def _latest_decision_record_artifact() -> dict[str, Any]:
     root = decision_record_dir()
     records = sorted(path.resolve() for path in root.glob("decision_record_*.md"))
@@ -366,12 +393,7 @@ def load_runtime_status() -> dict[str, Any]:
         payload["reason"] = "pid_alive_waiting_for_status"
         payload["has_status"] = True
 
-    strategy_ids: list[str] = []
-    strategy_ids.extend(str(item).strip() for item in list(payload.get("strategies") or []) if str(item).strip())
-    current_strategy = str(payload.get("current_strategy") or "").strip()
-    if current_strategy and current_strategy not in strategy_ids:
-        strategy_ids.append(current_strategy)
-    jsonl_summary = _latest_jsonl_evidence_summary(strategy_ids)
+    jsonl_summary = _latest_jsonl_evidence_summary(_jsonl_strategy_candidates(payload))
     if jsonl_summary:
         payload["jsonl_evidence"] = jsonl_summary
 
@@ -676,6 +698,7 @@ def _run_strategy_window(
     last_status = dict((_component_runtime("strategy_runner").get("status_payload") or last_status or {}))
     return {
         "strategy": str(strategy_name),
+        "strategy_preset": str(last_status.get("strategy_preset") or ""),
         "started_ts": started_ts,
         "ended_ts": ended_ts,
         "runtime_sec": max(time.time() - loop_started_at, 0.0),
@@ -871,6 +894,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                     "pid": current_pid,
                     "strategies": strategies,
                     "current_strategy": str(strategy_name),
+                    "current_strategy_preset": str((results[-1].get("strategy_preset") if results else "") or ""),
                     "completed_strategies": len(results),
                     "total_strategies": len(strategies),
                     "symbol": str(cfg.symbol or DEFAULT_SYMBOL),
@@ -969,6 +993,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             "completed_strategies": len(results),
             "total_strategies": len(strategies),
             "current_strategy": str(results[-1].get("strategy") or "") if results else "",
+            "current_strategy_preset": str(results[-1].get("strategy_preset") or "") if results else "",
             "symbol": str(cfg.symbol or DEFAULT_SYMBOL),
             "venue": str(cfg.venue or DEFAULT_VENUE),
             "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
@@ -993,7 +1018,14 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
     _jsonl_evidence: dict = {}
     try:
         from services.strategies.campaign_summary import evidence_summary as _ev_summary
-        for _strat in strategies:
+        for _strat in _jsonl_strategy_candidates(
+            {
+                "strategies": strategies,
+                "current_strategy": str(results[-1].get("strategy") or "") if results else "",
+                "current_strategy_preset": str(results[-1].get("strategy_preset") or "") if results else "",
+                "results": results,
+            }
+        ):
             _sv = _ev_summary(_strat)
             if _sv["exists"]:
                 _jsonl_evidence = _sv

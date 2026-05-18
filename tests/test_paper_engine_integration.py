@@ -170,3 +170,57 @@ def test_paper_order_insert_ignores_duplicate_client_order_id(monkeypatch, tmp_p
     assert order["status"] == "new"
     assert order["strategy_id"] == "ema_cross"
     assert order["meta"] == {"source": "first"}
+
+
+def test_paper_engine_evidence_logging_prefers_strategy_preset(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    _, paper_engine = _reload_paper_modules()
+
+    monkeypatch.setattr(
+        paper_engine,
+        "load_user_yaml",
+        lambda: {
+            "paper_trading": {
+                "starting_cash_quote": 1000.0,
+                "fee_bps": 0.0,
+                "slippage_bps": 0.0,
+                "use_ccxt_fallback": False,
+            }
+        },
+    )
+    monkeypatch.setattr(
+        paper_engine.PaperEngine,
+        "_price",
+        lambda self, venue, symbol: {"ts_ms": 1, "bid": 100.0, "ask": 100.0, "last": 100.0},
+    )
+
+    import services.strategies.evidence_logger as evidence_logger
+
+    calls: list[tuple[str, str]] = []
+
+    class FakeLogger:
+        def __init__(self, strategy_id: str, log_dir: Path | None = None) -> None:
+            self.strategy_id = strategy_id
+
+        def log_order(self, **kwargs) -> None:
+            calls.append(("order", self.strategy_id))
+
+        def log_fill(self, **kwargs) -> None:
+            calls.append(("fill", self.strategy_id))
+
+    monkeypatch.setattr(evidence_logger, "EvidenceLogger", FakeLogger)
+
+    eng = paper_engine.PaperEngine()
+    out = eng.submit_order(
+        client_order_id="paper-buy-preset-1",
+        venue="coinbase",
+        symbol="BTC/USD",
+        side="buy",
+        order_type="market",
+        qty=1.0,
+        strategy_id="sma_200_trend",
+        meta={"strategy_preset": "es_daily_trend_v1", "selected_strategy": "sma_200_trend"},
+    )
+
+    assert out["ok"] is True
+    assert calls == [("fill", "es_daily_trend_v1"), ("order", "es_daily_trend_v1")]

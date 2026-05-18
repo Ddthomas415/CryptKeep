@@ -577,6 +577,40 @@ def test_write_decision_record_uses_state_root_when_cbp_state_dir_set(tmp_path, 
     assert Path(out["path"]).exists()
 
 
+def test_load_runtime_status_prefers_strategy_preset_jsonl_evidence(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setattr(svc, "data_dir", lambda: tmp_path / "data")
+    monkeypatch.setattr(svc, "code_root", lambda: tmp_path)
+
+    ev_dir = tmp_path / "data" / "evidence" / "es_daily_trend_v1"
+    ev_dir.mkdir(parents=True, exist_ok=True)
+    (ev_dir / "fill_2026-05-18.jsonl").write_text('{"record_type":"fill"}\n', encoding="utf-8")
+
+    svc.status_file().parent.mkdir(parents=True, exist_ok=True)
+    svc.status_file().write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "has_status": True,
+                "status": "completed",
+                "reason": "completed",
+                "ts": "2026-05-18T08:08:34Z",
+                "strategies": ["sma_200_trend"],
+                "current_strategy": "sma_200_trend",
+                "current_strategy_preset": "es_daily_trend_v1",
+                "results": [{"strategy": "sma_200_trend", "strategy_preset": "es_daily_trend_v1"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    out = svc.load_runtime_status()
+
+    assert out["jsonl_evidence"]["strategy_id"] == "es_daily_trend_v1"
+    assert out["jsonl_evidence"]["exists"] is True
+    assert out["jsonl_evidence"]["ev_dir"] == str(ev_dir)
+
+
 def test_write_status_blocks_invalid_campaign_resume(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
 
