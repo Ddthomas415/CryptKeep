@@ -19,6 +19,9 @@ from services.backtest.evidence_cycle import (
     write_decision_record,
 )
 from services.execution.paper_runner import request_stop as request_paper_engine_stop
+from services.governance.campaign_state_machine import can_transition
+from services.governance.decision_engine import decide as decide_governance_state
+from services.governance.invalidation import should_invalidate
 from services.market_data.symbol_utils import split_symbol
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.market_data.system_status_publisher import request_stop as request_tick_publisher_stop
@@ -80,13 +83,28 @@ def state_dir() -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
+
 def _write_status(obj: dict[str, Any]) -> None:
     status = str(obj.get("status") or "").strip().upper()
     if status == "PROMOTED":
         raise ValueError("direct status mutation is not allowed")
+    current_status = ""
     target = status_file()
+    if target.exists():
+        try:
+            current_payload = _load_json(target)
+            current_status = str(current_payload.get("status") or "").strip().upper()
+        except Exception:
+            current_status = ""
+    if current_status and status:
+        if decide_governance_state(current_status) == "BLOCK" and status != current_status:
+            raise ValueError(f"governance_blocks_transition_from_{current_status.lower()}")
+        if not can_transition(current_status, status):
+            raise ValueError(f"invalid_campaign_transition:{current_status.lower()}->{status.lower()}")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
+
+
 def _write_pid_state(obj: dict[str, Any]) -> None:
     ensure_dirs()
     _health_dir().mkdir(parents=True, exist_ok=True)
@@ -872,7 +890,7 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             )
             result = _run_strategy_window(cfg=cfg, strategy_name=strategy_name)
             stop_reason = str(result.get("stop_reason") or "").strip().lower()
-            if stop_reason in {"fingerprint_mismatch", "drift", "contamination"}:
+            if should_invalidate(stop_reason):
                 out = {
                     "ok": True,
                     "has_status": True,

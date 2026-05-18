@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from services.analytics import paper_strategy_evidence_service as svc
 
 
@@ -549,6 +551,15 @@ def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monke
     assert out["jsonl_evidence"]["total_records"] == 1
     assert out["decision_record"]["path"] == str(latest_record)
     assert out["decision_record"]["source"] == "filesystem_latest"
+
+
+def test_write_status_blocks_invalid_campaign_resume(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+    svc._write_status({"status": "INVALID", "reason": "drift"})
+
+    with pytest.raises(ValueError, match="governance_blocks_transition_from_invalid"):
+        svc._write_status({"status": "running", "reason": "collecting"})
 
 
 def test_tick_publisher_reusable_requires_matching_fresh_symbol() -> None:
