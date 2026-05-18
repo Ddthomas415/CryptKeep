@@ -239,6 +239,104 @@ def test_collect_once_ignores_post_window_same_symbol_artifacts(monkeypatch) -> 
     assert "no fill yet" in out["summary_text"]
 
 
+def test_load_runtime_status_reconciles_stopped_snapshot_from_newer_collector(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.status_file().parent.mkdir(parents=True, exist_ok=True)
+    svc.status_file().write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "has_status": True,
+                "status": "stopped",
+                "reason": "stop_requested",
+                "ts": "2026-05-18T19:04:14Z",
+                "loops": 17,
+                "changes_written": 6,
+                "poll_interval_sec": 5.0,
+                "min_closed_trades_for_enough_evidence": 1,
+                "desktop_notify": True,
+                "campaign_status": "running",
+                "campaign_reason": "collecting",
+                "recommendation": "continue",
+                "recommendation_reason": "campaign_progress_visible",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "fills_observed": 1,
+                "round_trips_observed": 0,
+                "current_window_realized_pnl": -0.8933406625,
+                "paper_position": {"qty": 0.001},
+                "latest_journal_fill": {
+                    "fill_id": "fill-1",
+                    "side": "buy",
+                    "fill_ts": "2026-05-18T19:02:49.109748+00:00",
+                },
+                "collector": {"status": "running", "reason": "collecting"},
+                "summary_text": (
+                    "Paper sim monitor sees es_daily_trend_v1 on BTC/USDT with campaign running; "
+                    "open qty=0.001; fills=1; round_trips=0; current_window_realized_pnl=-0.8933; "
+                    "latest_fill=buy@2026-05-18T19:02:49.109748+00:00; recommendation=continue."
+                ),
+                "last_watch_reports_written": [{"watch_name": "next_fill"}],
+                "trigger_reasons": ["heartbeat_only", "stop_requested"],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        svc,
+        "collect_once",
+        lambda cfg: {
+            "ok": True,
+            "ts": "2026-05-18T19:04:51Z",
+            "monitor_name": svc.MONITOR_NAME,
+            "campaign_status": "completed",
+            "campaign_reason": "completed",
+            "recommendation": "continue",
+            "recommendation_reason": "completed_with_partial_trade_evidence",
+            "strategy_label": "es_daily_trend_v1",
+            "symbol": "BTC/USDT",
+            "venue": "coinbase",
+            "fills_observed": 1,
+            "round_trips_observed": 0,
+            "current_window_realized_pnl": -0.8933406625,
+            "position_realized_pnl_total": -0.8933406625,
+            "equity_realized_pnl_total": -1051.8110289791193,
+            "unrealized_pnl": -0.2798423650,
+            "paper_position": {"qty": 0.001},
+            "latest_order": {"order_id": "ord-1", "status": "filled"},
+            "latest_paper_fill": {},
+            "latest_journal_fill": {
+                "fill_id": "fill-1",
+                "side": "buy",
+                "fill_ts": "2026-05-18T19:02:49.109748+00:00",
+            },
+            "latest_equity": {"unrealized_pnl": -0.2798423650, "realized_pnl": -1051.8110289791193},
+            "campaign_result": {"strategy": "sma_200_trend", "fills_delta": 1},
+            "collector": {"status": "completed", "reason": "completed", "ts": "2026-05-18T19:04:51Z"},
+            "strategy_runner": {"status": "stopped"},
+            "paper_engine": {"status": "stopped"},
+            "summary_text": (
+                "Paper sim monitor sees es_daily_trend_v1 on BTC/USDT with campaign completed; "
+                "open qty=0.001; fills=1; round_trips=0; current_window_realized_pnl=-0.8933; "
+                "latest_fill=buy@2026-05-18T19:02:49.109748+00:00; recommendation=continue."
+            ),
+        },
+    )
+
+    out = svc.load_runtime_status()
+
+    assert out["status"] == "stopped"
+    assert out["reason"] == "campaign_completed"
+    assert out["campaign_status"] == "completed"
+    assert out["campaign_reason"] == "completed"
+    assert out["collector"]["status"] == "completed"
+    assert "campaign completed" in out["summary_text"]
+    assert out["ts"] == "2026-05-18T19:04:14Z"
+    assert out["loops"] == 17
+    assert out["last_watch_reports_written"] == [{"watch_name": "next_fill"}]
+
+
 def test_register_watch_preserves_state_by_default_and_can_reset_it(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     svc.watches_file().parent.mkdir(parents=True, exist_ok=True)

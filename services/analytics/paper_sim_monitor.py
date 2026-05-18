@@ -454,6 +454,14 @@ class PaperSimMonitorCfg:
     desktop_notify: bool = True
 
 
+def _cfg_from_runtime_payload(payload: dict[str, Any]) -> PaperSimMonitorCfg:
+    return PaperSimMonitorCfg(
+        poll_interval_sec=float(payload.get("poll_interval_sec") or 300.0),
+        min_closed_trades_for_enough_evidence=int(payload.get("min_closed_trades_for_enough_evidence") or 1),
+        desktop_notify=bool(payload.get("desktop_notify", True)),
+    )
+
+
 def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
     ts = _now_iso()
     configured = _configured_strategy_runner()
@@ -823,6 +831,43 @@ def _terminal_monitor_reason(snapshot: dict[str, Any]) -> str:
     return "stop_requested"
 
 
+def _reconcile_stopped_runtime_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    if str(payload.get("status") or "").strip().lower() != "stopped" or bool(payload.get("pid_alive")):
+        return payload
+
+    try:
+        refreshed = collect_once(_cfg_from_runtime_payload(payload))
+    except Exception:
+        return payload
+    if not bool(refreshed.get("ok", True)):
+        return payload
+
+    preserved = {
+        "status": payload.get("status"),
+        "ts": payload.get("ts"),
+        "loops": payload.get("loops"),
+        "changes_written": payload.get("changes_written"),
+        "pid": payload.get("pid"),
+        "pid_alive": payload.get("pid_alive"),
+        "has_pid_file": payload.get("has_pid_file"),
+        "started_ts": payload.get("started_ts"),
+        "poll_interval_sec": payload.get("poll_interval_sec"),
+        "min_closed_trades_for_enough_evidence": payload.get("min_closed_trades_for_enough_evidence"),
+        "desktop_notify": payload.get("desktop_notify"),
+        "history_path": payload.get("history_path"),
+        "watches_path": payload.get("watches_path"),
+        "watches": payload.get("watches"),
+        "recent_watch_reports": payload.get("recent_watch_reports"),
+        "last_watch_reports_written": payload.get("last_watch_reports_written"),
+        "trigger_reasons": payload.get("trigger_reasons"),
+    }
+    out = dict(payload)
+    out.update(refreshed)
+    out.update(preserved)
+    out["reason"] = _terminal_monitor_reason(refreshed)
+    return out
+
+
 def load_runtime_status() -> dict[str, Any]:
     payload: dict[str, Any]
     if status_file().exists():
@@ -886,7 +931,7 @@ def load_runtime_status() -> dict[str, Any]:
         payload["reason"] = "pid_alive_waiting_for_status"
         payload["has_status"] = True
 
-    return payload
+    return _reconcile_stopped_runtime_payload(payload)
 
 
 def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dict[str, Any]:
