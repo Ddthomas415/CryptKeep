@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from scripts import run_tick_publisher as tick_wrapper
 from services.market_data import system_status_publisher
 
@@ -108,6 +110,37 @@ def test_fetch_status_uses_sample_ohlcv_ticks_when_enabled(monkeypatch) -> None:
             "exchange_ts_ms": 111111,
         }
     ]
+
+
+def test_sample_tick_advances_through_rows(tmp_path, monkeypatch) -> None:
+    sample_dir = tmp_path / "ohlcv"
+    sample_dir.mkdir(parents=True, exist_ok=True)
+    (sample_dir / "BTC_USDT_1d.json").write_text(
+        json.dumps(
+            [
+                [111111, 100.0, 101.0, 99.0, 100.5, 1.0],
+                [222222, 100.5, 102.0, 100.0, 101.5, 1.0],
+                [333333, 101.5, 103.0, 101.0, 102.5, 1.0],
+            ]
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(system_status_publisher, "SAMPLE_OHLCV_DIR", sample_dir)
+    monkeypatch.setattr(system_status_publisher, "_SAMPLE_TICK_CURSOR", {})
+
+    first = system_status_publisher._sample_tick("BTC/USDT")
+    second = system_status_publisher._sample_tick("BTC/USDT")
+    third = system_status_publisher._sample_tick("BTC/USDT")
+    fourth = system_status_publisher._sample_tick("BTC/USDT")
+
+    assert first["ts_ms"] == 111111
+    assert first["last"] == 100.5
+    assert second["ts_ms"] == 222222
+    assert second["last"] == 101.5
+    assert third["ts_ms"] == 333333
+    assert third["last"] == 102.5
+    assert fourth["ts_ms"] == 333333
+    assert fourth["last"] == 102.5
 
 
 def test_run_forever_creates_snapshot_dir_before_write(monkeypatch, tmp_path) -> None:
