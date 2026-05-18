@@ -119,3 +119,54 @@ def test_paper_engine_reject_does_not_persist_fill(monkeypatch, tmp_path):
     assert order["status"] == "rejected"
     assert order["reject_reason"] == "insufficient_cash"
     assert eng.db.list_fills(limit=10) == []
+
+
+def test_paper_order_insert_ignores_duplicate_client_order_id(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    paper_store, _paper_engine = _reload_paper_modules()
+    db = paper_store.PaperTradingSQLite()
+
+    db.insert_order(
+        {
+            "order_id": "paper-order-1",
+            "client_order_id": "dup-client-id",
+            "ts": "2026-04-02T12:00:00Z",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "limit",
+            "qty": 1.0,
+            "limit_price": 100.0,
+            "status": "new",
+            "reject_reason": None,
+            "strategy_id": "ema_cross",
+            "meta": {"source": "first"},
+        }
+    )
+
+    db.insert_order(
+        {
+            "order_id": "paper-order-2",
+            "client_order_id": "dup-client-id",
+            "ts": "2026-04-02T12:05:00Z",
+            "venue": "coinbase",
+            "symbol": "ETH/USD",
+            "side": "sell",
+            "order_type": "market",
+            "qty": 2.0,
+            "limit_price": 101.5,
+            "status": "filled",
+            "reject_reason": "should_not_replace",
+            "strategy_id": "momentum",
+            "meta": {"source": "second"},
+        }
+    )
+
+    order = db.get_order_by_client_id("dup-client-id")
+    assert order is not None
+    assert order["order_id"] == "paper-order-1"
+    assert order["symbol"] == "BTC/USD"
+    assert order["side"] == "buy"
+    assert order["status"] == "new"
+    assert order["strategy_id"] == "ema_cross"
+    assert order["meta"] == {"source": "first"}
