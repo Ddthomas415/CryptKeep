@@ -185,3 +185,98 @@ def test_live_intent_queue_update_status_blocks_terminal_overwrite(monkeypatch, 
     row = qdb.list_intents(limit=5)[0]
     assert row["status"] == "filled"
     assert row["last_error"] is None
+
+
+def test_live_intent_queue_upsert_does_not_override_terminal_state(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    qdb.upsert_intent(
+        {
+            "intent_id": "intent-upsert-terminal",
+            "created_ts": "2026-04-02T12:00:00Z",
+            "ts": "2026-04-02T12:00:00Z",
+            "source": "strategy",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "market",
+            "qty": 0.5,
+            "limit_price": None,
+            "status": "queued",
+            "last_error": None,
+            "client_order_id": None,
+            "exchange_order_id": None,
+        }
+    )
+    assert qdb.update_status("intent-upsert-terminal", "submitted", client_order_id="cid-5", exchange_order_id="ord-5") is True
+    assert qdb.update_status("intent-upsert-terminal", "filled", last_error=None) is True
+
+    qdb.upsert_intent(
+        {
+            "intent_id": "intent-upsert-terminal",
+            "created_ts": "2099-01-01T00:00:00Z",
+            "ts": "2026-04-02T12:05:00Z",
+            "source": "stale_writer",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "sell",
+            "order_type": "limit",
+            "qty": 1.25,
+            "limit_price": 101.5,
+            "status": "queued",
+            "last_error": "should_not_apply",
+            "client_order_id": None,
+            "exchange_order_id": None,
+        }
+    )
+
+    row = qdb.list_intents(limit=5)[0]
+    assert row["status"] == "filled"
+    assert row["client_order_id"] == "cid-5"
+    assert row["exchange_order_id"] == "ord-5"
+    assert row["qty"] == 0.5
+
+
+def test_live_intent_queue_stale_writer_cannot_override_newer_committed_state(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+
+    qdb.upsert_intent(
+        {
+            "intent_id": "intent-stale",
+            "created_ts": "2026-04-02T12:00:00Z",
+            "ts": "2026-04-02T12:00:00Z",
+            "source": "strategy",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "market",
+            "qty": 0.5,
+            "limit_price": None,
+            "status": "queued",
+            "last_error": None,
+            "client_order_id": None,
+            "exchange_order_id": None,
+        }
+    )
+
+    assert qdb.update_status("intent-stale", "submitted") is True
+
+    observed = qdb.list_intents(limit=10)[0]["status"]
+    assert observed == "submitted"
+
+    con = queue_mod._connect()
+    try:
+        con.execute(
+            "UPDATE live_trade_intents SET status=?, updated_ts=? WHERE intent_id=?",
+            ("held", queue_mod._now(), "intent-stale"),
+        )
+        con.commit()
+    finally:
+        con.close()
+
+    assert qdb.update_status("intent-stale", "filled") is False
+
+    row = qdb.list_intents(limit=10)[0]
+    assert row["status"] == "held"

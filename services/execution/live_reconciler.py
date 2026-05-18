@@ -42,6 +42,11 @@ def _ts_to_ms(v) -> int:
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
+def _now_ms() -> int:
+    return int(time.time() * 1000)
+
+
 def _write_status(obj: dict) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
     atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")

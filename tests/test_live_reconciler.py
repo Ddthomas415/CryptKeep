@@ -1,4 +1,6 @@
 from __future__ import annotations
+from datetime import datetime, timezone
+
 import pytest
 
 from services.execution import live_reconciler as lr
@@ -209,6 +211,92 @@ def test_live_reconciler_guard_halting_allows_cleanup_when_not_armed(monkeypatch
     assert instances[0].close_calls == 1
     assert any(item.get("status") == "halting" and item.get("reconcile_mode") == "cleanup" for item in statuses)
     assert guard_calls == []
+
+
+def test_live_reconciler_open_order_timestamp_path_does_not_crash(monkeypatch, tmp_path):
+    stop_file = tmp_path / "live_reconciler.stop"
+    statuses: list[dict] = []
+    queue_updates: list[tuple[str, str, str | None]] = []
+    base_dt = datetime(2026, 4, 2, 12, 0, tzinfo=timezone.utc)
+
+    class _FakeQueue:
+        def __init__(self):
+            self.state: dict[str, str] = {}
+
+        def list_intents(self, *, limit: int = 60, status: str):
+            assert status == "submitted"
+            return [
+                {
+                    "intent_id": "intent-1",
+                    "venue": "coinbase",
+                    "symbol": "BTC/USD",
+                    "exchange_order_id": "ord-1",
+                    "client_order_id": "cid-1",
+                    "side": "buy",
+                    "order_type": "limit",
+                    "qty": 0.1,
+                    "limit_price": 100.0,
+                    "updated_ts": base_dt.isoformat(),
+                }
+            ]
+
+        def update_status(self, intent_id: str, status: str, last_error: str | None = None):
+            queue_updates.append((intent_id, status, last_error))
+            return True
+
+        def get_state(self, key: str):
+            return self.state.get(key, "0")
+
+        def set_state(self, key: str, value: str):
+            self.state[key] = value
+
+    class _FakeTrading:
+        def upsert_order(self, row: dict):
+            return None
+
+        def insert_fill(self, row: dict):
+            return None
+
+    class _FakeAdapter:
+        def __init__(self, venue: str, sandbox: bool = False):
+            self.close_calls = 0
+
+        def fetch_order(self, canonical_symbol: str, exchange_order_id: str):
+            return {"id": exchange_order_id, "status": "open"}
+
+        def fetch_my_trades(self, canonical_symbol: str, since_ms: int | None = None, limit: int | None = 200):
+            return []
+
+        def close(self):
+            self.close_calls += 1
+
+    monkeypatch.setattr(lr, "STOP_FILE", stop_file)
+    monkeypatch.setattr(lr, "FLAGS", tmp_path)
+    monkeypatch.setattr(lr, "LOCKS", tmp_path)
+    monkeypatch.setattr(lr, "STATUS_FILE", tmp_path / "live_reconciler.status.json")
+    monkeypatch.setattr(lr, "LOCK_FILE", tmp_path / "live_reconciler.lock")
+    monkeypatch.setattr(lr, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(lr, "_acquire_lock", lambda: True)
+    monkeypatch.setattr(lr, "_release_lock", lambda: None)
+    monkeypatch.setattr(lr, "_write_status", lambda obj: statuses.append(dict(obj)))
+    monkeypatch.setattr(lr, "get_system_guard_state", lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok"})
+    monkeypatch.setattr(lr, "live_enabled_and_armed", lambda: (True, "armed"))
+    monkeypatch.setattr(lr, "_live_sandbox_enabled", lambda: True)
+    monkeypatch.setattr(lr, "LiveIntentQueueSQLite", lambda: _FakeQueue())
+    monkeypatch.setattr(lr, "LiveTradingSQLite", lambda: _FakeTrading())
+    monkeypatch.setattr(lr, "LiveExchangeAdapter", _FakeAdapter)
+    monkeypatch.setattr(lr.time, "time", lambda: base_dt.timestamp() + 1.0)
+
+    def _sleep(_seconds: float):
+        if not stop_file.exists():
+            stop_file.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(lr.time, "sleep", _sleep)
+
+    lr.run_forever()
+
+    assert queue_updates == []
+    assert any(item.get("status") == "stopped" for item in statuses)
 
 
 @pytest.mark.slow
