@@ -154,6 +154,24 @@ def start_paper_strategy_evidence_collection(
     if strategy_items:
         args.extend(["--strategies", ",".join(strategy_items)])
 
+    cfg = load_user_yaml() if callable(load_user_yaml) else {}
+    dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg, dict) and isinstance(cfg.get("dashboard_ui"), dict) else {}
+    settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+    notifications_overlay = (
+        settings_overlay.get("notifications")
+        if isinstance(settings_overlay.get("notifications"), dict)
+        else {}
+    )
+    notifications_cfg = cfg.get("notifications") if isinstance(cfg, dict) and isinstance(cfg.get("notifications"), dict) else {}
+    desktop_notifications = bool(
+        notifications_overlay.get(
+            "desktop_notifications",
+            notifications_cfg.get("desktop_notifications", True),
+        )
+    )
+    if not desktop_notifications:
+        args.append("--no-desktop-notify")
+
     return start_repo_script_background(
         "scripts/run_paper_strategy_evidence_collector.py",
         args=args,

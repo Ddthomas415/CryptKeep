@@ -1934,7 +1934,7 @@ def test_settings_view_applies_local_overlay(monkeypatch) -> None:
                 "automation": {"default_mode": "live_auto"},
                 "settings": {
                     "general": {"timezone": "America/New_York"},
-                    "notifications": {"telegram": True},
+                    "notifications": {"telegram": True, "desktop_notifications": False},
                     "ai": {"tone": "detailed"},
                     "security": {"secret_masking": True},
                 },
@@ -1947,6 +1947,7 @@ def test_settings_view_applies_local_overlay(monkeypatch) -> None:
     assert settings["general"]["default_mode"] == "paper"
     assert settings["general"]["watchlist_defaults"] == ["BTC", "SOL"]
     assert settings["notifications"]["telegram"] is True
+    assert settings["notifications"]["desktop_notifications"] is False
     assert settings["ai"]["tone"] == "detailed"
     assert settings["security"]["secret_masking"] is True
     assert settings["notifications"]["email_enabled"] is False
