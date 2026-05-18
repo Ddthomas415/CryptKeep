@@ -52,7 +52,6 @@ from dashboard.services.digest.utils import (
     pill as _pill,
     utc_iso as _utc_iso,
 )
-from dashboard.services.strategy_evidence_runtime import load_paper_sim_monitor_runtime
 from dashboard.services.operator import get_operations_snapshot
 from dashboard.services.operator_tools import synthetic_ohlcv
 from dashboard.services.strategy_evaluation import build_strategy_workbench
@@ -1435,6 +1434,8 @@ def _page_status(
 
 
 def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDigestData:
+    from dashboard.services.strategy_evidence_runtime import load_paper_sim_monitor_runtime
+
     summary = overview_summary if isinstance(overview_summary, dict) else {}
     if not summary:
         try:

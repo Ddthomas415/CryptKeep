@@ -199,7 +199,10 @@ def test_load_home_digest_surfaces_paper_sim_monitor(monkeypatch) -> None:
             "summary_text": "Collector loop is healthy.",
         },
     )
-    monkeypatch.setattr(home_digest, "load_paper_sim_monitor_runtime", lambda: dict(expected_monitor))
+    monkeypatch.setattr(
+        "dashboard.services.strategy_evidence_runtime.load_paper_sim_monitor_runtime",
+        lambda: dict(expected_monitor),
+    )
     monkeypatch.setattr(home_digest, "get_operations_snapshot", lambda: {"attention_services": 0, "unknown_services": 0, "last_health_ts": ""})
 
     payload = home_digest.load_home_digest({"active_warnings": [], "blocked_trades_count": 0})

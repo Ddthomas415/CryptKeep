@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import subprocess
+import sys
+from pathlib import Path
+
 from dashboard.services import strategy_evidence_runtime as runtime
 
 
@@ -68,3 +72,24 @@ def test_load_paper_sim_monitor_runtime_flags_investigate(monkeypatch) -> None:
     assert payload["alert_tone"] == "warning"
     assert "recommendation=investigate" in payload["alert_text"]
     assert payload["freshness"] in {"Fresh", "Aging", "Stale", "Unknown"}
+
+
+def test_strategy_evidence_runtime_imports_standalone() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "from dashboard.services.strategy_evidence_runtime import "
+                "load_paper_sim_monitor_runtime; "
+                "print(bool(load_paper_sim_monitor_runtime))"
+            ),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip() == "True"
