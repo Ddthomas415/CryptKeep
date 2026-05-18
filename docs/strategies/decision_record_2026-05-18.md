@@ -18,7 +18,7 @@ Phase 1 safety pack should be rerun before relying on this record.
 
 ## Evaluation Inputs
 
-- symbol: `ETH/USD`
+- symbol: `BTC/USDT`
 - windows: `8` deterministic synthetic windows
 - initial cash: `10000`
 - fees: `10 bps`
@@ -26,11 +26,11 @@ Phase 1 safety pack should be rerun before relying on this record.
 - paper-history source: `trade_journal_sqlite`
 - paper-history status: `available`
 - paper-history journal: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
-- paper-history fills: `43`
+- paper-history fills: `13`
 - strategy-feedback source: `trade_journal_sqlite`
 - strategy-feedback status: `available`
 - strategy-feedback journal: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/trade_journal.sqlite`
-- strategy-feedback strategies: `2`
+- strategy-feedback strategies: `1`
 - evidence artifact: `/Users/baitus/Downloads/crypto-bot-pro/.cbp_state/data/strategy_evidence/strategy_evidence.latest.json`
 
 Window set:
@@ -50,17 +50,17 @@ Important limitation:
 
 ## Run-to-Run Comparison
 
-- previous run: `2026-05-15T02:02:46Z`
-- current run: `2026-05-18T14:37:20Z`
+- previous run: `2026-05-18T14:37:20Z`
+- current run: `2026-05-18T19:03:12Z`
 - top strategy previous: `breakout_donchian`
 - top strategy current: `breakout_donchian`
 - top strategy changed: `no`
-- improved comparisons: `2`
-- degraded comparisons: `1`
+- improved comparisons: `1`
+- degraded comparisons: `2`
 - unchanged comparisons: `5`
 - new comparisons: `0`
 
-Summary: 2 strategy comparison(s) improved and 1 degraded versus the prior persisted evidence run.
+Summary: 1 strategy comparison(s) improved and 2 degraded versus the prior persisted evidence run.
 
 - recent persisted runs considered: `5`
 - distinct recent top strategies: `1`
@@ -71,8 +71,8 @@ Recent trend: Top strategy has remained breakout_donchian across the last 5 pers
 Comparison detail:
 - `breakout_donchian` moved `unchanged`; rank `1` -> `1`, decision `improve` -> `improve`.
 - `ema_cross` moved `unchanged`; rank `2` -> `2`, decision `improve` -> `improve`.
-- `momentum` moved `improved`; rank `4` -> `3`, decision `retire` -> `retire`.
-- `sma_200_trend` moved `improved`; rank `8` -> `4`, decision `freeze` -> `freeze`.
+- `mean_reversion_rsi` moved `improved`; rank `8` -> `3`, decision `freeze` -> `freeze`.
+- `momentum` moved `degraded`; rank `3` -> `4`, decision `retire` -> `retire`.
 - `volatility_reversal` moved `unchanged`; rank `5` -> `5`, decision `freeze` -> `freeze`.
 
 ## Results
@@ -129,11 +129,11 @@ Next work:
 - positive windows: `3` / `8`
 - best window: `trend_reversal`
 - worst window: `range_snapback`
-- evidence status: `paper_thin`
+- evidence status: `synthetic_only`
 - confidence: `low`
-- paper-history: 0 closed trade(s), -1.58 net realized PnL, 0.0% win rate across 1 fill(s).
-- strategy feedback: 0 closed trade(s), -1.58 net realized PnL, +0.00 expectancy per closed trade, 0.0% win rate.
-- feedback weighting: `thin`
+- paper-history: No strategy-attributed persisted paper-history fills are available yet.
+- strategy feedback: No persisted strategy feedback summary recorded.
+- feedback weighting: `missing`
 - research acceptance: `not_accepted`
 - research summary: `ema_cross` does not meet the current research-acceptance floor yet.
 - walk-forward: `ok`
@@ -143,8 +143,8 @@ Decision: `improve`
 
 Reason:
 - It remains viable, but the evidence is still weaker than the top aggregate candidate.
-- Evidence note: Persisted paper-history exists, but the sample is still too thin to confirm the synthetic ranking.
-- Feedback weighting: Persisted strategy feedback remains thin at 0 closed trade(s); no leaderboard weighting adjustment is applied yet.
+- Evidence note: Persisted paper-history exists, but this strategy has no attributed paper fills yet, so the decision still relies on synthetic windows.
+- Feedback weighting: No persisted strategy feedback row is available yet.
 - Biggest weakness: Performance is fragile across windows, not just thin in sample size.
 
 Next work:
@@ -152,13 +152,54 @@ Next work:
 
 - Research blocker: Persisted paper history only has 0 closed trade(s); the current research floor requires 30.
 - Research blocker: Only 2 represented window(s) produced realized closed trades; the current research floor requires 3.
-- Research blocker: Evidence status is paper_thin; the current research floor requires paper_supported.
+- Research blocker: Evidence status is synthetic_only; the current research floor requires paper_supported.
 - Research blocker: Confidence is low; the current research floor requires at least medium confidence.
 - Walk-forward summary: -2.86% average test return, 2.86% average test drawdown, 60% non-negative test windows, 2 closed test trade(s).
 
+### `mean_reversion_rsi`
+- candidate: `mean_reversion_default`
+- rank: `3`
+- aggregate leaderboard score: `0.145834`
+- base leaderboard score: `0.145834`
+- average net return after costs: `+0.00%`
+- worst-window return: `-0.06%`
+- worst drawdown: `0.19%`
+- closed trades: `0`
+- active windows: `2` / `8`
+- positive windows: `1` / `8`
+- best window: `low_vol_fee_bleed`
+- worst window: `false_breakout_whipsaw`
+- evidence status: `insufficient`
+- confidence: `low`
+- paper-history: No strategy-attributed persisted paper-history fills are available yet.
+- strategy feedback: No persisted strategy feedback summary recorded.
+- feedback weighting: `missing`
+- research acceptance: `not_accepted`
+- research summary: `mean_reversion_rsi` does not meet the current research-acceptance floor yet.
+- walk-forward: `ok`
+- walk-forward windows: `5`
+
+Decision: `freeze`
+
+Reason:
+- No realized closed-trade evidence exists across the current window set.
+- Evidence note: No realized closed-trade participation exists across the current evidence windows.
+- Feedback weighting: No persisted strategy feedback row is available yet.
+- Biggest weakness: No realized trading participation across the current evidence windows.
+
+Next work:
+- Review entry filters and regime assumptions before spending more effort on tuning.
+
+- Research blocker: Persisted paper history only has 0 closed trade(s); the current research floor requires 30.
+- Research blocker: Only 0 represented window(s) produced realized closed trades; the current research floor requires 3.
+- Research blocker: Stressed slippage turns the current post-cost result non-positive.
+- Research blocker: Evidence status is insufficient; the current research floor requires paper_supported.
+- Research blocker: Confidence is low; the current research floor requires at least medium confidence.
+- Walk-forward summary: +0.00% average test return, 0.00% average test drawdown, 100% non-negative test windows, 0 closed test trade(s).
+
 ### `momentum`
 - candidate: `momentum_default`
-- rank: `3`
+- rank: `4`
 - aggregate leaderboard score: `0.145493`
 - base leaderboard score: `0.145493`
 - average net return after costs: `-3.77%`
@@ -198,48 +239,6 @@ Next work:
 - Research blocker: Evidence status is synthetic_only; the current research floor requires paper_supported.
 - Research blocker: Confidence is low; the current research floor requires at least medium confidence.
 - Walk-forward summary: -1.32% average test return, 1.32% average test drawdown, 80% non-negative test windows, 1 closed test trade(s).
-
-### `sma_200_trend`
-- candidate: `sma_200_trend_default`
-- rank: `4`
-- aggregate leaderboard score: `0.132800`
-- base leaderboard score: `0.132800`
-- average net return after costs: `+0.00%`
-- worst-window return: `+0.00%`
-- worst drawdown: `0.00%`
-- closed trades: `0`
-- active windows: `0` / `8`
-- positive windows: `0` / `8`
-- best window: `synthetic_default`
-- worst window: `synthetic_default`
-- evidence status: `insufficient`
-- confidence: `low`
-- paper-history: No strategy-attributed persisted paper-history fills are available yet.
-- strategy feedback: No persisted strategy feedback summary recorded.
-- feedback weighting: `missing`
-- research acceptance: `not_accepted`
-- research summary: `sma_200_trend` does not meet the current research-acceptance floor yet.
-- walk-forward: `ok`
-- walk-forward windows: `5`
-
-Decision: `freeze`
-
-Reason:
-- No realized closed-trade evidence exists across the current window set.
-- Evidence note: No realized closed-trade participation exists across the current evidence windows.
-- Feedback weighting: No persisted strategy feedback row is available yet.
-- Biggest weakness: No realized trading participation across the current evidence windows.
-
-Next work:
-- Review entry filters and regime assumptions before spending more effort on tuning.
-
-- Research blocker: Persisted paper history only has 0 closed trade(s); the current research floor requires 30.
-- Research blocker: Only 0 represented window(s) produced realized closed trades; the current research floor requires 3.
-- Research blocker: Post-cost return is not positive.
-- Research blocker: Stressed slippage turns the current post-cost result non-positive.
-- Research blocker: Evidence status is insufficient; the current research floor requires paper_supported.
-- Research blocker: Confidence is low; the current research floor requires at least medium confidence.
-- Walk-forward summary: +4.27% average test return, 0.03% average test drawdown, 100% non-negative test windows, 0 closed test trade(s).
 
 ### `volatility_reversal`
 - candidate: `volatility_reversal_default`
@@ -367,46 +366,47 @@ Next work:
 - Research blocker: Confidence is low; the current research floor requires at least medium confidence.
 - Walk-forward summary: +0.00% average test return, 0.00% average test drawdown, 100% non-negative test windows, 0 closed test trade(s).
 
-### `mean_reversion_rsi`
-- candidate: `mean_reversion_default`
+### `sma_200_trend`
+- candidate: `sma_200_trend_default`
 - rank: `8`
-- aggregate leaderboard score: `0.065834`
-- base leaderboard score: `0.145834`
+- aggregate leaderboard score: `0.108800`
+- base leaderboard score: `0.132800`
 - average net return after costs: `+0.00%`
-- worst-window return: `-0.06%`
-- worst drawdown: `0.19%`
+- worst-window return: `+0.00%`
+- worst drawdown: `0.00%`
 - closed trades: `0`
-- active windows: `2` / `8`
-- positive windows: `1` / `8`
-- best window: `low_vol_fee_bleed`
-- worst window: `false_breakout_whipsaw`
+- active windows: `0` / `8`
+- positive windows: `0` / `8`
+- best window: `synthetic_default`
+- worst window: `synthetic_default`
 - evidence status: `insufficient`
 - confidence: `low`
-- paper-history: 21 closed trade(s), -0.11 net realized PnL, 4.8% win rate across 42 fill(s).
-- strategy feedback: 21 closed trade(s), -0.11 net realized PnL, -0.01 expectancy per closed trade, 4.8% win rate.
+- paper-history: 6 closed trade(s), -1.61 net realized PnL, 16.7% win rate across 13 fill(s).
+- strategy feedback: 6 closed trade(s), -1.61 net realized PnL, -0.27 expectancy per closed trade, 16.7% win rate.
 - feedback weighting: `penalty`
 - research acceptance: `not_accepted`
-- research summary: `mean_reversion_rsi` does not meet the current research-acceptance floor yet.
+- research summary: `sma_200_trend` does not meet the current research-acceptance floor yet.
 - walk-forward: `ok`
 - walk-forward windows: `5`
 
 Decision: `freeze`
 
 Reason:
-- No realized closed-trade evidence exists across the current window set. Persisted paper-history evidence is negative after 21 closed trade(s), so the decision stays conservative.
+- No realized closed-trade evidence exists across the current window set. Persisted paper-history evidence is negative after 6 closed trade(s), so the decision stays conservative.
 - Evidence note: No realized closed-trade participation exists across the current evidence windows.
-- Feedback weighting: Persisted paper feedback is negative or fragile for this strategy (-0.01 expectancy, -0.11 net realized PnL), so the research leaderboard applies a conservative penalty.
+- Feedback weighting: Persisted paper feedback is negative or fragile for this strategy (-0.27 expectancy, -1.61 net realized PnL), so the research leaderboard applies a conservative penalty.
 - Biggest weakness: No realized trading participation across the current evidence windows.
 
 Next work:
 - Review entry filters and regime assumptions before spending more effort on tuning.
 
-- Research blocker: Persisted paper history only has 21 closed trade(s); the current research floor requires 30.
+- Research blocker: Persisted paper history only has 6 closed trade(s); the current research floor requires 30.
 - Research blocker: Only 0 represented window(s) produced realized closed trades; the current research floor requires 3.
+- Research blocker: Post-cost return is not positive.
 - Research blocker: Stressed slippage turns the current post-cost result non-positive.
 - Research blocker: Evidence status is insufficient; the current research floor requires paper_supported.
 - Research blocker: Confidence is low; the current research floor requires at least medium confidence.
-- Walk-forward summary: +0.00% average test return, 0.00% average test drawdown, 100% non-negative test windows, 0 closed test trade(s).
+- Walk-forward summary: +4.27% average test return, 0.03% average test drawdown, 100% non-negative test windows, 0 closed test trade(s).
 
 ## Forced Decision Set
 
@@ -418,11 +418,11 @@ Improve:
 - `ema_cross`
 
 Freeze:
-- `sma_200_trend`
+- `mean_reversion_rsi`
 - `volatility_reversal`
 - `gap_fill`
 - `breakout_volume`
-- `mean_reversion_rsi`
+- `sma_200_trend`
 
 Retire:
 - `momentum`
