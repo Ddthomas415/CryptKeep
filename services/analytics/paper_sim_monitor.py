@@ -604,6 +604,28 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
 
     while True:
         if stop_file().exists():
+            final_trigger_reasons = ["stop_requested"]
+            if previous_signature is not None or last_snapshot:
+                try:
+                    final_snapshot = collect_once(cfg)
+                    final_signature = _signature_payload(final_snapshot)
+                    final_trigger_reasons = _change_reasons(previous_signature, final_signature) + ["stop_requested"]
+                    if previous_signature is None or final_signature != previous_signature:
+                        changes_written += 1
+                        _append_history(
+                            {
+                                "ts": final_snapshot.get("ts") or _now_iso(),
+                                "trigger_reasons": final_trigger_reasons,
+                                **final_snapshot,
+                            }
+                        )
+                        previous_signature = final_signature
+                    last_snapshot = dict(final_snapshot)
+                except Exception as exc:
+                    logger.warning(
+                        "paper_sim_monitor_final_snapshot_failed",
+                        extra={"error_type": type(exc).__name__},
+                    )
             out = {
                 "ok": True,
                 "has_status": True,
@@ -616,6 +638,7 @@ def run_forever(cfg: PaperSimMonitorCfg, *, max_loops: int | None = None) -> dic
                 "poll_interval_sec": float(cfg.poll_interval_sec),
                 "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
                 "history_path": str(history_file()),
+                "trigger_reasons": final_trigger_reasons,
                 **last_snapshot,
             }
             _write_status(out)
