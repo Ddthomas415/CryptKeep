@@ -43,6 +43,7 @@ def test_promotion_readiness_blocks_paper_to_sandbox_on_thin_evidence() -> None:
             ],
             "decisions": [],
         },
+        strategy_id="breakout_donchian",
     )
 
     assert out["current_stage_label"] == "Paper"
@@ -51,6 +52,63 @@ def test_promotion_readiness_blocks_paper_to_sandbox_on_thin_evidence() -> None:
     assert any("execution.live_enabled remains false" in item for item in out["blockers"])
     assert any("require at least 3" in item for item in out["blockers"])
     assert any("too thin to confirm" in item for item in out["blockers"])
+
+
+def test_promotion_readiness_uses_target_strategy_for_paper_to_sandbox() -> None:
+    out = build_promotion_readiness(
+        as_of="2026-03-19T12:00:00Z",
+        runtime_context={
+            "mode_value": "paper",
+            "normalized_live_enabled": True,
+            "kill_armed": False,
+        },
+        leaderboard_summary={
+            "rows": [
+                {
+                    "name": "Breakout Default",
+                    "strategy_id": "breakout_donchian",
+                    "recommendation": "keep",
+                    "closed_trades": 6,
+                    "post_cost_return_pct": 12.0,
+                }
+            ]
+        },
+        structural_health={"needs_attention": False},
+        collector_runtime={"freshness": "Fresh", "errors": 0},
+        strategy_truth={
+            "truth_source": "persisted_artifact",
+            "freshness_status": "fresh",
+            "raw_rows": [
+                {
+                    "strategy": "breakout_donchian",
+                    "candidate": "breakout_default",
+                    "decision": "improve",
+                    "closed_trades": 5,
+                    "net_return_after_costs_pct": 9.0,
+                    "evidence_status": "synthetic_only",
+                    "confidence_label": "low",
+                    "evidence_note": "Persisted paper-history is missing, so the decision still relies on synthetic windows.",
+                },
+                {
+                    "strategy": "sma_200_trend",
+                    "candidate": "sma_200_trend_default",
+                    "decision": "keep",
+                    "closed_trades": 4,
+                    "net_return_after_costs_pct": 3.5,
+                    "evidence_status": "paper_supported",
+                    "confidence_label": "medium",
+                    "evidence_note": "Persisted paper-history is present, but the current sample is still research-grade rather than promotion-grade.",
+                },
+            ],
+            "decisions": [],
+        },
+        strategy_id="es_daily_trend_v1",
+    )
+
+    assert out["current_stage_label"] == "Paper"
+    assert out["target_stage_label"] == "Sandbox Live"
+    assert out["status"] == "ok"
+    assert out["blockers"] == []
 
 
 def test_promotion_readiness_allows_sandbox_to_tiny_live_review_when_criteria_clear() -> None:

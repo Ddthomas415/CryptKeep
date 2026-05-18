@@ -19,6 +19,10 @@ def test_load_trading_cfg_uses_runtime_trading_config(monkeypatch) -> None:
     assert home_digest._load_trading_cfg() is expected
 
 
+def test_configured_strategy_name_maps_es_daily_trend_alias() -> None:
+    assert home_digest._configured_strategy_name({"strategy": {"name": "es_daily_trend_v1"}}, {}) == "sma_200_trend"
+
+
 def test_runtime_mode_meta_prefers_execution_executor_mode() -> None:
     mode_value, label, note = home_digest._runtime_mode_meta(
         {"execution": {"executor_mode": "live"}, "live": {"sandbox": True}}
@@ -420,6 +424,86 @@ def test_load_home_digest_prefers_persisted_strategy_evidence(monkeypatch) -> No
     assert not any(item["title"] == "Persisted strategy evidence is unavailable" for item in payload["attention_now"]["items"])
     assert any(item["title"] == "Top strategy is not research-accepted" for item in payload["attention_now"]["items"])
     assert payload["scorecard_snapshot"]["source_name"] == home_digest.DIGEST_SOURCE_MAP["scorecard_snapshot_artifact"]
+
+
+def test_load_home_digest_passes_configured_strategy_to_promotion_readiness(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
+    monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {"strategy": {"name": "es_daily_trend_v1"}})
+    monkeypatch.setattr(home_digest, "get_system_guard_state", lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok"})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_strategy_evidence",
+        lambda: {
+            "ok": False,
+            "has_artifact": False,
+            "artifact_path": "/tmp/strategy_evidence.latest.json",
+            "freshness_status": "missing",
+            "caveat": "Persisted strategy evidence artifact is missing; digest must use labeled synthetic fallback.",
+        },
+    )
+    monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
+    monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_disabled"))
+    monkeypatch.setattr(home_digest, "live_allowed", lambda: (False, "risk_enable_live_false", {"live_enabled": False}))
+    monkeypatch.setattr(
+        home_digest,
+        "decide_start",
+        lambda mode, cfg=None: _Decision(ok=True, mode=mode, status="OK", reasons=[], note="Paper start allowed"),
+    )
+    monkeypatch.setattr(home_digest, "build_strategy_workbench", lambda **kwargs: {"ok": True, "leaderboard": {"rows": []}})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_any_data": False,
+            "has_live_data": False,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "No Live Data",
+        },
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_summary",
+        lambda: {
+            "ok": True,
+            "needs_attention": False,
+            "severity": "ok",
+            "live_snapshot_freshness": "Fresh",
+            "action_text": "No operator action needed.",
+            "summary_text": "Structural-edge data is current.",
+        },
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_digest",
+        lambda: {"ok": True, "headline": "Structural-edge data is current", "while_away_summary": "All good."},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_collector_runtime",
+        lambda: {"ok": True, "has_status": True, "freshness": "Fresh", "errors": 0, "ts": "2026-03-19T05:40:00Z", "summary_text": "Collector loop is healthy."},
+    )
+    monkeypatch.setattr(home_digest, "get_operations_snapshot", lambda: {"attention_services": 0, "unknown_services": 0, "last_health_ts": ""})
+    monkeypatch.setattr(
+        home_digest,
+        "build_promotion_readiness",
+        lambda **kwargs: captured.update(kwargs)
+        or {
+            "current_stage_label": "Paper",
+            "target_stage_label": "Sandbox Live",
+            "status": "warn",
+            "summary": "not ready",
+            "pass_criteria": [],
+            "rollback_criteria": [],
+            "blockers": [],
+        },
+    )
+
+    home_digest.load_home_digest({"active_warnings": [], "blocked_trades_count": 0})
+
+    assert captured["strategy_id"] == "sma_200_trend"
 
 
 def test_build_mode_truth_digest_warns_when_promotion_review_is_clear_but_research_confidence_is_not() -> None:

@@ -43,23 +43,60 @@ def _top_row(leaderboard_summary: dict[str, Any]) -> dict[str, Any] | None:
     return dict(rows[0]) if rows else None
 
 
+def _normalize_strategy_id(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    if not text:
+        return ""
+    if text.startswith("es_daily_trend"):
+        return "sma_200_trend"
+    aliases = {
+        "ema": "ema_cross",
+        "ema_crossover": "ema_cross",
+        "mean_reversion": "mean_reversion_rsi",
+        "breakout": "breakout_donchian",
+        "donchian": "breakout_donchian",
+    }
+    return aliases.get(text, text)
+
+
+def _strategy_truth_row(strategy_truth: dict[str, Any], strategy_id: Any) -> dict[str, Any]:
+    target = _normalize_strategy_id(strategy_id)
+    if not target:
+        return {}
+    raw_rows = [dict(row) for row in list(strategy_truth.get("raw_rows") or []) if isinstance(row, dict)]
+    decisions = [dict(item) for item in list(strategy_truth.get("decisions") or []) if isinstance(item, dict)]
+
+    for row in raw_rows:
+        row_strategy = _normalize_strategy_id(row.get("strategy") or row.get("candidate") or "")
+        row_candidate = _normalize_strategy_id(row.get("candidate") or "")
+        if target and target in {row_strategy, row_candidate}:
+            return row
+
+    for item in decisions:
+        item_strategy = _normalize_strategy_id(item.get("strategy") or item.get("candidate") or "")
+        item_candidate = _normalize_strategy_id(item.get("candidate") or "")
+        if target and target in {item_strategy, item_candidate}:
+            return item
+    return {}
+
+
 def _top_strategy_evidence(strategy_truth: dict[str, Any], top: dict[str, Any] | None) -> dict[str, Any]:
     raw_rows = [dict(row) for row in list(strategy_truth.get("raw_rows") or []) if isinstance(row, dict)]
     decisions = [dict(item) for item in list(strategy_truth.get("decisions") or []) if isinstance(item, dict)]
-    top_strategy = str((top or {}).get("strategy_id") or "").strip().lower()
-    top_name = str((top or {}).get("name") or "").strip().lower()
+    top_strategy = _normalize_strategy_id((top or {}).get("strategy_id") or "")
+    top_name = _normalize_strategy_id((top or {}).get("name") or "")
 
     for row in raw_rows:
-        row_strategy = str(row.get("strategy") or row.get("candidate") or "").strip().lower()
-        row_candidate = str(row.get("candidate") or "").strip().lower()
+        row_strategy = _normalize_strategy_id(row.get("strategy") or row.get("candidate") or "")
+        row_candidate = _normalize_strategy_id(row.get("candidate") or "")
         if top_strategy and row_strategy == top_strategy:
             return row
         if top_name and row_candidate == top_name:
             return row
 
     for item in decisions:
-        strategy = str(item.get("strategy") or item.get("candidate") or "").strip().lower()
-        candidate = str(item.get("candidate") or "").strip().lower()
+        strategy = _normalize_strategy_id(item.get("strategy") or item.get("candidate") or "")
+        candidate = _normalize_strategy_id(item.get("candidate") or "")
         if top_strategy and strategy == top_strategy:
             return item
         if top_name and candidate == top_name:
@@ -69,10 +106,10 @@ def _top_strategy_evidence(strategy_truth: dict[str, Any], top: dict[str, Any] |
 
 def _sandbox_pass_criteria() -> list[str]:
     return [
-        "Top strategy remains Keep, not Improve/Freeze/Retire.",
-        "Top strategy shows at least 3 closed trades in the current evaluation cycle.",
-        "Top strategy evidence status is paper_supported, not synthetic_only or paper_thin.",
-        "Top strategy stays positive after fees and slippage.",
+        "Target strategy remains Keep, not Improve/Freeze/Retire.",
+        "Target strategy shows at least 3 closed trades in the current evaluation cycle.",
+        "Target strategy evidence status is paper_supported, not synthetic_only or paper_thin.",
+        "Target strategy stays positive after fees and slippage.",
         "Collector/runtime freshness is not stale or missing.",
         "Kill switch is disarmed before enabling sandbox execution.",
         "execution.live_enabled and sandbox mode are reviewed explicitly, not implied.",
@@ -117,6 +154,7 @@ def build_promotion_readiness(
     structural_health: dict[str, Any],
     collector_runtime: dict[str, Any],
     strategy_truth: dict[str, Any] | None = None,
+    strategy_id: str = "",
 ) -> PromotionReadiness:
     current_stage, current_stage_label, target_stage, target_stage_label = _mode_to_stage(runtime_context.get("mode_value"))
     top = _top_row(leaderboard_summary)
@@ -131,6 +169,8 @@ def build_promotion_readiness(
     strategy_truth_freshness = str(strategy_truth.get("freshness_status") or "").strip().lower()
     strategy_truth_caveat = str(strategy_truth.get("caveat") or "").strip()
     top_evidence = _top_strategy_evidence(strategy_truth, top)
+    requested_strategy_id = _normalize_strategy_id(strategy_id)
+    target_evidence = _strategy_truth_row(strategy_truth, requested_strategy_id)
     top_evidence_status = str(top_evidence.get("evidence_status") or "").strip().lower()
     top_confidence = str(top_evidence.get("confidence_label") or "").strip().lower()
     top_evidence_note = str(top_evidence.get("evidence_note") or "").strip()
@@ -160,27 +200,36 @@ def build_promotion_readiness(
             blockers.append(f"Collector freshness is {collector_freshness.title()}.")
         if collector_errors > 0:
             blockers.append(f"Collector runtime reported {collector_errors} error(s).")
-        if not top:
-            blockers.append("No leaderboard summary is available yet.")
+        if requested_strategy_id and not target_evidence:
+            blockers.append(f"No persisted strategy-evidence row is available for {requested_strategy_id}.")
         else:
-            recommendation = str(top.get("recommendation") or "unknown").strip().lower()
-            closed_trades = int(_fnum(top.get("closed_trades"), 0.0))
-            post_cost_return = _fnum(top.get("post_cost_return_pct"), 0.0)
+            evaluation_row = dict(target_evidence if requested_strategy_id else (top or {}))
+            evaluation_evidence = dict(target_evidence if requested_strategy_id else top_evidence)
+            label = "Target strategy" if requested_strategy_id else "Top strategy"
+            recommendation = str(evaluation_row.get("recommendation") or evaluation_row.get("decision") or "unknown").strip().lower()
+            closed_trades = int(_fnum(evaluation_row.get("closed_trades"), 0.0))
+            post_cost_return = _fnum(
+                evaluation_row.get("post_cost_return_pct"),
+                _fnum(evaluation_row.get("net_return_after_costs_pct"), 0.0),
+            )
+            target_evidence_status = str(evaluation_evidence.get("evidence_status") or "").strip().lower()
+            target_confidence = str(evaluation_evidence.get("confidence_label") or "").strip().lower()
+            target_evidence_note = str(evaluation_evidence.get("evidence_note") or "").strip()
             if recommendation != "keep":
-                blockers.append(f"Top strategy recommendation is {recommendation or 'unknown'}; require keep.")
+                blockers.append(f"{label} recommendation is {recommendation or 'unknown'}; require keep.")
             if closed_trades < 3:
-                blockers.append(f"Top strategy only has {closed_trades} closed trade(s); require at least 3.")
-            if top_evidence_status != "paper_supported":
+                blockers.append(f"{label} only has {closed_trades} closed trade(s); require at least 3.")
+            if target_evidence_status != "paper_supported":
                 blockers.append(
-                    top_evidence_note
-                    or f"Top strategy evidence status is {top_evidence_status or 'unknown'}; require paper_supported."
+                    target_evidence_note
+                    or f"{label} evidence status is {target_evidence_status or 'unknown'}; require paper_supported."
                 )
-            elif top_confidence in {"unknown", "low"}:
+            elif target_confidence in {"unknown", "low"}:
                 blockers.append(
-                    f"Top strategy confidence is {top_confidence or 'unknown'}; require at least medium confidence before sandbox review."
+                    f"{label} confidence is {target_confidence or 'unknown'}; require at least medium confidence before sandbox review."
                 )
             if post_cost_return <= 0.0:
-                blockers.append("Top strategy is not positive after fees and slippage.")
+                blockers.append(f"{label} is not positive after fees and slippage.")
 
         if blockers:
             return {

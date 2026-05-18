@@ -30,9 +30,10 @@ Promotion target:
 Minimum pass criteria:
 
 - Phase 1 safety pack is green
-- top strategy is still `keep`
-- top strategy has at least `3` closed trades in the current decision cycle
-- top strategy stays positive after fees and slippage
+- target strategy is still `keep`
+- target strategy has at least `3` closed trades in the current decision cycle
+- target strategy evidence status is `paper_supported`, not `synthetic_only` or `paper_thin`
+- target strategy stays positive after fees and slippage
 - collector/runtime freshness is not stale or missing
 - kill switch is disarmed before any sandbox enablement
 - `execution.live_enabled` and sandbox config are changed deliberately, not implicitly
@@ -43,6 +44,11 @@ Rollback criteria:
 - return to `paper` immediately if collector/runtime freshness degrades to stale or missing
 - return to `paper` immediately if the promoted strategy flips away from `keep`
 - return to `paper` immediately if operator telemetry is degraded or unknown
+
+Policy note:
+
+- paper -> sandbox is strategy-specific: the named strategy under review must clear its own evidence row
+- sandbox -> tiny live remains portfolio-wide: the current top strategy must still justify any real-capital review
 
 ### 2. Sandbox Live
 
