@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dashboard.components import summary_panels
 from dashboard.services.digest import builders as home_digest
 
 
@@ -10,6 +11,40 @@ class _Decision:
         self.status = status
         self.reasons = reasons
         self.note = note
+
+
+class _DummyBlock:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool:
+        return False
+
+
+class _FakeStreamlit:
+    def __init__(self) -> None:
+        self.markdowns: list[str] = []
+        self.captions: list[str] = []
+        self.infos: list[str] = []
+
+    def container(self, *args, **kwargs):
+        return _DummyBlock()
+
+    def columns(self, spec):
+        if isinstance(spec, int):
+            count = spec
+        else:
+            count = len(spec)
+        return [_DummyBlock() for _ in range(count)]
+
+    def markdown(self, text, *args, **kwargs) -> None:
+        self.markdowns.append(str(text))
+
+    def caption(self, text, *args, **kwargs) -> None:
+        self.captions.append(str(text))
+
+    def info(self, text, *args, **kwargs) -> None:
+        self.infos.append(str(text))
 
 
 def test_load_trading_cfg_uses_runtime_trading_config(monkeypatch) -> None:
@@ -211,6 +246,52 @@ def test_load_home_digest_surfaces_paper_sim_monitor(monkeypatch) -> None:
     assert payload["paper_sim_monitor"]["recommendation"] == "continue"
     assert payload["paper_sim_monitor"]["strategy_label"] == "es_daily_trend_v1"
     assert payload["paper_sim_monitor"]["round_trips_observed"] == 1
+
+
+def test_render_home_digest_summary_shows_paper_sim_monitor(monkeypatch) -> None:
+    fake_st = _FakeStreamlit()
+    monkeypatch.setattr(summary_panels, "st", fake_st)
+    monkeypatch.setattr(summary_panels, "render_badge_row", lambda *args, **kwargs: None)
+
+    summary_panels.render_home_digest_summary(
+        {
+            "as_of": "2026-05-18T18:00:00Z",
+            "page_status": {"state": "ok", "caveat": ""},
+            "runtime_truth": {
+                "mode": {"label": "Runtime Mode", "value": "Paper", "state": "ok", "caveat": ""},
+                "live_order_authority": {"label": "Live Boundary", "value": "Healthy", "state": "ok", "caveat": ""},
+                "kill_switch": {"label": "Kill Switch", "value": "Disarmed", "state": "ok", "caveat": ""},
+                "collector_freshness": {"label": "Collector", "value": "Fresh", "state": "ok", "caveat": ""},
+                "leaderboard_age": {"label": "Leaderboard", "value": "Fresh", "state": "ok", "caveat": ""},
+                "copilot_trust_layer": {"label": "Copilot", "value": "Partial", "state": "warn", "caveat": ""},
+            },
+            "attention_now": {"as_of": "2026-05-18T18:00:00Z", "items": []},
+            "leaderboard_summary": {"as_of": "2026-05-18T18:00:00Z", "rows": []},
+            "next_best_action": {
+                "as_of": "2026-05-18T18:00:00Z",
+                "title": "Keep running paper",
+                "why": "Need more evidence.",
+                "recommended_action": "Observe the next fill.",
+                "secondary_actions": [],
+            },
+            "paper_sim_monitor": {
+                "status": "running",
+                "notification_status": "sent",
+                "strategy_label": "es_daily_trend_v1",
+                "symbol": "BTC/USDT",
+                "recommendation": "continue",
+                "fills_observed": 2,
+                "round_trips_observed": 1,
+                "summary_text": "Paper sim monitor summary.",
+            },
+            "claim_boundaries": ["No live execution."],
+        }
+    )
+
+    assert "### Paper Sim Monitor" in fake_st.markdowns
+    assert any("Status running · Alerts sent" == text for text in fake_st.captions)
+    assert any("**es_daily_trend_v1 · BTC/USDT**" == text for text in fake_st.markdowns)
+    assert any("Recommendation continue · Fills 2 · Round trips 1" == text for text in fake_st.captions)
 
 
 def test_load_home_digest_surfaces_blocked_live_attention(monkeypatch) -> None:
