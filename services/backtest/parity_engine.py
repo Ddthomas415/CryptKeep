@@ -93,7 +93,7 @@ def run_parity_backtest(
     closed_pnls: List[float] = []
     fee_frac = max(0.0, float(fee_bps)) / 10000.0
     symbol_s = str(symbol)
-    st = cfg.get("strategy") if isinstance(cfg, dict) else {}
+    st = cfg.get("strategy") if isinstance(cfg, dict) and isinstance(cfg.get("strategy"), dict) else {}
     strategy_name = str(st.get("name") or "ema_cross")
 
     ohlcv: List[list[Any]] = []
