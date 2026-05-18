@@ -44,3 +44,27 @@ def test_load_paper_strategy_evidence_runtime_has_no_alert_for_normal_summary(mo
 
     assert payload["alert_tone"] == ""
     assert payload["alert_text"] == ""
+
+
+def test_load_paper_sim_monitor_runtime_flags_investigate(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.load_runtime_status",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "stopped",
+            "ts": "2026-03-26T12:00:00Z",
+            "recommendation": "investigate",
+            "strategy_label": "es_daily_trend_v1",
+            "symbol": "BTC/USDT",
+            "fills_observed": 0,
+            "round_trips_observed": 0,
+            "summary_text": "Paper sim monitor sees es_daily_trend_v1 on BTC/USDT with campaign completed; recommendation=investigate.",
+        },
+    )
+
+    payload = runtime.load_paper_sim_monitor_runtime()
+
+    assert payload["alert_tone"] == "warning"
+    assert "recommendation=investigate" in payload["alert_text"]
+    assert payload["freshness"] in {"Fresh", "Aging", "Stale", "Unknown"}

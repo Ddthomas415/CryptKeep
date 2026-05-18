@@ -45,6 +45,7 @@ from dashboard.services.operator import (
     stop_paper_strategy_evidence_collection,
 )
 from dashboard.services.operator_tools import synthetic_ohlcv
+from dashboard.services.strategy_evidence_runtime import load_paper_sim_monitor_runtime
 from dashboard.services.strategy_evidence_runtime import load_paper_strategy_evidence_runtime
 from dashboard.services.strategy_evaluation import (
     build_hypothesis_sections,
@@ -89,6 +90,7 @@ live_structural_edges = load_latest_live_crypto_edge_snapshot()
 collector_runtime = load_crypto_edge_collector_runtime()
 structural_edge_health = load_crypto_edge_staleness_summary()
 paper_evidence_runtime = load_paper_strategy_evidence_runtime()
+paper_sim_monitor_runtime = load_paper_sim_monitor_runtime()
 system_diagnostics = run_full_system_diagnostics(export_bundle=False, current_role=str(AUTH_STATE.get("role") or "VIEWER"))
 
 st.markdown("<div class='ck-ops-shell'>", unsafe_allow_html=True)
@@ -383,6 +385,34 @@ with tab_strategy:
         else [],
         subtitle="Managed paper-evidence campaign runtime for sequential strategy collection and artifact refresh.",
         empty_message="Paper evidence collector has not reported status yet. Use the controls above to start a managed campaign.",
+    )
+    paper_sim_alert_text = str(paper_sim_monitor_runtime.get("alert_text") or "").strip()
+    paper_sim_alert_tone = str(paper_sim_monitor_runtime.get("alert_tone") or "").strip().lower()
+    if paper_sim_alert_text:
+        if paper_sim_alert_tone == "warning":
+            st.warning(paper_sim_alert_text)
+        else:
+            st.info(paper_sim_alert_text)
+    render_table_section(
+        "Paper Sim Monitor",
+        [
+            {
+                "status": str(paper_sim_monitor_runtime.get("status") or "not_started"),
+                "freshness": str(paper_sim_monitor_runtime.get("freshness") or "Unknown"),
+                "age": str(paper_sim_monitor_runtime.get("age_label") or "Unknown"),
+                "recommendation": str(paper_sim_monitor_runtime.get("recommendation") or "-"),
+                "strategy": str(paper_sim_monitor_runtime.get("strategy_label") or paper_sim_monitor_runtime.get("current_strategy") or "-"),
+                "symbol": str(paper_sim_monitor_runtime.get("symbol") or "-"),
+                "fills": str(int(paper_sim_monitor_runtime.get("fills_observed") or 0)),
+                "round_trips": str(int(paper_sim_monitor_runtime.get("round_trips_observed") or 0)),
+                "reason": str(paper_sim_monitor_runtime.get("reason") or ""),
+                "summary": str(paper_sim_monitor_runtime.get("summary_text") or ""),
+            }
+        ]
+        if bool(paper_sim_monitor_runtime.get("has_status"))
+        else [],
+        subtitle="Read-only monitor status for the active or most recent managed paper campaign.",
+        empty_message="Paper sim monitor has not reported status yet. Start a managed paper evidence campaign to populate this surface.",
     )
 
     with st.container(border=True):

@@ -22,6 +22,8 @@ def _runtime_alert(payload: dict[str, Any]) -> tuple[str, str]:
     normalized = summary.lower()
     if "waiting for fresh market ticks" in normalized:
         return "warning", summary
+    if str(payload.get("recommendation") or "").strip().lower() == "investigate":
+        return "warning", summary or "Paper sim monitor recommends investigation."
     return "", ""
 
 
@@ -50,6 +52,33 @@ def load_paper_strategy_evidence_runtime() -> dict[str, Any]:
         payload["summary_text"] = (
             f"Paper strategy evidence collector status {str(payload.get('status') or 'unknown')}, "
             f"{payload['completed_summary']} strategies complete."
+        )
+    tone, text = _runtime_alert(payload)
+    payload["alert_tone"] = tone
+    payload["alert_text"] = text
+    return payload
+
+
+def load_paper_sim_monitor_runtime() -> dict[str, Any]:
+    try:
+        from services.analytics.paper_sim_monitor import load_runtime_status
+    except Exception as exc:
+        return {
+            "ok": False,
+            "has_status": False,
+            "reason": f"service_import_failed:{type(exc).__name__}",
+            "summary_text": "Paper sim monitor runtime is unavailable.",
+        }
+
+    payload = dict(load_runtime_status() or {})
+    age_s = age_seconds(payload.get("ts") or payload.get("started_ts"))
+    payload["age_seconds"] = age_s
+    payload["freshness"] = _freshness_label(age_s)
+    payload["age_label"] = fmt_age(age_s)
+    if not str(payload.get("summary_text") or "").strip():
+        payload["summary_text"] = (
+            f"Paper sim monitor status {str(payload.get('status') or 'unknown')}, "
+            f"recommendation={str(payload.get('recommendation') or 'unknown')}."
         )
     tone, text = _runtime_alert(payload)
     payload["alert_tone"] = tone

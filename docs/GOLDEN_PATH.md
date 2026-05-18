@@ -23,8 +23,12 @@ make paper-stop-now           # emergency stop
 2. `run_tick_publisher.py` — market data snapshot publisher
 3. `run_paper_engine.py` — simulated order execution
 4. `run_strategy_runner.py` → `ema_crossover_runner.py` — signal evaluation loop
+5. `run_paper_sim_monitor.py` — auto-supervised read-only runtime monitor
 
 Signal source: `public_ohlcv_1d` → fetches daily OHLCV → calls `es_daily_trend.signal_from_ohlcv()`
+
+The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
+It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.
 
 ## Where evidence goes
 
