@@ -1440,11 +1440,6 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
     monkeypatch.setattr(
         strategy_evidence_runtime,
         "load_paper_sim_monitor_runtime",
-        lambda: {"ok": True, "has_status": False, "status": "not_started", "freshness": "Unknown", "age_label": "Unknown", "summary_text": ""},
-    )
-    monkeypatch.setattr(
-        strategy_evidence_runtime,
-        "load_paper_sim_monitor_runtime",
         lambda: {
             "ok": True,
             "has_status": True,
@@ -1458,6 +1453,15 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
             "round_trips_observed": 1,
             "reason": "campaign_completed",
             "summary_text": "Paper sim monitor summary.",
+            "watches": [
+                {
+                    "name": "next_fill",
+                    "trigger": "new_fill",
+                    "active": True,
+                    "last_fired_at": "2026-03-18T10:04:00Z",
+                    "last_report_stem": "paper_sim_monitor_watch_20260318T100400Z_next_fill",
+                }
+            ],
         },
     )
 
@@ -1480,6 +1484,160 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
     assert section_rows["Paper Sim Monitor"][0]["recommendation"] == "continue"
     assert section_rows["Paper Sim Monitor"][0]["strategy"] == "es_daily_trend_v1"
     assert section_rows["Paper Sim Monitor"][0]["fills"] == "2"
+    assert "Registered Paper Sim Watches" in section_rows
+    assert section_rows["Registered Paper Sim Watches"][0]["name"] == "next_fill"
+    assert section_rows["Registered Paper Sim Watches"][0]["trigger"] == "new_fill"
+
+
+def test_operations_page_registers_paper_sim_watch(monkeypatch) -> None:
+    from dashboard.components import actions, logs
+    from dashboard.services import crypto_edge_research
+    from dashboard.services import operator as operator_service
+    from dashboard.services import operator_tools, strategy_evaluation
+    from dashboard.services import strategy_evidence_runtime
+    from services.admin import config_editor, repair_wizard
+    from services.execution import idempotency_inspector
+    from services.strategies import config_tools, presets
+
+    captured: dict[str, Any] = {}
+
+    monkeypatch.setattr(actions, "render_system_action_buttons", lambda: None)
+    monkeypatch.setattr(logs, "render_action_result", _noop)
+    monkeypatch.setattr(
+        operator_service,
+        "get_operations_snapshot",
+        lambda: {
+            "tracked_services": 5,
+            "healthy_services": 4,
+            "unknown_services": 1,
+            "attention_services": 1,
+            "last_health_ts": "2026-03-18T10:00:00Z",
+        },
+    )
+    monkeypatch.setattr(operator_service, "list_services", lambda: ["tick_publisher"])
+    monkeypatch.setattr(operator_service, "run_op", lambda args, current_role="VIEWER": (0, "ok"))
+    monkeypatch.setattr(operator_service, "run_repo_script", lambda script, args=None: (0, "{}"))
+    monkeypatch.setattr(
+        operator_service,
+        "run_full_system_diagnostics",
+        lambda export_bundle=False, current_role="VIEWER": {
+            "ok": True,
+            "status": "ok",
+            "as_of": "2026-03-18T10:00:00Z",
+            "summary": {"critical_issues": 0, "warning_issues": 0, "repairable_issues": 0},
+            "issues": [],
+        },
+    )
+    monkeypatch.setattr(operator_service, "preview_safe_system_self_repair", lambda: {"ok": True, "repair_plan": []})
+    monkeypatch.setattr(operator_service, "apply_safe_system_self_repair", lambda export_bundle=True: {"ok": True, "removed_count": 0})
+    monkeypatch.setattr(operator_service, "export_diagnostics_bundle", lambda: {"ok": True, "exported_to": "/tmp/diag.zip"})
+    monkeypatch.setattr(
+        operator_service,
+        "start_paper_strategy_evidence_collection",
+        lambda runtime_sec, strategies=None, symbol="BTC/USD", venue="coinbase", current_role="VIEWER": (0, "started"),
+    )
+    monkeypatch.setattr(operator_service, "stop_paper_strategy_evidence_collection", lambda current_role="VIEWER": (0, "stopped"))
+    monkeypatch.setattr(
+        operator_service,
+        "register_paper_sim_watch",
+        lambda name="", trigger="", current_role="VIEWER": captured.update(
+            {"name": name, "trigger": trigger, "current_role": current_role}
+        )
+        or {"ok": True, "name": name, "trigger": trigger},
+    )
+    monkeypatch.setattr(operator_service, "delete_paper_sim_watch", lambda name="", current_role="VIEWER": {"ok": True, "name": name})
+    monkeypatch.setattr(
+        config_editor,
+        "load_user_yaml",
+        lambda: {"strategy": {"name": "ema_cross", "trade_enabled": True, "ema_fast": 12, "ema_slow": 26}},
+    )
+    monkeypatch.setattr(config_editor, "save_user_yaml", lambda cfg: (True, "saved"))
+    monkeypatch.setattr(config_tools, "supported_strategies", lambda: ["ema_cross", "mean_reversion_rsi", "breakout_donchian"])
+    monkeypatch.setattr(
+        config_tools,
+        "build_strategy_block",
+        lambda name, trade_enabled, params: {"name": name, "trade_enabled": trade_enabled, **params},
+    )
+    monkeypatch.setattr(config_tools, "apply_strategy_block", lambda cfg, block: {**cfg, "strategy": dict(block)})
+    monkeypatch.setattr(config_tools, "validate_cfg", lambda cfg: {"ok": True, "errors": [], "warnings": []})
+    monkeypatch.setattr(config_tools, "apply_preset_and_validate", lambda cfg, preset: (cfg, {"ok": True, "errors": [], "warnings": []}))
+    monkeypatch.setattr(presets, "list_presets", lambda: ["ema_cross_default"])
+    monkeypatch.setattr(operator_tools, "synthetic_ohlcv", lambda count: [[1, 100, 101, 99, 100, 1.0]] * max(int(count), 1))
+    monkeypatch.setattr(idempotency_inspector, "list_recent", lambda limit=10, status="error": {"ok": True, "rows": [], "path": "/tmp/db", "table": "idempotency"})
+    monkeypatch.setattr(idempotency_inspector, "filter_rows", lambda rows, venue_filter, symbol_filter: [])
+    monkeypatch.setattr(repair_wizard, "preflight_self_check", lambda: {"ok": True})
+    monkeypatch.setattr(repair_wizard, "preview_reset", lambda include_locks=False: {"ok": True, "include_locks": include_locks})
+    monkeypatch.setattr(repair_wizard, "execute_reset", lambda confirm_text="", include_locks=False: {"ok": False, "reason": "not_confirmed"})
+    monkeypatch.setattr(
+        strategy_evaluation,
+        "build_strategy_workbench",
+        lambda **kwargs: {"ok": True, "backtest": {}, "leaderboard": {}, "hypothesis": {}},
+    )
+    monkeypatch.setattr(crypto_edge_research, "load_crypto_edge_report", lambda: {"ok": True})
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_any_data": True,
+            "has_live_data": True,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "Recent",
+            "summary_text": "Live Public snapshot.",
+        },
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_collector_runtime",
+        lambda: {"ok": True, "has_status": True, "status": "running", "freshness": "Recent"},
+    )
+    monkeypatch.setattr(
+        crypto_edge_research,
+        "load_crypto_edge_staleness_summary",
+        lambda: {"ok": True, "needs_attention": False, "severity": "ok"},
+    )
+    monkeypatch.setattr(
+        strategy_evidence_runtime,
+        "load_paper_strategy_evidence_runtime",
+        lambda: {
+            "ok": True,
+            "has_status": False,
+            "status": "not_started",
+            "freshness": "Unknown",
+            "age_label": "Unknown",
+            "current_strategy": "",
+            "completed_summary": "0/3",
+            "summary_text": "Paper strategy evidence collector has not written runtime status yet.",
+        },
+    )
+    monkeypatch.setattr(
+        strategy_evidence_runtime,
+        "load_paper_sim_monitor_runtime",
+        lambda: {
+            "ok": True,
+            "has_status": False,
+            "status": "not_started",
+            "freshness": "Unknown",
+            "age_label": "Unknown",
+            "summary_text": "",
+            "watches": [],
+        },
+    )
+
+    _load_dashboard_module(
+        monkeypatch,
+        relative_path="dashboard/pages/60_Operations.py",
+        module_name="dashboard_test_operations_register_paper_sim_watch",
+        streamlit_overrides={
+            "Paper Sim Watch Name": "next_fill",
+            "Paper Sim Watch Trigger": "new_fill",
+            "Register Paper Sim Watch": True,
+        },
+    )
+
+    assert captured["name"] == "next_fill"
+    assert captured["trigger"] == "new_fill"
+    assert captured["current_role"] == "OPERATOR"
 
 
 def test_operations_page_starts_collector_loop(monkeypatch) -> None:

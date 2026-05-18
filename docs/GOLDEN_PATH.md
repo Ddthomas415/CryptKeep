@@ -37,6 +37,7 @@ Managed paper campaigns also auto-seed default paper-sim watches:
 
 When one of those watches fires, the monitor writes JSON/Markdown reports under `.cbp_state/runtime/ai_reports/`
 and attempts a local macOS desktop notification.
+Operators can register or delete local watches from the Operations dashboard without using the CLI.
 
 ## Where evidence goes
 

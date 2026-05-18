@@ -105,6 +105,31 @@ def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
     assert "OPERATOR" in out
 
 
+def test_register_paper_sim_watch_wraps_core_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.register_watch",
+        lambda name="", trigger="": {"ok": True, "name": name, "trigger": trigger},
+    )
+
+    out = operator_service.register_paper_sim_watch(name="next_fill", trigger="new_fill", current_role="OPERATOR")
+
+    assert out["ok"] is True
+    assert out["name"] == "next_fill"
+    assert out["trigger"] == "new_fill"
+
+
+def test_delete_paper_sim_watch_wraps_core_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.delete_watch",
+        lambda name="": {"ok": True, "name": name},
+    )
+
+    out = operator_service.delete_paper_sim_watch(name="next_fill", current_role="OPERATOR")
+
+    assert out["ok"] is True
+    assert out["name"] == "next_fill"
+
+
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
     monkeypatch.setattr(operator_service, "list_services", lambda fallback=None: ["tick_publisher", "intent_executor"])
     monkeypatch.setattr(
