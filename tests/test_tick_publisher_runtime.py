@@ -70,6 +70,75 @@ def test_fetch_status_includes_symbol_specific_ticks(monkeypatch) -> None:
     ]
 
 
+def test_fetch_status_uses_sample_ohlcv_ticks_when_enabled(monkeypatch) -> None:
+    monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+    monkeypatch.setenv("CBP_VENUE", "coinbase")
+    monkeypatch.setenv("CBP_SYMBOLS", "BTC/USDT")
+    monkeypatch.setattr(system_status_publisher.time, "time", lambda: 123.456)
+    monkeypatch.setattr(
+        system_status_publisher,
+        "_sample_tick",
+        lambda symbol, timeframe="1d": {
+            "symbol": str(symbol),
+            "ts_ms": 111111,
+            "bid": 44800.0,
+            "ask": 44800.0,
+            "last": 44800.0,
+        },
+    )
+    monkeypatch.setattr(
+        system_status_publisher,
+        "make_exchange",
+        lambda venue, creds, enable_rate_limit=True: (_ for _ in ()).throw(AssertionError("exchange should not be called in sample mode")),
+    )
+
+    out = system_status_publisher.fetch_status()
+
+    assert out["venues"]["coinbase"]["ok"] is True
+    assert out["venues"]["coinbase"]["last"] == 44800.0
+    assert out["ticks"] == [
+        {
+            "venue": "coinbase",
+            "symbol": "BTC/USDT",
+            "symbol_mapped": "BTC/USDT",
+            "bid": 44800.0,
+            "ask": 44800.0,
+            "last": 44800.0,
+            "ts_ms": 123456,
+            "exchange_ts_ms": 111111,
+        }
+    ]
+
+
+def test_run_forever_creates_snapshot_dir_before_write(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(system_status_publisher, "FLAGS", tmp_path / "flags")
+    monkeypatch.setattr(system_status_publisher, "LOCKS", tmp_path / "locks")
+    monkeypatch.setattr(system_status_publisher, "SNAPSHOTS", tmp_path / "snapshots")
+    monkeypatch.setattr(system_status_publisher, "STOP_FILE", (tmp_path / "flags" / "tick_publisher.stop"))
+    monkeypatch.setattr(system_status_publisher, "LOCK_FILE", (tmp_path / "locks" / "tick_publisher.lock"))
+    monkeypatch.setattr(system_status_publisher, "STATUS_FILE", (tmp_path / "snapshots" / "system_status.latest.json"))
+    monkeypatch.setattr(system_status_publisher, "ensure_dirs", lambda: None)
+    monkeypatch.setattr(system_status_publisher, "_acquire_lock", lambda: True)
+    monkeypatch.setattr(system_status_publisher, "_release_lock", lambda: None)
+    monkeypatch.setattr(
+        system_status_publisher,
+        "fetch_status",
+        lambda: {"ts": "2026-01-01T00:00:00Z", "ts_ms": 1, "venues": {}, "ticks": []},
+    )
+
+    def _sleep(_seconds: float) -> None:
+        system_status_publisher.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+        system_status_publisher.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(system_status_publisher.time, "sleep", _sleep)
+
+    system_status_publisher.run_forever()
+
+    assert system_status_publisher.STATUS_FILE.exists() is True
+    payload = system_status_publisher.STATUS_FILE.read_text(encoding="utf-8")
+    assert '"ticks": []' in payload
+
+
 def test_tick_wrapper_accepts_runtime_only_config_for_prereqs(monkeypatch, tmp_path) -> None:
     logs: list[str] = []
 

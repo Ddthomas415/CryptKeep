@@ -15,6 +15,7 @@ STOP_FILE = FLAGS / "tick_publisher.stop"
 LOCK_FILE = LOCKS / "tick_publisher.lock"
 STATUS_FILE = SNAPSHOTS / "system_status.latest.json"
 DEFAULT_POLL_INTERVAL_SEC = 2.0
+SAMPLE_OHLCV_DIR = Path(__file__).resolve().parents[2] / "sample_data" / "ohlcv"
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -60,6 +61,40 @@ def _symbols() -> list[str]:
         return env_symbols
     return ["BTC/USD"]
 
+
+def _use_sample_ohlcv_ticks() -> bool:
+    return str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _sample_tick(symbol: str, *, timeframe: str = "1d") -> dict | None:
+    normalized = normalize_symbol(symbol)
+    sample = SAMPLE_OHLCV_DIR / f"{normalized.replace('/', '_')}_{timeframe}.json"
+    if not sample.exists():
+        return None
+    try:
+        rows = json.loads(sample.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(rows, list):
+        return None
+    for row in reversed(rows):
+        if not isinstance(row, list) or len(row) < 6:
+            continue
+        try:
+            ts_ms = int(row[0] or 0)
+            close = float(row[4])
+        except Exception:
+            continue
+        return {
+            "symbol": normalized,
+            "ts_ms": ts_ms,
+            "bid": close,
+            "ask": close,
+            "last": close,
+        }
+    return None
+
+
 def fetch_status() -> dict:
     status = {
         "ts": _now_iso(),
@@ -74,6 +109,40 @@ def fetch_status() -> dict:
 
     symbols = _symbols()
     for v in venues:
+        if _use_sample_ohlcv_ticks():
+            venue_ok = False
+            venue_error = ""
+            for symbol in symbols:
+                sample_tick = _sample_tick(symbol)
+                if not sample_tick:
+                    venue_error = f"sample_tick_missing:{normalize_symbol(symbol)}"
+                    continue
+                fetch_ts_ms = int(time.time() * 1000)
+                mapped = map_symbol(v, normalize_symbol(symbol))
+                tick = {
+                    "venue": v,
+                    "symbol": normalize_symbol(symbol),
+                    "symbol_mapped": mapped,
+                    "bid": sample_tick.get("bid"),
+                    "ask": sample_tick.get("ask"),
+                    "last": sample_tick.get("last"),
+                    "ts_ms": fetch_ts_ms,
+                    "exchange_ts_ms": int(sample_tick.get("ts_ms") or 0),
+                }
+                status["ticks"].append(tick)
+                if not venue_ok:
+                    status["venues"][v] = {
+                        "bid": sample_tick.get("bid"),
+                        "ask": sample_tick.get("ask"),
+                        "last": sample_tick.get("last"),
+                        "timestamp": fetch_ts_ms,
+                        "exchange_timestamp": int(sample_tick.get("ts_ms") or 0),
+                        "ok": True,
+                    }
+                venue_ok = True
+            if not venue_ok:
+                status["venues"][v] = {"ok": False, "error": venue_error or "no_sample_ticks"}
+            continue
         print(f"\n=== Fetching from {v} ===")
         ex = None
         try:
@@ -129,6 +198,7 @@ def fetch_status() -> dict:
 
 def run_forever() -> None:
     ensure_dirs()
+    SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     poll_interval_sec = _poll_interval_sec()
     try:
         if STOP_FILE.exists():
@@ -143,6 +213,7 @@ def run_forever() -> None:
             if STOP_FILE.exists():
                 break
             data = fetch_status()
+            STATUS_FILE.parent.mkdir(parents=True, exist_ok=True)
             STATUS_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
             print(f"Wrote snapshot at {_now_iso()}\n")
             time.sleep(poll_interval_sec)
