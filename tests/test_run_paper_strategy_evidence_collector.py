@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from scripts import run_paper_strategy_evidence_collector as script
+
+
+def test_run_paper_strategy_evidence_collector_imports_from_source_file() -> None:
+    path = Path(script.__file__).resolve()
+    assert path.name == "run_paper_strategy_evidence_collector.py"
+    assert path.suffix == ".py"
 
 
 def test_run_paper_strategy_evidence_collector_requests_stop(monkeypatch, capsys) -> None:
@@ -54,6 +61,7 @@ def test_run_paper_strategy_evidence_collector_runs_with_cfg(monkeypatch, capsys
             "--signal-source",
             "public_ohlcv_5m",
             "--allow-first-signal-trade",
+            "--no-desktop-notify",
             "--max-strategies",
             "1",
         ],
@@ -71,4 +79,5 @@ def test_run_paper_strategy_evidence_collector_runs_with_cfg(monkeypatch, capsys
     assert getattr(cfg, "strategy_min_bars") == 28
     assert getattr(cfg, "signal_source") == "public_ohlcv_5m"
     assert getattr(cfg, "allow_first_signal_trade") is True
+    assert getattr(cfg, "paper_sim_monitor_desktop_notify") is False
     assert seen["max_strategies"] == 1

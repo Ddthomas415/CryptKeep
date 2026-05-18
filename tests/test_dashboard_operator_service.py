@@ -70,6 +70,30 @@ def test_start_repo_script_background_returns_started_pid(monkeypatch):
     assert "run_crypto_edge_collector_loop.py" in " ".join(str(x) for x in seen["cmd"])
 
 
+def test_run_repo_script_returns_missing_script_when_path_absent(monkeypatch):
+    monkeypatch.setattr(operator_service, "ALLOWED_OPERATOR_SCRIPTS", {"scripts/missing.py"})
+
+    rc, out = operator_service.run_repo_script(
+        "scripts/missing.py",
+        current_role="OPERATOR",
+    )
+
+    assert rc == 1
+    assert out == "missing_script:scripts/missing.py"
+
+
+def test_start_repo_script_background_returns_missing_script_when_path_absent(monkeypatch):
+    monkeypatch.setattr(operator_service, "ALLOWED_OPERATOR_SCRIPTS", {"scripts/missing.py"})
+
+    rc, out = operator_service.start_repo_script_background(
+        "scripts/missing.py",
+        current_role="OPERATOR",
+    )
+
+    assert rc == 1
+    assert out == "missing_script:scripts/missing.py"
+
+
 def test_start_crypto_edge_collector_loop_returns_already_running(monkeypatch):
     monkeypatch.setattr(
         "services.analytics.crypto_edge_collector_service.load_runtime_status",

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 # CBP_BOOTSTRAP_SYS_PATH

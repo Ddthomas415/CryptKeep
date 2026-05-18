@@ -48,7 +48,10 @@ def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None, c
     require_role(current_role, "OPERATOR")
     if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
         return 1, "disallowed_script"
-    cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
+    script_path = REPO_ROOT / script_relpath
+    if not script_path.exists():
+        return 1, f"missing_script:{script_relpath}"
+    cmd = [sys.executable, str(script_path)]
     if args:
         cmd.extend(str(x) for x in args)
     proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)
@@ -60,7 +63,10 @@ def start_repo_script_background(script_relpath: str, *, args: Sequence[str] | N
     require_role(current_role, "OPERATOR")
     if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
         return 1, "disallowed_script"
-    cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
+    script_path = REPO_ROOT / script_relpath
+    if not script_path.exists():
+        return 1, f"missing_script:{script_relpath}"
+    cmd = [sys.executable, str(script_path)]
     if args:
         cmd.extend(str(x) for x in args)
 
