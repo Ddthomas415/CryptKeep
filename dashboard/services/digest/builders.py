@@ -90,7 +90,7 @@ def _system_guard_caveat(payload: dict[str, Any]) -> str | None:
         parts.append(f"writer={writer}")
     if reason:
         parts.append(f"reason={reason}")
-    return " Â· ".join(parts) or None
+    return " · ".join(parts) or None
 
 
 def _load_trading_cfg() -> dict[str, Any]:

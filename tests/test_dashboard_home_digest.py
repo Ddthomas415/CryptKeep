@@ -122,6 +122,94 @@ def test_load_home_digest_reports_paper_truth(monkeypatch) -> None:
     assert payload["next_best_action"]["title"] == "Runtime is paper-first"
 
 
+def test_load_home_digest_surfaces_paper_sim_monitor(monkeypatch) -> None:
+    expected_monitor = {
+        "ok": True,
+        "has_status": True,
+        "status": "stopped",
+        "recommendation": "continue",
+        "strategy_label": "es_daily_trend_v1",
+        "symbol": "BTC/USDT",
+        "fills_observed": 2,
+        "round_trips_observed": 1,
+        "summary_text": "Paper sim monitor summary.",
+    }
+
+    monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
+    monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(home_digest, "get_system_guard_state", lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok"})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_strategy_evidence",
+        lambda: {
+            "ok": False,
+            "has_artifact": False,
+            "artifact_path": "/tmp/strategy_evidence.latest.json",
+            "freshness_status": "missing",
+            "caveat": "Persisted strategy evidence artifact is missing; digest must use labeled synthetic fallback.",
+        },
+    )
+    monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
+    monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_disabled"))
+    monkeypatch.setattr(home_digest, "live_allowed", lambda: (False, "risk_enable_live_false", {"live_enabled": False}))
+    monkeypatch.setattr(
+        home_digest,
+        "decide_start",
+        lambda mode, cfg=None: _Decision(ok=True, mode=mode, status="OK", reasons=[], note="Paper start allowed"),
+    )
+    monkeypatch.setattr(home_digest, "build_strategy_workbench", lambda **kwargs: {"ok": True, "leaderboard": {"rows": []}})
+    monkeypatch.setattr(
+        home_digest,
+        "load_latest_live_crypto_edge_snapshot",
+        lambda: {
+            "ok": True,
+            "has_any_data": False,
+            "has_live_data": False,
+            "data_origin_label": "Live Public",
+            "freshness_summary": "No Live Data",
+        },
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_summary",
+        lambda: {
+            "ok": True,
+            "needs_attention": False,
+            "severity": "ok",
+            "live_snapshot_freshness": "Fresh",
+            "action_text": "No operator action needed.",
+            "summary_text": "Structural-edge data is current.",
+        },
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_staleness_digest",
+        lambda: {"ok": True, "headline": "Structural-edge data is current", "while_away_summary": "All good."},
+    )
+    monkeypatch.setattr(
+        home_digest,
+        "load_crypto_edge_collector_runtime",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "running",
+            "freshness": "Fresh",
+            "errors": 0,
+            "ts": "2026-03-18T12:00:00Z",
+            "summary_text": "Collector loop is healthy.",
+        },
+    )
+    monkeypatch.setattr(home_digest, "load_paper_sim_monitor_runtime", lambda: dict(expected_monitor))
+    monkeypatch.setattr(home_digest, "get_operations_snapshot", lambda: {"attention_services": 0, "unknown_services": 0, "last_health_ts": ""})
+
+    payload = home_digest.load_home_digest({"active_warnings": [], "blocked_trades_count": 0})
+
+    assert payload["paper_sim_monitor"]["status"] == "stopped"
+    assert payload["paper_sim_monitor"]["recommendation"] == "continue"
+    assert payload["paper_sim_monitor"]["strategy_label"] == "es_daily_trend_v1"
+    assert payload["paper_sim_monitor"]["round_trips_observed"] == 1
+
+
 def test_load_home_digest_surfaces_blocked_live_attention(monkeypatch) -> None:
     monkeypatch.setattr(
         home_digest,
@@ -688,42 +776,3 @@ def test_load_home_digest_surfaces_system_guard_blocking(monkeypatch) -> None:
     assert payload["safety_warnings"]["live_boundary_status"] == "blocked"
     assert payload["safety_warnings"]["system_guard_state"] == "halting"
     assert any(item["title"] == "System Guard is Halting" for item in payload["safety_warnings"]["items"])
-
-
-def test_load_home_digest_surfaces_paper_sim_monitor(monkeypatch) -> None:
-    monkeypatch.setattr(home_digest, "_load_trading_cfg", lambda: {"mode": "paper", "symbols": ["BTC/USD"]})
-    monkeypatch.setattr(home_digest, "load_user_yaml", lambda: {})
-    monkeypatch.setattr(home_digest, "get_system_guard_state", lambda **_: {"state": "RUNNING", "writer": "test", "reason": "ok"})
-    monkeypatch.setattr(
-        home_digest,
-        "load_latest_strategy_evidence",
-        lambda: {"ok": False, "has_artifact": False, "artifact_path": "/tmp/s.json", "freshness_status": "missing", "caveat": "missing"},
-    )
-    monkeypatch.setattr(home_digest, "is_live_enabled", lambda cfg=None: False)
-    monkeypatch.setattr(home_digest, "live_enabled_and_armed", lambda: (False, "live_disabled"))
-    monkeypatch.setattr(home_digest, "live_allowed", lambda: (False, "risk_enable_live_false", {"live_enabled": False}))
-    monkeypatch.setattr(home_digest, "decide_start", lambda mode, cfg=None: _Decision(ok=True, mode=mode, status="OK", reasons=[], note="Paper start allowed"))
-    monkeypatch.setattr(home_digest, "build_strategy_workbench", lambda **kwargs: {"ok": True, "leaderboard": {"rows": []}})
-    monkeypatch.setattr(home_digest, "load_latest_live_crypto_edge_snapshot", lambda: {"ok": True, "has_any_data": False, "has_live_data": False, "data_origin_label": "Live Public"})
-    monkeypatch.setattr(home_digest, "load_crypto_edge_staleness_summary", lambda: {"ok": True, "needs_attention": False, "severity": "ok", "summary_text": "Fresh"})
-    monkeypatch.setattr(home_digest, "load_crypto_edge_staleness_digest", lambda: {"ok": True, "headline": "Structural-edge data is current", "while_away_summary": "All good."})
-    monkeypatch.setattr(home_digest, "load_crypto_edge_collector_runtime", lambda: {"ok": True, "has_status": False, "freshness": "Missing"})
-    monkeypatch.setattr(home_digest, "get_operations_snapshot", lambda: {"attention_services": 0, "unknown_services": 0, "last_health_ts": ""})
-    monkeypatch.setattr(
-        home_digest,
-        "load_paper_sim_monitor_runtime",
-        lambda: {
-            "ok": True,
-            "has_status": True,
-            "status": "running",
-            "summary_text": "Paper sim monitor is active.",
-            "freshness": "Fresh",
-            "age_seconds": 30,
-        },
-    )
-
-    payload = home_digest.load_home_digest({"active_warnings": [], "blocked_trades_count": 0})
-
-    assert "paper_sim_monitor" in payload
-    assert payload["paper_sim_monitor"]["summary_text"] == "Paper sim monitor is active."
-    assert payload["paper_sim_monitor"]["status"] == "running"
