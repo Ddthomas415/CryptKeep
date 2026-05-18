@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from services.admin.config_editor import load_user_yaml
+from services.analytics.paper_evidence_artifacts import decision_record_dir
 from services.backtest.evidence_cycle import (
     load_paper_history_evidence,
     persist_strategy_evidence,
@@ -156,7 +157,7 @@ def _latest_jsonl_evidence_summary(strategy_ids: list[str] | tuple[str, ...]) ->
 
 
 def _latest_decision_record_artifact() -> dict[str, Any]:
-    root = (code_root() / "docs" / "strategies").resolve()
+    root = decision_record_dir()
     records = sorted(path.resolve() for path in root.glob("decision_record_*.md"))
     if not records:
         return {}
@@ -216,7 +217,7 @@ def _refresh_artifact_references(payload: dict[str, Any]) -> dict[str, Any]:
 
     latest_record = _latest_decision_record_artifact()
     decision_record = dict(out.get("decision_record") or {})
-    decision_root = (code_root() / "docs" / "strategies").resolve()
+    decision_root = decision_record_dir()
     if latest_record and _prefer_latest_path(
         str(decision_record.get("path") or ""),
         str(latest_record.get("path") or ""),

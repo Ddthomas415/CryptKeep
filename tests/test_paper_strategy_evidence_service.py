@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -499,7 +500,7 @@ def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monke
     jsonl_dir.mkdir(parents=True, exist_ok=True)
     (jsonl_dir / "signal_2026-04-08.jsonl").write_text('{"signal_direction":"long"}\n', encoding="utf-8")
 
-    decision_dir = tmp_path / "docs" / "strategies"
+    decision_dir = tmp_path / "data" / "strategy_evidence"
     decision_dir.mkdir(parents=True, exist_ok=True)
     latest_record = decision_dir / "decision_record_2026-04-08.md"
     latest_record.write_text("# latest\n", encoding="utf-8")
@@ -551,6 +552,29 @@ def test_load_runtime_status_refreshes_stale_artifact_references(tmp_path, monke
     assert out["jsonl_evidence"]["total_records"] == 1
     assert out["decision_record"]["path"] == str(latest_record)
     assert out["decision_record"]["source"] == "filesystem_latest"
+
+
+def test_write_decision_record_uses_state_root_when_cbp_state_dir_set(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+    report = {
+        "as_of": "2026-05-18T08:03:24Z",
+        "symbol": "BTC/USDT",
+        "aggregate_leaderboard": {"rows": []},
+        "decisions": [],
+        "windows": [],
+        "window_count": 0,
+        "initial_cash": 10000.0,
+        "fee_bps": 7.0,
+        "slippage_bps": 2.0,
+    }
+
+    out = svc.write_decision_record(report, artifact_path=str(tmp_path / "data" / "strategy_evidence" / "strategy_evidence.latest.json"))
+
+    expected_root = tmp_path / "data" / "strategy_evidence"
+    assert out["ok"] is True
+    assert Path(out["path"]).parent == expected_root
+    assert Path(out["path"]).exists()
 
 
 def test_write_status_blocks_invalid_campaign_resume(tmp_path, monkeypatch) -> None:
