@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 
 HealthState = Literal["ok", "warn", "critical", "unknown"]
@@ -189,3 +189,4 @@ class HomeDigestData(TypedDict):
     mode_truth: ModeTruthData
     recent_incidents: RecentIncidentsData
     next_best_action: NextBestActionData
+    paper_sim_monitor: dict[str, Any]
