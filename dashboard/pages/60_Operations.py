@@ -386,6 +386,12 @@ with tab_strategy:
                 "age": str(paper_evidence_runtime.get("age_label") or "Unknown"),
                 "current_strategy": str(paper_evidence_runtime.get("current_strategy") or "-"),
                 "completed": str(paper_evidence_runtime.get("completed_summary") or "0/0"),
+                "watch_seed": (
+                    "Degraded"
+                    if not bool(paper_evidence_runtime.get("paper_sim_watch_seed_ok", True))
+                    else "Ok"
+                ),
+                "watch_seed_reason": str(paper_evidence_runtime.get("paper_sim_watch_seed_reason") or ""),
                 "reason": str(paper_evidence_runtime.get("reason") or ""),
                 "summary": str(paper_evidence_runtime.get("summary_text") or ""),
             }
@@ -409,11 +415,15 @@ with tab_strategy:
                 "status": str(paper_sim_monitor_runtime.get("status") or "not_started"),
                 "freshness": str(paper_sim_monitor_runtime.get("freshness") or "Unknown"),
                 "age": str(paper_sim_monitor_runtime.get("age_label") or "Unknown"),
+                "local_alerts": str(paper_sim_monitor_runtime.get("notification_status") or "unknown"),
+                "local_alert_reason": str(paper_sim_monitor_runtime.get("notification_reason") or ""),
                 "recommendation": str(paper_sim_monitor_runtime.get("recommendation") or "-"),
                 "strategy": str(paper_sim_monitor_runtime.get("strategy_label") or paper_sim_monitor_runtime.get("current_strategy") or "-"),
                 "symbol": str(paper_sim_monitor_runtime.get("symbol") or "-"),
                 "fills": str(int(paper_sim_monitor_runtime.get("fills_observed") or 0)),
                 "round_trips": str(int(paper_sim_monitor_runtime.get("round_trips_observed") or 0)),
+                "watches": str(int(paper_sim_monitor_runtime.get("watch_count") or 0)),
+                "recent_reports": str(int(paper_sim_monitor_runtime.get("recent_report_count") or 0)),
                 "reason": str(paper_sim_monitor_runtime.get("reason") or ""),
                 "summary": str(paper_sim_monitor_runtime.get("summary_text") or ""),
             }

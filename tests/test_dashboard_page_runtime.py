@@ -1152,6 +1152,8 @@ def test_operations_page_runs_strategy_workbench(monkeypatch) -> None:
             "current_strategy": "",
             "completed_summary": "3/3",
             "summary_text": "Paper evidence collector completed.",
+            "paper_sim_watch_seed_ok": False,
+            "paper_sim_watch_seed_reason": "paper_sim_watch_register_failed:next_fill:write_failed",
         },
     )
     monkeypatch.setattr(
@@ -1435,6 +1437,8 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
             "current_strategy": "",
             "completed_summary": "3/3",
             "summary_text": "Paper evidence collector completed.",
+            "paper_sim_watch_seed_ok": False,
+            "paper_sim_watch_seed_reason": "paper_sim_watch_register_failed:next_fill:write_failed",
         },
     )
     monkeypatch.setattr(
@@ -1451,6 +1455,10 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
             "symbol": "BTC/USDT",
             "fills_observed": 2,
             "round_trips_observed": 1,
+            "notification_status": "failed",
+            "notification_reason": "notify_exit:1",
+            "watch_count": 1,
+            "recent_report_count": 1,
             "reason": "campaign_completed",
             "summary_text": "Paper sim monitor summary.",
             "watches": [
@@ -1484,6 +1492,10 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
     assert section_rows["Paper Sim Monitor"][0]["recommendation"] == "continue"
     assert section_rows["Paper Sim Monitor"][0]["strategy"] == "es_daily_trend_v1"
     assert section_rows["Paper Sim Monitor"][0]["fills"] == "2"
+    assert section_rows["Paper Sim Monitor"][0]["local_alerts"] == "failed"
+    assert section_rows["Paper Sim Monitor"][0]["watches"] == "1"
+    assert "Paper Evidence Collector" in section_rows
+    assert section_rows["Paper Evidence Collector"][0]["watch_seed"] == "Degraded"
     assert "Registered Paper Sim Watches" in section_rows
     assert section_rows["Registered Paper Sim Watches"][0]["name"] == "next_fill"
     assert section_rows["Registered Paper Sim Watches"][0]["trigger"] == "new_fill"
