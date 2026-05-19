@@ -129,6 +129,73 @@ def test_collect_once_reports_investigate_for_market_data_block(monkeypatch) -> 
     assert out["recommendation_reason"] == "market_data_blocked"
 
 
+def test_collect_once_surfaces_persisting_evidence_phase_in_summary(monkeypatch) -> None:
+    monkeypatch.setattr(
+        svc,
+        "load_campaign_runtime_status",
+        lambda: {
+            "ok": True,
+            "status": "running",
+            "reason": "persisting_evidence",
+            "symbol": "BTC/USDT",
+            "venue": "coinbase",
+            "current_strategy": "",
+            "current_strategy_preset": "es_daily_trend_v1",
+            "last_completed_strategy": "sma_200_trend",
+            "results": [
+                {
+                    "strategy": "sma_200_trend",
+                    "strategy_preset": "es_daily_trend_v1",
+                    "fills_delta": 1,
+                    "closed_trades_delta": 0,
+                    "net_realized_pnl_delta": -0.0299,
+                    "latest_fill_ts": "2026-05-18T23:50:53.429586+00:00",
+                }
+            ],
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "_configured_strategy_runner",
+        lambda: {
+            "strategy": "sma_200_trend",
+            "symbols": ["BTC/USDT"],
+            "primary_symbol": "BTC/USDT",
+            "signal_source": "public_ohlcv_1d",
+            "venue": "coinbase",
+        },
+    )
+    monkeypatch.setattr(svc, "_strategy_runner_status", lambda: {"status": "stopped", "strategy_preset": "es_daily_trend_v1"})
+    monkeypatch.setattr(svc, "_paper_engine_status", lambda: {"status": "stopped"})
+    monkeypatch.setattr(
+        svc,
+        "_paper_state_snapshot_window",
+        lambda symbol, since_ts="", until_ts="": {
+            "position": {"symbol": symbol, "qty": 0.001, "avg_price": 39864.652365, "realized_pnl": 0.0},
+            "latest_order": {"order_id": "ord-1", "status": "filled"},
+            "latest_paper_fill": {"fill_id": "fill-1", "ts": "2026-05-18T23:50:53.429586+00:00", "price": 39864.652365, "qty": 0.001, "fee": 0.0299},
+            "latest_equity": {"ts": "2026-05-18T23:51:15.800865+00:00", "unrealized_pnl": -0.2798, "realized_pnl": 0.0},
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "_trade_journal_snapshot",
+        lambda symbol, since_ts="", until_ts="": {
+            "fill_id": "fill-1",
+            "fill_ts": "2026-05-18T23:50:53.429586+00:00",
+            "side": "buy",
+            "symbol": str(symbol),
+        },
+    )
+
+    out = svc.collect_once(svc.PaperSimMonitorCfg())
+
+    assert out["campaign_status"] == "running"
+    assert out["campaign_reason"] == "persisting_evidence"
+    assert out["recommendation"] == "continue"
+    assert "campaign persisting evidence" in out["summary_text"]
+
+
 def test_collect_once_ignores_post_window_same_symbol_artifacts(monkeypatch) -> None:
     class _FakePaperStore:
         def get_position(self, symbol: str):

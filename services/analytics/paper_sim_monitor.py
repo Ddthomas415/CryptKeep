@@ -425,6 +425,7 @@ def _summary_text(
     strategy_label: str,
     symbol: str,
     campaign_status: str,
+    campaign_reason: str,
     position: dict[str, Any],
     latest_fill: dict[str, Any],
     round_trips: int,
@@ -432,6 +433,10 @@ def _summary_text(
     current_window_realized_pnl: float,
     recommendation: str,
 ) -> str:
+    status_label = str(campaign_status or "unknown").strip()
+    reason_label = str(campaign_reason or "").strip().lower()
+    if status_label.lower() in {"running", "starting"} and reason_label == "persisting_evidence":
+        status_label = "persisting evidence"
     qty = _safe_float(position.get("qty"))
     latest_fill_side = str(latest_fill.get("side") or "").strip()
     latest_fill_ts = str(latest_fill.get("fill_ts") or latest_fill.get("ts") or "").strip()
@@ -441,7 +446,7 @@ def _summary_text(
     position_part = "flat" if qty == 0.0 else f"open qty={qty}"
     return (
         f"Paper sim monitor sees {strategy_label or 'unknown_strategy'} on {symbol or 'unknown_symbol'} "
-        f"with campaign {campaign_status or 'unknown'}; {position_part}; fills={fills}; "
+        f"with campaign {status_label}; {position_part}; fills={fills}; "
         f"round_trips={round_trips}; current_window_realized_pnl={current_window_realized_pnl:.4f}; {latest_fill_part}; "
         f"recommendation={recommendation}."
     )
@@ -555,6 +560,7 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
             strategy_label=strategy_label,
             symbol=symbol,
             campaign_status=str(campaign.get("status") or "not_started"),
+            campaign_reason=str(campaign.get("reason") or ""),
             position=position,
             latest_fill=latest_fill,
             round_trips=round_trips,
