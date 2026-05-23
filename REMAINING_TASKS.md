@@ -11,6 +11,10 @@ See:
 
 - docs/checkpoints/launch_blockers_root_runtime.md
 
+Strategy-evaluation work is tracked separately:
+
+- docs/checkpoints/strategy_signal_quality_plan_2026_05_22.md
+
 ## Interpretation
 The critical path is:
 
@@ -28,5 +32,6 @@ Already completed on the frozen canonical path:
 ## Notes
 Do not mix:
 - launch blockers
+- strategy signal-quality / paper-evaluation work
 - conditional broader-scope controls
 - non-blocking architectural debt
