@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -16,25 +20,25 @@ def test_scripts_use_shared_bootstrap_helper():
         "scripts/preflight_check.py",
         "scripts/op.py",
         "scripts/doctor.py",
-        "scripts/pre_release_sanity.py",
+        "scripts/release/pre_release_sanity.py",
         "scripts/preflight.py",
         "scripts/start_bot.py",
         "scripts/stop_bot.py",
-        "scripts/start_supervisor.py",
-        "scripts/stop_supervisor.py",
+        "scripts/compat/start_supervisor.py",
+        "scripts/compat/stop_supervisor.py",
         "scripts/supervisor_status.py",
-        "scripts/supervisor_ctl.py",
+        "scripts/compat/supervisor_ctl.py",
         "scripts/bot_status.py",
         "scripts/bot_ctl.py",
-        "scripts/service_ctl.py",
+        "scripts/compat/service_ctl.py",
         "scripts/rotate_logs.py",
         "scripts/run_tick_publisher.py",
-        "scripts/run_intent_executor.py",
-        "scripts/run_intent_executor_safe.py",
-        "scripts/run_intent_reconciler.py",
-        "scripts/run_intent_reconciler_safe.py",
-        "scripts/run_live_intent_consumer.py",
-        "scripts/run_live_reconciler.py",
+        "scripts/compat/run_intent_executor.py",
+        "scripts/live/run_intent_executor_safe.py",
+        "scripts/compat/run_intent_reconciler.py",
+        "scripts/live/run_intent_reconciler_safe.py",
+        "scripts/live/run_live_intent_consumer.py",
+        "scripts/live/run_live_reconciler.py",
         "scripts/run_strategy_runner.py",
         "scripts/run_paper_engine.py",
     ]
@@ -111,3 +115,23 @@ def test_no_legacy_inline_syspath_bootstrap_block_in_scripts():
         if legacy_comment in txt:
             offenders.append(str(p.relative_to(ROOT)))
     assert not offenders, "Legacy inline bootstrap block still present:\n" + "\n".join(sorted(offenders))
+
+
+def test_nested_data_scripts_execute_directly_from_repo_root(tmp_path):
+    env = dict(os.environ)
+    env["CBP_STATE_DIR"] = str(tmp_path)
+    scripts = [
+        "scripts/data/run_paper_strategy_evidence_collector.py",
+        "scripts/data/run_crypto_edge_collector_loop.py",
+    ]
+    for rel in scripts:
+        proc = subprocess.run(
+            [sys.executable, rel, "--status"],
+            cwd=str(ROOT),
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        assert proc.returncode == 0, f"{rel}\nstdout={proc.stdout}\nstderr={proc.stderr}"
+        assert isinstance(json.loads(proc.stdout), dict)
