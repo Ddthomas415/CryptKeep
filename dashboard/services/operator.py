@@ -149,6 +149,7 @@ def start_paper_strategy_evidence_collection(
         return 0, f"already running pid={pid} status={status}"
 
     args: list[str] = [
+        "--daily-loop",
         "--runtime-sec",
         str(int(runtime_sec)),
         "--symbol",

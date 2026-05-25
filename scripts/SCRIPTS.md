@@ -14,4 +14,5 @@
 | `op.py` | — | Operator command surface |
 | `doctor.py` | — | Diagnostic |
 | `bot_status.py` | — | Process status query |
+| `run_paper_strategy_evidence_collector.py` | — | Managed paper evidence collector; supports one-shot campaigns and a daily-supervised loop for the dashboard/operator path |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |

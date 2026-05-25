@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 from scripts import run_paper_strategy_evidence_collector as script
 
@@ -81,3 +82,84 @@ def test_run_paper_strategy_evidence_collector_runs_with_cfg(monkeypatch, capsys
     assert getattr(cfg, "allow_first_signal_trade") is True
     assert getattr(cfg, "paper_sim_monitor_desktop_notify") is False
     assert seen["max_strategies"] == 1
+
+
+def test_run_paper_strategy_evidence_collector_logs_session_start_and_end(monkeypatch, capsys) -> None:
+    events: list[tuple[str, str, str]] = []
+
+    class _FakeLogger:
+        def __init__(self, strategy_id: str) -> None:
+            events.append(("init", str(strategy_id), ""))
+
+        def log_session(self, **kwargs) -> None:
+            phase = str((kwargs.get("extra") or {}).get("phase") or "")
+            status = str((kwargs.get("extra") or {}).get("campaign_status") or "")
+            events.append(("log", phase, status))
+
+    monkeypatch.setattr(script, "EvidenceLogger", _FakeLogger)
+    monkeypatch.setattr(script, "get_current_stage", lambda strategy_id: SimpleNamespace(value="paper"))
+    monkeypatch.setattr(script, "get_kill_switch_state", lambda: {"armed": False})
+    monkeypatch.setattr(
+        script,
+        "run_campaign",
+        lambda cfg, *, max_strategies=None: {"ok": True, "status": "completed", "completed_strategies": 1},
+    )
+    monkeypatch.setattr(
+        script.sys,
+        "argv",
+        [
+            "run_paper_strategy_evidence_collector.py",
+            "--strategies",
+            "sma_200_trend",
+            "--runtime-sec",
+            "5",
+        ],
+    )
+
+    assert script.main() == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["status"] == "completed"
+    assert events == [
+        ("init", "es_daily_trend_v1", ""),
+        ("log", "start", "starting"),
+        ("init", "es_daily_trend_v1", ""),
+        ("log", "end", "completed"),
+    ]
+
+
+def test_run_daily_loop_idles_after_today_is_already_recorded(monkeypatch, tmp_path) -> None:
+    status_writes: list[dict[str, object]] = []
+    pid_writes: list[dict[str, object]] = []
+    cleared: list[bool] = []
+    stop_path = tmp_path / "paper_strategy_evidence.stop"
+
+    monkeypatch.setattr(script, "load_runtime_status", lambda: {"ok": True, "pid_alive": False, "pid": None})
+    monkeypatch.setattr(script, "_write_status", lambda obj: status_writes.append(dict(obj)))
+    monkeypatch.setattr(script, "_write_pid_state", lambda obj: pid_writes.append(dict(obj)))
+    monkeypatch.setattr(script, "_clear_pid_state", lambda: cleared.append(True))
+    monkeypatch.setattr(script, "stop_file", lambda: stop_path)
+    monkeypatch.setattr(script, "_has_session_day", lambda strategy_id, day: True)
+    monkeypatch.setattr(script, "_today_utc", lambda: "2026-05-24")
+
+    cfg = script.PaperStrategyEvidenceServiceCfg(
+        strategies=("sma_200_trend",),
+        per_strategy_runtime_sec=5.0,
+        symbol="BTC/USDT",
+        venue="coinbase",
+    )
+
+    out = script._run_daily_loop(
+        cfg,
+        max_strategies=None,
+        session_strategy_id="es_daily_trend_v1",
+        poll_interval_sec=1.0,
+        max_loops=1,
+    )
+
+    assert out["status"] == "stopped"
+    assert out["reason"] == "max_loops"
+    assert pid_writes[0]["daily_loop"] is True
+    assert status_writes[0]["status"] == "idle"
+    assert status_writes[0]["reason"] == "waiting_for_next_day"
+    assert status_writes[-1]["status"] == "stopped"
+    assert cleared == [True]

@@ -38,7 +38,7 @@ def test_run_repo_script_returns_rc_and_combined_output(monkeypatch):
 
     monkeypatch.setattr(operator_service.subprocess, "run", fake_run)
     rc, out = operator_service.run_repo_script(
-        "scripts/run_crypto_edge_collector_loop.py",
+        "scripts/run_paper_strategy_evidence_collector.py",
         args=["--stop"],
         current_role="OPERATOR",
     )
@@ -60,14 +60,14 @@ def test_start_repo_script_background_returns_started_pid(monkeypatch):
 
     monkeypatch.setattr(operator_service.subprocess, "Popen", fake_popen)
     rc, out = operator_service.start_repo_script_background(
-        "scripts/run_crypto_edge_collector_loop.py",
+        "scripts/run_paper_strategy_evidence_collector.py",
         args=["--stop"],
         current_role="OPERATOR",
     )
 
     assert rc == 0
     assert "started pid=43210" in out
-    assert "run_crypto_edge_collector_loop.py" in " ".join(str(x) for x in seen["cmd"])
+    assert "run_paper_strategy_evidence_collector.py" in " ".join(str(x) for x in seen["cmd"])
 
 
 def test_run_repo_script_returns_missing_script_when_path_absent(monkeypatch):
@@ -166,6 +166,7 @@ def test_start_paper_strategy_evidence_collection_honors_desktop_notification_se
 
     assert rc == 0
     assert "scripts/run_paper_strategy_evidence_collector.py" in out
+    assert "--daily-loop" in out
     assert "--no-desktop-notify" in out
 
 
