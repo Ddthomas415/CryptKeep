@@ -167,6 +167,7 @@ def test_start_paper_strategy_evidence_collection_honors_desktop_notification_se
     assert rc == 0
     assert "scripts/run_paper_strategy_evidence_collector.py" in out
     assert "--daily-loop" in out
+    assert "--signal-source public_ohlcv_1d" in out
     assert "--no-desktop-notify" in out
 
 

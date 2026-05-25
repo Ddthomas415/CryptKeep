@@ -674,6 +674,7 @@ def run_forever() -> None:
                 sym_cfg = dict(cfg)
                 sym_cfg["symbol"] = symbol
                 sym_cfg["venue"] = selected_venue
+                evidence_extra: dict[str, object] = {}
 
                 timeframe = _public_ohlcv_timeframe(sym_cfg)
                 _LOG.debug(
@@ -737,7 +738,8 @@ def run_forever() -> None:
                         trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
                         params=selected_params,
                     )
-                    selected_block["evidence_extra"] = _public_ohlcv_evidence_extra(sym_cfg, timeframe)
+                    evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe)
+                    selected_block["evidence_extra"] = evidence_extra
                     signal = compute_signal(
                         cfg={"strategy": selected_block},
                         symbol=symbol,
@@ -1165,6 +1167,7 @@ def run_forever() -> None:
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
                             "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            **evidence_extra,
                         },
                     })
                     enqueued += 1

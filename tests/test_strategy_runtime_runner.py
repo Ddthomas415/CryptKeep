@@ -123,6 +123,9 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
     assert len(queued) == 1
     assert queued[0]["strategy_id"] == "breakout_donchian"
     assert queued[0]["meta"]["strategy_preset"] == "breakout_default"
+    assert queued[0]["meta"]["market_data_source"] == "public_ohlcv"
+    assert queued[0]["meta"]["ohlcv_sample_mode"] is False
+    assert queued[0]["meta"]["ohlcv_timeframe"] == "1m"
     assert queued[0]["side"] == "buy"
 
 

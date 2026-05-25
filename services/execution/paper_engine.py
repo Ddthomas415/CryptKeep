@@ -31,6 +31,21 @@ def _evidence_strategy_id(*, cfg: dict, strategy_id: str | None = None, meta: di
             return value
     return ""
 
+
+_EVIDENCE_PROVENANCE_KEYS = (
+    "market_data_source",
+    "ohlcv_sample_mode",
+    "ohlcv_timeframe",
+    "ohlcv_venue",
+    "ohlcv_symbol",
+)
+
+
+def _evidence_provenance_extra(meta: dict | None = None) -> dict:
+    payload = dict(meta or {}) if isinstance(meta, dict) else {}
+    return {key: payload[key] for key in _EVIDENCE_PROVENANCE_KEYS if key in payload}
+
+
 def _cfg() -> dict:
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
@@ -184,6 +199,7 @@ class PaperEngine:
                     stop_level=0.0,
                     capital_at_risk_usd=0.0,
                     order_id=oid,
+                    extra=_evidence_provenance_extra(meta),
                 )
         except Exception as _silent_err:
             _LOG.warning("order evidence logging failed strategy_id=%s: %s", self.cfg.get("strategy_id",""), _silent_err)
@@ -259,6 +275,7 @@ class PaperEngine:
                     size=float(qty),
                     pnl_usd=pnl,
                     order_id=str(order.get("order_id", "")),
+                    extra=_evidence_provenance_extra(order.get("meta") if isinstance(order.get("meta"), dict) else None),
                 )
         except Exception as _silent_err:
             _LOG.warning("fill evidence logging failed strategy_id=%s order_id=%s: %s", self.cfg.get("strategy_id",""), order.get("order_id",""), _silent_err)

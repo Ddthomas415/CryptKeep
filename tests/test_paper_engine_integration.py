@@ -196,17 +196,17 @@ def test_paper_engine_evidence_logging_prefers_strategy_preset(monkeypatch, tmp_
 
     import services.strategies.evidence_logger as evidence_logger
 
-    calls: list[tuple[str, str]] = []
+    calls: list[tuple[str, str, dict]] = []
 
     class FakeLogger:
         def __init__(self, strategy_id: str, log_dir: Path | None = None) -> None:
             self.strategy_id = strategy_id
 
         def log_order(self, **kwargs) -> None:
-            calls.append(("order", self.strategy_id))
+            calls.append(("order", self.strategy_id, dict(kwargs)))
 
         def log_fill(self, **kwargs) -> None:
-            calls.append(("fill", self.strategy_id))
+            calls.append(("fill", self.strategy_id, dict(kwargs)))
 
     monkeypatch.setattr(evidence_logger, "EvidenceLogger", FakeLogger)
 
@@ -219,8 +219,23 @@ def test_paper_engine_evidence_logging_prefers_strategy_preset(monkeypatch, tmp_
         order_type="market",
         qty=1.0,
         strategy_id="sma_200_trend",
-        meta={"strategy_preset": "es_daily_trend_v1", "selected_strategy": "sma_200_trend"},
+        meta={
+            "strategy_preset": "es_daily_trend_v1",
+            "selected_strategy": "sma_200_trend",
+            "market_data_source": "public_ohlcv",
+            "ohlcv_sample_mode": False,
+            "ohlcv_timeframe": "1d",
+            "ohlcv_venue": "coinbase",
+            "ohlcv_symbol": "BTC/USD",
+        },
     )
 
     assert out["ok"] is True
-    assert calls == [("fill", "es_daily_trend_v1"), ("order", "es_daily_trend_v1")]
+    assert [(kind, strategy_id) for kind, strategy_id, _ in calls] == [
+        ("fill", "es_daily_trend_v1"),
+        ("order", "es_daily_trend_v1"),
+    ]
+    for _, _, kwargs in calls:
+        assert kwargs["extra"]["market_data_source"] == "public_ohlcv"
+        assert kwargs["extra"]["ohlcv_sample_mode"] is False
+        assert kwargs["extra"]["ohlcv_timeframe"] == "1d"

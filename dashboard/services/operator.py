@@ -134,6 +134,7 @@ def start_paper_strategy_evidence_collection(
     strategies: Sequence[str] | None = None,
     symbol: str = "BTC/USD",
     venue: str = "coinbase",
+    signal_source: str = "",
     current_role: str = "VIEWER",
 ) -> tuple[int, str]:
     require_role(current_role, "OPERATOR")
@@ -160,6 +161,11 @@ def start_paper_strategy_evidence_collection(
     strategy_items = [str(item).strip() for item in list(strategies or []) if str(item).strip()]
     if strategy_items:
         args.extend(["--strategies", ",".join(strategy_items)])
+    resolved_signal_source = str(signal_source or "").strip()
+    if not resolved_signal_source and "sma_200_trend" in strategy_items:
+        resolved_signal_source = "public_ohlcv_1d"
+    if resolved_signal_source:
+        args.extend(["--signal-source", resolved_signal_source])
 
     cfg = load_user_yaml() if callable(load_user_yaml) else {}
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg, dict) and isinstance(cfg.get("dashboard_ui"), dict) else {}

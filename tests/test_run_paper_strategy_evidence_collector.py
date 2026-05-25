@@ -4,7 +4,14 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from scripts import run_paper_strategy_evidence_collector as script
+
+
+@pytest.fixture(autouse=True)
+def isolate_state(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
 
 
 def test_run_paper_strategy_evidence_collector_imports_from_source_file() -> None:
@@ -84,8 +91,34 @@ def test_run_paper_strategy_evidence_collector_runs_with_cfg(monkeypatch, capsys
     assert seen["max_strategies"] == 1
 
 
+def test_sma_200_trend_defaults_to_public_daily_ohlcv(monkeypatch, capsys) -> None:
+    seen: dict[str, object] = {}
+
+    def _run_campaign(cfg, *, max_strategies=None):
+        seen["cfg"] = cfg
+        return {"ok": True, "status": "completed", "reason": "completed"}
+
+    monkeypatch.setattr(script, "run_campaign", _run_campaign)
+    monkeypatch.setattr(
+        script.sys,
+        "argv",
+        [
+            "run_paper_strategy_evidence_collector.py",
+            "--strategies",
+            "sma_200_trend",
+            "--runtime-sec",
+            "5",
+        ],
+    )
+
+    assert script.main() == 0
+    json.loads(capsys.readouterr().out)
+    assert getattr(seen["cfg"], "signal_source") == "public_ohlcv_1d"
+
+
 def test_run_paper_strategy_evidence_collector_logs_session_start_and_end(monkeypatch, capsys) -> None:
     events: list[tuple[str, str, str]] = []
+    extras: list[dict[str, object]] = []
 
     class _FakeLogger:
         def __init__(self, strategy_id: str) -> None:
@@ -94,6 +127,7 @@ def test_run_paper_strategy_evidence_collector_logs_session_start_and_end(monkey
         def log_session(self, **kwargs) -> None:
             phase = str((kwargs.get("extra") or {}).get("phase") or "")
             status = str((kwargs.get("extra") or {}).get("campaign_status") or "")
+            extras.append(dict(kwargs.get("extra") or {}))
             events.append(("log", phase, status))
 
     monkeypatch.setattr(script, "EvidenceLogger", _FakeLogger)
@@ -113,6 +147,8 @@ def test_run_paper_strategy_evidence_collector_logs_session_start_and_end(monkey
             "sma_200_trend",
             "--runtime-sec",
             "5",
+            "--signal-source",
+            "public_ohlcv_1d",
         ],
     )
 
@@ -125,6 +161,9 @@ def test_run_paper_strategy_evidence_collector_logs_session_start_and_end(monkey
         ("init", "es_daily_trend_v1", ""),
         ("log", "end", "completed"),
     ]
+    assert extras[0]["market_data_source"] == "public_ohlcv"
+    assert extras[0]["ohlcv_sample_mode"] is False
+    assert extras[0]["ohlcv_timeframe"] == "1d"
 
 
 def test_run_daily_loop_idles_after_today_is_already_recorded(monkeypatch, tmp_path) -> None:

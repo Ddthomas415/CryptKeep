@@ -20,6 +20,8 @@ make paper-stop-now           # emergency stop
 For dashboard/operator launches, `scripts/run_paper_strategy_evidence_collector.py --daily-loop`
 is the managed background path. One start keeps the collector alive and records one new
 session day per new UTC day instead of exiting after a single campaign.
+For `sma_200_trend`, the managed collector uses `public_ohlcv_1d` so evidence is sourced
+from daily public OHLCV instead of synthetic tick-derived bars.
 
 ## What runs inside make paper-run
 

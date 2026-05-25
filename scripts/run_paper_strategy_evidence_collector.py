@@ -67,6 +67,29 @@ def _session_strategy_id(*, strategies: tuple[str, ...], override: str = "") -> 
     return _DEFAULT_SESSION_STRATEGY_ID_BY_STRATEGY.get(first, first or "paper_strategy_evidence")
 
 
+def _default_signal_source(*, strategies: tuple[str, ...], requested: str = "") -> str:
+    explicit = str(requested or "").strip()
+    if explicit:
+        return explicit
+    if any(str(item or "").strip() == "sma_200_trend" for item in strategies):
+        return "public_ohlcv_1d"
+    return ""
+
+
+def _campaign_provenance_extra(cfg: PaperStrategyEvidenceServiceCfg) -> dict[str, object]:
+    source = str(cfg.signal_source or "").strip().lower()
+    if not source.startswith("public_ohlcv_"):
+        return {}
+    sample_mode = str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
+    return {
+        "market_data_source": "sample_ohlcv" if sample_mode else "public_ohlcv",
+        "ohlcv_sample_mode": sample_mode,
+        "ohlcv_timeframe": source.removeprefix("public_ohlcv_") or None,
+        "ohlcv_venue": str(cfg.venue or ""),
+        "ohlcv_symbol": str(cfg.symbol or ""),
+    }
+
+
 def _session_log_path(strategy_id: str, day: str) -> Path:
     return data_dir() / "evidence" / str(strategy_id or "").strip() / f"session_{day}.jsonl"
 
@@ -76,7 +99,7 @@ def _has_session_day(strategy_id: str, day: str) -> bool:
     return path.exists() and path.stat().st_size > 0
 
 
-def _log_session_start(*, strategy_id: str) -> None:
+def _log_session_start(*, strategy_id: str, cfg: PaperStrategyEvidenceServiceCfg) -> None:
     ev = EvidenceLogger(strategy_id)
     ev.log_session(
         regime_at_open=get_current_stage(strategy_id).value,
@@ -90,11 +113,12 @@ def _log_session_start(*, strategy_id: str) -> None:
             "campaign_status": "starting",
             "completed_strategies": 0,
             "zero_trade_run": True,
+            **_campaign_provenance_extra(cfg),
         },
     )
 
 
-def _log_session_end(*, strategy_id: str, result: dict[str, object]) -> None:
+def _log_session_end(*, strategy_id: str, cfg: PaperStrategyEvidenceServiceCfg, result: dict[str, object]) -> None:
     completed = int(result.get("completed_strategies") or 0)
     campaign_status = str(result.get("status") or "unknown")
     ev = EvidenceLogger(strategy_id)
@@ -112,6 +136,7 @@ def _log_session_end(*, strategy_id: str, result: dict[str, object]) -> None:
             "completed_strategies": completed,
             "campaign_status": campaign_status,
             "zero_trade_run": (completed == 0),
+            **_campaign_provenance_extra(cfg),
         },
     )
 
@@ -124,7 +149,7 @@ def _run_one_campaign(
 ) -> dict[str, object]:
     result: dict[str, object] = {"ok": False, "status": "not_started", "completed_strategies": 0}
     try:
-        _log_session_start(strategy_id=session_strategy_id)
+        _log_session_start(strategy_id=session_strategy_id, cfg=cfg)
     except Exception as exc:
         _LOG.warning("paper_strategy_evidence_session_start_failed strategy_id=%s error=%s", session_strategy_id, exc)
     try:
@@ -132,7 +157,7 @@ def _run_one_campaign(
         return result
     finally:
         try:
-            _log_session_end(strategy_id=session_strategy_id, result=result)
+            _log_session_end(strategy_id=session_strategy_id, cfg=cfg, result=result)
         except Exception as exc:
             _LOG.warning("paper_strategy_evidence_session_end_failed strategy_id=%s error=%s", session_strategy_id, exc)
 
@@ -157,6 +182,7 @@ def _write_idle_status(
         "total_strategies": len(strategies),
         "symbol": str(cfg.symbol or "BTC/USD"),
         "venue": str(cfg.venue or "coinbase"),
+        "signal_source": str(cfg.signal_source or ""),
         "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
         "session_strategy_id": str(session_strategy_id),
         "daily_loop": True,
@@ -205,6 +231,7 @@ def _run_daily_loop(
             "strategies": list(strategies),
             "symbol": str(cfg.symbol or "BTC/USD"),
             "venue": str(cfg.venue or "coinbase"),
+            "signal_source": str(cfg.signal_source or ""),
             "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
             "poll_interval_sec": float(poll_interval_sec),
             "daily_loop": True,
@@ -228,6 +255,7 @@ def _run_daily_loop(
                     "strategies": list(strategies),
                     "symbol": str(cfg.symbol or "BTC/USD"),
                     "venue": str(cfg.venue or "coinbase"),
+                    "signal_source": str(cfg.signal_source or ""),
                     "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
                     "session_strategy_id": str(session_strategy_id),
                     "daily_loop": True,
@@ -253,6 +281,7 @@ def _run_daily_loop(
                         "strategies": list(strategies),
                         "symbol": str(cfg.symbol or "BTC/USD"),
                         "venue": str(cfg.venue or "coinbase"),
+                        "signal_source": str(cfg.signal_source or ""),
                         "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
                         "poll_interval_sec": float(poll_interval_sec),
                         "daily_loop": True,
@@ -347,6 +376,7 @@ def main() -> int:
         return 0
 
     strategies = _strategy_items(args.strategies)
+    signal_source = _default_signal_source(strategies=strategies, requested=str(args.signal_source or ""))
     cfg = PaperStrategyEvidenceServiceCfg(
         strategies=strategies,
         per_strategy_runtime_sec=float(args.runtime_sec or 900.0),
@@ -355,7 +385,7 @@ def main() -> int:
         venue=str(args.venue or "coinbase"),
         tick_publish_interval_sec=float(args.tick_interval_sec or 2.0),
         strategy_min_bars=int(args.strategy_min_bars or 0),
-        signal_source=str(args.signal_source or ""),
+        signal_source=signal_source,
         allow_first_signal_trade=bool(args.allow_first_signal_trade),
         evidence_symbol=str(args.evidence_symbol or ""),
         paper_history_path=str(args.paper_history_path or ""),
