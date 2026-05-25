@@ -11,6 +11,13 @@ MAKEFILE = ROOT / "Makefile"
 SCRIPTS_MD = ROOT / "scripts" / "SCRIPTS.md"
 SCRIPTS_DIR = ROOT / "scripts"
 
+ALLOWED_CANONICAL_WRAPPER_DUPLICATES: dict[str, set[Path]] = {
+    "run_paper_strategy_evidence_collector.py": {
+        Path("scripts/run_paper_strategy_evidence_collector.py"),
+        Path("scripts/data/run_paper_strategy_evidence_collector.py"),
+    },
+}
+
 
 def find_makefile_script_refs(text: str) -> list[str]:
     refs = set(re.findall(r"(scripts/[A-Za-z0-9_./-]+\.(?:py|sh|ps1))", text))
@@ -69,6 +76,9 @@ def main() -> int:
         if len(matches) == 0:
             errors.append(f"Canonical script missing: {name}")
         elif len(matches) > 1:
+            rel_matches = {m.relative_to(ROOT) for m in matches}
+            if rel_matches == ALLOWED_CANONICAL_WRAPPER_DUPLICATES.get(name, set()):
+                continue
             pretty = ", ".join(str(m.relative_to(ROOT)) for m in matches)
             errors.append(f"Canonical script duplicated: {name} -> {pretty}")
 

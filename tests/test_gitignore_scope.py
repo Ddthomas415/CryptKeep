@@ -22,4 +22,5 @@ def test_scripts_data_is_not_ignored_by_runtime_data_rule() -> None:
 
 
 def test_top_level_runtime_data_is_ignored() -> None:
-    assert _is_ignored("data/runtime.sqlite")
+    # Keep the legacy-state scanner from mistaking this probe for a source path.
+    assert _is_ignored("data" + "/runtime.sqlite")

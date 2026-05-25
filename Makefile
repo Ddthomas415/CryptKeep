@@ -41,16 +41,16 @@ validate:
 	$(PYTHON) scripts/validate.py
 
 pre-release-sanity:
-	$(PYTHON) scripts/release/pre_release_sanity.py
+	$(PYTHON) scripts/pre_release_sanity.py
 
 pre-release-sanity-quick:
-	$(PYTHON) scripts/release/pre_release_sanity.py --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
+	$(PYTHON) scripts/pre_release_sanity.py --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
 
 pre-release-sanity-json-quick:
-	@$(PYTHON) scripts/release/pre_release_sanity.py --json --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
+	@$(PYTHON) scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy --skip-pytest --skip-config --skip-imports
 
 pre-release-sanity-json-fast:
-	@CBP_PRE_RELEASE_SKIP_PYTEST=1 $(PYTHON) scripts/release/pre_release_sanity.py --json --skip-ruff --skip-mypy
+	@CBP_PRE_RELEASE_SKIP_PYTEST=1 $(PYTHON) scripts/pre_release_sanity.py --json --skip-ruff --skip-mypy
 
 remaining-tasks:
 	$(PYTHON) scripts/rebuild_remaining_tasks.py
@@ -59,10 +59,10 @@ phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
 
 phase1-smoke:
-	$(PYTHON) phase1_research_copilot/scripts/smoke_phase1_copilot.py
+	$(PYTHON) scripts/smoke_phase1_copilot.py
 
 phase1-smoke-openai:
-	$(PYTHON) phase1_research_copilot/scripts/smoke_phase1_copilot.py --expect-openai
+	$(PYTHON) scripts/smoke_phase1_copilot.py --expect-openai
 
 load-sample-crypto-edges:
 	$(PYTHON) scripts/load_sample_crypto_edge_data.py --print-report
