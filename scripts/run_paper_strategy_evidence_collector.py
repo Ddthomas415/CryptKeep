@@ -259,6 +259,13 @@ def _run_daily_loop(
                         "session_strategy_id": str(session_strategy_id),
                     }
                 )
+                _write_idle_status(
+                    pid=current_pid,
+                    cfg=cfg,
+                    strategies=strategies,
+                    session_strategy_id=session_strategy_id,
+                    last_result=last_result,
+                )
             else:
                 _write_idle_status(
                     pid=current_pid,

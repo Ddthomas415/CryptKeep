@@ -163,3 +163,56 @@ def test_run_daily_loop_idles_after_today_is_already_recorded(monkeypatch, tmp_p
     assert status_writes[0]["reason"] == "waiting_for_next_day"
     assert status_writes[-1]["status"] == "stopped"
     assert cleared == [True]
+
+
+def test_run_daily_loop_writes_idle_immediately_after_campaign(monkeypatch, tmp_path) -> None:
+    status_writes: list[dict[str, object]] = []
+    pid_writes: list[dict[str, object]] = []
+    cleared: list[bool] = []
+    stop_path = tmp_path / "paper_strategy_evidence.stop"
+    has_session_calls = {"count": 0}
+
+    monkeypatch.setattr(script, "load_runtime_status", lambda: {"ok": True, "pid_alive": False, "pid": None})
+    monkeypatch.setattr(script, "_write_status", lambda obj: status_writes.append(dict(obj)))
+    monkeypatch.setattr(script, "_write_pid_state", lambda obj: pid_writes.append(dict(obj)))
+    monkeypatch.setattr(script, "_clear_pid_state", lambda: cleared.append(True))
+    monkeypatch.setattr(script, "stop_file", lambda: stop_path)
+    monkeypatch.setattr(script, "_today_utc", lambda: "2026-05-25")
+
+    def _has_session_day(strategy_id: str, day: str) -> bool:
+        has_session_calls["count"] += 1
+        return has_session_calls["count"] > 1
+
+    monkeypatch.setattr(script, "_has_session_day", _has_session_day)
+    monkeypatch.setattr(
+        script,
+        "_run_one_campaign",
+        lambda cfg, *, max_strategies=None, session_strategy_id="": {
+            "ok": True,
+            "status": "completed",
+            "completed_strategies": 1,
+        },
+    )
+
+    cfg = script.PaperStrategyEvidenceServiceCfg(
+        strategies=("sma_200_trend",),
+        per_strategy_runtime_sec=5.0,
+        symbol="BTC/USDT",
+        venue="coinbase",
+    )
+
+    out = script._run_daily_loop(
+        cfg,
+        max_strategies=None,
+        session_strategy_id="es_daily_trend_v1",
+        poll_interval_sec=1.0,
+        max_loops=1,
+    )
+
+    assert out["status"] == "stopped"
+    assert out["reason"] == "max_loops"
+    assert len(pid_writes) == 2
+    assert status_writes[0]["status"] == "idle"
+    assert status_writes[0]["reason"] == "waiting_for_next_day"
+    assert status_writes[-1]["status"] == "stopped"
+    assert cleared == [True]
