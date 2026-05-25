@@ -14,6 +14,7 @@ from typing import List, Optional
 from services.admin.config_editor import load_user_yaml
 from services.logging.app_logger import get_logger
 from services.market_data.multi_venue_view import best_venue
+from services.market_data.local_data_reader import write_local_ohlcv_snapshot
 from services.market_data.symbol_router import map_symbol, normalize_symbol, normalize_venue
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
 from services.os.app_paths import ensure_dirs, runtime_dir
@@ -420,8 +421,10 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         if sample.exists():
             try:
                 rows = _json.loads(sample.read_text())
-                _LOG.info("ohlcv_sample_primary symbol=%s rows=%d", raw_sym, len(rows))
-                return [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _LOG.info("ohlcv_sample_primary symbol=%s rows=%s", raw_sym, len(rows))
+                result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _persist_public_ohlcv_snapshot(cfg, timeframe, result)
+                return result
             except Exception as _se:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
         return []
@@ -434,6 +437,7 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
         result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
         if result:
+            _persist_public_ohlcv_snapshot(cfg, timeframe, result)
             return result
     except Exception as _fetch_err:
         _LOG.warning("ohlcv_live_fetch_failed venue=%s symbol=%s timeframe=%s err=%s",
@@ -457,13 +461,34 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         if sample.exists():
             try:
                 rows = _json.loads(sample.read_text())
-                _LOG.info("ohlcv_sample_fallback symbol=%s rows=%d", raw_sym, len(rows))
-                return [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _LOG.info("ohlcv_sample_fallback symbol=%s rows=%s", raw_sym, len(rows))
+                result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _persist_public_ohlcv_snapshot(cfg, timeframe, result)
+                return result
             except Exception as _se:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
         else:
             _LOG.warning("ohlcv_sample_not_found: %s", sample)
     return []
+
+
+def _persist_public_ohlcv_snapshot(cfg: dict, timeframe: str, rows: list[list[float]]) -> None:
+    if not rows:
+        return
+    venue = str(cfg.get("venue") or "").strip()
+    symbol = str(cfg.get("symbol") or "").strip()
+    if not venue or not symbol:
+        return
+    try:
+        write_local_ohlcv_snapshot(venue, symbol, rows, timeframe=timeframe)
+    except Exception as exc:
+        _LOG.warning(
+            "ohlcv_snapshot_write_failed venue=%s symbol=%s timeframe=%s err=%s",
+            venue,
+            symbol,
+            timeframe,
+            exc,
+        )
 
 def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
     q = get_best_bid_ask_last(cfg["venue"], cfg["symbol"])

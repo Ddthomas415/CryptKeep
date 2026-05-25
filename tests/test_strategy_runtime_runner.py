@@ -147,6 +147,60 @@ def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_pat
     assert out == []
 
 
+def test_fetch_public_ohlcv_persists_sample_snapshot(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    rows = runner._fetch_public_ohlcv(
+        {
+            "signal_source": "public_ohlcv_1d",
+            "venue": "coinbase",
+            "symbol": "BTC/USDT",
+            "min_bars": 20,
+            "max_bars": 50,
+        }
+    )
+
+    assert rows
+    from services.market_data.local_data_reader import _load_local_ohlcv
+
+    loaded = _load_local_ohlcv("coinbase", "BTC/USDT", timeframe="1d", limit=5000)
+    assert loaded
+    assert loaded[-1][4] == rows[-1][4]
+
+
+def test_fetch_public_ohlcv_persists_live_snapshot(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    class _FakeExchange:
+        def fetch_ohlcv(self, symbol, timeframe="1d", limit=50):
+            return [
+                [1, 100.0, 101.0, 99.0, 100.0, 1.0],
+                [2, 100.0, 110.0, 100.0, 109.0, 1.0],
+            ]
+
+        def close(self):
+            return None
+
+    monkeypatch.setattr(runner, "make_exchange", lambda venue, creds, enable_rate_limit=True: _FakeExchange())
+
+    rows = runner._fetch_public_ohlcv(
+        {
+            "signal_source": "public_ohlcv_1d",
+            "venue": "coinbase",
+            "symbol": "BTC/USDT",
+            "min_bars": 2,
+            "max_bars": 2,
+        }
+    )
+
+    assert rows[-1][4] == 109.0
+    from services.market_data.local_data_reader import _load_local_ohlcv
+
+    loaded = _load_local_ohlcv("coinbase", "BTC/USDT", timeframe="1d", limit=10)
+    assert loaded == rows
+
+
 def test_fetch_mid_returns_none_when_ccxt_fallback_raises(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(runner, "get_best_bid_ask_last", lambda venue, symbol: None)
