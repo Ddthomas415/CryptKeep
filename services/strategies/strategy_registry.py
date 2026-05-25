@@ -167,6 +167,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
                 ohlcv=ohlcv,
                 sma_period=int(st.get("sma_period", 200)),
                 atr_period=int(st.get("atr_period", 20)),
+                evidence_extra=st.get("evidence_extra") if isinstance(st.get("evidence_extra"), dict) else None,
             ),
             "strategy": name,
             "symbol": symbol,

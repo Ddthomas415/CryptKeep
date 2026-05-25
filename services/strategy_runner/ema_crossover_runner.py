@@ -405,6 +405,17 @@ def _public_ohlcv_timeframe(cfg: dict) -> str | None:
     return None
 
 
+def _public_ohlcv_evidence_extra(cfg: dict, timeframe: str) -> dict:
+    sample_mode = str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
+    return {
+        "market_data_source": "sample_ohlcv" if sample_mode else "public_ohlcv",
+        "ohlcv_sample_mode": sample_mode,
+        "ohlcv_timeframe": timeframe,
+        "ohlcv_venue": str(cfg.get("venue") or ""),
+        "ohlcv_symbol": str(cfg.get("symbol") or ""),
+    }
+
+
 def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
     timeframe = _public_ohlcv_timeframe(cfg)
     if not timeframe:
@@ -726,6 +737,7 @@ def run_forever() -> None:
                         trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
                         params=selected_params,
                     )
+                    selected_block["evidence_extra"] = _public_ohlcv_evidence_extra(sym_cfg, timeframe)
                     signal = compute_signal(
                         cfg={"strategy": selected_block},
                         symbol=symbol,

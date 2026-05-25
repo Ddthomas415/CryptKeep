@@ -76,6 +76,13 @@ def _action_for_signal(record: dict[str, Any]) -> str | None:
     return None
 
 
+def _is_sample_backed_signal(record: dict[str, Any]) -> bool:
+    source = str(record.get("market_data_source") or "").lower().strip()
+    if source == "sample_ohlcv":
+        return True
+    return record.get("ohlcv_sample_mode") is True
+
+
 def _load_ohlcv_rows_from_path(path: Path) -> list[list]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     rows = raw if isinstance(raw, list) else raw.get("candles") or []
@@ -404,7 +411,11 @@ def build_signal_quality_report(
         return report
 
     actionable_rows: list[dict[str, Any]] = []
+    excluded_sample_signals = 0
     for signal in signals:
+        if _is_sample_backed_signal(signal):
+            excluded_sample_signals += 1
+            continue
         action = _action_for_signal(signal)
         if not action:
             continue
@@ -450,6 +461,7 @@ def build_signal_quality_report(
 
     summary = {
         "signals_total": len(signals),
+        "excluded_sample_signals": excluded_sample_signals,
         "actionable_signals": len(actionable_rows),
         "deduped_signals": len(deduped),
         "signals_scored": len(scored_only),

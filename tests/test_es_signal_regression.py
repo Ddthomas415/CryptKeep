@@ -80,6 +80,8 @@ class TestSignalEvidenceRegression:
         required = ("timestamp", "price", "sma_200", "signal_direction", "regime_flag")
         missing = [f for f in required if f not in record]
         assert not missing, f"Signal record missing required fields: {missing}"
+        assert record["market_data_source"] == "sample_ohlcv"
+        assert record["ohlcv_sample_mode"] is True
 
     def test_campaign_config_has_correct_signal_source(self, isolated_state):
         """Campaign must configure signal_source=public_ohlcv_1d.

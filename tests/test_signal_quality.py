@@ -198,3 +198,43 @@ def test_build_signal_quality_marks_price_mismatch_unscored(tmp_path) -> None:
     assert report["summary"]["price_mismatch_signals"] == 1
     assert report["rows"][0]["classification"] == "unscored"
     assert report["rows"][0]["reason"] == "price_ohlcv_mismatch"
+
+
+def test_build_signal_quality_excludes_sample_backed_signals(tmp_path) -> None:
+    from services.analytics.signal_quality import build_signal_quality_report
+
+    start = datetime(2026, 5, 1, tzinfo=timezone.utc)
+    rows = []
+    for day, close_price in enumerate((100.0, 102.0, 101.0, 112.0)):
+        ts = int((start + timedelta(days=day)).timestamp() * 1000.0)
+        rows.append([ts, close_price, close_price + 2.0, close_price - 1.0, close_price, 1.0])
+
+    ev_dir = tmp_path / "data" / "evidence" / "demo_strategy"
+    _write_signal_file(
+        ev_dir,
+        [
+            {
+                "record_type": "signal",
+                "timestamp": _iso(rows[2][0]),
+                "price": 101.0,
+                "signal_direction": "long",
+                "entry_allowed": True,
+                "regime_flag": "trending",
+                "market_data_source": "sample_ohlcv",
+                "ohlcv_sample_mode": True,
+            }
+        ],
+    )
+
+    report = build_signal_quality_report(
+        strategy_id="demo_strategy",
+        evidence_dir=ev_dir,
+        ohlcv_rows=rows,
+        horizon_bars=1,
+        target_move_pct=0.10,
+    )
+
+    assert report["ok"] is True
+    assert report["summary"]["excluded_sample_signals"] == 1
+    assert report["summary"]["actionable_signals"] == 0
+    assert report["summary"]["signals_scored"] == 0

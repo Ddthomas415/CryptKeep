@@ -201,6 +201,33 @@ def test_fetch_public_ohlcv_persists_live_snapshot(monkeypatch, tmp_path):
     assert loaded == rows
 
 
+def test_public_ohlcv_evidence_extra_marks_sample_mode(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    out = runner._public_ohlcv_evidence_extra(
+        {"venue": "coinbase", "symbol": "BTC/USDT"},
+        "1d",
+    )
+
+    assert out["market_data_source"] == "sample_ohlcv"
+    assert out["ohlcv_sample_mode"] is True
+    assert out["ohlcv_timeframe"] == "1d"
+
+
+def test_public_ohlcv_evidence_extra_marks_public_mode(monkeypatch, tmp_path):
+    monkeypatch.delenv("CBP_USE_SAMPLE_OHLCV", raising=False)
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    out = runner._public_ohlcv_evidence_extra(
+        {"venue": "coinbase", "symbol": "BTC/USDT"},
+        "1d",
+    )
+
+    assert out["market_data_source"] == "public_ohlcv"
+    assert out["ohlcv_sample_mode"] is False
+
+
 def test_fetch_mid_returns_none_when_ccxt_fallback_raises(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(runner, "get_best_bid_ask_last", lambda venue, symbol: None)
