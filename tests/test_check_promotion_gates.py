@@ -148,6 +148,24 @@ class TestGateLogic:
         evidence = _load_all_evidence(ev_dir)
         assert _kill_switch_tested(evidence["session"]) is True
 
+    def test_kill_switch_status_requires_recent_test(self, tmp_path):
+        from scripts.check_promotion_gates import _kill_switch_test_status
+
+        stale = _kill_switch_test_status(
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "kill_switch_tested": True}],
+            {"ops": {"kill_switch_test_frequency": "weekly"}},
+            reference_ts=datetime.fromisoformat("2026-05-10T00:00:00+00:00"),
+        )
+        fresh = _kill_switch_test_status(
+            [{"timestamp": "2026-05-04T00:00:00+00:00", "kill_switch_tested": True}],
+            {"ops": {"kill_switch_test_frequency": "weekly"}},
+            reference_ts=datetime.fromisoformat("2026-05-10T00:00:00+00:00"),
+        )
+
+        assert stale["ok"] is False
+        assert stale["max_age_days"] == 7
+        assert fresh["ok"] is True
+
     def test_days_of_operation_unique_dates(self, tmp_path):
         ev_dir = self._ev_dir()
         from services.strategies.evidence_logger import EvidenceLogger

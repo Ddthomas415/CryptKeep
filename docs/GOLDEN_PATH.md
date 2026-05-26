@@ -71,7 +71,7 @@ Gates for paper → shadow promotion:
 - 50+ completed round trips
 - Expectancy within 30% of backtest
 - No critical operational bugs
-- Kill switch tested
+- Kill switch tested within the configured cadence (`ops.kill_switch_test_frequency`, weekly by default)
 - All evidence logs complete
 
 ## What is core vs optional

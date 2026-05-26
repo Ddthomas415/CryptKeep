@@ -116,6 +116,82 @@ def _kill_switch_tested(sessions: list[dict]) -> bool:
     return any(s.get("kill_switch_tested") is True for s in sessions)
 
 
+def _session_ts(row: dict) -> datetime | None:
+    ts = row.get("timestamp") or row.get("date") or row.get("session_start")
+    if not ts:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except Exception:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def _kill_switch_max_age_days(cfg: dict) -> int:
+    raw = str(((cfg.get("ops") or {}).get("kill_switch_test_frequency")) or "weekly").strip().lower()
+    if raw in {"daily", "1d", "1 day"}:
+        return 1
+    if raw in {"weekly", "7d", "7 days", "1 week"}:
+        return 7
+    if raw in {"monthly", "30d", "30 days", "1 month"}:
+        return 30
+    try:
+        return max(1, int(raw))
+    except Exception:
+        return 7
+
+
+def _kill_switch_test_status(
+    sessions: list[dict],
+    cfg: dict,
+    *,
+    reference_ts: datetime | None = None,
+) -> dict:
+    max_age_days = _kill_switch_max_age_days(cfg)
+    tested = [
+        ts
+        for row in list(sessions or [])
+        if row.get("kill_switch_tested") is True
+        if (ts := _session_ts(dict(row))) is not None
+    ]
+    if not sessions:
+        return {
+            "ok": None,
+            "detail": "no session logs found",
+            "hint": "set kill_switch_tested=True in session log after testing",
+            "last_tested_ts": None,
+            "max_age_days": max_age_days,
+        }
+    if not tested:
+        return {
+            "ok": False,
+            "detail": "no kill_switch_tested=True session log found",
+            "hint": "set kill_switch_tested=True in session log after testing",
+            "last_tested_ts": None,
+            "max_age_days": max_age_days,
+        }
+
+    last_tested = max(tested)
+    reference = reference_ts or datetime.now(timezone.utc)
+    if reference.tzinfo is None:
+        reference = reference.replace(tzinfo=timezone.utc)
+    age_days = max(0.0, (reference - last_tested).total_seconds() / 86400.0)
+    ok = age_days <= float(max_age_days)
+    return {
+        "ok": ok,
+        "detail": (
+            f"kill_switch_tested=True last seen {last_tested.isoformat()} "
+            f"({age_days:.1f} days old, max {max_age_days})"
+        ),
+        "hint": "" if ok else "repeat kill-switch test before promotion",
+        "last_tested_ts": last_tested.isoformat(),
+        "age_days": float(age_days),
+        "max_age_days": max_age_days,
+    }
+
+
 def _check_expectancy(fills: list[dict]) -> tuple[bool | None, float | None]:
     """Check if observed expectancy is positive."""
     pnls = [float(f.get("pnl_usd") or 0) for f in fills if "pnl_usd" in f]
@@ -438,6 +514,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
     trips = int(trade_metrics["round_trips"])
     provenance = _promotion_provenance_summary(evidence)
     session_health = _latest_session_health(sessions)
+    kill_switch = _kill_switch_test_status(sessions, yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {})
 
     gates = [
         _gate("30 calendar days of operation",
@@ -457,9 +534,9 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               str(session_health["detail"]),
               str(session_health["hint"])),
         _gate("Kill switch tested",
-              _kill_switch_tested(sessions) if sessions else None,
-              "kill_switch_tested=True found in session log" if _kill_switch_tested(sessions) else "not found in session logs",
-              "set kill_switch_tested=True in session log after testing"),
+              kill_switch["ok"],
+              str(kill_switch["detail"]),
+              str(kill_switch["hint"])),
         _gate("All evidence logs present",
               all(len(evidence[k]) > 0 for k in ("signal", "order", "fill", "session")),
               f"signal:{len(evidence['signal'])} order:{len(evidence['order'])} fill:{len(evidence['fill'])} session:{len(sessions)}",
