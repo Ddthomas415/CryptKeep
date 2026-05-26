@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -376,9 +377,11 @@ def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
     """Summarize whether promotion evidence is attributable to public market data."""
     by_type: dict[str, dict] = {}
     totals = {"total": 0, "public": 0, "sample": 0, "missing": 0, "unknown": 0}
+    total_unknown_sources: Counter[str] = Counter()
     for record_type in ("signal", "order", "fill", "session"):
         rows = evidence.get(record_type, []) or []
         counts = {"total": len(rows), "public": 0, "sample": 0, "missing": 0, "unknown": 0}
+        unknown_sources: Counter[str] = Counter()
         for row in rows:
             source = str(row.get("market_data_source") or "").strip().lower()
             raw_sample_mode = row.get("ohlcv_sample_mode")
@@ -394,6 +397,9 @@ def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
                 counts["public"] += 1
             else:
                 counts["unknown"] += 1
+                unknown_sources[source] += 1
+                total_unknown_sources[source] += 1
+        counts["unknown_sources"] = dict(sorted(unknown_sources.items()))
         by_type[record_type] = counts
         for key in totals:
             totals[key] += counts[key]
@@ -411,8 +417,22 @@ def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
     return {
         "ok": ok,
         **totals,
+        "unknown_sources": dict(sorted(total_unknown_sources.items())),
         "by_type": by_type,
     }
+
+
+def _provenance_gate_detail(provenance: dict) -> str:
+    detail = (
+        f"window:{provenance.get('window_date') or 'all'} "
+        f"public:{provenance['public']} missing:{provenance['missing']} "
+        f"sample:{provenance['sample']} unknown:{provenance['unknown']}"
+    )
+    unknown_sources = dict(provenance.get("unknown_sources") or {})
+    if unknown_sources:
+        parts = [f"{source}={count}" for source, count in sorted(unknown_sources.items())]
+        detail += f" unknown_sources:{','.join(parts)}"
+    return detail
 
 
 def _record_date(row: dict) -> str | None:
@@ -572,7 +592,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               str(evidence_logs["hint"])),
         _gate("Promotion evidence has non-sample provenance",
               provenance["ok"],
-              f"window:{provenance.get('window_date') or 'all'} public:{provenance['public']} missing:{provenance['missing']} sample:{provenance['sample']} unknown:{provenance['unknown']}",
+              _provenance_gate_detail(provenance),
               "collect fresh public-market evidence with provenance before promotion"),
         _gate("Daily loss halt tested in simulation",
               _halt_tested(sessions) if sessions else None,

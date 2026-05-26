@@ -318,6 +318,27 @@ class TestEvidenceProvenance:
         assert result["ok"] is False
         assert result["missing"] == 1
 
+    def test_provenance_summary_reports_unknown_source_breakdown(self, tmp_path):
+        from scripts.check_promotion_gates import _evidence_provenance_summary, _provenance_gate_detail
+        evidence = {
+            "signal": [
+                {"record_type": "signal", "market_data_source": "unknown_ohlcv"},
+                {"record_type": "signal", "market_data_source": "unknown_ohlcv"},
+                {"record_type": "signal", "market_data_source": "custom_feed"},
+            ],
+            "order": [],
+            "fill": [],
+            "session": [],
+        }
+
+        result = _evidence_provenance_summary(evidence)
+        detail = _provenance_gate_detail({**result, "window_date": "2026-05-26"})
+
+        assert result["unknown"] == 3
+        assert result["unknown_sources"] == {"custom_feed": 1, "unknown_ohlcv": 2}
+        assert result["by_type"]["signal"]["unknown_sources"] == {"custom_feed": 1, "unknown_ohlcv": 2}
+        assert "unknown_sources:custom_feed=1,unknown_ohlcv=2" in detail
+
     def test_provenance_summary_flags_sample_source(self, tmp_path):
         from scripts.check_promotion_gates import _evidence_provenance_summary
         evidence = {
