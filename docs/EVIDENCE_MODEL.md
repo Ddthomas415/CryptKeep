@@ -71,8 +71,8 @@ summary. Interpret the sources this way:
 1. `paper_history` answers how many target-strategy paper fills and round trips
    exist, and what realized expectancy they produced.
 2. `schema` and `provenance` answer whether the JSONL evidence stream is complete
-   and attributable to non-sample market data. `provenance` and session health
-   gates use the latest dated evidence window; kill-switch testing must be
-   current within `ops.kill_switch_test_frequency`; `provenance_all_time` is
-   diagnostic history.
+   and attributable to non-sample market data. `provenance`, session health, and
+   evidence-log presence gates use the latest dated evidence window; kill-switch
+   testing must be current within `ops.kill_switch_test_frequency`;
+   `provenance_all_time` is diagnostic history.
 3. `strategy_evidence.latest.json` is comparison context, not the final gate.

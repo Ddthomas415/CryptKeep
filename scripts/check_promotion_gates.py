@@ -494,6 +494,34 @@ def _latest_session_health(sessions: list[dict]) -> dict:
     }
 
 
+def _latest_evidence_log_presence(evidence: dict[str, list[dict]]) -> dict:
+    latest_date = _latest_evidence_date(evidence)
+    if not latest_date:
+        return {
+            "ok": False,
+            "window_date": None,
+            "counts": {"signal": 0, "order": 0, "fill": 0, "session": 0},
+            "detail": "window:all signal:0 order:0 fill:0 session:0",
+            "hint": "start running to generate evidence",
+        }
+    window = _filter_evidence_by_date(evidence, latest_date)
+    counts = {
+        record_type: len(window.get(record_type) or [])
+        for record_type in ("signal", "order", "fill", "session")
+    }
+    ok = all(counts[record_type] > 0 for record_type in ("signal", "order", "fill", "session"))
+    return {
+        "ok": ok,
+        "window_date": latest_date,
+        "counts": counts,
+        "detail": (
+            f"window:{latest_date} signal:{counts['signal']} order:{counts['order']} "
+            f"fill:{counts['fill']} session:{counts['session']}"
+        ),
+        "hint": "" if ok else "start running to generate evidence",
+    }
+
+
 # ---------------------------------------------------------------------------
 # Gate evaluation
 # ---------------------------------------------------------------------------
@@ -515,6 +543,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
     provenance = _promotion_provenance_summary(evidence)
     session_health = _latest_session_health(sessions)
     kill_switch = _kill_switch_test_status(sessions, yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {})
+    evidence_logs = _latest_evidence_log_presence(evidence)
 
     gates = [
         _gate("30 calendar days of operation",
@@ -538,9 +567,9 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               str(kill_switch["detail"]),
               str(kill_switch["hint"])),
         _gate("All evidence logs present",
-              all(len(evidence[k]) > 0 for k in ("signal", "order", "fill", "session")),
-              f"signal:{len(evidence['signal'])} order:{len(evidence['order'])} fill:{len(evidence['fill'])} session:{len(sessions)}",
-              "start running to generate evidence"),
+              evidence_logs["ok"],
+              str(evidence_logs["detail"]),
+              str(evidence_logs["hint"])),
         _gate("Promotion evidence has non-sample provenance",
               provenance["ok"],
               f"window:{provenance.get('window_date') or 'all'} public:{provenance['public']} missing:{provenance['missing']} sample:{provenance['sample']} unknown:{provenance['unknown']}",

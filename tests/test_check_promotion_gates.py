@@ -279,6 +279,31 @@ class TestGateLogic:
         assert result["window_date"] == "2026-05-02"
         assert result["critical_error_count"] == 1
 
+    def test_latest_evidence_log_presence_uses_latest_window(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_evidence_log_presence
+
+        result = _latest_evidence_log_presence({
+            "signal": [
+                {"timestamp": "2026-05-01T00:00:00+00:00"},
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "order": [
+                {"timestamp": "2026-05-01T00:00:00+00:00"},
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "fill": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "session": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+        })
+
+        assert result["ok"] is True
+        assert result["window_date"] == "2026-05-02"
+        assert result["counts"] == {"signal": 1, "order": 1, "fill": 1, "session": 1}
+        assert result["detail"] == "window:2026-05-02 signal:1 order:1 fill:1 session:1"
+
 
 class TestEvidenceProvenance:
     def test_provenance_summary_flags_missing_source(self, tmp_path):
