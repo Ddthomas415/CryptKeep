@@ -128,6 +128,34 @@ class TestEvidenceLogger:
         rec = json.loads(files[0].read_text().strip())
         assert rec["strategy_id"] == "my_strategy"
 
+    def test_sample_mode_stamps_evidence_provenance(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+        from services.strategies.evidence_logger import EvidenceLogger
+        logger = EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+        logger.log_fill(
+            timestamp=_now(), fill_price=5005.0,
+            slippage_points=5.0, slippage_pct=0.1, fees_paid=2.50,
+            pnl_usd=150.0, side="sell",
+        )
+        files = list((tmp_path / "ev").glob("fill_*.jsonl"))
+        rec = json.loads(files[0].read_text().strip())
+        assert rec["market_data_source"] == "sample_ohlcv"
+        assert rec["ohlcv_sample_mode"] is True
+
+    def test_sample_mode_does_not_override_explicit_provenance(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+        from services.strategies.evidence_logger import EvidenceLogger
+        logger = EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+        logger.log_signal(
+            timestamp=_now(), price=5000.0, sma_200=4800.0,
+            atr_ratio=1.0, signal_direction="flat", regime_flag="chop",
+            extra={"market_data_source": "public_ohlcv", "ohlcv_sample_mode": False},
+        )
+        files = list((tmp_path / "ev").glob("signal_*.jsonl"))
+        rec = json.loads(files[0].read_text().strip())
+        assert rec["market_data_source"] == "public_ohlcv"
+        assert rec["ohlcv_sample_mode"] is False
+
 
 # ---------------------------------------------------------------------------
 # check_promotion_gates

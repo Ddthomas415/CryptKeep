@@ -164,6 +164,68 @@ class TestGateLogic:
         assert days == 1
 
 
+class TestEvidenceProvenance:
+    def test_provenance_summary_flags_missing_source(self, tmp_path):
+        from scripts.check_promotion_gates import _evidence_provenance_summary
+        evidence = {
+            "signal": [{"record_type": "signal"}],
+            "order": [],
+            "fill": [],
+            "session": [],
+        }
+        result = _evidence_provenance_summary(evidence)
+        assert result["ok"] is False
+        assert result["missing"] == 1
+
+    def test_provenance_summary_flags_sample_source(self, tmp_path):
+        from scripts.check_promotion_gates import _evidence_provenance_summary
+        evidence = {
+            "signal": [{
+                "record_type": "signal",
+                "market_data_source": "sample_ohlcv",
+                "ohlcv_sample_mode": True,
+            }],
+            "order": [],
+            "fill": [],
+            "session": [],
+        }
+        result = _evidence_provenance_summary(evidence)
+        assert result["ok"] is False
+        assert result["sample"] == 1
+
+    def test_provenance_summary_passes_public_source(self, tmp_path):
+        from scripts.check_promotion_gates import _evidence_provenance_summary
+        evidence = {
+            record_type: [{
+                "record_type": record_type,
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+            }]
+            for record_type in ("signal", "order", "fill", "session")
+        }
+        result = _evidence_provenance_summary(evidence)
+        assert result["ok"] is True
+        assert result["public"] == 4
+        assert result["missing"] == 0
+        assert result["sample"] == 0
+        assert result["unknown"] == 0
+
+    def test_paper_gate_blocks_legacy_unstamped_evidence(self, tmp_path):
+        from services.os.app_paths import data_dir
+        from services.strategies.evidence_logger import EvidenceLogger
+        from scripts.check_promotion_gates import run_check
+        ev_dir = data_dir() / "evidence" / "es_daily_trend_v1"
+        logger = EvidenceLogger("es_daily_trend_v1", log_dir=ev_dir)
+        logger.log_signal(
+            timestamp=_now(), price=5000.0, sma_200=4800.0,
+            atr_ratio=1.1, signal_direction="long", regime_flag="trending",
+        )
+        result = run_check(stage_override="paper")
+        gate = next(g for g in result["gates"] if "provenance" in g["label"].lower())
+        assert gate["passed"] is False
+        assert result["provenance"]["missing"] == 1
+
+
 class TestSlippageBaseline:
     def test_no_fills_returns_unknown(self, tmp_path):
         from scripts.check_promotion_gates import _slippage_within_baseline

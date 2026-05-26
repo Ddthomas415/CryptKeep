@@ -6,6 +6,7 @@ import sys
 from collections.abc import Sequence
 from dashboard.role_guard import require_role
 from pathlib import Path
+from services.admin.config_editor import load_user_yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SERVICES = ("tick_publisher", "reconciler", "intent_consumer")
@@ -47,7 +48,10 @@ def run_repo_script(script_relpath: str, *, args: Sequence[str] | None = None, c
     require_role(current_role, "OPERATOR")
     if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
         return 1, "disallowed_script"
-    cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
+    script_path = REPO_ROOT / script_relpath
+    if not script_path.exists():
+        return 1, f"missing_script:{script_relpath}"
+    cmd = [sys.executable, str(script_path)]
     if args:
         cmd.extend(str(x) for x in args)
     proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)
@@ -59,7 +63,10 @@ def start_repo_script_background(script_relpath: str, *, args: Sequence[str] | N
     require_role(current_role, "OPERATOR")
     if script_relpath not in ALLOWED_OPERATOR_SCRIPTS:
         return 1, "disallowed_script"
-    cmd = [sys.executable, str(REPO_ROOT / script_relpath)]
+    script_path = REPO_ROOT / script_relpath
+    if not script_path.exists():
+        return 1, f"missing_script:{script_relpath}"
+    cmd = [sys.executable, str(script_path)]
     if args:
         cmd.extend(str(x) for x in args)
 
@@ -127,6 +134,7 @@ def start_paper_strategy_evidence_collection(
     strategies: Sequence[str] | None = None,
     symbol: str = "BTC/USD",
     venue: str = "coinbase",
+    signal_source: str = "",
     current_role: str = "VIEWER",
 ) -> tuple[int, str]:
     require_role(current_role, "OPERATOR")
@@ -142,6 +150,7 @@ def start_paper_strategy_evidence_collection(
         return 0, f"already running pid={pid} status={status}"
 
     args: list[str] = [
+        "--daily-loop",
         "--runtime-sec",
         str(int(runtime_sec)),
         "--symbol",
@@ -152,6 +161,29 @@ def start_paper_strategy_evidence_collection(
     strategy_items = [str(item).strip() for item in list(strategies or []) if str(item).strip()]
     if strategy_items:
         args.extend(["--strategies", ",".join(strategy_items)])
+    resolved_signal_source = str(signal_source or "").strip()
+    if not resolved_signal_source and "sma_200_trend" in strategy_items:
+        resolved_signal_source = "public_ohlcv_1d"
+    if resolved_signal_source:
+        args.extend(["--signal-source", resolved_signal_source])
+
+    cfg = load_user_yaml() if callable(load_user_yaml) else {}
+    dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg, dict) and isinstance(cfg.get("dashboard_ui"), dict) else {}
+    settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+    notifications_overlay = (
+        settings_overlay.get("notifications")
+        if isinstance(settings_overlay.get("notifications"), dict)
+        else {}
+    )
+    notifications_cfg = cfg.get("notifications") if isinstance(cfg, dict) and isinstance(cfg.get("notifications"), dict) else {}
+    desktop_notifications = bool(
+        notifications_overlay.get(
+            "desktop_notifications",
+            notifications_cfg.get("desktop_notifications", True),
+        )
+    )
+    if not desktop_notifications:
+        args.append("--no-desktop-notify")
 
     return start_repo_script_background(
         "scripts/run_paper_strategy_evidence_collector.py",
@@ -163,6 +195,30 @@ def start_paper_strategy_evidence_collection(
 def stop_paper_strategy_evidence_collection(*, current_role: str = "VIEWER") -> tuple[int, str]:
     require_role(current_role, "OPERATOR")
     return run_repo_script("scripts/run_paper_strategy_evidence_collector.py", args=["--stop"], current_role=current_role)
+
+
+def register_paper_sim_watch(*, name: str, trigger: str, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
+    try:
+        from services.analytics.paper_sim_monitor import register_watch
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_monitor_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(register_watch(name=str(name or ""), trigger=str(trigger or "")) or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_watch_register_failed:{type(exc).__name__}:{exc}"}
+
+
+def delete_paper_sim_watch(*, name: str, current_role: str = "VIEWER") -> dict[str, object]:
+    require_role(current_role, "OPERATOR")
+    try:
+        from services.analytics.paper_sim_monitor import delete_watch
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_monitor_import_failed:{type(exc).__name__}:{exc}"}
+    try:
+        return dict(delete_watch(name=str(name or "")) or {})
+    except Exception as exc:
+        return {"ok": False, "reason": f"paper_sim_watch_delete_failed:{type(exc).__name__}:{exc}"}
 
 
 def run_full_system_diagnostics(*, export_bundle: bool = False, current_role: str = "VIEWER") -> dict[str, object]:

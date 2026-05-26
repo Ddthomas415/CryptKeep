@@ -10,10 +10,10 @@ __pycache__/
 
 # --- Crypto Bot Pro repo hygiene ---
 # Local state
-.cbp_state/
-data/
-runtime/
-logs/
+/.cbp_state/
+/data/
+/runtime/
+/logs/
 *.sqlite
 *.db
 *.log

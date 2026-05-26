@@ -42,6 +42,8 @@ def test_desired_state_paper_disables_reconcile():
 
 def test_command_map_uses_live_reconciler_for_canonical_reconciler_service():
     cmds = rbr.command_map()
+    assert cmds["pipeline"] == [rbr.sys.executable, "scripts/compat/run_pipeline_loop.py"]
+    assert cmds["executor"] == [rbr.sys.executable, "scripts/run_intent_executor_safe.py"]
     assert cmds["intent_consumer"] == [rbr.sys.executable, "scripts/run_intent_consumer_safe.py", "run"]
     assert cmds["reconciler"] == [rbr.sys.executable, "scripts/run_live_reconciler_safe.py", "run"]
 

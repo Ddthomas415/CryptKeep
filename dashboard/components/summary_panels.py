@@ -287,6 +287,7 @@ def render_home_digest_summary(
         attention_now = dict(item.get("attention_now") or {})
         leaderboard_summary = dict(item.get("leaderboard_summary") or {})
         next_best_action = dict(item.get("next_best_action") or {})
+        paper_sim_monitor = dict(item.get("paper_sim_monitor") or {})
         claim_boundaries = list(item.get("claim_boundaries") or [])
 
         st.caption(
@@ -401,6 +402,30 @@ def render_home_digest_summary(
                 if caveat:
                     st.caption(caveat)
         with bottom_right:
+            with st.container(border=True):
+                st.markdown("### Paper Sim Monitor")
+                if not paper_sim_monitor:
+                    st.caption("Paper sim monitor unavailable.")
+                else:
+                    status = str(paper_sim_monitor.get("status") or "unknown").strip() or "unknown"
+                    alerts = str(paper_sim_monitor.get("notification_status") or "unknown").strip() or "unknown"
+                    strategy = str(paper_sim_monitor.get("strategy_label") or "Unknown Strategy").strip() or "Unknown Strategy"
+                    symbol = str(paper_sim_monitor.get("symbol") or "Unknown Symbol").strip() or "Unknown Symbol"
+                    recommendation = (
+                        str(paper_sim_monitor.get("recommendation") or "unknown").strip() or "unknown"
+                    )
+                    st.caption(
+                        f"Status {status} · Alerts {alerts}"
+                    )
+                    st.markdown(f"**{strategy} · {symbol}**")
+                    st.caption(
+                        f"Recommendation {recommendation} · "
+                        f"Fills {int(paper_sim_monitor.get('fills_observed') or 0)} · "
+                        f"Round trips {int(paper_sim_monitor.get('round_trips_observed') or 0)}"
+                    )
+                    summary = str(paper_sim_monitor.get("summary_text") or "").strip()
+                    if summary:
+                        st.caption(summary)
             with st.container(border=True):
                 st.markdown("### Claim Boundaries")
                 st.caption("As of digest build time")

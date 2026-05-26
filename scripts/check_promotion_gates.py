@@ -185,6 +185,53 @@ def _run_schema_validation(ev_dir: Path, cfg: dict) -> dict[str, dict]:
 
 
 # ---------------------------------------------------------------------------
+# Provenance validation
+# ---------------------------------------------------------------------------
+
+def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
+    """Summarize whether promotion evidence is attributable to public market data."""
+    by_type: dict[str, dict] = {}
+    totals = {"total": 0, "public": 0, "sample": 0, "missing": 0, "unknown": 0}
+    for record_type in ("signal", "order", "fill", "session"):
+        rows = evidence.get(record_type, []) or []
+        counts = {"total": len(rows), "public": 0, "sample": 0, "missing": 0, "unknown": 0}
+        for row in rows:
+            source = str(row.get("market_data_source") or "").strip().lower()
+            raw_sample_mode = row.get("ohlcv_sample_mode")
+            sample_mode = (
+                raw_sample_mode is True
+                or str(raw_sample_mode).strip().lower() in {"1", "true", "yes", "on"}
+            )
+            if not source:
+                counts["missing"] += 1
+            elif source == "sample_ohlcv" or sample_mode:
+                counts["sample"] += 1
+            elif source in {"public_ohlcv", "live_market", "exchange", "local_snapshot"}:
+                counts["public"] += 1
+            else:
+                counts["unknown"] += 1
+        by_type[record_type] = counts
+        for key in totals:
+            totals[key] += counts[key]
+
+    ok = (
+        True
+        if totals["total"] > 0
+        and totals["missing"] == 0
+        and totals["sample"] == 0
+        and totals["unknown"] == 0
+        else False
+    )
+    if totals["total"] == 0:
+        ok = None
+    return {
+        "ok": ok,
+        **totals,
+        "by_type": by_type,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Gate evaluation
 # ---------------------------------------------------------------------------
 
@@ -202,6 +249,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
     days  = _days_of_operation(sessions)
     trips = _count_round_trips(fills)
     exp_ok, exp_val = _check_expectancy(fills)
+    provenance = _evidence_provenance_summary(evidence)
 
     gates = [
         _gate("30 calendar days of operation",
@@ -228,6 +276,10 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               all(len(evidence[k]) > 0 for k in ("signal", "order", "fill", "session")),
               f"signal:{len(evidence['signal'])} order:{len(evidence['order'])} fill:{len(evidence['fill'])} session:{len(sessions)}",
               "start running to generate evidence"),
+        _gate("Promotion evidence has non-sample provenance",
+              provenance["ok"],
+              f"public:{provenance['public']} missing:{provenance['missing']} sample:{provenance['sample']} unknown:{provenance['unknown']}",
+              "collect fresh public-market evidence with provenance before promotion"),
         _gate("Daily loss halt tested in simulation",
               _halt_tested(sessions) if sessions else None,
               "halt test found" if _halt_tested(sessions) else "not found in session logs",
@@ -378,6 +430,7 @@ def run_check(stage_override: str | None = None) -> dict:
     unknown = [g for g in gates if g["passed"] is None]
 
     schema_ok = all(v.get("ok") is not False for v in schema.values())
+    provenance = _evidence_provenance_summary(evidence)
 
     slippage_check = _slippage_within_baseline(fills)
     retirement = _check_retirement_triggers(fills, sessions)
@@ -397,6 +450,7 @@ def run_check(stage_override: str | None = None) -> dict:
         },
         "gates":        gates,
         "schema":       schema,
+        "provenance":   provenance,
         "slippage":     slippage_check,
         "retirement":   retirement,
         "cognitive_budget": budget_summary(STRATEGY_ID),

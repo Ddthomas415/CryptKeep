@@ -34,6 +34,16 @@ def _trace_enabled() -> bool:
     return raw in {"1", "true", "yes", "on"}
 
 
+def _sample_provenance_stamp() -> dict[str, Any]:
+    raw = str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower()
+    if raw not in {"1", "true", "yes", "on"}:
+        return {}
+    return {
+        "market_data_source": "sample_ohlcv",
+        "ohlcv_sample_mode": True,
+    }
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -78,6 +88,8 @@ class EvidenceLogger:
         path = self.log_dir / f"{record_type}_{date}.jsonl"
         record.setdefault("_logged_at", _now_iso())
         record.setdefault("strategy_id", self.strategy_id)
+        for k, v in _sample_provenance_stamp().items():
+            record.setdefault(k, v)
         # Stamp with version identity so every record is attributable
         stamp = _version_stamp(self.strategy_id)
         for k, v in stamp.items():

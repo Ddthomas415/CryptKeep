@@ -13,6 +13,7 @@ from services.analytics.strategy_feedback import (
     build_strategy_feedback_weighting,
     load_strategy_feedback_ledger,
 )
+from services.analytics.paper_evidence_artifacts import decision_record_dir
 from services.backtest.leaderboard import rank_strategy_rows, run_strategy_leaderboard
 from services.backtest.walk_forward import run_anchored_walk_forward
 from services.os.app_paths import code_root, data_dir, ensure_dirs
@@ -111,14 +112,18 @@ def _normalize_strategy_name(value: Any) -> str | None:
     text = str(value or "").strip().lower()
     if not text:
         return None
-    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum"}:
+    if text in {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "sma_200_trend"}:
         return text
+    if text.startswith("es_daily_trend"):
+        return "sma_200_trend"
     if "ema" in text and ("cross" in text or "xover" in text or "crossover" in text):
         return "ema_cross"
     if "mean_reversion" in text or "mean-reversion" in text or "reversion" in text:
         return "mean_reversion_rsi"
     if "breakout" in text or "donchian" in text:
         return "breakout_donchian"
+    if "sma_200" in text and "trend" in text:
+        return "sma_200_trend"
     return None
 
 
@@ -1205,7 +1210,7 @@ def default_decision_record_path(*, report: dict[str, Any] | None = None) -> Pat
     payload = dict(report or {})
     as_of = str(payload.get("as_of") or _now_iso())
     date_token = as_of.split("T", 1)[0]
-    return (code_root() / "docs" / "strategies" / f"decision_record_{date_token}.md").resolve()
+    return (decision_record_dir() / f"decision_record_{date_token}.md").resolve()
 
 
 def render_decision_record(report: dict[str, Any], *, artifact_path: str = "") -> str:

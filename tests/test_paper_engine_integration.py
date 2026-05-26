@@ -178,6 +178,57 @@ def test_paper_engine_submit_blocks_when_position_is_insufficient(monkeypatch, t
     assert eng.db.list_fills(limit=10) == []
 
 
+def test_paper_order_insert_ignores_duplicate_client_order_id(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    paper_store, _paper_engine = _reload_paper_modules()
+    db = paper_store.PaperTradingSQLite()
+
+    db.insert_order(
+        {
+            "order_id": "paper-order-1",
+            "client_order_id": "dup-client-id",
+            "ts": "2026-04-02T12:00:00Z",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "limit",
+            "qty": 1.0,
+            "limit_price": 100.0,
+            "status": "new",
+            "reject_reason": None,
+            "strategy_id": "ema_cross",
+            "meta": {"source": "first"},
+        }
+    )
+
+    db.insert_order(
+        {
+            "order_id": "paper-order-2",
+            "client_order_id": "dup-client-id",
+            "ts": "2026-04-02T12:05:00Z",
+            "venue": "coinbase",
+            "symbol": "ETH/USD",
+            "side": "sell",
+            "order_type": "market",
+            "qty": 2.0,
+            "limit_price": 101.5,
+            "status": "filled",
+            "reject_reason": "should_not_replace",
+            "strategy_id": "momentum",
+            "meta": {"source": "second"},
+        }
+    )
+
+    order = db.get_order_by_client_id("dup-client-id")
+    assert order is not None
+    assert order["order_id"] == "paper-order-1"
+    assert order["symbol"] == "BTC/USD"
+    assert order["side"] == "buy"
+    assert order["status"] == "new"
+    assert order["strategy_id"] == "ema_cross"
+    assert order["meta"] == {"source": "first"}
+
+
 def test_paper_engine_fill_is_idempotent_for_stale_order_snapshot(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     _, paper_engine = _reload_paper_modules()
@@ -503,3 +554,74 @@ def test_paper_engine_submit_blocks_on_deterministic_safety_gate(monkeypatch, tm
 
     assert out == {"ok": False, "reason": "safety:min_order_notional"}
     assert eng.db.get_order_by_client_id("paper-gate-safety") is None
+
+
+def test_paper_engine_evidence_logging_prefers_strategy_preset(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    _, paper_engine = _reload_paper_modules()
+
+    monkeypatch.setattr(
+        paper_engine,
+        "load_user_yaml",
+        lambda: {
+            "paper_trading": {
+                "starting_cash_quote": 1000.0,
+                "fee_bps": 0.0,
+                "slippage_bps": 0.0,
+                "use_ccxt_fallback": False,
+            }
+        },
+    )
+    monkeypatch.setattr(
+        paper_engine.PaperEngine,
+        "_price",
+        lambda self, venue, symbol: {"ts_ms": 1, "bid": 100.0, "ask": 100.0, "last": 100.0},
+    )
+    _allow_submit_gates(monkeypatch, paper_engine)
+
+    import services.strategies.evidence_logger as evidence_logger
+
+    calls: list[tuple[str, str, dict]] = []
+
+    class FakeLogger:
+        def __init__(self, strategy_id: str, log_dir: Path | None = None) -> None:
+            self.strategy_id = strategy_id
+
+        def log_order(self, **kwargs) -> None:
+            calls.append(("order", self.strategy_id, dict(kwargs)))
+
+        def log_fill(self, **kwargs) -> None:
+            calls.append(("fill", self.strategy_id, dict(kwargs)))
+
+    monkeypatch.setattr(evidence_logger, "EvidenceLogger", FakeLogger)
+
+    eng = paper_engine.PaperEngine()
+    out = eng.submit_order(
+        client_order_id="paper-buy-preset-1",
+        venue="coinbase",
+        symbol="BTC/USD",
+        side="buy",
+        order_type="market",
+        qty=1.0,
+        strategy_id="sma_200_trend",
+        meta={
+            "strategy_preset": "es_daily_trend_v1",
+            "selected_strategy": "sma_200_trend",
+            "market_data_source": "public_ohlcv",
+            "ohlcv_sample_mode": False,
+            "ohlcv_timeframe": "1d",
+            "ohlcv_venue": "coinbase",
+            "ohlcv_symbol": "BTC/USD",
+        },
+    )
+
+    assert out["ok"] is True
+    assert eng.evaluate_open_orders()["filled"] == 1
+    assert [(kind, strategy_id) for kind, strategy_id, _ in calls] == [
+        ("order", "es_daily_trend_v1"),
+        ("fill", "es_daily_trend_v1"),
+    ]
+    for _, _, kwargs in calls:
+        assert kwargs["extra"]["market_data_source"] == "public_ohlcv"
+        assert kwargs["extra"]["ohlcv_sample_mode"] is False
+        assert kwargs["extra"]["ohlcv_timeframe"] == "1d"

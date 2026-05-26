@@ -190,6 +190,18 @@ def test_run_parity_backtest_skips_malformed_rows_and_stays_deterministic():
     assert len(out["equity"]) == 2
 
 
+def test_run_parity_backtest_treats_none_strategy_cfg_as_default():
+    out = run_parity_backtest(
+        cfg={"strategy": None},
+        symbol="BTC/USD",
+        candles=_candles([100, 101, 102, 103]),
+        warmup_bars=1,
+    )
+    assert out["ok"] is True
+    assert out["strategy"] == "ema_cross"
+    assert out["bars"] == 4
+
+
 def test_legacy_run_backtest_wrapper_still_returns_truthy_signals():
     values = [1, 2, 3, 4, 5]
 

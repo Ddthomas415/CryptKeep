@@ -16,7 +16,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+from services.os.file_utils import atomic_write
 from services.os.app_paths import data_dir
+
+
+def _ohlcv_snapshot_path(venue: str, symbol: str, timeframe: str) -> Path:
+    safe_sym = symbol.replace("/", "_").replace(":", "_")
+    return data_dir() / "snapshots" / f"ohlcv_{venue}_{safe_sym}_{timeframe}.json"
 
 
 def _load_local_ohlcv(
@@ -27,8 +33,7 @@ def _load_local_ohlcv(
     Returns list of [ts_ms, open, high, low, close, volume] rows,
     newest-first up to `limit` rows.  Returns [] if file absent.
     """
-    safe_sym = symbol.replace("/", "_").replace(":", "_")
-    path = data_dir() / "snapshots" / f"ohlcv_{venue}_{safe_sym}_{timeframe}.json"
+    path = _ohlcv_snapshot_path(venue, symbol, timeframe)
     if not path.exists():
         return []
     try:
@@ -37,6 +42,31 @@ def _load_local_ohlcv(
         return rows[-limit:] if rows else []
     except Exception:
         return []
+
+
+def write_local_ohlcv_snapshot(
+    venue: str,
+    symbol: str,
+    rows: list[list],
+    *,
+    timeframe: str = "1h",
+) -> Path | None:
+    """Persist OHLCV rows to the canonical local snapshot path.
+
+    Returns the written path, or ``None`` when rows are empty or invalid.
+    """
+    clean_rows = [list(row) for row in rows if isinstance(row, (list, tuple)) and len(row) >= 6]
+    if not clean_rows:
+        return None
+    path = _ohlcv_snapshot_path(venue, symbol, timeframe)
+    payload = json.dumps(clean_rows, indent=2)
+    try:
+        if path.exists() and path.read_text(encoding="utf-8") == payload:
+            return path
+    except Exception:
+        pass
+    atomic_write(path, payload, encoding="utf-8")
+    return path
 
 
 def _get_market_snapshot(

@@ -20,8 +20,8 @@ import argparse
 import json
 import os
 
-from services.strategy_runner.ema_crossover_runner import run_forever, request_stop
 from services.logging.app_logger import get_logger
+from services.strategy_runner.ema_crossover_runner import request_stop, run_forever
 
 _LOG = get_logger("run_strategy_runner")
 
@@ -29,33 +29,37 @@ _LOG = get_logger("run_strategy_runner")
 def _kernel_pre_check(strategy_id: str) -> tuple[bool, str]:
     """Return (allowed, reason) based on deployment stage."""
     try:
-        from services.control.deployment_stage import get_current_stage, Stage
+        from services.control.deployment_stage import Stage, get_current_stage
+
         stage = get_current_stage(strategy_id)
         if stage == Stage.SAFE_DEGRADED:
             return False, f"stage:safe_degraded — strategy {strategy_id} is in safe_degraded mode; promote before running"
         return True, f"stage:{stage.value}"
-    except Exception as e:
-        # If control kernel is unavailable, allow (fail-open for runner start;
-        # execution safety is enforced by place_order, not here).
-        _LOG.warning("kernel pre-check unavailable: %s — allowing runner start", e)
+    except Exception as exc:
+        _LOG.warning("kernel pre-check unavailable: %s — allowing runner start", exc)
         return True, "kernel_unavailable:fail_open"
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Strategy runner with kernel pre-check")
     ap.add_argument("cmd", choices=["run", "stop"], nargs="?", default="run")
-    ap.add_argument("--strategy-id", type=str,
-                    default=os.environ.get("CBP_STRATEGY_ID", ""),
-                    help="Strategy ID for deployment stage check")
-    ap.add_argument("--skip-kernel-check", action="store_true",
-                    help="Bypass deployment stage gate (for paper/testing only)")
+    ap.add_argument(
+        "--strategy-id",
+        type=str,
+        default=os.environ.get("CBP_STRATEGY_ID", ""),
+        help="Strategy ID for deployment stage check",
+    )
+    ap.add_argument(
+        "--skip-kernel-check",
+        action="store_true",
+        help="Bypass deployment stage gate (for paper/testing only)",
+    )
     args = ap.parse_args()
 
     if args.cmd == "stop":
         print(json.dumps(request_stop()))
         return 0
 
-    # Kernel pre-check before starting the loop
     if not args.skip_kernel_check and args.strategy_id:
         allowed, reason = _kernel_pre_check(args.strategy_id)
         if not allowed:

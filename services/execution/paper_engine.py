@@ -20,6 +20,37 @@ from storage.paper_trading_sqlite import PaperTradingSQLite
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
+def _evidence_strategy_id(*, cfg: dict, strategy_id: str | None = None, meta: dict | None = None) -> str:
+    payload = dict(meta or {}) if isinstance(meta, dict) else {}
+    for candidate in (
+        payload.get("strategy_preset"),
+        cfg.get("strategy_preset"),
+        strategy_id,
+        payload.get("selected_strategy"),
+        payload.get("strategy_id"),
+        cfg.get("strategy_id"),
+    ):
+        value = str(candidate or "").strip()
+        if value:
+            return value
+    return ""
+
+
+_EVIDENCE_PROVENANCE_KEYS = (
+    "market_data_source",
+    "ohlcv_sample_mode",
+    "ohlcv_timeframe",
+    "ohlcv_venue",
+    "ohlcv_symbol",
+)
+
+
+def _evidence_provenance_extra(meta: dict | None = None) -> dict:
+    payload = dict(meta or {}) if isinstance(meta, dict) else {}
+    return {key: payload[key] for key in _EVIDENCE_PROVENANCE_KEYS if key in payload}
+
+
 def _cfg() -> dict:
     cfg = load_user_yaml()
     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
@@ -224,10 +255,14 @@ class PaperEngine:
 
         # Evidence logging — best-effort, never blocks execution
         try:
-            strategy_id = str(self.cfg.get("strategy_id") or "")
-            if strategy_id:
+            evidence_strategy_id = _evidence_strategy_id(
+                cfg=self.cfg,
+                strategy_id=str(strategy_id or self.cfg.get("strategy_id") or ""),
+                meta=meta,
+            )
+            if evidence_strategy_id:
                 from services.strategies.evidence_logger import EvidenceLogger
-                EvidenceLogger(strategy_id).log_order(
+                EvidenceLogger(evidence_strategy_id).log_order(
                     timestamp=str(ts or _now()),
                     order_type=order_type,
                     side=side,
@@ -236,6 +271,7 @@ class PaperEngine:
                     stop_level=0.0,
                     capital_at_risk_usd=0.0,
                     order_id=oid,
+                    extra=_evidence_provenance_extra(meta),
                 )
         except Exception as _silent_err:
             _LOG.warning("order evidence logging failed strategy_id=%s: %s", self.cfg.get("strategy_id",""), _silent_err)
@@ -271,8 +307,13 @@ class PaperEngine:
 
         # Evidence logging — strategy-specific, best-effort
         try:
-            strategy_id = str(self.cfg.get("strategy_id") or (order.get("meta") or {}).get("selected_strategy") or order.get("strategy_id") or "")
-            if strategy_id:
+            meta = order.get("meta") if isinstance(order.get("meta"), dict) else None
+            evidence_strategy_id = _evidence_strategy_id(
+                cfg=self.cfg,
+                strategy_id=str(order.get("strategy_id") or self.cfg.get("strategy_id") or ""),
+                meta=meta,
+            )
+            if evidence_strategy_id:
                 from services.strategies.evidence_logger import EvidenceLogger
                 intended = float(order.get("price") or price)
                 slip_pts = abs(float(price) - intended)
@@ -280,7 +321,7 @@ class PaperEngine:
                 pnl = None
                 if order.get("side") == "sell":
                     pnl = round(float(result.get("realized_pnl_usd") or 0.0), 4)
-                EvidenceLogger(strategy_id).log_fill(
+                EvidenceLogger(evidence_strategy_id).log_fill(
                     timestamp=_now(),
                     fill_price=float(price),
                     slippage_points=round(slip_pts, 4),
@@ -290,6 +331,7 @@ class PaperEngine:
                     size=float(qty),
                     pnl_usd=pnl,
                     order_id=str(order.get("order_id", "")),
+                    extra=_evidence_provenance_extra(meta),
                 )
         except Exception as _silent_err:
             _LOG.warning("fill evidence logging failed strategy_id=%s order_id=%s: %s", self.cfg.get("strategy_id",""), order.get("order_id",""), _silent_err)

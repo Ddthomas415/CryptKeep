@@ -31,6 +31,15 @@ def _trace_enabled() -> bool:
     return raw in {"1", "true", "yes", "on"}
 
 
+def _default_evidence_extra(extra: dict[str, Any] | None = None) -> dict[str, Any]:
+    out = dict(extra) if isinstance(extra, dict) else {}
+    if "market_data_source" not in out:
+        sample_mode = str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
+        out["market_data_source"] = "sample_ohlcv" if sample_mode else "unknown_ohlcv"
+        out["ohlcv_sample_mode"] = sample_mode
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Signal
 # ---------------------------------------------------------------------------
@@ -339,6 +348,7 @@ def signal_from_ohlcv(
     *,
     sma_period: int = SMA_PERIOD_DEFAULT,
     atr_period: int = ATR_PERIOD_DEFAULT,
+    evidence_extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Adapter for strategy_registry. Accepts ohlcv rows [ts,o,h,l,c,vol].
 
@@ -364,7 +374,11 @@ def signal_from_ohlcv(
                 signal_direction="flat",
                 regime_flag="insufficient_data",
                 entry_allowed=False,
-                extra={"reason": "insufficient_history", "bars_received": len(ohlcv)},
+                extra={
+                    "reason": "insufficient_history",
+                    "bars_received": len(ohlcv),
+                    **_default_evidence_extra(evidence_extra),
+                },
             )
         except Exception as _ev_err:
             _LOG.warning("signal evidence logging failed: %s", _ev_err)
@@ -394,6 +408,7 @@ def signal_from_ohlcv(
             signal_direction=signal,
             regime_flag=reg.get("regime", "unknown"),
             entry_allowed=reg["entry_allowed"],
+            extra=_default_evidence_extra(evidence_extra),
         )
     except Exception as _ev_err:
         _LOG.warning("signal evidence logging failed (non-blocking): %s", _ev_err)

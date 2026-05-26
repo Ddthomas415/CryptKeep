@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import Any
+
+from dashboard.role_guard import require_role
 from services.setup.config_manager import DEFAULT_CFG, deep_merge
 from services.admin.config_editor import CONFIG_PATH, load_user_yaml, save_user_yaml
 
@@ -32,7 +34,8 @@ def get_settings_view() -> dict[str, Any]:
 
 
 
-def update_settings_view(payload: dict[str, Any]) -> dict[str, Any]:
+def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER") -> dict[str, Any]:
+    require_role(current_role, "OPERATOR")
     vd = _view_data()
     cfg = deep_merge(DEFAULT_CFG, vd.load_user_yaml() or {})
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
@@ -153,7 +156,8 @@ def get_automation_view() -> dict[str, Any]:
 
 
 
-def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
+def update_automation_view(payload: dict[str, Any], *, current_role: str = "VIEWER") -> dict[str, Any]:
+    require_role(current_role, "OPERATOR")
     vd = _view_data()
     enable_automation = bool(payload.get("execution_enabled", False))
     dry_run_mode = bool(payload.get("dry_run_mode", True))
@@ -217,7 +221,7 @@ def update_automation_view(payload: dict[str, Any]) -> dict[str, Any]:
     cfg["dashboard_ui"] = dashboard_ui
 
     saved, message = vd.save_user_yaml(cfg, dry_run=False)
-    settings_result = vd.update_settings_view({"general": {"default_mode": default_mode}})
+    settings_result = vd.update_settings_view({"general": {"default_mode": default_mode}}, current_role=current_role)
 
     if saved and bool(settings_result.get("ok")):
         return {
