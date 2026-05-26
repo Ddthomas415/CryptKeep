@@ -27,6 +27,16 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _public_evidence_extra() -> dict[str, object]:
+    return {
+        "market_data_source": "public_ohlcv",
+        "ohlcv_sample_mode": False,
+        "ohlcv_timeframe": "1d",
+        "ohlcv_venue": "coinbase",
+        "ohlcv_symbol": "BTC/USDT",
+    }
+
+
 class TestEvidenceSummary:
     def test_no_evidence_dir_returns_not_exists(self, tmp_path):
         from services.strategies.campaign_summary import evidence_summary
@@ -68,13 +78,13 @@ class TestEvidenceSummary:
 
 class TestSignalFromOhlcvLogging:
     def test_signal_from_ohlcv_writes_signal_jsonl(self, tmp_path):
-        """signal_from_ohlcv() must write a signal evidence record on each call."""
+        """Attributed signal_from_ohlcv() calls write promotion evidence."""
         from services.strategies.es_daily_trend import signal_from_ohlcv
         from services.strategies.campaign_summary import evidence_summary
 
         n = 210
         ohlcv = [[i, 100.0, 101.0, 99.0, 100.0 + i * 0.1, 1000.0] for i in range(n)]
-        result = signal_from_ohlcv(ohlcv)
+        result = signal_from_ohlcv(ohlcv, evidence_extra=_public_evidence_extra())
         assert "action" in result
 
         ev = evidence_summary("es_daily_trend_v1")
@@ -89,7 +99,7 @@ class TestSignalFromOhlcvLogging:
 
         n = 210
         ohlcv = [[i, 100.0, 101.0, 99.0, 100.0 + i * 0.1, 1000.0] for i in range(n)]
-        signal_from_ohlcv(ohlcv)
+        signal_from_ohlcv(ohlcv, evidence_extra=_public_evidence_extra())
 
         ev_dir = data_dir() / "evidence" / "es_daily_trend_v1"
         files = list(ev_dir.glob("signal_*.jsonl"))
@@ -202,13 +212,13 @@ class TestRequiredHistory:
         assert _required_history(block) == 5
 
     def test_signal_insufficient_history_still_logs(self, tmp_path):
-        """signal_from_ohlcv logs even when bar count is too low."""
+        """Attributed signal_from_ohlcv logs even when bar count is too low."""
         from services.strategies.es_daily_trend import signal_from_ohlcv
         from services.strategies.campaign_summary import evidence_summary
 
         # Only 5 bars — way below 200
         ohlcv = [[i, 100.0, 101.0, 99.0, 100.0, 1000.0] for i in range(5)]
-        result = signal_from_ohlcv(ohlcv)
+        result = signal_from_ohlcv(ohlcv, evidence_extra=_public_evidence_extra())
 
         assert result["reason"] == "insufficient_history"
 
@@ -224,7 +234,7 @@ class TestRequiredHistory:
 
         n = 210
         ohlcv = [[i, 100.0, 101.0, 99.0, 100.0 + i * 0.1, 1000.0] for i in range(n)]
-        signal_from_ohlcv(ohlcv)
+        signal_from_ohlcv(ohlcv, evidence_extra=_public_evidence_extra())
 
         ev_dir = data_dir() / "evidence" / "es_daily_trend_v1"
         files = list(ev_dir.glob("signal_*.jsonl"))
