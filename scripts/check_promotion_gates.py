@@ -125,6 +125,114 @@ def _check_expectancy(fills: list[dict]) -> tuple[bool | None, float | None]:
     return avg > 0, avg
 
 
+def _target_feedback_strategy(cfg: dict) -> str:
+    strategy = cfg.get("strategy") or {}
+    strategy_id = str(strategy.get("id") or STRATEGY_ID).strip().lower()
+    signal_type = str((strategy.get("signal") or {}).get("type") or "").strip().lower()
+    if strategy_id.startswith("es_daily_trend") or signal_type == "sma_crossover":
+        return "sma_200_trend"
+    return strategy_id or STRATEGY_ID
+
+
+def _paper_history_gate_summary(cfg: dict) -> dict:
+    """Load authoritative persisted paper fill summary for this target strategy."""
+    from services.analytics.strategy_feedback import load_strategy_feedback_ledger
+
+    strategy = cfg.get("strategy") or {}
+    target_strategy = _target_feedback_strategy(cfg)
+    symbol = str(strategy.get("symbol") or "").strip()
+    try:
+        ledger = load_strategy_feedback_ledger(symbol=symbol)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "status": "error",
+            "source": "trade_journal_sqlite",
+            "target_strategy": target_strategy,
+            "symbol_filter": symbol or None,
+            "fills": 0,
+            "closed_trades": 0,
+            "expectancy_per_closed_trade": None,
+            "net_realized_pnl": None,
+            "caveat": f"paper-history could not be read ({type(exc).__name__})",
+        }
+
+    rows = [dict(row) for row in list(ledger.get("rows") or []) if isinstance(row, dict)]
+    row = next((item for item in rows if str(item.get("strategy") or "") == target_strategy), None)
+    if not row:
+        return {
+            "ok": False,
+            "status": str(ledger.get("status") or "missing"),
+            "source": str(ledger.get("source") or "trade_journal_sqlite"),
+            "journal_path": str(ledger.get("journal_path") or ""),
+            "target_strategy": target_strategy,
+            "symbol_filter": ledger.get("symbol_filter") or symbol or None,
+            "fills": 0,
+            "closed_trades": 0,
+            "expectancy_per_closed_trade": None,
+            "net_realized_pnl": None,
+            "caveat": "No target-strategy paper-history row is available yet.",
+        }
+
+    return {
+        "ok": True,
+        "status": "available",
+        "source": str(ledger.get("source") or "trade_journal_sqlite"),
+        "journal_path": str(ledger.get("journal_path") or ""),
+        "target_strategy": target_strategy,
+        "symbol_filter": ledger.get("symbol_filter") or symbol or None,
+        "fills": int(row.get("fills") or 0),
+        "closed_trades": int(row.get("closed_trades") or 0),
+        "expectancy_per_closed_trade": float(row.get("expectancy_per_closed_trade") or 0.0),
+        "net_realized_pnl": float(row.get("net_realized_pnl") or 0.0),
+        "win_rate": float(row.get("win_rate") or 0.0),
+        "latest_fill_ts": row.get("latest_fill_ts"),
+    }
+
+
+def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = None) -> dict:
+    history = dict(paper_history or {})
+    jsonl_trips = _count_round_trips(fills)
+    if history.get("ok") is True and int(history.get("fills") or 0) > 0:
+        trips = int(history.get("closed_trades") or 0)
+        fill_count = int(history.get("fills") or 0)
+        exp_val = (
+            float(history.get("expectancy_per_closed_trade") or 0.0)
+            if fill_count >= 10
+            else None
+        )
+        source = str(history.get("source") or "paper_history")
+        mismatch = f" (jsonl:{jsonl_trips})" if jsonl_trips != trips else ""
+        return {
+            "source": source,
+            "round_trips": trips,
+            "round_trip_detail": f"{trips} round trips recorded from {source}{mismatch}",
+            "expectancy_ok": (exp_val > 0.0) if exp_val is not None else None,
+            "expectancy_value": exp_val,
+            "expectancy_detail": (
+                f"avg pnl/round trip = ${exp_val:.2f} from {source}"
+                if exp_val is not None
+                else "insufficient paper-history fills for calculation"
+            ),
+            "expectancy_hint": "need 10+ paper-history fills" if exp_val is None else "",
+        }
+
+    exp_ok, exp_val = _check_expectancy(fills)
+    return {
+        "source": "jsonl_evidence",
+        "round_trips": jsonl_trips,
+        "round_trip_detail": f"{jsonl_trips} round trips recorded",
+        "expectancy_ok": exp_ok,
+        "expectancy_value": exp_val,
+        "expectancy_detail": (
+            f"avg pnl/trade = ${exp_val:.2f}"
+            if exp_val is not None
+            else "insufficient fills for calculation"
+        ),
+        "expectancy_hint": "need 10+ fills with pnl_usd field" if exp_ok is None else "",
+    }
+
+
 def _weeks_at_stage(stage: Stage) -> float | None:
     """Estimate weeks the strategy has been at the current stage."""
     summary = stage_summary(STRATEGY_ID)
@@ -245,10 +353,10 @@ def _gate(label: str, passed: bool | None, detail: str = "", hint: str = "") -> 
 
 
 def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
-                         fills: list) -> list[dict]:
+                         fills: list, paper_history: dict | None = None) -> list[dict]:
     days  = _days_of_operation(sessions)
-    trips = _count_round_trips(fills)
-    exp_ok, exp_val = _check_expectancy(fills)
+    trade_metrics = _paper_gate_trade_metrics(fills, paper_history)
+    trips = int(trade_metrics["round_trips"])
     provenance = _evidence_provenance_summary(evidence)
 
     gates = [
@@ -258,12 +366,12 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               "run the paper runner daily" if days < 30 else ""),
         _gate("50+ completed round trips",
               trips >= 50 if trips > 0 else None,
-              f"{trips} round trips recorded",
+              str(trade_metrics["round_trip_detail"]),
               "continue running" if trips < 50 else ""),
         _gate("Expectancy within tolerable range of backtest",
-              exp_ok,
-              f"avg pnl/trade = ${exp_val:.2f}" if exp_val is not None else "insufficient fills for calculation",
-              "need 10+ fills with pnl_usd field" if exp_ok is None else ""),
+              trade_metrics["expectancy_ok"],
+              str(trade_metrics["expectancy_detail"]),
+              str(trade_metrics["expectancy_hint"])),
         _gate("No critical operational bugs",
               True if sessions and not any(s.get("critical_error") for s in sessions) else None,
               "no critical_error flag found in session logs",
@@ -386,16 +494,48 @@ def _slippage_within_baseline(fills: list[dict], multiplier: float = 1.5) -> dic
     }
 
 
-def _check_retirement_triggers(fills: list[dict], sessions: list[dict]) -> dict:
+def _check_retirement_triggers(
+    fills: list[dict],
+    sessions: list[dict],
+    paper_history: dict | None = None,
+) -> dict:
     """Check retirement conditions. Delegates to service layer."""
     from services.control.retirement_checker import check_retirement_triggers
     cfg = yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
     r = cfg.get("retirement", {})
-    return check_retirement_triggers(
+    max_drawdown_pct = float(r.get("max_drawdown_pct", 12.0))
+    rolling_window = int(r.get("rolling_expectancy_window_days", 60))
+    jsonl_result = check_retirement_triggers(
         fills, sessions,
-        max_drawdown_pct=float(r.get("max_drawdown_pct", 12.0)),
-        rolling_window=int(r.get("rolling_expectancy_window_days", 60)),
+        max_drawdown_pct=max_drawdown_pct,
+        rolling_window=rolling_window,
     )
+    history = dict(paper_history or {})
+    if history.get("ok") is not True or int(history.get("fills") or 0) <= 0:
+        jsonl_result["source"] = "jsonl_evidence"
+        return jsonl_result
+
+    triggers = []
+    fill_count = int(history.get("fills") or 0)
+    expectancy = float(history.get("expectancy_per_closed_trade") or 0.0)
+    if fill_count >= 10 and expectancy < 0:
+        triggers.append(f"rolling_expectancy_negative:avg={expectancy:.2f}")
+
+    actual_dd = max(
+        (float(s.get("drawdown_from_peak") or 0) for s in sessions),
+        default=0.0,
+    )
+    if actual_dd > max_drawdown_pct:
+        triggers.append(f"drawdown_exceeded:{actual_dd:.1f}%>{max_drawdown_pct:.1f}%")
+
+    return {
+        "triggers_fired": triggers,
+        "retirement_required": len(triggers) >= 2,
+        "single_trigger_review": len(triggers) == 1,
+        "note": f"{len(triggers)} retirement trigger(s) active",
+        "source": str(history.get("source") or "trade_journal_sqlite"),
+        "jsonl_comparison": jsonl_result,
+    }
 
 
 
@@ -410,13 +550,14 @@ def run_check(stage_override: str | None = None) -> dict:
     sessions = evidence["session"]
     signals  = evidence["signal"]
     fills    = evidence["fill"]
+    paper_history = _paper_history_gate_summary(cfg)
 
     # Schema validation
     schema = _run_schema_validation(ev_dir, cfg)
 
     # Gate evaluation for current stage
     if stage == Stage.PAPER:
-        gates = evaluate_paper_gates(evidence, sessions, signals, fills)
+        gates = evaluate_paper_gates(evidence, sessions, signals, fills, paper_history)
     elif stage == Stage.SHADOW:
         gates = evaluate_shadow_gates(evidence, sessions, signals, fills)
     elif stage == Stage.CAPPED_LIVE:
@@ -433,7 +574,7 @@ def run_check(stage_override: str | None = None) -> dict:
     provenance = _evidence_provenance_summary(evidence)
 
     slippage_check = _slippage_within_baseline(fills)
-    retirement = _check_retirement_triggers(fills, sessions)
+    retirement = _check_retirement_triggers(fills, sessions, paper_history)
 
     # Retirement check overrides "ready" regardless of gates
     retirement_block = retirement["retirement_required"]
@@ -450,6 +591,7 @@ def run_check(stage_override: str | None = None) -> dict:
         },
         "gates":        gates,
         "schema":       schema,
+        "paper_history": paper_history,
         "provenance":   provenance,
         "slippage":     slippage_check,
         "retirement":   retirement,

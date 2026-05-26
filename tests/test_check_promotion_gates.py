@@ -7,6 +7,7 @@ means either: gates pass when they shouldn't, or gates fail spuriously.
 """
 from __future__ import annotations
 import json
+import sqlite3
 import pytest
 from pathlib import Path
 from datetime import datetime, timezone
@@ -162,6 +163,79 @@ class TestGateLogic:
         evidence = _load_all_evidence(ev_dir)
         days = _days_of_operation(evidence["session"])
         assert days == 1
+
+    def test_paper_gate_uses_trade_journal_for_round_trips_and_expectancy(self, tmp_path):
+        from services.os.app_paths import data_dir
+        from scripts.check_promotion_gates import run_check
+
+        journal = data_dir() / "trade_journal.sqlite"
+        journal.parent.mkdir(parents=True, exist_ok=True)
+        con = sqlite3.connect(str(journal))
+        try:
+            con.execute(
+                """
+                CREATE TABLE journal_fills (
+                  fill_id TEXT PRIMARY KEY,
+                  journal_ts TEXT NOT NULL,
+                  strategy_id TEXT,
+                  fill_ts TEXT NOT NULL,
+                  venue TEXT NOT NULL,
+                  symbol TEXT NOT NULL,
+                  side TEXT NOT NULL,
+                  qty REAL NOT NULL,
+                  price REAL NOT NULL,
+                  fee REAL NOT NULL,
+                  fee_currency TEXT NOT NULL
+                )
+                """
+            )
+            rows = []
+            for idx in range(7):
+                rows.append((
+                    f"buy-{idx}",
+                    f"2026-05-{idx + 1:02d}T00:00:00+00:00",
+                    "sma_200_trend",
+                    f"2026-05-{idx + 1:02d}T00:00:00+00:00",
+                    "coinbase",
+                    "BTC/USDT",
+                    "buy",
+                    1.0,
+                    100.0,
+                    0.0,
+                    "USD",
+                ))
+                rows.append((
+                    f"sell-{idx}",
+                    f"2026-05-{idx + 1:02d}T01:00:00+00:00",
+                    "sma_200_trend",
+                    f"2026-05-{idx + 1:02d}T01:00:00+00:00",
+                    "coinbase",
+                    "BTC/USDT",
+                    "sell",
+                    1.0,
+                    110.0,
+                    0.0,
+                    "USD",
+                ))
+            con.executemany(
+                "INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                rows,
+            )
+            con.commit()
+        finally:
+            con.close()
+
+        result = run_check(stage_override="paper")
+        round_trip_gate = next(g for g in result["gates"] if "round trips" in g["label"])
+        expectancy_gate = next(g for g in result["gates"] if "Expectancy" in g["label"])
+
+        assert result["paper_history"]["fills"] == 14
+        assert result["paper_history"]["closed_trades"] == 7
+        assert "7 round trips recorded from trade_journal_sqlite" in round_trip_gate["detail"]
+        assert expectancy_gate["passed"] is True
+        assert expectancy_gate["detail"] == "avg pnl/round trip = $10.00 from trade_journal_sqlite"
+        assert result["retirement"]["source"] == "trade_journal_sqlite"
+        assert result["retirement"]["triggers_fired"] == []
 
 
 class TestEvidenceProvenance:

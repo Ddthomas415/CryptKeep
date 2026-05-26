@@ -62,7 +62,9 @@ See `docs/EVIDENCE_MODEL.md` for full explanation.
 
 ## Promotion gates
 
-Read by: `scripts/check_promotion_gates.py` from the canonical JSONL evidence directory.
+Read by: `scripts/check_promotion_gates.py` from two canonical evidence surfaces:
+JSONL for schema/provenance/log completeness and `.cbp_state/data/trade_journal.sqlite`
+for paper fill count, completed round trips, and realized expectancy.
 
 Gates for paper → shadow promotion:
 - 30 calendar days of operation
