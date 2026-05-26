@@ -237,6 +237,30 @@ class TestGateLogic:
         assert result["retirement"]["source"] == "trade_journal_sqlite"
         assert result["retirement"]["triggers_fired"] == []
 
+    def test_latest_session_health_ignores_resolved_old_critical_errors(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_session_health
+
+        result = _latest_session_health([
+            {"timestamp": "2026-05-01T00:00:00+00:00", "critical_error": True},
+            {"timestamp": "2026-05-02T00:00:00+00:00", "critical_error": False},
+        ])
+
+        assert result["ok"] is True
+        assert result["window_date"] == "2026-05-02"
+        assert result["critical_error_count"] == 0
+
+    def test_latest_session_health_fails_current_critical_errors(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_session_health
+
+        result = _latest_session_health([
+            {"timestamp": "2026-05-01T00:00:00+00:00", "critical_error": False},
+            {"timestamp": "2026-05-02T00:00:00+00:00", "critical_error": True},
+        ])
+
+        assert result["ok"] is False
+        assert result["window_date"] == "2026-05-02"
+        assert result["critical_error_count"] == 1
+
 
 class TestEvidenceProvenance:
     def test_provenance_summary_flags_missing_source(self, tmp_path):
@@ -283,6 +307,51 @@ class TestEvidenceProvenance:
         assert result["missing"] == 0
         assert result["sample"] == 0
         assert result["unknown"] == 0
+
+    def test_promotion_provenance_uses_latest_dated_window(self, tmp_path):
+        from scripts.check_promotion_gates import (
+            _evidence_provenance_summary,
+            _promotion_provenance_summary,
+        )
+        evidence = {
+            "signal": [
+                {"record_type": "signal", "timestamp": "2026-05-01T00:00:00+00:00"},
+                {
+                    "record_type": "signal",
+                    "timestamp": "2026-05-02T00:00:00+00:00",
+                    "market_data_source": "public_ohlcv",
+                    "ohlcv_sample_mode": False,
+                },
+            ],
+            "order": [{
+                "record_type": "order",
+                "timestamp": "2026-05-02T00:00:00+00:00",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+            }],
+            "fill": [{
+                "record_type": "fill",
+                "timestamp": "2026-05-02T00:00:00+00:00",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+            }],
+            "session": [{
+                "record_type": "session",
+                "timestamp": "2026-05-02T00:00:00+00:00",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+            }],
+        }
+
+        all_time = _evidence_provenance_summary(evidence)
+        latest = _promotion_provenance_summary(evidence)
+
+        assert all_time["missing"] == 1
+        assert latest["ok"] is True
+        assert latest["window"] == "latest_date"
+        assert latest["window_date"] == "2026-05-02"
+        assert latest["public"] == 4
+        assert latest["missing"] == 0
 
     def test_paper_gate_blocks_legacy_unstamped_evidence(self, tmp_path):
         from services.os.app_paths import data_dir

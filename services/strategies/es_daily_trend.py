@@ -349,6 +349,7 @@ def signal_from_ohlcv(
     sma_period: int = SMA_PERIOD_DEFAULT,
     atr_period: int = ATR_PERIOD_DEFAULT,
     evidence_extra: dict[str, Any] | None = None,
+    emit_evidence: bool = True,
 ) -> dict[str, Any]:
     """Adapter for strategy_registry. Accepts ohlcv rows [ts,o,h,l,c,vol].
 
@@ -366,20 +367,21 @@ def signal_from_ohlcv(
         # Still log — operator needs to know the data feed is short
         try:
             from datetime import datetime, timezone as _tz
-            EvidenceLogger(STRATEGY_ID).log_signal(
-                timestamp=datetime.now(_tz.utc).isoformat(),
-                price=float(ohlcv[-1][4]) if ohlcv else 0.0,
-                sma_200=None,
-                atr_ratio=None,
-                signal_direction="flat",
-                regime_flag="insufficient_data",
-                entry_allowed=False,
-                extra={
-                    "reason": "insufficient_history",
-                    "bars_received": len(ohlcv),
-                    **_default_evidence_extra(evidence_extra),
-                },
-            )
+            if bool(emit_evidence):
+                EvidenceLogger(STRATEGY_ID).log_signal(
+                    timestamp=datetime.now(_tz.utc).isoformat(),
+                    price=float(ohlcv[-1][4]) if ohlcv else 0.0,
+                    sma_200=None,
+                    atr_ratio=None,
+                    signal_direction="flat",
+                    regime_flag="insufficient_data",
+                    entry_allowed=False,
+                    extra={
+                        "reason": "insufficient_history",
+                        "bars_received": len(ohlcv),
+                        **_default_evidence_extra(evidence_extra),
+                    },
+                )
         except Exception as _ev_err:
             _LOG.warning("signal evidence logging failed: %s", _ev_err)
         return {"ok": True, "action": "hold", "reason": "insufficient_history",
@@ -400,16 +402,17 @@ def signal_from_ohlcv(
     # (signal_from_ohlcv is called by strategy_registry from ema_crossover_runner)
     try:
         from datetime import datetime, timezone as _tz
-        EvidenceLogger(STRATEGY_ID).log_signal(
-            timestamp=datetime.now(_tz.utc).isoformat(),
-            price=float(ohlcv[-1][4]) if ohlcv else 0.0,
-            sma_200=sma,
-            atr_ratio=reg.get("atr_ratio"),
-            signal_direction=signal,
-            regime_flag=reg.get("regime", "unknown"),
-            entry_allowed=reg["entry_allowed"],
-            extra=_default_evidence_extra(evidence_extra),
-        )
+        if bool(emit_evidence):
+            EvidenceLogger(STRATEGY_ID).log_signal(
+                timestamp=datetime.now(_tz.utc).isoformat(),
+                price=float(ohlcv[-1][4]) if ohlcv else 0.0,
+                sma_200=sma,
+                atr_ratio=reg.get("atr_ratio"),
+                signal_direction=signal,
+                regime_flag=reg.get("regime", "unknown"),
+                entry_allowed=reg["entry_allowed"],
+                extra=_default_evidence_extra(evidence_extra),
+            )
     except Exception as _ev_err:
         _LOG.warning("signal evidence logging failed (non-blocking): %s", _ev_err)
 

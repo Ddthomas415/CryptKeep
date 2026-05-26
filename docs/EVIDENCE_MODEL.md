@@ -23,9 +23,11 @@ authoritative for each promotion question.
 **Schema:** defined in `configs/strategies/es_daily_trend_v1.yaml` under `evidence.required_*_fields`
 
 **Promotion use:** JSONL is authoritative for proving that required evidence logs
-exist, have valid schema, and carry market-data provenance. It is not the only
-paper fill source because older accepted paper fills may exist in the persisted
-trade journal before JSONL provenance coverage was complete.
+exist, have valid schema, and carry market-data provenance. The promotion
+provenance gate evaluates the latest dated evidence window so fresh public-market
+evidence can supersede older unstamped records without deleting history. It is
+not the only paper fill source because older accepted paper fills may exist in
+the persisted trade journal before JSONL provenance coverage was complete.
 
 ---
 
@@ -69,5 +71,7 @@ summary. Interpret the sources this way:
 1. `paper_history` answers how many target-strategy paper fills and round trips
    exist, and what realized expectancy they produced.
 2. `schema` and `provenance` answer whether the JSONL evidence stream is complete
-   and attributable to non-sample market data.
+   and attributable to non-sample market data. `provenance` and session health
+   gates use the latest dated evidence window; `provenance_all_time` is
+   diagnostic history.
 3. `strategy_evidence.latest.json` is comparison context, not the final gate.

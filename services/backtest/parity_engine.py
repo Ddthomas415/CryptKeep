@@ -95,6 +95,10 @@ def run_parity_backtest(
     symbol_s = str(symbol)
     st = cfg.get("strategy") if isinstance(cfg, dict) and isinstance(cfg.get("strategy"), dict) else {}
     strategy_name = str(st.get("name") or "ema_cross")
+    signal_cfg = dict(cfg or {})
+    signal_strategy = dict(st)
+    signal_strategy["emit_evidence"] = False
+    signal_cfg["strategy"] = signal_strategy
 
     ohlcv: List[list[Any]] = []
     for row in rows:
@@ -112,7 +116,7 @@ def run_parity_backtest(
             )
             continue
 
-        sig = compute_signal(cfg=dict(cfg or {}), symbol=symbol_s, ohlcv=list(ohlcv))
+        sig = compute_signal(cfg=signal_cfg, symbol=symbol_s, ohlcv=list(ohlcv))
         action = str(sig.get("action") or "hold").lower().strip()
         close_px = _fnum(row[4], 0.0)
         ts_ms = _safe_ts_ms(row[0])

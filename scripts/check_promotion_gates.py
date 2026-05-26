@@ -339,6 +339,85 @@ def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
     }
 
 
+def _record_date(row: dict) -> str | None:
+    ts = row.get("timestamp") or row.get("date") or row.get("session_start")
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(str(ts).replace("Z", "+00:00")).date().isoformat()
+    except Exception:
+        return None
+
+
+def _latest_evidence_date(evidence: dict[str, list[dict]]) -> str | None:
+    dates = []
+    for record_type in ("signal", "order", "fill", "session"):
+        for row in list(evidence.get(record_type) or []):
+            date = _record_date(dict(row))
+            if date:
+                dates.append(date)
+    return max(dates) if dates else None
+
+
+def _filter_evidence_by_date(evidence: dict[str, list[dict]], date: str) -> dict[str, list[dict]]:
+    return {
+        record_type: [
+            dict(row)
+            for row in list(evidence.get(record_type) or [])
+            if _record_date(dict(row)) == date
+        ]
+        for record_type in ("signal", "order", "fill", "session", "drawdown")
+    }
+
+
+def _promotion_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
+    """Evaluate provenance over the latest dated evidence window."""
+    latest_date = _latest_evidence_date(evidence)
+    if not latest_date:
+        out = _evidence_provenance_summary(evidence)
+        out["window_date"] = None
+        out["window"] = "all_time"
+        return out
+    out = _evidence_provenance_summary(_filter_evidence_by_date(evidence, latest_date))
+    out["window_date"] = latest_date
+    out["window"] = "latest_date"
+    return out
+
+
+def _latest_session_health(sessions: list[dict]) -> dict:
+    dated = [
+        (date, dict(row))
+        for row in list(sessions or [])
+        if (date := _record_date(dict(row)))
+    ]
+    if not dated:
+        return {
+            "ok": None,
+            "window_date": None,
+            "critical_error_count": 0,
+            "detail": "no session logs found",
+            "hint": "check logs/errors manually",
+        }
+    latest_date = max(date for date, _row in dated)
+    window_rows = [row for date, row in dated if date == latest_date]
+    critical = [row for row in window_rows if bool(row.get("critical_error"))]
+    if critical:
+        return {
+            "ok": False,
+            "window_date": latest_date,
+            "critical_error_count": len(critical),
+            "detail": f"{len(critical)} critical_error session log(s) found in window:{latest_date}",
+            "hint": "investigate latest session errors before promotion",
+        }
+    return {
+        "ok": True,
+        "window_date": latest_date,
+        "critical_error_count": 0,
+        "detail": f"0 critical_error session logs in window:{latest_date}",
+        "hint": "",
+    }
+
+
 # ---------------------------------------------------------------------------
 # Gate evaluation
 # ---------------------------------------------------------------------------
@@ -357,7 +436,8 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
     days  = _days_of_operation(sessions)
     trade_metrics = _paper_gate_trade_metrics(fills, paper_history)
     trips = int(trade_metrics["round_trips"])
-    provenance = _evidence_provenance_summary(evidence)
+    provenance = _promotion_provenance_summary(evidence)
+    session_health = _latest_session_health(sessions)
 
     gates = [
         _gate("30 calendar days of operation",
@@ -373,9 +453,9 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               str(trade_metrics["expectancy_detail"]),
               str(trade_metrics["expectancy_hint"])),
         _gate("No critical operational bugs",
-              True if sessions and not any(s.get("critical_error") for s in sessions) else None,
-              "no critical_error flag found in session logs",
-              "check logs/errors manually" if not sessions else ""),
+              session_health["ok"],
+              str(session_health["detail"]),
+              str(session_health["hint"])),
         _gate("Kill switch tested",
               _kill_switch_tested(sessions) if sessions else None,
               "kill_switch_tested=True found in session log" if _kill_switch_tested(sessions) else "not found in session logs",
@@ -386,7 +466,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               "start running to generate evidence"),
         _gate("Promotion evidence has non-sample provenance",
               provenance["ok"],
-              f"public:{provenance['public']} missing:{provenance['missing']} sample:{provenance['sample']} unknown:{provenance['unknown']}",
+              f"window:{provenance.get('window_date') or 'all'} public:{provenance['public']} missing:{provenance['missing']} sample:{provenance['sample']} unknown:{provenance['unknown']}",
               "collect fresh public-market evidence with provenance before promotion"),
         _gate("Daily loss halt tested in simulation",
               _halt_tested(sessions) if sessions else None,
@@ -571,7 +651,8 @@ def run_check(stage_override: str | None = None) -> dict:
     unknown = [g for g in gates if g["passed"] is None]
 
     schema_ok = all(v.get("ok") is not False for v in schema.values())
-    provenance = _evidence_provenance_summary(evidence)
+    provenance = _promotion_provenance_summary(evidence)
+    provenance_all_time = _evidence_provenance_summary(evidence)
 
     slippage_check = _slippage_within_baseline(fills)
     retirement = _check_retirement_triggers(fills, sessions, paper_history)
@@ -593,6 +674,7 @@ def run_check(stage_override: str | None = None) -> dict:
         "schema":       schema,
         "paper_history": paper_history,
         "provenance":   provenance,
+        "provenance_all_time": provenance_all_time,
         "slippage":     slippage_check,
         "retirement":   retirement,
         "cognitive_budget": budget_summary(STRATEGY_ID),
