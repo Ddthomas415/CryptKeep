@@ -31,7 +31,10 @@ from daily public OHLCV instead of synthetic tick-derived bars.
 4. `run_strategy_runner.py` → `ema_crossover_runner.py` — signal evaluation loop
 5. `run_paper_sim_monitor.py` — auto-supervised read-only runtime monitor
 
-Signal source: `public_ohlcv_1d` → fetches daily OHLCV → calls `es_daily_trend.signal_from_ohlcv()`
+Signal source: `public_ohlcv_1d` → fetches daily OHLCV → calls
+`es_daily_trend.signal_from_ohlcv()` with explicit `public_ohlcv` provenance.
+Unlabeled OHLCV calls may compute a signal, but they do not write promotion
+JSONL evidence.
 
 The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
 It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.

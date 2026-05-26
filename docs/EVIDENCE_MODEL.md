@@ -29,6 +29,12 @@ evidence can supersede older unstamped records without deleting history. It is
 not the only paper fill source because older accepted paper fills may exist in
 the persisted trade journal before JSONL provenance coverage was complete.
 
+Signal calls with unlabeled OHLCV are not promotion evidence. The
+`es_daily_trend` signal adapter returns the computed signal but does not write a
+JSONL signal record unless the caller stamps a recognized source such as
+`public_ohlcv` or `sample_ohlcv`. This prevents research/backtest calls with
+unknown provenance from contaminating the promotion gate.
+
 ---
 
 ## Canonical: persisted paper fill history
