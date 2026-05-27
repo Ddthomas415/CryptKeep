@@ -568,7 +568,7 @@ def _gate(label: str, passed: bool | None, detail: str = "", hint: str = "") -> 
         "label":  label,
         "passed": passed,   # True=PASS, False=FAIL, None=UNKNOWN
         "detail": detail,
-        "hint":   hint,
+        "hint":   "" if passed is True else hint,
     }
 
 

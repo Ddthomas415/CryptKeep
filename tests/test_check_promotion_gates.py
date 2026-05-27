@@ -53,6 +53,17 @@ class TestGateOutput:
         assert s["unknown"] == sum(1 for g in gates if g["passed"] is None)
         assert s["total"] == len(gates)
 
+    def test_passed_gate_suppresses_remediation_hint(self, tmp_path):
+        from scripts.check_promotion_gates import _gate
+
+        passed = _gate("already done", True, "ok", "fix this")
+        failed = _gate("not done", False, "bad", "fix this")
+        unknown = _gate("unknown", None, "unknown", "check this")
+
+        assert passed["hint"] == ""
+        assert failed["hint"] == "fix this"
+        assert unknown["hint"] == "check this"
+
 
 class TestSchemaValidation:
     def test_valid_signal_schema_passes(self, tmp_path):
