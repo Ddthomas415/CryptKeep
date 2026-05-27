@@ -304,6 +304,50 @@ class TestGateLogic:
         assert result["counts"] == {"signal": 1, "order": 1, "fill": 1, "session": 1}
         assert result["detail"] == "window:2026-05-02 signal:1 order:1 fill:1 session:1"
 
+    def test_latest_evidence_log_presence_allows_no_trade_window(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_evidence_log_presence
+
+        result = _latest_evidence_log_presence({
+            "signal": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "order": [],
+            "fill": [],
+            "session": [
+                {
+                    "timestamp": "2026-05-02T00:00:00+00:00",
+                    "phase": "end",
+                    "campaign_status": "completed",
+                },
+            ],
+        })
+
+        assert result["ok"] is True
+        assert result["trade_evidence_expected"] is False
+        assert result["no_trade_window"] is True
+        assert result["detail"] == "window:2026-05-02 signal:1 order:0 fill:0 session:1 no_trade_window:true"
+
+    def test_latest_evidence_log_presence_fails_incomplete_trade_window(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_evidence_log_presence
+
+        result = _latest_evidence_log_presence({
+            "signal": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "order": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "fill": [],
+            "session": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+        })
+
+        assert result["ok"] is False
+        assert result["trade_evidence_expected"] is True
+        assert result["no_trade_window"] is False
+        assert result["hint"] == "order/fill evidence is incomplete for latest trade window"
+
 
 class TestEvidenceProvenance:
     def test_provenance_summary_flags_missing_source(self, tmp_path):

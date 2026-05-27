@@ -521,6 +521,8 @@ def _latest_evidence_log_presence(evidence: dict[str, list[dict]]) -> dict:
             "ok": False,
             "window_date": None,
             "counts": {"signal": 0, "order": 0, "fill": 0, "session": 0},
+            "trade_evidence_expected": False,
+            "no_trade_window": False,
             "detail": "window:all signal:0 order:0 fill:0 session:0",
             "hint": "start running to generate evidence",
         }
@@ -529,16 +531,29 @@ def _latest_evidence_log_presence(evidence: dict[str, list[dict]]) -> dict:
         record_type: len(window.get(record_type) or [])
         for record_type in ("signal", "order", "fill", "session")
     }
-    ok = all(counts[record_type] > 0 for record_type in ("signal", "order", "fill", "session"))
+    trade_evidence_expected = counts["order"] > 0 or counts["fill"] > 0
+    core_ok = counts["signal"] > 0 and counts["session"] > 0
+    trade_ok = counts["order"] > 0 and counts["fill"] > 0 if trade_evidence_expected else True
+    ok = bool(core_ok and trade_ok)
+    no_trade_window = bool(core_ok and not trade_evidence_expected)
+    if ok:
+        hint = ""
+    elif not core_ok:
+        hint = "start running to generate signal and session evidence"
+    else:
+        hint = "order/fill evidence is incomplete for latest trade window"
     return {
         "ok": ok,
         "window_date": latest_date,
         "counts": counts,
+        "trade_evidence_expected": trade_evidence_expected,
+        "no_trade_window": no_trade_window,
         "detail": (
             f"window:{latest_date} signal:{counts['signal']} order:{counts['order']} "
             f"fill:{counts['fill']} session:{counts['session']}"
+            f"{' no_trade_window:true' if no_trade_window else ''}"
         ),
-        "hint": "" if ok else "start running to generate evidence",
+        "hint": hint,
     }
 
 

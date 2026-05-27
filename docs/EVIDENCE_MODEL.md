@@ -29,6 +29,11 @@ evidence can supersede older unstamped records without deleting history. It is
 not the only paper fill source because older accepted paper fills may exist in
 the persisted trade journal before JSONL provenance coverage was complete.
 
+The latest-window evidence-presence gate requires signal and session records on
+every completed campaign window. Order and fill records are required when either
+trade record type appears in that latest window. A no-trade window with signal
+and session records is valid evidence collection, not a missing-log failure.
+
 Signal calls with unlabeled OHLCV are not promotion evidence. The
 `es_daily_trend` signal adapter returns the computed signal but does not write a
 JSONL signal record unless the caller stamps a recognized source such as

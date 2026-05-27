@@ -48,6 +48,11 @@ When one of those watches fires, the monitor writes JSON/Markdown reports under 
 and attempts a local macOS desktop notification.
 Operators can register or delete local watches from the Operations dashboard without using the CLI.
 
+A daily paper campaign can complete without order/fill records when the strategy
+does not trade. In that case the promotion gate treats signal plus session logs
+as a complete no-trade evidence window; order/fill evidence is required once a
+trade record appears.
+
 ## Where evidence goes
 
 All canonical evidence: `.cbp_state/data/evidence/es_daily_trend_v1/`
