@@ -35,6 +35,8 @@ from services.os.app_paths import data_dir
 
 STRATEGY_ID = "es_daily_trend_v1"
 REPO_ROOT = Path(__file__).resolve().parents[1]; CONFIG_PATH = REPO_ROOT / "configs/strategies/es_daily_trend_v1.yaml"
+PAPER_MIN_DAYS = 30
+PAPER_MIN_ROUND_TRIPS = 50
 
 
 # ---------------------------------------------------------------------------
@@ -575,6 +577,8 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
     days  = _days_of_operation(sessions)
     trade_metrics = _paper_gate_trade_metrics(fills, paper_history)
     trips = int(trade_metrics["round_trips"])
+    days_remaining = max(0, PAPER_MIN_DAYS - days)
+    trips_remaining = max(0, PAPER_MIN_ROUND_TRIPS - trips)
     provenance = _promotion_provenance_summary(evidence)
     session_health = _latest_session_health(sessions)
     kill_switch = _kill_switch_test_status(sessions, yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {})
@@ -582,13 +586,13 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
 
     gates = [
         _gate("30 calendar days of operation",
-              days >= 30 if days > 0 else None,
-              f"{days} days recorded",
-              "run the paper runner daily" if days < 30 else ""),
+              days >= PAPER_MIN_DAYS if days > 0 else None,
+              f"{days}/{PAPER_MIN_DAYS} days recorded ({days_remaining} remaining)",
+              "run the paper runner daily" if days < PAPER_MIN_DAYS else ""),
         _gate("50+ completed round trips",
-              trips >= 50 if trips > 0 else None,
-              str(trade_metrics["round_trip_detail"]),
-              "continue running" if trips < 50 else ""),
+              trips >= PAPER_MIN_ROUND_TRIPS if trips > 0 else None,
+              f"{trade_metrics['round_trip_detail']} ({trips}/{PAPER_MIN_ROUND_TRIPS}, {trips_remaining} remaining)",
+              "continue running" if trips < PAPER_MIN_ROUND_TRIPS else ""),
         _gate("Expectancy within tolerable range of backtest",
               trade_metrics["expectancy_ok"],
               str(trade_metrics["expectancy_detail"]),

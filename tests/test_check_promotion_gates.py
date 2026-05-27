@@ -250,6 +250,7 @@ class TestGateLogic:
         assert result["paper_history"]["fills"] == 14
         assert result["paper_history"]["closed_trades"] == 7
         assert "7 round trips recorded from trade_journal_sqlite" in round_trip_gate["detail"]
+        assert "(7/50, 43 remaining)" in round_trip_gate["detail"]
         assert expectancy_gate["passed"] is True
         assert expectancy_gate["detail"] == "avg pnl/round trip = $10.00 from trade_journal_sqlite"
         assert result["retirement"]["source"] == "trade_journal_sqlite"
@@ -347,6 +348,34 @@ class TestGateLogic:
         assert result["trade_evidence_expected"] is True
         assert result["no_trade_window"] is False
         assert result["hint"] == "order/fill evidence is incomplete for latest trade window"
+
+    def test_paper_threshold_gates_report_remaining_counts(self, tmp_path):
+        from scripts.check_promotion_gates import evaluate_paper_gates
+
+        evidence = {
+            "signal": [{"timestamp": "2026-05-02T00:00:00+00:00", "market_data_source": "public_ohlcv"}],
+            "order": [],
+            "fill": [],
+            "session": [{"timestamp": "2026-05-02T00:00:00+00:00", "market_data_source": "public_ohlcv"}],
+        }
+        sessions = [
+            {"timestamp": f"2026-05-{day:02d}T00:00:00+00:00"}
+            for day in range(1, 23)
+        ]
+        paper_history = {
+            "ok": True,
+            "source": "trade_journal_sqlite",
+            "fills": 14,
+            "closed_trades": 7,
+            "expectancy_per_closed_trade": 5.0,
+        }
+
+        gates = evaluate_paper_gates(evidence, sessions, evidence["signal"], evidence["fill"], paper_history)
+        day_gate = next(g for g in gates if g["label"] == "30 calendar days of operation")
+        round_trip_gate = next(g for g in gates if g["label"] == "50+ completed round trips")
+
+        assert day_gate["detail"] == "22/30 days recorded (8 remaining)"
+        assert "(7/50, 43 remaining)" in round_trip_gate["detail"]
 
 
 class TestEvidenceProvenance:
