@@ -21,13 +21,13 @@ def _stub_promotion_progress(monkeypatch) -> None:
             "days_remaining": 8,
             "round_trips_recorded": 7,
             "round_trips_required": 50,
-            "round_trips_remaining": 43,
+            "round_trips_remaining": 3,
             "thresholds_ready": False,
             "blocking_thresholds": [
                 {"label": "30 calendar days of operation", "remaining": 8},
-                {"label": "50+ completed round trips", "remaining": 43},
+                {"label": "10+ completed round trips", "remaining": 3},
             ],
-            "summary_text": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/50 round trips recorded (43 remaining).",
+            "summary_text": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/10 round trips recorded (3 remaining).",
         },
     )
 
@@ -105,7 +105,7 @@ def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypat
     assert out["position_realized_pnl_total"] == -0.8933
     assert out["promotion_thresholds_ready"] is False
     assert out["promotion_progress"]["days_remaining"] == 8
-    assert out["promotion_progress"]["round_trips_remaining"] == 43
+    assert out["promotion_progress"]["round_trips_remaining"] == 3
     assert out["recommendation"] == "enough_evidence"
     assert out["recommendation_reason"] == "closed_trade_threshold_met"
     assert "recommendation=enough_evidence" in out["summary_text"]

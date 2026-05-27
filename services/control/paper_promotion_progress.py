@@ -116,7 +116,7 @@ def load_paper_promotion_progress(
     if round_trips_state != "pass":
         blockers.append(
             _blocker(
-                label="50+ completed round trips",
+                label=f"{PAPER_MIN_ROUND_TRIPS}+ completed round trips",
                 observed=round_trips_recorded,
                 required=PAPER_MIN_ROUND_TRIPS,
                 remaining=round_trips_remaining,

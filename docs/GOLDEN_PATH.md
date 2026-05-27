@@ -38,7 +38,7 @@ JSONL evidence.
 
 The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
 It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.
-It also surfaces paper-stage promotion threshold progress (30 days / 50 round trips) so a local
+It also surfaces paper-stage promotion threshold progress (30 days / 10 round trips) so a local
 `recommendation=enough_evidence` event is not confused with full promotion readiness.
 Managed paper campaigns also auto-seed default paper-sim watches:
 - `next_fill`
@@ -78,11 +78,15 @@ for paper fill count, completed round trips, and realized expectancy.
 
 Gates for paper → shadow promotion:
 - 30 calendar days of operation
-- 50+ completed round trips
+- 10+ completed round trips
 - Expectancy within 30% of backtest
 - No critical operational bugs
 - Kill switch tested within the configured cadence (`ops.kill_switch_test_frequency`, weekly by default)
 - All evidence logs complete
+
+The older 50+ round-trip target is retained as a stronger research-confidence floor before
+larger live-capital decisions. It is not the paper → shadow/sandbox blocker for this
+slow-turnover daily strategy.
 
 ## What is core vs optional
 

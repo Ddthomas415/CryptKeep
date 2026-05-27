@@ -268,6 +268,8 @@ def _paper_history_gate_summary(cfg: dict) -> dict:
         "expectancy_per_closed_trade": float(row.get("expectancy_per_closed_trade") or 0.0),
         "net_realized_pnl": float(row.get("net_realized_pnl") or 0.0),
         "win_rate": float(row.get("win_rate") or 0.0),
+        "avg_win": float(row.get("avg_win") or 0.0),
+        "avg_loss": float(row.get("avg_loss") or 0.0),
         "latest_fill_ts": row.get("latest_fill_ts"),
     }
 
@@ -592,7 +594,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               days >= PAPER_MIN_DAYS if days > 0 else None,
               f"{days}/{PAPER_MIN_DAYS} days recorded ({days_remaining} remaining)",
               "run the paper runner daily" if days < PAPER_MIN_DAYS else ""),
-        _gate("50+ completed round trips",
+        _gate(f"{PAPER_MIN_ROUND_TRIPS}+ completed round trips",
               trips >= PAPER_MIN_ROUND_TRIPS if trips > 0 else None,
               f"{trade_metrics['round_trip_detail']} ({trips}/{PAPER_MIN_ROUND_TRIPS}, {trips_remaining} remaining)",
               "continue running" if trips < PAPER_MIN_ROUND_TRIPS else ""),
@@ -766,6 +768,74 @@ def _check_retirement_triggers(
     }
 
 
+def _gate_by_label(gates: list[dict], label: str) -> dict:
+    return next((dict(item) for item in list(gates or []) if str(item.get("label") or "") == label), {})
+
+
+def _paper_manual_review_status(paper_history: dict | None, gates: list[dict]) -> dict:
+    """Surface spec checklist items that are not fully machine-verifiable."""
+    history = dict(paper_history or {})
+    items: list[dict] = [
+        {
+            "id": "win_rate_avg_win_loss_vs_backtest",
+            "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
+            "status": "manual_required",
+            "reason": (
+                "No machine-readable backtest baseline for win_rate, avg_win, and avg_loss is configured, "
+                "so this spec item requires operator review before promotion."
+            ),
+            "observed": {
+                "closed_trades": int(history.get("closed_trades") or 0),
+                "fills": int(history.get("fills") or 0),
+                "win_rate": history.get("win_rate"),
+                "avg_win": history.get("avg_win"),
+                "avg_loss": history.get("avg_loss"),
+                "net_realized_pnl": history.get("net_realized_pnl"),
+                "expectancy_per_closed_trade": history.get("expectancy_per_closed_trade"),
+            },
+        }
+    ]
+    daily_loss_halt = _gate_by_label(gates, "Daily loss halt tested in simulation")
+    regime_block = _gate_by_label(gates, "Regime filter blocked at least one entry")
+    if daily_loss_halt:
+        items.append(
+            {
+                "id": "daily_loss_halt_simulation",
+                "label": "Daily loss halt triggered and recovered correctly at least once in simulation",
+                "status": "machine_checked" if daily_loss_halt.get("passed") is True else "machine_blocking",
+                "detail": str(daily_loss_halt.get("detail") or ""),
+                "hint": str(daily_loss_halt.get("hint") or ""),
+            }
+        )
+    if regime_block:
+        items.append(
+            {
+                "id": "regime_filter_blocked_entry",
+                "label": "Regime filter blocked at least one entry in the run",
+                "status": "machine_checked" if regime_block.get("passed") is True else "machine_blocking",
+                "detail": str(regime_block.get("detail") or ""),
+                "hint": str(regime_block.get("hint") or ""),
+            }
+        )
+
+    required = any(str(item.get("status") or "") == "manual_required" for item in items)
+    return {
+        "required": required,
+        "items": items,
+        "outstanding_items": [
+            dict(item)
+            for item in items
+            if str(item.get("status") or "") in {"manual_required", "machine_blocking"}
+        ],
+        "summary": (
+            "Manual review required: observed win rate and avg win/loss must be compared "
+            "against backtest expectations before paper promotion."
+            if required
+            else "No manual paper-gate review items are outstanding."
+        ),
+    }
+
+
 
 def run_check(stage_override: str | None = None) -> dict:
     if not CONFIG_PATH.exists():
@@ -807,11 +877,21 @@ def run_check(stage_override: str | None = None) -> dict:
 
     # Retirement check overrides "ready" regardless of gates
     retirement_block = retirement["retirement_required"]
+    manual_review = _paper_manual_review_status(paper_history, gates) if stage == Stage.PAPER else {
+        "required": False,
+        "items": [],
+        "outstanding_items": [],
+        "summary": "No manual review items defined for this stage.",
+    }
+    machine_ready = len(failed) == 0 and len(unknown) == 0 and schema_ok and not retirement_block
 
     return {
         "strategy_id": STRATEGY_ID,
         "stage":       stage.value,
-        "ready":       len(failed) == 0 and len(unknown) == 0 and schema_ok and not retirement_block,
+        "ready":       machine_ready and not bool(manual_review.get("required")),
+        "machine_ready": machine_ready,
+        "manual_review_required": bool(manual_review.get("required")),
+        "manual_review": manual_review,
         "summary": {
             "pass":    len(passed),
             "fail":    len(failed),
@@ -854,6 +934,12 @@ def print_report(result: dict) -> None:
     print(f"\nCognitive budget: {budget.get('alert_count', 0)}/4 alerts")
     if budget.get("breach"):
         print(f"  ⚠️  BREACH: {budget.get('breaches', [])}")
+
+    manual_review = dict(result.get("manual_review") or {})
+    if bool(result.get("manual_review_required")):
+        print(f"\nManual review required: {manual_review.get('summary', '')}")
+        for item in list(manual_review.get("outstanding_items") or []):
+            print(f"  - {item.get('label')}: {item.get('status')}")
 
     print(f"\nResult: {'✅ READY TO PROMOTE' if ready else '🔴 NOT READY'}")
     print(f"  {s.get('pass', 0)} pass / {s.get('fail', 0)} fail / {s.get('unknown', 0)} unknown\n")

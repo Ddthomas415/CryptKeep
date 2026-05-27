@@ -64,6 +64,21 @@ class TestGateOutput:
         assert failed["hint"] == "fix this"
         assert unknown["hint"] == "check this"
 
+    def test_json_output_surfaces_manual_review_for_backtest_expectations(self, tmp_path):
+        from scripts.check_promotion_gates import run_check
+
+        result = run_check(stage_override="paper")
+
+        assert result["manual_review_required"] is True
+        assert result["machine_ready"] is False
+        review = result["manual_review"]
+        assert review["required"] is True
+        assert any(
+            item["id"] == "win_rate_avg_win_loss_vs_backtest"
+            and item["status"] == "manual_required"
+            for item in review["outstanding_items"]
+        )
+
 
 class TestSchemaValidation:
     def test_valid_signal_schema_passes(self, tmp_path):
@@ -261,7 +276,7 @@ class TestGateLogic:
         assert result["paper_history"]["fills"] == 14
         assert result["paper_history"]["closed_trades"] == 7
         assert "7 round trips recorded from trade_journal_sqlite" in round_trip_gate["detail"]
-        assert "(7/50, 43 remaining)" in round_trip_gate["detail"]
+        assert "(7/10, 3 remaining)" in round_trip_gate["detail"]
         assert expectancy_gate["passed"] is True
         assert expectancy_gate["detail"] == "avg pnl/round trip = $10.00 from trade_journal_sqlite"
         assert result["retirement"]["source"] == "trade_journal_sqlite"
@@ -383,10 +398,10 @@ class TestGateLogic:
 
         gates = evaluate_paper_gates(evidence, sessions, evidence["signal"], evidence["fill"], paper_history)
         day_gate = next(g for g in gates if g["label"] == "30 calendar days of operation")
-        round_trip_gate = next(g for g in gates if g["label"] == "50+ completed round trips")
+        round_trip_gate = next(g for g in gates if g["label"] == "10+ completed round trips")
 
         assert day_gate["detail"] == "22/30 days recorded (8 remaining)"
-        assert "(7/50, 43 remaining)" in round_trip_gate["detail"]
+        assert "(7/10, 3 remaining)" in round_trip_gate["detail"]
 
 
 class TestEvidenceProvenance:

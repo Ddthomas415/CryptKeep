@@ -83,8 +83,8 @@ def test_load_paper_promotion_progress_reports_remaining_thresholds(tmp_path, mo
     assert out["days_recorded"] == 22
     assert out["days_remaining"] == 8
     assert out["round_trips_recorded"] == 7
-    assert out["round_trips_remaining"] == 43
+    assert out["round_trips_remaining"] == 3
     assert out["thresholds_ready"] is False
     assert len(out["blocking_thresholds"]) == 2
     assert "22/30 days recorded (8 remaining)" in out["summary_text"]
-    assert "7/50 round trips recorded (43 remaining)" in out["summary_text"]
+    assert "7/10 round trips recorded (3 remaining)" in out["summary_text"]
