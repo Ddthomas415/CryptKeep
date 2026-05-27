@@ -31,12 +31,15 @@ import yaml
 
 from services.control.deployment_stage import get_current_stage, Stage, stage_summary
 from services.control.cognitive_budget import budget_summary
+from services.control.promotion_thresholds import (
+    ES_DAILY_TREND_STRATEGY_ID,
+    PAPER_MIN_DAYS,
+    PAPER_MIN_ROUND_TRIPS,
+)
 from services.os.app_paths import data_dir
 
-STRATEGY_ID = "es_daily_trend_v1"
+STRATEGY_ID = ES_DAILY_TREND_STRATEGY_ID
 REPO_ROOT = Path(__file__).resolve().parents[1]; CONFIG_PATH = REPO_ROOT / "configs/strategies/es_daily_trend_v1.yaml"
-PAPER_MIN_DAYS = 30
-PAPER_MIN_ROUND_TRIPS = 50
 
 
 # ---------------------------------------------------------------------------

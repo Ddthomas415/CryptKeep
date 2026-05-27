@@ -8,6 +8,30 @@ import pytest
 from services.analytics import paper_sim_monitor as svc
 
 
+@pytest.fixture(autouse=True)
+def _stub_promotion_progress(monkeypatch) -> None:
+    monkeypatch.setattr(
+        svc,
+        "_promotion_progress_snapshot",
+        lambda: {
+            "ok": True,
+            "source": "paper_promotion_progress",
+            "days_recorded": 22,
+            "days_required": 30,
+            "days_remaining": 8,
+            "round_trips_recorded": 7,
+            "round_trips_required": 50,
+            "round_trips_remaining": 43,
+            "thresholds_ready": False,
+            "blocking_thresholds": [
+                {"label": "30 calendar days of operation", "remaining": 8},
+                {"label": "50+ completed round trips", "remaining": 43},
+            ],
+            "summary_text": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/50 round trips recorded (43 remaining).",
+        },
+    )
+
+
 def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypatch) -> None:
     monkeypatch.setattr(
         svc,
@@ -79,9 +103,13 @@ def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypat
     assert out["fills_observed"] == 2
     assert out["current_window_realized_pnl"] == -0.0872
     assert out["position_realized_pnl_total"] == -0.8933
+    assert out["promotion_thresholds_ready"] is False
+    assert out["promotion_progress"]["days_remaining"] == 8
+    assert out["promotion_progress"]["round_trips_remaining"] == 43
     assert out["recommendation"] == "enough_evidence"
     assert out["recommendation_reason"] == "closed_trade_threshold_met"
     assert "recommendation=enough_evidence" in out["summary_text"]
+    assert "Promotion threshold progress" in out["summary_text"]
 
 
 def test_collect_once_reports_investigate_for_market_data_block(monkeypatch) -> None:
@@ -402,6 +430,75 @@ def test_load_runtime_status_reconciles_stopped_snapshot_from_newer_collector(tm
     assert out["ts"] == "2026-05-18T19:04:14Z"
     assert out["loops"] == 17
     assert out["last_watch_reports_written"] == [{"watch_name": "next_fill"}]
+
+
+def test_load_runtime_status_ignores_stopped_status_pid_without_pid_file(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    svc.status_file().parent.mkdir(parents=True, exist_ok=True)
+    svc.status_file().write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "has_status": True,
+                "status": "stopped",
+                "reason": "campaign_completed",
+                "ts": "2026-05-18T19:04:14Z",
+                "pid": 12345,
+                "summary_text": "old stopped snapshot",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    process_alive_calls: list[int] = []
+    monkeypatch.setattr(
+        svc,
+        "_process_alive",
+        lambda pid: process_alive_calls.append(int(pid)) or True,
+    )
+    monkeypatch.setattr(
+        svc,
+        "collect_once",
+        lambda cfg: {
+            "ok": True,
+            "ts": "2026-05-18T19:04:51Z",
+            "monitor_name": svc.MONITOR_NAME,
+            "campaign_status": "completed",
+            "campaign_reason": "completed",
+            "recommendation": "continue",
+            "recommendation_reason": "completed_with_partial_trade_evidence",
+            "strategy_label": "es_daily_trend_v1",
+            "symbol": "BTC/USDT",
+            "venue": "coinbase",
+            "fills_observed": 1,
+            "round_trips_observed": 0,
+            "current_window_realized_pnl": 0.0,
+            "position_realized_pnl_total": 0.0,
+            "equity_realized_pnl_total": 0.0,
+            "unrealized_pnl": 0.0,
+            "paper_position": {"qty": 0.0},
+            "latest_order": {},
+            "latest_paper_fill": {},
+            "latest_journal_fill": {},
+            "latest_equity": {},
+            "campaign_result": {},
+            "collector": {"status": "completed"},
+            "strategy_runner": {"status": "stopped"},
+            "paper_engine": {"status": "stopped"},
+            "promotion_progress": {"thresholds_ready": False},
+            "promotion_thresholds_ready": False,
+            "promotion_progress_summary": "Promotion threshold progress.",
+            "summary_text": "refreshed stopped snapshot",
+        },
+    )
+
+    out = svc.load_runtime_status()
+
+    assert process_alive_calls == []
+    assert out["pid"] is None
+    assert out["pid_alive"] is False
+    assert out["summary_text"] == "refreshed stopped snapshot"
+    assert out["promotion_progress_summary"] == "Promotion threshold progress."
 
 
 def test_register_watch_preserves_state_by_default_and_can_reset_it(tmp_path, monkeypatch) -> None:

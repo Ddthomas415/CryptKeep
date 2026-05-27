@@ -38,6 +38,8 @@ JSONL evidence.
 
 The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
 It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.
+It also surfaces paper-stage promotion threshold progress (30 days / 50 round trips) so a local
+`recommendation=enough_evidence` event is not confused with full promotion readiness.
 Managed paper campaigns also auto-seed default paper-sim watches:
 - `next_fill`
 - `position_closed`
