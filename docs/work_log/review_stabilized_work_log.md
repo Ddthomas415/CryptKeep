@@ -39,6 +39,55 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-05-28 - Work Log Audit Corrections and Next-Actions Checkpoint
+
+Date: 2026-05-28
+
+Active role: `ENGINEER`
+
+Objective: correct work-log acceptance states, add the missing high-risk
+promotion-ladder entry, and make the broader next-action list visible in git.
+
+What was found:
+- SHOWN: the auditor identified four work-log accuracy issues:
+  - `84aa49113` still showed `READY_FOR_INDEPENDENT_REVIEW`.
+  - `e06d49371` had no entry.
+  - several entries used vague "accepted by later review" wording.
+  - `9f90a8d2e` had ambiguous acceptance wording.
+- SHOWN: `git show e06d49371` changed promotion ladder code, docs, digest
+  wiring, and tests.
+- SHOWN: local `master...review-stabilized` comparison reports `64 / 83`.
+- SHOWN: `REMAINING_TASKS.md` documents the master integration conflict list.
+
+What changed:
+- Updated `84aa49113` and `9f90a8d2e` acceptance states to `ACCEPTED` with
+  auditor/session references.
+- Added a full entry for `e06d49371`.
+- Replaced "accepted by later review" with reviewer/date/session references.
+- Added `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` with
+  the prioritized task list and SHOWN/CLAIMED/UNVERIFIED evidence labels.
+
+Why this change:
+- The work log is now a governed artifact under `AGENTS.md`.
+- Incorrect or vague acceptance states weaken the audit trail.
+- The broader next-action list needs to be visible in git instead of existing
+  only in chat.
+
+Expected outcome:
+- Future readers can trace accepted high-risk changes to an auditor/date/session
+  reference.
+- The promotion-ladder coupling fix is represented in the governed work log.
+- Master integration, PR cleanup, paper campaign monitoring, shadow prep,
+  safety wiring, and CI-fixture work are tracked as visible pending actions.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: documentation accuracy and governance traceability.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-05-27 - Paper Gate Threshold and Manual Review
 
 Commit: `84aa49113 fix: align paper gate threshold with slow turnover`
@@ -97,7 +146,10 @@ Verification:
 
 Remaining risk:
 - HIGH: promotion-gate policy and financial/operator decision logic.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: accepted by auditor in the 2026-05-28 audit session
+  after the `manual_review_required` clarification, targeted tests, and full
+  suite proof (`1907 passed, 33 skipped`).
 
 ## 2026-05-27 - Paper Promotion Progress in Monitor
 
@@ -152,7 +204,66 @@ Verification:
 
 Remaining risk:
 - HIGH: background-job/operator gate visibility.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW` before later acceptance.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: accepted by auditor in the 2026-05-28 audit session as
+  part of the paired monitor/gate-policy review.
+
+## 2026-05-18 - Target-Strategy Paper Promotion Gating
+
+Commit: `e06d49371 fix: scope paper promotion gating to target strategy`
+
+Active role: `ENGINEER` then `GATE`
+
+Objective: decouple paper -> sandbox promotion readiness from the global
+leaderboard top row and evaluate the named target strategy's own evidence row.
+
+What was found:
+- SHOWN by the audit finding: `breakout_donchian` could block
+  `es_daily_trend_v1` paper -> sandbox review because the ladder evaluated the
+  global top row.
+- SHOWN by commit diff: `dashboard/services/promotion_ladder.py` used top-row
+  helpers and was changed to accept and normalize a target `strategy_id`.
+- SHOWN by commit diff: paper -> sandbox criteria changed from "Top strategy"
+  wording to "Target strategy" wording.
+- SHOWN by commit diff: sandbox -> tiny-live kept the top-strategy policy.
+
+What changed:
+- Added target-strategy normalization and lookup in
+  `dashboard/services/promotion_ladder.py`.
+- `build_promotion_readiness(...)` now accepts `strategy_id` for paper ->
+  sandbox review.
+- Paper -> sandbox blockers now evaluate the target row's recommendation,
+  closed trades, evidence status, confidence, and post-cost return.
+- Sandbox -> tiny-live review remains portfolio/top-strategy based.
+- `docs/safety/strategy_promotion_ladder.md` documents the policy split.
+- Tests were added for target-strategy paper gating and digest wiring.
+
+Why this change:
+- Paper -> sandbox answers whether a specific strategy has enough controlled
+  behavior to shadow with real infrastructure.
+- A different strategy with synthetic-only or weak evidence should not block a
+  target strategy's paper-stage review.
+- Portfolio-wide/top-strategy gating is still appropriate before real-capital
+  exposure at the later sandbox -> tiny-live stage.
+
+Expected outcome:
+- `es_daily_trend_v1` paper -> sandbox readiness is judged from the
+  `sma_200_trend` / target strategy evidence row.
+- A synthetic-only global top strategy no longer creates an incoherent paper
+  promotion blocker.
+- Later live-capital review still requires the strongest portfolio candidate to
+  be acceptable.
+
+Verification:
+- SHOWN by audit record supplied in this session: `34 tests pass`.
+- SHOWN by commit diff: tests added in `tests/test_promotion_ladder.py` and
+  `tests/test_dashboard_home_digest.py`.
+
+Remaining risk:
+- HIGH: promotion policy and operator gate behavior.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: auditor sign-off on `e06d49371` in the 2026-05 audit
+  session: "policy fix is correct, scoped correctly, and tested."
 
 ## 2026-05-27 - Promotion Gate Output Clarity
 
@@ -188,7 +299,10 @@ Verification:
 Remaining risk:
 - LOW to MEDIUM: reporting-only, but promotion-gate output influences operator
   decisions.
-- Acceptance state: accepted by later review.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: accepted by auditor through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` in the 2026-05 review-stabilized audit
+  session after targeted gate-output verification.
 
 ## 2026-05-27 - No-Trade Evidence Windows and Script Compatibility
 
@@ -227,7 +341,11 @@ Verification:
 
 Remaining risk:
 - MEDIUM: evidence semantics affect gate outcomes.
-- Acceptance state: accepted by later review.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: accepted by auditor through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` in the 2026-05 review-stabilized audit
+  session after full-suite proof (`1902 passed, 33 skipped` and `1900 passed,
+  33 skipped` for the grouped changes).
 
 ## 2026-05-26 - Evidence Provenance and Gate Trust
 
@@ -280,7 +398,10 @@ Verification:
 
 Remaining risk:
 - HIGH: promotion evidence logic.
-- Acceptance state: accepted by later review.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: accepted by auditor through the 2026-05
+  review-stabilized audit cycle; later gate/full-suite verification remained
+  clean after these commits.
 
 ## 2026-05-18 to 2026-05-26 - Paper Campaign Monitor and Operator Workflow
 
@@ -339,7 +460,10 @@ Verification:
 
 Remaining risk:
 - HIGH: background job/operator workflow.
-- Acceptance state: accepted by later review.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: accepted by auditor through the 2026-05
+  review-stabilized audit cycle; later monitor/gate full-suite verification
+  remained clean after these commits.
 
 ## 2026-05-18 to 2026-05-26 - Evidence Artifacts and Decision Records
 
@@ -389,4 +513,7 @@ Verification:
 Remaining risk:
 - LOW to MEDIUM: mostly documentation and compatibility, with some operational
   workflow impact.
-- Acceptance state: accepted by later review.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: accepted by auditor through the 2026-05
+  review-stabilized audit cycle; later branch verification remained clean after
+  these commits.
