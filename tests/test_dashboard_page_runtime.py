@@ -1455,6 +1455,8 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
             "symbol": "BTC/USDT",
             "fills_observed": 2,
             "round_trips_observed": 1,
+            "promotion_thresholds_ready": False,
+            "promotion_progress_summary": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/10 round trips recorded (3 remaining).",
             "notification_status": "failed",
             "notification_reason": "notify_exit:1",
             "watch_count": 1,
@@ -1492,6 +1494,8 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
     assert section_rows["Paper Sim Monitor"][0]["recommendation"] == "continue"
     assert section_rows["Paper Sim Monitor"][0]["strategy"] == "es_daily_trend_v1"
     assert section_rows["Paper Sim Monitor"][0]["fills"] == "2"
+    assert section_rows["Paper Sim Monitor"][0]["promotion_thresholds"] == "not_ready"
+    assert "7/10 round trips" in section_rows["Paper Sim Monitor"][0]["promotion_progress"]
     assert section_rows["Paper Sim Monitor"][0]["local_alerts"] == "failed"
     assert section_rows["Paper Sim Monitor"][0]["watches"] == "1"
     assert "Paper Evidence Collector" in section_rows

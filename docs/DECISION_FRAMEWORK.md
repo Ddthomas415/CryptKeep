@@ -125,10 +125,18 @@ The most expensive mistake is going live before the evidence warrants it. Use th
 
 **Paper (simulation only) — minimum requirements to advance:**
 - 30 trading days minimum
-- 50+ completed round trips
+- 10+ completed round trips for slow-turnover daily systems
 - Observed expectancy within a tolerable range of backtest assumptions
 - No critical operational bugs encountered
 - Kill switch tested
+
+The 10+ paper threshold is a path-validation threshold, not a profitability proof.
+The machine gate must still surface any manual review needed to compare observed
+win rate and average win/loss against backtest expectations.
+
+For larger live-capital decisions, keep a stronger research-confidence floor around 50+
+completed round trips. That higher bar should not block the first paper → shadow/sandbox
+review for a strategy that is explicitly expected to hold for days to months.
 
 **Shadow (live data, no orders) — minimum requirements to advance:**
 - Every signal logged and compared to what actually happened

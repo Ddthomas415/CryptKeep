@@ -7,6 +7,7 @@ means either: gates pass when they shouldn't, or gates fail spuriously.
 """
 from __future__ import annotations
 import json
+import sqlite3
 import pytest
 from pathlib import Path
 from datetime import datetime, timezone
@@ -51,6 +52,32 @@ class TestGateOutput:
         assert s["fail"] == sum(1 for g in gates if g["passed"] is False)
         assert s["unknown"] == sum(1 for g in gates if g["passed"] is None)
         assert s["total"] == len(gates)
+
+    def test_passed_gate_suppresses_remediation_hint(self, tmp_path):
+        from scripts.check_promotion_gates import _gate
+
+        passed = _gate("already done", True, "ok", "fix this")
+        failed = _gate("not done", False, "bad", "fix this")
+        unknown = _gate("unknown", None, "unknown", "check this")
+
+        assert passed["hint"] == ""
+        assert failed["hint"] == "fix this"
+        assert unknown["hint"] == "check this"
+
+    def test_json_output_surfaces_manual_review_for_backtest_expectations(self, tmp_path):
+        from scripts.check_promotion_gates import run_check
+
+        result = run_check(stage_override="paper")
+
+        assert result["manual_review_required"] is True
+        assert result["machine_ready"] is False
+        review = result["manual_review"]
+        assert review["required"] is True
+        assert any(
+            item["id"] == "win_rate_avg_win_loss_vs_backtest"
+            and item["status"] == "manual_required"
+            for item in review["outstanding_items"]
+        )
 
 
 class TestSchemaValidation:
@@ -147,6 +174,24 @@ class TestGateLogic:
         evidence = _load_all_evidence(ev_dir)
         assert _kill_switch_tested(evidence["session"]) is True
 
+    def test_kill_switch_status_requires_recent_test(self, tmp_path):
+        from scripts.check_promotion_gates import _kill_switch_test_status
+
+        stale = _kill_switch_test_status(
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "kill_switch_tested": True}],
+            {"ops": {"kill_switch_test_frequency": "weekly"}},
+            reference_ts=datetime.fromisoformat("2026-05-10T00:00:00+00:00"),
+        )
+        fresh = _kill_switch_test_status(
+            [{"timestamp": "2026-05-04T00:00:00+00:00", "kill_switch_tested": True}],
+            {"ops": {"kill_switch_test_frequency": "weekly"}},
+            reference_ts=datetime.fromisoformat("2026-05-10T00:00:00+00:00"),
+        )
+
+        assert stale["ok"] is False
+        assert stale["max_age_days"] == 7
+        assert fresh["ok"] is True
+
     def test_days_of_operation_unique_dates(self, tmp_path):
         ev_dir = self._ev_dir()
         from services.strategies.evidence_logger import EvidenceLogger
@@ -163,6 +208,201 @@ class TestGateLogic:
         days = _days_of_operation(evidence["session"])
         assert days == 1
 
+    def test_paper_gate_uses_trade_journal_for_round_trips_and_expectancy(self, tmp_path):
+        from services.os.app_paths import data_dir
+        from scripts.check_promotion_gates import run_check
+
+        journal = data_dir() / "trade_journal.sqlite"
+        journal.parent.mkdir(parents=True, exist_ok=True)
+        con = sqlite3.connect(str(journal))
+        try:
+            con.execute(
+                """
+                CREATE TABLE journal_fills (
+                  fill_id TEXT PRIMARY KEY,
+                  journal_ts TEXT NOT NULL,
+                  strategy_id TEXT,
+                  fill_ts TEXT NOT NULL,
+                  venue TEXT NOT NULL,
+                  symbol TEXT NOT NULL,
+                  side TEXT NOT NULL,
+                  qty REAL NOT NULL,
+                  price REAL NOT NULL,
+                  fee REAL NOT NULL,
+                  fee_currency TEXT NOT NULL
+                )
+                """
+            )
+            rows = []
+            for idx in range(7):
+                rows.append((
+                    f"buy-{idx}",
+                    f"2026-05-{idx + 1:02d}T00:00:00+00:00",
+                    "sma_200_trend",
+                    f"2026-05-{idx + 1:02d}T00:00:00+00:00",
+                    "coinbase",
+                    "BTC/USDT",
+                    "buy",
+                    1.0,
+                    100.0,
+                    0.0,
+                    "USD",
+                ))
+                rows.append((
+                    f"sell-{idx}",
+                    f"2026-05-{idx + 1:02d}T01:00:00+00:00",
+                    "sma_200_trend",
+                    f"2026-05-{idx + 1:02d}T01:00:00+00:00",
+                    "coinbase",
+                    "BTC/USDT",
+                    "sell",
+                    1.0,
+                    110.0,
+                    0.0,
+                    "USD",
+                ))
+            con.executemany(
+                "INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                rows,
+            )
+            con.commit()
+        finally:
+            con.close()
+
+        result = run_check(stage_override="paper")
+        round_trip_gate = next(g for g in result["gates"] if "round trips" in g["label"])
+        expectancy_gate = next(g for g in result["gates"] if "Expectancy" in g["label"])
+
+        assert result["paper_history"]["fills"] == 14
+        assert result["paper_history"]["closed_trades"] == 7
+        assert "7 round trips recorded from trade_journal_sqlite" in round_trip_gate["detail"]
+        assert "(7/10, 3 remaining)" in round_trip_gate["detail"]
+        assert expectancy_gate["passed"] is True
+        assert expectancy_gate["detail"] == "avg pnl/round trip = $10.00 from trade_journal_sqlite"
+        assert result["retirement"]["source"] == "trade_journal_sqlite"
+        assert result["retirement"]["triggers_fired"] == []
+
+    def test_latest_session_health_ignores_resolved_old_critical_errors(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_session_health
+
+        result = _latest_session_health([
+            {"timestamp": "2026-05-01T00:00:00+00:00", "critical_error": True},
+            {"timestamp": "2026-05-02T00:00:00+00:00", "critical_error": False},
+        ])
+
+        assert result["ok"] is True
+        assert result["window_date"] == "2026-05-02"
+        assert result["critical_error_count"] == 0
+
+    def test_latest_session_health_fails_current_critical_errors(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_session_health
+
+        result = _latest_session_health([
+            {"timestamp": "2026-05-01T00:00:00+00:00", "critical_error": False},
+            {"timestamp": "2026-05-02T00:00:00+00:00", "critical_error": True},
+        ])
+
+        assert result["ok"] is False
+        assert result["window_date"] == "2026-05-02"
+        assert result["critical_error_count"] == 1
+
+    def test_latest_evidence_log_presence_uses_latest_window(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_evidence_log_presence
+
+        result = _latest_evidence_log_presence({
+            "signal": [
+                {"timestamp": "2026-05-01T00:00:00+00:00"},
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "order": [
+                {"timestamp": "2026-05-01T00:00:00+00:00"},
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "fill": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "session": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+        })
+
+        assert result["ok"] is True
+        assert result["window_date"] == "2026-05-02"
+        assert result["counts"] == {"signal": 1, "order": 1, "fill": 1, "session": 1}
+        assert result["detail"] == "window:2026-05-02 signal:1 order:1 fill:1 session:1"
+
+    def test_latest_evidence_log_presence_allows_no_trade_window(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_evidence_log_presence
+
+        result = _latest_evidence_log_presence({
+            "signal": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "order": [],
+            "fill": [],
+            "session": [
+                {
+                    "timestamp": "2026-05-02T00:00:00+00:00",
+                    "phase": "end",
+                    "campaign_status": "completed",
+                },
+            ],
+        })
+
+        assert result["ok"] is True
+        assert result["trade_evidence_expected"] is False
+        assert result["no_trade_window"] is True
+        assert result["detail"] == "window:2026-05-02 signal:1 order:0 fill:0 session:1 no_trade_window:true"
+
+    def test_latest_evidence_log_presence_fails_incomplete_trade_window(self, tmp_path):
+        from scripts.check_promotion_gates import _latest_evidence_log_presence
+
+        result = _latest_evidence_log_presence({
+            "signal": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "order": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+            "fill": [],
+            "session": [
+                {"timestamp": "2026-05-02T00:00:00+00:00"},
+            ],
+        })
+
+        assert result["ok"] is False
+        assert result["trade_evidence_expected"] is True
+        assert result["no_trade_window"] is False
+        assert result["hint"] == "order/fill evidence is incomplete for latest trade window"
+
+    def test_paper_threshold_gates_report_remaining_counts(self, tmp_path):
+        from scripts.check_promotion_gates import evaluate_paper_gates
+
+        evidence = {
+            "signal": [{"timestamp": "2026-05-02T00:00:00+00:00", "market_data_source": "public_ohlcv"}],
+            "order": [],
+            "fill": [],
+            "session": [{"timestamp": "2026-05-02T00:00:00+00:00", "market_data_source": "public_ohlcv"}],
+        }
+        sessions = [
+            {"timestamp": f"2026-05-{day:02d}T00:00:00+00:00"}
+            for day in range(1, 23)
+        ]
+        paper_history = {
+            "ok": True,
+            "source": "trade_journal_sqlite",
+            "fills": 14,
+            "closed_trades": 7,
+            "expectancy_per_closed_trade": 5.0,
+        }
+
+        gates = evaluate_paper_gates(evidence, sessions, evidence["signal"], evidence["fill"], paper_history)
+        day_gate = next(g for g in gates if g["label"] == "30 calendar days of operation")
+        round_trip_gate = next(g for g in gates if g["label"] == "10+ completed round trips")
+
+        assert day_gate["detail"] == "22/30 days recorded (8 remaining)"
+        assert "(7/10, 3 remaining)" in round_trip_gate["detail"]
+
 
 class TestEvidenceProvenance:
     def test_provenance_summary_flags_missing_source(self, tmp_path):
@@ -176,6 +416,27 @@ class TestEvidenceProvenance:
         result = _evidence_provenance_summary(evidence)
         assert result["ok"] is False
         assert result["missing"] == 1
+
+    def test_provenance_summary_reports_unknown_source_breakdown(self, tmp_path):
+        from scripts.check_promotion_gates import _evidence_provenance_summary, _provenance_gate_detail
+        evidence = {
+            "signal": [
+                {"record_type": "signal", "market_data_source": "unknown_ohlcv"},
+                {"record_type": "signal", "market_data_source": "unknown_ohlcv"},
+                {"record_type": "signal", "market_data_source": "custom_feed"},
+            ],
+            "order": [],
+            "fill": [],
+            "session": [],
+        }
+
+        result = _evidence_provenance_summary(evidence)
+        detail = _provenance_gate_detail({**result, "window_date": "2026-05-26"})
+
+        assert result["unknown"] == 3
+        assert result["unknown_sources"] == {"custom_feed": 1, "unknown_ohlcv": 2}
+        assert result["by_type"]["signal"]["unknown_sources"] == {"custom_feed": 1, "unknown_ohlcv": 2}
+        assert "unknown_sources:custom_feed=1,unknown_ohlcv=2" in detail
 
     def test_provenance_summary_flags_sample_source(self, tmp_path):
         from scripts.check_promotion_gates import _evidence_provenance_summary
@@ -209,6 +470,51 @@ class TestEvidenceProvenance:
         assert result["missing"] == 0
         assert result["sample"] == 0
         assert result["unknown"] == 0
+
+    def test_promotion_provenance_uses_latest_dated_window(self, tmp_path):
+        from scripts.check_promotion_gates import (
+            _evidence_provenance_summary,
+            _promotion_provenance_summary,
+        )
+        evidence = {
+            "signal": [
+                {"record_type": "signal", "timestamp": "2026-05-01T00:00:00+00:00"},
+                {
+                    "record_type": "signal",
+                    "timestamp": "2026-05-02T00:00:00+00:00",
+                    "market_data_source": "public_ohlcv",
+                    "ohlcv_sample_mode": False,
+                },
+            ],
+            "order": [{
+                "record_type": "order",
+                "timestamp": "2026-05-02T00:00:00+00:00",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+            }],
+            "fill": [{
+                "record_type": "fill",
+                "timestamp": "2026-05-02T00:00:00+00:00",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+            }],
+            "session": [{
+                "record_type": "session",
+                "timestamp": "2026-05-02T00:00:00+00:00",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+            }],
+        }
+
+        all_time = _evidence_provenance_summary(evidence)
+        latest = _promotion_provenance_summary(evidence)
+
+        assert all_time["missing"] == 1
+        assert latest["ok"] is True
+        assert latest["window"] == "latest_date"
+        assert latest["window_date"] == "2026-05-02"
+        assert latest["public"] == 4
+        assert latest["missing"] == 0
 
     def test_paper_gate_blocks_legacy_unstamped_evidence(self, tmp_path):
         from services.os.app_paths import data_dir

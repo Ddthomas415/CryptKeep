@@ -1,7 +1,6 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
-# CBP_BOOTSTRAP_SYS_PATH
-import sys
 from pathlib import Path
 
 try:
@@ -11,12 +10,12 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-from scripts.live import run_intent_executor_safe as _impl
 
-main = _impl.main
+def main() -> int:
+    from scripts.live.run_intent_executor_safe import main as _main
+
+    return int(_main())
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-sys.modules[__name__] = _impl

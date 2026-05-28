@@ -24,6 +24,13 @@ STRATEGY_ID = "es_daily_trend_v1"
 SMA_PERIOD_DEFAULT = 200
 ATR_PERIOD_DEFAULT = 20
 ATR_STOP_MULT_DEFAULT = 2.0
+_EVIDENCE_MARKET_DATA_SOURCES = {
+    "exchange",
+    "live_market",
+    "local_snapshot",
+    "public_ohlcv",
+    "sample_ohlcv",
+}
 
 
 def _trace_enabled() -> bool:
@@ -38,6 +45,11 @@ def _default_evidence_extra(extra: dict[str, Any] | None = None) -> dict[str, An
         out["market_data_source"] = "sample_ohlcv" if sample_mode else "unknown_ohlcv"
         out["ohlcv_sample_mode"] = sample_mode
     return out
+
+
+def _can_write_signal_evidence(extra: dict[str, Any]) -> bool:
+    source = str(extra.get("market_data_source") or "").strip().lower()
+    return source in _EVIDENCE_MARKET_DATA_SOURCES
 
 
 # ---------------------------------------------------------------------------
@@ -349,6 +361,7 @@ def signal_from_ohlcv(
     sma_period: int = SMA_PERIOD_DEFAULT,
     atr_period: int = ATR_PERIOD_DEFAULT,
     evidence_extra: dict[str, Any] | None = None,
+    emit_evidence: bool = True,
 ) -> dict[str, Any]:
     """Adapter for strategy_registry. Accepts ohlcv rows [ts,o,h,l,c,vol].
 
@@ -362,24 +375,32 @@ def signal_from_ohlcv(
             sma_period,
             atr_period,
         )
+    signal_evidence_extra = _default_evidence_extra(evidence_extra)
+    write_signal_evidence = bool(emit_evidence) and _can_write_signal_evidence(signal_evidence_extra)
+    if bool(emit_evidence) and not write_signal_evidence and _trace_enabled():
+        _LOG.debug(
+            "skip signal evidence for unattributed ohlcv source=%s",
+            signal_evidence_extra.get("market_data_source"),
+        )
     if not ohlcv or len(ohlcv) < sma_period:
-        # Still log — operator needs to know the data feed is short
+        # Log only when the feed is attributable; unknown-source records block promotion evidence.
         try:
             from datetime import datetime, timezone as _tz
-            EvidenceLogger(STRATEGY_ID).log_signal(
-                timestamp=datetime.now(_tz.utc).isoformat(),
-                price=float(ohlcv[-1][4]) if ohlcv else 0.0,
-                sma_200=None,
-                atr_ratio=None,
-                signal_direction="flat",
-                regime_flag="insufficient_data",
-                entry_allowed=False,
-                extra={
-                    "reason": "insufficient_history",
-                    "bars_received": len(ohlcv),
-                    **_default_evidence_extra(evidence_extra),
-                },
-            )
+            if write_signal_evidence:
+                EvidenceLogger(STRATEGY_ID).log_signal(
+                    timestamp=datetime.now(_tz.utc).isoformat(),
+                    price=float(ohlcv[-1][4]) if ohlcv else 0.0,
+                    sma_200=None,
+                    atr_ratio=None,
+                    signal_direction="flat",
+                    regime_flag="insufficient_data",
+                    entry_allowed=False,
+                    extra={
+                        "reason": "insufficient_history",
+                        "bars_received": len(ohlcv),
+                        **signal_evidence_extra,
+                    },
+                )
         except Exception as _ev_err:
             _LOG.warning("signal evidence logging failed: %s", _ev_err)
         return {"ok": True, "action": "hold", "reason": "insufficient_history",
@@ -400,16 +421,17 @@ def signal_from_ohlcv(
     # (signal_from_ohlcv is called by strategy_registry from ema_crossover_runner)
     try:
         from datetime import datetime, timezone as _tz
-        EvidenceLogger(STRATEGY_ID).log_signal(
-            timestamp=datetime.now(_tz.utc).isoformat(),
-            price=float(ohlcv[-1][4]) if ohlcv else 0.0,
-            sma_200=sma,
-            atr_ratio=reg.get("atr_ratio"),
-            signal_direction=signal,
-            regime_flag=reg.get("regime", "unknown"),
-            entry_allowed=reg["entry_allowed"],
-            extra=_default_evidence_extra(evidence_extra),
-        )
+        if write_signal_evidence:
+            EvidenceLogger(STRATEGY_ID).log_signal(
+                timestamp=datetime.now(_tz.utc).isoformat(),
+                price=float(ohlcv[-1][4]) if ohlcv else 0.0,
+                sma_200=sma,
+                atr_ratio=reg.get("atr_ratio"),
+                signal_direction=signal,
+                regime_flag=reg.get("regime", "unknown"),
+                entry_allowed=reg["entry_allowed"],
+                extra=signal_evidence_extra,
+            )
     except Exception as _ev_err:
         _LOG.warning("signal evidence logging failed (non-blocking): %s", _ev_err)
 

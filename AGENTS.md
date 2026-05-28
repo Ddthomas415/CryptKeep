@@ -219,6 +219,21 @@ Every review handoff should preserve:
 - active risks
 - proof required next
 
+## Visible work log
+When a Codex thread changes code, docs, tests, runtime policy, operator workflow, or gate behavior, update `docs/work_log/review_stabilized_work_log.md` in the same branch before handoff.
+
+Each entry should state:
+- date/time or commit SHA
+- active role and objective
+- what was found
+- what changed
+- why that change was chosen
+- expected outcome
+- verification run, or why verification was not run
+- remaining risk and acceptance state
+
+If a change is high risk, the work-log entry must end at `READY_FOR_INDEPENDENT_REVIEW` until a separate reviewer or human accepts it.
+
 ## Operator rule
 Do not use:
 - "carry on until completion"

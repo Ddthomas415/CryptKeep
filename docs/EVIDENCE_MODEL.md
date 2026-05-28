@@ -1,6 +1,7 @@
 # Evidence Model
 
-Two evidence systems exist in this repo. This document defines which is canonical.
+Three evidence surfaces exist in this repo. This document defines which one is
+authoritative for each promotion question.
 
 ## Canonical: JSONL per-record evidence
 
@@ -9,7 +10,7 @@ Two evidence systems exist in this repo. This document defines which is canonica
 **Written by:** `services/strategies/evidence_logger.py` (EvidenceLogger)
 
 **Read by:**
-- `scripts/check_promotion_gates.py` — promotion decision engine
+- `scripts/check_promotion_gates.py` — promotion schema, provenance, and log completeness checks
 - `services/strategies/campaign_summary.py` — campaign summary reporting
 
 **Record types per file:**
@@ -21,8 +22,38 @@ Two evidence systems exist in this repo. This document defines which is canonica
 
 **Schema:** defined in `configs/strategies/es_daily_trend_v1.yaml` under `evidence.required_*_fields`
 
-**This is the only evidence that gates promotion.** `check_promotion_gates.py` reads
-exclusively from this directory.
+**Promotion use:** JSONL is authoritative for proving that required evidence logs
+exist, have valid schema, and carry market-data provenance. The promotion
+provenance gate evaluates the latest dated evidence window so fresh public-market
+evidence can supersede older unstamped records without deleting history. It is
+not the only paper fill source because older accepted paper fills may exist in
+the persisted trade journal before JSONL provenance coverage was complete.
+
+The latest-window evidence-presence gate requires signal and session records on
+every completed campaign window. Order and fill records are required when either
+trade record type appears in that latest window. A no-trade window with signal
+and session records is valid evidence collection, not a missing-log failure.
+
+Signal calls with unlabeled OHLCV are not promotion evidence. The
+`es_daily_trend` signal adapter returns the computed signal but does not write a
+JSONL signal record unless the caller stamps a recognized source such as
+`public_ohlcv` or `sample_ohlcv`. This prevents research/backtest calls with
+unknown provenance from contaminating the promotion gate.
+
+---
+
+## Canonical: persisted paper fill history
+
+**Location:** `.cbp_state/data/trade_journal.sqlite`
+
+**Read by:**
+- `services/analytics/strategy_feedback.py` — strategy-level paper-history summary
+- `scripts/check_promotion_gates.py` — paper-stage round-trip count, realized expectancy, and retirement expectancy reporting
+
+**Promotion use:** for paper-stage gates, realized fill count, completed round
+trips, and expectancy come from `trade_journal.sqlite` when a target-strategy row
+exists. `check_promotion_gates.py --json` exposes this under `paper_history` and
+keeps JSONL counts visible in gate details when the two surfaces disagree.
 
 ---
 
@@ -33,11 +64,9 @@ exclusively from this directory.
 **Written by:** `services/backtest/evidence_cycle.py` via `run_campaign()` in
 `paper_strategy_evidence_service.py` — only when fills or closed trades are present.
 
-**Last updated:** 2026-03-19 (stale — no fills have occurred at paper stage)
-
-**Status:** This artifact will remain stale until capped_live stage produces fills.
-It is **not** used for promotion decisions. It is a historical leaderboard for
-comparing strategy performance after fills exist.
+**Status:** This artifact is not the direct promotion gate source. It is a
+historical leaderboard for comparing strategy performance across synthetic
+windows and supplemental paper history.
 
 `run_campaign()` and `load_runtime_status()` return this path in `result["evidence"]`
 for backward compatibility. The canonical JSONL summary is in
@@ -45,12 +74,16 @@ for backward compatibility. The canonical JSONL summary is in
 
 ---
 
-## Migration plan
+## Operator rule
 
-Once the paper stage accumulates 50+ filled round trips, the leaderboard artifact
-will become meaningful again. At that point:
-1. Verify `evidence_cycle.py` reads from the JSONL fills (not the SQLite paper engine)
-2. Update `_latest_strategy_evidence_artifacts()` to reference the JSONL directory
-3. Retire the `strategy_evidence.latest.json` path as the primary artifact
+Use `scripts/check_promotion_gates.py --json` as the current promotion gate
+summary. Interpret the sources this way:
 
-Until then: **use the JSONL directory. Ignore the leaderboard artifact.**
+1. `paper_history` answers how many target-strategy paper fills and round trips
+   exist, and what realized expectancy they produced.
+2. `schema` and `provenance` answer whether the JSONL evidence stream is complete
+   and attributable to non-sample market data. `provenance`, session health, and
+   evidence-log presence gates use the latest dated evidence window; kill-switch
+   testing must be current within `ops.kill_switch_test_frequency`;
+   `provenance_all_time` is diagnostic history.
+3. `strategy_evidence.latest.json` is comparison context, not the final gate.

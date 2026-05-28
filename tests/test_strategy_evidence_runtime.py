@@ -112,6 +112,11 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
             "ts": "2026-05-15T10:00:00Z",
             "desktop_notify": True,
             "recommendation": "continue",
+            "promotion_progress": {
+                "thresholds_ready": False,
+                "blocking_thresholds": [{"label": "10+ completed round trips"}],
+                "summary_text": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/10 round trips recorded (3 remaining).",
+            },
             "watches": [{"name": "next_fill", "trigger": "new_fill"}],
             "recent_watch_reports": [
                 {
@@ -132,6 +137,9 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
     assert payload["recent_report_count"] == 1
     assert payload["registered_watch_names"] == ["next_fill"]
     assert payload["last_watch_report"]["watch_name"] == "next_fill"
+    assert payload["promotion_thresholds_ready"] is False
+    assert payload["promotion_blocking_threshold_count"] == 1
+    assert "7/10 round trips" in payload["promotion_progress_summary"]
     assert payload["desktop_notify_enabled"] is True
     assert payload["notification_status"] == "sent"
     assert payload["notification_reason"] == "notified"

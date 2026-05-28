@@ -15,6 +15,7 @@ from typing import Any
 from services.admin.config_editor import load_user_yaml
 from services.ai_copilot.policy import report_root
 from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+from services.control.paper_promotion_progress import load_paper_promotion_progress
 from services.os.app_paths import config_dir, ensure_dirs, runtime_dir
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
@@ -377,6 +378,20 @@ def _result_realized_pnl(result: dict[str, Any], position: dict[str, Any], equit
     return _safe_float(equity.get("realized_pnl"))
 
 
+def _promotion_progress_snapshot() -> dict[str, Any]:
+    try:
+        return dict(load_paper_promotion_progress() or {})
+    except Exception as exc:
+        return {
+            "ok": False,
+            "source": "paper_promotion_progress",
+            "reason": f"promotion_progress_unavailable:{type(exc).__name__}",
+            "thresholds_ready": False,
+            "blocking_thresholds": [],
+            "summary_text": "Promotion threshold progress is unavailable.",
+        }
+
+
 def _recommendation(
     *,
     cfg: "PaperSimMonitorCfg",
@@ -432,6 +447,7 @@ def _summary_text(
     fills: int,
     current_window_realized_pnl: float,
     recommendation: str,
+    promotion_progress: dict[str, Any] | None = None,
 ) -> str:
     status_label = str(campaign_status or "unknown").strip()
     reason_label = str(campaign_reason or "").strip().lower()
@@ -444,12 +460,16 @@ def _summary_text(
     if latest_fill_side:
         latest_fill_part = f"latest_fill={latest_fill_side}@{latest_fill_ts or 'unknown_ts'}"
     position_part = "flat" if qty == 0.0 else f"open qty={qty}"
-    return (
+    text = (
         f"Paper sim monitor sees {strategy_label or 'unknown_strategy'} on {symbol or 'unknown_symbol'} "
         f"with campaign {status_label}; {position_part}; fills={fills}; "
         f"round_trips={round_trips}; current_window_realized_pnl={current_window_realized_pnl:.4f}; {latest_fill_part}; "
         f"recommendation={recommendation}."
     )
+    progress_summary = str((promotion_progress or {}).get("summary_text") or "").strip()
+    if progress_summary:
+        text = f"{text} {progress_summary}"
+    return text
 
 
 @dataclass(frozen=True)
@@ -515,6 +535,7 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
     position_realized_pnl_total = _safe_float(position.get("realized_pnl"))
     equity_realized_pnl_total = _safe_float(latest_equity.get("realized_pnl"))
     unrealized_pnl = _safe_float(latest_equity.get("unrealized_pnl"))
+    promotion_progress = _promotion_progress_snapshot()
     recommendation, recommendation_reason = _recommendation(
         cfg=cfg,
         campaign=campaign,
@@ -556,6 +577,9 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
         "collector": campaign,
         "strategy_runner": runner,
         "paper_engine": paper_engine,
+        "promotion_progress": promotion_progress,
+        "promotion_thresholds_ready": bool(promotion_progress.get("thresholds_ready")),
+        "promotion_progress_summary": str(promotion_progress.get("summary_text") or ""),
         "summary_text": _summary_text(
             strategy_label=strategy_label,
             symbol=symbol,
@@ -567,6 +591,7 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
             fills=fills,
             current_window_realized_pnl=current_window_realized_pnl,
             recommendation=recommendation,
+            promotion_progress=promotion_progress,
         ),
     }
 
@@ -791,6 +816,7 @@ def _signature_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
     latest_fill = dict(snapshot.get("latest_journal_fill") or snapshot.get("latest_paper_fill") or {})
     latest_order = dict(snapshot.get("latest_order") or {})
     position = dict(snapshot.get("paper_position") or {})
+    promotion_progress = dict(snapshot.get("promotion_progress") or {})
     return {
         "campaign_status": str(snapshot.get("campaign_status") or ""),
         "recommendation": str(snapshot.get("recommendation") or ""),
@@ -804,6 +830,10 @@ def _signature_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
         "fills_observed": _safe_int(snapshot.get("fills_observed")),
         "current_window_realized_pnl": round(_safe_float(snapshot.get("current_window_realized_pnl")), 8),
         "unrealized_pnl": round(_safe_float(snapshot.get("unrealized_pnl")), 8),
+        "promotion_thresholds_ready": bool(promotion_progress.get("thresholds_ready")),
+        "promotion_days_recorded": _safe_int(promotion_progress.get("days_recorded")),
+        "promotion_round_trips_recorded": _safe_int(promotion_progress.get("round_trips_recorded")),
+        "promotion_progress_summary": str(snapshot.get("promotion_progress_summary") or ""),
     }
 
 
@@ -823,6 +853,10 @@ def _change_reasons(previous: dict[str, Any] | None, current: dict[str, Any]) ->
         "fills_observed": "fill_count_changed",
         "current_window_realized_pnl": "realized_pnl_changed",
         "unrealized_pnl": "unrealized_pnl_changed",
+        "promotion_thresholds_ready": "promotion_threshold_state_changed",
+        "promotion_days_recorded": "promotion_day_count_changed",
+        "promotion_round_trips_recorded": "promotion_round_trip_count_changed",
+        "promotion_progress_summary": "promotion_progress_changed",
     }
     reasons = [label for key, label in labels.items() if previous.get(key) != current.get(key)]
     return reasons or ["heartbeat_only"]
@@ -902,9 +936,10 @@ def load_runtime_status() -> dict[str, Any]:
         except Exception as exc:
             payload["pid_reason"] = f"pid_read_failed:{type(exc).__name__}"
 
+    status_value = str(payload.get("status") or "").strip().lower()
     status_pid = _safe_int(payload.get("pid"))
     pid = _safe_int(pid_state.get("pid"))
-    if status_pid > 0 and (pid <= 0 or payload.get("status") == "running"):
+    if status_pid > 0 and (pid <= 0 and status_value in {"running", "starting"}):
         pid = status_pid
     pid_alive = _process_alive(pid) if pid > 0 else False
 

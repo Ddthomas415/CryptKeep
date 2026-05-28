@@ -15,11 +15,22 @@ _REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import time
 import traceback
 
-from services.config_loader import runtime_trading_config_available
-from services.os.app_paths import data_dir, ensure_dirs, runtime_dir
+
+def runtime_trading_config_available() -> bool:
+    from services.config_loader import runtime_trading_config_available as _impl
+
+    return bool(_impl())
+
+
+def data_dir() -> Path:
+    from services.os.app_paths import data_dir as _impl
+
+    return _impl()
 
 
 def _log_path() -> Path:
+    from services.os.app_paths import ensure_dirs, runtime_dir
+
     ensure_dirs()
     path = runtime_dir() / "logs" / "tick_publisher.log"
     path.parent.mkdir(parents=True, exist_ok=True)

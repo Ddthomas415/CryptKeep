@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
-# CBP_BOOTSTRAP_SYS_PATH
-import sys
+# Compatibility path for the canonical service control CLI.
+# from services.desktop.simple_service_manager import (
 from pathlib import Path
 
 try:
@@ -11,10 +12,9 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-from scripts.compat import service_ctl as _impl
+from scripts.compat.service_ctl import *  # noqa: F401,F403
+from scripts.compat.service_ctl import main
 
 
 if __name__ == "__main__":
-    raise SystemExit(_impl.main())
-
-sys.modules[__name__] = _impl
+    raise SystemExit(main())

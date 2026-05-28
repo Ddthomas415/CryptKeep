@@ -10,11 +10,8 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-
-def main() -> int:
-    from scripts.live.run_intent_reconciler_safe import main as _main
-
-    return int(_main())
+from scripts.dev.run_user_stream_fills import *  # noqa: F401,F403
+from scripts.dev.run_user_stream_fills import main
 
 
 if __name__ == "__main__":

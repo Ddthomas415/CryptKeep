@@ -31,10 +31,15 @@ from daily public OHLCV instead of synthetic tick-derived bars.
 4. `run_strategy_runner.py` → `ema_crossover_runner.py` — signal evaluation loop
 5. `run_paper_sim_monitor.py` — auto-supervised read-only runtime monitor
 
-Signal source: `public_ohlcv_1d` → fetches daily OHLCV → calls `es_daily_trend.signal_from_ohlcv()`
+Signal source: `public_ohlcv_1d` → fetches daily OHLCV → calls
+`es_daily_trend.signal_from_ohlcv()` with explicit `public_ohlcv` provenance.
+Unlabeled OHLCV calls may compute a signal, but they do not write promotion
+JSONL evidence.
 
 The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
 It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.
+It also surfaces paper-stage promotion threshold progress (30 days / 10 round trips) so a local
+`recommendation=enough_evidence` event is not confused with full promotion readiness.
 Managed paper campaigns also auto-seed default paper-sim watches:
 - `next_fill`
 - `position_closed`
@@ -44,6 +49,11 @@ Managed paper campaigns also auto-seed default paper-sim watches:
 When one of those watches fires, the monitor writes JSON/Markdown reports under `.cbp_state/runtime/ai_reports/`
 and attempts a local macOS desktop notification.
 Operators can register or delete local watches from the Operations dashboard without using the CLI.
+
+A daily paper campaign can complete without order/fill records when the strategy
+does not trade. In that case the promotion gate treats signal plus session logs
+as a complete no-trade evidence window; order/fill evidence is required once a
+trade record appears.
 
 ## Where evidence goes
 
@@ -62,15 +72,21 @@ See `docs/EVIDENCE_MODEL.md` for full explanation.
 
 ## Promotion gates
 
-Read by: `scripts/check_promotion_gates.py` from the canonical JSONL evidence directory.
+Read by: `scripts/check_promotion_gates.py` from two canonical evidence surfaces:
+JSONL for latest-window schema/provenance/log completeness and `.cbp_state/data/trade_journal.sqlite`
+for paper fill count, completed round trips, and realized expectancy.
 
 Gates for paper → shadow promotion:
 - 30 calendar days of operation
-- 50+ completed round trips
+- 10+ completed round trips
 - Expectancy within 30% of backtest
 - No critical operational bugs
-- Kill switch tested
+- Kill switch tested within the configured cadence (`ops.kill_switch_test_frequency`, weekly by default)
 - All evidence logs complete
+
+The older 50+ round-trip target is retained as a stronger research-confidence floor before
+larger live-capital decisions. It is not the paper → shadow/sandbox blocker for this
+slow-turnover daily strategy.
 
 ## What is core vs optional
 

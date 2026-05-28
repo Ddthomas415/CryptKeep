@@ -97,6 +97,20 @@ def load_paper_sim_monitor_runtime() -> dict[str, Any]:
     payload["registered_watch_names"] = [str(item.get("name") or "") for item in watches if str(item.get("name") or "").strip()]
     payload["desktop_notify_enabled"] = bool(payload.get("desktop_notify", True))
     payload["last_watch_report"] = dict(recent_reports[0]) if recent_reports else {}
+    promotion_progress = (
+        dict(payload.get("promotion_progress") or {})
+        if isinstance(payload.get("promotion_progress"), dict)
+        else {}
+    )
+    payload["promotion_thresholds_ready"] = bool(promotion_progress.get("thresholds_ready"))
+    payload["promotion_progress_summary"] = str(
+        payload.get("promotion_progress_summary")
+        or promotion_progress.get("summary_text")
+        or ""
+    )
+    payload["promotion_blocking_threshold_count"] = len(
+        [item for item in list(promotion_progress.get("blocking_thresholds") or []) if isinstance(item, dict)]
+    )
     last_notification = (
         dict(payload["last_watch_report"].get("desktop_notification") or {})
         if isinstance(payload.get("last_watch_report"), dict)

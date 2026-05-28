@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -30,9 +31,14 @@ import yaml
 
 from services.control.deployment_stage import get_current_stage, Stage, stage_summary
 from services.control.cognitive_budget import budget_summary
+from services.control.promotion_thresholds import (
+    ES_DAILY_TREND_STRATEGY_ID,
+    PAPER_MIN_DAYS,
+    PAPER_MIN_ROUND_TRIPS,
+)
 from services.os.app_paths import data_dir
 
-STRATEGY_ID = "es_daily_trend_v1"
+STRATEGY_ID = ES_DAILY_TREND_STRATEGY_ID
 REPO_ROOT = Path(__file__).resolve().parents[1]; CONFIG_PATH = REPO_ROOT / "configs/strategies/es_daily_trend_v1.yaml"
 
 
@@ -116,6 +122,82 @@ def _kill_switch_tested(sessions: list[dict]) -> bool:
     return any(s.get("kill_switch_tested") is True for s in sessions)
 
 
+def _session_ts(row: dict) -> datetime | None:
+    ts = row.get("timestamp") or row.get("date") or row.get("session_start")
+    if not ts:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except Exception:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def _kill_switch_max_age_days(cfg: dict) -> int:
+    raw = str(((cfg.get("ops") or {}).get("kill_switch_test_frequency")) or "weekly").strip().lower()
+    if raw in {"daily", "1d", "1 day"}:
+        return 1
+    if raw in {"weekly", "7d", "7 days", "1 week"}:
+        return 7
+    if raw in {"monthly", "30d", "30 days", "1 month"}:
+        return 30
+    try:
+        return max(1, int(raw))
+    except Exception:
+        return 7
+
+
+def _kill_switch_test_status(
+    sessions: list[dict],
+    cfg: dict,
+    *,
+    reference_ts: datetime | None = None,
+) -> dict:
+    max_age_days = _kill_switch_max_age_days(cfg)
+    tested = [
+        ts
+        for row in list(sessions or [])
+        if row.get("kill_switch_tested") is True
+        if (ts := _session_ts(dict(row))) is not None
+    ]
+    if not sessions:
+        return {
+            "ok": None,
+            "detail": "no session logs found",
+            "hint": "set kill_switch_tested=True in session log after testing",
+            "last_tested_ts": None,
+            "max_age_days": max_age_days,
+        }
+    if not tested:
+        return {
+            "ok": False,
+            "detail": "no kill_switch_tested=True session log found",
+            "hint": "set kill_switch_tested=True in session log after testing",
+            "last_tested_ts": None,
+            "max_age_days": max_age_days,
+        }
+
+    last_tested = max(tested)
+    reference = reference_ts or datetime.now(timezone.utc)
+    if reference.tzinfo is None:
+        reference = reference.replace(tzinfo=timezone.utc)
+    age_days = max(0.0, (reference - last_tested).total_seconds() / 86400.0)
+    ok = age_days <= float(max_age_days)
+    return {
+        "ok": ok,
+        "detail": (
+            f"kill_switch_tested=True last seen {last_tested.isoformat()} "
+            f"({age_days:.1f} days old, max {max_age_days})"
+        ),
+        "hint": "" if ok else "repeat kill-switch test before promotion",
+        "last_tested_ts": last_tested.isoformat(),
+        "age_days": float(age_days),
+        "max_age_days": max_age_days,
+    }
+
+
 def _check_expectancy(fills: list[dict]) -> tuple[bool | None, float | None]:
     """Check if observed expectancy is positive."""
     pnls = [float(f.get("pnl_usd") or 0) for f in fills if "pnl_usd" in f]
@@ -123,6 +205,116 @@ def _check_expectancy(fills: list[dict]) -> tuple[bool | None, float | None]:
         return None, None
     avg = sum(pnls) / len(pnls)
     return avg > 0, avg
+
+
+def _target_feedback_strategy(cfg: dict) -> str:
+    strategy = cfg.get("strategy") or {}
+    strategy_id = str(strategy.get("id") or STRATEGY_ID).strip().lower()
+    signal_type = str((strategy.get("signal") or {}).get("type") or "").strip().lower()
+    if strategy_id.startswith("es_daily_trend") or signal_type == "sma_crossover":
+        return "sma_200_trend"
+    return strategy_id or STRATEGY_ID
+
+
+def _paper_history_gate_summary(cfg: dict) -> dict:
+    """Load authoritative persisted paper fill summary for this target strategy."""
+    from services.analytics.strategy_feedback import load_strategy_feedback_ledger
+
+    strategy = cfg.get("strategy") or {}
+    target_strategy = _target_feedback_strategy(cfg)
+    symbol = str(strategy.get("symbol") or "").strip()
+    try:
+        ledger = load_strategy_feedback_ledger(symbol=symbol)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "status": "error",
+            "source": "trade_journal_sqlite",
+            "target_strategy": target_strategy,
+            "symbol_filter": symbol or None,
+            "fills": 0,
+            "closed_trades": 0,
+            "expectancy_per_closed_trade": None,
+            "net_realized_pnl": None,
+            "caveat": f"paper-history could not be read ({type(exc).__name__})",
+        }
+
+    rows = [dict(row) for row in list(ledger.get("rows") or []) if isinstance(row, dict)]
+    row = next((item for item in rows if str(item.get("strategy") or "") == target_strategy), None)
+    if not row:
+        return {
+            "ok": False,
+            "status": str(ledger.get("status") or "missing"),
+            "source": str(ledger.get("source") or "trade_journal_sqlite"),
+            "journal_path": str(ledger.get("journal_path") or ""),
+            "target_strategy": target_strategy,
+            "symbol_filter": ledger.get("symbol_filter") or symbol or None,
+            "fills": 0,
+            "closed_trades": 0,
+            "expectancy_per_closed_trade": None,
+            "net_realized_pnl": None,
+            "caveat": "No target-strategy paper-history row is available yet.",
+        }
+
+    return {
+        "ok": True,
+        "status": "available",
+        "source": str(ledger.get("source") or "trade_journal_sqlite"),
+        "journal_path": str(ledger.get("journal_path") or ""),
+        "target_strategy": target_strategy,
+        "symbol_filter": ledger.get("symbol_filter") or symbol or None,
+        "fills": int(row.get("fills") or 0),
+        "closed_trades": int(row.get("closed_trades") or 0),
+        "expectancy_per_closed_trade": float(row.get("expectancy_per_closed_trade") or 0.0),
+        "net_realized_pnl": float(row.get("net_realized_pnl") or 0.0),
+        "win_rate": float(row.get("win_rate") or 0.0),
+        "avg_win": float(row.get("avg_win") or 0.0),
+        "avg_loss": float(row.get("avg_loss") or 0.0),
+        "latest_fill_ts": row.get("latest_fill_ts"),
+    }
+
+
+def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = None) -> dict:
+    history = dict(paper_history or {})
+    jsonl_trips = _count_round_trips(fills)
+    if history.get("ok") is True and int(history.get("fills") or 0) > 0:
+        trips = int(history.get("closed_trades") or 0)
+        fill_count = int(history.get("fills") or 0)
+        exp_val = (
+            float(history.get("expectancy_per_closed_trade") or 0.0)
+            if fill_count >= 10
+            else None
+        )
+        source = str(history.get("source") or "paper_history")
+        mismatch = f" (jsonl:{jsonl_trips})" if jsonl_trips != trips else ""
+        return {
+            "source": source,
+            "round_trips": trips,
+            "round_trip_detail": f"{trips} round trips recorded from {source}{mismatch}",
+            "expectancy_ok": (exp_val > 0.0) if exp_val is not None else None,
+            "expectancy_value": exp_val,
+            "expectancy_detail": (
+                f"avg pnl/round trip = ${exp_val:.2f} from {source}"
+                if exp_val is not None
+                else "insufficient paper-history fills for calculation"
+            ),
+            "expectancy_hint": "need 10+ paper-history fills" if exp_val is None else "",
+        }
+
+    exp_ok, exp_val = _check_expectancy(fills)
+    return {
+        "source": "jsonl_evidence",
+        "round_trips": jsonl_trips,
+        "round_trip_detail": f"{jsonl_trips} round trips recorded",
+        "expectancy_ok": exp_ok,
+        "expectancy_value": exp_val,
+        "expectancy_detail": (
+            f"avg pnl/trade = ${exp_val:.2f}"
+            if exp_val is not None
+            else "insufficient fills for calculation"
+        ),
+        "expectancy_hint": "need 10+ fills with pnl_usd field" if exp_ok is None else "",
+    }
 
 
 def _weeks_at_stage(stage: Stage) -> float | None:
@@ -192,9 +384,11 @@ def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
     """Summarize whether promotion evidence is attributable to public market data."""
     by_type: dict[str, dict] = {}
     totals = {"total": 0, "public": 0, "sample": 0, "missing": 0, "unknown": 0}
+    total_unknown_sources: Counter[str] = Counter()
     for record_type in ("signal", "order", "fill", "session"):
         rows = evidence.get(record_type, []) or []
         counts = {"total": len(rows), "public": 0, "sample": 0, "missing": 0, "unknown": 0}
+        unknown_sources: Counter[str] = Counter()
         for row in rows:
             source = str(row.get("market_data_source") or "").strip().lower()
             raw_sample_mode = row.get("ohlcv_sample_mode")
@@ -210,6 +404,9 @@ def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
                 counts["public"] += 1
             else:
                 counts["unknown"] += 1
+                unknown_sources[source] += 1
+                total_unknown_sources[source] += 1
+        counts["unknown_sources"] = dict(sorted(unknown_sources.items()))
         by_type[record_type] = counts
         for key in totals:
             totals[key] += counts[key]
@@ -227,7 +424,143 @@ def _evidence_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
     return {
         "ok": ok,
         **totals,
+        "unknown_sources": dict(sorted(total_unknown_sources.items())),
         "by_type": by_type,
+    }
+
+
+def _provenance_gate_detail(provenance: dict) -> str:
+    detail = (
+        f"window:{provenance.get('window_date') or 'all'} "
+        f"public:{provenance['public']} missing:{provenance['missing']} "
+        f"sample:{provenance['sample']} unknown:{provenance['unknown']}"
+    )
+    unknown_sources = dict(provenance.get("unknown_sources") or {})
+    if unknown_sources:
+        parts = [f"{source}={count}" for source, count in sorted(unknown_sources.items())]
+        detail += f" unknown_sources:{','.join(parts)}"
+    return detail
+
+
+def _record_date(row: dict) -> str | None:
+    ts = row.get("timestamp") or row.get("date") or row.get("session_start")
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(str(ts).replace("Z", "+00:00")).date().isoformat()
+    except Exception:
+        return None
+
+
+def _latest_evidence_date(evidence: dict[str, list[dict]]) -> str | None:
+    dates = []
+    for record_type in ("signal", "order", "fill", "session"):
+        for row in list(evidence.get(record_type) or []):
+            date = _record_date(dict(row))
+            if date:
+                dates.append(date)
+    return max(dates) if dates else None
+
+
+def _filter_evidence_by_date(evidence: dict[str, list[dict]], date: str) -> dict[str, list[dict]]:
+    return {
+        record_type: [
+            dict(row)
+            for row in list(evidence.get(record_type) or [])
+            if _record_date(dict(row)) == date
+        ]
+        for record_type in ("signal", "order", "fill", "session", "drawdown")
+    }
+
+
+def _promotion_provenance_summary(evidence: dict[str, list[dict]]) -> dict:
+    """Evaluate provenance over the latest dated evidence window."""
+    latest_date = _latest_evidence_date(evidence)
+    if not latest_date:
+        out = _evidence_provenance_summary(evidence)
+        out["window_date"] = None
+        out["window"] = "all_time"
+        return out
+    out = _evidence_provenance_summary(_filter_evidence_by_date(evidence, latest_date))
+    out["window_date"] = latest_date
+    out["window"] = "latest_date"
+    return out
+
+
+def _latest_session_health(sessions: list[dict]) -> dict:
+    dated = [
+        (date, dict(row))
+        for row in list(sessions or [])
+        if (date := _record_date(dict(row)))
+    ]
+    if not dated:
+        return {
+            "ok": None,
+            "window_date": None,
+            "critical_error_count": 0,
+            "detail": "no session logs found",
+            "hint": "check logs/errors manually",
+        }
+    latest_date = max(date for date, _row in dated)
+    window_rows = [row for date, row in dated if date == latest_date]
+    critical = [row for row in window_rows if bool(row.get("critical_error"))]
+    if critical:
+        return {
+            "ok": False,
+            "window_date": latest_date,
+            "critical_error_count": len(critical),
+            "detail": f"{len(critical)} critical_error session log(s) found in window:{latest_date}",
+            "hint": "investigate latest session errors before promotion",
+        }
+    return {
+        "ok": True,
+        "window_date": latest_date,
+        "critical_error_count": 0,
+        "detail": f"0 critical_error session logs in window:{latest_date}",
+        "hint": "",
+    }
+
+
+def _latest_evidence_log_presence(evidence: dict[str, list[dict]]) -> dict:
+    latest_date = _latest_evidence_date(evidence)
+    if not latest_date:
+        return {
+            "ok": False,
+            "window_date": None,
+            "counts": {"signal": 0, "order": 0, "fill": 0, "session": 0},
+            "trade_evidence_expected": False,
+            "no_trade_window": False,
+            "detail": "window:all signal:0 order:0 fill:0 session:0",
+            "hint": "start running to generate evidence",
+        }
+    window = _filter_evidence_by_date(evidence, latest_date)
+    counts = {
+        record_type: len(window.get(record_type) or [])
+        for record_type in ("signal", "order", "fill", "session")
+    }
+    trade_evidence_expected = counts["order"] > 0 or counts["fill"] > 0
+    core_ok = counts["signal"] > 0 and counts["session"] > 0
+    trade_ok = counts["order"] > 0 and counts["fill"] > 0 if trade_evidence_expected else True
+    ok = bool(core_ok and trade_ok)
+    no_trade_window = bool(core_ok and not trade_evidence_expected)
+    if ok:
+        hint = ""
+    elif not core_ok:
+        hint = "start running to generate signal and session evidence"
+    else:
+        hint = "order/fill evidence is incomplete for latest trade window"
+    return {
+        "ok": ok,
+        "window_date": latest_date,
+        "counts": counts,
+        "trade_evidence_expected": trade_evidence_expected,
+        "no_trade_window": no_trade_window,
+        "detail": (
+            f"window:{latest_date} signal:{counts['signal']} order:{counts['order']} "
+            f"fill:{counts['fill']} session:{counts['session']}"
+            f"{' no_trade_window:true' if no_trade_window else ''}"
+        ),
+        "hint": hint,
     }
 
 
@@ -240,45 +573,50 @@ def _gate(label: str, passed: bool | None, detail: str = "", hint: str = "") -> 
         "label":  label,
         "passed": passed,   # True=PASS, False=FAIL, None=UNKNOWN
         "detail": detail,
-        "hint":   hint,
+        "hint":   "" if passed is True else hint,
     }
 
 
 def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
-                         fills: list) -> list[dict]:
+                         fills: list, paper_history: dict | None = None) -> list[dict]:
     days  = _days_of_operation(sessions)
-    trips = _count_round_trips(fills)
-    exp_ok, exp_val = _check_expectancy(fills)
-    provenance = _evidence_provenance_summary(evidence)
+    trade_metrics = _paper_gate_trade_metrics(fills, paper_history)
+    trips = int(trade_metrics["round_trips"])
+    days_remaining = max(0, PAPER_MIN_DAYS - days)
+    trips_remaining = max(0, PAPER_MIN_ROUND_TRIPS - trips)
+    provenance = _promotion_provenance_summary(evidence)
+    session_health = _latest_session_health(sessions)
+    kill_switch = _kill_switch_test_status(sessions, yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {})
+    evidence_logs = _latest_evidence_log_presence(evidence)
 
     gates = [
         _gate("30 calendar days of operation",
-              days >= 30 if days > 0 else None,
-              f"{days} days recorded",
-              "run the paper runner daily" if days < 30 else ""),
-        _gate("50+ completed round trips",
-              trips >= 50 if trips > 0 else None,
-              f"{trips} round trips recorded",
-              "continue running" if trips < 50 else ""),
+              days >= PAPER_MIN_DAYS if days > 0 else None,
+              f"{days}/{PAPER_MIN_DAYS} days recorded ({days_remaining} remaining)",
+              "run the paper runner daily" if days < PAPER_MIN_DAYS else ""),
+        _gate(f"{PAPER_MIN_ROUND_TRIPS}+ completed round trips",
+              trips >= PAPER_MIN_ROUND_TRIPS if trips > 0 else None,
+              f"{trade_metrics['round_trip_detail']} ({trips}/{PAPER_MIN_ROUND_TRIPS}, {trips_remaining} remaining)",
+              "continue running" if trips < PAPER_MIN_ROUND_TRIPS else ""),
         _gate("Expectancy within tolerable range of backtest",
-              exp_ok,
-              f"avg pnl/trade = ${exp_val:.2f}" if exp_val is not None else "insufficient fills for calculation",
-              "need 10+ fills with pnl_usd field" if exp_ok is None else ""),
+              trade_metrics["expectancy_ok"],
+              str(trade_metrics["expectancy_detail"]),
+              str(trade_metrics["expectancy_hint"])),
         _gate("No critical operational bugs",
-              True if sessions and not any(s.get("critical_error") for s in sessions) else None,
-              "no critical_error flag found in session logs",
-              "check logs/errors manually" if not sessions else ""),
+              session_health["ok"],
+              str(session_health["detail"]),
+              str(session_health["hint"])),
         _gate("Kill switch tested",
-              _kill_switch_tested(sessions) if sessions else None,
-              "kill_switch_tested=True found in session log" if _kill_switch_tested(sessions) else "not found in session logs",
-              "set kill_switch_tested=True in session log after testing"),
+              kill_switch["ok"],
+              str(kill_switch["detail"]),
+              str(kill_switch["hint"])),
         _gate("All evidence logs present",
-              all(len(evidence[k]) > 0 for k in ("signal", "order", "fill", "session")),
-              f"signal:{len(evidence['signal'])} order:{len(evidence['order'])} fill:{len(evidence['fill'])} session:{len(sessions)}",
-              "start running to generate evidence"),
+              evidence_logs["ok"],
+              str(evidence_logs["detail"]),
+              str(evidence_logs["hint"])),
         _gate("Promotion evidence has non-sample provenance",
               provenance["ok"],
-              f"public:{provenance['public']} missing:{provenance['missing']} sample:{provenance['sample']} unknown:{provenance['unknown']}",
+              _provenance_gate_detail(provenance),
               "collect fresh public-market evidence with provenance before promotion"),
         _gate("Daily loss halt tested in simulation",
               _halt_tested(sessions) if sessions else None,
@@ -386,16 +724,116 @@ def _slippage_within_baseline(fills: list[dict], multiplier: float = 1.5) -> dic
     }
 
 
-def _check_retirement_triggers(fills: list[dict], sessions: list[dict]) -> dict:
+def _check_retirement_triggers(
+    fills: list[dict],
+    sessions: list[dict],
+    paper_history: dict | None = None,
+) -> dict:
     """Check retirement conditions. Delegates to service layer."""
     from services.control.retirement_checker import check_retirement_triggers
     cfg = yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
     r = cfg.get("retirement", {})
-    return check_retirement_triggers(
+    max_drawdown_pct = float(r.get("max_drawdown_pct", 12.0))
+    rolling_window = int(r.get("rolling_expectancy_window_days", 60))
+    jsonl_result = check_retirement_triggers(
         fills, sessions,
-        max_drawdown_pct=float(r.get("max_drawdown_pct", 12.0)),
-        rolling_window=int(r.get("rolling_expectancy_window_days", 60)),
+        max_drawdown_pct=max_drawdown_pct,
+        rolling_window=rolling_window,
     )
+    history = dict(paper_history or {})
+    if history.get("ok") is not True or int(history.get("fills") or 0) <= 0:
+        jsonl_result["source"] = "jsonl_evidence"
+        return jsonl_result
+
+    triggers = []
+    fill_count = int(history.get("fills") or 0)
+    expectancy = float(history.get("expectancy_per_closed_trade") or 0.0)
+    if fill_count >= 10 and expectancy < 0:
+        triggers.append(f"rolling_expectancy_negative:avg={expectancy:.2f}")
+
+    actual_dd = max(
+        (float(s.get("drawdown_from_peak") or 0) for s in sessions),
+        default=0.0,
+    )
+    if actual_dd > max_drawdown_pct:
+        triggers.append(f"drawdown_exceeded:{actual_dd:.1f}%>{max_drawdown_pct:.1f}%")
+
+    return {
+        "triggers_fired": triggers,
+        "retirement_required": len(triggers) >= 2,
+        "single_trigger_review": len(triggers) == 1,
+        "note": f"{len(triggers)} retirement trigger(s) active",
+        "source": str(history.get("source") or "trade_journal_sqlite"),
+        "jsonl_comparison": jsonl_result,
+    }
+
+
+def _gate_by_label(gates: list[dict], label: str) -> dict:
+    return next((dict(item) for item in list(gates or []) if str(item.get("label") or "") == label), {})
+
+
+def _paper_manual_review_status(paper_history: dict | None, gates: list[dict]) -> dict:
+    """Surface spec checklist items that are not fully machine-verifiable."""
+    history = dict(paper_history or {})
+    items: list[dict] = [
+        {
+            "id": "win_rate_avg_win_loss_vs_backtest",
+            "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
+            "status": "manual_required",
+            "reason": (
+                "No machine-readable backtest baseline for win_rate, avg_win, and avg_loss is configured, "
+                "so this spec item requires operator review before promotion."
+            ),
+            "observed": {
+                "closed_trades": int(history.get("closed_trades") or 0),
+                "fills": int(history.get("fills") or 0),
+                "win_rate": history.get("win_rate"),
+                "avg_win": history.get("avg_win"),
+                "avg_loss": history.get("avg_loss"),
+                "net_realized_pnl": history.get("net_realized_pnl"),
+                "expectancy_per_closed_trade": history.get("expectancy_per_closed_trade"),
+            },
+        }
+    ]
+    daily_loss_halt = _gate_by_label(gates, "Daily loss halt tested in simulation")
+    regime_block = _gate_by_label(gates, "Regime filter blocked at least one entry")
+    if daily_loss_halt:
+        items.append(
+            {
+                "id": "daily_loss_halt_simulation",
+                "label": "Daily loss halt triggered and recovered correctly at least once in simulation",
+                "status": "machine_checked" if daily_loss_halt.get("passed") is True else "machine_blocking",
+                "detail": str(daily_loss_halt.get("detail") or ""),
+                "hint": str(daily_loss_halt.get("hint") or ""),
+            }
+        )
+    if regime_block:
+        items.append(
+            {
+                "id": "regime_filter_blocked_entry",
+                "label": "Regime filter blocked at least one entry in the run",
+                "status": "machine_checked" if regime_block.get("passed") is True else "machine_blocking",
+                "detail": str(regime_block.get("detail") or ""),
+                "hint": str(regime_block.get("hint") or ""),
+            }
+        )
+
+    required = any(str(item.get("status") or "") == "manual_required" for item in items)
+    return {
+        "required": required,
+        "items": items,
+        "outstanding_items": [
+            dict(item)
+            for item in items
+            if str(item.get("status") or "") in {"manual_required", "machine_blocking"}
+        ],
+        "summary": (
+            "Manual review required: observed win rate and avg win/loss must be compared "
+            "against backtest expectations before paper promotion."
+            if required
+            else "No manual paper-gate review items are outstanding."
+        ),
+    }
 
 
 
@@ -410,13 +848,14 @@ def run_check(stage_override: str | None = None) -> dict:
     sessions = evidence["session"]
     signals  = evidence["signal"]
     fills    = evidence["fill"]
+    paper_history = _paper_history_gate_summary(cfg)
 
     # Schema validation
     schema = _run_schema_validation(ev_dir, cfg)
 
     # Gate evaluation for current stage
     if stage == Stage.PAPER:
-        gates = evaluate_paper_gates(evidence, sessions, signals, fills)
+        gates = evaluate_paper_gates(evidence, sessions, signals, fills, paper_history)
     elif stage == Stage.SHADOW:
         gates = evaluate_shadow_gates(evidence, sessions, signals, fills)
     elif stage == Stage.CAPPED_LIVE:
@@ -430,18 +869,29 @@ def run_check(stage_override: str | None = None) -> dict:
     unknown = [g for g in gates if g["passed"] is None]
 
     schema_ok = all(v.get("ok") is not False for v in schema.values())
-    provenance = _evidence_provenance_summary(evidence)
+    provenance = _promotion_provenance_summary(evidence)
+    provenance_all_time = _evidence_provenance_summary(evidence)
 
     slippage_check = _slippage_within_baseline(fills)
-    retirement = _check_retirement_triggers(fills, sessions)
+    retirement = _check_retirement_triggers(fills, sessions, paper_history)
 
     # Retirement check overrides "ready" regardless of gates
     retirement_block = retirement["retirement_required"]
+    manual_review = _paper_manual_review_status(paper_history, gates) if stage == Stage.PAPER else {
+        "required": False,
+        "items": [],
+        "outstanding_items": [],
+        "summary": "No manual review items defined for this stage.",
+    }
+    machine_ready = len(failed) == 0 and len(unknown) == 0 and schema_ok and not retirement_block
 
     return {
         "strategy_id": STRATEGY_ID,
         "stage":       stage.value,
-        "ready":       len(failed) == 0 and len(unknown) == 0 and schema_ok and not retirement_block,
+        "ready":       machine_ready and not bool(manual_review.get("required")),
+        "machine_ready": machine_ready,
+        "manual_review_required": bool(manual_review.get("required")),
+        "manual_review": manual_review,
         "summary": {
             "pass":    len(passed),
             "fail":    len(failed),
@@ -450,7 +900,9 @@ def run_check(stage_override: str | None = None) -> dict:
         },
         "gates":        gates,
         "schema":       schema,
+        "paper_history": paper_history,
         "provenance":   provenance,
+        "provenance_all_time": provenance_all_time,
         "slippage":     slippage_check,
         "retirement":   retirement,
         "cognitive_budget": budget_summary(STRATEGY_ID),
@@ -482,6 +934,12 @@ def print_report(result: dict) -> None:
     print(f"\nCognitive budget: {budget.get('alert_count', 0)}/4 alerts")
     if budget.get("breach"):
         print(f"  ⚠️  BREACH: {budget.get('breaches', [])}")
+
+    manual_review = dict(result.get("manual_review") or {})
+    if bool(result.get("manual_review_required")):
+        print(f"\nManual review required: {manual_review.get('summary', '')}")
+        for item in list(manual_review.get("outstanding_items") or []):
+            print(f"  - {item.get('label')}: {item.get('status')}")
 
     print(f"\nResult: {'✅ READY TO PROMOTE' if ready else '🔴 NOT READY'}")
     print(f"  {s.get('pass', 0)} pass / {s.get('fail', 0)} fail / {s.get('unknown', 0)} unknown\n")
