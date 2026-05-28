@@ -100,7 +100,9 @@ Verification:
 
 Remaining risk:
 - HIGH: promotion evidence and shadow-gate behavior.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator in
+  the 2026-05-28 audit session after commit `9f0dd8b0c`.
 
 ## 2026-05-28 - PR #10 Supersession Closure and Checkpoint Refresh
 
