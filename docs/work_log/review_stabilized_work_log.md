@@ -39,6 +39,54 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-05-28 - Master Integration Branch Refresh With Shadow Evidence
+
+Date: 2026-05-28
+
+Active role: `ENGINEER`
+
+Objective: refresh draft PR #44 with the latest accepted `review-stabilized`
+tip after the shadow spread evidence fix and acceptance-log update.
+
+What was found:
+- SHOWN: main `review-stabilized` was clean and synced at
+  `4c414b256 docs: accept shadow spread evidence fix`.
+- SHOWN: the existing PR #44 branch
+  `codex/master-review-stabilized-integration` did not contain `4c414b256`.
+- SHOWN: merging latest `review-stabilized` into the integration branch merged
+  source changes cleanly and produced one content conflict in
+  `docs/work_log/review_stabilized_work_log.md`.
+
+What changed:
+- Resolved the work-log conflict by preserving the prior master-integration
+  entry plus the newer PR #10 and shadow-spread evidence entries.
+- Refreshed the integration branch with the accepted shadow-gate evidence
+  changes from `review-stabilized`.
+- Left `master` unchanged.
+
+Why this change:
+- PR #44 is the current review surface for moving `review-stabilized` toward
+  `master`; it must carry the latest accepted work or reviewers will audit a
+  stale integration branch.
+- Keeping the integration conflict resolution on the PR branch avoids repeating
+  temp-worktree recovery work.
+
+Expected outcome:
+- PR #44 remains the single reviewable master-integration branch and now
+  includes the latest accepted shadow evidence work.
+- Future master merge review can focus on PR #44 instead of chasing branch
+  drift between `review-stabilized` and the integration branch.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_check_promotion_gates.py tests/test_service_control_path.py tests/test_service_ctl_smoke.py tests/test_safe_wrapper_import_side_effects.py tests/test_intent_services_safe_import.py tests/test_hardening_smoke.py tests/test_run_bot_runner.py tests/test_intent_services_safe_runtime_config.py tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py`
+  - SHOWN: `102 passed in 1.68s`.
+
+Remaining risk:
+- HIGH: master integration branch and promotion evidence behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-05-28 - Master Integration Branch Refresh
 
 Date: 2026-05-28
@@ -91,7 +139,129 @@ Verification:
 
 Remaining risk:
 - HIGH: master integration and script entrypoint behavior.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator in
+  the 2026-05-28 audit session after PR #44 was created.
+
+## 2026-05-28 - Paper Campaign Check and Shadow Signal Spread Evidence
+
+Date: 2026-05-28
+
+Active role: `ENGINEER`
+
+Objective: verify the paper evidence campaign is still progressing and close
+the immediate shadow-gate spread/depth logging gap before the paper gate clears.
+
+What was found:
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py --status` reported
+  the collector `pid_alive=true`, `status=idle`, `reason=waiting_for_next_day`,
+  and `last_completed_day=2026-05-28`.
+- SHOWN: `scripts/check_promotion_gates.py --json` reported `23/30` days and
+  `7/10` round trips, with manual review still required.
+- SHOWN: `scripts/run_paper_sim_monitor.py --status` reported monitor
+  `status=stopped`, `recommendation=continue`, and active watches. This is
+  expected after the daily collector stops run components.
+- SHOWN: `scripts/check_promotion_gates.py --stage shadow --json` reported
+  `All signals logged with spread/depth data` as failed across `33251`
+  historical signal records.
+- SHOWN: historical `es_daily_trend_v1` signal records had no spread/depth keys.
+
+What changed:
+- Added `_market_quality_evidence_extra(...)` in
+  `services/strategy_runner/ema_crossover_runner.py`.
+- Public-OHLCV signal evidence now merges local market-quality fields into
+  `evidence_extra`, including `spread_bps` when fresh bid/ask data is present.
+- Updated the shadow gate to recognize `spread_bps` and explicit depth keys.
+- Added tests for the market-quality evidence helper and shadow gate
+  spread/depth recognition.
+- Updated the next-actions checkpoint with campaign status and shadow-gate
+  implementation proof.
+
+Why this change:
+- The shadow checklist requires contemporaneous spread/depth data before
+  paper -> shadow/sandbox review.
+- Existing historical signals could never satisfy that gate because the runner
+  did not attach market-quality fields to signal evidence.
+- Using the local tick snapshot path avoids adding network calls to the signal
+  path and aligns with the existing market-quality guard.
+
+Expected outcome:
+- Future public-OHLCV signal records include `spread_bps` when the tick
+  publisher has fresh bid/ask data.
+- The shadow gate can distinguish new market-quality-stamped signal evidence
+  from legacy unstamped evidence.
+- Existing historical signal evidence remains honestly failing until replaced
+  or supplemented by fresh stamped runs.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_check_promotion_gates.py`
+  - SHOWN: `52 passed in 0.80s`.
+- `python3 -c "... _market_quality_evidence_extra('coinbase','BTC/USDT') ..."`
+  - SHOWN: current idle tick data was stale, returning `market_quality_reason:
+    stale_tick`; no `spread_bps` was emitted during idle.
+
+Remaining risk:
+- HIGH: promotion evidence and shadow-gate behavior.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator in
+  the 2026-05-28 audit session after commit `9f0dd8b0c`.
+
+## 2026-05-28 - PR #10 Supersession Closure and Checkpoint Refresh
+
+Date: 2026-05-28
+
+Active role: `ENGINEER`
+
+Objective: close the stale PR #10 audit-noise item after verifying the fix is
+already present on `review-stabilized`, and update the visible checkpoint.
+
+What was found:
+- SHOWN: PR #10 was open against `review-stabilized` from
+  `audit/defect-05-null-overwrite`.
+- SHOWN: PR #10 contained commit
+  `5858dcc1969ec68763a11dc85fe589ca7de5a755`.
+- SHOWN: that exact commit is not an ancestor of `review-stabilized`.
+- SHOWN: `6cc95f678 fix: preserve queue ids on guarded status updates` is an
+  ancestor of `review-stabilized`.
+- SHOWN: current paper/live queue code preserves existing client, linked, and
+  exchange order ids with `COALESCE`.
+
+What changed:
+- Closed PR #10 with an audit comment referencing `6cc95f678`.
+- Updated `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to
+  mark PR #10 complete and record PR #44 as the preserved master-integration
+  draft PR.
+- Updated this work log so the repository records the GitHub housekeeping work.
+
+Why this change:
+- Leaving a superseded PR open creates false audit noise and makes it look like
+  a queue-id preservation defect is still unresolved.
+- The checkpoint should reflect current repository state instead of stale
+  pending work.
+
+Expected outcome:
+- Reviewers can see that PR #10 is closed because the accepted equivalent fix is
+  already on `review-stabilized`.
+- The remaining highest structural item is review/merge decision for PR #44,
+  not recovery of the old temp integration worktree.
+
+Verification:
+- `gh pr view 10 --json ...`
+  - SHOWN: PR #10 was open before closure.
+- `gh pr view 10 --json number,state,url,title`
+  - SHOWN: PR #10 state is `CLOSED` after closure.
+- `git merge-base --is-ancestor 6cc95f678 review-stabilized`
+  - SHOWN: passed.
+- `rg -n "COALESCE\\(\\?, client_order_id\\)|COALESCE\\(\\?, linked_order_id\\)|COALESCE\\(\\?, exchange_order_id\\)" storage/intent_queue_sqlite.py storage/live_intent_queue_sqlite.py`
+  - SHOWN: matched current queue preservation paths.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_queue_update_status_preserves_ids.py`
+  - SHOWN: `2 passed in 0.08s`.
+
+Remaining risk:
+- LOW: GitHub PR hygiene and checkpoint accuracy.
+- Acceptance state: `ACCEPTED`.
 
 ## 2026-05-28 - Work Log Audit Corrections and Next-Actions Checkpoint
 
@@ -140,7 +310,9 @@ Verification:
 
 Remaining risk:
 - MEDIUM: documentation accuracy and governance traceability.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator in
+  the 2026-05-28 audit session after commit `507d9f05d`.
 
 ## 2026-05-27 - Paper Gate Threshold and Manual Review
 
