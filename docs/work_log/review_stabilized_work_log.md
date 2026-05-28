@@ -85,7 +85,9 @@ Verification:
 
 Remaining risk:
 - HIGH: master integration branch and promotion evidence behavior.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator in
+  the 2026-05-28 audit session after commit `4ce4d083e`.
 
 ## 2026-05-28 - Master Integration Branch Refresh
 
