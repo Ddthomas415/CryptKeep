@@ -231,6 +231,50 @@ def test_public_ohlcv_evidence_extra_marks_public_mode(monkeypatch, tmp_path):
     assert out["ohlcv_sample_mode"] is False
 
 
+def test_market_quality_evidence_extra_includes_spread(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "mq_check",
+        lambda venue, symbol: {
+            "ok": True,
+            "reason": "ok",
+            "bid": 100.0,
+            "ask": 100.5,
+            "last": 100.25,
+            "price_used": 100.25,
+            "age_sec": 1.5,
+            "spread_bps": 50.0,
+            "max_spread_bps": 500.0,
+            "max_tick_age_sec": 600.0,
+        },
+    )
+
+    out = runner._market_quality_evidence_extra("coinbase", "BTC/USDT")
+
+    assert out["market_quality_ok"] is True
+    assert out["market_quality_reason"] == "ok"
+    assert out["market_bid"] == 100.0
+    assert out["market_ask"] == 100.5
+    assert out["spread_bps"] == 50.0
+    assert out["market_quality_venue"] == "coinbase"
+    assert out["market_quality_symbol"] == "BTC/USDT"
+
+
+def test_market_quality_evidence_extra_records_errors(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    def _raise(_venue, _symbol):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(runner, "mq_check", _raise)
+
+    out = runner._market_quality_evidence_extra("coinbase", "BTC/USDT")
+
+    assert out["market_quality_ok"] is False
+    assert out["market_quality_reason"] == "error:RuntimeError"
+
+
 def test_fetch_mid_returns_none_when_ccxt_fallback_raises(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(runner, "get_best_bid_ask_last", lambda venue, symbol: None)

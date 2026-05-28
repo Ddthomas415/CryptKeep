@@ -416,6 +416,38 @@ def _public_ohlcv_evidence_extra(cfg: dict, timeframe: str) -> dict:
     }
 
 
+def _market_quality_evidence_extra(venue: str, symbol: str) -> dict:
+    out: dict[str, object] = {
+        "market_quality_venue": str(venue or ""),
+        "market_quality_symbol": str(symbol or ""),
+    }
+    try:
+        quality = dict(mq_check(str(venue or ""), str(symbol or "")) or {})
+    except Exception as exc:
+        out["market_quality_ok"] = False
+        out["market_quality_reason"] = f"error:{type(exc).__name__}"
+        return out
+
+    out["market_quality_ok"] = bool(quality.get("ok"))
+    out["market_quality_reason"] = str(quality.get("reason") or "ok")
+
+    field_map = {
+        "bid": "market_bid",
+        "ask": "market_ask",
+        "last": "market_last",
+        "price_used": "market_price_used",
+        "age_sec": "market_age_sec",
+        "max_spread_bps": "market_max_spread_bps",
+        "max_tick_age_sec": "market_max_tick_age_sec",
+        "spread_bps": "spread_bps",
+    }
+    for source_key, output_key in field_map.items():
+        value = quality.get(source_key)
+        if value is not None:
+            out[output_key] = value
+    return out
+
+
 def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
     timeframe = _public_ohlcv_timeframe(cfg)
     if not timeframe:
@@ -739,6 +771,7 @@ def run_forever() -> None:
                         params=selected_params,
                     )
                     evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe)
+                    evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
                     selected_block["evidence_extra"] = evidence_extra
                     signal = compute_signal(
                         cfg={"strategy": selected_block},

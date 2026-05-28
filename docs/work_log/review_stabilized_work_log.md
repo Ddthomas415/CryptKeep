@@ -39,6 +39,69 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-05-28 - Paper Campaign Check and Shadow Signal Spread Evidence
+
+Date: 2026-05-28
+
+Active role: `ENGINEER`
+
+Objective: verify the paper evidence campaign is still progressing and close
+the immediate shadow-gate spread/depth logging gap before the paper gate clears.
+
+What was found:
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py --status` reported
+  the collector `pid_alive=true`, `status=idle`, `reason=waiting_for_next_day`,
+  and `last_completed_day=2026-05-28`.
+- SHOWN: `scripts/check_promotion_gates.py --json` reported `23/30` days and
+  `7/10` round trips, with manual review still required.
+- SHOWN: `scripts/run_paper_sim_monitor.py --status` reported monitor
+  `status=stopped`, `recommendation=continue`, and active watches. This is
+  expected after the daily collector stops run components.
+- SHOWN: `scripts/check_promotion_gates.py --stage shadow --json` reported
+  `All signals logged with spread/depth data` as failed across `33251`
+  historical signal records.
+- SHOWN: historical `es_daily_trend_v1` signal records had no spread/depth keys.
+
+What changed:
+- Added `_market_quality_evidence_extra(...)` in
+  `services/strategy_runner/ema_crossover_runner.py`.
+- Public-OHLCV signal evidence now merges local market-quality fields into
+  `evidence_extra`, including `spread_bps` when fresh bid/ask data is present.
+- Updated the shadow gate to recognize `spread_bps` and explicit depth keys.
+- Added tests for the market-quality evidence helper and shadow gate
+  spread/depth recognition.
+- Updated the next-actions checkpoint with campaign status and shadow-gate
+  implementation proof.
+
+Why this change:
+- The shadow checklist requires contemporaneous spread/depth data before
+  paper -> shadow/sandbox review.
+- Existing historical signals could never satisfy that gate because the runner
+  did not attach market-quality fields to signal evidence.
+- Using the local tick snapshot path avoids adding network calls to the signal
+  path and aligns with the existing market-quality guard.
+
+Expected outcome:
+- Future public-OHLCV signal records include `spread_bps` when the tick
+  publisher has fresh bid/ask data.
+- The shadow gate can distinguish new market-quality-stamped signal evidence
+  from legacy unstamped evidence.
+- Existing historical signal evidence remains honestly failing until replaced
+  or supplemented by fresh stamped runs.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_check_promotion_gates.py`
+  - SHOWN: `52 passed in 0.80s`.
+- `python3 -c "... _market_quality_evidence_extra('coinbase','BTC/USDT') ..."`
+  - SHOWN: current idle tick data was stale, returning `market_quality_reason:
+    stale_tick`; no `spread_bps` was emitted during idle.
+
+Remaining risk:
+- HIGH: promotion evidence and shadow-gate behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-05-28 - PR #10 Supersession Closure and Checkpoint Refresh
 
 Date: 2026-05-28

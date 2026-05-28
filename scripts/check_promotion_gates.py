@@ -639,7 +639,7 @@ def evaluate_shadow_gates(evidence: dict, sessions: list,
               days >= 20 if days > 0 else None,
               f"{days} days", "continue running"),
         _gate("All signals logged with spread/depth data",
-              all("spread" in s or "depth" in s for s in signals) if signals else None,
+              all(_signal_has_spread_or_depth(s) for s in signals) if signals else None,
               f"{len(signals)} signals", "add spread/depth fields to signal logger"),
         _gate("Slippage within 1.5× backtest estimate",
               None,
@@ -654,6 +654,21 @@ def evaluate_shadow_gates(evidence: dict, sessions: list,
               "recovery_tested found" if any(s.get("recovery_tested") for s in sessions) else "not recorded",
               "do a deliberate restart and set recovery_tested=True in session log"),
     ]
+
+
+def _signal_has_spread_or_depth(signal: dict) -> bool:
+    if not isinstance(signal, dict):
+        return False
+    spread_keys = {"spread", "spread_bps", "market_spread_bps"}
+    depth_keys = {
+        "depth",
+        "depth_bid_notional",
+        "depth_ask_notional",
+        "market_depth",
+        "market_bid_depth",
+        "market_ask_depth",
+    }
+    return any(key in signal for key in spread_keys | depth_keys)
 
 
 def evaluate_capped_live_gates(evidence: dict, sessions: list,

@@ -555,3 +555,31 @@ class TestSlippageBaseline:
         fills = [{"slippage_pct": 1.5}] * 20  # way above 0.10 baseline × 1.5
         result = _slippage_within_baseline(fills)
         assert result["ok"] is False
+
+
+class TestShadowGateMarketQuality:
+    def test_shadow_gate_accepts_spread_bps_signal_evidence(self):
+        from scripts.check_promotion_gates import evaluate_shadow_gates
+
+        gates = evaluate_shadow_gates(
+            {},
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "ops_checks_passed": True}],
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "spread_bps": 4.2}],
+            [],
+        )
+
+        gate = next(g for g in gates if g["label"] == "All signals logged with spread/depth data")
+        assert gate["passed"] is True
+
+    def test_shadow_gate_blocks_signals_without_spread_or_depth(self):
+        from scripts.check_promotion_gates import evaluate_shadow_gates
+
+        gates = evaluate_shadow_gates(
+            {},
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "ops_checks_passed": True}],
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "price": 100.0}],
+            [],
+        )
+
+        gate = next(g for g in gates if g["label"] == "All signals logged with spread/depth data")
+        assert gate["passed"] is False

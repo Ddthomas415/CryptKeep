@@ -98,23 +98,36 @@ Risk:
 
 ## Priority 4 - Keep Paper Campaign Running
 
-Status: passive monitoring
+Status: healthy as of 2026-05-28 check
 
 Current gate state:
 - 3 more round trips needed.
-- 8 more calendar days needed.
+- 7 more calendar days needed.
+- Daily evidence collector is alive and idle because the 2026-05-28 UTC
+  session already completed.
+- Paper sim monitor is expected to stop after the daily collector run; the
+  collector restarts it during evidence collection and seeds watches.
+
+Verification:
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: `pid_alive=true`, `status=idle`, `reason=waiting_for_next_day`,
+    `last_completed_day=2026-05-28`.
+- `./.venv/bin/python scripts/run_paper_sim_monitor.py --status`
+  - SHOWN: monitor `status=stopped`, `recommendation=continue`, watches active,
+    last campaign reports written on 2026-05-28.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: `23/30 days`, `7/10 round trips`, `manual_review_required=true`.
 
 Next action:
-- Confirm paper evidence collector is alive.
-- Confirm paper sim monitor is healthy.
 - Continue daily evidence collection.
+- Re-check after each UTC session or when a watch report fires.
 
 Risk:
 - MEDIUM: operational interruption could waste the shortened paper-gate window.
 
 ## Priority 5 - Prepare Shadow Gate Before Paper Clears
 
-Status: pending
+Status: implementation proof ready, pending independent review
 
 Why it matters:
 - Paper gate is close enough that shadow tooling should be validated before the
@@ -122,12 +135,30 @@ Why it matters:
 - Shadow requires signal logging against live market data and slippage/depth
   validation.
 
+What was found:
+- SHOWN: `./.venv/bin/python scripts/check_promotion_gates.py --stage shadow --json`
+  reported `All signals logged with spread/depth data` as failed across
+  `33251` historical signals.
+- SHOWN: historical signal records contained no spread/depth keys.
+
+What changed:
+- Public-OHLCV signal evidence now includes market-quality fields from the
+  local tick snapshot path, including `spread_bps` when fresh bid/ask data is
+  available.
+- The shadow gate now recognizes `spread_bps` and explicit depth keys instead
+  of only literal `spread` or `depth`.
+
+Verification:
+- `python3 -c "... _market_quality_evidence_extra('coinbase','BTC/USDT') ..."`
+  - SHOWN: current idle tick data was stale, so no `spread_bps` was emitted in
+    the idle probe.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_check_promotion_gates.py`
+  - SHOWN: `52 passed in 0.80s`.
+
 Next action:
-- Audit whether shadow-mode signal logging includes contemporaneous spread/depth
-  fields.
-- Audit whether the shadow comparison pipeline can run before any sandbox
-  promotion decision.
-- Add missing tests/docs if the shadow surface is incomplete.
+- Independent review of the shadow-gate evidence change.
+- Let the next daily collector run create fresh signal records and verify new
+  records contain `spread_bps` when tick data is fresh.
 
 Risk:
 - HIGH: promotion path and live-adjacent operational readiness.
