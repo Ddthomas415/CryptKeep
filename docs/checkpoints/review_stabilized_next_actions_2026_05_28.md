@@ -8,41 +8,47 @@ records completed work; this file records pending work and ordering.
 
 SHOWN:
 - Current branch is `review-stabilized`.
-- Local comparison `master...review-stabilized` reports `64 / 83`.
+- Local comparison `master...review-stabilized` reported `64 / 83` when this
+  checkpoint was first created.
+- Later 2026-05-28 inspection reported `64 / 84` after the work-log checkpoint
+  commit.
 - `REMAINING_TASKS.md` documents the 2026-05-25 master integration blocker and
   25 conflicted files from a no-commit test merge.
 - A local integration worktree exists at
   `/private/tmp/cryptkeep-master-review-stabilized-integration`.
-- That worktree is on `codex/master-review-stabilized-integration` and is
-  `ahead 70` of `origin/master`.
-- Latest local integration worktree commit shown:
-  `9862147ed merge: integrate review-stabilized into master`.
+- That worktree is on `codex/master-review-stabilized-integration`.
+- The integration branch was refreshed with latest `review-stabilized` and
+  pushed to GitHub as PR #44:
+  `https://github.com/Ddthomas415/CryptKeep/pull/44`.
+- Latest integration worktree commit shown:
+  `8602c509f Merge branch 'review-stabilized' into codex/master-review-stabilized-integration`.
+- PR #10 was verified open, verified superseded by `6cc95f678`, and closed on
+  2026-05-28 with an audit comment.
+- PR #10 state was verified as `CLOSED` after closure.
 
 CLAIMED:
 - Auditor reported `review-stabilized` as 83 commits ahead of master and 59
   behind.
-- Auditor reported PR #10 as superseded by `6cc95f6`.
 - Auditor reported PR #42 and PR #43 as open/draft or held upstream PRs.
 
 UNVERIFIED:
-- Current GitHub PR state was not checked in this pass.
-- The local integration worktree was inspected only by `git status` and
-  `git log -1`; its conflict resolutions were not revalidated in this pass.
+- PR #42 and PR #43 current GitHub state was not checked in this pass.
+- PR #44 has not received full-suite or independent merge review in this
+  checkpoint file.
 
 ## Priority 1 - Master Integration
 
-Status: pending
+Status: draft PR created, pending independent review and merge decision
 
 Why it matters:
 - `review-stabilized` is clean and accepted, but `master` remains behind.
 - Audit work is not in the canonical production line until master receives it.
-- The local resolved integration branch is at risk of being lost if the temp
-  worktree is reset.
+- The local resolved integration branch is now preserved remotely, but `master`
+  is still unchanged.
 
 Next action:
-- Preserve or push the local integration branch only after an explicit operator
-  decision because this updates the master integration path.
-- Re-run conflict-sensitive verification before any master update.
+- Review PR #44 before any master update.
+- Re-run full suite or CI before merge.
 - Use `REMAINING_TASKS.md` as the source list for the 25 known conflict files.
 
 Risk:
@@ -51,7 +57,7 @@ Risk:
 
 ## Priority 2 - Work Log Accuracy
 
-Status: in progress in this checkpoint's companion work-log update
+Status: complete as of `507d9f05d`
 
 Required fixes:
 - Update `84aa49113` acceptance state to `ACCEPTED`.
@@ -65,19 +71,30 @@ Risk:
 
 ## Priority 3 - Close Superseded PR #10
 
-Status: pending
+Status: complete as of 2026-05-28
 
-Claimed context:
-- PR #10 is conflicted.
-- Its COALESCE/null-overwrite fix is already present in `review-stabilized` at
-  `6cc95f6`.
+Shown context:
+- PR #10 was open against `review-stabilized` from
+  `audit/defect-05-null-overwrite`.
+- PR #10 contained `5858dcc1969ec68763a11dc85fe589ca7de5a755`.
+- The exact PR commit was not an ancestor of `review-stabilized`.
+- The hardened equivalent fix `6cc95f678` is an ancestor of
+  `review-stabilized`.
+- Current code contains COALESCE preservation for paper and live queue order-id
+  fields.
 
-Next action:
-- Verify PR #10 state through GitHub tooling.
-- If verified, close it with a comment referencing `6cc95f6`.
+Verification:
+- `rg -n "COALESCE\\(\\?, client_order_id\\)|COALESCE\\(\\?, linked_order_id\\)|COALESCE\\(\\?, exchange_order_id\\)" storage/intent_queue_sqlite.py storage/live_intent_queue_sqlite.py`
+  - SHOWN: matched the current paper/live queue preservation paths.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_queue_update_status_preserves_ids.py`
+  - SHOWN: `2 passed in 0.08s`.
+
+Outcome:
+- PR #10 closed with a comment referencing `6cc95f678` and the targeted
+  verification result.
 
 Risk:
-- LOW to MEDIUM: repository hygiene and audit-noise reduction.
+- CLOSED: repository hygiene and audit-noise reduction complete.
 
 ## Priority 4 - Keep Paper Campaign Running
 

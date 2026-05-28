@@ -39,6 +39,61 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-05-28 - PR #10 Supersession Closure and Checkpoint Refresh
+
+Date: 2026-05-28
+
+Active role: `ENGINEER`
+
+Objective: close the stale PR #10 audit-noise item after verifying the fix is
+already present on `review-stabilized`, and update the visible checkpoint.
+
+What was found:
+- SHOWN: PR #10 was open against `review-stabilized` from
+  `audit/defect-05-null-overwrite`.
+- SHOWN: PR #10 contained commit
+  `5858dcc1969ec68763a11dc85fe589ca7de5a755`.
+- SHOWN: that exact commit is not an ancestor of `review-stabilized`.
+- SHOWN: `6cc95f678 fix: preserve queue ids on guarded status updates` is an
+  ancestor of `review-stabilized`.
+- SHOWN: current paper/live queue code preserves existing client, linked, and
+  exchange order ids with `COALESCE`.
+
+What changed:
+- Closed PR #10 with an audit comment referencing `6cc95f678`.
+- Updated `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to
+  mark PR #10 complete and record PR #44 as the preserved master-integration
+  draft PR.
+- Updated this work log so the repository records the GitHub housekeeping work.
+
+Why this change:
+- Leaving a superseded PR open creates false audit noise and makes it look like
+  a queue-id preservation defect is still unresolved.
+- The checkpoint should reflect current repository state instead of stale
+  pending work.
+
+Expected outcome:
+- Reviewers can see that PR #10 is closed because the accepted equivalent fix is
+  already on `review-stabilized`.
+- The remaining highest structural item is review/merge decision for PR #44,
+  not recovery of the old temp integration worktree.
+
+Verification:
+- `gh pr view 10 --json ...`
+  - SHOWN: PR #10 was open before closure.
+- `gh pr view 10 --json number,state,url,title`
+  - SHOWN: PR #10 state is `CLOSED` after closure.
+- `git merge-base --is-ancestor 6cc95f678 review-stabilized`
+  - SHOWN: passed.
+- `rg -n "COALESCE\\(\\?, client_order_id\\)|COALESCE\\(\\?, linked_order_id\\)|COALESCE\\(\\?, exchange_order_id\\)" storage/intent_queue_sqlite.py storage/live_intent_queue_sqlite.py`
+  - SHOWN: matched current queue preservation paths.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_queue_update_status_preserves_ids.py`
+  - SHOWN: `2 passed in 0.08s`.
+
+Remaining risk:
+- LOW: GitHub PR hygiene and checkpoint accuracy.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-05-28 - Work Log Audit Corrections and Next-Actions Checkpoint
 
 Date: 2026-05-28
@@ -86,7 +141,9 @@ Verification:
 
 Remaining risk:
 - MEDIUM: documentation accuracy and governance traceability.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator in
+  the 2026-05-28 audit session after commit `507d9f05d`.
 
 ## 2026-05-27 - Paper Gate Threshold and Manual Review
 
