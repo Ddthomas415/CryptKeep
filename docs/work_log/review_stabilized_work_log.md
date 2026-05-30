@@ -812,7 +812,10 @@ Verification:
 Remaining risk:
 - HIGH: master integration touches live/order/risk-adjacent lifecycle behavior
   and compatibility entrypoints.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-05-30 after PR #44 CI reported all checks passing and merge state
+  `CLEAN`.
 
 ## 2026-05-30 - PR #44 Release Checklist Entrypoint Repair
 
@@ -866,7 +869,9 @@ Verification:
 
 Remaining risk:
 - HIGH: release/desktop packaging CI path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-05-30 after PR #44 CI reported macOS and Windows desktop builds passing.
 
 ## 2026-05-30 - PR #44 Paper Runner Entrypoint Repair
 
@@ -916,4 +921,6 @@ Verification:
 
 Remaining risk:
 - HIGH: paper-runner/operator workflow and CI integration path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-05-30 after PR #44 CI reported the main `validate` workflow passing.
