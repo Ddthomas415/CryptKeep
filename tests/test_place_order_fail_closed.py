@@ -114,6 +114,11 @@ def _install_boundary_success_deps(
     monkeypatch.setattr(markets_pkg, "rules", fake_rules, raising=False)
 
 
+@pytest.fixture(autouse=True)
+def _isolate_runtime_state(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+
 def test_killswitch_state_blocks_and_logs_on_import_failure(monkeypatch, caplog):
     monkeypatch.delenv("CBP_KILL_SWITCH", raising=False)
     monkeypatch.delenv("CBP_KILLSWITCH_FAIL_CLOSED", raising=False)

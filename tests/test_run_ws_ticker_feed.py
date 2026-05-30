@@ -83,7 +83,7 @@ def test_max_events_writes_market_ws_status(monkeypatch, tmp_path):
 
     monkeypatch.setattr(mod, "WSTickerFeed", _DummyFeed)
 
-    assert mod.main(["run", "--max-events", "1"]) == 0
+    assert mod.main(["run", "--symbol", "BTC/USD", "--max-events", "1"]) == 0
 
     payload = json.loads((tmp_path / "market_ws.json").read_text(encoding="utf-8"))
     assert payload["status"] == "stopped"

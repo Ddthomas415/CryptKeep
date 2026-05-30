@@ -1,3 +1,5 @@
+import time
+
 import services.execution.live_arming as mod
 
 
@@ -13,14 +15,14 @@ def test_live_armed_signal_uses_state_when_env_not_set(monkeypatch):
             "armed": True,
             "writer": "resume_gate",
             "reason": "operator_resume",
-            "ts_epoch": 123.0,
+            "ts_epoch": time.time(),
         },
     )
 
     ok, reason = mod.live_armed_signal()
 
     assert ok is True
-    assert reason == "state:resume_gate"
+    assert reason == "persisted:live_arming.json"
 
 
 def test_live_armed_signal_env_still_has_priority(monkeypatch):

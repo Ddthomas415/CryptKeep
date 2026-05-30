@@ -745,3 +745,71 @@ Remaining risk:
 - Acceptance reference: accepted by auditor through the 2026-05
   review-stabilized audit cycle; later branch verification remained clean after
   these commits.
+
+## 2026-05-30 - PR #44 Integration Suite Repair
+
+Active role: `ENGINEER`
+
+Objective: repair the PR #44 `codex/master-review-stabilized-integration`
+branch after the master integration full suite exposed regressions.
+
+What was found:
+- SHOWN: the original temporary integration worktree became prunable and no
+  longer had a `.git` directory.
+- SHOWN: the prunable directory still contained the interrupted repair edits,
+  so it was treated as a recovery copy rather than deleted.
+- SHOWN: `scripts.run_intent_executor` was missing at the root import path even
+  though tests and runtime status writers import that canonical path.
+- SHOWN: `scripts.run_ws_ticker_feed` used a star-import wrapper, so callers
+  monkeypatching the root module did not affect the relocated implementation.
+- SHOWN: `test_place_order_fail_closed.py` could read a repo-local
+  `risk_sink_failed.flag`, masking the intended fail-closed assertions.
+- SHOWN: older live-arming tests conflicted with the hardened policy: fresh
+  persisted arming is valid, stale persisted arming is blocked.
+- SHOWN: `LiveIntentQueueSQLite.upsert_intent` still mutated existing queued
+  rows, conflicting with insert-only queue-authority expectations.
+- SHOWN: paper reconciliation marked an intent filled before journal inserts,
+  which could hide a fill-journal failure.
+
+What changed:
+- Recreated a clean integration worktree at
+  `/private/tmp/cryptkeep-master-review-stabilized-integration-v2`.
+- Added `scripts.run_intent_executor` compatibility aliasing to the relocated
+  compat implementation.
+- Converted the root `scripts.run_ws_ticker_feed` wrapper into an implementation
+  module alias so CLI and imported behavior share one module object.
+- Made live intent upsert insert-only for existing intent IDs; lifecycle changes
+  remain under `update_status`.
+- Reordered paper reconciliation so fills are journaled before an intent is
+  marked filled.
+- Isolated order fail-closed tests with per-test `CBP_STATE_DIR`.
+- Updated older tests to the accepted live-arming persisted-state policy and to
+  explicitly pass ticker symbol when environment defaults are irrelevant.
+
+Why this change:
+- The smallest safe repair was to preserve production fail-closed behavior and
+  fix compatibility/test isolation around it.
+- Deleting or bypassing `risk_sink_failed.flag` would have weakened a safety
+  control; isolating tests proves the intended behavior without mutating
+  operator state.
+- Insert-only intent creation and journal-before-filled ordering keep state
+  authority coherent in order/fill lifecycle paths.
+
+Expected outcome:
+- PR #44 can advance with the full suite green.
+- Runtime import paths remain backward compatible after script relocation.
+- Live/order fail-closed protections remain intact while tests no longer depend
+  on repo-local runtime state.
+
+Verification:
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_canonical_runtime_status_writers.py tests/test_intent_reconciler_fill_journal_order.py tests/test_live_arming_contract.py tests/test_live_arming_state_fallback.py tests/test_live_intent_upsert_insert_only.py tests/test_live_intent_queue_integrity.py tests/test_live_reconciler.py tests/test_place_order_fail_closed.py tests/test_run_ws_ticker_feed.py`
+  was run from the integration worktree using the repository venv path and
+  passed: `55 passed, 1 warning`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  was run from the integration worktree and passed:
+  `2085 passed, 33 skipped, 13 warnings in 202.46s`.
+
+Remaining risk:
+- HIGH: master integration touches live/order/risk-adjacent lifecycle behavior
+  and compatibility entrypoints.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

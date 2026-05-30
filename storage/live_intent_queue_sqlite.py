@@ -96,27 +96,6 @@ class LiveIntentQueueSQLite:
                     now,
                 ),
             )
-            con.execute(
-                f"UPDATE live_trade_intents SET ts=?, source=?, strategy_id=?, venue=?, symbol=?, side=?, order_type=?, qty=?, limit_price=?, status=?, client_order_id=COALESCE(?, client_order_id), exchange_order_id=COALESCE(?, exchange_order_id), meta=?, updated_ts=? "
-                "WHERE intent_id=? AND status='queued' AND client_order_id IS NULL AND exchange_order_id IS NULL",
-                (
-                    str(row["ts"]),
-                    str(row["source"]),
-                    row.get("strategy_id"),
-                    str(row["venue"]),
-                    str(row["symbol"]),
-                    str(row["side"]),
-                    str(row["order_type"]),
-                    float(row["qty"]),
-                    row.get("limit_price"),
-                    normalize_live_queue_status(row["status"]),
-                    row.get("client_order_id"),
-                    row.get("exchange_order_id"),
-                    meta_json,
-                    now,
-                    intent_id,
-                ),
-            )
         finally:
             con.close()
 

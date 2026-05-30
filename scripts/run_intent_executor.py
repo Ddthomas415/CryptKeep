@@ -11,8 +11,7 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-from scripts.data import run_ws_ticker_feed as _impl
-
+from scripts.compat import run_intent_executor as _impl
 
 if __name__ == "__main__":
     raise SystemExit(_impl.main())

@@ -226,7 +226,9 @@ def test_live_reconciler_open_order_timestamp_path_does_not_crash(monkeypatch, t
             self.state: dict[str, str] = {}
 
         def list_intents(self, *, limit: int = 60, status: str):
-            assert status == "submitted"
+            assert status in {"submitted", "submit_unknown"}
+            if status == "submit_unknown":
+                return []
             return [
                 {
                     "intent_id": "intent-1",
