@@ -25,7 +25,7 @@ from typing import Any
 
 from services.os import app_paths
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_DIR = ROOT / "releases"
 
 # Include likely output dirs so manifests capture final signed artifacts too.

@@ -813,3 +813,57 @@ Remaining risk:
 - HIGH: master integration touches live/order/risk-adjacent lifecycle behavior
   and compatibility entrypoints.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-05-30 - PR #44 Release Checklist Entrypoint Repair
+
+Active role: `ENGINEER`
+
+Objective: repair the PR #44 macOS PyInstaller CI failure after the integration
+suite repair was pushed.
+
+What was found:
+- SHOWN: GitHub Actions macOS build failed before packaging work could run.
+- SHOWN: the failing command was
+  `python scripts/release_checklist.py --sync-requires --pyinstaller`.
+- SHOWN: the repository had `scripts/release/release_checklist.py` but no root
+  `scripts/release_checklist.py` compatibility entrypoint.
+- SHOWN: after adding the root wrapper, dry-run exposed a relocated-script root
+  bug: `scripts/release/release_checklist.py` resolved `ROOT` to `scripts/`,
+  so it could not find repo-root `pyproject.toml`.
+
+What changed:
+- Added `scripts/release_checklist.py` as a root compatibility entrypoint.
+- The wrapper executes `scripts.release.release_checklist` as `__main__` via
+  `runpy` so the relocated script keeps its CLI behavior.
+- Corrected `scripts/release/release_checklist.py` root calculation from
+  `parent.parent` to `parents[2]`.
+- Added a regression test that runs
+  `scripts/release_checklist.py --dry-run` in a subprocess.
+
+Why this change:
+- The documented workflows and release docs all call the root
+  `scripts/release_checklist.py` path.
+- Fixing the entrypoint and underlying root calculation is smaller and safer
+  than editing every workflow and doc path.
+- `runpy` avoids importing and calling `main()` in a way that would bypass the
+  relocated script's `__main__` setup.
+
+Expected outcome:
+- GitHub Actions can resolve the documented root release checklist command.
+- The relocated release checklist can find repo-root release metadata.
+- PyInstaller CI proceeds past the missing-file/root-resolution failure.
+
+Verification:
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_remaining_compat_wrappers.py::test_release_checklist_root_wrapper_dry_run`
+  passed: `1 passed`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python scripts/release_checklist.py --dry-run`
+  passed and returned `ok=true`, `manifest_written=null`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python scripts/release/release_checklist.py --dry-run`
+  passed and returned `ok=true`, `manifest_written=null`.
+- UNVERIFIED: full PyInstaller packaging was not run locally because
+  `--pyinstaller` writes build/release artifacts; GitHub CI remains the
+  intended verification surface for that build.
+
+Remaining risk:
+- HIGH: release/desktop packaging CI path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
