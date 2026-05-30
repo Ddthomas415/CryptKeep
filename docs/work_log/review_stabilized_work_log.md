@@ -867,3 +867,53 @@ Verification:
 Remaining risk:
 - HIGH: release/desktop packaging CI path.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-05-30 - PR #44 Paper Runner Entrypoint Repair
+
+Active role: `ENGINEER`
+
+Objective: repair the remaining PR #44 CI failure in the main `validate`
+workflow after desktop builds, sanity, ruff, mypy, and core pytest passed.
+
+What was found:
+- SHOWN: GitHub Actions main `validate` failed after the core pytest step
+  passed with `1967 passed, 62 skipped`.
+- SHOWN: the failing command was
+  `python scripts/run_es_daily_trend_paper.py --dry-run`.
+- SHOWN: the implementation exists at
+  `scripts/dev/run_es_daily_trend_paper.py`, while CI and docs still call the
+  historical root path.
+- SHOWN: the CI workflow reads the root script source directly to assert the
+  ManagedComponent contract marker `lock_dir=runtime_dir()`.
+
+What changed:
+- Added `scripts/run_es_daily_trend_paper.py` as a root compatibility
+  entrypoint that delegates to `scripts.dev.run_es_daily_trend_paper`.
+- Preserved the visible ManagedComponent contract marker in the root wrapper
+  because the workflow intentionally checks the historical entrypoint source.
+- Added a subprocess regression test for
+  `scripts/run_es_daily_trend_paper.py --dry-run`.
+
+Why this change:
+- The CI and documentation contract is the root runner path.
+- Restoring a compatibility wrapper is smaller and safer than editing multiple
+  workflows and docs during master integration.
+- Delegating with `runpy` avoids duplicating runner behavior.
+
+Expected outcome:
+- The main CI `Paper runner dry-run` step can resolve and execute the
+  historical root runner path.
+- The following workflow source-contract step still sees the expected
+  ManagedComponent marker.
+
+Verification:
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_remaining_compat_wrappers.py::test_es_daily_trend_paper_root_wrapper_dry_run`
+  passed: `1 passed`.
+- `CBP_STATE_DIR=/tmp/cbp_ci_state /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python scripts/run_es_daily_trend_paper.py --dry-run`
+  passed and printed `DRY RUN: pre-flight passed. Stage=paper, kernel=allow`.
+- Local reproduction of the CI ManagedComponent source-contract check passed:
+  `ManagedComponent API contract: OK`.
+
+Remaining risk:
+- HIGH: paper-runner/operator workflow and CI integration path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
