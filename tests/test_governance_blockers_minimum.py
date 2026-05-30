@@ -129,7 +129,8 @@ def test_claims_guard_blocks_unapproved_claims():
                 "remote_access_requires_mfa": True,
                 "outer_access_control": "",
             }
-        }
+        },
+        current_role="OPERATOR",
     )
 
     caps = auth_capabilities()
@@ -166,7 +167,8 @@ def test_auth_scope_persistence_and_enforcement():
                 "remote_access_requires_mfa": True,
                 "outer_access_control": "cloudflare_access",
             }
-        }
+        },
+        current_role="OPERATOR",
     )
 
     settings = get_settings_view()

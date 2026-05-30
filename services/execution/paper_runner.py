@@ -13,8 +13,8 @@ from services.execution.paper_engine import PaperEngine
 from services.live_router.router import decide_order
 from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
-from services.control.managed_component import clean_stale_lock_file
 from services.os.file_utils import atomic_write
+from services.control.managed_component import clean_stale_lock_file
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -32,19 +32,27 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n"
     try:
-        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
-            fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-        return True
+        fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
     except FileExistsError:
-        if clean_stale_lock_file(LOCK_FILE):
-            try:
-                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
-                    fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-                return True
-            except FileExistsError:
-                return False
-        return False
+        if not clean_stale_lock_file(LOCK_FILE):
+            return False
+        try:
+            fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            return False
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+    except Exception:
+        try:
+            if LOCK_FILE.exists():
+                LOCK_FILE.unlink()
+        except Exception:
+            pass
+        raise
+    return True
 
 def _release_lock() -> None:
     try:

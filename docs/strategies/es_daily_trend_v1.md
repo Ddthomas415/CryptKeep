@@ -127,13 +127,21 @@ Work through each gate in order. Do not advance until all items pass.
 ### Paper gate
 
 - [ ] 30 calendar days of simulated operation
-- [ ] 50+ completed round trips (entry + exit)
+- [ ] 10+ completed round trips (entry + exit)
 - [ ] Observed win rate and avg win/loss within 25% of backtest expectations
 - [ ] No critical bugs in signal generation, order formatting, or state management
 - [ ] Kill switch tested successfully
 - [ ] All evidence logs complete and parseable
 - [ ] Daily loss halt triggered and recovered correctly at least once in simulation
 - [ ] Regime filter blocked at least one entry in the run
+
+The 10+ completed round-trip threshold validates the paper execution path. It does
+not prove profitability. Promotion review still requires an explicit comparison of
+observed win rate and average win/loss against backtest expectations.
+
+For this slow-turnover daily strategy, 50+ completed round trips remains a stronger
+research-confidence target before larger live-capital decisions. It is not the blocker for
+the initial paper → shadow/sandbox review.
 
 ### Shadow gate
 

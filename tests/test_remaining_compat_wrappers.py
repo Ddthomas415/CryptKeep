@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import importlib
+import json
+import os
 import sqlite3
+import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -35,6 +39,37 @@ def test_remaining_compat_imports(monkeypatch, tmp_path):
     for name in modules:
         mod = importlib.import_module(name)
         assert mod is not None
+
+
+def test_release_checklist_root_wrapper_dry_run(tmp_path):
+    result = subprocess.run(
+        [sys.executable, "scripts/release_checklist.py", "--dry-run"],
+        capture_output=True,
+        cwd=Path(__file__).resolve().parents[1],
+        text=True,
+        timeout=30,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["ok"] is True
+    assert payload["manifest_written"] is None
+
+
+def test_es_daily_trend_paper_root_wrapper_dry_run(tmp_path):
+    env = os.environ.copy()
+    env["CBP_STATE_DIR"] = str(tmp_path / "state")
+    result = subprocess.run(
+        [sys.executable, "scripts/run_es_daily_trend_paper.py", "--dry-run"],
+        capture_output=True,
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        text=True,
+        timeout=30,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "DRY RUN: pre-flight passed" in result.stdout
 
 
 def test_kill_switch_wrapper(monkeypatch, tmp_path):

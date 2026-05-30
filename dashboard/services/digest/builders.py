@@ -112,20 +112,36 @@ def _configured_strategy_name(user_cfg: dict[str, Any], trading_cfg: dict[str, A
     strategy_cfg = user_cfg.get("strategy") if isinstance(user_cfg.get("strategy"), dict) else {}
     pipeline_cfg = user_cfg.get("pipeline") if isinstance(user_cfg.get("pipeline"), dict) else {}
     trading_strategy = trading_cfg.get("strategy") if isinstance(trading_cfg.get("strategy"), dict) else {}
+    canonical = {
+        "ema_cross",
+        "mean_reversion_rsi",
+        "breakout_donchian",
+        "momentum",
+        "volatility_reversal",
+        "gap_fill",
+        "breakout_volume",
+        "pullback_recovery",
+        "sma_200_trend",
+    }
+    aliases = {
+        "ema": "ema_cross",
+        "ema_crossover": "ema_cross",
+        "mean_reversion": "mean_reversion_rsi",
+        "breakout": "breakout_donchian",
+        "donchian": "breakout_donchian",
+        "es_daily_trend_v1": "sma_200_trend",
+        "es_daily_trend": "sma_200_trend",
+    }
     for candidate in (
         strategy_cfg.get("name"),
         pipeline_cfg.get("strategy"),
         trading_strategy.get("type"),
     ):
         name = str(candidate or "").strip().lower()
-        if name in {"ema_cross", "mean_reversion_rsi", "breakout_donchian"}:
+        if name in canonical:
             return name
-        if name in {"ema", "ema_crossover"}:
-            return "ema_cross"
-        if name in {"mean_reversion"}:
-            return "mean_reversion_rsi"
-        if name in {"breakout", "donchian"}:
-            return "breakout_donchian"
+        if name in aliases:
+            return aliases[name]
     return "ema_cross"
 
 
@@ -1418,6 +1434,8 @@ def _page_status(
 
 
 def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDigestData:
+    from dashboard.services.strategy_evidence_runtime import load_paper_sim_monitor_runtime
+
     summary = overview_summary if isinstance(overview_summary, dict) else {}
     if not summary:
         try:
@@ -1457,6 +1475,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         structural_health=structural_health,
         collector_runtime=collector_runtime,
         strategy_truth=strategy_context,
+        strategy_id=str(strategy_context.get("configured_strategy") or ""),
     )
     attention_now = build_attention_now_digest(
         as_of=as_of,
@@ -1508,6 +1527,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         leaderboard_summary=leaderboard_summary,
         mode_truth=mode_truth,
     )
+    paper_sim_monitor = load_paper_sim_monitor_runtime()
     page_status = _page_status(
         attention_now=attention_now,
         safety_warnings=safety_warnings,
@@ -1528,6 +1548,7 @@ def build_home_digest(overview_summary: dict[str, Any] | None = None) -> HomeDig
         mode_truth=mode_truth,
         recent_incidents=recent_incidents,
         next_best_action=next_best_action,
+        paper_sim_monitor=paper_sim_monitor,
     )
 
 

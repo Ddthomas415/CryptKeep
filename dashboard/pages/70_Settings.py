@@ -357,6 +357,10 @@ with settings_tabs[0]:
                     "Weekly digest",
                     value=bool(notifications.get("weekly_digest_enabled", True)),
                 )
+                desktop_notifications_value = st.checkbox(
+                    "Local desktop alerts",
+                    value=bool(notifications.get("desktop_notifications", True)),
+                )
                 quiet_hours_cols = st.columns(2)
                 with quiet_hours_cols[0]:
                     quiet_hours_start_value = st.text_input(
@@ -755,6 +759,7 @@ payload = {
         "delivery_mode": delivery_mode_value,
         "daily_digest_enabled": daily_digest_enabled_value,
         "weekly_digest_enabled": weekly_digest_enabled_value,
+        "desktop_notifications": desktop_notifications_value,
         "confidence_threshold": float(confidence_threshold_value),
         "opportunity_threshold": float(opportunity_threshold_value),
         "quiet_hours_start": quiet_hours_start_value.strip(),
@@ -837,7 +842,7 @@ render_save_action(
     button_key="ck_settings_save_button",
     session_key="ck_settings_save_result",
     payload=payload,
-    save_fn=update_settings_view,
+    save_fn=lambda body: update_settings_view(body, current_role=str(AUTH_STATE.get("role") or "VIEWER")),
     success_message="Settings saved locally and synced when available.",
     error_message="Settings save failed.",
 )

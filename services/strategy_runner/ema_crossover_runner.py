@@ -14,6 +14,7 @@ from typing import List, Optional
 from services.admin.config_editor import load_user_yaml
 from services.logging.app_logger import get_logger
 from services.market_data.multi_venue_view import best_venue
+from services.market_data.local_data_reader import write_local_ohlcv_snapshot
 from services.market_data.symbol_router import map_symbol, normalize_symbol, normalize_venue
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
 from services.os.app_paths import ensure_dirs, runtime_dir
@@ -404,6 +405,49 @@ def _public_ohlcv_timeframe(cfg: dict) -> str | None:
     return None
 
 
+def _public_ohlcv_evidence_extra(cfg: dict, timeframe: str) -> dict:
+    sample_mode = str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
+    return {
+        "market_data_source": "sample_ohlcv" if sample_mode else "public_ohlcv",
+        "ohlcv_sample_mode": sample_mode,
+        "ohlcv_timeframe": timeframe,
+        "ohlcv_venue": str(cfg.get("venue") or ""),
+        "ohlcv_symbol": str(cfg.get("symbol") or ""),
+    }
+
+
+def _market_quality_evidence_extra(venue: str, symbol: str) -> dict:
+    out: dict[str, object] = {
+        "market_quality_venue": str(venue or ""),
+        "market_quality_symbol": str(symbol or ""),
+    }
+    try:
+        quality = dict(mq_check(str(venue or ""), str(symbol or "")) or {})
+    except Exception as exc:
+        out["market_quality_ok"] = False
+        out["market_quality_reason"] = f"error:{type(exc).__name__}"
+        return out
+
+    out["market_quality_ok"] = bool(quality.get("ok"))
+    out["market_quality_reason"] = str(quality.get("reason") or "ok")
+
+    field_map = {
+        "bid": "market_bid",
+        "ask": "market_ask",
+        "last": "market_last",
+        "price_used": "market_price_used",
+        "age_sec": "market_age_sec",
+        "max_spread_bps": "market_max_spread_bps",
+        "max_tick_age_sec": "market_max_tick_age_sec",
+        "spread_bps": "spread_bps",
+    }
+    for source_key, output_key in field_map.items():
+        value = quality.get(source_key)
+        if value is not None:
+            out[output_key] = value
+    return out
+
+
 def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
     timeframe = _public_ohlcv_timeframe(cfg)
     if not timeframe:
@@ -420,8 +464,10 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         if sample.exists():
             try:
                 rows = _json.loads(sample.read_text())
-                _LOG.info("ohlcv_sample_primary symbol=%s rows=%d", raw_sym, len(rows))
-                return [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _LOG.info("ohlcv_sample_primary symbol=%s rows=%s", raw_sym, len(rows))
+                result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _persist_public_ohlcv_snapshot(cfg, timeframe, result)
+                return result
             except Exception as _se:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
         return []
@@ -434,6 +480,7 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
         result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
         if result:
+            _persist_public_ohlcv_snapshot(cfg, timeframe, result)
             return result
     except Exception as _fetch_err:
         _LOG.warning("ohlcv_live_fetch_failed venue=%s symbol=%s timeframe=%s err=%s",
@@ -457,13 +504,34 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         if sample.exists():
             try:
                 rows = _json.loads(sample.read_text())
-                _LOG.info("ohlcv_sample_fallback symbol=%s rows=%d", raw_sym, len(rows))
-                return [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _LOG.info("ohlcv_sample_fallback symbol=%s rows=%s", raw_sym, len(rows))
+                result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
+                _persist_public_ohlcv_snapshot(cfg, timeframe, result)
+                return result
             except Exception as _se:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
         else:
             _LOG.warning("ohlcv_sample_not_found: %s", sample)
     return []
+
+
+def _persist_public_ohlcv_snapshot(cfg: dict, timeframe: str, rows: list[list[float]]) -> None:
+    if not rows:
+        return
+    venue = str(cfg.get("venue") or "").strip()
+    symbol = str(cfg.get("symbol") or "").strip()
+    if not venue or not symbol:
+        return
+    try:
+        write_local_ohlcv_snapshot(venue, symbol, rows, timeframe=timeframe)
+    except Exception as exc:
+        _LOG.warning(
+            "ohlcv_snapshot_write_failed venue=%s symbol=%s timeframe=%s err=%s",
+            venue,
+            symbol,
+            timeframe,
+            exc,
+        )
 
 def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
     q = get_best_bid_ask_last(cfg["venue"], cfg["symbol"])
@@ -639,6 +707,7 @@ def run_forever() -> None:
                 sym_cfg = dict(cfg)
                 sym_cfg["symbol"] = symbol
                 sym_cfg["venue"] = selected_venue
+                evidence_extra: dict[str, object] = {}
 
                 timeframe = _public_ohlcv_timeframe(sym_cfg)
                 _LOG.debug(
@@ -702,6 +771,9 @@ def run_forever() -> None:
                         trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
                         params=selected_params,
                     )
+                    evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe)
+                    evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
+                    selected_block["evidence_extra"] = evidence_extra
                     signal = compute_signal(
                         cfg={"strategy": selected_block},
                         symbol=symbol,
@@ -1121,6 +1193,7 @@ def run_forever() -> None:
                         "linked_order_id": None,
                         "meta": {
                             "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                            "strategy_preset": cfg.get("strategy_preset"),
                             "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
@@ -1128,6 +1201,7 @@ def run_forever() -> None:
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
                             "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            **evidence_extra,
                         },
                     })
                     enqueued += 1

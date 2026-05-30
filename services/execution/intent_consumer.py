@@ -15,12 +15,13 @@ from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
 from services.risk.staleness_guard import is_snapshot_fresh
 from services.os.file_utils import atomic_write
+from services.control.managed_component import clean_stale_lock_file
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
-STOP_FILE = FLAGS / "live_consumer.stop"
-LOCK_FILE = LOCKS / "live_consumer.lock"
-STATUS_FILE = FLAGS / "live_consumer.status.json"
+STOP_FILE = FLAGS / "intent_consumer.stop"
+LOCK_FILE = LOCKS / "intent_consumer.lock"
+STATUS_FILE = FLAGS / "intent_consumer.status.json"
 
 
 def _now() -> str:
@@ -34,12 +35,27 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n"
     try:
-        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
-            fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-        return True
+        fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
     except FileExistsError:
-        return False
+        if not clean_stale_lock_file(LOCK_FILE):
+            return False
+        try:
+            fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            return False
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+    except Exception:
+        try:
+            if LOCK_FILE.exists():
+                LOCK_FILE.unlink()
+        except Exception:
+            pass
+        raise
+    return True
 
 
 def _release_lock() -> None:
@@ -66,6 +82,7 @@ def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
 
 def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
     cfg = live_risk_cfg()
+    _risk_reset_if_needed(db)
     if cfg["min_order_notional_quote"] > 0 and notional_est < cfg["min_order_notional_quote"]:
         return False, "risk:min_order_notional_quote"
     return db.atomic_risk_claim(

@@ -80,6 +80,47 @@ class TestSignalEvidenceRegression:
         required = ("timestamp", "price", "sma_200", "signal_direction", "regime_flag")
         missing = [f for f in required if f not in record]
         assert not missing, f"Signal record missing required fields: {missing}"
+        assert record["market_data_source"] == "sample_ohlcv"
+        assert record["ohlcv_sample_mode"] is True
+
+    def test_unattributed_ohlcv_does_not_write_promotion_evidence(self, isolated_state, monkeypatch):
+        """Unlabeled OHLCV must not pollute promotion evidence with unknown provenance."""
+        from services.strategies.es_daily_trend import signal_from_ohlcv
+        from services.strategies.campaign_summary import evidence_summary
+
+        monkeypatch.delenv("CBP_USE_SAMPLE_OHLCV", raising=False)
+        rows = _load_sample_ohlcv()
+        result = signal_from_ohlcv(rows)
+
+        assert result["ok"] is True
+        ev = evidence_summary("es_daily_trend_v1")
+        assert ev["files_by_type"].get("signal", 0) == 0
+
+    def test_explicit_public_ohlcv_writes_public_evidence(self, isolated_state, monkeypatch):
+        """Runtime callers with explicit public OHLCV provenance still write promotion evidence."""
+        from services.strategies.es_daily_trend import signal_from_ohlcv
+        from services.os.app_paths import data_dir
+
+        monkeypatch.delenv("CBP_USE_SAMPLE_OHLCV", raising=False)
+        rows = _load_sample_ohlcv()
+        signal_from_ohlcv(
+            rows,
+            evidence_extra={
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+                "ohlcv_timeframe": "1d",
+                "ohlcv_venue": "coinbase",
+                "ohlcv_symbol": "BTC/USDT",
+            },
+        )
+
+        ev_dir = data_dir() / "evidence" / "es_daily_trend_v1"
+        files = list(ev_dir.glob("signal_*.jsonl"))
+        assert files, "No signal files found"
+        record = json.loads(files[0].read_text().strip().splitlines()[0])
+        assert record["market_data_source"] == "public_ohlcv"
+        assert record["ohlcv_sample_mode"] is False
+        assert record["ohlcv_timeframe"] == "1d"
 
     def test_campaign_config_has_correct_signal_source(self, isolated_state):
         """Campaign must configure signal_source=public_ohlcv_1d.

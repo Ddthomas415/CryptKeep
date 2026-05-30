@@ -30,11 +30,31 @@ def test_default_strategy_candidates_returns_supported_defaults():
         "mean_reversion_default",
         "breakout_default",
         "momentum_default",
+        "sma_200_trend_default",
         "volatility_reversal_default",
         "gap_fill_default",
         "breakout_volume_default",
     ]
     assert out[0]["cfg"]["risk"]["max_order_quote"] == 25.0
+
+
+def test_leaderboard_backtest_does_not_write_runtime_signal_evidence(tmp_path, monkeypatch):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+    prices = [100.0 + (idx * 0.1) for idx in range(230)]
+    out = run_strategy_leaderboard(
+        base_cfg={},
+        symbol="BTC/USDT",
+        candles=_candles(prices),
+        warmup_bars=200,
+        initial_cash=1_000.0,
+        fee_bps=10.0,
+        slippage_bps=5.0,
+    )
+
+    evidence_dir = tmp_path / "data" / "evidence" / "es_daily_trend_v1"
+    assert out["ok"] is True
+    assert not list(evidence_dir.glob("signal_*.jsonl"))
 
 
 def test_rank_strategy_rows_penalizes_drawdown_and_drift():
@@ -190,9 +210,9 @@ def test_run_strategy_leaderboard_returns_ranked_rows():
     )
 
     assert out["ok"] is True
-    assert out["candidate_count"] == 7
+    assert out["candidate_count"] == 8
     assert out["stressed_slippage_bps"] > out["base_slippage_bps"]
-    assert len(out["rows"]) == 7
+    assert len(out["rows"]) == 8
     assert out["rows"][0]["leaderboard_score"] >= out["rows"][-1]["leaderboard_score"]
     assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness", "closed_trades", "trade_count", "exposure_fraction"} <= set(
         out["rows"][0].keys()

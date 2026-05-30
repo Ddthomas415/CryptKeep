@@ -80,7 +80,7 @@ def test_live_enabled_and_armed_rejects_enable_live_trading_as_runtime_arm_signa
     assert reason == "live_not_armed"
 
 
-def test_live_enabled_and_armed_rejects_persisted_arm_state_without_boundary_env(monkeypatch):
+def test_live_enabled_and_armed_rejects_stale_persisted_arm_state(monkeypatch):
     monkeypatch.setattr(la, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
     for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING", "CBP_LIVE_ARMED"):
         monkeypatch.delenv(name, raising=False)
@@ -93,4 +93,4 @@ def test_live_enabled_and_armed_rejects_persisted_arm_state_without_boundary_env
     armed, reason = la.live_enabled_and_armed()
 
     assert armed is False
-    assert reason == "live_not_armed"
+    assert reason.startswith("persisted_stale:")

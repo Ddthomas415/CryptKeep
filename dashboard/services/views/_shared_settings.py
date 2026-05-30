@@ -109,6 +109,7 @@ def _default_settings_payload() -> dict[str, Any]:
             "delivery_mode": "instant",
             "daily_digest_enabled": True,
             "weekly_digest_enabled": True,
+            "desktop_notifications": True,
             "confidence_threshold": 0.72,
             "opportunity_threshold": 0.7,
             "quiet_hours_start": "22:00",
@@ -257,5 +258,4 @@ def _apply_local_settings_overrides(settings_payload: dict[str, Any]) -> dict[st
             paper_trading["max_daily_loss_pct"] = round((max_daily_loss_quote / total_value) * 100, 2)
     merged["paper_trading"] = paper_trading
     return merged
-
 

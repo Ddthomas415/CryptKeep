@@ -10,8 +10,8 @@ from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
 from services.execution.state_authority import LiveStateContext, paper_queue_status
 from services.execution.outcome_logger import log_strategy_outcome
-from services.control.managed_component import clean_stale_lock_file
 from services.os.file_utils import atomic_write
+from services.control.managed_component import clean_stale_lock_file
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -28,19 +28,27 @@ def _write_status(obj: dict) -> None:
 
 def _acquire_lock() -> bool:
     LOCKS.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n"
     try:
-        with open(LOCK_FILE, "x", encoding="utf-8") as fh:
-            fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-        return True
+        fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
     except FileExistsError:
-        if clean_stale_lock_file(LOCK_FILE):
-            try:
-                with open(LOCK_FILE, "x", encoding="utf-8") as fh:
-                    fh.write(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n")
-                return True
-            except FileExistsError:
-                return False
-        return False
+        if not clean_stale_lock_file(LOCK_FILE):
+            return False
+        try:
+            fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            return False
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+    except Exception:
+        try:
+            if LOCK_FILE.exists():
+                LOCK_FILE.unlink()
+        except Exception:
+            pass
+        raise
+    return True
 
 def _release_lock() -> None:
     try:
@@ -103,16 +111,6 @@ def reconcile_once(
             intents_updated += 1
             continue
         if st == "filled":
-            paper_queue_status(
-                qdb,
-                it,
-                "filled",
-                ctx=ctx,
-                last_error=None,
-                client_order_id=it.get("client_order_id"),
-                linked_order_id=order_id,
-            )
-            intents_updated += 1
             fills = pdb.list_fills_for_order(order_id, limit=5000)
             pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
             meta = dict(it.get("meta") or {})
@@ -159,6 +157,16 @@ def reconcile_once(
                     **journal_row,
                 })
                 fills_journaled += 1
+            paper_queue_status(
+                qdb,
+                it,
+                "filled",
+                ctx=ctx,
+                last_error=None,
+                client_order_id=it.get("client_order_id"),
+                linked_order_id=order_id,
+            )
+            intents_updated += 1
 
     return {
         "submitted_checked": int(len(submitted)),

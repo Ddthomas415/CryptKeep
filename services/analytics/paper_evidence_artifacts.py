@@ -27,6 +27,13 @@ def _path_mtime(path: Path) -> float:
         return 0.0
 
 
+def decision_record_dir() -> Path:
+    """Return the authoritative decision-record root for the current state context."""
+    if str(os.getenv("CBP_STATE_DIR") or "").strip():
+        return (data_dir() / "strategy_evidence").resolve()
+    return (code_root() / "docs" / "strategies").resolve()
+
+
 def latest_leaderboard_artifact(strategy_id: str | None = None) -> dict[str, Any]:
     """Return the leaderboard-style evidence artifact paths.
 
@@ -53,7 +60,7 @@ def latest_leaderboard_artifact(strategy_id: str | None = None) -> dict[str, Any
 
 def latest_decision_record() -> dict[str, Any]:
     """Return the most recent decision record artifact."""
-    root = (code_root() / "docs" / "strategies").resolve()
+    root = decision_record_dir()
     records = sorted(path.resolve() for path in root.glob("decision_record_*.md"))
     if not records:
         return {}

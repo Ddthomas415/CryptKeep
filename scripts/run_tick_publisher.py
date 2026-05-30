@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 # CBP_BOOTSTRAP_SYS_PATH
 import sys
 from pathlib import Path
+
 try:
     from _bootstrap import add_repo_root_to_syspath
 except ModuleNotFoundError:
@@ -10,37 +12,49 @@ except ModuleNotFoundError:
 
 _REPO = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-import json
 import time
 import traceback
-from services.os.app_paths import data_dir, runtime_dir, ensure_dirs
-from services.config_loader import runtime_trading_config_available
+
+
+def runtime_trading_config_available() -> bool:
+    from services.config_loader import runtime_trading_config_available as _impl
+
+    return bool(_impl())
+
+
+def data_dir() -> Path:
+    from services.os.app_paths import data_dir as _impl
+
+    return _impl()
+
 
 def _log_path() -> Path:
+    from services.os.app_paths import ensure_dirs, runtime_dir
+
     ensure_dirs()
     path = runtime_dir() / "logs" / "tick_publisher.log"
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
-# append-friendly helper (py<3.12 compatible)
-def _append(path: Path, text: str):
-    with path.open("a", encoding="utf-8") as f:
-        f.write(text)
 
-def log(msg: str):
+def _append(path: Path, text: str) -> None:
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(text)
+
+
+def log(msg: str) -> None:
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
     _append(_log_path(), f"[{ts}] {msg}\n")
 
+
 def main() -> int:
     try:
-        # Prereqs we can check without forcing API calls
         rules_db = data_dir() / "execution.sqlite"
 
-        missing = []
+        missing: list[str] = []
         if not runtime_trading_config_available():
             missing.append("runtime trading config missing")
         if not rules_db.exists():
-            # not fatal; just means no market rules cached yet
             missing.append(".cbp_state/data/execution.sqlite missing (ok for fresh install)")
 
         if missing:
@@ -48,7 +62,6 @@ def main() -> int:
         else:
             log("tick_publisher starting (prereqs present)")
 
-        # Try to run the real publisher if available
         try:
             from services.market_data.system_status_publisher import run_tick_publisher  # type: ignore
         except Exception:
@@ -59,7 +72,6 @@ def main() -> int:
             run_tick_publisher()
             return 0
 
-        # Fallback: idle loop that keeps process alive (so supervisor tooling works)
         log("tick_publisher fallback idle loop (no run_tick_publisher available)")
         while True:
             time.sleep(2.0)
@@ -67,10 +79,11 @@ def main() -> int:
     except KeyboardInterrupt:
         log("tick_publisher stopped (KeyboardInterrupt)")
         return 0
-    except Exception as e:
-        log("tick_publisher crashed: " + repr(e))
+    except Exception as exc:
+        log("tick_publisher crashed: " + repr(exc))
         log(traceback.format_exc())
         return 2
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

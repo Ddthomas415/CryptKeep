@@ -38,7 +38,7 @@ def test_run_repo_script_returns_rc_and_combined_output(monkeypatch):
 
     monkeypatch.setattr(operator_service.subprocess, "run", fake_run)
     rc, out = operator_service.run_repo_script(
-        "scripts/run_crypto_edge_collector_loop.py",
+        "scripts/run_paper_strategy_evidence_collector.py",
         args=["--stop"],
         current_role="OPERATOR",
     )
@@ -60,14 +60,38 @@ def test_start_repo_script_background_returns_started_pid(monkeypatch):
 
     monkeypatch.setattr(operator_service.subprocess, "Popen", fake_popen)
     rc, out = operator_service.start_repo_script_background(
-        "scripts/run_crypto_edge_collector_loop.py",
+        "scripts/run_paper_strategy_evidence_collector.py",
         args=["--stop"],
         current_role="OPERATOR",
     )
 
     assert rc == 0
     assert "started pid=43210" in out
-    assert "run_crypto_edge_collector_loop.py" in " ".join(str(x) for x in seen["cmd"])
+    assert "run_paper_strategy_evidence_collector.py" in " ".join(str(x) for x in seen["cmd"])
+
+
+def test_run_repo_script_returns_missing_script_when_path_absent(monkeypatch):
+    monkeypatch.setattr(operator_service, "ALLOWED_OPERATOR_SCRIPTS", {"scripts/missing.py"})
+
+    rc, out = operator_service.run_repo_script(
+        "scripts/missing.py",
+        current_role="OPERATOR",
+    )
+
+    assert rc == 1
+    assert out == "missing_script:scripts/missing.py"
+
+
+def test_start_repo_script_background_returns_missing_script_when_path_absent(monkeypatch):
+    monkeypatch.setattr(operator_service, "ALLOWED_OPERATOR_SCRIPTS", {"scripts/missing.py"})
+
+    rc, out = operator_service.start_repo_script_background(
+        "scripts/missing.py",
+        current_role="OPERATOR",
+    )
+
+    assert rc == 1
+    assert out == "missing_script:scripts/missing.py"
 
 
 def test_start_crypto_edge_collector_loop_returns_already_running(monkeypatch):
@@ -103,6 +127,73 @@ def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
     assert "scripts/run_crypto_edge_collector_loop.py" in out
     assert "--interval-sec 900" in out
     assert "OPERATOR" in out
+
+
+def test_start_paper_strategy_evidence_collection_honors_desktop_notification_setting(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_strategy_evidence_service.load_runtime_status",
+        lambda: {"ok": True, "pid_alive": False, "status": "dead"},
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "load_user_yaml",
+        lambda: {
+            "dashboard_ui": {
+                "settings": {
+                    "notifications": {
+                        "desktop_notifications": False,
+                    }
+                }
+            }
+        },
+    )
+    monkeypatch.setattr(
+        operator_service,
+        "start_repo_script_background",
+        lambda script_relpath, args=None, current_role="VIEWER": (
+            0,
+            f"{script_relpath}|{' '.join(str(x) for x in (args or []))}|{current_role}",
+        ),
+    )
+
+    rc, out = operator_service.start_paper_strategy_evidence_collection(
+        runtime_sec=600.0,
+        strategies=["sma_200_trend"],
+        symbol="BTC/USD",
+        venue="coinbase",
+        current_role="OPERATOR",
+    )
+
+    assert rc == 0
+    assert "scripts/run_paper_strategy_evidence_collector.py" in out
+    assert "--daily-loop" in out
+    assert "--signal-source public_ohlcv_1d" in out
+    assert "--no-desktop-notify" in out
+
+
+def test_register_paper_sim_watch_wraps_core_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.register_watch",
+        lambda name="", trigger="": {"ok": True, "name": name, "trigger": trigger},
+    )
+
+    out = operator_service.register_paper_sim_watch(name="next_fill", trigger="new_fill", current_role="OPERATOR")
+
+    assert out["ok"] is True
+    assert out["name"] == "next_fill"
+    assert out["trigger"] == "new_fill"
+
+
+def test_delete_paper_sim_watch_wraps_core_service(monkeypatch):
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.delete_watch",
+        lambda name="": {"ok": True, "name": name},
+    )
+
+    out = operator_service.delete_paper_sim_watch(name="next_fill", current_role="OPERATOR")
+
+    assert out["ok"] is True
+    assert out["name"] == "next_fill"
 
 
 def test_get_operations_snapshot_summarizes_services_and_health(monkeypatch):
