@@ -192,7 +192,7 @@ st.caption("Enforced before any LIVE submit: kill-switch, max daily loss, max no
 try:
     import yaml
     from pathlib import Path
-    from services.risk.live_risk_gates_phase82 import LiveRiskLimits, LiveGateDB
+    from services.risk.live_risk_gates import LiveRiskLimits, LiveGateDB
     from storage.pnl_store_sqlite import PnLStoreSQLite
 
     cfg = yaml.safe_load(open("config/trading.yaml","r",encoding="utf-8").read()) or {}
@@ -265,11 +265,11 @@ def main() -> int:
     else:
         print("[warn] config/trading.yaml missing (skipping defaults)")
 
-    g82 = ROOT / "services" / "risk" / "live_risk_gates_phase82.py"
+    g82 = ROOT / "services" / "risk" / "live_risk_gates.py"
     if g82.exists():
         safe_patch(g82, patch_gates82, attic)
     else:
-        print("[warn] services/risk/live_risk_gates_phase82.py missing (skipping)")
+        print("[warn] services/risk/live_risk_gates.py missing (skipping)")
 
     live_exec = ROOT / "services" / "execution" / "live_executor.py"
     if live_exec.exists():

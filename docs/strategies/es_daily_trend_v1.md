@@ -30,7 +30,7 @@ It is the first concrete child of the decision framework.
 
 ## Known limitations (v1)
 
-- `daily_loss_halt_pct` in the config is a **declarative target**, not the runtime enforcement source in v1. Actual daily halt is enforced by `services/risk/live_risk_gates_phase82.py` using an absolute USD value. Keep these consistent manually until directly wired.
+- `daily_loss_halt_pct` in the config is a **declarative target**, not the runtime enforcement source in v1. Actual live daily halt is enforced by `services/risk/live_risk_gates.py` from `risk.live.max_daily_loss_usd` in the canonical runtime trading config. The runtime gate fails closed if those live dollar limits are missing or invalid. Keep the percentage target and live dollar limit consistent manually until an accepted equity-based translation is wired.
 - `ops.baseline_slippage_pct: 0.10` is an estimate. Replace with measured median fill slippage after the first 50 fills.
 
 ## 2 — Regime filter

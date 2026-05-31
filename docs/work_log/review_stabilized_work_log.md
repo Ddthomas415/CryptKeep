@@ -987,3 +987,58 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-05-31 after targeted and full-suite verification.
+
+## 2026-05-31 - Live Risk Limits Fail Closed From Runtime Config
+
+Active role: `ENGINEER`
+
+Objective: harden the live daily-loss risk-limit source of truth while
+investigating the `daily_loss_halt_pct` wiring discrepancy.
+
+What was found:
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` declares
+  `daily_loss_halt_pct` as a percentage target.
+- SHOWN: the live risk gate enforces absolute USD limits via
+  `services/risk/live_risk_gates.py`.
+- SHOWN: `LiveRiskLimits.from_trading_yaml()` read
+  `canonical_runtime.json` directly and substituted broad hardcoded defaults
+  when `risk.live.*` was absent.
+- SHOWN: docs and a Phase 82 helper still referenced the removed
+  `services/risk/live_risk_gates_phase82.py` path.
+
+What changed:
+- Changed `LiveRiskLimits.from_trading_yaml()` to load the canonical runtime
+  trading config through `load_runtime_trading_config(path)`.
+- Removed hardcoded fallback live-risk limits from that loader.
+- Made missing or invalid `risk.live.*` return `None`, preserving fail-closed
+  behavior in callers that block when limits are unavailable.
+- Added regression tests proving the loader uses runtime config and fails
+  closed when live risk limits are missing.
+- Updated stale Phase 82 and strategy docs to point at
+  `services/risk/live_risk_gates.py`.
+
+Why this change:
+- The percentage-to-USD translation still needs a separate accepted equity
+  source; inventing that translation now would be unsafe.
+- The smallest safety hardening is to prevent live risk gates from silently
+  inventing default dollar limits when the canonical runtime config lacks
+  explicit `risk.live.*` values.
+
+Expected outcome:
+- Live risk evaluation remains blocked when live dollar limits are missing or
+  malformed.
+- Operators see the current v1 contract clearly: strategy
+  `daily_loss_halt_pct` is declarative, while live enforcement uses explicit
+  `risk.live.max_daily_loss_usd`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_placeholder_recovery_phase2.py tests/test_phase82_apply_safe_import.py tests/test_show_live_gate_inputs.py tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: `43 passed in 0.90s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2097 passed, 33 skipped, 13 warnings in 355.48s`.
+
+Remaining risk:
+- HIGH: live risk-gate behavior and daily-loss safety control.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-05-31 after targeted and full-suite verification.
