@@ -98,6 +98,20 @@ ops:
   reconciliation_tolerance: 0.0          # zero unresolved mismatch tolerance
   kill_switch_test_frequency: weekly     # minimum verification cadence
 
+# Promotion thresholds
+# Source: docs/strategies/es_daily_trend_v1.md §6
+promotion:
+  paper:
+    backtest_expectations:
+      # Fill these only from an accepted backtest baseline with closed-trade
+      # participation for sma_200_trend. Null keeps the paper gate in explicit
+      # manual-review mode instead of inventing profitability expectations.
+      source: null
+      tolerance_pct: 25.0
+      win_rate: null
+      avg_win: null
+      avg_loss: null
+
 # Evidence logging
 # All fields below must be populated in every log record.
 # Source: docs/strategies/es_daily_trend_v1.md §5

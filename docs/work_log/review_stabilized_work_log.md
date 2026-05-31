@@ -924,3 +924,66 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-05-30 after PR #44 CI reported the main `validate` workflow passing.
+
+## 2026-05-31 - Paper Gate Backtest Baseline Contract
+
+Active role: `ENGINEER`
+
+Objective: remove the ambiguity around the paper-gate checklist item requiring
+observed win rate and average win/loss to be compared against backtest
+expectations before `es_daily_trend_v1` can advance.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py --json` already surfaced
+  `manual_review_required=true`.
+- SHOWN: the gate included observed paper-history metrics for
+  `sma_200_trend`: 7 closed trades, 14 fills, 28.6% win rate, +35.75 net
+  realized PnL, +5.11 expectancy per closed trade.
+- SHOWN: no machine-readable backtest baseline for `win_rate`, `avg_win`, and
+  `avg_loss` existed in the strategy config, so the gate could only ask for
+  manual comparison.
+
+What changed:
+- Added `promotion.paper.backtest_expectations` to
+  `configs/strategies/es_daily_trend_v1.yaml` with `source`, `tolerance_pct`,
+  `win_rate`, `avg_win`, and `avg_loss` fields.
+- Updated `scripts/check_promotion_gates.py` so the paper gate reads those
+  configured expectations, compares observed paper metrics against the
+  configured tolerance, and marks the item as `machine_checked`,
+  `machine_blocking`, or `manual_required`.
+- Kept the current config values unset because no accepted closed-trade
+  backtest baseline has been identified for `sma_200_trend`.
+- Updated `docs/strategies/es_daily_trend_v1.md` and
+  `docs/DECISION_FRAMEWORK.md` to document the config-backed baseline contract.
+- Added tests for matching configured metrics, out-of-tolerance configured
+  metrics, and the config contract existing before a baseline is accepted.
+
+Why this change:
+- The smallest safe fix is to create the machine-readable contract without
+  inventing baseline numbers.
+- A missing baseline must remain visible as `manual_review_required=true`;
+  otherwise the gate can appear ready while the spec's performance-comparison
+  item is still unresolved.
+
+Expected outcome:
+- When an accepted backtest baseline exists, the paper gate can compare
+  observed paper metrics automatically.
+- Until then, the gate remains blocked with explicit missing baseline fields
+  and current observed paper metrics in JSON output.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_es_daily_trend.py`
+  - SHOWN: `68 passed in 0.85s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: `manual_review_required=true`.
+  - SHOWN: missing baseline metrics are `win_rate`, `avg_win`, and `avg_loss`.
+  - SHOWN: observed metrics include 7 closed trades, 14 fills, 28.6% win rate,
+    +35.75 net realized PnL, and +5.11 expectancy per closed trade.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2095 passed, 33 skipped, 13 warnings in 382.38s`.
+
+Remaining risk:
+- HIGH: promotion-gate behavior for a financial strategy.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-05-31 after targeted and full-suite verification.

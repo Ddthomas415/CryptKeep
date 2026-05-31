@@ -310,6 +310,13 @@ class TestConfigConformance:
         cfg = self._load_config()
         assert cfg["risk"]["capped_live"]["min_weeks"] >= 8
 
+    def test_paper_backtest_expectation_contract_exists(self):
+        """Spec §6 comparison fields must exist even before a baseline is accepted."""
+        cfg = self._load_config()
+        expectations = cfg["promotion"]["paper"]["backtest_expectations"]
+        assert expectations["tolerance_pct"] == 25.0
+        assert set(("source", "win_rate", "avg_win", "avg_loss")).issubset(expectations)
+
     def test_regime_trending_floor_above_chop_ceiling(self):
         """trending_floor must be strictly greater than chop_ceiling."""
         cfg = self._load_config()

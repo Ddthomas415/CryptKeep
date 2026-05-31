@@ -787,29 +787,122 @@ def _gate_by_label(gates: list[dict], label: str) -> dict:
     return next((dict(item) for item in list(gates or []) if str(item.get("label") or "") == label), {})
 
 
-def _paper_manual_review_status(paper_history: dict | None, gates: list[dict]) -> dict:
-    """Surface spec checklist items that are not fully machine-verifiable."""
+def _optional_float(value: object) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _backtest_expectations(cfg: dict) -> dict:
+    promotion = cfg.get("promotion") or {}
+    paper = promotion.get("paper") or {}
+    expectations = paper.get("backtest_expectations") or {}
+    return expectations if isinstance(expectations, dict) else {}
+
+
+def _relative_bounds(expected: float, tolerance_pct: float) -> tuple[float, float]:
+    factor = abs(float(tolerance_pct)) / 100.0
+    low = expected * (1.0 - factor)
+    high = expected * (1.0 + factor)
+    return (min(low, high), max(low, high))
+
+
+def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> dict:
     history = dict(paper_history or {})
-    items: list[dict] = [
-        {
+    expectations = _backtest_expectations(cfg)
+    tolerance_pct = _optional_float(expectations.get("tolerance_pct"))
+    if tolerance_pct is None:
+        tolerance_pct = 25.0
+
+    metrics = ("win_rate", "avg_win", "avg_loss")
+    observed = {
+        "closed_trades": int(history.get("closed_trades") or 0),
+        "fills": int(history.get("fills") or 0),
+        "win_rate": history.get("win_rate"),
+        "avg_win": history.get("avg_win"),
+        "avg_loss": history.get("avg_loss"),
+        "net_realized_pnl": history.get("net_realized_pnl"),
+        "expectancy_per_closed_trade": history.get("expectancy_per_closed_trade"),
+    }
+    expected_values = {metric: _optional_float(expectations.get(metric)) for metric in metrics}
+    missing = [metric for metric, value in expected_values.items() if value is None]
+    if missing:
+        return {
             "id": "win_rate_avg_win_loss_vs_backtest",
             "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
             "status": "manual_required",
             "reason": (
-                "No machine-readable backtest baseline for win_rate, avg_win, and avg_loss is configured, "
-                "so this spec item requires operator review before promotion."
+                "No complete machine-readable backtest baseline is configured for "
+                f"{', '.join(missing)}, so this spec item requires operator review before promotion."
             ),
-            "observed": {
-                "closed_trades": int(history.get("closed_trades") or 0),
-                "fills": int(history.get("fills") or 0),
-                "win_rate": history.get("win_rate"),
-                "avg_win": history.get("avg_win"),
-                "avg_loss": history.get("avg_loss"),
-                "net_realized_pnl": history.get("net_realized_pnl"),
-                "expectancy_per_closed_trade": history.get("expectancy_per_closed_trade"),
+            "baseline": {
+                "source": expectations.get("source"),
+                "tolerance_pct": tolerance_pct,
+                "missing_metrics": missing,
             },
+            "observed": observed,
         }
-    ]
+
+    comparisons = []
+    failed = []
+    for metric in metrics:
+        observed_value = _optional_float(history.get(metric))
+        expected_value = expected_values[metric]
+        if observed_value is None or expected_value is None:
+            failed.append(metric)
+            comparisons.append(
+                {
+                    "metric": metric,
+                    "observed": observed_value,
+                    "expected": expected_value,
+                    "passed": False,
+                    "reason": "missing observed or expected value",
+                }
+            )
+            continue
+        lower, upper = _relative_bounds(expected_value, tolerance_pct)
+        passed = lower <= observed_value <= upper
+        if not passed:
+            failed.append(metric)
+        comparisons.append(
+            {
+                "metric": metric,
+                "observed": observed_value,
+                "expected": expected_value,
+                "tolerance_pct": tolerance_pct,
+                "lower_bound": lower,
+                "upper_bound": upper,
+                "passed": passed,
+            }
+        )
+
+    status = "machine_checked" if not failed else "machine_blocking"
+    return {
+        "id": "win_rate_avg_win_loss_vs_backtest",
+        "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
+        "status": status,
+        "reason": (
+            "Observed paper metrics are within configured backtest tolerance."
+            if status == "machine_checked"
+            else f"Observed paper metrics are outside configured tolerance for: {', '.join(failed)}."
+        ),
+        "baseline": {
+            "source": expectations.get("source"),
+            "tolerance_pct": tolerance_pct,
+            "metrics": expected_values,
+        },
+        "observed": observed,
+        "comparisons": comparisons,
+    }
+
+
+def _paper_manual_review_status(paper_history: dict | None, gates: list[dict], cfg: dict | None = None) -> dict:
+    """Surface spec checklist items that are not fully machine-verifiable."""
+    cfg = dict(cfg or {})
+    items: list[dict] = [_paper_backtest_expectation_item(paper_history, cfg)]
     daily_loss_halt = _gate_by_label(gates, "Daily loss halt tested in simulation")
     regime_block = _gate_by_label(gates, "Regime filter blocked at least one entry")
     if daily_loss_halt:
@@ -833,7 +926,7 @@ def _paper_manual_review_status(paper_history: dict | None, gates: list[dict]) -
             }
         )
 
-    required = any(str(item.get("status") or "") == "manual_required" for item in items)
+    required = any(str(item.get("status") or "") in {"manual_required", "machine_blocking"} for item in items)
     return {
         "required": required,
         "items": items,
@@ -843,8 +936,8 @@ def _paper_manual_review_status(paper_history: dict | None, gates: list[dict]) -
             if str(item.get("status") or "") in {"manual_required", "machine_blocking"}
         ],
         "summary": (
-            "Manual review required: observed win rate and avg win/loss must be compared "
-            "against backtest expectations before paper promotion."
+            "Paper gate review required: observed win rate and avg win/loss must satisfy "
+            "configured backtest expectations before paper promotion."
             if required
             else "No manual paper-gate review items are outstanding."
         ),
@@ -892,7 +985,7 @@ def run_check(stage_override: str | None = None) -> dict:
 
     # Retirement check overrides "ready" regardless of gates
     retirement_block = retirement["retirement_required"]
-    manual_review = _paper_manual_review_status(paper_history, gates) if stage == Stage.PAPER else {
+    manual_review = _paper_manual_review_status(paper_history, gates, cfg) if stage == Stage.PAPER else {
         "required": False,
         "items": [],
         "outstanding_items": [],

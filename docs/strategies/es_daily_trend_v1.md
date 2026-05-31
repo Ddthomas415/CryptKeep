@@ -138,6 +138,11 @@ Work through each gate in order. Do not advance until all items pass.
 The 10+ completed round-trip threshold validates the paper execution path. It does
 not prove profitability. Promotion review still requires an explicit comparison of
 observed win rate and average win/loss against backtest expectations.
+The machine gate reads that comparison baseline from
+`configs/strategies/es_daily_trend_v1.yaml` at
+`promotion.paper.backtest_expectations`. If `win_rate`, `avg_win`, or `avg_loss`
+is unset, the gate must keep `manual_review_required=true` rather than assuming
+the comparison passed.
 
 For this slow-turnover daily strategy, 50+ completed round trips remains a stronger
 research-confidence target before larger live-capital decisions. It is not the blocker for
