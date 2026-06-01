@@ -1107,5 +1107,7 @@ Verification:
 
 Remaining risk:
 - HIGH: financial backtest semantics for a promoted paper strategy.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Acceptance reference: pending independent review.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-01 after targeted verification and fresh full-suite verification
+  reported `2099 passed, 33 skipped, 13 warnings in 372.93s`.
