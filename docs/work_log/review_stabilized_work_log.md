@@ -1111,3 +1111,51 @@ Remaining risk:
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-06-01 after targeted verification and fresh full-suite verification
   reported `2099 passed, 33 skipped, 13 warnings in 372.93s`.
+
+## 2026-06-01T09:35:12Z - SMA 200 CI Round-Trip Fixture
+
+Active role: `ENGINEER`
+
+Objective: add a deterministic CI-only OHLCV fixture that proves the default
+`sma_200_trend` parity path can produce a buy-to-sell round trip.
+
+What was found:
+- SHOWN: the previous parity fix made flat SMA exits possible in the backtest
+  simulator, but the existing sample OHLCV still produced 1 buy, 0 sells, and
+  0 closed trades for the default SMA path.
+- SHOWN: there was no dedicated `sma_200_trend` fixture under
+  `sample_data/ohlcv/` that intentionally crossed back below SMA-200 after
+  entry.
+
+What changed:
+- Added `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json`, a synthetic
+  220-bar OHLCV sequence with 200 warmup bars, an above-SMA entry window, and a
+  below-SMA exit window.
+- Added a parity-engine regression test that loads the fixture and asserts one
+  buy, one sell, one closed trade, an SMA long entry reason, an SMA flat exit
+  reason, and scorecard fields needed by the manual review gate.
+
+Why this change:
+- A dedicated fixture is the smallest way to make the CI proof deterministic
+  without treating synthetic data as promotion evidence.
+- Keeping the fixture in `sample_data/ohlcv/` makes its purpose explicit and
+  avoids changing live paper runtime behavior or strategy configuration.
+
+Expected outcome:
+- CI can prove `sma_200_trend` backtest mechanics for both entry and exit under
+  default SMA parameters.
+- The fixture remains a synthetic mechanics check only; it does not prove
+  profitability, live readiness, or paper-promotion eligibility.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_es_signal_regression.py`
+  - SHOWN: `14 passed in 0.29s`.
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_es_daily_trend.py tests/test_strategy_registry.py`
+  - SHOWN: `51 passed in 0.45s`.
+
+Remaining risk:
+- LOW: synthetic fixture and test coverage only; no runtime strategy, order
+  routing, evidence-gate, or live execution behavior changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: same-thread low-risk closure after targeted regression
+  verification.

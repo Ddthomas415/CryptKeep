@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from services.backtest.parity_engine import run_backtest, run_parity_backtest
 
 
@@ -195,6 +198,33 @@ def test_run_parity_backtest_sma_200_trend_closes_round_trip_on_flat_signal():
     assert out["sell_count"] >= 1
     assert out["metrics"]["closed_trades"] >= 1
     assert any(str(trade.get("reason") or "").startswith("sma200:flat") for trade in out["trades"])
+    assert "avg_win" in out["scorecard"]
+    assert "avg_loss" in out["scorecard"]
+
+
+def test_run_parity_backtest_sma_200_trend_fixture_closes_default_round_trip():
+    fixture = Path("sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json")
+    rows = json.loads(fixture.read_text(encoding="utf-8"))
+
+    out = run_parity_backtest(
+        cfg={"strategy": {"name": "sma_200_trend", "sma_period": 200, "atr_period": 20}},
+        symbol="BTC/USDT",
+        candles=rows,
+        warmup_bars=210,
+        initial_cash=1_000.0,
+        fee_bps=10.0,
+        slippage_bps=5.0,
+    )
+
+    assert len(rows) == 220
+    assert out["ok"] is True
+    assert out["strategy"] == "sma_200_trend"
+    assert out["buy_count"] == 1
+    assert out["sell_count"] == 1
+    assert out["metrics"]["closed_trades"] == 1
+    assert out["signals"][0]["reason"].startswith("sma200:long")
+    assert out["trades"][-1]["reason"].startswith("sma200:flat")
+    assert out["scorecard"]["closed_trades"] == 1
     assert "avg_win" in out["scorecard"]
     assert "avg_loss" in out["scorecard"]
 
