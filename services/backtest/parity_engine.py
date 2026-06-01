@@ -118,6 +118,15 @@ def run_parity_backtest(
 
         sig = compute_signal(cfg=signal_cfg, symbol=symbol_s, ohlcv=list(ohlcv))
         action = str(sig.get("action") or "hold").lower().strip()
+        # Backtest-only: the live runner owns position state, while this simulator
+        # must translate the documented SMA flat signal into an exit when long.
+        if (
+            action == "hold"
+            and strategy_name == "sma_200_trend"
+            and pos_qty > 1e-12
+            and str(sig.get("signal") or "").lower().strip() == "flat"
+        ):
+            action = "sell"
         close_px = _fnum(row[4], 0.0)
         ts_ms = _safe_ts_ms(row[0])
         reason = str(sig.get("reason") or "")

@@ -46,6 +46,17 @@ def _ohlc(closes: list[float], spread: float = 1.0):
     return highs, lows, closes
 
 
+def _ohlcv_from_closes(closes: list[float], spread: float = 1.0) -> list[list[float]]:
+    rows: list[list[float]] = []
+    prev = float(closes[0]) if closes else 0.0
+    for idx, close in enumerate(closes):
+        c = float(close)
+        o = float(prev)
+        rows.append([idx * 86_400_000, o, max(o, c) + spread, min(o, c) - spread, c, 1.0])
+        prev = c
+    return rows
+
+
 def test_es_daily_trend_has_no_console_print():
     source = Path("services/strategies/es_daily_trend.py").read_text(encoding="utf-8")
     assert "print(" not in source
@@ -80,6 +91,16 @@ class TestSignal:
         from services.strategies.es_daily_trend import compute_signal
         closes = [100.0] * 200 + [101.0]
         assert compute_signal(closes) == "long"
+
+    def test_ohlcv_adapter_keeps_flat_signal_as_hold_for_runtime_runner(self):
+        from services.strategies.es_daily_trend import signal_from_ohlcv
+
+        rows = _ohlcv_from_closes(([100.0] * 64) + [98.0, 97.0, 96.0, 95.0])
+        result = signal_from_ohlcv(rows, sma_period=5, atr_period=2, emit_evidence=False)
+
+        assert result["ok"] is True
+        assert result["signal"] == "flat"
+        assert result["action"] == "hold"
 
 
 # ---------------------------------------------------------------------------

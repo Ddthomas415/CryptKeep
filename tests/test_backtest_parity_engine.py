@@ -172,6 +172,33 @@ def test_run_parity_backtest_supports_new_strategies():
     assert bo["sell_count"] >= 1
 
 
+def test_run_parity_backtest_sma_200_trend_closes_round_trip_on_flat_signal():
+    closes = (
+        [100.0] * 62
+        + [100.2, 100.4, 100.6, 100.8, 101.0, 101.2, 101.4, 101.6]
+        + [99.0, 98.8, 98.6, 98.4, 98.2, 98.0]
+    )
+
+    out = run_parity_backtest(
+        cfg={"strategy": {"name": "sma_200_trend", "sma_period": 5, "atr_period": 2}},
+        symbol="BTC/USD",
+        candles=_candles(closes),
+        warmup_bars=62,
+        initial_cash=1_000.0,
+        fee_bps=10.0,
+        slippage_bps=5.0,
+    )
+
+    assert out["ok"] is True
+    assert out["strategy"] == "sma_200_trend"
+    assert out["buy_count"] >= 1
+    assert out["sell_count"] >= 1
+    assert out["metrics"]["closed_trades"] >= 1
+    assert any(str(trade.get("reason") or "").startswith("sma200:flat") for trade in out["trades"])
+    assert "avg_win" in out["scorecard"]
+    assert "avg_loss" in out["scorecard"]
+
+
 def test_run_parity_backtest_skips_malformed_rows_and_stays_deterministic():
     candles = [
         [0, 100, 101, 99, 100, 1],

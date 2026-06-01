@@ -1042,3 +1042,70 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-05-31 after targeted and full-suite verification.
+
+## 2026-06-01T09:19:28Z - SMA Backtest Parity Flat Exit
+
+Active role: `ENGINEER`
+
+Objective: make the parity backtest able to close `sma_200_trend` round trips
+when the documented SMA rule flips from long to flat, without adding a new live
+paper exit path.
+
+What was found:
+- SHOWN: `sma_200_trend` signal logic returns `flat` when price is below the
+  SMA, but `signal_from_ohlcv()` keeps runtime `action=hold`.
+- SHOWN: the paper runner owns position state and can emit sells from signal
+  changes or the strategy-aware exit stack.
+- SHOWN: historical paper orders include `sma_200_trend` sells with
+  `signal_reason=sma200:long:...`, so not every closed paper trade was caused
+  by the SMA flat signal.
+- SHOWN: the 2026-05-26 `sma_200_trend` sell had
+  `signal_reason=sma200:flat:regime:trending` and no persisted `exit_reason`,
+  so the runtime path already has distinct exit behavior from the parity
+  backtest simulator.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d.json` still produces 1 buy, 0 sells,
+  and 0 closed trades for the default SMA path, so it is not a valid
+  closed-trade baseline fixture.
+
+What changed:
+- Left `services/strategies/es_daily_trend.py::signal_from_ohlcv()` runtime
+  behavior unchanged: a flat SMA signal still returns `action=hold`.
+- Added a backtest-only translation in
+  `services/backtest/parity_engine.py`: when the simulated strategy is already
+  long, the strategy is `sma_200_trend`, and the computed signal is `flat`, the
+  simulator treats that bar as a sell.
+- Added a regression test proving `run_parity_backtest()` can close an SMA
+  round trip on a flat signal.
+- Added a regression test proving the runtime adapter still returns `hold` for
+  flat, preserving live paper signal semantics.
+
+Why this change:
+- Changing the registry adapter to emit `sell` would alter live paper behavior
+  and potentially introduce a second exit path.
+- The smallest safe change is to fix the simulator's position-aware
+  interpretation of the documented flat/exit condition while leaving runtime
+  exit ownership unchanged.
+
+Expected outcome:
+- Backtest parity can now produce closed-trade metrics for `sma_200_trend`
+  when the input OHLCV window contains both above-SMA entry and below-SMA exit
+  participation.
+- Live paper behavior is unchanged by this patch.
+- The existing sample OHLCV remains insufficient as a closed-trade baseline;
+  a deterministic SMA CI fixture is still required as separate work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_es_daily_trend.py tests/test_backtest_parity_engine.py tests/test_strategy_registry.py`
+  - SHOWN: `50 passed in 0.54s`.
+- `./.venv/bin/python -m pytest -q tests/test_campaign_summary.py tests/test_es_signal_regression.py tests/test_paper_engine_integration.py tests/test_run_paper_strategy_evidence_collector.py tests/test_dashboard_strategy_evaluation.py`
+  - SHOWN: `46 passed in 0.98s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2099 passed, 33 skipped, 13 warnings in 388.18s`.
+- Sample OHLCV proof:
+  - SHOWN: `ok=true`, `bars=230`, `buy_count=1`, `sell_count=0`,
+    `closed_trades=0`.
+
+Remaining risk:
+- HIGH: financial backtest semantics for a promoted paper strategy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance reference: pending independent review.
