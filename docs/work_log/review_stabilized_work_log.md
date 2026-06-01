@@ -1198,18 +1198,21 @@ Expected outcome:
   CI/full-suite confirmation.
 
 Verification:
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2100 passed, 33 skipped, 13 warnings in 367.83s`.
 - `gh pr view 45 --json number,title,state,isDraft,headRefName,baseRefName,url,mergeable`
   - SHOWN: PR #45 is `OPEN`, `isDraft=true`, `baseRefName=master`,
     `headRefName=review-stabilized`, and `mergeable=MERGEABLE`.
 - `git status --short --branch`
   - SHOWN: `review-stabilized...origin/review-stabilized` before this
     work-log entry.
-- Tests were not run for this entry because it records GitHub PR metadata and
-  work-log documentation only.
 
 Remaining risk:
 - HIGH: PR #45 contains promotion-gate, live risk-gate, and financial backtest
   semantics changes.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Proof required next: independent PR review plus fresh CI or full-suite result
-  at the PR head before merge.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-01, with full-suite verification shown above.
+- Remaining gate action: push this acceptance record, rerun the full suite at
+  the final PR head, then mark PR #45 ready/merge only if that proof remains
+  clean.
