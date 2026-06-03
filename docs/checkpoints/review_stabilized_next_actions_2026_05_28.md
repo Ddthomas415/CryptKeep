@@ -293,3 +293,33 @@ Next action:
 Risk:
 - HIGH: short exposure has different tail-risk, margin, liquidation, and
   operational failure modes than long/flat paper trading.
+
+## Priority 13 - Pattern And Hybrid Strategy Roadmap
+
+Status: pending strategy design
+
+Why it matters:
+- `pullback_recovery` is already coded and wired into the strategy registry, but
+  it is not part of the current aggregate leaderboard evidence set.
+- Pattern recognition is a better fit for the operator's "identify the move
+  early enough" objective than only slow trend following.
+- Hybrid strategy work can combine existing signals, but it needs a
+  backtestable composite strategy path rather than ad hoc operator judgment.
+
+Next action:
+- Add `pullback_recovery` to leaderboard/evidence evaluation first because it is
+  the lowest-infrastructure pattern candidate already available in the repo.
+- Create a paper-only `pullback_recovery` campaign plan with its own backtest
+  baseline, expected turnover, risk cap, and evidence gate.
+- Design a backtestable composite/hybrid wrapper before combining strategies in
+  production paths. Candidate hybrids include trend-confirmed breakout,
+  range/trend switcher, and weighted-vote consensus.
+- Track candlestick recognition as a later versioned strategy such as
+  `candlestick_reversal_v1`, after `pullback_recovery` has a baseline.
+- Treat `order_book_imbalance`, `open_interest_shift`, and `funding_extreme` as
+  separate context-pattern work until reliable order-book, derivatives,
+  funding, and open-interest data plumbing is verified.
+
+Risk:
+- HIGH: financial strategy selection, future promotion behavior, and potential
+  expansion from simple single-signal strategies into composite decision logic.

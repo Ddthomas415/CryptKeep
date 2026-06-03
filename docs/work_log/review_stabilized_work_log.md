@@ -1388,3 +1388,55 @@ Remaining risk:
 - Proof required next: independent review of whether these backlog items are
   scoped correctly and whether they should be prioritized before or after the
   current `sma_200_trend` paper gate clears.
+
+## 2026-06-03T16:45:38Z - Pattern And Hybrid Strategy Backlog
+
+Active role: `ENGINEER`
+
+Objective: record the operator-requested pattern-recognition and hybrid
+strategy recommendations as future backlog, without changing runtime behavior.
+
+What was found:
+- SHOWN: `services/strategies/strategy_registry.py` includes
+  `pullback_recovery` in the supported runtime registry.
+- SHOWN: `pullback_recovery` is not listed in the current aggregate leaderboard
+  rows from `strategy_evidence.latest.json`.
+- SHOWN: context-pattern modules exist for `order_book_imbalance`,
+  `open_interest_shift`, and `funding_extreme`, but they are not equivalent to
+  the standard OHLCV registry path.
+- SHOWN: consensus support exists, but the current path scores stored signals
+  and reliability; it is not yet a clean backtestable composite strategy
+  wrapper.
+
+What changed:
+- Added Priority 13 to
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` for pattern
+  and hybrid strategy roadmap work.
+- Captured `pullback_recovery` leaderboard/evidence evaluation as the first
+  recommended pattern-strategy task.
+- Captured later candlestick strategy work and context-pattern data plumbing as
+  separate follow-up tracks.
+
+Why this change:
+- `pullback_recovery` is the lowest-infrastructure way to evaluate pattern-like
+  price action using existing code.
+- Hybrid and context-pattern strategies are higher-risk design work and should
+  be specified before implementation or paper campaigns.
+
+Expected outcome:
+- The repo backlog now separates near-term pattern activation
+  (`pullback_recovery`) from later candlestick recognition, context-pattern
+  data plumbing, and composite/hybrid strategy design.
+- Future strategy work can proceed through paper-only evidence gates without
+  interrupting the current `sma_200_trend` campaign.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: financial strategy direction and future promotion behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Proof required next: independent review of whether the roadmap priority and
+  ordering are correct before implementation starts.
