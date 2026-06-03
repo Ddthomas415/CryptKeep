@@ -1384,10 +1384,11 @@ Verification:
 
 Remaining risk:
 - HIGH: financial strategy direction and future promotion behavior.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Proof required next: independent review of whether these backlog items are
-  scoped correctly and whether they should be prioritized before or after the
-  current `sma_200_trend` paper gate clears.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03.
+- Remaining action: backlog items remain pending future implementation and must
+  stay paper/research-scoped until separately reviewed.
 
 ## 2026-06-03T16:45:38Z - Pattern And Hybrid Strategy Backlog
 
@@ -1437,9 +1438,11 @@ Verification:
 
 Remaining risk:
 - HIGH: financial strategy direction and future promotion behavior.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Proof required next: independent review of whether the roadmap priority and
-  ordering are correct before implementation starts.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03.
+- Remaining action: roadmap items remain pending future implementation and must
+  receive separate review before any trading behavior changes.
 
 ## 2026-06-03T16:57:09Z - Infrastructure Activation Audit Backlog
 
@@ -1491,6 +1494,8 @@ Verification:
 Remaining risk:
 - HIGH: repository architecture, operational workflow, and future trading
   automation.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Proof required next: independent review of the audit scope before starting a
-  subsystem-by-subsystem infrastructure inventory.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03.
+- Remaining action: perform the subsystem-by-subsystem infrastructure inventory
+  before enabling dormant or partially wired systems.
