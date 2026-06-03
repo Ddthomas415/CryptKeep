@@ -323,3 +323,35 @@ Next action:
 Risk:
 - HIGH: financial strategy selection, future promotion behavior, and potential
   expansion from simple single-signal strategies into composite decision logic.
+
+## Priority 14 - Repo Infrastructure Activation Audit
+
+Status: pending audit
+
+Why it matters:
+- The repo contains infrastructure beyond the current active
+  `sma_200_trend` paper campaign, including AI/ML, signals/candidate ranking,
+  alerting, learning/feedback, dashboard pages, desktop packaging, and many
+  operator scripts.
+- Activating dormant infrastructure without an audit could add operational risk,
+  duplicate responsibilities, or mix unvalidated systems into the evidence
+  campaign.
+- A structured inventory is needed before deciding which systems should be
+  wired, documented, retired, or left research-only.
+
+Next action:
+- Create an infrastructure inventory that classifies each subsystem as
+  `active`, `partially_wired`, `dormant`, `research_only`, `superseded`, or
+  `unsafe_to_enable`.
+- For each subsystem, document current entrypoints, consumers, data
+  dependencies, evidence outputs, tests, docs, operational risks, and the
+  smallest safe activation step.
+- Include at minimum: `services/ai_engine`, `services/signals`,
+  `services/ai_copilot`, `services/alerts`, `services/learning`, dashboard
+  pages, desktop surfaces, and undocumented operator scripts.
+- Produce a prioritized activation roadmap that keeps the current
+  `sma_200_trend` paper campaign isolated until its gate decision is complete.
+
+Risk:
+- HIGH: repository architecture, operational workflow, and future trading
+  automation. The audit should not enable dormant systems by itself.

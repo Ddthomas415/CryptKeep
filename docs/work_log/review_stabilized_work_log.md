@@ -1440,3 +1440,57 @@ Remaining risk:
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 - Proof required next: independent review of whether the roadmap priority and
   ordering are correct before implementation starts.
+
+## 2026-06-03T16:57:09Z - Infrastructure Activation Audit Backlog
+
+Active role: `ENGINEER`
+
+Objective: record the operator request to investigate underused repo
+infrastructure and determine how much of the repo is actually wired into the
+current operating path.
+
+What was found:
+- SHOWN: the current active campaign remains focused on `sma_200_trend`,
+  `BTC/USDT`, paper evidence collection, gate checks, and paper sim monitoring.
+- SHOWN: the repo contains additional infrastructure in areas such as
+  `services/ai_engine`, `services/signals`, `services/ai_copilot`,
+  `services/alerts`, `services/learning`, dashboard pages, desktop surfaces,
+  and operator scripts.
+- SHOWN: some of those systems are partially wired through scripts, dashboard
+  pages, tests, or selectors, so labeling all of them "unused" would be too
+  broad without a structured inventory.
+
+What changed:
+- Added Priority 14 to
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` for a repo
+  infrastructure activation audit.
+- The backlog item requires each subsystem to be classified as `active`,
+  `partially_wired`, `dormant`, `research_only`, `superseded`, or
+  `unsafe_to_enable`.
+- The backlog item requires a prioritized activation roadmap while keeping the
+  current `sma_200_trend` campaign isolated.
+
+Why this change:
+- The operator wants the repo to be used more completely, but "turn everything
+  on" is not a safe engineering strategy for trading infrastructure.
+- A visible infrastructure audit gives the project a way to identify dormant
+  value, remove confusion, and choose activation order based on evidence and
+  risk.
+
+Expected outcome:
+- Future work can inventory and prioritize repo infrastructure without mixing
+  unvalidated systems into the current evidence campaign.
+- The project gains a durable map of which systems are active, partially wired,
+  dormant, superseded, or unsafe to enable.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: repository architecture, operational workflow, and future trading
+  automation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Proof required next: independent review of the audit scope before starting a
+  subsystem-by-subsystem infrastructure inventory.
