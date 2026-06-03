@@ -1269,9 +1269,18 @@ Verification:
   - SHOWN: quick pytest subset reported `13 passed in 1.33s`.
 - `git diff --check`
   - SHOWN: no whitespace errors.
+- PR #46 GitHub checks after independent review:
+  - SHOWN: `CI validate` passed in `8m45s`.
+  - SHOWN: `CI sanity` passed in `4m29s`.
+  - SHOWN: `Build (macos-latest)` passed in `1m21s`.
+  - SHOWN: `Build (windows-latest)` passed in `2m22s`.
+  - SHOWN: `Governance smoke`, `script-path-integrity`, and
+    `GitGuardian Security Checks` passed.
 
 Remaining risk:
 - MEDIUM: CI/governance workflow naming and external repository protection.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Proof required next: independent review and PR CI before any branch-protection
-  setting is treated as enforced.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03, with PR #46 CI passing under the new explicit check names.
+- Remaining action: merge PR #46, align `review-stabilized` with `master`, then
+  configure GitHub branch protection using `docs/GITHUB_BRANCH_PROTECTION.md`.
