@@ -6,6 +6,7 @@ on:
 
 jobs:
   governance-smoke:
+    name: Governance smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

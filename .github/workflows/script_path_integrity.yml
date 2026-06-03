@@ -13,7 +13,8 @@ on:
       - '.github/workflows/script_path_integrity.yml'
 
 jobs:
-  validate:
+  script-path-integrity:
+    name: script-path-integrity
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
