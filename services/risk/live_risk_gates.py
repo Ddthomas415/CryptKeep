@@ -9,7 +9,6 @@ import datetime
 import sqlite3
 from pathlib import Path
 
-import yaml
 from services.os.app_paths import data_dir, ensure_dirs
 
 def _utc_day_key() -> str:
@@ -38,26 +37,22 @@ class LiveRiskLimits:
         return LiveRiskLimits(mdl, mnt, mtd, mpn)
     @staticmethod
     def from_trading_yaml(path: str = "config/trading.yaml"):
-        """Load limits from canonical runtime config (single source of truth)."""
-        import json
+        """Load limits from the canonical runtime trading config; fail closed if invalid."""
         import logging
-        from services.os.app_paths import config_dir, data_dir
         _LOG = logging.getLogger(__name__)
         try:
-            canonical_path = config_dir() / "canonical_runtime.json"
-            if not canonical_path.exists():
-                _LOG.error("Canonical config file not found at %s", canonical_path)
-                return None
-            data = json.loads(canonical_path.read_text())
-            risk_cfg = data.get("risk", {}).get("live", {})
-            mdl = float(risk_cfg.get("max_daily_loss_usd", 500.0))
-            mnt = float(risk_cfg.get("max_notional_per_trade_usd", 10000.0))
-            mtd = int(risk_cfg.get("max_trades_per_day", 20))
-            mpn = float(risk_cfg.get("max_position_notional_usd", 50000.0))
-            ksf = str(risk_cfg.get("kill_switch_file") or (data_dir() / "KILL_SWITCH.flag"))
-            return LiveRiskLimits(mdl, mnt, mtd, mpn, ksf)
+            from services.config_loader import load_runtime_trading_config
+
+            data = load_runtime_trading_config(path)
+            limits = LiveRiskLimits.from_dict(data)
+            if limits is None:
+                _LOG.critical(
+                    "RISK_GATE_FAIL_CLOSED: missing_or_invalid_risk_live_limits path=%s",
+                    path,
+                )
+            return limits
         except Exception as e:
-            _LOG.error("Failed to load canonical risk limits: %s", e)
+            _LOG.critical("RISK_GATE_FAIL_CLOSED: risk_limit_load_failed:%s", type(e).__name__)
             return None
 
 def _killswitch_file_on(path: str) -> bool:

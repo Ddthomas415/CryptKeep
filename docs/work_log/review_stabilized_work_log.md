@@ -924,3 +924,298 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-05-30 after PR #44 CI reported the main `validate` workflow passing.
+
+## 2026-05-31 - Paper Gate Backtest Baseline Contract
+
+Active role: `ENGINEER`
+
+Objective: remove the ambiguity around the paper-gate checklist item requiring
+observed win rate and average win/loss to be compared against backtest
+expectations before `es_daily_trend_v1` can advance.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py --json` already surfaced
+  `manual_review_required=true`.
+- SHOWN: the gate included observed paper-history metrics for
+  `sma_200_trend`: 7 closed trades, 14 fills, 28.6% win rate, +35.75 net
+  realized PnL, +5.11 expectancy per closed trade.
+- SHOWN: no machine-readable backtest baseline for `win_rate`, `avg_win`, and
+  `avg_loss` existed in the strategy config, so the gate could only ask for
+  manual comparison.
+
+What changed:
+- Added `promotion.paper.backtest_expectations` to
+  `configs/strategies/es_daily_trend_v1.yaml` with `source`, `tolerance_pct`,
+  `win_rate`, `avg_win`, and `avg_loss` fields.
+- Updated `scripts/check_promotion_gates.py` so the paper gate reads those
+  configured expectations, compares observed paper metrics against the
+  configured tolerance, and marks the item as `machine_checked`,
+  `machine_blocking`, or `manual_required`.
+- Kept the current config values unset because no accepted closed-trade
+  backtest baseline has been identified for `sma_200_trend`.
+- Updated `docs/strategies/es_daily_trend_v1.md` and
+  `docs/DECISION_FRAMEWORK.md` to document the config-backed baseline contract.
+- Added tests for matching configured metrics, out-of-tolerance configured
+  metrics, and the config contract existing before a baseline is accepted.
+
+Why this change:
+- The smallest safe fix is to create the machine-readable contract without
+  inventing baseline numbers.
+- A missing baseline must remain visible as `manual_review_required=true`;
+  otherwise the gate can appear ready while the spec's performance-comparison
+  item is still unresolved.
+
+Expected outcome:
+- When an accepted backtest baseline exists, the paper gate can compare
+  observed paper metrics automatically.
+- Until then, the gate remains blocked with explicit missing baseline fields
+  and current observed paper metrics in JSON output.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_es_daily_trend.py`
+  - SHOWN: `68 passed in 0.85s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: `manual_review_required=true`.
+  - SHOWN: missing baseline metrics are `win_rate`, `avg_win`, and `avg_loss`.
+  - SHOWN: observed metrics include 7 closed trades, 14 fills, 28.6% win rate,
+    +35.75 net realized PnL, and +5.11 expectancy per closed trade.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2095 passed, 33 skipped, 13 warnings in 382.38s`.
+
+Remaining risk:
+- HIGH: promotion-gate behavior for a financial strategy.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-05-31 after targeted and full-suite verification.
+
+## 2026-05-31 - Live Risk Limits Fail Closed From Runtime Config
+
+Active role: `ENGINEER`
+
+Objective: harden the live daily-loss risk-limit source of truth while
+investigating the `daily_loss_halt_pct` wiring discrepancy.
+
+What was found:
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` declares
+  `daily_loss_halt_pct` as a percentage target.
+- SHOWN: the live risk gate enforces absolute USD limits via
+  `services/risk/live_risk_gates.py`.
+- SHOWN: `LiveRiskLimits.from_trading_yaml()` read
+  `canonical_runtime.json` directly and substituted broad hardcoded defaults
+  when `risk.live.*` was absent.
+- SHOWN: docs and a Phase 82 helper still referenced the removed
+  `services/risk/live_risk_gates_phase82.py` path.
+
+What changed:
+- Changed `LiveRiskLimits.from_trading_yaml()` to load the canonical runtime
+  trading config through `load_runtime_trading_config(path)`.
+- Removed hardcoded fallback live-risk limits from that loader.
+- Made missing or invalid `risk.live.*` return `None`, preserving fail-closed
+  behavior in callers that block when limits are unavailable.
+- Added regression tests proving the loader uses runtime config and fails
+  closed when live risk limits are missing.
+- Updated stale Phase 82 and strategy docs to point at
+  `services/risk/live_risk_gates.py`.
+
+Why this change:
+- The percentage-to-USD translation still needs a separate accepted equity
+  source; inventing that translation now would be unsafe.
+- The smallest safety hardening is to prevent live risk gates from silently
+  inventing default dollar limits when the canonical runtime config lacks
+  explicit `risk.live.*` values.
+
+Expected outcome:
+- Live risk evaluation remains blocked when live dollar limits are missing or
+  malformed.
+- Operators see the current v1 contract clearly: strategy
+  `daily_loss_halt_pct` is declarative, while live enforcement uses explicit
+  `risk.live.max_daily_loss_usd`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_placeholder_recovery_phase2.py tests/test_phase82_apply_safe_import.py tests/test_show_live_gate_inputs.py tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: `43 passed in 0.90s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2097 passed, 33 skipped, 13 warnings in 355.48s`.
+
+Remaining risk:
+- HIGH: live risk-gate behavior and daily-loss safety control.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-05-31 after targeted and full-suite verification.
+
+## 2026-06-01T09:19:28Z - SMA Backtest Parity Flat Exit
+
+Active role: `ENGINEER`
+
+Objective: make the parity backtest able to close `sma_200_trend` round trips
+when the documented SMA rule flips from long to flat, without adding a new live
+paper exit path.
+
+What was found:
+- SHOWN: `sma_200_trend` signal logic returns `flat` when price is below the
+  SMA, but `signal_from_ohlcv()` keeps runtime `action=hold`.
+- SHOWN: the paper runner owns position state and can emit sells from signal
+  changes or the strategy-aware exit stack.
+- SHOWN: historical paper orders include `sma_200_trend` sells with
+  `signal_reason=sma200:long:...`, so not every closed paper trade was caused
+  by the SMA flat signal.
+- SHOWN: the 2026-05-26 `sma_200_trend` sell had
+  `signal_reason=sma200:flat:regime:trending` and no persisted `exit_reason`,
+  so the runtime path already has distinct exit behavior from the parity
+  backtest simulator.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d.json` still produces 1 buy, 0 sells,
+  and 0 closed trades for the default SMA path, so it is not a valid
+  closed-trade baseline fixture.
+
+What changed:
+- Left `services/strategies/es_daily_trend.py::signal_from_ohlcv()` runtime
+  behavior unchanged: a flat SMA signal still returns `action=hold`.
+- Added a backtest-only translation in
+  `services/backtest/parity_engine.py`: when the simulated strategy is already
+  long, the strategy is `sma_200_trend`, and the computed signal is `flat`, the
+  simulator treats that bar as a sell.
+- Added a regression test proving `run_parity_backtest()` can close an SMA
+  round trip on a flat signal.
+- Added a regression test proving the runtime adapter still returns `hold` for
+  flat, preserving live paper signal semantics.
+
+Why this change:
+- Changing the registry adapter to emit `sell` would alter live paper behavior
+  and potentially introduce a second exit path.
+- The smallest safe change is to fix the simulator's position-aware
+  interpretation of the documented flat/exit condition while leaving runtime
+  exit ownership unchanged.
+
+Expected outcome:
+- Backtest parity can now produce closed-trade metrics for `sma_200_trend`
+  when the input OHLCV window contains both above-SMA entry and below-SMA exit
+  participation.
+- Live paper behavior is unchanged by this patch.
+- The existing sample OHLCV remains insufficient as a closed-trade baseline;
+  a deterministic SMA CI fixture is still required as separate work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_es_daily_trend.py tests/test_backtest_parity_engine.py tests/test_strategy_registry.py`
+  - SHOWN: `50 passed in 0.54s`.
+- `./.venv/bin/python -m pytest -q tests/test_campaign_summary.py tests/test_es_signal_regression.py tests/test_paper_engine_integration.py tests/test_run_paper_strategy_evidence_collector.py tests/test_dashboard_strategy_evaluation.py`
+  - SHOWN: `46 passed in 0.98s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2099 passed, 33 skipped, 13 warnings in 388.18s`.
+- Sample OHLCV proof:
+  - SHOWN: `ok=true`, `bars=230`, `buy_count=1`, `sell_count=0`,
+    `closed_trades=0`.
+
+Remaining risk:
+- HIGH: financial backtest semantics for a promoted paper strategy.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-01 after targeted verification and fresh full-suite verification
+  reported `2099 passed, 33 skipped, 13 warnings in 372.93s`.
+
+## 2026-06-01T09:35:12Z - SMA 200 CI Round-Trip Fixture
+
+Active role: `ENGINEER`
+
+Objective: add a deterministic CI-only OHLCV fixture that proves the default
+`sma_200_trend` parity path can produce a buy-to-sell round trip.
+
+What was found:
+- SHOWN: the previous parity fix made flat SMA exits possible in the backtest
+  simulator, but the existing sample OHLCV still produced 1 buy, 0 sells, and
+  0 closed trades for the default SMA path.
+- SHOWN: there was no dedicated `sma_200_trend` fixture under
+  `sample_data/ohlcv/` that intentionally crossed back below SMA-200 after
+  entry.
+
+What changed:
+- Added `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json`, a synthetic
+  220-bar OHLCV sequence with 200 warmup bars, an above-SMA entry window, and a
+  below-SMA exit window.
+- Added a parity-engine regression test that loads the fixture and asserts one
+  buy, one sell, one closed trade, an SMA long entry reason, an SMA flat exit
+  reason, and scorecard fields needed by the manual review gate.
+
+Why this change:
+- A dedicated fixture is the smallest way to make the CI proof deterministic
+  without treating synthetic data as promotion evidence.
+- Keeping the fixture in `sample_data/ohlcv/` makes its purpose explicit and
+  avoids changing live paper runtime behavior or strategy configuration.
+
+Expected outcome:
+- CI can prove `sma_200_trend` backtest mechanics for both entry and exit under
+  default SMA parameters.
+- The fixture remains a synthetic mechanics check only; it does not prove
+  profitability, live readiness, or paper-promotion eligibility.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_es_signal_regression.py`
+  - SHOWN: `14 passed in 0.29s`.
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_es_daily_trend.py tests/test_strategy_registry.py`
+  - SHOWN: `51 passed in 0.45s`.
+
+Remaining risk:
+- LOW: synthetic fixture and test coverage only; no runtime strategy, order
+  routing, evidence-gate, or live execution behavior changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: same-thread low-risk closure after targeted regression
+  verification.
+
+## 2026-06-01T09:39:51Z - Post-Integration Master Catch-Up PR
+
+Active role: `GATE`
+
+Objective: preserve the accepted post-PR44 `review-stabilized` work in a
+reviewable master catch-up PR without merging high-risk gate/risk changes
+directly.
+
+What was found:
+- SHOWN: `origin/master` is an ancestor of `review-stabilized`.
+- SHOWN: `git rev-list --left-right --count origin/master...review-stabilized`
+  reported `0 5`, meaning `review-stabilized` is 5 commits ahead of
+  `origin/master` with no new master-only commits.
+- SHOWN: the ahead commits are `f6a67ef68`, `c9cd496b8`, `706e9468e`,
+  `a3235229a`, and `e4ad5d99c`.
+- SHOWN: `gh pr list --base master --head review-stabilized --state open`
+  returned no existing open PR for this delta.
+
+What changed:
+- Created draft PR #45:
+  `https://github.com/Ddthomas415/CryptKeep/pull/45`.
+- Verified PR #45 is open, draft, targets `master`, uses
+  `review-stabilized` as head, and reports `mergeable=MERGEABLE`.
+
+Why this change:
+- The old master-integration conflict debt was already resolved by PR #44, but
+  five later accepted commits were still only on `review-stabilized`.
+- A draft PR is the smallest safe handoff surface: it makes the delta visible
+  without bypassing independent review or CI for high-risk financial gate and
+  risk-control changes.
+
+Expected outcome:
+- Reviewers can evaluate the exact post-integration delta before master moves
+  again.
+- Master remains unchanged until PR #45 receives independent review and fresh
+  CI/full-suite confirmation.
+
+Verification:
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2100 passed, 33 skipped, 13 warnings in 367.83s`.
+- Final PR-head gate run after pushing the acceptance record:
+  `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2100 passed, 33 skipped, 13 warnings in 370.35s`.
+- `gh pr view 45 --json number,title,state,isDraft,headRefName,baseRefName,url,mergeable`
+  - SHOWN: PR #45 is `OPEN`, `isDraft=true`, `baseRefName=master`,
+    `headRefName=review-stabilized`, and `mergeable=MERGEABLE`.
+- `git status --short --branch`
+  - SHOWN: `review-stabilized...origin/review-stabilized` before this
+    work-log entry.
+
+Remaining risk:
+- HIGH: PR #45 contains promotion-gate, live risk-gate, and financial backtest
+  semantics changes.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-01, with full-suite verification shown above.
+- Gate outcome: PR #45 is ready to mark non-draft and merge after the final
+  PR-head full-suite result shown above. This line is a docs-only proof update;
+  no code or runtime behavior changed after the final suite run.

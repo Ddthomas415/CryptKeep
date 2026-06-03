@@ -1,6 +1,6 @@
 """tests/test_live_risk_gates.py
 
-Tests for services/risk/live_risk_gates_phase82.py — the actual live halt enforcement.
+Tests for services/risk/live_risk_gates.py — the actual live halt enforcement.
 
 This is the code that blocks orders in production. A bug here means:
 - Trades that exceed the daily loss limit are not blocked
@@ -163,3 +163,38 @@ class TestLimitsConstruction:
         }}}
         lim = LiveRiskLimits.from_dict(cfg)
         assert lim is None
+
+    def test_from_trading_yaml_uses_runtime_config_loader(self, monkeypatch):
+        import services.config_loader as config_loader
+
+        monkeypatch.setattr(
+            config_loader,
+            "load_runtime_trading_config",
+            lambda path="config/trading.yaml": {
+                "risk": {
+                    "live": {
+                        "max_daily_loss_usd": 15.0,
+                        "max_notional_per_trade_usd": 25.0,
+                        "max_trades_per_day": 3,
+                        "max_position_notional_usd": 50.0,
+                    }
+                }
+            },
+        )
+
+        lim = LiveRiskLimits.from_trading_yaml("custom.yaml")
+
+        assert lim is not None
+        assert lim.max_daily_loss_usd == 15.0
+        assert lim.max_trades_per_day == 3
+
+    def test_from_trading_yaml_fails_closed_when_runtime_risk_missing(self, monkeypatch):
+        import services.config_loader as config_loader
+
+        monkeypatch.setattr(
+            config_loader,
+            "load_runtime_trading_config",
+            lambda path="config/trading.yaml": {"execution": {"live_enabled": True}},
+        )
+
+        assert LiveRiskLimits.from_trading_yaml("config/trading.yaml") is None
