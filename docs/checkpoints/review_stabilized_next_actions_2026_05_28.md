@@ -326,7 +326,9 @@ Risk:
 
 ## Priority 14 - Repo Infrastructure Activation Audit
 
-Status: pending audit
+Status: initial audit drafted in
+`docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`, pending
+independent review
 
 Why it matters:
 - The repo contains infrastructure beyond the current active
@@ -340,17 +342,10 @@ Why it matters:
   wired, documented, retired, or left research-only.
 
 Next action:
-- Create an infrastructure inventory that classifies each subsystem as
-  `active`, `partially_wired`, `dormant`, `research_only`, `superseded`, or
-  `unsafe_to_enable`.
-- For each subsystem, document current entrypoints, consumers, data
-  dependencies, evidence outputs, tests, docs, operational risks, and the
-  smallest safe activation step.
-- Include at minimum: `services/ai_engine`, `services/signals`,
-  `services/ai_copilot`, `services/alerts`, `services/learning`, dashboard
-  pages, desktop surfaces, and undocumented operator scripts.
-- Produce a prioritized activation roadmap that keeps the current
-  `sma_200_trend` paper campaign isolated until its gate decision is complete.
+- Independently review
+  `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`.
+- After acceptance, turn the highest-priority activation item into a scoped
+  objective with proof requirements.
 
 Risk:
 - HIGH: repository architecture, operational workflow, and future trading

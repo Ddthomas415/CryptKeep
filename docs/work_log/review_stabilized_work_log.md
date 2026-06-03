@@ -1499,3 +1499,49 @@ Remaining risk:
   2026-06-03.
 - Remaining action: perform the subsystem-by-subsystem infrastructure inventory
   before enabling dormant or partially wired systems.
+
+## 2026-06-03T17:00:00Z - Initial Infrastructure Activation Audit
+
+Active role: `AUDITOR`
+
+Objective: perform the first-pass infrastructure activation audit requested by
+the operator and produce a visible artifact for independent review.
+
+What was found:
+- SHOWN: `docs/GOLDEN_PATH.md` identifies the canonical runtime as the managed
+  `sma_200_trend` paper campaign and its monitor/gate surfaces.
+- SHOWN: `docs/ARCHITECTURE.md` documents the signal/candidate layer as
+  paper-only and evidence accumulation phase.
+- SHOWN: `docs/ARCHITECTURE.md` marks transitional service families as frozen
+  and says not to add new callers.
+- SHOWN: repo directories exist for AI engine, signals/candidates, AI copilot,
+  alerts, learning/feedback, desktop/service management, dashboard pages, and
+  operator scripts.
+
+What changed:
+- Added `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`.
+- Updated the Priority 14 checkpoint status to point at the new audit artifact
+  and require independent review before activation work.
+
+Why this change:
+- The operator asked to investigate underused repo infrastructure.
+- A visible audit artifact is safer than enabling dormant systems opportunistically.
+- The current evidence campaign must stay isolated while infrastructure is
+  inventoried and prioritized.
+
+Expected outcome:
+- Reviewers have a concrete subsystem classification table and activation order.
+- Future activation work can start from the safest high-leverage item instead
+  of trying to use the entire repo at once.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: repository architecture, operational workflow, and future trading
+  automation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Proof required next: independent review of the audit classification and
+  activation order.
