@@ -247,3 +247,49 @@ Next action:
 
 Risk:
 - LOW to MEDIUM: CI repeatability and strategy-path coverage.
+
+## Priority 11 - Higher-Turnover Daily/Weekly Strategy Plan
+
+Status: pending strategy design
+
+Why it matters:
+- `sma_200_trend` is a slow-turnover daily trend strategy. It validates the
+  pipeline, but it is not designed to produce frequent weekly income.
+- The current repo already contains higher-turnover candidates such as
+  `ema_cross`, `breakout_donchian`, and `mean_reversion_rsi`; they need real
+  paper evidence before any promotion decision.
+
+Next action:
+- Write a dedicated paper-only strategy plan for a daily/weekly income
+  candidate.
+- Define candidate strategy, timeframe, expected turnover, hold period, risk
+  cap, evidence gate, backtest baseline, and isolation rules.
+- Prefer `ema_cross` if the objective is faster evidence accumulation.
+- Prefer `breakout_donchian` if the objective is to test the strongest current
+  synthetic leaderboard candidate.
+
+Risk:
+- HIGH: financial strategy selection and future promotion behavior.
+
+## Priority 12 - Short-Market Strategy Research
+
+Status: pending research only
+
+Why it matters:
+- The current `es_daily_trend_v1` strategy is long/flat only. It does not
+  participate directly in downtrends except by exiting or staying flat.
+- A short-market strategy could improve regime coverage, but it changes the
+  risk profile materially and must not be treated as a small tweak to
+  `sma_200_trend`.
+
+Next action:
+- Create a separate short-side research spec before any implementation.
+- Define allowed instruments, borrow/margin assumptions, stop behavior,
+  max loss, liquidation protection, short-specific kill-switch behavior, and
+  whether the strategy is spot-compatible or requires derivatives.
+- Keep all short-side work research/paper-only until separate paper gates,
+  risk controls, and operator review exist.
+
+Risk:
+- HIGH: short exposure has different tail-risk, margin, liquidation, and
+  operational failure modes than long/flat paper trading.

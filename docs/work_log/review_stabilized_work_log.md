@@ -1342,3 +1342,49 @@ Remaining risk:
 - Residual risk: this work-log-only record still needs to land through a PR
   because direct `master` updates are now blocked by the protection just
   applied.
+
+## 2026-06-03T16:28:16Z - Strategy Backlog Additions
+
+Active role: `ENGINEER`
+
+Objective: record the operator request to track a higher-turnover daily/weekly
+strategy and short-market strategy work as future backlog, without changing
+runtime behavior.
+
+What was found:
+- SHOWN: `sma_200_trend` remains a long/flat daily strategy with slow turnover.
+- SHOWN: `docs/strategies/es_daily_trend_v1.md` states the current v1 universe
+  is one instrument and no expansion happens until paper/shadow gates pass.
+- SHOWN: the repo already has strategy candidates such as `ema_cross`,
+  `breakout_donchian`, and `mean_reversion_rsi`.
+
+What changed:
+- Added Priority 11 to
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` for a
+  higher-turnover daily/weekly strategy plan.
+- Added Priority 12 to the same checkpoint for short-market strategy research.
+
+Why this change:
+- The operator wants the repo roadmap to include strategies better aligned with
+  daily/weekly opportunity capture, while preserving the current
+  `sma_200_trend` evidence campaign.
+- Short-market work changes risk symmetry and should be tracked as a separate
+  research stream, not as a parameter tweak to the current long/flat strategy.
+
+Expected outcome:
+- Future work can prioritize a paper-only higher-turnover strategy plan and a
+  separate short-side research spec without interrupting the current paper gate.
+- Short-side strategy work remains explicitly gated behind research, paper
+  evidence, risk controls, and operator review.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: financial strategy direction and future promotion behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Proof required next: independent review of whether these backlog items are
+  scoped correctly and whether they should be prioritized before or after the
+  current `sma_200_trend` paper gate clears.
