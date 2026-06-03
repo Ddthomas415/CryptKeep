@@ -1219,3 +1219,59 @@ Remaining risk:
 - Gate outcome: PR #45 is ready to mark non-draft and merge after the final
   PR-head full-suite result shown above. This line is a docs-only proof update;
   no code or runtime behavior changed after the final suite run.
+
+## 2026-06-03T00:34:50Z - Master Branch Protection Runbook
+
+Active role: `ENGINEER`
+
+Objective: remove ambiguous GitHub check names and document the required
+`master` branch-protection settings after PR #45 proved the branch was
+unprotected.
+
+What was found:
+- SHOWN: PR #45 merged into `master` while one GitHub `validate` workflow was
+  still pending.
+- SHOWN: the pending workflow later passed, but merge ordering showed that
+  GitHub was not enforcing all expected checks before master updates.
+- SHOWN: `gh api repos/Ddthomas415/CryptKeep/branches/master/protection`
+  returned `Branch not protected`.
+- SHOWN: two workflows exposed a job named `validate`, making a required-check
+  rule ambiguous.
+
+What changed:
+- Added explicit check names for the always-on CI jobs:
+  `CI validate`, `CI sanity`, and `Governance smoke`.
+- Renamed the path-filtered script integrity job from generic `validate` to
+  `script-path-integrity`.
+- Added `docs/GITHUB_BRANCH_PROTECTION.md` with the required `master`
+  protection settings and the exact status checks that should be required.
+
+Why this change:
+- Branch protection itself is external GitHub configuration, not repository
+  code.
+- The smallest safe repo-side fix is to make required check names unambiguous
+  and document the external setting needed to prevent another pending-check
+  merge.
+- The path-filtered check is documented as non-global because requiring it for
+  every PR would block unrelated changes where that workflow does not run.
+
+Expected outcome:
+- Future branch-protection setup can require the main CI jobs without confusing
+  the main CI `validate` job with the path-filtered script integrity job.
+- A reviewer or admin can audit `master` protection against a visible repo
+  runbook instead of relying on chat history.
+
+Verification:
+- `./.venv/bin/python -c "import pathlib, yaml; [yaml.safe_load(p.read_text()) for p in pathlib.Path('.github/workflows').glob('*.yml')]; print('workflow_yaml_ok')"`
+  - SHOWN: `workflow_yaml_ok`.
+- `./.venv/bin/python scripts/validate.py --quick`
+  - SHOWN: repo doctor and alignment guard passed.
+  - SHOWN: quick pytest subset reported `13 passed in 1.33s`.
+- `git diff --check`
+  - SHOWN: no whitespace errors.
+
+Remaining risk:
+- MEDIUM: CI/governance workflow naming and external repository protection.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Proof required next: independent review and PR CI before any branch-protection
+  setting is treated as enforced.
