@@ -1284,3 +1284,61 @@ Remaining risk:
   2026-06-03, with PR #46 CI passing under the new explicit check names.
 - Remaining action: merge PR #46, align `review-stabilized` with `master`, then
   configure GitHub branch protection using `docs/GITHUB_BRANCH_PROTECTION.md`.
+
+## 2026-06-03T01:02:12Z - Master Branch Protection Applied
+
+Active role: `GATE`
+
+Objective: apply the documented `master` branch protection after PR #46 merged
+with explicit CI check names.
+
+What was found:
+- SHOWN: PR #46 merged into `master` with merge commit
+  `be005450ec99258046788b9729f7b060fcdc6bde`.
+- SHOWN: `origin/master` and `origin/review-stabilized` were aligned at the PR
+  #46 merge commit before applying protection.
+- SHOWN: GitHub branch protection was previously absent on `master`.
+
+What changed:
+- Applied GitHub branch protection to `master` through the GitHub API.
+- Required status checks are now strict and include:
+  `CI validate`, `CI sanity`, `Governance smoke`, `Build (macos-latest)`,
+  `Build (windows-latest)`, and `GitGuardian Security Checks`.
+- Enabled admin enforcement.
+- Required pull-request review with one approving review.
+- Disabled force pushes and branch deletion.
+- Left linear history disabled because audited integration PRs use merge
+  commits.
+
+Why this change:
+- PR #45 proved `master` could advance before all expected checks completed.
+- The branch-protection runbook merged in PR #46 made the required settings
+  explicit; applying them closes the external GitHub governance gap.
+
+Expected outcome:
+- `master` can no longer be advanced through the GitHub PR path until required
+  checks are green and at least one PR approval exists.
+- Future master updates should use PRs and will expose missing or renamed check
+  contexts immediately.
+
+Verification:
+- `gh api repos/Ddthomas415/CryptKeep/branches/master/protection`
+  - SHOWN: `required_status_checks.strict=true`.
+  - SHOWN: required contexts are `CI validate`, `CI sanity`,
+    `Governance smoke`, `Build (macos-latest)`, `Build (windows-latest)`,
+    and `GitGuardian Security Checks`.
+  - SHOWN: `enforce_admins.enabled=true`.
+  - SHOWN: `required_approving_review_count=1`.
+  - SHOWN: `allow_force_pushes.enabled=false`.
+  - SHOWN: `allow_deletions.enabled=false`.
+- `git rev-list --left-right --count origin/master...origin/review-stabilized`
+  - SHOWN: `0 0` before this work-log-only follow-up commit.
+
+Remaining risk:
+- MEDIUM: external GitHub repository setting, not version-controlled source.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03 before applying the documented branch protection.
+- Residual risk: this work-log-only record still needs to land through a PR
+  because direct `master` updates are now blocked by the protection just
+  applied.
