@@ -1200,6 +1200,9 @@ Expected outcome:
 Verification:
 - `./.venv/bin/python -m pytest tests -q`
   - SHOWN: `2100 passed, 33 skipped, 13 warnings in 367.83s`.
+- Final PR-head gate run after pushing the acceptance record:
+  `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2100 passed, 33 skipped, 13 warnings in 370.35s`.
 - `gh pr view 45 --json number,title,state,isDraft,headRefName,baseRefName,url,mergeable`
   - SHOWN: PR #45 is `OPEN`, `isDraft=true`, `baseRefName=master`,
     `headRefName=review-stabilized`, and `mergeable=MERGEABLE`.
@@ -1213,6 +1216,6 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-06-01, with full-suite verification shown above.
-- Remaining gate action: push this acceptance record, rerun the full suite at
-  the final PR head, then mark PR #45 ready/merge only if that proof remains
-  clean.
+- Gate outcome: PR #45 is ready to mark non-draft and merge after the final
+  PR-head full-suite result shown above. This line is a docs-only proof update;
+  no code or runtime behavior changed after the final suite run.
