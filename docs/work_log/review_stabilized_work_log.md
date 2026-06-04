@@ -1542,6 +1542,8 @@ Verification:
 Remaining risk:
 - HIGH: repository architecture, operational workflow, and future trading
   automation.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Proof required next: independent review of the audit classification and
-  activation order.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: activation work remains pending and must be implemented as
+  separate scoped changes with proof and review.
