@@ -165,7 +165,7 @@ Risk:
 
 ## Priority 6 - `daily_loss_halt_pct` Wiring
 
-Status: pending
+Status: implementation proof ready, pending independent review
 
 Why it matters:
 - `configs/strategies/es_daily_trend_v1.yaml` declares `daily_loss_halt_pct`.
@@ -174,9 +174,11 @@ Why it matters:
 - This is a safety-control discrepancy unless explicitly wired or accepted.
 
 Next action:
-- Either wire the strategy config target into runtime enforcement, or document
-  an accepted decision that the separate service is authoritative and the config
-  field is declarative only.
+- Independently review the v1 contract:
+  `daily_loss_halt_pct` is declarative, while live enforcement is sourced from
+  `risk.live.max_daily_loss_usd` through `services/risk/live_risk_gates.py`.
+- Keep the config percentage and runtime USD limit manually consistent until an
+  accepted equity-to-USD translation exists.
 
 Risk:
 - HIGH: risk controls and safety enforcement.

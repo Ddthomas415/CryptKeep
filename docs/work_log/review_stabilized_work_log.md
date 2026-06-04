@@ -1663,3 +1663,63 @@ Remaining risk:
   2026-06-04.
 - Remaining action: keep `scripts/SCRIPTS.md` aligned with root script
   entrypoint additions/removals.
+
+## 2026-06-04T13:38:21Z - Daily Loss Halt Contract Alignment
+
+Active role: `ENGINEER`
+
+Objective: close the stale `daily_loss_halt_pct` documentation gap without
+changing runtime risk-gate behavior.
+
+What was found:
+- SHOWN: `docs/strategies/es_daily_trend_v1.md` states that
+  `daily_loss_halt_pct` is declarative in v1 and live enforcement comes from
+  `services/risk/live_risk_gates.py` using `risk.live.max_daily_loss_usd`.
+- SHOWN: `services/risk/live_risk_gates.py` loads `risk.live.*` through the
+  canonical runtime trading config and returns `None` for missing or invalid
+  live limits, preserving fail-closed behavior in callers.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still contained a stale
+  comment pointing at the removed `services/risk/live_risk_gates_phase82.py`
+  path.
+- SHOWN: Priority 6 still said the daily-loss-halt discrepancy was pending even
+  though the v1 declarative-vs-enforced contract had already been documented
+  and accepted in earlier review.
+
+What changed:
+- Updated the `configs/strategies/es_daily_trend_v1.yaml` comment so it points
+  at `services/risk/live_risk_gates.py` and the explicit
+  `risk.live.max_daily_loss_usd` source of truth.
+- Updated Priority 6 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to
+  implementation-proof-ready pending independent review of the v1 safety
+  contract.
+
+Why this change:
+- The smallest safe fix is to align the operator-facing config comment with the
+  accepted runtime contract.
+- Wiring a percentage-to-USD translation without an accepted equity source would
+  be unsafe and broader than this defect.
+- Leaving the stale Phase 82 path in the strategy config could mislead future
+  safety reviews.
+
+Expected outcome:
+- The strategy spec and strategy config now describe the same v1 daily-loss
+  halt contract.
+- Operators and reviewers can see that the percentage target is declarative and
+  the live gate is enforced from explicit runtime USD limits.
+- Future equity-to-USD translation remains a separate high-risk implementation
+  task.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_es_daily_trend.py`
+  - SHOWN: `51 passed in 0.43s`.
+- `grep -RIn "live_risk_gates_phase82.py" configs/strategies docs/strategies services/risk --include='*.yaml' --include='*.yml' --include='*.md' --include='*.py'`
+  - SHOWN: no matches in current strategy config/spec/risk paths.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: risk controls and safety enforcement.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independently review that the v1 declarative-vs-enforced
+  daily-loss-halt contract is acceptable before marking Priority 6 complete.
