@@ -1547,3 +1547,60 @@ Remaining risk:
   2026-06-04.
 - Remaining action: activation work remains pending and must be implemented as
   separate scoped changes with proof and review.
+
+## 2026-06-04T13:25:45Z - Infrastructure Activation Audit Second Pass
+
+Active role: `ENGINEER`
+
+Objective: record the corrected second-pass infrastructure sweep and turn the
+operator-script visibility gap into a separate backlog item.
+
+What was found:
+- SHOWN: `docs/OBJECTIVE.md` describes a larger product than the current
+  `sma_200_trend` paper campaign, including learning/adaptive capabilities,
+  multi-exchange support, safety controls, and a cross-platform installable app.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still has null
+  backtest expectation fields for `win_rate`, `avg_win`, and `avg_loss`.
+- SHOWN: root `scripts/` contains 90 Python files in this checkout, not 88.
+- SHOWN: several earlier hard claims needed correction: the old paper-runner
+  importer counts were not reproduced from visible source imports,
+  `signal_library` and `market_ranker` are wired through the candidate engine,
+  `ws_feature_blacklist` is imported by the WebSocket ticker feed, and shadow
+  gates are implemented directly rather than through missing threshold dicts.
+
+What changed:
+- Added a "Second-Pass Corrections - 2026-06-04" section to
+  `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`.
+- Updated the audit recommendation to include Golden Path/script-index
+  alignment as a visible operator-command-map task.
+- Updated Priority 14 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to show that
+  the initial audit was accepted and the second-pass corrections now need
+  independent review.
+- Added Priority 15 for Golden Path and script-index alignment.
+
+Why this change:
+- The pasted second sweep was directionally useful but contained over-broad
+  dormancy labels and unreproduced counts.
+- Recording the corrections prevents future activation work from relying on
+  inaccurate evidence.
+- The script visibility gap is actionable and safer to address before enabling
+  broader repo infrastructure.
+
+Expected outcome:
+- Reviewers get a corrected infrastructure activation artifact.
+- Future work can proceed from a more reliable subsystem map.
+- Operators get a dedicated follow-up task to make safe daily commands,
+  diagnostics, emergency tools, and research scripts visible in one command map.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration
+  behavior changed.
+
+Remaining risk:
+- HIGH: repository architecture, operator workflow, and future trading
+  automation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independently review the second-pass corrections before
+  using them to authorize activation work.

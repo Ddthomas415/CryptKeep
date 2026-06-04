@@ -38,6 +38,65 @@ UNVERIFIED:
 - Whether each script is currently documented correctly in `scripts/SCRIPTS.md`.
   Script documentation needs a separate script-index audit.
 
+## Second-Pass Corrections - 2026-06-04
+
+This section records the follow-up sweep requested after the first audit was
+accepted. It corrects over-broad dormancy labels and hard counts from the
+operator-visible discussion before those claims become activation policy.
+
+SHOWN:
+- `docs/OBJECTIVE.md` describes a broader product than the current operating
+  path: learning/adaptive capabilities, Binance/Coinbase/Gate.io support,
+  strong safety controls, and a cross-platform installable app.
+- `configs/strategies/es_daily_trend_v1.yaml` still has null
+  `backtest_expectations.win_rate`, `avg_win`, and `avg_loss`, so manual
+  performance review remains required.
+- `storage/fill_reconciler_store_sqlite.py`,
+  `storage/order_idempotency_sqlite.py`, and
+  `storage/order_tracker_store_sqlite.py` have no visible source importers in
+  the inspected source paths.
+- Root `scripts/` contains 90 Python files in this checkout, not 88.
+
+CORRECTED:
+- The claim that `services/paper/main.py` and
+  `services/paper_trader/main.py` have 314-315 external importers is not shown
+  by source imports. Visible source coupling is much smaller. Those modules may
+  still represent paper-runner duplication, but the large importer counts should
+  not be used as evidence without a reproducible counting command.
+- `services/signals/signal_library.py` and
+  `services/signals/market_ranker.py` are not fully dormant by source import
+  evidence. They are wired through the candidate engine, but the candidate scan
+  layer is not part of the current authoritative paper campaign.
+- `services/market_data/ws_feature_blacklist.py` is not fully dormant; it is
+  imported by the WebSocket ticker feed. `poller_service` remains a likely
+  dormant market-data service wrapper pending a deeper caller audit.
+- Many high-value scripts are missing from `docs/GOLDEN_PATH.md`, but several
+  are documented elsewhere, including `scripts/SCRIPTS.md`, exchange smoke-test
+  docs, supervisor docs, desktop packaging docs, and WebSocket docs. The gap is
+  a Golden Path/script-index alignment problem, not proof that every script is
+  undocumented.
+- The absence of `PAPER_THRESHOLDS` or `SHADOW_THRESHOLDS` dictionaries in
+  `services/control/promotion_thresholds.py` is not itself a broken shadow
+  gate. `scripts/check_promotion_gates.py` defines paper, shadow, and
+  capped-live checks directly through stage-specific evaluators.
+
+UNVERIFIED:
+- A precise repo-completeness percentage such as "20-25%" remains an estimate,
+  not a measured fact.
+- Whether the older paper runners should be migrated, kept as compatibility
+  facades, or retired requires a separate caller and behavior audit.
+- Whether the candidate scan layer identifies profitable moves early enough is
+  unproven until it is run read-only against live/paper evidence windows.
+
+Implementation consequence:
+- Treat this artifact as a corrected activation roadmap, not as authorization to
+  turn on dormant systems.
+- Add a separate Golden Path/script-index alignment audit before asking
+  operators to rely on the wider script surface.
+- Keep learning, multi-exchange expansion, short-market strategies,
+  order-book/derivatives strategies, and paper-runner consolidation as
+  separately scoped high-risk work.
+
 ## Current Active Operating Path
 
 Classification: `active`
@@ -106,6 +165,8 @@ The highest-leverage activation work is not ML or short-side execution. It is:
 3. Add `pullback_recovery` to leaderboard/evidence evaluation.
 4. Run the candidate layer read-only and measure whether it identifies useful
    opportunities earlier than the current strategy.
+5. Align `docs/GOLDEN_PATH.md`, `scripts/SCRIPTS.md`, and related operator docs
+   so the project has one visible command map for safe daily operation.
 
 ## Risks
 
@@ -115,4 +176,7 @@ The highest-leverage activation work is not ML or short-side execution. It is:
   promotion gates, or operator alerts needs its own implementation proof and
   independent review.
 
-Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+Review state:
+- Initial audit accepted by operator on 2026-06-04.
+- Second-pass corrections acceptance state:
+  `READY_FOR_INDEPENDENT_REVIEW`.

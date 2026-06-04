@@ -326,7 +326,7 @@ Risk:
 
 ## Priority 14 - Repo Infrastructure Activation Audit
 
-Status: initial audit drafted in
+Status: initial audit accepted; second-pass corrections drafted in
 `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`, pending
 independent review
 
@@ -342,7 +342,7 @@ Why it matters:
   wired, documented, retired, or left research-only.
 
 Next action:
-- Independently review
+- Independently review the second-pass corrections in
   `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`.
 - After acceptance, turn the highest-priority activation item into a scoped
   objective with proof requirements.
@@ -350,3 +350,30 @@ Next action:
 Risk:
 - HIGH: repository architecture, operational workflow, and future trading
   automation. The audit should not enable dormant systems by itself.
+
+## Priority 15 - Golden Path And Script Index Alignment
+
+Status: pending documentation audit
+
+Why it matters:
+- The repo has many operator scripts beyond the narrow Golden Path. Some are
+  documented in `scripts/SCRIPTS.md` or focused feature docs, while others may
+  not be visible from the canonical operator workflow.
+- Operators should not have to infer which scripts are safe daily commands,
+  diagnostics, one-off repairs, research tools, or deprecated surfaces.
+- A single visible command map reduces operator-memory burden without changing
+  runtime behavior.
+
+Next action:
+- Inventory root `scripts/*.py` and compare each script against
+  `docs/GOLDEN_PATH.md`, `scripts/SCRIPTS.md`, and related operator docs.
+- Classify each script as canonical daily operation, diagnostic, emergency,
+  research, migration/repair, packaging, smoke test, deprecated, or internal.
+- Update the docs so the Golden Path points to the authoritative script index
+  and the script index clearly marks safe daily commands versus specialized
+  tools.
+
+Risk:
+- MEDIUM: operator workflow and documentation accuracy. This should remain
+  documentation-only unless the audit exposes an unsafe command path that needs
+  separate engineering work.
