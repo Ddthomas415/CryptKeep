@@ -11,6 +11,10 @@ auditing the external control.
 - Require branches to be up to date before merging.
 - Block force pushes.
 - Block branch deletion.
+- Allow administrator bypass in the GitHub rule for the repo owner/admin.
+  This is intentional for this solo-project workflow: the review requirement is
+  meant to prevent AI agents and non-admins from self-merging, not to require a
+  second human reviewer when none exists.
 - Do not require linear history while this repository intentionally uses merge
   commits for audited integration PRs.
 
@@ -36,3 +40,19 @@ ordering showed that `master` had no enforced protection at that time.
 
 Workflow check names are intentionally explicit so branch protection can require
 the main CI jobs without ambiguity.
+
+## Admin Bypass Policy
+
+Admin bypass is allowed only through the visible GitHub UI/admin path after the
+audit cycle has completed and the human operator accepts the work. Do not use
+CLI admin-bypass flags from an AI-agent workflow.
+
+When admin bypass is used, record an audit note on the PR explaining:
+- why normal review could not satisfy the rule, such as owner-authored PRs in a
+  solo project
+- that required checks were passing before merge
+- that the bypass was performed by the human repo admin, not an AI agent
+
+If the project adds a second human reviewer, consider tightening the rule by
+enabling "Do not allow bypassing the above settings" and requiring external
+review even for administrators.
