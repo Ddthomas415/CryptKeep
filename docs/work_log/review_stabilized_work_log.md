@@ -1284,3 +1284,495 @@ Remaining risk:
   2026-06-03, with PR #46 CI passing under the new explicit check names.
 - Remaining action: merge PR #46, align `review-stabilized` with `master`, then
   configure GitHub branch protection using `docs/GITHUB_BRANCH_PROTECTION.md`.
+
+## 2026-06-03T01:02:12Z - Master Branch Protection Applied
+
+Active role: `GATE`
+
+Objective: apply the documented `master` branch protection after PR #46 merged
+with explicit CI check names.
+
+What was found:
+- SHOWN: PR #46 merged into `master` with merge commit
+  `be005450ec99258046788b9729f7b060fcdc6bde`.
+- SHOWN: `origin/master` and `origin/review-stabilized` were aligned at the PR
+  #46 merge commit before applying protection.
+- SHOWN: GitHub branch protection was previously absent on `master`.
+
+What changed:
+- Applied GitHub branch protection to `master` through the GitHub API.
+- Required status checks are now strict and include:
+  `CI validate`, `CI sanity`, `Governance smoke`, `Build (macos-latest)`,
+  `Build (windows-latest)`, and `GitGuardian Security Checks`.
+- Enabled admin enforcement.
+- Required pull-request review with one approving review.
+- Disabled force pushes and branch deletion.
+- Left linear history disabled because audited integration PRs use merge
+  commits.
+
+Why this change:
+- PR #45 proved `master` could advance before all expected checks completed.
+- The branch-protection runbook merged in PR #46 made the required settings
+  explicit; applying them closes the external GitHub governance gap.
+
+Expected outcome:
+- `master` can no longer be advanced through the GitHub PR path until required
+  checks are green and at least one PR approval exists.
+- Future master updates should use PRs and will expose missing or renamed check
+  contexts immediately.
+
+Verification:
+- `gh api repos/Ddthomas415/CryptKeep/branches/master/protection`
+  - SHOWN: `required_status_checks.strict=true`.
+  - SHOWN: required contexts are `CI validate`, `CI sanity`,
+    `Governance smoke`, `Build (macos-latest)`, `Build (windows-latest)`,
+    and `GitGuardian Security Checks`.
+  - SHOWN: `enforce_admins.enabled=true`.
+  - SHOWN: `required_approving_review_count=1`.
+  - SHOWN: `allow_force_pushes.enabled=false`.
+  - SHOWN: `allow_deletions.enabled=false`.
+- `git rev-list --left-right --count origin/master...origin/review-stabilized`
+  - SHOWN: `0 0` before this work-log-only follow-up commit.
+
+Remaining risk:
+- MEDIUM: external GitHub repository setting, not version-controlled source.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03 before applying the documented branch protection.
+- Residual risk: this work-log-only record still needs to land through a PR
+  because direct `master` updates are now blocked by the protection just
+  applied.
+
+## 2026-06-03T16:28:16Z - Strategy Backlog Additions
+
+Active role: `ENGINEER`
+
+Objective: record the operator request to track a higher-turnover daily/weekly
+strategy and short-market strategy work as future backlog, without changing
+runtime behavior.
+
+What was found:
+- SHOWN: `sma_200_trend` remains a long/flat daily strategy with slow turnover.
+- SHOWN: `docs/strategies/es_daily_trend_v1.md` states the current v1 universe
+  is one instrument and no expansion happens until paper/shadow gates pass.
+- SHOWN: the repo already has strategy candidates such as `ema_cross`,
+  `breakout_donchian`, and `mean_reversion_rsi`.
+
+What changed:
+- Added Priority 11 to
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` for a
+  higher-turnover daily/weekly strategy plan.
+- Added Priority 12 to the same checkpoint for short-market strategy research.
+
+Why this change:
+- The operator wants the repo roadmap to include strategies better aligned with
+  daily/weekly opportunity capture, while preserving the current
+  `sma_200_trend` evidence campaign.
+- Short-market work changes risk symmetry and should be tracked as a separate
+  research stream, not as a parameter tweak to the current long/flat strategy.
+
+Expected outcome:
+- Future work can prioritize a paper-only higher-turnover strategy plan and a
+  separate short-side research spec without interrupting the current paper gate.
+- Short-side strategy work remains explicitly gated behind research, paper
+  evidence, risk controls, and operator review.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: financial strategy direction and future promotion behavior.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03.
+- Remaining action: backlog items remain pending future implementation and must
+  stay paper/research-scoped until separately reviewed.
+
+## 2026-06-03T16:45:38Z - Pattern And Hybrid Strategy Backlog
+
+Active role: `ENGINEER`
+
+Objective: record the operator-requested pattern-recognition and hybrid
+strategy recommendations as future backlog, without changing runtime behavior.
+
+What was found:
+- SHOWN: `services/strategies/strategy_registry.py` includes
+  `pullback_recovery` in the supported runtime registry.
+- SHOWN: `pullback_recovery` is not listed in the current aggregate leaderboard
+  rows from `strategy_evidence.latest.json`.
+- SHOWN: context-pattern modules exist for `order_book_imbalance`,
+  `open_interest_shift`, and `funding_extreme`, but they are not equivalent to
+  the standard OHLCV registry path.
+- SHOWN: consensus support exists, but the current path scores stored signals
+  and reliability; it is not yet a clean backtestable composite strategy
+  wrapper.
+
+What changed:
+- Added Priority 13 to
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` for pattern
+  and hybrid strategy roadmap work.
+- Captured `pullback_recovery` leaderboard/evidence evaluation as the first
+  recommended pattern-strategy task.
+- Captured later candlestick strategy work and context-pattern data plumbing as
+  separate follow-up tracks.
+
+Why this change:
+- `pullback_recovery` is the lowest-infrastructure way to evaluate pattern-like
+  price action using existing code.
+- Hybrid and context-pattern strategies are higher-risk design work and should
+  be specified before implementation or paper campaigns.
+
+Expected outcome:
+- The repo backlog now separates near-term pattern activation
+  (`pullback_recovery`) from later candlestick recognition, context-pattern
+  data plumbing, and composite/hybrid strategy design.
+- Future strategy work can proceed through paper-only evidence gates without
+  interrupting the current `sma_200_trend` campaign.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: financial strategy direction and future promotion behavior.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03.
+- Remaining action: roadmap items remain pending future implementation and must
+  receive separate review before any trading behavior changes.
+
+## 2026-06-03T16:57:09Z - Infrastructure Activation Audit Backlog
+
+Active role: `ENGINEER`
+
+Objective: record the operator request to investigate underused repo
+infrastructure and determine how much of the repo is actually wired into the
+current operating path.
+
+What was found:
+- SHOWN: the current active campaign remains focused on `sma_200_trend`,
+  `BTC/USDT`, paper evidence collection, gate checks, and paper sim monitoring.
+- SHOWN: the repo contains additional infrastructure in areas such as
+  `services/ai_engine`, `services/signals`, `services/ai_copilot`,
+  `services/alerts`, `services/learning`, dashboard pages, desktop surfaces,
+  and operator scripts.
+- SHOWN: some of those systems are partially wired through scripts, dashboard
+  pages, tests, or selectors, so labeling all of them "unused" would be too
+  broad without a structured inventory.
+
+What changed:
+- Added Priority 14 to
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` for a repo
+  infrastructure activation audit.
+- The backlog item requires each subsystem to be classified as `active`,
+  `partially_wired`, `dormant`, `research_only`, `superseded`, or
+  `unsafe_to_enable`.
+- The backlog item requires a prioritized activation roadmap while keeping the
+  current `sma_200_trend` campaign isolated.
+
+Why this change:
+- The operator wants the repo to be used more completely, but "turn everything
+  on" is not a safe engineering strategy for trading infrastructure.
+- A visible infrastructure audit gives the project a way to identify dormant
+  value, remove confusion, and choose activation order based on evidence and
+  risk.
+
+Expected outcome:
+- Future work can inventory and prioritize repo infrastructure without mixing
+  unvalidated systems into the current evidence campaign.
+- The project gains a durable map of which systems are active, partially wired,
+  dormant, superseded, or unsafe to enable.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: repository architecture, operational workflow, and future trading
+  automation.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-03.
+- Remaining action: perform the subsystem-by-subsystem infrastructure inventory
+  before enabling dormant or partially wired systems.
+
+## 2026-06-03T17:00:00Z - Initial Infrastructure Activation Audit
+
+Active role: `AUDITOR`
+
+Objective: perform the first-pass infrastructure activation audit requested by
+the operator and produce a visible artifact for independent review.
+
+What was found:
+- SHOWN: `docs/GOLDEN_PATH.md` identifies the canonical runtime as the managed
+  `sma_200_trend` paper campaign and its monitor/gate surfaces.
+- SHOWN: `docs/ARCHITECTURE.md` documents the signal/candidate layer as
+  paper-only and evidence accumulation phase.
+- SHOWN: `docs/ARCHITECTURE.md` marks transitional service families as frozen
+  and says not to add new callers.
+- SHOWN: repo directories exist for AI engine, signals/candidates, AI copilot,
+  alerts, learning/feedback, desktop/service management, dashboard pages, and
+  operator scripts.
+
+What changed:
+- Added `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`.
+- Updated the Priority 14 checkpoint status to point at the new audit artifact
+  and require independent review before activation work.
+
+Why this change:
+- The operator asked to investigate underused repo infrastructure.
+- A visible audit artifact is safer than enabling dormant systems opportunistically.
+- The current evidence campaign must stay isolated while infrastructure is
+  inventoried and prioritized.
+
+Expected outcome:
+- Reviewers have a concrete subsystem classification table and activation order.
+- Future activation work can start from the safest high-leverage item instead
+  of trying to use the entire repo at once.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration behavior
+  changed.
+
+Remaining risk:
+- HIGH: repository architecture, operational workflow, and future trading
+  automation.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: activation work remains pending and must be implemented as
+  separate scoped changes with proof and review.
+
+## 2026-06-04T13:25:45Z - Infrastructure Activation Audit Second Pass
+
+Active role: `ENGINEER`
+
+Objective: record the corrected second-pass infrastructure sweep and turn the
+operator-script visibility gap into a separate backlog item.
+
+What was found:
+- SHOWN: `docs/OBJECTIVE.md` describes a larger product than the current
+  `sma_200_trend` paper campaign, including learning/adaptive capabilities,
+  multi-exchange support, safety controls, and a cross-platform installable app.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still has null
+  backtest expectation fields for `win_rate`, `avg_win`, and `avg_loss`.
+- SHOWN: root `scripts/` contains 90 Python files in this checkout, not 88.
+- SHOWN: several earlier hard claims needed correction: the old paper-runner
+  importer counts were not reproduced from visible source imports,
+  `signal_library` and `market_ranker` are wired through the candidate engine,
+  `ws_feature_blacklist` is imported by the WebSocket ticker feed, and shadow
+  gates are implemented directly rather than through missing threshold dicts.
+
+What changed:
+- Added a "Second-Pass Corrections - 2026-06-04" section to
+  `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`.
+- Updated the audit recommendation to include Golden Path/script-index
+  alignment as a visible operator-command-map task.
+- Updated Priority 14 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to show that
+  the initial audit was accepted and the second-pass corrections now need
+  independent review.
+- Added Priority 15 for Golden Path and script-index alignment.
+
+Why this change:
+- The pasted second sweep was directionally useful but contained over-broad
+  dormancy labels and unreproduced counts.
+- Recording the corrections prevents future activation work from relying on
+  inaccurate evidence.
+- The script visibility gap is actionable and safer to address before enabling
+  broader repo infrastructure.
+
+Expected outcome:
+- Reviewers get a corrected infrastructure activation artifact.
+- Future work can proceed from a more reliable subsystem map.
+- Operators get a dedicated follow-up task to make safe daily commands,
+  diagnostics, emergency tools, and research scripts visible in one command map.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration
+  behavior changed.
+
+Remaining risk:
+- HIGH: repository architecture, operator workflow, and future trading
+  automation.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: activation work remains pending and must be implemented as
+  separate scoped changes with proof and review.
+
+## 2026-06-04T13:31:57Z - Golden Path And Script Index Alignment
+
+Active role: `ENGINEER`
+
+Objective: make the root script surface visible to operators without broadening
+the Golden Path or changing runtime behavior.
+
+What was found:
+- SHOWN: `docs/GOLDEN_PATH.md` documented the narrow daily paper-campaign path
+  but did not point operators to the full script command map.
+- SHOWN: `scripts/SCRIPTS.md` listed only a small canonical operator subset.
+- SHOWN: root `scripts/` contains 90 Python entrypoints.
+- SHOWN: the existing script-path validator parses the `## Canonical Operator`
+  section in `scripts/SCRIPTS.md` and verifies listed scripts exist.
+
+What changed:
+- Expanded `scripts/SCRIPTS.md` into an operator-facing script index.
+- Preserved the `## Canonical Operator` table for validator compatibility and
+  safe daily operation.
+- Added classified sections for paper runtime internals, service control,
+  safety/reconciliation, market data/exchange connectivity, research/model
+  tools, validation/release helpers, and desktop/UI scripts.
+- Updated `docs/GOLDEN_PATH.md` to point to `scripts/SCRIPTS.md` for the full
+  command map while keeping the Golden Path narrow.
+- Updated Priority 15 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to
+  implementation-proof-ready pending independent review.
+
+Why this change:
+- Operators should not have to infer which scripts are safe daily commands and
+  which are specialized, live-adjacent, or research-only tools.
+- A visible command map reduces operator-memory burden without activating any
+  dormant system or changing trading behavior.
+- Keeping the Golden Path narrow prevents specialized scripts from being
+  mistaken for the daily evidence-campaign path.
+
+Expected outcome:
+- `docs/GOLDEN_PATH.md` remains the current daily path.
+- `scripts/SCRIPTS.md` becomes the authoritative root script command map.
+- Future script additions/removals have a clear documentation surface to update.
+
+Verification:
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python -c '...'`
+  - SHOWN: `{'script_count': 90, 'missing': []}`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: operator workflow and documentation accuracy.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: keep `scripts/SCRIPTS.md` aligned with root script
+  entrypoint additions/removals.
+
+## 2026-06-04T13:38:21Z - Daily Loss Halt Contract Alignment
+
+Active role: `ENGINEER`
+
+Objective: close the stale `daily_loss_halt_pct` documentation gap without
+changing runtime risk-gate behavior.
+
+What was found:
+- SHOWN: `docs/strategies/es_daily_trend_v1.md` states that
+  `daily_loss_halt_pct` is declarative in v1 and live enforcement comes from
+  `services/risk/live_risk_gates.py` using `risk.live.max_daily_loss_usd`.
+- SHOWN: `services/risk/live_risk_gates.py` loads `risk.live.*` through the
+  canonical runtime trading config and returns `None` for missing or invalid
+  live limits, preserving fail-closed behavior in callers.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still contained a stale
+  comment pointing at the removed `services/risk/live_risk_gates_phase82.py`
+  path.
+- SHOWN: Priority 6 still said the daily-loss-halt discrepancy was pending even
+  though the v1 declarative-vs-enforced contract had already been documented
+  and accepted in earlier review.
+
+What changed:
+- Updated the `configs/strategies/es_daily_trend_v1.yaml` comment so it points
+  at `services/risk/live_risk_gates.py` and the explicit
+  `risk.live.max_daily_loss_usd` source of truth.
+- Updated Priority 6 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to
+  implementation-proof-ready pending independent review of the v1 safety
+  contract.
+
+Why this change:
+- The smallest safe fix is to align the operator-facing config comment with the
+  accepted runtime contract.
+- Wiring a percentage-to-USD translation without an accepted equity source would
+  be unsafe and broader than this defect.
+- Leaving the stale Phase 82 path in the strategy config could mislead future
+  safety reviews.
+
+Expected outcome:
+- The strategy spec and strategy config now describe the same v1 daily-loss
+  halt contract.
+- Operators and reviewers can see that the percentage target is declarative and
+  the live gate is enforced from explicit runtime USD limits.
+- Future equity-to-USD translation remains a separate high-risk implementation
+  task.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_es_daily_trend.py`
+  - SHOWN: `51 passed in 0.43s`.
+- `grep -RIn "live_risk_gates_phase82.py" configs/strategies docs/strategies services/risk --include='*.yaml' --include='*.yml' --include='*.md' --include='*.py'`
+  - SHOWN: no matches in current strategy config/spec/risk paths.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: risk controls and safety enforcement.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: keep the config percentage target and runtime USD limit
+  manually consistent until an accepted equity-to-USD translation exists.
+
+## 2026-06-04T13:43:52Z - SMA Round-Trip Fixture Backlog Reconciliation
+
+Active role: `ENGINEER`
+
+Objective: remove a stale backlog item after verifying the deterministic
+`sma_200_trend` CI fixture already exists and is covered by tests.
+
+What was found:
+- SHOWN: Priority 10 still listed the `sma_200_trend` CI fixture as pending.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json` exists.
+- SHOWN: `tests/test_backtest_parity_engine.py` asserts the fixture has 220
+  bars, one buy, one sell, one closed trade, SMA long/flat reasons, and
+  scorecard fields.
+- SHOWN: commit `e4ad5d99c` added the fixture and regression test and had
+  already been accepted in the work log.
+
+What changed:
+- Updated Priority 10 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` from pending
+  to complete as of `e4ad5d99c`.
+- Clarified that the fixture remains a synthetic mechanics test, not
+  promotion-gate or profitability evidence.
+
+Why this change:
+- Leaving completed work in the pending backlog causes duplicate work and
+  confusion about the next real blocker.
+- The correct action was backlog reconciliation, not another fixture.
+
+Expected outcome:
+- The proactive task list no longer points operators or agents at already
+  completed CI-hardening work.
+- Future `sma_200_trend` semantic changes have a clear fixture/test pair to
+  update.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_es_daily_trend.py`
+  - SHOWN: `41 passed in 0.58s`.
+- `wc -l sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json`
+  - SHOWN: `1762`.
+- `git show --stat --oneline e4ad5d99c`
+  - SHOWN: the commit added
+    `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json`,
+    `tests/test_backtest_parity_engine.py`, and the work log.
+
+Remaining risk:
+- LOW: documentation/backlog reconciliation only.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: same-thread low-risk closure after targeted
+  verification.
+- Remaining action: none for Priority 10.

@@ -165,7 +165,8 @@ Risk:
 
 ## Priority 6 - `daily_loss_halt_pct` Wiring
 
-Status: pending
+Status: complete. Independently reviewed and accepted by operator on
+2026-06-04.
 
 Why it matters:
 - `configs/strategies/es_daily_trend_v1.yaml` declares `daily_loss_halt_pct`.
@@ -174,9 +175,8 @@ Why it matters:
 - This is a safety-control discrepancy unless explicitly wired or accepted.
 
 Next action:
-- Either wire the strategy config target into runtime enforcement, or document
-  an accepted decision that the separate service is authoritative and the config
-  field is declarative only.
+- Keep the config percentage target and runtime USD limit manually consistent
+  until an accepted equity-to-USD translation exists.
 
 Risk:
 - HIGH: risk controls and safety enforcement.
@@ -233,7 +233,7 @@ Risk:
 
 ## Priority 10 - CI Fixture For `sma_200_trend`
 
-Status: pending low-priority hardening
+Status: complete as of `e4ad5d99c`
 
 Why it matters:
 - Sample mode can prove entry/fill mechanics but not a deterministic
@@ -242,8 +242,135 @@ Why it matters:
   entry and exit windows.
 
 Next action:
-- Add deterministic fixture under `sample_data/ohlcv/`.
-- Add CI test proving a buy -> sell round trip for `sma_200_trend`.
+- Keep `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json` and its parity
+  test aligned with future `sma_200_trend` semantics.
+- Do not treat the synthetic fixture as promotion-gate or profitability
+  evidence.
 
 Risk:
-- LOW to MEDIUM: CI repeatability and strategy-path coverage.
+- CLOSED: CI repeatability and strategy-path coverage task complete.
+
+## Priority 11 - Higher-Turnover Daily/Weekly Strategy Plan
+
+Status: pending strategy design
+
+Why it matters:
+- `sma_200_trend` is a slow-turnover daily trend strategy. It validates the
+  pipeline, but it is not designed to produce frequent weekly income.
+- The current repo already contains higher-turnover candidates such as
+  `ema_cross`, `breakout_donchian`, and `mean_reversion_rsi`; they need real
+  paper evidence before any promotion decision.
+
+Next action:
+- Write a dedicated paper-only strategy plan for a daily/weekly income
+  candidate.
+- Define candidate strategy, timeframe, expected turnover, hold period, risk
+  cap, evidence gate, backtest baseline, and isolation rules.
+- Prefer `ema_cross` if the objective is faster evidence accumulation.
+- Prefer `breakout_donchian` if the objective is to test the strongest current
+  synthetic leaderboard candidate.
+
+Risk:
+- HIGH: financial strategy selection and future promotion behavior.
+
+## Priority 12 - Short-Market Strategy Research
+
+Status: pending research only
+
+Why it matters:
+- The current `es_daily_trend_v1` strategy is long/flat only. It does not
+  participate directly in downtrends except by exiting or staying flat.
+- A short-market strategy could improve regime coverage, but it changes the
+  risk profile materially and must not be treated as a small tweak to
+  `sma_200_trend`.
+
+Next action:
+- Create a separate short-side research spec before any implementation.
+- Define allowed instruments, borrow/margin assumptions, stop behavior,
+  max loss, liquidation protection, short-specific kill-switch behavior, and
+  whether the strategy is spot-compatible or requires derivatives.
+- Keep all short-side work research/paper-only until separate paper gates,
+  risk controls, and operator review exist.
+
+Risk:
+- HIGH: short exposure has different tail-risk, margin, liquidation, and
+  operational failure modes than long/flat paper trading.
+
+## Priority 13 - Pattern And Hybrid Strategy Roadmap
+
+Status: pending strategy design
+
+Why it matters:
+- `pullback_recovery` is already coded and wired into the strategy registry, but
+  it is not part of the current aggregate leaderboard evidence set.
+- Pattern recognition is a better fit for the operator's "identify the move
+  early enough" objective than only slow trend following.
+- Hybrid strategy work can combine existing signals, but it needs a
+  backtestable composite strategy path rather than ad hoc operator judgment.
+
+Next action:
+- Add `pullback_recovery` to leaderboard/evidence evaluation first because it is
+  the lowest-infrastructure pattern candidate already available in the repo.
+- Create a paper-only `pullback_recovery` campaign plan with its own backtest
+  baseline, expected turnover, risk cap, and evidence gate.
+- Design a backtestable composite/hybrid wrapper before combining strategies in
+  production paths. Candidate hybrids include trend-confirmed breakout,
+  range/trend switcher, and weighted-vote consensus.
+- Track candlestick recognition as a later versioned strategy such as
+  `candlestick_reversal_v1`, after `pullback_recovery` has a baseline.
+- Treat `order_book_imbalance`, `open_interest_shift`, and `funding_extreme` as
+  separate context-pattern work until reliable order-book, derivatives,
+  funding, and open-interest data plumbing is verified.
+
+Risk:
+- HIGH: financial strategy selection, future promotion behavior, and potential
+  expansion from simple single-signal strategies into composite decision logic.
+
+## Priority 14 - Repo Infrastructure Activation Audit
+
+Status: complete. Initial audit and second-pass corrections accepted by
+independent operator review.
+
+Why it matters:
+- The repo contains infrastructure beyond the current active
+  `sma_200_trend` paper campaign, including AI/ML, signals/candidate ranking,
+  alerting, learning/feedback, dashboard pages, desktop packaging, and many
+  operator scripts.
+- Activating dormant infrastructure without an audit could add operational risk,
+  duplicate responsibilities, or mix unvalidated systems into the evidence
+  campaign.
+- A structured inventory is needed before deciding which systems should be
+  wired, documented, retired, or left research-only.
+
+Next action:
+- Turn the highest-priority activation item into a scoped objective with proof
+  requirements.
+
+Risk:
+- HIGH: repository architecture, operational workflow, and future trading
+  automation. The audit should not enable dormant systems by itself.
+
+## Priority 15 - Golden Path And Script Index Alignment
+
+Status: complete. Independently reviewed and accepted by operator on
+2026-06-04.
+
+Why it matters:
+- The repo has many operator scripts beyond the narrow Golden Path. Some are
+  documented in `scripts/SCRIPTS.md` or focused feature docs, while others may
+  not be visible from the canonical operator workflow.
+- Operators should not have to infer which scripts are safe daily commands,
+  diagnostics, one-off repairs, research tools, or deprecated surfaces.
+- A single visible command map reduces operator-memory burden without changing
+  runtime behavior.
+
+Next action:
+- Use `scripts/SCRIPTS.md` as the authoritative root script command map going
+  forward.
+- Keep `docs/GOLDEN_PATH.md` narrow and update `scripts/SCRIPTS.md` whenever
+  root script entrypoints are added or removed.
+
+Risk:
+- MEDIUM: operator workflow and documentation accuracy. This should remain
+  documentation-only unless the audit exposes an unsafe command path that needs
+  separate engineering work.
