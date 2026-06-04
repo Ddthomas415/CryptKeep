@@ -1658,6 +1658,8 @@ Verification:
 
 Remaining risk:
 - MEDIUM: operator workflow and documentation accuracy.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review should confirm the canonical daily
-  command list is neither too broad nor missing an operator-critical command.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: keep `scripts/SCRIPTS.md` aligned with root script
+  entrypoint additions/removals.

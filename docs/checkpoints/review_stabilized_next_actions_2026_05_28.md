@@ -350,7 +350,8 @@ Risk:
 
 ## Priority 15 - Golden Path And Script Index Alignment
 
-Status: implementation proof ready, pending independent review
+Status: complete. Independently reviewed and accepted by operator on
+2026-06-04.
 
 Why it matters:
 - The repo has many operator scripts beyond the narrow Golden Path. Some are
@@ -362,11 +363,10 @@ Why it matters:
   runtime behavior.
 
 Next action:
-- Independently review `scripts/SCRIPTS.md` and `docs/GOLDEN_PATH.md`.
-- Confirm the canonical daily commands are neither too broad nor missing an
-  operator-critical command.
-- If accepted, use `scripts/SCRIPTS.md` as the authoritative root script command
-  map going forward.
+- Use `scripts/SCRIPTS.md` as the authoritative root script command map going
+  forward.
+- Keep `docs/GOLDEN_PATH.md` narrow and update `scripts/SCRIPTS.md` whenever
+  root script entrypoints are added or removed.
 
 Risk:
 - MEDIUM: operator workflow and documentation accuracy. This should remain
