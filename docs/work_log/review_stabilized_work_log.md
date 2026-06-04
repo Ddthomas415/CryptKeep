@@ -1823,6 +1823,7 @@ Verification:
 
 Remaining risk:
 - MEDIUM: governance/runbook documentation.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review should confirm the documented admin
-  bypass policy matches the operator's intended branch-protection model.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: none for the documented admin-bypass policy.
