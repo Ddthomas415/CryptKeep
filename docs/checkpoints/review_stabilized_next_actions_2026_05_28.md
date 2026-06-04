@@ -350,7 +350,7 @@ Risk:
 
 ## Priority 15 - Golden Path And Script Index Alignment
 
-Status: pending documentation audit
+Status: implementation proof ready, pending independent review
 
 Why it matters:
 - The repo has many operator scripts beyond the narrow Golden Path. Some are
@@ -362,13 +362,11 @@ Why it matters:
   runtime behavior.
 
 Next action:
-- Inventory root `scripts/*.py` and compare each script against
-  `docs/GOLDEN_PATH.md`, `scripts/SCRIPTS.md`, and related operator docs.
-- Classify each script as canonical daily operation, diagnostic, emergency,
-  research, migration/repair, packaging, smoke test, deprecated, or internal.
-- Update the docs so the Golden Path points to the authoritative script index
-  and the script index clearly marks safe daily commands versus specialized
-  tools.
+- Independently review `scripts/SCRIPTS.md` and `docs/GOLDEN_PATH.md`.
+- Confirm the canonical daily commands are neither too broad nor missing an
+  operator-critical command.
+- If accepted, use `scripts/SCRIPTS.md` as the authoritative root script command
+  map going forward.
 
 Risk:
 - MEDIUM: operator workflow and documentation accuracy. This should remain

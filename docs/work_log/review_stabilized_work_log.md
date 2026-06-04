@@ -1606,3 +1606,58 @@ Remaining risk:
   2026-06-04.
 - Remaining action: activation work remains pending and must be implemented as
   separate scoped changes with proof and review.
+
+## 2026-06-04T13:31:57Z - Golden Path And Script Index Alignment
+
+Active role: `ENGINEER`
+
+Objective: make the root script surface visible to operators without broadening
+the Golden Path or changing runtime behavior.
+
+What was found:
+- SHOWN: `docs/GOLDEN_PATH.md` documented the narrow daily paper-campaign path
+  but did not point operators to the full script command map.
+- SHOWN: `scripts/SCRIPTS.md` listed only a small canonical operator subset.
+- SHOWN: root `scripts/` contains 90 Python entrypoints.
+- SHOWN: the existing script-path validator parses the `## Canonical Operator`
+  section in `scripts/SCRIPTS.md` and verifies listed scripts exist.
+
+What changed:
+- Expanded `scripts/SCRIPTS.md` into an operator-facing script index.
+- Preserved the `## Canonical Operator` table for validator compatibility and
+  safe daily operation.
+- Added classified sections for paper runtime internals, service control,
+  safety/reconciliation, market data/exchange connectivity, research/model
+  tools, validation/release helpers, and desktop/UI scripts.
+- Updated `docs/GOLDEN_PATH.md` to point to `scripts/SCRIPTS.md` for the full
+  command map while keeping the Golden Path narrow.
+- Updated Priority 15 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to
+  implementation-proof-ready pending independent review.
+
+Why this change:
+- Operators should not have to infer which scripts are safe daily commands and
+  which are specialized, live-adjacent, or research-only tools.
+- A visible command map reduces operator-memory burden without activating any
+  dormant system or changing trading behavior.
+- Keeping the Golden Path narrow prevents specialized scripts from being
+  mistaken for the daily evidence-campaign path.
+
+Expected outcome:
+- `docs/GOLDEN_PATH.md` remains the current daily path.
+- `scripts/SCRIPTS.md` becomes the authoritative root script command map.
+- Future script additions/removals have a clear documentation surface to update.
+
+Verification:
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python -c '...'`
+  - SHOWN: `{'script_count': 90, 'missing': []}`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: operator workflow and documentation accuracy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independent review should confirm the canonical daily
+  command list is neither too broad nor missing an operator-critical command.

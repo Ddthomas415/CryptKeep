@@ -17,6 +17,12 @@ make paper-status             # stage, budget, thresholds
 make paper-stop-now           # emergency stop
 ```
 
+For the complete operator command map, use `scripts/SCRIPTS.md`. This Golden
+Path intentionally stays narrow: it lists the current daily paper-campaign path,
+while `scripts/SCRIPTS.md` classifies the full root script inventory as daily
+operator commands, diagnostics, emergency controls, research tools, release
+helpers, desktop surfaces, or specialized live-adjacent commands.
+
 For dashboard/operator launches, `scripts/run_paper_strategy_evidence_collector.py --daily-loop`
 is the managed background path. One start keeps the collector alive and records one new
 session day per new UTC day instead of exiting after a single campaign.
