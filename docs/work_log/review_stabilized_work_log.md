@@ -1720,6 +1720,8 @@ Verification:
 
 Remaining risk:
 - HIGH: risk controls and safety enforcement.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independently review that the v1 declarative-vs-enforced
-  daily-loss-halt contract is acceptable before marking Priority 6 complete.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: keep the config percentage target and runtime USD limit
+  manually consistent until an accepted equity-to-USD translation exists.
