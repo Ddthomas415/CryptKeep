@@ -326,9 +326,8 @@ Risk:
 
 ## Priority 14 - Repo Infrastructure Activation Audit
 
-Status: initial audit accepted; second-pass corrections drafted in
-`docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`, pending
-independent review
+Status: complete. Initial audit and second-pass corrections accepted by
+independent operator review.
 
 Why it matters:
 - The repo contains infrastructure beyond the current active
@@ -342,10 +341,8 @@ Why it matters:
   wired, documented, retired, or left research-only.
 
 Next action:
-- Independently review the second-pass corrections in
-  `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`.
-- After acceptance, turn the highest-priority activation item into a scoped
-  objective with proof requirements.
+- Turn the highest-priority activation item into a scoped objective with proof
+  requirements.
 
 Risk:
 - HIGH: repository architecture, operational workflow, and future trading

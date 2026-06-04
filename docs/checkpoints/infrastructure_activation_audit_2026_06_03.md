@@ -179,4 +179,4 @@ The highest-leverage activation work is not ML or short-side execution. It is:
 Review state:
 - Initial audit accepted by operator on 2026-06-04.
 - Second-pass corrections acceptance state:
-  `READY_FOR_INDEPENDENT_REVIEW`.
+  `ACCEPTED` by independent operator review on 2026-06-04.
