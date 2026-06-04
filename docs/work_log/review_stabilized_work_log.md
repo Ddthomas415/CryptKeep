@@ -1725,3 +1725,54 @@ Remaining risk:
   2026-06-04.
 - Remaining action: keep the config percentage target and runtime USD limit
   manually consistent until an accepted equity-to-USD translation exists.
+
+## 2026-06-04T13:43:52Z - SMA Round-Trip Fixture Backlog Reconciliation
+
+Active role: `ENGINEER`
+
+Objective: remove a stale backlog item after verifying the deterministic
+`sma_200_trend` CI fixture already exists and is covered by tests.
+
+What was found:
+- SHOWN: Priority 10 still listed the `sma_200_trend` CI fixture as pending.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json` exists.
+- SHOWN: `tests/test_backtest_parity_engine.py` asserts the fixture has 220
+  bars, one buy, one sell, one closed trade, SMA long/flat reasons, and
+  scorecard fields.
+- SHOWN: commit `e4ad5d99c` added the fixture and regression test and had
+  already been accepted in the work log.
+
+What changed:
+- Updated Priority 10 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` from pending
+  to complete as of `e4ad5d99c`.
+- Clarified that the fixture remains a synthetic mechanics test, not
+  promotion-gate or profitability evidence.
+
+Why this change:
+- Leaving completed work in the pending backlog causes duplicate work and
+  confusion about the next real blocker.
+- The correct action was backlog reconciliation, not another fixture.
+
+Expected outcome:
+- The proactive task list no longer points operators or agents at already
+  completed CI-hardening work.
+- Future `sma_200_trend` semantic changes have a clear fixture/test pair to
+  update.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_es_daily_trend.py`
+  - SHOWN: `41 passed in 0.58s`.
+- `wc -l sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json`
+  - SHOWN: `1762`.
+- `git show --stat --oneline e4ad5d99c`
+  - SHOWN: the commit added
+    `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json`,
+    `tests/test_backtest_parity_engine.py`, and the work log.
+
+Remaining risk:
+- LOW: documentation/backlog reconciliation only.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: same-thread low-risk closure after targeted
+  verification.
+- Remaining action: none for Priority 10.

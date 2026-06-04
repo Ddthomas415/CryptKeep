@@ -233,7 +233,7 @@ Risk:
 
 ## Priority 10 - CI Fixture For `sma_200_trend`
 
-Status: pending low-priority hardening
+Status: complete as of `e4ad5d99c`
 
 Why it matters:
 - Sample mode can prove entry/fill mechanics but not a deterministic
@@ -242,11 +242,13 @@ Why it matters:
   entry and exit windows.
 
 Next action:
-- Add deterministic fixture under `sample_data/ohlcv/`.
-- Add CI test proving a buy -> sell round trip for `sma_200_trend`.
+- Keep `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json` and its parity
+  test aligned with future `sma_200_trend` semantics.
+- Do not treat the synthetic fixture as promotion-gate or profitability
+  evidence.
 
 Risk:
-- LOW to MEDIUM: CI repeatability and strategy-path coverage.
+- CLOSED: CI repeatability and strategy-path coverage task complete.
 
 ## Priority 11 - Higher-Turnover Daily/Weekly Strategy Plan
 
