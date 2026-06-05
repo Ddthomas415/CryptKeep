@@ -224,6 +224,93 @@ def test_collect_once_surfaces_persisting_evidence_phase_in_summary(monkeypatch)
     assert "campaign persisting evidence" in out["summary_text"]
 
 
+def test_collect_once_uses_daily_loop_last_result_when_idle(monkeypatch) -> None:
+    captured_window: dict[str, str] = {}
+
+    monkeypatch.setattr(
+        svc,
+        "load_campaign_runtime_status",
+        lambda: {
+            "ok": True,
+            "status": "idle",
+            "reason": "waiting_for_next_day",
+            "symbol": "BTC/USDT",
+            "venue": "coinbase",
+            "current_strategy": "ema_cross",
+            "current_strategy_preset": "ema_cross_default",
+            "last_result": {
+                "results": [
+                    {
+                        "strategy": "ema_cross",
+                        "strategy_preset": "ema_cross_default",
+                        "started_ts": "2026-06-05T19:54:50Z",
+                        "ended_ts": "2026-06-05T20:09:54Z",
+                        "fills_delta": 1,
+                        "closed_trades_delta": 0,
+                        "net_realized_pnl_delta": -0.0457,
+                    }
+                ]
+            },
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "_configured_strategy_runner",
+        lambda: {
+            "strategy": "ema_cross",
+            "symbols": ["BTC/USDT"],
+            "primary_symbol": "BTC/USDT",
+            "signal_source": "public_ohlcv_5m",
+            "venue": "coinbase",
+        },
+    )
+    monkeypatch.setattr(svc, "_strategy_runner_status", lambda: {"status": "stopped", "strategy_preset": "ema_cross_default"})
+    monkeypatch.setattr(svc, "_paper_engine_status", lambda: {"status": "stopped"})
+
+    def fake_paper_state(symbol, since_ts="", until_ts=""):
+        captured_window["since_ts"] = since_ts
+        captured_window["until_ts"] = until_ts
+        return {
+            "position": {"symbol": symbol, "qty": 0.001, "avg_price": 60949.1543475, "realized_pnl": 0.0},
+            "latest_order": {"order_id": "ord-1", "status": "filled"},
+            "latest_paper_fill": {
+                "fill_id": "fill-1",
+                "ts": "2026-06-05T20:09:45Z",
+                "side": "buy",
+                "price": 60949.1543475,
+                "qty": 0.001,
+            },
+            "latest_equity": {"unrealized_pnl": -0.0011, "realized_pnl": 0.0},
+            "window_fill_count": 1,
+            "window_exit_fill_count": 0,
+        }
+
+    monkeypatch.setattr(svc, "_paper_state_snapshot_window", fake_paper_state)
+    monkeypatch.setattr(
+        svc,
+        "_trade_journal_snapshot",
+        lambda symbol, since_ts="", until_ts="": {
+            "fill_id": "fill-1",
+            "fill_ts": "2026-06-05T20:09:45Z",
+            "side": "buy",
+            "symbol": str(symbol),
+        },
+    )
+
+    out = svc.collect_once(svc.PaperSimMonitorCfg())
+
+    assert captured_window == {
+        "since_ts": "2026-06-05T19:54:50Z",
+        "until_ts": "2026-06-05T20:09:54Z",
+    }
+    assert out["campaign_status"] == "idle"
+    assert out["fills_observed"] == 1
+    assert out["latest_journal_fill"]["fill_id"] == "fill-1"
+    assert out["campaign_result"]["strategy_preset"] == "ema_cross_default"
+    assert "fills=1" in out["summary_text"]
+    assert "latest_fill=buy@2026-06-05T20:09:45Z" in out["summary_text"]
+
+
 def test_collect_once_ignores_post_window_same_symbol_artifacts(monkeypatch) -> None:
     class _FakePaperStore:
         def get_position(self, symbol: str):

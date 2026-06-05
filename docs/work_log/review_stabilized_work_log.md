@@ -2042,3 +2042,69 @@ Remaining risk:
   2026-06-05 after the daily-loop start proof.
 - Remaining action: monitor the isolated campaign until it records fills or
   reaches a no-trade investigation threshold.
+
+## 2026-06-05T20:14:08Z - Paper Sim Monitor Daily-Loop Fill Visibility
+
+Active role: `ENGINEER`
+
+Objective: fix stale `paper_sim_monitor` summaries after a daily-loop
+collector finishes a window and returns to idle.
+
+What was found:
+- SHOWN: the isolated `ema_cross_default` daily-loop challenger recorded one
+  buy fill in JSONL evidence, `paper_trading.sqlite`, and
+  `trade_journal.sqlite`.
+- SHOWN: `paper_sim_monitor` watch output fired on the campaign transition but
+  the summary still reported `fills=0` and `no fill yet`.
+- SHOWN: daily-loop idle status stores the completed collection window under
+  `last_result.results`, while `_latest_result()` only read top-level
+  `results`.
+- SHOWN: because no completed result was found, the monitor used the idle wait
+  timestamp as the observation window and filtered out the real fill.
+
+What changed:
+- Updated `services/analytics/paper_sim_monitor.py` so `_latest_result()` falls
+  back to `payload["last_result"]["results"]` when top-level `results` is
+  absent.
+- Added `test_collect_once_uses_daily_loop_last_result_when_idle` in
+  `tests/test_paper_sim_monitor.py`.
+- The regression test proves the monitor uses the completed daily-loop
+  `started_ts` and `ended_ts` window, counts the fill, surfaces the latest
+  journal fill, and includes `fills=1` plus the latest fill timestamp in the
+  summary.
+
+Why this change:
+- The monitor is the operator-facing wakeup layer for paper campaigns; its
+  summary must agree with canonical fill evidence after daily-loop state
+  transitions.
+- Reading `last_result.results` is the smallest compatible fix because it
+  preserves existing top-level `results` behavior for active collection runs.
+
+Expected outcome:
+- When a daily-loop campaign is idle and waiting for the next UTC day, the
+  monitor still summarizes the most recent completed evidence window.
+- New fills and open positions from the completed window remain visible to the
+  operator instead of disappearing until the next active run.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_run_paper_sim_monitor.py`
+  - SHOWN: `18 passed in 0.25s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `CBP_STATE_DIR=.../.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python - <<'PY' ... svc.collect_once(...) ... PY`
+  - SHOWN: isolated monitor output now reports `fills_observed=1`,
+    `latest_journal_fill` populated, `paper_position.qty=0.001`, and summary
+    text containing `fills=1` and the buy fill timestamp.
+- `CBP_STATE_DIR=.../.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: challenger collector remains `idle`, `daily_loop=true`,
+    `pid_alive=true`, and waiting for the next UTC day.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical `es_daily_trend_v1` gate remains unchanged at `7/10`
+    round trips and `14` fills.
+
+Remaining risk:
+- HIGH: operator monitoring for financial strategy experimentation and
+  background jobs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independent review should confirm the daily-loop fallback
+  is correct and does not mask active-run `results` data.

@@ -336,6 +336,10 @@ def _trade_journal_snapshot(symbol: str, *, since_ts: str = "", until_ts: str = 
 
 def _latest_result(payload: dict[str, Any]) -> dict[str, Any]:
     rows = list(payload.get("results") or [])
+    if not rows:
+        last_result = payload.get("last_result")
+        if isinstance(last_result, dict):
+            rows = list(last_result.get("results") or [])
     for item in reversed(rows):
         if isinstance(item, dict):
             return dict(item)
