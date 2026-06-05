@@ -98,3 +98,56 @@ An acceptable baseline should be:
 
 Until then, the machine gate may clear the path-validation count, but the
 operator must still perform the strategy-performance review manually.
+
+## Repeatable Runner
+
+Use `scripts/research/run_es_daily_trend_backtest_baseline.py` to produce the
+candidate report without mutating the strategy config.
+
+Example:
+
+```bash
+./.venv/bin/python scripts/research/run_es_daily_trend_backtest_baseline.py \
+  --venue coinbase \
+  --symbol BTC/USDT \
+  --data-symbol BTC/USD \
+  --timeframe 1d \
+  --since 2018-01-01 \
+  --min-closed-trades 3 \
+  --output .cbp_state/backtests/es_daily_trend_v1_baseline_candidate.json
+```
+
+Only copy `backtest_expectations` into
+`configs/strategies/es_daily_trend_v1.yaml` after the generated report is
+reviewed and accepted.
+
+If `baseline_ready=false`, the report leaves `backtest_expectations` config
+fields null and places measured values under `candidate_backtest_metrics`
+instead. That prevents a non-ready report from being copied directly into the
+promotion config.
+
+For Coinbase, `--data-symbol BTC/USD` may be required even when the strategy
+evidence symbol is `BTC/USDT`; the report records both `symbol` and
+`data_symbol` so that this basis difference is visible during review.
+
+## Candidate Produced After Runner Addition
+
+The runner produced a baseline-ready candidate when using Coinbase `BTC/USD`
+as the fetched data symbol while preserving `BTC/USDT` as the strategy/report
+symbol:
+
+- SHOWN: command ended with exit code `0`.
+- SHOWN: window `2018-01-01` through `2026-06-04`.
+- SHOWN: rows `3077`.
+- SHOWN: `baseline_ready=true`.
+- SHOWN: `closed_trades=31`.
+- SHOWN: `win_rate=0.22580645161290325`.
+- SHOWN: `avg_win=1881.5222600358036`.
+- SHOWN: `avg_loss=-198.91552614027037`.
+
+Reference:
+
+- `docs/checkpoints/es_daily_trend_backtest_baseline_candidate_2026_06_04.md`
+
+This candidate is not yet accepted as config. The `BTC/USDT` strategy symbol
+versus `BTC/USD` data symbol basis difference requires independent review.

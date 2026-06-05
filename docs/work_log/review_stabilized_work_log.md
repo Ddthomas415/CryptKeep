@@ -2175,3 +2175,75 @@ Remaining risk:
 - HIGH remains for the eventual strategy-performance decision and any future
   config baseline change.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-05T20:24:00Z - ES Daily Trend Baseline Candidate Runner
+
+Active role: `ENGINEER`
+
+Objective: add a repeatable, non-mutating runner for producing an
+`es_daily_trend_v1` SMA-200 backtest baseline candidate from historical OHLCV.
+
+What was found:
+- SHOWN: no existing script produced a dedicated ES daily trend paper-gate
+  baseline report.
+- SHOWN: `services/backtest/parity_engine.py` already provides the accepted
+  strategy-registry parity path.
+- SHOWN: `services/backtest/signal_replay.py` exposes public OHLCV fetching
+  with `since_ms`, but no visible runner paginated enough history for an
+  SMA-200 baseline.
+
+What changed:
+- Added `scripts/research/run_es_daily_trend_backtest_baseline.py`.
+- The runner can read committed/local OHLCV JSON with `--input` or fetch public
+  OHLCV with pagination using `--venue`, `--symbol`, `--timeframe`, `--since`,
+  `--page-limit`, and `--max-pages`.
+- Added `--data-symbol` so exchange OHLCV fetch symbols can differ from the
+  strategy/report symbol without hiding the basis difference.
+- The runner calls `run_parity_backtest()` with explicit SMA, ATR, warmup,
+  fee, slippage, and minimum closed-trade assumptions.
+- The runner writes a JSON report containing source metadata, counts,
+  scorecard, `candidate_backtest_metrics`, config-ready
+  `backtest_expectations`, `baseline_ready`, and `blocking_reasons`.
+- When `baseline_ready=false`, `backtest_expectations` remains null-valued and
+  the measured values stay under `candidate_backtest_metrics`.
+- Added `tests/test_es_daily_trend_backtest_baseline_runner.py`.
+- Updated the baseline audit checkpoint and next-actions document to point at
+  the runner.
+- Added
+  `docs/checkpoints/es_daily_trend_backtest_baseline_candidate_2026_06_04.md`
+  to record the network-produced candidate without mutating strategy config.
+- No strategy config, gate threshold, runtime behavior, or campaign state was
+  changed.
+
+Why this change:
+- The project needs a reproducible way to produce baseline numbers before
+  filling `promotion.paper.backtest_expectations`.
+- The runner makes the evidence boundary explicit: it can generate a candidate
+  report, but it does not mutate governed promotion config.
+
+Expected outcome:
+- Operators can generate a candidate historical closed-trade baseline report
+  without hand-written Python snippets.
+- If the report lacks enough closed trades or exit signals, it explains why it
+  is not baseline-ready.
+- Any later config update can cite the exact runner command and output report.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_es_daily_trend.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_backtest_parity_engine.py tests/test_check_promotion_gates.py`
+  - SHOWN: `80 passed in 1.10s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python scripts/research/run_es_daily_trend_backtest_baseline.py --input sample_data/ohlcv/BTC_USDT_1d.json --min-closed-trades 3 --source-label sample_data:BTC_USDT_1d.json`
+  - SHOWN: `baseline_ready=false`.
+  - SHOWN: `backtest_expectations` remained null-valued.
+  - SHOWN: `candidate_backtest_metrics` preserved the measured non-ready
+    values.
+- `./.venv/bin/python scripts/research/run_es_daily_trend_backtest_baseline.py --venue coinbase --symbol BTC/USDT --data-symbol BTC/USD --timeframe 1d --since 2018-01-01 --until 2026-06-04 --page-limit 300 --max-pages 20 --min-closed-trades 3 --output /private/tmp/es_daily_trend_v1_baseline_candidate_20260604.json`
+  - SHOWN: command exited `0`.
+  - SHOWN: `baseline_ready=true`, `rows=3077`, `closed_trades=31`,
+    `win_rate=0.22580645161290325`, `avg_win=1881.5222600358036`, and
+    `avg_loss=-198.91552614027037`.
+
+Remaining risk:
+- HIGH: financial backtest baseline tooling can influence later gate decisions.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

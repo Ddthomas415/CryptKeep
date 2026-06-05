@@ -183,7 +183,7 @@ Risk:
 
 ## Priority 7 - Strategy Performance Decision
 
-Status: blocked on accepted historical closed-trade baseline
+Status: pending independent review of historical closed-trade baseline candidate
 
 Why it matters:
 - `manual_review_required=true` now persists until observed win rate and average
@@ -197,16 +197,23 @@ Why it matters:
   reproducible baseline artifact.
 - SHOWN: the deterministic SMA-200 round-trip fixture produced one closed trade
   but is synthetic CI mechanics, not a profitability expectation source.
+- SHOWN: a 2026-06-04 candidate baseline was generated with Coinbase `BTC/USD`
+  historical daily bars while preserving `BTC/USDT` as the strategy/report
+  symbol.
+- SHOWN: that candidate produced `31` closed trades and `baseline_ready=true`.
 
 Next action:
-- Produce an accepted historical closed-trade parity baseline before filling
-  `configs/strategies/es_daily_trend_v1.yaml` `backtest_expectations`.
+- Independently review the 2026-06-04 candidate baseline and explicitly accept
+  or reject the `BTC/USDT` strategy symbol versus `BTC/USD` data symbol basis.
+- If accepted, copy the candidate `backtest_expectations` into
+  `configs/strategies/es_daily_trend_v1.yaml`.
 - Keep `manual_review_required=true` until that baseline exists.
 - After the paper gate reaches 10 round trips, write the strategy performance
   decision comparing observed paper metrics against the accepted baseline.
 
 Reference:
 - `docs/checkpoints/es_daily_trend_backtest_baseline_audit_2026_06_05.md`
+- `docs/checkpoints/es_daily_trend_backtest_baseline_candidate_2026_06_04.md`
 
 Risk:
 - HIGH: financial strategy evaluation.
