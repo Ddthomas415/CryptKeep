@@ -1776,3 +1776,54 @@ Remaining risk:
 - Acceptance reference: same-thread low-risk closure after targeted
   verification.
 - Remaining action: none for Priority 10.
+
+## 2026-06-04T14:16:45Z - Branch Protection Admin Bypass Policy
+
+Active role: `ENGINEER`
+
+Objective: document the intended branch-protection bypass policy after PR #47
+was merged by the human repo admin through the GitHub UI bypass path.
+
+What was found:
+- SHOWN: PR #47 merged into `master` at `2026-06-04T14:10:41Z` with merge
+  commit `5317e58326c440d32561c57b09eb2499944a03f3`.
+- SHOWN: all PR #47 required checks were passing before merge.
+- SHOWN: the PR was authored by `Ddthomas415`, and the authenticated GitHub
+  account available to this agent was also `Ddthomas415`, so a same-account
+  self-review could not satisfy the branch-protection review requirement.
+- SHOWN: the human operator reported using the visible GitHub web UI bypass
+  path to merge after accepting the audit cycle.
+- SHOWN: `origin/master` and `origin/review-stabilized` were reconciled to the
+  same merge commit after PR #47 merged.
+
+What changed:
+- Updated `docs/GITHUB_BRANCH_PROTECTION.md` to document that administrator
+  bypass is intentionally allowed for the solo-project workflow.
+- Added policy language stating that AI-agent workflows must not use CLI
+  admin-bypass flags.
+- Added the audit-note requirements for any future admin-bypass merge.
+
+Why this change:
+- The protection rule is intentionally asymmetric: it blocks AI/non-admin
+  self-merges while preserving a human owner/admin escape hatch for accepted
+  solo-project work.
+- Without documenting this, the disabled admin-enforcement setting could look
+  accidental instead of deliberate.
+
+Expected outcome:
+- Future reviewers understand why administrator bypass is allowed and when it
+  may be used.
+- AI-agent workflows have an explicit rule not to use admin bypass from the CLI.
+- Future bypass merges have a visible PR audit-note standard.
+
+Verification:
+- Documentation-only change.
+- Verification not run because no code, test, runtime, or configuration
+  behavior changed.
+
+Remaining risk:
+- MEDIUM: governance/runbook documentation.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-04.
+- Remaining action: none for the documented admin-bypass policy.
