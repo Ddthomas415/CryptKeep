@@ -252,7 +252,7 @@ Risk:
 
 ## Priority 11 - Higher-Turnover Daily/Weekly Strategy Plan
 
-Status: pending strategy design
+Status: implementation-proof-ready as of 2026-06-05
 
 Why it matters:
 - `sma_200_trend` is a slow-turnover daily trend strategy. It validates the
@@ -262,16 +262,18 @@ Why it matters:
   paper evidence before any promotion decision.
 
 Next action:
-- Write a dedicated paper-only strategy plan for a daily/weekly income
-  candidate.
-- Define candidate strategy, timeframe, expected turnover, hold period, risk
-  cap, evidence gate, backtest baseline, and isolation rules.
-- Prefer `ema_cross` if the objective is faster evidence accumulation.
-- Prefer `breakout_donchian` if the objective is to test the strongest current
-  synthetic leaderboard candidate.
+- Follow `docs/checkpoints/ema_cross_challenger_plan_2026_06_05.md`.
+- Start with the isolated Stage 0 one-shot proof for `ema_cross_default` using
+  a separate `CBP_STATE_DIR`.
+- Do not start a persistent challenger daily loop until Stage 0 proves clean
+  startup, status, artifact routing, and state isolation.
+- Keep `breakout_donchian` as the next challenger candidate if the objective
+  shifts from faster evidence accumulation to testing the strongest synthetic
+  leaderboard strategy.
 
 Risk:
 - HIGH: financial strategy selection and future promotion behavior.
+- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
 
 ## Priority 12 - Short-Market Strategy Research
 

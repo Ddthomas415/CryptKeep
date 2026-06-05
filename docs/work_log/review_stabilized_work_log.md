@@ -1827,3 +1827,67 @@ Remaining risk:
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-06-04.
 - Remaining action: none for the documented admin-bypass policy.
+
+## 2026-06-05T19:28:41Z - EMA Cross Paper Challenger Plan
+
+Active role: `ENGINEER`
+
+Objective: turn the higher-turnover daily/weekly strategy backlog item into a
+concrete paper-only challenger plan without disturbing the active
+`sma_200_trend` campaign.
+
+What was found:
+- SHOWN: Priority 11 requested a dedicated paper-only strategy plan with
+  candidate, timeframe, turnover expectations, risk cap, evidence gate,
+  backtest baseline, and isolation rules.
+- SHOWN: `ema_cross_default` already exists in `services/strategies/presets.py`
+  with `ema_fast=12`, `ema_slow=26`, and post-cross filters.
+- SHOWN: `docs/strategies/ema_cross_research_note_2026-03-26.md` did not
+  justify shortening the EMA pair; deterministic windows favored default
+  `12/26`.
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py --help` exposes the
+  command surface needed for an isolated `ema_cross` proof.
+- SHOWN: `CBP_STATE_DIR` is the repo-supported state isolation mechanism.
+
+What changed:
+- Added `docs/checkpoints/ema_cross_challenger_plan_2026_06_05.md`.
+- Updated Priority 11 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` from pending
+  strategy design to implementation-proof-ready.
+- Defined the first proof as an isolated one-shot run for `ema_cross_default`
+  using `public_ohlcv_5m` and a separate `CBP_STATE_DIR`.
+- Defined paper-only evidence gates, isolation checks, risk caps, and decision
+  rules.
+
+Why this change:
+- The active `sma_200_trend` campaign should keep running passively, but its
+  slow turnover is structurally mismatched with the operator's faster evidence
+  and daily/weekly opportunity objective.
+- Planning the challenger first avoids contaminating canonical
+  `es_daily_trend_v1` evidence or starting another background campaign before
+  state isolation is proven.
+- The existing `ema_cross_default` preset is the smallest defensible starting
+  point because the repo already rejected an unsupported shorter EMA change.
+
+Expected outcome:
+- Operators have a concrete next step for testing a higher-turnover strategy
+  without touching the current promotion gate.
+- The first challenger run can prove command surface, public OHLCV provenance,
+  artifact routing, and journal isolation before any persistent daily loop is
+  launched.
+- Future `ema_cross` evidence remains separate from `es_daily_trend_v1`
+  promotion evidence.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --help`
+  - SHOWN: command succeeded and exposed `--strategies`,
+    `--session-strategy-id`, `--symbol`, `--venue`, `--signal-source`,
+    `--runtime-sec`, `--daily-loop`, and `--status`.
+
+Remaining risk:
+- HIGH: financial strategy selection and future promotion behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independent review must accept the plan before running the
+  isolated Stage 0 challenger proof.
