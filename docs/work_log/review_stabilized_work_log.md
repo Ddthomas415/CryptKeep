@@ -1888,9 +1888,10 @@ Verification:
 
 Remaining risk:
 - HIGH: financial strategy selection and future promotion behavior.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review must accept the plan before running the
-  isolated Stage 0 challenger proof.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 before the isolated Stage 0 challenger proof.
+- Remaining action: completed by the Stage 0 isolated proof entry below.
 
 ## 2026-06-05T19:50:25Z - EMA Cross Stage 0 Isolated Proof
 
@@ -1964,10 +1965,10 @@ Verification:
 
 Remaining risk:
 - HIGH: financial strategy experimentation and background-job operation.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review should confirm whether Stage 0 is
-  accepted as an operational proof and whether to proceed to a monitored
-  isolated daily-loop challenger campaign.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 before the isolated daily-loop challenger start.
+- Remaining action: completed by the isolated daily-loop start entry below.
 
 ## 2026-06-05T19:55:45Z - EMA Cross Isolated Daily-Loop Start
 
@@ -2036,7 +2037,8 @@ Verification:
 
 Remaining risk:
 - HIGH: financial strategy experimentation and background-job operation.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review should confirm the daily-loop start and
-  then monitor the isolated campaign until it records fills or reaches a
-  no-trade investigation threshold.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 after the daily-loop start proof.
+- Remaining action: monitor the isolated campaign until it records fills or
+  reaches a no-trade investigation threshold.
