@@ -2105,6 +2105,8 @@ Verification:
 Remaining risk:
 - HIGH: operator monitoring for financial strategy experimentation and
   background jobs.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review should confirm the daily-loop fallback
-  is correct and does not mask active-run `results` data.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 after commit `ac46fb51c`.
+- Remaining action: continue monitoring daily-loop paper campaigns for new
+  fills, position closes, and investigate triggers.
