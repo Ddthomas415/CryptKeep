@@ -2110,3 +2110,68 @@ Remaining risk:
   2026-06-05 after commit `ac46fb51c`.
 - Remaining action: continue monitoring daily-loop paper campaigns for new
   fills, position closes, and investigate triggers.
+
+## 2026-06-05T20:15:50Z - ES Daily Trend Backtest Baseline Audit
+
+Active role: `ENGINEER`
+
+Objective: determine whether the paper gate's missing `win_rate`, `avg_win`,
+and `avg_loss` backtest expectations can be safely populated from visible repo
+artifacts.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py --json` still reports
+  `manual_review_required=true`.
+- SHOWN: the only outstanding manual item is
+  `win_rate_avg_win_loss_vs_backtest`.
+- SHOWN: observed paper-history metrics are `7` closed trades, `14` fills,
+  `28.57%` win rate, `$37.33` average win, `-$0.26` average loss, `$35.75`
+  net realized PnL, and `$5.11` expectancy per closed trade.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d.json` produced one buy and zero sells
+  under the SMA-200 parity run, so it has no closed-trade baseline metrics.
+- SHOWN: `.cbp_state/data/snapshots/ohlcv_coinbase_BTC_USDT_1d.json` produced
+  zero trades and is local runtime state rather than a committed baseline
+  artifact.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json` produced one
+  closed losing trade, but it is synthetic CI mechanics and should not be used
+  as a profitability expectation source.
+
+What changed:
+- Added `docs/checkpoints/es_daily_trend_backtest_baseline_audit_2026_06_05.md`.
+- Updated Priority 7 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to show that
+  the strategy performance decision is blocked on an accepted historical
+  closed-trade baseline.
+- No strategy config, gate threshold, runtime behavior, or campaign state was
+  changed.
+
+Why this change:
+- Filling `promotion.paper.backtest_expectations` from a synthetic fixture or
+  non-closing sample would make the paper gate appear objective while using
+  invalid baseline evidence.
+- The safer outcome is to leave `manual_review_required=true` until an accepted
+  reproducible closed-trade baseline exists.
+
+Expected outcome:
+- Future reviewers can see why the current config intentionally leaves
+  `backtest_expectations` unset.
+- The next correct action is to produce or acquire a reproducible historical
+  OHLCV baseline that creates multiple natural `sma_200_trend` closed trades.
+
+Verification:
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical gate remains `7/10` round trips and
+    `manual_review_required=true`.
+- Parity read-only checks against the three candidate OHLCV sources:
+  - SHOWN: committed daily sample: `buy_count=1`, `sell_count=0`,
+    `closed_trades=0`.
+  - SHOWN: local Coinbase snapshot: `buy_count=0`, `sell_count=0`,
+    `closed_trades=0`.
+  - SHOWN: synthetic SMA-200 fixture: `buy_count=1`, `sell_count=1`,
+    `closed_trades=1`.
+
+Remaining risk:
+- LOW for this docs-only audit record.
+- HIGH remains for the eventual strategy-performance decision and any future
+  config baseline change.
+- Acceptance state: `ACCEPTED`.

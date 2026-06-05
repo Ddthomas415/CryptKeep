@@ -183,18 +183,30 @@ Risk:
 
 ## Priority 7 - Strategy Performance Decision
 
-Status: pending manual review
+Status: blocked on accepted historical closed-trade baseline
 
 Why it matters:
 - `manual_review_required=true` now persists until observed win rate and average
   win/loss are compared against backtest expectations.
 - Paper gate progress should not be confused with strategy profitability.
+- SHOWN: the 2026-06-05 baseline audit found no usable machine-readable
+  backtest baseline in the visible repo state.
+- SHOWN: the committed generic daily sample produced no closed trades for
+  `sma_200_trend`.
+- SHOWN: the local Coinbase snapshot produced no trades and is not a committed
+  reproducible baseline artifact.
+- SHOWN: the deterministic SMA-200 round-trip fixture produced one closed trade
+  but is synthetic CI mechanics, not a profitability expectation source.
 
 Next action:
-- Write a strategy performance decision after comparing paper-history metrics
-  against backtest expectations.
-- Decide whether current underperformance is acceptable variance or structural
-  weakness.
+- Produce an accepted historical closed-trade parity baseline before filling
+  `configs/strategies/es_daily_trend_v1.yaml` `backtest_expectations`.
+- Keep `manual_review_required=true` until that baseline exists.
+- After the paper gate reaches 10 round trips, write the strategy performance
+  decision comparing observed paper metrics against the accepted baseline.
+
+Reference:
+- `docs/checkpoints/es_daily_trend_backtest_baseline_audit_2026_06_05.md`
 
 Risk:
 - HIGH: financial strategy evaluation.
