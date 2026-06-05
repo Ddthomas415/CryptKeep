@@ -1891,3 +1891,80 @@ Remaining risk:
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 - Remaining action: independent review must accept the plan before running the
   isolated Stage 0 challenger proof.
+
+## 2026-06-05T19:50:25Z - EMA Cross Stage 0 Isolated Proof
+
+Active role: `ENGINEER`
+
+Objective: run the accepted Stage 0 one-shot proof for `ema_cross_default`
+without disturbing canonical `es_daily_trend_v1` paper evidence.
+
+What was found:
+- SHOWN: before the challenger proof, `check_promotion_gates.py --json`
+  reported canonical `es_daily_trend_v1` at `7/10` round trips, `14` fills,
+  latest fill `2026-05-26T00:00:09.780106+00:00`, and
+  `expectancy_per_closed_trade=$5.11`.
+- SHOWN: the canonical evidence collector daily loop was alive and idle,
+  waiting for the next UTC day.
+- SHOWN: the first sandboxed challenger attempt could not fetch public OHLCV;
+  `app.log` repeated `ohlcv_live_fetch_failed` for Coinbase and runner status
+  reported `note=no_public_ohlcv`.
+- SHOWN: rerunning the proof with network access enabled public OHLCV:
+  runner status showed `bars=299`, populated `mid`, `signal_source=public_ohlcv_5m`,
+  and `signal_reason=no_cross`.
+- SHOWN: the isolated proof completed normally with `stop_reason=runtime_elapsed`.
+
+What changed:
+- Ran an isolated one-shot proof with
+  `CBP_STATE_DIR=.cbp_state_challengers/ema_cross_default_stage0_20260605T1935Z`.
+- Added `/.cbp_state_challengers/` to `.gitignore` so isolated proof state does
+  not remain as untracked Git noise.
+- No trading source code, strategy preset, gate threshold, or canonical
+  `.cbp_state` artifact was modified.
+
+Why this change:
+- The accepted plan required Stage 0 proof before any persistent challenger
+  daily loop.
+- A fresh timestamped state directory avoided mixing the restricted failed
+  attempt with the network-enabled proof artifacts.
+- Ignoring `.cbp_state_challengers/` preserves the intended local-runtime
+  boundary and prevents recurring untracked runtime artifacts.
+
+Expected outcome:
+- `ema_cross_default` has a verified isolated startup/status/shutdown proof on
+  live Coinbase public OHLCV.
+- Future challenger runs can use separate state directories without creating
+  Git noise.
+- Canonical `es_daily_trend_v1` promotion evidence remains isolated from
+  challenger experiments.
+
+Verification:
+- Restricted attempt:
+  - SHOWN: stopped cleanly after `117.89s`, `fills_total=0`,
+    `closed_trades_total=0`, and only isolated session evidence.
+- Network-enabled attempt:
+  - SHOWN: collector completed at `2026-06-05T19:49:34.715316+00:00`.
+  - SHOWN: result `runtime_sec=903.4889707565308`, `stop_reason=runtime_elapsed`,
+    `signal_action=hold`, `signal_changed=false`, `enqueued_total=0`,
+    `fills_total=0`, `closed_trades_total=0`, `net_realized_pnl_total=0.0`.
+  - SHOWN: isolated session artifact has `market_data_source=public_ohlcv`,
+    `ohlcv_sample_mode=false`, `ohlcv_timeframe=5m`, `ohlcv_venue=coinbase`,
+    `ohlcv_symbol=BTC/USDT`, and `strategy_id=ema_cross_default`.
+  - SHOWN: isolated state wrote
+    `.cbp_state_challengers/ema_cross_default_stage0_20260605T1935Z/data/snapshots/ohlcv_coinbase_BTC_USDT_5m.json`.
+- Canonical isolation:
+  - SHOWN: after the challenger proof, `check_promotion_gates.py --json`
+    still reported canonical `es_daily_trend_v1` at `7/10` round trips,
+    `14` fills, and latest fill `2026-05-26T00:00:09.780106+00:00`.
+- Git hygiene:
+  - SHOWN: `git diff --check` passed with no output.
+  - SHOWN: `git status --short --branch` listed only `.gitignore` and this
+    work-log file as modified; `.cbp_state_challengers/` was no longer
+    untracked after the ignore rule.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and background-job operation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independent review should confirm whether Stage 0 is
+  accepted as an operational proof and whether to proceed to a monitored
+  isolated daily-loop challenger campaign.
