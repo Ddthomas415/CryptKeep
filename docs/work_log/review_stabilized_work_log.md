@@ -1968,3 +1968,75 @@ Remaining risk:
 - Remaining action: independent review should confirm whether Stage 0 is
   accepted as an operational proof and whether to proceed to a monitored
   isolated daily-loop challenger campaign.
+
+## 2026-06-05T19:55:45Z - EMA Cross Isolated Daily-Loop Start
+
+Active role: `ENGINEER`
+
+Objective: start the independently accepted `ema_cross_default` paper-only
+daily-loop challenger campaign in isolated local state.
+
+What was found:
+- SHOWN: before start, canonical `es_daily_trend_v1` collector status was
+  `idle`, `daily_loop=true`, `pid_alive=true`, and waiting for the next UTC
+  day.
+- SHOWN: before start, canonical promotion gates still reported `7/10` round
+  trips, `14` fills, and latest fill `2026-05-26T00:00:09.780106+00:00`.
+- SHOWN: before start, the dedicated challenger daily state
+  `.cbp_state_challengers/ema_cross_default_daily` had no collector status and
+  reported `status=not_started`.
+- SHOWN: after start, challenger collector status reported `status=running`,
+  `reason=collecting`, `pid_alive=true`, `strategies=["ema_cross"]`, and
+  `session_strategy_id=ema_cross_default` via isolated evidence paths.
+- SHOWN: runner status reported `bars=298`, populated `mid`, `strategy_id=ema_cross`,
+  `strategy_preset=ema_cross_default`, `signal_source=public_ohlcv_5m`,
+  `signal_action=hold`, and `signal_reason=no_cross`.
+- SHOWN: after start, canonical promotion gates still reported `7/10` round
+  trips and `14` fills.
+
+What changed:
+- Started the challenger command with:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/ema_cross_default_daily`.
+- Used `--daily-loop`, `--strategies ema_cross`,
+  `--session-strategy-id ema_cross_default`, `--symbol BTC/USDT`,
+  `--venue coinbase`, `--signal-source public_ohlcv_5m`, `--runtime-sec 900`,
+  `--strategy-drain-sec 2`, and `--poll-interval-sec 300`.
+- No source code, strategy preset, gate threshold, or canonical `.cbp_state`
+  artifact was edited.
+
+Why this change:
+- Stage 0 isolated proof was independently accepted, so the next scoped step
+  was the isolated monitored daily-loop challenger.
+- The dedicated `CBP_STATE_DIR` keeps challenger evidence separate from
+  canonical `es_daily_trend_v1` promotion evidence.
+- Daily-loop mode lets the system accumulate paper-only `ema_cross_default`
+  observation without operator polling.
+
+Expected outcome:
+- The challenger runs one isolated public-OHLCV evidence window per UTC day.
+- Fills, if any, accumulate only in
+  `.cbp_state_challengers/ema_cross_default_daily`.
+- The monitor emits watch reports for meaningful events such as campaign
+  completion, fills, position close, or investigate conditions.
+
+Verification:
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: canonical collector remained alive and idle for `es_daily_trend_v1`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical gate remained `7/10` round trips and `14` fills before
+    and after challenger start.
+- `CBP_STATE_DIR=.../.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: challenger status was `running`, `reason=collecting`,
+    `pid_alive=true`, and evidence directory was under
+    `.cbp_state_challengers/ema_cross_default_daily`.
+- `cat .cbp_state_challengers/ema_cross_default_daily/runtime/flags/strategy_runner.status.json`
+  - SHOWN: runner had live public OHLCV state with `bars=298`,
+    `signal_source=public_ohlcv_5m`, `signal_action=hold`, and
+    `signal_reason=no_cross`.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and background-job operation.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independent review should confirm the daily-loop start and
+  then monitor the isolated campaign until it records fills or reaches a
+  no-trade investigation threshold.
