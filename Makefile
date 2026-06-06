@@ -80,13 +80,13 @@ status-live-crypto-edges-loop:
 	$(PYTHON) scripts/data/run_crypto_edge_collector_loop.py --status
 
 collect-paper-strategy-evidence:
-	$(PYTHON) scripts/data/run_paper_strategy_evidence_collector.py --runtime-sec $(PAPER_EVIDENCE_RUNTIME_SEC)
+	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --runtime-sec $(PAPER_EVIDENCE_RUNTIME_SEC)
 
 stop-paper-strategy-evidence:
-	$(PYTHON) scripts/data/run_paper_strategy_evidence_collector.py --stop
+	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --stop
 
 status-paper-strategy-evidence:
-	$(PYTHON) scripts/data/run_paper_strategy_evidence_collector.py --status
+	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --status
 
 strategy-evidence-cycle:
 	$(PYTHON) scripts/data/run_strategy_evidence_cycle.py --write-decision-record

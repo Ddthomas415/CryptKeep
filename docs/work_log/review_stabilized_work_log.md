@@ -2565,3 +2565,72 @@ Remaining risk:
   2026-06-06 after commit `0003bd71c`.
 - Accepted decision: use `null/unavailable` for current-window realized PnL
   when no explicit campaign delta exists while preserving lifetime totals.
+
+## 2026-06-06T09:56:25Z - Unify Paper Evidence Collector Entrypoints
+
+Active role: `ENGINEER`
+
+Objective: ensure every supported operator entrypoint starts, stops, or
+inspects the same managed paper evidence collector implementation.
+
+What was found:
+- SHOWN: the Makefile routed its three paper evidence targets through
+  `scripts/data/run_paper_strategy_evidence_collector.py`.
+- SHOWN: that nested script contained a separate one-shot collector CLI and
+  did not expose the canonical daily-loop, polling, maximum-loop, or session
+  strategy options.
+- SHOWN: the root `scripts/run_paper_strategy_evidence_collector.py` is the
+  entrypoint used by the dashboard, operator documentation, tests, and active
+  daily collector.
+- SHOWN: running the Makefile path could therefore start a campaign with
+  behavior different from the documented and monitored campaign.
+
+What changed:
+- Replaced the nested collector implementation with a compatibility delegate
+  to the root collector's `main()` function.
+- Routed the Makefile collect, status, and stop targets directly through the
+  root canonical collector.
+- Documented the root collector as authoritative in `scripts/SCRIPTS.md`.
+- Added regression tests that prevent a second parser from returning in the
+  compatibility path, lock the Makefile to the canonical path, and verify the
+  compatibility path exposes canonical daily-loop and session options.
+
+Why this change:
+- Keeping one collector implementation prevents background-job and evidence
+  policy drift between operator entrypoints.
+- A compatibility delegate preserves direct callers of the historical nested
+  path without maintaining duplicate behavior.
+- Routing Make directly to the canonical path makes the supported operator
+  workflow explicit.
+
+Expected outcome:
+- Make, dashboard, documentation, direct root invocation, and the legacy
+  nested path all execute the same collector behavior.
+- Future collector options and evidence semantics have one implementation
+  point.
+- Existing callers of the nested path remain functional.
+
+Verification:
+- Initial targeted command included nonexistent
+  `tests/test_validate_script_paths.py`.
+  - SHOWN: pytest stopped before collection with `no tests ran`; this was a
+    command-path mistake, not a code failure.
+- `./.venv/bin/python -m pytest -q tests/test_bootstrap_helper_adoption.py tests/test_run_paper_strategy_evidence_collector.py tests/test_dashboard_operator_service.py`
+  - SHOWN: `35 passed in 0.78s`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make -n collect-paper-strategy-evidence status-paper-strategy-evidence stop-paper-strategy-evidence`
+  - SHOWN: all three commands use
+    `scripts/run_paper_strategy_evidence_collector.py`.
+- `scripts/data/run_paper_strategy_evidence_collector.py --help`
+  - SHOWN: exits successfully and includes `--daily-loop` and
+    `--session-strategy-id`.
+- `git diff --check`
+  - SHOWN: clean before the work-log entry.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2113 passed, 33 skipped, 13 warnings in 387.96s`.
+
+Remaining risk:
+- HIGH: this changes supported entrypoints for a managed background financial
+  evidence job.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

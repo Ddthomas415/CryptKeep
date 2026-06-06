@@ -135,3 +135,27 @@ def test_nested_data_scripts_execute_directly_from_repo_root(tmp_path):
         )
         assert proc.returncode == 0, f"{rel}\nstdout={proc.stdout}\nstderr={proc.stderr}"
         assert isinstance(json.loads(proc.stdout), dict)
+
+
+def test_nested_paper_collector_delegates_to_canonical_entrypoint():
+    legacy = _text("scripts/data/run_paper_strategy_evidence_collector.py")
+    makefile = _text("Makefile")
+
+    assert "from scripts.run_paper_strategy_evidence_collector import main" in legacy
+    assert "ArgumentParser" not in legacy
+    assert "scripts/data/run_paper_strategy_evidence_collector.py" not in makefile
+    assert makefile.count("scripts/run_paper_strategy_evidence_collector.py") == 3
+
+
+def test_nested_paper_collector_exposes_canonical_daily_loop_help():
+    proc = subprocess.run(
+        [sys.executable, "scripts/data/run_paper_strategy_evidence_collector.py", "--help"],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    assert proc.returncode == 0, f"stdout={proc.stdout}\nstderr={proc.stderr}"
+    assert "--daily-loop" in proc.stdout
+    assert "--session-strategy-id" in proc.stdout

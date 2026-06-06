@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 # CBP_BOOTSTRAP_SYS_PATH
-import sys
 from pathlib import Path
 
 try:
@@ -11,84 +10,7 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-import argparse
-import json
-
-from services.analytics.paper_strategy_evidence_service import (
-    PaperStrategyEvidenceServiceCfg,
-    load_runtime_status,
-    request_stop,
-    run_campaign,
-)
-
-
-def main() -> int:
-    ap = argparse.ArgumentParser(description="Run a managed paper strategy evidence collection campaign.")
-    ap.add_argument(
-        "--strategies",
-        default="ema_cross,breakout_donchian,mean_reversion_rsi",
-        help="Comma-separated canonical strategy IDs to run sequentially.",
-    )
-    ap.add_argument("--runtime-sec", type=float, default=900.0, help="Per-strategy runtime window in seconds")
-    ap.add_argument("--strategy-drain-sec", type=float, default=2.0, help="Wait after each strategy stop for fills to settle")
-    ap.add_argument("--symbol", default="BTC/USD", help="Runtime symbol for tick publisher, runner, and paper engine")
-    ap.add_argument("--venue", default="coinbase", help="Runtime venue for tick publisher, runner, and paper engine")
-    ap.add_argument("--tick-interval-sec", type=float, default=2.0, help="Tick publisher interval while the campaign is active")
-    ap.add_argument(
-        "--strategy-min-bars",
-        type=int,
-        default=0,
-        help="Optional strategy warmup override for managed evidence runs. Uses the greater of this value and the strategy's required history.",
-    )
-    ap.add_argument(
-        "--signal-source",
-        default="",
-        help="Optional signal source override, e.g. public_ohlcv_1m or public_ohlcv_5m.",
-    )
-    ap.add_argument(
-        "--allow-first-signal-trade",
-        action="store_true",
-        help="Allow the first actionable signal after warmup to enqueue immediately during managed evidence runs.",
-    )
-    ap.add_argument("--evidence-symbol", default="", help="Optional symbol override for the synthetic evidence cycle")
-    ap.add_argument("--paper-history-path", default="", help="Optional trade_journal.sqlite path override")
-    ap.add_argument("--max-strategies", type=int, default=0, help="Optional cap for test/manual runs")
-    ap.add_argument(
-        "--no-desktop-notify",
-        action="store_true",
-        help="Disable local desktop notifications for the managed paper sim monitor.",
-    )
-    ap.add_argument("--stop", action="store_true", help="Request stop for the active managed campaign")
-    ap.add_argument("--status", action="store_true", help="Show managed campaign runtime status")
-    args = ap.parse_args()
-
-    if args.stop:
-        print(json.dumps(request_stop(), indent=2, default=str))
-        return 0
-    if args.status:
-        print(json.dumps(load_runtime_status(), indent=2, default=str))
-        return 0
-
-    cfg = PaperStrategyEvidenceServiceCfg(
-        strategies=tuple(item.strip() for item in str(args.strategies or "").split(",") if item.strip()),
-        per_strategy_runtime_sec=float(args.runtime_sec or 900.0),
-        strategy_drain_sec=float(args.strategy_drain_sec or 2.0),
-        symbol=str(args.symbol or "BTC/USD"),
-        venue=str(args.venue or "coinbase"),
-        tick_publish_interval_sec=float(args.tick_interval_sec or 2.0),
-        strategy_min_bars=int(args.strategy_min_bars or 0),
-        signal_source=str(args.signal_source or ""),
-        allow_first_signal_trade=bool(args.allow_first_signal_trade),
-        evidence_symbol=str(args.evidence_symbol or ""),
-        paper_history_path=str(args.paper_history_path or ""),
-        paper_sim_monitor_desktop_notify=not bool(args.no_desktop_notify),
-    )
-    out = run_campaign(
-        cfg,
-        max_strategies=(int(args.max_strategies) if int(args.max_strategies or 0) > 0 else None),
-    )
-    print(json.dumps(out, indent=2, default=str))
-    return 0
+from scripts.run_paper_strategy_evidence_collector import main
 
 
 if __name__ == "__main__":
