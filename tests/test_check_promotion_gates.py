@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import pytest
+import yaml
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -64,7 +65,7 @@ class TestGateOutput:
         assert failed["hint"] == "fix this"
         assert unknown["hint"] == "check this"
 
-    def test_json_output_surfaces_manual_review_for_backtest_expectations(self, tmp_path):
+    def test_json_output_surfaces_blocking_backtest_comparison(self, tmp_path):
         from scripts.check_promotion_gates import run_check
 
         result = run_check(stage_override="paper")
@@ -75,7 +76,8 @@ class TestGateOutput:
         assert review["required"] is True
         assert any(
             item["id"] == "win_rate_avg_win_loss_vs_backtest"
-            and item["status"] == "manual_required"
+            and item["status"] == "machine_blocking"
+            and "win_rate" in item["reason"]
             for item in review["outstanding_items"]
         )
 
@@ -149,6 +151,46 @@ class TestGateOutput:
             comparison["metric"] == "win_rate" and comparison["passed"] is False
             for comparison in item["comparisons"]
         )
+
+    def test_backtest_expectation_item_compares_normalized_trade_returns(self):
+        from scripts.check_promotion_gates import _paper_manual_review_status
+
+        result = _paper_manual_review_status(
+            {
+                "closed_trades": 10,
+                "fills": 20,
+                "win_rate": 0.25,
+                "avg_win_return_pct": 8.0,
+                "avg_loss_return_pct": -4.0,
+                "net_realized_pnl": 30.0,
+                "expectancy_per_closed_trade": 3.0,
+            },
+            [],
+            {
+                "promotion": {
+                    "paper": {
+                        "backtest_expectations": {
+                            "source": "unit-test-normalized-baseline",
+                            "metric_basis": "net_return_pct",
+                            "tolerance_pct": 25.0,
+                            "win_rate": 0.25,
+                            "avg_win_return_pct": 10.0,
+                            "avg_loss_return_pct": -5.0,
+                        }
+                    }
+                }
+            },
+        )
+
+        assert result["required"] is False
+        item = result["items"][0]
+        assert item["baseline"]["metric_basis"] == "net_return_pct"
+        assert [comparison["metric"] for comparison in item["comparisons"]] == [
+            "win_rate",
+            "avg_win_return_pct",
+            "avg_loss_return_pct",
+        ]
+        assert all(comparison["passed"] is True for comparison in item["comparisons"])
 
 
 class TestSchemaValidation:
@@ -279,7 +321,7 @@ class TestGateLogic:
         days = _days_of_operation(evidence["session"])
         assert days == 1
 
-    def test_paper_gate_uses_trade_journal_for_round_trips_and_expectancy(self, tmp_path):
+    def test_paper_gate_does_not_count_unprovenanced_trade_journal_history(self, tmp_path):
         from services.os.app_paths import data_dir
         from scripts.check_promotion_gates import run_check
 
@@ -344,14 +386,210 @@ class TestGateLogic:
         round_trip_gate = next(g for g in result["gates"] if "round trips" in g["label"])
         expectancy_gate = next(g for g in result["gates"] if "Expectancy" in g["label"])
 
-        assert result["paper_history"]["fills"] == 14
-        assert result["paper_history"]["closed_trades"] == 7
-        assert "7 round trips recorded from trade_journal_sqlite" in round_trip_gate["detail"]
-        assert "(7/10, 3 remaining)" in round_trip_gate["detail"]
-        assert expectancy_gate["passed"] is True
-        assert expectancy_gate["detail"] == "avg pnl/round trip = $10.00 from trade_journal_sqlite"
-        assert result["retirement"]["source"] == "trade_journal_sqlite"
+        assert result["paper_history"]["fills"] == 0
+        assert result["paper_history"]["closed_trades"] == 0
+        assert result["paper_history"]["all_history_fills"] == 14
+        assert result["paper_history"]["all_history_closed_trades"] == 7
+        assert result["paper_history"]["qualification"]["qualified_evidence_fills"] == 0
+        assert "0 round trips recorded" in round_trip_gate["detail"]
+        assert "(0/10, 10 remaining)" in round_trip_gate["detail"]
+        assert expectancy_gate["passed"] is None
+        assert result["retirement"]["source"] == "jsonl_provenance+trade_journal_sqlite"
         assert result["retirement"]["triggers_fired"] == []
+
+    def test_paper_gate_counts_only_round_trips_with_matching_provenance(self, tmp_path):
+        from services.os.app_paths import data_dir
+        from scripts.check_promotion_gates import run_check
+
+        ev_dir = data_dir() / "evidence" / "es_daily_trend_v1"
+        ev_dir.mkdir(parents=True, exist_ok=True)
+        fills = []
+        for idx, side in enumerate(("buy", "sell")):
+            fills.append({
+                "record_type": "fill",
+                "timestamp": f"2026-05-01T0{idx}:00:00+00:00",
+                "side": side,
+                "size": 1.0,
+                "order_id": f"order-{side}",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+                "ohlcv_timeframe": "1d",
+                "ohlcv_venue": "coinbase",
+                "ohlcv_symbol": "BTC/USDT",
+            })
+        (ev_dir / "fill_2026-05-01.jsonl").write_text(
+            "\n".join(json.dumps(row) for row in fills) + "\n",
+            encoding="utf-8",
+        )
+
+        journal = data_dir() / "trade_journal.sqlite"
+        con = sqlite3.connect(str(journal))
+        try:
+            con.execute(
+                """
+                CREATE TABLE journal_fills (
+                  fill_id TEXT PRIMARY KEY,
+                  journal_ts TEXT NOT NULL,
+                  strategy_id TEXT,
+                  order_id TEXT NOT NULL,
+                  fill_ts TEXT NOT NULL,
+                  venue TEXT NOT NULL,
+                  symbol TEXT NOT NULL,
+                  side TEXT NOT NULL,
+                  qty REAL NOT NULL,
+                  price REAL NOT NULL,
+                  fee REAL NOT NULL,
+                  fee_currency TEXT NOT NULL
+                )
+                """
+            )
+            con.executemany(
+                "INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                [
+                    ("fill-buy", fills[0]["timestamp"], "sma_200_trend", "order-buy", fills[0]["timestamp"], "coinbase", "BTC/USDT", "buy", 1.0, 100.0, 0.1, "USD"),
+                    ("fill-sell", fills[1]["timestamp"], "sma_200_trend", "order-sell", fills[1]["timestamp"], "coinbase", "BTC/USDT", "sell", 1.0, 110.0, 0.1, "USD"),
+                ],
+            )
+            con.commit()
+        finally:
+            con.close()
+
+        result = run_check(stage_override="paper")
+        round_trip_gate = next(g for g in result["gates"] if "round trips" in g["label"])
+
+        assert result["paper_history"]["fills"] == 2
+        assert result["paper_history"]["closed_trades"] == 1
+        assert result["paper_history"]["all_history_closed_trades"] == 1
+        assert result["paper_history"]["qualification"]["unqualified_evidence_fills"] == 0
+        assert "(1/10, 9 remaining)" in round_trip_gate["detail"]
+
+    def test_paper_gate_rejects_round_trip_with_wrong_timeframe(self, tmp_path):
+        from services.control.paper_evidence_qualification import qualify_paper_history
+        from scripts.check_promotion_gates import CONFIG_PATH
+
+        journal = tmp_path / "trade_journal.sqlite"
+        con = sqlite3.connect(str(journal))
+        try:
+            con.execute(
+                """
+                CREATE TABLE journal_fills (
+                  fill_id TEXT PRIMARY KEY,
+                  journal_ts TEXT NOT NULL,
+                  order_id TEXT NOT NULL,
+                  fill_ts TEXT NOT NULL,
+                  venue TEXT NOT NULL,
+                  symbol TEXT NOT NULL,
+                  side TEXT NOT NULL,
+                  qty REAL NOT NULL,
+                  price REAL NOT NULL,
+                  fee REAL NOT NULL,
+                  fee_currency TEXT NOT NULL
+                )
+                """
+            )
+            con.executemany(
+                "INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                [
+                    ("fill-buy", "2026-05-01T00:00:00+00:00", "order-buy", "2026-05-01T00:00:00+00:00", "coinbase", "BTC/USDT", "buy", 1.0, 100.0, 0.1, "USD"),
+                    ("fill-sell", "2026-05-01T01:00:00+00:00", "order-sell", "2026-05-01T01:00:00+00:00", "coinbase", "BTC/USDT", "sell", 1.0, 110.0, 0.1, "USD"),
+                ],
+            )
+            con.commit()
+        finally:
+            con.close()
+
+        fills = [
+            {
+                "timestamp": f"2026-05-01T0{idx}:00:00+00:00",
+                "side": side,
+                "size": 1.0,
+                "order_id": f"order-{side}",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+                "ohlcv_timeframe": "1m",
+                "ohlcv_venue": "coinbase",
+                "ohlcv_symbol": "BTC/USDT",
+            }
+            for idx, side in enumerate(("buy", "sell"))
+        ]
+        config = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))
+
+        result = qualify_paper_history(
+            evidence_fills=fills,
+            config=config,
+            journal_path=str(journal),
+        )
+
+        assert result["closed_trades"] == 0
+        assert result["qualification"]["unqualified_evidence_fills"] == 2
+        assert result["qualification"]["unqualified_reason_counts"] == {
+            "ohlcv_timeframe_mismatch": 2
+        }
+
+    def test_paper_gate_does_not_bridge_across_unqualified_trade_legs(self, tmp_path):
+        from services.control.paper_evidence_qualification import qualify_paper_history
+        from scripts.check_promotion_gates import CONFIG_PATH
+
+        journal = tmp_path / "trade_journal.sqlite"
+        con = sqlite3.connect(str(journal))
+        try:
+            con.execute(
+                """
+                CREATE TABLE journal_fills (
+                  fill_id TEXT PRIMARY KEY,
+                  journal_ts TEXT NOT NULL,
+                  order_id TEXT NOT NULL,
+                  fill_ts TEXT NOT NULL,
+                  venue TEXT NOT NULL,
+                  symbol TEXT NOT NULL,
+                  side TEXT NOT NULL,
+                  qty REAL NOT NULL,
+                  price REAL NOT NULL,
+                  fee REAL NOT NULL,
+                  fee_currency TEXT NOT NULL
+                )
+                """
+            )
+            con.executemany(
+                "INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                [
+                    (f"fill-{idx}", f"2026-05-01T0{idx}:00:00+00:00", f"order-{idx}", f"2026-05-01T0{idx}:00:00+00:00", "coinbase", "BTC/USDT", side, 1.0, price, 0.1, "USD")
+                    for idx, (side, price) in enumerate(
+                        (("buy", 100.0), ("sell", 101.0), ("buy", 102.0), ("sell", 103.0))
+                    )
+                ],
+            )
+            con.commit()
+        finally:
+            con.close()
+
+        fills = []
+        for idx, side in enumerate(("buy", "sell", "buy", "sell")):
+            fill = {
+                "timestamp": f"2026-05-01T0{idx}:00:00+00:00",
+                "side": side,
+                "size": 1.0,
+                "order_id": f"order-{idx}",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+                "ohlcv_timeframe": "1d",
+                "ohlcv_venue": "coinbase",
+                "ohlcv_symbol": "BTC/USDT",
+            }
+            if idx in {1, 2}:
+                fill.pop("market_data_source")
+            fills.append(fill)
+
+        result = qualify_paper_history(
+            evidence_fills=fills,
+            config=yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8")),
+            journal_path=str(journal),
+        )
+
+        assert result["closed_trades"] == 0
+        assert result["qualification"]["provenance_qualified_evidence_fills"] == 2
+        assert result["qualification"]["qualified_evidence_fills"] == 0
+        assert result["qualification"]["completed_evidence_round_trips"] == 0
 
     def test_latest_session_health_ignores_resolved_old_critical_errors(self, tmp_path):
         from scripts.check_promotion_gates import _latest_session_health

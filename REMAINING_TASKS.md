@@ -16,47 +16,22 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/strategy_signal_quality_plan_2026_05_22.md
 
 ## Master integration TODO
-`review-stabilized` is the current accepted audit/integration branch, but `master`
-is not caught up. Do not treat `review-stabilized` being clean as meaning `master`
-is updated.
+`review-stabilized` is the current accepted audit/integration branch. Draft PR
+[#49](https://github.com/Ddthomas415/CryptKeep/pull/49) tracks the remaining
+master update.
 
-SHOWN on 2026-05-25:
-- `origin/master...origin/review-stabilized = 59 / 65`
-- `review-stabilized` is not an ancestor of `master` or `origin/master`
-- a no-commit test merge of `origin/review-stabilized` into `origin/master` produced 25 conflicted files
+SHOWN on 2026-06-06:
+- `origin/master` is an ancestor of `origin/review-stabilized`
+- `origin/master` has no master-only commits relative to the review branch
+- the prior 25-file conflict plan is obsolete for the current branch tips
+- the aggregate diff is clean under `git diff --check`
+- the latest full suite reports `2113 passed, 33 skipped, 13 warnings`
 
 Next action:
-- Create a dedicated integration branch from `origin/master`
-- Merge `origin/review-stabilized`
-- Resolve conflicts under independent review because the conflicts include live execution, paper execution, queue storage, dashboard settings, and tests
-- Run the relevant execution/storage/dashboard test slices before updating `master`
-
-Known conflicted files from the 2026-05-25 test merge:
-- `dashboard/services/views/_shared_settings.py`
-- `dashboard/services/views/settings_view.py`
-- `docs/CURRENT_RUNTIME_TRUTH.md`
-- `scripts/SCRIPTS.md`
-- `scripts/compat/run_bot_runner.py`
-- `services/execution/intent_consumer.py`
-- `services/execution/intent_lifecycle.py`
-- `services/execution/intent_reconciler.py`
-- `services/execution/intent_store.py`
-- `services/execution/intent_writer.py`
-- `services/execution/live_arming.py`
-- `services/execution/live_executor.py`
-- `services/execution/live_intent_consumer.py`
-- `services/execution/live_reconciler.py`
-- `services/execution/paper_engine.py`
-- `services/execution/paper_runner.py`
-- `services/execution/state_authority.py`
-- `storage/intent_queue_sqlite.py`
-- `storage/live_intent_queue_sqlite.py`
-- `tests/test_backtest_leaderboard.py`
-- `tests/test_intent_queue_integrity.py`
-- `tests/test_live_execution_wiring.py`
-- `tests/test_live_intent_queue_integrity.py`
-- `tests/test_paper_engine_integration.py`
-- `tests/test_run_bot_runner.py`
+- Independently review PR #49 as a HIGH-risk aggregate integration
+- Confirm required GitHub checks pass on the current head
+- Merge only after the aggregate review is accepted
+- Verify `origin/master` reaches the accepted `review-stabilized` head
 
 ## Interpretation
 The critical path is:

@@ -68,7 +68,12 @@ def test_load_strategy_feedback_ledger_summarizes_strategy_rows(tmp_path) -> Non
     assert row["closed_trades"] == 1
     assert row["net_realized_pnl"] == 8.0
     assert row["expectancy_per_closed_trade"] == 8.0
+    assert row["wins"] == 1
+    assert row["losses"] == 0
     assert row["win_rate"] == 1.0
+    assert row["avg_win_return_pct"] == 8.0
+    assert row["avg_loss_return_pct"] == 0.0
+    assert row["expectancy_return_pct"] == 8.0
 
 
 def test_load_strategy_feedback_ledger_maps_es_daily_trend_strategy_id(tmp_path) -> None:

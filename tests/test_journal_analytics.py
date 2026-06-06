@@ -14,6 +14,10 @@ def test_fifo_pnl_from_fills_allocates_trade_fees() -> None:
     assert out["summary"]["gross_realized_pnl"] == 10.0
     assert out["summary"]["total_fees"] == 3.0
     assert out["summary"]["net_realized_pnl"] == 7.0
+    assert out["summary"]["avg_win_return_pct"] == 7.0
+    assert out["summary"]["avg_loss_return_pct"] == 0.0
+    assert out["summary"]["expectancy_return_pct"] == 7.0
     assert len(out["closed_trades"]) == 1
     assert out["closed_trades"][0]["fees"] == 3.0
-
+    assert out["closed_trades"][0]["net_pnl"] == 7.0
+    assert out["closed_trades"][0]["return_pct"] == 7.0

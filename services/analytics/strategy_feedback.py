@@ -70,19 +70,32 @@ def _summary_for_fills(*, strategy: str, fills: list[dict[str, Any]]) -> dict[st
     expectancy = float((_fnum(summary.get("net_realized_pnl"), 0.0) / closed_trade_count) if closed_trade_count > 0 else 0.0)
     avg_win = float(sum((_fnum(item.get("pnl"), 0.0) - _fnum(item.get("fees"), 0.0)) for item in wins) / len(wins)) if wins else 0.0
     avg_loss = float(sum((_fnum(item.get("pnl"), 0.0) - _fnum(item.get("fees"), 0.0)) for item in losses) / len(losses)) if losses else 0.0
+    avg_win_return_pct = float(
+        sum(_fnum(item.get("return_pct"), 0.0) for item in wins) / len(wins)
+    ) if wins else 0.0
+    avg_loss_return_pct = float(
+        sum(_fnum(item.get("return_pct"), 0.0) for item in losses) / len(losses)
+    ) if losses else 0.0
+    expectancy_return_pct = float(
+        sum(_fnum(item.get("return_pct"), 0.0) for item in closed_trades) / closed_trade_count
+    ) if closed_trade_count > 0 else 0.0
+    net_win_rate = float((len(wins) / closed_trade_count) if closed_trade_count > 0 else 0.0)
     return {
         "strategy": str(strategy or ""),
         "fills": int(len(fills)),
         "closed_trades": closed_trade_count,
-        "wins": int(summary.get("wins") or 0),
-        "losses": int(summary.get("losses") or 0),
-        "win_rate": float(summary.get("win_rate") or 0.0),
+        "wins": int(len(wins)),
+        "losses": int(len(losses)),
+        "win_rate": net_win_rate,
         "gross_realized_pnl": float(summary.get("gross_realized_pnl") or 0.0),
         "net_realized_pnl": float(summary.get("net_realized_pnl") or 0.0),
         "total_fees": float(summary.get("total_fees") or 0.0),
         "expectancy_per_closed_trade": expectancy,
         "avg_win": avg_win,
         "avg_loss": avg_loss,
+        "avg_win_return_pct": avg_win_return_pct,
+        "avg_loss_return_pct": avg_loss_return_pct,
+        "expectancy_return_pct": expectancy_return_pct,
         "recent_closed_trades": int(len(recent)),
         "recent_net_realized_pnl": recent_net,
         "recent_win_rate": float((recent_wins / len(recent)) if recent else 0.0),

@@ -103,14 +103,15 @@ ops:
 promotion:
   paper:
     backtest_expectations:
-      # Fill these only from an accepted backtest baseline with closed-trade
-      # participation for sma_200_trend. Null keeps the paper gate in explicit
-      # manual-review mode instead of inventing profitability expectations.
-      source: null
+      # Accepted normalized baseline: 31 closed trades on Coinbase BTC/USD
+      # daily OHLCV through 2026-06-04, disclosed as the data basis for the
+      # BTC/USDT paper strategy comparison.
+      source: public_ohlcv:coinbase:BTC/USDT:data=BTC/USD:1d:2018-01-01:2026-06-04
       tolerance_pct: 25.0
-      win_rate: null
-      avg_win: null
-      avg_loss: null
+      metric_basis: net_return_pct
+      win_rate: 0.22580645161290325
+      avg_win_return_pct: 78.71095396512578
+      avg_loss_return_pct: -4.0629558060999225
 
 # Evidence logging
 # All fields below must be populated in every log record.

@@ -44,6 +44,10 @@ JSONL evidence.
 
 The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
 It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.
+`current_window_realized_pnl` is reported only when the campaign service
+provides an explicit window delta. When unavailable, it is `null` and the
+summary says `unavailable`; lifetime position and equity realized PnL remain in
+separate total fields.
 It also surfaces paper-stage promotion threshold progress (30 days / 10 round trips) so a local
 `recommendation=enough_evidence` event is not confused with full promotion readiness.
 Managed paper campaigns also auto-seed default paper-sim watches:
@@ -79,8 +83,11 @@ See `docs/EVIDENCE_MODEL.md` for full explanation.
 ## Promotion gates
 
 Read by: `scripts/check_promotion_gates.py` from two canonical evidence surfaces:
-JSONL for latest-window schema/provenance/log completeness and `.cbp_state/data/trade_journal.sqlite`
-for paper fill count, completed round trips, and realized expectancy.
+JSONL for latest-window health and per-fill provenance qualification, then
+`.cbp_state/data/trade_journal.sqlite` for prices, fees, completed round trips,
+and realized expectancy restricted to those qualified order IDs. Raw journal
+history remains diagnostic and does not count when either trade leg lacks the
+configured provenance.
 
 Gates for paper → shadow promotion:
 - 30 calendar days of operation

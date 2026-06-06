@@ -44,6 +44,10 @@ Makefile target when one is shown.
 | `supervisor_status.py` | — | Supervisor state |
 | `validate.py` | `make validate-quick` / `make validate` | Repo validation |
 
+The root `scripts/run_paper_strategy_evidence_collector.py` is authoritative.
+The nested `scripts/data/run_paper_strategy_evidence_collector.py` path is a
+compatibility delegate only and must not define separate collector behavior.
+
 ## Specialized Script Inventory
 
 Root `scripts/` currently contains 90 Python entrypoints. The scripts below are

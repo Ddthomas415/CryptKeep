@@ -216,9 +216,10 @@ def _target_feedback_strategy(cfg: dict) -> str:
     return strategy_id or STRATEGY_ID
 
 
-def _paper_history_gate_summary(cfg: dict) -> dict:
-    """Load authoritative persisted paper fill summary for this target strategy."""
+def _paper_history_gate_summary(cfg: dict, evidence_fills: list[dict] | None = None) -> dict:
+    """Load raw history and derive provenance-qualified promotion metrics."""
     from services.analytics.strategy_feedback import load_strategy_feedback_ledger
+    from services.control.paper_evidence_qualification import qualify_paper_history
 
     strategy = cfg.get("strategy") or {}
     target_strategy = _target_feedback_strategy(cfg)
@@ -241,22 +242,30 @@ def _paper_history_gate_summary(cfg: dict) -> dict:
 
     rows = [dict(row) for row in list(ledger.get("rows") or []) if isinstance(row, dict)]
     row = next((item for item in rows if str(item.get("strategy") or "") == target_strategy), None)
+    qualified = qualify_paper_history(
+        evidence_fills=list(evidence_fills or []),
+        config=cfg,
+        journal_path=str(ledger.get("journal_path") or ""),
+    )
     if not row:
         return {
-            "ok": False,
-            "status": str(ledger.get("status") or "missing"),
-            "source": str(ledger.get("source") or "trade_journal_sqlite"),
-            "journal_path": str(ledger.get("journal_path") or ""),
+            **qualified,
             "target_strategy": target_strategy,
             "symbol_filter": ledger.get("symbol_filter") or symbol or None,
-            "fills": 0,
-            "closed_trades": 0,
-            "expectancy_per_closed_trade": None,
-            "net_realized_pnl": None,
+            "all_history": {
+                "ok": False,
+                "status": str(ledger.get("status") or "missing"),
+                "source": str(ledger.get("source") or "trade_journal_sqlite"),
+                "journal_path": str(ledger.get("journal_path") or ""),
+                "fills": 0,
+                "closed_trades": 0,
+            },
+            "all_history_fills": 0,
+            "all_history_closed_trades": 0,
             "caveat": "No target-strategy paper-history row is available yet.",
         }
 
-    return {
+    raw_history = {
         "ok": True,
         "status": "available",
         "source": str(ledger.get("source") or "trade_journal_sqlite"),
@@ -270,14 +279,27 @@ def _paper_history_gate_summary(cfg: dict) -> dict:
         "win_rate": float(row.get("win_rate") or 0.0),
         "avg_win": float(row.get("avg_win") or 0.0),
         "avg_loss": float(row.get("avg_loss") or 0.0),
+        "avg_win_return_pct": float(row.get("avg_win_return_pct") or 0.0),
+        "avg_loss_return_pct": float(row.get("avg_loss_return_pct") or 0.0),
+        "expectancy_return_pct": float(row.get("expectancy_return_pct") or 0.0),
         "latest_fill_ts": row.get("latest_fill_ts"),
+    }
+    return {
+        **qualified,
+        "target_strategy": target_strategy,
+        "symbol_filter": ledger.get("symbol_filter") or symbol or None,
+        "all_history": raw_history,
+        "all_history_fills": int(raw_history["fills"]),
+        "all_history_closed_trades": int(raw_history["closed_trades"]),
     }
 
 
 def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = None) -> dict:
     history = dict(paper_history or {})
     jsonl_trips = _count_round_trips(fills)
-    if history.get("ok") is True and int(history.get("fills") or 0) > 0:
+    if history.get("qualification") is not None or (
+        history.get("ok") is True and int(history.get("fills") or 0) > 0
+    ):
         trips = int(history.get("closed_trades") or 0)
         fill_count = int(history.get("fills") or 0)
         exp_val = (
@@ -286,7 +308,13 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
             else None
         )
         source = str(history.get("source") or "paper_history")
-        mismatch = f" (jsonl:{jsonl_trips})" if jsonl_trips != trips else ""
+        if history.get("qualification") is not None:
+            mismatch = (
+                f" (all_history:{int(history.get('all_history_closed_trades') or 0)}, "
+                f"raw_jsonl:{jsonl_trips})"
+            )
+        else:
+            mismatch = f" (jsonl:{jsonl_trips})" if jsonl_trips != trips else ""
         return {
             "source": source,
             "round_trips": trips,
@@ -756,7 +784,9 @@ def _check_retirement_triggers(
         rolling_window=rolling_window,
     )
     history = dict(paper_history or {})
-    if history.get("ok") is not True or int(history.get("fills") or 0) <= 0:
+    if history.get("qualification") is None and (
+        history.get("ok") is not True or int(history.get("fills") or 0) <= 0
+    ):
         jsonl_result["source"] = "jsonl_evidence"
         return jsonl_result
 
@@ -817,13 +847,26 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
     if tolerance_pct is None:
         tolerance_pct = 25.0
 
-    metrics = ("win_rate", "avg_win", "avg_loss")
+    metric_basis = str(expectations.get("metric_basis") or "quote_pnl").strip().lower()
+    metrics = (
+        ("win_rate", "avg_win_return_pct", "avg_loss_return_pct")
+        if metric_basis == "net_return_pct"
+        else ("win_rate", "avg_win", "avg_loss")
+    )
+    comparison_label = (
+        "Observed win rate and average winning/losing trade returns within 25% of backtest expectations"
+        if metric_basis == "net_return_pct"
+        else "Observed win rate and avg win/loss within 25% of backtest expectations"
+    )
     observed = {
         "closed_trades": int(history.get("closed_trades") or 0),
         "fills": int(history.get("fills") or 0),
         "win_rate": history.get("win_rate"),
         "avg_win": history.get("avg_win"),
         "avg_loss": history.get("avg_loss"),
+        "avg_win_return_pct": history.get("avg_win_return_pct"),
+        "avg_loss_return_pct": history.get("avg_loss_return_pct"),
+        "expectancy_return_pct": history.get("expectancy_return_pct"),
         "net_realized_pnl": history.get("net_realized_pnl"),
         "expectancy_per_closed_trade": history.get("expectancy_per_closed_trade"),
     }
@@ -832,7 +875,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
     if missing:
         return {
             "id": "win_rate_avg_win_loss_vs_backtest",
-            "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
+            "label": comparison_label,
             "status": "manual_required",
             "reason": (
                 "No complete machine-readable backtest baseline is configured for "
@@ -840,6 +883,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
             ),
             "baseline": {
                 "source": expectations.get("source"),
+                "metric_basis": metric_basis,
                 "tolerance_pct": tolerance_pct,
                 "missing_metrics": missing,
             },
@@ -882,7 +926,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
     status = "machine_checked" if not failed else "machine_blocking"
     return {
         "id": "win_rate_avg_win_loss_vs_backtest",
-        "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
+        "label": comparison_label,
         "status": status,
         "reason": (
             "Observed paper metrics are within configured backtest tolerance."
@@ -891,6 +935,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
         ),
         "baseline": {
             "source": expectations.get("source"),
+            "metric_basis": metric_basis,
             "tolerance_pct": tolerance_pct,
             "metrics": expected_values,
         },
@@ -936,7 +981,7 @@ def _paper_manual_review_status(paper_history: dict | None, gates: list[dict], c
             if str(item.get("status") or "") in {"manual_required", "machine_blocking"}
         ],
         "summary": (
-            "Paper gate review required: observed win rate and avg win/loss must satisfy "
+            "Paper gate review required: observed win rate and average winning/losing trade metrics must satisfy "
             "configured backtest expectations before paper promotion."
             if required
             else "No manual paper-gate review items are outstanding."
@@ -956,7 +1001,7 @@ def run_check(stage_override: str | None = None) -> dict:
     sessions = evidence["session"]
     signals  = evidence["signal"]
     fills    = evidence["fill"]
-    paper_history = _paper_history_gate_summary(cfg)
+    paper_history = _paper_history_gate_summary(cfg, fills)
 
     # Schema validation
     schema = _run_schema_validation(ev_dir, cfg)

@@ -1827,3 +1827,884 @@ Remaining risk:
 - Acceptance reference: independently reviewed and accepted by operator on
   2026-06-04.
 - Remaining action: none for the documented admin-bypass policy.
+
+## 2026-06-05T19:28:41Z - EMA Cross Paper Challenger Plan
+
+Active role: `ENGINEER`
+
+Objective: turn the higher-turnover daily/weekly strategy backlog item into a
+concrete paper-only challenger plan without disturbing the active
+`sma_200_trend` campaign.
+
+What was found:
+- SHOWN: Priority 11 requested a dedicated paper-only strategy plan with
+  candidate, timeframe, turnover expectations, risk cap, evidence gate,
+  backtest baseline, and isolation rules.
+- SHOWN: `ema_cross_default` already exists in `services/strategies/presets.py`
+  with `ema_fast=12`, `ema_slow=26`, and post-cross filters.
+- SHOWN: `docs/strategies/ema_cross_research_note_2026-03-26.md` did not
+  justify shortening the EMA pair; deterministic windows favored default
+  `12/26`.
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py --help` exposes the
+  command surface needed for an isolated `ema_cross` proof.
+- SHOWN: `CBP_STATE_DIR` is the repo-supported state isolation mechanism.
+
+What changed:
+- Added `docs/checkpoints/ema_cross_challenger_plan_2026_06_05.md`.
+- Updated Priority 11 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` from pending
+  strategy design to implementation-proof-ready.
+- Defined the first proof as an isolated one-shot run for `ema_cross_default`
+  using `public_ohlcv_5m` and a separate `CBP_STATE_DIR`.
+- Defined paper-only evidence gates, isolation checks, risk caps, and decision
+  rules.
+
+Why this change:
+- The active `sma_200_trend` campaign should keep running passively, but its
+  slow turnover is structurally mismatched with the operator's faster evidence
+  and daily/weekly opportunity objective.
+- Planning the challenger first avoids contaminating canonical
+  `es_daily_trend_v1` evidence or starting another background campaign before
+  state isolation is proven.
+- The existing `ema_cross_default` preset is the smallest defensible starting
+  point because the repo already rejected an unsupported shorter EMA change.
+
+Expected outcome:
+- Operators have a concrete next step for testing a higher-turnover strategy
+  without touching the current promotion gate.
+- The first challenger run can prove command surface, public OHLCV provenance,
+  artifact routing, and journal isolation before any persistent daily loop is
+  launched.
+- Future `ema_cross` evidence remains separate from `es_daily_trend_v1`
+  promotion evidence.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --help`
+  - SHOWN: command succeeded and exposed `--strategies`,
+    `--session-strategy-id`, `--symbol`, `--venue`, `--signal-source`,
+    `--runtime-sec`, `--daily-loop`, and `--status`.
+
+Remaining risk:
+- HIGH: financial strategy selection and future promotion behavior.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 before the isolated Stage 0 challenger proof.
+- Remaining action: completed by the Stage 0 isolated proof entry below.
+
+## 2026-06-05T19:50:25Z - EMA Cross Stage 0 Isolated Proof
+
+Active role: `ENGINEER`
+
+Objective: run the accepted Stage 0 one-shot proof for `ema_cross_default`
+without disturbing canonical `es_daily_trend_v1` paper evidence.
+
+What was found:
+- SHOWN: before the challenger proof, `check_promotion_gates.py --json`
+  reported canonical `es_daily_trend_v1` at `7/10` round trips, `14` fills,
+  latest fill `2026-05-26T00:00:09.780106+00:00`, and
+  `expectancy_per_closed_trade=$5.11`.
+- SHOWN: the canonical evidence collector daily loop was alive and idle,
+  waiting for the next UTC day.
+- SHOWN: the first sandboxed challenger attempt could not fetch public OHLCV;
+  `app.log` repeated `ohlcv_live_fetch_failed` for Coinbase and runner status
+  reported `note=no_public_ohlcv`.
+- SHOWN: rerunning the proof with network access enabled public OHLCV:
+  runner status showed `bars=299`, populated `mid`, `signal_source=public_ohlcv_5m`,
+  and `signal_reason=no_cross`.
+- SHOWN: the isolated proof completed normally with `stop_reason=runtime_elapsed`.
+
+What changed:
+- Ran an isolated one-shot proof with
+  `CBP_STATE_DIR=.cbp_state_challengers/ema_cross_default_stage0_20260605T1935Z`.
+- Added `/.cbp_state_challengers/` to `.gitignore` so isolated proof state does
+  not remain as untracked Git noise.
+- No trading source code, strategy preset, gate threshold, or canonical
+  `.cbp_state` artifact was modified.
+
+Why this change:
+- The accepted plan required Stage 0 proof before any persistent challenger
+  daily loop.
+- A fresh timestamped state directory avoided mixing the restricted failed
+  attempt with the network-enabled proof artifacts.
+- Ignoring `.cbp_state_challengers/` preserves the intended local-runtime
+  boundary and prevents recurring untracked runtime artifacts.
+
+Expected outcome:
+- `ema_cross_default` has a verified isolated startup/status/shutdown proof on
+  live Coinbase public OHLCV.
+- Future challenger runs can use separate state directories without creating
+  Git noise.
+- Canonical `es_daily_trend_v1` promotion evidence remains isolated from
+  challenger experiments.
+
+Verification:
+- Restricted attempt:
+  - SHOWN: stopped cleanly after `117.89s`, `fills_total=0`,
+    `closed_trades_total=0`, and only isolated session evidence.
+- Network-enabled attempt:
+  - SHOWN: collector completed at `2026-06-05T19:49:34.715316+00:00`.
+  - SHOWN: result `runtime_sec=903.4889707565308`, `stop_reason=runtime_elapsed`,
+    `signal_action=hold`, `signal_changed=false`, `enqueued_total=0`,
+    `fills_total=0`, `closed_trades_total=0`, `net_realized_pnl_total=0.0`.
+  - SHOWN: isolated session artifact has `market_data_source=public_ohlcv`,
+    `ohlcv_sample_mode=false`, `ohlcv_timeframe=5m`, `ohlcv_venue=coinbase`,
+    `ohlcv_symbol=BTC/USDT`, and `strategy_id=ema_cross_default`.
+  - SHOWN: isolated state wrote
+    `.cbp_state_challengers/ema_cross_default_stage0_20260605T1935Z/data/snapshots/ohlcv_coinbase_BTC_USDT_5m.json`.
+- Canonical isolation:
+  - SHOWN: after the challenger proof, `check_promotion_gates.py --json`
+    still reported canonical `es_daily_trend_v1` at `7/10` round trips,
+    `14` fills, and latest fill `2026-05-26T00:00:09.780106+00:00`.
+- Git hygiene:
+  - SHOWN: `git diff --check` passed with no output.
+  - SHOWN: `git status --short --branch` listed only `.gitignore` and this
+    work-log file as modified; `.cbp_state_challengers/` was no longer
+    untracked after the ignore rule.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and background-job operation.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 before the isolated daily-loop challenger start.
+- Remaining action: completed by the isolated daily-loop start entry below.
+
+## 2026-06-05T19:55:45Z - EMA Cross Isolated Daily-Loop Start
+
+Active role: `ENGINEER`
+
+Objective: start the independently accepted `ema_cross_default` paper-only
+daily-loop challenger campaign in isolated local state.
+
+What was found:
+- SHOWN: before start, canonical `es_daily_trend_v1` collector status was
+  `idle`, `daily_loop=true`, `pid_alive=true`, and waiting for the next UTC
+  day.
+- SHOWN: before start, canonical promotion gates still reported `7/10` round
+  trips, `14` fills, and latest fill `2026-05-26T00:00:09.780106+00:00`.
+- SHOWN: before start, the dedicated challenger daily state
+  `.cbp_state_challengers/ema_cross_default_daily` had no collector status and
+  reported `status=not_started`.
+- SHOWN: after start, challenger collector status reported `status=running`,
+  `reason=collecting`, `pid_alive=true`, `strategies=["ema_cross"]`, and
+  `session_strategy_id=ema_cross_default` via isolated evidence paths.
+- SHOWN: runner status reported `bars=298`, populated `mid`, `strategy_id=ema_cross`,
+  `strategy_preset=ema_cross_default`, `signal_source=public_ohlcv_5m`,
+  `signal_action=hold`, and `signal_reason=no_cross`.
+- SHOWN: after start, canonical promotion gates still reported `7/10` round
+  trips and `14` fills.
+
+What changed:
+- Started the challenger command with:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/ema_cross_default_daily`.
+- Used `--daily-loop`, `--strategies ema_cross`,
+  `--session-strategy-id ema_cross_default`, `--symbol BTC/USDT`,
+  `--venue coinbase`, `--signal-source public_ohlcv_5m`, `--runtime-sec 900`,
+  `--strategy-drain-sec 2`, and `--poll-interval-sec 300`.
+- No source code, strategy preset, gate threshold, or canonical `.cbp_state`
+  artifact was edited.
+
+Why this change:
+- Stage 0 isolated proof was independently accepted, so the next scoped step
+  was the isolated monitored daily-loop challenger.
+- The dedicated `CBP_STATE_DIR` keeps challenger evidence separate from
+  canonical `es_daily_trend_v1` promotion evidence.
+- Daily-loop mode lets the system accumulate paper-only `ema_cross_default`
+  observation without operator polling.
+
+Expected outcome:
+- The challenger runs one isolated public-OHLCV evidence window per UTC day.
+- Fills, if any, accumulate only in
+  `.cbp_state_challengers/ema_cross_default_daily`.
+- The monitor emits watch reports for meaningful events such as campaign
+  completion, fills, position close, or investigate conditions.
+
+Verification:
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: canonical collector remained alive and idle for `es_daily_trend_v1`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical gate remained `7/10` round trips and `14` fills before
+    and after challenger start.
+- `CBP_STATE_DIR=.../.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: challenger status was `running`, `reason=collecting`,
+    `pid_alive=true`, and evidence directory was under
+    `.cbp_state_challengers/ema_cross_default_daily`.
+- `cat .cbp_state_challengers/ema_cross_default_daily/runtime/flags/strategy_runner.status.json`
+  - SHOWN: runner had live public OHLCV state with `bars=298`,
+    `signal_source=public_ohlcv_5m`, `signal_action=hold`, and
+    `signal_reason=no_cross`.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and background-job operation.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 after the daily-loop start proof.
+- Remaining action: monitor the isolated campaign until it records fills or
+  reaches a no-trade investigation threshold.
+
+## 2026-06-05T20:14:08Z - Paper Sim Monitor Daily-Loop Fill Visibility
+
+Active role: `ENGINEER`
+
+Objective: fix stale `paper_sim_monitor` summaries after a daily-loop
+collector finishes a window and returns to idle.
+
+What was found:
+- SHOWN: the isolated `ema_cross_default` daily-loop challenger recorded one
+  buy fill in JSONL evidence, `paper_trading.sqlite`, and
+  `trade_journal.sqlite`.
+- SHOWN: `paper_sim_monitor` watch output fired on the campaign transition but
+  the summary still reported `fills=0` and `no fill yet`.
+- SHOWN: daily-loop idle status stores the completed collection window under
+  `last_result.results`, while `_latest_result()` only read top-level
+  `results`.
+- SHOWN: because no completed result was found, the monitor used the idle wait
+  timestamp as the observation window and filtered out the real fill.
+
+What changed:
+- Updated `services/analytics/paper_sim_monitor.py` so `_latest_result()` falls
+  back to `payload["last_result"]["results"]` when top-level `results` is
+  absent.
+- Added `test_collect_once_uses_daily_loop_last_result_when_idle` in
+  `tests/test_paper_sim_monitor.py`.
+- The regression test proves the monitor uses the completed daily-loop
+  `started_ts` and `ended_ts` window, counts the fill, surfaces the latest
+  journal fill, and includes `fills=1` plus the latest fill timestamp in the
+  summary.
+
+Why this change:
+- The monitor is the operator-facing wakeup layer for paper campaigns; its
+  summary must agree with canonical fill evidence after daily-loop state
+  transitions.
+- Reading `last_result.results` is the smallest compatible fix because it
+  preserves existing top-level `results` behavior for active collection runs.
+
+Expected outcome:
+- When a daily-loop campaign is idle and waiting for the next UTC day, the
+  monitor still summarizes the most recent completed evidence window.
+- New fills and open positions from the completed window remain visible to the
+  operator instead of disappearing until the next active run.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_run_paper_sim_monitor.py`
+  - SHOWN: `18 passed in 0.25s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `CBP_STATE_DIR=.../.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python - <<'PY' ... svc.collect_once(...) ... PY`
+  - SHOWN: isolated monitor output now reports `fills_observed=1`,
+    `latest_journal_fill` populated, `paper_position.qty=0.001`, and summary
+    text containing `fills=1` and the buy fill timestamp.
+- `CBP_STATE_DIR=.../.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: challenger collector remains `idle`, `daily_loop=true`,
+    `pid_alive=true`, and waiting for the next UTC day.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical `es_daily_trend_v1` gate remains unchanged at `7/10`
+    round trips and `14` fills.
+
+Remaining risk:
+- HIGH: operator monitoring for financial strategy experimentation and
+  background jobs.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 after commit `ac46fb51c`.
+- Remaining action: continue monitoring daily-loop paper campaigns for new
+  fills, position closes, and investigate triggers.
+
+## 2026-06-05T20:15:50Z - ES Daily Trend Backtest Baseline Audit
+
+Active role: `ENGINEER`
+
+Objective: determine whether the paper gate's missing `win_rate`, `avg_win`,
+and `avg_loss` backtest expectations can be safely populated from visible repo
+artifacts.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py --json` still reports
+  `manual_review_required=true`.
+- SHOWN: the only outstanding manual item is
+  `win_rate_avg_win_loss_vs_backtest`.
+- SHOWN: observed paper-history metrics are `7` closed trades, `14` fills,
+  `28.57%` win rate, `$37.33` average win, `-$0.26` average loss, `$35.75`
+  net realized PnL, and `$5.11` expectancy per closed trade.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d.json` produced one buy and zero sells
+  under the SMA-200 parity run, so it has no closed-trade baseline metrics.
+- SHOWN: `.cbp_state/data/snapshots/ohlcv_coinbase_BTC_USDT_1d.json` produced
+  zero trades and is local runtime state rather than a committed baseline
+  artifact.
+- SHOWN: `sample_data/ohlcv/BTC_USDT_1d_sma200_roundtrip.json` produced one
+  closed losing trade, but it is synthetic CI mechanics and should not be used
+  as a profitability expectation source.
+
+What changed:
+- Added `docs/checkpoints/es_daily_trend_backtest_baseline_audit_2026_06_05.md`.
+- Updated Priority 7 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to show that
+  the strategy performance decision is blocked on an accepted historical
+  closed-trade baseline.
+- No strategy config, gate threshold, runtime behavior, or campaign state was
+  changed.
+
+Why this change:
+- Filling `promotion.paper.backtest_expectations` from a synthetic fixture or
+  non-closing sample would make the paper gate appear objective while using
+  invalid baseline evidence.
+- The safer outcome is to leave `manual_review_required=true` until an accepted
+  reproducible closed-trade baseline exists.
+
+Expected outcome:
+- Future reviewers can see why the current config intentionally leaves
+  `backtest_expectations` unset.
+- The next correct action is to produce or acquire a reproducible historical
+  OHLCV baseline that creates multiple natural `sma_200_trend` closed trades.
+
+Verification:
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical gate remains `7/10` round trips and
+    `manual_review_required=true`.
+- Parity read-only checks against the three candidate OHLCV sources:
+  - SHOWN: committed daily sample: `buy_count=1`, `sell_count=0`,
+    `closed_trades=0`.
+  - SHOWN: local Coinbase snapshot: `buy_count=0`, `sell_count=0`,
+    `closed_trades=0`.
+  - SHOWN: synthetic SMA-200 fixture: `buy_count=1`, `sell_count=1`,
+    `closed_trades=1`.
+
+Remaining risk:
+- LOW for this docs-only audit record.
+- HIGH remains for the eventual strategy-performance decision and any future
+  config baseline change.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-06-05T20:24:00Z - ES Daily Trend Baseline Candidate Runner
+
+Active role: `ENGINEER`
+
+Objective: add a repeatable, non-mutating runner for producing an
+`es_daily_trend_v1` SMA-200 backtest baseline candidate from historical OHLCV.
+
+What was found:
+- SHOWN: no existing script produced a dedicated ES daily trend paper-gate
+  baseline report.
+- SHOWN: `services/backtest/parity_engine.py` already provides the accepted
+  strategy-registry parity path.
+- SHOWN: `services/backtest/signal_replay.py` exposes public OHLCV fetching
+  with `since_ms`, but no visible runner paginated enough history for an
+  SMA-200 baseline.
+
+What changed:
+- Added `scripts/research/run_es_daily_trend_backtest_baseline.py`.
+- The runner can read committed/local OHLCV JSON with `--input` or fetch public
+  OHLCV with pagination using `--venue`, `--symbol`, `--timeframe`, `--since`,
+  `--page-limit`, and `--max-pages`.
+- Added `--data-symbol` so exchange OHLCV fetch symbols can differ from the
+  strategy/report symbol without hiding the basis difference.
+- The runner calls `run_parity_backtest()` with explicit SMA, ATR, warmup,
+  fee, slippage, and minimum closed-trade assumptions.
+- The runner writes a JSON report containing source metadata, counts,
+  scorecard, `candidate_backtest_metrics`, config-ready
+  `backtest_expectations`, `baseline_ready`, and `blocking_reasons`.
+- When `baseline_ready=false`, `backtest_expectations` remains null-valued and
+  the measured values stay under `candidate_backtest_metrics`.
+- Added `tests/test_es_daily_trend_backtest_baseline_runner.py`.
+- Updated the baseline audit checkpoint and next-actions document to point at
+  the runner.
+- Added
+  `docs/checkpoints/es_daily_trend_backtest_baseline_candidate_2026_06_04.md`
+  to record the network-produced candidate without mutating strategy config.
+- No strategy config, gate threshold, runtime behavior, or campaign state was
+  changed.
+
+Why this change:
+- The project needs a reproducible way to produce baseline numbers before
+  filling `promotion.paper.backtest_expectations`.
+- The runner makes the evidence boundary explicit: it can generate a candidate
+  report, but it does not mutate governed promotion config.
+
+Expected outcome:
+- Operators can generate a candidate historical closed-trade baseline report
+  without hand-written Python snippets.
+- If the report lacks enough closed trades or exit signals, it explains why it
+  is not baseline-ready.
+- Any later config update can cite the exact runner command and output report.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_es_daily_trend.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_backtest_parity_engine.py tests/test_check_promotion_gates.py`
+  - SHOWN: `80 passed in 1.10s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python scripts/research/run_es_daily_trend_backtest_baseline.py --input sample_data/ohlcv/BTC_USDT_1d.json --min-closed-trades 3 --source-label sample_data:BTC_USDT_1d.json`
+  - SHOWN: `baseline_ready=false`.
+  - SHOWN: `backtest_expectations` remained null-valued.
+  - SHOWN: `candidate_backtest_metrics` preserved the measured non-ready
+    values.
+- `./.venv/bin/python scripts/research/run_es_daily_trend_backtest_baseline.py --venue coinbase --symbol BTC/USDT --data-symbol BTC/USD --timeframe 1d --since 2018-01-01 --until 2026-06-04 --page-limit 300 --max-pages 20 --min-closed-trades 3 --output /private/tmp/es_daily_trend_v1_baseline_candidate_20260604.json`
+  - SHOWN: command exited `0`.
+  - SHOWN: `baseline_ready=true`, `rows=3077`, `closed_trades=31`,
+    `win_rate=0.22580645161290325`, `avg_win=1881.5222600358036`, and
+    `avg_loss=-198.91552614027037`.
+
+Remaining risk:
+- HIGH: financial backtest baseline tooling can influence later gate decisions.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 after commit `23e2499a1`.
+- Remaining action: do not copy raw dollar `avg_win` and `avg_loss` into the
+  promotion config until their sizing basis is compatible with paper-history
+  metrics.
+
+## 2026-06-06T02:20:59Z - Normalize Paper Backtest Comparison Metrics
+
+Active role: `ENGINEER`
+
+Objective: make the paper promotion comparison sizing-independent by comparing
+closed-trade return percentages rather than raw dollar average win/loss values.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py` compared raw paper-history
+  `avg_win` and `avg_loss` dollars to raw backtest dollars.
+- SHOWN: the accepted candidate used all-in compounding from `$1,000`, while
+  paper history used small fixed quantities; those dollar values were not
+  comparable.
+- SHOWN: `journal_fills` contains entry price, quantity, and allocated fees, so
+  net return percentage can be computed per closed trade.
+- SHOWN: after fees, paper net win rate is `0.14285714285714285`, not the prior
+  gross-PnL-derived `0.2857142857142857`.
+
+What changed:
+- Added `net_pnl` and `return_pct` to FIFO closed-trade analytics.
+- Added `avg_win_return_pct`, `avg_loss_return_pct`, and
+  `expectancy_return_pct` to paper strategy feedback.
+- Updated paper gate history output to expose the normalized fields.
+- Added explicit `metric_basis: net_return_pct` support to the backtest
+  expectation comparison while retaining legacy raw-dollar behavior when no
+  metric basis is configured.
+- Updated `configs/strategies/es_daily_trend_v1.yaml` to declare the normalized
+  metric contract while leaving all baseline values null.
+- Updated the baseline runner to emit normalized config candidates.
+- Added
+  `docs/checkpoints/es_daily_trend_normalized_baseline_candidate_2026_06_04.md`.
+- Updated strategy, decision-framework, baseline-audit, next-actions, and
+  regression-test contracts.
+
+Why this change:
+- Win/loss dollars change with trade quantity and account size, so they cannot
+  support a coherent paper-versus-backtest comparison across different sizing
+  models.
+- Net return divided by entry notional is independent of quantity and includes
+  both entry and exit fees.
+- Keeping config values null prevents this implementation from silently
+  approving the normalized candidate.
+
+Expected outcome:
+- The gate compares like-for-like trade performance once a normalized baseline
+  is independently accepted and populated.
+- Until then, `manual_review_required=true` remains visible.
+- Paper win rate is based on net closed-trade outcomes after fees.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_journal_analytics.py tests/test_strategy_feedback.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_check_promotion_gates.py tests/test_es_daily_trend.py`
+  - SHOWN: `80 passed in 1.05s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: gate remains `7/10` round trips and
+    `manual_review_required=true`.
+  - SHOWN: missing baseline fields are `win_rate`,
+    `avg_win_return_pct`, and `avg_loss_return_pct`.
+  - SHOWN: observed paper metrics include net win rate
+    `0.14285714285714285`, average win return `93.63856474626441%`,
+    average loss return `-0.34741823139579114%`, and expectancy return
+    `13.079150765412809%`.
+- `./.venv/bin/python scripts/research/run_es_daily_trend_backtest_baseline.py --venue coinbase --symbol BTC/USDT --data-symbol BTC/USD --timeframe 1d --since 2018-01-01 --until 2026-06-04 --page-limit 300 --max-pages 20 --min-closed-trades 3 --output /private/tmp/es_daily_trend_v1_normalized_baseline_candidate_20260604.json`
+  - SHOWN: `baseline_ready=true`, `rows=3077`, `closed_trades=31`,
+    `win_rate=0.22580645161290325`,
+    `avg_win_return_pct=78.71095396512578`, and
+    `avg_loss_return_pct=-4.0629558060999225`.
+- `./.venv/bin/python -m pytest -q tests/test_journal_analytics.py tests/test_strategy_feedback.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_check_promotion_gates.py tests/test_es_daily_trend.py tests/test_backtest_evidence_cycle.py`
+  - SHOWN: `94 passed in 1.11s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2107 passed, 33 skipped, 13 warnings in 377.72s`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this changes financial analytics and promotion-gate comparison
+  semantics.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `0e81e0aad`.
+- Accepted decisions: `net_return_pct` comparison basis, disclosed Coinbase
+  `BTC/USD` historical source for the `BTC/USDT` strategy comparison, and
+  unchanged `25%` relative tolerance.
+- Remaining action: populate the accepted normalized baseline values and verify
+  the resulting gate output.
+
+## 2026-06-06T02:31:19Z - Populate Accepted Normalized Baseline
+
+Active role: `ENGINEER`
+
+Objective: copy the independently accepted normalized backtest expectations
+into `es_daily_trend_v1` config and verify the resulting paper gate decision.
+
+What was found:
+- SHOWN: the normalized candidate was independently accepted with Coinbase
+  `BTC/USD` as the disclosed historical data basis, `net_return_pct` as the
+  comparison basis, and `25%` relative tolerance.
+- SHOWN: before population, the gate could only report missing baseline values.
+- SHOWN: after population, the gate can compare all three accepted metrics.
+
+What changed:
+- Populated `promotion.paper.backtest_expectations` in
+  `configs/strategies/es_daily_trend_v1.yaml` with:
+  - source
+    `public_ohlcv:coinbase:BTC/USDT:data=BTC/USD:1d:2018-01-01:2026-06-04`
+  - `win_rate=0.22580645161290325`
+  - `avg_win_return_pct=78.71095396512578`
+  - `avg_loss_return_pct=-4.0629558060999225`
+- Updated the strategy config contract test to pin the accepted values.
+- Updated the gate integration test to require a `machine_blocking` comparison
+  rather than a missing-baseline manual-review result.
+- Updated the normalized candidate and next-actions checkpoints with the
+  resulting metric-by-metric gate outcome.
+- No gate threshold, tolerance, campaign process, or paper-history artifact was
+  changed.
+
+Why this change:
+- The baseline values had completed independent review and were ready to become
+  the machine-readable comparison source.
+- Populating them converts an unresolved manual review into an explicit
+  reproducible performance decision.
+
+Expected outcome:
+- The gate reports exactly which paper metrics match or diverge from the
+  accepted backtest.
+- A favorable but materially different average-loss magnitude remains visible
+  as exit-behavior drift rather than being silently treated as equivalent.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_es_daily_trend.py tests/test_check_promotion_gates.py tests/test_es_daily_trend_backtest_baseline_runner.py`
+  - SHOWN: `75 passed in 0.86s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2107 passed, 33 skipped, 13 warnings in 369.07s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: paper campaign remains `7/10` round trips.
+  - SHOWN: comparison status is `machine_blocking`.
+  - SHOWN: win rate fails: observed `0.14285714285714285`, accepted range
+    `0.16935483870967744` to `0.28225806451612906`.
+  - SHOWN: average win return passes: observed `93.63856474626441%`, accepted
+    range `59.033215473844336%` to `98.38869245640723%`.
+  - SHOWN: average loss return fails: observed `-0.34741823139579114%`,
+    accepted range `-5.078694757624903%` to `-3.047216854574942%`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this populates financial promotion-gate policy values.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `4651680f5`.
+- Remaining action: investigate whether the average-loss drift reflects genuine
+  paper strategy behavior or mixed historical evidence attribution.
+
+## 2026-06-06T02:49:14Z - Qualify Paper Promotion History by Fill Provenance
+
+Active role: `ENGINEER`
+
+Objective: prevent unstamped or incompatible legacy paper fills from advancing
+the `es_daily_trend_v1` paper promotion gate.
+
+What was found:
+- SHOWN: the journal contained `14` `sma_200_trend` fills and `7` raw closed
+  trades.
+- SHOWN: six raw round trips closed within minutes despite the configured daily
+  strategy holding horizon.
+- SHOWN: only the 2026-05-26 exit fill carried explicit `public_ohlcv`, `1d`,
+  Coinbase, `BTC/USDT`, non-sample provenance.
+- SHOWN: no raw round trip had matching provenance on both entry and exit.
+- SHOWN: latest-window provenance health previously allowed those older
+  unstamped journal fills to supply the separate round-trip and expectancy
+  thresholds.
+
+What changed:
+- Added `services/control/paper_evidence_qualification.py`.
+- JSONL fill records now identify provenance-qualified order IDs; only complete
+  entry-to-exit cycles are selected.
+- The trade journal supplies immutable price, quantity, and fee data only for
+  those selected order IDs.
+- The machine gate and paper monitor progress use qualified counts and metrics.
+- Raw journal totals remain visible as `paper_history.all_history`,
+  `all_history_fills`, and `all_history_closed_trades`.
+- Updated evidence-authority, operator, decision-framework, strategy, and
+  checkpoint documentation.
+
+Why this change:
+- Current collector health cannot retroactively prove the source and timeframe
+  of historical trades.
+- Keeping raw history while excluding it from promotion is the smallest
+  fail-closed correction; no evidence or database rows are deleted.
+- A shared qualification service prevents the CLI gate and monitor summary from
+  reporting different progress.
+
+Expected outcome:
+- The canonical campaign reports `0/10` qualified round trips and `7` raw
+  all-history round trips.
+- Future trades count only when both legs explicitly match the configured
+  daily public-OHLCV contract.
+- Performance comparison remains blocked until qualified closed trades exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py`
+  - SHOWN: `38 passed in 0.64s`.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py tests/test_paper_sim_monitor.py tests/test_strategy_feedback.py`
+  - SHOWN: `55 passed in 0.84s`.
+- `./.venv/bin/python -m py_compile services/control/paper_evidence_qualification.py scripts/check_promotion_gates.py services/control/paper_promotion_progress.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: final post-edge-case run completed with `2110 passed, 33 skipped,
+    13 warnings in 369.22s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: `0/10` qualified round trips, `10` remaining.
+  - SHOWN: `14` raw all-history fills and `7` raw all-history round trips
+    remain visible.
+  - SHOWN: one provenance-qualified exit fill remains incomplete because its
+    entry leg is unstamped.
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python tools/repo_doctor.py`
+  - SHOWN: supported baseline complete, no non-canonical duplicate top-level
+    directories, and no suspicious top-level files.
+
+Remaining risk:
+- HIGH: this changes financial promotion-gate eligibility and resets displayed
+  qualified progress from `7/10` to `0/10`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `7ab11da59`.
+- Accepted decisions: require matching provenance on both trade legs, reset
+  qualified progress to zero, and preserve the seven raw round trips as
+  diagnostic all-history data.
+
+## 2026-06-06T03:47:43Z - Refresh Collector and Correct Window PnL Attribution
+
+Active role: `ENGINEER`
+
+Objective: reload the accepted qualified-progress semantics in the managed
+collector and prevent lifetime realized PnL from being labeled as current
+campaign-window PnL.
+
+What was found:
+- SHOWN: the daily collector was healthy but had started before commit
+  `7ab11da59`; its persisted monitor snapshot still displayed raw `7/10`
+  promotion progress.
+- SHOWN: the collector was idle after the completed 2026-06-06 UTC campaign.
+- SHOWN: a read-only refreshed monitor snapshot correctly loaded qualified
+  `0/10` progress but reported the lifetime position realized PnL of `$36.52`
+  as `current_window_realized_pnl` despite `fills_observed=0`.
+- SHOWN: `_result_realized_pnl()` fell back to lifetime position/equity totals
+  when no campaign delta existed.
+
+What changed:
+- Requested a graceful managed stop and waited for PID `7178` to clear.
+- Restarted the daily loop with the recorded parameters:
+  `sma_200_trend`, `BTC/USDT`, Coinbase, `public_ohlcv_1d`, 20-second strategy
+  runtime, and 300-second polling.
+- Verified replacement PID `23879` is alive and idle without rerunning today's
+  campaign.
+- Changed current-window PnL reporting to use only
+  `net_realized_pnl_delta`.
+- When no explicit delta exists, the monitor now returns
+  `current_window_realized_pnl=null`,
+  `current_window_realized_pnl_known=false`, and source `unavailable`.
+- Lifetime position and equity realized PnL remain separately visible.
+- Updated the Golden Path and added an idle-monitor regression test.
+
+Why this change:
+- A long-running process must reload accepted code before operator output can
+  reflect the new evidence policy.
+- Lifetime totals are not valid substitutes for a campaign-window delta.
+- Returning an explicit unknown is safer than displaying a precise but
+  misattributed financial value.
+
+Expected outcome:
+- The next daily campaign and monitor process use qualified `0/10` promotion
+  progress.
+- Idle snapshots no longer imply that historical PnL was earned in the current
+  window.
+- Operators still retain lifetime PnL context in dedicated total fields.
+
+Verification:
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: PID `23879`, `status=idle`, `pid_alive=true`,
+    `signal_source=public_ohlcv_1d`, and no duplicate 2026-06-06 campaign.
+- `./.venv/bin/python scripts/run_paper_sim_monitor.py --once --no-desktop-notify`
+  - SHOWN before the reporting patch: qualified `0/10` progress loaded; stale
+    lifetime PnL attribution reproduced.
+- `./.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py tests/test_dashboard_home_digest.py tests/test_dashboard_page_runtime.py`
+  - SHOWN: `51 passed in 1.81s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py tests/test_dashboard_home_digest.py tests/test_dashboard_page_runtime.py tests/test_paper_strategy_evidence_service.py tests/test_run_paper_strategy_evidence_collector.py`
+  - SHOWN: `82 passed in 2.03s`.
+- `./.venv/bin/python -c "...collect_once..."`
+  - SHOWN: idle `current_window_realized_pnl=null`,
+    `current_window_realized_pnl_known=false`, source `unavailable`.
+  - SHOWN: position lifetime total remains `$36.52320704250005`, equity
+    lifetime total remains `-$1014.3944812741194`, and qualified promotion
+    progress remains `0/10`.
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2111 passed, 33 skipped, 13 warnings in 375.81s`.
+- `./.venv/bin/python scripts/run_paper_sim_monitor.py --once --no-desktop-notify`
+  - SHOWN: persisted snapshot refreshed with idle window PnL
+    `null/unavailable`, qualified `0/10` progress, and collector PID `23879`
+    alive.
+
+Remaining risk:
+- HIGH: this changes financial operator-reporting semantics and restarts a
+  managed background job.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `0003bd71c`.
+- Accepted decision: use `null/unavailable` for current-window realized PnL
+  when no explicit campaign delta exists while preserving lifetime totals.
+
+## 2026-06-06T09:56:25Z - Unify Paper Evidence Collector Entrypoints
+
+Active role: `ENGINEER`
+
+Objective: ensure every supported operator entrypoint starts, stops, or
+inspects the same managed paper evidence collector implementation.
+
+What was found:
+- SHOWN: the Makefile routed its three paper evidence targets through
+  `scripts/data/run_paper_strategy_evidence_collector.py`.
+- SHOWN: that nested script contained a separate one-shot collector CLI and
+  did not expose the canonical daily-loop, polling, maximum-loop, or session
+  strategy options.
+- SHOWN: the root `scripts/run_paper_strategy_evidence_collector.py` is the
+  entrypoint used by the dashboard, operator documentation, tests, and active
+  daily collector.
+- SHOWN: running the Makefile path could therefore start a campaign with
+  behavior different from the documented and monitored campaign.
+
+What changed:
+- Replaced the nested collector implementation with a compatibility delegate
+  to the root collector's `main()` function.
+- Routed the Makefile collect, status, and stop targets directly through the
+  root canonical collector.
+- Documented the root collector as authoritative in `scripts/SCRIPTS.md`.
+- Added regression tests that prevent a second parser from returning in the
+  compatibility path, lock the Makefile to the canonical path, and verify the
+  compatibility path exposes canonical daily-loop and session options.
+
+Why this change:
+- Keeping one collector implementation prevents background-job and evidence
+  policy drift between operator entrypoints.
+- A compatibility delegate preserves direct callers of the historical nested
+  path without maintaining duplicate behavior.
+- Routing Make directly to the canonical path makes the supported operator
+  workflow explicit.
+
+Expected outcome:
+- Make, dashboard, documentation, direct root invocation, and the legacy
+  nested path all execute the same collector behavior.
+- Future collector options and evidence semantics have one implementation
+  point.
+- Existing callers of the nested path remain functional.
+
+Verification:
+- Initial targeted command included nonexistent
+  `tests/test_validate_script_paths.py`.
+  - SHOWN: pytest stopped before collection with `no tests ran`; this was a
+    command-path mistake, not a code failure.
+- `./.venv/bin/python -m pytest -q tests/test_bootstrap_helper_adoption.py tests/test_run_paper_strategy_evidence_collector.py tests/test_dashboard_operator_service.py`
+  - SHOWN: `35 passed in 0.78s`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `make -n collect-paper-strategy-evidence status-paper-strategy-evidence stop-paper-strategy-evidence`
+  - SHOWN: all three commands use
+    `scripts/run_paper_strategy_evidence_collector.py`.
+- `scripts/data/run_paper_strategy_evidence_collector.py --help`
+  - SHOWN: exits successfully and includes `--daily-loop` and
+    `--session-strategy-id`.
+- `git diff --check`
+  - SHOWN: clean before the work-log entry.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2113 passed, 33 skipped, 13 warnings in 387.96s`.
+
+Remaining risk:
+- HIGH: this changes supported entrypoints for a managed background financial
+  evidence job.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `b9c126656`.
+- Accepted decision: retain the nested script only as a compatibility delegate
+  and route supported Makefile operations through the canonical root
+  collector.
+
+## 2026-06-06T10:14:57Z - Open Current Master Integration Review
+
+Active role: `AUDITOR`
+
+Objective: replace the stale conflict-heavy master integration plan with a
+current, reviewable path from `review-stabilized` to `master`.
+
+What was found:
+- SHOWN: `origin/master...origin/review-stabilized` is `0 / 19`.
+- SHOWN: `origin/master` is an ancestor of `origin/review-stabilized`.
+- SHOWN: the 2026-05-25 plan describing 25 merge conflicts no longer applies
+  to the current branch tips.
+- SHOWN: no open pull request already targeted `review-stabilized` into
+  `master`.
+- SHOWN: the aggregate change contains 30 files, 2,770 insertions, and 176
+  deletions across 19 accepted commits.
+
+What changed:
+- Opened draft PR #49 from `review-stabilized` to `master`.
+- Updated `REMAINING_TASKS.md` and the next-actions checkpoint with the current
+  ancestry, PR, and review requirements.
+- Retired the stale 25-conflict instructions from the active task index.
+- Kept the exact `0 / 19` divergence as timestamped audit evidence here while
+  using non-self-staling ancestry language in active task documents.
+
+Why this change:
+- Master integration is the highest-leverage structural task because accepted
+  work is not canonical until it reaches `master`.
+- Direct ancestry means a new conflict-resolution branch would add risk and
+  complexity without solving a current problem.
+- A draft PR preserves required independent review for the aggregate
+  financial and background-job changes.
+
+Expected outcome:
+- Reviewers evaluate one current, conflict-free integration diff.
+- The canonical branch can advance without reviving obsolete integration
+  branches or manual conflict resolutions.
+- No merge occurs until PR checks and aggregate independent review pass.
+
+Verification:
+- `git rev-list --left-right --count origin/master...origin/review-stabilized`
+  - SHOWN: `0 19`.
+- `git merge-base --is-ancestor origin/master origin/review-stabilized`
+  - SHOWN: exit `0`.
+- `git diff --check origin/master..origin/review-stabilized`
+  - SHOWN: clean.
+- `gh pr list --state open --head review-stabilized --base master`
+  - SHOWN: no existing PR before creation.
+- GitHub connector PR creation
+  - SHOWN: failed with `403 Resource not accessible by integration`; no PR was
+    created by that attempt.
+- `gh pr create --draft --base master --head review-stabilized ...`
+  - SHOWN: created
+    `https://github.com/Ddthomas415/CryptKeep/pull/49`.
+- Latest implementation-head full suite:
+  - SHOWN: `2113 passed, 33 skipped, 13 warnings in 387.96s`.
+
+Remaining risk:
+- HIGH: PR #49 aggregates financial promotion-gate behavior, strategy
+  baselines, monitoring semantics, and managed collector entrypoints.
+- SHOWN: all eight GitHub checks passed on reviewed head `7e9d9cf34`,
+  including CI sanity, CI validate, macOS and Windows builds, governance
+  smoke, script-path integrity, and GitGuardian.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 for PR #49 at head `7e9d9cf34`.
+- Accepted decision: advance the conflict-free aggregate integration to
+  `master` under the documented operator/admin merge policy.

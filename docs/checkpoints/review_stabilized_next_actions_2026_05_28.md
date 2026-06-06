@@ -38,18 +38,20 @@ UNVERIFIED:
 
 ## Priority 1 - Master Integration
 
-Status: draft PR created, pending independent review and merge decision
+Status: PR #49 independently reviewed and accepted by the operator on
+2026-06-06; merge and post-merge verification pending
 
 Why it matters:
 - `review-stabilized` is clean and accepted, but `master` remains behind.
 - Audit work is not in the canonical production line until master receives it.
-- The local resolved integration branch is now preserved remotely, but `master`
-  is still unchanged.
+- The old conflict-resolution branch no longer reflects the current topology.
+- SHOWN on 2026-06-06: `origin/master` is an ancestor of
+  `origin/review-stabilized`, with no master-only commits.
+- SHOWN: PR #49 directly proposes `review-stabilized` into `master`.
 
 Next action:
-- Review PR #44 before any master update.
-- Re-run full suite or CI before merge.
-- Use `REMAINING_TASKS.md` as the source list for the 25 known conflict files.
+- Mark PR #49 ready and merge under the documented operator/admin policy.
+- Verify `origin/master` reaches the accepted `review-stabilized` head.
 
 Risk:
 - HIGH: integration touches live execution, paper execution, queues, dashboard
@@ -183,18 +185,48 @@ Risk:
 
 ## Priority 7 - Strategy Performance Decision
 
-Status: pending manual review
+Status: baseline populated; current paper performance is machine-blocking
 
 Why it matters:
 - `manual_review_required=true` now persists until observed win rate and average
   win/loss are compared against backtest expectations.
 - Paper gate progress should not be confused with strategy profitability.
+- SHOWN: the 2026-06-05 baseline audit found no usable machine-readable
+  backtest baseline in the visible repo state.
+- SHOWN: the committed generic daily sample produced no closed trades for
+  `sma_200_trend`.
+- SHOWN: the local Coinbase snapshot produced no trades and is not a committed
+  reproducible baseline artifact.
+- SHOWN: the deterministic SMA-200 round-trip fixture produced one closed trade
+  but is synthetic CI mechanics, not a profitability expectation source.
+- SHOWN: a 2026-06-04 candidate baseline was generated with Coinbase `BTC/USD`
+  historical daily bars while preserving `BTC/USDT` as the strategy/report
+  symbol.
+- SHOWN: that candidate produced `31` closed trades and `baseline_ready=true`.
+- SHOWN: raw-dollar average win/loss values were not comparable to paper sizing.
+- SHOWN: the normalized replacement uses net PnL divided by entry notional and
+  preserves the same `31` closed trades.
+- SHOWN: the normalized baseline and disclosed Coinbase `BTC/USD` data basis
+  were independently accepted and populated.
+- SHOWN: current paper comparison passes average winning return but blocks on
+  win rate and average losing return drift.
+- SHOWN: the apparent `7/10` progress mixed unstamped legacy fills with
+  latest-window public provenance. None of the seven raw round trips has
+  matching provenance on both entry and exit.
 
 Next action:
-- Write a strategy performance decision after comparing paper-history metrics
-  against backtest expectations.
-- Decide whether current underperformance is acceptable variance or structural
-  weakness.
+- Collect 10 provenance-qualified round trips without changing the accepted
+  baseline or tolerance. The qualified counter starts at zero; the seven raw
+  journal round trips remain diagnostic history.
+- Treat the prior win-rate and exit-loss comparison as unqualified until enough
+  matched daily-public round trips exist.
+- After the paper gate reaches 10 round trips, write the strategy performance
+  decision using the machine comparison and exit-path investigation.
+
+Reference:
+- `docs/checkpoints/es_daily_trend_backtest_baseline_audit_2026_06_05.md`
+- `docs/checkpoints/es_daily_trend_backtest_baseline_candidate_2026_06_04.md`
+- `docs/checkpoints/es_daily_trend_normalized_baseline_candidate_2026_06_04.md`
 
 Risk:
 - HIGH: financial strategy evaluation.
@@ -252,7 +284,7 @@ Risk:
 
 ## Priority 11 - Higher-Turnover Daily/Weekly Strategy Plan
 
-Status: pending strategy design
+Status: implementation-proof-ready as of 2026-06-05
 
 Why it matters:
 - `sma_200_trend` is a slow-turnover daily trend strategy. It validates the
@@ -262,16 +294,18 @@ Why it matters:
   paper evidence before any promotion decision.
 
 Next action:
-- Write a dedicated paper-only strategy plan for a daily/weekly income
-  candidate.
-- Define candidate strategy, timeframe, expected turnover, hold period, risk
-  cap, evidence gate, backtest baseline, and isolation rules.
-- Prefer `ema_cross` if the objective is faster evidence accumulation.
-- Prefer `breakout_donchian` if the objective is to test the strongest current
-  synthetic leaderboard candidate.
+- Follow `docs/checkpoints/ema_cross_challenger_plan_2026_06_05.md`.
+- Start with the isolated Stage 0 one-shot proof for `ema_cross_default` using
+  a separate `CBP_STATE_DIR`.
+- Do not start a persistent challenger daily loop until Stage 0 proves clean
+  startup, status, artifact routing, and state isolation.
+- Keep `breakout_donchian` as the next challenger candidate if the objective
+  shifts from faster evidence accumulation to testing the strongest synthetic
+  leaderboard strategy.
 
 Risk:
 - HIGH: financial strategy selection and future promotion behavior.
+- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
 
 ## Priority 12 - Short-Market Strategy Research
 
