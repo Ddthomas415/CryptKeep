@@ -2404,3 +2404,78 @@ Remaining risk:
   2026-06-06 after commit `4651680f5`.
 - Remaining action: investigate whether the average-loss drift reflects genuine
   paper strategy behavior or mixed historical evidence attribution.
+
+## 2026-06-06T02:49:14Z - Qualify Paper Promotion History by Fill Provenance
+
+Active role: `ENGINEER`
+
+Objective: prevent unstamped or incompatible legacy paper fills from advancing
+the `es_daily_trend_v1` paper promotion gate.
+
+What was found:
+- SHOWN: the journal contained `14` `sma_200_trend` fills and `7` raw closed
+  trades.
+- SHOWN: six raw round trips closed within minutes despite the configured daily
+  strategy holding horizon.
+- SHOWN: only the 2026-05-26 exit fill carried explicit `public_ohlcv`, `1d`,
+  Coinbase, `BTC/USDT`, non-sample provenance.
+- SHOWN: no raw round trip had matching provenance on both entry and exit.
+- SHOWN: latest-window provenance health previously allowed those older
+  unstamped journal fills to supply the separate round-trip and expectancy
+  thresholds.
+
+What changed:
+- Added `services/control/paper_evidence_qualification.py`.
+- JSONL fill records now identify provenance-qualified order IDs; only complete
+  entry-to-exit cycles are selected.
+- The trade journal supplies immutable price, quantity, and fee data only for
+  those selected order IDs.
+- The machine gate and paper monitor progress use qualified counts and metrics.
+- Raw journal totals remain visible as `paper_history.all_history`,
+  `all_history_fills`, and `all_history_closed_trades`.
+- Updated evidence-authority, operator, decision-framework, strategy, and
+  checkpoint documentation.
+
+Why this change:
+- Current collector health cannot retroactively prove the source and timeframe
+  of historical trades.
+- Keeping raw history while excluding it from promotion is the smallest
+  fail-closed correction; no evidence or database rows are deleted.
+- A shared qualification service prevents the CLI gate and monitor summary from
+  reporting different progress.
+
+Expected outcome:
+- The canonical campaign reports `0/10` qualified round trips and `7` raw
+  all-history round trips.
+- Future trades count only when both legs explicitly match the configured
+  daily public-OHLCV contract.
+- Performance comparison remains blocked until qualified closed trades exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py`
+  - SHOWN: `38 passed in 0.64s`.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py tests/test_paper_sim_monitor.py tests/test_strategy_feedback.py`
+  - SHOWN: `55 passed in 0.84s`.
+- `./.venv/bin/python -m py_compile services/control/paper_evidence_qualification.py scripts/check_promotion_gates.py services/control/paper_promotion_progress.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: final post-edge-case run completed with `2110 passed, 33 skipped,
+    13 warnings in 369.22s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: `0/10` qualified round trips, `10` remaining.
+  - SHOWN: `14` raw all-history fills and `7` raw all-history round trips
+    remain visible.
+  - SHOWN: one provenance-qualified exit fill remains incomplete because its
+    entry leg is unstamped.
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python tools/repo_doctor.py`
+  - SHOWN: supported baseline complete, no non-canonical duplicate top-level
+    directories, and no suspicious top-level files.
+
+Remaining risk:
+- HIGH: this changes financial promotion-gate eligibility and resets displayed
+  qualified progress from `7/10` to `0/10`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Independent review must confirm the provenance contract, zero-qualified
+  reset, and preservation of raw history before acceptance.

@@ -24,10 +24,11 @@ authoritative for each promotion question.
 
 **Promotion use:** JSONL is authoritative for proving that required evidence logs
 exist, have valid schema, and carry market-data provenance. The promotion
-provenance gate evaluates the latest dated evidence window so fresh public-market
-evidence can supersede older unstamped records without deleting history. It is
-not the only paper fill source because older accepted paper fills may exist in
-the persisted trade journal before JSONL provenance coverage was complete.
+provenance gate evaluates the latest dated evidence window for current collector
+health. Separately, every fill used for round-trip or expectancy thresholds must
+carry the configured source, timeframe, venue, symbol, and explicit non-sample
+mode. Fresh latest-window provenance does not retroactively qualify older
+unstamped fills.
 
 The latest-window evidence-presence gate requires signal and session records on
 every completed campaign window. Order and fill records are required when either
@@ -50,10 +51,12 @@ unknown provenance from contaminating the promotion gate.
 - `services/analytics/strategy_feedback.py` — strategy-level paper-history summary
 - `scripts/check_promotion_gates.py` — paper-stage round-trip count, realized expectancy, and retirement expectancy reporting
 
-**Promotion use:** for paper-stage gates, realized fill count, completed round
-trips, and expectancy come from `trade_journal.sqlite` when a target-strategy row
-exists. `check_promotion_gates.py --json` exposes this under `paper_history` and
-keeps JSONL counts visible in gate details when the two surfaces disagree.
+**Promotion use:** JSONL first identifies the order IDs whose entry and exit
+fills both match the configured provenance contract. The journal then supplies
+the immutable prices, quantities, and fees for only those qualified order IDs.
+`check_promotion_gates.py --json` exposes qualified metrics under
+`paper_history`; unqualified persisted history remains visible under
+`paper_history.all_history` for diagnostics but cannot advance a promotion gate.
 
 ---
 
@@ -79,8 +82,9 @@ for backward compatibility. The canonical JSONL summary is in
 Use `scripts/check_promotion_gates.py --json` as the current promotion gate
 summary. Interpret the sources this way:
 
-1. `paper_history` answers how many target-strategy paper fills and round trips
-   exist, and what realized expectancy they produced.
+1. `paper_history` answers how many provenance-qualified target-strategy paper
+   fills and round trips exist, and what realized expectancy they produced.
+   `paper_history.all_history` preserves the unfiltered descriptive ledger.
 2. `schema` and `provenance` answer whether the JSONL evidence stream is complete
    and attributable to non-sample market data. `provenance`, session health, and
    evidence-log presence gates use the latest dated evidence window; kill-switch

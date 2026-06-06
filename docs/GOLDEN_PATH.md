@@ -79,8 +79,11 @@ See `docs/EVIDENCE_MODEL.md` for full explanation.
 ## Promotion gates
 
 Read by: `scripts/check_promotion_gates.py` from two canonical evidence surfaces:
-JSONL for latest-window schema/provenance/log completeness and `.cbp_state/data/trade_journal.sqlite`
-for paper fill count, completed round trips, and realized expectancy.
+JSONL for latest-window health and per-fill provenance qualification, then
+`.cbp_state/data/trade_journal.sqlite` for prices, fees, completed round trips,
+and realized expectancy restricted to those qualified order IDs. Raw journal
+history remains diagnostic and does not count when either trade leg lacks the
+configured provenance.
 
 Gates for paper → shadow promotion:
 - 30 calendar days of operation

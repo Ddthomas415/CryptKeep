@@ -208,13 +208,16 @@ Why it matters:
   were independently accepted and populated.
 - SHOWN: current paper comparison passes average winning return but blocks on
   win rate and average losing return drift.
+- SHOWN: the apparent `7/10` progress mixed unstamped legacy fills with
+  latest-window public provenance. None of the seven raw round trips has
+  matching provenance on both entry and exit.
 
 Next action:
-- Continue the paper campaign to 10 round trips without changing the accepted
-  baseline or tolerance.
-- Investigate why paper exits produce much smaller losses than the backtest
-  SMA-flat exit path; treat this as execution-semantic drift, not a reason to
-  weaken the gate.
+- Collect 10 provenance-qualified round trips without changing the accepted
+  baseline or tolerance. The qualified counter starts at zero; the seven raw
+  journal round trips remain diagnostic history.
+- Treat the prior win-rate and exit-loss comparison as unqualified until enough
+  matched daily-public round trips exist.
 - After the paper gate reaches 10 round trips, write the strategy performance
   decision using the machine comparison and exit-path investigation.
 

@@ -13,6 +13,7 @@ from services.control.promotion_thresholds import (
     PAPER_MIN_DAYS,
     PAPER_MIN_ROUND_TRIPS,
 )
+from services.control.paper_evidence_qualification import qualify_paper_history
 from services.control.retirement_checker import load_all_evidence
 from services.os.app_paths import data_dir
 
@@ -95,7 +96,20 @@ def load_paper_promotion_progress(
 
     ledger = load_strategy_feedback_ledger(symbol=symbol_filter)
     row = _feedback_row(ledger=dict(ledger or {}), target_strategy=resolved_target_strategy)
-    round_trips_recorded = int(row.get("closed_trades") or 0)
+    qualified = qualify_paper_history(
+        evidence_fills=[
+            dict(item)
+            for item in list(evidence.get("fill") or [])
+            if isinstance(item, dict)
+        ],
+        config=(
+            yaml.safe_load(DEFAULT_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+            if DEFAULT_CONFIG_PATH.exists()
+            else {}
+        ),
+        journal_path=str(ledger.get("journal_path") or ""),
+    )
+    round_trips_recorded = int(qualified.get("closed_trades") or 0)
     round_trips_remaining = max(0, PAPER_MIN_ROUND_TRIPS - round_trips_recorded)
     round_trips_state = _threshold_state(
         observed=round_trips_recorded,
@@ -127,7 +141,7 @@ def load_paper_promotion_progress(
     summary_text = (
         "Promotion threshold progress: "
         f"{days_recorded}/{PAPER_MIN_DAYS} days recorded ({days_remaining} remaining), "
-        f"{round_trips_recorded}/{PAPER_MIN_ROUND_TRIPS} round trips recorded "
+        f"{round_trips_recorded}/{PAPER_MIN_ROUND_TRIPS} qualified round trips recorded "
         f"({round_trips_remaining} remaining)."
     )
     if not blockers:
@@ -150,10 +164,13 @@ def load_paper_promotion_progress(
         "round_trips_state": round_trips_state,
         "thresholds_ready": not blockers,
         "blocking_thresholds": blockers,
-        "fills": int(row.get("fills") or 0),
-        "net_realized_pnl": row.get("net_realized_pnl"),
-        "expectancy_per_closed_trade": row.get("expectancy_per_closed_trade"),
-        "latest_fill_ts": row.get("latest_fill_ts"),
+        "fills": int(qualified.get("fills") or 0),
+        "net_realized_pnl": qualified.get("net_realized_pnl"),
+        "expectancy_per_closed_trade": qualified.get("expectancy_per_closed_trade"),
+        "latest_fill_ts": qualified.get("latest_fill_ts"),
+        "qualification": qualified.get("qualification"),
+        "all_history_fills": int(row.get("fills") or 0),
+        "all_history_round_trips": int(row.get("closed_trades") or 0),
         "ledger_status": str(ledger.get("status") or "missing"),
         "ledger_source": str(ledger.get("source") or "trade_journal_sqlite"),
         "journal_path": str(ledger.get("journal_path") or ""),

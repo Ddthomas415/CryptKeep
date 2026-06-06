@@ -139,6 +139,9 @@ The 10+ completed round-trip threshold validates the paper execution path. It do
 not prove profitability. Promotion review still requires an explicit comparison of
 observed win rate and average winning/losing trade returns against backtest
 expectations.
+Both legs of every counted round trip must explicitly match the strategy's
+`public_ohlcv`, `1d`, Coinbase, `BTC/USDT`, non-sample provenance contract.
+Unstamped legacy journal fills remain available for diagnosis but do not count.
 The machine gate reads that comparison baseline from
 `configs/strategies/es_daily_trend_v1.yaml` at
 `promotion.paper.backtest_expectations`. The configured metric basis is

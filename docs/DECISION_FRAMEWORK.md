@@ -131,6 +131,9 @@ The most expensive mistake is going live before the evidence warrants it. Use th
 - Kill switch tested
 
 The 10+ paper threshold is a path-validation threshold, not a profitability proof.
+Each counted round trip must have both entry and exit fills explicitly attributed
+to the configured non-sample market-data source, timeframe, venue, and symbol.
+Latest-window collector health cannot qualify older unstamped fills.
 The machine gate must still surface any manual review needed to compare observed
 win rate and average winning/losing trade returns against backtest expectations.
 For `es_daily_trend_v1`, the machine-readable comparison baseline lives in
