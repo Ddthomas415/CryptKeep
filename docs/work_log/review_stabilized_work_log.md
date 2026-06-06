@@ -2476,6 +2476,9 @@ Verification:
 Remaining risk:
 - HIGH: this changes financial promotion-gate eligibility and resets displayed
   qualified progress from `7/10` to `0/10`.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Independent review must confirm the provenance contract, zero-qualified
-  reset, and preservation of raw history before acceptance.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `7ab11da59`.
+- Accepted decisions: require matching provenance on both trade legs, reset
+  qualified progress to zero, and preserve the seven raw round trips as
+  diagnostic all-history data.
