@@ -2329,7 +2329,11 @@ Verification:
 Remaining risk:
 - HIGH: this changes financial analytics and promotion-gate comparison
   semantics.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review must accept or reject the normalized
-  metric basis and the Coinbase `BTC/USD` data basis before config values are
-  populated.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `0e81e0aad`.
+- Accepted decisions: `net_return_pct` comparison basis, disclosed Coinbase
+  `BTC/USD` historical source for the `BTC/USDT` strategy comparison, and
+  unchanged `25%` relative tolerance.
+- Remaining action: populate the accepted normalized baseline values and verify
+  the resulting gate output.

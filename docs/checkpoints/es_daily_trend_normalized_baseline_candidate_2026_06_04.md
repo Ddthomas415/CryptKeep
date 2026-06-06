@@ -2,11 +2,19 @@
 
 ## Status
 
-Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`
+Acceptance state: `ACCEPTED`
 
 This candidate replaces raw-dollar average win/loss values with net trade
 return percentages. It has not been copied into
 `configs/strategies/es_daily_trend_v1.yaml`.
+
+Acceptance reference: independently reviewed and accepted by the operator on
+2026-06-06 after commit `0e81e0aad`, including:
+
+- Coinbase `BTC/USD` as the disclosed historical data basis for the
+  `BTC/USDT` strategy comparison.
+- `net_return_pct` as the sizing-independent comparison basis.
+- the existing `25%` relative tolerance.
 
 ## Reason For Replacement
 
@@ -72,14 +80,12 @@ As of the verification run:
 
 These figures remain thin evidence and are not a profitability endorsement.
 
-## Remaining Review Questions
+## Accepted Review Decisions
 
-- Is Coinbase `BTC/USD` acceptable as the historical data source for the
-  `BTC/USDT` paper strategy?
-- Is entry-notional net return percentage the accepted basis for the paper
-  promotion comparison?
-- Should the current `25%` relative tolerance remain unchanged for the
-  normalized metrics?
+- Coinbase `BTC/USD` is accepted as the historical source with the basis
+  difference retained in the source label.
+- Entry-notional net return percentage is accepted as the comparison basis.
+- The `25%` relative tolerance remains unchanged.
 
-Only after independent acceptance should the config candidate be copied into
-the strategy YAML.
+The next governed step is to copy the accepted config candidate into the
+strategy YAML and verify the resulting gate output.
