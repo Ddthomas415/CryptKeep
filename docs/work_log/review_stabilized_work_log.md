@@ -2662,6 +2662,8 @@ What changed:
 - Updated `REMAINING_TASKS.md` and the next-actions checkpoint with the current
   ancestry, PR, and review requirements.
 - Retired the stale 25-conflict instructions from the active task index.
+- Kept the exact `0 / 19` divergence as timestamped audit evidence here while
+  using non-self-staling ancestry language in active task documents.
 
 Why this change:
 - Master integration is the highest-leverage structural task because accepted

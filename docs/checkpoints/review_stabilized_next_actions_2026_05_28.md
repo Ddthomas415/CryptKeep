@@ -46,7 +46,7 @@ Why it matters:
 - Audit work is not in the canonical production line until master receives it.
 - The old conflict-resolution branch no longer reflects the current topology.
 - SHOWN on 2026-06-06: `origin/master` is an ancestor of
-  `origin/review-stabilized`, with divergence `0 / 19`.
+  `origin/review-stabilized`, with no master-only commits.
 - SHOWN: PR #49 directly proposes `review-stabilized` into `master`.
 
 Next action:

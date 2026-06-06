@@ -21,8 +21,8 @@ Strategy-evaluation work is tracked separately:
 master update.
 
 SHOWN on 2026-06-06:
-- `origin/master...origin/review-stabilized = 0 / 19`
 - `origin/master` is an ancestor of `origin/review-stabilized`
+- `origin/master` has no master-only commits relative to the review branch
 - the prior 25-file conflict plan is obsolete for the current branch tips
 - the aggregate diff is clean under `git diff --check`
 - the latest full suite reports `2113 passed, 33 skipped, 13 warnings`
