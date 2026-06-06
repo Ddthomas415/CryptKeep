@@ -2850,6 +2850,9 @@ Verification:
   `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
   - SHOWN: PID `23879` alive, status `idle`, reason
     `waiting_for_next_day`, with the 2026-06-06 evidence cycle complete.
+- GitHub PR #51 checks on implementation commit `7a9c94e78`:
+  - SHOWN: macOS build, Windows build, CI sanity, CI validate, governance
+    smoke, script-path integrity, and GitGuardian passed.
 
 Remaining risk:
 - HIGH: this changes financial promotion-gate evidence selection and
@@ -2857,4 +2860,7 @@ Remaining risk:
 - UNVERIFIED: no real shadow campaign exists yet, so production evidence
   accumulation after an actual paper-to-shadow transition remains unproven.
 - UNVERIFIED: the deliberate shadow restart/recovery drill has not been run.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-06 after implementation commit `7a9c94e78` and all PR
+  #51 checks passed.
