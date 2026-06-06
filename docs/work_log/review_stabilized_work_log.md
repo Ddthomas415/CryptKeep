@@ -2700,6 +2700,11 @@ Verification:
 Remaining risk:
 - HIGH: PR #49 aggregates financial promotion-gate behavior, strategy
   baselines, monitoring semantics, and managed collector entrypoints.
-- UNVERIFIED: GitHub required checks and aggregate reviewer decision for PR
-  #49.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- SHOWN: all eight GitHub checks passed on reviewed head `7e9d9cf34`,
+  including CI sanity, CI validate, macOS and Windows builds, governance
+  smoke, script-path integrity, and GitGuardian.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 for PR #49 at head `7e9d9cf34`.
+- Accepted decision: advance the conflict-free aggregate integration to
+  `master` under the documented operator/admin merge policy.

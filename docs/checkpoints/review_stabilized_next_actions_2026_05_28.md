@@ -38,8 +38,8 @@ UNVERIFIED:
 
 ## Priority 1 - Master Integration
 
-Status: current draft PR #49 created, pending independent review and merge
-decision
+Status: PR #49 independently reviewed and accepted by the operator on
+2026-06-06; merge and post-merge verification pending
 
 Why it matters:
 - `review-stabilized` is clean and accepted, but `master` remains behind.
@@ -50,9 +50,7 @@ Why it matters:
 - SHOWN: PR #49 directly proposes `review-stabilized` into `master`.
 
 Next action:
-- Independently review PR #49 before any master update.
-- Confirm required GitHub checks pass on the current PR head.
-- Merge only after aggregate integration acceptance.
+- Mark PR #49 ready and merge under the documented operator/admin policy.
 - Verify `origin/master` reaches the accepted `review-stabilized` head.
 
 Risk:
