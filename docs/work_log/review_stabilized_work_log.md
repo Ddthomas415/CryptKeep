@@ -2639,3 +2639,65 @@ Remaining risk:
 - Accepted decision: retain the nested script only as a compatibility delegate
   and route supported Makefile operations through the canonical root
   collector.
+
+## 2026-06-06T10:14:57Z - Open Current Master Integration Review
+
+Active role: `AUDITOR`
+
+Objective: replace the stale conflict-heavy master integration plan with a
+current, reviewable path from `review-stabilized` to `master`.
+
+What was found:
+- SHOWN: `origin/master...origin/review-stabilized` is `0 / 19`.
+- SHOWN: `origin/master` is an ancestor of `origin/review-stabilized`.
+- SHOWN: the 2026-05-25 plan describing 25 merge conflicts no longer applies
+  to the current branch tips.
+- SHOWN: no open pull request already targeted `review-stabilized` into
+  `master`.
+- SHOWN: the aggregate change contains 30 files, 2,770 insertions, and 176
+  deletions across 19 accepted commits.
+
+What changed:
+- Opened draft PR #49 from `review-stabilized` to `master`.
+- Updated `REMAINING_TASKS.md` and the next-actions checkpoint with the current
+  ancestry, PR, and review requirements.
+- Retired the stale 25-conflict instructions from the active task index.
+
+Why this change:
+- Master integration is the highest-leverage structural task because accepted
+  work is not canonical until it reaches `master`.
+- Direct ancestry means a new conflict-resolution branch would add risk and
+  complexity without solving a current problem.
+- A draft PR preserves required independent review for the aggregate
+  financial and background-job changes.
+
+Expected outcome:
+- Reviewers evaluate one current, conflict-free integration diff.
+- The canonical branch can advance without reviving obsolete integration
+  branches or manual conflict resolutions.
+- No merge occurs until PR checks and aggregate independent review pass.
+
+Verification:
+- `git rev-list --left-right --count origin/master...origin/review-stabilized`
+  - SHOWN: `0 19`.
+- `git merge-base --is-ancestor origin/master origin/review-stabilized`
+  - SHOWN: exit `0`.
+- `git diff --check origin/master..origin/review-stabilized`
+  - SHOWN: clean.
+- `gh pr list --state open --head review-stabilized --base master`
+  - SHOWN: no existing PR before creation.
+- GitHub connector PR creation
+  - SHOWN: failed with `403 Resource not accessible by integration`; no PR was
+    created by that attempt.
+- `gh pr create --draft --base master --head review-stabilized ...`
+  - SHOWN: created
+    `https://github.com/Ddthomas415/CryptKeep/pull/49`.
+- Latest implementation-head full suite:
+  - SHOWN: `2113 passed, 33 skipped, 13 warnings in 387.96s`.
+
+Remaining risk:
+- HIGH: PR #49 aggregates financial promotion-gate behavior, strategy
+  baselines, monitoring semantics, and managed collector entrypoints.
+- UNVERIFIED: GitHub required checks and aggregate reviewer decision for PR
+  #49.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -38,18 +38,22 @@ UNVERIFIED:
 
 ## Priority 1 - Master Integration
 
-Status: draft PR created, pending independent review and merge decision
+Status: current draft PR #49 created, pending independent review and merge
+decision
 
 Why it matters:
 - `review-stabilized` is clean and accepted, but `master` remains behind.
 - Audit work is not in the canonical production line until master receives it.
-- The local resolved integration branch is now preserved remotely, but `master`
-  is still unchanged.
+- The old conflict-resolution branch no longer reflects the current topology.
+- SHOWN on 2026-06-06: `origin/master` is an ancestor of
+  `origin/review-stabilized`, with divergence `0 / 19`.
+- SHOWN: PR #49 directly proposes `review-stabilized` into `master`.
 
 Next action:
-- Review PR #44 before any master update.
-- Re-run full suite or CI before merge.
-- Use `REMAINING_TASKS.md` as the source list for the 25 known conflict files.
+- Independently review PR #49 before any master update.
+- Confirm required GitHub checks pass on the current PR head.
+- Merge only after aggregate integration acceptance.
+- Verify `origin/master` reaches the accepted `review-stabilized` head.
 
 Risk:
 - HIGH: integration touches live execution, paper execution, queues, dashboard
