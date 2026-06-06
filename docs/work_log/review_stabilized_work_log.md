@@ -2633,4 +2633,9 @@ Verification:
 Remaining risk:
 - HIGH: this changes supported entrypoints for a managed background financial
   evidence job.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `b9c126656`.
+- Accepted decision: retain the nested script only as a compatibility delegate
+  and route supported Makefile operations through the canonical root
+  collector.
