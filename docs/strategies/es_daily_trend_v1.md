@@ -164,6 +164,15 @@ the initial paper → shadow/sandbox review.
 - [ ] No unresolved reconciliation mismatches
 - [ ] Recovery rule exercised at least once (simulated restart with state validation)
 
+`scripts/check_promotion_gates.py --stage shadow --json` is a readiness query,
+not a stage transition. While the persisted `current_stage` is still `paper`,
+the shadow checklist reports `UNKNOWN` with
+`evidence_scope.status=not_started`; paper records are not treated as shadow
+proof. Once the strategy is promoted, only evidence carrying
+`_stage=shadow` and a timestamp on or after the persisted shadow `since_ts`
+counts. The recovery item remains unverified until an intentional shadow-stage
+restart and state-validation drill records `recovery_tested=true`.
+
 ### Capped live gate
 
 - [ ] 25% of intended position size only

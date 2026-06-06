@@ -101,6 +101,21 @@ The older 50+ round-trip target is retained as a stronger research-confidence fl
 larger live-capital decisions. It is not the paper → shadow/sandbox blocker for this
 slow-turnover daily strategy.
 
+Shadow readiness can be inspected before promotion:
+
+```bash
+./.venv/bin/python scripts/check_promotion_gates.py --stage shadow --json
+```
+
+The `--stage` option selects the gate report; it does not promote the strategy
+or relabel existing evidence. The report exposes both `stage` and
+`current_stage`. Until the persisted stage is `shadow`, all shadow gates remain
+unknown with `evidence_scope.status=not_started`. After promotion, only records
+explicitly stamped `_stage=shadow` and logged on or after that stage's
+`since_ts` count toward shadow gates, schema checks, provenance, slippage, and
+retirement checks. `provenance_all_time` remains diagnostic and does not make
+the shadow gate pass or fail.
+
 ## What is core vs optional
 
 **Core** (required for the paper trading loop):
