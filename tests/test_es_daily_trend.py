@@ -340,6 +340,12 @@ class TestConfigConformance:
         assert set(
             ("source", "win_rate", "avg_win_return_pct", "avg_loss_return_pct")
         ).issubset(expectations)
+        assert expectations["source"] == (
+            "public_ohlcv:coinbase:BTC/USDT:data=BTC/USD:1d:2018-01-01:2026-06-04"
+        )
+        assert expectations["win_rate"] == 0.22580645161290325
+        assert expectations["avg_win_return_pct"] == 78.71095396512578
+        assert expectations["avg_loss_return_pct"] == -4.0629558060999225
 
     def test_regime_trending_floor_above_chop_ceiling(self):
         """trending_floor must be strictly greater than chop_ceiling."""

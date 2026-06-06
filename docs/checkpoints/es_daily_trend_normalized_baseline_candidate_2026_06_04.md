@@ -5,8 +5,9 @@
 Acceptance state: `ACCEPTED`
 
 This candidate replaces raw-dollar average win/loss values with net trade
-return percentages. It has not been copied into
-`configs/strategies/es_daily_trend_v1.yaml`.
+return percentages. The accepted values were copied into
+`configs/strategies/es_daily_trend_v1.yaml` in the subsequent governed
+implementation stage.
 
 Acceptance reference: independently reviewed and accepted by the operator on
 2026-06-06 after commit `0e81e0aad`, including:
@@ -87,5 +88,21 @@ These figures remain thin evidence and are not a profitability endorsement.
 - Entry-notional net return percentage is accepted as the comparison basis.
 - The `25%` relative tolerance remains unchanged.
 
-The next governed step is to copy the accepted config candidate into the
-strategy YAML and verify the resulting gate output.
+The next governed step is to independently review the populated config and its
+resulting gate output.
+
+## Populated Gate Result
+
+After copying the accepted values into the strategy config:
+
+- SHOWN: comparison status is `machine_blocking`.
+- SHOWN: paper win rate `0.14285714285714285` is below the accepted range
+  `0.16935483870967744` to `0.28225806451612906`.
+- SHOWN: paper average winning return `93.63856474626441%` is within the
+  accepted range `59.033215473844336%` to `98.38869245640723%`.
+- SHOWN: paper average losing return `-0.34741823139579114%` is outside the
+  accepted range `-5.078694757624903%` to `-3.047216854574942%`.
+
+The smaller paper loss magnitude is financially favorable, but it also shows
+that paper exits differ materially from the backtest's SMA-flat exits. The gate
+correctly surfaces that drift instead of treating it as silent equivalence.

@@ -64,7 +64,7 @@ class TestGateOutput:
         assert failed["hint"] == "fix this"
         assert unknown["hint"] == "check this"
 
-    def test_json_output_surfaces_manual_review_for_backtest_expectations(self, tmp_path):
+    def test_json_output_surfaces_blocking_backtest_comparison(self, tmp_path):
         from scripts.check_promotion_gates import run_check
 
         result = run_check(stage_override="paper")
@@ -75,7 +75,8 @@ class TestGateOutput:
         assert review["required"] is True
         assert any(
             item["id"] == "win_rate_avg_win_loss_vs_backtest"
-            and item["status"] == "manual_required"
+            and item["status"] == "machine_blocking"
+            and "win_rate" in item["reason"]
             for item in review["outstanding_items"]
         )
 

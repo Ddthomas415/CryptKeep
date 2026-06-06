@@ -183,7 +183,7 @@ Risk:
 
 ## Priority 7 - Strategy Performance Decision
 
-Status: pending independent review of normalized historical baseline candidate
+Status: baseline populated; current paper performance is machine-blocking
 
 Why it matters:
 - `manual_review_required=true` now persists until observed win rate and average
@@ -204,16 +204,19 @@ Why it matters:
 - SHOWN: raw-dollar average win/loss values were not comparable to paper sizing.
 - SHOWN: the normalized replacement uses net PnL divided by entry notional and
   preserves the same `31` closed trades.
+- SHOWN: the normalized baseline and disclosed Coinbase `BTC/USD` data basis
+  were independently accepted and populated.
+- SHOWN: current paper comparison passes average winning return but blocks on
+  win rate and average losing return drift.
 
 Next action:
-- Independently review the normalized 2026-06-04 candidate and explicitly
-  accept or reject both the `BTC/USDT` versus `BTC/USD` data basis and the
-  `net_return_pct` metric basis.
-- If accepted, copy the candidate `backtest_expectations` into
-  `configs/strategies/es_daily_trend_v1.yaml`.
-- Keep `manual_review_required=true` until that baseline exists.
+- Continue the paper campaign to 10 round trips without changing the accepted
+  baseline or tolerance.
+- Investigate why paper exits produce much smaller losses than the backtest
+  SMA-flat exit path; treat this as execution-semantic drift, not a reason to
+  weaken the gate.
 - After the paper gate reaches 10 round trips, write the strategy performance
-  decision comparing observed paper metrics against the accepted baseline.
+  decision using the machine comparison and exit-path investigation.
 
 Reference:
 - `docs/checkpoints/es_daily_trend_backtest_baseline_audit_2026_06_05.md`

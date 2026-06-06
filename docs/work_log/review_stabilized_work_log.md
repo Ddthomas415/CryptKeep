@@ -2337,3 +2337,69 @@ Remaining risk:
   unchanged `25%` relative tolerance.
 - Remaining action: populate the accepted normalized baseline values and verify
   the resulting gate output.
+
+## 2026-06-06T02:31:19Z - Populate Accepted Normalized Baseline
+
+Active role: `ENGINEER`
+
+Objective: copy the independently accepted normalized backtest expectations
+into `es_daily_trend_v1` config and verify the resulting paper gate decision.
+
+What was found:
+- SHOWN: the normalized candidate was independently accepted with Coinbase
+  `BTC/USD` as the disclosed historical data basis, `net_return_pct` as the
+  comparison basis, and `25%` relative tolerance.
+- SHOWN: before population, the gate could only report missing baseline values.
+- SHOWN: after population, the gate can compare all three accepted metrics.
+
+What changed:
+- Populated `promotion.paper.backtest_expectations` in
+  `configs/strategies/es_daily_trend_v1.yaml` with:
+  - source
+    `public_ohlcv:coinbase:BTC/USDT:data=BTC/USD:1d:2018-01-01:2026-06-04`
+  - `win_rate=0.22580645161290325`
+  - `avg_win_return_pct=78.71095396512578`
+  - `avg_loss_return_pct=-4.0629558060999225`
+- Updated the strategy config contract test to pin the accepted values.
+- Updated the gate integration test to require a `machine_blocking` comparison
+  rather than a missing-baseline manual-review result.
+- Updated the normalized candidate and next-actions checkpoints with the
+  resulting metric-by-metric gate outcome.
+- No gate threshold, tolerance, campaign process, or paper-history artifact was
+  changed.
+
+Why this change:
+- The baseline values had completed independent review and were ready to become
+  the machine-readable comparison source.
+- Populating them converts an unresolved manual review into an explicit
+  reproducible performance decision.
+
+Expected outcome:
+- The gate reports exactly which paper metrics match or diverge from the
+  accepted backtest.
+- A favorable but materially different average-loss magnitude remains visible
+  as exit-behavior drift rather than being silently treated as equivalent.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_es_daily_trend.py tests/test_check_promotion_gates.py tests/test_es_daily_trend_backtest_baseline_runner.py`
+  - SHOWN: `75 passed in 0.86s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2107 passed, 33 skipped, 13 warnings in 369.07s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: paper campaign remains `7/10` round trips.
+  - SHOWN: comparison status is `machine_blocking`.
+  - SHOWN: win rate fails: observed `0.14285714285714285`, accepted range
+    `0.16935483870967744` to `0.28225806451612906`.
+  - SHOWN: average win return passes: observed `93.63856474626441%`, accepted
+    range `59.033215473844336%` to `98.38869245640723%`.
+  - SHOWN: average loss return fails: observed `-0.34741823139579114%`,
+    accepted range `-5.078694757624903%` to `-3.047216854574942%`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this populates financial promotion-gate policy values.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independent review should confirm the exact accepted
+  values and that average-loss drift should remain blocking pending exit-path
+  investigation.
