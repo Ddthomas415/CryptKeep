@@ -2560,6 +2560,8 @@ Verification:
 Remaining risk:
 - HIGH: this changes financial operator-reporting semantics and restarts a
   managed background job.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Independent review must confirm that `null` is the correct fail-closed value
-  when no campaign PnL delta is available.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `0003bd71c`.
+- Accepted decision: use `null/unavailable` for current-window realized PnL
+  when no explicit campaign delta exists while preserving lifetime totals.
