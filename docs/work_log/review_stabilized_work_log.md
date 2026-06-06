@@ -2482,3 +2482,84 @@ Remaining risk:
 - Accepted decisions: require matching provenance on both trade legs, reset
   qualified progress to zero, and preserve the seven raw round trips as
   diagnostic all-history data.
+
+## 2026-06-06T03:47:43Z - Refresh Collector and Correct Window PnL Attribution
+
+Active role: `ENGINEER`
+
+Objective: reload the accepted qualified-progress semantics in the managed
+collector and prevent lifetime realized PnL from being labeled as current
+campaign-window PnL.
+
+What was found:
+- SHOWN: the daily collector was healthy but had started before commit
+  `7ab11da59`; its persisted monitor snapshot still displayed raw `7/10`
+  promotion progress.
+- SHOWN: the collector was idle after the completed 2026-06-06 UTC campaign.
+- SHOWN: a read-only refreshed monitor snapshot correctly loaded qualified
+  `0/10` progress but reported the lifetime position realized PnL of `$36.52`
+  as `current_window_realized_pnl` despite `fills_observed=0`.
+- SHOWN: `_result_realized_pnl()` fell back to lifetime position/equity totals
+  when no campaign delta existed.
+
+What changed:
+- Requested a graceful managed stop and waited for PID `7178` to clear.
+- Restarted the daily loop with the recorded parameters:
+  `sma_200_trend`, `BTC/USDT`, Coinbase, `public_ohlcv_1d`, 20-second strategy
+  runtime, and 300-second polling.
+- Verified replacement PID `23879` is alive and idle without rerunning today's
+  campaign.
+- Changed current-window PnL reporting to use only
+  `net_realized_pnl_delta`.
+- When no explicit delta exists, the monitor now returns
+  `current_window_realized_pnl=null`,
+  `current_window_realized_pnl_known=false`, and source `unavailable`.
+- Lifetime position and equity realized PnL remain separately visible.
+- Updated the Golden Path and added an idle-monitor regression test.
+
+Why this change:
+- A long-running process must reload accepted code before operator output can
+  reflect the new evidence policy.
+- Lifetime totals are not valid substitutes for a campaign-window delta.
+- Returning an explicit unknown is safer than displaying a precise but
+  misattributed financial value.
+
+Expected outcome:
+- The next daily campaign and monitor process use qualified `0/10` promotion
+  progress.
+- Idle snapshots no longer imply that historical PnL was earned in the current
+  window.
+- Operators still retain lifetime PnL context in dedicated total fields.
+
+Verification:
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: PID `23879`, `status=idle`, `pid_alive=true`,
+    `signal_source=public_ohlcv_1d`, and no duplicate 2026-06-06 campaign.
+- `./.venv/bin/python scripts/run_paper_sim_monitor.py --once --no-desktop-notify`
+  - SHOWN before the reporting patch: qualified `0/10` progress loaded; stale
+    lifetime PnL attribution reproduced.
+- `./.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py tests/test_dashboard_home_digest.py tests/test_dashboard_page_runtime.py`
+  - SHOWN: `51 passed in 1.81s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py tests/test_dashboard_home_digest.py tests/test_dashboard_page_runtime.py tests/test_paper_strategy_evidence_service.py tests/test_run_paper_strategy_evidence_collector.py`
+  - SHOWN: `82 passed in 2.03s`.
+- `./.venv/bin/python -c "...collect_once..."`
+  - SHOWN: idle `current_window_realized_pnl=null`,
+    `current_window_realized_pnl_known=false`, source `unavailable`.
+  - SHOWN: position lifetime total remains `$36.52320704250005`, equity
+    lifetime total remains `-$1014.3944812741194`, and qualified promotion
+    progress remains `0/10`.
+- `git diff --check`
+  - SHOWN: clean.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2111 passed, 33 skipped, 13 warnings in 375.81s`.
+- `./.venv/bin/python scripts/run_paper_sim_monitor.py --once --no-desktop-notify`
+  - SHOWN: persisted snapshot refreshed with idle window PnL
+    `null/unavailable`, qualified `0/10` progress, and collector PID `23879`
+    alive.
+
+Remaining risk:
+- HIGH: this changes financial operator-reporting semantics and restarts a
+  managed background job.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Independent review must confirm that `null` is the correct fail-closed value
+  when no campaign PnL delta is available.

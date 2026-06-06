@@ -372,14 +372,10 @@ def _result_round_trip_count(result: dict[str, Any]) -> int:
     return _safe_int(result.get("closed_trades_total"))
 
 
-def _result_realized_pnl(result: dict[str, Any], position: dict[str, Any], equity: dict[str, Any]) -> float:
+def _result_realized_pnl(result: dict[str, Any]) -> tuple[float | None, str]:
     if "net_realized_pnl_delta" in result:
-        return _safe_float(result.get("net_realized_pnl_delta"))
-    if "net_realized_pnl_total" in result:
-        return _safe_float(result.get("net_realized_pnl_total"))
-    if "realized_pnl" in position:
-        return _safe_float(position.get("realized_pnl"))
-    return _safe_float(equity.get("realized_pnl"))
+        return _safe_float(result.get("net_realized_pnl_delta")), "campaign_result_delta"
+    return None, "unavailable"
 
 
 def _promotion_progress_snapshot() -> dict[str, Any]:
@@ -449,7 +445,7 @@ def _summary_text(
     latest_fill: dict[str, Any],
     round_trips: int,
     fills: int,
-    current_window_realized_pnl: float,
+    current_window_realized_pnl: float | None,
     recommendation: str,
     promotion_progress: dict[str, Any] | None = None,
 ) -> str:
@@ -464,10 +460,15 @@ def _summary_text(
     if latest_fill_side:
         latest_fill_part = f"latest_fill={latest_fill_side}@{latest_fill_ts or 'unknown_ts'}"
     position_part = "flat" if qty == 0.0 else f"open qty={qty}"
+    current_window_pnl = (
+        f"{current_window_realized_pnl:.4f}"
+        if current_window_realized_pnl is not None
+        else "unavailable"
+    )
     text = (
         f"Paper sim monitor sees {strategy_label or 'unknown_strategy'} on {symbol or 'unknown_symbol'} "
         f"with campaign {status_label}; {position_part}; fills={fills}; "
-        f"round_trips={round_trips}; current_window_realized_pnl={current_window_realized_pnl:.4f}; {latest_fill_part}; "
+        f"round_trips={round_trips}; current_window_realized_pnl={current_window_pnl}; {latest_fill_part}; "
         f"recommendation={recommendation}."
     )
     progress_summary = str((promotion_progress or {}).get("summary_text") or "").strip()
@@ -535,7 +536,7 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
         _result_fill_count(result),
         _safe_int(paper_state.get("window_fill_count")),
     )
-    current_window_realized_pnl = _result_realized_pnl(result, position, latest_equity)
+    current_window_realized_pnl, current_window_realized_pnl_source = _result_realized_pnl(result)
     position_realized_pnl_total = _safe_float(position.get("realized_pnl"))
     equity_realized_pnl_total = _safe_float(latest_equity.get("realized_pnl"))
     unrealized_pnl = _safe_float(latest_equity.get("unrealized_pnl"))
@@ -569,6 +570,8 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
         "fills_observed": fills,
         "round_trips_observed": round_trips,
         "current_window_realized_pnl": current_window_realized_pnl,
+        "current_window_realized_pnl_known": current_window_realized_pnl is not None,
+        "current_window_realized_pnl_source": current_window_realized_pnl_source,
         "position_realized_pnl_total": position_realized_pnl_total,
         "equity_realized_pnl_total": equity_realized_pnl_total,
         "unrealized_pnl": unrealized_pnl,

@@ -157,6 +157,63 @@ def test_collect_once_reports_investigate_for_market_data_block(monkeypatch) -> 
     assert out["recommendation_reason"] == "market_data_blocked"
 
 
+def test_collect_once_does_not_label_lifetime_pnl_as_idle_window_pnl(monkeypatch) -> None:
+    monkeypatch.setattr(
+        svc,
+        "load_campaign_runtime_status",
+        lambda: {
+            "ok": True,
+            "status": "idle",
+            "reason": "waiting_for_next_day",
+            "symbol": "BTC/USDT",
+            "venue": "coinbase",
+            "current_strategy": "sma_200_trend",
+            "current_strategy_preset": "es_daily_trend_v1",
+            "results": [],
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "_configured_strategy_runner",
+        lambda: {
+            "strategy": "momentum",
+            "symbols": ["BTC/USD"],
+            "primary_symbol": "BTC/USD",
+            "signal_source": "synthetic_mid_ohlcv",
+            "venue": "coinbase",
+        },
+    )
+    monkeypatch.setattr(svc, "_strategy_runner_status", lambda: {"status": "stopped"})
+    monkeypatch.setattr(svc, "_paper_engine_status", lambda: {"status": "stopped"})
+    monkeypatch.setattr(
+        svc,
+        "_paper_state_snapshot_window",
+        lambda symbol, since_ts="", until_ts="": {
+            "position": {
+                "symbol": symbol,
+                "qty": 0.0,
+                "avg_price": 0.0,
+                "realized_pnl": 36.52,
+            },
+            "latest_order": {},
+            "latest_paper_fill": {},
+            "latest_equity": {"realized_pnl": -1014.39, "unrealized_pnl": 0.0},
+            "window_fill_count": 0,
+            "window_exit_fill_count": 0,
+        },
+    )
+    monkeypatch.setattr(svc, "_trade_journal_snapshot", lambda symbol, since_ts="", until_ts="": {})
+
+    out = svc.collect_once(svc.PaperSimMonitorCfg())
+
+    assert out["current_window_realized_pnl"] is None
+    assert out["current_window_realized_pnl_known"] is False
+    assert out["current_window_realized_pnl_source"] == "unavailable"
+    assert out["position_realized_pnl_total"] == 36.52
+    assert out["equity_realized_pnl_total"] == -1014.39
+    assert "current_window_realized_pnl=unavailable" in out["summary_text"]
+
+
 def test_collect_once_surfaces_persisting_evidence_phase_in_summary(monkeypatch) -> None:
     monkeypatch.setattr(
         svc,

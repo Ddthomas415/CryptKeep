@@ -44,6 +44,10 @@ JSONL evidence.
 
 The paper sim monitor is operator-facing only. It does not submit orders or mutate runtime state.
 It summarizes active strategy, fills, round trips, and recommendation state for the current managed campaign.
+`current_window_realized_pnl` is reported only when the campaign service
+provides an explicit window delta. When unavailable, it is `null` and the
+summary says `unavailable`; lifetime position and equity realized PnL remain in
+separate total fields.
 It also surfaces paper-stage promotion threshold progress (30 days / 10 round trips) so a local
 `recommendation=enough_evidence` event is not confused with full promotion readiness.
 Managed paper campaigns also auto-seed default paper-sim watches:
