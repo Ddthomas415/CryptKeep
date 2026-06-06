@@ -2,10 +2,14 @@
 
 ## Status
 
-Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`
+Acceptance state: `ACCEPTED_WITH_RISK`
 
-This is a candidate baseline report only. It has not been copied into
-`configs/strategies/es_daily_trend_v1.yaml`.
+This candidate and its runner were independently reviewed and accepted by the
+operator on 2026-06-05. It has not been copied into
+`configs/strategies/es_daily_trend_v1.yaml` because a later audit found that
+the gate compares raw dollar `avg_win` and `avg_loss`, while this candidate uses
+an all-in `$1,000` backtest sizing basis that is not directly comparable to the
+paper fill sizing.
 
 ## Command
 

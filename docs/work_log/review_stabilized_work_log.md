@@ -2246,4 +2246,9 @@ Verification:
 
 Remaining risk:
 - HIGH: financial backtest baseline tooling can influence later gate decisions.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by operator on
+  2026-06-05 after commit `23e2499a1`.
+- Remaining action: do not copy raw dollar `avg_win` and `avg_loss` into the
+  promotion config until their sizing basis is compatible with paper-history
+  metrics.
