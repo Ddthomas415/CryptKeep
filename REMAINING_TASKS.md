@@ -16,22 +16,19 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/strategy_signal_quality_plan_2026_05_22.md
 
 ## Master integration TODO
-`review-stabilized` is the current accepted audit/integration branch. Draft PR
-[#49](https://github.com/Ddthomas415/CryptKeep/pull/49) tracks the remaining
-master update.
+Master integration completed through
+[#49](https://github.com/Ddthomas415/CryptKeep/pull/49) on 2026-06-06.
 
 SHOWN on 2026-06-06:
-- `origin/master` is an ancestor of `origin/review-stabilized`
-- `origin/master` has no master-only commits relative to the review branch
-- the prior 25-file conflict plan is obsolete for the current branch tips
-- the aggregate diff is clean under `git diff --check`
-- the latest full suite reports `2113 passed, 33 skipped, 13 warnings`
+- PR #49 merged as `5ab9732a2`.
+- All eight GitHub checks passed before merge.
+- `origin/master...origin/review-stabilized = 0 / 0` after branch alignment.
+- The prior 25-file conflict plan is obsolete and closed.
 
 Next action:
-- Independently review PR #49 as a HIGH-risk aggregate integration
-- Confirm required GitHub checks pass on the current head
-- Merge only after the aggregate review is accepted
-- Verify `origin/master` reaches the accepted `review-stabilized` head
+- Keep new accepted work on focused branches or `review-stabilized`.
+- Integrate future batches through reviewed pull requests without allowing
+  `master` and the integration branch to accumulate avoidable divergence.
 
 ## Interpretation
 The critical path is:

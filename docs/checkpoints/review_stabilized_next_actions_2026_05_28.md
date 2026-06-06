@@ -38,8 +38,8 @@ UNVERIFIED:
 
 ## Priority 1 - Master Integration
 
-Status: PR #49 independently reviewed and accepted by the operator on
-2026-06-06; merge and post-merge verification pending
+Status: complete. PR #49 independently reviewed, accepted, and merged on
+2026-06-06 as `5ab9732a2`
 
 Why it matters:
 - `review-stabilized` is clean and accepted, but `master` remains behind.
@@ -50,12 +50,18 @@ Why it matters:
 - SHOWN: PR #49 directly proposes `review-stabilized` into `master`.
 
 Next action:
-- Mark PR #49 ready and merge under the documented operator/admin policy.
-- Verify `origin/master` reaches the accepted `review-stabilized` head.
+- Keep future integration batches focused and preserve branch alignment after
+  each accepted merge.
+
+Verification:
+- SHOWN: all eight GitHub checks passed on the accepted PR head.
+- SHOWN: PR #49 state is `MERGED`.
+- SHOWN: `origin/master...origin/review-stabilized = 0 / 0` after
+  fast-forwarding the integration branch to the merge commit.
 
 Risk:
-- HIGH: integration touches live execution, paper execution, queues, dashboard
-  settings, and tests.
+- CLOSED: the accepted aggregate is canonical on `master`; future changes
+  require their own review cycle.
 
 ## Priority 2 - Work Log Accuracy
 
