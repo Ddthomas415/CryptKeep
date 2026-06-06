@@ -270,6 +270,9 @@ def _paper_history_gate_summary(cfg: dict) -> dict:
         "win_rate": float(row.get("win_rate") or 0.0),
         "avg_win": float(row.get("avg_win") or 0.0),
         "avg_loss": float(row.get("avg_loss") or 0.0),
+        "avg_win_return_pct": float(row.get("avg_win_return_pct") or 0.0),
+        "avg_loss_return_pct": float(row.get("avg_loss_return_pct") or 0.0),
+        "expectancy_return_pct": float(row.get("expectancy_return_pct") or 0.0),
         "latest_fill_ts": row.get("latest_fill_ts"),
     }
 
@@ -817,13 +820,26 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
     if tolerance_pct is None:
         tolerance_pct = 25.0
 
-    metrics = ("win_rate", "avg_win", "avg_loss")
+    metric_basis = str(expectations.get("metric_basis") or "quote_pnl").strip().lower()
+    metrics = (
+        ("win_rate", "avg_win_return_pct", "avg_loss_return_pct")
+        if metric_basis == "net_return_pct"
+        else ("win_rate", "avg_win", "avg_loss")
+    )
+    comparison_label = (
+        "Observed win rate and average winning/losing trade returns within 25% of backtest expectations"
+        if metric_basis == "net_return_pct"
+        else "Observed win rate and avg win/loss within 25% of backtest expectations"
+    )
     observed = {
         "closed_trades": int(history.get("closed_trades") or 0),
         "fills": int(history.get("fills") or 0),
         "win_rate": history.get("win_rate"),
         "avg_win": history.get("avg_win"),
         "avg_loss": history.get("avg_loss"),
+        "avg_win_return_pct": history.get("avg_win_return_pct"),
+        "avg_loss_return_pct": history.get("avg_loss_return_pct"),
+        "expectancy_return_pct": history.get("expectancy_return_pct"),
         "net_realized_pnl": history.get("net_realized_pnl"),
         "expectancy_per_closed_trade": history.get("expectancy_per_closed_trade"),
     }
@@ -832,7 +848,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
     if missing:
         return {
             "id": "win_rate_avg_win_loss_vs_backtest",
-            "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
+            "label": comparison_label,
             "status": "manual_required",
             "reason": (
                 "No complete machine-readable backtest baseline is configured for "
@@ -840,6 +856,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
             ),
             "baseline": {
                 "source": expectations.get("source"),
+                "metric_basis": metric_basis,
                 "tolerance_pct": tolerance_pct,
                 "missing_metrics": missing,
             },
@@ -882,7 +899,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
     status = "machine_checked" if not failed else "machine_blocking"
     return {
         "id": "win_rate_avg_win_loss_vs_backtest",
-        "label": "Observed win rate and avg win/loss within 25% of backtest expectations",
+        "label": comparison_label,
         "status": status,
         "reason": (
             "Observed paper metrics are within configured backtest tolerance."
@@ -891,6 +908,7 @@ def _paper_backtest_expectation_item(paper_history: dict | None, cfg: dict) -> d
         ),
         "baseline": {
             "source": expectations.get("source"),
+            "metric_basis": metric_basis,
             "tolerance_pct": tolerance_pct,
             "metrics": expected_values,
         },
@@ -936,7 +954,7 @@ def _paper_manual_review_status(paper_history: dict | None, gates: list[dict], c
             if str(item.get("status") or "") in {"manual_required", "machine_blocking"}
         ],
         "summary": (
-            "Paper gate review required: observed win rate and avg win/loss must satisfy "
+            "Paper gate review required: observed win rate and average winning/losing trade metrics must satisfy "
             "configured backtest expectations before paper promotion."
             if required
             else "No manual paper-gate review items are outstanding."

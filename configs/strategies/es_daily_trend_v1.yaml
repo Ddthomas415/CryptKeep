@@ -108,9 +108,10 @@ promotion:
       # manual-review mode instead of inventing profitability expectations.
       source: null
       tolerance_pct: 25.0
+      metric_basis: net_return_pct
       win_rate: null
-      avg_win: null
-      avg_loss: null
+      avg_win_return_pct: null
+      avg_loss_return_pct: null
 
 # Evidence logging
 # All fields below must be populated in every log record.

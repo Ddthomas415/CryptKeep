@@ -6,8 +6,8 @@ Determine whether `configs/strategies/es_daily_trend_v1.yaml` can safely
 populate `promotion.paper.backtest_expectations` for:
 
 - `win_rate`
-- `avg_win`
-- `avg_loss`
+- `avg_win_return_pct`
+- `avg_loss_return_pct`
 
 These fields drive the paper gate's manual-review comparison. Filling them from
 weak or synthetic evidence would make the promotion gate look more objective
@@ -22,9 +22,12 @@ than it is.
 - SHOWN: observed paper-history metrics are:
   - `closed_trades=7`
   - `fills=14`
-  - `win_rate=0.2857142857142857`
+  - `win_rate=0.14285714285714285`
   - `avg_win=37.32868831567376`
   - `avg_loss=-0.2625865534513479`
+  - `avg_win_return_pct=93.63856474626441`
+  - `avg_loss_return_pct=-0.34741823139579114`
+  - `expectancy_return_pct=13.079150765412809`
   - `net_realized_pnl=35.75316899496567`
   - `expectancy_per_closed_trade=5.107595570709381`
 
@@ -41,7 +44,7 @@ than it is.
   - `closed_trades=0`
 
 Verdict: not usable. It does not produce closed trades, so it cannot provide
-`win_rate`, `avg_win`, or `avg_loss`.
+closed-trade comparison metrics.
 
 ### `.cbp_state/data/snapshots/ohlcv_coinbase_BTC_USDT_1d.json`
 
@@ -76,9 +79,10 @@ Do not populate `promotion.paper.backtest_expectations` yet.
 The correct state remains:
 
 - `source: null`
+- `metric_basis: net_return_pct`
 - `win_rate: null`
-- `avg_win: null`
-- `avg_loss: null`
+- `avg_win_return_pct: null`
+- `avg_loss_return_pct: null`
 
 This keeps `manual_review_required=true`, which is the correct gate behavior
 until an accepted closed-trade historical baseline exists.
@@ -142,12 +146,14 @@ symbol:
 - SHOWN: `baseline_ready=true`.
 - SHOWN: `closed_trades=31`.
 - SHOWN: `win_rate=0.22580645161290325`.
-- SHOWN: `avg_win=1881.5222600358036`.
-- SHOWN: `avg_loss=-198.91552614027037`.
+- SHOWN: `avg_win_return_pct=78.71095396512578`.
+- SHOWN: `avg_loss_return_pct=-4.0629558060999225`.
 
 Reference:
 
 - `docs/checkpoints/es_daily_trend_backtest_baseline_candidate_2026_06_04.md`
+- `docs/checkpoints/es_daily_trend_normalized_baseline_candidate_2026_06_04.md`
 
-This candidate is not yet accepted as config. The `BTC/USDT` strategy symbol
-versus `BTC/USD` data symbol basis difference requires independent review.
+The normalized candidate is not yet accepted as config. The `BTC/USDT`
+strategy symbol versus `BTC/USD` data symbol basis difference and the
+`net_return_pct` contract require independent review.

@@ -132,12 +132,14 @@ The most expensive mistake is going live before the evidence warrants it. Use th
 
 The 10+ paper threshold is a path-validation threshold, not a profitability proof.
 The machine gate must still surface any manual review needed to compare observed
-win rate and average win/loss against backtest expectations.
+win rate and average winning/losing trade returns against backtest expectations.
 For `es_daily_trend_v1`, the machine-readable comparison baseline lives in
 `configs/strategies/es_daily_trend_v1.yaml` under
-`promotion.paper.backtest_expectations`. Leave those fields unset until an
-accepted closed-trade backtest baseline exists; unset fields intentionally keep
-the paper gate in manual-review mode.
+`promotion.paper.backtest_expectations`. Its comparison basis is
+`net_return_pct`: net closed-trade PnL after allocated fees divided by entry
+notional. Leave those fields unset until an accepted closed-trade backtest
+baseline exists; unset fields intentionally keep the paper gate in
+manual-review mode.
 
 For larger live-capital decisions, keep a stronger research-confidence floor around 50+
 completed round trips. That higher bar should not block the first paper → shadow/sandbox

@@ -21,6 +21,8 @@ class ClosedTrade:
     qty: float
     pnl: float
     fees: float
+    net_pnl: float
+    return_pct: float
 
 def _f(x) -> float:
     try:
@@ -66,6 +68,9 @@ def fifo_pnl_from_fills(journal_fills: List[dict]) -> dict:
                 pnl = (px - lot.price) * close_qty
                 buy_fee_alloc = (lot.fee_remaining * (close_qty / lot_qty_before)) if lot_qty_before > 1e-12 else 0.0
                 sell_fee_alloc = fee * (close_qty / qty) if qty > 1e-12 else 0.0
+                allocated_fees = buy_fee_alloc + sell_fee_alloc
+                net_pnl = pnl - allocated_fees
+                entry_notional = lot.price * close_qty
                 gross_realized += pnl
                 closed.append(ClosedTrade(
                     symbol=sym,
@@ -76,7 +81,9 @@ def fifo_pnl_from_fills(journal_fills: List[dict]) -> dict:
                     exit_price=px,
                     qty=close_qty,
                     pnl=pnl,
-                    fees=buy_fee_alloc + sell_fee_alloc,
+                    fees=allocated_fees,
+                    net_pnl=net_pnl,
+                    return_pct=(100.0 * net_pnl / entry_notional) if entry_notional > 0.0 else 0.0,
                 ))
                 lot.qty -= close_qty
                 lot.fee_remaining = max(lot.fee_remaining - buy_fee_alloc, 0.0)
@@ -92,6 +99,23 @@ def fifo_pnl_from_fills(journal_fills: List[dict]) -> dict:
     win_rate = (wins / n_closed) if n_closed else 0.0
     avg_win = (sum(t.pnl for t in closed if t.pnl > 0) / wins) if wins else 0.0
     avg_loss = (sum(t.pnl for t in closed if t.pnl < 0) / losses) if losses else 0.0
+    net_wins = [t for t in closed if t.net_pnl > 0.0]
+    net_losses = [t for t in closed if t.net_pnl < 0.0]
+    avg_win_return_pct = (
+        sum(t.return_pct for t in net_wins) / len(net_wins)
+        if net_wins
+        else 0.0
+    )
+    avg_loss_return_pct = (
+        sum(t.return_pct for t in net_losses) / len(net_losses)
+        if net_losses
+        else 0.0
+    )
+    expectancy_return_pct = (
+        sum(t.return_pct for t in closed) / n_closed
+        if n_closed
+        else 0.0
+    )
     net_realized = gross_realized - total_fees
     # exposure: remaining lots market value unknown here; just report remaining qty
     remaining_by_symbol = {s: sum(l.qty for l in ls) for s, ls in lots.items() if ls}
@@ -107,6 +131,9 @@ def fifo_pnl_from_fills(journal_fills: List[dict]) -> dict:
             "net_realized_pnl": net_realized,
             "avg_win": avg_win,
             "avg_loss": avg_loss,
+            "avg_win_return_pct": avg_win_return_pct,
+            "avg_loss_return_pct": avg_loss_return_pct,
+            "expectancy_return_pct": expectancy_return_pct,
             "remaining_lots_qty_by_symbol": remaining_by_symbol,
         },
         "closed_trades": [t.__dict__ for t in closed],

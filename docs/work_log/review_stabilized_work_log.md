@@ -2252,3 +2252,84 @@ Remaining risk:
 - Remaining action: do not copy raw dollar `avg_win` and `avg_loss` into the
   promotion config until their sizing basis is compatible with paper-history
   metrics.
+
+## 2026-06-06T02:20:59Z - Normalize Paper Backtest Comparison Metrics
+
+Active role: `ENGINEER`
+
+Objective: make the paper promotion comparison sizing-independent by comparing
+closed-trade return percentages rather than raw dollar average win/loss values.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py` compared raw paper-history
+  `avg_win` and `avg_loss` dollars to raw backtest dollars.
+- SHOWN: the accepted candidate used all-in compounding from `$1,000`, while
+  paper history used small fixed quantities; those dollar values were not
+  comparable.
+- SHOWN: `journal_fills` contains entry price, quantity, and allocated fees, so
+  net return percentage can be computed per closed trade.
+- SHOWN: after fees, paper net win rate is `0.14285714285714285`, not the prior
+  gross-PnL-derived `0.2857142857142857`.
+
+What changed:
+- Added `net_pnl` and `return_pct` to FIFO closed-trade analytics.
+- Added `avg_win_return_pct`, `avg_loss_return_pct`, and
+  `expectancy_return_pct` to paper strategy feedback.
+- Updated paper gate history output to expose the normalized fields.
+- Added explicit `metric_basis: net_return_pct` support to the backtest
+  expectation comparison while retaining legacy raw-dollar behavior when no
+  metric basis is configured.
+- Updated `configs/strategies/es_daily_trend_v1.yaml` to declare the normalized
+  metric contract while leaving all baseline values null.
+- Updated the baseline runner to emit normalized config candidates.
+- Added
+  `docs/checkpoints/es_daily_trend_normalized_baseline_candidate_2026_06_04.md`.
+- Updated strategy, decision-framework, baseline-audit, next-actions, and
+  regression-test contracts.
+
+Why this change:
+- Win/loss dollars change with trade quantity and account size, so they cannot
+  support a coherent paper-versus-backtest comparison across different sizing
+  models.
+- Net return divided by entry notional is independent of quantity and includes
+  both entry and exit fees.
+- Keeping config values null prevents this implementation from silently
+  approving the normalized candidate.
+
+Expected outcome:
+- The gate compares like-for-like trade performance once a normalized baseline
+  is independently accepted and populated.
+- Until then, `manual_review_required=true` remains visible.
+- Paper win rate is based on net closed-trade outcomes after fees.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_journal_analytics.py tests/test_strategy_feedback.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_check_promotion_gates.py tests/test_es_daily_trend.py`
+  - SHOWN: `80 passed in 1.05s`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: gate remains `7/10` round trips and
+    `manual_review_required=true`.
+  - SHOWN: missing baseline fields are `win_rate`,
+    `avg_win_return_pct`, and `avg_loss_return_pct`.
+  - SHOWN: observed paper metrics include net win rate
+    `0.14285714285714285`, average win return `93.63856474626441%`,
+    average loss return `-0.34741823139579114%`, and expectancy return
+    `13.079150765412809%`.
+- `./.venv/bin/python scripts/research/run_es_daily_trend_backtest_baseline.py --venue coinbase --symbol BTC/USDT --data-symbol BTC/USD --timeframe 1d --since 2018-01-01 --until 2026-06-04 --page-limit 300 --max-pages 20 --min-closed-trades 3 --output /private/tmp/es_daily_trend_v1_normalized_baseline_candidate_20260604.json`
+  - SHOWN: `baseline_ready=true`, `rows=3077`, `closed_trades=31`,
+    `win_rate=0.22580645161290325`,
+    `avg_win_return_pct=78.71095396512578`, and
+    `avg_loss_return_pct=-4.0629558060999225`.
+- `./.venv/bin/python -m pytest -q tests/test_journal_analytics.py tests/test_strategy_feedback.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_check_promotion_gates.py tests/test_es_daily_trend.py tests/test_backtest_evidence_cycle.py`
+  - SHOWN: `94 passed in 1.11s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2107 passed, 33 skipped, 13 warnings in 377.72s`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this changes financial analytics and promotion-gate comparison
+  semantics.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Remaining action: independent review must accept or reject the normalized
+  metric basis and the Coinbase `BTC/USD` data basis before config values are
+  populated.

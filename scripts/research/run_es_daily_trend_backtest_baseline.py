@@ -137,6 +137,23 @@ def fetch_paginated_ohlcv(
     return dedupe_sort_ohlcv(rows)
 
 
+def closed_trade_return_pcts(trades: list[dict[str, Any]]) -> list[float]:
+    entry_notional: float | None = None
+    returns: list[float] = []
+    for trade in list(trades or []):
+        action = str(trade.get("action") or "").strip().lower()
+        if action == "buy":
+            value = float(trade.get("notional") or 0.0)
+            entry_notional = value if value > 0.0 else None
+            continue
+        if action != "sell" or entry_notional is None:
+            continue
+        realized_pnl = float(trade.get("realized_pnl") or 0.0)
+        returns.append(100.0 * realized_pnl / entry_notional)
+        entry_notional = None
+    return returns
+
+
 def build_baseline_report(rows: list[list[Any]], opts: BaselineOptions) -> dict[str, Any]:
     clean_rows = dedupe_sort_ohlcv(rows)
     cfg = {
@@ -168,12 +185,24 @@ def build_baseline_report(rows: list[list[Any]], opts: BaselineOptions) -> dict[
     first_ts = _safe_ts_ms(clean_rows[0]) if clean_rows else None
     last_ts = _safe_ts_ms(clean_rows[-1]) if clean_rows else None
     win_rate_pct = float(scorecard.get("win_rate_pct") or 0.0)
+    trade_returns = closed_trade_return_pcts(list(result.get("trades") or []))
+    winning_returns = [value for value in trade_returns if value > 0.0]
+    losing_returns = [value for value in trade_returns if value < 0.0]
     candidate_expectations = {
         "source": str(opts.source_label or ""),
         "tolerance_pct": 25.0,
+        "metric_basis": "net_return_pct",
         "win_rate": win_rate_pct / 100.0,
-        "avg_win": float(scorecard.get("avg_win") or 0.0),
-        "avg_loss": float(scorecard.get("avg_loss") or 0.0),
+        "avg_win_return_pct": (
+            sum(winning_returns) / len(winning_returns)
+            if winning_returns
+            else 0.0
+        ),
+        "avg_loss_return_pct": (
+            sum(losing_returns) / len(losing_returns)
+            if losing_returns
+            else 0.0
+        ),
     }
     config_ready_expectations = (
         candidate_expectations
@@ -181,9 +210,10 @@ def build_baseline_report(rows: list[list[Any]], opts: BaselineOptions) -> dict[
         else {
             "source": None,
             "tolerance_pct": 25.0,
+            "metric_basis": "net_return_pct",
             "win_rate": None,
-            "avg_win": None,
-            "avg_loss": None,
+            "avg_win_return_pct": None,
+            "avg_loss_return_pct": None,
         }
     )
 

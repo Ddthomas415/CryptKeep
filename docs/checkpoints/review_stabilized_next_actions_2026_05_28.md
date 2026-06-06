@@ -183,7 +183,7 @@ Risk:
 
 ## Priority 7 - Strategy Performance Decision
 
-Status: pending independent review of historical closed-trade baseline candidate
+Status: pending independent review of normalized historical baseline candidate
 
 Why it matters:
 - `manual_review_required=true` now persists until observed win rate and average
@@ -201,10 +201,14 @@ Why it matters:
   historical daily bars while preserving `BTC/USDT` as the strategy/report
   symbol.
 - SHOWN: that candidate produced `31` closed trades and `baseline_ready=true`.
+- SHOWN: raw-dollar average win/loss values were not comparable to paper sizing.
+- SHOWN: the normalized replacement uses net PnL divided by entry notional and
+  preserves the same `31` closed trades.
 
 Next action:
-- Independently review the 2026-06-04 candidate baseline and explicitly accept
-  or reject the `BTC/USDT` strategy symbol versus `BTC/USD` data symbol basis.
+- Independently review the normalized 2026-06-04 candidate and explicitly
+  accept or reject both the `BTC/USDT` versus `BTC/USD` data basis and the
+  `net_return_pct` metric basis.
 - If accepted, copy the candidate `backtest_expectations` into
   `configs/strategies/es_daily_trend_v1.yaml`.
 - Keep `manual_review_required=true` until that baseline exists.
@@ -214,6 +218,7 @@ Next action:
 Reference:
 - `docs/checkpoints/es_daily_trend_backtest_baseline_audit_2026_06_05.md`
 - `docs/checkpoints/es_daily_trend_backtest_baseline_candidate_2026_06_04.md`
+- `docs/checkpoints/es_daily_trend_normalized_baseline_candidate_2026_06_04.md`
 
 Risk:
 - HIGH: financial strategy evaluation.

@@ -11,6 +11,10 @@ the gate compares raw dollar `avg_win` and `avg_loss`, while this candidate uses
 an all-in `$1,000` backtest sizing basis that is not directly comparable to the
 paper fill sizing.
 
+For gate use, this raw-dollar candidate is superseded by:
+
+- `docs/checkpoints/es_daily_trend_normalized_baseline_candidate_2026_06_04.md`
+
 ## Command
 
 ```bash

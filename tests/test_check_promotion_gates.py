@@ -150,6 +150,46 @@ class TestGateOutput:
             for comparison in item["comparisons"]
         )
 
+    def test_backtest_expectation_item_compares_normalized_trade_returns(self):
+        from scripts.check_promotion_gates import _paper_manual_review_status
+
+        result = _paper_manual_review_status(
+            {
+                "closed_trades": 10,
+                "fills": 20,
+                "win_rate": 0.25,
+                "avg_win_return_pct": 8.0,
+                "avg_loss_return_pct": -4.0,
+                "net_realized_pnl": 30.0,
+                "expectancy_per_closed_trade": 3.0,
+            },
+            [],
+            {
+                "promotion": {
+                    "paper": {
+                        "backtest_expectations": {
+                            "source": "unit-test-normalized-baseline",
+                            "metric_basis": "net_return_pct",
+                            "tolerance_pct": 25.0,
+                            "win_rate": 0.25,
+                            "avg_win_return_pct": 10.0,
+                            "avg_loss_return_pct": -5.0,
+                        }
+                    }
+                }
+            },
+        )
+
+        assert result["required"] is False
+        item = result["items"][0]
+        assert item["baseline"]["metric_basis"] == "net_return_pct"
+        assert [comparison["metric"] for comparison in item["comparisons"]] == [
+            "win_rate",
+            "avg_win_return_pct",
+            "avg_loss_return_pct",
+        ]
+        assert all(comparison["passed"] is True for comparison in item["comparisons"])
+
 
 class TestSchemaValidation:
     def test_valid_signal_schema_passes(self, tmp_path):

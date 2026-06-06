@@ -81,10 +81,13 @@ def test_build_baseline_report_marks_non_closing_sample_not_ready() -> None:
     assert "insufficient_closed_trades" in out["blocking_reasons"]
     assert "no_exit_signals" in out["blocking_reasons"]
     assert out["candidate_backtest_metrics"]["source"] == "unit:no_exit"
+    assert out["candidate_backtest_metrics"]["metric_basis"] == "net_return_pct"
     assert out["source"]["symbol"] == "BTC/USDT"
     assert out["source"]["data_symbol"] == "BTC/USDT"
     assert out["backtest_expectations"]["source"] is None
     assert out["backtest_expectations"]["win_rate"] is None
+    assert out["backtest_expectations"]["avg_win_return_pct"] is None
+    assert out["backtest_expectations"]["avg_loss_return_pct"] is None
     assert out["counts"]["closed_trades"] == 0
 
 
@@ -125,3 +128,18 @@ def test_main_reads_input_and_writes_report(tmp_path: Path, capsys) -> None:
     assert report["counts"]["closed_trades"] >= 1
     assert report["candidate_backtest_metrics"]["source"] == "unit:fixture"
     assert report["backtest_expectations"]["source"] == "unit:fixture"
+    assert report["backtest_expectations"]["metric_basis"] == "net_return_pct"
+    assert report["backtest_expectations"]["avg_loss_return_pct"] < 0.0
+
+
+def test_closed_trade_return_pcts_uses_entry_notional_and_net_pnl() -> None:
+    out = baseline.closed_trade_return_pcts(
+        [
+            {"action": "buy", "notional": 100.0},
+            {"action": "sell", "realized_pnl": 5.0},
+            {"action": "buy", "notional": 200.0},
+            {"action": "sell", "realized_pnl": -10.0},
+        ]
+    )
+
+    assert out == [5.0, -5.0]
