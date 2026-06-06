@@ -348,6 +348,8 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
 def _weeks_at_stage(stage: Stage) -> float | None:
     """Estimate weeks the strategy has been at the current stage."""
     summary = stage_summary(STRATEGY_ID)
+    if summary.get("stage") != stage.value:
+        return None
     since = summary.get("since_ts")
     if not since:
         return None
@@ -357,6 +359,74 @@ def _weeks_at_stage(stage: Stage) -> float | None:
         return delta.days / 7.0
     except Exception:
         return None
+
+
+def _record_stage(row: dict) -> str:
+    return str(row.get("_stage") or "").strip().lower()
+
+
+def _record_timestamp(row: dict) -> datetime | None:
+    ts = row.get("timestamp") or row.get("_logged_at") or row.get("date")
+    if not ts:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except Exception:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def _active_stage_evidence(
+    evidence: dict[str, list[dict]],
+    *,
+    requested_stage: Stage,
+    current_stage: Stage,
+    since_ts: str | None,
+) -> tuple[dict[str, list[dict]], dict]:
+    """Select evidence explicitly stamped for the active requested stage."""
+    empty = {record_type: [] for record_type in ("signal", "order", "fill", "session", "drawdown")}
+    if requested_stage != current_stage:
+        return empty, {
+            "stage": requested_stage.value,
+            "current_stage": current_stage.value,
+            "status": "not_started",
+            "since_ts": None,
+            "counts": {record_type: 0 for record_type in empty},
+            "rule": "only records explicitly stamped for the active stage count",
+        }
+
+    since: datetime | None = None
+    if since_ts:
+        try:
+            since = datetime.fromisoformat(str(since_ts).replace("Z", "+00:00"))
+            if since.tzinfo is None:
+                since = since.replace(tzinfo=timezone.utc)
+        except Exception:
+            since = None
+
+    selected: dict[str, list[dict]] = {}
+    for record_type in empty:
+        rows: list[dict] = []
+        for row in list(evidence.get(record_type) or []):
+            if _record_stage(row) != requested_stage.value:
+                continue
+            row_ts = _record_timestamp(row)
+            if since is not None and (row_ts is None or row_ts < since):
+                continue
+            rows.append(row)
+        selected[record_type] = rows
+
+    counts = {record_type: len(rows) for record_type, rows in selected.items()}
+    return selected, {
+        "stage": requested_stage.value,
+        "current_stage": current_stage.value,
+        "status": "active" if any(counts.values()) else "active_no_evidence",
+        "since_ts": since_ts,
+        "counts": counts,
+        "rule": "only records explicitly stamped for the active stage count",
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -391,10 +461,12 @@ def _validate_schema(records: list[dict], required_fields: list[str],
     }
 
 
-def _run_schema_validation(ev_dir: Path, cfg: dict) -> dict[str, dict]:
-    """Validate all evidence log schemas against config requirements."""
+def _validate_evidence_schema(
+    evidence: dict[str, list[dict]],
+    cfg: dict,
+) -> dict[str, dict]:
+    """Validate the supplied evidence scope against config requirements."""
     ev = cfg.get("evidence", {})
-    evidence = _load_all_evidence(ev_dir)
     return {
         "signal":   _validate_schema(evidence["signal"],   ev.get("required_signal_fields", []),   "signal"),
         "order":    _validate_schema(evidence["order"],    ev.get("required_order_fields", []),    "order"),
@@ -402,6 +474,11 @@ def _run_schema_validation(ev_dir: Path, cfg: dict) -> dict[str, dict]:
         "session":  _validate_schema(evidence["session"],  ev.get("required_session_fields", []),  "session"),
         "drawdown": _validate_schema(evidence["drawdown"], ev.get("required_drawdown_fields", []), "drawdown"),
     }
+
+
+def _run_schema_validation(ev_dir: Path, cfg: dict) -> dict[str, dict]:
+    """Validate all evidence log schemas against config requirements."""
+    return _validate_evidence_schema(_load_all_evidence(ev_dir), cfg)
 
 
 # ---------------------------------------------------------------------------
@@ -661,26 +738,36 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
 def evaluate_shadow_gates(evidence: dict, sessions: list,
                            signals: list, fills: list) -> list[dict]:
     days  = _days_of_operation(sessions)
-    weeks = _weeks_at_stage(Stage.SHADOW)
+    spread_count = sum(1 for signal in signals if _signal_has_spread_or_depth(signal))
+    ops_pass_count = sum(1 for session in sessions if session.get("ops_checks_passed") is True)
+    recovery_count = sum(1 for session in sessions if session.get("recovery_tested") is True)
     return [
         _gate("20+ trading days on live data",
               days >= 20 if days > 0 else None,
-              f"{days} days", "continue running"),
+              f"{days}/20 shadow trading days",
+              "start shadow stage to collect live-data sessions" if days == 0 else "continue running shadow sessions"),
         _gate("All signals logged with spread/depth data",
               all(_signal_has_spread_or_depth(s) for s in signals) if signals else None,
-              f"{len(signals)} signals", "add spread/depth fields to signal logger"),
+              f"{spread_count}/{len(signals)} shadow signals include spread/depth",
+              "start shadow stage to collect market-quality evidence" if not signals
+              else "add spread/depth fields to every shadow signal"),
         _gate("Slippage within 1.5× backtest estimate",
               None,
-              "manual check required — compare fill logs to backtest slippage",
-              "run: python scripts/check_promotion_gates.py --json | check fill.slippage_pct"),
+              (
+                  f"manual check required across {len(fills)} shadow fill records"
+                  if fills
+                  else "no shadow fill/slippage evidence recorded"
+              ),
+              "collect shadow would-be-fill slippage evidence before manual comparison"),
         _gate("All ops integrity checks passing consistently",
               all(s.get("ops_checks_passed") is True for s in sessions) if sessions else None,
-              "all sessions have ops_checks_passed=True" if sessions else "no sessions",
-              "add ops_checks_passed field to session logger"),
+              f"{ops_pass_count}/{len(sessions)} shadow sessions passed ops checks",
+              "start shadow stage to collect session integrity evidence" if not sessions
+              else "investigate shadow sessions without ops_checks_passed=True"),
         _gate("Recovery rule exercised (restart + state validation)",
               any(s.get("recovery_tested") for s in sessions) if sessions else None,
-              "recovery_tested found" if any(s.get("recovery_tested") for s in sessions) else "not recorded",
-              "do a deliberate restart and set recovery_tested=True in session log"),
+              f"{recovery_count} shadow recovery proof record(s)",
+              "after shadow starts, perform a deliberate restart and record recovery_tested=True"),
     ]
 
 
@@ -995,38 +1082,85 @@ def run_check(stage_override: str | None = None) -> dict:
         return {"error": f"config not found: {CONFIG_PATH}", "ready": False}
 
     cfg     = yaml.safe_load(CONFIG_PATH.read_text())
-    stage   = Stage(stage_override) if stage_override else get_current_stage(STRATEGY_ID)
+    current_stage = get_current_stage(STRATEGY_ID)
+    stage   = Stage(stage_override) if stage_override else current_stage
+    current_stage_summary = stage_summary(STRATEGY_ID)
     ev_dir  = _evidence_dir()
     evidence = _load_all_evidence(ev_dir)
     sessions = evidence["session"]
     signals  = evidence["signal"]
     fills    = evidence["fill"]
     paper_history = _paper_history_gate_summary(cfg, fills)
-
-    # Schema validation
-    schema = _run_schema_validation(ev_dir, cfg)
+    gate_evidence = evidence
+    gate_sessions = sessions
+    gate_fills = fills
+    retirement_history = paper_history
 
     # Gate evaluation for current stage
     if stage == Stage.PAPER:
         gates = evaluate_paper_gates(evidence, sessions, signals, fills, paper_history)
+        evidence_scope = {
+            "stage": stage.value,
+            "current_stage": current_stage.value,
+            "status": "all_paper_evidence",
+            "since_ts": current_stage_summary.get("since_ts") if current_stage == Stage.PAPER else None,
+            "counts": {record_type: len(evidence.get(record_type) or []) for record_type in evidence},
+            "rule": "paper gate retains its existing evidence qualification rules",
+        }
     elif stage == Stage.SHADOW:
-        gates = evaluate_shadow_gates(evidence, sessions, signals, fills)
+        scoped_evidence, evidence_scope = _active_stage_evidence(
+            evidence,
+            requested_stage=Stage.SHADOW,
+            current_stage=current_stage,
+            since_ts=current_stage_summary.get("since_ts"),
+        )
+        gate_evidence = scoped_evidence
+        gate_sessions = scoped_evidence["session"]
+        gate_fills = scoped_evidence["fill"]
+        retirement_history = None
+        gates = evaluate_shadow_gates(
+            scoped_evidence,
+            gate_sessions,
+            scoped_evidence["signal"],
+            gate_fills,
+        )
     elif stage == Stage.CAPPED_LIVE:
         gates = evaluate_capped_live_gates(evidence, sessions, fills)
+        evidence_scope = {
+            "stage": stage.value,
+            "current_stage": current_stage.value,
+            "status": "legacy_all_evidence",
+            "since_ts": None,
+            "counts": {record_type: len(evidence.get(record_type) or []) for record_type in evidence},
+            "rule": "capped-live scoping is unchanged by this patch",
+        }
     else:
         gates = [{"label": "No promotion gate for this stage", "passed": True,
                   "detail": str(stage.value), "hint": ""}]
+        evidence_scope = {
+            "stage": stage.value,
+            "current_stage": current_stage.value,
+            "status": "not_applicable",
+            "since_ts": None,
+            "counts": {},
+            "rule": "no gate evidence scope is defined for this stage",
+        }
 
+    schema = _validate_evidence_schema(gate_evidence, cfg)
     passed  = [g for g in gates if g["passed"] is True]
     failed  = [g for g in gates if g["passed"] is False]
     unknown = [g for g in gates if g["passed"] is None]
 
     schema_ok = all(v.get("ok") is not False for v in schema.values())
-    provenance = _promotion_provenance_summary(evidence)
+    provenance = _promotion_provenance_summary(gate_evidence)
     provenance_all_time = _evidence_provenance_summary(evidence)
 
-    slippage_check = _slippage_within_baseline(fills)
-    retirement = _check_retirement_triggers(fills, sessions, paper_history)
+    slippage_check = _slippage_within_baseline(gate_fills)
+    retirement = _check_retirement_triggers(
+        gate_fills,
+        gate_sessions,
+        retirement_history,
+    )
 
     # Retirement check overrides "ready" regardless of gates
     retirement_block = retirement["retirement_required"]
@@ -1041,6 +1175,9 @@ def run_check(stage_override: str | None = None) -> dict:
     return {
         "strategy_id": STRATEGY_ID,
         "stage":       stage.value,
+        "current_stage": current_stage.value,
+        "stage_override": stage_override,
+        "evidence_scope": evidence_scope,
         "ready":       machine_ready and not bool(manual_review.get("required")),
         "machine_ready": machine_ready,
         "manual_review_required": bool(manual_review.get("required")),

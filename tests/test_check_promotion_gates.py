@@ -867,6 +867,117 @@ class TestSlippageBaseline:
 
 
 class TestShadowGateMarketQuality:
+    def test_shadow_override_does_not_relabel_paper_evidence(self):
+        from services.os.app_paths import data_dir
+        from services.strategies.evidence_logger import EvidenceLogger
+        from scripts.check_promotion_gates import run_check
+
+        logger = EvidenceLogger(
+            "es_daily_trend_v1",
+            log_dir=data_dir() / "evidence" / "es_daily_trend_v1",
+        )
+        logger.log_signal(
+            timestamp=_now(),
+            price=100.0,
+            sma_200=90.0,
+            atr_ratio=1.0,
+            signal_direction="long",
+            regime_flag="trending",
+            extra={"spread_bps": 2.0},
+        )
+        logger.log_session(
+            regime_at_open="paper",
+            halts_triggered=[],
+            manual_overrides=[],
+            reconciliation_result="pass",
+            drawdown_from_peak=0.0,
+            ops_checks_passed=True,
+            recovery_tested=True,
+        )
+
+        result = run_check(stage_override="shadow")
+
+        assert result["stage"] == "shadow"
+        assert result["current_stage"] == "paper"
+        assert result["stage_override"] == "shadow"
+        assert result["evidence_scope"]["status"] == "not_started"
+        assert result["evidence_scope"]["counts"]["signal"] == 0
+        assert result["evidence_scope"]["counts"]["session"] == 0
+        assert result["summary"] == {"pass": 0, "fail": 0, "unknown": 5, "total": 5}
+        assert all(gate["passed"] is None for gate in result["gates"])
+        assert all(item["total"] == 0 for item in result["schema"].values())
+        assert result["provenance"]["total"] == 0
+        assert result["provenance_all_time"]["total"] == 2
+        assert result["slippage"]["ok"] is None
+        assert result["retirement"]["triggers_fired"] == []
+
+    def test_active_shadow_gate_counts_only_shadow_stage_evidence(self):
+        from services.control.deployment_stage import promote
+        from services.os.app_paths import data_dir
+        from services.strategies.evidence_logger import EvidenceLogger
+        from scripts.check_promotion_gates import run_check
+
+        logger = EvidenceLogger(
+            "es_daily_trend_v1",
+            log_dir=data_dir() / "evidence" / "es_daily_trend_v1",
+        )
+        logger.log_signal(
+            timestamp=_now(),
+            price=100.0,
+            sma_200=90.0,
+            atr_ratio=1.0,
+            signal_direction="long",
+            regime_flag="trending",
+        )
+        assert promote("es_daily_trend_v1", reason="unit_test", actor="test")["stage"] == "shadow"
+        logger.log_signal(
+            timestamp=_now(),
+            price=101.0,
+            sma_200=90.0,
+            atr_ratio=1.0,
+            signal_direction="long",
+            regime_flag="trending",
+            extra={"spread_bps": 2.0},
+        )
+        logger.log_session(
+            regime_at_open="shadow",
+            halts_triggered=[],
+            manual_overrides=[],
+            reconciliation_result="pass",
+            drawdown_from_peak=0.0,
+            ops_checks_passed=True,
+            recovery_tested=False,
+        )
+
+        result = run_check(stage_override="shadow")
+
+        assert result["current_stage"] == "shadow"
+        assert result["evidence_scope"]["status"] == "active"
+        assert result["evidence_scope"]["counts"]["signal"] == 1
+        assert result["evidence_scope"]["counts"]["session"] == 1
+        assert result["schema"]["signal"]["total"] == 1
+        assert result["schema"]["session"]["total"] == 1
+        assert result["provenance"]["total"] == 2
+        assert result["provenance_all_time"]["total"] == 3
+        spread_gate = next(
+            gate for gate in result["gates"]
+            if gate["label"] == "All signals logged with spread/depth data"
+        )
+        ops_gate = next(
+            gate for gate in result["gates"]
+            if gate["label"] == "All ops integrity checks passing consistently"
+        )
+        recovery_gate = next(
+            gate for gate in result["gates"]
+            if gate["label"] == "Recovery rule exercised (restart + state validation)"
+        )
+        assert spread_gate["passed"] is True
+        assert spread_gate["detail"] == "1/1 shadow signals include spread/depth"
+        assert ops_gate["passed"] is True
+        assert ops_gate["detail"] == "1/1 shadow sessions passed ops checks"
+        assert recovery_gate["passed"] is False
+        assert recovery_gate["detail"] == "0 shadow recovery proof record(s)"
+
     def test_shadow_gate_accepts_spread_bps_signal_evidence(self):
         from scripts.check_promotion_gates import evaluate_shadow_gates
 
@@ -879,6 +990,7 @@ class TestShadowGateMarketQuality:
 
         gate = next(g for g in gates if g["label"] == "All signals logged with spread/depth data")
         assert gate["passed"] is True
+        assert gate["detail"] == "1/1 shadow signals include spread/depth"
 
     def test_shadow_gate_blocks_signals_without_spread_or_depth(self):
         from scripts.check_promotion_gates import evaluate_shadow_gates
@@ -892,3 +1004,4 @@ class TestShadowGateMarketQuality:
 
         gate = next(g for g in gates if g["label"] == "All signals logged with spread/depth data")
         assert gate["passed"] is False
+        assert gate["detail"] == "0/1 shadow signals include spread/depth"

@@ -2765,3 +2765,96 @@ Verification:
 Remaining risk:
 - LOW: this closure update is documentation-only.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-06T10:58:00Z - Scope Shadow Gates to Active Shadow Evidence
+
+Active role: `ENGINEER`
+
+Objective: prevent a shadow readiness query from treating historical paper
+records as shadow-stage proof.
+
+What was found:
+- SHOWN: canonical 2026-06-06 signal records contain `spread_bps`, and session
+  records contain `ops_checks_passed=true`.
+- SHOWN: before this change, `check_promotion_gates.py --stage shadow --json`
+  evaluated 33,318 historical signals and 336 sessions even though the
+  persisted strategy stage was still `paper`.
+- SHOWN: the override selected shadow gate logic but did not establish a
+  shadow evidence window, so paper history could produce false failures and
+  contradictory operator details.
+- SHOWN: schema validation, provenance, slippage, and retirement checks also
+  used all-time paper evidence outside the visible shadow gate list.
+
+What changed:
+- Added an active-stage evidence selector that requires both an explicit
+  `_stage=shadow` stamp and a timestamp on or after the persisted shadow
+  `since_ts`.
+- Made shadow readiness report `not_started` with five unknown gates when the
+  persisted `current_stage` is not `shadow`.
+- Scoped shadow schema validation, provenance, slippage, and retirement checks
+  to the same active shadow evidence window.
+- Kept `provenance_all_time` as a diagnostic field without allowing it to
+  influence shadow readiness.
+- Added exact count details for shadow trading days, spread/depth coverage,
+  ops checks, fill/slippage evidence, and recovery proof.
+- Added regression tests for a paper-stage override and for mixed paper/shadow
+  evidence after an actual stage promotion.
+- Documented the `--stage shadow` query semantics in the golden path and
+  strategy specification.
+
+Why this change:
+- A command-line report override must not silently reclassify evidence from a
+  different deployment stage.
+- Shadow promotion is a time-bounded experiment; using pre-promotion paper
+  records makes its operational and market-quality gates untrustworthy.
+- Applying one evidence scope to gates and their auxiliary checks avoids a
+  report where the visible gates and top-level readiness decision use
+  different data.
+
+Expected outcome:
+- Before shadow promotion, operators see an honest `UNKNOWN/not_started`
+  result rather than paper-derived shadow failures.
+- After promotion, only contemporaneous shadow records can advance or block
+  the shadow checklist.
+- The recovery gate cannot pass until a deliberate shadow-stage restart and
+  state-validation drill is recorded.
+
+Verification:
+- Initial worktree-local command:
+  `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py`
+  - SHOWN: did not run because the isolated worktree has no `.venv`.
+- Shared verified environment:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py`
+  - SHOWN: `41 passed in 0.79s`.
+- Related regression slice:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_deployment_stage.py tests/test_es_daily_trend.py tests/test_paper_promotion_progress.py`
+  - SHOWN: `95 passed in 1.32s`.
+- Full suite:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2110 passed, 33 skipped, 13 warnings in 206.39s`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python tools/repo_doctor.py`
+  - SHOWN: supported baseline present, no non-canonical duplicate trees, and
+    no suspicious top-level files.
+- Canonical-state readiness query through the isolated source:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python scripts/check_promotion_gates.py --stage shadow --json`
+  - SHOWN: `current_stage=paper`,
+    `evidence_scope.status=not_started`, all scoped counts zero, and
+    `0 pass / 0 fail / 5 unknown`.
+- Canonical paper regression query:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: paper logic still reads the existing all-paper evidence scope and
+    remains not ready.
+- `git diff --check`
+  - SHOWN: clean before and after documentation updates.
+- Main paper evidence collector status:
+  `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: PID `23879` alive, status `idle`, reason
+    `waiting_for_next_day`, with the 2026-06-06 evidence cycle complete.
+
+Remaining risk:
+- HIGH: this changes financial promotion-gate evidence selection and
+  readiness reporting.
+- UNVERIFIED: no real shadow campaign exists yet, so production evidence
+  accumulation after an actual paper-to-shadow transition remains unproven.
+- UNVERIFIED: the deliberate shadow restart/recovery drill has not been run.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
