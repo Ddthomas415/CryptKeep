@@ -2399,7 +2399,8 @@ Verification:
 
 Remaining risk:
 - HIGH: this populates financial promotion-gate policy values.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-- Remaining action: independent review should confirm the exact accepted
-  values and that average-loss drift should remain blocking pending exit-path
-  investigation.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-06 after commit `4651680f5`.
+- Remaining action: investigate whether the average-loss drift reflects genuine
+  paper strategy behavior or mixed historical evidence attribution.
