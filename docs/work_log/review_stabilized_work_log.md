@@ -2864,3 +2864,96 @@ Remaining risk:
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-06 after implementation commit `7a9c94e78` and all PR
   #51 checks passed.
+
+## 2026-06-07T23:09:31Z - Explain Excluded Paper Promotion History
+
+Active role: `ENGINEER`
+
+Objective: make the shared paper promotion progress output explain why the
+existing all-history paper round trips are visible diagnostically but do not
+advance the paper promotion threshold.
+
+What was found:
+- SHOWN: canonical promotion progress on `.cbp_state` reported 33/30 days and
+  0/10 qualified round trips while all-history paper history still showed 7
+  closed round trips.
+- SHOWN: JSONL fill evidence contains 10 fill rows; 9 lack or mismatch the
+  required market-data provenance fields, and 1 provenance-qualified fill is
+  not part of a complete qualified entry/exit round trip.
+- SHOWN: the evidence model explicitly says fresh latest-window provenance
+  does not retroactively qualify older unstamped fills.
+- SHOWN: current paper-engine tests already prove new order/fill records carry
+  provenance forward, so future qualified round trips can count without
+  backfilling legacy evidence.
+- SHOWN: backfilling the legacy fills would infer unsupported facts and rewrite
+  audit history.
+
+What changed:
+- Added a structured `qualification_explanation` object to
+  `paper_promotion_progress`.
+- Appended the qualification explanation to the operator-facing promotion
+  summary when all-history round trips are excluded, evidence fills fail the
+  provenance contract, qualified fills do not form a complete round trip, or
+  qualified evidence order IDs are missing from the journal.
+- Added regression coverage for both excluded all-history paper fills and a
+  fully qualified paper round trip.
+- Documented the reporting-only explanation in `docs/EVIDENCE_MODEL.md`.
+
+Why this change:
+- The qualification rule was correct, but the shared monitor/dashboard summary
+  did not answer the operator's direct question: why visible historical trades
+  were not moving the 10-round-trip gate.
+- Reporting the exclusion reason is safer than retroactive qualification
+  because it preserves the accepted provenance boundary while making the gate
+  state understandable.
+- Keeping this in shared progress output makes the monitor, dashboard, and any
+  future operator surfaces consume the same explanation.
+
+Expected outcome:
+- Operators see the exact blocker without manually inspecting JSONL/journal
+  internals.
+- The promotion gate remains strict: the current canonical state still reports
+  0/10 qualified round trips, not 7/10.
+- Future provenance-complete entry/exit cycles will count normally and will not
+  be mislabeled as diagnostic-only history.
+
+Verification:
+- Targeted regression slice:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_promotion_progress.py tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py`
+  - SHOWN: `20 passed in 0.42s`.
+- Canonical-state shared progress query through the isolated source:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -c 'import json; from services.control.paper_promotion_progress import load_paper_promotion_progress; p=load_paper_promotion_progress(); print(json.dumps({"days_recorded":p["days_recorded"],"round_trips_recorded":p["round_trips_recorded"],"all_history_round_trips":p["all_history_round_trips"],"qualification_explanation":p["qualification_explanation"],"summary_text":p["summary_text"]}, indent=2))'`
+  - SHOWN: `days_recorded=33`, `round_trips_recorded=0`,
+    `all_history_round_trips=7`, `evidence_fills=10`,
+    `unqualified_evidence_fills=9`,
+    `incomplete_qualified_evidence_fills=1`, and summary text explaining that
+    7 all-history round trips are diagnostic only.
+- Canonical paper gate regression:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: still `ready=false`, `machine_ready=false`, and the 10-round-trip
+    gate reports `0/10, 10 remaining`.
+- Full suite:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2111 passed, 33 skipped, 13 warnings in 204.44s`.
+- Repo doctor:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python tools/repo_doctor.py`
+  - SHOWN: supported baseline present, no non-canonical duplicate trees, and
+    no suspicious top-level files.
+- Main paper evidence collector status:
+  `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: PID `23879` alive, status `idle`, reason
+    `waiting_for_next_day`, with the 2026-06-07 evidence cycle complete.
+- `git diff --check`
+  - SHOWN: clean before the work-log update.
+- Main workspace branch check:
+  - SHOWN: `/Users/baitus/Downloads/crypto-bot-pro` remains
+    `review-stabilized...origin/review-stabilized` with `0 0` divergence from
+    `origin/master`.
+
+Remaining risk:
+- HIGH: this changes financial promotion reporting consumed by operator
+  monitor/dashboard surfaces.
+- UNVERIFIED: dashboard rendering was not browser-checked in this branch.
+- UNVERIFIED: no future complete qualified round trip has occurred yet in the
+  live paper campaign.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
