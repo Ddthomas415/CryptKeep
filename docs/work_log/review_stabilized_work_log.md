@@ -2956,4 +2956,6 @@ Remaining risk:
 - UNVERIFIED: dashboard rendering was not browser-checked in this branch.
 - UNVERIFIED: no future complete qualified round trip has occurred yet in the
   live paper campaign.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-07 after implementation commit `99d3bb749`.
