@@ -2959,3 +2959,92 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-07 after implementation commit `99d3bb749`.
+
+## 2026-06-07T23:47:55Z - Breakout Donchian Stage 0 Isolated Proof
+
+Active role: `ENGINEER`
+
+Objective: run a one-shot isolated wiring proof for the `breakout_donchian`
+challenger without changing canonical `sma_200_trend` evidence or the active
+isolated `ema_cross` campaign.
+
+What was found:
+- SHOWN: before the proof, canonical `sma_200_trend` remained at 14 fills, 7
+  all-history closed trades, and latest fill
+  `2026-05-26T00:00:09.780106+00:00`.
+- SHOWN: the isolated `ema_cross_default` daily loop remained alive and idle
+  with 2 fills, 1 closed trade, and +0.20272406454938546 net realized PnL.
+- SHOWN: `breakout_donchian` maps to preset `breakout_default`.
+- SHOWN: the runner received live Coinbase public OHLCV on the 5-minute
+  timeframe, selected `breakout_donchian`, and reported a visible
+  `hold/inside_channel` reason.
+- SHOWN: the observed close remained below the prior Donchian upper boundary,
+  and the volume ratio remained below the configured confirmation floor, so no
+  order was expected.
+
+What changed:
+- Ran a one-shot campaign under the isolated state directory
+  `.cbp_state_challengers/breakout_default_stage0_20260607T233204Z`.
+- Used `--strategies breakout_donchian`,
+  `--session-strategy-id breakout_default`, `--symbol BTC/USDT`,
+  `--venue coinbase`, `--signal-source public_ohlcv_5m`,
+  `--runtime-sec 900`, and `--strategy-drain-sec 2`.
+- No strategy source, preset, threshold, canonical `.cbp_state` artifact, or
+  `ema_cross` challenger artifact was modified.
+
+Why this change:
+- `breakout_donchian` is the strongest current synthetic leaderboard
+  candidate but had no real paper runtime proof.
+- A one-shot isolated proof is the smallest safe step before considering a
+  persistent challenger daily loop.
+- Separate state preserves strategy evidence ownership and prevents challenger
+  results from advancing the `es_daily_trend_v1` promotion gate.
+
+Expected outcome:
+- The breakout challenger has verified startup, public-data acquisition,
+  strategy selection, monitoring, isolated evidence routing, and clean
+  shutdown behavior.
+- A no-trade result remains valid Stage 0 evidence because the signal reason is
+  visible and consistent with the strategy rules.
+- Persistent daily-loop operation remains blocked pending independent review
+  of this Stage 0 proof.
+
+Verification:
+- One-shot command:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_stage0_20260607T233204Z ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --strategies breakout_donchian --session-strategy-id breakout_default --symbol BTC/USDT --venue coinbase --signal-source public_ohlcv_5m --runtime-sec 900 --strategy-drain-sec 2 --no-desktop-notify`
+  - SHOWN: completed normally after `903.963011264801s` with
+    `stop_reason=runtime_elapsed`, `runner_status=stopped`,
+    `signal_action=hold`, `enqueued_total=0`, `fills_total=0`, and
+    `closed_trades_total=0`.
+- Runner status during the proof:
+  - SHOWN: 279-280 live bars, populated market price, strategy
+    `breakout_donchian`, preset `breakout_default`,
+    `signal_source=public_ohlcv_5m`, and `signal_reason=inside_channel`.
+- Final isolated session evidence:
+  - SHOWN: start and end records both carry
+    `market_data_source=public_ohlcv`, `ohlcv_sample_mode=false`,
+    `ohlcv_timeframe=5m`, `ohlcv_venue=coinbase`, and
+    `ohlcv_symbol=BTC/USDT`.
+  - SHOWN: end record reports `campaign_status=completed`,
+    `reconciliation_result=pass`, `ops_checks_passed=true`,
+    `critical_error=false`, and `kill_switch_tested=true`.
+- Isolation checks:
+  - SHOWN: canonical `sma_200_trend` remained at 14 fills, 7 closed trades,
+    and +35.75316899496567 net realized PnL.
+  - SHOWN: isolated `ema_cross` remained at 2 fills, 1 closed trade, and
+    +0.20272406454938546 net realized PnL.
+- Final collector status:
+  - SHOWN: `status=completed`, `pid_alive=false`, and no PID file remains for
+    the one-shot proof.
+- Git status before this work-log update:
+  - SHOWN: clean `review-stabilized...origin/review-stabilized`; isolated
+    challenger artifacts remain ignored.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and potential future background-job
+  operation.
+- UNVERIFIED: no actionable breakout signal, order, fill, or round trip
+  occurred during Stage 0.
+- UNVERIFIED: persistent daily-loop lifecycle for `breakout_donchian` has not
+  been started or proven.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
