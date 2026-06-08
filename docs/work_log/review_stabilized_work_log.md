@@ -3203,3 +3203,95 @@ Remaining risk:
 - UNVERIFIED: no multi-day persistence proof exists yet beyond the first
   completed daily loop window.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-08T15:12:00Z - Detached Paper Evidence Daily-Loop Launcher
+
+Active role: `ENGINEER`
+
+Objective: fix the operator workflow gap where a paper evidence daily loop
+started from a Codex managed process session could die after the session ended.
+
+What was found:
+- SHOWN: the previously accepted `breakout_donchian` daily-loop collector PID
+  `47262` was no longer alive even though its status file still reported
+  `last_completed_day=2026-06-08`.
+- SHOWN: canonical `sma_200_trend` PID `23879` and isolated
+  `ema_cross_default` PID `8480` remained alive and parented to PID `1`.
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py` exposed
+  `--daily-loop`, `--status`, and `--stop`, but no authoritative detached
+  top-level launch mode.
+- SHOWN: existing service helpers use `start_new_session=True` for durable
+  managed child processes, but the collector itself had no equivalent
+  operator-facing launch path.
+
+What changed:
+- Added `--detach` to the authoritative
+  `scripts/run_paper_strategy_evidence_collector.py` CLI.
+- Scoped `--detach` to `--daily-loop` only; it cannot be combined with
+  `--status` or `--stop`.
+- The detached launcher:
+  - refuses to start a duplicate collector when the selected `CBP_STATE_DIR`
+    already has a live PID;
+  - starts the same script without `--detach`;
+  - inherits the selected environment, including `CBP_STATE_DIR`;
+  - uses `start_new_session=True` on POSIX and detached process flags on
+    Windows;
+  - redirects child output to
+    `<CBP_STATE_DIR>/runtime/logs/paper_strategy_evidence.log`;
+  - waits briefly for the child to publish a matching live PID before reporting
+    `detached_started`.
+- Updated `docs/GOLDEN_PATH.md` and `scripts/SCRIPTS.md` to document
+  `--daily-loop --detach` as the persistent operator path.
+- Restarted only the isolated `breakout_donchian` challenger using the new
+  detached path under
+  `.cbp_state_challengers/breakout_default_daily`.
+
+Why this change:
+- The previous `nohup` attempt failed to initialize, and the successful
+  managed-session launch did not survive as a durable background process.
+- Adding the detached mode at the authoritative collector CLI keeps the
+  operator workflow on one source of truth instead of adding another wrapper or
+  service-manager fork.
+- Duplicate-process protection and state-local logging make the launch auditable
+  and safe for isolated challenger state directories.
+
+Expected outcome:
+- Future paper evidence daily loops can be started with
+  `--daily-loop --detach` and survive the Codex session that started them.
+- `breakout_donchian` continues as an isolated paper-only challenger and should
+  wake on the next UTC day without manual polling.
+- Canonical `sma_200_trend` and isolated `ema_cross_default` continue
+  independently.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_run_paper_strategy_evidence_collector.py`
+  - SHOWN: `10 passed in 0.25s`.
+- `./.venv/bin/python -m pytest -q tests/test_run_paper_strategy_evidence_collector.py tests/test_dashboard_operator_service.py tests/test_bootstrap_helper_adoption.py`
+  - SHOWN: `37 passed in 0.85s`.
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --help`
+  - SHOWN: help exposes `--detach` and describes detached daily-loop startup.
+- `git diff --check`
+  - SHOWN: clean.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py ... --daily-loop --detach`
+  - SHOWN: returned `ok=true`, `reason=detached_started`, `pid=10310`, and
+    log file under the isolated breakout state directory.
+- `ps -o pid=,ppid=,stat=,etime=,command= -p 10310,23879,8480`
+  - SHOWN: breakout PID `10310`, EMA PID `8480`, and canonical PID `23879` are
+    all alive with `PPID=1`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: breakout status is `idle`, `reason=waiting_for_next_day`,
+    `pid=10310`, `pid_alive=true`, `strategies=["breakout_donchian"]`, and
+    evidence path remains under `.cbp_state_challengers/breakout_default_daily`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: EMA remains idle/alive at PID `8480`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: canonical `sma_200_trend` remains idle/alive at PID `23879`.
+
+Remaining risk:
+- HIGH: background-job operator workflow and financial strategy evidence
+  collection.
+- UNVERIFIED: no multi-day detached persistence proof exists yet; next proof is
+  whether PID `10310` wakes and completes the next UTC daily window.
+- UNVERIFIED: no actionable `breakout_donchian` order, fill, or round trip has
+  occurred yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
