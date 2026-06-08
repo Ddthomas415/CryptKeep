@@ -3122,8 +3122,84 @@ Verification:
 
 Remaining risk:
 - HIGH: financial strategy experimentation and background-job operation.
-- UNVERIFIED: the first persistent breakout daily-loop window has not completed
-  yet.
+- RESOLVED: the first persistent breakout daily-loop window completed; see the
+  2026-06-08T04:02:48Z entry below.
 - UNVERIFIED: no actionable breakout signal, order, fill, or round trip has
   occurred in the daily loop yet.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-08 after commit `bcba08a6b`.
+
+## 2026-06-08T04:02:48Z - Breakout Donchian First Daily-Loop Window Completion
+
+Active role: `AUDITOR`
+
+Objective: verify the first persistent `breakout_donchian` daily-loop window
+completed cleanly after the accepted start.
+
+What was found:
+- SHOWN: `breakout_default` daily loop completed its 2026-06-08 window and
+  returned to idle while keeping PID `47262` alive for the next UTC day.
+- SHOWN: the completed result reported `runtime_sec=904.6953809261322`,
+  `stop_reason=runtime_elapsed`, `runner_status=stopped`,
+  `signal_action=hold`, `fills_total=0`, `closed_trades_total=0`, and
+  `net_realized_pnl_total=0.0`.
+- SHOWN: the session evidence contains start and end records with
+  `market_data_source=public_ohlcv`, `ohlcv_sample_mode=false`,
+  `ohlcv_timeframe=5m`, `ohlcv_venue=coinbase`, and
+  `ohlcv_symbol=BTC/USDT`.
+- SHOWN: the end record reports `campaign_status=completed`,
+  `reconciliation_result=pass`, `ops_checks_passed=true`,
+  `critical_error=false`, and `kill_switch_tested=true`.
+- SHOWN: `paper_sim_monitor` sees `breakout_default` idle, flat, `fills=0`,
+  `round_trips=0`, and `recommendation=continue`.
+- SHOWN: canonical `sma_200_trend` completed its 2026-06-08 window with no new
+  fills and remains not ready at `0/10` qualified round trips.
+- SHOWN: isolated `ema_cross_default` completed its 2026-06-08 window with no
+  new fills and remains at 2 fills, 1 closed trade, and +0.20272406454938546
+  net realized PnL.
+
+What changed:
+- No source code, config, strategy preset, gate threshold, or canonical
+  evidence was changed.
+- This entry records the first-window completion proof for the accepted
+  persistent breakout challenger.
+
+Why this change:
+- The accepted daily-loop start still had one open lifecycle risk: whether the
+  first persistent window would complete and return to idle cleanly.
+- Recording the completion proof keeps the governed work log aligned with the
+  actual background-job state.
+
+Expected outcome:
+- `breakout_default`, `ema_cross_default`, and canonical `sma_200_trend` now
+  continue as three isolated daily observation loops.
+- Breakout evidence remains paper-only and isolated under
+  `.cbp_state_challengers/breakout_default_daily`.
+- Future actionable breakout signals, orders, fills, or position closes should
+  be reviewed as challenger evidence only, not as `es_daily_trend_v1`
+  promotion evidence.
+
+Verification:
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: `status=idle`, `reason=waiting_for_next_day`, `last_completed_day=2026-06-08`, and `pid_alive=true`.
+- `cat .cbp_state_challengers/breakout_default_daily/data/evidence/breakout_default/session_2026-06-08.jsonl`
+  - SHOWN: public non-sample 5-minute Coinbase provenance on start/end session
+    records and clean completed end state.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_sim_monitor.py --status`
+  - SHOWN: idle, flat, `fills_observed=0`, `round_trips_observed=0`, and
+    `recommendation=continue`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state ./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical paper gate remains not ready at `0/10` qualified round
+    trips and 34/30 days recorded.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: `ema_cross_default` is idle, alive, and waiting for the next UTC
+    day after a no-new-fill 2026-06-08 window.
+
+Remaining risk:
+- HIGH: ongoing financial strategy experimentation and background-job
+  operation.
+- UNVERIFIED: no actionable breakout order/fill/round trip has occurred yet.
+- UNVERIFIED: no multi-day persistence proof exists yet beyond the first
+  completed daily loop window.
+- Acceptance state: `ACCEPTED`.
