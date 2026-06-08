@@ -2864,3 +2864,342 @@ Remaining risk:
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-06 after implementation commit `7a9c94e78` and all PR
   #51 checks passed.
+
+## 2026-06-07T23:09:31Z - Explain Excluded Paper Promotion History
+
+Active role: `ENGINEER`
+
+Objective: make the shared paper promotion progress output explain why the
+existing all-history paper round trips are visible diagnostically but do not
+advance the paper promotion threshold.
+
+What was found:
+- SHOWN: canonical promotion progress on `.cbp_state` reported 33/30 days and
+  0/10 qualified round trips while all-history paper history still showed 7
+  closed round trips.
+- SHOWN: JSONL fill evidence contains 10 fill rows; 9 lack or mismatch the
+  required market-data provenance fields, and 1 provenance-qualified fill is
+  not part of a complete qualified entry/exit round trip.
+- SHOWN: the evidence model explicitly says fresh latest-window provenance
+  does not retroactively qualify older unstamped fills.
+- SHOWN: current paper-engine tests already prove new order/fill records carry
+  provenance forward, so future qualified round trips can count without
+  backfilling legacy evidence.
+- SHOWN: backfilling the legacy fills would infer unsupported facts and rewrite
+  audit history.
+
+What changed:
+- Added a structured `qualification_explanation` object to
+  `paper_promotion_progress`.
+- Appended the qualification explanation to the operator-facing promotion
+  summary when all-history round trips are excluded, evidence fills fail the
+  provenance contract, qualified fills do not form a complete round trip, or
+  qualified evidence order IDs are missing from the journal.
+- Added regression coverage for both excluded all-history paper fills and a
+  fully qualified paper round trip.
+- Documented the reporting-only explanation in `docs/EVIDENCE_MODEL.md`.
+
+Why this change:
+- The qualification rule was correct, but the shared monitor/dashboard summary
+  did not answer the operator's direct question: why visible historical trades
+  were not moving the 10-round-trip gate.
+- Reporting the exclusion reason is safer than retroactive qualification
+  because it preserves the accepted provenance boundary while making the gate
+  state understandable.
+- Keeping this in shared progress output makes the monitor, dashboard, and any
+  future operator surfaces consume the same explanation.
+
+Expected outcome:
+- Operators see the exact blocker without manually inspecting JSONL/journal
+  internals.
+- The promotion gate remains strict: the current canonical state still reports
+  0/10 qualified round trips, not 7/10.
+- Future provenance-complete entry/exit cycles will count normally and will not
+  be mislabeled as diagnostic-only history.
+
+Verification:
+- Targeted regression slice:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_promotion_progress.py tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py`
+  - SHOWN: `20 passed in 0.42s`.
+- Canonical-state shared progress query through the isolated source:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -c 'import json; from services.control.paper_promotion_progress import load_paper_promotion_progress; p=load_paper_promotion_progress(); print(json.dumps({"days_recorded":p["days_recorded"],"round_trips_recorded":p["round_trips_recorded"],"all_history_round_trips":p["all_history_round_trips"],"qualification_explanation":p["qualification_explanation"],"summary_text":p["summary_text"]}, indent=2))'`
+  - SHOWN: `days_recorded=33`, `round_trips_recorded=0`,
+    `all_history_round_trips=7`, `evidence_fills=10`,
+    `unqualified_evidence_fills=9`,
+    `incomplete_qualified_evidence_fills=1`, and summary text explaining that
+    7 all-history round trips are diagnostic only.
+- Canonical paper gate regression:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state /Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: still `ready=false`, `machine_ready=false`, and the 10-round-trip
+    gate reports `0/10, 10 remaining`.
+- Full suite:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2111 passed, 33 skipped, 13 warnings in 204.44s`.
+- Repo doctor:
+  `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python tools/repo_doctor.py`
+  - SHOWN: supported baseline present, no non-canonical duplicate trees, and
+    no suspicious top-level files.
+- Main paper evidence collector status:
+  `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: PID `23879` alive, status `idle`, reason
+    `waiting_for_next_day`, with the 2026-06-07 evidence cycle complete.
+- `git diff --check`
+  - SHOWN: clean before the work-log update.
+- Main workspace branch check:
+  - SHOWN: `/Users/baitus/Downloads/crypto-bot-pro` remains
+    `review-stabilized...origin/review-stabilized` with `0 0` divergence from
+    `origin/master`.
+
+Remaining risk:
+- HIGH: this changes financial promotion reporting consumed by operator
+  monitor/dashboard surfaces.
+- UNVERIFIED: dashboard rendering was not browser-checked in this branch.
+- UNVERIFIED: no future complete qualified round trip has occurred yet in the
+  live paper campaign.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-07 after implementation commit `99d3bb749`.
+
+## 2026-06-07T23:47:55Z - Breakout Donchian Stage 0 Isolated Proof
+
+Active role: `ENGINEER`
+
+Objective: run a one-shot isolated wiring proof for the `breakout_donchian`
+challenger without changing canonical `sma_200_trend` evidence or the active
+isolated `ema_cross` campaign.
+
+What was found:
+- SHOWN: before the proof, canonical `sma_200_trend` remained at 14 fills, 7
+  all-history closed trades, and latest fill
+  `2026-05-26T00:00:09.780106+00:00`.
+- SHOWN: the isolated `ema_cross_default` daily loop remained alive and idle
+  with 2 fills, 1 closed trade, and +0.20272406454938546 net realized PnL.
+- SHOWN: `breakout_donchian` maps to preset `breakout_default`.
+- SHOWN: the runner received live Coinbase public OHLCV on the 5-minute
+  timeframe, selected `breakout_donchian`, and reported a visible
+  `hold/inside_channel` reason.
+- SHOWN: the observed close remained below the prior Donchian upper boundary,
+  and the volume ratio remained below the configured confirmation floor, so no
+  order was expected.
+
+What changed:
+- Ran a one-shot campaign under the isolated state directory
+  `.cbp_state_challengers/breakout_default_stage0_20260607T233204Z`.
+- Used `--strategies breakout_donchian`,
+  `--session-strategy-id breakout_default`, `--symbol BTC/USDT`,
+  `--venue coinbase`, `--signal-source public_ohlcv_5m`,
+  `--runtime-sec 900`, and `--strategy-drain-sec 2`.
+- No strategy source, preset, threshold, canonical `.cbp_state` artifact, or
+  `ema_cross` challenger artifact was modified.
+
+Why this change:
+- `breakout_donchian` is the strongest current synthetic leaderboard
+  candidate but had no real paper runtime proof.
+- A one-shot isolated proof is the smallest safe step before considering a
+  persistent challenger daily loop.
+- Separate state preserves strategy evidence ownership and prevents challenger
+  results from advancing the `es_daily_trend_v1` promotion gate.
+
+Expected outcome:
+- The breakout challenger has verified startup, public-data acquisition,
+  strategy selection, monitoring, isolated evidence routing, and clean
+  shutdown behavior.
+- A no-trade result remains valid Stage 0 evidence because the signal reason is
+  visible and consistent with the strategy rules.
+- Persistent daily-loop operation remains blocked pending independent review
+  of this Stage 0 proof.
+
+Verification:
+- One-shot command:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_stage0_20260607T233204Z ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --strategies breakout_donchian --session-strategy-id breakout_default --symbol BTC/USDT --venue coinbase --signal-source public_ohlcv_5m --runtime-sec 900 --strategy-drain-sec 2 --no-desktop-notify`
+  - SHOWN: completed normally after `903.963011264801s` with
+    `stop_reason=runtime_elapsed`, `runner_status=stopped`,
+    `signal_action=hold`, `enqueued_total=0`, `fills_total=0`, and
+    `closed_trades_total=0`.
+- Runner status during the proof:
+  - SHOWN: 279-280 live bars, populated market price, strategy
+    `breakout_donchian`, preset `breakout_default`,
+    `signal_source=public_ohlcv_5m`, and `signal_reason=inside_channel`.
+- Final isolated session evidence:
+  - SHOWN: start and end records both carry
+    `market_data_source=public_ohlcv`, `ohlcv_sample_mode=false`,
+    `ohlcv_timeframe=5m`, `ohlcv_venue=coinbase`, and
+    `ohlcv_symbol=BTC/USDT`.
+  - SHOWN: end record reports `campaign_status=completed`,
+    `reconciliation_result=pass`, `ops_checks_passed=true`,
+    `critical_error=false`, and `kill_switch_tested=true`.
+- Isolation checks:
+  - SHOWN: canonical `sma_200_trend` remained at 14 fills, 7 closed trades,
+    and +35.75316899496567 net realized PnL.
+  - SHOWN: isolated `ema_cross` remained at 2 fills, 1 closed trade, and
+    +0.20272406454938546 net realized PnL.
+- Final collector status:
+  - SHOWN: `status=completed`, `pid_alive=false`, and no PID file remains for
+    the one-shot proof.
+- Git status before this work-log update:
+  - SHOWN: clean `review-stabilized...origin/review-stabilized`; isolated
+    challenger artifacts remain ignored.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and potential future background-job
+  operation.
+- UNVERIFIED: no actionable breakout signal, order, fill, or round trip
+  occurred during Stage 0.
+- UNVERIFIED: persistent daily-loop lifecycle for `breakout_donchian` has not
+  been started or proven.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-07 after commit `5b4ee9b3c`.
+
+## 2026-06-08T00:09:59Z - Breakout Donchian Isolated Daily-Loop Start
+
+Active role: `ENGINEER`
+
+Objective: start the independently accepted `breakout_donchian` challenger as
+a separate paper-only daily-loop campaign in isolated local state.
+
+What was found:
+- SHOWN: the dedicated daily challenger state
+  `.cbp_state_challengers/breakout_default_daily` had no prior collector status
+  before start.
+- SHOWN: canonical `sma_200_trend` remained alive, idle, and unchanged at 14
+  fills and 7 all-history closed trades.
+- SHOWN: isolated `ema_cross_default` had already entered its 2026-06-08
+  collection window and remained in its own state directory.
+- SHOWN: the first detached `nohup` launch exited before writing collector
+  status and wrote no evidence records; it left only an empty app log under the
+  isolated breakout state.
+
+What changed:
+- Started the breakout challenger daily loop with:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily`.
+- Used `--daily-loop`, `--strategies breakout_donchian`,
+  `--session-strategy-id breakout_default`, `--symbol BTC/USDT`,
+  `--venue coinbase`, `--signal-source public_ohlcv_5m`,
+  `--runtime-sec 900`, `--strategy-drain-sec 2`, and
+  `--poll-interval-sec 300`.
+- Launched the successful collector in a managed long-running process session
+  after the detached `nohup` attempt failed to initialize.
+- No source code, strategy preset, gate threshold, canonical `.cbp_state`
+  artifact, or `ema_cross` challenger artifact was modified.
+
+Why this change:
+- Stage 0 proved breakout startup, public OHLCV routing, monitoring, isolated
+  evidence routing, and clean shutdown.
+- A separate daily loop lets the strongest synthetic leaderboard strategy
+  accumulate real paper observations without polluting `es_daily_trend_v1`
+  evidence or the existing `ema_cross_default` challenger.
+- Keeping the state path separate makes later comparison possible without
+  coupling promotion gates.
+
+Expected outcome:
+- The breakout challenger runs one isolated public-OHLCV evidence window per
+  UTC day.
+- Any breakout orders, fills, watch reports, and decision artifacts are written
+  only under `.cbp_state_challengers/breakout_default_daily`.
+- Canonical `sma_200_trend` and isolated `ema_cross_default` continue
+  independently.
+
+Verification:
+- Successful breakout status:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: `status=running`, `reason=collecting`, `pid=47262`,
+    `pid_alive=true`, `strategies=["breakout_donchian"]`, and evidence path
+    under `.cbp_state_challengers/breakout_default_daily`.
+- Breakout runner status:
+  - SHOWN: live 5-minute public OHLCV, `strategy_id=breakout_donchian`,
+    `strategy_preset=breakout_default`, `signal_action=hold`,
+    `signal_reason=inside_channel`, `pos_qty=0.0`, and `enqueued_total=0`.
+- Canonical isolation:
+  - SHOWN: `sma_200_trend` collector remains alive and idle with 14 fills, 7
+    all-history closed trades, and unchanged promotion-qualified count.
+- EMA challenger isolation:
+  - SHOWN: `ema_cross_default` collector remains alive and running in its own
+    2026-06-08 collection window.
+- Git status before this work-log update:
+  - SHOWN: clean `review-stabilized...origin/review-stabilized`; isolated
+    challenger artifacts remain ignored.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and background-job operation.
+- RESOLVED: the first persistent breakout daily-loop window completed; see the
+  2026-06-08T04:02:48Z entry below.
+- UNVERIFIED: no actionable breakout signal, order, fill, or round trip has
+  occurred in the daily loop yet.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-08 after commit `bcba08a6b`.
+
+## 2026-06-08T04:02:48Z - Breakout Donchian First Daily-Loop Window Completion
+
+Active role: `AUDITOR`
+
+Objective: verify the first persistent `breakout_donchian` daily-loop window
+completed cleanly after the accepted start.
+
+What was found:
+- SHOWN: `breakout_default` daily loop completed its 2026-06-08 window and
+  returned to idle while keeping PID `47262` alive for the next UTC day.
+- SHOWN: the completed result reported `runtime_sec=904.6953809261322`,
+  `stop_reason=runtime_elapsed`, `runner_status=stopped`,
+  `signal_action=hold`, `fills_total=0`, `closed_trades_total=0`, and
+  `net_realized_pnl_total=0.0`.
+- SHOWN: the session evidence contains start and end records with
+  `market_data_source=public_ohlcv`, `ohlcv_sample_mode=false`,
+  `ohlcv_timeframe=5m`, `ohlcv_venue=coinbase`, and
+  `ohlcv_symbol=BTC/USDT`.
+- SHOWN: the end record reports `campaign_status=completed`,
+  `reconciliation_result=pass`, `ops_checks_passed=true`,
+  `critical_error=false`, and `kill_switch_tested=true`.
+- SHOWN: `paper_sim_monitor` sees `breakout_default` idle, flat, `fills=0`,
+  `round_trips=0`, and `recommendation=continue`.
+- SHOWN: canonical `sma_200_trend` completed its 2026-06-08 window with no new
+  fills and remains not ready at `0/10` qualified round trips.
+- SHOWN: isolated `ema_cross_default` completed its 2026-06-08 window with no
+  new fills and remains at 2 fills, 1 closed trade, and +0.20272406454938546
+  net realized PnL.
+
+What changed:
+- No source code, config, strategy preset, gate threshold, or canonical
+  evidence was changed.
+- This entry records the first-window completion proof for the accepted
+  persistent breakout challenger.
+
+Why this change:
+- The accepted daily-loop start still had one open lifecycle risk: whether the
+  first persistent window would complete and return to idle cleanly.
+- Recording the completion proof keeps the governed work log aligned with the
+  actual background-job state.
+
+Expected outcome:
+- `breakout_default`, `ema_cross_default`, and canonical `sma_200_trend` now
+  continue as three isolated daily observation loops.
+- Breakout evidence remains paper-only and isolated under
+  `.cbp_state_challengers/breakout_default_daily`.
+- Future actionable breakout signals, orders, fills, or position closes should
+  be reviewed as challenger evidence only, not as `es_daily_trend_v1`
+  promotion evidence.
+
+Verification:
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: `status=idle`, `reason=waiting_for_next_day`, `last_completed_day=2026-06-08`, and `pid_alive=true`.
+- `cat .cbp_state_challengers/breakout_default_daily/data/evidence/breakout_default/session_2026-06-08.jsonl`
+  - SHOWN: public non-sample 5-minute Coinbase provenance on start/end session
+    records and clean completed end state.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_sim_monitor.py --status`
+  - SHOWN: idle, flat, `fills_observed=0`, `round_trips_observed=0`, and
+    `recommendation=continue`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state ./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: canonical paper gate remains not ready at `0/10` qualified round
+    trips and 34/30 days recorded.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: `ema_cross_default` is idle, alive, and waiting for the next UTC
+    day after a no-new-fill 2026-06-08 window.
+
+Remaining risk:
+- HIGH: ongoing financial strategy experimentation and background-job
+  operation.
+- UNVERIFIED: no actionable breakout order/fill/round trip has occurred yet.
+- UNVERIFIED: no multi-day persistence proof exists yet beyond the first
+  completed daily loop window.
+- Acceptance state: `ACCEPTED`.

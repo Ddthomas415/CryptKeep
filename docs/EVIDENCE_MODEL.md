@@ -57,6 +57,11 @@ the immutable prices, quantities, and fees for only those qualified order IDs.
 `check_promotion_gates.py --json` exposes qualified metrics under
 `paper_history`; unqualified persisted history remains visible under
 `paper_history.all_history` for diagnostics but cannot advance a promotion gate.
+The shared `paper_promotion_progress` output also includes a structured
+`qualification_explanation` and appends that explanation to its operator-facing
+summary whenever all-history round trips are excluded, evidence fills fail the
+provenance contract, or qualified fills do not form a complete round trip. This
+is reporting only and does not retroactively qualify historical records.
 
 ---
 
