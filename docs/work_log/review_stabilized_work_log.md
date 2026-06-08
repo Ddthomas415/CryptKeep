@@ -3294,4 +3294,6 @@ Remaining risk:
   whether PID `10310` wakes and completes the next UTC daily window.
 - UNVERIFIED: no actionable `breakout_donchian` order, fill, or round trip has
   occurred yet.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-08 after commit `c9e79eacd`.
