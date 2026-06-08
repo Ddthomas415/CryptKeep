@@ -3047,4 +3047,83 @@ Remaining risk:
   occurred during Stage 0.
 - UNVERIFIED: persistent daily-loop lifecycle for `breakout_donchian` has not
   been started or proven.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-07 after commit `5b4ee9b3c`.
+
+## 2026-06-08T00:09:59Z - Breakout Donchian Isolated Daily-Loop Start
+
+Active role: `ENGINEER`
+
+Objective: start the independently accepted `breakout_donchian` challenger as
+a separate paper-only daily-loop campaign in isolated local state.
+
+What was found:
+- SHOWN: the dedicated daily challenger state
+  `.cbp_state_challengers/breakout_default_daily` had no prior collector status
+  before start.
+- SHOWN: canonical `sma_200_trend` remained alive, idle, and unchanged at 14
+  fills and 7 all-history closed trades.
+- SHOWN: isolated `ema_cross_default` had already entered its 2026-06-08
+  collection window and remained in its own state directory.
+- SHOWN: the first detached `nohup` launch exited before writing collector
+  status and wrote no evidence records; it left only an empty app log under the
+  isolated breakout state.
+
+What changed:
+- Started the breakout challenger daily loop with:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily`.
+- Used `--daily-loop`, `--strategies breakout_donchian`,
+  `--session-strategy-id breakout_default`, `--symbol BTC/USDT`,
+  `--venue coinbase`, `--signal-source public_ohlcv_5m`,
+  `--runtime-sec 900`, `--strategy-drain-sec 2`, and
+  `--poll-interval-sec 300`.
+- Launched the successful collector in a managed long-running process session
+  after the detached `nohup` attempt failed to initialize.
+- No source code, strategy preset, gate threshold, canonical `.cbp_state`
+  artifact, or `ema_cross` challenger artifact was modified.
+
+Why this change:
+- Stage 0 proved breakout startup, public OHLCV routing, monitoring, isolated
+  evidence routing, and clean shutdown.
+- A separate daily loop lets the strongest synthetic leaderboard strategy
+  accumulate real paper observations without polluting `es_daily_trend_v1`
+  evidence or the existing `ema_cross_default` challenger.
+- Keeping the state path separate makes later comparison possible without
+  coupling promotion gates.
+
+Expected outcome:
+- The breakout challenger runs one isolated public-OHLCV evidence window per
+  UTC day.
+- Any breakout orders, fills, watch reports, and decision artifacts are written
+  only under `.cbp_state_challengers/breakout_default_daily`.
+- Canonical `sma_200_trend` and isolated `ema_cross_default` continue
+  independently.
+
+Verification:
+- Successful breakout status:
+  `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: `status=running`, `reason=collecting`, `pid=47262`,
+    `pid_alive=true`, `strategies=["breakout_donchian"]`, and evidence path
+    under `.cbp_state_challengers/breakout_default_daily`.
+- Breakout runner status:
+  - SHOWN: live 5-minute public OHLCV, `strategy_id=breakout_donchian`,
+    `strategy_preset=breakout_default`, `signal_action=hold`,
+    `signal_reason=inside_channel`, `pos_qty=0.0`, and `enqueued_total=0`.
+- Canonical isolation:
+  - SHOWN: `sma_200_trend` collector remains alive and idle with 14 fills, 7
+    all-history closed trades, and unchanged promotion-qualified count.
+- EMA challenger isolation:
+  - SHOWN: `ema_cross_default` collector remains alive and running in its own
+    2026-06-08 collection window.
+- Git status before this work-log update:
+  - SHOWN: clean `review-stabilized...origin/review-stabilized`; isolated
+    challenger artifacts remain ignored.
+
+Remaining risk:
+- HIGH: financial strategy experimentation and background-job operation.
+- UNVERIFIED: the first persistent breakout daily-loop window has not completed
+  yet.
+- UNVERIFIED: no actionable breakout signal, order, fill, or round trip has
+  occurred in the daily loop yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
