@@ -3306,8 +3306,11 @@ Objective: publish the accepted promotion-provenance visibility and detached
 paper-loop changes for integration from `review-stabilized` into `master`.
 
 What was found:
-- SHOWN: `review-stabilized` was clean, synced with its remote, and seven
-  commits ahead of `master` with no commits behind.
+- SHOWN: the initial local comparison reported `review-stabilized` seven
+  commits ahead of the stale local `master`.
+- SHOWN: after fetching remote truth, `origin/master` already contained the
+  five commits merged by PR `#52`; `review-stabilized` was three commits ahead
+  and one merge commit behind.
 - SHOWN: the branch diff is limited to promotion-progress explanation,
   detached collector startup, tests, operator documentation, and governed work
   records.
@@ -3322,6 +3325,8 @@ What changed:
 - Ran the full repository test suite to completion.
 - Opened GitHub PR `#53`, `review-stabilized` to `master`:
   `https://github.com/Ddthomas415/CryptKeep/pull/53`.
+- Merged current `origin/master` into `review-stabilized` with the `ort`
+  strategy and no content conflicts or history rewrite.
 - No campaign process, strategy configuration, gate threshold, order-routing
   behavior, or runtime evidence artifact was changed.
 
@@ -3342,8 +3347,11 @@ Verification:
   - SHOWN: `2118 passed, 33 skipped, 13 warnings in 393.84s`.
 - `git diff --check`
   - SHOWN: clean.
-- `git rev-list --left-right --count master...review-stabilized`
-  - SHOWN: `0 7`.
+- `git fetch origin master review-stabilized` followed by
+  `git rev-list --left-right --count origin/master...review-stabilized`
+  - SHOWN before synchronization: `1 3`.
+- `git merge --no-edit origin/master`
+  - SHOWN: clean `ort` merge with no content conflicts.
 - Collector status checks:
   - SHOWN: `sma_200_trend` PID `23879`, idle/alive, last completed
     `2026-06-10`.
