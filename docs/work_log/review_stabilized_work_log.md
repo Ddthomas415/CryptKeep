@@ -3203,3 +3203,171 @@ Remaining risk:
 - UNVERIFIED: no multi-day persistence proof exists yet beyond the first
   completed daily loop window.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-08T15:12:00Z - Detached Paper Evidence Daily-Loop Launcher
+
+Active role: `ENGINEER`
+
+Objective: fix the operator workflow gap where a paper evidence daily loop
+started from a Codex managed process session could die after the session ended.
+
+What was found:
+- SHOWN: the previously accepted `breakout_donchian` daily-loop collector PID
+  `47262` was no longer alive even though its status file still reported
+  `last_completed_day=2026-06-08`.
+- SHOWN: canonical `sma_200_trend` PID `23879` and isolated
+  `ema_cross_default` PID `8480` remained alive and parented to PID `1`.
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py` exposed
+  `--daily-loop`, `--status`, and `--stop`, but no authoritative detached
+  top-level launch mode.
+- SHOWN: existing service helpers use `start_new_session=True` for durable
+  managed child processes, but the collector itself had no equivalent
+  operator-facing launch path.
+
+What changed:
+- Added `--detach` to the authoritative
+  `scripts/run_paper_strategy_evidence_collector.py` CLI.
+- Scoped `--detach` to `--daily-loop` only; it cannot be combined with
+  `--status` or `--stop`.
+- The detached launcher:
+  - refuses to start a duplicate collector when the selected `CBP_STATE_DIR`
+    already has a live PID;
+  - starts the same script without `--detach`;
+  - inherits the selected environment, including `CBP_STATE_DIR`;
+  - uses `start_new_session=True` on POSIX and detached process flags on
+    Windows;
+  - redirects child output to
+    `<CBP_STATE_DIR>/runtime/logs/paper_strategy_evidence.log`;
+  - waits briefly for the child to publish a matching live PID before reporting
+    `detached_started`.
+- Updated `docs/GOLDEN_PATH.md` and `scripts/SCRIPTS.md` to document
+  `--daily-loop --detach` as the persistent operator path.
+- Restarted only the isolated `breakout_donchian` challenger using the new
+  detached path under
+  `.cbp_state_challengers/breakout_default_daily`.
+
+Why this change:
+- The previous `nohup` attempt failed to initialize, and the successful
+  managed-session launch did not survive as a durable background process.
+- Adding the detached mode at the authoritative collector CLI keeps the
+  operator workflow on one source of truth instead of adding another wrapper or
+  service-manager fork.
+- Duplicate-process protection and state-local logging make the launch auditable
+  and safe for isolated challenger state directories.
+
+Expected outcome:
+- Future paper evidence daily loops can be started with
+  `--daily-loop --detach` and survive the Codex session that started them.
+- `breakout_donchian` continues as an isolated paper-only challenger and should
+  wake on the next UTC day without manual polling.
+- Canonical `sma_200_trend` and isolated `ema_cross_default` continue
+  independently.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_run_paper_strategy_evidence_collector.py`
+  - SHOWN: `10 passed in 0.25s`.
+- `./.venv/bin/python -m pytest -q tests/test_run_paper_strategy_evidence_collector.py tests/test_dashboard_operator_service.py tests/test_bootstrap_helper_adoption.py`
+  - SHOWN: `37 passed in 0.85s`.
+- `./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --help`
+  - SHOWN: help exposes `--detach` and describes detached daily-loop startup.
+- `git diff --check`
+  - SHOWN: clean.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py ... --daily-loop --detach`
+  - SHOWN: returned `ok=true`, `reason=detached_started`, `pid=10310`, and
+    log file under the isolated breakout state directory.
+- `ps -o pid=,ppid=,stat=,etime=,command= -p 10310,23879,8480`
+  - SHOWN: breakout PID `10310`, EMA PID `8480`, and canonical PID `23879` are
+    all alive with `PPID=1`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/breakout_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: breakout status is `idle`, `reason=waiting_for_next_day`,
+    `pid=10310`, `pid_alive=true`, `strategies=["breakout_donchian"]`, and
+    evidence path remains under `.cbp_state_challengers/breakout_default_daily`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state_challengers/ema_cross_default_daily ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: EMA remains idle/alive at PID `8480`.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status`
+  - SHOWN: canonical `sma_200_trend` remains idle/alive at PID `23879`.
+
+Remaining risk:
+- HIGH: background-job operator workflow and financial strategy evidence
+  collection.
+- UNVERIFIED: no multi-day detached persistence proof exists yet; next proof is
+  whether PID `10310` wakes and completes the next UTC daily window.
+- UNVERIFIED: no actionable `breakout_donchian` order, fill, or round trip has
+  occurred yet.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-08 after commit `c9e79eacd`.
+
+## 2026-06-10 - Master Integration Handoff For Accepted Campaign Fixes
+
+Active role: `GATE`
+
+Objective: publish the accepted promotion-provenance visibility and detached
+paper-loop changes for integration from `review-stabilized` into `master`.
+
+What was found:
+- SHOWN: the initial local comparison reported `review-stabilized` seven
+  commits ahead of the stale local `master`.
+- SHOWN: after fetching remote truth, `origin/master` already contained the
+  five commits merged by PR `#52`; `review-stabilized` was three commits ahead
+  and one merge commit behind.
+- SHOWN: the branch diff is limited to promotion-progress explanation,
+  detached collector startup, tests, operator documentation, and governed work
+  records.
+- SHOWN: no open `review-stabilized` to `master` pull request existed.
+- SHOWN: canonical `sma_200_trend`, isolated `ema_cross_default`, and isolated
+  `breakout_default` all completed the 2026-06-10 daily window and remained
+  idle with live collector PIDs.
+- SHOWN: the detached breakout collector completed daily windows on
+  2026-06-08, 2026-06-09, and 2026-06-10.
+
+What changed:
+- Ran the full repository test suite to completion.
+- Opened GitHub PR `#53`, `review-stabilized` to `master`:
+  `https://github.com/Ddthomas415/CryptKeep/pull/53`.
+- Merged current `origin/master` into `review-stabilized` with the `ort`
+  strategy and no content conflicts or history rewrite.
+- No campaign process, strategy configuration, gate threshold, order-routing
+  behavior, or runtime evidence artifact was changed.
+
+Why this change:
+- The accepted fixes should not remain only on the review branch.
+- A pull request preserves CI evidence and an explicit integration boundary
+  before the canonical branch changes.
+- Verifying campaign health before and after the suite ensures the integration
+  proof did not interrupt active paper observation.
+
+Expected outcome:
+- GitHub CI evaluates the exact accepted branch tip.
+- After required checks pass, PR `#53` can be merged into `master`.
+- The three paper collectors continue independently while integration proceeds.
+
+Verification:
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2118 passed, 33 skipped, 13 warnings in 393.84s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `git fetch origin master review-stabilized` followed by
+  `git rev-list --left-right --count origin/master...review-stabilized`
+  - SHOWN before synchronization: `1 3`.
+- `git merge --no-edit origin/master`
+  - SHOWN: clean `ort` merge with no content conflicts.
+- GitHub PR `#53` checks on synchronized commit `f99ea206a`:
+  - SHOWN: `CI validate`, `CI sanity`, macOS build, Windows build, both
+    governance smoke checks, script-path integrity, and GitGuardian all passed.
+- Collector status checks:
+  - SHOWN: `sma_200_trend` PID `23879`, idle/alive, last completed
+    `2026-06-10`.
+  - SHOWN: `ema_cross_default` PID `8480`, idle/alive, last completed
+    `2026-06-10`.
+  - SHOWN: `breakout_default` PID `10310`, idle/alive, last completed
+    `2026-06-10`.
+
+Remaining risk:
+- MEDIUM: administrative merge of PR `#53` into `master` remains pending.
+- HIGH-risk implementation content in this PR was independently reviewed and
+  accepted by the human operator before the integration handoff.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted implementation,
+  clean local full suite, clean branch synchronization, and all GitHub PR
+  checks passing on 2026-06-10.

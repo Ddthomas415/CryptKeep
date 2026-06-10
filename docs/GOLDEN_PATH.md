@@ -23,9 +23,12 @@ while `scripts/SCRIPTS.md` classifies the full root script inventory as daily
 operator commands, diagnostics, emergency controls, research tools, release
 helpers, desktop surfaces, or specialized live-adjacent commands.
 
-For dashboard/operator launches, `scripts/run_paper_strategy_evidence_collector.py --daily-loop`
-is the managed background path. One start keeps the collector alive and records one new
-session day per new UTC day instead of exiting after a single campaign.
+For dashboard/operator launches,
+`scripts/run_paper_strategy_evidence_collector.py --daily-loop --detach` is the
+managed persistent background path. The command returns after verifying the
+detached collector PID, writes its process output under the selected
+`CBP_STATE_DIR`, and records one new session day per new UTC day. Omit
+`--detach` only when intentionally running the daily loop in the foreground.
 For `sma_200_trend`, the managed collector uses `public_ohlcv_1d` so evidence is sourced
 from daily public OHLCV instead of synthetic tick-derived bars.
 

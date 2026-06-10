@@ -40,6 +40,81 @@ def test_run_paper_strategy_evidence_collector_shows_status(monkeypatch, capsys)
     assert out["pid"] == 67890
 
 
+def test_start_detached_daily_loop_preserves_args_and_verifies_pid(monkeypatch, tmp_path) -> None:
+    seen: dict[str, object] = {}
+    statuses = iter(
+        [
+            {"ok": True, "pid_alive": False, "pid": 47262},
+            {"ok": True, "status": "idle", "pid_alive": True, "pid": 50123},
+        ]
+    )
+
+    class _FakeProcess:
+        pid = 50123
+
+        @staticmethod
+        def poll():
+            return None
+
+    def _popen(command, **kwargs):
+        seen["command"] = list(command)
+        seen["kwargs"] = dict(kwargs)
+        return _FakeProcess()
+
+    monkeypatch.setattr(script, "load_runtime_status", lambda: next(statuses))
+    monkeypatch.setattr(script.subprocess, "Popen", _popen)
+    monkeypatch.setattr(script, "_detached_log_path", lambda: tmp_path / "collector.log")
+
+    out = script._start_detached_daily_loop(
+        [
+            "--daily-loop",
+            "--detach",
+            "--strategies",
+            "breakout_donchian",
+            "--session-strategy-id",
+            "breakout_default",
+        ]
+    )
+
+    assert out == {
+        "ok": True,
+        "status": "idle",
+        "reason": "detached_started",
+        "pid": 50123,
+        "log_file": str(tmp_path / "collector.log"),
+    }
+    command = seen["command"]
+    assert "--daily-loop" in command
+    assert "--detach" not in command
+    assert command[-2:] == ["--session-strategy-id", "breakout_default"]
+    kwargs = seen["kwargs"]
+    assert kwargs["cwd"] == str(script.ROOT)
+    assert kwargs["stdin"] is script.subprocess.DEVNULL
+    assert kwargs["stderr"] is script.subprocess.STDOUT
+    if script.os.name != "nt":
+        assert kwargs["start_new_session"] is True
+
+
+def test_start_detached_daily_loop_does_not_duplicate_live_collector(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(
+        script,
+        "load_runtime_status",
+        lambda: {"ok": True, "status": "idle", "pid_alive": True, "pid": 23879},
+    )
+    monkeypatch.setattr(script, "_detached_log_path", lambda: tmp_path / "collector.log")
+    monkeypatch.setattr(
+        script.subprocess,
+        "Popen",
+        lambda *args, **kwargs: pytest.fail("must not start a duplicate collector"),
+    )
+
+    out = script._start_detached_daily_loop(["--daily-loop", "--detach"])
+
+    assert out["ok"] is True
+    assert out["reason"] == "already_running"
+    assert out["pid"] == 23879
+
+
 def test_run_paper_strategy_evidence_collector_runs_with_cfg(monkeypatch, capsys) -> None:
     seen: dict[str, object] = {}
 

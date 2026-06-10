@@ -16,6 +16,7 @@ import argparse
 import json
 import logging
 import os
+import subprocess
 import time
 from datetime import datetime, timezone
 
@@ -31,7 +32,7 @@ from services.analytics.paper_strategy_evidence_service import (
 )
 from services.admin.kill_switch import get_state as get_kill_switch_state
 from services.control.deployment_stage import get_current_stage
-from services.os.app_paths import data_dir
+from services.os.app_paths import data_dir, runtime_dir
 from services.strategies.evidence_logger import EvidenceLogger
 
 _DEFAULT_SESSION_STRATEGY_ID_BY_STRATEGY = {
@@ -324,6 +325,83 @@ def _run_daily_loop(
         _clear_pid_state()
 
 
+def _detached_log_path() -> Path:
+    path = runtime_dir() / "logs" / "paper_strategy_evidence.log"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _start_detached_daily_loop(
+    raw_argv: list[str],
+    *,
+    wait_timeout_sec: float = 5.0,
+) -> dict[str, object]:
+    existing = load_runtime_status()
+    if bool(existing.get("pid_alive")):
+        return {
+            "ok": True,
+            "status": "running",
+            "reason": "already_running",
+            "pid": int(existing.get("pid") or 0),
+            "log_file": str(_detached_log_path()),
+        }
+
+    child_argv = [str(item) for item in raw_argv if str(item) != "--detach"]
+    command = [sys.executable, str(Path(__file__).resolve()), *child_argv]
+    log_path = _detached_log_path()
+    kwargs: dict[str, object] = {
+        "cwd": str(ROOT),
+        "env": dict(os.environ),
+        "stdin": subprocess.DEVNULL,
+        "stderr": subprocess.STDOUT,
+        "close_fds": True,
+    }
+    if os.name == "nt":
+        creationflags = 0
+        if hasattr(subprocess, "CREATE_NEW_PROCESS_GROUP"):
+            creationflags |= subprocess.CREATE_NEW_PROCESS_GROUP
+        if hasattr(subprocess, "DETACHED_PROCESS"):
+            creationflags |= subprocess.DETACHED_PROCESS
+        kwargs["creationflags"] = creationflags
+    else:
+        kwargs["start_new_session"] = True
+
+    with log_path.open("a", encoding="utf-8", buffering=1) as log:
+        kwargs["stdout"] = log
+        proc = subprocess.Popen(command, **kwargs)
+
+    deadline = time.monotonic() + max(0.0, float(wait_timeout_sec))
+    while time.monotonic() <= deadline:
+        current = load_runtime_status()
+        if bool(current.get("pid_alive")) and int(current.get("pid") or 0) == int(proc.pid):
+            return {
+                "ok": True,
+                "status": str(current.get("status") or "running"),
+                "reason": "detached_started",
+                "pid": int(proc.pid),
+                "log_file": str(log_path),
+            }
+        exit_code = proc.poll()
+        if exit_code is not None:
+            return {
+                "ok": False,
+                "status": "failed",
+                "reason": "detached_process_exited",
+                "pid": int(proc.pid),
+                "exit_code": int(exit_code),
+                "log_file": str(log_path),
+            }
+        time.sleep(0.05)
+
+    return {
+        "ok": True,
+        "status": "starting",
+        "reason": "detached_started_waiting_for_status",
+        "pid": int(proc.pid),
+        "log_file": str(log_path),
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Run a managed paper strategy evidence collection campaign.")
     ap.add_argument(
@@ -356,6 +434,11 @@ def main() -> int:
     ap.add_argument("--paper-history-path", default="", help="Optional trade_journal.sqlite path override")
     ap.add_argument("--max-strategies", type=int, default=0, help="Optional cap for test/manual runs")
     ap.add_argument("--daily-loop", action="store_true", help="Keep the collector alive and run one campaign per new UTC day")
+    ap.add_argument(
+        "--detach",
+        action="store_true",
+        help="Start daily-loop mode as a persistent detached process and return after startup verification",
+    )
     ap.add_argument("--poll-interval-sec", type=float, default=300.0, help="Polling interval for daily loop mode")
     ap.add_argument("--max-loops", type=int, default=0, help="Optional loop cap for tests/manual use")
     ap.add_argument("--session-strategy-id", default="", help="Optional evidence strategy ID for session logs")
@@ -368,12 +451,18 @@ def main() -> int:
     ap.add_argument("--status", action="store_true", help="Show managed campaign runtime status")
     args = ap.parse_args()
 
+    if args.detach and (not args.daily_loop or args.stop or args.status):
+        ap.error("--detach requires --daily-loop and cannot be combined with --stop or --status")
     if args.stop:
         print(json.dumps(request_stop(), indent=2, default=str))
         return 0
     if args.status:
         print(json.dumps(load_runtime_status(), indent=2, default=str))
         return 0
+    if args.detach:
+        out = _start_detached_daily_loop(list(sys.argv[1:]))
+        print(json.dumps(out, indent=2, default=str))
+        return 0 if bool(out.get("ok")) else 1
 
     strategies = _strategy_items(args.strategies)
     signal_source = _default_signal_source(strategies=strategies, requested=str(args.signal_source or ""))
