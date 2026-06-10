@@ -3352,6 +3352,9 @@ Verification:
   - SHOWN before synchronization: `1 3`.
 - `git merge --no-edit origin/master`
   - SHOWN: clean `ort` merge with no content conflicts.
+- GitHub PR `#53` checks on synchronized commit `f99ea206a`:
+  - SHOWN: `CI validate`, `CI sanity`, macOS build, Windows build, both
+    governance smoke checks, script-path integrity, and GitGuardian all passed.
 - Collector status checks:
   - SHOWN: `sma_200_trend` PID `23879`, idle/alive, last completed
     `2026-06-10`.
@@ -3361,7 +3364,10 @@ Verification:
     `2026-06-10`.
 
 Remaining risk:
-- MEDIUM: PR integration and CI completion remain pending.
+- MEDIUM: administrative merge of PR `#53` into `master` remains pending.
 - HIGH-risk implementation content in this PR was independently reviewed and
   accepted by the human operator before the integration handoff.
-- Acceptance state: `INCOMPLETE`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted implementation,
+  clean local full suite, clean branch synchronization, and all GitHub PR
+  checks passing on 2026-06-10.
