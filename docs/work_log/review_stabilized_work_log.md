@@ -3371,3 +3371,101 @@ Remaining risk:
 - Acceptance reference: independently reviewed and accepted implementation,
   clean local full suite, clean branch synchronization, and all GitHub PR
   checks passing on 2026-06-10.
+
+## 2026-06-11T09:59:36Z - Count Held Bars By Market Timestamp
+
+Active role: `ENGINEER`
+
+Objective: stop the `breakout_donchian` and `ema_cross` paper runners from
+consuming a bar-based time stop on repeated polling of the same market bar.
+
+What was found:
+- SHOWN: the isolated `breakout_donchian` campaign produced three round trips
+  between `2026-06-11T00:03:20Z` and `2026-06-11T00:16:01Z` while consuming
+  public Coinbase `5m` OHLCV.
+- SHOWN: the first position-close monitor artifact reports
+  `bars_held=60`, `exit_reason=strategy_exit:breakout_donchian:time_stop`, and
+  `exit_stack_rule=time_stop` only about 162 seconds after entry.
+- SHOWN: the isolated `ema_cross` position-close artifact also reports
+  `strategy_exit:ema_cross:time_stop` after about 154 seconds.
+- SHOWN: `ema_crossover_runner.py` incremented `bars_held` once per polling
+  loop whenever a position was open, regardless of whether the latest OHLCV
+  timestamp changed.
+- SHOWN: the default `max_bars_hold` is `60`; therefore repeated polls of one
+  five-minute candle could exhaust the configured limit in roughly 60 loops.
+- SHOWN: the runner called `StrategyStateSQLite.delete(...)` during exit-state
+  cleanup, but `storage/strategy_state_sqlite.py` did not implement `delete`;
+  the resulting exceptions were swallowed.
+- UNVERIFIED: the second and third breakout exits did not retain an exit reason
+  in their captured monitor snapshots. Their timing is consistent with the
+  same defect, but the exact cause of those two exits is not proven.
+
+What changed:
+- Added `_advance_held_bar_counter(...)` and a persisted
+  `last_held_bar_ts:<venue>:<symbol>:<strategy>` state key.
+- The runner now seeds the timestamp without incrementing, ignores repeated or
+  older timestamps, and increments `bars_held` only when the market-data
+  timestamp advances.
+- Entry, flat-position, and sell cleanup now initialize or clear the timestamp
+  key together with the existing entry, trailing-peak, and held-bar state.
+- Added the missing `StrategyStateSQLite.delete(...)` operation so runner
+  cleanup no longer silently fails.
+- Added unit and runner-level regression tests proving repeated timestamps do
+  not consume the time stop and genuinely newer timestamps still produce
+  exactly one configured time-stop sell.
+
+Why this change:
+- `max_bars_hold` is a market-observation control, not a CPU-loop control.
+  Counting poll iterations made exit timing depend on runner cadence and
+  caused minute-scale churn on a five-minute strategy.
+- Persisting the last counted timestamp preserves correct behavior across
+  loops and process restarts without changing stop-loss, take-profit,
+  trailing-stop, signal, order-routing, or gate thresholds.
+- Implementing the store method used by the existing cleanup path is smaller
+  and safer than continuing to suppress a broken interface contract.
+
+Expected outcome:
+- Public OHLCV campaigns count each candle timestamp once, so a 60-bar hold
+  limit can no longer fire after 60 repeated polls of the same candle.
+- Tick-derived sources count unique observation timestamps rather than raw
+  loop iterations.
+- Existing time stops still fire when the configured number of genuinely new
+  market timestamps has elapsed.
+- Stale runner exit state can be deleted when positions close or are flat.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py tests/test_exit_control_stack.py`
+  - SHOWN: `31 passed in 0.76s`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py tests/test_exit_control_stack.py tests/test_ema_runner_risk_defaults.py tests/test_run_paper_strategy_evidence_collector.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `65 passed in 1.11s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2117 passed, 33 skipped, 13 warnings in 214.60s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `ruff check` on the changed files
+  - SHOWN: reports two pre-existing duplicate `sma_200_trend` dictionary keys
+    at runner lines 64 and 75; neither finding is introduced or modified by
+    this change.
+- VERIFIED_ENV: all verification ran in the repository virtual environment
+  from isolated worktree `/private/tmp/crypto-bot-pro-bar-hold-fix`.
+- Collector status checks from the unchanged main workspace:
+  - SHOWN: canonical `sma_200_trend` PID `23879` is idle/alive after completing
+    the 2026-06-11 window.
+  - SHOWN: isolated `ema_cross` PID `8480` is idle/alive after completing the
+    2026-06-11 window.
+  - SHOWN: isolated `breakout_donchian` PID `10310` is idle/alive after
+    completing the 2026-06-11 window.
+
+Remaining risk:
+- HIGH: this changes financial strategy exit timing and background-runner
+  state semantics.
+- UNVERIFIED: no live paper campaign has run on this branch; active collectors
+  remain on accepted commit `13cba446b` and were not restarted or modified.
+- UNVERIFIED: sell intent metadata does not directly persist `exit_reason`, so
+  later evidence may still require monitor snapshots to attribute an exit.
+- SHOWN: the daily-loop collector launches `scripts/run_strategy_runner.py` as
+  a fresh subprocess for each strategy window, so integration before the next
+  UTC window applies the fix without restarting the collector parents.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-11 after commit `a0a1403de`.

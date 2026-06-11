@@ -48,3 +48,10 @@ class StrategyStateSQLite:
             con.execute("INSERT OR REPLACE INTO strategy_state(k,v,updated_ts) VALUES(?,?,?)", (str(k), str(v), _now()))
         finally:
             con.close()
+
+    def delete(self, k: str) -> None:
+        con = _connect()
+        try:
+            con.execute("DELETE FROM strategy_state WHERE k=?", (str(k),))
+        finally:
+            con.close()
