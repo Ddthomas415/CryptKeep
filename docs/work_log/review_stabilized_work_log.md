@@ -3463,6 +3463,9 @@ Remaining risk:
   remain on accepted commit `13cba446b` and were not restarted or modified.
 - UNVERIFIED: sell intent metadata does not directly persist `exit_reason`, so
   later evidence may still require monitor snapshots to attribute an exit.
-- After independent acceptance and integration, the EMA and breakout
-  collectors require a controlled restart before this behavior takes effect.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- SHOWN: the daily-loop collector launches `scripts/run_strategy_runner.py` as
+  a fresh subprocess for each strategy window, so integration before the next
+  UTC window applies the fix without restarting the collector parents.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-11 after commit `a0a1403de`.
