@@ -3715,4 +3715,6 @@ Remaining risk:
 - UNVERIFIED: no real paper exit has yet written the new fields.
 - Historical June 11 evidence is not backfilled; the change applies to future
   orders and fills only.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-11 after commit `493d9d76c`.
