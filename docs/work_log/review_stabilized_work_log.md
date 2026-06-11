@@ -3595,4 +3595,6 @@ Remaining risk:
   so actual desktop delivery from the replacement process is not yet shown.
 - UNVERIFIED: the June 12 paper window has not yet exercised the accepted
   market-bar time-stop correction.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-11 after commit `7f3084f65`.
