@@ -3523,3 +3523,76 @@ Remaining risk:
 - UNVERIFIED: the corrected behavior has not yet completed a real paper
   window; the next proof point is the June 12 challenger evidence.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-11T10:18:03Z - Re-enable Breakout Desktop Notifications
+
+Active role: `ENGINEER`
+
+Objective: restore desktop delivery for the existing breakout monitor watches
+without changing campaign evidence, strategy settings, or other collectors.
+
+What was found:
+- SHOWN: canonical PID `23879` and EMA PID `8480` were launched with the
+  default notification-enabled mode.
+- SHOWN: breakout PID `10310` was explicitly launched with
+  `--no-desktop-notify`.
+- SHOWN: the June 11 canonical and EMA watch reports recorded
+  `desktop_notification.sent=true`.
+- SHOWN: the June 11 breakout investigate report recorded
+  `attempted=false`, `sent=false`, and `reason=disabled`.
+- SHOWN: all four breakout watches were active and writing report artifacts;
+  only desktop delivery was disabled.
+
+What changed:
+- Requested a supported stop for idle breakout collector PID `10310`.
+- Waited for the 300-second daily-loop poll boundary until status showed
+  `stop_requested`, `pid_alive=false`, and no PID file.
+- Started the same detached breakout daily-loop command in the same isolated
+  state directory without `--no-desktop-notify`.
+- The replacement collector is PID `32873`, idle and waiting for the next UTC
+  day.
+
+Why this change:
+- The monitor and trigger layer already worked; replacing the parent launch
+  flag is the smallest correction that restores user-visible notifications.
+- The June 11 session was complete, so the supported stop/detach sequence
+  avoided interrupting an active runner or duplicating the daily campaign.
+
+Expected outcome:
+- The next breakout fill, position close, investigate recommendation, or
+  campaign-completed event writes its normal report and attempts local desktop
+  delivery.
+- The June 12 breakout strategy window also loads the accepted market-bar
+  time-stop implementation from `review-stabilized`.
+
+Verification:
+- Old collector status:
+  - SHOWN: PID `10310` stopped with `reason=stop_requested`,
+    `pid_alive=false`, and `has_pid_file=false`.
+- Replacement start:
+  - SHOWN: detach returned `reason=detached_started`, PID `32873`.
+  - SHOWN: status reports `idle`, `waiting_for_next_day`, `pid_alive=true`,
+    and `last_completed_day=2026-06-11`.
+- Process command inspection:
+  - SHOWN: PID `32873` retains the breakout strategy, session ID, BTC/USDT,
+    Coinbase, public 5-minute OHLCV, 900-second runtime, and 300-second daily
+    poll settings.
+  - SHOWN: PID `32873` does not contain `--no-desktop-notify`.
+- Evidence integrity:
+  - SHOWN: persisted paper history remains six fills, three closed trades, and
+    `-0.38540687113248273` net realized PnL.
+  - SHOWN: evidence inventory remains one fill file, one order file, four
+    session files, and 20 total records.
+- Isolation:
+  - SHOWN: canonical PID `23879` and EMA PID `8480` remained alive with their
+    original command lines.
+- VERIFIED_ENV: commands ran from the synchronized `review-stabilized`
+  workspace at `bf2aae822`.
+
+Remaining risk:
+- HIGH: this changed a persistent background monitoring job.
+- UNVERIFIED: no new breakout watch event has fired after PID `32873` started,
+  so actual desktop delivery from the replacement process is not yet shown.
+- UNVERIFIED: the June 12 paper window has not yet exercised the accepted
+  market-bar time-stop correction.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
