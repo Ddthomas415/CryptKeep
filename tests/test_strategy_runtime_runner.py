@@ -478,6 +478,8 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     assert len(queued) == 1
     assert queued[0]["strategy_id"] == "breakout_donchian"
     assert queued[0]["side"] == "buy"
+    assert "exit_reason" not in queued[0]["meta"]
+    assert "exit_stack_rule" not in queued[0]["meta"]
 
 
 @pytest.mark.slow
@@ -722,6 +724,8 @@ def test_run_forever_exit_action_emits_sell_once_while_condition_persists(monkey
 
     assert len(emitted) == 1
     assert emitted[0]["side"] == "sell"
+    assert emitted[0]["meta"]["exit_reason"] == "take_profit"
+    assert emitted[0]["meta"]["exit_stack_rule"] == "take_profit"
 
 
 @pytest.mark.slow

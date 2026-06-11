@@ -195,6 +195,8 @@ def summarize_closed_trade_outcomes(rows: list[dict[str, Any]]) -> dict[str, Any
             "regime": r.get("regime") or "unknown",
             "side": r.get("side"),
             "signal_reason": r.get("signal_reason"),
+            "exit_reason": r.get("exit_reason"),
+            "exit_stack_rule": r.get("exit_stack_rule"),
             "realized_pnl_delta": round(realized_delta, 6),
             "realized_pnl_total": round(realized, 6) if realized is not None else None,
         })
