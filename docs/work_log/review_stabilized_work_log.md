@@ -3469,3 +3469,52 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-11 after commit `a0a1403de`.
+
+## 2026-06-11T10:11:31Z - Integrate Accepted Market-Bar Time-Stop Fix
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted strategy-runner correction
+into `review-stabilized` without interrupting active paper campaigns.
+
+What was found:
+- SHOWN: `codex/fix-bar-hold-clock` was a clean two-commit descendant of
+  `review-stabilized`; no conflict resolution or history rewrite was needed.
+- SHOWN: the daily-loop collector launches a fresh strategy-runner subprocess
+  for each UTC evidence window.
+- SHOWN: canonical, EMA, and breakout collector parents had already completed
+  the 2026-06-11 window and remained idle with live PIDs.
+
+What changed:
+- Merged accepted commits `a0a1403de` and `91fd74b50` into
+  `review-stabilized` as merge commit `0efcd55c3`.
+- No collector process, evidence artifact, strategy configuration, gate
+  threshold, or current position was changed.
+
+Why this change:
+- The correction must be on the branch used by the next freshly launched
+  strategy runner.
+- Preserving the collector parents avoids an unnecessary campaign restart
+  while still applying the accepted code on the next UTC window.
+
+Expected outcome:
+- The June 12 EMA and breakout strategy windows load the market-timestamp bar
+  counter automatically.
+- Repeated polling of one five-minute candle no longer consumes the 60-bar
+  time stop.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py tests/test_exit_control_stack.py tests/test_ema_runner_risk_defaults.py tests/test_run_paper_strategy_evidence_collector.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `65 passed in 1.14s`.
+- `git diff --check origin/review-stabilized...HEAD`
+  - SHOWN: clean.
+- Collector status checks:
+  - SHOWN: `sma_200_trend` PID `23879`, idle/alive.
+  - SHOWN: `ema_cross` PID `8480`, idle/alive.
+  - SHOWN: `breakout_donchian` PID `10310`, idle/alive.
+
+Remaining risk:
+- HIGH implementation risk was independently accepted before integration.
+- UNVERIFIED: the corrected behavior has not yet completed a real paper
+  window; the next proof point is the June 12 challenger evidence.
+- Acceptance state: `ACCEPTED`.
