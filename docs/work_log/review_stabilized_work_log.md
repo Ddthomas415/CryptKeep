@@ -3598,3 +3598,50 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-11 after commit `7f3084f65`.
+
+## 2026-06-11T12:53:51Z - Remove Stale Promotion Worktree Registration
+
+Active role: `ENGINEER`
+
+Objective: remove a dead worktree registration and its fully merged feature
+branch so Git no longer advertises a nonexistent checkout.
+
+What was found:
+- SHOWN: `/private/tmp/cryptkeep-shadow-gate-evidence-scope` did not exist.
+- SHOWN: `git worktree prune --dry-run --verbose` identified its registration
+  as prunable because the gitdir target was missing.
+- SHOWN: local and remote `codex/promotion-provenance-visibility` were each
+  fully contained in `review-stabilized`; the comparison was 18 commits on
+  `review-stabilized` and zero unique feature commits.
+
+What changed:
+- Pruned the stale worktree registration.
+- Deleted the fully merged local
+  `codex/promotion-provenance-visibility` branch.
+- Deleted the corresponding fully merged remote branch.
+
+Why this change:
+- A dead worktree registration can block branch cleanup and create false
+  branch-conflict signals.
+- Ancestry was proven before deletion, so no unique commit was discarded.
+
+Expected outcome:
+- `git worktree list` reports only the active repository checkout.
+- Future branch and worktree operations no longer encounter the stale
+  promotion-provenance registration.
+
+Verification:
+- `git worktree list --porcelain`
+  - SHOWN: only `/Users/baitus/Downloads/crypto-bot-pro` remains.
+- `git branch -vv | rg 'promotion-provenance-visibility'`
+  - SHOWN: no local branch remains.
+- `git status -sb`
+  - SHOWN: `review-stabilized` is clean and synchronized before this log
+    entry.
+- VERIFIED_ENV: Git cleanup ran in the canonical repository checkout.
+
+Remaining risk:
+- LOW: metadata and fully merged branch cleanup only.
+- No runtime process, evidence artifact, source file, or strategy behavior was
+  changed.
+- Acceptance state: `ACCEPTED`.
