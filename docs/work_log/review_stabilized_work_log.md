@@ -3488,6 +3488,9 @@ What was found:
 What changed:
 - Merged accepted commits `a0a1403de` and `91fd74b50` into
   `review-stabilized` as merge commit `0efcd55c3`.
+- After verifying the feature tip was an ancestor of `review-stabilized`,
+  removed the temporary worktree and deleted the merged local and remote
+  `codex/fix-bar-hold-clock` branches.
 - No collector process, evidence artifact, strategy configuration, gate
   threshold, or current position was changed.
 
@@ -3508,6 +3511,8 @@ Verification:
   - SHOWN: `65 passed in 1.14s`.
 - `git diff --check origin/review-stabilized...HEAD`
   - SHOWN: clean.
+- `git merge-base --is-ancestor codex/fix-bar-hold-clock review-stabilized`
+  - SHOWN: returned success before branch cleanup.
 - Collector status checks:
   - SHOWN: `sma_200_trend` PID `23879`, idle/alive.
   - SHOWN: `ema_cross` PID `8480`, idle/alive.
