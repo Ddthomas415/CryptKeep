@@ -1230,6 +1230,12 @@ def run_forever() -> None:
                             "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                            **({"exit_reason": exit_reason} if exit_reason else {}),
+                            **(
+                                {"exit_stack_rule": exit_out.get("stack_rule")}
+                                if exit_action and isinstance(exit_out, dict) and exit_out.get("stack_rule")
+                                else {}
+                            ),
                             "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
                             **evidence_extra,

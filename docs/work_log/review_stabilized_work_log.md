@@ -3645,3 +3645,74 @@ Remaining risk:
 - No runtime process, evidence artifact, source file, or strategy behavior was
   changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-11T13:19:53Z - Persist Strategy Exit Attribution
+
+Active role: `ENGINEER`
+
+Objective: make strategy-driven sell reasons durable across paper intent,
+order/fill evidence, reconciliation outcomes, and closed-trade summaries.
+
+What was found:
+- SHOWN: the June 11 breakout paper database contains three sell orders whose
+  metadata has `exit_reason=None` and `exit_stack_rule=None`.
+- SHOWN: the June 11 EMA paper database contains one sell order with the same
+  missing attribution.
+- SHOWN: the first breakout position-close monitor artifact temporarily
+  reported `strategy_exit:breakout_donchian:time_stop`, but that reason was not
+  copied into the queued intent or durable paper order.
+- SHOWN: `paper_engine.py` copied only market-data provenance fields into order
+  and fill JSONL evidence.
+- SHOWN: both strategy outcome producers copied `signal_reason` but omitted
+  `exit_reason` and `exit_stack_rule`.
+
+What changed:
+- Exit-stack and EMA-invalidation sells now add `exit_reason` to intent
+  metadata; stack exits also add `exit_stack_rule`.
+- Ordinary buy and signal-change intents remain unchanged and do not receive
+  exit attribution fields.
+- Paper order and fill JSONL evidence now preserves the two exit-attribution
+  fields alongside existing market-data provenance.
+- Paper intent reconciliation and execution-plan reconciliation now copy the
+  fields into strategy outcome rows.
+- Closed-trade summaries now expose both fields.
+- Added unit and SQLite-backed integration coverage from queued sell intent
+  through paper order, fill JSONL, reconciliation, and summary output.
+
+Why this change:
+- Exit attribution must survive beyond transient runner status to support
+  strategy review, churn diagnosis, and performance analysis by exit type.
+- Copying existing metadata is the smallest coherent fix; no order decision,
+  side, quantity, venue, risk threshold, or execution route changes.
+
+Expected outcome:
+- Future strategy-driven paper exits can be classified as time stop, stop
+  loss, take profit, trailing stop, or EMA invalidation from durable evidence.
+- Operators no longer need a precisely timed monitor snapshot to determine why
+  a position closed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_paper_engine_integration.py tests/test_intent_reconciler.py tests/test_paper_strategy_journal_flow.py tests/test_outcome_summary.py`
+  - SHOWN: `40 passed in 1.30s`.
+- Broader paper execution and evidence regression slice:
+  - SHOWN: `78 passed in 2.54s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2119 passed, 33 skipped, 13 warnings in 208.72s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `ruff check` on the non-runner changed files
+  - SHOWN: reported only pre-existing import-order and unused-import findings
+    at the top of `paper_engine.py`; no changed block introduced a lint
+    finding.
+- VERIFIED_ENV: all tests ran in repository virtual environment from isolated
+  worktree `/private/tmp/crypto-bot-pro-exit-attribution`.
+- Isolation:
+  - SHOWN: canonical workspace remained clean on `review-stabilized`.
+  - SHOWN: breakout collector PID `32873` remained idle/alive.
+
+Remaining risk:
+- HIGH: this changes financial evidence and execution-observability surfaces.
+- UNVERIFIED: no real paper exit has yet written the new fields.
+- Historical June 11 evidence is not backfilled; the change applies to future
+  orders and fills only.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

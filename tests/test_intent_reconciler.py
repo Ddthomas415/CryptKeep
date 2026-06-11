@@ -5,9 +5,15 @@ import importlib
 from services.execution.intent_reconciler import reconcile_once
 
 
-def test_reconcile_once_journals_filled_strategy_intent() -> None:
+def test_reconcile_once_journals_filled_strategy_intent(monkeypatch) -> None:
     updates: list[tuple[str, str, str | None]] = []
     journal_rows: list[dict] = []
+    outcome_rows: list[dict] = []
+
+    monkeypatch.setattr(
+        "services.execution.intent_reconciler.log_strategy_outcome",
+        lambda row: outcome_rows.append(dict(row)),
+    )
 
     class FakeQueue:
         def list_intents(self, *, limit: int, status: str) -> list[dict]:
@@ -20,6 +26,11 @@ def test_reconcile_once_journals_filled_strategy_intent() -> None:
                     "strategy_id": "ema_cross",
                     "client_order_id": "paper_intent_intent-1",
                     "linked_order_id": "paper-order-1",
+                    "meta": {
+                        "signal_reason": "no_cross",
+                        "exit_reason": "strategy_exit:ema_cross:time_stop",
+                        "exit_stack_rule": "time_stop",
+                    },
                 }
             ]
 
@@ -81,6 +92,9 @@ def test_reconcile_once_journals_filled_strategy_intent() -> None:
     assert journal_rows[0]["strategy_id"] == "ema_cross"
     assert journal_rows[0]["client_order_id"] == "paper_intent_intent-1"
     assert journal_rows[0]["order_id"] == "paper-order-1"
+    assert outcome_rows[0]["signal_reason"] == "no_cross"
+    assert outcome_rows[0]["exit_reason"] == "strategy_exit:ema_cross:time_stop"
+    assert outcome_rows[0]["exit_stack_rule"] == "time_stop"
     assert out == {
         "submitted_checked": 1,
         "intents_updated": 1,

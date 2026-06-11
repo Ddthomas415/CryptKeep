@@ -612,10 +612,14 @@ def test_paper_engine_evidence_logging_prefers_strategy_preset(monkeypatch, tmp_
             "ohlcv_timeframe": "1d",
             "ohlcv_venue": "coinbase",
             "ohlcv_symbol": "BTC/USD",
+            "exit_reason": "strategy_exit:sma_200_trend:time_stop",
+            "exit_stack_rule": "time_stop",
         },
     )
 
     assert out["ok"] is True
+    assert out["order"]["meta"]["exit_reason"] == "strategy_exit:sma_200_trend:time_stop"
+    assert out["order"]["meta"]["exit_stack_rule"] == "time_stop"
     assert eng.evaluate_open_orders()["filled"] == 1
     assert [(kind, strategy_id) for kind, strategy_id, _ in calls] == [
         ("order", "es_daily_trend_v1"),
@@ -625,3 +629,5 @@ def test_paper_engine_evidence_logging_prefers_strategy_preset(monkeypatch, tmp_
         assert kwargs["extra"]["market_data_source"] == "public_ohlcv"
         assert kwargs["extra"]["ohlcv_sample_mode"] is False
         assert kwargs["extra"]["ohlcv_timeframe"] == "1d"
+        assert kwargs["extra"]["exit_reason"] == "strategy_exit:sma_200_trend:time_stop"
+        assert kwargs["extra"]["exit_stack_rule"] == "time_stop"
