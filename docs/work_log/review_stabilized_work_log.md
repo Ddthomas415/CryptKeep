@@ -3837,3 +3837,59 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-12 after commit `a8b12463e`.
+
+## 2026-06-12T09:52:44Z - Integrate Accepted Provenance Explanation
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted paper promotion-history
+explanation while preserving existing audit records and active campaigns.
+
+What was found:
+- SHOWN: accepted branch `codex/explain-provenance-qualification` contained
+  implementation commit `a8b12463e` and human-acceptance record `a2d20dea1`.
+- SHOWN: `review-stabilized` had a pending, unrelated work-log entry for the
+  previously accepted exit-attribution integration.
+- SHOWN: canonical, EMA, and breakout collectors were idle/alive after
+  completing their June 12 windows.
+
+What changed:
+- Preserved the pending exit-attribution integration record in commit
+  `27b2e3a00`.
+- Merged the accepted provenance-explanation branch into `review-stabilized`
+  as `4ac757dfc`.
+- Resolved the work-log conflict by retaining both chronological entries.
+- No evidence artifact, campaign configuration, threshold, qualification
+  decision, order route, or runtime process was changed.
+
+Why this change:
+- The accepted reporting fix must be visible on the canonical review branch.
+- Keeping both work-log entries preserves the governed audit trail rather than
+  choosing one branch's documentation over the other.
+
+Expected outcome:
+- Operators see why seven historical round trips are diagnostic only while the
+  promotion gate continues to count zero provenance-qualified round trips.
+- Active collectors continue without restart or evidence mutation.
+
+Verification:
+- Merged promotion, monitor, and dashboard regression slice:
+  - SHOWN: `81 passed in 1.87s`.
+- Accepted branch full suite:
+  - SHOWN: `2120 passed, 33 skipped, 13 warnings in 209.18s`.
+- Canonical gate output:
+  - SHOWN: `ready=false`, `machine_ready=false`, `7 pass / 2 unknown`.
+  - SHOWN: detail reports seven diagnostic-only trips, nine unqualified fills,
+    and one incomplete qualified fill.
+- `git diff --check`
+  - SHOWN: clean before merge completion.
+- VERIFIED_ENV: integration and verification ran in the canonical repository
+  checkout.
+
+Remaining risk:
+- Historical provenance remains unverified and intentionally does not count
+  toward promotion.
+- No real post-integration exit has yet verified durable exit attribution.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human acceptance on 2026-06-12, followed by GATE
+  integration commit `4ac757dfc`.
