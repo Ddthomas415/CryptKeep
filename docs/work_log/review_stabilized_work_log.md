@@ -3960,3 +3960,60 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-12.
+
+## 2026-06-12T10:07:48Z - Integrate Accepted Monitor Promotion Scoping
+
+Active role: `GATE`
+
+Objective: integrate the accepted challenger monitor promotion-policy scoping
+without restarting active paper collectors.
+
+What was found:
+- SHOWN: accepted commit `038d5afe3` was a clean descendant of the current
+  `review-stabilized` tip.
+- SHOWN: canonical, EMA, and breakout collectors remained idle/alive after
+  completing their June 12 windows.
+- SHOWN: the operator requested that no additional full-suite tests run.
+
+What changed:
+- Merged `codex/scope-monitor-promotion-progress` into `review-stabilized` as
+  `833b27f6d`.
+- No collector process, evidence artifact, strategy threshold, campaign
+  configuration, or order path was changed during integration.
+
+Why this change:
+- The accepted fix removes false canonical-gate status from challenger monitor
+  and Operations surfaces.
+- Targeted verification is sufficient for integration because the accepted
+  branch already had full-suite proof and the operator explicitly stopped
+  further full-suite runs.
+
+Expected outcome:
+- Canonical `es_daily_trend_v1` monitoring continues to show its configured
+  promotion gate.
+- EMA and breakout monitoring show `not_configured` rather than canonical SMA
+  gate progress or `not_ready`.
+
+Verification:
+- Merged monitor, dashboard, and promotion regression slice:
+  - SHOWN: `84 passed in 1.89s`.
+- Python compilation:
+  - SHOWN: monitor, dashboard runtime, and Operations page compiled cleanly.
+- Real-state read-only snapshots:
+  - SHOWN: canonical returned `applicable=true`.
+  - SHOWN: EMA returned `applicable=false`, `status=not_configured`.
+  - SHOWN: breakout returned `applicable=false`, `status=not_configured`.
+- `git diff --check`
+  - SHOWN: clean.
+- Full suite was not rerun after acceptance at the operator's direction.
+- VERIFIED_ENV: integration verification ran in the canonical repository
+  checkout.
+
+Remaining risk:
+- Challenger promotion thresholds remain intentionally undefined pending a
+  separate governance decision.
+- Active monitor subprocesses will load the integrated code on their next
+  daily campaign window; no parent restart was performed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human acceptance on 2026-06-12, followed by GATE
+  integration commit `833b27f6d`.
