@@ -3718,3 +3718,51 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-11 after commit `493d9d76c`.
+
+## 2026-06-11T13:36:56Z - Integrate Accepted Exit Attribution
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted exit-attribution evidence
+change without interrupting active paper collectors.
+
+What was found:
+- SHOWN: `codex/persist-exit-attribution` was a clean two-commit descendant of
+  `review-stabilized`.
+- SHOWN: the feature commit had full-suite proof of `2119 passed, 33 skipped`.
+- SHOWN: all three collector parents had completed the June 11 window and were
+  idle with live PIDs.
+
+What changed:
+- Merged accepted commits `493d9d76c` and `2ad46c2e6` into
+  `review-stabilized` as merge commit `d270fe1dc`.
+- No collector process, position, strategy configuration, evidence artifact,
+  or historical record was modified.
+
+Why this change:
+- Future paper exits need durable reason attribution before the next strategy
+  windows launch.
+- Fresh runner and paper-engine subprocesses are launched for each UTC window,
+  so collector-parent restarts are unnecessary.
+
+Expected outcome:
+- Future strategy-driven paper sell orders and fills preserve
+  `exit_reason` and `exit_stack_rule`.
+- Reconciled outcome rows and closed-trade summaries expose the same fields.
+
+Verification:
+- Merged execution/evidence regression slice:
+  - SHOWN: `78 passed in 2.74s`.
+- `git diff --check origin/review-stabilized...HEAD`
+  - SHOWN: clean.
+- Collector status:
+  - SHOWN: canonical PID `23879`, idle/alive.
+  - SHOWN: EMA PID `8480`, idle/alive.
+  - SHOWN: breakout PID `32873`, idle/alive.
+
+Remaining risk:
+- HIGH implementation risk was independently accepted before integration.
+- UNVERIFIED: no real post-integration paper exit has yet persisted the new
+  attribution fields.
+- Historical June 11 orders and fills remain unchanged.
+- Acceptance state: `ACCEPTED`.
