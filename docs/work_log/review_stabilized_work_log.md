@@ -3786,4 +3786,6 @@ Remaining risk:
 - HIGH: this is financial promotion-gate reporting, although decision logic is
   unchanged.
 - Historical provenance remains unverified and is intentionally not backfilled.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-12 after commit `a8b12463e`.
