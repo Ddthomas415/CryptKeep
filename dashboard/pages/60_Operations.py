@@ -423,7 +423,22 @@ with tab_strategy:
                 "fills": str(int(paper_sim_monitor_runtime.get("fills_observed") or 0)),
                 "round_trips": str(int(paper_sim_monitor_runtime.get("round_trips_observed") or 0)),
                 "promotion_thresholds": (
-                    "ready" if bool(paper_sim_monitor_runtime.get("promotion_thresholds_ready")) else "not_ready"
+                    "not_configured"
+                    if not bool(
+                        paper_sim_monitor_runtime.get(
+                            "promotion_thresholds_applicable",
+                            True,
+                        )
+                    )
+                    else (
+                        "ready"
+                        if bool(
+                            paper_sim_monitor_runtime.get(
+                                "promotion_thresholds_ready"
+                            )
+                        )
+                        else "not_ready"
+                    )
                 ),
                 "promotion_progress": str(paper_sim_monitor_runtime.get("promotion_progress_summary") or ""),
                 "watches": str(int(paper_sim_monitor_runtime.get("watch_count") or 0)),
