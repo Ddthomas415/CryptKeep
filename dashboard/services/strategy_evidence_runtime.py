@@ -102,7 +102,12 @@ def load_paper_sim_monitor_runtime() -> dict[str, Any]:
         if isinstance(payload.get("promotion_progress"), dict)
         else {}
     )
-    payload["promotion_thresholds_ready"] = bool(promotion_progress.get("thresholds_ready"))
+    promotion_thresholds_applicable = bool(promotion_progress.get("applicable", True))
+    payload["promotion_thresholds_applicable"] = promotion_thresholds_applicable
+    payload["promotion_thresholds_ready"] = (
+        promotion_thresholds_applicable
+        and bool(promotion_progress.get("thresholds_ready"))
+    )
     payload["promotion_progress_summary"] = str(
         payload.get("promotion_progress_summary")
         or promotion_progress.get("summary_text")

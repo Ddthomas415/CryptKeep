@@ -3893,3 +3893,70 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human acceptance on 2026-06-12, followed by GATE
   integration commit `4ac757dfc`.
+
+## 2026-06-12T09:55:27Z - Scope Monitor Promotion Progress
+
+Active role: `ENGINEER`
+
+Objective: prevent challenger paper monitors from displaying the canonical
+`es_daily_trend_v1` promotion gate.
+
+What was found:
+- SHOWN: `paper_sim_monitor._promotion_progress_snapshot()` unconditionally
+  called `load_paper_promotion_progress()` with canonical defaults.
+- SHOWN: EMA and breakout monitor artifacts therefore displayed the SMA
+  strategy's evidence directory, `0/30` days, and `0/10` round trips.
+- SHOWN: the repo defines promotion thresholds only for
+  `es_daily_trend_v1` / `sma_200_trend`; no accepted threshold policy exists
+  for `ema_cross_default` or `breakout_default`.
+- SHOWN: the Operations page rendered every false readiness value as
+  `not_ready`, so a monitor-only change would still leave misleading UI text.
+
+What changed:
+- The monitor now passes the active preset, strategy, and symbol into the
+  promotion-progress resolver.
+- Canonical SMA campaigns continue loading the existing paper promotion gate.
+- Noncanonical campaigns return `status=not_configured`,
+  `applicable=false`, no blockers, and an explicit informational summary.
+- Runtime normalization exposes `promotion_thresholds_applicable`.
+- Operations renders `not_configured` instead of `not_ready` for challengers.
+- Added monitor and dashboard-runtime regression coverage.
+
+Why this change:
+- Reusing one strategy's gate for another strategy misstates both evidence and
+  policy.
+- Inventing challenger thresholds in this patch would be an unsupported policy
+  decision; explicit non-applicability is the smallest correct behavior.
+
+Expected outcome:
+- EMA and breakout campaign summaries show their own trade metrics without
+  claiming progress against the SMA promotion gate.
+- Canonical `es_daily_trend_v1` monitoring and gate calculations remain
+  unchanged.
+
+Verification:
+- Canonical virtualenv targeted monitor, dashboard, and promotion slice:
+  - SHOWN: `84 passed in 1.41s`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2123 passed, 33 skipped, 13 warnings in 206.42s`.
+- Real-state read-only `collect_once` snapshots:
+  - SHOWN: canonical `es_daily_trend_v1` returned `applicable=true` and retained
+    its existing qualified promotion summary.
+  - SHOWN: `ema_cross_default` returned `status=not_configured`,
+    `applicable=false`, and its own strategy ID.
+  - SHOWN: `breakout_default` returned `status=not_configured`,
+    `applicable=false`, and its own strategy ID.
+- Python compilation:
+  - SHOWN: monitor, dashboard runtime, and Operations page compiled cleanly.
+- `git diff --check`
+  - SHOWN: clean.
+- VERIFIED_ENV: implementation is isolated in
+  `/private/tmp/crypto-bot-pro-monitor-progress`.
+
+Remaining risk:
+- HIGH: this changes financial operator-status reporting.
+- No challenger promotion policy is added; that remains a separate governance
+  decision.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-12.

@@ -16,6 +16,10 @@ from services.admin.config_editor import load_user_yaml
 from services.ai_copilot.policy import report_root
 from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
 from services.control.paper_promotion_progress import load_paper_promotion_progress
+from services.control.promotion_thresholds import (
+    ES_DAILY_TREND_STRATEGY_ID,
+    ES_DAILY_TREND_TARGET_STRATEGY,
+)
 from services.os.app_paths import config_dir, ensure_dirs, runtime_dir
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.trade_journal_sqlite import TradeJournalSQLite
@@ -378,14 +382,52 @@ def _result_realized_pnl(result: dict[str, Any]) -> tuple[float | None, str]:
     return None, "unavailable"
 
 
-def _promotion_progress_snapshot() -> dict[str, Any]:
+def _promotion_progress_snapshot(
+    *,
+    strategy_id: str = "",
+    target_strategy: str = "",
+    symbol: str = "",
+) -> dict[str, Any]:
+    resolved_strategy_id = str(strategy_id or "").strip()
+    resolved_target_strategy = str(target_strategy or "").strip()
+    strategy_label = resolved_strategy_id or resolved_target_strategy or "unknown_strategy"
+    canonical = (
+        resolved_strategy_id == ES_DAILY_TREND_STRATEGY_ID
+        or resolved_target_strategy == ES_DAILY_TREND_TARGET_STRATEGY
+    )
+    if not canonical:
+        return {
+            "ok": True,
+            "source": "paper_promotion_progress",
+            "status": "not_configured",
+            "applicable": False,
+            "strategy_id": resolved_strategy_id or None,
+            "target_strategy": resolved_target_strategy or None,
+            "symbol_filter": str(symbol or "").strip() or None,
+            "thresholds_ready": False,
+            "blocking_thresholds": [],
+            "summary_text": (
+                f"Promotion thresholds are not configured for {strategy_label}; "
+                "campaign trade metrics are informational."
+            ),
+        }
     try:
-        return dict(load_paper_promotion_progress() or {})
+        out = dict(
+            load_paper_promotion_progress(
+                strategy_id=ES_DAILY_TREND_STRATEGY_ID,
+                target_strategy=ES_DAILY_TREND_TARGET_STRATEGY,
+                symbol=str(symbol or "").strip(),
+            )
+            or {}
+        )
+        out["applicable"] = True
+        return out
     except Exception as exc:
         return {
             "ok": False,
             "source": "paper_promotion_progress",
             "reason": f"promotion_progress_unavailable:{type(exc).__name__}",
+            "applicable": True,
             "thresholds_ready": False,
             "blocking_thresholds": [],
             "summary_text": "Promotion threshold progress is unavailable.",
@@ -540,7 +582,14 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
     position_realized_pnl_total = _safe_float(position.get("realized_pnl"))
     equity_realized_pnl_total = _safe_float(latest_equity.get("realized_pnl"))
     unrealized_pnl = _safe_float(latest_equity.get("unrealized_pnl"))
-    promotion_progress = _promotion_progress_snapshot()
+    promotion_progress = _promotion_progress_snapshot(
+        strategy_id=strategy_preset,
+        target_strategy=strategy_name,
+        symbol=symbol,
+    )
+    promotion_thresholds_applicable = bool(
+        promotion_progress.get("applicable", True)
+    )
     recommendation, recommendation_reason = _recommendation(
         cfg=cfg,
         campaign=campaign,
@@ -585,7 +634,11 @@ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
         "strategy_runner": runner,
         "paper_engine": paper_engine,
         "promotion_progress": promotion_progress,
-        "promotion_thresholds_ready": bool(promotion_progress.get("thresholds_ready")),
+        "promotion_thresholds_applicable": promotion_thresholds_applicable,
+        "promotion_thresholds_ready": (
+            promotion_thresholds_applicable
+            and bool(promotion_progress.get("thresholds_ready"))
+        ),
         "promotion_progress_summary": str(promotion_progress.get("summary_text") or ""),
         "summary_text": _summary_text(
             strategy_label=strategy_label,
@@ -837,6 +890,9 @@ def _signature_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
         "fills_observed": _safe_int(snapshot.get("fills_observed")),
         "current_window_realized_pnl": round(_safe_float(snapshot.get("current_window_realized_pnl")), 8),
         "unrealized_pnl": round(_safe_float(snapshot.get("unrealized_pnl")), 8),
+        "promotion_thresholds_applicable": bool(
+            promotion_progress.get("applicable", True)
+        ),
         "promotion_thresholds_ready": bool(promotion_progress.get("thresholds_ready")),
         "promotion_days_recorded": _safe_int(promotion_progress.get("days_recorded")),
         "promotion_round_trips_recorded": _safe_int(promotion_progress.get("round_trips_recorded")),
@@ -860,6 +916,7 @@ def _change_reasons(previous: dict[str, Any] | None, current: dict[str, Any]) ->
         "fills_observed": "fill_count_changed",
         "current_window_realized_pnl": "realized_pnl_changed",
         "unrealized_pnl": "unrealized_pnl_changed",
+        "promotion_thresholds_applicable": "promotion_threshold_policy_changed",
         "promotion_thresholds_ready": "promotion_threshold_state_changed",
         "promotion_days_recorded": "promotion_day_count_changed",
         "promotion_round_trips_recorded": "promotion_round_trip_count_changed",
