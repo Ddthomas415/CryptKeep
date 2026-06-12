@@ -3766,3 +3766,74 @@ Remaining risk:
   attribution fields.
 - Historical June 11 orders and fills remain unchanged.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-12T09:43:25Z - Explain Excluded Paper Promotion History
+
+Active role: `ENGINEER`
+
+Objective: make the paper promotion gate explain why seven persisted round
+trips no longer advance the provenance-qualified threshold.
+
+What was found:
+- SHOWN: the strict qualification rule introduced by `7ab11da59` requires both
+  entry and exit fills to carry matching public OHLCV provenance.
+- SHOWN: the canonical journal contains seven all-history round trips, but the
+  JSONL evidence has nine fills with missing provenance and one qualified exit
+  that is not paired with a qualified entry.
+- SHOWN: April 20 signal prices materially diverge from contemporaneous paper
+  fill prices, and the historical collector code explicitly supported sample
+  OHLCV. Those trades cannot safely be relabeled as public-market evidence.
+- SHOWN: the gate decision is therefore correct at zero qualified round trips;
+  the defect is that the round-trip detail does not explain the exclusion.
+
+What changed:
+- Added diagnostic-only, unqualified-fill, and incomplete-qualified-fill
+  context to the paper round-trip gate detail.
+- Added regression coverage for missing JSONL history and the canonical
+  `7 all-history / 9 unqualified / 1 incomplete` shape.
+- Did not change qualification, threshold, expectancy, retirement, or
+  promotion-ready calculations.
+
+Why this change:
+- Grandfathering or backfilling missing provenance would convert inference
+  into promotion evidence and weaken the gate.
+- Explicit reporting preserves the safety rule while preventing operators
+  from interpreting `0/10` as lost or deleted trade history.
+
+Expected outcome:
+- `check_promotion_gates.py --json` continues to report zero qualified round
+  trips, but states that seven all-history trips are diagnostic only and
+  identifies the exact JSONL qualification gaps.
+
+Verification:
+- Canonical virtualenv targeted promotion tests:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py`
+  - SHOWN: `44 passed in 0.93s`.
+- Dashboard/monitor regression slice:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py tests/test_dashboard_page_runtime.py`
+  - SHOWN: `37 passed in 1.05s`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2120 passed, 33 skipped, 13 warnings in 209.18s`.
+- Canonical gate-output inspection:
+  - SHOWN: `ready=false`, `machine_ready=false`, and `7 pass / 2 unknown`
+    remain unchanged.
+  - SHOWN: the round-trip detail now reports seven diagnostic-only trips,
+    nine of ten JSONL fills with missing or mismatched provenance, and one
+    incomplete qualified fill.
+- Old/new canonical JSON comparison:
+  - SHOWN: after normalizing the intended round-trip detail, the only
+    remaining difference was the per-run `evidence_scope.since_ts` timestamp.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m py_compile scripts/check_promotion_gates.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+- VERIFIED_ENV: implementation is isolated in
+  `/private/tmp/crypto-bot-pro-provenance-audit`.
+
+Remaining risk:
+- HIGH: this is financial promotion-gate reporting, although decision logic is
+  unchanged.
+- Historical provenance remains unverified and is intentionally not backfilled.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-12 after commit `a8b12463e`.

@@ -309,9 +309,37 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
         )
         source = str(history.get("source") or "paper_history")
         if history.get("qualification") is not None:
+            all_history_trips = int(history.get("all_history_closed_trades") or 0)
+            qualification = dict(history.get("qualification") or {})
+            evidence_fills = int(qualification.get("evidence_fills") or 0)
+            unqualified_fills = int(
+                qualification.get("unqualified_evidence_fills") or 0
+            )
+            incomplete_fills = int(
+                qualification.get("incomplete_qualified_evidence_fills") or 0
+            )
+            clauses: list[str] = []
+            excluded_trips = max(0, all_history_trips - trips)
+            if excluded_trips:
+                clauses.append(
+                    f"{excluded_trips} diagnostic-only all-history round trips"
+                )
+            if evidence_fills <= 0:
+                clauses.append("no JSONL fills available for provenance qualification")
+            elif unqualified_fills:
+                clauses.append(
+                    f"{unqualified_fills}/{evidence_fills} JSONL fills lack or mismatch "
+                    "required provenance"
+                )
+            if incomplete_fills:
+                noun = "fill is" if incomplete_fills == 1 else "fills are"
+                clauses.append(
+                    f"{incomplete_fills} qualified JSONL {noun} not part of a "
+                    "complete qualified round trip"
+                )
+            context = f"; {'; '.join(clauses)}" if clauses else ""
             mismatch = (
-                f" (all_history:{int(history.get('all_history_closed_trades') or 0)}, "
-                f"raw_jsonl:{jsonl_trips})"
+                f" (all_history:{all_history_trips}, raw_jsonl:{jsonl_trips}{context})"
             )
         else:
             mismatch = f" (jsonl:{jsonl_trips})" if jsonl_trips != trips else ""
