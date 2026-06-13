@@ -4017,3 +4017,82 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human acceptance on 2026-06-12, followed by GATE
   integration commit `833b27f6d`.
+
+## 2026-06-13T17:29:35Z - Restore Paper Collectors After Host Restart
+
+Active role: `GATE`
+
+Objective: verify the paper campaigns after a host restart and restore the
+accepted detached daily loops without duplicating the completed June 13
+evidence windows.
+
+What was found:
+- SHOWN: `review-stabilized` was clean and synchronized with
+  `origin/review-stabilized` at `e18512637`.
+- SHOWN: the canonical, EMA, and breakout status artifacts each reported
+  `last_completed_day=2026-06-13`, but their recorded pre-restart PIDs were no
+  longer alive.
+- SHOWN: the completed June 13 windows recorded no new fills:
+  canonical remained at 14 fills and 7 all-history closed trades, EMA remained
+  at 4 fills and 2 closed trades, and breakout remained at 6 fills and 3
+  closed trades.
+- SHOWN: the current paper promotion gate counts 0 provenance-qualified round
+  trips, not the 7 diagnostic all-history round trips. Nine of ten JSONL fills
+  lack or mismatch required provenance, and the one provenance-qualified fill
+  is not part of a complete qualified round trip.
+
+What changed:
+- Restarted the canonical detached daily loop with `sma_200_trend`,
+  `es_daily_trend_v1`, `BTC/USDT`, Coinbase, `public_ohlcv_1d`, a 20-second
+  strategy window, and a 300-second poll interval.
+- Restarted the isolated EMA detached daily loop with `ema_cross`,
+  `ema_cross_default`, `public_ohlcv_5m`, a 900-second strategy window, and a
+  300-second poll interval.
+- Restarted the isolated breakout detached daily loop with
+  `breakout_donchian`, `breakout_default`, `public_ohlcv_5m`, a 900-second
+  strategy window, and a 300-second poll interval.
+- No strategy configuration, evidence record, promotion threshold, source
+  code, or historical trade record was edited.
+
+Why this change:
+- The host restart terminated the accepted background processes even though
+  their latest daily windows had completed successfully.
+- The collector's built-in `--daily-loop --detach` path is the authoritative
+  restart mechanism and checks the existing session file before running, so it
+  preserves one evidence window per UTC day.
+- Keeping each challenger under its dedicated `CBP_STATE_DIR` preserves
+  evidence isolation.
+
+Expected outcome:
+- All three collectors remain idle for the rest of June 13 and wake for their
+  next evidence window after the UTC date changes to June 14.
+- Canonical and challenger evidence continue to accumulate independently.
+- Promotion output continues to distinguish diagnostic all-history trades from
+  provenance-qualified gate evidence.
+
+Verification:
+- Canonical status:
+  - SHOWN: PID `7795`, `pid_alive=true`, `status=idle`,
+    `reason=waiting_for_next_day`, and `last_completed_day=2026-06-13`.
+- EMA status:
+  - SHOWN: PID `7630`, `pid_alive=true`, `status=idle`,
+    `reason=waiting_for_next_day`, and `last_completed_day=2026-06-13`.
+- Breakout status:
+  - SHOWN: PID `7628`, `pid_alive=true`, `status=idle`,
+    `reason=waiting_for_next_day`, and `last_completed_day=2026-06-13`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: 39/30 calendar days, 0/10 provenance-qualified round trips, 7
+    diagnostic all-history round trips, and `manual_review_required=true`.
+- No test suite was run because this was an operational restart with no source
+  changes and the operator previously directed that full-suite runs stop.
+- VERIFIED_ENV: commands ran from the clean synchronized canonical checkout.
+
+Remaining risk:
+- HIGH: persistent financial evidence-collection background jobs were
+  restarted.
+- UNVERIFIED: the replacement processes have not yet crossed a UTC boundary
+  and completed their first post-restart windows.
+- The canonical promotion gate still requires ten complete
+  provenance-qualified round trips; historical unqualified fills cannot
+  satisfy that gate.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
