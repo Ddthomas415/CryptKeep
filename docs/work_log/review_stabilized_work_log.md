@@ -4095,4 +4095,6 @@ Remaining risk:
 - The canonical promotion gate still requires ten complete
   provenance-qualified round trips; historical unqualified fills cannot
   satisfy that gate.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-13 after commit `8fa0a542a`.
