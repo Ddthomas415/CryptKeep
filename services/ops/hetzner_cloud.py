@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import ssl
 import urllib.error
 import urllib.request
 from collections.abc import Callable
 from typing import Any
+
+import certifi
 
 API_BASE = "https://api.hetzner.cloud/v1"
 RESOURCE_PATHS = {
@@ -23,6 +26,10 @@ class HetznerCloudError(RuntimeError):
     pass
 
 
+def _tls_context() -> ssl.SSLContext:
+    return ssl.create_default_context(cafile=certifi.where())
+
+
 def _get_json(
     path: str,
     *,
@@ -39,7 +46,11 @@ def _get_json(
         method="GET",
     )
     try:
-        with open_url(request, timeout=float(timeout_sec)) as response:
+        with open_url(
+            request,
+            timeout=float(timeout_sec),
+            context=_tls_context(),
+        ) as response:
             payload = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         raise HetznerCloudError(f"hetzner_http_error:{int(exc.code)}") from None

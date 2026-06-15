@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import ssl
 import urllib.error
 import urllib.parse
 
@@ -101,8 +102,8 @@ def test_token_store_sanitizes_keyring_write_failure(monkeypatch) -> None:
 def test_read_project_inventory_uses_only_get_and_sanitizes_output() -> None:
     seen = []
 
-    def _open(request, *, timeout):
-        seen.append((request, timeout))
+    def _open(request, *, timeout, context):
+        seen.append((request, timeout, context))
         name = urllib.parse.urlsplit(request.full_url).path.rsplit("/", 1)[-1]
         if name == "servers":
             return _Response(
@@ -126,12 +127,22 @@ def test_read_project_inventory_uses_only_get_and_sanitizes_output() -> None:
     assert result["resource_counts"]["servers"] == 1
     assert result["servers"][0]["name"] == "paper-host"
     assert len(seen) == len(hetzner_cloud.RESOURCE_PATHS)
-    assert all(request.method == "GET" for request, _timeout in seen)
+    assert all(request.method == "GET" for request, _timeout, _context in seen)
+    assert all(
+        isinstance(context, ssl.SSLContext)
+        for _request, _timeout, context in seen
+    )
+    assert all(context.check_hostname for _request, _timeout, context in seen)
+    assert all(
+        context.verify_mode == ssl.CERT_REQUIRED
+        for _request, _timeout, context in seen
+    )
     assert "secret-token" not in json.dumps(result)
 
 
 def test_read_project_inventory_follows_pagination() -> None:
-    def _open(request, *, timeout):
+    def _open(request, *, timeout, context):
+        assert isinstance(context, ssl.SSLContext)
         parsed = urllib.parse.urlsplit(request.full_url)
         name = parsed.path.rsplit("/", 1)[-1]
         page = int(urllib.parse.parse_qs(parsed.query)["page"][0])
@@ -158,7 +169,8 @@ def test_read_project_inventory_follows_pagination() -> None:
 
 
 def test_read_project_inventory_sanitizes_http_errors() -> None:
-    def _open(_request, *, timeout):
+    def _open(_request, *, timeout, context):
+        assert isinstance(context, ssl.SSLContext)
         raise urllib.error.HTTPError(
             url="https://api.hetzner.cloud/v1/servers",
             code=401,
