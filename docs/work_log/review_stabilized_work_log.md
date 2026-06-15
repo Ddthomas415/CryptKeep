@@ -4693,3 +4693,68 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-15 before integration as `dec0b19b5`.
+
+## 2026-06-15T12:45Z - Prepare Secure Hetzner Read-Only Access
+
+Active role: `ENGINEER`
+
+Objective: provide repeatable Hetzner project inventory access without placing
+an API token in chat, Git, command arguments, environment files, or output.
+
+What was found:
+- SHOWN: the previously posted API token must be treated as compromised and is
+  not safe to use.
+- SHOWN: the local Python environment uses the macOS Keychain keyring backend.
+- SHOWN: `hcloud` is not installed, while Python, Keychain, and HTTPS support
+  are available.
+- SHOWN: Hetzner tokens can be created with `Read` or `Read & Write`
+  permission; project inventory requires only read operations.
+
+What changed:
+- Added an OS-keyring-only Hetzner token store.
+- Added an interactive hidden-prompt token setter/status/deleter that accepts no
+  token command-line argument.
+- Added a read-only Hetzner project inventory adapter and operator command.
+- The adapter issues only GET requests and returns resource counts plus
+  non-secret server summaries.
+- Sanitized network and HTTP errors so credentials cannot appear in output.
+- Added focused tests and operator documentation.
+
+Why this change:
+- A persistent read-only token limits the capability available during planning.
+- Reading the credential inside the Python process avoids exposing it through
+  shell history or process arguments.
+- Separating future short-lived write access prevents routine inventory tooling
+  from retaining provisioning authority.
+
+Expected outcome:
+- After the operator stores a replacement read-only token through the hidden
+  prompt, Codex can inspect the Hetzner project without receiving the token in
+  conversation.
+- Account inventory is visible without changing any Hetzner resource.
+
+Verification:
+- Targeted access and script-bootstrap tests:
+  - `./.venv/bin/python -m pytest -q tests/test_hetzner_access.py tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py`
+  - SHOWN: `20 passed`.
+- Script-path validation:
+  - SHOWN: `OK: script paths validated`.
+- Python compilation:
+  - SHOWN: the token store, API adapter, and both commands compiled cleanly.
+- Local keyring status:
+  - SHOWN: `present=false`; no Hetzner token is currently configured.
+- Fail-closed inventory command:
+  - SHOWN: returned `hetzner_token_not_configured` without making a live
+    request.
+- Diff validation:
+  - SHOWN: `git diff --check` passed.
+- A live account request remains blocked until the compromised token is revoked
+  and a replacement read-only token is stored.
+- Full suite will not be run at the operator's direction.
+- VERIFIED_ENV: macOS Keychain backend detected locally.
+
+Remaining risk:
+- HIGH: API credential handling and remote cloud-account access.
+- UNVERIFIED: replacement token revocation scope, project selection, and live
+  API access.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

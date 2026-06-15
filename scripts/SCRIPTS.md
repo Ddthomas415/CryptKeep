@@ -28,6 +28,7 @@ Makefile target when one is shown.
 | `check_promotion_gates.py` | `make check-gates` / `make check-gates-json` | Promotion gate status |
 | `check_system_health.py` | — | System health summary |
 | `doctor.py` | `make doctor-strict` | Diagnostic checks |
+| `hetzner_account_status.py` | — | Read-only Hetzner project inventory using an OS-keyring token; never accepts a token argument |
 | `killswitch.py` | `make kill-switch-on` / `make kill-switch-off` | Arm/disarm kill switch |
 | `op.py` | — | Operator command surface |
 | `paper_stop.py` | `make paper-stop-now` | Stop paper campaign |
@@ -51,7 +52,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 91 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 93 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -152,6 +153,7 @@ are not paper-campaign controls.
 - `check_repo_alignment.py` — repo alignment guard.
 - `generate_release_notes.py` — release-notes generator.
 - `install.py` — install/setup helper.
+- `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner read-only token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.
 - `rebuild_remaining_tasks.py` — regenerate remaining-task artifacts.
