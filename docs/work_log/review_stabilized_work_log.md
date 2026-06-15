@@ -4545,3 +4545,78 @@ Remaining risk:
 - SHOWN: EMA and Donchian challenger evidence directories currently contain no
   signal records, so their timing reports remain insufficient-sample.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-15T12:17Z - Accept Signal Quality And Capture VPS Plan
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted signal-quality qualification
+change and record the safe role of a Hetzner VPS in the paper campaign.
+
+What was found:
+- SHOWN: the human operator independently reviewed and accepted
+  `a2b1930eb`.
+- SHOWN: all three collectors are alive and idle after completing their
+  pre-rollout June 15 UTC windows.
+- SHOWN: the replacement collectors have not executed their first corrected
+  UTC window; that is scheduled for June 16 UTC.
+- SHOWN: the promotion gate remains at zero provenance-qualified round trips
+  because nine legacy JSONL fills lack required provenance and the single
+  qualified fill does not complete a qualified round trip.
+- SHOWN: EMA and Donchian campaigns use isolated state directories and do not
+  advance the canonical `es_daily_trend_v1` gate.
+- SHOWN: the existing Docker Compose file publishes backend and dashboard ports
+  on all interfaces.
+- SHOWN: `docs/safety/auth_scope_and_mfa.md` states that remote/public
+  deployment is not hardened by default.
+
+What changed:
+- Integrated accepted commit `a2b1930eb` into `review-stabilized` as
+  `e5decec32`.
+- Added a planned Hetzner paper-host task to the next-actions checkpoint.
+- Scoped the VPS plan to outbound-only paper collectors, private
+  administration, single-owner campaign lifecycle, verified state migration,
+  backups, restore rehearsal, and health monitoring.
+- Did not restart, migrate, or modify any active collector or evidence
+  artifact.
+
+Why this change:
+- Strict signal-quality provenance prevents unqualified historical records from
+  influencing strategy timing decisions.
+- A stable VPS addresses laptop uptime and recovery interruptions.
+- Deferring migration until a corrected local UTC cycle is observed avoids
+  combining a new collector lifecycle with a new host at the same time.
+- Prohibiting public application ports respects the repo's current
+  local/private-only security posture.
+
+Expected outcome:
+- Canonical signal-quality reports remain provenance-qualified.
+- The June 16 UTC windows provide the first evidence of the accepted
+  fail-closed lifecycle.
+- A later reviewed Hetzner deployment can improve campaign continuity without
+  changing strategy semantics or evidence qualification.
+
+Verification:
+- Targeted signal-quality tests:
+  - SHOWN on the accepted implementation branch: `9 passed`.
+- Collector status:
+  - SHOWN: canonical PID `80255`, EMA PID `80259`, and Donchian PID `80263`
+    report `pid_alive=true`, `status=idle`, and
+    `reason=waiting_for_next_day`.
+- Promotion gate:
+  - SHOWN: `41/30` days and `0/10` provenance-qualified round trips.
+- Git integration:
+  - SHOWN: cherry-pick completed without conflict as `e5decec32`.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: local repo and all three campaign state directories were read
+  directly on 2026-06-15.
+
+Remaining risk:
+- HIGH: any VPS deployment would change background-job ownership, remote-host
+  security, state custody, and recovery behavior.
+- UNVERIFIED: the corrected collectors have not yet completed their June 16
+  UTC windows.
+- Acceptance state: `ACCEPTED` for signal-quality integration; Hetzner
+  deployment remains planning-only and requires a separate high-risk review.
+- Acceptance reference: human operator message
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-15.
