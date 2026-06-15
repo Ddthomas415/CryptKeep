@@ -4333,4 +4333,6 @@ Remaining risk:
   code and must not be restarted onto this change before independent review.
 - SHOWN: the already-written June 15 false-completion records are not mutated;
   a later healthy UTC day will supersede them in the latest-window gate.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 after implementation commit `9bd30e8bb`.
