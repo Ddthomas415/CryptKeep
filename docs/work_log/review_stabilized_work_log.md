@@ -4544,7 +4544,9 @@ Remaining risk:
   performance remains unknown.
 - SHOWN: EMA and Donchian challenger evidence directories currently contain no
   signal records, so their timing reports remain insufficient-sample.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 before integration as `e5decec32`.
 
 ## 2026-06-15T12:17Z - Accept Signal Quality And Capture VPS Plan
 
@@ -4688,4 +4690,6 @@ Remaining risk:
   remote-host security, and rollback.
 - UNVERIFIED: no Hetzner host, firewall, SSH, backup, NTP, restart, or alerting
   configuration has been exercised.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 before integration as `dec0b19b5`.

@@ -1,6 +1,6 @@
 # Hetzner Paper Campaign Host
 
-Status: `READY_FOR_INDEPENDENT_REVIEW`
+Status: `ACCEPTED`
 
 ## Purpose
 
