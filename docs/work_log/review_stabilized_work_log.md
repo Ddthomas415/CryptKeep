@@ -4757,4 +4757,6 @@ Remaining risk:
 - HIGH: API credential handling and remote cloud-account access.
 - UNVERIFIED: replacement token revocation scope, project selection, and live
   API access.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 before integration as `7b01eab71`.
