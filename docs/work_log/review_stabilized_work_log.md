@@ -4185,3 +4185,63 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-14 after implementation commit `1b23f67b7`.
+
+## 2026-06-15T02:15:41Z - Accepted Paper Campaign Recovery Integration
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted paper campaign recovery
+command into `review-stabilized` and verify the merged operator surface
+without restarting active collectors.
+
+What was found:
+- SHOWN: accepted implementation commit `1b23f67b7` and acceptance record
+  `5233c10d4` were merged into `review-stabilized` as `833a33ecb`.
+- SHOWN: the integrated read-only status command reports all three configured
+  collector parents alive: canonical SMA, EMA crossover, and Donchian
+  breakout.
+- SHOWN: each collector reports the June 15 window as completed and is idle
+  until the next UTC day.
+- SHOWN: the status payload does not prove the June 15 market-data window was
+  valid; that health classification remains a separate campaign-lifecycle
+  concern.
+
+What changed:
+- Recorded the accepted merge and post-merge verification in the governed
+  work log.
+- No runtime process, campaign configuration, evidence artifact, or trading
+  behavior was changed during integration.
+
+Why this change:
+- The work log must preserve the accepted feature's transition from isolated
+  branch proof to the primary review branch.
+- Read-only verification confirms that the merged command observes the
+  existing processes without replacing them.
+
+Expected outcome:
+- Future operators can trace the recovery feature from implementation through
+  human acceptance, merge, and integrated verification.
+- `review-stabilized` exposes one auditable command for status and explicit
+  post-reboot restore.
+
+Verification:
+- `./.venv/bin/python scripts/restore_paper_campaigns.py --status`
+  - SHOWN: `all_running=true`, `running_count=3`, `campaign_count=3`.
+  - SHOWN: PIDs `7795`, `7630`, and `7628` remain alive.
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `12 passed in 0.16s`.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: commands ran from the primary
+  `/Users/baitus/Downloads/crypto-bot-pro` checkout at merge `833a33ecb`.
+
+Remaining risk:
+- HIGH: the command can start persistent financial evidence-collection
+  background jobs when invoked with `--restore`.
+- UNVERIFIED: no dead-process restore was performed during integration because
+  all accepted collectors were healthy.
+- SHOWN: campaign process liveness is distinct from market-data validity; the
+  latter requires a separate fail-closed lifecycle fix.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: implementation independently reviewed and accepted by
+  the human operator on 2026-06-14; integrated without runtime changes on
+  2026-06-15.
