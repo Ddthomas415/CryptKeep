@@ -4391,3 +4391,71 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: implementation independently reviewed and accepted by
   the human operator on 2026-06-15 and integrated as `9a6c3e08a`.
+
+## 2026-06-15T02:38:01Z - Fail-Closed Collector Rollout
+
+Active role: `GATE`
+
+Objective: load the independently accepted fail-closed OHLCV lifecycle into
+the three persistent paper evidence collector processes without overlapping
+collectors or altering historical evidence.
+
+What was found:
+- SHOWN: canonical SMA, EMA, and Donchian collectors were idle after recording
+  their June 15 sessions.
+- SHOWN: no strategy-runner, paper-engine, or tick-publisher lock files were
+  active in the three campaign state directories.
+- SHOWN: existing PIDs `7795`, `7630`, and `7628` still ran the pre-merge
+  in-memory code.
+- SHOWN: the accepted restore manifest specifies `max_daily_attempts=2` for
+  all three campaigns.
+
+What changed:
+- Wrote the supported collector stop flag in each isolated `CBP_STATE_DIR`.
+- Waited for all three old parents to exit gracefully and clear their PID
+  state; no force-kill was used.
+- Ran the accepted idempotent restore command once.
+- Started replacement collector PIDs `80255`, `80259`, and `80263`.
+- Did not edit or remove any order, fill, signal, session, or strategy-evidence
+  artifact.
+
+Why this change:
+- Persistent Python processes do not load merged source automatically.
+- Graceful stop followed by manifest-driven restore preserves the accepted
+  single-owner and duplicate-process boundaries.
+- Rolling out while all campaigns were idle avoids interrupting a strategy
+  window or partial execution path.
+
+Expected outcome:
+- The June 16 UTC campaign windows use the fail-closed public-OHLCV lifecycle.
+- A missing-data window reports failed, writes critical session evidence, and
+  receives at most one same-day retry.
+- Healthy windows continue through the existing completion path.
+
+Verification:
+- Pre-stop status:
+  - SHOWN: all three collectors reported `status=idle`,
+    `reason=waiting_for_next_day`.
+- Graceful stop:
+  - SHOWN: all three collectors reported `status=stopped`,
+    `reason=stop_requested`, `pid_alive=false`.
+- Restore:
+  - `./.venv/bin/python scripts/restore_paper_campaigns.py --restore`
+  - SHOWN: `ok=true`, `all_running=true`, `running_count=3`.
+- Read-only process inspection:
+  - SHOWN: old PIDs were absent.
+  - SHOWN: replacement PIDs were parented to PID 1 and each command line
+    contained `--max-daily-attempts 2`.
+- VERIFIED_ENV: rollout ran from synchronized `review-stabilized` commit
+  `1cca3b535`.
+
+Remaining risk:
+- HIGH: persistent financial evidence background jobs were restarted.
+- UNVERIFIED: the replacement processes have not yet executed their first
+  post-rollout UTC campaign window.
+- SHOWN: June 15's prior false-completion records remain historical and were
+  not rewritten.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: the human operator authorized the stop and restore
+  actions on 2026-06-15 after independently accepting implementation
+  `9bd30e8bb`.
