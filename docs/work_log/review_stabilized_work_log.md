@@ -4336,3 +4336,58 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-15 after implementation commit `9bd30e8bb`.
+
+## 2026-06-15T02:31:21Z - Accepted Fail-Closed OHLCV Integration
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted public-OHLCV fail-closed
+lifecycle into `review-stabilized` without restarting active collectors.
+
+What was found:
+- SHOWN: implementation `9bd30e8bb` and human acceptance record `8467a821b`
+  were clean and synchronized before integration.
+- SHOWN: merge `9a6c3e08a` completed without conflicts.
+- SHOWN: the canonical SMA, EMA, and Donchian collector parents remained alive
+  at PIDs `7795`, `7630`, and `7628`.
+- SHOWN: those existing processes still expose their pre-merge June 15 idle
+  status; merging source code does not reload persistent Python processes.
+
+What changed:
+- Merged the accepted branch into `review-stabilized`.
+- Recorded integrated verification and the explicit non-restart boundary.
+- Did not alter runtime state, evidence files, process ownership, or campaign
+  configuration outside the reviewed source changes.
+
+Why this change:
+- The merge makes the accepted fail-closed behavior canonical on the review
+  branch while preserving the currently running evidence campaign.
+- Deferring process restart avoids introducing a mid-day lifecycle change into
+  active campaigns.
+
+Expected outcome:
+- New or intentionally restarted collectors use bounded retry and failed
+  campaign classification for missing public OHLCV.
+- Current collectors continue undisturbed until the next approved restart.
+
+Verification:
+- Integrated service, collector, and recovery slice:
+  - SHOWN: `54 passed in 0.67s`.
+- Integrated monitor and promotion-gate slice:
+  - SHOWN: `63 passed in 0.98s`.
+- Read-only campaign status:
+  - SHOWN: `all_running=true`, `running_count=3`.
+- `git diff --check`
+  - SHOWN: clean.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: commands ran from the primary checkout at merge `9a6c3e08a`.
+
+Remaining risk:
+- HIGH: active collectors have not yet executed the accepted code.
+- UNVERIFIED: the first real outage or healthy window after an approved
+  collector restart has not occurred.
+- SHOWN: June 15's previously written false-completion records remain
+  historical and were not rewritten.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: implementation independently reviewed and accepted by
+  the human operator on 2026-06-15 and integrated as `9a6c3e08a`.
