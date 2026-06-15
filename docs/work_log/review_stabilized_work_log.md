@@ -4245,3 +4245,92 @@ Remaining risk:
 - Acceptance reference: implementation independently reviewed and accepted by
   the human operator on 2026-06-14; integrated without runtime changes on
   2026-06-15.
+
+## 2026-06-15T02:28:02Z - Fail-Closed Public OHLCV Campaign Health
+
+Active role: `ENGINEER`
+
+Objective: prevent managed paper evidence campaigns from reporting successful
+daily completion when the strategy runner receives no public OHLCV market data.
+
+What was found:
+- SHOWN: the canonical SMA, EMA, and Donchian collector parents were alive
+  after the host restart.
+- SHOWN: June 15 runner logs repeatedly reported Coinbase OHLCV fetch failure
+  and `note=no_public_ohlcv`.
+- SHOWN: no June 15 signal evidence files were produced, but each campaign was
+  recorded as `status=completed`, `reason=completed`.
+- SHOWN: `_run_strategy_window` replaced the last meaningful runner note with
+  the runner's final `stopped` payload.
+- SHOWN: the daily loop treated any non-empty session file, including a
+  start-only or failed attempt, as a completed day.
+- SHOWN: governance `INVALID` is terminal and therefore inappropriate for a
+  recoverable infrastructure outage.
+
+What changed:
+- Preserved runner observations made during the current strategy window and
+  classified a full public-OHLCV window with no observed market price as
+  `stop_reason=no_public_ohlcv`.
+- Made `run_campaign` return `ok=false`, `status=failed`, and skip leaderboard
+  evidence persistence for that condition.
+- Added `campaign_reason` to session-end evidence; failed runs now retain the
+  existing `critical_error=true` and failed reconciliation classification.
+- Changed daily completion detection to require a `phase=end`,
+  `campaign_status=completed` session record.
+- Added a bounded same-day retry policy: one initial attempt plus one retry,
+  followed by failed status until the next UTC day.
+- Added `max_daily_attempts` to the canonical campaign manifest and recovery
+  launch contract, with a backward-compatible schema-v1 default of `2`.
+- Documented that process liveness and campaign health are separate and that
+  restore does not replace an alive collector that owns a pending retry.
+
+Why this change:
+- A market-data outage is retryable infrastructure failure, not valid strategy
+  evidence and not terminal evidence contamination.
+- `failed` preserves operator visibility and promotion-gate blocking without
+  requiring manual repair of terminal governance state.
+- Two attempts permit one transient recovery opportunity while preventing
+  indefinite API retry loops and duplicate daily evidence campaigns.
+- Keeping retry ownership in the existing parent preserves the accepted
+  duplicate-process boundary.
+
+Expected outcome:
+- Public-OHLCV outages cannot create false completed campaign days.
+- Failed windows create critical session evidence and cannot be mistaken for
+  promotion-quality operation.
+- Status and recovery output can show `running=true` with `ok=false`, making
+  alive-but-unhealthy campaigns visible.
+- A transient outage receives one bounded retry; a persistent outage remains
+  failed until the next UTC day.
+- Successful campaign and evidence-persistence behavior remains unchanged.
+
+Verification:
+- Targeted service, collector, and recovery slice:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_strategy_evidence_service.py tests/test_run_paper_strategy_evidence_collector.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `54 passed in 0.67s`.
+- Paper simulation monitor contract:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_run_paper_sim_monitor.py`
+  - SHOWN: `21 passed in 0.33s`.
+- Promotion-gate session-health contract:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py`
+  - SHOWN: `42 passed in 0.95s`.
+- Python compilation:
+  - SHOWN: the collector, recovery service, and evidence service compiled
+    cleanly.
+- Collector CLI help:
+  - SHOWN: `--max-daily-attempts` is exposed.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: verification used the primary virtual environment against the
+  isolated worktree `/private/tmp/crypto-bot-pro-ohlcv-fail-closed` based on
+  synchronized `review-stabilized` commit `f8e93e2ba`.
+
+Remaining risk:
+- HIGH: this changes financial evidence background-job lifecycle, retry
+  behavior, and promotion-gate session inputs.
+- UNVERIFIED: no live Coinbase outage/recovery cycle was induced; runtime proof
+  is limited to existing logs plus deterministic tests.
+- UNVERIFIED: existing collector processes still run the previously loaded
+  code and must not be restarted onto this change before independent review.
+- SHOWN: the already-written June 15 false-completion records are not mutated;
+  a later healthy UTC day will supersede them in the latest-window gate.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -27,6 +27,7 @@ class PaperCampaignSpec:
     runtime_sec: float
     strategy_drain_sec: float
     poll_interval_sec: float
+    max_daily_attempts: int
     desktop_notify: bool = True
 
 
@@ -57,6 +58,15 @@ def _positive_float(row: dict[str, Any], field: str) -> float:
         raise ValueError(f"campaign field {field!r} must be numeric") from exc
     if not math.isfinite(value) or value <= 0:
         raise ValueError(f"campaign field {field!r} must be greater than zero")
+    return value
+
+
+def _positive_int(row: dict[str, Any], field: str, *, default: int) -> int:
+    value = row.get(field, default)
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"campaign field {field!r} must be an integer")
+    if value <= 0:
+        raise ValueError(f"campaign field {field!r} must be a positive integer")
     return value
 
 
@@ -105,6 +115,7 @@ def load_campaign_specs(
                 runtime_sec=_positive_float(raw, "runtime_sec"),
                 strategy_drain_sec=_positive_float(raw, "strategy_drain_sec"),
                 poll_interval_sec=_positive_float(raw, "poll_interval_sec"),
+                max_daily_attempts=_positive_int(raw, "max_daily_attempts", default=2),
                 desktop_notify=_boolean(raw, "desktop_notify", default=True),
             )
         )
@@ -135,6 +146,8 @@ def _command(spec: PaperCampaignSpec, *, restore: bool) -> list[str]:
             str(spec.strategy_drain_sec),
             "--poll-interval-sec",
             str(spec.poll_interval_sec),
+            "--max-daily-attempts",
+            str(spec.max_daily_attempts),
             "--daily-loop",
             "--detach",
         ]

@@ -95,9 +95,34 @@ def _session_log_path(strategy_id: str, day: str) -> Path:
     return data_dir() / "evidence" / str(strategy_id or "").strip() / f"session_{day}.jsonl"
 
 
-def _has_session_day(strategy_id: str, day: str) -> bool:
+def _session_end_statuses(strategy_id: str, day: str) -> list[str]:
     path = _session_log_path(strategy_id, day)
-    return path.exists() and path.stat().st_size > 0
+    if not path.exists():
+        return []
+    statuses: list[str] = []
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    for line in lines:
+        try:
+            row = json.loads(line)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        if not isinstance(row, dict) or str(row.get("phase") or "").strip().lower() != "end":
+            continue
+        status = str(row.get("campaign_status") or "").strip().lower()
+        if status:
+            statuses.append(status)
+    return statuses
+
+
+def _has_session_day(strategy_id: str, day: str) -> bool:
+    return "completed" in _session_end_statuses(strategy_id, day)
+
+
+def _failed_session_attempts(strategy_id: str, day: str) -> int:
+    return sum(1 for status in _session_end_statuses(strategy_id, day) if status == "failed")
 
 
 def _log_session_start(*, strategy_id: str, cfg: PaperStrategyEvidenceServiceCfg) -> None:
@@ -136,6 +161,7 @@ def _log_session_end(*, strategy_id: str, cfg: PaperStrategyEvidenceServiceCfg, 
             "phase": "end",
             "completed_strategies": completed,
             "campaign_status": campaign_status,
+            "campaign_reason": str(result.get("reason") or ""),
             "zero_trade_run": (completed == 0),
             **_campaign_provenance_extra(cfg),
         },
@@ -199,15 +225,64 @@ def _write_idle_status(
     return out
 
 
+def _write_retry_status(
+    *,
+    pid: int,
+    cfg: PaperStrategyEvidenceServiceCfg,
+    strategies: tuple[str, ...],
+    session_strategy_id: str,
+    last_result: dict[str, object],
+    attempts: int,
+    max_daily_attempts: int,
+) -> dict[str, object]:
+    retry_pending = int(attempts) < int(max_daily_attempts)
+    reason = str(last_result.get("reason") or "campaign_failed")
+    out: dict[str, object] = {
+        "ok": False,
+        "has_status": True,
+        "status": "failed",
+        "reason": reason,
+        "ts": _now_iso(),
+        "pid": int(pid),
+        "strategies": list(strategies),
+        "completed_strategies": int(last_result.get("completed_strategies") or 0),
+        "total_strategies": len(strategies),
+        "symbol": str(cfg.symbol or "BTC/USD"),
+        "venue": str(cfg.venue or "coinbase"),
+        "signal_source": str(cfg.signal_source or ""),
+        "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
+        "session_strategy_id": str(session_strategy_id),
+        "daily_loop": True,
+        "last_attempted_day": _today_utc(),
+        "daily_attempts": int(attempts),
+        "max_daily_attempts": int(max_daily_attempts),
+        "retry_pending": retry_pending,
+        "last_result": dict(last_result),
+        "summary_text": (
+            f"Paper evidence collector remains alive after {reason}; retrying after the poll interval "
+            f"({attempts}/{max_daily_attempts} attempts used)."
+            if retry_pending
+            else (
+                f"Paper evidence collector remains alive after {reason}; the daily retry limit "
+                f"({max_daily_attempts}) is exhausted, so it will wait for the next UTC day."
+            )
+        ),
+    }
+    _write_status(out)
+    return out
+
+
 def _run_daily_loop(
     cfg: PaperStrategyEvidenceServiceCfg,
     *,
     max_strategies: int | None,
     session_strategy_id: str,
     poll_interval_sec: float,
+    max_daily_attempts: int = 2,
     max_loops: int | None = None,
 ) -> dict[str, object]:
     current_pid = int(os.getpid())
+    max_daily_attempts = max(1, int(max_daily_attempts))
     existing = load_runtime_status()
     if bool(existing.get("pid_alive")) and int(existing.get("pid") or 0) not in {0, current_pid}:
         return {
@@ -269,7 +344,9 @@ def _run_daily_loop(
                 return out
 
             today = _today_utc()
-            if not _has_session_day(session_strategy_id, today):
+            has_completed_session = _has_session_day(session_strategy_id, today)
+            failed_attempts = _failed_session_attempts(session_strategy_id, today)
+            if not has_completed_session and failed_attempts < int(max_daily_attempts):
                 last_result = _run_one_campaign(
                     cfg,
                     max_strategies=max_strategies,
@@ -289,6 +366,30 @@ def _run_daily_loop(
                         "session_strategy_id": str(session_strategy_id),
                     }
                 )
+                recorded_failed_attempts = _failed_session_attempts(session_strategy_id, today)
+                if str(last_result.get("status") or "").strip().lower() == "failed":
+                    failed_attempts = max(recorded_failed_attempts, failed_attempts + 1)
+                else:
+                    failed_attempts = recorded_failed_attempts
+                if str(last_result.get("status") or "").strip().lower() == "completed":
+                    _write_idle_status(
+                        pid=current_pid,
+                        cfg=cfg,
+                        strategies=strategies,
+                        session_strategy_id=session_strategy_id,
+                        last_result=last_result,
+                    )
+                else:
+                    _write_retry_status(
+                        pid=current_pid,
+                        cfg=cfg,
+                        strategies=strategies,
+                        session_strategy_id=session_strategy_id,
+                        last_result=last_result,
+                        attempts=failed_attempts,
+                        max_daily_attempts=max_daily_attempts,
+                    )
+            elif has_completed_session:
                 _write_idle_status(
                     pid=current_pid,
                     cfg=cfg,
@@ -297,22 +398,42 @@ def _run_daily_loop(
                     last_result=last_result,
                 )
             else:
-                _write_idle_status(
+                if not last_result:
+                    last_result = {
+                        "ok": False,
+                        "status": "failed",
+                        "reason": "daily_retry_limit_exhausted",
+                        "completed_strategies": 0,
+                    }
+                _write_retry_status(
                     pid=current_pid,
                     cfg=cfg,
                     strategies=strategies,
                     session_strategy_id=session_strategy_id,
                     last_result=last_result,
+                    attempts=failed_attempts,
+                    max_daily_attempts=max_daily_attempts,
                 )
 
             if max_loops is not None and loops >= int(max_loops):
-                out = _write_idle_status(
-                    pid=current_pid,
-                    cfg=cfg,
-                    strategies=strategies,
-                    session_strategy_id=session_strategy_id,
-                    last_result=last_result,
-                )
+                if str(last_result.get("status") or "").strip().lower() == "failed":
+                    out = _write_retry_status(
+                        pid=current_pid,
+                        cfg=cfg,
+                        strategies=strategies,
+                        session_strategy_id=session_strategy_id,
+                        last_result=last_result,
+                        attempts=failed_attempts,
+                        max_daily_attempts=max_daily_attempts,
+                    )
+                else:
+                    out = _write_idle_status(
+                        pid=current_pid,
+                        cfg=cfg,
+                        strategies=strategies,
+                        session_strategy_id=session_strategy_id,
+                        last_result=last_result,
+                    )
                 out["status"] = "stopped"
                 out["reason"] = "max_loops"
                 out["loops"] = loops
@@ -440,6 +561,12 @@ def main() -> int:
         help="Start daily-loop mode as a persistent detached process and return after startup verification",
     )
     ap.add_argument("--poll-interval-sec", type=float, default=300.0, help="Polling interval for daily loop mode")
+    ap.add_argument(
+        "--max-daily-attempts",
+        type=int,
+        default=2,
+        help="Maximum campaign attempts per UTC day after retryable failures.",
+    )
     ap.add_argument("--max-loops", type=int, default=0, help="Optional loop cap for tests/manual use")
     ap.add_argument("--session-strategy-id", default="", help="Optional evidence strategy ID for session logs")
     ap.add_argument(
@@ -491,6 +618,7 @@ def main() -> int:
             max_strategies=max_strategies,
             session_strategy_id=session_strategy_id,
             poll_interval_sec=float(args.poll_interval_sec or 300.0),
+            max_daily_attempts=max(1, int(args.max_daily_attempts or 2)),
             max_loops=(int(args.max_loops) if int(args.max_loops or 0) > 0 else None),
         )
     else:

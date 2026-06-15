@@ -52,6 +52,11 @@ repeated restore calls do not create duplicate collectors. Automatic OS-login
 startup is intentionally not enabled; starting financial background jobs
 requires this explicit operator action.
 
+Public-OHLCV campaign health is fail-closed. A collector may remain alive while
+reporting `ok=false`, `status=failed`, and `reason=no_public_ohlcv`. The
+canonical manifest permits two attempts per UTC day; see
+`docs/PAPER_CAMPAIGN_RECOVERY.md`.
+
 ## What runs inside make paper-run
 
 1. `run_es_daily_trend_paper.py` — orchestrator (parent process)
