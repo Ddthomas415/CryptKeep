@@ -32,6 +32,26 @@ detached collector PID, writes its process output under the selected
 For `sma_200_trend`, the managed collector uses `public_ohlcv_1d` so evidence is sourced
 from daily public OHLCV instead of synthetic tick-derived bars.
 
+After a host restart, check all accepted paper campaigns with:
+
+```
+make status-paper-campaigns
+```
+
+If one or more collectors are not alive, restore only the missing processes
+with:
+
+```
+make restore-paper-campaigns
+```
+
+The command reads `configs/paper_evidence_campaigns.json`, preserves each
+campaign's isolated `CBP_STATE_DIR`, and delegates startup to the authoritative
+collector `--daily-loop --detach` path. It checks status before launch, so
+repeated restore calls do not create duplicate collectors. Automatic OS-login
+startup is intentionally not enabled; starting financial background jobs
+requires this explicit operator action.
+
 ## What runs inside make paper-run
 
 1. `run_es_daily_trend_paper.py` — orchestrator (parent process)

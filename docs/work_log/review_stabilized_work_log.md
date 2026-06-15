@@ -4098,3 +4098,90 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-13 after commit `8fa0a542a`.
+
+## 2026-06-13T17:36:55Z - Idempotent Paper Campaign Recovery Command
+
+Active role: `ENGINEER`
+
+Objective: reduce post-reboot recovery from three manually reconstructed
+collector commands to one explicit, idempotent, auditable operator command.
+
+What was found:
+- SHOWN: the June 13 host restart terminated all three detached collector
+  parents even though their daily evidence windows had completed.
+- SHOWN: the repo's canonical supervisors manage bot/runtime services but do
+  not own the canonical and isolated paper evidence campaigns.
+- SHOWN: the collector already provides the authoritative
+  `--daily-loop --detach` startup path and duplicate-process protection.
+- SHOWN: the paper promotion gate's 0/10 qualified result is intentional,
+  independently accepted provenance policy from `7ab11da59`, not a new
+  counting defect. The seven historical round trips remain diagnostic.
+
+What changed:
+- Added `configs/paper_evidence_campaigns.json` as the explicit manifest for
+  the accepted canonical SMA, isolated EMA, and isolated breakout campaigns.
+- Added `services/analytics/paper_campaign_recovery.py` to validate the
+  manifest, query each isolated status surface, start only dead collectors,
+  and verify replacement process state.
+- Added `scripts/restore_paper_campaigns.py`; read-only status is the default,
+  while `--restore` is required to start background jobs.
+- Added `make status-paper-campaigns` and `make restore-paper-campaigns`.
+- Added focused service/CLI tests and documented the recovery workflow in the
+  Golden Path, script index, and `docs/PAPER_CAMPAIGN_RECOVERY.md`.
+- Did not add OS-login auto-start and did not add paper campaigns to a generic
+  live-adjacent supervisor.
+
+Why this change:
+- Reusing the existing collector preserves one process owner, one duplicate
+  guard, and the accepted per-state evidence isolation.
+- A manifest prevents strategy parameters from being reconstructed from memory
+  after every reboot.
+- Explicit restore is safer than automatic login startup because it does not
+  launch financial background jobs merely because the desktop app opened.
+- Extending a generic supervisor would broaden process-control scope and
+  create additional stop/status semantics without being required for recovery.
+
+Expected outcome:
+- `make status-paper-campaigns` reports all configured campaigns and exits
+  nonzero when any collector is not alive.
+- `make restore-paper-campaigns` leaves live collectors unchanged, restores
+  only dead collectors, and reports verified replacement PIDs.
+- Repeated restore calls do not create duplicate collectors.
+- Canonical and challenger evidence continue to use their existing isolated
+  `CBP_STATE_DIR` paths and accepted signal-source/runtime parameters.
+
+Verification:
+- Targeted recovery, collector, and bootstrap regression slice:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py tests/test_run_paper_strategy_evidence_collector.py tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py`
+  - SHOWN: `35 passed in 0.97s`.
+- Python compilation:
+  - SHOWN: `paper_campaign_recovery.py` and
+    `restore_paper_campaigns.py` compiled cleanly.
+- CLI help:
+  - SHOWN: exposes `--status`, `--restore`, repeatable `--campaign`, and
+    `--config`.
+- Make target dry run:
+  - SHOWN: `status-paper-campaigns` invokes the read-only status mode and
+    `restore-paper-campaigns` invokes explicit restore mode.
+- `git diff --check`
+  - SHOWN: clean.
+- Canonical collector status from the untouched primary checkout:
+  - SHOWN: PID `7795` remained alive and idle for the completed June 13
+    canonical window during isolated implementation.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: implementation and verification ran in isolated worktree
+  `/private/tmp/crypto-bot-pro-paper-restore`, based on synchronized commit
+  `9ba375654`; active collectors in the canonical checkout were not restarted
+  or modified.
+
+Remaining risk:
+- HIGH: this command starts persistent financial evidence-collection
+  background jobs.
+- UNVERIFIED: a real dead-process restore has not been executed from this
+  feature branch because doing so would replace currently healthy accepted
+  collectors.
+- UNVERIFIED: post-reboot use still requires one explicit operator command;
+  OS-login automation remains intentionally out of scope.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-14 after implementation commit `1b23f67b7`.
