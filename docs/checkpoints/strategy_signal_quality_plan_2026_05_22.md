@@ -1,6 +1,6 @@
 # Strategy Signal-Quality Plan
 
-Status: PLANNED
+Status: IMPLEMENTED; provenance qualification corrected 2026-06-15
 
 ## Purpose
 Capture the next repo-side strategy-evaluation build so it is explicit, durable, and separate from the frozen canonical launch blocker list.
@@ -9,6 +9,19 @@ This plan answers the question:
 - did the strategy identify the move early enough to trade it profitably?
 
 It does not change launch scope by itself.
+
+## Current implementation
+
+- Analytics core: `services/analytics/signal_quality.py`
+- CLI: `scripts/run_signal_quality_report.py`
+- Focused tests:
+  - `tests/test_signal_quality.py`
+  - `tests/test_run_signal_quality_report.py`
+- Canonical reports require matching, non-sample `public_ohlcv` provenance for
+  the requested venue, symbol, and timeframe.
+- Historical research can opt in to unqualified non-sample evidence only with
+  `--allow-unqualified-evidence`.
+- Reports expose qualified and excluded signal counts plus exclusion reasons.
 
 ## Current truth
 - The paper monitor / evidence / dashboard path on `review-stabilized` is materially in place.
@@ -34,8 +47,8 @@ It does not change launch scope by itself.
   - `services/backtest/scorecard.py`
   - `services/backtest/evidence_run.py`
 
-## Gap to close
-The repo does not yet expose one first-class report for:
+## Delivered report
+The repo exposes one first-class report for:
 - signal lead time
 - late-hit classification
 - capture ratio
@@ -44,7 +57,8 @@ The repo does not yet expose one first-class report for:
 - max adverse excursion (MAE)
 - false-positive cost
 
-This is primarily a reporting/evaluation gap, not a raw-data gap.
+The remaining limitation is qualified actionable-signal coverage, not report
+implementation.
 
 ## V1 contract
 Start with one explicit evaluation target:

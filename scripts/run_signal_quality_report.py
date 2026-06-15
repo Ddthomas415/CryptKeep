@@ -37,6 +37,11 @@ def main() -> int:
     ap.add_argument("--horizon-bars", type=int, default=DEFAULT_HORIZON_BARS)
     ap.add_argument("--late-threshold-share", type=float, default=DEFAULT_LATE_THRESHOLD_SHARE)
     ap.add_argument("--lookback-bars", type=int, default=DEFAULT_LOOKBACK_BARS)
+    ap.add_argument(
+        "--allow-unqualified-evidence",
+        action="store_true",
+        help="Research-only: include non-sample signals without matching public-OHLCV provenance.",
+    )
     ap.add_argument("--no-persist", action="store_true")
     args = ap.parse_args()
 
@@ -51,6 +56,7 @@ def main() -> int:
         horizon_bars=int(args.horizon_bars),
         late_threshold_share=float(args.late_threshold_share),
         lookback_bars=int(args.lookback_bars),
+        require_matching_provenance=not bool(args.allow_unqualified_evidence),
     )
     if not args.no_persist:
         report["artifacts"] = write_signal_quality_artifacts(report)

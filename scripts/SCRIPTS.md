@@ -39,7 +39,7 @@ Makefile target when one is shown.
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
 | `run_preflight.py` | — | Preflight entrypoint |
-| `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether evidence signals were early enough to capture a target move |
+| `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
 | `run_system_diagnostics.py` | `make system-diagnostics` | System diagnostics wrapper |
 | `show_control_kernel_status.py` | `make kernel-status` / `make kernel-status-json` | Control-kernel status |
 | `supervisor_status.py` | — | Supervisor state |

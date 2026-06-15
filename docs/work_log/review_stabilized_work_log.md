@@ -4459,3 +4459,89 @@ Remaining risk:
 - Acceptance reference: the human operator authorized the stop and restore
   actions on 2026-06-15 after independently accepting implementation
   `9bd30e8bb`.
+
+## 2026-06-15T02:43:22Z - Qualify Signal-Quality Evidence
+
+Active role: `ENGINEER`
+
+Objective: prevent the signal-quality report from treating historical
+unqualified signal rows as canonical evidence of whether the paper strategy
+identified market moves early enough.
+
+What was found:
+- SHOWN: the canonical report loaded `33,377` signal rows and classified five
+  scored rows as `100%` false positives.
+- SHOWN: `30,053` rows lacked `market_data_source`; `3,174` used
+  `unknown_ohlcv`.
+- SHOWN: all `16,740` actionable rows came from those two unqualified groups.
+- SHOWN: several unqualified rows carried impossible BTC prices such as
+  `$120.90` and `$92.40`, producing fourteen price/OHLCV mismatches.
+- SHOWN: all `150` correctly stamped `public_ohlcv` rows matched
+  `coinbase`, `BTC/USDT`, `1d`, and non-sample mode, but were flat rather than
+  actionable.
+- SHOWN: the report excluded explicit sample rows but allowed missing and
+  mismatched provenance by default.
+- SHOWN: short-signal MAE subtracted `1.0` twice, overstating adverse movement
+  by 100 percentage points.
+
+What changed:
+- Added strict signal provenance qualification to the analytics core.
+- Canonical reports now require non-sample `public_ohlcv` evidence matching
+  the requested venue, symbol, and timeframe.
+- Added report fields for the qualification policy, qualified signal count,
+  excluded unqualified count, and exclusion reason counts.
+- Added the explicit CLI opt-out `--allow-unqualified-evidence` for historical
+  research only.
+- Corrected short-signal MAE to use one relative price move.
+- Updated synthetic tests to declare the research opt-out and added regression
+  coverage for missing source, mismatched source, wrong symbol, the CLI
+  opt-out, and short-side MAE.
+- Updated the signal-quality plan and script index to document the implemented
+  contract.
+
+Why this change:
+- Strategy timing decisions must not be based on synthetic-like or
+  provenance-unknown records mixed into canonical paper evidence.
+- Strict-by-default behavior aligns this report with the accepted promotion
+  evidence boundary.
+- An explicit research opt-out preserves historical analysis without allowing
+  it to masquerade as production-quality evidence.
+
+Expected outcome:
+- Canonical signal-quality summaries reflect only matching real public-OHLCV
+  evidence.
+- Contaminated historical records remain visible through exclusion counts but
+  cannot influence hit rate, false-positive rate, capture ratio, MFE, or MAE.
+- The current canonical conclusion becomes `insufficient_sample` until the
+  campaign emits qualified actionable signals.
+- Short-strategy quality reports produce numerically valid adverse-excursion
+  metrics.
+
+Verification:
+- Focused analytics and CLI tests:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_signal_quality.py tests/test_run_signal_quality_report.py`
+  - SHOWN: `9 passed`.
+- Python compilation:
+  - SHOWN: analytics core and CLI compiled cleanly.
+- CLI help:
+  - SHOWN: `--allow-unqualified-evidence` is exposed.
+- Canonical read-only report against `.cbp_state`:
+  - SHOWN: `150` qualified records, `33,227` excluded unqualified records,
+    `0` qualified actionable signals, and `interpretation=insufficient_sample`.
+- Explicit research opt-out:
+  - SHOWN: reproduces the historical `16,740` actionable rows, five scored
+    false positives, and fourteen price mismatches.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: implementation used isolated worktree
+  `/private/tmp/crypto-bot-pro-signal-quality` based on synchronized commit
+  `27dbac57e`; active collectors were not modified or restarted.
+
+Remaining risk:
+- MEDIUM: this changes decision-support analytics and persisted report content,
+  but does not change promotion gates, strategy signals, execution, or
+  background-job behavior.
+- UNVERIFIED: no qualified actionable public-OHLCV signal exists yet, so timing
+  performance remains unknown.
+- SHOWN: EMA and Donchian challenger evidence directories currently contain no
+  signal records, so their timing reports remain insufficient-sample.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
