@@ -28,6 +28,40 @@ Therefore:
 - use the existing Python collector and recovery path directly;
 - migrate one isolated challenger before considering canonical state.
 
+## Secure Account Access
+
+Use a new Hetzner token with `Read` permission for inventory and deployment
+planning. Do not reuse the token that appeared in chat, and do not paste any
+replacement token into chat, Git, an environment file, or a command argument.
+
+Store the replacement through the hidden interactive prompt:
+
+```bash
+./.venv/bin/python scripts/set_hetzner_api_token.py
+```
+
+The command stores the token under the `crypto-bot-pro` OS-keyring namespace.
+It does not print the token. Check only whether a token is configured:
+
+```bash
+./.venv/bin/python scripts/set_hetzner_api_token.py --status
+```
+
+After the token is stored, read the project inventory:
+
+```bash
+./.venv/bin/python scripts/hetzner_account_status.py
+```
+
+The inventory command performs GET requests only and returns resource counts
+plus a non-secret server summary. It does not accept token arguments or use an
+environment-variable fallback.
+
+If write access is later required for accepted provisioning, create a separate
+short-lived `Read & Write` token. Do not replace the persistent read-only
+inventory token with it. Write-capable automation requires a separate reviewed
+implementation.
+
 ## Stage 0 - Host Preparation
 
 Requirements:
