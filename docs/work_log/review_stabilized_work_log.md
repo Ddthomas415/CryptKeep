@@ -4760,3 +4760,60 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-15 before integration as `7b01eab71`.
+
+## 2026-06-15T13:05Z - Correct Hetzner TLS Trust Path
+
+Active role: `ENGINEER`
+
+Objective: make the accepted read-only Hetzner client work with certificate
+verification in the current Python environment without requiring an operator
+environment override.
+
+What was found:
+- SHOWN: Keychain token storage succeeded.
+- SHOWN: `curl` reached `api.hetzner.cloud` with a valid certificate and
+  received the expected unauthenticated `401`.
+- SHOWN: Python failed before authentication with
+  `SSLCertVerificationError: unable to get local issuer certificate`.
+- SHOWN: Python's configured framework CA path does not exist.
+- SHOWN: the pinned venv dependency `certifi==2026.2.25` provides a valid CA
+  bundle.
+- SHOWN: setting `SSL_CERT_FILE` to that bundle allowed the approved GET-only
+  inventory to succeed.
+
+What changed:
+- Added an explicit default SSL context sourced from `certifi.where()`.
+- Passed that context to each Hetzner HTTPS request.
+- Kept hostname checking enabled and verification mode at `CERT_REQUIRED`.
+- Added regression assertions for the verified SSL context.
+
+Why this change:
+- The client should not depend on a missing machine-global Python CA file.
+- Using the pinned CA bundle preserves TLS verification; disabling verification
+  or suppressing hostname checks would be unsafe.
+
+Expected outcome:
+- `scripts/hetzner_account_status.py` works without `SSL_CERT_FILE`.
+- Token secrecy, GET-only behavior, pagination, and sanitized errors remain
+  unchanged.
+
+Verification:
+- Targeted access and script-bootstrap tests:
+  - `./.venv/bin/python -m pytest -q tests/test_hetzner_access.py tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py`
+  - SHOWN: `20 passed`.
+- Script-path validation:
+  - SHOWN: `OK: script paths validated`.
+- Python compilation:
+  - SHOWN: the corrected Hetzner adapter compiled cleanly.
+- Diff validation:
+  - SHOWN: `git diff --check` passed.
+- Live GET-only inventory without `SSL_CERT_FILE`:
+  - SHOWN: `ok=true`; one running server, zero firewalls, two primary IPs,
+    one SSH key, zero networks, and zero volumes.
+- Full suite will not be run at the operator's direction.
+- VERIFIED_ENV: local Python 3.12 venv on macOS.
+
+Remaining risk:
+- HIGH: TLS behavior protects cloud-account credentials and API responses.
+- UNVERIFIED: behavior on the future Ubuntu host until its venv is built.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
