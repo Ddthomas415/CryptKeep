@@ -21,6 +21,7 @@ def _spec(tmp_path: Path, *, name: str = "campaign") -> recovery.PaperCampaignSp
         runtime_sec=900.0,
         strategy_drain_sec=2.0,
         poll_interval_sec=300.0,
+        max_daily_attempts=2,
     )
 
 
@@ -78,6 +79,66 @@ def test_load_campaign_specs_rejects_non_boolean_control_fields(tmp_path: Path) 
         recovery.load_campaign_specs(config, repo_root=tmp_path)
 
 
+def test_load_campaign_specs_rejects_invalid_daily_attempt_limit(tmp_path: Path) -> None:
+    config = tmp_path / "campaigns.json"
+    config.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "campaigns": [
+                    {
+                        "name": "bad",
+                        "state_dir": ".state",
+                        "strategy": "ema_cross",
+                        "session_strategy_id": "ema_cross_default",
+                        "symbol": "BTC/USDT",
+                        "venue": "coinbase",
+                        "signal_source": "public_ohlcv_5m",
+                        "runtime_sec": 900,
+                        "strategy_drain_sec": 2,
+                        "poll_interval_sec": 300,
+                        "max_daily_attempts": 0,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="positive integer"):
+        recovery.load_campaign_specs(config, repo_root=tmp_path)
+
+
+def test_load_campaign_specs_defaults_daily_attempt_limit_for_schema_v1(tmp_path: Path) -> None:
+    config = tmp_path / "campaigns.json"
+    config.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "campaigns": [
+                    {
+                        "name": "legacy",
+                        "state_dir": ".state",
+                        "strategy": "ema_cross",
+                        "session_strategy_id": "ema_cross_default",
+                        "symbol": "BTC/USDT",
+                        "venue": "coinbase",
+                        "signal_source": "public_ohlcv_5m",
+                        "runtime_sec": 900,
+                        "strategy_drain_sec": 2,
+                        "poll_interval_sec": 300,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    specs = recovery.load_campaign_specs(config, repo_root=tmp_path)
+
+    assert specs[0].max_daily_attempts == 2
+
+
 def test_load_campaign_specs_rejects_non_object_config(tmp_path: Path) -> None:
     config = tmp_path / "campaigns.json"
     config.write_text("[]", encoding="utf-8")
@@ -96,17 +157,19 @@ def test_default_manifest_matches_accepted_campaigns() -> None:
             spec.session_strategy_id,
             spec.signal_source,
             spec.runtime_sec,
+            spec.max_daily_attempts,
         )
         for spec in specs
     ] == [
-        ("es_daily_trend_v1", "sma_200_trend", "es_daily_trend_v1", "public_ohlcv_1d", 20.0),
-        ("ema_cross_default", "ema_cross", "ema_cross_default", "public_ohlcv_5m", 900.0),
+        ("es_daily_trend_v1", "sma_200_trend", "es_daily_trend_v1", "public_ohlcv_1d", 20.0, 2),
+        ("ema_cross_default", "ema_cross", "ema_cross_default", "public_ohlcv_5m", 900.0, 2),
         (
             "breakout_default",
             "breakout_donchian",
             "breakout_default",
             "public_ohlcv_5m",
             900.0,
+            2,
         ),
     ]
 
@@ -161,6 +224,7 @@ def test_restore_campaign_starts_dead_collector_and_verifies_status(tmp_path: Pa
     assert "--daily-loop" in launch
     assert "--detach" in launch
     assert launch[launch.index("--strategies") + 1] == "ema_cross"
+    assert launch[launch.index("--max-daily-attempts") + 1] == "2"
     assert launch_kwargs["env"]["CBP_STATE_DIR"] == str(spec.state_dir)
 
 
@@ -193,6 +257,28 @@ def test_manage_campaigns_reports_partial_outage(tmp_path: Path) -> None:
     assert out["all_running"] is False
     assert out["campaign_count"] == 2
     assert out["running_count"] == 1
+
+
+def test_manage_campaigns_distinguishes_liveness_from_campaign_health(tmp_path: Path) -> None:
+    out = recovery.manage_campaigns(
+        [_spec(tmp_path)],
+        restore=False,
+        run_command=lambda *args, **kwargs: _completed(
+            {
+                "ok": False,
+                "status": "failed",
+                "reason": "no_public_ohlcv",
+                "pid": 123,
+                "pid_alive": True,
+            }
+        ),
+    )
+
+    assert out["ok"] is False
+    assert out["all_running"] is True
+    assert out["running_count"] == 1
+    assert out["campaigns"][0]["status"] == "failed"
+    assert out["campaigns"][0]["reason"] == "no_public_ohlcv"
 
 
 def test_manage_campaigns_accepts_generator_specs(tmp_path: Path) -> None:

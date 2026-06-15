@@ -866,3 +866,144 @@ def test_ensure_component_restarts_unhealthy_tick_publisher(tmp_path, monkeypatc
     assert out["started"] is True
     assert out["pid"] == 222
     assert stop_calls == ["tick_publisher"]
+
+
+@pytest.mark.parametrize(
+    ("observed_status", "final_status", "expected_reason", "expected_note"),
+    [
+        (
+            {"status": "running", "note": "no_public_ohlcv", "mid": None},
+            {"status": "stopped", "note": "", "mid": None},
+            "no_public_ohlcv",
+            "no_public_ohlcv",
+        ),
+        (
+            {"status": "running", "note": "", "mid": 101.25},
+            {"status": "stopped", "note": "", "mid": 101.25},
+            "runtime_elapsed",
+            "",
+        ),
+    ],
+)
+def test_run_strategy_window_classifies_public_ohlcv_health(
+    tmp_path,
+    monkeypatch,
+    observed_status,
+    final_status,
+    expected_reason,
+    expected_note,
+) -> None:
+    class _FakeProc:
+        returncode = None
+
+        def poll(self):
+            return None
+
+    statuses = iter(
+        [
+            {"status_payload": {"status": "running", "note": "no_public_ohlcv", "mid": None}},
+            {"status_payload": dict(observed_status)},
+            {"status_payload": dict(final_status)},
+        ]
+    )
+    times = iter([0.0, 0.0, 2.0, 2.1])
+
+    monkeypatch.setattr(svc, "_strategy_summary_map", lambda *args, **kwargs: {})
+    monkeypatch.setattr(svc, "_start_process", lambda **kwargs: _FakeProc())
+    monkeypatch.setattr(svc, "_wait_for", lambda predicate, *, timeout_sec, sleep_sec=0.2: True)
+    monkeypatch.setattr(svc, "_component_runtime", lambda name: next(statuses))
+    monkeypatch.setattr(svc, "_stop_component", lambda name: {"ok": True})
+    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+    monkeypatch.setattr(svc, "stop_file", lambda: tmp_path / "stop")
+    monkeypatch.setattr(svc.time, "time", lambda: next(times))
+    monkeypatch.setattr(svc.time, "sleep", lambda seconds: None)
+
+    out = svc._run_strategy_window(
+        cfg=svc.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            per_strategy_runtime_sec=1.0,
+            strategy_drain_sec=0.0,
+            signal_source="public_ohlcv_5m",
+        ),
+        strategy_name="ema_cross",
+    )
+
+    assert out["stop_reason"] == expected_reason
+    assert out["runner_note"] == expected_note
+
+
+def test_run_campaign_fails_without_public_ohlcv_and_skips_evidence_cycle(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    stopped: list[str] = []
+
+    monkeypatch.setattr(
+        svc,
+        "_component_runtime",
+        lambda name: {"name": name, "pid_alive": False, "pid": 0, "status": "not_started"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_ensure_component",
+        lambda name, *, cfg: {"name": name, "started": True, "pid": 100, "status": "running"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_ensure_known_flat_position_state",
+        lambda **kwargs: {"ok": True, "seeded": False},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_run_strategy_window",
+        lambda *, cfg, strategy_name: {
+            "strategy": strategy_name,
+            "strategy_preset": "ema_cross_default",
+            "runtime_sec": 1.0,
+            "stop_reason": "no_public_ohlcv",
+            "runner_status": "stopped",
+            "runner_note": "no_public_ohlcv",
+            "enqueued_total": 0,
+            "fills_delta": 0,
+            "closed_trades_delta": 0,
+            "net_realized_pnl_delta": 0.0,
+            "fills_total": 0,
+            "closed_trades_total": 0,
+            "net_realized_pnl_total": 0.0,
+            "latest_fill_ts": "",
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "run_strategy_evidence_cycle",
+        lambda **kwargs: pytest.fail("failed market-data windows must not persist evidence"),
+    )
+    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+    monkeypatch.setattr(
+        svc,
+        "_stop_component",
+        lambda name: stopped.append(name) or {"ok": True, "component": name},
+    )
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.register_watch",
+        lambda name="", trigger="", reset_state=False: {
+            "ok": True,
+            "name": name,
+            "trigger": trigger,
+            "reset_state": reset_state,
+        },
+    )
+
+    out = svc.run_campaign(
+        svc.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            per_strategy_runtime_sec=1.0,
+            signal_source="public_ohlcv_5m",
+        )
+    )
+
+    assert out["ok"] is False
+    assert out["status"] == "failed"
+    assert out["reason"] == "no_public_ohlcv"
+    assert out["completed_strategies"] == 0
+    assert out["results"][0]["runner_note"] == "no_public_ohlcv"
+    assert "paper_engine" in stopped
+    assert "tick_publisher" in stopped

@@ -752,6 +752,8 @@ def _run_strategy_window(
     started_ts = _now_iso()
     loop_started_at = time.time()
     last_status = _component_runtime("strategy_runner").get("status_payload") or {}
+    last_runner_note = ""
+    public_ohlcv_observed = False
     stop_reason = "runtime_elapsed"
     try:
         while (time.time() - loop_started_at) < float(cfg.per_strategy_runtime_sec):
@@ -763,6 +765,10 @@ def _run_strategy_window(
                 break
             runner_state = _component_runtime("strategy_runner")
             last_status = dict(runner_state.get("status_payload") or last_status or {})
+            if str(last_status.get("note") or "").strip():
+                last_runner_note = str(last_status.get("note") or "")
+            if last_status.get("mid") is not None:
+                public_ohlcv_observed = True
             time.sleep(0.5)
     finally:
         try:
@@ -776,6 +782,17 @@ def _run_strategy_window(
     delta = _strategy_delta(strategy_name, before_rows=before_rows, after_rows=after_rows)
     ended_ts = _now_iso()
     last_status = dict((_component_runtime("strategy_runner").get("status_payload") or last_status or {}))
+    if str(last_status.get("note") or "").strip():
+        last_runner_note = str(last_status.get("note") or "")
+    if last_status.get("mid") is not None:
+        public_ohlcv_observed = True
+    if (
+        stop_reason == "runtime_elapsed"
+        and str(cfg.signal_source or "").strip().lower().startswith("public_ohlcv_")
+        and last_runner_note.strip().lower() == "no_public_ohlcv"
+        and not public_ohlcv_observed
+    ):
+        stop_reason = "no_public_ohlcv"
     return {
         "strategy": str(strategy_name),
         "strategy_preset": str(last_status.get("strategy_preset") or ""),
@@ -784,7 +801,7 @@ def _run_strategy_window(
         "runtime_sec": max(time.time() - loop_started_at, 0.0),
         "stop_reason": stop_reason,
         "runner_status": str(last_status.get("status") or "stopped"),
-        "runner_note": str(last_status.get("note") or ""),
+        "runner_note": "no_public_ohlcv" if stop_reason == "no_public_ohlcv" else str(last_status.get("note") or ""),
         "signal_action": str(last_status.get("signal_action") or ""),
         "signal_changed": bool(last_status.get("signal_changed")),
         "enqueued_total": int(last_status.get("enqueued_total") or 0),
@@ -1021,6 +1038,10 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             )
             result = _run_strategy_window(cfg=cfg, strategy_name=strategy_name)
             stop_reason = str(result.get("stop_reason") or "").strip().lower()
+            if stop_reason == "no_public_ohlcv":
+                results.append(result)
+                campaign_reason = stop_reason
+                break
             if should_invalidate(stop_reason):
                 out = {
                     "ok": True,
@@ -1058,6 +1079,35 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             if name == "paper_sim_monitor":
                 continue
             _wait_for_component_stop(name, timeout_sec=10.0)
+
+        if campaign_reason == "no_public_ohlcv":
+            failed_result = results[-1] if results else {}
+            out = {
+                "ok": False,
+                "has_status": True,
+                "status": "failed",
+                "reason": campaign_reason,
+                "ts": _now_iso(),
+                "pid": current_pid,
+                "strategies": strategies,
+                "current_strategy": str(failed_result.get("strategy") or ""),
+                "current_strategy_preset": str(failed_result.get("strategy_preset") or ""),
+                "completed_strategies": max(0, len(results) - 1),
+                "total_strategies": len(strategies),
+                "symbol": str(cfg.symbol or DEFAULT_SYMBOL),
+                "venue": str(cfg.venue or DEFAULT_VENUE),
+                "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
+                "started_components": started_components,
+                "reused_components": reused_components,
+                "paper_sim_monitor_watch_seed": monitor_watch_seed_out,
+                "results": results,
+                "summary_text": (
+                    "Paper strategy evidence collection failed because no public OHLCV market data "
+                    f"was observed for {failed_result.get('strategy') or 'the active strategy'}."
+                ),
+            }
+            _write_status(out)
+            return out
 
         if _campaign_has_new_paper_history(results):
             progress = {
