@@ -4182,4 +4182,6 @@ Remaining risk:
   collectors.
 - UNVERIFIED: post-reboot use still requires one explicit operator command;
   OS-login automation remains intentionally out of scope.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-14 after implementation commit `1b23f67b7`.
