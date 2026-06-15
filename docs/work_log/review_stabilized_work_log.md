@@ -4620,3 +4620,72 @@ Remaining risk:
   deployment remains planning-only and requires a separate high-risk review.
 - Acceptance reference: human operator message
   `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-15.
+
+## 2026-06-15T12:30Z - Prepare Hetzner Paper-Only Deployment Proof
+
+Active role: `ENGINEER`
+
+Objective: make a future Hetzner paper-campaign proof explicit and reviewable
+without provisioning a host or disturbing current collectors.
+
+What was found:
+- SHOWN: the campaign manifest uses repo-relative state paths and is portable
+  to a checked-out repo.
+- SHOWN: the existing recovery command can select a custom manifest and starts
+  only collectors that are not alive within that host's state.
+- SHOWN: the default manifest enables desktop notifications, which is not
+  appropriate for a headless Linux proof.
+- SHOWN: the existing Docker Compose stack exposes backend and dashboard ports
+  on all interfaces and does not define the paper collectors.
+- SHOWN: remote/public app hardening remains outside the accepted deployment
+  posture.
+
+What changed:
+- Added `docs/HETZNER_PAPER_HOST.md`.
+- Added `configs/paper_evidence_campaigns.hetzner.example.json`.
+- The example enables only the isolated EMA challenger and disables desktop
+  notification.
+- Added a focused manifest regression test that also proves the generated
+  restore command includes `--no-desktop-notify`.
+- Documented host preparation, single-owner stop/copy/checksum/start,
+  observation, canonical migration prerequisites, monitoring, backup, and
+  rollback.
+- Explicitly left automatic boot restoration outside the approved proof.
+- Did not access Hetzner, add credentials, expose ports, or change running
+  collectors.
+
+Why this change:
+- An isolated challenger is the smallest safe deployment proof.
+- Single-owner transfer prevents duplicate collectors and divergent evidence.
+- Content verification and rollback are required before moving financial
+  evidence state between hosts.
+- Avoiding the existing Compose stack prevents accidental public exposure of
+  surfaces that are not remotely hardened.
+
+Expected outcome:
+- A reviewer can evaluate the full VPS proof before any host action.
+- The first server proof can improve uptime without changing canonical evidence
+  or trading behavior.
+- Canonical migration remains blocked until the isolated challenger proves
+  uptime, provenance, restart recovery, monitoring, and backup restore.
+
+Verification:
+- Targeted recovery and manifest tests:
+  - `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `16 passed`.
+- Read-only custom-manifest status:
+  - SHOWN: the example resolved exactly one campaign,
+    `ema_cross_default`, with `all_running=true` against the existing local
+    isolated state; no restore action was invoked.
+- Diff validation:
+  - SHOWN: `git diff --check` passed.
+- Full suite will not be run at the operator's direction.
+- VERIFIED_ENV: files were prepared on synchronized `review-stabilized`; active
+  collectors and runtime state were not modified.
+
+Remaining risk:
+- HIGH: the artifacts govern future background-job deployment, state custody,
+  remote-host security, and rollback.
+- UNVERIFIED: no Hetzner host, firewall, SSH, backup, NTP, restart, or alerting
+  configuration has been exercised.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

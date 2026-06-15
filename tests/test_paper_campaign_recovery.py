@@ -174,6 +174,24 @@ def test_default_manifest_matches_accepted_campaigns() -> None:
     ]
 
 
+def test_hetzner_example_starts_only_headless_ema_challenger() -> None:
+    config = recovery.DEFAULT_CONFIG_PATH.with_name(
+        "paper_evidence_campaigns.hetzner.example.json"
+    )
+
+    specs = recovery.load_campaign_specs(config)
+
+    assert len(specs) == 1
+    spec = specs[0]
+    assert spec.name == "ema_cross_default"
+    assert spec.strategy == "ema_cross"
+    assert spec.session_strategy_id == "ema_cross_default"
+    assert spec.signal_source == "public_ohlcv_5m"
+    assert spec.max_daily_attempts == 2
+    assert spec.desktop_notify is False
+    assert "--no-desktop-notify" in recovery._command(spec, restore=True)
+
+
 def test_restore_campaign_does_not_duplicate_running_collector(tmp_path: Path) -> None:
     calls: list[list[str]] = []
 

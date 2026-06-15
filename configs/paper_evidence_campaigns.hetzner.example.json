@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "campaigns": [
+    {
+      "name": "ema_cross_default",
+      "enabled": true,
+      "state_dir": ".cbp_state_challengers/ema_cross_default_daily",
+      "strategy": "ema_cross",
+      "session_strategy_id": "ema_cross_default",
+      "symbol": "BTC/USDT",
+      "venue": "coinbase",
+      "signal_source": "public_ohlcv_5m",
+      "runtime_sec": 900,
+      "strategy_drain_sec": 2,
+      "poll_interval_sec": 300,
+      "max_daily_attempts": 2,
+      "desktop_notify": false
+    }
+  ]
+}
