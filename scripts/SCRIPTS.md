@@ -52,7 +52,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 93 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 94 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -126,6 +126,15 @@ may require network access and should not be treated as paper-campaign proof.
 - `smoke_exchange.py` — generic exchange smoke test.
 - `smoke_gateio.py` — Gate.io connectivity smoke test.
 
+### Cloud Provisioning And Host Safeguards
+
+These inspect or modify cloud-provider controls. Dry-run modes are safe for
+planning; apply modes are high-risk and require an accepted review.
+
+- `hetzner_cloud_safeguards.py` — plan by default, or explicitly apply, Hetzner
+  Cloud firewall, backup, and delete/rebuild protection safeguards for the paper
+  host using the OS-keyring token.
+
 ### Candidate, Signal, Learning, And Research
 
 These are research or advisory surfaces unless a separate promotion/activation
@@ -153,7 +162,7 @@ are not paper-campaign controls.
 - `check_repo_alignment.py` — repo alignment guard.
 - `generate_release_notes.py` — release-notes generator.
 - `install.py` — install/setup helper.
-- `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner read-only token in the OS keyring; never accepts a token argument.
+- `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.
 - `rebuild_remaining_tasks.py` — regenerate remaining-task artifacts.
