@@ -4913,3 +4913,69 @@ Remaining risk:
   backup/restore rehearsal, and server-hosted UTC campaign execution.
 - SHOWN: Ubuntu reports `40` packages not upgraded after installing `fail2ban`.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-17T01:59:15Z - Hetzner Cloud safeguard planner
+
+Active role: ENGINEER
+
+Objective:
+- Add a guarded, reviewed path for Hetzner Cloud safeguards now that a
+  write-capable token is available.
+
+What was found:
+- SHOWN: the host is hardened locally, but cloud-side safeguards remain open:
+  Hetzner firewall, backups, and delete/rebuild protection.
+- SHOWN: the previous inventory path was read-only and could not express a
+  safe write workflow.
+- SHOWN: the keyring account label remains `hetzner_cloud:readonly`, but the
+  operator may temporarily store a read/write token there for accepted
+  provisioning.
+
+What changed:
+- Added cloud safeguard planning/apply functions in `services/ops/hetzner_cloud.py`.
+- Added `scripts/hetzner_cloud_safeguards.py`.
+- Added tests for missing SSH CIDR, broad CIDR rejection, dry-run planning,
+  confirmation mismatch, guarded POST sequencing, and firewall rule drift
+  correction.
+- Updated `docs/HETZNER_PAPER_HOST.md` with the dry-run/apply workflow and
+  safety gates.
+- Updated `scripts/SCRIPTS.md` so the new root script is visible as a
+  specialized cloud-provisioning command.
+
+Why this change:
+- A read/write cloud token is high risk unless the repo encodes the safety
+  workflow directly.
+- The smallest safe path is plan-by-default, explicit SSH source CIDR, exact
+  server-id confirmation for writes, and no token printed or accepted as a
+  command argument.
+- The firewall helper corrects an existing named firewall if its SSH rule
+  source drifts, rather than trusting the firewall name alone.
+
+Expected outcome:
+- Operators can see exactly what Hetzner Cloud changes would be made before any
+  write.
+- Applying cloud safeguards requires deliberate confirmation and a restrictive
+  SSH source.
+- The paper host can progress toward cloud-side hardening after independent
+  review, without starting or migrating any collector.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m py_compile services/ops/hetzner_cloud.py scripts/hetzner_cloud_safeguards.py`
+  passed.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_hetzner_access.py`
+  passed with `14 passed in 0.61s`.
+- SHOWN: `./.venv/bin/python scripts/validate_script_paths.py` returned
+  `OK: script paths validated`.
+- SHOWN: `git diff --check` passed.
+- SHOWN: live-safe CLI proof
+  `./.venv/bin/python scripts/hetzner_cloud_safeguards.py --server-id 126306158`
+  returned `ok=false`, `reason=ssh_source_cidr_required`, and no planned
+  changes. This path stops before any Hetzner API request by test proof.
+- Full suite was not run at the operator's direction.
+
+Remaining risk:
+- HIGH: cloud-provider write operations, firewall lockout risk, backup billing,
+  and server protection policy.
+- UNVERIFIED: no live Hetzner Cloud write has been performed by this change.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-17 after
+  independent review sign-off.

@@ -30,9 +30,9 @@ Therefore:
 
 ## Secure Account Access
 
-Use a new Hetzner token with `Read` permission for inventory and deployment
-planning. Do not reuse the token that appeared in chat, and do not paste any
-replacement token into chat, Git, an environment file, or a command argument.
+Use a new Hetzner token for inventory and deployment planning. Do not reuse the
+token that appeared in chat, and do not paste any replacement token into chat,
+Git, an environment file, or a command argument.
 
 Store the replacement through the hidden interactive prompt:
 
@@ -41,6 +41,8 @@ Store the replacement through the hidden interactive prompt:
 ```
 
 The command stores the token under the `crypto-bot-pro` OS-keyring namespace.
+The account label is historical (`hetzner_cloud:readonly`); the token itself may
+be read-only for inventory or short-lived read/write for accepted provisioning.
 It does not print the token. Check only whether a token is configured:
 
 ```bash
@@ -57,10 +59,52 @@ The inventory command performs GET requests only and returns resource counts
 plus a non-secret server summary. It does not accept token arguments or use an
 environment-variable fallback.
 
-If write access is later required for accepted provisioning, create a separate
-short-lived `Read & Write` token. Do not replace the persistent read-only
-inventory token with it. Write-capable automation requires a separate reviewed
-implementation.
+Prefer a persistent read-only token for inventory. If write access is required
+for accepted provisioning, create a separate short-lived `Read & Write` token,
+store it with the same hidden prompt only for the provisioning window, and
+replace it with the read-only token afterward.
+
+## Cloud Safeguards Command
+
+Status: `READY_FOR_INDEPENDENT_REVIEW`
+
+`scripts/hetzner_cloud_safeguards.py` plans cloud-side safety changes for the
+paper host and applies them only with explicit operator confirmation.
+
+The command is dry-run by default:
+
+```bash
+./.venv/bin/python scripts/hetzner_cloud_safeguards.py \
+  --server-id 126306158 \
+  --ssh-source-cidr <operator-or-vpn-cidr>
+```
+
+Planned changes:
+- create or correct the named SSH-only firewall
+  `cryptkeep-paper-ssh-only`;
+- attach that firewall to the selected server;
+- enable delete/rebuild protection;
+- enable Hetzner backups.
+
+Safety gates:
+- no token is accepted on the command line;
+- missing SSH source CIDR stops before any Hetzner API request;
+- `0.0.0.0/0` and `::/0` are rejected;
+- `--apply` requires `--confirm-server-id` matching `--server-id`;
+- the script prints JSON status only, never the token.
+
+Apply only after independent review:
+
+```bash
+./.venv/bin/python scripts/hetzner_cloud_safeguards.py \
+  --server-id 126306158 \
+  --ssh-source-cidr <operator-or-vpn-cidr> \
+  --apply \
+  --confirm-server-id 126306158
+```
+
+Do not use a public-anywhere CIDR. Prefer a stable operator IP, VPN egress CIDR,
+or emergency-access CIDR that is narrow enough to preserve the SSH boundary.
 
 ## Stage 0 - Host Preparation
 
