@@ -4977,4 +4977,5 @@ Remaining risk:
 - HIGH: cloud-provider write operations, firewall lockout risk, backup billing,
   and server protection policy.
 - UNVERIFIED: no live Hetzner Cloud write has been performed by this change.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-17 after
+  independent review sign-off.
