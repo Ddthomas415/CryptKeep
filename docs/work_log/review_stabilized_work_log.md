@@ -4816,4 +4816,6 @@ Verification:
 Remaining risk:
 - HIGH: TLS behavior protects cloud-account credentials and API responses.
 - UNVERIFIED: behavior on the future Ubuntu host until its venv is built.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-16 before integration as `9fc8a3ff1`.
