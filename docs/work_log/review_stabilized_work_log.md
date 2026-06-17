@@ -4819,3 +4819,97 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-16 before integration as `9fc8a3ff1`.
+
+## 2026-06-17T01:49:51Z - Hetzner Host-Level Hardening Proof
+
+Active role: `ENGINEER`
+
+Objective: prepare the existing Hetzner server for future paper-only campaign
+proofs without copying campaign state or starting any remote collectors.
+
+What was found:
+- SHOWN: local `review-stabilized` was clean before the host work.
+- SHOWN: all three local paper collectors were healthy and idle with
+  `last_completed_day=2026-06-17`.
+- SHOWN: Hetzner read-only inventory reported one running server:
+  `ubuntu-4gb-nbg1-3`, type `cax11`, location `nbg1`.
+- SHOWN: the host baseline had UFW inactive, SSH password authentication
+  enabled, `fail2ban` inactive, no `cryptkeep` user, and no `/srv/cryptkeep`.
+- SHOWN: the local RSA public key matched the registered Hetzner SSH key
+  fingerprint, and root key-based SSH worked before hardening.
+
+What changed on the Hetzner host:
+- Created non-root user `cryptkeep` with home `/srv/cryptkeep`.
+- Created `/srv/cryptkeep/app`, `/srv/cryptkeep/state`, and
+  `/srv/cryptkeep/backups`.
+- Installed the operator's public key for the `cryptkeep` user.
+- Added `/etc/ssh/sshd_config.d/60-cryptkeep-hardening.conf`.
+- Disabled SSH password authentication and keyboard-interactive
+  authentication.
+- Kept root login key-only with `PermitRootLogin prohibit-password`.
+- Reduced `MaxAuthTries` from `6` to `3`.
+- Enabled UFW with default deny incoming, default allow outgoing, and OpenSSH
+  allowed.
+- Installed and enabled `fail2ban` with an `sshd` jail.
+- Wrote `/etc/cryptkeep_host_hardening.json` as a host-side marker.
+
+What did not change:
+- No Git repository was cloned to the server.
+- No `.cbp_state` or challenger state was copied.
+- No paper collector, dashboard, backend, or trading process was started on
+  the server.
+- No Hetzner Cloud firewall, backup, primary IP, server protection, or other
+  cloud-side resource was changed; the token remains read-only.
+- No local collector was stopped, restarted, or migrated.
+
+Why this change:
+- The VPS improves future evidence continuity only if it is a single-owner,
+  private, paper-only host.
+- Hardening the host before deploying collectors prevents exposing the repo's
+  non-remote-hardened dashboard/backend surfaces and reduces SSH attack
+  surface.
+- Keeping the campaign local preserves canonical evidence while the server
+  hardening proof awaits review.
+
+Expected outcome:
+- The server can support an isolated challenger proof after independent review.
+- Root recovery access remains available by key, while day-to-day access can
+  use the non-root `cryptkeep` account.
+- The host exposes only SSH and has basic local firewall and SSH brute-force
+  controls.
+
+Verification:
+- Root SSH verification:
+  - SHOWN: root key access still works.
+- Non-root SSH verification:
+  - SHOWN: `cryptkeep` login works and can write under
+    `/srv/cryptkeep/state`.
+- SSH effective settings:
+  - SHOWN: `passwordauthentication no`,
+    `kbdinteractiveauthentication no`, `pubkeyauthentication yes`,
+    `permitrootlogin without-password`, and `maxauthtries 3`.
+- UFW:
+  - SHOWN: `Status: active`, default deny incoming, default allow outgoing,
+    OpenSSH allowed for IPv4 and IPv6.
+- Fail2ban:
+  - SHOWN: service active; `sshd` jail active and already banning three scanner
+    IPs.
+- Listeners:
+  - SHOWN: public listeners are SSH only.
+- Hetzner inventory:
+  - SHOWN: read-only inventory still reports `firewalls=0`, `servers=1`, and
+    `volumes=0`.
+- Local campaign status:
+  - SHOWN: all three local collectors remained healthy and idle after the host
+    work.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: host commands ran on `ubuntu-4gb-nbg1-3` over SSH using the
+  matched local RSA key.
+
+Remaining risk:
+- HIGH: server security, background job deployment readiness, and future state
+  custody.
+- UNVERIFIED: Hetzner Cloud firewall, backups, delete/rebuild protection, host
+  backup/restore rehearsal, and server-hosted UTC campaign execution.
+- SHOWN: Ubuntu reports `40` packages not upgraded after installing `fail2ban`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -64,6 +64,34 @@ implementation.
 
 ## Stage 0 - Host Preparation
 
+Current status as of `2026-06-17T01:49:51Z`: implementation proof is complete
+for host-level hardening on `ubuntu-4gb-nbg1-3`; campaign deployment remains
+blocked pending independent review and cloud-side safeguards.
+
+SHOWN:
+- `cryptkeep` non-root user exists with home `/srv/cryptkeep`.
+- `/srv/cryptkeep/app`, `/srv/cryptkeep/state`, and
+  `/srv/cryptkeep/backups` exist and are owned by `cryptkeep`.
+- SSH password authentication is disabled.
+- `MaxAuthTries` is reduced to `3`.
+- Root login remains key-only through `PermitRootLogin prohibit-password`.
+- UFW is active with default deny incoming and OpenSSH allowed.
+- `fail2ban` is active for `sshd`.
+- Only SSH is publicly listening.
+- Local paper collectors remained on the laptop; no campaign state was copied
+  and no server collector was started.
+
+Still blocked:
+- Hetzner Cloud firewall is not configured; read-only inventory still reports
+  `firewalls=0`.
+- Hetzner backups are not enabled.
+- Hetzner delete/rebuild protection is not enabled.
+- No isolated challenger has completed a server-hosted UTC cycle.
+- No backup/restore rehearsal has been performed.
+
+Do not migrate `.cbp_state` or start canonical collectors on this host until
+those blockers are independently reviewed and resolved.
+
 Requirements:
 - a supported Linux host with SSH access;
 - a non-root service account dedicated to CryptKeep;
