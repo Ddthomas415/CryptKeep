@@ -414,3 +414,53 @@ Risk:
 - MEDIUM: operator workflow and documentation accuracy. This should remain
   documentation-only unless the audit exposes an unsafe command path that needs
   separate engineering work.
+
+## Priority 16 - Hetzner Paper Campaign Host
+
+Status: planned; do not migrate the active campaign until the first corrected
+post-rollout UTC window is verified locally
+
+Why it matters:
+- The current detached collectors stop when the operator laptop is shut down,
+  restarted, disconnected for maintenance, or unavailable for recovery.
+- A stable VPS is appropriate for the daily SMA campaign and the 5-minute EMA
+  and Donchian paper challengers because it provides continuous outbound market
+  data access and persistent local state.
+- Infrastructure uptime can improve evidence continuity, but it cannot increase
+  strategy signal frequency, qualify legacy fills, or prove profitability.
+- The existing Docker Compose stack publishes backend and dashboard ports on
+  all interfaces, while the repo's auth documentation says remote/public
+  hardening remains incomplete. It must not be deployed unchanged to a public
+  VPS.
+
+Next action:
+- Write a paper-only Hetzner deployment runbook before provisioning runtime
+  services.
+- Run collectors with no live-trading credentials and no public application
+  ports; administer through SSH or a private VPN only.
+- Define one canonical host owner for each campaign so laptop and VPS
+  collectors cannot run simultaneously against copied state.
+- Add explicit state transfer, integrity verification, encrypted backup,
+  restore rehearsal, disk-space monitoring, UTC clock verification, and
+  collector health alerts.
+- Prove the deployment first with an isolated challenger state directory, then
+  migrate canonical `.cbp_state` only after a reviewed stop-copy-verify-start
+  procedure.
+- Keep the current laptop recovery path available as rollback until the VPS has
+  completed at least one healthy UTC cycle and one restore rehearsal.
+
+Proof required:
+- Targeted deployment/config tests and a documented dry run.
+- No externally reachable dashboard or backend port.
+- One collector owner per campaign, with duplicate-process checks passing.
+- Evidence counts and checksums match before and after state migration.
+- `restore_paper_campaigns.py --status` reports all configured collectors
+  healthy on the VPS.
+- A backup can be restored into an isolated directory and read successfully.
+
+Risk:
+- HIGH: persistent financial-evidence background jobs, state migration,
+  credentials/configuration, remote host security, and duplicate campaign
+  ownership.
+- Acceptance state: planning only; implementation must stop at
+  `READY_FOR_INDEPENDENT_REVIEW`.

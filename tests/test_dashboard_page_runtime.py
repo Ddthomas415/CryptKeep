@@ -1451,12 +1451,16 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
             "freshness": "Fresh",
             "age_label": "1m old",
             "recommendation": "continue",
-            "strategy_label": "es_daily_trend_v1",
+            "strategy_label": "breakout_default",
             "symbol": "BTC/USDT",
             "fills_observed": 2,
             "round_trips_observed": 1,
+            "promotion_thresholds_applicable": False,
             "promotion_thresholds_ready": False,
-            "promotion_progress_summary": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/10 round trips recorded (3 remaining).",
+            "promotion_progress_summary": (
+                "Promotion thresholds are not configured for breakout_default; "
+                "campaign trade metrics are informational."
+            ),
             "notification_status": "failed",
             "notification_reason": "notify_exit:1",
             "watch_count": 1,
@@ -1492,10 +1496,13 @@ def test_operations_page_surfaces_paper_sim_monitor_table(monkeypatch) -> None:
     section_rows = {title: rows for title, rows in seen_sections}
     assert "Paper Sim Monitor" in section_rows
     assert section_rows["Paper Sim Monitor"][0]["recommendation"] == "continue"
-    assert section_rows["Paper Sim Monitor"][0]["strategy"] == "es_daily_trend_v1"
+    assert section_rows["Paper Sim Monitor"][0]["strategy"] == "breakout_default"
     assert section_rows["Paper Sim Monitor"][0]["fills"] == "2"
-    assert section_rows["Paper Sim Monitor"][0]["promotion_thresholds"] == "not_ready"
-    assert "7/10 round trips" in section_rows["Paper Sim Monitor"][0]["promotion_progress"]
+    assert section_rows["Paper Sim Monitor"][0]["promotion_thresholds"] == "not_configured"
+    assert (
+        "not configured for breakout_default"
+        in section_rows["Paper Sim Monitor"][0]["promotion_progress"]
+    )
     assert section_rows["Paper Sim Monitor"][0]["local_alerts"] == "failed"
     assert section_rows["Paper Sim Monitor"][0]["watches"] == "1"
     assert "Paper Evidence Collector" in section_rows

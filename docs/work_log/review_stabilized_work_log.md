@@ -3371,3 +3371,1611 @@ Remaining risk:
 - Acceptance reference: independently reviewed and accepted implementation,
   clean local full suite, clean branch synchronization, and all GitHub PR
   checks passing on 2026-06-10.
+
+## 2026-06-11T09:59:36Z - Count Held Bars By Market Timestamp
+
+Active role: `ENGINEER`
+
+Objective: stop the `breakout_donchian` and `ema_cross` paper runners from
+consuming a bar-based time stop on repeated polling of the same market bar.
+
+What was found:
+- SHOWN: the isolated `breakout_donchian` campaign produced three round trips
+  between `2026-06-11T00:03:20Z` and `2026-06-11T00:16:01Z` while consuming
+  public Coinbase `5m` OHLCV.
+- SHOWN: the first position-close monitor artifact reports
+  `bars_held=60`, `exit_reason=strategy_exit:breakout_donchian:time_stop`, and
+  `exit_stack_rule=time_stop` only about 162 seconds after entry.
+- SHOWN: the isolated `ema_cross` position-close artifact also reports
+  `strategy_exit:ema_cross:time_stop` after about 154 seconds.
+- SHOWN: `ema_crossover_runner.py` incremented `bars_held` once per polling
+  loop whenever a position was open, regardless of whether the latest OHLCV
+  timestamp changed.
+- SHOWN: the default `max_bars_hold` is `60`; therefore repeated polls of one
+  five-minute candle could exhaust the configured limit in roughly 60 loops.
+- SHOWN: the runner called `StrategyStateSQLite.delete(...)` during exit-state
+  cleanup, but `storage/strategy_state_sqlite.py` did not implement `delete`;
+  the resulting exceptions were swallowed.
+- UNVERIFIED: the second and third breakout exits did not retain an exit reason
+  in their captured monitor snapshots. Their timing is consistent with the
+  same defect, but the exact cause of those two exits is not proven.
+
+What changed:
+- Added `_advance_held_bar_counter(...)` and a persisted
+  `last_held_bar_ts:<venue>:<symbol>:<strategy>` state key.
+- The runner now seeds the timestamp without incrementing, ignores repeated or
+  older timestamps, and increments `bars_held` only when the market-data
+  timestamp advances.
+- Entry, flat-position, and sell cleanup now initialize or clear the timestamp
+  key together with the existing entry, trailing-peak, and held-bar state.
+- Added the missing `StrategyStateSQLite.delete(...)` operation so runner
+  cleanup no longer silently fails.
+- Added unit and runner-level regression tests proving repeated timestamps do
+  not consume the time stop and genuinely newer timestamps still produce
+  exactly one configured time-stop sell.
+
+Why this change:
+- `max_bars_hold` is a market-observation control, not a CPU-loop control.
+  Counting poll iterations made exit timing depend on runner cadence and
+  caused minute-scale churn on a five-minute strategy.
+- Persisting the last counted timestamp preserves correct behavior across
+  loops and process restarts without changing stop-loss, take-profit,
+  trailing-stop, signal, order-routing, or gate thresholds.
+- Implementing the store method used by the existing cleanup path is smaller
+  and safer than continuing to suppress a broken interface contract.
+
+Expected outcome:
+- Public OHLCV campaigns count each candle timestamp once, so a 60-bar hold
+  limit can no longer fire after 60 repeated polls of the same candle.
+- Tick-derived sources count unique observation timestamps rather than raw
+  loop iterations.
+- Existing time stops still fire when the configured number of genuinely new
+  market timestamps has elapsed.
+- Stale runner exit state can be deleted when positions close or are flat.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py tests/test_exit_control_stack.py`
+  - SHOWN: `31 passed in 0.76s`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py tests/test_exit_control_stack.py tests/test_ema_runner_risk_defaults.py tests/test_run_paper_strategy_evidence_collector.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `65 passed in 1.11s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2117 passed, 33 skipped, 13 warnings in 214.60s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `ruff check` on the changed files
+  - SHOWN: reports two pre-existing duplicate `sma_200_trend` dictionary keys
+    at runner lines 64 and 75; neither finding is introduced or modified by
+    this change.
+- VERIFIED_ENV: all verification ran in the repository virtual environment
+  from isolated worktree `/private/tmp/crypto-bot-pro-bar-hold-fix`.
+- Collector status checks from the unchanged main workspace:
+  - SHOWN: canonical `sma_200_trend` PID `23879` is idle/alive after completing
+    the 2026-06-11 window.
+  - SHOWN: isolated `ema_cross` PID `8480` is idle/alive after completing the
+    2026-06-11 window.
+  - SHOWN: isolated `breakout_donchian` PID `10310` is idle/alive after
+    completing the 2026-06-11 window.
+
+Remaining risk:
+- HIGH: this changes financial strategy exit timing and background-runner
+  state semantics.
+- UNVERIFIED: no live paper campaign has run on this branch; active collectors
+  remain on accepted commit `13cba446b` and were not restarted or modified.
+- UNVERIFIED: sell intent metadata does not directly persist `exit_reason`, so
+  later evidence may still require monitor snapshots to attribute an exit.
+- SHOWN: the daily-loop collector launches `scripts/run_strategy_runner.py` as
+  a fresh subprocess for each strategy window, so integration before the next
+  UTC window applies the fix without restarting the collector parents.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-11 after commit `a0a1403de`.
+
+## 2026-06-11T10:11:31Z - Integrate Accepted Market-Bar Time-Stop Fix
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted strategy-runner correction
+into `review-stabilized` without interrupting active paper campaigns.
+
+What was found:
+- SHOWN: `codex/fix-bar-hold-clock` was a clean two-commit descendant of
+  `review-stabilized`; no conflict resolution or history rewrite was needed.
+- SHOWN: the daily-loop collector launches a fresh strategy-runner subprocess
+  for each UTC evidence window.
+- SHOWN: canonical, EMA, and breakout collector parents had already completed
+  the 2026-06-11 window and remained idle with live PIDs.
+
+What changed:
+- Merged accepted commits `a0a1403de` and `91fd74b50` into
+  `review-stabilized` as merge commit `0efcd55c3`.
+- After verifying the feature tip was an ancestor of `review-stabilized`,
+  removed the temporary worktree and deleted the merged local and remote
+  `codex/fix-bar-hold-clock` branches.
+- No collector process, evidence artifact, strategy configuration, gate
+  threshold, or current position was changed.
+
+Why this change:
+- The correction must be on the branch used by the next freshly launched
+  strategy runner.
+- Preserving the collector parents avoids an unnecessary campaign restart
+  while still applying the accepted code on the next UTC window.
+
+Expected outcome:
+- The June 12 EMA and breakout strategy windows load the market-timestamp bar
+  counter automatically.
+- Repeated polling of one five-minute candle no longer consumes the 60-bar
+  time stop.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_breakout_runner_exit_stack.py tests/test_exit_control_stack.py tests/test_ema_runner_risk_defaults.py tests/test_run_paper_strategy_evidence_collector.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `65 passed in 1.14s`.
+- `git diff --check origin/review-stabilized...HEAD`
+  - SHOWN: clean.
+- `git merge-base --is-ancestor codex/fix-bar-hold-clock review-stabilized`
+  - SHOWN: returned success before branch cleanup.
+- Collector status checks:
+  - SHOWN: `sma_200_trend` PID `23879`, idle/alive.
+  - SHOWN: `ema_cross` PID `8480`, idle/alive.
+  - SHOWN: `breakout_donchian` PID `10310`, idle/alive.
+
+Remaining risk:
+- HIGH implementation risk was independently accepted before integration.
+- UNVERIFIED: the corrected behavior has not yet completed a real paper
+  window; the next proof point is the June 12 challenger evidence.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-06-11T10:18:03Z - Re-enable Breakout Desktop Notifications
+
+Active role: `ENGINEER`
+
+Objective: restore desktop delivery for the existing breakout monitor watches
+without changing campaign evidence, strategy settings, or other collectors.
+
+What was found:
+- SHOWN: canonical PID `23879` and EMA PID `8480` were launched with the
+  default notification-enabled mode.
+- SHOWN: breakout PID `10310` was explicitly launched with
+  `--no-desktop-notify`.
+- SHOWN: the June 11 canonical and EMA watch reports recorded
+  `desktop_notification.sent=true`.
+- SHOWN: the June 11 breakout investigate report recorded
+  `attempted=false`, `sent=false`, and `reason=disabled`.
+- SHOWN: all four breakout watches were active and writing report artifacts;
+  only desktop delivery was disabled.
+
+What changed:
+- Requested a supported stop for idle breakout collector PID `10310`.
+- Waited for the 300-second daily-loop poll boundary until status showed
+  `stop_requested`, `pid_alive=false`, and no PID file.
+- Started the same detached breakout daily-loop command in the same isolated
+  state directory without `--no-desktop-notify`.
+- The replacement collector is PID `32873`, idle and waiting for the next UTC
+  day.
+
+Why this change:
+- The monitor and trigger layer already worked; replacing the parent launch
+  flag is the smallest correction that restores user-visible notifications.
+- The June 11 session was complete, so the supported stop/detach sequence
+  avoided interrupting an active runner or duplicating the daily campaign.
+
+Expected outcome:
+- The next breakout fill, position close, investigate recommendation, or
+  campaign-completed event writes its normal report and attempts local desktop
+  delivery.
+- The June 12 breakout strategy window also loads the accepted market-bar
+  time-stop implementation from `review-stabilized`.
+
+Verification:
+- Old collector status:
+  - SHOWN: PID `10310` stopped with `reason=stop_requested`,
+    `pid_alive=false`, and `has_pid_file=false`.
+- Replacement start:
+  - SHOWN: detach returned `reason=detached_started`, PID `32873`.
+  - SHOWN: status reports `idle`, `waiting_for_next_day`, `pid_alive=true`,
+    and `last_completed_day=2026-06-11`.
+- Process command inspection:
+  - SHOWN: PID `32873` retains the breakout strategy, session ID, BTC/USDT,
+    Coinbase, public 5-minute OHLCV, 900-second runtime, and 300-second daily
+    poll settings.
+  - SHOWN: PID `32873` does not contain `--no-desktop-notify`.
+- Evidence integrity:
+  - SHOWN: persisted paper history remains six fills, three closed trades, and
+    `-0.38540687113248273` net realized PnL.
+  - SHOWN: evidence inventory remains one fill file, one order file, four
+    session files, and 20 total records.
+- Isolation:
+  - SHOWN: canonical PID `23879` and EMA PID `8480` remained alive with their
+    original command lines.
+- VERIFIED_ENV: commands ran from the synchronized `review-stabilized`
+  workspace at `bf2aae822`.
+
+Remaining risk:
+- HIGH: this changed a persistent background monitoring job.
+- UNVERIFIED: no new breakout watch event has fired after PID `32873` started,
+  so actual desktop delivery from the replacement process is not yet shown.
+- UNVERIFIED: the June 12 paper window has not yet exercised the accepted
+  market-bar time-stop correction.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-11 after commit `7f3084f65`.
+
+## 2026-06-11T12:53:51Z - Remove Stale Promotion Worktree Registration
+
+Active role: `ENGINEER`
+
+Objective: remove a dead worktree registration and its fully merged feature
+branch so Git no longer advertises a nonexistent checkout.
+
+What was found:
+- SHOWN: `/private/tmp/cryptkeep-shadow-gate-evidence-scope` did not exist.
+- SHOWN: `git worktree prune --dry-run --verbose` identified its registration
+  as prunable because the gitdir target was missing.
+- SHOWN: local and remote `codex/promotion-provenance-visibility` were each
+  fully contained in `review-stabilized`; the comparison was 18 commits on
+  `review-stabilized` and zero unique feature commits.
+
+What changed:
+- Pruned the stale worktree registration.
+- Deleted the fully merged local
+  `codex/promotion-provenance-visibility` branch.
+- Deleted the corresponding fully merged remote branch.
+
+Why this change:
+- A dead worktree registration can block branch cleanup and create false
+  branch-conflict signals.
+- Ancestry was proven before deletion, so no unique commit was discarded.
+
+Expected outcome:
+- `git worktree list` reports only the active repository checkout.
+- Future branch and worktree operations no longer encounter the stale
+  promotion-provenance registration.
+
+Verification:
+- `git worktree list --porcelain`
+  - SHOWN: only `/Users/baitus/Downloads/crypto-bot-pro` remains.
+- `git branch -vv | rg 'promotion-provenance-visibility'`
+  - SHOWN: no local branch remains.
+- `git status -sb`
+  - SHOWN: `review-stabilized` is clean and synchronized before this log
+    entry.
+- VERIFIED_ENV: Git cleanup ran in the canonical repository checkout.
+
+Remaining risk:
+- LOW: metadata and fully merged branch cleanup only.
+- No runtime process, evidence artifact, source file, or strategy behavior was
+  changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-06-11T13:19:53Z - Persist Strategy Exit Attribution
+
+Active role: `ENGINEER`
+
+Objective: make strategy-driven sell reasons durable across paper intent,
+order/fill evidence, reconciliation outcomes, and closed-trade summaries.
+
+What was found:
+- SHOWN: the June 11 breakout paper database contains three sell orders whose
+  metadata has `exit_reason=None` and `exit_stack_rule=None`.
+- SHOWN: the June 11 EMA paper database contains one sell order with the same
+  missing attribution.
+- SHOWN: the first breakout position-close monitor artifact temporarily
+  reported `strategy_exit:breakout_donchian:time_stop`, but that reason was not
+  copied into the queued intent or durable paper order.
+- SHOWN: `paper_engine.py` copied only market-data provenance fields into order
+  and fill JSONL evidence.
+- SHOWN: both strategy outcome producers copied `signal_reason` but omitted
+  `exit_reason` and `exit_stack_rule`.
+
+What changed:
+- Exit-stack and EMA-invalidation sells now add `exit_reason` to intent
+  metadata; stack exits also add `exit_stack_rule`.
+- Ordinary buy and signal-change intents remain unchanged and do not receive
+  exit attribution fields.
+- Paper order and fill JSONL evidence now preserves the two exit-attribution
+  fields alongside existing market-data provenance.
+- Paper intent reconciliation and execution-plan reconciliation now copy the
+  fields into strategy outcome rows.
+- Closed-trade summaries now expose both fields.
+- Added unit and SQLite-backed integration coverage from queued sell intent
+  through paper order, fill JSONL, reconciliation, and summary output.
+
+Why this change:
+- Exit attribution must survive beyond transient runner status to support
+  strategy review, churn diagnosis, and performance analysis by exit type.
+- Copying existing metadata is the smallest coherent fix; no order decision,
+  side, quantity, venue, risk threshold, or execution route changes.
+
+Expected outcome:
+- Future strategy-driven paper exits can be classified as time stop, stop
+  loss, take profit, trailing stop, or EMA invalidation from durable evidence.
+- Operators no longer need a precisely timed monitor snapshot to determine why
+  a position closed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_paper_engine_integration.py tests/test_intent_reconciler.py tests/test_paper_strategy_journal_flow.py tests/test_outcome_summary.py`
+  - SHOWN: `40 passed in 1.30s`.
+- Broader paper execution and evidence regression slice:
+  - SHOWN: `78 passed in 2.54s`.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2119 passed, 33 skipped, 13 warnings in 208.72s`.
+- `git diff --check`
+  - SHOWN: clean.
+- `ruff check` on the non-runner changed files
+  - SHOWN: reported only pre-existing import-order and unused-import findings
+    at the top of `paper_engine.py`; no changed block introduced a lint
+    finding.
+- VERIFIED_ENV: all tests ran in repository virtual environment from isolated
+  worktree `/private/tmp/crypto-bot-pro-exit-attribution`.
+- Isolation:
+  - SHOWN: canonical workspace remained clean on `review-stabilized`.
+  - SHOWN: breakout collector PID `32873` remained idle/alive.
+
+Remaining risk:
+- HIGH: this changes financial evidence and execution-observability surfaces.
+- UNVERIFIED: no real paper exit has yet written the new fields.
+- Historical June 11 evidence is not backfilled; the change applies to future
+  orders and fills only.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-11 after commit `493d9d76c`.
+
+## 2026-06-11T13:36:56Z - Integrate Accepted Exit Attribution
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted exit-attribution evidence
+change without interrupting active paper collectors.
+
+What was found:
+- SHOWN: `codex/persist-exit-attribution` was a clean two-commit descendant of
+  `review-stabilized`.
+- SHOWN: the feature commit had full-suite proof of `2119 passed, 33 skipped`.
+- SHOWN: all three collector parents had completed the June 11 window and were
+  idle with live PIDs.
+
+What changed:
+- Merged accepted commits `493d9d76c` and `2ad46c2e6` into
+  `review-stabilized` as merge commit `d270fe1dc`.
+- No collector process, position, strategy configuration, evidence artifact,
+  or historical record was modified.
+
+Why this change:
+- Future paper exits need durable reason attribution before the next strategy
+  windows launch.
+- Fresh runner and paper-engine subprocesses are launched for each UTC window,
+  so collector-parent restarts are unnecessary.
+
+Expected outcome:
+- Future strategy-driven paper sell orders and fills preserve
+  `exit_reason` and `exit_stack_rule`.
+- Reconciled outcome rows and closed-trade summaries expose the same fields.
+
+Verification:
+- Merged execution/evidence regression slice:
+  - SHOWN: `78 passed in 2.74s`.
+- `git diff --check origin/review-stabilized...HEAD`
+  - SHOWN: clean.
+- Collector status:
+  - SHOWN: canonical PID `23879`, idle/alive.
+  - SHOWN: EMA PID `8480`, idle/alive.
+  - SHOWN: breakout PID `32873`, idle/alive.
+
+Remaining risk:
+- HIGH implementation risk was independently accepted before integration.
+- UNVERIFIED: no real post-integration paper exit has yet persisted the new
+  attribution fields.
+- Historical June 11 orders and fills remain unchanged.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-06-12T09:43:25Z - Explain Excluded Paper Promotion History
+
+Active role: `ENGINEER`
+
+Objective: make the paper promotion gate explain why seven persisted round
+trips no longer advance the provenance-qualified threshold.
+
+What was found:
+- SHOWN: the strict qualification rule introduced by `7ab11da59` requires both
+  entry and exit fills to carry matching public OHLCV provenance.
+- SHOWN: the canonical journal contains seven all-history round trips, but the
+  JSONL evidence has nine fills with missing provenance and one qualified exit
+  that is not paired with a qualified entry.
+- SHOWN: April 20 signal prices materially diverge from contemporaneous paper
+  fill prices, and the historical collector code explicitly supported sample
+  OHLCV. Those trades cannot safely be relabeled as public-market evidence.
+- SHOWN: the gate decision is therefore correct at zero qualified round trips;
+  the defect is that the round-trip detail does not explain the exclusion.
+
+What changed:
+- Added diagnostic-only, unqualified-fill, and incomplete-qualified-fill
+  context to the paper round-trip gate detail.
+- Added regression coverage for missing JSONL history and the canonical
+  `7 all-history / 9 unqualified / 1 incomplete` shape.
+- Did not change qualification, threshold, expectancy, retirement, or
+  promotion-ready calculations.
+
+Why this change:
+- Grandfathering or backfilling missing provenance would convert inference
+  into promotion evidence and weaken the gate.
+- Explicit reporting preserves the safety rule while preventing operators
+  from interpreting `0/10` as lost or deleted trade history.
+
+Expected outcome:
+- `check_promotion_gates.py --json` continues to report zero qualified round
+  trips, but states that seven all-history trips are diagnostic only and
+  identifies the exact JSONL qualification gaps.
+
+Verification:
+- Canonical virtualenv targeted promotion tests:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py`
+  - SHOWN: `44 passed in 0.93s`.
+- Dashboard/monitor regression slice:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_strategy_evidence_runtime.py tests/test_dashboard_page_runtime.py`
+  - SHOWN: `37 passed in 1.05s`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2120 passed, 33 skipped, 13 warnings in 209.18s`.
+- Canonical gate-output inspection:
+  - SHOWN: `ready=false`, `machine_ready=false`, and `7 pass / 2 unknown`
+    remain unchanged.
+  - SHOWN: the round-trip detail now reports seven diagnostic-only trips,
+    nine of ten JSONL fills with missing or mismatched provenance, and one
+    incomplete qualified fill.
+- Old/new canonical JSON comparison:
+  - SHOWN: after normalizing the intended round-trip detail, the only
+    remaining difference was the per-run `evidence_scope.since_ts` timestamp.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m py_compile scripts/check_promotion_gates.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+- VERIFIED_ENV: implementation is isolated in
+  `/private/tmp/crypto-bot-pro-provenance-audit`.
+
+Remaining risk:
+- HIGH: this is financial promotion-gate reporting, although decision logic is
+  unchanged.
+- Historical provenance remains unverified and is intentionally not backfilled.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-12 after commit `a8b12463e`.
+
+## 2026-06-12T09:52:44Z - Integrate Accepted Provenance Explanation
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted paper promotion-history
+explanation while preserving existing audit records and active campaigns.
+
+What was found:
+- SHOWN: accepted branch `codex/explain-provenance-qualification` contained
+  implementation commit `a8b12463e` and human-acceptance record `a2d20dea1`.
+- SHOWN: `review-stabilized` had a pending, unrelated work-log entry for the
+  previously accepted exit-attribution integration.
+- SHOWN: canonical, EMA, and breakout collectors were idle/alive after
+  completing their June 12 windows.
+
+What changed:
+- Preserved the pending exit-attribution integration record in commit
+  `27b2e3a00`.
+- Merged the accepted provenance-explanation branch into `review-stabilized`
+  as `4ac757dfc`.
+- Resolved the work-log conflict by retaining both chronological entries.
+- No evidence artifact, campaign configuration, threshold, qualification
+  decision, order route, or runtime process was changed.
+
+Why this change:
+- The accepted reporting fix must be visible on the canonical review branch.
+- Keeping both work-log entries preserves the governed audit trail rather than
+  choosing one branch's documentation over the other.
+
+Expected outcome:
+- Operators see why seven historical round trips are diagnostic only while the
+  promotion gate continues to count zero provenance-qualified round trips.
+- Active collectors continue without restart or evidence mutation.
+
+Verification:
+- Merged promotion, monitor, and dashboard regression slice:
+  - SHOWN: `81 passed in 1.87s`.
+- Accepted branch full suite:
+  - SHOWN: `2120 passed, 33 skipped, 13 warnings in 209.18s`.
+- Canonical gate output:
+  - SHOWN: `ready=false`, `machine_ready=false`, `7 pass / 2 unknown`.
+  - SHOWN: detail reports seven diagnostic-only trips, nine unqualified fills,
+    and one incomplete qualified fill.
+- `git diff --check`
+  - SHOWN: clean before merge completion.
+- VERIFIED_ENV: integration and verification ran in the canonical repository
+  checkout.
+
+Remaining risk:
+- Historical provenance remains unverified and intentionally does not count
+  toward promotion.
+- No real post-integration exit has yet verified durable exit attribution.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human acceptance on 2026-06-12, followed by GATE
+  integration commit `4ac757dfc`.
+
+## 2026-06-12T09:55:27Z - Scope Monitor Promotion Progress
+
+Active role: `ENGINEER`
+
+Objective: prevent challenger paper monitors from displaying the canonical
+`es_daily_trend_v1` promotion gate.
+
+What was found:
+- SHOWN: `paper_sim_monitor._promotion_progress_snapshot()` unconditionally
+  called `load_paper_promotion_progress()` with canonical defaults.
+- SHOWN: EMA and breakout monitor artifacts therefore displayed the SMA
+  strategy's evidence directory, `0/30` days, and `0/10` round trips.
+- SHOWN: the repo defines promotion thresholds only for
+  `es_daily_trend_v1` / `sma_200_trend`; no accepted threshold policy exists
+  for `ema_cross_default` or `breakout_default`.
+- SHOWN: the Operations page rendered every false readiness value as
+  `not_ready`, so a monitor-only change would still leave misleading UI text.
+
+What changed:
+- The monitor now passes the active preset, strategy, and symbol into the
+  promotion-progress resolver.
+- Canonical SMA campaigns continue loading the existing paper promotion gate.
+- Noncanonical campaigns return `status=not_configured`,
+  `applicable=false`, no blockers, and an explicit informational summary.
+- Runtime normalization exposes `promotion_thresholds_applicable`.
+- Operations renders `not_configured` instead of `not_ready` for challengers.
+- Added monitor and dashboard-runtime regression coverage.
+
+Why this change:
+- Reusing one strategy's gate for another strategy misstates both evidence and
+  policy.
+- Inventing challenger thresholds in this patch would be an unsupported policy
+  decision; explicit non-applicability is the smallest correct behavior.
+
+Expected outcome:
+- EMA and breakout campaign summaries show their own trade metrics without
+  claiming progress against the SMA promotion gate.
+- Canonical `es_daily_trend_v1` monitoring and gate calculations remain
+  unchanged.
+
+Verification:
+- Canonical virtualenv targeted monitor, dashboard, and promotion slice:
+  - SHOWN: `84 passed in 1.41s`.
+- `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2123 passed, 33 skipped, 13 warnings in 206.42s`.
+- Real-state read-only `collect_once` snapshots:
+  - SHOWN: canonical `es_daily_trend_v1` returned `applicable=true` and retained
+    its existing qualified promotion summary.
+  - SHOWN: `ema_cross_default` returned `status=not_configured`,
+    `applicable=false`, and its own strategy ID.
+  - SHOWN: `breakout_default` returned `status=not_configured`,
+    `applicable=false`, and its own strategy ID.
+- Python compilation:
+  - SHOWN: monitor, dashboard runtime, and Operations page compiled cleanly.
+- `git diff --check`
+  - SHOWN: clean.
+- VERIFIED_ENV: implementation is isolated in
+  `/private/tmp/crypto-bot-pro-monitor-progress`.
+
+Remaining risk:
+- HIGH: this changes financial operator-status reporting.
+- No challenger promotion policy is added; that remains a separate governance
+  decision.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-12.
+
+## 2026-06-12T10:07:48Z - Integrate Accepted Monitor Promotion Scoping
+
+Active role: `GATE`
+
+Objective: integrate the accepted challenger monitor promotion-policy scoping
+without restarting active paper collectors.
+
+What was found:
+- SHOWN: accepted commit `038d5afe3` was a clean descendant of the current
+  `review-stabilized` tip.
+- SHOWN: canonical, EMA, and breakout collectors remained idle/alive after
+  completing their June 12 windows.
+- SHOWN: the operator requested that no additional full-suite tests run.
+
+What changed:
+- Merged `codex/scope-monitor-promotion-progress` into `review-stabilized` as
+  `833b27f6d`.
+- No collector process, evidence artifact, strategy threshold, campaign
+  configuration, or order path was changed during integration.
+
+Why this change:
+- The accepted fix removes false canonical-gate status from challenger monitor
+  and Operations surfaces.
+- Targeted verification is sufficient for integration because the accepted
+  branch already had full-suite proof and the operator explicitly stopped
+  further full-suite runs.
+
+Expected outcome:
+- Canonical `es_daily_trend_v1` monitoring continues to show its configured
+  promotion gate.
+- EMA and breakout monitoring show `not_configured` rather than canonical SMA
+  gate progress or `not_ready`.
+
+Verification:
+- Merged monitor, dashboard, and promotion regression slice:
+  - SHOWN: `84 passed in 1.89s`.
+- Python compilation:
+  - SHOWN: monitor, dashboard runtime, and Operations page compiled cleanly.
+- Real-state read-only snapshots:
+  - SHOWN: canonical returned `applicable=true`.
+  - SHOWN: EMA returned `applicable=false`, `status=not_configured`.
+  - SHOWN: breakout returned `applicable=false`, `status=not_configured`.
+- `git diff --check`
+  - SHOWN: clean.
+- Full suite was not rerun after acceptance at the operator's direction.
+- VERIFIED_ENV: integration verification ran in the canonical repository
+  checkout.
+
+Remaining risk:
+- Challenger promotion thresholds remain intentionally undefined pending a
+  separate governance decision.
+- Active monitor subprocesses will load the integrated code on their next
+  daily campaign window; no parent restart was performed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human acceptance on 2026-06-12, followed by GATE
+  integration commit `833b27f6d`.
+
+## 2026-06-13T17:29:35Z - Restore Paper Collectors After Host Restart
+
+Active role: `GATE`
+
+Objective: verify the paper campaigns after a host restart and restore the
+accepted detached daily loops without duplicating the completed June 13
+evidence windows.
+
+What was found:
+- SHOWN: `review-stabilized` was clean and synchronized with
+  `origin/review-stabilized` at `e18512637`.
+- SHOWN: the canonical, EMA, and breakout status artifacts each reported
+  `last_completed_day=2026-06-13`, but their recorded pre-restart PIDs were no
+  longer alive.
+- SHOWN: the completed June 13 windows recorded no new fills:
+  canonical remained at 14 fills and 7 all-history closed trades, EMA remained
+  at 4 fills and 2 closed trades, and breakout remained at 6 fills and 3
+  closed trades.
+- SHOWN: the current paper promotion gate counts 0 provenance-qualified round
+  trips, not the 7 diagnostic all-history round trips. Nine of ten JSONL fills
+  lack or mismatch required provenance, and the one provenance-qualified fill
+  is not part of a complete qualified round trip.
+
+What changed:
+- Restarted the canonical detached daily loop with `sma_200_trend`,
+  `es_daily_trend_v1`, `BTC/USDT`, Coinbase, `public_ohlcv_1d`, a 20-second
+  strategy window, and a 300-second poll interval.
+- Restarted the isolated EMA detached daily loop with `ema_cross`,
+  `ema_cross_default`, `public_ohlcv_5m`, a 900-second strategy window, and a
+  300-second poll interval.
+- Restarted the isolated breakout detached daily loop with
+  `breakout_donchian`, `breakout_default`, `public_ohlcv_5m`, a 900-second
+  strategy window, and a 300-second poll interval.
+- No strategy configuration, evidence record, promotion threshold, source
+  code, or historical trade record was edited.
+
+Why this change:
+- The host restart terminated the accepted background processes even though
+  their latest daily windows had completed successfully.
+- The collector's built-in `--daily-loop --detach` path is the authoritative
+  restart mechanism and checks the existing session file before running, so it
+  preserves one evidence window per UTC day.
+- Keeping each challenger under its dedicated `CBP_STATE_DIR` preserves
+  evidence isolation.
+
+Expected outcome:
+- All three collectors remain idle for the rest of June 13 and wake for their
+  next evidence window after the UTC date changes to June 14.
+- Canonical and challenger evidence continue to accumulate independently.
+- Promotion output continues to distinguish diagnostic all-history trades from
+  provenance-qualified gate evidence.
+
+Verification:
+- Canonical status:
+  - SHOWN: PID `7795`, `pid_alive=true`, `status=idle`,
+    `reason=waiting_for_next_day`, and `last_completed_day=2026-06-13`.
+- EMA status:
+  - SHOWN: PID `7630`, `pid_alive=true`, `status=idle`,
+    `reason=waiting_for_next_day`, and `last_completed_day=2026-06-13`.
+- Breakout status:
+  - SHOWN: PID `7628`, `pid_alive=true`, `status=idle`,
+    `reason=waiting_for_next_day`, and `last_completed_day=2026-06-13`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: 39/30 calendar days, 0/10 provenance-qualified round trips, 7
+    diagnostic all-history round trips, and `manual_review_required=true`.
+- No test suite was run because this was an operational restart with no source
+  changes and the operator previously directed that full-suite runs stop.
+- VERIFIED_ENV: commands ran from the clean synchronized canonical checkout.
+
+Remaining risk:
+- HIGH: persistent financial evidence-collection background jobs were
+  restarted.
+- UNVERIFIED: the replacement processes have not yet crossed a UTC boundary
+  and completed their first post-restart windows.
+- The canonical promotion gate still requires ten complete
+  provenance-qualified round trips; historical unqualified fills cannot
+  satisfy that gate.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-13 after commit `8fa0a542a`.
+
+## 2026-06-13T17:36:55Z - Idempotent Paper Campaign Recovery Command
+
+Active role: `ENGINEER`
+
+Objective: reduce post-reboot recovery from three manually reconstructed
+collector commands to one explicit, idempotent, auditable operator command.
+
+What was found:
+- SHOWN: the June 13 host restart terminated all three detached collector
+  parents even though their daily evidence windows had completed.
+- SHOWN: the repo's canonical supervisors manage bot/runtime services but do
+  not own the canonical and isolated paper evidence campaigns.
+- SHOWN: the collector already provides the authoritative
+  `--daily-loop --detach` startup path and duplicate-process protection.
+- SHOWN: the paper promotion gate's 0/10 qualified result is intentional,
+  independently accepted provenance policy from `7ab11da59`, not a new
+  counting defect. The seven historical round trips remain diagnostic.
+
+What changed:
+- Added `configs/paper_evidence_campaigns.json` as the explicit manifest for
+  the accepted canonical SMA, isolated EMA, and isolated breakout campaigns.
+- Added `services/analytics/paper_campaign_recovery.py` to validate the
+  manifest, query each isolated status surface, start only dead collectors,
+  and verify replacement process state.
+- Added `scripts/restore_paper_campaigns.py`; read-only status is the default,
+  while `--restore` is required to start background jobs.
+- Added `make status-paper-campaigns` and `make restore-paper-campaigns`.
+- Added focused service/CLI tests and documented the recovery workflow in the
+  Golden Path, script index, and `docs/PAPER_CAMPAIGN_RECOVERY.md`.
+- Did not add OS-login auto-start and did not add paper campaigns to a generic
+  live-adjacent supervisor.
+
+Why this change:
+- Reusing the existing collector preserves one process owner, one duplicate
+  guard, and the accepted per-state evidence isolation.
+- A manifest prevents strategy parameters from being reconstructed from memory
+  after every reboot.
+- Explicit restore is safer than automatic login startup because it does not
+  launch financial background jobs merely because the desktop app opened.
+- Extending a generic supervisor would broaden process-control scope and
+  create additional stop/status semantics without being required for recovery.
+
+Expected outcome:
+- `make status-paper-campaigns` reports all configured campaigns and exits
+  nonzero when any collector is not alive.
+- `make restore-paper-campaigns` leaves live collectors unchanged, restores
+  only dead collectors, and reports verified replacement PIDs.
+- Repeated restore calls do not create duplicate collectors.
+- Canonical and challenger evidence continue to use their existing isolated
+  `CBP_STATE_DIR` paths and accepted signal-source/runtime parameters.
+
+Verification:
+- Targeted recovery, collector, and bootstrap regression slice:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py tests/test_run_paper_strategy_evidence_collector.py tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py`
+  - SHOWN: `35 passed in 0.97s`.
+- Python compilation:
+  - SHOWN: `paper_campaign_recovery.py` and
+    `restore_paper_campaigns.py` compiled cleanly.
+- CLI help:
+  - SHOWN: exposes `--status`, `--restore`, repeatable `--campaign`, and
+    `--config`.
+- Make target dry run:
+  - SHOWN: `status-paper-campaigns` invokes the read-only status mode and
+    `restore-paper-campaigns` invokes explicit restore mode.
+- `git diff --check`
+  - SHOWN: clean.
+- Canonical collector status from the untouched primary checkout:
+  - SHOWN: PID `7795` remained alive and idle for the completed June 13
+    canonical window during isolated implementation.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: implementation and verification ran in isolated worktree
+  `/private/tmp/crypto-bot-pro-paper-restore`, based on synchronized commit
+  `9ba375654`; active collectors in the canonical checkout were not restarted
+  or modified.
+
+Remaining risk:
+- HIGH: this command starts persistent financial evidence-collection
+  background jobs.
+- UNVERIFIED: a real dead-process restore has not been executed from this
+  feature branch because doing so would replace currently healthy accepted
+  collectors.
+- UNVERIFIED: post-reboot use still requires one explicit operator command;
+  OS-login automation remains intentionally out of scope.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-14 after implementation commit `1b23f67b7`.
+
+## 2026-06-15T02:15:41Z - Accepted Paper Campaign Recovery Integration
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted paper campaign recovery
+command into `review-stabilized` and verify the merged operator surface
+without restarting active collectors.
+
+What was found:
+- SHOWN: accepted implementation commit `1b23f67b7` and acceptance record
+  `5233c10d4` were merged into `review-stabilized` as `833a33ecb`.
+- SHOWN: the integrated read-only status command reports all three configured
+  collector parents alive: canonical SMA, EMA crossover, and Donchian
+  breakout.
+- SHOWN: each collector reports the June 15 window as completed and is idle
+  until the next UTC day.
+- SHOWN: the status payload does not prove the June 15 market-data window was
+  valid; that health classification remains a separate campaign-lifecycle
+  concern.
+
+What changed:
+- Recorded the accepted merge and post-merge verification in the governed
+  work log.
+- No runtime process, campaign configuration, evidence artifact, or trading
+  behavior was changed during integration.
+
+Why this change:
+- The work log must preserve the accepted feature's transition from isolated
+  branch proof to the primary review branch.
+- Read-only verification confirms that the merged command observes the
+  existing processes without replacing them.
+
+Expected outcome:
+- Future operators can trace the recovery feature from implementation through
+  human acceptance, merge, and integrated verification.
+- `review-stabilized` exposes one auditable command for status and explicit
+  post-reboot restore.
+
+Verification:
+- `./.venv/bin/python scripts/restore_paper_campaigns.py --status`
+  - SHOWN: `all_running=true`, `running_count=3`, `campaign_count=3`.
+  - SHOWN: PIDs `7795`, `7630`, and `7628` remain alive.
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `12 passed in 0.16s`.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: commands ran from the primary
+  `/Users/baitus/Downloads/crypto-bot-pro` checkout at merge `833a33ecb`.
+
+Remaining risk:
+- HIGH: the command can start persistent financial evidence-collection
+  background jobs when invoked with `--restore`.
+- UNVERIFIED: no dead-process restore was performed during integration because
+  all accepted collectors were healthy.
+- SHOWN: campaign process liveness is distinct from market-data validity; the
+  latter requires a separate fail-closed lifecycle fix.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: implementation independently reviewed and accepted by
+  the human operator on 2026-06-14; integrated without runtime changes on
+  2026-06-15.
+
+## 2026-06-15T02:28:02Z - Fail-Closed Public OHLCV Campaign Health
+
+Active role: `ENGINEER`
+
+Objective: prevent managed paper evidence campaigns from reporting successful
+daily completion when the strategy runner receives no public OHLCV market data.
+
+What was found:
+- SHOWN: the canonical SMA, EMA, and Donchian collector parents were alive
+  after the host restart.
+- SHOWN: June 15 runner logs repeatedly reported Coinbase OHLCV fetch failure
+  and `note=no_public_ohlcv`.
+- SHOWN: no June 15 signal evidence files were produced, but each campaign was
+  recorded as `status=completed`, `reason=completed`.
+- SHOWN: `_run_strategy_window` replaced the last meaningful runner note with
+  the runner's final `stopped` payload.
+- SHOWN: the daily loop treated any non-empty session file, including a
+  start-only or failed attempt, as a completed day.
+- SHOWN: governance `INVALID` is terminal and therefore inappropriate for a
+  recoverable infrastructure outage.
+
+What changed:
+- Preserved runner observations made during the current strategy window and
+  classified a full public-OHLCV window with no observed market price as
+  `stop_reason=no_public_ohlcv`.
+- Made `run_campaign` return `ok=false`, `status=failed`, and skip leaderboard
+  evidence persistence for that condition.
+- Added `campaign_reason` to session-end evidence; failed runs now retain the
+  existing `critical_error=true` and failed reconciliation classification.
+- Changed daily completion detection to require a `phase=end`,
+  `campaign_status=completed` session record.
+- Added a bounded same-day retry policy: one initial attempt plus one retry,
+  followed by failed status until the next UTC day.
+- Added `max_daily_attempts` to the canonical campaign manifest and recovery
+  launch contract, with a backward-compatible schema-v1 default of `2`.
+- Documented that process liveness and campaign health are separate and that
+  restore does not replace an alive collector that owns a pending retry.
+
+Why this change:
+- A market-data outage is retryable infrastructure failure, not valid strategy
+  evidence and not terminal evidence contamination.
+- `failed` preserves operator visibility and promotion-gate blocking without
+  requiring manual repair of terminal governance state.
+- Two attempts permit one transient recovery opportunity while preventing
+  indefinite API retry loops and duplicate daily evidence campaigns.
+- Keeping retry ownership in the existing parent preserves the accepted
+  duplicate-process boundary.
+
+Expected outcome:
+- Public-OHLCV outages cannot create false completed campaign days.
+- Failed windows create critical session evidence and cannot be mistaken for
+  promotion-quality operation.
+- Status and recovery output can show `running=true` with `ok=false`, making
+  alive-but-unhealthy campaigns visible.
+- A transient outage receives one bounded retry; a persistent outage remains
+  failed until the next UTC day.
+- Successful campaign and evidence-persistence behavior remains unchanged.
+
+Verification:
+- Targeted service, collector, and recovery slice:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_strategy_evidence_service.py tests/test_run_paper_strategy_evidence_collector.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `54 passed in 0.67s`.
+- Paper simulation monitor contract:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_paper_sim_monitor.py tests/test_run_paper_sim_monitor.py`
+  - SHOWN: `21 passed in 0.33s`.
+- Promotion-gate session-health contract:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py`
+  - SHOWN: `42 passed in 0.95s`.
+- Python compilation:
+  - SHOWN: the collector, recovery service, and evidence service compiled
+    cleanly.
+- Collector CLI help:
+  - SHOWN: `--max-daily-attempts` is exposed.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: verification used the primary virtual environment against the
+  isolated worktree `/private/tmp/crypto-bot-pro-ohlcv-fail-closed` based on
+  synchronized `review-stabilized` commit `f8e93e2ba`.
+
+Remaining risk:
+- HIGH: this changes financial evidence background-job lifecycle, retry
+  behavior, and promotion-gate session inputs.
+- UNVERIFIED: no live Coinbase outage/recovery cycle was induced; runtime proof
+  is limited to existing logs plus deterministic tests.
+- UNVERIFIED: existing collector processes still run the previously loaded
+  code and must not be restarted onto this change before independent review.
+- SHOWN: the already-written June 15 false-completion records are not mutated;
+  a later healthy UTC day will supersede them in the latest-window gate.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 after implementation commit `9bd30e8bb`.
+
+## 2026-06-15T02:31:21Z - Accepted Fail-Closed OHLCV Integration
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted public-OHLCV fail-closed
+lifecycle into `review-stabilized` without restarting active collectors.
+
+What was found:
+- SHOWN: implementation `9bd30e8bb` and human acceptance record `8467a821b`
+  were clean and synchronized before integration.
+- SHOWN: merge `9a6c3e08a` completed without conflicts.
+- SHOWN: the canonical SMA, EMA, and Donchian collector parents remained alive
+  at PIDs `7795`, `7630`, and `7628`.
+- SHOWN: those existing processes still expose their pre-merge June 15 idle
+  status; merging source code does not reload persistent Python processes.
+
+What changed:
+- Merged the accepted branch into `review-stabilized`.
+- Recorded integrated verification and the explicit non-restart boundary.
+- Did not alter runtime state, evidence files, process ownership, or campaign
+  configuration outside the reviewed source changes.
+
+Why this change:
+- The merge makes the accepted fail-closed behavior canonical on the review
+  branch while preserving the currently running evidence campaign.
+- Deferring process restart avoids introducing a mid-day lifecycle change into
+  active campaigns.
+
+Expected outcome:
+- New or intentionally restarted collectors use bounded retry and failed
+  campaign classification for missing public OHLCV.
+- Current collectors continue undisturbed until the next approved restart.
+
+Verification:
+- Integrated service, collector, and recovery slice:
+  - SHOWN: `54 passed in 0.67s`.
+- Integrated monitor and promotion-gate slice:
+  - SHOWN: `63 passed in 0.98s`.
+- Read-only campaign status:
+  - SHOWN: `all_running=true`, `running_count=3`.
+- `git diff --check`
+  - SHOWN: clean.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: commands ran from the primary checkout at merge `9a6c3e08a`.
+
+Remaining risk:
+- HIGH: active collectors have not yet executed the accepted code.
+- UNVERIFIED: the first real outage or healthy window after an approved
+  collector restart has not occurred.
+- SHOWN: June 15's previously written false-completion records remain
+  historical and were not rewritten.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: implementation independently reviewed and accepted by
+  the human operator on 2026-06-15 and integrated as `9a6c3e08a`.
+
+## 2026-06-15T02:38:01Z - Fail-Closed Collector Rollout
+
+Active role: `GATE`
+
+Objective: load the independently accepted fail-closed OHLCV lifecycle into
+the three persistent paper evidence collector processes without overlapping
+collectors or altering historical evidence.
+
+What was found:
+- SHOWN: canonical SMA, EMA, and Donchian collectors were idle after recording
+  their June 15 sessions.
+- SHOWN: no strategy-runner, paper-engine, or tick-publisher lock files were
+  active in the three campaign state directories.
+- SHOWN: existing PIDs `7795`, `7630`, and `7628` still ran the pre-merge
+  in-memory code.
+- SHOWN: the accepted restore manifest specifies `max_daily_attempts=2` for
+  all three campaigns.
+
+What changed:
+- Wrote the supported collector stop flag in each isolated `CBP_STATE_DIR`.
+- Waited for all three old parents to exit gracefully and clear their PID
+  state; no force-kill was used.
+- Ran the accepted idempotent restore command once.
+- Started replacement collector PIDs `80255`, `80259`, and `80263`.
+- Did not edit or remove any order, fill, signal, session, or strategy-evidence
+  artifact.
+
+Why this change:
+- Persistent Python processes do not load merged source automatically.
+- Graceful stop followed by manifest-driven restore preserves the accepted
+  single-owner and duplicate-process boundaries.
+- Rolling out while all campaigns were idle avoids interrupting a strategy
+  window or partial execution path.
+
+Expected outcome:
+- The June 16 UTC campaign windows use the fail-closed public-OHLCV lifecycle.
+- A missing-data window reports failed, writes critical session evidence, and
+  receives at most one same-day retry.
+- Healthy windows continue through the existing completion path.
+
+Verification:
+- Pre-stop status:
+  - SHOWN: all three collectors reported `status=idle`,
+    `reason=waiting_for_next_day`.
+- Graceful stop:
+  - SHOWN: all three collectors reported `status=stopped`,
+    `reason=stop_requested`, `pid_alive=false`.
+- Restore:
+  - `./.venv/bin/python scripts/restore_paper_campaigns.py --restore`
+  - SHOWN: `ok=true`, `all_running=true`, `running_count=3`.
+- Read-only process inspection:
+  - SHOWN: old PIDs were absent.
+  - SHOWN: replacement PIDs were parented to PID 1 and each command line
+    contained `--max-daily-attempts 2`.
+- VERIFIED_ENV: rollout ran from synchronized `review-stabilized` commit
+  `1cca3b535`.
+
+Remaining risk:
+- HIGH: persistent financial evidence background jobs were restarted.
+- UNVERIFIED: the replacement processes have not yet executed their first
+  post-rollout UTC campaign window.
+- SHOWN: June 15's prior false-completion records remain historical and were
+  not rewritten.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: the human operator authorized the stop and restore
+  actions on 2026-06-15 after independently accepting implementation
+  `9bd30e8bb`.
+
+## 2026-06-15T02:43:22Z - Qualify Signal-Quality Evidence
+
+Active role: `ENGINEER`
+
+Objective: prevent the signal-quality report from treating historical
+unqualified signal rows as canonical evidence of whether the paper strategy
+identified market moves early enough.
+
+What was found:
+- SHOWN: the canonical report loaded `33,377` signal rows and classified five
+  scored rows as `100%` false positives.
+- SHOWN: `30,053` rows lacked `market_data_source`; `3,174` used
+  `unknown_ohlcv`.
+- SHOWN: all `16,740` actionable rows came from those two unqualified groups.
+- SHOWN: several unqualified rows carried impossible BTC prices such as
+  `$120.90` and `$92.40`, producing fourteen price/OHLCV mismatches.
+- SHOWN: all `150` correctly stamped `public_ohlcv` rows matched
+  `coinbase`, `BTC/USDT`, `1d`, and non-sample mode, but were flat rather than
+  actionable.
+- SHOWN: the report excluded explicit sample rows but allowed missing and
+  mismatched provenance by default.
+- SHOWN: short-signal MAE subtracted `1.0` twice, overstating adverse movement
+  by 100 percentage points.
+
+What changed:
+- Added strict signal provenance qualification to the analytics core.
+- Canonical reports now require non-sample `public_ohlcv` evidence matching
+  the requested venue, symbol, and timeframe.
+- Added report fields for the qualification policy, qualified signal count,
+  excluded unqualified count, and exclusion reason counts.
+- Added the explicit CLI opt-out `--allow-unqualified-evidence` for historical
+  research only.
+- Corrected short-signal MAE to use one relative price move.
+- Updated synthetic tests to declare the research opt-out and added regression
+  coverage for missing source, mismatched source, wrong symbol, the CLI
+  opt-out, and short-side MAE.
+- Updated the signal-quality plan and script index to document the implemented
+  contract.
+
+Why this change:
+- Strategy timing decisions must not be based on synthetic-like or
+  provenance-unknown records mixed into canonical paper evidence.
+- Strict-by-default behavior aligns this report with the accepted promotion
+  evidence boundary.
+- An explicit research opt-out preserves historical analysis without allowing
+  it to masquerade as production-quality evidence.
+
+Expected outcome:
+- Canonical signal-quality summaries reflect only matching real public-OHLCV
+  evidence.
+- Contaminated historical records remain visible through exclusion counts but
+  cannot influence hit rate, false-positive rate, capture ratio, MFE, or MAE.
+- The current canonical conclusion becomes `insufficient_sample` until the
+  campaign emits qualified actionable signals.
+- Short-strategy quality reports produce numerically valid adverse-excursion
+  metrics.
+
+Verification:
+- Focused analytics and CLI tests:
+  - `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python -m pytest -q tests/test_signal_quality.py tests/test_run_signal_quality_report.py`
+  - SHOWN: `9 passed`.
+- Python compilation:
+  - SHOWN: analytics core and CLI compiled cleanly.
+- CLI help:
+  - SHOWN: `--allow-unqualified-evidence` is exposed.
+- Canonical read-only report against `.cbp_state`:
+  - SHOWN: `150` qualified records, `33,227` excluded unqualified records,
+    `0` qualified actionable signals, and `interpretation=insufficient_sample`.
+- Explicit research opt-out:
+  - SHOWN: reproduces the historical `16,740` actionable rows, five scored
+    false positives, and fourteen price mismatches.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: implementation used isolated worktree
+  `/private/tmp/crypto-bot-pro-signal-quality` based on synchronized commit
+  `27dbac57e`; active collectors were not modified or restarted.
+
+Remaining risk:
+- MEDIUM: this changes decision-support analytics and persisted report content,
+  but does not change promotion gates, strategy signals, execution, or
+  background-job behavior.
+- UNVERIFIED: no qualified actionable public-OHLCV signal exists yet, so timing
+  performance remains unknown.
+- SHOWN: EMA and Donchian challenger evidence directories currently contain no
+  signal records, so their timing reports remain insufficient-sample.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 before integration as `e5decec32`.
+
+## 2026-06-15T12:17Z - Accept Signal Quality And Capture VPS Plan
+
+Active role: `GATE`
+
+Objective: integrate the independently accepted signal-quality qualification
+change and record the safe role of a Hetzner VPS in the paper campaign.
+
+What was found:
+- SHOWN: the human operator independently reviewed and accepted
+  `a2b1930eb`.
+- SHOWN: all three collectors are alive and idle after completing their
+  pre-rollout June 15 UTC windows.
+- SHOWN: the replacement collectors have not executed their first corrected
+  UTC window; that is scheduled for June 16 UTC.
+- SHOWN: the promotion gate remains at zero provenance-qualified round trips
+  because nine legacy JSONL fills lack required provenance and the single
+  qualified fill does not complete a qualified round trip.
+- SHOWN: EMA and Donchian campaigns use isolated state directories and do not
+  advance the canonical `es_daily_trend_v1` gate.
+- SHOWN: the existing Docker Compose file publishes backend and dashboard ports
+  on all interfaces.
+- SHOWN: `docs/safety/auth_scope_and_mfa.md` states that remote/public
+  deployment is not hardened by default.
+
+What changed:
+- Integrated accepted commit `a2b1930eb` into `review-stabilized` as
+  `e5decec32`.
+- Added a planned Hetzner paper-host task to the next-actions checkpoint.
+- Scoped the VPS plan to outbound-only paper collectors, private
+  administration, single-owner campaign lifecycle, verified state migration,
+  backups, restore rehearsal, and health monitoring.
+- Did not restart, migrate, or modify any active collector or evidence
+  artifact.
+
+Why this change:
+- Strict signal-quality provenance prevents unqualified historical records from
+  influencing strategy timing decisions.
+- A stable VPS addresses laptop uptime and recovery interruptions.
+- Deferring migration until a corrected local UTC cycle is observed avoids
+  combining a new collector lifecycle with a new host at the same time.
+- Prohibiting public application ports respects the repo's current
+  local/private-only security posture.
+
+Expected outcome:
+- Canonical signal-quality reports remain provenance-qualified.
+- The June 16 UTC windows provide the first evidence of the accepted
+  fail-closed lifecycle.
+- A later reviewed Hetzner deployment can improve campaign continuity without
+  changing strategy semantics or evidence qualification.
+
+Verification:
+- Targeted signal-quality tests:
+  - SHOWN on the accepted implementation branch: `9 passed`.
+- Collector status:
+  - SHOWN: canonical PID `80255`, EMA PID `80259`, and Donchian PID `80263`
+    report `pid_alive=true`, `status=idle`, and
+    `reason=waiting_for_next_day`.
+- Promotion gate:
+  - SHOWN: `41/30` days and `0/10` provenance-qualified round trips.
+- Git integration:
+  - SHOWN: cherry-pick completed without conflict as `e5decec32`.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: local repo and all three campaign state directories were read
+  directly on 2026-06-15.
+
+Remaining risk:
+- HIGH: any VPS deployment would change background-job ownership, remote-host
+  security, state custody, and recovery behavior.
+- UNVERIFIED: the corrected collectors have not yet completed their June 16
+  UTC windows.
+- Acceptance state: `ACCEPTED` for signal-quality integration; Hetzner
+  deployment remains planning-only and requires a separate high-risk review.
+- Acceptance reference: human operator message
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-15.
+
+## 2026-06-15T12:30Z - Prepare Hetzner Paper-Only Deployment Proof
+
+Active role: `ENGINEER`
+
+Objective: make a future Hetzner paper-campaign proof explicit and reviewable
+without provisioning a host or disturbing current collectors.
+
+What was found:
+- SHOWN: the campaign manifest uses repo-relative state paths and is portable
+  to a checked-out repo.
+- SHOWN: the existing recovery command can select a custom manifest and starts
+  only collectors that are not alive within that host's state.
+- SHOWN: the default manifest enables desktop notifications, which is not
+  appropriate for a headless Linux proof.
+- SHOWN: the existing Docker Compose stack exposes backend and dashboard ports
+  on all interfaces and does not define the paper collectors.
+- SHOWN: remote/public app hardening remains outside the accepted deployment
+  posture.
+
+What changed:
+- Added `docs/HETZNER_PAPER_HOST.md`.
+- Added `configs/paper_evidence_campaigns.hetzner.example.json`.
+- The example enables only the isolated EMA challenger and disables desktop
+  notification.
+- Added a focused manifest regression test that also proves the generated
+  restore command includes `--no-desktop-notify`.
+- Documented host preparation, single-owner stop/copy/checksum/start,
+  observation, canonical migration prerequisites, monitoring, backup, and
+  rollback.
+- Explicitly left automatic boot restoration outside the approved proof.
+- Did not access Hetzner, add credentials, expose ports, or change running
+  collectors.
+
+Why this change:
+- An isolated challenger is the smallest safe deployment proof.
+- Single-owner transfer prevents duplicate collectors and divergent evidence.
+- Content verification and rollback are required before moving financial
+  evidence state between hosts.
+- Avoiding the existing Compose stack prevents accidental public exposure of
+  surfaces that are not remotely hardened.
+
+Expected outcome:
+- A reviewer can evaluate the full VPS proof before any host action.
+- The first server proof can improve uptime without changing canonical evidence
+  or trading behavior.
+- Canonical migration remains blocked until the isolated challenger proves
+  uptime, provenance, restart recovery, monitoring, and backup restore.
+
+Verification:
+- Targeted recovery and manifest tests:
+  - `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `16 passed`.
+- Read-only custom-manifest status:
+  - SHOWN: the example resolved exactly one campaign,
+    `ema_cross_default`, with `all_running=true` against the existing local
+    isolated state; no restore action was invoked.
+- Diff validation:
+  - SHOWN: `git diff --check` passed.
+- Full suite will not be run at the operator's direction.
+- VERIFIED_ENV: files were prepared on synchronized `review-stabilized`; active
+  collectors and runtime state were not modified.
+
+Remaining risk:
+- HIGH: the artifacts govern future background-job deployment, state custody,
+  remote-host security, and rollback.
+- UNVERIFIED: no Hetzner host, firewall, SSH, backup, NTP, restart, or alerting
+  configuration has been exercised.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 before integration as `dec0b19b5`.
+
+## 2026-06-15T12:45Z - Prepare Secure Hetzner Read-Only Access
+
+Active role: `ENGINEER`
+
+Objective: provide repeatable Hetzner project inventory access without placing
+an API token in chat, Git, command arguments, environment files, or output.
+
+What was found:
+- SHOWN: the previously posted API token must be treated as compromised and is
+  not safe to use.
+- SHOWN: the local Python environment uses the macOS Keychain keyring backend.
+- SHOWN: `hcloud` is not installed, while Python, Keychain, and HTTPS support
+  are available.
+- SHOWN: Hetzner tokens can be created with `Read` or `Read & Write`
+  permission; project inventory requires only read operations.
+
+What changed:
+- Added an OS-keyring-only Hetzner token store.
+- Added an interactive hidden-prompt token setter/status/deleter that accepts no
+  token command-line argument.
+- Added a read-only Hetzner project inventory adapter and operator command.
+- The adapter issues only GET requests and returns resource counts plus
+  non-secret server summaries.
+- Sanitized network and HTTP errors so credentials cannot appear in output.
+- Added focused tests and operator documentation.
+
+Why this change:
+- A persistent read-only token limits the capability available during planning.
+- Reading the credential inside the Python process avoids exposing it through
+  shell history or process arguments.
+- Separating future short-lived write access prevents routine inventory tooling
+  from retaining provisioning authority.
+
+Expected outcome:
+- After the operator stores a replacement read-only token through the hidden
+  prompt, Codex can inspect the Hetzner project without receiving the token in
+  conversation.
+- Account inventory is visible without changing any Hetzner resource.
+
+Verification:
+- Targeted access and script-bootstrap tests:
+  - `./.venv/bin/python -m pytest -q tests/test_hetzner_access.py tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py`
+  - SHOWN: `20 passed`.
+- Script-path validation:
+  - SHOWN: `OK: script paths validated`.
+- Python compilation:
+  - SHOWN: the token store, API adapter, and both commands compiled cleanly.
+- Local keyring status:
+  - SHOWN: `present=false`; no Hetzner token is currently configured.
+- Fail-closed inventory command:
+  - SHOWN: returned `hetzner_token_not_configured` without making a live
+    request.
+- Diff validation:
+  - SHOWN: `git diff --check` passed.
+- A live account request remains blocked until the compromised token is revoked
+  and a replacement read-only token is stored.
+- Full suite will not be run at the operator's direction.
+- VERIFIED_ENV: macOS Keychain backend detected locally.
+
+Remaining risk:
+- HIGH: API credential handling and remote cloud-account access.
+- UNVERIFIED: replacement token revocation scope, project selection, and live
+  API access.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-15 before integration as `7b01eab71`.
+
+## 2026-06-15T13:05Z - Correct Hetzner TLS Trust Path
+
+Active role: `ENGINEER`
+
+Objective: make the accepted read-only Hetzner client work with certificate
+verification in the current Python environment without requiring an operator
+environment override.
+
+What was found:
+- SHOWN: Keychain token storage succeeded.
+- SHOWN: `curl` reached `api.hetzner.cloud` with a valid certificate and
+  received the expected unauthenticated `401`.
+- SHOWN: Python failed before authentication with
+  `SSLCertVerificationError: unable to get local issuer certificate`.
+- SHOWN: Python's configured framework CA path does not exist.
+- SHOWN: the pinned venv dependency `certifi==2026.2.25` provides a valid CA
+  bundle.
+- SHOWN: setting `SSL_CERT_FILE` to that bundle allowed the approved GET-only
+  inventory to succeed.
+
+What changed:
+- Added an explicit default SSL context sourced from `certifi.where()`.
+- Passed that context to each Hetzner HTTPS request.
+- Kept hostname checking enabled and verification mode at `CERT_REQUIRED`.
+- Added regression assertions for the verified SSL context.
+
+Why this change:
+- The client should not depend on a missing machine-global Python CA file.
+- Using the pinned CA bundle preserves TLS verification; disabling verification
+  or suppressing hostname checks would be unsafe.
+
+Expected outcome:
+- `scripts/hetzner_account_status.py` works without `SSL_CERT_FILE`.
+- Token secrecy, GET-only behavior, pagination, and sanitized errors remain
+  unchanged.
+
+Verification:
+- Targeted access and script-bootstrap tests:
+  - `./.venv/bin/python -m pytest -q tests/test_hetzner_access.py tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py`
+  - SHOWN: `20 passed`.
+- Script-path validation:
+  - SHOWN: `OK: script paths validated`.
+- Python compilation:
+  - SHOWN: the corrected Hetzner adapter compiled cleanly.
+- Diff validation:
+  - SHOWN: `git diff --check` passed.
+- Live GET-only inventory without `SSL_CERT_FILE`:
+  - SHOWN: `ok=true`; one running server, zero firewalls, two primary IPs,
+    one SSH key, zero networks, and zero volumes.
+- Full suite will not be run at the operator's direction.
+- VERIFIED_ENV: local Python 3.12 venv on macOS.
+
+Remaining risk:
+- HIGH: TLS behavior protects cloud-account credentials and API responses.
+- UNVERIFIED: behavior on the future Ubuntu host until its venv is built.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-16 before integration as `9fc8a3ff1`.
+
+## 2026-06-17T01:49:51Z - Hetzner Host-Level Hardening Proof
+
+Active role: `ENGINEER`
+
+Objective: prepare the existing Hetzner server for future paper-only campaign
+proofs without copying campaign state or starting any remote collectors.
+
+What was found:
+- SHOWN: local `review-stabilized` was clean before the host work.
+- SHOWN: all three local paper collectors were healthy and idle with
+  `last_completed_day=2026-06-17`.
+- SHOWN: Hetzner read-only inventory reported one running server:
+  `ubuntu-4gb-nbg1-3`, type `cax11`, location `nbg1`.
+- SHOWN: the host baseline had UFW inactive, SSH password authentication
+  enabled, `fail2ban` inactive, no `cryptkeep` user, and no `/srv/cryptkeep`.
+- SHOWN: the local RSA public key matched the registered Hetzner SSH key
+  fingerprint, and root key-based SSH worked before hardening.
+
+What changed on the Hetzner host:
+- Created non-root user `cryptkeep` with home `/srv/cryptkeep`.
+- Created `/srv/cryptkeep/app`, `/srv/cryptkeep/state`, and
+  `/srv/cryptkeep/backups`.
+- Installed the operator's public key for the `cryptkeep` user.
+- Added `/etc/ssh/sshd_config.d/60-cryptkeep-hardening.conf`.
+- Disabled SSH password authentication and keyboard-interactive
+  authentication.
+- Kept root login key-only with `PermitRootLogin prohibit-password`.
+- Reduced `MaxAuthTries` from `6` to `3`.
+- Enabled UFW with default deny incoming, default allow outgoing, and OpenSSH
+  allowed.
+- Installed and enabled `fail2ban` with an `sshd` jail.
+- Wrote `/etc/cryptkeep_host_hardening.json` as a host-side marker.
+
+What did not change:
+- No Git repository was cloned to the server.
+- No `.cbp_state` or challenger state was copied.
+- No paper collector, dashboard, backend, or trading process was started on
+  the server.
+- No Hetzner Cloud firewall, backup, primary IP, server protection, or other
+  cloud-side resource was changed; the token remains read-only.
+- No local collector was stopped, restarted, or migrated.
+
+Why this change:
+- The VPS improves future evidence continuity only if it is a single-owner,
+  private, paper-only host.
+- Hardening the host before deploying collectors prevents exposing the repo's
+  non-remote-hardened dashboard/backend surfaces and reduces SSH attack
+  surface.
+- Keeping the campaign local preserves canonical evidence while the server
+  hardening proof awaits review.
+
+Expected outcome:
+- The server can support an isolated challenger proof after independent review.
+- Root recovery access remains available by key, while day-to-day access can
+  use the non-root `cryptkeep` account.
+- The host exposes only SSH and has basic local firewall and SSH brute-force
+  controls.
+
+Verification:
+- Root SSH verification:
+  - SHOWN: root key access still works.
+- Non-root SSH verification:
+  - SHOWN: `cryptkeep` login works and can write under
+    `/srv/cryptkeep/state`.
+- SSH effective settings:
+  - SHOWN: `passwordauthentication no`,
+    `kbdinteractiveauthentication no`, `pubkeyauthentication yes`,
+    `permitrootlogin without-password`, and `maxauthtries 3`.
+- UFW:
+  - SHOWN: `Status: active`, default deny incoming, default allow outgoing,
+    OpenSSH allowed for IPv4 and IPv6.
+- Fail2ban:
+  - SHOWN: service active; `sshd` jail active and already banning three scanner
+    IPs.
+- Listeners:
+  - SHOWN: public listeners are SSH only.
+- Hetzner inventory:
+  - SHOWN: read-only inventory still reports `firewalls=0`, `servers=1`, and
+    `volumes=0`.
+- Local campaign status:
+  - SHOWN: all three local collectors remained healthy and idle after the host
+    work.
+- Full suite was not run at the operator's direction.
+- VERIFIED_ENV: host commands ran on `ubuntu-4gb-nbg1-3` over SSH using the
+  matched local RSA key.
+
+Remaining risk:
+- HIGH: server security, background job deployment readiness, and future state
+  custody.
+- UNVERIFIED: Hetzner Cloud firewall, backups, delete/rebuild protection, host
+  backup/restore rehearsal, and server-hosted UTC campaign execution.
+- SHOWN: Ubuntu reports `40` packages not upgraded after installing `fail2ban`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-17T01:59:15Z - Hetzner Cloud safeguard planner
+
+Active role: ENGINEER
+
+Objective:
+- Add a guarded, reviewed path for Hetzner Cloud safeguards now that a
+  write-capable token is available.
+
+What was found:
+- SHOWN: the host is hardened locally, but cloud-side safeguards remain open:
+  Hetzner firewall, backups, and delete/rebuild protection.
+- SHOWN: the previous inventory path was read-only and could not express a
+  safe write workflow.
+- SHOWN: the keyring account label remains `hetzner_cloud:readonly`, but the
+  operator may temporarily store a read/write token there for accepted
+  provisioning.
+
+What changed:
+- Added cloud safeguard planning/apply functions in `services/ops/hetzner_cloud.py`.
+- Added `scripts/hetzner_cloud_safeguards.py`.
+- Added tests for missing SSH CIDR, broad CIDR rejection, dry-run planning,
+  confirmation mismatch, guarded POST sequencing, and firewall rule drift
+  correction.
+- Updated `docs/HETZNER_PAPER_HOST.md` with the dry-run/apply workflow and
+  safety gates.
+- Updated `scripts/SCRIPTS.md` so the new root script is visible as a
+  specialized cloud-provisioning command.
+
+Why this change:
+- A read/write cloud token is high risk unless the repo encodes the safety
+  workflow directly.
+- The smallest safe path is plan-by-default, explicit SSH source CIDR, exact
+  server-id confirmation for writes, and no token printed or accepted as a
+  command argument.
+- The firewall helper corrects an existing named firewall if its SSH rule
+  source drifts, rather than trusting the firewall name alone.
+
+Expected outcome:
+- Operators can see exactly what Hetzner Cloud changes would be made before any
+  write.
+- Applying cloud safeguards requires deliberate confirmation and a restrictive
+  SSH source.
+- The paper host can progress toward cloud-side hardening after independent
+  review, without starting or migrating any collector.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m py_compile services/ops/hetzner_cloud.py scripts/hetzner_cloud_safeguards.py`
+  passed.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_hetzner_access.py`
+  passed with `14 passed in 0.61s`.
+- SHOWN: `./.venv/bin/python scripts/validate_script_paths.py` returned
+  `OK: script paths validated`.
+- SHOWN: `git diff --check` passed.
+- SHOWN: live-safe CLI proof
+  `./.venv/bin/python scripts/hetzner_cloud_safeguards.py --server-id 126306158`
+  returned `ok=false`, `reason=ssh_source_cidr_required`, and no planned
+  changes. This path stops before any Hetzner API request by test proof.
+- Full suite was not run at the operator's direction.
+
+Remaining risk:
+- HIGH: cloud-provider write operations, firewall lockout risk, backup billing,
+  and server protection policy.
+- UNVERIFIED: no live Hetzner Cloud write has been performed by this change.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-17 after
+  independent review sign-off.

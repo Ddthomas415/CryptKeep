@@ -83,6 +83,40 @@ def _is_sample_backed_signal(record: dict[str, Any]) -> bool:
     return record.get("ohlcv_sample_mode") is True
 
 
+def _signal_provenance_rejection_reason(
+    record: dict[str, Any],
+    *,
+    venue: str,
+    symbol: str | None,
+    timeframe: str,
+) -> str:
+    if _is_sample_backed_signal(record):
+        return "sample_ohlcv"
+
+    source = str(record.get("market_data_source") or "").lower().strip()
+    if not source:
+        return "missing_market_data_source"
+    if source != "public_ohlcv":
+        return "market_data_source_mismatch"
+    if record.get("ohlcv_sample_mode") is not False:
+        return "missing_ohlcv_sample_mode"
+
+    expected = {
+        "ohlcv_venue": str(venue or "").lower().strip(),
+        "ohlcv_symbol": str(symbol or "").lower().strip(),
+        "ohlcv_timeframe": str(timeframe or "").lower().strip(),
+    }
+    for field, expected_value in expected.items():
+        if not expected_value:
+            continue
+        actual = str(record.get(field) or "").lower().strip()
+        if not actual:
+            return f"missing_{field}"
+        if actual != expected_value:
+            return f"{field}_mismatch"
+    return ""
+
+
 def _load_ohlcv_rows_from_path(path: Path) -> list[list]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     rows = raw if isinstance(raw, list) else raw.get("candles") or []
@@ -275,7 +309,7 @@ def _score_signal(
         peak_idx = min(range(len(lows)), key=lambda idx: lows[idx])
         trough_idx = max(range(len(highs)), key=lambda idx: highs[idx])
         mfe_pct = ((entry_price / lows[peak_idx]) - 1.0) if entry_price > 0 and lows[peak_idx] > 0 else 0.0
-        mae_pct = ((entry_price / highs[trough_idx]) - 1.0) - 1.0 if entry_price > 0 and highs[trough_idx] > 0 else 0.0
+        mae_pct = ((entry_price / highs[trough_idx]) - 1.0) if entry_price > 0 and highs[trough_idx] > 0 else 0.0
         forward_return_pct = ((entry_price / future_close) - 1.0) if entry_price > 0 and future_close > 0 else 0.0
         lookback_rows = ohlcv[max(0, matched_index - lookback_bars): matched_index + 1]
         lookback_high = max((_safe_float(row[2], entry_price) for row in lookback_rows), default=entry_price)
@@ -362,6 +396,7 @@ def build_signal_quality_report(
     venue: str = "coinbase",
     symbol: str | None = None,
     timeframe: str = "1d",
+    require_matching_provenance: bool = True,
 ) -> dict[str, Any]:
     ev_dir = Path(evidence_dir).expanduser().resolve() if evidence_dir else (data_dir() / "evidence" / strategy_id).resolve()
     evidence = load_all_evidence(ev_dir)
@@ -390,14 +425,63 @@ def build_signal_quality_report(
         "lookback_bars": int(lookback_bars),
         "evidence_dir": str(ev_dir),
         "signal_records_total": len(signals),
+        "provenance_policy": {
+            "required": bool(require_matching_provenance),
+            "expected": {
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+                "ohlcv_venue": str(venue or ""),
+                "ohlcv_symbol": str(symbol or ""),
+                "ohlcv_timeframe": str(timeframe or ""),
+            },
+            "rule": (
+                "Only matching non-sample public OHLCV signal evidence is scored."
+                if require_matching_provenance
+                else "Unqualified non-sample signal evidence is allowed for explicit research use."
+            ),
+        },
         "ohlcv_source": ohlcv_source,
         "rows": [],
         "summary": {},
     }
+    eligible_signals: list[dict[str, Any]] = []
+    matching_provenance_signals = 0
+    excluded_sample_signals = 0
+    excluded_unqualified_signals = 0
+    excluded_reason_counts: Counter[str] = Counter()
+    unqualified_reason_counts: Counter[str] = Counter()
+    for signal in signals:
+        rejection_reason = _signal_provenance_rejection_reason(
+            signal,
+            venue=venue,
+            symbol=symbol,
+            timeframe=timeframe,
+        )
+        if rejection_reason == "sample_ohlcv":
+            excluded_sample_signals += 1
+            excluded_reason_counts[rejection_reason] += 1
+            continue
+        if not rejection_reason:
+            matching_provenance_signals += 1
+        else:
+            unqualified_reason_counts[rejection_reason] += 1
+        if require_matching_provenance and rejection_reason:
+            excluded_unqualified_signals += 1
+            excluded_reason_counts[rejection_reason] += 1
+            continue
+        eligible_signals.append(signal)
+
     if not loaded_ohlcv:
         report["reason"] = "no_ohlcv"
         report["summary"] = {
             "signals_total": len(signals),
+            "matching_provenance_signal_records": matching_provenance_signals,
+            "unqualified_signal_records": sum(unqualified_reason_counts.values()),
+            "unqualified_signal_reason_counts": dict(unqualified_reason_counts),
+            "eligible_signal_records": len(eligible_signals),
+            "excluded_sample_signals": excluded_sample_signals,
+            "excluded_unqualified_signals": excluded_unqualified_signals,
+            "excluded_signal_reason_counts": dict(excluded_reason_counts),
             "actionable_signals": 0,
             "deduped_signals": 0,
             "signals_scored": 0,
@@ -411,11 +495,7 @@ def build_signal_quality_report(
         return report
 
     actionable_rows: list[dict[str, Any]] = []
-    excluded_sample_signals = 0
-    for signal in signals:
-        if _is_sample_backed_signal(signal):
-            excluded_sample_signals += 1
-            continue
+    for signal in eligible_signals:
         action = _action_for_signal(signal)
         if not action:
             continue
@@ -461,7 +541,13 @@ def build_signal_quality_report(
 
     summary = {
         "signals_total": len(signals),
+        "matching_provenance_signal_records": matching_provenance_signals,
+        "unqualified_signal_records": sum(unqualified_reason_counts.values()),
+        "unqualified_signal_reason_counts": dict(unqualified_reason_counts),
+        "eligible_signal_records": len(eligible_signals),
         "excluded_sample_signals": excluded_sample_signals,
+        "excluded_unqualified_signals": excluded_unqualified_signals,
+        "excluded_signal_reason_counts": dict(excluded_reason_counts),
         "actionable_signals": len(actionable_rows),
         "deduped_signals": len(deduped),
         "signals_scored": len(scored_only),

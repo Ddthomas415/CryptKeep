@@ -25,6 +25,38 @@ def _reload_strategy_runner(monkeypatch, tmp_path):
     return runner
 
 
+def _breakout_runner_cfg(*, max_bars_hold: int) -> dict:
+    return {
+        "enabled": True,
+        "strategy_id": "breakout_donchian",
+        "strategy": {
+            "name": "breakout_donchian",
+            "trade_enabled": True,
+            "donchian_len": 3,
+        },
+        "strategy_preset": "breakout_default",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "fast_n": 12,
+        "slow_n": 26,
+        "min_bars": 5,
+        "max_bars": 20,
+        "loop_interval_sec": 0.0,
+        "qty": 0.5,
+        "order_type": "market",
+        "allow_first_signal_trade": False,
+        "use_ccxt_fallback": False,
+        "max_tick_age_sec": 5.0,
+        "position_aware": True,
+        "sell_full_position": True,
+        "signal_source": "synthetic_mid_ohlcv",
+        "auto_select_best_venue": False,
+        "switch_only_when_blocked": True,
+        "venue_candidates": [],
+        "max_bars_hold": max_bars_hold,
+    }
+
+
 def test_cfg_uses_canonical_breakout_strategy(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STRATEGY_NAME", "breakout")
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
@@ -60,6 +92,41 @@ def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_pa
 
     assert cfg["signal_source"] == "public_ohlcv_5m"
     assert cfg["allow_first_signal_trade"] is True
+
+
+def test_held_bar_counter_advances_only_for_new_market_bar(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    count, bar_ts, advanced = runner._advance_held_bar_counter(
+        bars_held=0,
+        last_bar_ts=0,
+        current_bar_ts=1000,
+    )
+    assert (count, bar_ts, advanced) == (0, 1000, False)
+
+    count, bar_ts, advanced = runner._advance_held_bar_counter(
+        bars_held=count,
+        last_bar_ts=bar_ts,
+        current_bar_ts=1000,
+    )
+    assert (count, bar_ts, advanced) == (0, 1000, False)
+
+    count, bar_ts, advanced = runner._advance_held_bar_counter(
+        bars_held=count,
+        last_bar_ts=bar_ts,
+        current_bar_ts=2000,
+    )
+    assert (count, bar_ts, advanced) == (1, 2000, True)
+
+
+def test_strategy_state_delete_removes_value(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    store = runner.StrategyStateSQLite()
+
+    store.set("bars_held:test", "60")
+    store.delete("bars_held:test")
+
+    assert store.get("bars_held:test") is None
 
 
 @pytest.mark.slow
@@ -411,6 +478,8 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     assert len(queued) == 1
     assert queued[0]["strategy_id"] == "breakout_donchian"
     assert queued[0]["side"] == "buy"
+    assert "exit_reason" not in queued[0]["meta"]
+    assert "exit_stack_rule" not in queued[0]["meta"]
 
 
 @pytest.mark.slow
@@ -483,6 +552,101 @@ def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch,
 
     intents = qdb.list_intents(limit=10)
     assert intents == []
+
+
+@pytest.mark.slow
+def test_run_forever_does_not_consume_time_stop_on_repeated_same_bar(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    sdb = runner.StrategyStateSQLite()
+
+    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    sdb.set("warmed:coinbase:BTC/USD:breakout_donchian", "1")
+    sdb.set("last_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("last_emitted_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("entry_price:coinbase:BTC/USD:breakout_donchian", "100")
+    sdb.set("bars_held:coinbase:BTC/USD:breakout_donchian", "0")
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: _breakout_runner_cfg(max_bars_hold=2),
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (100.0, 1000))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "inside_channel", "ind": {}},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 5:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert qdb.list_intents(limit=10) == []
+    assert sdb.get("bars_held:coinbase:BTC/USD:breakout_donchian") == "0"
+    assert sdb.get("last_held_bar_ts:coinbase:BTC/USD:breakout_donchian") == "1000"
+
+
+@pytest.mark.slow
+def test_run_forever_time_stop_advances_on_new_market_bars(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    sdb = runner.StrategyStateSQLite()
+
+    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    sdb.set("warmed:coinbase:BTC/USD:breakout_donchian", "1")
+    sdb.set("last_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("last_emitted_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("entry_price:coinbase:BTC/USD:breakout_donchian", "100")
+    sdb.set("bars_held:coinbase:BTC/USD:breakout_donchian", "0")
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: _breakout_runner_cfg(max_bars_hold=2),
+    )
+    market_timestamps = (1000, 1000, 2000, 3000, 3000)
+    fetch_counter = {"count": 0}
+
+    def fake_fetch_mid(_cfg):
+        index = min(fetch_counter["count"], len(market_timestamps) - 1)
+        fetch_counter["count"] += 1
+        return 100.0, market_timestamps[index]
+
+    monkeypatch.setattr(runner, "_fetch_mid", fake_fetch_mid)
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "inside_channel", "ind": {}},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 10:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    intents = qdb.list_intents(limit=10)
+    assert len(intents) == 1
+    assert intents[0]["side"] == "sell"
+    assert fetch_counter["count"] >= 4
 
 
 @pytest.mark.slow
@@ -560,6 +724,8 @@ def test_run_forever_exit_action_emits_sell_once_while_condition_persists(monkey
 
     assert len(emitted) == 1
     assert emitted[0]["side"] == "sell"
+    assert emitted[0]["meta"]["exit_reason"] == "take_profit"
+    assert emitted[0]["meta"]["exit_stack_rule"] == "take_profit"
 
 
 @pytest.mark.slow

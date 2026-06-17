@@ -28,17 +28,19 @@ Makefile target when one is shown.
 | `check_promotion_gates.py` | `make check-gates` / `make check-gates-json` | Promotion gate status |
 | `check_system_health.py` | — | System health summary |
 | `doctor.py` | `make doctor-strict` | Diagnostic checks |
+| `hetzner_account_status.py` | — | Read-only Hetzner project inventory using an OS-keyring token; never accepts a token argument |
 | `killswitch.py` | `make kill-switch-on` / `make kill-switch-off` | Arm/disarm kill switch |
 | `op.py` | — | Operator command surface |
 | `paper_stop.py` | `make paper-stop-now` | Stop paper campaign |
 | `preflight.py` | — | Pre-launch checks |
 | `preflight_check.py` | — | Runtime/config preflight check |
 | `report_paper_run_diagnostics.py` | — | Paper-run diagnostic report |
+| `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
-| `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process |
+| `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
 | `run_preflight.py` | — | Preflight entrypoint |
-| `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether evidence signals were early enough to capture a target move |
+| `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
 | `run_system_diagnostics.py` | `make system-diagnostics` | System diagnostics wrapper |
 | `show_control_kernel_status.py` | `make kernel-status` / `make kernel-status-json` | Control-kernel status |
 | `supervisor_status.py` | — | Supervisor state |
@@ -50,7 +52,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 90 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 94 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -124,6 +126,15 @@ may require network access and should not be treated as paper-campaign proof.
 - `smoke_exchange.py` — generic exchange smoke test.
 - `smoke_gateio.py` — Gate.io connectivity smoke test.
 
+### Cloud Provisioning And Host Safeguards
+
+These inspect or modify cloud-provider controls. Dry-run modes are safe for
+planning; apply modes are high-risk and require an accepted review.
+
+- `hetzner_cloud_safeguards.py` — plan by default, or explicitly apply, Hetzner
+  Cloud firewall, backup, and delete/rebuild protection safeguards for the paper
+  host using the OS-keyring token.
+
 ### Candidate, Signal, Learning, And Research
 
 These are research or advisory surfaces unless a separate promotion/activation
@@ -151,6 +162,7 @@ are not paper-campaign controls.
 - `check_repo_alignment.py` — repo alignment guard.
 - `generate_release_notes.py` — release-notes generator.
 - `install.py` — install/setup helper.
+- `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.
 - `rebuild_remaining_tasks.py` — regenerate remaining-task artifacts.

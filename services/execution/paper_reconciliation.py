@@ -315,6 +315,8 @@ def reconcile_execution_plan_intents(
                 "volume_surge": meta.get("volume_surge"),
                 "volume_ratio": meta.get("volume_ratio"),
                 "signal_reason": meta.get("signal_reason"),
+                "exit_reason": meta.get("exit_reason"),
+                "exit_stack_rule": meta.get("exit_stack_rule"),
                 "intent_strategy_id": row.get("strategy"),
                 "venue": row.get("venue"),
                 **filled_row,

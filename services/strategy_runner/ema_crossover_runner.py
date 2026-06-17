@@ -152,6 +152,25 @@ _BREAKOUT_VOLUME_FIELDS = (
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
+def _advance_held_bar_counter(
+    *,
+    bars_held: int,
+    last_bar_ts: int,
+    current_bar_ts: int,
+) -> tuple[int, int, bool]:
+    current = int(current_bar_ts or 0)
+    previous = int(last_bar_ts or 0)
+    count = max(0, int(bars_held or 0))
+    if current <= 0:
+        return count, previous, False
+    if previous <= 0:
+        return count, current, False
+    if current > previous:
+        return count + 1, current, True
+    return count, previous, False
+
+
 def _write_status(obj: dict) -> None:
     FLAGS.mkdir(parents=True, exist_ok=True)
     STATUS_FILE.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -681,6 +700,7 @@ def run_forever() -> None:
                 k_entry_price = f"entry_price:{selected_venue}:{symbol}:{cfg['strategy_id']}"
                 k_trailing_peak = f"trailing_peak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
                 k_bars_held = f"bars_held:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                k_last_held_bar_ts = f"last_held_bar_ts:{selected_venue}:{symbol}:{cfg['strategy_id']}"
                 k_kill_until = f"kill_until:{selected_venue}:{symbol}:{cfg['strategy_id']}"
                 k_risk_block_count = f"risk_block_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
                 k_scale_count = f"scale_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
@@ -873,10 +893,11 @@ def run_forever() -> None:
             entry_price = float(sdb.get(k_entry_price) or 0.0)
             trailing_peak_price = float(sdb.get(k_trailing_peak) or 0.0)
             bars_held = int(sdb.get(k_bars_held) or 0)
+            last_held_bar_ts = int(sdb.get(k_last_held_bar_ts) or 0)
 
             if pos_qty <= 0.0:
                 # No open position: clear runner-side exit state.
-                for k in (k_entry_price, k_trailing_peak, k_bars_held):
+                for k in (k_entry_price, k_trailing_peak, k_bars_held, k_last_held_bar_ts):
                     try:
                         sdb.delete(k)
                     except Exception:
@@ -884,6 +905,7 @@ def run_forever() -> None:
                 entry_price = 0.0
                 trailing_peak_price = 0.0
                 bars_held = 0
+                last_held_bar_ts = 0
             else:
                 # Seed entry state from live paper position if missing.
                 if entry_price <= 0.0:
@@ -891,8 +913,16 @@ def run_forever() -> None:
                     if avg_price > 0.0:
                         entry_price = avg_price
                         sdb.set(k_entry_price, str(entry_price))
-                bars_held += 1
-                sdb.set(k_bars_held, str(bars_held))
+                # Public OHLCV repeats the latest candle between closes; count its
+                # timestamp once instead of treating every poll loop as a held bar.
+                bars_held, last_held_bar_ts, bar_advanced = _advance_held_bar_counter(
+                    bars_held=bars_held,
+                    last_bar_ts=last_held_bar_ts,
+                    current_bar_ts=int(ts_ms or 0),
+                )
+                sdb.set(k_last_held_bar_ts, str(last_held_bar_ts))
+                if bar_advanced:
+                    sdb.set(k_bars_held, str(bars_held))
 
                 cur_px = float(m)
                 if cur_px > 0.0:
@@ -1084,6 +1114,7 @@ def run_forever() -> None:
                     sdb.set(k_entry_price, str(float(m)))
                     sdb.set(k_trailing_peak, str(float(m)))
                     sdb.set(k_bars_held, "0")
+                    sdb.set(k_last_held_bar_ts, str(int(ts_ms or 0)))
                 elif action == "sell":
                     entry_price_val = float(str(sdb.get(k_entry_price) or "0").strip() or 0.0)
                     exit_eval = evaluate_exit_outcome(
@@ -1133,7 +1164,7 @@ def run_forever() -> None:
                                     "note": "kill_triggered_performance",
                                 }
                             )
-                    for k in (k_entry_price, k_trailing_peak, k_bars_held):
+                    for k in (k_entry_price, k_trailing_peak, k_bars_held, k_last_held_bar_ts):
                         try:
                             sdb.delete(k)
                         except Exception:
@@ -1199,6 +1230,12 @@ def run_forever() -> None:
                             "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                            **({"exit_reason": exit_reason} if exit_reason else {}),
+                            **(
+                                {"exit_stack_rule": exit_out.get("stack_rule")}
+                                if exit_action and isinstance(exit_out, dict) and exit_out.get("stack_rule")
+                                else {}
+                            ),
                             "ranked_candidates": selection.get("ranked_candidates") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "candidate_scores": selection.get("candidate_scores") if 'selection' in locals() and isinstance(selection, dict) else None,
                             **evidence_extra,
@@ -1239,6 +1276,7 @@ def run_forever() -> None:
                 "entry_price": entry_price if 'entry_price' in locals() else None,
                 "trailing_peak_price": trailing_peak_price if 'trailing_peak_price' in locals() else None,
                 "bars_held": bars_held if 'bars_held' in locals() else None,
+                "last_held_bar_ts": last_held_bar_ts if 'last_held_bar_ts' in locals() else None,
                 "exit_action": exit_action if 'exit_action' in locals() else None,
                 "exit_reason": exit_reason if 'exit_reason' in locals() else None,
                 "exit_stack_rule": exit_out.get("stack_rule") if 'exit_out' in locals() and isinstance(exit_out, dict) else None,
@@ -1277,6 +1315,7 @@ def run_forever() -> None:
             "entry_price": entry_price if 'entry_price' in locals() else None,
             "trailing_peak_price": trailing_peak_price if 'trailing_peak_price' in locals() else None,
             "bars_held": bars_held if 'bars_held' in locals() else None,
+            "last_held_bar_ts": last_held_bar_ts if 'last_held_bar_ts' in locals() else None,
             "exit_action": exit_action if 'exit_action' in locals() else None,
             "exit_reason": exit_reason if 'exit_reason' in locals() else None,
             "exit_stack_rule": exit_out.get("stack_rule") if 'exit_out' in locals() and isinstance(exit_out, dict) else None,

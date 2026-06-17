@@ -7,15 +7,18 @@ import pytest
 
 from services.analytics import paper_sim_monitor as svc
 
+_REAL_PROMOTION_PROGRESS_SNAPSHOT = svc._promotion_progress_snapshot
+
 
 @pytest.fixture(autouse=True)
 def _stub_promotion_progress(monkeypatch) -> None:
     monkeypatch.setattr(
         svc,
         "_promotion_progress_snapshot",
-        lambda: {
+        lambda **_kwargs: {
             "ok": True,
             "source": "paper_promotion_progress",
+            "applicable": True,
             "days_recorded": 22,
             "days_required": 30,
             "days_remaining": 8,
@@ -30,6 +33,53 @@ def _stub_promotion_progress(monkeypatch) -> None:
             "summary_text": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/10 round trips recorded (3 remaining).",
         },
     )
+
+
+def test_promotion_progress_snapshot_loads_canonical_policy(monkeypatch) -> None:
+    captured: dict[str, str] = {}
+
+    monkeypatch.setattr(
+        svc,
+        "load_paper_promotion_progress",
+        lambda **kwargs: captured.update(
+            {key: str(value or "") for key, value in kwargs.items()}
+        )
+        or {"ok": True, "thresholds_ready": False},
+    )
+
+    out = _REAL_PROMOTION_PROGRESS_SNAPSHOT(
+        strategy_id="es_daily_trend_v1",
+        target_strategy="sma_200_trend",
+        symbol="BTC/USDT",
+    )
+
+    assert captured == {
+        "strategy_id": "es_daily_trend_v1",
+        "target_strategy": "sma_200_trend",
+        "symbol": "BTC/USDT",
+    }
+    assert out["applicable"] is True
+
+
+def test_promotion_progress_snapshot_does_not_reuse_policy_for_challenger(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        svc,
+        "load_paper_promotion_progress",
+        lambda **_kwargs: pytest.fail("canonical loader must not run for challenger"),
+    )
+
+    out = _REAL_PROMOTION_PROGRESS_SNAPSHOT(
+        strategy_id="breakout_default",
+        target_strategy="breakout_donchian",
+        symbol="BTC/USDT",
+    )
+
+    assert out["status"] == "not_configured"
+    assert out["applicable"] is False
+    assert out["blocking_thresholds"] == []
+    assert "breakout_default" in out["summary_text"]
 
 
 def test_collect_once_reports_enough_evidence_for_completed_round_trip(monkeypatch) -> None:
@@ -283,6 +333,7 @@ def test_collect_once_surfaces_persisting_evidence_phase_in_summary(monkeypatch)
 
 def test_collect_once_uses_daily_loop_last_result_when_idle(monkeypatch) -> None:
     captured_window: dict[str, str] = {}
+    captured_promotion: dict[str, str] = {}
 
     monkeypatch.setattr(
         svc,
@@ -323,6 +374,26 @@ def test_collect_once_uses_daily_loop_last_result_when_idle(monkeypatch) -> None
     )
     monkeypatch.setattr(svc, "_strategy_runner_status", lambda: {"status": "stopped", "strategy_preset": "ema_cross_default"})
     monkeypatch.setattr(svc, "_paper_engine_status", lambda: {"status": "stopped"})
+    monkeypatch.setattr(
+        svc,
+        "_promotion_progress_snapshot",
+        lambda **kwargs: (
+            captured_promotion.update(
+                {key: str(value or "") for key, value in kwargs.items()}
+            )
+            or {
+                "ok": True,
+                "status": "not_configured",
+                "applicable": False,
+                "thresholds_ready": False,
+                "blocking_thresholds": [],
+                "summary_text": (
+                    "Promotion thresholds are not configured for ema_cross_default; "
+                    "campaign trade metrics are informational."
+                ),
+            }
+        ),
+    )
 
     def fake_paper_state(symbol, since_ts="", until_ts=""):
         captured_window["since_ts"] = since_ts
@@ -360,10 +431,18 @@ def test_collect_once_uses_daily_loop_last_result_when_idle(monkeypatch) -> None
         "since_ts": "2026-06-05T19:54:50Z",
         "until_ts": "2026-06-05T20:09:54Z",
     }
+    assert captured_promotion == {
+        "strategy_id": "ema_cross_default",
+        "target_strategy": "ema_cross",
+        "symbol": "BTC/USDT",
+    }
     assert out["campaign_status"] == "idle"
     assert out["fills_observed"] == 1
     assert out["latest_journal_fill"]["fill_id"] == "fill-1"
     assert out["campaign_result"]["strategy_preset"] == "ema_cross_default"
+    assert out["promotion_thresholds_applicable"] is False
+    assert out["promotion_progress"]["status"] == "not_configured"
+    assert "not configured for ema_cross_default" in out["summary_text"]
     assert "fills=1" in out["summary_text"]
     assert "latest_fill=buy@2026-06-05T20:09:45Z" in out["summary_text"]
 

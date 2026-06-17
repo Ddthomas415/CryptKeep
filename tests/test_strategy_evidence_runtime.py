@@ -113,6 +113,7 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
             "desktop_notify": True,
             "recommendation": "continue",
             "promotion_progress": {
+                "applicable": True,
                 "thresholds_ready": False,
                 "blocking_thresholds": [{"label": "10+ completed round trips"}],
                 "summary_text": "Promotion threshold progress: 22/30 days recorded (8 remaining), 7/10 round trips recorded (3 remaining).",
@@ -137,6 +138,7 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
     assert payload["recent_report_count"] == 1
     assert payload["registered_watch_names"] == ["next_fill"]
     assert payload["last_watch_report"]["watch_name"] == "next_fill"
+    assert payload["promotion_thresholds_applicable"] is True
     assert payload["promotion_thresholds_ready"] is False
     assert payload["promotion_blocking_threshold_count"] == 1
     assert "7/10 round trips" in payload["promotion_progress_summary"]
@@ -145,6 +147,37 @@ def test_load_paper_sim_monitor_runtime_exposes_watch_summary(monkeypatch) -> No
     assert payload["notification_reason"] == "notified"
     assert payload["alert_tone"] == ""
     assert payload["alert_text"] == ""
+
+
+def test_load_paper_sim_monitor_runtime_marks_unconfigured_promotion_policy(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "services.analytics.paper_sim_monitor.load_runtime_status",
+        lambda: {
+            "ok": True,
+            "has_status": True,
+            "status": "idle",
+            "ts": "2026-06-12T00:19:43Z",
+            "promotion_progress": {
+                "applicable": False,
+                "status": "not_configured",
+                "thresholds_ready": False,
+                "blocking_thresholds": [],
+                "summary_text": (
+                    "Promotion thresholds are not configured for breakout_default; "
+                    "campaign trade metrics are informational."
+                ),
+            },
+        },
+    )
+
+    payload = runtime.load_paper_sim_monitor_runtime()
+
+    assert payload["promotion_thresholds_applicable"] is False
+    assert payload["promotion_thresholds_ready"] is False
+    assert payload["promotion_blocking_threshold_count"] == 0
+    assert "not configured for breakout_default" in payload["promotion_progress_summary"]
 
 
 def test_strategy_evidence_runtime_imports_standalone() -> None:

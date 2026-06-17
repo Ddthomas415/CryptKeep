@@ -330,3 +330,110 @@ def test_run_daily_loop_writes_idle_immediately_after_campaign(monkeypatch, tmp_
     assert status_writes[0]["reason"] == "waiting_for_next_day"
     assert status_writes[-1]["status"] == "stopped"
     assert cleared == [True]
+
+
+def test_session_day_requires_completed_end_record(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(script, "data_dir", lambda: tmp_path)
+    path = script._session_log_path("ema_cross_default", "2026-06-15")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(
+            [
+                json.dumps({"phase": "start", "campaign_status": "starting"}),
+                json.dumps({"phase": "end", "campaign_status": "failed"}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert script._has_session_day("ema_cross_default", "2026-06-15") is False
+    assert script._failed_session_attempts("ema_cross_default", "2026-06-15") == 1
+
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps({"phase": "end", "campaign_status": "completed"}) + "\n")
+
+    assert script._has_session_day("ema_cross_default", "2026-06-15") is True
+
+
+def test_log_session_end_marks_failed_campaign_as_critical(monkeypatch) -> None:
+    captured: list[dict[str, object]] = []
+
+    class _FakeLogger:
+        def __init__(self, strategy_id: str) -> None:
+            self.strategy_id = strategy_id
+
+        def log_session(self, **kwargs) -> None:
+            captured.append(dict(kwargs))
+
+    monkeypatch.setattr(script, "EvidenceLogger", _FakeLogger)
+    monkeypatch.setattr(script, "get_current_stage", lambda strategy_id: SimpleNamespace(value="paper"))
+    monkeypatch.setattr(script, "get_kill_switch_state", lambda: {"armed": False})
+
+    script._log_session_end(
+        strategy_id="ema_cross_default",
+        cfg=script.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            signal_source="public_ohlcv_5m",
+        ),
+        result={
+            "ok": False,
+            "status": "failed",
+            "reason": "no_public_ohlcv",
+            "completed_strategies": 0,
+        },
+    )
+
+    assert captured[0]["critical_error"] is True
+    assert captured[0]["ops_checks_passed"] is False
+    assert captured[0]["reconciliation_result"] == "campaign_error"
+    assert captured[0]["extra"]["campaign_status"] == "failed"
+    assert captured[0]["extra"]["campaign_reason"] == "no_public_ohlcv"
+
+
+def test_run_daily_loop_retries_failed_campaign_once_then_waits(monkeypatch, tmp_path) -> None:
+    status_writes: list[dict[str, object]] = []
+    run_calls: list[int] = []
+    stop_path = tmp_path / "paper_strategy_evidence.stop"
+
+    monkeypatch.setattr(script, "load_runtime_status", lambda: {"ok": True, "pid_alive": False, "pid": None})
+    monkeypatch.setattr(script, "_write_status", lambda obj: status_writes.append(dict(obj)))
+    monkeypatch.setattr(script, "_write_pid_state", lambda obj: None)
+    monkeypatch.setattr(script, "_clear_pid_state", lambda: None)
+    monkeypatch.setattr(script, "stop_file", lambda: stop_path)
+    monkeypatch.setattr(script, "_today_utc", lambda: "2026-06-15")
+    monkeypatch.setattr(script, "_has_session_day", lambda strategy_id, day: False)
+    monkeypatch.setattr(script, "_failed_session_attempts", lambda strategy_id, day: len(run_calls))
+    monkeypatch.setattr(script.time, "sleep", lambda seconds: None)
+
+    def _run_one_campaign(cfg, *, max_strategies=None, session_strategy_id=""):
+        run_calls.append(len(run_calls) + 1)
+        return {
+            "ok": False,
+            "status": "failed",
+            "reason": "no_public_ohlcv",
+            "completed_strategies": 0,
+        }
+
+    monkeypatch.setattr(script, "_run_one_campaign", _run_one_campaign)
+
+    out = script._run_daily_loop(
+        script.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            per_strategy_runtime_sec=1.0,
+            signal_source="public_ohlcv_5m",
+        ),
+        max_strategies=None,
+        session_strategy_id="ema_cross_default",
+        poll_interval_sec=1.0,
+        max_daily_attempts=2,
+        max_loops=2,
+    )
+
+    retry_rows = [row for row in status_writes if row.get("status") == "failed"]
+    assert run_calls == [1, 2]
+    assert retry_rows[0]["retry_pending"] is True
+    assert retry_rows[-1]["retry_pending"] is False
+    assert retry_rows[-1]["daily_attempts"] == 2
+    assert out["status"] == "stopped"
+    assert out["reason"] == "max_loops"

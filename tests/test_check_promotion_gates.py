@@ -392,10 +392,45 @@ class TestGateLogic:
         assert result["paper_history"]["all_history_closed_trades"] == 7
         assert result["paper_history"]["qualification"]["qualified_evidence_fills"] == 0
         assert "0 round trips recorded" in round_trip_gate["detail"]
+        assert "7 diagnostic-only all-history round trips" in round_trip_gate["detail"]
+        assert (
+            "no JSONL fills available for provenance qualification"
+            in round_trip_gate["detail"]
+        )
         assert "(0/10, 10 remaining)" in round_trip_gate["detail"]
         assert expectancy_gate["passed"] is None
         assert result["retirement"]["source"] == "jsonl_provenance+trade_journal_sqlite"
         assert result["retirement"]["triggers_fired"] == []
+
+    def test_paper_gate_explains_unqualified_and_incomplete_jsonl_history(self):
+        from scripts.check_promotion_gates import _paper_gate_trade_metrics
+
+        result = _paper_gate_trade_metrics(
+            [],
+            {
+                "ok": True,
+                "source": "jsonl_provenance+trade_journal_sqlite",
+                "fills": 0,
+                "closed_trades": 0,
+                "all_history_closed_trades": 7,
+                "qualification": {
+                    "evidence_fills": 10,
+                    "unqualified_evidence_fills": 9,
+                    "incomplete_qualified_evidence_fills": 1,
+                },
+            },
+        )
+
+        assert result["round_trips"] == 0
+        assert "7 diagnostic-only all-history round trips" in result["round_trip_detail"]
+        assert (
+            "9/10 JSONL fills lack or mismatch required provenance"
+            in result["round_trip_detail"]
+        )
+        assert (
+            "1 qualified JSONL fill is not part of a complete qualified round trip"
+            in result["round_trip_detail"]
+        )
 
     def test_paper_gate_counts_only_round_trips_with_matching_provenance(self, tmp_path):
         from services.os.app_paths import data_dir
