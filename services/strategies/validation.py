@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 
-SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "volatility_reversal", "gap_fill", "breakout_volume", "funding_extreme", "open_interest_shift"}
+SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "pullback_recovery", "volatility_reversal", "gap_fill", "breakout_volume", "funding_extreme", "open_interest_shift"}
 
 
 def _num(v: Any) -> bool:
@@ -45,5 +45,11 @@ def validate_strategy_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
                 errors.append(f"strategy.{k} must be number")
         if "require_directional_confirmation" in st and not _bool(st.get("require_directional_confirmation")):
             errors.append("strategy.require_directional_confirmation must be bool")
+    elif name == "pullback_recovery":
+        for k in ("fast_sma_period", "trend_sma_period", "rsi_period", "min_pullback_pct", "max_pullback_pct", "rsi_reentry_max", "rebound_confirm_pct", "trend_reclaim_tolerance_pct", "exit_rsi"):
+            if k in st and not _num(st.get(k)):
+                errors.append(f"strategy.{k} must be number")
+        if "stop_below_trend_sma" in st and not _bool(st.get("stop_below_trend_sma")):
+            errors.append("strategy.stop_below_trend_sma must be bool")
 
     return {"ok": len(errors) == 0, "errors": errors, "warnings": warnings, "strategy": name}
