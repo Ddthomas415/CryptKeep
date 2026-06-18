@@ -5161,4 +5161,5 @@ Verification:
 Remaining risk:
 - HIGH: CI/branch-protection policy can affect merge safety.
 - UNVERIFIED: GitHub Actions has not yet run these workflow changes on a PR.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
+  independent review sign-off.
