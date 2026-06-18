@@ -32,6 +32,11 @@ Require only checks that run on every pull request:
 Do not globally require `script-path-integrity`; that workflow is path-filtered
 and only runs when scripts, the `Makefile`, or its workflow file change.
 
+`CI validate`, `CI sanity`, and the PyInstaller build checks keep stable check
+names on every pull request, but may internally fast-pass docs-only changes.
+Do not replace this with workflow-level path filters for required checks;
+GitHub can leave skipped required workflows in an expected/pending state.
+
 ## Audit Context
 
 PR #45 proved the gap: GitHub allowed `master` to advance while the main
