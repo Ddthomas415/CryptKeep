@@ -338,19 +338,20 @@ Risk:
 
 ## Priority 13 - Pattern And Hybrid Strategy Roadmap
 
-Status: pending strategy design
+Status: implementation-proof-ready; independent review required before
+acceptance
 
 Why it matters:
-- `pullback_recovery` is already coded and wired into the strategy registry, but
-  it is not part of the current aggregate leaderboard evidence set.
+- `pullback_recovery` is already coded and wired into the strategy registry.
+- It now has a default preset and is part of the aggregate leaderboard evidence
+  candidate set, pending independent review.
 - Pattern recognition is a better fit for the operator's "identify the move
   early enough" objective than only slow trend following.
 - Hybrid strategy work can combine existing signals, but it needs a
   backtestable composite strategy path rather than ad hoc operator judgment.
 
 Next action:
-- Add `pullback_recovery` to leaderboard/evidence evaluation first because it is
-  the lowest-infrastructure pattern candidate already available in the repo.
+- Independently review the `pullback_recovery` leaderboard/evidence wiring.
 - Create a paper-only `pullback_recovery` campaign plan with its own backtest
   baseline, expected turnover, risk cap, and evidence gate.
 - Design a backtestable composite/hybrid wrapper before combining strategies in

@@ -41,6 +41,15 @@ def test_apply_preset_and_validate_success():
     assert vr["errors"] == []
 
 
+def test_apply_pullback_recovery_preset_and_validate_success():
+    out, vr = ct.apply_preset_and_validate({}, "pullback_recovery_default")
+    assert out["strategy"]["name"] == "pullback_recovery"
+    assert out["strategy"]["trend_sma_period"] == 50
+    assert out["strategy"]["stop_below_trend_sma"] is True
+    assert vr["ok"] is True
+    assert vr["errors"] == []
+
+
 def test_build_strategy_block_rejects_unknown_strategy():
     try:
         ct.build_strategy_block(name="unknown_strategy", trade_enabled=True, params={})
@@ -91,3 +100,35 @@ def test_build_strategy_block_sma_200_trend_typed_fields():
     assert st["regime_trending_floor"] == 0.8
     assert st["regime_chop_ceiling"] == 0.6
     assert st["regime_high_vol_ceiling"] == 2.5
+
+
+def test_build_strategy_block_pullback_recovery_typed_fields():
+    st = ct.build_strategy_block(
+        name="pullback_recovery",
+        trade_enabled=True,
+        params={
+            "fast_sma_period": "20",
+            "trend_sma_period": 50.9,
+            "rsi_period": "14",
+            "min_pullback_pct": "2.5",
+            "max_pullback_pct": 11,
+            "rsi_reentry_max": "55",
+            "rebound_confirm_pct": "0.2",
+            "trend_reclaim_tolerance_pct": "1.5",
+            "exit_rsi": "68",
+            "stop_below_trend_sma": False,
+            "unused_param": 999,
+        },
+    )
+    assert st["name"] == "pullback_recovery"
+    assert st["fast_sma_period"] == 20
+    assert st["trend_sma_period"] == 50
+    assert st["rsi_period"] == 14
+    assert st["min_pullback_pct"] == 2.5
+    assert st["max_pullback_pct"] == 11.0
+    assert st["rsi_reentry_max"] == 55.0
+    assert st["rebound_confirm_pct"] == 0.2
+    assert st["trend_reclaim_tolerance_pct"] == 1.5
+    assert st["exit_rsi"] == 68.0
+    assert st["stop_below_trend_sma"] is False
+    assert "unused_param" not in st

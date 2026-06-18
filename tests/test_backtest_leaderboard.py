@@ -16,8 +16,8 @@ def _candles(closes: list[float]) -> list[list[float]]:
         c = float(close)
         o = float(prev)
         h = max(o, c) + 0.2
-        l = min(o, c) - 0.2
-        rows.append([i * 60_000, o, h, l, c, 1.0])
+        low = min(o, c) - 0.2
+        rows.append([i * 60_000, o, h, low, c, 1.0])
         prev = c
     return rows
 
@@ -30,6 +30,7 @@ def test_default_strategy_candidates_returns_supported_defaults():
         "mean_reversion_default",
         "breakout_default",
         "momentum_default",
+        "pullback_recovery_default",
         "sma_200_trend_default",
         "volatility_reversal_default",
         "gap_fill_default",
@@ -210,9 +211,9 @@ def test_run_strategy_leaderboard_returns_ranked_rows():
     )
 
     assert out["ok"] is True
-    assert out["candidate_count"] == 8
+    assert out["candidate_count"] == 9
     assert out["stressed_slippage_bps"] > out["base_slippage_bps"]
-    assert len(out["rows"]) == 8
+    assert len(out["rows"]) == 9
     assert out["rows"][0]["leaderboard_score"] >= out["rows"][-1]["leaderboard_score"]
     assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness", "closed_trades", "trade_count", "exposure_fraction"} <= set(
         out["rows"][0].keys()

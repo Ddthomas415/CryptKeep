@@ -141,6 +141,43 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
     },
 
+    "pullback_recovery_default": {
+        "risk": {
+            "max_concurrent_positions": 5,
+            "max_symbol_exposure_pct": 20.0,
+            "max_total_exposure_pct": 80.0,
+            "max_strategy_exposure_pct": 50.0,
+            "max_open_intents_per_symbol": 1,
+            "max_consecutive_risk_blocks_per_symbol": 5,
+            "kill_cooldown_loops": 20,
+            "enable_position_scaling": True,
+            "max_adds_per_symbol": 2,
+            "min_profit_to_add_pct": 1.5,
+            "scale_in_size_multiplier": 0.5,
+            "max_consecutive_losing_exits": 3,
+            "max_strategy_drawdown_pct": 10.0,
+            "performance_kill_cooldown_loops": 50,
+            "target_total_deployment_pct": 60.0,
+            "max_symbol_allocation_pct": 20.0,
+            "min_symbol_allocation_pct": 5.0,
+            "max_abs_correlation": 0.85,
+        },
+        "strategy": {
+            "name": "pullback_recovery",
+            "trade_enabled": True,
+            "fast_sma_period": 20,
+            "trend_sma_period": 50,
+            "rsi_period": 14,
+            "min_pullback_pct": 2.0,
+            "max_pullback_pct": 12.0,
+            "rsi_reentry_max": 55.0,
+            "rebound_confirm_pct": 0.0,
+            "trend_reclaim_tolerance_pct": 1.5,
+            "exit_rsi": 68.0,
+            "stop_below_trend_sma": True,
+        },
+    },
+
     "volatility_reversal_default": {
         "risk": {
             "max_concurrent_positions": 5,

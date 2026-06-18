@@ -24,6 +24,7 @@ _SUPPORTED = {
 _INT_FIELDS = {
     "ema_cross": ("ema_fast", "ema_slow", "filter_window"),
     "momentum": ("min_change_pct", "max_rsi_entry", "rsi_exit", "sma_period", "rsi_period"),
+    "pullback_recovery": ("fast_sma_period", "trend_sma_period", "rsi_period"),
     "volatility_reversal": ("rsi_len", "rsi_oversold", "rsi_exit", "sma_len", "min_dump_bars", "min_dump_pct"),
     "gap_fill": ("rsi_len", "rsi_buy", "rsi_sell", "sma_len", "min_gap_pct", "gap_fill_target_pct"),
     "breakout_volume": ("donchian_len", "sma_len", "min_volume_ratio", "breakout_buffer_pct", "min_channel_width_pct"),
@@ -34,6 +35,7 @@ _INT_FIELDS = {
 
 _FLOAT_FIELDS = {
     "ema_cross": ("min_volatility_pct", "min_volume_ratio", "min_trend_efficiency", "min_cross_gap_pct"),
+    "pullback_recovery": ("min_pullback_pct", "max_pullback_pct", "rsi_reentry_max", "rebound_confirm_pct", "trend_reclaim_tolerance_pct", "exit_rsi"),
     "mean_reversion_rsi": ("rsi_buy", "rsi_sell", "max_volatility_pct", "min_volume_ratio", "max_trend_efficiency", "max_sma_distance_pct"),
     "breakout_donchian": ("min_volatility_pct", "min_volume_ratio", "min_trend_efficiency", "min_channel_width_pct", "breakout_buffer_pct"),
     "sma_200_trend": ("atr_stop_multiplier", "capital_at_risk_per_trade_pct", "max_position_notional_pct", "daily_loss_halt_pct", "max_drawdown_pct", "regime_trending_floor", "regime_chop_ceiling", "regime_high_vol_ceiling"),
@@ -42,6 +44,7 @@ _FLOAT_FIELDS = {
 _BOOL_FIELDS = {
     "ema_cross": (),
     "momentum": (),
+    "pullback_recovery": ("stop_below_trend_sma",),
     "volatility_reversal": ("require_volume_spike",),
     "gap_fill": (),
     "breakout_volume": ("require_close_above",),

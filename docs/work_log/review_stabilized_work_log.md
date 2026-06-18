@@ -5041,3 +5041,67 @@ Remaining risk:
   been performed by this documentation update.
 - Acceptance state: `ACCEPTED` for documentation capture only; any
   implementation must stop at `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-18T03:01:55Z - Pullback recovery leaderboard wiring
+
+Active role: ENGINEER
+
+Objective:
+- Add `pullback_recovery` to aggregate leaderboard/evidence evaluation as the
+  first low-infrastructure pattern strategy expansion.
+
+What was found:
+- SHOWN: `pullback_recovery` was present in
+  `services/strategies/strategy_registry.py`.
+- SHOWN: `pullback_recovery` was absent from
+  `services/backtest/leaderboard.py` default candidates.
+- SHOWN: `services/strategies/presets.py` had no
+  `pullback_recovery_default` preset.
+- SHOWN: `services/strategies/validation.py` rejected `pullback_recovery` even
+  though config tools and the registry already supported it.
+
+What changed:
+- Added `pullback_recovery_default` in `services/strategies/presets.py`.
+- Added `pullback_recovery_default` to
+  `services/backtest/leaderboard.py` default strategy candidates.
+- Added typed `pullback_recovery` parameter support in
+  `services/strategies/config_tools.py`.
+- Added `pullback_recovery` validation in
+  `services/strategies/validation.py`.
+- Updated leaderboard and config-tool tests for the new preset and candidate
+  count.
+- Updated Priority 13 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`.
+
+Why this change:
+- The backlog called for adding `pullback_recovery` to leaderboard/evidence
+  evaluation before adding new candlestick or derivatives strategies.
+- The smallest coherent implementation needed the preset, default leaderboard
+  candidate, typed config handling, and validator support together; otherwise
+  the strategy would remain partially wired.
+- No campaign startup, runtime order routing, or paper evidence state was
+  changed.
+
+Expected outcome:
+- Future strategy evidence cycles can rank `pullback_recovery` alongside the
+  existing OHLCV strategy candidates.
+- Operators can build and validate a typed `pullback_recovery` strategy block.
+- The next safe step remains a separate paper-only `pullback_recovery` campaign
+  plan with baseline, turnover expectation, risk cap, and evidence gate.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m py_compile services/strategies/presets.py services/backtest/leaderboard.py services/strategies/config_tools.py services/strategies/validation.py`
+  passed.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_backtest_leaderboard.py tests/test_strategy_config_tools.py tests/test_strategy_registry.py`
+  passed with `24 passed in 0.51s`.
+- SHOWN: `./.venv/bin/python -m ruff check services/strategies/presets.py services/backtest/leaderboard.py services/strategies/config_tools.py services/strategies/validation.py tests/test_backtest_leaderboard.py tests/test_strategy_config_tools.py`
+  passed.
+- SHOWN: `git diff --check` passed.
+- Full suite was not run at the operator's direction.
+
+Remaining risk:
+- HIGH: strategy-selection and leaderboard/evidence behavior can affect future
+  promotion decisions.
+- UNVERIFIED: no live/paper campaign has been started for `pullback_recovery`
+  by this change.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
