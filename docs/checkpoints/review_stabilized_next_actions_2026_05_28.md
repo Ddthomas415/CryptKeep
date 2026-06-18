@@ -464,3 +464,59 @@ Risk:
   ownership.
 - Acceptance state: planning only; implementation must stop at
   `READY_FOR_INDEPENDENT_REVIEW`.
+
+## Priority 17 - Derivatives, Intraday, And Context-Pattern Roadmap
+
+Status: pending research and compliance review only
+
+Why it matters:
+- The operator wants strategies that can identify large intraday crypto moves
+  early enough, not only slow daily trend-following entries.
+- The repo already contains strategy/context modules for `funding_extreme`,
+  `open_interest_shift`, `order_book_imbalance`, and `pullback_recovery`.
+- Crypto perpetual futures are the closer derivatives path than traditional
+  ES/NQ futures because the exchange/API pattern is nearer to the existing
+  crypto connectors, but leverage, margin, liquidation, funding cost, and
+  short exposure make this a separate high-risk workstream.
+- Traditional futures remain a later workstream requiring a broker/FCM
+  integration, contract specs, expiry/roll logic, and futures-specific margin
+  controls.
+
+Next action:
+- Keep the current paper campaigns running; do not interrupt evidence
+  collection for this roadmap.
+- Use Priority 13 for the near-term pattern path: add `pullback_recovery` to
+  leaderboard/evidence evaluation before adding new candlestick strategies.
+- Add read-only context collection first for funding, open interest, order-book
+  imbalance, and intraday candle/session features. Do not route these signals
+  to orders until their data quality and evidence value are proven.
+- Treat Bybit as out of scope unless a later compliance review proves the
+  operator can legally use it; current public Bybit restrictions exclude U.S.
+  users.
+- Treat Binance perpetual futures as research/testnet-only until jurisdiction,
+  account eligibility, API permissions, funding-rate accounting, leverage
+  controls, margin tracking, reduce-only exits, and liquidation-risk controls
+  are documented and tested.
+- Add candlestick recognition as a confirmation layer after `pullback_recovery`
+  has a baseline. Candidate filters include hammer/pin bar, bullish engulfing,
+  fair-value gap, and order-block-style impulse/pullback zones.
+- Add day-trading context only as read-only evidence at first: 1m/5m/15m
+  timeframes, VWAP/session levels, prior day high/low/close, Level 2/order book
+  imbalance, and time-of-day/session labels.
+
+Proof required:
+- Compliance note for each venue before any derivatives execution adapter is
+  built.
+- Read-only data collectors with provenance for funding, open interest, order
+  book, and intraday OHLCV/session context.
+- Backtest or replay baseline showing whether context-pattern signals identify
+  moves earlier than the current strategies without unacceptable false positives.
+- Separate paper gates for any short-side or leveraged strategy.
+- Explicit risk controls for funding cost, leverage, margin, reduce-only exits,
+  liquidation protection, max loss, and kill-switch behavior.
+
+Risk:
+- HIGH: derivatives, shorting, leverage, margin, liquidation risk, financial
+  strategy selection, and future order-routing behavior.
+- Acceptance state: planning only; implementation must stop at
+  `READY_FOR_INDEPENDENT_REVIEW`.

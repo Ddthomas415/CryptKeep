@@ -4979,3 +4979,65 @@ Remaining risk:
 - UNVERIFIED: no live Hetzner Cloud write has been performed by this change.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-17 after
   independent review sign-off.
+
+## 2026-06-18T02:45:10Z - Derivatives and intraday roadmap backlog capture
+
+Active role: ENGINEER
+
+Objective:
+- Add the reviewed futures, crypto-perpetuals, day-trading, and candlestick
+  recommendations to the tracked task list without changing runtime behavior.
+
+What was found:
+- SHOWN: `services/strategies/strategy_registry.py` supports
+  `pullback_recovery`, `volatility_reversal`, `gap_fill`, and
+  `breakout_volume` in the active OHLCV strategy registry.
+- SHOWN: `services/backtest/leaderboard.py` does not include
+  `pullback_recovery` in the default aggregate leaderboard candidates.
+- SHOWN: `services/strategies/funding_extreme.py`,
+  `services/strategies/open_interest_shift.py`, and
+  `services/strategies/order_book_imbalance.py` exist as context-signal
+  modules but are not part of the active OHLCV registry path.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still describes
+  BTC/USDT as a crypto proxy until an ES/SPY futures connector exists.
+
+What changed:
+- Added Priority 17 to
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`.
+- Captured crypto perpetual futures as a research/testnet-only derivatives
+  workstream requiring compliance, funding-rate accounting, leverage controls,
+  margin tracking, reduce-only exits, and liquidation-risk controls before any
+  execution adapter work.
+- Captured Bybit as out of scope unless a later compliance review proves the
+  operator can legally use it.
+- Captured traditional ES/NQ futures as a later broker/FCM workstream.
+- Captured intraday/day-trading context and candlestick confirmation as
+  read-only evidence first, not order-routing behavior.
+
+Why this change:
+- The backlog already had short-market and pattern-roadmap items, but it did
+  not explicitly preserve the reviewed sequencing for derivatives, intraday
+  context data, venue compliance, and candlestick confirmation.
+- Planning documentation is the smallest safe change because derivatives,
+  shorting, leverage, and margin are high-risk financial-control surfaces.
+
+Expected outcome:
+- Future work can proceed from a visible tracked roadmap instead of relying on
+  chat memory.
+- The current paper campaigns remain isolated while the next capability layer
+  is researched in read-only mode first.
+- Any future derivatives or short-side implementation is forced through
+  explicit compliance, data-provenance, risk-control, and independent-review
+  gates.
+
+Verification:
+- SHOWN: `git diff --check` passed.
+- Tests not run; this is a documentation-only backlog update.
+
+Remaining risk:
+- HIGH: future derivatives execution, shorting, leverage, margin, liquidation
+  risk, and strategy-selection behavior.
+- UNVERIFIED: no exchange-account eligibility or legal/compliance review has
+  been performed by this documentation update.
+- Acceptance state: `ACCEPTED` for documentation capture only; any
+  implementation must stop at `READY_FOR_INDEPENDENT_REVIEW`.
