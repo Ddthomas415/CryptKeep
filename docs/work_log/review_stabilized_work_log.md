@@ -5104,4 +5104,5 @@ Remaining risk:
   promotion decisions.
 - UNVERIFIED: no live/paper campaign has been started for `pullback_recovery`
   by this change.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
+  independent review sign-off.
