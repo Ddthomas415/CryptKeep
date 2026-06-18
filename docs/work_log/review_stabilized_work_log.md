@@ -5106,3 +5106,59 @@ Remaining risk:
   by this change.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
   independent review sign-off.
+
+## 2026-06-18T03:17:05Z - Docs-only CI fast path
+
+Active role: ENGINEER
+
+Objective:
+- Reduce unnecessary PR wait time for documentation-only changes without
+  weakening full CI coverage for code, strategy, workflow, risk, or execution
+  changes.
+
+What was found:
+- SHOWN: recent integration PRs spent most of their wait time in required
+  `CI validate` and `CI sanity` jobs even when changes were documentation-only.
+- SHOWN: `docs/GITHUB_BRANCH_PROTECTION.md` requires stable check names on
+  every pull request, so workflow-level path filters could leave required
+  checks pending.
+- SHOWN: code and strategy changes still need the full remote gate path.
+
+What changed:
+- Added an internal docs-only classifier to `.github/workflows/ci.yml`.
+- Added the same internal docs-only classifier to
+  `.github/workflows/ci-sanity.yml`.
+- Added the same internal docs-only classifier to
+  `.github/workflows/ci-pyinstaller.yml`.
+- For docs-only PRs, the required checks keep their existing names and pass
+  through a visible fast-pass step instead of installing dependencies, running
+  full tests, or building desktop wrappers.
+- Updated `docs/CI_GITHUB_ACTIONS.md` and
+  `docs/GITHUB_BRANCH_PROTECTION.md` to document the policy.
+
+Why this change:
+- The smallest safe improvement is to keep required workflow names stable and
+  fast-pass internally for docs-only changes.
+- A broader bypass or path-filter change would either weaken code coverage or
+  risk branch-protection hangs.
+
+Expected outcome:
+- Docs-only PRs should complete required CI materially faster.
+- Any source, script, config, workflow, test, strategy, execution, risk, or
+  packaging change still takes the full CI path.
+- Branch protection remains compatible because the required check names are not
+  removed or skipped at the workflow level.
+
+Verification:
+- SHOWN: YAML parser check passed for `.github/workflows/ci.yml`,
+  `.github/workflows/ci-sanity.yml`, and `.github/workflows/ci-pyinstaller.yml`.
+- SHOWN: local classifier simulation returned `docs_case=true`.
+- SHOWN: local classifier simulation returned `code_case=false`.
+- SHOWN: `git diff --check` passed.
+- Full suite was not run because this is a workflow-policy change and the
+  meaningful proof is GitHub Actions behavior after PR creation.
+
+Remaining risk:
+- HIGH: CI/branch-protection policy can affect merge safety.
+- UNVERIFIED: GitHub Actions has not yet run these workflow changes on a PR.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
