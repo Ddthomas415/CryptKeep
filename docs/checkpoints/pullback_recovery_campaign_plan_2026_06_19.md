@@ -36,10 +36,19 @@ promotion evidence.
   drain duration, status, and daily-loop flags.
 - SHOWN: `CBP_STATE_DIR` routes evidence artifacts into isolated state
   directories when set.
+- SHOWN: the first accepted Stage 0 run completed in
+  `.cbp_state_challengers/pullback_recovery_default` with no fills and no
+  canonical `sma_200_trend` fill-count change.
+- SHOWN: that first run exposed an attribution bug: runtime status reported
+  `strategy_preset=ema_cross_default` while session evidence wrote under
+  `pullback_recovery_default`.
+- SHOWN: PR #68 fixed and merged the attribution path so future
+  `pullback_recovery` runs report `strategy_preset=pullback_recovery_default`.
 
 UNVERIFIED:
 - No backtest baseline has been accepted for `pullback_recovery_default`.
-- No isolated paper campaign has been started for `pullback_recovery_default`.
+- No full 900-second post-fix Stage 0 proof has been rerun for
+  `pullback_recovery_default`.
 - No turnover estimate has been accepted for `pullback_recovery_default` under
   public Coinbase `BTC/USDT` OHLCV.
 
@@ -75,7 +84,16 @@ Reason:
 
 ## Stage 0 - Isolated One-Shot Proof
 
-Run only after this plan is independently accepted:
+Status:
+
+- The plan was independently accepted and the first isolated run completed.
+- That run is not sufficient as final Stage 0 proof because it exposed the
+  pre-fix `ema_cross_default` attribution defect.
+- PR #68 fixed the attribution defect and was merged before a full post-fix
+  Stage 0 rerun.
+
+Run the full post-fix Stage 0 proof only when the operator is ready for a
+15-minute command:
 
 ```bash
 CBP_STATE_DIR="$PWD/.cbp_state_challengers/pullback_recovery_default" \
@@ -171,5 +189,5 @@ Reject or pause if:
 
 ## Next Action
 
-Independently review this plan. If accepted, run only the Stage 0 isolated
-one-shot proof and stop before enabling any persistent daily campaign.
+Run the full post-fix Stage 0 isolated one-shot proof and stop before enabling
+any persistent daily campaign.

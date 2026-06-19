@@ -5776,3 +5776,50 @@ Remaining risk:
   reviewed before acceptance.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   independent review sign-off.
+
+## 2026-06-19T18:35:28Z - Refresh Pullback Recovery Campaign Status
+
+Active role: ENGINEER
+
+Objective:
+- Align the pullback recovery campaign plan and next-actions backlog with the
+  accepted PR #68 state without running another long Stage 0 command.
+
+What was found:
+- SHOWN: PR #68 was accepted and merged to `master` as `6d02f2d3`.
+- SHOWN: `review-stabilized` and `master` were aligned after the merge.
+- SHOWN: `docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md`
+  still said no isolated pullback campaign had been started, which was stale
+  after the pre-fix Stage 0 run.
+- SHOWN: Priority 13 still described the pullback plan as pending independent
+  review, which was stale after PR #67 and PR #68 were accepted and merged.
+
+What changed:
+- Updated the pullback recovery campaign plan to record the completed pre-fix
+  Stage 0 run, the attribution defect it exposed, the accepted PR #68 fix, and
+  the pending full post-fix Stage 0 rerun.
+- Updated Priority 13 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to state the
+  current next action: operator-run full post-fix Stage 0 proof, no persistent
+  daily campaign yet.
+
+Why this change:
+- The docs should not imply the plan is still pending review or that no
+  isolated pullback run happened.
+- Keeping the long 900-second proof as an operator-run command respects the
+  operator instruction not to run time-heavy commands automatically.
+
+Expected outcome:
+- Future check-ins see the correct pullback state immediately: plan accepted,
+  attribution fixed, full post-fix Stage 0 proof still pending.
+- No runtime, campaign manifest, order-routing, or gate behavior changes.
+
+Verification:
+- SHOWN: source docs were inspected before editing.
+- SHOWN: `git diff --check` passed.
+- Tests were not run because this is a documentation-only status correction.
+
+Remaining risk:
+- LOW: documentation status can still become stale after the operator runs the
+  full post-fix Stage 0 proof.
+- Acceptance state: `ACCEPTED`.
