@@ -6003,5 +6003,56 @@ Verification:
 Remaining risk:
 - HIGH: this expands research inputs that may later influence financial
   strategy replay and short-side paper simulation. Implementation must be
-  independently reviewed before acceptance.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+  separately reviewed before any replay, paper-simulation, or execution use.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after PR
+  #72 checks passed and the merge landed on `master` as `977ea9c3`.
+
+## 2026-06-19T19:06:35Z - Record Crypto Edge Context Sample Proof
+
+Active role: ENGINEER
+
+Objective:
+- Record the accepted PR #72 state and run the isolated read-only sample proof
+  requested by Priority 12 before any replay use of the new rows.
+
+What was found:
+- SHOWN: PR #72 merged to `master` at `977ea9c3`.
+- SHOWN: local `review-stabilized` and `origin/master` were aligned after the
+  merge.
+- SHOWN: Priority 12 still described the collector/store implementation as
+  pending review, which was stale after operator acceptance and merge.
+
+What changed:
+- Updated Priority 12 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to record
+  accepted/merged status and isolated sample proof completion.
+- Updated the prior work-log entry's acceptance state from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED` with the human operator review
+  and merge reference.
+
+Why this change:
+- The visible backlog and work log should match the accepted GitHub state.
+- The sample proof shows the new row families are persisted and surfaced in a
+  read-only report before any replay work starts.
+
+Expected outcome:
+- Future short/context work starts from an accurate state: collector/store
+  extension accepted, isolated sample proof complete, public-data proof still
+  optional and not yet accepted.
+- No replay, strategy routing, paper execution, promotion gate, or campaign
+  behavior is implied by this proof.
+
+Verification:
+- SHOWN: `./.venv/bin/python scripts/load_sample_crypto_edge_data.py --db-path /private/tmp/cbp_crypto_edge_context_sample_proof_20260619.sqlite --print-report`
+  returned `ok=true`.
+- SHOWN: sample proof reported `funding_count=3`, `open_interest_count=2`,
+  `basis_count=3`, `quote_count=6`, and `order_book_count=2`.
+- SHOWN: report flags remained `research_only=true` and
+  `execution_enabled=false`.
+- Tests not run: documentation-only status/proof update after accepted PR #72.
+
+Remaining risk:
+- HIGH: public-data collection, replay analysis, paper short simulation, and
+  any short-side execution remain separate future workstreams requiring
+  separate proof and review.
+- Acceptance state: `ACCEPTED`.
