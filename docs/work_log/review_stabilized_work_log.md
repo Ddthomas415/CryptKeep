@@ -5289,4 +5289,7 @@ Remaining risk:
 - UNVERIFIED: no Hetzner Cloud firewall, backup, protection, host backup
   rehearsal, isolated server-hosted UTC cycle, or canonical migration was
   performed by this change.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- SHOWN: remote PR #60 checks passed for macOS build, Windows build,
+  CI sanity, CI validate, GitGuardian, and Governance smoke.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
+  independent review sign-off.
