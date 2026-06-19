@@ -417,6 +417,13 @@ class TestGateLogic:
                     "evidence_fills": 10,
                     "unqualified_evidence_fills": 9,
                     "incomplete_qualified_evidence_fills": 1,
+                    "first_provenance_qualified_fill_ts": "2026-06-16T00:50:55+00:00",
+                    "latest_provenance_qualified_fill_ts": "2026-06-18T00:04:00+00:00",
+                    "unqualified_date_counts": {
+                        "2026-04-20": 6,
+                        "2026-05-15": 2,
+                        "2026-05-18": 1,
+                    },
                 },
             },
         )
@@ -429,6 +436,14 @@ class TestGateLogic:
         )
         assert (
             "1 qualified JSONL fill is not part of a complete qualified round trip"
+            in result["round_trip_detail"]
+        )
+        assert (
+            "qualified fill window 2026-06-16T00:50:55+00:00 to "
+            "2026-06-18T00:04:00+00:00"
+        ) in result["round_trip_detail"]
+        assert (
+            "unqualified fill dates 2026-04-20:6, 2026-05-15:2, 2026-05-18:1"
             in result["round_trip_detail"]
         )
 
@@ -496,6 +511,21 @@ class TestGateLogic:
         assert result["paper_history"]["closed_trades"] == 1
         assert result["paper_history"]["all_history_closed_trades"] == 1
         assert result["paper_history"]["qualification"]["unqualified_evidence_fills"] == 0
+        assert (
+            result["paper_history"]["qualification"]["first_provenance_qualified_fill_ts"]
+            == "2026-05-01T00:00:00+00:00"
+        )
+        assert (
+            result["paper_history"]["qualification"]["latest_provenance_qualified_fill_ts"]
+            == "2026-05-01T01:00:00+00:00"
+        )
+        assert (
+            result["paper_history"]["qualification"][
+                "first_completed_qualified_round_trip_close_ts"
+            ]
+            == "2026-05-01T01:00:00+00:00"
+        )
+        assert result["paper_history"]["qualification"]["unqualified_date_counts"] == {}
         assert "(1/10, 9 remaining)" in round_trip_gate["detail"]
 
     def test_paper_gate_rejects_round_trip_with_wrong_timeframe(self, tmp_path):

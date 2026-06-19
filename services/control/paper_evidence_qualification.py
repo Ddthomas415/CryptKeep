@@ -34,6 +34,14 @@ def _explicit_non_sample(value: Any) -> bool:
     return str(value).strip().lower() in {"false", "no", "off"}
 
 
+def _record_ts(fill: dict[str, Any]) -> str:
+    return str(fill.get("timestamp") or fill.get("_logged_at") or "").strip()
+
+
+def _record_date(fill: dict[str, Any]) -> str:
+    return _record_ts(fill)[:10]
+
+
 def _fill_rejection_reasons(fill: dict[str, Any], expected: dict[str, str]) -> list[str]:
     reasons: list[str] = []
     order_id = str(fill.get("order_id") or "").strip()
@@ -120,15 +128,16 @@ def _journal_rows(path: Path, order_ids: set[str]) -> tuple[list[dict[str, Any]]
         con.close()
 
 
-def _completed_round_trip_order_ids(fills: list[dict[str, Any]]) -> tuple[set[str], int]:
+def _completed_round_trip_order_ids(fills: list[dict[str, Any]]) -> tuple[set[str], int, list[str]]:
     completed_order_ids: set[str] = set()
     cycle_order_ids: set[str] = set()
     cycle_qualified = True
     open_qty = 0.0
     completed_round_trips = 0
+    completed_close_timestamps: list[str] = []
     ordered = sorted(
         fills,
-        key=lambda row: str(row.get("timestamp") or row.get("_logged_at") or ""),
+        key=_record_ts,
     )
     for fill in ordered:
         side = str(fill.get("side") or "").strip().lower()
@@ -158,9 +167,11 @@ def _completed_round_trip_order_ids(fills: list[dict[str, Any]]) -> tuple[set[st
                 if cycle_qualified:
                     completed_order_ids.update(cycle_order_ids)
                     completed_round_trips += 1
+                    if close_ts := _record_ts(fill):
+                        completed_close_timestamps.append(close_ts)
                 cycle_order_ids = set()
                 cycle_qualified = True
-    return completed_order_ids, completed_round_trips
+    return completed_order_ids, completed_round_trips, completed_close_timestamps
 
 
 def _qualified_metrics(journal_rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -226,8 +237,10 @@ def qualify_paper_history(
     """Return promotion metrics using only fills with explicit matching provenance."""
     expected = _expected_contract(config)
     annotated_fills: list[dict[str, Any]] = []
+    qualified_fill_timestamps: list[str] = []
     provenance_qualified_fill_count = 0
     rejection_counts: Counter[str] = Counter()
+    unqualified_date_counts: Counter[str] = Counter()
     unqualified_fills = 0
 
     for raw_fill in list(evidence_fills or []):
@@ -238,10 +251,18 @@ def qualify_paper_history(
         if reasons:
             unqualified_fills += 1
             rejection_counts.update(reasons)
+            if date := _record_date(fill):
+                unqualified_date_counts[date] += 1
             continue
         provenance_qualified_fill_count += 1
+        if ts := _record_ts(fill):
+            qualified_fill_timestamps.append(ts)
 
-    qualified_order_ids, completed_evidence_round_trips = _completed_round_trip_order_ids(
+    (
+        qualified_order_ids,
+        completed_evidence_round_trips,
+        completed_close_timestamps,
+    ) = _completed_round_trip_order_ids(
         annotated_fills
     )
 
@@ -274,8 +295,21 @@ def qualify_paper_history(
             "incomplete_qualified_evidence_fills": (
                 provenance_qualified_fill_count - len(qualified_order_ids)
             ),
+            "first_provenance_qualified_fill_ts": (
+                min(qualified_fill_timestamps) if qualified_fill_timestamps else None
+            ),
+            "latest_provenance_qualified_fill_ts": (
+                max(qualified_fill_timestamps) if qualified_fill_timestamps else None
+            ),
+            "first_completed_qualified_round_trip_close_ts": (
+                min(completed_close_timestamps) if completed_close_timestamps else None
+            ),
+            "latest_completed_qualified_round_trip_close_ts": (
+                max(completed_close_timestamps) if completed_close_timestamps else None
+            ),
             "unqualified_evidence_fills": unqualified_fills,
             "unqualified_reason_counts": dict(sorted(rejection_counts.items())),
+            "unqualified_date_counts": dict(sorted(unqualified_date_counts.items())),
             "qualified_order_ids": sorted(qualified_order_ids),
             "missing_journal_order_ids": missing_journal_order_ids,
             "journal_error": journal_error,

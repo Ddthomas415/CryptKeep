@@ -5163,3 +5163,70 @@ Remaining risk:
 - UNVERIFIED: GitHub Actions has not yet run these workflow changes on a PR.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
   independent review sign-off.
+
+## 2026-06-19T01:26:30Z - Paper Gate Provenance Window Reporting
+
+Active role: ENGINEER
+
+Objective:
+- Make the paper promotion gate explain when provenance-clean fill counting
+  began and which historical fill dates remain diagnostic-only.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py --json` reported 8 all-history
+  closed trades but only 1 provenance-qualified round trip for
+  `es_daily_trend_v1`.
+- SHOWN: older JSONL fills on 2026-04-20, 2026-05-15, and 2026-05-18 lacked
+  the required market-data provenance fields.
+- SHOWN: the existing evidence model deliberately keeps unqualified persisted
+  history visible under `paper_history.all_history` while excluding it from
+  promotion thresholds.
+
+What changed:
+- Added first/latest provenance-qualified fill timestamps and first/latest
+  completed qualified round-trip close timestamps to the shared paper evidence
+  qualification payload.
+- Added unqualified fill date counts to the shared qualification payload.
+- Surfaced the qualified fill window and unqualified fill dates in
+  `check_promotion_gates.py` round-trip detail.
+- Surfaced the same diagnostics in `paper_promotion_progress`.
+- Updated `docs/EVIDENCE_MODEL.md` to document that these fields are
+  diagnostic reporting and do not retroactively qualify historical records.
+- Cleaned existing style issues in `scripts/check_promotion_gates.py` that
+  blocked targeted Ruff verification for this touched file.
+
+Why this change:
+- Retroactively counting missing-provenance fills would weaken the promotion
+  gate and contradict the accepted evidence model.
+- The smallest useful change is to make the gate's exclusion logic explicit so
+  operators can see why the counter is not advancing from all-history trades.
+
+Expected outcome:
+- Operators can distinguish all-history trade count from promotion-qualified
+  trade count without manually inspecting JSONL files.
+- Future check-ins should show the clean evidence window and the excluded
+  historical dates directly in gate/progress output.
+- Promotion thresholds remain unchanged.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m py_compile services/control/paper_evidence_qualification.py scripts/check_promotion_gates.py services/control/paper_promotion_progress.py`
+  passed.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py`
+  passed with `44 passed in 0.89s`.
+- SHOWN: `./.venv/bin/python -m ruff check services/control/paper_evidence_qualification.py scripts/check_promotion_gates.py services/control/paper_promotion_progress.py tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py`
+  passed.
+- SHOWN: `git diff --check` passed.
+- SHOWN: live `run_check(stage_override="paper")` round-trip detail now reports
+  the qualified fill window `2026-05-26T00:00:09.788947+00:00` to
+  `2026-06-18T00:04:00.986914+00:00` and unqualified fill dates
+  `2026-04-20:6`, `2026-05-15:2`, `2026-05-18:1`.
+- Full suite was not run at the operator's direction.
+
+Remaining risk:
+- MEDIUM: promotion gate reporting changed, but threshold logic and
+  qualification rules were not changed.
+- SHOWN: remote PR checks had passed for macOS build, Windows build,
+  Governance smoke, CI sanity, GitGuardian, and script-path-integrity at
+  acceptance time; CI validate was still pending.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
+  independent review sign-off.

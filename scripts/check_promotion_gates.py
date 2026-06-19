@@ -29,17 +29,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import yaml
 
-from services.control.deployment_stage import get_current_stage, Stage, stage_summary
 from services.control.cognitive_budget import budget_summary
+from services.control.deployment_stage import Stage, get_current_stage, stage_summary
 from services.control.promotion_thresholds import (
     ES_DAILY_TREND_STRATEGY_ID,
     PAPER_MIN_DAYS,
     PAPER_MIN_ROUND_TRIPS,
 )
-from services.os.app_paths import data_dir
 
 STRATEGY_ID = ES_DAILY_TREND_STRATEGY_ID
-REPO_ROOT = Path(__file__).resolve().parents[1]; CONFIG_PATH = REPO_ROOT / "configs/strategies/es_daily_trend_v1.yaml"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+CONFIG_PATH = REPO_ROOT / "configs/strategies/es_daily_trend_v1.yaml"
 
 
 # ---------------------------------------------------------------------------
@@ -337,6 +337,29 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
                     f"{incomplete_fills} qualified JSONL {noun} not part of a "
                     "complete qualified round trip"
                 )
+            first_qualified_ts = str(
+                qualification.get("first_provenance_qualified_fill_ts") or ""
+            ).strip()
+            latest_qualified_ts = str(
+                qualification.get("latest_provenance_qualified_fill_ts") or ""
+            ).strip()
+            if first_qualified_ts and latest_qualified_ts:
+                clauses.append(
+                    "qualified fill window "
+                    f"{first_qualified_ts} to {latest_qualified_ts}"
+                )
+            unqualified_dates = {
+                str(key): int(value)
+                for key, value in dict(
+                    qualification.get("unqualified_date_counts") or {}
+                ).items()
+                if str(key).strip() and int(value or 0) > 0
+            }
+            if unqualified_dates:
+                date_summary = ", ".join(
+                    f"{date}:{count}" for date, count in sorted(unqualified_dates.items())
+                )
+                clauses.append(f"unqualified fill dates {date_summary}")
             context = f"; {'; '.join(clauses)}" if clauses else ""
             mismatch = (
                 f" (all_history:{all_history_trips}, raw_jsonl:{jsonl_trips}{context})"
@@ -1233,7 +1256,7 @@ def print_report(result: dict) -> None:
     s     = result.get("summary", {})
 
     print(f"\n=== Promotion Gate Check — {STRATEGY_ID} ({stage}) ===")
-    print(f"Spec: docs/strategies/es_daily_trend_v1.md §6\n")
+    print("Spec: docs/strategies/es_daily_trend_v1.md §6\n")
 
     for g in result.get("gates", []):
         icon = "✅" if g["passed"] is True else "❌" if g["passed"] is False else "⬜"
@@ -1243,7 +1266,7 @@ def print_report(result: dict) -> None:
         if g.get("hint") and g["passed"] is not True:
             print(f"       → {g['hint']}")
 
-    print(f"\nSchema validation:")
+    print("\nSchema validation:")
     for record_type, v in result.get("schema", {}).items():
         icon = "✅" if v.get("ok") is True else "❌" if v.get("ok") is False else "⬜"
         print(f"  {icon}  {record_type}: {v.get('note', '')}")

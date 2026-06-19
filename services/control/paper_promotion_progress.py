@@ -91,6 +91,17 @@ def _qualification_explanation(
         for value in list(qualification.get("missing_journal_order_ids") or [])
         if str(value).strip()
     ]
+    first_qualified_ts = str(
+        qualification.get("first_provenance_qualified_fill_ts") or ""
+    ).strip()
+    latest_qualified_ts = str(
+        qualification.get("latest_provenance_qualified_fill_ts") or ""
+    ).strip()
+    unqualified_dates = {
+        str(key): int(value)
+        for key, value in dict(qualification.get("unqualified_date_counts") or {}).items()
+        if str(key).strip() and int(value or 0) > 0
+    }
     excluded_round_trips = max(0, int(all_history_round_trips) - int(qualified_round_trips))
 
     clauses: list[str] = []
@@ -120,6 +131,15 @@ def _qualification_explanation(
             f"{len(missing_journal_order_ids)} qualified evidence {noun} missing from "
             "the persisted trade journal"
         )
+    if first_qualified_ts and latest_qualified_ts:
+        clauses.append(
+            f"qualified fill window is {first_qualified_ts} to {latest_qualified_ts}"
+        )
+    if unqualified_dates:
+        date_summary = ", ".join(
+            f"{date}:{count}" for date, count in sorted(unqualified_dates.items())
+        )
+        clauses.append(f"unqualified fill dates are {date_summary}")
 
     if clauses:
         explanation_text = "; ".join(clauses) + "."
@@ -136,6 +156,15 @@ def _qualification_explanation(
         "unqualified_evidence_fills": unqualified_fills,
         "incomplete_qualified_evidence_fills": incomplete_fills,
         "missing_journal_order_ids": missing_journal_order_ids,
+        "first_provenance_qualified_fill_ts": first_qualified_ts or None,
+        "latest_provenance_qualified_fill_ts": latest_qualified_ts or None,
+        "first_completed_qualified_round_trip_close_ts": (
+            qualification.get("first_completed_qualified_round_trip_close_ts")
+        ),
+        "latest_completed_qualified_round_trip_close_ts": (
+            qualification.get("latest_completed_qualified_round_trip_close_ts")
+        ),
+        "unqualified_date_counts": unqualified_dates,
         "summary_text": explanation_text,
     }
 
