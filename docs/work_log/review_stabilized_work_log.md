@@ -5823,3 +5823,62 @@ Remaining risk:
 - LOW: documentation status can still become stale after the operator runs the
   full post-fix Stage 0 proof.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-19T18:40:27Z - Draft Short-Market Strategy Research Spec
+
+Active role: ENGINEER
+
+Objective:
+- Capture the short-market strategy workstream as a separate research spec
+  before any implementation, configuration, execution, or gate change.
+
+What was found:
+- SHOWN: `docs/strategies/es_daily_trend_v1.md` defines the current target
+  strategy as long/flat only.
+- SHOWN: Priority 12 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` already
+  called for a short-side research spec before implementation.
+- SHOWN: the infrastructure activation audit classifies `funding_extreme`,
+  `open_interest_shift`, and `order_book_imbalance` as research-only or unsafe
+  to enable without data-plumbing and risk proof.
+- SHOWN: repo modules exist for funding, open-interest, order-book, and
+  liquidation-context scaffolding, but they are not the active campaign
+  authority.
+- UNVERIFIED: venue eligibility, compliance constraints, account permissions,
+  margin/borrow support, derivatives access, and strategy profitability.
+
+What changed:
+- Added
+  `docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md`.
+- Updated Priority 12 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to point to
+  the new spec and require independent review before implementation.
+
+Why this change:
+- Short-side work changes tail risk, margin, liquidation, funding/borrow costs,
+  compliance assumptions, and failure modes. It needs a separate research path
+  instead of being treated as an extension of the current long/flat paper
+  campaign.
+- A docs-first spec prevents accidental activation of short, derivatives,
+  leverage, or margin behavior while preserving a concrete next audit target.
+
+Expected outcome:
+- Future short-side work starts with read-only data-quality and replay evidence
+  before any paper simulation or execution path.
+- The active long/flat campaigns remain untouched.
+- The next engineer/auditor has explicit stop conditions for missing venue,
+  compliance, funding, borrow, liquidation, reduce-only, and provenance proof.
+
+Verification:
+- SHOWN: existing backlog and infrastructure audit docs were inspected.
+- SHOWN: repo references to short-side, funding, open-interest, liquidation, and
+  derivatives scaffolding were searched before writing the spec.
+- Tests not run: documentation-only planning change, with no source, config,
+  runtime, gate, or campaign behavior modified.
+
+Remaining risk:
+- HIGH: future short-side implementation would affect financial strategy logic,
+  derivatives/margin assumptions, risk controls, and potential order routing.
+  This change is planning-only and must be independently reviewed before it is
+  used as implementation authority.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
