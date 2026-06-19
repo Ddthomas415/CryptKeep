@@ -351,7 +351,8 @@ Risk:
 
 ## Priority 12 - Short-Market Strategy Research
 
-Status: research spec drafted; pending independent review
+Status: research spec and data feasibility audit drafted; pending independent
+review
 
 Why it matters:
 - The current `es_daily_trend_v1` strategy is long/flat only. It does not
@@ -362,13 +363,17 @@ Why it matters:
 - `docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md`
   defines the separate research path, evidence gates, instrument tracks, data
   requirements, and stop conditions.
+- `docs/checkpoints/short_context_data_feasibility_audit_2026_06_19.md`
+  identifies the existing read-only crypto-edge collector as the safest base
+  and documents missing open-interest, liquidation, order-book-depth,
+  provenance, and storage support.
 
 Next action:
-- Independently review the short-market research spec before any
-  implementation.
-- After review, run a read-only feasibility audit for `funding_extreme`,
-  `open_interest_shift`, `order_book_imbalance`, and the related
-  funding/open-interest/liquidation market-data scaffolding.
+- Independently review the short-market research spec and data feasibility
+  audit before any implementation.
+- After review, the smallest useful implementation is read-only: extend the
+  crypto-edge collector/store with open-interest and order-book-depth rows,
+  per-symbol checks, explicit provenance, and missing-data rejection.
 - Keep all short-side work research-only until separate paper gates, risk
   controls, compliance assumptions, and operator review exist.
 
