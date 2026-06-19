@@ -5589,3 +5589,61 @@ Remaining risk:
   current `master` with targeted tests and independent review where high risk.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   accepted disposition.
+
+## 2026-06-19T17:09:24Z - Add Supervised Soak Status Report
+
+Active role: ENGINEER
+
+Objective:
+- Rebuild the accepted PR #43 supervised-soak reporting idea from current
+  `review-stabilized` without reusing the stale branch or changing campaign
+  control behavior.
+
+What was found:
+- SHOWN: `restore_paper_campaigns.py --status` and the accepted campaign
+  recovery API already provide campaign process status without restoring or
+  starting collectors when `restore=False`.
+- SHOWN: `scripts.check_promotion_gates.run_check()` already returns the paper
+  gate payload needed for operator review.
+- SHOWN: current local campaign state has three configured campaigns running
+  and idle until the next UTC day: `es_daily_trend_v1`, `ema_cross_default`,
+  and `breakout_default`.
+- SHOWN: the paper gate currently reports 1 qualified round trip against 10
+  required, with 8 all-history diagnostic round trips and provenance filtering
+  explaining the difference.
+
+What changed:
+- Added `scripts/report_supervised_soak_status.py`, a read-only operator report
+  that combines supervised paper-campaign status with paper promotion gate
+  status.
+- Added `tests/test_report_supervised_soak_status.py` covering read-only API
+  use, JSON output, strict exit behavior, recommendation generation, and gate
+  summarization.
+- Updated `scripts/SCRIPTS.md` so the new command is visible in the canonical
+  operator script index.
+
+Why this change:
+- The smallest useful rebuild from the stale PR #43 scope is an observational
+  report, not another control loop.
+- This gives the operator one command for campaign and gate state while avoiding
+  high-risk process supervision, live execution, auth, or order-routing changes.
+
+Expected outcome:
+- Operators can run one read-only command to see whether supervised paper
+  campaigns are alive and why the paper promotion gate is or is not ready.
+- Gate confusion around all-history versus qualified provenance round trips is
+  surfaced directly in the report output.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m py_compile scripts/report_supervised_soak_status.py tests/test_report_supervised_soak_status.py` passed before final lint cleanup.
+- SHOWN: `./.venv/bin/python -m ruff check scripts/report_supervised_soak_status.py tests/test_report_supervised_soak_status.py` returned `All checks passed!`.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_report_supervised_soak_status.py tests/test_restore_paper_campaigns.py` returned `6 passed in 0.17s`.
+- SHOWN: `./.venv/bin/python scripts/report_supervised_soak_status.py --json` returned `ok=true`, `all_running=true`, `campaign_count=3`, `running_count=3`, and the current paper gate details.
+- SHOWN: `git diff --check` passed.
+- Full suite was not run because the user explicitly asked to stop running
+  full tests for these incremental changes.
+
+Remaining risk:
+- MEDIUM: this is operator-reporting code that reads live local state, but it
+  does not start, stop, restore, route, or place anything.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
