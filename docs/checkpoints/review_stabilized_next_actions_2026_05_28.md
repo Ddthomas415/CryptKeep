@@ -558,7 +558,7 @@ Risk:
 
 ## Priority 18 - PR #3 Cleanup/Disposition
 
-Status: disposition accepted; close PR #3
+Status: complete as of 2026-06-19; PR #3 closed after accepted disposition
 
 Why it matters:
 - PR #3 is still open, dirty against `master`, and not tracked by the prior
@@ -577,16 +577,18 @@ Current evidence:
 - SHOWN: the 54 branch-only commits are accounted for in
   `docs/checkpoints/pr3_cleanup_disposition_2026_06_19.md` as 52 non-merge
   commits plus 2 merge commits.
+- SHOWN: PR #3 was closed on 2026-06-19 after the accepted disposition
+  checkpoint was merged via PR #62.
+- SHOWN: only PR #42 and PR #43 remain open after the closure check.
 - SHOWN: the branch touches high-risk execution and live reconciliation files
   including `services/execution/live_reconciler.py`,
   `services/execution/intent_consumer.py`, `services/execution/paper_engine.py`,
   `storage/intent_queue_sqlite.py`, and `storage/live_intent_queue_sqlite.py`.
 
 Next action:
-- Do not merge PR #3 directly.
-- If accepted, close PR #3 with a comment linking the disposition checkpoint.
-- Rebuild only commits marked `rebuild` as narrow current-master PRs with
-  targeted tests.
+- Rebuild only commits marked `rebuild` in the accepted disposition checkpoint
+  as narrow current-master PRs with targeted tests.
+- Do not reopen or merge PR #3 directly.
 
 Proof required:
 - Commit-by-commit disposition table: `superseded`, `rebuild`, or `drop`.
