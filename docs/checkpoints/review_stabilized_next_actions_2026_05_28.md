@@ -352,7 +352,7 @@ Risk:
 ## Priority 12 - Short-Market Strategy Research
 
 Status: read-only collector/store extension accepted; isolated sample proof
-complete
+complete; live-public proof partially complete
 
 Why it matters:
 - The current `es_daily_trend_v1` strategy is long/flat only. It does not
@@ -374,13 +374,20 @@ Why it matters:
   `/private/tmp/cbp_crypto_edge_context_sample_proof_20260619.sqlite` with
   `research_only=true`, `execution_enabled=false`, and all five row families
   present: funding, open interest, basis, quotes, and order books.
+- Live-public proof completed against
+  `/private/tmp/cbp_crypto_edge_context_live_public_proof_20260619.sqlite` with
+  `research_only=true` and `execution_enabled=false`. Coinbase/Kraken quotes
+  and Coinbase order-book rows were collected. Binance funding, open-interest,
+  and basis rows were not collected because the repo's Binance guard blocks
+  Binance unless `CBP_VENUE` and `CBP_ALLOW_BINANCE=1` explicitly allow it.
 
 Next action:
-- Optional next proof is a read-only public-data collection run using
-  `sample_data/crypto_edges/live_collector_plan.json`; do not run this as a
-  long-lived loop unless separately requested.
+- Optional next proof is a guard-enabled Binance read-only public-data run in a
+  temp DB if derivatives context is needed. Do not run this as a long-lived loop
+  and do not treat it as venue/compliance approval.
 - Do not use the new rows in replay analysis until the public-data proof is
-  accepted or the replay is explicitly limited to deterministic sample data.
+  accepted for the relevant row family, or the replay is explicitly limited to
+  deterministic sample data.
 - Keep all short-side work research-only until separate paper gates, risk
   controls, compliance assumptions, and operator review exist.
 
