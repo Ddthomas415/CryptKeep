@@ -207,4 +207,13 @@ def test_load_paper_promotion_progress_does_not_flag_qualified_history(
     assert out["qualification_explanation"]["has_excluded_history"] is False
     assert out["qualification_explanation"]["excluded_all_history_round_trips"] == 0
     assert out["qualification_explanation"]["unqualified_evidence_fills"] == 0
+    assert (
+        out["qualification_explanation"]["first_provenance_qualified_fill_ts"]
+        == "2026-06-01T01:00:00+00:00"
+    )
+    assert (
+        out["qualification_explanation"]["latest_completed_qualified_round_trip_close_ts"]
+        == "2026-06-02T01:00:00+00:00"
+    )
+    assert out["qualification_explanation"]["unqualified_date_counts"] == {}
     assert "diagnostic only" not in out["summary_text"]

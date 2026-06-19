@@ -62,6 +62,10 @@ The shared `paper_promotion_progress` output also includes a structured
 summary whenever all-history round trips are excluded, evidence fills fail the
 provenance contract, or qualified fills do not form a complete round trip. This
 is reporting only and does not retroactively qualify historical records.
+The qualification payload also exposes first/latest provenance-qualified fill
+timestamps, first/latest completed qualified round-trip close timestamps, and
+date counts for unqualified fills so operators can see when clean gate-counting
+began and which historical dates remain diagnostic-only.
 
 ---
 
