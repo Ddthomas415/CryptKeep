@@ -351,8 +351,8 @@ Risk:
 
 ## Priority 12 - Short-Market Strategy Research
 
-Status: read-only collector/store extension implemented; pending independent
-review
+Status: read-only collector/store extension accepted; isolated sample proof
+complete
 
 Why it matters:
 - The current `es_daily_trend_v1` strategy is long/flat only. It does not
@@ -367,21 +367,28 @@ Why it matters:
   identifies the existing read-only crypto-edge collector as the safest base
   and documents missing open-interest, liquidation, order-book-depth,
   provenance, and storage support.
-- Commit pending review extends the crypto-edge collector/store/report path for
+- PR #72 extends the crypto-edge collector/store/report path for
   read-only `open_interest` and `order_books` rows without changing strategy
   routing, paper execution, promotion gates, credentials, or live behavior.
+- Isolated sample proof completed against
+  `/private/tmp/cbp_crypto_edge_context_sample_proof_20260619.sqlite` with
+  `research_only=true`, `execution_enabled=false`, and all five row families
+  present: funding, open interest, basis, quotes, and order books.
 
 Next action:
-- Independently review the read-only collector/store implementation.
-- After acceptance, run only a read-only sample or public-data collection proof
-  before using the new rows in any replay analysis.
+- Optional next proof is a read-only public-data collection run using
+  `sample_data/crypto_edges/live_collector_plan.json`; do not run this as a
+  long-lived loop unless separately requested.
+- Do not use the new rows in replay analysis until the public-data proof is
+  accepted or the replay is explicitly limited to deterministic sample data.
 - Keep all short-side work research-only until separate paper gates, risk
   controls, compliance assumptions, and operator review exist.
 
 Risk:
 - HIGH: short exposure has different tail-risk, margin, liquidation, and
   operational failure modes than long/flat paper trading.
-- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+- Acceptance state: ACCEPTED by human operator review on 2026-06-19 after PR
+  #72 checks passed and the merge landed on `master` as `977ea9c3`.
 
 ## Priority 13 - Pattern And Hybrid Strategy Roadmap
 
