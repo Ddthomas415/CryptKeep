@@ -5419,3 +5419,51 @@ Remaining risk:
   independent review.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   independent review sign-off.
+
+## 2026-06-19T02:17:25Z - Close PR #3 After Accepted Disposition
+
+Active role: GATE
+
+Objective:
+- Complete the accepted PR #3 disposition path by merging the disposition
+  artifact, closing stale PR #3, and recording the final state.
+
+What was found:
+- SHOWN: PR #62 was accepted by human operator review and its checks passed.
+- SHOWN: PR #62 merged to `master` as `7e8fb6155`.
+- SHOWN: `review-stabilized` was fast-forwarded to `origin/master` and pushed.
+- SHOWN: PR #3 was still open after PR #62 merged.
+
+What changed:
+- Added PR #3 comments linking the accepted disposition checkpoint and PR #62.
+- Closed PR #3 without merging it.
+- Updated Priority 18 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to mark the
+  PR #3 cleanup/disposition task complete.
+
+Why this change:
+- The accepted disposition says PR #3 must not be merged directly and should be
+  closed after preserving its branch-only commit decisions.
+- Keeping PR #3 open after accepted disposition would recreate stale backlog
+  noise and make it look like an active merge candidate.
+
+Expected outcome:
+- PR #3 is no longer open backlog.
+- Remaining useful PR #3 content must be rebuilt from current `master` using
+  the accepted disposition groups.
+
+Verification:
+- SHOWN: `gh pr view 3 --json number,state,closed,url,title` returned
+  `state=CLOSED`, `closed=true`.
+- SHOWN: `gh pr list --state open --json ...` returned only PR #42 and PR #43.
+- SHOWN: `origin/master...origin/review-stabilized` reported `0 / 0`.
+- SHOWN: `restore_paper_campaigns.py --status` earlier in this gate cycle
+  reported all three paper campaigns running and idle for the next UTC day.
+- Tests were not run because this is a PR/disposition documentation update.
+
+Remaining risk:
+- HIGH: branch closure does not validate any old PR #3 execution fix. Any
+  still-needed fix must be rebuilt from current `master` with targeted tests
+  and independent review.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
+  accepted disposition.
