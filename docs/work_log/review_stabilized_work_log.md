@@ -5882,3 +5882,65 @@ Remaining risk:
   This change is planning-only and must be independently reviewed before it is
   used as implementation authority.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-19T18:44:46Z - Audit Short Context Data Feasibility
+
+Active role: ENGINEER
+
+Objective:
+- Convert the accepted short-market research spec's next action into a
+  read-only feasibility audit of the existing funding, open-interest,
+  liquidation, and order-book context surfaces.
+
+What was found:
+- SHOWN: `services/analytics/crypto_edge_collector.py` is the safest existing
+  collector path because it returns `research_only=True` and
+  `execution_enabled=False`.
+- SHOWN: the collector and store currently cover funding, basis, and quotes,
+  not open interest, liquidation, or order-book-depth/imbalance rows.
+- SHOWN: `services/market_data/market_intelligence.py` has open-interest
+  collection and liquidation scaffolding, but silently skips some failures and
+  marks scaffold liquidation output under an `ok=True` wrapper.
+- SHOWN: `services/market_data/order_book_intelligence.py` computes imbalance
+  and spread/depth fields, but failed symbols are omitted instead of preserved
+  as checks.
+- SHOWN: `funding_extreme` and `open_interest_shift` exist in presets/config
+  support, but the active `strategy_registry.py` does not route those context
+  modules.
+- UNVERIFIED: venue eligibility, account permissions, compliance assumptions,
+  data stability, and profitability for any short/context strategy.
+
+What changed:
+- Added
+  `docs/checkpoints/short_context_data_feasibility_audit_2026_06_19.md`.
+- Updated Priority 12 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to reference
+  the audit and define the smallest next implementation as read-only collector
+  and storage extension.
+
+Why this change:
+- The short-market research spec called for a read-only feasibility audit before
+  implementation.
+- The repo already has multiple overlapping context-data surfaces; the audit
+  selects the safer base and documents why the other surfaces are not yet
+  replay-authoritative.
+
+Expected outcome:
+- Future short/context work starts by extending read-only data collection and
+  storage, not by routing context signals into paper or live execution.
+- Missing funding, open-interest, liquidation, spread, or depth data must be
+  explicit instead of silently treated as neutral.
+
+Verification:
+- SHOWN: inspected context strategy modules, presets/config support, active
+  strategy registry, crypto-edge collector, market-intelligence scaffolding,
+  order-book intelligence, collector scripts, sample plans, storage, and tests.
+- Tests not run: documentation-only audit change with no source, config,
+  runtime, gate, or campaign behavior modified.
+
+Remaining risk:
+- HIGH: future implementation would expand research inputs for financial
+  strategy selection and may later affect short-side replay or paper
+  simulation. This audit is documentation-only and must be independently
+  reviewed before implementation authority.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
