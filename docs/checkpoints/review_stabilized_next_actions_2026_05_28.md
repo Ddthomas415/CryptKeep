@@ -351,7 +351,7 @@ Risk:
 
 ## Priority 12 - Short-Market Strategy Research
 
-Status: pending research only
+Status: research spec drafted; pending independent review
 
 Why it matters:
 - The current `es_daily_trend_v1` strategy is long/flat only. It does not
@@ -359,18 +359,23 @@ Why it matters:
 - A short-market strategy could improve regime coverage, but it changes the
   risk profile materially and must not be treated as a small tweak to
   `sma_200_trend`.
+- `docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md`
+  defines the separate research path, evidence gates, instrument tracks, data
+  requirements, and stop conditions.
 
 Next action:
-- Create a separate short-side research spec before any implementation.
-- Define allowed instruments, borrow/margin assumptions, stop behavior,
-  max loss, liquidation protection, short-specific kill-switch behavior, and
-  whether the strategy is spot-compatible or requires derivatives.
-- Keep all short-side work research/paper-only until separate paper gates,
-  risk controls, and operator review exist.
+- Independently review the short-market research spec before any
+  implementation.
+- After review, run a read-only feasibility audit for `funding_extreme`,
+  `open_interest_shift`, `order_book_imbalance`, and the related
+  funding/open-interest/liquidation market-data scaffolding.
+- Keep all short-side work research-only until separate paper gates, risk
+  controls, compliance assumptions, and operator review exist.
 
 Risk:
 - HIGH: short exposure has different tail-risk, margin, liquidation, and
   operational failure modes than long/flat paper trading.
+- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
 
 ## Priority 13 - Pattern And Hybrid Strategy Roadmap
 
