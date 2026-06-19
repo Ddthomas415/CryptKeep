@@ -5225,5 +5225,8 @@ Verification:
 Remaining risk:
 - MEDIUM: promotion gate reporting changed, but threshold logic and
   qualification rules were not changed.
-- UNVERIFIED: no remote CI has run this change yet.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- SHOWN: remote PR checks had passed for macOS build, Windows build,
+  Governance smoke, CI sanity, GitGuardian, and script-path-integrity at
+  acceptance time; CI validate was still pending.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
+  independent review sign-off.
