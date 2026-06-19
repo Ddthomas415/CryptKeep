@@ -40,6 +40,13 @@ def test_run_paper_strategy_evidence_collector_shows_status(monkeypatch, capsys)
     assert out["pid"] == 67890
 
 
+def test_pullback_recovery_defaults_to_pullback_session_strategy_id() -> None:
+    assert (
+        script._session_strategy_id(strategies=("pullback_recovery",))
+        == "pullback_recovery_default"
+    )
+
+
 def test_start_detached_daily_loop_preserves_args_and_verifies_pid(monkeypatch, tmp_path) -> None:
     seen: dict[str, object] = {}
     statuses = iter(

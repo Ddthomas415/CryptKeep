@@ -70,6 +70,20 @@ def test_cfg_uses_canonical_breakout_strategy(monkeypatch, tmp_path):
     assert cfg["strategy"]["donchian_len"] == 20
 
 
+def test_cfg_uses_canonical_pullback_recovery_strategy(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STRATEGY_NAME", "pullback")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "pullback_recovery"
+    assert cfg["strategy"]["name"] == "pullback_recovery"
+    assert cfg["strategy_preset"] == "pullback_recovery_default"
+    assert cfg["strategy"]["trend_sma_period"] == 50
+    assert cfg["min_bars"] >= 55
+
+
 def test_cfg_honors_env_min_bars_override_without_going_below_required_history(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STRATEGY_NAME", "ema_cross")
     monkeypatch.setenv("CBP_STRATEGY_MIN_BARS", "28")

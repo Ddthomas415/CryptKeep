@@ -1,17 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-# CBP_BOOTSTRAP_SYS_PATH
-import sys
-from pathlib import Path
-
-try:
-    from _bootstrap import add_repo_root_to_syspath
-except ModuleNotFoundError:
-    from scripts._bootstrap import add_repo_root_to_syspath
-
-ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
-
 import argparse
 import json
 import logging
@@ -20,7 +9,18 @@ import subprocess
 import time
 from datetime import datetime, timezone
 
-from services.analytics.paper_strategy_evidence_service import (
+# CBP_BOOTSTRAP_SYS_PATH
+import sys
+from pathlib import Path
+
+try:
+    from _bootstrap import add_repo_root_to_syspath  # noqa: E402
+except ModuleNotFoundError:
+    from scripts._bootstrap import add_repo_root_to_syspath  # noqa: E402
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
+
+from services.analytics.paper_strategy_evidence_service import (  # noqa: E402
     PaperStrategyEvidenceServiceCfg,
     _clear_pid_state,
     _write_pid_state,
@@ -30,16 +30,17 @@ from services.analytics.paper_strategy_evidence_service import (
     run_campaign,
     stop_file,
 )
-from services.admin.kill_switch import get_state as get_kill_switch_state
-from services.control.deployment_stage import get_current_stage
-from services.os.app_paths import data_dir, runtime_dir
-from services.strategies.evidence_logger import EvidenceLogger
+from services.admin.kill_switch import get_state as get_kill_switch_state  # noqa: E402
+from services.control.deployment_stage import get_current_stage  # noqa: E402
+from services.os.app_paths import data_dir, runtime_dir  # noqa: E402
+from services.strategies.evidence_logger import EvidenceLogger  # noqa: E402
 
 _DEFAULT_SESSION_STRATEGY_ID_BY_STRATEGY = {
     "sma_200_trend": "es_daily_trend_v1",
     "ema_cross": "ema_cross_default",
     "mean_reversion_rsi": "mean_reversion_default",
     "breakout_donchian": "breakout_default",
+    "pullback_recovery": "pullback_recovery_default",
     "momentum": "momentum_default",
     "volatility_reversal": "volatility_reversal_default",
     "gap_fill": "gap_fill_default",

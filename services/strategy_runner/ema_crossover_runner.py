@@ -57,22 +57,23 @@ _STRATEGY_ALIASES = {
     "breakout": "breakout_donchian",
     "breakout_donchian": "breakout_donchian",
     "donchian": "breakout_donchian",
+    "pullback": "pullback_recovery",
+    "pullback_recovery": "pullback_recovery",
     "momentum": "momentum",
     "volatility_reversal": "volatility_reversal",
     "gap_fill": "gap_fill",
     "breakout_volume": "breakout_volume",
-    "sma_200_trend": "sma_200_trend",
 }
 _DEFAULT_PRESET_BY_STRATEGY = {
     "ema_cross": "ema_cross_default",
     "mean_reversion_rsi": "mean_reversion_default",
     "breakout_donchian": "breakout_default",
+    "pullback_recovery": "pullback_recovery_default",
     "sma_200_trend": "es_daily_trend_v1",
     "momentum": "momentum_default",
     "volatility_reversal": "volatility_reversal_default",
     "gap_fill": "gap_fill_default",
     "breakout_volume": "breakout_volume_default",
-    "sma_200_trend": "es_daily_trend_v1",
 }
 _EMA_FIELDS = (
     "ema_fast",
@@ -104,6 +105,19 @@ _BREAKOUT_FIELDS = (
     "min_channel_width_pct",
     "breakout_buffer_pct",
     "require_directional_confirmation",
+)
+
+_PULLBACK_RECOVERY_FIELDS = (
+    "fast_sma_period",
+    "trend_sma_period",
+    "rsi_period",
+    "min_pullback_pct",
+    "max_pullback_pct",
+    "rsi_reentry_max",
+    "rebound_confirm_pct",
+    "trend_reclaim_tolerance_pct",
+    "exit_rsi",
+    "stop_below_trend_sma",
 )
 
 _MOMENTUM_FIELDS = (
@@ -304,6 +318,11 @@ def _legacy_strategy_params(s: dict, strategy_name: str) -> dict:
             if field in s:
                 params[field] = s.get(field)
         return params
+    if strategy_name == "pullback_recovery":
+        for field in _PULLBACK_RECOVERY_FIELDS:
+            if field in s:
+                params[field] = s.get(field)
+        return params
     if strategy_name == "momentum":
         for field in _MOMENTUM_FIELDS:
             if field in s:
@@ -382,6 +401,13 @@ def _required_history(strategy_block: dict) -> int:
         return max(
             int(strategy_block.get("donchian_len", 20) or 20) + 2,
             int(strategy_block.get("filter_window", 0) or 0) + 2,
+            5,
+        )
+    if name == "pullback_recovery":
+        return max(
+            int(strategy_block.get("fast_sma_period", 20) or 20) + 2,
+            int(strategy_block.get("trend_sma_period", 50) or 50) + 5,
+            int(strategy_block.get("rsi_period", 14) or 14) + 2,
             5,
         )
     if name == "sma_200_trend":
