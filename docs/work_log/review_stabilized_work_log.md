@@ -5702,3 +5702,77 @@ Remaining risk:
   reviewed.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   independent review sign-off.
+
+## 2026-06-19T18:19:38Z - Fix Pullback Recovery Paper Attribution
+
+Active role: ENGINEER
+
+Objective:
+- Run the accepted Stage 0 isolated `pullback_recovery_default` proof and fix
+  the attribution defect it exposed without changing active campaign manifests
+  or canonical paper-gate policy.
+
+What was found:
+- SHOWN: the accepted Stage 0 one-shot run completed with
+  `strategy=pullback_recovery`, no fills, and no canonical `sma_200_trend`
+  count change.
+- SHOWN: that run reported `strategy_preset=ema_cross_default`, even though
+  the session evidence wrote under `pullback_recovery_default`.
+- SHOWN: `--status` then searched
+  `data/evidence/pullback_recovery` and reported `jsonl_evidence.exists=false`
+  while the actual session artifact existed under
+  `data/evidence/pullback_recovery_default`.
+- SHOWN: `pullback_recovery` was missing from the collector default
+  session-strategy map and from the strategy runner alias/default-preset map.
+
+What changed:
+- Added `pullback_recovery -> pullback_recovery_default` to
+  `scripts/run_paper_strategy_evidence_collector.py`.
+- Added `pullback`/`pullback_recovery` aliases and
+  `pullback_recovery_default` default preset mapping to
+  `services/strategy_runner/ema_crossover_runner.py`.
+- Added pullback recovery legacy parameter forwarding and required-history
+  calculation in the strategy runner.
+- Added targeted tests proving default session strategy ID and runner preset
+  attribution for pullback recovery.
+- Cleaned the touched collector bootstrap import ordering and removed duplicate
+  `sma_200_trend` dictionary keys that ruff surfaced in the touched runner.
+
+Why this change:
+- The Stage 0 proof cannot be accepted while runtime status attributes the
+  strategy to `ema_cross_default`; monitor, JSONL summary, and future campaign
+  accounting would point at the wrong evidence surface.
+- Mapping the strategy to its existing preset is the smallest coherent fix and
+  avoids changing strategy logic, order routing, gates, or active campaign
+  configuration.
+
+Expected outcome:
+- Future `pullback_recovery` paper runs report
+  `strategy_preset=pullback_recovery_default`.
+- Runtime status and JSONL evidence summaries look under the same
+  `pullback_recovery_default` evidence directory used by session logging.
+- The accepted Stage 0 proof can be rerun for review without contaminating
+  canonical `es_daily_trend_v1` promotion evidence.
+
+Verification:
+- SHOWN: the initial accepted Stage 0 command completed with
+  `status=completed`, `strategy=pullback_recovery`, no fills, and
+  `strategy_preset=ema_cross_default`, exposing the defect.
+- SHOWN: post-run canonical `.cbp_state/data/trade_journal.sqlite` counts kept
+  `sma_200_trend` at `16` fills, `8` buys, and `8` sells.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_run_paper_strategy_evidence_collector.py` returned `38 passed in 0.82s`.
+- SHOWN: `./.venv/bin/python -m ruff check scripts/run_paper_strategy_evidence_collector.py services/strategy_runner/ema_crossover_runner.py tests/test_strategy_runtime_runner.py tests/test_run_paper_strategy_evidence_collector.py` returned `All checks passed!`.
+- SHOWN: a short isolated fix-check using
+  `CBP_STATE_DIR=.cbp_state_challengers/pullback_recovery_default_fixcheck`
+  completed with `strategy_preset=pullback_recovery_default` and
+  `jsonl_evidence.exists=true`.
+- SHOWN: `git diff --check` passed.
+- Full suite was not run because the operator requested targeted checks instead
+  of broad full-suite runs for incremental changes.
+
+Remaining risk:
+- HIGH: this touches paper evidence attribution and strategy runner selection
+  for a financial strategy path. The implementation must be independently
+  reviewed before acceptance.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
+  independent review sign-off.
