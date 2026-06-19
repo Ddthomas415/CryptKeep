@@ -247,7 +247,7 @@ Risk:
 
 ## Priority 8 - PR #42 Decision
 
-Status: audited; do not merge directly
+Status: superseded by accepted PR #43 disposition; close PR #42
 
 Current evidence:
 - SHOWN on 2026-06-19: PR #42 remains a draft branch targeting `master`.
@@ -257,11 +257,12 @@ Current evidence:
 - SHOWN: the 27 branch-only commits are the early runtime-hardening, AI alert
   monitor, multi-symbol, and safe-pipeline commits that also appear in PR #43's
   larger branch history.
+- SHOWN: `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
+  treats PR #42 as superseded by the broader PR #43 disposition path.
 
 Next action:
 - Treat PR #42 as superseded by the broader PR #43 extraction task.
-- After the unique runtime-monitoring work is rebuilt from clean `master`, close
-  PR #42 with a comment pointing to the replacement PR or task record.
+- Close PR #42 with a comment pointing to the accepted disposition checkpoint.
 
 Risk:
 - MEDIUM to HIGH: upstream branch divergence and background-job/runtime
@@ -269,7 +270,7 @@ Risk:
 
 ## Priority 9 - Rebuild PR #43 From Clean Base
 
-Status: audited; rebuild required
+Status: disposition accepted; close PR #43
 
 Current evidence:
 - SHOWN on 2026-06-19: PR #43 targets `master`, is not draft, and has merge
@@ -281,9 +282,14 @@ Current evidence:
 - SHOWN: much of the desired paper-monitoring concept has since been rebuilt on
   `review-stabilized`; remaining PR #43 content must be extracted, not merged
   wholesale.
+- SHOWN: `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
+  accounts for all 98 raw branch-only commits and separates `rebuild`,
+  `superseded`, and `drop` decisions.
 
 Next action:
-- Split unique content into focused rebuilds from current `master`:
+- Close PR #43 and PR #42 with comments linking the accepted disposition
+  checkpoint.
+- Rebuild only accepted `rebuild` groups from current `master`:
   1. AI alert monitor and operator watch layer.
   2. Managed multi-symbol paper runtime.
   3. Safe pipeline wrapper and startup hardening.

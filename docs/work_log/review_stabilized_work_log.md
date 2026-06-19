@@ -5467,3 +5467,73 @@ Remaining risk:
   and independent review.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   accepted disposition.
+
+## 2026-06-19T16:49:44Z - Draft PR #43 Operator Observability Disposition
+
+Active role: AUDITOR
+
+Objective:
+- Convert stale PR #43 from a dirty aggregate runtime branch into an explicit
+  rebuild/supersession/drop plan before closure or implementation.
+
+What was found:
+- SHOWN: PR #43 is open, targets `master`, is not draft, and reports
+  `mergeStateStatus=DIRTY`.
+- SHOWN: PR #42 is still open, draft, dirty, and its branch-only commits are a
+  subset of the broader PR #43 history.
+- SHOWN: `origin/master...origin/fix/p1-pre-live` reports `232 / 98`.
+- SHOWN: `git cherry -v origin/master origin/fix/p1-pre-live` shows 96
+  patch-unique commits and 2 patch-equivalent commits already represented on
+  `master`.
+- SHOWN: patch-unique PR #43 history contains 95 non-merge commits and 1 merge
+  commit.
+- SHOWN: current `master` has `scripts/run_paper_sim_monitor.py` and
+  `services/analytics/paper_sim_monitor.py`.
+- SHOWN: current `master` does not have `scripts/run_ai_alert_monitor.py`,
+  `scripts/run_ai_oversight_watch.py`,
+  `services/ai_copilot/alert_monitor.py`,
+  `services/ai_copilot/oversight_watch.py`,
+  `services/runtime/managed_symbol_config.py`, or
+  `services/runtime/managed_symbol_selection.py`.
+
+What changed:
+- Added
+  `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
+  with a 98-row disposition table.
+- Updated Priority 8 to mark PR #42 as superseded by the PR #43 disposition
+  path, pending independent review.
+- Updated Priority 9 to link the PR #43 disposition and make direct merge
+  explicitly unacceptable.
+
+Why this change:
+- PR #43 mixes useful operator observability ideas with high-risk runtime,
+  dashboard, live-guard/auth, evidence, and campaign behavior.
+- Direct merge would reintroduce stale branch history into the canonical line.
+- The useful work should be rebuilt as focused current-master PRs: AI operator
+  alerting, safe runtime wrappers, managed multi-symbol paper runtime, and
+  supervised soak reporting.
+
+Expected outcome:
+- After independent acceptance, PR #43 and superseded PR #42 can be closed with
+  comments linking the disposition checkpoint.
+- Future implementation should rebuild only the commits marked `rebuild`.
+
+Verification:
+- SHOWN: `git rev-list --left-right --count origin/master...origin/fix/p1-pre-live`
+  returned `232 / 98`.
+- SHOWN: `git rev-list --right-only --cherry-pick --no-merges --count
+  origin/master...origin/fix/p1-pre-live` returned `95`.
+- SHOWN: `git rev-list --right-only --cherry-pick --merges --count
+  origin/master...origin/fix/p1-pre-live` returned `1`.
+- SHOWN: `rg -c '^\\| `' against the new disposition document returned `98`.
+- SHOWN: targeted file existence checks confirmed current paper-monitor files
+  exist and old PR #43 AI alert/oversight/managed-symbol files are absent.
+- SHOWN: `git diff --check` passed.
+- Tests were not run because this is an audit/documentation-only change.
+
+Remaining risk:
+- HIGH: this audit does not prove behavior equivalence between PR #43 and
+  current `master`; rebuilt runtime/monitoring work still requires targeted
+  tests and independent review.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
+  independent review sign-off.
