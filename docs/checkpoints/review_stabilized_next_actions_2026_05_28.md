@@ -247,7 +247,7 @@ Risk:
 
 ## Priority 8 - PR #42 Decision
 
-Status: superseded by PR #43 disposition draft; pending independent review
+Status: superseded by accepted PR #43 disposition; close PR #42
 
 Current evidence:
 - SHOWN on 2026-06-19: PR #42 remains a draft branch targeting `master`.
@@ -262,8 +262,7 @@ Current evidence:
 
 Next action:
 - Treat PR #42 as superseded by the broader PR #43 extraction task.
-- If the PR #43 disposition is independently accepted, close PR #42 with a
-  comment pointing to the accepted disposition checkpoint.
+- Close PR #42 with a comment pointing to the accepted disposition checkpoint.
 
 Risk:
 - MEDIUM to HIGH: upstream branch divergence and background-job/runtime
@@ -271,7 +270,7 @@ Risk:
 
 ## Priority 9 - Rebuild PR #43 From Clean Base
 
-Status: disposition drafted; pending independent review
+Status: disposition accepted; close PR #43
 
 Current evidence:
 - SHOWN on 2026-06-19: PR #43 targets `master`, is not draft, and has merge
@@ -288,8 +287,7 @@ Current evidence:
   `superseded`, and `drop` decisions.
 
 Next action:
-- Independently review the PR #43 disposition table.
-- If accepted, close PR #43 and PR #42 with comments linking the disposition
+- Close PR #43 and PR #42 with comments linking the accepted disposition
   checkpoint.
 - Rebuild only accepted `rebuild` groups from current `master`:
   1. AI alert monitor and operator watch layer.
