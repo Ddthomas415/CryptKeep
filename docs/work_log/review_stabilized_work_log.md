@@ -5537,3 +5537,55 @@ Remaining risk:
   tests and independent review.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   independent review sign-off.
+
+## 2026-06-19T17:01:53Z - Close PR #43 And Superseded PR #42
+
+Active role: GATE
+
+Objective:
+- Complete the accepted PR #43 disposition path by merging the disposition
+  artifact, closing stale PR #43, closing superseded PR #42, and recording the
+  final state.
+
+What was found:
+- SHOWN: PR #64 was accepted by human operator review and all GitHub checks
+  passed.
+- SHOWN: PR #64 merged to `master` as `a4539d37b`.
+- SHOWN: `review-stabilized` was fast-forwarded to `origin/master` and pushed.
+- SHOWN: PR #43 and PR #42 were still open after PR #64 merged.
+
+What changed:
+- Added a PR #43 comment linking the accepted disposition checkpoint and PR #64.
+- Closed PR #43 without merging it.
+- Added a PR #42 comment marking it superseded by the accepted PR #43
+  disposition.
+- Closed PR #42 without merging it.
+- Updated Priorities 8 and 9 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to mark both
+  stale PR tasks complete.
+
+Why this change:
+- The accepted disposition says PR #43 must not be merged directly and PR #42
+  is superseded by PR #43's broader disposition path.
+- Keeping either PR open after accepted disposition would leave stale backlog
+  noise and make them look like active merge candidates.
+
+Expected outcome:
+- There are no open stale PRs.
+- Future implementation work should rebuild only the accepted PR #43
+  `rebuild` groups from current `master`.
+
+Verification:
+- SHOWN: `gh pr view 43 --json number,state,closed,url,title` returned
+  `state=CLOSED`, `closed=true`.
+- SHOWN: `gh pr view 42 --json number,state,closed,url,title` returned
+  `state=CLOSED`, `closed=true`.
+- SHOWN: `gh pr list --state open --json ...` returned `[]`.
+- Tests were not run because this is a PR/disposition documentation update.
+
+Remaining risk:
+- HIGH: branch closure does not validate any old PR #43/#42 runtime or
+  monitoring implementation. Any still-needed feature must be rebuilt from
+  current `master` with targeted tests and independent review where high risk.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
+  accepted disposition.
