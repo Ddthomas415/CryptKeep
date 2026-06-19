@@ -1,0 +1,14 @@
+[
+  {
+    "symbol": "BTC/USDT:USDT",
+    "venue": "binance",
+    "open_interest": 126543.25,
+    "price_change_pct": -1.2
+  },
+  {
+    "symbol": "ETH/USDT:USDT",
+    "venue": "binance",
+    "open_interest": 98432.5,
+    "price_change_pct": 0.4
+  }
+]

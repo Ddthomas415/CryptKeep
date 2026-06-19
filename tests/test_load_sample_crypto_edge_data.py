@@ -22,7 +22,9 @@ def test_load_sample_crypto_edge_data_writes_bundled_rows(tmp_path, monkeypatch,
     out = json.loads(capsys.readouterr().out)
     assert out["ok"] is True
     assert out["funding_count"] >= 1
+    assert out["open_interest_count"] >= 1
     assert out["basis_count"] >= 1
     assert out["quote_count"] >= 1
+    assert out["order_book_count"] >= 1
     assert out["report"]["has_any_data"] is True
     assert out["report"]["research_only"] is True

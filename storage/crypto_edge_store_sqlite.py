@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
 import uuid
 from dataclasses import dataclass
@@ -63,6 +64,43 @@ CREATE INDEX IF NOT EXISTS idx_quote_snapshots_capture_ts
   ON quote_snapshots(capture_ts DESC, id DESC);
 CREATE INDEX IF NOT EXISTS idx_quote_snapshots_snapshot_id
   ON quote_snapshots(snapshot_id, id);
+
+CREATE TABLE IF NOT EXISTS open_interest_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  snapshot_id TEXT NOT NULL,
+  capture_ts TEXT NOT NULL,
+  source TEXT NOT NULL,
+  symbol TEXT NOT NULL,
+  venue TEXT NOT NULL,
+  open_interest REAL NOT NULL,
+  price_change_pct REAL,
+  payload_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_open_interest_snapshots_capture_ts
+  ON open_interest_snapshots(capture_ts DESC, id DESC);
+CREATE INDEX IF NOT EXISTS idx_open_interest_snapshots_snapshot_id
+  ON open_interest_snapshots(snapshot_id, id);
+
+CREATE TABLE IF NOT EXISTS order_book_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  snapshot_id TEXT NOT NULL,
+  capture_ts TEXT NOT NULL,
+  source TEXT NOT NULL,
+  symbol TEXT NOT NULL,
+  venue TEXT NOT NULL,
+  depth INTEGER NOT NULL,
+  best_bid REAL NOT NULL,
+  best_ask REAL NOT NULL,
+  spread_bps REAL NOT NULL,
+  bid_notional REAL NOT NULL,
+  ask_notional REAL NOT NULL,
+  imbalance REAL NOT NULL,
+  payload_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_order_book_snapshots_capture_ts
+  ON order_book_snapshots(capture_ts DESC, id DESC);
+CREATE INDEX IF NOT EXISTS idx_order_book_snapshots_snapshot_id
+  ON order_book_snapshots(snapshot_id, id);
 """
 
 
@@ -75,6 +113,16 @@ def _fnum(value: Any, default: float = 0.0) -> float:
         return float(value)
     except Exception:
         return float(default)
+
+
+def _required_float(row: dict[str, Any], key: str) -> float:
+    try:
+        parsed = float(row.get(key))
+    except Exception as exc:
+        raise ValueError(f"invalid_numeric:{key}") from exc
+    if not math.isfinite(parsed):
+        raise ValueError(f"invalid_numeric:{key}")
+    return parsed
 
 
 def _s(value: Any) -> str:
@@ -229,6 +277,105 @@ class CryptoEdgeStoreSQLite:
             conn.commit()
         return snap_id
 
+    def append_open_interest_rows(
+        self,
+        rows: Iterable[dict[str, Any]],
+        *,
+        source: str = "manual",
+        capture_ts: str | None = None,
+        snapshot_id: str | None = None,
+    ) -> str:
+        snap_id = str(snapshot_id or _snapshot_id("open-interest"))
+        ts = str(capture_ts or _now_iso())
+        items = [dict(row or {}) for row in list(rows or [])]
+        with self._connect() as conn:
+            for row in items:
+                payload = {
+                    "symbol": _s(row.get("symbol")),
+                    "venue": _s(row.get("venue")),
+                    "open_interest": _required_float(row, "open_interest"),
+                    "price_change_pct": row.get("price_change_pct"),
+                }
+                if payload["open_interest"] < 0.0:
+                    raise ValueError("invalid_numeric:open_interest")
+                conn.execute(
+                    """
+                    INSERT INTO open_interest_snapshots(
+                      snapshot_id, capture_ts, source, symbol, venue, open_interest, price_change_pct, payload_json
+                    ) VALUES(?,?,?,?,?,?,?,?)
+                    """,
+                    (
+                        snap_id,
+                        ts,
+                        str(source or "manual"),
+                        payload["symbol"],
+                        payload["venue"],
+                        payload["open_interest"],
+                        payload["price_change_pct"],
+                        json.dumps(payload, default=str),
+                    ),
+                )
+            conn.commit()
+        return snap_id
+
+    def append_order_book_rows(
+        self,
+        rows: Iterable[dict[str, Any]],
+        *,
+        source: str = "manual",
+        capture_ts: str | None = None,
+        snapshot_id: str | None = None,
+    ) -> str:
+        snap_id = str(snapshot_id or _snapshot_id("order-book"))
+        ts = str(capture_ts or _now_iso())
+        items = [dict(row or {}) for row in list(rows or [])]
+        with self._connect() as conn:
+            for row in items:
+                payload = {
+                    "symbol": _s(row.get("symbol")),
+                    "venue": _s(row.get("venue")),
+                    "depth": int(_required_float(row, "depth")),
+                    "best_bid": _required_float(row, "best_bid"),
+                    "best_ask": _required_float(row, "best_ask"),
+                    "spread_bps": _required_float(row, "spread_bps"),
+                    "bid_notional": _required_float(row, "bid_notional"),
+                    "ask_notional": _required_float(row, "ask_notional"),
+                    "imbalance": _required_float(row, "imbalance"),
+                }
+                if payload["depth"] <= 0:
+                    raise ValueError("invalid_numeric:depth")
+                if payload["best_bid"] <= 0.0 or payload["best_ask"] <= 0.0:
+                    raise ValueError("invalid_numeric:best_bid_ask")
+                if payload["bid_notional"] < 0.0 or payload["ask_notional"] < 0.0:
+                    raise ValueError("invalid_numeric:depth_notional")
+                if payload["imbalance"] < -1.0 or payload["imbalance"] > 1.0:
+                    raise ValueError("invalid_numeric:imbalance")
+                conn.execute(
+                    """
+                    INSERT INTO order_book_snapshots(
+                      snapshot_id, capture_ts, source, symbol, venue, depth,
+                      best_bid, best_ask, spread_bps, bid_notional, ask_notional, imbalance, payload_json
+                    ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    """,
+                    (
+                        snap_id,
+                        ts,
+                        str(source or "manual"),
+                        payload["symbol"],
+                        payload["venue"],
+                        payload["depth"],
+                        payload["best_bid"],
+                        payload["best_ask"],
+                        payload["spread_bps"],
+                        payload["bid_notional"],
+                        payload["ask_notional"],
+                        payload["imbalance"],
+                        json.dumps(payload, default=str),
+                    ),
+                )
+            conn.commit()
+        return snap_id
+
     def _latest_snapshot_rows(self, table: str) -> list[dict[str, Any]]:
         with self._connect() as conn:
             row = conn.execute(
@@ -274,6 +421,12 @@ class CryptoEdgeStoreSQLite:
     def latest_quote_rows(self) -> list[dict[str, Any]]:
         return self._latest_snapshot_rows("quote_snapshots")
 
+    def latest_open_interest_rows(self) -> list[dict[str, Any]]:
+        return self._latest_snapshot_rows("open_interest_snapshots")
+
+    def latest_order_book_rows(self) -> list[dict[str, Any]]:
+        return self._latest_snapshot_rows("order_book_snapshots")
+
     def latest_funding_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
         return self._latest_snapshot_rows_for_source("funding_snapshots", source=source)
 
@@ -282,6 +435,12 @@ class CryptoEdgeStoreSQLite:
 
     def latest_quote_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
         return self._latest_snapshot_rows_for_source("quote_snapshots", source=source)
+
+    def latest_open_interest_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
+        return self._latest_snapshot_rows_for_source("open_interest_snapshots", source=source)
+
+    def latest_order_book_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
+        return self._latest_snapshot_rows_for_source("order_book_snapshots", source=source)
 
     def _latest_snapshot_meta(self, table: str) -> dict[str, Any] | None:
         with self._connect() as conn:
@@ -341,6 +500,8 @@ class CryptoEdgeStoreSQLite:
             self._recent_snapshot_meta("funding_snapshots", kind="funding", limit=limit_per_kind)
             + self._recent_snapshot_meta("basis_snapshots", kind="basis", limit=limit_per_kind)
             + self._recent_snapshot_meta("quote_snapshots", kind="quotes", limit=limit_per_kind)
+            + self._recent_snapshot_meta("open_interest_snapshots", kind="open_interest", limit=limit_per_kind)
+            + self._recent_snapshot_meta("order_book_snapshots", kind="order_books", limit=limit_per_kind)
         )
         rows.sort(key=lambda row: str(row.get("capture_ts") or ""), reverse=True)
         return rows
@@ -407,31 +568,43 @@ class CryptoEdgeStoreSQLite:
         funding_rows = self.latest_funding_rows()
         basis_rows = self.latest_basis_rows()
         quote_rows = self.latest_quote_rows()
+        open_interest_rows = self.latest_open_interest_rows()
+        order_book_rows = self.latest_order_book_rows()
         report = build_crypto_edge_report(
             funding_rows=funding_rows,
             basis_rows=basis_rows,
             quote_rows=quote_rows,
+            open_interest_rows=open_interest_rows,
+            order_book_rows=order_book_rows,
         )
         report["store_path"] = "redacted"
         report["funding_meta"] = self._latest_snapshot_meta("funding_snapshots")
         report["basis_meta"] = self._latest_snapshot_meta("basis_snapshots")
         report["quote_meta"] = self._latest_snapshot_meta("quote_snapshots")
-        report["has_any_data"] = bool(funding_rows or basis_rows or quote_rows)
+        report["open_interest_meta"] = self._latest_snapshot_meta("open_interest_snapshots")
+        report["order_book_meta"] = self._latest_snapshot_meta("order_book_snapshots")
+        report["has_any_data"] = bool(funding_rows or basis_rows or quote_rows or open_interest_rows or order_book_rows)
         return report
 
     def latest_report_for_source(self, *, source: str) -> dict[str, Any]:
         funding_rows = self.latest_funding_rows_for_source(source=source)
         basis_rows = self.latest_basis_rows_for_source(source=source)
         quote_rows = self.latest_quote_rows_for_source(source=source)
+        open_interest_rows = self.latest_open_interest_rows_for_source(source=source)
+        order_book_rows = self.latest_order_book_rows_for_source(source=source)
         report = build_crypto_edge_report(
             funding_rows=funding_rows,
             basis_rows=basis_rows,
             quote_rows=quote_rows,
+            open_interest_rows=open_interest_rows,
+            order_book_rows=order_book_rows,
         )
         report["store_path"] = "redacted"
         report["funding_meta"] = self._latest_snapshot_meta_for_source("funding_snapshots", source=source)
         report["basis_meta"] = self._latest_snapshot_meta_for_source("basis_snapshots", source=source)
         report["quote_meta"] = self._latest_snapshot_meta_for_source("quote_snapshots", source=source)
-        report["has_any_data"] = bool(funding_rows or basis_rows or quote_rows)
+        report["open_interest_meta"] = self._latest_snapshot_meta_for_source("open_interest_snapshots", source=source)
+        report["order_book_meta"] = self._latest_snapshot_meta_for_source("order_book_snapshots", source=source)
+        report["has_any_data"] = bool(funding_rows or basis_rows or quote_rows or open_interest_rows or order_book_rows)
         report["source_filter"] = str(source or "")
         return report

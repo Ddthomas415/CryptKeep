@@ -6,6 +6,12 @@
       "interval_hours": 8.0
     }
   ],
+  "open_interest": [
+    {
+      "venue": "binance",
+      "symbol": "BTC/USDT:USDT"
+    }
+  ],
   "basis": [
     {
       "venue": "binance",
@@ -24,6 +30,13 @@
       "venue": "kraken",
       "symbol": "BTC/USD",
       "orderbook_limit": 5
+    }
+  ],
+  "order_books": [
+    {
+      "venue": "coinbase",
+      "symbol": "BTC/USD",
+      "depth": 5
     }
   ]
 }

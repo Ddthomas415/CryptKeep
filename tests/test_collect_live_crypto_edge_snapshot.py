@@ -11,8 +11,10 @@ def test_collect_live_crypto_edge_snapshot_writes_live_rows(tmp_path, monkeypatc
         json.dumps(
             {
                 "funding": [{"venue": "binance", "symbol": "BTC/USDT:USDT", "interval_hours": 8.0}],
+                "open_interest": [{"venue": "binance", "symbol": "BTC/USDT:USDT"}],
                 "basis": [{"venue": "binance", "spot_symbol": "BTC/USDT", "perp_symbol": "BTC/USDT:USDT", "days_to_expiry": 7}],
                 "quotes": [{"venue": "coinbase", "symbol": "BTC/USD"}],
+                "order_books": [{"venue": "coinbase", "symbol": "BTC/USD"}],
             }
         ),
         encoding="utf-8",
@@ -26,8 +28,22 @@ def test_collect_live_crypto_edge_snapshot_writes_live_rows(tmp_path, monkeypatc
             "research_only": True,
             "execution_enabled": False,
             "funding_rows": [{"symbol": "BTC/USDT:USDT", "venue": "binance", "funding_rate": 0.0002, "interval_hours": 8.0}],
+            "open_interest_rows": [{"symbol": "BTC/USDT:USDT", "venue": "binance", "open_interest": 123456.0}],
             "basis_rows": [{"symbol": "BTC/USDT:USDT", "venue": "binance", "spot_px": 84000.0, "perp_px": 84020.0, "days_to_expiry": 7}],
             "quote_rows": [{"symbol": "BTC/USD", "venue": "coinbase", "bid": 84010.0, "ask": 84015.0}],
+            "order_book_rows": [
+                {
+                    "symbol": "BTC/USD",
+                    "venue": "coinbase",
+                    "depth": 5,
+                    "best_bid": 84010.0,
+                    "best_ask": 84015.0,
+                    "spread_bps": 0.5952,
+                    "bid_notional": 420050.0,
+                    "ask_notional": 420075.0,
+                    "imbalance": -0.00003,
+                }
+            ],
             "checks": [{"kind": "quotes", "venue": "coinbase", "symbol": "BTC/USD", "ok": True}],
         },
     )
@@ -51,8 +67,10 @@ def test_collect_live_crypto_edge_snapshot_writes_live_rows(tmp_path, monkeypatc
     assert out["research_only"] is True
     assert out["execution_enabled"] is False
     assert out["funding_count"] == 1
+    assert out["open_interest_count"] == 1
     assert out["basis_count"] == 1
     assert out["quote_count"] == 1
+    assert out["order_book_count"] == 1
     assert out["report"]["has_any_data"] is True
 
 
@@ -67,8 +85,10 @@ def test_collect_live_crypto_edge_snapshot_rejects_empty_live_collection(tmp_pat
             "research_only": True,
             "execution_enabled": False,
             "funding_rows": [],
+            "open_interest_rows": [],
             "basis_rows": [],
             "quote_rows": [],
+            "order_book_rows": [],
             "checks": [{"kind": "funding", "venue": "binance", "symbol": "BTC/USDT:USDT", "ok": False, "reason": "funding_unsupported"}],
         },
     )

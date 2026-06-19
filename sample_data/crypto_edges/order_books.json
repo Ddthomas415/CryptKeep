@@ -1,0 +1,24 @@
+[
+  {
+    "symbol": "BTC/USD",
+    "venue": "coinbase",
+    "depth": 5,
+    "best_bid": 84215.0,
+    "best_ask": 84222.0,
+    "spread_bps": 0.8312,
+    "bid_notional": 421075.0,
+    "ask_notional": 336888.0,
+    "imbalance": 0.1111
+  },
+  {
+    "symbol": "ETH/USD",
+    "venue": "coinbase",
+    "depth": 5,
+    "best_bid": 4420.5,
+    "best_ask": 4421.2,
+    "spread_bps": 1.5835,
+    "bid_notional": 198922.5,
+    "ask_notional": 260850.8,
+    "imbalance": -0.1347
+  }
+]

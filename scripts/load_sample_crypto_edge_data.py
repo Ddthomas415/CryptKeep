@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # CBP_BOOTSTRAP_SYS_PATH
 from pathlib import Path
-import sys
+import sys  # noqa: F401
 
 try:
     from _bootstrap import add_repo_root_to_syspath
@@ -11,11 +11,11 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-import argparse
-import json
-from typing import Any
+import argparse  # noqa: E402
+import json  # noqa: E402
+from typing import Any  # noqa: E402
 
-from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
+from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite  # noqa: E402
 
 SAMPLE_DIR = ROOT / "sample_data" / "crypto_edges"
 
@@ -36,8 +36,10 @@ def main() -> int:
 
     sample_dir = Path(str(args.sample_dir or "")).expanduser() if args.sample_dir else SAMPLE_DIR
     funding_rows = _load_rows(sample_dir / "funding.json")
+    open_interest_rows = _load_rows(sample_dir / "open_interest.json")
     basis_rows = _load_rows(sample_dir / "basis.json")
     quote_rows = _load_rows(sample_dir / "quotes.json")
+    order_book_rows = _load_rows(sample_dir / "order_books.json")
 
     store = CryptoEdgeStoreSQLite(path=str(args.db_path or ""))
     out: dict[str, Any] = {
@@ -59,9 +61,21 @@ def main() -> int:
             source=str(args.source or "sample_bundle"),
             capture_ts=str(args.capture_ts or "") or None,
         ),
+        "open_interest_snapshot_id": store.append_open_interest_rows(
+            open_interest_rows,
+            source=str(args.source or "sample_bundle"),
+            capture_ts=str(args.capture_ts or "") or None,
+        ),
+        "order_book_snapshot_id": store.append_order_book_rows(
+            order_book_rows,
+            source=str(args.source or "sample_bundle"),
+            capture_ts=str(args.capture_ts or "") or None,
+        ),
         "funding_count": int(len(funding_rows)),
+        "open_interest_count": int(len(open_interest_rows)),
         "basis_count": int(len(basis_rows)),
         "quote_count": int(len(quote_rows)),
+        "order_book_count": int(len(order_book_rows)),
     }
     if args.print_report:
         out["report"] = store.latest_report()
