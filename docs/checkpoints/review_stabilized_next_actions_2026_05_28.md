@@ -558,7 +558,7 @@ Risk:
 
 ## Priority 18 - PR #3 Cleanup/Disposition
 
-Status: audited; disposition required
+Status: disposition drafted; pending independent review
 
 Why it matters:
 - PR #3 is still open, dirty against `master`, and not tracked by the prior
@@ -574,6 +574,9 @@ Current evidence:
   state `DIRTY`.
 - SHOWN: `origin/master...origin/cleanup/import-collection-failures` reports
   `283 / 54`.
+- SHOWN: the 54 branch-only commits are accounted for in
+  `docs/checkpoints/pr3_cleanup_disposition_2026_06_19.md` as 52 non-merge
+  commits plus 2 merge commits.
 - SHOWN: the branch touches high-risk execution and live reconciliation files
   including `services/execution/live_reconciler.py`,
   `services/execution/intent_consumer.py`, `services/execution/paper_engine.py`,
@@ -581,11 +584,10 @@ Current evidence:
 
 Next action:
 - Do not merge PR #3 directly.
-- Audit the 54 branch-only commits against current `master`.
-- For any still-valid execution safety fix, rebuild it as a narrow PR with
+- Independently review the disposition table.
+- If accepted, close PR #3 with a comment linking the disposition checkpoint.
+- Rebuild only commits marked `rebuild` as narrow current-master PRs with
   targeted tests.
-- Close PR #3 only after either all useful content is confirmed superseded or a
-  replacement PR/task record exists.
 
 Proof required:
 - Commit-by-commit disposition table: `superseded`, `rebuild`, or `drop`.

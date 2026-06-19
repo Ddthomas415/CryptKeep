@@ -5358,3 +5358,63 @@ Remaining risk:
   rebuild unique features, or validate any branch-only implementation.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   independent review sign-off.
+
+## 2026-06-19T02:09:37Z - Draft PR #3 Cleanup Disposition
+
+Active role: AUDITOR
+
+Objective:
+- Convert stale PR #3 from an ambiguous dirty open PR into an explicit
+  commit-disposition artifact before any closure or rebuild decision.
+
+What was found:
+- SHOWN: PR #3 is open, targets `master`, is not draft, and reports
+  `mergeStateStatus=DIRTY`.
+- SHOWN: `origin/master...origin/cleanup/import-collection-failures` reports
+  `283 / 54`.
+- SHOWN: the branch-only history has 52 non-merge commits and 2 merge commits.
+- SHOWN: PR #3 touches high-risk surfaces including live reconciliation,
+  execution consumers, intent queues, paper engine, and storage.
+- SHOWN: current `master` already contains related surfaces including
+  `services/execution/intent_lifecycle.py`, `scripts/run_paper_scenario.py`,
+  `tests/test_execution_claim_race.py`,
+  `tests/test_live_intent_queue_integrity.py`, and
+  `tests/test_paper_queue_authority.py`.
+
+What changed:
+- Added `docs/checkpoints/pr3_cleanup_disposition_2026_06_19.md`.
+- Updated Priority 18 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to point to
+  the disposition table and require independent review before PR #3 closure.
+
+Why this change:
+- Directly merging PR #3 would import stale high-risk execution behavior from a
+  dirty branch.
+- Closing PR #3 without a disposition table could lose valid safety fixes.
+- A commit-by-commit table creates a safe path: close stale branch noise after
+  acceptance, then rebuild only still-valid safety fixes from current `master`.
+
+Expected outcome:
+- PR #3 can be closed after independent acceptance of the disposition artifact.
+- Future implementation work should be split by rebuild group rather than
+  cherry-picked from the old aggregate branch.
+
+Verification:
+- SHOWN: `git log --right-only --cherry-pick --no-merges --reverse
+  --name-status origin/master...origin/cleanup/import-collection-failures`
+  listed 52 non-merge branch-only commits and touched files.
+- SHOWN: `git log --right-only --cherry-pick --merges --reverse
+  origin/master...origin/cleanup/import-collection-failures` listed 2 merge
+  commits.
+- SHOWN: targeted `rg --files tests` confirmed related current-master test
+  surfaces exist.
+- SHOWN: targeted `rg` confirmed current-master execution lifecycle,
+  paper-scenario, phase1 skip, `INSERT OR IGNORE`, and `atomic_risk_claim`
+  surfaces exist.
+- Tests were not run because this is an audit/documentation-only change.
+
+Remaining risk:
+- HIGH: this audit does not prove behavior equivalence between PR #3 and
+  current `master`; rebuilt execution work still requires targeted tests and
+  independent review.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
