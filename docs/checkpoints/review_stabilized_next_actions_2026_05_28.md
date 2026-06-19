@@ -247,7 +247,7 @@ Risk:
 
 ## Priority 8 - PR #42 Decision
 
-Status: superseded by accepted PR #43 disposition; close PR #42
+Status: complete as of 2026-06-19; PR #42 closed as superseded
 
 Current evidence:
 - SHOWN on 2026-06-19: PR #42 remains a draft branch targeting `master`.
@@ -259,10 +259,13 @@ Current evidence:
   larger branch history.
 - SHOWN: `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
   treats PR #42 as superseded by the broader PR #43 disposition path.
+- SHOWN: PR #42 was closed on 2026-06-19 after the accepted PR #43
+  disposition checkpoint was merged via PR #64.
 
 Next action:
-- Treat PR #42 as superseded by the broader PR #43 extraction task.
-- Close PR #42 with a comment pointing to the accepted disposition checkpoint.
+- Do not reopen or merge PR #42 directly.
+- Rebuild only accepted PR #43 disposition `rebuild` groups from current
+  `master`.
 
 Risk:
 - MEDIUM to HIGH: upstream branch divergence and background-job/runtime
@@ -270,7 +273,7 @@ Risk:
 
 ## Priority 9 - Rebuild PR #43 From Clean Base
 
-Status: disposition accepted; close PR #43
+Status: complete as of 2026-06-19; PR #43 closed after accepted disposition
 
 Current evidence:
 - SHOWN on 2026-06-19: PR #43 targets `master`, is not draft, and has merge
@@ -285,10 +288,11 @@ Current evidence:
 - SHOWN: `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
   accounts for all 98 raw branch-only commits and separates `rebuild`,
   `superseded`, and `drop` decisions.
+- SHOWN: PR #43 was closed on 2026-06-19 after the accepted disposition
+  checkpoint was merged via PR #64.
+- SHOWN: no open PRs remained after PR #42 and PR #43 were closed.
 
 Next action:
-- Close PR #43 and PR #42 with comments linking the accepted disposition
-  checkpoint.
 - Rebuild only accepted `rebuild` groups from current `master`:
   1. AI alert monitor and operator watch layer.
   2. Managed multi-symbol paper runtime.
