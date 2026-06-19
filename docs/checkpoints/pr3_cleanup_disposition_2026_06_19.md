@@ -150,4 +150,5 @@ HIGH:
   concurrency, and risk-control behavior.
 - This document is audit planning only and does not prove any execution fix.
 
-Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
+independent review sign-off.

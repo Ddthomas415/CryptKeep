@@ -558,7 +558,7 @@ Risk:
 
 ## Priority 18 - PR #3 Cleanup/Disposition
 
-Status: disposition drafted; pending independent review
+Status: disposition accepted; close PR #3
 
 Why it matters:
 - PR #3 is still open, dirty against `master`, and not tracked by the prior
@@ -584,7 +584,6 @@ Current evidence:
 
 Next action:
 - Do not merge PR #3 directly.
-- Independently review the disposition table.
 - If accepted, close PR #3 with a comment linking the disposition checkpoint.
 - Rebuild only commits marked `rebuild` as narrow current-master PRs with
   targeted tests.
