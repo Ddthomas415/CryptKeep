@@ -351,7 +351,7 @@ Risk:
 
 ## Priority 12 - Short-Market Strategy Research
 
-Status: research spec and data feasibility audit drafted; pending independent
+Status: read-only collector/store extension implemented; pending independent
 review
 
 Why it matters:
@@ -367,13 +367,14 @@ Why it matters:
   identifies the existing read-only crypto-edge collector as the safest base
   and documents missing open-interest, liquidation, order-book-depth,
   provenance, and storage support.
+- Commit pending review extends the crypto-edge collector/store/report path for
+  read-only `open_interest` and `order_books` rows without changing strategy
+  routing, paper execution, promotion gates, credentials, or live behavior.
 
 Next action:
-- Independently review the short-market research spec and data feasibility
-  audit before any implementation.
-- After review, the smallest useful implementation is read-only: extend the
-  crypto-edge collector/store with open-interest and order-book-depth rows,
-  per-symbol checks, explicit provenance, and missing-data rejection.
+- Independently review the read-only collector/store implementation.
+- After acceptance, run only a read-only sample or public-data collection proof
+  before using the new rows in any replay analysis.
 - Keep all short-side work research-only until separate paper gates, risk
   controls, compliance assumptions, and operator review exist.
 

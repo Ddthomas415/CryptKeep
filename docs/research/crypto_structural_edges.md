@@ -7,6 +7,8 @@ Current scope:
 - funding-rate carry summaries
 - perp/spot basis summaries
 - cross-venue dislocation summaries
+- open-interest summaries
+- order-book spread/depth/imbalance summaries
 - bundled sample snapshot loader for local demo/review
 - read-only live snapshot collector driven by a JSON collection plan
 
@@ -47,8 +49,10 @@ make load-sample-crypto-edges
 This writes bundled sample snapshots from:
 
 - `<your-repo-path>/sample_data/crypto_edges/funding.json`
+- `<your-repo-path>/sample_data/crypto_edges/open_interest.json`
 - `<your-repo-path>/sample_data/crypto_edges/basis.json`
 - `<your-repo-path>/sample_data/crypto_edges/quotes.json`
+- `<your-repo-path>/sample_data/crypto_edges/order_books.json`
 
 The loader is still research-only:
 
@@ -58,7 +62,8 @@ The loader is still research-only:
 
 ## Read-only live collection workflow
 
-To collect live public funding, basis, and quote snapshots with the bundled example plan:
+To collect live public funding, open-interest, basis, quote, and order-book
+snapshots with the bundled example plan:
 
 ```bash
 make collect-live-crypto-edges
@@ -76,6 +81,18 @@ The collector remains read-only:
 - it does not place, edit, or cancel orders
 
 If a venue does not support a requested read-only method, the collector reports that in its check list and skips the affected rows.
+
+The collector uses explicit row families:
+
+- `funding`
+- `open_interest`
+- `basis`
+- `quotes`
+- `order_books`
+
+These rows are research context only. A `sell`-leaning funding,
+open-interest, or order-book condition is not permission to open a short
+position.
 
 ## Repeating collection workflow
 

@@ -5,6 +5,8 @@ from services.analytics.crypto_edges import (
     summarize_basis_spread,
     summarize_cross_venue_dislocations,
     summarize_funding_carry,
+    summarize_open_interest,
+    summarize_order_book_pressure,
 )
 
 
@@ -62,6 +64,18 @@ def test_build_crypto_edge_report_stays_research_only():
         funding_rows=[{"symbol": "BTC-PERP", "venue": "venue_a", "funding_rate": 0.0001}],
         basis_rows=[{"symbol": "BTC", "venue": "venue_a", "spot_px": 100.0, "perp_px": 100.5}],
         quote_rows=[{"symbol": "BTC/USD", "venue": "venue_a", "bid": 101.0, "ask": 100.5}],
+        open_interest_rows=[{"symbol": "BTC/USDT:USDT", "venue": "binance", "open_interest": 12345.0}],
+        order_book_rows=[
+            {
+                "symbol": "BTC/USD",
+                "venue": "coinbase",
+                "depth": 5,
+                "spread_bps": 1.2,
+                "bid_notional": 200.0,
+                "ask_notional": 100.0,
+                "imbalance": 0.3333,
+            }
+        ],
     )
 
     assert out["ok"] is True
@@ -70,3 +84,49 @@ def test_build_crypto_edge_report_stays_research_only():
     assert out["funding"]["count"] == 1
     assert out["basis"]["count"] == 1
     assert out["dislocations"]["count"] == 1
+    assert out["open_interest"]["count"] == 1
+    assert out["order_books"]["count"] == 1
+
+
+def test_summarize_open_interest_reports_total_and_top_symbol():
+    out = summarize_open_interest(
+        [
+            {"symbol": "BTC/USDT:USDT", "venue": "binance", "open_interest": 10.0},
+            {"symbol": "ETH/USDT:USDT", "venue": "binance", "open_interest": 25.0},
+        ]
+    )
+
+    assert out["ok"] is True
+    assert out["count"] == 2
+    assert out["total_open_interest"] == 35.0
+    assert out["top_symbol"] == "ETH/USDT:USDT"
+
+
+def test_summarize_order_book_pressure_counts_buy_and_sell_pressure():
+    out = summarize_order_book_pressure(
+        [
+            {
+                "symbol": "BTC/USD",
+                "venue": "coinbase",
+                "depth": 5,
+                "spread_bps": 1.0,
+                "bid_notional": 200.0,
+                "ask_notional": 100.0,
+                "imbalance": 0.3333,
+            },
+            {
+                "symbol": "ETH/USD",
+                "venue": "coinbase",
+                "depth": 5,
+                "spread_bps": 1.0,
+                "bid_notional": 100.0,
+                "ask_notional": 200.0,
+                "imbalance": -0.3333,
+            },
+        ]
+    )
+
+    assert out["ok"] is True
+    assert out["count"] == 2
+    assert out["buy_pressure_count"] == 1
+    assert out["sell_pressure_count"] == 1

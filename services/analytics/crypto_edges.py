@@ -181,21 +181,117 @@ def summarize_cross_venue_dislocations(rows: Iterable[Dict[str, Any]]) -> Dict[s
     }
 
 
+def summarize_open_interest(rows: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
+    items = [dict(row or {}) for row in list(rows or [])]
+    cleaned: List[Dict[str, Any]] = []
+    values: List[float] = []
+
+    for row in items:
+        value = _fnum(row.get("open_interest"), 0.0)
+        if value < 0.0:
+            continue
+        cleaned.append(
+            {
+                "symbol": _s(row.get("symbol")),
+                "venue": _s(row.get("venue")),
+                "open_interest": float(value),
+                "price_change_pct": row.get("price_change_pct"),
+            }
+        )
+        values.append(value)
+
+    if not cleaned:
+        return {
+            "ok": True,
+            "rows": [],
+            "count": 0,
+            "total_open_interest": 0.0,
+            "max_open_interest": 0.0,
+            "top_symbol": None,
+        }
+
+    top = max(cleaned, key=lambda row: _fnum(row.get("open_interest"), 0.0))
+    return {
+        "ok": True,
+        "rows": cleaned,
+        "count": int(len(cleaned)),
+        "total_open_interest": float(sum(values)),
+        "max_open_interest": float(top.get("open_interest") or 0.0),
+        "top_symbol": str(top.get("symbol") or ""),
+    }
+
+
+def summarize_order_book_pressure(rows: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
+    items = [dict(row or {}) for row in list(rows or [])]
+    cleaned: List[Dict[str, Any]] = []
+
+    for row in items:
+        imbalance = _fnum(row.get("imbalance"), 0.0)
+        spread_bps = _fnum(row.get("spread_bps"), 0.0)
+        pressure = "balanced"
+        if imbalance >= 0.15:
+            pressure = "buy_pressure"
+        elif imbalance <= -0.15:
+            pressure = "sell_pressure"
+        cleaned.append(
+            {
+                "symbol": _s(row.get("symbol")),
+                "venue": _s(row.get("venue")),
+                "depth": int(_fnum(row.get("depth"), 0.0)),
+                "spread_bps": float(spread_bps),
+                "bid_notional": _fnum(row.get("bid_notional"), 0.0),
+                "ask_notional": _fnum(row.get("ask_notional"), 0.0),
+                "imbalance": float(imbalance),
+                "pressure": pressure,
+            }
+        )
+
+    if not cleaned:
+        return {
+            "ok": True,
+            "rows": [],
+            "count": 0,
+            "buy_pressure_count": 0,
+            "sell_pressure_count": 0,
+            "max_abs_imbalance": 0.0,
+            "top_symbol": None,
+        }
+
+    buy_pressure = [row for row in cleaned if row.get("pressure") == "buy_pressure"]
+    sell_pressure = [row for row in cleaned if row.get("pressure") == "sell_pressure"]
+    top = max(cleaned, key=lambda row: abs(_fnum(row.get("imbalance"), 0.0)))
+    return {
+        "ok": True,
+        "rows": cleaned,
+        "count": int(len(cleaned)),
+        "buy_pressure_count": int(len(buy_pressure)),
+        "sell_pressure_count": int(len(sell_pressure)),
+        "max_abs_imbalance": abs(_fnum(top.get("imbalance"), 0.0)),
+        "top_symbol": str(top.get("symbol") or ""),
+    }
+
+
 def build_crypto_edge_report(
     *,
     funding_rows: Iterable[Dict[str, Any]] | None = None,
     basis_rows: Iterable[Dict[str, Any]] | None = None,
     quote_rows: Iterable[Dict[str, Any]] | None = None,
+    open_interest_rows: Iterable[Dict[str, Any]] | None = None,
+    order_book_rows: Iterable[Dict[str, Any]] | None = None,
     funding_interval_hours: float = 8.0,
 ) -> Dict[str, Any]:
     funding = summarize_funding_carry(funding_rows or [], interval_hours=float(funding_interval_hours))
     basis = summarize_basis_spread(basis_rows or [])
     dislocations = summarize_cross_venue_dislocations(quote_rows or [])
+    open_interest = summarize_open_interest(open_interest_rows or [])
+    order_books = summarize_order_book_pressure(order_book_rows or [])
     return {
         "ok": True,
         "funding": funding,
         "basis": basis,
         "dislocations": dislocations,
+        "open_interest": open_interest,
+        "order_books": order_books,
         "research_only": True,
         "execution_enabled": False,
     }

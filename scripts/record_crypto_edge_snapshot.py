@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # CBP_BOOTSTRAP_SYS_PATH
 from pathlib import Path
-import sys
+import sys  # noqa: F401
 
 try:
     from _bootstrap import add_repo_root_to_syspath
@@ -11,11 +11,11 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
-import argparse
-import json
-from typing import Any
+import argparse  # noqa: E402
+import json  # noqa: E402
+from typing import Any  # noqa: E402
 
-from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
+from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite  # noqa: E402
 
 
 def _load_rows(path: str) -> list[dict[str, Any]]:
@@ -31,15 +31,19 @@ def main() -> int:
     ap.add_argument("--source", default="manual", help="Snapshot source label")
     ap.add_argument("--capture-ts", default="", help="Optional capture timestamp override")
     ap.add_argument("--funding-file", default="", help="JSON file with funding rows")
+    ap.add_argument("--open-interest-file", default="", help="JSON file with open-interest rows")
     ap.add_argument("--basis-file", default="", help="JSON file with basis rows")
     ap.add_argument("--quotes-file", default="", help="JSON file with quote rows")
+    ap.add_argument("--order-books-file", default="", help="JSON file with order-book rows")
     ap.add_argument("--print-report", action="store_true", help="Print the latest report after ingest")
     args = ap.parse_args()
 
     funding_rows = _load_rows(args.funding_file)
+    open_interest_rows = _load_rows(args.open_interest_file)
     basis_rows = _load_rows(args.basis_file)
     quote_rows = _load_rows(args.quotes_file)
-    if not (funding_rows or basis_rows or quote_rows):
+    order_book_rows = _load_rows(args.order_books_file)
+    if not (funding_rows or open_interest_rows or basis_rows or quote_rows or order_book_rows):
         print(json.dumps({"ok": False, "reason": "no_rows_supplied"}))
         return 1
 
@@ -52,6 +56,13 @@ def main() -> int:
             capture_ts=str(args.capture_ts or "") or None,
         )
         out["funding_count"] = int(len(funding_rows))
+    if open_interest_rows:
+        out["open_interest_snapshot_id"] = store.append_open_interest_rows(
+            open_interest_rows,
+            source=str(args.source or "manual"),
+            capture_ts=str(args.capture_ts or "") or None,
+        )
+        out["open_interest_count"] = int(len(open_interest_rows))
     if basis_rows:
         out["basis_snapshot_id"] = store.append_basis_rows(
             basis_rows,
@@ -66,6 +77,13 @@ def main() -> int:
             capture_ts=str(args.capture_ts or "") or None,
         )
         out["quote_count"] = int(len(quote_rows))
+    if order_book_rows:
+        out["order_book_snapshot_id"] = store.append_order_book_rows(
+            order_book_rows,
+            source=str(args.source or "manual"),
+            capture_ts=str(args.capture_ts or "") or None,
+        )
+        out["order_book_count"] = int(len(order_book_rows))
     if args.print_report:
         out["report"] = store.latest_report()
     print(json.dumps(out, indent=2, default=str))

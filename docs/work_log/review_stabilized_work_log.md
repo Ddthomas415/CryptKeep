@@ -5944,3 +5944,64 @@ Remaining risk:
   simulation. This audit is documentation-only and must be independently
   reviewed before implementation authority.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-19T18:52:13Z - Extend Read-Only Crypto Edge Context Rows
+
+Active role: ENGINEER
+
+Objective:
+- Implement the smallest accepted short-context data step: add read-only
+  open-interest and order-book row support to the existing crypto-edge
+  collector/store/report path.
+
+What was found:
+- SHOWN: the existing crypto-edge collector was already research-only and
+  returned `execution_enabled=False`.
+- SHOWN: existing storage/reporting covered funding, basis, and quotes but not
+  open interest or order-book depth/imbalance rows.
+- SHOWN: the existing live collection script persisted only funding, basis, and
+  quote rows.
+- SHOWN: bundled sample data did not include open-interest or order-book rows.
+
+What changed:
+- Added open-interest and order-book summaries to
+  `services/analytics/crypto_edges.py`.
+- Added `open_interest_snapshots` and `order_book_snapshots` tables plus append
+  and latest-report accessors in `storage/crypto_edge_store_sqlite.py`.
+- Extended `services/analytics/crypto_edge_collector.py` to collect
+  `open_interest` and `order_books` plan rows with per-symbol checks.
+- Extended `scripts/collect_live_crypto_edge_snapshot.py`,
+  `scripts/record_crypto_edge_snapshot.py`, and
+  `scripts/load_sample_crypto_edge_data.py` to persist the new row families.
+- Added bundled `sample_data/crypto_edges/open_interest.json` and
+  `sample_data/crypto_edges/order_books.json`, and updated the live collector
+  plan.
+- Updated targeted tests and research docs.
+
+Why this change:
+- The feasibility audit identified the existing crypto-edge collector as the
+  safest read-only base for future short/context research.
+- Adding data rows and storage is lower risk than adding signal replay or
+  strategy routing, and it keeps short-side work blocked from execution.
+
+Expected outcome:
+- The repo can collect and persist read-only open-interest and order-book
+  context rows for later replay analysis.
+- Missing/unsupported open-interest and order-book fetches are surfaced through
+  checks instead of silently treated as neutral.
+- No active paper campaign, strategy registry, promotion gate, credential, or
+  execution behavior changes.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_crypto_edge_analytics.py tests/test_crypto_edge_collector.py tests/test_collect_live_crypto_edge_snapshot.py tests/test_record_crypto_edge_snapshot.py tests/test_load_sample_crypto_edge_data.py`
+  returned `15 passed in 0.48s`.
+- SHOWN: changed-file ruff check returned `All checks passed!`.
+- SHOWN: `git diff --check` passed.
+- Full suite intentionally not run unless requested because the operator
+  instructed Codex not to run time-heavy commands automatically.
+
+Remaining risk:
+- HIGH: this expands research inputs that may later influence financial
+  strategy replay and short-side paper simulation. Implementation must be
+  independently reviewed before acceptance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
