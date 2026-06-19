@@ -25,6 +25,13 @@ SHOWN:
 - PR #10 was verified open, verified superseded by `6cc95f678`, and closed on
   2026-05-28 with an audit comment.
 - PR #10 state was verified as `CLOSED` after closure.
+- 2026-06-19 audit verified current open PR state:
+  - PR #42 is draft, dirty against `master`, and 27 branch-only commits remain
+    by patch-equivalence comparison.
+  - PR #43 is not draft, dirty against `master`, and 98 branch-only commits
+    remain by patch-equivalence comparison.
+  - PR #3 is not draft, dirty against `master`, and 54 branch-only commits
+    remain by patch-equivalence comparison.
 
 CLAIMED:
 - Auditor reported `review-stabilized` as 83 commits ahead of master and 59
@@ -32,7 +39,8 @@ CLAIMED:
 - Auditor reported PR #42 and PR #43 as open/draft or held upstream PRs.
 
 UNVERIFIED:
-- PR #42 and PR #43 current GitHub state was not checked in this pass.
+- PR #42, PR #43, and PR #3 have not been rebuilt or independently reviewed
+  against current `master`.
 - PR #44 has not received full-suite or independent merge review in this
   checkpoint file.
 
@@ -239,35 +247,53 @@ Risk:
 
 ## Priority 8 - PR #42 Decision
 
-Status: pending
+Status: audited; do not merge directly
 
-Claimed context:
-- PR #42 has remained a draft soak branch.
-- It either needs to be marked ready and merged or have unique content extracted
-  before closing.
+Current evidence:
+- SHOWN on 2026-06-19: PR #42 remains a draft branch targeting `master`.
+- SHOWN: PR #42 merge state is `DIRTY`.
+- SHOWN: `origin/master...origin/codex/runtime-hardening-ai-alert-monitor`
+  reports `224 / 27`.
+- SHOWN: the 27 branch-only commits are the early runtime-hardening, AI alert
+  monitor, multi-symbol, and safe-pipeline commits that also appear in PR #43's
+  larger branch history.
 
 Next action:
-- Verify current PR #42 state.
-- Decide whether to merge, extract unique content, or close.
+- Treat PR #42 as superseded by the broader PR #43 extraction task.
+- After the unique runtime-monitoring work is rebuilt from clean `master`, close
+  PR #42 with a comment pointing to the replacement PR or task record.
 
 Risk:
-- MEDIUM to HIGH: upstream branch divergence.
+- MEDIUM to HIGH: upstream branch divergence and background-job/runtime
+  supervision behavior.
 
 ## Priority 9 - Rebuild PR #43 From Clean Base
 
-Status: blocked behind master integration and audit branch merge state
+Status: audited; rebuild required
 
-Claimed context:
-- PR #43 has valuable AI copilot, multi-symbol runtime, and
-  `run_pipeline_safe.py` content.
-- It conflicts heavily with audit branches.
+Current evidence:
+- SHOWN on 2026-06-19: PR #43 targets `master`, is not draft, and has merge
+  state `DIRTY`.
+- SHOWN: `origin/master...origin/fix/p1-pre-live` reports `224 / 98`.
+- SHOWN: the branch touches high-risk surfaces including live execution,
+  auth/dashboard save gates, runtime supervision, AI alert monitoring, paper
+  simulation monitoring, managed symbol selection, and pipeline wrappers.
+- SHOWN: much of the desired paper-monitoring concept has since been rebuilt on
+  `review-stabilized`; remaining PR #43 content must be extracted, not merged
+  wholesale.
 
 Next action:
-- After master integration, rebuild unique PR #43 content as a focused clean PR
-  against updated master.
+- Split unique content into focused rebuilds from current `master`:
+  1. AI alert monitor and operator watch layer.
+  2. Managed multi-symbol paper runtime.
+  3. Safe pipeline wrapper and startup hardening.
+  4. Any remaining dashboard/report surfaces not already rebuilt.
+- Keep live execution, auth gates, and runtime supervisor changes out of the
+  same PR unless they are required for the specific rebuild.
 
 Risk:
-- MEDIUM: valuable feature work is currently stranded.
+- HIGH: the old branch mixes operator observability with live execution and
+  fail-closed behavior. Direct merge is not acceptable.
 
 ## Priority 10 - CI Fixture For `sma_200_trend`
 
@@ -528,4 +554,45 @@ Risk:
 - HIGH: derivatives, shorting, leverage, margin, liquidation risk, financial
   strategy selection, and future order-routing behavior.
 - Acceptance state: planning only; implementation must stop at
+  `READY_FOR_INDEPENDENT_REVIEW`.
+
+## Priority 18 - PR #3 Cleanup/Disposition
+
+Status: audited; disposition required
+
+Why it matters:
+- PR #3 is still open, dirty against `master`, and not tracked by the prior
+  top-priority checkpoint list.
+- The branch contains old execution cleanup, queue authority, paper scenario,
+  live reconciler, and CI-collection fixes. Some of those topics have since
+  been independently rebuilt, but the branch still has patch-unique commits.
+- Leaving it open creates the same false backlog problem previously fixed for
+  superseded PR #10.
+
+Current evidence:
+- SHOWN on 2026-06-19: PR #3 targets `master`, is not draft, and has merge
+  state `DIRTY`.
+- SHOWN: `origin/master...origin/cleanup/import-collection-failures` reports
+  `283 / 54`.
+- SHOWN: the branch touches high-risk execution and live reconciliation files
+  including `services/execution/live_reconciler.py`,
+  `services/execution/intent_consumer.py`, `services/execution/paper_engine.py`,
+  `storage/intent_queue_sqlite.py`, and `storage/live_intent_queue_sqlite.py`.
+
+Next action:
+- Do not merge PR #3 directly.
+- Audit the 54 branch-only commits against current `master`.
+- For any still-valid execution safety fix, rebuild it as a narrow PR with
+  targeted tests.
+- Close PR #3 only after either all useful content is confirmed superseded or a
+  replacement PR/task record exists.
+
+Proof required:
+- Commit-by-commit disposition table: `superseded`, `rebuild`, or `drop`.
+- Targeted tests for any rebuilt execution or reconciliation change.
+
+Risk:
+- HIGH: live execution state transitions, queue authority, reconciliation, and
+  CI behavior.
+- Acceptance state: planning/audit only; implementation must stop at
   `READY_FOR_INDEPENDENT_REVIEW`.

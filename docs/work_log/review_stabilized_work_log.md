@@ -5293,3 +5293,68 @@ Remaining risk:
   CI sanity, CI validate, GitGuardian, and Governance smoke.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
   independent review sign-off.
+
+## 2026-06-19T02:02:23Z - Record Stale Open PR Disposition Audit
+
+Active role: AUDITOR
+
+Objective:
+- Reassess stale open PRs after `review-stabilized` and `master` were realigned,
+  then preserve the disposition in the visible task list before any branch is
+  closed, merged, or rebuilt.
+
+What was found:
+- SHOWN: PR #42 remains a draft branch targeting `master`, with merge state
+  `DIRTY`.
+- SHOWN: `origin/master...origin/codex/runtime-hardening-ai-alert-monitor`
+  reports `224 / 27`.
+- SHOWN: PR #43 is not draft, targets `master`, and has merge state `DIRTY`.
+- SHOWN: `origin/master...origin/fix/p1-pre-live` reports `224 / 98`.
+- SHOWN: PR #3 is not draft, targets `master`, and has merge state `DIRTY`.
+- SHOWN: `origin/master...origin/cleanup/import-collection-failures` reports
+  `283 / 54`.
+- SHOWN: PR #42's branch-only commits are a subset of the broader PR #43
+  runtime/monitoring history.
+- SHOWN: PR #3 was not represented in the active next-actions checkpoint even
+  though it remains open and dirty against `master`.
+
+What changed:
+- Updated `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` so
+  PR #42 and PR #43 no longer say their current state is unverified.
+- Marked PR #42 as superseded by the broader PR #43 extraction task rather than
+  merge-ready.
+- Marked PR #43 as requiring focused rebuilds from current `master` rather than
+  direct merge.
+- Added Priority 18 for PR #3 cleanup/disposition, including the requirement
+  for a commit-by-commit disposition table before closure or rebuild.
+
+Why this change:
+- The old branches touch high-risk runtime, execution, auth/dashboard,
+  reconciliation, and background-job surfaces.
+- Directly merging dirty, month-old aggregate branches would bypass the focused
+  review model established by the accepted audit cycle.
+- Closing the PRs without first preserving unique work would risk losing valid
+  safety fixes.
+
+Expected outcome:
+- Future cleanup work has an explicit path: extract useful content into clean,
+  focused PRs or close stale PRs only after documented supersession.
+- Operators should not mistake PR #42, PR #43, or PR #3 for merge-ready work.
+
+Verification:
+- SHOWN: `gh pr list --state open --json ...` returned PR #43, PR #42, and
+  PR #3 as the only open PRs; all three target `master` and report
+  `mergeStateStatus=DIRTY`.
+- SHOWN: `gh pr view 43 --json ...` returned `mergeStateStatus=DIRTY` and the
+  branch file list includes high-risk runtime/execution surfaces.
+- SHOWN: local `git rev-list --left-right --count` comparisons produced the
+  branch divergence counts listed above.
+- SHOWN: local `git log --right-only --cherry-pick --no-merges` comparisons
+  produced branch-only commit summaries for all three PR heads.
+- Tests were not run because this is a documentation-only audit update.
+
+Remaining risk:
+- MEDIUM/HIGH: this change records disposition only. It does not close PRs,
+  rebuild unique features, or validate any branch-only implementation.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
+  independent review sign-off.
