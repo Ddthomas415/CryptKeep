@@ -417,8 +417,9 @@ Risk:
 
 ## Priority 16 - Hetzner Paper Campaign Host
 
-Status: planned; do not migrate the active campaign until the first corrected
-post-rollout UTC window is verified locally
+Status: runbook accepted; host hardening proof complete; cloud safeguards and
+campaign deployment remain blocked pending independent review and an
+operator/VPN SSH source CIDR.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -434,8 +435,12 @@ Why it matters:
   VPS.
 
 Next action:
-- Write a paper-only Hetzner deployment runbook before provisioning runtime
-  services.
+- Keep the paper-only Hetzner deployment runbook as the controlling artifact:
+  `docs/HETZNER_PAPER_HOST.md`.
+- Obtain a narrow operator/VPN SSH source CIDR before planning or applying
+  cloud safeguards.
+- Independently review the cloud safeguard path before any
+  `hetzner_cloud_safeguards.py --apply` run.
 - Run collectors with no live-trading credentials and no public application
   ports; administer through SSH or a private VPN only.
 - Define one canonical host owner for each campaign so laptop and VPS
@@ -452,6 +457,9 @@ Next action:
 Proof required:
 - Targeted deployment/config tests and a documented dry run.
 - No externally reachable dashboard or backend port.
+- Hetzner Cloud firewall, backups, and delete/rebuild protection are either
+  applied through the reviewed safeguard path or explicitly deferred with a
+  written risk acceptance.
 - One collector owner per campaign, with duplicate-process checks passing.
 - Evidence counts and checksums match before and after state migration.
 - `restore_paper_campaigns.py --status` reports all configured collectors
@@ -462,7 +470,8 @@ Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,
   credentials/configuration, remote host security, and duplicate campaign
   ownership.
-- Acceptance state: planning only; implementation must stop at
+- Acceptance state: runbook accepted; cloud safeguards and deployment remain
+  high-risk and implementation must stop at
   `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## Priority 17 - Derivatives, Intraday, And Context-Pattern Roadmap
