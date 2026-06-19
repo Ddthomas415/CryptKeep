@@ -5648,3 +5648,56 @@ Remaining risk:
   does not start, stop, restore, route, or place anything.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
   independent review sign-off.
+
+## 2026-06-19T17:52:46Z - Draft Pullback Recovery Paper Campaign Plan
+
+Active role: ENGINEER
+
+Objective:
+- Convert the accepted pattern-strategy backlog item into a concrete
+  paper-only `pullback_recovery_default` campaign plan without changing active
+  campaign configuration or runtime behavior.
+
+What was found:
+- SHOWN: `pullback_recovery` exists in
+  `services/strategies/pullback_recovery.py`.
+- SHOWN: `pullback_recovery_default` exists in
+  `services/strategies/presets.py`.
+- SHOWN: `services/strategies/validation.py` supports `pullback_recovery`
+  parameter validation.
+- SHOWN: `services/backtest/leaderboard.py` includes
+  `pullback_recovery_default` in default aggregate candidates.
+- SHOWN: `configs/paper_evidence_campaigns.json` currently has only the three
+  accepted campaigns: `es_daily_trend_v1`, `ema_cross_default`, and
+  `breakout_default`.
+
+What changed:
+- Added
+  `docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md`.
+- Updated Priority 13 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to point to
+  the drafted plan and make independent review the next step.
+
+Why this change:
+- Planning the isolated proof is the smallest safe step before starting another
+  strategy campaign.
+- It preserves current paper evidence collection while giving the pattern
+  strategy path explicit state isolation, evidence gates, risk caps, and stop
+  conditions.
+
+Expected outcome:
+- A reviewer can decide whether to accept a Stage 0 one-shot proof for
+  `pullback_recovery_default`.
+- No active paper campaign, gate, manifest, order-routing path, or live-control
+  surface changes because of this documentation-only step.
+
+Verification:
+- SHOWN: source inspection verified the strategy, preset, validation, and
+  leaderboard hooks referenced by the plan.
+- Tests were not run because this is a documentation-only planning change.
+
+Remaining risk:
+- HIGH: any future campaign activation, strategy evidence interpretation, or
+  financial strategy selection remains high-risk and must be separately
+  reviewed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
