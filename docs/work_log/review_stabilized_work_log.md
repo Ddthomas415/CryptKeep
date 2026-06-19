@@ -5646,4 +5646,5 @@ Verification:
 Remaining risk:
 - MEDIUM: this is operator-reporting code that reads live local state, but it
   does not start, stop, restore, route, or place anything.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-06-19 after
+  independent review sign-off.
