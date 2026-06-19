@@ -6056,3 +6056,59 @@ Remaining risk:
   any short-side execution remain separate future workstreams requiring
   separate proof and review.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-19T19:10:58Z - Record Crypto Edge Live-Public Partial Proof
+
+Active role: ENGINEER
+
+Objective:
+- Run and record the bounded read-only public-data collection proof for the
+  accepted crypto-edge context collector/store extension without using
+  canonical state or execution credentials.
+
+What was found:
+- SHOWN: the public-data proof completed against
+  `/private/tmp/cbp_crypto_edge_context_live_public_proof_20260619.sqlite`.
+- SHOWN: the output retained `research_only=true` and
+  `execution_enabled=false`.
+- SHOWN: Coinbase/Kraken quote collection worked with `quote_count=2`.
+- SHOWN: Coinbase order-book collection worked with `order_book_count=1`.
+- SHOWN: Binance funding, open-interest, and basis checks failed at exchange
+  open with `exchange_open_failed:RuntimeError`.
+- SHOWN: `services/security/binance_guard.py` intentionally blocks Binance
+  unless `CBP_VENUE` starts with `binance` and `CBP_ALLOW_BINANCE=1`.
+
+What changed:
+- Updated Priority 12 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to record
+  the partial live-public proof and the Binance guard condition.
+
+Why this change:
+- The public-data proof is materially different from the deterministic sample
+  proof: spot quote/order-book context is proven, but derivatives context is
+  still not proven under default guard settings.
+- Future operators should not mistake missing Binance rows for a connector
+  success or for venue/compliance approval.
+
+Expected outcome:
+- Replay work can use deterministic sample data or the proven live quote/order
+  book row families, but funding/open-interest/basis replay still needs a
+  separate accepted Binance guard-enabled proof.
+- The Binance guard remains intact; this documentation does not authorize
+  derivatives execution or any short-side routing.
+
+Verification:
+- SHOWN: `./.venv/bin/python scripts/collect_live_crypto_edge_snapshot.py --plan-file sample_data/crypto_edges/live_collector_plan.json --db-path /private/tmp/cbp_crypto_edge_context_live_public_proof_20260619.sqlite --print-report`
+  returned `ok=true`.
+- SHOWN: output reported `quote_count=2`, `order_book_count=1`,
+  `research_only=true`, and `execution_enabled=false`.
+- SHOWN: source inspection confirmed Binance access is guard-blocked by
+  `services/security/binance_guard.py` unless explicit environment settings
+  allow it.
+- Tests not run: documentation-only status/proof update.
+
+Remaining risk:
+- HIGH: funding, open-interest, basis, derivatives context, replay analysis,
+  paper short simulation, and short-side execution remain separate future
+  workstreams requiring separate proof and review.
+- Acceptance state: `ACCEPTED`.
