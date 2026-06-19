@@ -374,7 +374,8 @@ Risk:
 
 ## Priority 13 - Pattern And Hybrid Strategy Roadmap
 
-Status: `pullback_recovery` campaign plan drafted; pending independent review
+Status: `pullback_recovery` plan accepted; attribution fix merged; full
+post-fix Stage 0 rerun pending operator execution
 
 Why it matters:
 - `pullback_recovery` is already coded and wired into the strategy registry.
@@ -386,10 +387,9 @@ Why it matters:
   backtestable composite strategy path rather than ad hoc operator judgment.
 
 Next action:
-- Independently review
-  `docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md`.
-- If accepted, run only the Stage 0 isolated one-shot proof for
-  `pullback_recovery_default`.
+- Run only the full post-fix Stage 0 isolated one-shot proof for
+  `pullback_recovery_default` when the operator is ready for a 15-minute
+  command. Do not enable a persistent daily campaign until that proof passes.
 - Design a backtestable composite/hybrid wrapper before combining strategies in
   production paths. Candidate hybrids include trend-confirmed breakout,
   range/trend switcher, and weighted-vote consensus.
