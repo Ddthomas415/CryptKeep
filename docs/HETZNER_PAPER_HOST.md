@@ -124,12 +124,17 @@ SHOWN:
 - Only SSH is publicly listening.
 - Local paper collectors remained on the laptop; no campaign state was copied
   and no server collector was started.
+- Read-only inventory refreshed on `2026-06-19T01:50:21Z` reported one running
+  server, `ubuntu-4gb-nbg1-3` (`id=126306158`, `cax11`, `nbg1`), one SSH key,
+  two primary IPs, zero networks, zero volumes, and zero firewalls.
 
 Still blocked:
 - Hetzner Cloud firewall is not configured; read-only inventory still reports
   `firewalls=0`.
 - Hetzner backups are not enabled.
 - Hetzner delete/rebuild protection is not enabled.
+- A real operator/VPN SSH source CIDR has not been supplied for the cloud
+  safeguard plan.
 - No isolated challenger has completed a server-hosted UTC cycle.
 - No backup/restore rehearsal has been performed.
 

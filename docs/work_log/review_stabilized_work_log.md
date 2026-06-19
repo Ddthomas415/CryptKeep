@@ -5230,3 +5230,63 @@ Remaining risk:
   acceptance time; CI validate was still pending.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-06-18 after
   independent review sign-off.
+
+## 2026-06-19T01:50:21Z - Refresh Hetzner Paper Host Status
+
+Active role: ENGINEER
+
+Objective:
+- Align the Hetzner paper-host documentation and checkpoint with the current
+  verified state before any remote campaign deployment work.
+
+What was found:
+- SHOWN: `scripts/set_hetzner_api_token.py --status` reported a token present
+  in OS keyring under account `hetzner_cloud:readonly` without printing the
+  secret.
+- SHOWN: `scripts/hetzner_account_status.py` performed read-only inventory and
+  reported one running server: `ubuntu-4gb-nbg1-3`, `id=126306158`, `cax11`,
+  `nbg1`.
+- SHOWN: read-only inventory reported `firewalls=0`, `ssh_keys=1`,
+  `primary_ips=2`, `networks=0`, and `volumes=0`.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` already exists and is the controlling
+  paper-only deployment runbook, so creating a duplicate runbook would create a
+  source-of-truth problem.
+
+What changed:
+- Updated `docs/HETZNER_PAPER_HOST.md` with the refreshed read-only inventory
+  timestamp and resource counts.
+- Updated Priority 16 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to reflect
+  that the runbook is accepted while cloud safeguards and campaign deployment
+  remain blocked pending independent review and a narrow operator/VPN SSH CIDR.
+
+Why this change:
+- The highest-leverage safe action is to prevent duplicate planning and make
+  the remaining blocker explicit.
+- Applying Hetzner Cloud safeguards or moving collectors would be high-risk and
+  requires an explicit SSH source CIDR plus independent review.
+
+Expected outcome:
+- Future check-ins should not rediscover or rewrite the Hetzner runbook.
+- The next actionable Hetzner step is explicit: obtain a narrow SSH source CIDR,
+  review the safeguard path, then run a dry plan before any `--apply`.
+- Active paper campaigns remain owned by the laptop.
+
+Verification:
+- SHOWN: `./.venv/bin/python scripts/set_hetzner_api_token.py --status`
+  returned `ok=true`, `present=true`, `stored_in=os_keyring`.
+- SHOWN: `./.venv/bin/python scripts/hetzner_account_status.py` returned
+  `ok=true` with read-only project inventory.
+- SHOWN: `git diff --check` passed.
+- SHOWN: targeted `rg` confirmed the updated runbook/checkpoint/work-log
+  surfaces contain `firewalls=0`, `operator/VPN SSH source CIDR`, and
+  `READY_FOR_INDEPENDENT_REVIEW` blocker language.
+- Tests were not run because this is a documentation-only status update.
+
+Remaining risk:
+- HIGH: Hetzner Cloud safeguard application, remote host operations, and
+  campaign state migration remain high-risk.
+- UNVERIFIED: no Hetzner Cloud firewall, backup, protection, host backup
+  rehearsal, isolated server-hosted UTC cycle, or canonical migration was
+  performed by this change.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
