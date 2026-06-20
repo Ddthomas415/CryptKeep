@@ -6578,6 +6578,61 @@ Remaining risk:
 - LOW: documentation-only audit-trail correction.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-06-20T15:56:20Z - Harden Hetzner Preflight Runtime Dependency Check
+
+Active role: ENGINEER
+
+Objective:
+- Prevent another Hetzner migration attempt from passing host preflight when
+  the repo-local venv exists but runtime dependencies are not installed.
+
+What was found:
+- SHOWN: the 2026-06-20 isolated challenger proof reached state transfer before
+  discovering `ModuleNotFoundError: No module named 'yaml'`.
+- SHOWN: the previous preflight checked required files, venv prefix, Git state,
+  NTP, Tailscale, and campaign config, but did not import the collector runtime.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` documented `python3 -m venv .venv` but did
+  not mention Ubuntu's required `python3.12-venv` package or a dependency smoke
+  import.
+
+What changed:
+- Added a bounded `collector_imports` check to
+  `scripts/hetzner_paper_host_preflight.py`.
+- The new check runs the active venv Python in a subprocess and imports
+  `services.analytics.paper_strategy_evidence_service`.
+- Added test coverage proving the check uses the provided venv executable and
+  surfaces missing dependency stderr such as `No module named 'yaml'`.
+- Updated `docs/HETZNER_PAPER_HOST.md` to install `python3.12-venv`, rebuild
+  `.venv`, install requirements, and verify `import yaml`.
+
+Why this change:
+- Importing the collector service is the smallest read-only check that validates
+  the dependency path needed to start a paper evidence collector.
+- It catches the actual blocker before stopping local ownership or transferring
+  state.
+
+Expected outcome:
+- Hetzner preflight fails early with `collector_imports_failed` when runtime
+  dependencies are missing.
+- A future migration attempt reaches state transfer only after the host can
+  import the collector service.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_hetzner_paper_host_preflight.py`
+  could not run because the current local `.venv` reports
+  `No module named pytest`.
+- SHOWN: `./.venv/bin/python -m py_compile scripts/hetzner_paper_host_preflight.py tests/test_hetzner_paper_host_preflight.py`
+  completed with exit code `0`.
+- SHOWN: `git diff --check` completed with exit code `0`.
+- SHOWN: a direct `check_collector_imports` function smoke check returned
+  `collector_imports_direct_smoke_ok`, covering both success and
+  `ModuleNotFoundError: No module named 'yaml'` failure reporting.
+
+Remaining risk:
+- HIGH: deployment preflight behavior sits on the high-risk paper-host
+  migration path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-20T15:09:08Z - Fix Hetzner Preflight Venv Detection
 
 Active role: ENGINEER

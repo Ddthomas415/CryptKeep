@@ -88,6 +88,43 @@ def check_python_venv(
     )
 
 
+def check_collector_imports(
+    *,
+    repo_root: Path = ROOT,
+    executable: str = sys.executable,
+    run_command: RunCommand = subprocess.run,
+) -> dict[str, Any]:
+    code = (
+        "import importlib\n"
+        "importlib.import_module('services.analytics.paper_strategy_evidence_service')\n"
+        "print('collector_import_ok')\n"
+    )
+    try:
+        completed = _run(
+            [executable, "-c", code],
+            cwd=repo_root,
+            timeout=10.0,
+            run_command=run_command,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return _check(
+            "collector_imports",
+            False,
+            f"collector_import_probe_failed:{type(exc).__name__}",
+            executable=executable,
+        )
+    ok = completed.returncode == 0
+    return _check(
+        "collector_imports",
+        ok,
+        "collector_imports_ok" if ok else "collector_imports_failed",
+        executable=executable,
+        returncode=completed.returncode,
+        stdout=str(completed.stdout or "").strip(),
+        stderr=str(completed.stderr or "").strip(),
+    )
+
+
 def check_git_checkout(
     *,
     repo_root: Path = ROOT,
@@ -253,6 +290,7 @@ def build_report(
     checks = [
         check_required_files(repo_root),
         check_python_venv(repo_root=repo_root),
+        check_collector_imports(repo_root=repo_root, run_command=run_command),
         check_git_checkout(
             repo_root=repo_root,
             expected_commit=expected_commit,

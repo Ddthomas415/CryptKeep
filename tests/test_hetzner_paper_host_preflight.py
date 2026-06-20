@@ -7,8 +7,8 @@ from pathlib import Path
 from scripts import hetzner_paper_host_preflight as preflight
 
 
-def _completed(stdout: str, returncode: int = 0) -> subprocess.CompletedProcess[str]:
-    return subprocess.CompletedProcess(args=[], returncode=returncode, stdout=stdout, stderr="")
+def _completed(stdout: str, returncode: int = 0, stderr: str = "") -> subprocess.CompletedProcess[str]:
+    return subprocess.CompletedProcess(args=[], returncode=returncode, stdout=stdout, stderr=stderr)
 
 
 def test_campaign_config_accepts_hetzner_example_without_state_requirement() -> None:
@@ -142,6 +142,39 @@ def test_python_venv_uses_active_prefix_not_resolved_executable(tmp_path: Path) 
     assert result["ok"] is True
     assert result["status"] == "repo_venv"
     assert result["details"]["sys_prefix"] == str(venv.resolve())
+
+
+def test_collector_imports_uses_venv_python_and_reports_missing_dependency(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+    executable = str(tmp_path / ".venv/bin/python")
+
+    def _run_success(command, **_kwargs):
+        calls.append(command)
+        return _completed("collector_import_ok\n")
+
+    ok = preflight.check_collector_imports(
+        repo_root=tmp_path,
+        executable=executable,
+        run_command=_run_success,
+    )
+
+    assert ok["ok"] is True
+    assert ok["status"] == "collector_imports_ok"
+    assert calls[0][0] == executable
+
+    failed = preflight.check_collector_imports(
+        repo_root=tmp_path,
+        executable=executable,
+        run_command=lambda *_args, **_kwargs: _completed(
+            "",
+            returncode=1,
+            stderr="ModuleNotFoundError: No module named 'yaml'",
+        ),
+    )
+
+    assert failed["ok"] is False
+    assert failed["status"] == "collector_imports_failed"
+    assert "yaml" in failed["details"]["stderr"]
 
 
 def test_time_sync_requires_ntp_yes(monkeypatch) -> None:

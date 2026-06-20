@@ -205,8 +205,13 @@ Prepare the accepted checkout and environment:
 
 ```bash
 cd /srv/cryptkeep/app
+sudo apt-get update
+sudo apt-get install -y python3.12-venv
+rm -rf .venv
 python3 -m venv .venv
+./.venv/bin/python -m pip install --upgrade pip
 ./.venv/bin/pip install -r requirements.txt
+./.venv/bin/python -c "import yaml; print('yaml_ok')"
 ```
 
 Before campaign deployment:
