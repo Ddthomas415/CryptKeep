@@ -7051,3 +7051,69 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #90 was merged.
+
+## 2026-06-20T20:11:43Z - Rehearse Hetzner EMA Backup Restore
+
+Active role: ENGINEER
+
+Objective:
+- Complete the isolated backup/restore rehearsal for the Hetzner-hosted
+  `ema_cross_default` challenger without touching active state or canonical
+  `.cbp_state`.
+
+What was found:
+- SHOWN: current UTC time was `2026-06-20T20:10:18Z`, so the first
+  Hetzner-hosted UTC cycle was not due yet.
+- SHOWN: `review-stabilized`, `origin/master`, and
+  `origin/review-stabilized` were aligned at `d6a6ae5696fdaa65ca55a6b53f59fc88db493f3f`.
+- SHOWN: Hetzner `ema_cross_default` was running/idle as PID `1286864`.
+- SHOWN: local `ema_cross_default` was stopped, while local
+  `es_daily_trend_v1` and `breakout_default` remained running.
+- SHOWN: `/srv/cryptkeep/backups` existed and was owned by `cryptkeep`.
+- SHOWN: host disk and inode usage had available capacity.
+
+What changed:
+- Created a Hetzner backup manifest for the active isolated EMA state.
+- Created a compressed backup archive under `/srv/cryptkeep/backups`.
+- Restored the archive into an isolated rehearsal path under
+  `/srv/cryptkeep/restore_rehearsals`.
+- Verified the restored copy against the backup manifest.
+- Updated
+  `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
+  with the backup/restore rehearsal evidence.
+
+Why this change:
+- The Hetzner runbook requires a backup and isolated restore rehearsal before
+  any canonical state migration.
+- Doing the rehearsal against only the isolated EMA challenger proves the
+  backup mechanics without risking the active campaign owner or production
+  `.cbp_state`.
+
+Expected outcome:
+- The backup/restore requirement is implementation-proof-ready for independent
+  review.
+- The only remaining observation blocker before wider migration planning is the
+  first healthy server-hosted UTC cycle, plus human review of this backup proof.
+
+Verification:
+- SHOWN: manifest create returned `ok=true`, `file_count=248`, and
+  `manifest_sha256=fca0c5700899708029c0287d5dde58b8c851bffd6e03b42bd13be273a1c15a8e`.
+- SHOWN: backup archive path:
+  `/srv/cryptkeep/backups/ema_cross_default_20260620T201143Z.tar.gz`.
+- SHOWN: backup manifest path:
+  `/srv/cryptkeep/backups/ema_cross_default_20260620T201143Z.manifest`.
+- SHOWN: isolated restore root:
+  `/srv/cryptkeep/restore_rehearsals/ema_cross_default_20260620T201143Z`.
+- SHOWN: restored manifest verify returned `ok=true`,
+  `expected_file_count=248`, `actual_file_count=248`, `missing=[]`,
+  `changed=[]`, and `extra=[]`.
+- SHOWN: restored and active evidence file counts both returned `24`.
+- SHOWN: restored runtime pid file count returned `0`.
+- SHOWN: active Hetzner campaign remained running as `ema_cross_default`, PID
+  `1286864`.
+
+Remaining risk:
+- HIGH: backup/restore rehearsal is deployment/operational state handling.
+- The first Hetzner-hosted UTC cycle has not completed yet.
+- Canonical `.cbp_state` migration remains blocked.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

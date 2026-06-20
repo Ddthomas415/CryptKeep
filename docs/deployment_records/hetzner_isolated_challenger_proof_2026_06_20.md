@@ -1,6 +1,6 @@
 # Hetzner Isolated Challenger Proof Record - 2026-06-20
 
-Status: `HETZNER_OWNS_EMA_CHALLENGER_PENDING_FIRST_UTC_CYCLE`
+Status: `BACKUP_REHEARSAL_READY_FOR_REVIEW_PENDING_FIRST_UTC_CYCLE`
 
 This record covers only the isolated `ema_cross_default` paper challenger
 migration proof. It does not authorize canonical `.cbp_state` migration, live
@@ -277,7 +277,47 @@ Pending.
 
 ## Backup Restore Rehearsal
 
-Pending. Required before canonical migration.
+Date/time UTC: `2026-06-20T20:11:43Z`
+
+Scope:
+- Rehearsed backup/restore only for the isolated `ema_cross_default` challenger.
+- Did not restore over active Hetzner state.
+- Did not stop the active Hetzner collector.
+- Did not start a collector from the restored copy.
+- Did not touch canonical `.cbp_state`.
+
+Backup paths:
+- Archive:
+  `/srv/cryptkeep/backups/ema_cross_default_20260620T201143Z.tar.gz`
+- Manifest:
+  `/srv/cryptkeep/backups/ema_cross_default_20260620T201143Z.manifest`
+- Isolated restore root:
+  `/srv/cryptkeep/restore_rehearsals/ema_cross_default_20260620T201143Z`
+
+Backup manifest:
+- [x] SHOWN: manifest create returned `ok=true`.
+- [x] SHOWN: `file_count=248`.
+- [x] SHOWN:
+  `manifest_sha256=fca0c5700899708029c0287d5dde58b8c851bffd6e03b42bd13be273a1c15a8e`.
+- [x] SHOWN: manifest path was outside the active state tree.
+
+Restore verification:
+- [x] SHOWN: restore target was isolated from active state:
+  `/srv/cryptkeep/restore_rehearsals/ema_cross_default_20260620T201143Z/.cbp_state_challengers/ema_cross_default_daily`.
+- [x] SHOWN: restored manifest verification returned `ok=true`.
+- [x] SHOWN: `expected_file_count=248`.
+- [x] SHOWN: `actual_file_count=248`.
+- [x] SHOWN: `missing=[]`.
+- [x] SHOWN: `changed=[]`.
+- [x] SHOWN: `extra=[]`.
+- [x] SHOWN: restored evidence file count was `24`.
+- [x] SHOWN: active evidence file count was `24`.
+- [x] SHOWN: restored runtime pid file count was `0`.
+- [x] SHOWN: active Hetzner campaign remained running as
+  `ema_cross_default`, PID `1286864`.
+
+Acceptance state:
+- `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## Host Dependency Setup Completed
 
@@ -416,7 +456,8 @@ Current ownership:
 
 Remaining required proof:
 - First server-hosted UTC cycle observation for `ema_cross_default`.
-- Backup/restore rehearsal before any canonical `.cbp_state` migration.
+- Human review of the backup/restore rehearsal before any canonical
+  `.cbp_state` migration.
 
 Acceptance state:
 - `ACCEPTED`.
