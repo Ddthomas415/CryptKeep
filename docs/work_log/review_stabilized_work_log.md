@@ -7048,4 +7048,6 @@ Remaining risk:
 - HIGH: this is operational migration/background-job ownership work.
 - The first Hetzner-hosted UTC cycle has not completed yet.
 - Backup/restore rehearsal is still required before canonical state migration.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #90 was merged.

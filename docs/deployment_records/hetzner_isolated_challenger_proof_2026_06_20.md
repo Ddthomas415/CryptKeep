@@ -417,7 +417,8 @@ Current ownership:
 Remaining required proof:
 - First server-hosted UTC cycle observation for `ema_cross_default`.
 - Backup/restore rehearsal before any canonical `.cbp_state` migration.
-- Human review of this high-risk migration record.
 
 Acceptance state:
-- `READY_FOR_INDEPENDENT_REVIEW`.
+- `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #90 was merged.
