@@ -22,6 +22,10 @@ RESOURCE_PATHS = {
 
 OpenUrl = Callable[..., Any]
 SSH_FIREWALL_NAME = "cryptkeep-paper-ssh-only"
+TAILSCALE_ONLY_FIREWALL_NAME = "cryptkeep-tailscale-only"
+ACCESS_MODE_CIDR_SSH = "cidr_ssh"
+ACCESS_MODE_TAILSCALE_ONLY = "tailscale_only"
+ACCESS_MODES = {ACCESS_MODE_CIDR_SSH, ACCESS_MODE_TAILSCALE_ONLY}
 
 
 class HetznerCloudError(RuntimeError):
@@ -171,6 +175,13 @@ def _normalize_ssh_source_cidrs(source_cidrs: list[str] | None) -> list[str]:
     return values
 
 
+def _normalize_access_mode(value: str | None) -> str:
+    mode = str(value or ACCESS_MODE_CIDR_SSH).strip().lower().replace("-", "_")
+    if mode not in ACCESS_MODES:
+        raise HetznerCloudError("hetzner_access_mode_invalid")
+    return mode
+
+
 def _ssh_firewall_rules(source_cidrs: list[str]) -> list[dict[str, Any]]:
     cidrs = _normalize_ssh_source_cidrs(source_cidrs)
     return [
@@ -202,6 +213,11 @@ def _ssh_firewall_rules_match(
         and str(rule.get("port") or "") == expected_rule["port"]
         and set(rule.get("source_ips") or []) == set(expected_rule["source_ips"])
     )
+
+
+def _tailscale_only_firewall_rules_match(firewall: dict[str, Any]) -> bool:
+    rules = firewall.get("rules")
+    return isinstance(rules, list) and len(rules) == 0
 
 
 def _is_firewall_attached_to_server(firewall: dict[str, Any], server_id: int) -> bool:
@@ -288,6 +304,7 @@ def plan_cloud_safeguards(
     *,
     server_id: int,
     ssh_source_cidrs: list[str] | None = None,
+    access_mode: str = ACCESS_MODE_CIDR_SSH,
     open_url: OpenUrl = urllib.request.urlopen,
 ) -> dict[str, Any]:
     value = str(token or "").strip()
@@ -295,14 +312,17 @@ def plan_cloud_safeguards(
         raise HetznerCloudError("hetzner_token_missing")
     if not isinstance(server_id, int) or server_id <= 0:
         raise HetznerCloudError("hetzner_server_id_invalid")
+    mode = _normalize_access_mode(access_mode)
     cidrs = _normalize_ssh_source_cidrs(ssh_source_cidrs)
-    if not cidrs:
+    if mode == ACCESS_MODE_CIDR_SSH and not cidrs:
         return {
             "ok": False,
             "ready_to_apply": False,
             "reason": "ssh_source_cidr_required",
             "changes": [],
         }
+    if mode == ACCESS_MODE_TAILSCALE_ONLY and cidrs:
+        raise HetznerCloudError("ssh_source_cidr_not_allowed_for_tailscale_only")
 
     server_payload = _get_json(f"/servers/{server_id}", token=value, open_url=open_url)
     server = server_payload.get("server")
@@ -314,11 +334,16 @@ def plan_cloud_safeguards(
         token=value,
         open_url=open_url,
     )
+    firewall_name = (
+        TAILSCALE_ONLY_FIREWALL_NAME
+        if mode == ACCESS_MODE_TAILSCALE_ONLY
+        else SSH_FIREWALL_NAME
+    )
     named_firewall = next(
         (
             firewall
             for firewall in firewalls
-            if str(firewall.get("name") or "") == SSH_FIREWALL_NAME
+            if str(firewall.get("name") or "") == firewall_name
         ),
         None,
     )
@@ -332,36 +357,66 @@ def plan_cloud_safeguards(
 
     changes: list[dict[str, Any]] = []
     if named_firewall is None:
-        changes.append(
-            {
-                "id": "create_ssh_firewall",
-                "method": "POST",
-                "path": "/firewalls",
-                "needed": True,
-                "name": SSH_FIREWALL_NAME,
-                "source_ips": cidrs,
-                "attach_to_server_id": server_id,
-            }
-        )
-    else:
-        if not _ssh_firewall_rules_match(named_firewall, cidrs):
+        if mode == ACCESS_MODE_TAILSCALE_ONLY:
             changes.append(
                 {
-                    "id": "set_ssh_firewall_rules",
+                    "id": "create_tailscale_only_firewall",
                     "method": "POST",
-                    "path": f"/firewalls/{named_firewall.get('id')}/actions/set_rules",
+                    "path": "/firewalls",
                     "needed": True,
-                    "firewall_id": named_firewall.get("id"),
-                    "source_ips": cidrs,
+                    "name": TAILSCALE_ONLY_FIREWALL_NAME,
+                    "rules": [],
+                    "attach_to_server_id": server_id,
                 }
             )
         else:
-            changes.append({"id": "ssh_firewall_rules_current", "needed": False})
+            changes.append(
+                {
+                    "id": "create_ssh_firewall",
+                    "method": "POST",
+                    "path": "/firewalls",
+                    "needed": True,
+                    "name": SSH_FIREWALL_NAME,
+                    "source_ips": cidrs,
+                    "attach_to_server_id": server_id,
+                }
+            )
+    else:
+        if mode == ACCESS_MODE_TAILSCALE_ONLY:
+            rules_match = _tailscale_only_firewall_rules_match(named_firewall)
+            drift_id = "set_tailscale_only_firewall_rules"
+            current_id = "tailscale_only_firewall_rules_current"
+        else:
+            rules_match = _ssh_firewall_rules_match(named_firewall, cidrs)
+            drift_id = "set_ssh_firewall_rules"
+            current_id = "ssh_firewall_rules_current"
+        if not rules_match:
+            change: dict[str, Any] = {
+                "id": drift_id,
+                "method": "POST",
+                "path": f"/firewalls/{named_firewall.get('id')}/actions/set_rules",
+                "needed": True,
+                "firewall_id": named_firewall.get("id"),
+            }
+            if mode == ACCESS_MODE_TAILSCALE_ONLY:
+                change["rules"] = []
+            else:
+                change["source_ips"] = cidrs
+            changes.append(
+                change
+            )
+        else:
+            changes.append({"id": current_id, "needed": False})
 
     if named_firewall is not None and not firewall_attached:
+        attach_id = (
+            "attach_tailscale_only_firewall"
+            if mode == ACCESS_MODE_TAILSCALE_ONLY
+            else "attach_ssh_firewall"
+        )
         changes.append(
             {
-                "id": "attach_ssh_firewall",
+                "id": attach_id,
                 "method": "POST",
                 "path": f"/firewalls/{named_firewall.get('id')}/actions/apply_to_resources",
                 "needed": True,
@@ -370,7 +425,12 @@ def plan_cloud_safeguards(
             }
         )
     elif named_firewall is not None:
-        changes.append({"id": "ssh_firewall_attached", "needed": False})
+        attached_id = (
+            "tailscale_only_firewall_attached"
+            if mode == ACCESS_MODE_TAILSCALE_ONLY
+            else "ssh_firewall_attached"
+        )
+        changes.append({"id": attached_id, "needed": False})
 
     if not (
         isinstance(protection, dict)
@@ -404,6 +464,8 @@ def plan_cloud_safeguards(
         "ok": True,
         "server": _server_detail(server),
         "ready_to_apply": True,
+        "access_mode": mode,
+        "firewall_name": firewall_name,
         "ssh_source_cidrs": cidrs,
         "changes": changes,
         "changes_needed": [row for row in changes if bool(row.get("needed"))],
@@ -415,7 +477,8 @@ def apply_cloud_safeguards(
     *,
     server_id: int,
     confirm_server_id: int,
-    ssh_source_cidrs: list[str],
+    ssh_source_cidrs: list[str] | None = None,
+    access_mode: str = ACCESS_MODE_CIDR_SSH,
     open_url: OpenUrl = urllib.request.urlopen,
 ) -> dict[str, Any]:
     if confirm_server_id != server_id:
@@ -424,6 +487,7 @@ def apply_cloud_safeguards(
         token,
         server_id=server_id,
         ssh_source_cidrs=ssh_source_cidrs,
+        access_mode=access_mode,
         open_url=open_url,
     )
     if not bool(plan.get("ok")):
@@ -459,6 +523,30 @@ def apply_cloud_safeguards(
                     "action_ids": _action_ids(response),
                 }
             )
+        elif change_id == "create_tailscale_only_firewall":
+            response = _request_json(
+                "POST",
+                "/firewalls",
+                token=token,
+                body={
+                    "name": TAILSCALE_ONLY_FIREWALL_NAME,
+                    "rules": [],
+                    "apply_to": [
+                        {"type": "server", "server": {"id": server_id}},
+                    ],
+                },
+                open_url=open_url,
+            )
+            firewall = response.get("firewall")
+            applied.append(
+                {
+                    "id": change_id,
+                    "firewall_id": (
+                        firewall.get("id") if isinstance(firewall, dict) else None
+                    ),
+                    "action_ids": _action_ids(response),
+                }
+            )
         elif change_id == "set_ssh_firewall_rules":
             firewall_id = _server_id(change.get("firewall_id"))
             if firewall_id is None:
@@ -471,7 +559,35 @@ def apply_cloud_safeguards(
                 open_url=open_url,
             )
             applied.append({"id": change_id, "action_ids": _action_ids(response)})
+        elif change_id == "set_tailscale_only_firewall_rules":
+            firewall_id = _server_id(change.get("firewall_id"))
+            if firewall_id is None:
+                raise HetznerCloudError("hetzner_firewall_id_invalid")
+            response = _request_json(
+                "POST",
+                f"/firewalls/{firewall_id}/actions/set_rules",
+                token=token,
+                body={"rules": []},
+                open_url=open_url,
+            )
+            applied.append({"id": change_id, "action_ids": _action_ids(response)})
         elif change_id == "attach_ssh_firewall":
+            firewall_id = _server_id(change.get("firewall_id"))
+            if firewall_id is None:
+                raise HetznerCloudError("hetzner_firewall_id_invalid")
+            response = _request_json(
+                "POST",
+                f"/firewalls/{firewall_id}/actions/apply_to_resources",
+                token=token,
+                body={
+                    "apply_to": [
+                        {"type": "server", "server": {"id": server_id}},
+                    ],
+                },
+                open_url=open_url,
+            )
+            applied.append({"id": change_id, "action_ids": _action_ids(response)})
+        elif change_id == "attach_tailscale_only_firewall":
             firewall_id = _server_id(change.get("firewall_id"))
             if firewall_id is None:
                 raise HetznerCloudError("hetzner_firewall_id_invalid")

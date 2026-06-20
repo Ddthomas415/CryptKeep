@@ -134,7 +134,8 @@ planning; apply modes are high-risk and require an accepted review.
 
 - `hetzner_cloud_safeguards.py` — plan by default, or explicitly apply, Hetzner
   Cloud firewall, backup, and delete/rebuild protection safeguards for the paper
-  host using the OS-keyring token.
+  host using the OS-keyring token; use `--access-mode tailscale-only` for the
+  accepted no-public-inbound firewall boundary.
 
 ### Candidate, Signal, Learning, And Research
 

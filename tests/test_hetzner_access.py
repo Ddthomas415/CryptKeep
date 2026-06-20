@@ -229,6 +229,68 @@ def test_cloud_safeguard_plan_rejects_broad_ssh_source_before_network() -> None:
         )
 
 
+def test_cloud_safeguard_plan_tailscale_only_does_not_require_ssh_source() -> None:
+    seen = []
+
+    def _open(request, *, timeout, context):
+        seen.append((request.method, urllib.parse.urlsplit(request.full_url).path))
+        path = urllib.parse.urlsplit(request.full_url).path
+        if path.endswith("/servers/7"):
+            return _Response(
+                {
+                    "server": {
+                        "id": 7,
+                        "name": "paper-host",
+                        "status": "running",
+                        "server_type": {"name": "cax11"},
+                        "datacenter": {"location": {"name": "nbg1"}},
+                        "backup_window": None,
+                        "protection": {"delete": False, "rebuild": False},
+                    }
+                }
+            )
+        if path.endswith("/firewalls"):
+            return _Response({"firewalls": []})
+        raise AssertionError(path)
+
+    result = hetzner_cloud.plan_cloud_safeguards(
+        "secret-token",
+        server_id=7,
+        access_mode=hetzner_cloud.ACCESS_MODE_TAILSCALE_ONLY,
+        open_url=_open,
+    )
+
+    assert result["ok"] is True
+    assert result["ready_to_apply"] is True
+    assert result["access_mode"] == hetzner_cloud.ACCESS_MODE_TAILSCALE_ONLY
+    assert result["firewall_name"] == hetzner_cloud.TAILSCALE_ONLY_FIREWALL_NAME
+    assert result["ssh_source_cidrs"] == []
+    assert [row["id"] for row in result["changes_needed"]] == [
+        "create_tailscale_only_firewall",
+        "enable_delete_rebuild_protection",
+        "enable_backups",
+    ]
+    assert all(method == "GET" for method, _path in seen)
+    assert "secret-token" not in json.dumps(result)
+
+
+def test_cloud_safeguard_plan_tailscale_only_rejects_ssh_source_before_network() -> None:
+    def _open(_request, *, timeout, context):  # pragma: no cover - must not call
+        raise AssertionError("network should not be called for mixed access modes")
+
+    with pytest.raises(
+        hetzner_cloud.HetznerCloudError,
+        match="^ssh_source_cidr_not_allowed_for_tailscale_only$",
+    ):
+        hetzner_cloud.plan_cloud_safeguards(
+            "secret-token",
+            server_id=7,
+            ssh_source_cidrs=["198.51.100.7/32"],
+            access_mode=hetzner_cloud.ACCESS_MODE_TAILSCALE_ONLY,
+            open_url=_open,
+        )
+
+
 def test_cloud_safeguard_plan_reports_needed_cloud_changes() -> None:
     seen = []
 
@@ -270,6 +332,76 @@ def test_cloud_safeguard_plan_reports_needed_cloud_changes() -> None:
         "enable_backups",
     ]
     assert all(method == "GET" for method, _path in seen)
+    assert "secret-token" not in json.dumps(result)
+
+
+def test_cloud_safeguard_apply_tailscale_only_uses_no_inbound_rules() -> None:
+    seen = []
+
+    def _open(request, *, timeout, context):
+        parsed = urllib.parse.urlsplit(request.full_url)
+        body = json.loads(request.data.decode("utf-8")) if request.data else None
+        seen.append((request.method, parsed.path, body))
+        if parsed.path.endswith("/servers/7") and request.method == "GET":
+            return _Response(
+                {
+                    "server": {
+                        "id": 7,
+                        "name": "paper-host",
+                        "status": "running",
+                        "server_type": {"name": "cax11"},
+                        "datacenter": {"location": {"name": "nbg1"}},
+                        "backup_window": None,
+                        "protection": {"delete": False, "rebuild": False},
+                    }
+                }
+            )
+        if parsed.path.endswith("/firewalls") and request.method == "GET":
+            return _Response({"firewalls": []})
+        if parsed.path.endswith("/firewalls") and request.method == "POST":
+            assert body == {
+                "apply_to": [{"type": "server", "server": {"id": 7}}],
+                "name": hetzner_cloud.TAILSCALE_ONLY_FIREWALL_NAME,
+                "rules": [],
+            }
+            return _Response({"firewall": {"id": 41}, "action": {"id": 101}})
+        if parsed.path.endswith("/servers/7/actions/change_protection"):
+            assert body == {"delete": True, "rebuild": True}
+            return _Response({"action": {"id": 102}})
+        if parsed.path.endswith("/servers/7/actions/enable_backup"):
+            assert body == {}
+            return _Response({"action": {"id": 103}})
+        raise AssertionError((request.method, parsed.path, body))
+
+    result = hetzner_cloud.apply_cloud_safeguards(
+        "secret-token",
+        server_id=7,
+        confirm_server_id=7,
+        access_mode=hetzner_cloud.ACCESS_MODE_TAILSCALE_ONLY,
+        open_url=_open,
+    )
+
+    assert result == {
+        "ok": True,
+        "server_id": 7,
+        "applied": [
+            {
+                "id": "create_tailscale_only_firewall",
+                "firewall_id": 41,
+                "action_ids": [101],
+            },
+            {"id": "enable_delete_rebuild_protection", "action_ids": [102]},
+            {"id": "enable_backups", "action_ids": [103]},
+        ],
+        "applied_count": 3,
+    }
+    assert [method for method, _path, _body in seen] == [
+        "GET",
+        "GET",
+        "POST",
+        "POST",
+        "POST",
+    ]
     assert "secret-token" not in json.dumps(result)
 
 
@@ -348,6 +480,70 @@ def test_cloud_safeguard_apply_uses_guarded_post_sequence() -> None:
         "POST",
     ]
     assert "secret-token" not in json.dumps(result)
+
+
+def test_cloud_safeguard_apply_tailscale_only_corrects_rule_drift() -> None:
+    seen_posts = []
+
+    def _open(request, *, timeout, context):
+        parsed = urllib.parse.urlsplit(request.full_url)
+        body = json.loads(request.data.decode("utf-8")) if request.data else None
+        if parsed.path.endswith("/servers/7") and request.method == "GET":
+            return _Response(
+                {
+                    "server": {
+                        "id": 7,
+                        "name": "paper-host",
+                        "status": "running",
+                        "backup_window": "22-02",
+                        "protection": {"delete": True, "rebuild": True},
+                    }
+                }
+            )
+        if parsed.path.endswith("/firewalls") and request.method == "GET":
+            return _Response(
+                {
+                    "firewalls": [
+                        {
+                            "id": 41,
+                            "name": hetzner_cloud.TAILSCALE_ONLY_FIREWALL_NAME,
+                            "rules": [
+                                {
+                                    "direction": "in",
+                                    "protocol": "tcp",
+                                    "port": "22",
+                                    "source_ips": ["203.0.113.5/32"],
+                                }
+                            ],
+                            "applied_to": [
+                                {"type": "server", "server": {"id": 7}},
+                            ],
+                        }
+                    ]
+                }
+            )
+        if parsed.path.endswith("/firewalls/41/actions/set_rules"):
+            seen_posts.append((parsed.path, body))
+            return _Response({"action": {"id": 201}})
+        raise AssertionError((request.method, parsed.path, body))
+
+    result = hetzner_cloud.apply_cloud_safeguards(
+        "secret-token",
+        server_id=7,
+        confirm_server_id=7,
+        access_mode=hetzner_cloud.ACCESS_MODE_TAILSCALE_ONLY,
+        open_url=_open,
+    )
+
+    assert result["applied"] == [
+        {"id": "set_tailscale_only_firewall_rules", "action_ids": [201]},
+    ]
+    assert seen_posts == [
+        (
+            "/v1/firewalls/41/actions/set_rules",
+            {"rules": []},
+        )
+    ]
 
 
 def test_cloud_safeguard_apply_corrects_existing_named_firewall_rules() -> None:

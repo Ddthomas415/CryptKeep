@@ -15,6 +15,8 @@ except ModuleNotFoundError:
 add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 from services.ops.hetzner_cloud import (  # noqa: E402
+    ACCESS_MODE_CIDR_SSH,
+    ACCESS_MODE_TAILSCALE_ONLY,
     HetznerCloudError,
     apply_cloud_safeguards,
     plan_cloud_safeguards,
@@ -33,6 +35,15 @@ def _parser() -> argparse.ArgumentParser:
         type=int,
         required=True,
         help="Hetzner server id to inspect or protect.",
+    )
+    parser.add_argument(
+        "--access-mode",
+        choices=("cidr-ssh", "tailscale-only"),
+        default="cidr-ssh",
+        help=(
+            "Access boundary to manage. Use tailscale-only for the accepted "
+            "no-public-inbound firewall boundary."
+        ),
     )
     parser.add_argument(
         "--ssh-source-cidr",
@@ -59,6 +70,12 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _access_mode(value: str) -> str:
+    if value == "tailscale-only":
+        return ACCESS_MODE_TAILSCALE_ONLY
+    return ACCESS_MODE_CIDR_SSH
+
+
 def _print(payload: dict[str, Any]) -> None:
     print(json.dumps(payload, indent=2, sort_keys=True))
 
@@ -80,12 +97,14 @@ def main(argv: list[str] | None = None) -> int:
                 server_id=args.server_id,
                 confirm_server_id=int(args.confirm_server_id),
                 ssh_source_cidrs=list(args.ssh_source_cidr),
+                access_mode=_access_mode(args.access_mode),
             )
         else:
             result = plan_cloud_safeguards(
                 token,
                 server_id=args.server_id,
                 ssh_source_cidrs=list(args.ssh_source_cidr),
+                access_mode=_access_mode(args.access_mode),
             )
     except HetznerCloudError as exc:
         result = {"ok": False, "reason": str(exc)}

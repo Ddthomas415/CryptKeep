@@ -103,53 +103,52 @@ tailscale ssh cryptkeep@100.86.128.9
 
 ## Cloud Safeguards Command
 
-Status: `PARTIALLY_SUPERSEDED`
+Status: `READY_FOR_INDEPENDENT_REVIEW`
 
 `scripts/hetzner_cloud_safeguards.py` plans cloud-side safety changes for the
 paper host and applies them only with explicit operator confirmation.
 
-Do not run this command with `--apply` until it is updated or explicitly
-accepted for the Tailscale-only SSH boundary. Its existing SSH-firewall plan is
-CIDR-based and creates/corrects `cryptkeep-paper-ssh-only`; the accepted live
-boundary now uses the manually applied no-public-inbound firewall
-`cryptkeep-tailscale-only`.
+Do not run this command with `--apply` until the Tailscale-only safeguard mode
+is independently reviewed and accepted. The accepted live SSH boundary uses the
+no-public-inbound firewall `cryptkeep-tailscale-only`.
 
 The command is dry-run by default:
 
 ```bash
 ./.venv/bin/python scripts/hetzner_cloud_safeguards.py \
   --server-id 126306158 \
-  --ssh-source-cidr <operator-or-vpn-cidr>
+  --access-mode tailscale-only
 ```
 
 Planned changes:
-- create or correct the named SSH-only firewall `cryptkeep-paper-ssh-only`
-  using a CIDR allowlist;
+- create or correct the named no-public-inbound firewall
+  `cryptkeep-tailscale-only`;
 - attach that firewall to the selected server;
 - enable delete/rebuild protection;
 - enable Hetzner backups.
 
 Safety gates:
 - no token is accepted on the command line;
-- missing SSH source CIDR stops before any Hetzner API request;
+- CIDR-based SSH mode still requires a restrictive SSH source CIDR before any
+  Hetzner API request;
 - `0.0.0.0/0` and `::/0` are rejected;
+- Tailscale-only mode rejects SSH source CIDRs so the old public-SSH allowlist
+  cannot be mixed with the accepted private-network boundary;
 - `--apply` requires `--confirm-server-id` matching `--server-id`;
 - the script prints JSON status only, never the token.
 
-Apply only after independent review and a written decision on whether the
-CIDR-based firewall behavior should be replaced by the accepted Tailscale-only
-firewall behavior:
+Apply only after independent review:
 
 ```bash
 ./.venv/bin/python scripts/hetzner_cloud_safeguards.py \
   --server-id 126306158 \
-  --ssh-source-cidr <operator-or-vpn-cidr> \
+  --access-mode tailscale-only \
   --apply \
   --confirm-server-id 126306158
 ```
 
-Do not use a public-anywhere CIDR. Prefer a stable operator IP, VPN egress CIDR,
-or emergency-access CIDR that is narrow enough to preserve the SSH boundary.
+Do not use the CIDR-based mode for this host unless the access policy is
+explicitly changed away from Tailscale-only.
 
 ## Stage 0 - Host Preparation
 
@@ -181,9 +180,9 @@ SHOWN:
 Still blocked:
 - Hetzner backups are not enabled.
 - Hetzner delete/rebuild protection is not enabled.
-- The older CIDR-based `hetzner_cloud_safeguards.py --apply` path is
-  superseded for SSH and must not be applied until it is updated or explicitly
-  accepted for the Tailscale-only boundary.
+- `hetzner_cloud_safeguards.py --access-mode tailscale-only --apply` is
+  implementation-proof-ready but still requires independent review before live
+  use.
 - No isolated challenger has completed a server-hosted UTC cycle.
 - No backup/restore rehearsal has been performed.
 
