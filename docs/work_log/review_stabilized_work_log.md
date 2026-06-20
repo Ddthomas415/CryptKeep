@@ -6473,7 +6473,9 @@ Remaining risk:
 - HIGH: this is deployment-adjacent paper-campaign infrastructure. It is
   read-only and does not start collectors, move state, or call Hetzner APIs, but
   it gates a future financial-evidence background job path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #80 was merged to `master` as `c53f413a7`.
 
 ## 2026-06-20T10:08:41Z - Add Hetzner Isolated Challenger Proof Template
 
@@ -6531,4 +6533,47 @@ Remaining risk:
 - HIGH: this documents deployment-adjacent financial-evidence operations. It is
   docs-only and does not run commands, but it is still part of the operational
   control path for a future background collector.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #81 was merged to `master` as `b6b274861`.
+
+## 2026-06-20T10:18:00Z - Correct PR80 And PR81 Work Log Acceptance States
+
+Active role: ENGINEER
+
+Objective:
+- Correct the governed work log after the accepted PR #80 and PR #81 merges.
+
+What was found:
+- SHOWN: PR #80 was independently reviewed and accepted by the human operator,
+  then merged to `master` as `c53f413a7`.
+- SHOWN: PR #81 was independently reviewed and accepted by the human operator,
+  then merged to `master` as `b6b274861`.
+- SHOWN: the corresponding work-log entries still ended with
+  `READY_FOR_INDEPENDENT_REVIEW`, which no longer matched the repository state.
+
+What changed:
+- Updated the Hetzner paper-host preflight entry acceptance state to
+  `ACCEPTED` and added the PR #80 merge reference.
+- Updated the Hetzner isolated challenger proof-template entry acceptance state
+  to `ACCEPTED` and added the PR #81 merge reference.
+
+Why this change:
+- The work log is a governed audit artifact and must reflect completed human
+  acceptance after high-risk review.
+- Leaving accepted merged work as `READY_FOR_INDEPENDENT_REVIEW` creates a
+  false pending-review signal.
+
+Expected outcome:
+- Future audits can distinguish active pending high-risk work from already
+  accepted Hetzner deployment-prep work.
+
+Verification:
+- SHOWN: `git diff --check` completed with exit code `0`.
+- SHOWN: `rg -n 'PR #80 was merged|PR #81 was merged|c53f413a7|b6b274861|Correct PR80 And PR81' docs/work_log/review_stabilized_work_log.md`
+  returned the expected PR #80 and PR #81 merge references plus this correction
+  entry.
+
+Remaining risk:
+- LOW: documentation-only audit-trail correction.
+- Acceptance state: `ACCEPTED`.
