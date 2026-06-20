@@ -6301,3 +6301,57 @@ Remaining risk:
 - HIGH: cloud-provider write operations, firewall lockout risk, backup billing,
   server protection changes, and deployment operations remain high-risk.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-20T02:51:31Z - Apply Hetzner Backups And Server Protection
+
+Active role: ENGINEER
+
+Objective:
+- Apply the independently reviewed Tailscale-only Hetzner safeguard path to
+  enable backups and delete/rebuild protection without changing the accepted
+  no-public-inbound SSH boundary.
+
+What was found:
+- SHOWN: the read-only safeguard plan reported
+  `tailscale_only_firewall_rules_current` and
+  `tailscale_only_firewall_attached`.
+- SHOWN: the only planned live changes were
+  `enable_delete_rebuild_protection` and `enable_backups`.
+
+What changed:
+- Ran the accepted live apply command:
+  `./.venv/bin/python scripts/hetzner_cloud_safeguards.py --server-id 126306158 --access-mode tailscale-only --apply --confirm-server-id 126306158`.
+- Hetzner returned `ok=true` and `applied_count=2`.
+- Applied action ids:
+  - `enable_delete_rebuild_protection`: `637459053005493`
+  - `enable_backups`: `637459053005498`
+- Updated `docs/HETZNER_PAPER_HOST.md` and Priority 16 to remove backups and
+  delete/rebuild protection from the active blocker list.
+
+Why this change:
+- The host had the correct Tailscale-only network boundary but still lacked
+  provider-side backup and deletion/rebuild protection.
+- Those controls are required before any server-hosted campaign proof or state
+  migration.
+
+Expected outcome:
+- Accidental server deletion or rebuild is blocked by provider-side protection.
+- Hetzner backups are enabled with backup window `10-14`.
+- The remaining deployment blockers are now restore rehearsal, server-hosted
+  isolated challenger cycle, and single-owner campaign proof.
+
+Verification:
+- SHOWN: post-apply read-only plan returned `ok=true`, `changes_needed=[]`,
+  `delete_rebuild_protection_enabled`, and `backups_enabled`.
+- SHOWN: post-apply plan reported `backup_window="10-14"` and
+  `protection.delete=true`, `protection.rebuild=true`.
+- SHOWN: `tailscale ssh cryptkeep@100.86.128.9 'hostname && whoami'` returned
+  `ubuntu-4gb-nbg1-3` and `cryptkeep`.
+- SHOWN: public SSH to `178.104.145.242:22` still failed with
+  `Operation timed out`.
+
+Remaining risk:
+- HIGH: backup restore has not been rehearsed, no server-hosted collector cycle
+  has completed, and canonical state migration remains blocked.
+- ACCEPTED_WITH_RISK: live cloud-provider writes were explicitly approved by
+  operator escalation and verified after application.
