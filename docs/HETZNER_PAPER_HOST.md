@@ -66,43 +66,53 @@ replace it with the read-only token afterward.
 
 ## SSH Access Method: Tailscale
 
-Status: `OPERATOR_REPORTED` (not yet independently re-verified with fresh
-command output in this session)
+Status: `ACCEPTED`
 
 The CIDR-allowlist approach described in "Cloud Safeguards Command" below is
-superseded for SSH access. Operator reports the following is complete:
+superseded for SSH access. The accepted access boundary is:
 
-- Tailscale installed on the Hetzner host (`ubuntu-4gb-nbg1-3`) via
-`curl -fsSL https://tailscale.com/install.sh | sh` and `sudo tailscale up`.
-- Tailscale installed on the operator laptop (macOS) and joined to the same
-tailnet.
-- Tailscale SSH enabled on the host via `tailscale set --ssh`, so SSH is
-served over the encrypted tailnet interface rather than the public IP.
-- Public port 22 reported closed in the Hetzner Cloud Console firewall.
+- Tailscale is installed on the Hetzner host (`ubuntu-4gb-nbg1-3`) and joined
+  to the operator tailnet.
+- The operator laptop is present in the same tailnet.
+- Tailscale SSH is enabled on the host, so operator access uses the encrypted
+  tailnet interface rather than the public IP.
+- A Hetzner Cloud firewall named `cryptkeep-tailscale-only` is applied to
+  `ubuntu-4gb-nbg1-3` with zero public inbound rules and default outbound
+  allow.
 
 This changes the SSH boundary from "public port 22, allowlisted to one CIDR"
 to "no public port 22; SSH only reachable over the private Tailscale network."
 It removes the dynamic-residential-IP fragility that a CIDR allowlist would
 have had.
 
-Independent verification still required before this can move to `ACCEPTED`:
-- `tailscale status` output showing both the laptop and
-`ubuntu-4gb-nbg1-3` present in the tailnet.
-- Hetzner Cloud Console firewall/rules screenshot or API readback confirming
-port 22 has no public-facing allow rule.
-- A successful SSH session to the host over the tailnet address (not the
-public IP) performed and logged by an independent reviewer.
+SHOWN on `2026-06-20T02:05:58Z`:
+- `tailscale status` showed both `macbook-pro` (`100.76.178.88`) and
+  `ubuntu-4gb-nbg1-3` (`100.86.128.9`) in the tailnet.
+- `tailscale ssh cryptkeep@100.86.128.9 'hostname && whoami'` returned
+  `ubuntu-4gb-nbg1-3` and `cryptkeep`.
+- The Hetzner Cloud Console showed `cryptkeep-tailscale-only` with `0 Rules`,
+  `1 Server`, and status `Fully applied`.
+- `ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no
+  cryptkeep@178.104.145.242 'hostname && whoami'` timed out on public port 22.
 
-Until that verification exists, treat the SSH boundary as operator-reported,
-not proven, for audit purposes.
+Operator access command:
 
+```bash
+tailscale ssh cryptkeep@100.86.128.9
+```
 
 ## Cloud Safeguards Command
 
-Status: `READY_FOR_INDEPENDENT_REVIEW`
+Status: `PARTIALLY_SUPERSEDED`
 
 `scripts/hetzner_cloud_safeguards.py` plans cloud-side safety changes for the
 paper host and applies them only with explicit operator confirmation.
+
+Do not run this command with `--apply` until it is updated or explicitly
+accepted for the Tailscale-only SSH boundary. Its existing SSH-firewall plan is
+CIDR-based and creates/corrects `cryptkeep-paper-ssh-only`; the accepted live
+boundary now uses the manually applied no-public-inbound firewall
+`cryptkeep-tailscale-only`.
 
 The command is dry-run by default:
 
@@ -113,8 +123,8 @@ The command is dry-run by default:
 ```
 
 Planned changes:
-- create or correct the named SSH-only firewall
-  `cryptkeep-paper-ssh-only`;
+- create or correct the named SSH-only firewall `cryptkeep-paper-ssh-only`
+  using a CIDR allowlist;
 - attach that firewall to the selected server;
 - enable delete/rebuild protection;
 - enable Hetzner backups.
@@ -126,7 +136,9 @@ Safety gates:
 - `--apply` requires `--confirm-server-id` matching `--server-id`;
 - the script prints JSON status only, never the token.
 
-Apply only after independent review:
+Apply only after independent review and a written decision on whether the
+CIDR-based firewall behavior should be replaced by the accepted Tailscale-only
+firewall behavior:
 
 ```bash
 ./.venv/bin/python scripts/hetzner_cloud_safeguards.py \
@@ -141,9 +153,10 @@ or emergency-access CIDR that is narrow enough to preserve the SSH boundary.
 
 ## Stage 0 - Host Preparation
 
-Current status as of `2026-06-17T01:49:51Z`: implementation proof is complete
-for host-level hardening on `ubuntu-4gb-nbg1-3`; campaign deployment remains
-blocked pending independent review and cloud-side safeguards.
+Current status as of `2026-06-20T02:05:58Z`: implementation proof is complete
+for host-level hardening and the Tailscale-only cloud firewall on
+`ubuntu-4gb-nbg1-3`; campaign deployment remains blocked pending backup,
+protection, restore, and single-owner proof.
 
 SHOWN:
 - `cryptkeep` non-root user exists with home `/srv/cryptkeep`.
@@ -154,20 +167,23 @@ SHOWN:
 - Root login remains key-only through `PermitRootLogin prohibit-password`.
 - UFW is active with default deny incoming and OpenSSH allowed.
 - `fail2ban` is active for `sshd`.
-- Only SSH is publicly listening.
+- Hetzner Cloud Console reports `cryptkeep-tailscale-only` with `0 Rules`,
+  `1 Server`, and status `Fully applied`.
+- Public SSH to `178.104.145.242:22` times out.
+- Tailscale SSH to `cryptkeep@100.86.128.9` succeeds.
 - Local paper collectors remained on the laptop; no campaign state was copied
   and no server collector was started.
-- Read-only inventory refreshed on `2026-06-19T01:50:21Z` reported one running
-  server, `ubuntu-4gb-nbg1-3` (`id=126306158`, `cax11`, `nbg1`), one SSH key,
-  two primary IPs, zero networks, zero volumes, and zero firewalls.
+- Earlier read-only inventory on `2026-06-19T01:50:21Z`, before the Tailscale
+  firewall change, reported one running server, `ubuntu-4gb-nbg1-3`
+  (`id=126306158`, `cax11`, `nbg1`), one SSH key, two primary IPs, zero
+  networks, zero volumes, and zero firewalls.
 
 Still blocked:
-- Hetzner Cloud firewall is not configured; read-only inventory still reports
-  `firewalls=0`.
 - Hetzner backups are not enabled.
 - Hetzner delete/rebuild protection is not enabled.
-- A real operator/VPN SSH source CIDR has not been supplied for the cloud
-  safeguard plan.
+- The older CIDR-based `hetzner_cloud_safeguards.py --apply` path is
+  superseded for SSH and must not be applied until it is updated or explicitly
+  accepted for the Tailscale-only boundary.
 - No isolated challenger has completed a server-hosted UTC cycle.
 - No backup/restore rehearsal has been performed.
 
@@ -177,7 +193,7 @@ those blockers are independently reviewed and resolved.
 Requirements:
 - a supported Linux host with SSH access;
 - a non-root service account dedicated to CryptKeep;
-- inbound access restricted to SSH from the operator or a private VPN;
+- inbound access restricted to Tailscale SSH with no public inbound SSH;
 - outbound HTTPS and DNS access for public market data and Git;
 - synchronized UTC time;
 - encrypted backups stored separately from the host.

@@ -6167,3 +6167,71 @@ Remaining risk:
   short simulation, and short-side execution remain separate future workstreams
   requiring separate proof and review.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-20T02:05:58Z - Apply Hetzner Tailscale-Only Firewall
+
+Active role: ENGINEER
+
+Objective:
+- Close the Hetzner public-SSH exposure gap for the paper campaign host while
+  preserving operator access over Tailscale SSH.
+
+What was found:
+- SHOWN: `tailscale status` showed the operator laptop `macbook-pro`
+  (`100.76.178.88`) and the Hetzner host `ubuntu-4gb-nbg1-3`
+  (`100.86.128.9`) in the same tailnet.
+- SHOWN: `tailscale ssh cryptkeep@100.86.128.9 hostname` returned
+  `ubuntu-4gb-nbg1-3`.
+- SHOWN: plain `ssh cryptkeep@100.86.128.9` is not the supported operator
+  command for this boundary; the accepted operator command is
+  `tailscale ssh cryptkeep@100.86.128.9`.
+
+What changed:
+- Created and applied a Hetzner Cloud firewall named
+  `cryptkeep-tailscale-only` to `ubuntu-4gb-nbg1-3`.
+- The firewall has `0 Rules`, is applied to `1 Server`, and the console reports
+  `Fully applied`.
+- Updated `docs/HETZNER_PAPER_HOST.md` to mark the Tailscale SSH boundary and
+  no-public-inbound firewall as accepted and verified.
+- Updated Priority 16 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to remove
+  the obsolete SSH-CIDR blocker and keep deployment blocked on backup,
+  protection, restore, and single-owner proof.
+- Marked the older CIDR-based `hetzner_cloud_safeguards.py --apply` path as
+  partially superseded for SSH because it does not yet model the accepted
+  Tailscale-only firewall boundary.
+
+Why this change:
+- A public CIDR allowlist is brittle for a residential operator connection and
+  unnecessary once Tailscale SSH is verified.
+- A no-public-inbound Hetzner firewall plus Tailscale SSH provides the narrower
+  access boundary required before any remote paper-campaign proof.
+- The docs needed to prevent a future operator from applying the older
+  CIDR-based safeguard path and unintentionally weakening the accepted
+  Tailscale-only boundary.
+
+Expected outcome:
+- Operator access to the host uses `tailscale ssh cryptkeep@100.86.128.9`.
+- Public SSH to `178.104.145.242:22` is blocked.
+- The server remains available for future isolated challenger proof work, but
+  canonical state migration and collector startup remain blocked until
+  backup/protection/restore/single-owner requirements are satisfied.
+
+Verification:
+- SHOWN: Hetzner Cloud Console listed `cryptkeep-tailscale-only` with
+  `0 Rules`, `1 Server`, and `Fully applied`.
+- SHOWN: `tailscale ssh cryptkeep@100.86.128.9 'hostname && whoami'` returned
+  `ubuntu-4gb-nbg1-3` and `cryptkeep`.
+- SHOWN: `ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no
+  cryptkeep@178.104.145.242 'hostname && whoami'` failed with
+  `Operation timed out`.
+- Tests not run: documentation-only repo update after a live cloud-console
+  firewall operation. No application code changed.
+
+Remaining risk:
+- HIGH: remote host security, backup/protection configuration, persistent
+  background jobs, state migration, credentials/configuration, and duplicate
+  campaign ownership remain separate high-risk workstreams.
+- ACCEPTED_WITH_RISK: the live firewall action was explicitly confirmed by the
+  operator with `CONFIRM FIREWALL` and verified after application; follow-on
+  deployment work remains blocked until separately reviewed.
