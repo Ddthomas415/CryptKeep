@@ -64,6 +64,39 @@ for accepted provisioning, create a separate short-lived `Read & Write` token,
 store it with the same hidden prompt only for the provisioning window, and
 replace it with the read-only token afterward.
 
+## SSH Access Method: Tailscale
+
+Status: `OPERATOR_REPORTED` (not yet independently re-verified with fresh
+command output in this session)
+
+The CIDR-allowlist approach described in "Cloud Safeguards Command" below is
+superseded for SSH access. Operator reports the following is complete:
+
+- Tailscale installed on the Hetzner host (`ubuntu-4gb-nbg1-3`) via
+`curl -fsSL https://tailscale.com/install.sh | sh` and `sudo tailscale up`.
+- Tailscale installed on the operator laptop (macOS) and joined to the same
+tailnet.
+- Tailscale SSH enabled on the host via `tailscale set --ssh`, so SSH is
+served over the encrypted tailnet interface rather than the public IP.
+- Public port 22 reported closed in the Hetzner Cloud Console firewall.
+
+This changes the SSH boundary from "public port 22, allowlisted to one CIDR"
+to "no public port 22; SSH only reachable over the private Tailscale network."
+It removes the dynamic-residential-IP fragility that a CIDR allowlist would
+have had.
+
+Independent verification still required before this can move to `ACCEPTED`:
+- `tailscale status` output showing both the laptop and
+`ubuntu-4gb-nbg1-3` present in the tailnet.
+- Hetzner Cloud Console firewall/rules screenshot or API readback confirming
+port 22 has no public-facing allow rule.
+- A successful SSH session to the host over the tailnet address (not the
+public IP) performed and logged by an independent reviewer.
+
+Until that verification exists, treat the SSH boundary as operator-reported,
+not proven, for audit purposes.
+
+
 ## Cloud Safeguards Command
 
 Status: `READY_FOR_INDEPENDENT_REVIEW`

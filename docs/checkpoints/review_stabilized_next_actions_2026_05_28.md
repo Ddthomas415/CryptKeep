@@ -351,8 +351,8 @@ Risk:
 
 ## Priority 12 - Short-Market Strategy Research
 
-Status: read-only collector/store extension accepted; isolated sample proof
-complete; live-public proof partially complete
+Status: read-only collector/store extension accepted; sample and spot-context
+proofs complete; Binance derivatives context blocked
 
 Why it matters:
 - The current `es_daily_trend_v1` strategy is long/flat only. It does not
@@ -380,11 +380,17 @@ Why it matters:
   and Coinbase order-book rows were collected. Binance funding, open-interest,
   and basis rows were not collected because the repo's Binance guard blocks
   Binance unless `CBP_VENUE` and `CBP_ALLOW_BINANCE=1` explicitly allow it.
+- Guard-enabled Binance-only proof was attempted against
+  `/private/tmp/cbp_crypto_edge_context_binance_guard_proof_20260619.sqlite`
+  with `CBP_VENUE=binance` and `CBP_ALLOW_BINANCE=1`. It collected no rows
+  because Binance exchange open failed with `NetworkError`; output still
+  reported `research_only=true` and `execution_enabled=false`.
 
 Next action:
-- Optional next proof is a guard-enabled Binance read-only public-data run in a
-  temp DB if derivatives context is needed. Do not run this as a long-lived loop
-  and do not treat it as venue/compliance approval.
+- If derivatives context is needed, resolve the Binance public-data
+  `NetworkError` separately or choose a different read-only derivatives venue
+  after compliance/account review. Do not run this as a long-lived loop and do
+  not treat it as venue/compliance approval.
 - Do not use the new rows in replay analysis until the public-data proof is
   accepted for the relevant row family, or the replay is explicitly limited to
   deterministic sample data.

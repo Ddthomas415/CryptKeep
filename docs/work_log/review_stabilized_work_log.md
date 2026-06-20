@@ -6112,3 +6112,58 @@ Remaining risk:
   paper short simulation, and short-side execution remain separate future
   workstreams requiring separate proof and review.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-19T19:14:25Z - Record Binance Guard-Enabled Proof Block
+
+Active role: ENGINEER
+
+Objective:
+- Attempt the bounded guard-enabled Binance-only read-only public-data proof for
+  derivatives context rows without using canonical state or execution
+  credentials.
+
+What was found:
+- SHOWN: the mixed live collector plan cannot be reused with
+  `CBP_VENUE=binance` because the exchange factory treats explicit non-Binance
+  venues plus env `binance` as a venue conflict.
+- SHOWN: a temporary Binance-only plan was written to
+  `/private/tmp/cbp_crypto_edge_binance_only_plan_20260619.json`.
+- SHOWN: the guarded command used `CBP_VENUE=binance` and
+  `CBP_ALLOW_BINANCE=1`, so the repo-level Binance guard was intentionally
+  cleared for this read-only proof.
+- SHOWN: the command returned `ok=false` with `reason=no_live_rows_collected`.
+- SHOWN: funding, open-interest, and basis checks all failed with
+  `exchange_open_failed:NetworkError`.
+- SHOWN: output still reported `research_only=true` and
+  `execution_enabled=false`.
+
+What changed:
+- Updated Priority 12 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to record
+  that Binance derivatives context remains blocked by exchange-open
+  `NetworkError` even after guard enablement.
+
+Why this change:
+- The derivatives-context path should not be treated as proven. The guard block
+  and the network/exchange-open block are distinct failure modes, and the
+  second one remains unresolved.
+
+Expected outcome:
+- Future replay work may use deterministic sample rows or accepted spot
+  quote/order-book public rows.
+- Funding, open-interest, and basis rows remain unproven against live public
+  Binance data until the `NetworkError` is resolved or an alternate compliant
+  read-only derivatives venue is accepted.
+
+Verification:
+- SHOWN: `CBP_VENUE=binance CBP_ALLOW_BINANCE=1 ./.venv/bin/python scripts/collect_live_crypto_edge_snapshot.py --plan-file /private/tmp/cbp_crypto_edge_binance_only_plan_20260619.json --db-path /private/tmp/cbp_crypto_edge_context_binance_guard_proof_20260619.sqlite --print-report`
+  returned exit code `1` with `reason=no_live_rows_collected`.
+- SHOWN: checks contained `exchange_open_failed:NetworkError` for funding,
+  open interest, and basis.
+- Tests not run: documentation-only status/proof update.
+
+Remaining risk:
+- HIGH: derivatives data, funding, open interest, basis, replay analysis, paper
+  short simulation, and short-side execution remain separate future workstreams
+  requiring separate proof and review.
+- Acceptance state: `ACCEPTED`.
