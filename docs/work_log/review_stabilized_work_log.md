@@ -6974,3 +6974,78 @@ Verification:
 Remaining risk:
 - LOW: documentation-only audit-trail correction.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-20T20:00:31Z - Migrate EMA Challenger To Hetzner
+
+Active role: ENGINEER
+
+Objective:
+- Retry the isolated `ema_cross_default` paper challenger migration after PR #89
+  and the Hetzner host dependency setup removed the prior `yaml`/venv blocker.
+
+What was found:
+- SHOWN: PR #89 merged to `master` as
+  `b86105b1f491058aac235dcbb33748729dee7297`.
+- SHOWN: `review-stabilized` was fast-forwarded and pushed to the same merge
+  commit.
+- SHOWN: Hetzner checkout updated cleanly to
+  `b86105b1f491058aac235dcbb33748729dee7297`.
+- SHOWN: Hetzner preflight returned `ok=true`; `collector_imports` returned
+  `collector_import_ok`; remote state was absent before retry.
+- SHOWN: local `ema_cross_default` was running/idle before the retry and had
+  already recorded the 2026-06-20 UTC session.
+
+What changed:
+- Stopped only the local `ema_cross_default` collector.
+- Created a fresh SHA-256 manifest for
+  `.cbp_state_challengers/ema_cross_default_daily`.
+- Transferred only that isolated challenger state tree to Hetzner.
+- Verified transferred content on Hetzner with the manifest.
+- Ran Hetzner preflight with `--require-state`.
+- Started only the Hetzner `ema_cross_default` campaign from
+  `configs/paper_evidence_campaigns.hetzner.example.json`.
+- Updated
+  `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
+  with the migration evidence.
+
+Why this change:
+- The project needs a durable paper-campaign host so challenger evidence can
+  accumulate without depending on the laptop being awake.
+- Migrating only the isolated EMA challenger is the narrowest safe deployment
+  proof because canonical `.cbp_state`, live exchange credentials, and the
+  active `es_daily_trend_v1` gate campaign remain on the laptop.
+
+Expected outcome:
+- `ema_cross_default` continues collecting paper evidence on Hetzner as a
+  single-owner campaign.
+- Laptop remains responsible only for `es_daily_trend_v1` and
+  `breakout_default`.
+- The first server-hosted UTC cycle can be observed before considering any
+  broader migration.
+
+Verification:
+- SHOWN: local stop flag was written for `ema_cross_default`.
+- SHOWN: targeted `SIGINT` stopped only PID `19570` after the daily loop did
+  not immediately consume the stop flag while sleeping on its `300` second poll
+  interval.
+- SHOWN: local status reported `ema_cross_default` `pid_alive=false`,
+  `has_pid_file=false`, and `running=false`.
+- SHOWN: local `es_daily_trend_v1` remained running as PID `80255`.
+- SHOWN: local `breakout_default` remained running as PID `80263`.
+- SHOWN: manifest create returned `ok=true`, `file_count=248`, and
+  `manifest_sha256=d3f3494ada77ff03dd506ebfc573b696f465dbcb596e784695924b56eff17b59`.
+- SHOWN: remote manifest verify returned `ok=true`, `expected_file_count=248`,
+  `actual_file_count=248`, `missing=[]`, `changed=[]`, and `extra=[]`.
+- SHOWN: remote preflight with `--require-state` returned `ok=true`,
+  `collector_imports_ok`, clean git checkout, NTP synchronized, Tailscale
+  running, and `state_exists=true`.
+- SHOWN: remote restore returned `ok=true`, `all_running=true`, one configured
+  campaign, and Hetzner PID `1286864` for `ema_cross_default`.
+- SHOWN: local process scan returned only PIDs `80255` and `80263` for the
+  remaining local collectors and no local `ema_cross` collector.
+
+Remaining risk:
+- HIGH: this is operational migration/background-job ownership work.
+- The first Hetzner-hosted UTC cycle has not completed yet.
+- Backup/restore rehearsal is still required before canonical state migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -1,6 +1,6 @@
 # Hetzner Isolated Challenger Proof Record - 2026-06-20
 
-Status: `READY_TO_RETRY_AFTER_PR89`
+Status: `HETZNER_OWNS_EMA_CHALLENGER_PENDING_FIRST_UTC_CYCLE`
 
 This record covers only the isolated `ema_cross_default` paper challenger
 migration proof. It does not authorize canonical `.cbp_state` migration, live
@@ -35,7 +35,7 @@ Required acceptance state before start: `ACCEPTED`.
 - [x] SHOWN: single-owner rule is accepted before state transfer.
 - [x] SHOWN: transferred state manifest verified on Hetzner after removing
   macOS AppleDouble `._*` metadata sidecars.
-- [ ] SHOWN: Hetzner collector starts and owns the state tree.
+- [x] SHOWN: Hetzner collector starts and owns the state tree.
 
 Prior blocker:
 - SHOWN: the first Hetzner start failed because the host lacked `pip`, `yaml`,
@@ -313,3 +313,111 @@ Next required action:
 - Rerun the isolated challenger migration from the beginning: stop local
   `ema_cross_default`, create a fresh manifest, transfer fresh state, verify
   manifest, run preflight with `--require-state`, then start on Hetzner.
+
+## Retry After PR #89 Merge
+
+Date/time UTC: `2026-06-20T20:00:31Z`
+
+Accepted deployment commit:
+- `b86105b1f491058aac235dcbb33748729dee7297`
+
+Scope:
+- Migrated only `ema_cross_default`.
+- Did not migrate canonical `.cbp_state`.
+- Did not stop `es_daily_trend_v1`.
+- Did not stop `breakout_default`.
+- Did not copy live exchange credentials.
+- Did not expose a dashboard or public listener.
+
+GitHub/repo state:
+- [x] SHOWN: PR #89 merged to `master` as
+  `b86105b1f491058aac235dcbb33748729dee7297`.
+- [x] SHOWN: local `review-stabilized` fast-forwarded to `origin/master`.
+- [x] SHOWN: `review-stabilized` pushed to `origin/review-stabilized`.
+- [x] SHOWN: Hetzner checkout updated to `review-stabilized` at
+  `b86105b1f491058aac235dcbb33748729dee7297`.
+
+Host preflight before retry:
+- [x] SHOWN: Hetzner preflight returned `ok=true` with `require_state=false`.
+- [x] SHOWN: `collector_imports` returned `collector_import_ok`.
+- [x] SHOWN: `git_checkout` was clean at
+  `b86105b1f491058aac235dcbb33748729dee7297`.
+- [x] SHOWN: Tailscale was running with `100.86.128.9`.
+- [x] SHOWN: remote `ema_cross_default` state was absent before retry.
+
+Local stop proof:
+- [x] SHOWN: local `ema_cross_default` stop flag was written.
+- [x] SHOWN: the daily-loop collector remained alive while sleeping on its
+  configured `300` second poll interval.
+- [x] SHOWN: targeted `SIGINT` was sent only to PID `19570`, the local
+  `ema_cross_default` daily-loop collector.
+- [x] SHOWN: local post-stop status reported `ema_cross_default`
+  `pid_alive=false`, `has_pid_file=false`, and `running=false`.
+- [x] SHOWN: local `es_daily_trend_v1` remained running as PID `80255`.
+- [x] SHOWN: local `breakout_default` remained running as PID `80263`.
+
+Fresh manifest proof:
+- [x] SHOWN: manifest create returned `ok=true`.
+- [x] SHOWN: `file_count=248`.
+- [x] SHOWN:
+  `manifest_sha256=d3f3494ada77ff03dd506ebfc573b696f465dbcb596e784695924b56eff17b59`.
+- [x] SHOWN: manifest path was
+  `/private/tmp/ema_cross_default_20260620.manifest`, outside the state tree.
+
+Transfer proof:
+- [x] SHOWN: state transfer completed with exit code `0`.
+- [x] SHOWN: transfer was scoped to
+  `.cbp_state_challengers/ema_cross_default_daily`.
+- [x] SHOWN: remote replacement removed only
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily`.
+- [x] SHOWN: tar emitted macOS xattr warnings for
+  `LIBARCHIVE.xattr.com.apple.provenance`; content integrity was checked by the
+  manifest afterward.
+
+Remote manifest verification:
+- [x] SHOWN: manifest verify returned `ok=true`.
+- [x] SHOWN: `expected_file_count=248`.
+- [x] SHOWN: `actual_file_count=248`.
+- [x] SHOWN: `missing=[]`.
+- [x] SHOWN: `changed=[]`.
+- [x] SHOWN: `extra=[]`.
+
+Remote require-state preflight:
+- [x] SHOWN: Hetzner preflight returned `ok=true` with `require_state=true`.
+- [x] SHOWN: `python_venv` status was `repo_venv`.
+- [x] SHOWN: `collector_imports` status was `collector_imports_ok`.
+- [x] SHOWN: `git_checkout` status was `clean`.
+- [x] SHOWN: `time_sync` status was `ntp_synchronized`.
+- [x] SHOWN: `tailscale` status was `running`.
+- [x] SHOWN: `campaign_config` status was `ready` and `state_exists=true`.
+
+Hetzner start proof:
+- [x] SHOWN: `restore_paper_campaigns.py --config
+  configs/paper_evidence_campaigns.hetzner.example.json --restore` returned
+  `ok=true`.
+- [x] SHOWN: one campaign was configured.
+- [x] SHOWN: one campaign was running.
+- [x] SHOWN: `ema_cross_default` launched as Hetzner PID `1286864`.
+- [x] SHOWN: status was `idle` with
+  `reason=waiting_for_next_day`.
+- [x] SHOWN: state path was
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily`.
+
+Single-owner proof:
+- [x] SHOWN: local process scan returned only local PIDs `80255` and `80263`
+  for the remaining `sma_200_trend` and `breakout_donchian` collectors.
+- [x] SHOWN: no local `ema_cross` collector was running after migration.
+- [x] SHOWN: Hetzner `ema_cross_default` was running as PID `1286864`.
+
+Current ownership:
+- `es_daily_trend_v1`: laptop owner, PID `80255`.
+- `breakout_default`: laptop owner, PID `80263`.
+- `ema_cross_default`: Hetzner owner, PID `1286864`.
+
+Remaining required proof:
+- First server-hosted UTC cycle observation for `ema_cross_default`.
+- Backup/restore rehearsal before any canonical `.cbp_state` migration.
+- Human review of this high-risk migration record.
+
+Acceptance state:
+- `READY_FOR_INDEPENDENT_REVIEW`.
