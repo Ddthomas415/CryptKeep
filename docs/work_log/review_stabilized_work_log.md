@@ -6235,3 +6235,69 @@ Remaining risk:
 - ACCEPTED_WITH_RISK: the live firewall action was explicitly confirmed by the
   operator with `CONFIRM FIREWALL` and verified after application; follow-on
   deployment work remains blocked until separately reviewed.
+
+## 2026-06-20T02:37:12Z - Add Tailscale-Only Hetzner Safeguard Mode
+
+Active role: ENGINEER
+
+Objective:
+- Make the Hetzner safeguard planner/apply path match the accepted
+  Tailscale-only SSH boundary without applying any additional live cloud
+  changes.
+
+What was found:
+- SHOWN: `services/ops/hetzner_cloud.py` still modeled only the older
+  CIDR-based firewall named `cryptkeep-paper-ssh-only`.
+- SHOWN: `scripts/hetzner_cloud_safeguards.py` still required
+  `--ssh-source-cidr`, which is wrong for the accepted no-public-inbound
+  Tailscale boundary.
+- SHOWN: the runbook had marked the command partially superseded after the
+  manual firewall application.
+
+What changed:
+- Added `ACCESS_MODE_TAILSCALE_ONLY` to the Hetzner cloud safeguard service.
+- Added `--access-mode tailscale-only` to
+  `scripts/hetzner_cloud_safeguards.py`.
+- In Tailscale-only mode, the planner creates/corrects
+  `cryptkeep-tailscale-only` with zero firewall rules, attaches it to the
+  selected server, and keeps backup plus delete/rebuild protection checks in
+  the same guarded plan.
+- Tailscale-only mode rejects `--ssh-source-cidr` so a public SSH allowlist
+  cannot be mixed into the accepted private-network boundary.
+- Kept the old CIDR mode for compatibility.
+- Updated `docs/HETZNER_PAPER_HOST.md`, Priority 16, and `scripts/SCRIPTS.md`
+  with the new operator command and review boundary.
+
+Why this change:
+- The accepted host access model changed from public SSH with CIDR allowlist to
+  Tailscale SSH with no public inbound rules.
+- Leaving the safeguard command in CIDR-only form would keep backups and
+  server protection blocked behind an obsolete SSH model.
+- The smallest coherent fix is a mode switch rather than deleting the old path.
+
+Expected outcome:
+- Operators can dry-run the accepted host safeguard plan with:
+  `./.venv/bin/python scripts/hetzner_cloud_safeguards.py --server-id 126306158 --access-mode tailscale-only`
+- After independent review, the same command can be applied with
+  `--apply --confirm-server-id 126306158` to enable missing backups/protection
+  without reopening public SSH.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_hetzner_access.py`
+  returned `18 passed`.
+- SHOWN: `./.venv/bin/python -m py_compile services/ops/hetzner_cloud.py scripts/hetzner_cloud_safeguards.py tests/test_hetzner_access.py`
+  completed with exit code `0`.
+- SHOWN: `git diff --check` completed with exit code `0`.
+- SHOWN: read-only live dry-run
+  `./.venv/bin/python scripts/hetzner_cloud_safeguards.py --server-id 126306158 --access-mode tailscale-only`
+  returned `ok=true`, `ready_to_apply=true`,
+  `tailscale_only_firewall_rules_current`, and
+  `tailscale_only_firewall_attached`.
+- SHOWN: the live dry-run reported only `enable_delete_rebuild_protection` and
+  `enable_backups` as remaining changes.
+- No live Hetzner `--apply` command was run.
+
+Remaining risk:
+- HIGH: cloud-provider write operations, firewall lockout risk, backup billing,
+  server protection changes, and deployment operations remain high-risk.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
