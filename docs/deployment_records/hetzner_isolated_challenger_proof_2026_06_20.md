@@ -317,7 +317,9 @@ Restore verification:
   `ema_cross_default`, PID `1286864`.
 
 Acceptance state:
-- `READY_FOR_INDEPENDENT_REVIEW`.
+- `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #91 was merged.
 
 ## Host Dependency Setup Completed
 
