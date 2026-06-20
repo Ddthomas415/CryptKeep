@@ -487,8 +487,10 @@ Risk:
 
 Status: runbook accepted; host hardening proof complete; Tailscale-only SSH,
 Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
-campaign deployment remains blocked pending restore, server-hosted cycle, and
-single-owner proof.
+state-transfer manifest tooling, host preflight tooling, and the isolated
+challenger proof template are accepted. Campaign deployment remains blocked
+pending explicit single-owner operation, server-hosted UTC cycle proof, and
+backup/restore rehearsal.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -506,17 +508,27 @@ Why it matters:
 Next action:
 - Keep the paper-only Hetzner deployment runbook as the controlling artifact:
   `docs/HETZNER_PAPER_HOST.md`.
+- Use `scripts/paper_state_manifest.py` for state-transfer integrity. Do not
+  use ad hoc OS-specific checksum commands for this path.
+- Use `scripts/hetzner_paper_host_preflight.py` on the host before restore and
+  again with `--require-state` after state transfer.
+- Copy
+  `docs/deployment_records/hetzner_isolated_challenger_proof_TEMPLATE.md` to a
+  dated deployment record before any collector stop, state transfer, or VPS
+  restore command.
 - Administer the host with Tailscale SSH only:
   `tailscale ssh cryptkeep@100.86.128.9`.
 - Do not use the older CIDR-based safeguard mode for this host unless the access
   policy is explicitly changed away from Tailscale-only.
 - Run collectors with no live-trading credentials and no public application
   ports.
-- Define one canonical host owner for each campaign so laptop and VPS
+- Define one owner for `ema_cross_default` before transfer so laptop and VPS
   collectors cannot run simultaneously against copied state.
-- Add explicit state transfer, integrity verification, encrypted backup,
-  restore rehearsal, disk-space monitoring, UTC clock verification, and
-  collector health alerts.
+- Record the laptop status, laptop stop proof, manifest create proof, transfer
+  proof, Hetzner preflight proof, manifest verify proof, VPS restore proof,
+  and single-owner proof in the dated deployment record.
+- Add disk-space monitoring, collector health alerts, and backup restore
+  rehearsal evidence before any canonical `.cbp_state` migration.
 - Prove the deployment first with an isolated challenger state directory, then
   migrate canonical `.cbp_state` only after a reviewed stop-copy-verify-start
   procedure.
@@ -526,12 +538,17 @@ Next action:
 Proof required:
 - Targeted deployment/config tests and a documented dry run.
 - No externally reachable dashboard or backend port.
+- `scripts/hetzner_paper_host_preflight.py` reports `ok=true` on the host at
+  the accepted deployment commit.
 - Hetzner Cloud firewall remains `cryptkeep-tailscale-only`, `0 Rules`,
   `1 Server`, and `Fully applied`.
 - Hetzner backups remain enabled and backup window is visible.
 - Hetzner delete/rebuild protection remains enabled.
 - One collector owner per campaign, with duplicate-process checks passing.
-- Evidence counts and checksums match before and after state migration.
+- State manifest verification reports `ok=true`, `missing=[]`, `changed=[]`,
+  and `extra=[]` before the VPS collector starts.
+- Evidence counts match or advance after state transfer; they must not be
+  merged from independently advanced laptop and VPS state trees.
 - `restore_paper_campaigns.py --status` reports all configured collectors
   healthy on the VPS.
 - A backup can be restored into an isolated directory and read successfully.
@@ -540,9 +557,11 @@ Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,
   credentials/configuration, remote host security, and duplicate campaign
   ownership.
-- Acceptance state: runbook accepted; cloud safeguards and deployment remain
-  high-risk and implementation must stop at
-  `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: runbook, cloud safeguards, manifest tooling, host preflight
+  tooling, and proof template are accepted. Actual collector stop, state
+  transfer, VPS restore/start, backup rehearsal, and canonical migration remain
+  high-risk operations and must stop at `READY_FOR_INDEPENDENT_REVIEW` unless
+  separately accepted by the human operator.
 
 ## Priority 17 - Derivatives, Intraday, And Context-Pattern Roadmap
 
