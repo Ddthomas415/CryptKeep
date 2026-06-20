@@ -6578,6 +6578,61 @@ Remaining risk:
 - LOW: documentation-only audit-trail correction.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-06-20T10:30:40Z - Record Paper Gate Status Checkpoint
+
+Active role: ENGINEER
+
+Objective:
+- Capture the current paper campaign and promotion-gate state in a durable
+  checkpoint after the Hetzner prep work was accepted.
+
+What was found:
+- SHOWN: `review-stabilized` was synced with `origin/review-stabilized` before
+  the checkpoint was written.
+- SHOWN: all three configured paper collectors were alive, healthy, idle, and
+  waiting for the next UTC day after completing the `2026-06-20` session.
+- SHOWN: the canonical `es_daily_trend_v1` paper gate was not ready:
+  `ready=false`, `machine_ready=false`, and `manual_review_required=true`.
+- SHOWN: the raw all-history journal reported `8` closed `sma_200_trend`
+  trades, but the promotion gate counted only `1/10` provenance-qualified
+  round trips.
+
+What changed:
+- Added `docs/checkpoints/paper_gate_status_2026_06_20.md`.
+- The checkpoint records:
+  - commands used;
+  - campaign liveness for `es_daily_trend_v1`, `ema_cross_default`, and
+    `breakout_default`;
+  - canonical paper-gate state;
+  - raw-history versus provenance-qualified evidence distinction;
+  - manual-review blocker status;
+  - current operational conclusion.
+
+Why this change:
+- The visible gate counter can look inconsistent unless raw journal history is
+  separated from provenance-qualified promotion evidence.
+- Recording this state prevents future check-ins from treating raw `8/10`
+  history as gate-eligible `8/10` evidence.
+
+Expected outcome:
+- Future audits have a stable reference explaining why the current gate counter
+  is `1/10` qualified round trips even though the raw journal contains eight
+  closed trades.
+- The next action remains either continued local collection or a separately
+  accepted Hetzner isolated challenger proof.
+
+Verification:
+- SHOWN: `git diff --check` completed with exit code `0`.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py`
+  returned `2 passed`.
+- SHOWN: `rg -n 'Paper Gate Status - 2026-06-20|1/10|8 closed|provenance-qualified|waiting_for_next_day|Record Paper Gate Status Checkpoint' docs/checkpoints/paper_gate_status_2026_06_20.md docs/work_log/review_stabilized_work_log.md`
+  returned the expected checkpoint and work-log references.
+
+Remaining risk:
+- MEDIUM: documentation-only checkpoint for a high-risk promotion/evidence
+  path. No runtime, collector, cloud, or gate-policy change was made.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-20T10:22:58Z - Refresh Priority 16 Hetzner Backlog State
 
 Active role: ENGINEER
