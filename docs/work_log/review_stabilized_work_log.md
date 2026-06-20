@@ -6577,3 +6577,57 @@ Verification:
 Remaining risk:
 - LOW: documentation-only audit-trail correction.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-20T10:22:58Z - Refresh Priority 16 Hetzner Backlog State
+
+Active role: ENGINEER
+
+Objective:
+- Align the active next-actions checkpoint with the accepted Hetzner paper-host
+  prep now merged to `master`.
+
+What was found:
+- SHOWN: `review-stabilized` and `master` are aligned at `2396c13e9`.
+- SHOWN: Priority 16 still described state-transfer integrity, host preflight,
+  and proof-record setup as future work even though PR #79, PR #80, and PR #81
+  had been accepted and merged.
+- SHOWN: actual Hetzner deployment remains blocked on explicit single-owner
+  operation, server-hosted UTC cycle proof, and backup/restore rehearsal.
+
+What changed:
+- Updated Priority 16 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`.
+- Recorded accepted artifacts:
+  - `scripts/paper_state_manifest.py`;
+  - `scripts/hetzner_paper_host_preflight.py`;
+  - `docs/deployment_records/hetzner_isolated_challenger_proof_TEMPLATE.md`.
+- Clarified the next operational sequence:
+  - create a dated proof record;
+  - record laptop status and stop proof;
+  - create and verify the state manifest;
+  - run Hetzner preflight;
+  - restore/start only after single-owner proof;
+  - record first UTC cycle and backup rehearsal before canonical migration.
+
+Why this change:
+- The backlog is the operator-facing to-do list. Stale status creates a false
+  impression that repo prep remains unfinished when the true blocker is now the
+  high-risk operational proof.
+- This keeps the next action explicit without starting collectors, moving state,
+  or touching the Hetzner host.
+
+Expected outcome:
+- Future check-ins will not rework accepted prep items.
+- The next meaningful action is clearly separated from repo work: execute and
+  record the isolated `ema_cross_default` VPS proof under the accepted runbook.
+
+Verification:
+- SHOWN: `git diff --check` completed with exit code `0`.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py`
+  returned `2 passed`.
+- SHOWN: `rg -n 'state-transfer manifest tooling|hetzner_paper_host_preflight.py|hetzner_isolated_challenger_proof_TEMPLATE.md|single-owner operation|backup/restore rehearsal|Refresh Priority 16 Hetzner Backlog State' docs/checkpoints/review_stabilized_next_actions_2026_05_28.md docs/work_log/review_stabilized_work_log.md`
+  returned the expected updated Priority 16 and work-log references.
+
+Remaining risk:
+- MEDIUM: documentation-only backlog accuracy for a high-risk deployment path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
