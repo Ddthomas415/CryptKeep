@@ -6622,6 +6622,69 @@ Remaining risk:
   migration path.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-06-20T15:27:55Z - Attempt Hetzner Isolated Challenger Migration
+
+Active role: ENGINEER
+
+Objective:
+- Execute the accepted single-owner migration proof for only the isolated
+  `ema_cross_default` challenger campaign.
+
+What was found:
+- SHOWN: PR #87 was merged to `master` as
+  `a3159aa646634c87fc4b8a2eb6d47928c371215a`.
+- SHOWN: local `review-stabilized`, `origin/review-stabilized`, and
+  `origin/master` were aligned at that commit before the attempt.
+- SHOWN: Hetzner preflight passed at `a3159aa64` before state transfer.
+- SHOWN: the local `ema_cross_default` collector was stopped and verified with
+  `pid_alive=false` before transfer.
+- SHOWN: state manifest creation succeeded with `249` files and SHA-256
+  `b5939d7cd03c6e0a50824ffa133a0f2bea51045b6fe6248e7ec63445a50d1b80`.
+- SHOWN: transferred state verified exactly after removing macOS AppleDouble
+  `._*` sidecars created by the tar stream.
+- SHOWN: Hetzner start failed with `collector_exit_1`; bounded foreground
+  execution exposed `ModuleNotFoundError: No module named 'yaml'`.
+- SHOWN: Hetzner `.venv` has no `pip`, `/usr/bin/python3` has no `ensurepip`,
+  `python3.12-venv` is not installed, and passwordless sudo is unavailable.
+
+What changed:
+- Added `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
+  documenting the attempted migration, successful integrity checks, dependency
+  blocker, and rollback state.
+- No source code, config, or strategy logic was changed.
+- Remote stale transferred challenger state and manifest were removed after the
+  dependency blocker was confirmed.
+- Local `ema_cross_default` ownership was restored.
+
+Why this change:
+- The proof record is required because the operation touched high-risk runtime
+  ownership and state-transfer workflow.
+- Removing the stale remote copy prevents a future false assumption that
+  Hetzner owns current challenger state.
+- Restoring the laptop collector preserves campaign continuity until the host
+  dependency setup is completed by the operator with sudo.
+
+Expected outcome:
+- `ema_cross_default` continues running locally.
+- Hetzner remains preflight-clean but has no active challenger state.
+- The next attempt starts from a clean boundary after the operator installs
+  `python3.12-venv` and repo requirements on the host.
+
+Verification:
+- SHOWN: local `./.venv/bin/python scripts/restore_paper_campaigns.py --status`
+  returned `ok=true`, `all_running=true`, `running_count=3`, with
+  `ema_cross_default` running as PID `19570`.
+- SHOWN: remote Hetzner preflight without transferred state returned `ok=true`
+  at `a3159aa64`.
+- SHOWN: remote `REMOTE_STATE=absent` after cleanup.
+- SHOWN: no full test suite was run per operator instruction to avoid
+  long-running test commands.
+
+Remaining risk:
+- HIGH: deployment remains blocked on host package setup requiring operator
+  sudo password entry.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-20T10:30:40Z - Record Paper Gate Status Checkpoint
 
 Active role: ENGINEER
