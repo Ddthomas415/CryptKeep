@@ -485,9 +485,9 @@ Risk:
 
 ## Priority 16 - Hetzner Paper Campaign Host
 
-Status: runbook accepted; host hardening proof complete; cloud safeguards and
-campaign deployment remain blocked pending independent review and an
-operator/VPN SSH source CIDR.
+Status: runbook accepted; host hardening proof complete; Tailscale-only SSH and
+Hetzner Cloud firewall applied; campaign deployment remains blocked pending
+backup, protection, restore, and single-owner proof.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -505,12 +505,12 @@ Why it matters:
 Next action:
 - Keep the paper-only Hetzner deployment runbook as the controlling artifact:
   `docs/HETZNER_PAPER_HOST.md`.
-- Obtain a narrow operator/VPN SSH source CIDR before planning or applying
-  cloud safeguards.
-- Independently review the cloud safeguard path before any
-  `hetzner_cloud_safeguards.py --apply` run.
+- Administer the host with Tailscale SSH only:
+  `tailscale ssh cryptkeep@100.86.128.9`.
+- Do not run the older CIDR-based `hetzner_cloud_safeguards.py --apply` path
+  until it is updated or explicitly accepted for the Tailscale-only boundary.
 - Run collectors with no live-trading credentials and no public application
-  ports; administer through SSH or a private VPN only.
+  ports.
 - Define one canonical host owner for each campaign so laptop and VPS
   collectors cannot run simultaneously against copied state.
 - Add explicit state transfer, integrity verification, encrypted backup,
@@ -525,8 +525,10 @@ Next action:
 Proof required:
 - Targeted deployment/config tests and a documented dry run.
 - No externally reachable dashboard or backend port.
-- Hetzner Cloud firewall, backups, and delete/rebuild protection are either
-  applied through the reviewed safeguard path or explicitly deferred with a
+- Hetzner Cloud firewall remains `cryptkeep-tailscale-only`, `0 Rules`,
+  `1 Server`, and `Fully applied`.
+- Hetzner backups and delete/rebuild protection are either applied through a
+  reviewed Tailscale-compatible safeguard path or explicitly deferred with a
   written risk acceptance.
 - One collector owner per campaign, with duplicate-process checks passing.
 - Evidence counts and checksums match before and after state migration.
