@@ -6355,3 +6355,56 @@ Remaining risk:
   has completed, and canonical state migration remains blocked.
 - ACCEPTED_WITH_RISK: live cloud-provider writes were explicitly approved by
   operator escalation and verified after application.
+
+## 2026-06-20T02:58:18Z - Add Paper State Manifest Tool
+
+Active role: ENGINEER
+
+Objective:
+- Replace OS-specific manual checksum commands in the Hetzner isolated
+  challenger transfer path with a deterministic repo-native manifest tool.
+
+What was found:
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` used macOS `shasum` on the laptop and
+  Linux `sha256sum` on Hetzner, then told the operator to normalize output
+  manually.
+- SHOWN: the repo had `restore_paper_campaigns.py` for process recovery, but no
+  dedicated paper-state manifest create/verify command for transfer integrity.
+
+What changed:
+- Added `scripts/paper_state_manifest.py`.
+- The command supports:
+  - `create --state-dir ... --output ...`
+  - `verify --state-dir ... --manifest ...`
+- Manifest paths are deterministic POSIX-relative paths sorted by path.
+- The tool rejects manifest output inside the state directory, manifest path
+  escapes, invalid digests, duplicate manifest paths, and symlinked state
+  files.
+- Updated `docs/HETZNER_PAPER_HOST.md` to use the new command for the
+  `ema_cross_default` state transfer proof.
+- Updated `scripts/SCRIPTS.md` with the new script entry.
+
+Why this change:
+- The next Hetzner blocker is isolated challenger proof, and state transfer is
+  the highest-risk manual step before starting a remote collector.
+- A repo-native manifest reduces operator drift between macOS and Linux and
+  makes the proof output machine-readable.
+
+Expected outcome:
+- State transfer can be verified with `ok=true`, `missing=[]`, `changed=[]`,
+  and `extra=[]` before any Hetzner collector is started.
+- Future canonical state migration has a safer reusable integrity primitive,
+  though canonical migration remains blocked.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_paper_state_manifest.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  returned `21 passed`.
+- SHOWN: `./.venv/bin/python -m py_compile scripts/paper_state_manifest.py scripts/restore_paper_campaigns.py services/analytics/paper_campaign_recovery.py tests/test_paper_state_manifest.py`
+  completed with exit code `0`.
+- SHOWN: `git diff --check` completed with exit code `0`.
+
+Remaining risk:
+- HIGH: this supports financial-evidence state migration. It does not start
+  collectors, move state, or merge state trees, but it should still receive
+  independent review before use in a live migration/proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

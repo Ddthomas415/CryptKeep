@@ -53,7 +53,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 95 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 96 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -103,6 +103,8 @@ live-adjacent; use with the relevant docs and keep output as audit evidence.
 - `cancel_intent.py` — cancel-flow helper.
 - `check_risk_accounting_invariant.py` — risk/fill ledger invariant check.
 - `crash_snapshot.py` — crash snapshot viewer/exporter.
+- `paper_state_manifest.py` — create or verify deterministic SHA-256 manifests
+  for paper state transfer; used by the Hetzner isolated challenger runbook.
 - `reconcile_exchange_fills.py` — exchange fill reconciliation.
 - `reconcile_order_dedupe.py` — order dedupe reconciliation.
 - `reconcile_positions.py` — position reconciliation.

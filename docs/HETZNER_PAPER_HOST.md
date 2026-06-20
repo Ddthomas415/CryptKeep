@@ -273,15 +273,12 @@ Repeat `--status`. Do not continue until `pid_alive=false`.
 From the repo root on the laptop:
 
 ```bash
-(
-  cd .cbp_state_challengers/ema_cross_default_daily
-  find . -type f -print0 |
-    LC_ALL=C sort -z |
-    xargs -0 shasum -a 256
-) > /tmp/ema_cross_default.sha256
+./.venv/bin/python scripts/paper_state_manifest.py create \
+  --state-dir .cbp_state_challengers/ema_cross_default_daily \
+  --output /tmp/ema_cross_default.manifest
 ```
 
-Archive or transfer the state directory and checksum through the operator's
+Archive or transfer the state directory and manifest through the operator's
 authenticated SSH path. Do not put runtime state in Git.
 
 ### 4. Verify state on Hetzner
@@ -289,17 +286,13 @@ authenticated SSH path. Do not put runtime state in Git.
 After transfer, from the Hetzner repo root:
 
 ```bash
-(
-  cd .cbp_state_challengers/ema_cross_default_daily
-  find . -type f -print0 |
-    LC_ALL=C sort -z |
-    xargs -0 sha256sum
-) > /tmp/ema_cross_default.server.sha256
+./.venv/bin/python scripts/paper_state_manifest.py verify \
+  --state-dir .cbp_state_challengers/ema_cross_default_daily \
+  --manifest /tmp/ema_cross_default.manifest
 ```
 
-Normalize checksum tool output if laptop and server tools use different command
-names, then compare every relative path and digest. Do not start the collector
-when any file is missing or mismatched.
+Required result: `ok=true`, `missing=[]`, `changed=[]`, and `extra=[]`. Do not
+start the collector when any file is missing, changed, or extra.
 
 ### 5. Start and verify the challenger
 
