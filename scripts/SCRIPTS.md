@@ -53,7 +53,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 96 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 97 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -138,6 +138,9 @@ planning; apply modes are high-risk and require an accepted review.
   Cloud firewall, backup, and delete/rebuild protection safeguards for the paper
   host using the OS-keyring token; use `--access-mode tailscale-only` for the
   accepted no-public-inbound firewall boundary.
+- `hetzner_paper_host_preflight.py` — read-only host readiness check for the
+  accepted Hetzner isolated paper challenger path before state transfer or
+  collector restore.
 
 ### Candidate, Signal, Learning, And Research
 

@@ -6407,4 +6407,70 @@ Remaining risk:
 - HIGH: this supports financial-evidence state migration. It does not start
   collectors, move state, or merge state trees, but it should still receive
   independent review before use in a live migration/proof.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #79 was merged to `master` as `4e0d26b50`.
+
+## 2026-06-20T09:53:08Z - Add Hetzner Paper Host Preflight
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only host readiness check before the accepted Hetzner isolated
+  challenger state-transfer and collector-restore path is used.
+
+What was found:
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` listed the required host checks as manual
+  commands before deployment.
+- SHOWN: the next blocker is a server-hosted isolated challenger proof, but
+  starting that proof depends on the host being on the accepted checkout, using
+  the repo venv, running Tailscale, having synchronized time, and using the
+  single-campaign Hetzner config with desktop notifications disabled.
+- SHOWN: the repo had a state manifest tool and campaign restore command, but
+  no repo-native preflight bundling those readiness checks.
+
+What changed:
+- Added `scripts/hetzner_paper_host_preflight.py`.
+- The command is read-only and reports JSON.
+- It checks:
+  - required campaign-transfer scripts and config exist;
+  - Python is running from the repo `.venv`;
+  - Git checkout is clean and optionally matches an accepted commit prefix;
+  - `timedatectl` reports NTP synchronized;
+  - `tailscale status --json` reports a running backend and Tailscale IP;
+  - the Hetzner campaign config enables exactly `ema_cross_default`, keeps
+    `desktop_notify=false`, and optionally requires transferred state to exist.
+- Added `tests/test_hetzner_paper_host_preflight.py`.
+- Updated `docs/HETZNER_PAPER_HOST.md` to run the preflight before campaign
+  deployment and again with `--require-state` after state transfer.
+- Updated `scripts/SCRIPTS.md` and the root script count.
+
+Why this change:
+- The next operational move crosses background-job and evidence-state risk.
+- A read-only preflight reduces manual drift before any collector starts, while
+  preserving the existing rule that no campaign is automatically migrated or
+  launched.
+- This is narrower and safer than starting a server-hosted challenger from this
+  thread.
+
+Expected outcome:
+- Operators get a single machine-readable `ok=true` readiness gate before
+  running the Hetzner isolated challenger restore command.
+- Failed Tailscale, NTP, dirty-checkout, wrong-commit, wrong-config, missing
+  state, or non-venv conditions are surfaced before a remote paper collector is
+  started.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_hetzner_paper_host_preflight.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  returned `22 passed`.
+- SHOWN: `./.venv/bin/python -m py_compile scripts/hetzner_paper_host_preflight.py tests/test_hetzner_paper_host_preflight.py`
+  completed with exit code `0`.
+- SHOWN: `./.venv/bin/python -m ruff check scripts/hetzner_paper_host_preflight.py tests/test_hetzner_paper_host_preflight.py`
+  returned `All checks passed!`.
+- SHOWN: `git diff --check` completed with exit code `0`.
+
+Remaining risk:
+- HIGH: this is deployment-adjacent paper-campaign infrastructure. It is
+  read-only and does not start collectors, move state, or call Hetzner APIs, but
+  it gates a future financial-evidence background job path.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
