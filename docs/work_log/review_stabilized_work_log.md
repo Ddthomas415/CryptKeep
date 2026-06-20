@@ -6578,6 +6578,110 @@ Remaining risk:
 - LOW: documentation-only audit-trail correction.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-06-20T15:56:20Z - Harden Hetzner Preflight Runtime Dependency Check
+
+Active role: ENGINEER
+
+Objective:
+- Prevent another Hetzner migration attempt from passing host preflight when
+  the repo-local venv exists but runtime dependencies are not installed.
+
+What was found:
+- SHOWN: the 2026-06-20 isolated challenger proof reached state transfer before
+  discovering `ModuleNotFoundError: No module named 'yaml'`.
+- SHOWN: the previous preflight checked required files, venv prefix, Git state,
+  NTP, Tailscale, and campaign config, but did not import the collector runtime.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` documented `python3 -m venv .venv` but did
+  not mention Ubuntu's required `python3.12-venv` package or a dependency smoke
+  import.
+
+What changed:
+- Added a bounded `collector_imports` check to
+  `scripts/hetzner_paper_host_preflight.py`.
+- The new check runs the active venv Python in a subprocess and imports
+  `services.analytics.paper_strategy_evidence_service`.
+- Added test coverage proving the check uses the provided venv executable and
+  surfaces missing dependency stderr such as `No module named 'yaml'`.
+- Updated `docs/HETZNER_PAPER_HOST.md` to install `python3.12-venv`, rebuild
+  `.venv`, install requirements, and verify `import yaml`.
+
+Why this change:
+- Importing the collector service is the smallest read-only check that validates
+  the dependency path needed to start a paper evidence collector.
+- It catches the actual blocker before stopping local ownership or transferring
+  state.
+
+Expected outcome:
+- Hetzner preflight fails early with `collector_imports_failed` when runtime
+  dependencies are missing.
+- A future migration attempt reaches state transfer only after the host can
+  import the collector service.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_hetzner_paper_host_preflight.py`
+  could not run because the current local `.venv` reports
+  `No module named pytest`.
+- SHOWN: `./.venv/bin/python -m py_compile scripts/hetzner_paper_host_preflight.py tests/test_hetzner_paper_host_preflight.py`
+  completed with exit code `0`.
+- SHOWN: `git diff --check` completed with exit code `0`.
+- SHOWN: a direct `check_collector_imports` function smoke check returned
+  `collector_imports_direct_smoke_ok`, covering both success and
+  `ModuleNotFoundError: No module named 'yaml'` failure reporting.
+
+Remaining risk:
+- HIGH: deployment preflight behavior sits on the high-risk paper-host
+  migration path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-20T16:20:04Z - Complete Hetzner Host Dependency Setup
+
+Active role: ENGINEER
+
+Objective:
+- Resolve the Hetzner host dependency blocker without changing local campaign
+  ownership or starting a remote collector.
+
+What was found:
+- SHOWN: direct `cryptkeep` sudo failed because the account password was not
+  known.
+- SHOWN: Tailscale SSH as `root` succeeded.
+- SHOWN: before setup, Hetzner `.venv` had no `pip` and could not import
+  `yaml`.
+- SHOWN: no remote challenger state was present before setup.
+
+What changed:
+- Used root Tailscale SSH to install `python3.12-venv`.
+- Rebuilt `/srv/cryptkeep/app/.venv` as the `cryptkeep` user.
+- Installed repo requirements into the Hetzner venv.
+- Did not transfer state or start any Hetzner collector.
+
+Why this change:
+- The previous migration proof was blocked by host package/dependency setup,
+  not by state-transfer integrity.
+- Completing the host setup allows the next migration attempt to start from a
+  clean single-owner boundary after PR #89 is accepted and merged.
+
+Expected outcome:
+- Hetzner can import the paper evidence collector runtime before any future
+  state transfer.
+- Local laptop campaigns remain the active owners until a fresh migration retry
+  is performed.
+
+Verification:
+- SHOWN: remote setup command printed `yaml_ok`.
+- SHOWN: Hetzner `./.venv/bin/python -m pip --version` returned `pip 26.1.2`
+  from `/srv/cryptkeep/app/.venv`.
+- SHOWN: Hetzner `import services.analytics.paper_strategy_evidence_service`
+  printed `collector_import_ok`.
+- SHOWN: Hetzner preflight at `a3159aa64` returned `ok=true`.
+- SHOWN: remote state remains absent with `REMOTE_STATE=absent`.
+- SHOWN: local `./.venv/bin/python scripts/restore_paper_campaigns.py --status`
+  returned `ok=true`, `all_running=true`, and `running_count=3`.
+
+Remaining risk:
+- HIGH: host dependency setup is part of the high-risk deployment path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-20T15:09:08Z - Fix Hetzner Preflight Venv Detection
 
 Active role: ENGINEER
