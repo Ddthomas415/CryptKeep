@@ -6620,7 +6620,9 @@ Verification:
 Remaining risk:
 - HIGH: deployment preflight behavior sits on the high-risk paper-host
   migration path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #87 was merged to `master` as `a3159aa64`.
 
 ## 2026-06-20T15:27:55Z - Attempt Hetzner Isolated Challenger Migration
 
@@ -6683,7 +6685,10 @@ Verification:
 Remaining risk:
 - HIGH: deployment remains blocked on host package setup requiring operator
   sudo password entry.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #88 merge. Operational migration remains blocked
+  until host dependency setup is completed.
 
 ## 2026-06-20T10:30:40Z - Record Paper Gate Status Checkpoint
 
