@@ -72,15 +72,18 @@ def check_python_venv(
     *,
     repo_root: Path = ROOT,
     executable: str = sys.executable,
+    prefix: str = sys.prefix,
 ) -> dict[str, Any]:
-    exe = Path(executable).resolve()
+    exe = Path(executable)
+    active_prefix = Path(prefix).resolve()
     venv = (repo_root / ".venv").resolve()
-    ok = exe.is_relative_to(venv)
+    ok = active_prefix == venv
     return _check(
         "python_venv",
         ok,
         "repo_venv" if ok else "not_repo_venv",
         executable=str(exe),
+        sys_prefix=str(active_prefix),
         expected_prefix=str(venv),
     )
 
