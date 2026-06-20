@@ -214,6 +214,9 @@ Before campaign deployment:
 ```bash
 cd /srv/cryptkeep/app
 git status --short --branch
+./.venv/bin/python scripts/hetzner_paper_host_preflight.py \
+  --config configs/paper_evidence_campaigns.hetzner.example.json \
+  --expected-commit <accepted-deployment-sha>
 ./.venv/bin/python -m pytest -q \
   tests/test_paper_campaign_recovery.py \
   tests/test_restore_paper_campaigns.py
@@ -222,6 +225,7 @@ timedatectl show -p NTPSynchronized --value
 
 Expected:
 - the checked-out commit is the independently accepted deployment commit;
+- the preflight reports `ok=true`;
 - targeted tests pass;
 - time synchronization reports `yes`;
 - no dashboard or backend listener is enabled.
@@ -289,10 +293,19 @@ After transfer, from the Hetzner repo root:
 ./.venv/bin/python scripts/paper_state_manifest.py verify \
   --state-dir .cbp_state_challengers/ema_cross_default_daily \
   --manifest /tmp/ema_cross_default.manifest
+./.venv/bin/python scripts/hetzner_paper_host_preflight.py \
+  --config configs/paper_evidence_campaigns.hetzner.example.json \
+  --expected-commit <accepted-deployment-sha> \
+  --require-state
 ```
 
-Required result: `ok=true`, `missing=[]`, `changed=[]`, and `extra=[]`. Do not
-start the collector when any file is missing, changed, or extra.
+Required result:
+- manifest verification reports `ok=true`, `missing=[]`, `changed=[]`, and
+  `extra=[]`;
+- host preflight reports `ok=true`.
+
+Do not start the collector when any file is missing, changed, or extra, or when
+the host preflight fails.
 
 ### 5. Start and verify the challenger
 
