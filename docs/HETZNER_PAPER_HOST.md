@@ -103,13 +103,13 @@ tailscale ssh cryptkeep@100.86.128.9
 
 ## Cloud Safeguards Command
 
-Status: `READY_FOR_INDEPENDENT_REVIEW`
+Status: `ACCEPTED_AND_APPLIED`
 
 `scripts/hetzner_cloud_safeguards.py` plans cloud-side safety changes for the
 paper host and applies them only with explicit operator confirmation.
 
-Do not run this command with `--apply` until the Tailscale-only safeguard mode
-is independently reviewed and accepted. The accepted live SSH boundary uses the
+The Tailscale-only safeguard mode was independently reviewed, accepted, and
+applied on `2026-06-20T02:51:31Z`. The accepted live SSH boundary uses the
 no-public-inbound firewall `cryptkeep-tailscale-only`.
 
 The command is dry-run by default:
@@ -120,7 +120,7 @@ The command is dry-run by default:
   --access-mode tailscale-only
 ```
 
-Planned changes:
+Managed changes:
 - create or correct the named no-public-inbound firewall
   `cryptkeep-tailscale-only`;
 - attach that firewall to the selected server;
@@ -137,7 +137,7 @@ Safety gates:
 - `--apply` requires `--confirm-server-id` matching `--server-id`;
 - the script prints JSON status only, never the token.
 
-Apply only after independent review:
+The accepted apply command was:
 
 ```bash
 ./.venv/bin/python scripts/hetzner_cloud_safeguards.py \
@@ -152,10 +152,10 @@ explicitly changed away from Tailscale-only.
 
 ## Stage 0 - Host Preparation
 
-Current status as of `2026-06-20T02:05:58Z`: implementation proof is complete
-for host-level hardening and the Tailscale-only cloud firewall on
-`ubuntu-4gb-nbg1-3`; campaign deployment remains blocked pending backup,
-protection, restore, and single-owner proof.
+Current status as of `2026-06-20T02:51:31Z`: implementation proof is complete
+for host-level hardening, the Tailscale-only cloud firewall, Hetzner backups,
+and delete/rebuild protection on `ubuntu-4gb-nbg1-3`; campaign deployment
+remains blocked pending restore, server-hosted cycle, and single-owner proof.
 
 SHOWN:
 - `cryptkeep` non-root user exists with home `/srv/cryptkeep`.
@@ -168,6 +168,9 @@ SHOWN:
 - `fail2ban` is active for `sshd`.
 - Hetzner Cloud Console reports `cryptkeep-tailscale-only` with `0 Rules`,
   `1 Server`, and status `Fully applied`.
+- Hetzner safeguard dry-run reports `delete_rebuild_protection_enabled`,
+  `backups_enabled`, and `changes_needed=[]`.
+- Hetzner backup window is `10-14`.
 - Public SSH to `178.104.145.242:22` times out.
 - Tailscale SSH to `cryptkeep@100.86.128.9` succeeds.
 - Local paper collectors remained on the laptop; no campaign state was copied
@@ -178,11 +181,6 @@ SHOWN:
   networks, zero volumes, and zero firewalls.
 
 Still blocked:
-- Hetzner backups are not enabled.
-- Hetzner delete/rebuild protection is not enabled.
-- `hetzner_cloud_safeguards.py --access-mode tailscale-only --apply` is
-  implementation-proof-ready but still requires independent review before live
-  use.
 - No isolated challenger has completed a server-hosted UTC cycle.
 - No backup/restore rehearsal has been performed.
 

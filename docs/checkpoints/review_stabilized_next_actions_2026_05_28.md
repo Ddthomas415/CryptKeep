@@ -485,10 +485,10 @@ Risk:
 
 ## Priority 16 - Hetzner Paper Campaign Host
 
-Status: runbook accepted; host hardening proof complete; Tailscale-only SSH and
-Hetzner Cloud firewall applied; Tailscale-compatible safeguard command is
-implementation-proof-ready; campaign deployment remains blocked pending
-independent review, backup, protection, restore, and single-owner proof.
+Status: runbook accepted; host hardening proof complete; Tailscale-only SSH,
+Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
+campaign deployment remains blocked pending restore, server-hosted cycle, and
+single-owner proof.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -508,8 +508,6 @@ Next action:
   `docs/HETZNER_PAPER_HOST.md`.
 - Administer the host with Tailscale SSH only:
   `tailscale ssh cryptkeep@100.86.128.9`.
-- Do not run `hetzner_cloud_safeguards.py --access-mode tailscale-only --apply`
-  until the safeguard update is independently reviewed and accepted.
 - Do not use the older CIDR-based safeguard mode for this host unless the access
   policy is explicitly changed away from Tailscale-only.
 - Run collectors with no live-trading credentials and no public application
@@ -530,9 +528,8 @@ Proof required:
 - No externally reachable dashboard or backend port.
 - Hetzner Cloud firewall remains `cryptkeep-tailscale-only`, `0 Rules`,
   `1 Server`, and `Fully applied`.
-- Hetzner backups and delete/rebuild protection are either applied through a
-  reviewed Tailscale-compatible safeguard path or explicitly deferred with a
-  written risk acceptance.
+- Hetzner backups remain enabled and backup window is visible.
+- Hetzner delete/rebuild protection remains enabled.
 - One collector owner per campaign, with duplicate-process checks passing.
 - Evidence counts and checksums match before and after state migration.
 - `restore_paper_campaigns.py --status` reports all configured collectors
