@@ -6578,6 +6578,50 @@ Remaining risk:
 - LOW: documentation-only audit-trail correction.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-06-20T15:09:08Z - Fix Hetzner Preflight Venv Detection
+
+Active role: ENGINEER
+
+Objective:
+- Remove a false-negative blocker in the Hetzner paper-host preflight before
+  any local campaign state is stopped or transferred.
+
+What was found:
+- SHOWN: Hetzner checkout was clean at
+  `affa5938bd9ec494ca9ba85a0a349fcc7eadb645`.
+- SHOWN: Hetzner `.venv/bin/python` reported `sys.prefix` as
+  `/srv/cryptkeep/app/.venv`, but the preflight failed `python_venv` because
+  it resolved the interpreter symlink to `/usr/bin/python3.12`.
+- SHOWN: no local collector state was stopped, transferred, or restarted.
+
+What changed:
+- Updated `scripts/hetzner_paper_host_preflight.py` so `python_venv` validates
+  the active interpreter environment by `sys.prefix`, not by the resolved
+  executable symlink path.
+- Added a regression test covering the symlinked Ubuntu venv case.
+
+Why this change:
+- `sys.prefix` is Python's authoritative signal for the active virtual
+  environment. On Ubuntu, `.venv/bin/python` may be a symlink into `/usr/bin`,
+  so resolving the executable path rejects valid repo-local venvs.
+
+Expected outcome:
+- A valid Hetzner repo-local venv passes host preflight, while non-venv or
+  wrong-prefix interpreters still fail before state transfer or collector
+  startup.
+
+Verification:
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_hetzner_paper_host_preflight.py`
+  returned `7 passed`.
+- SHOWN: `./.venv/bin/python -m py_compile scripts/hetzner_paper_host_preflight.py tests/test_hetzner_paper_host_preflight.py`
+  completed with exit code `0`.
+- SHOWN: `git diff --check` completed with exit code `0`.
+
+Remaining risk:
+- HIGH: deployment preflight behavior sits on the high-risk paper-host
+  migration path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-20T10:30:40Z - Record Paper Gate Status Checkpoint
 
 Active role: ENGINEER

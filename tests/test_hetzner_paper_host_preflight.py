@@ -127,6 +127,23 @@ def test_git_checkout_can_require_expected_commit(tmp_path: Path) -> None:
     assert calls
 
 
+def test_python_venv_uses_active_prefix_not_resolved_executable(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    venv = repo_root / ".venv"
+    executable = venv / "bin" / "python"
+
+    result = preflight.check_python_venv(
+        repo_root=repo_root,
+        executable=str(executable),
+        prefix=str(venv),
+    )
+
+    assert result["ok"] is True
+    assert result["status"] == "repo_venv"
+    assert result["details"]["sys_prefix"] == str(venv.resolve())
+
+
 def test_time_sync_requires_ntp_yes(monkeypatch) -> None:
     monkeypatch.setattr(preflight.shutil, "which", lambda name: "/bin/timedatectl" if name == "timedatectl" else None)
 
