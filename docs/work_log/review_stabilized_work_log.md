@@ -6633,6 +6633,55 @@ Remaining risk:
   migration path.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-06-20T16:20:04Z - Complete Hetzner Host Dependency Setup
+
+Active role: ENGINEER
+
+Objective:
+- Resolve the Hetzner host dependency blocker without changing local campaign
+  ownership or starting a remote collector.
+
+What was found:
+- SHOWN: direct `cryptkeep` sudo failed because the account password was not
+  known.
+- SHOWN: Tailscale SSH as `root` succeeded.
+- SHOWN: before setup, Hetzner `.venv` had no `pip` and could not import
+  `yaml`.
+- SHOWN: no remote challenger state was present before setup.
+
+What changed:
+- Used root Tailscale SSH to install `python3.12-venv`.
+- Rebuilt `/srv/cryptkeep/app/.venv` as the `cryptkeep` user.
+- Installed repo requirements into the Hetzner venv.
+- Did not transfer state or start any Hetzner collector.
+
+Why this change:
+- The previous migration proof was blocked by host package/dependency setup,
+  not by state-transfer integrity.
+- Completing the host setup allows the next migration attempt to start from a
+  clean single-owner boundary after PR #89 is accepted and merged.
+
+Expected outcome:
+- Hetzner can import the paper evidence collector runtime before any future
+  state transfer.
+- Local laptop campaigns remain the active owners until a fresh migration retry
+  is performed.
+
+Verification:
+- SHOWN: remote setup command printed `yaml_ok`.
+- SHOWN: Hetzner `./.venv/bin/python -m pip --version` returned `pip 26.1.2`
+  from `/srv/cryptkeep/app/.venv`.
+- SHOWN: Hetzner `import services.analytics.paper_strategy_evidence_service`
+  printed `collector_import_ok`.
+- SHOWN: Hetzner preflight at `a3159aa64` returned `ok=true`.
+- SHOWN: remote state remains absent with `REMOTE_STATE=absent`.
+- SHOWN: local `./.venv/bin/python scripts/restore_paper_campaigns.py --status`
+  returned `ok=true`, `all_running=true`, and `running_count=3`.
+
+Remaining risk:
+- HIGH: host dependency setup is part of the high-risk deployment path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-20T15:09:08Z - Fix Hetzner Preflight Venv Detection
 
 Active role: ENGINEER

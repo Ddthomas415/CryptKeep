@@ -1,6 +1,6 @@
 # Hetzner Isolated Challenger Proof Record - 2026-06-20
 
-Status: `BLOCKED`
+Status: `READY_TO_RETRY_AFTER_PR89`
 
 This record covers only the isolated `ema_cross_default` paper challenger
 migration proof. It does not authorize canonical `.cbp_state` migration, live
@@ -37,13 +37,19 @@ Required acceptance state before start: `ACCEPTED`.
   macOS AppleDouble `._*` metadata sidecars.
 - [ ] SHOWN: Hetzner collector starts and owns the state tree.
 
-Blocker:
-- SHOWN: the Hetzner venv has no `pip`.
-- SHOWN: `/usr/bin/python3` has no `ensurepip`.
-- SHOWN: `python3.12-venv` is not installed.
-- SHOWN: `sudo -n true` fails with `sudo: a password is required`.
-- Consequence: remote dependencies cannot be installed by Codex without the
-  operator running a password-backed `sudo apt-get install python3.12-venv`.
+Prior blocker:
+- SHOWN: the first Hetzner start failed because the host lacked `pip`, `yaml`,
+  and `python3.12-venv`.
+- SHOWN: direct `cryptkeep` sudo was unavailable because the account password
+  was not known.
+- SHOWN: Tailscale SSH as `root` was available and used to complete the host
+  dependency setup without changing local campaign ownership.
+- SHOWN: as of 2026-06-20T16:20Z, Hetzner `.venv` has `pip 26.1.2`, `import
+  yaml` succeeds, importing `services.analytics.paper_strategy_evidence_service`
+  prints `collector_import_ok`, and host preflight returns `ok=true`.
+- Consequence: the dependency blocker is resolved, but the migration must be
+  retried from the beginning because local `ema_cross_default` was restored and
+  the stale remote state copy was removed.
 
 ## Laptop Status Before Stop
 
@@ -273,19 +279,37 @@ Pending.
 
 Pending. Required before canonical migration.
 
-## Operator Command Required
+## Host Dependency Setup Completed
 
-Run this inside the Hetzner Tailscale SSH shell, not on the Mac:
+Root setup command executed by Codex over Tailscale SSH:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y python3.12-venv
+tailscale ssh root@100.86.128.9 'set -e
 cd /srv/cryptkeep/app
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y python3.12-venv
 rm -rf .venv
-python3 -m venv .venv
-./.venv/bin/python -m pip install --upgrade pip
-./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python -c "import yaml; print('yaml_ok')"
+sudo -u cryptkeep python3 -m venv .venv
+sudo -u cryptkeep ./.venv/bin/python -m pip install --upgrade pip
+sudo -u cryptkeep ./.venv/bin/pip install -r requirements.txt
+sudo -u cryptkeep ./.venv/bin/python -c "import yaml; print(\"yaml_ok\")"'
 ```
 
-After that succeeds, rerun the isolated challenger migration from the beginning.
+Verification:
+- [x] SHOWN: package install completed and installed `python3.12-venv`.
+- [x] SHOWN: requirements install completed in `/srv/cryptkeep/app/.venv`.
+- [x] SHOWN: `yaml_ok` printed on the host.
+- [x] SHOWN: `pip 26.1.2` is available from the host venv.
+- [x] SHOWN: `import services.analytics.paper_strategy_evidence_service`
+  printed `collector_import_ok`.
+- [x] SHOWN: Hetzner preflight returned `ok=true`.
+- [x] SHOWN: remote state remains absent: `REMOTE_STATE=absent`.
+- [x] SHOWN: laptop campaigns remain active and local `ema_cross_default` is
+  still the owner.
+
+Next required action:
+- Accept and merge PR #89 so the stronger `collector_imports` preflight is on
+  `master`.
+- Rerun the isolated challenger migration from the beginning: stop local
+  `ema_cross_default`, create a fresh manifest, transfer fresh state, verify
+  manifest, run preflight with `--require-state`, then start on Hetzner.
