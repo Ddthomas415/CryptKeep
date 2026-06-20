@@ -238,6 +238,16 @@ after verifying host and state health.
 
 Start with `ema_cross_default`, not canonical `.cbp_state`.
 
+Before running this stage, copy the proof template and record each command
+result in the dated deployment record:
+
+```text
+docs/deployment_records/hetzner_isolated_challenger_proof_TEMPLATE.md
+```
+
+The completed dated record is the audit artifact for single-owner proof,
+manifest verification, first server-hosted UTC cycle, and rollback readiness.
+
 Use:
 
 ```text
@@ -384,4 +394,6 @@ Before this runbook is used:
 - an independent reviewer confirms no public service exposure is required;
 - an independent reviewer confirms the single-owner and rollback procedures;
 - the operator supplies the actual host, SSH, firewall, backup, and monitoring
-  configuration through a separate reviewed deployment record.
+  configuration through a separate reviewed deployment record;
+- the isolated challenger proof uses the template in
+  `docs/deployment_records/hetzner_isolated_challenger_proof_TEMPLATE.md`.

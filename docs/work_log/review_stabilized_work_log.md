@@ -6474,3 +6474,61 @@ Remaining risk:
   read-only and does not start collectors, move state, or call Hetzner APIs, but
   it gates a future financial-evidence background job path.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-20T10:08:41Z - Add Hetzner Isolated Challenger Proof Template
+
+Active role: ENGINEER
+
+Objective:
+- Make the next Hetzner isolated challenger proof auditable before any state
+  transfer or remote collector start.
+
+What was found:
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` defines the correct single-owner
+  sequence, but the command outputs were still expected to be preserved by
+  operator discipline rather than a named proof artifact.
+- SHOWN: the remaining Hetzner blockers are operational:
+  server-hosted isolated challenger cycle, backup/restore rehearsal, and
+  single-owner proof.
+- SHOWN: starting the challenger from this thread would cross background-job
+  and evidence-state risk.
+
+What changed:
+- Added
+  `docs/deployment_records/hetzner_isolated_challenger_proof_TEMPLATE.md`.
+- The template records:
+  - accepted deployment commit and host identity;
+  - laptop status before stop;
+  - laptop stop proof;
+  - manifest create and verify proof;
+  - transfer proof;
+  - Hetzner preflight proof;
+  - Hetzner restore/start proof;
+  - single-owner proof;
+  - first UTC cycle observation;
+  - backup restore rehearsal;
+  - rollback record and final decision.
+- Updated `docs/HETZNER_PAPER_HOST.md` to require the template for Stage 1 and
+  acceptance proof.
+
+Why this change:
+- The next operational step must not depend on memory or chat context.
+- A template creates the audit artifact before the high-risk operation starts,
+  without launching collectors, moving state, or touching cloud resources.
+
+Expected outcome:
+- The first server-hosted isolated challenger proof can be reviewed from a
+  single committed deployment record.
+- Future canonical migration remains blocked until that record shows a healthy
+  server-hosted UTC cycle, backup rehearsal, and single-owner evidence.
+
+Verification:
+- SHOWN: `git diff --check` completed with exit code `0`.
+- SHOWN: `./.venv/bin/python -m pytest -q tests/test_checkpoints_repo_path_references_exist.py`
+  returned `2 passed`.
+
+Remaining risk:
+- HIGH: this documents deployment-adjacent financial-evidence operations. It is
+  docs-only and does not run commands, but it is still part of the operational
+  control path for a future background collector.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
