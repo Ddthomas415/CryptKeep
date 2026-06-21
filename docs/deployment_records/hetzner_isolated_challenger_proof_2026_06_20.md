@@ -1,6 +1,6 @@
 # Hetzner Isolated Challenger Proof Record - 2026-06-20
 
-Status: `BACKUP_REHEARSAL_READY_FOR_REVIEW_PENDING_FIRST_UTC_CYCLE`
+Status: `CONTROLLED_STOP_READY_FOR_REVIEW_PENDING_FIRST_UTC_CYCLE`
 
 This record covers only the isolated `ema_cross_default` paper challenger
 migration proof. It does not authorize canonical `.cbp_state` migration, live
@@ -321,6 +321,53 @@ Acceptance state:
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #91 was merged.
 
+## Controlled Stop And Recovery Proof
+
+Date/time UTC: `2026-06-20T20:21:10Z`
+
+Evidence source:
+- Operator-pasted terminal output from
+  `/Users/baitus/.codex/attachments/87e72095-522b-4bff-95b8-4bf8d30f096a/pasted-text.txt`.
+
+Scope:
+- Stopped only the isolated Hetzner `ema_cross_default` challenger.
+- Did not stop or migrate canonical `.cbp_state`.
+- Did not stop laptop `es_daily_trend_v1`.
+- Did not stop laptop `breakout_default`.
+- Restarted through the Hetzner campaign manifest after capturing the
+  operator-visible stopped state.
+
+Controlled stop proof:
+- [x] SHOWN: stop flag was written to
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily/runtime/flags/paper_strategy_evidence.stop`.
+- [x] SHOWN: status after the stop returned `ok=false` at the manifest level.
+- [x] SHOWN: `all_running=false`.
+- [x] SHOWN: `running_count=0`.
+- [x] SHOWN: `status=stopped`.
+- [x] SHOWN: `reason=stop_requested`.
+- [x] SHOWN: `pid_alive=false`.
+- [x] SHOWN: `has_pid_file=false`.
+- [x] SHOWN: operator-visible summary text was
+  `Paper evidence collector daily loop was stopped by request.`
+
+Recovery proof:
+- [x] SHOWN: `restore_paper_campaigns.py --config
+  configs/paper_evidence_campaigns.hetzner.example.json --restore` returned
+  `ok=true`.
+- [x] SHOWN: exactly one campaign was configured.
+- [x] SHOWN: `all_running=true`.
+- [x] SHOWN: `running_count=1`.
+- [x] SHOWN: `ema_cross_default` restarted as PID `1287182`.
+- [x] SHOWN: `pid_alive=true`.
+- [x] SHOWN: `status=idle`.
+- [x] SHOWN: `reason=waiting_for_next_day`.
+- [x] SHOWN: `last_completed_day=2026-06-20`.
+- [x] SHOWN: state path remained under
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily`.
+
+Acceptance state:
+- `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## Host Dependency Setup Completed
 
 Root setup command executed by Codex over Tailscale SSH:
@@ -454,11 +501,11 @@ Single-owner proof:
 Current ownership:
 - `es_daily_trend_v1`: laptop owner, PID `80255`.
 - `breakout_default`: laptop owner, PID `80263`.
-- `ema_cross_default`: Hetzner owner, PID `1286864`.
+- `ema_cross_default`: Hetzner owner, PID `1287182`.
 
 Remaining required proof:
 - First server-hosted UTC cycle observation for `ema_cross_default`.
-- Human review of the backup/restore rehearsal before any canonical
+- Human review of the controlled-stop/recovery proof before any canonical
   `.cbp_state` migration.
 
 Acceptance state:

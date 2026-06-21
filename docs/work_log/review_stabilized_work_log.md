@@ -7119,3 +7119,61 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #91 was merged.
+
+## 2026-06-20T20:21:10Z - Record Hetzner EMA Controlled Stop Recovery
+
+Active role: ENGINEER
+
+Objective:
+- Document the controlled-stop/operator-visible-failure proof and recovery for
+  the isolated Hetzner `ema_cross_default` challenger.
+
+What was found:
+- SHOWN: the first Hetzner-hosted UTC cycle was still not due at
+  `2026-06-20T20:18:44Z`.
+- SHOWN: local `es_daily_trend_v1` and `breakout_default` remained running.
+- SHOWN: local `ema_cross_default` remained stopped.
+- SHOWN: Hetzner `ema_cross_default` was the only remote campaign.
+- SHOWN: the operator pasted terminal output proving the restart completed
+  after Codex was blocked by an execution/usage limit while attempting the
+  restart command.
+
+What changed:
+- Updated
+  `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
+  with a controlled stop and recovery section.
+- Updated the proof-record status to
+  `CONTROLLED_STOP_READY_FOR_REVIEW_PENDING_FIRST_UTC_CYCLE`.
+- Updated current `ema_cross_default` ownership PID from `1286864` to
+  `1287182`.
+
+Why this change:
+- The Hetzner runbook requires an operator-visible failure from a controlled
+  collector stop before broader migration planning.
+- The pasted operator output is the authoritative evidence for the recovery
+  because it shows the stopped state before restore and the running state after
+  restore.
+
+Expected outcome:
+- The controlled-stop/recovery proof is available for independent review.
+- The active EMA challenger remains ready for the first server-hosted UTC cycle.
+
+Verification:
+- SHOWN: stop flag path:
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily/runtime/flags/paper_strategy_evidence.stop`.
+- SHOWN: stopped status returned `ok=false`, `all_running=false`,
+  `running_count=0`, `status=stopped`, `reason=stop_requested`,
+  `pid_alive=false`, and `has_pid_file=false`.
+- SHOWN: stopped summary text was
+  `Paper evidence collector daily loop was stopped by request.`
+- SHOWN: restore returned `ok=true`, `all_running=true`, exactly one
+  configured campaign, and `running_count=1`.
+- SHOWN: final status returned `ema_cross_default` running as PID `1287182`,
+  `pid_alive=true`, `status=idle`, `reason=waiting_for_next_day`, and
+  `last_completed_day=2026-06-20`.
+
+Remaining risk:
+- HIGH: controlled stop/recovery is deployment/background-job ownership work.
+- The first Hetzner-hosted UTC cycle has not completed yet.
+- Canonical `.cbp_state` migration remains blocked.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
