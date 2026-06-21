@@ -366,7 +366,9 @@ Recovery proof:
   `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily`.
 
 Acceptance state:
-- `READY_FOR_INDEPENDENT_REVIEW`.
+- `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #92 was merged.
 
 ## Host Dependency Setup Completed
 

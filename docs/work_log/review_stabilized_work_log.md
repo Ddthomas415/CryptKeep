@@ -7176,4 +7176,6 @@ Remaining risk:
 - HIGH: controlled stop/recovery is deployment/background-job ownership work.
 - The first Hetzner-hosted UTC cycle has not completed yet.
 - Canonical `.cbp_state` migration remains blocked.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #92 was merged.
