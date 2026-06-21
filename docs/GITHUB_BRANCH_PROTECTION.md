@@ -48,20 +48,32 @@ the main CI jobs without ambiguity.
 
 ## Admin Bypass Policy
 
-Admin bypass is allowed only through the visible GitHub UI/admin path after the
-audit cycle has completed and the human operator accepts the work. Do not use
-CLI admin-bypass flags from an AI-agent workflow.
+Admin bypass is allowed only after the audit cycle has completed, required
+checks are passing, and the human operator accepts the work.
 
-Human acceptance in chat is review evidence; it is not, by itself,
-authorization for an AI agent to run `gh pr merge --admin`. If a pull request is
-blocked only by the owner-self-review rule, the AI agent should stop and direct
-the human repo admin to complete the visible GitHub UI bypass.
+In this solo-project workflow, human acceptance may happen in either of two
+ways:
+
+- the human repo admin uses the visible GitHub UI/admin bypass path
+- the human operator writes `INDEPENDENTLY_REVIEWED AND ACCEPTED` in the Codex
+  thread after the latest pushed PR commit
+
+After explicit chat acceptance, a Codex agent may run `gh pr merge --admin`
+only when all of the following are true:
+
+- the pull request is not a draft
+- required checks are passing
+- GitHub reports the PR as mergeable
+- the only remaining blocker is the owner-self-review rule
+- the acceptance happened after the latest pushed PR commit
+- no material audit blocker remains unresolved
 
 When admin bypass is used, record an audit note on the PR explaining:
 - why normal review could not satisfy the rule, such as owner-authored PRs in a
   solo project
 - that required checks were passing before merge
-- that the bypass was performed by the human repo admin, not an AI agent
+- whether the bypass was performed directly by the human repo admin or by a
+  Codex agent after explicit human chat acceptance
 
 If the project adds a second human reviewer, consider tightening the rule by
 enabling "Do not allow bypassing the above settings" and requiring external
@@ -69,7 +81,7 @@ review even for administrators.
 
 ## Post-Merge Branch Alignment
 
-After a human-admin merge from `review-stabilized` to `master`, keep
+After an accepted/admin merge from `review-stabilized` to `master`, keep
 `review-stabilized` aligned with `master` before starting the next change.
 GitHub may create a new merge commit on `master` even when the file tree is
 identical to the PR head. That leaves the two branch names pointing at different
