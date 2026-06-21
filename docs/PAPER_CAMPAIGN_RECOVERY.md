@@ -15,6 +15,12 @@ This is read-only. It checks the configured canonical and challenger state
 directories and exits nonzero if any selected collector is not alive or is
 reporting unhealthy campaign status.
 
+The `make` shortcut reads `configs/paper_evidence_campaigns.laptop.json` by
+default. That manifest reflects the current laptop ownership split:
+`es_daily_trend_v1` and `breakout_default` run on the laptop, while
+`ema_cross_default` is owned by the Hetzner host through
+`configs/paper_evidence_campaigns.hetzner.example.json`.
+
 ## Restore
 
 Run:
@@ -39,8 +45,15 @@ To operate on one campaign:
   --campaign ema_cross_default
 ```
 
-The authoritative campaign list and launch parameters are in
-`configs/paper_evidence_campaigns.json`.
+The active laptop campaign list and launch parameters are in
+`configs/paper_evidence_campaigns.laptop.json`. The full three-campaign local
+manifest remains available at `configs/paper_evidence_campaigns.json` for
+pre-migration or single-host operation. To override the shortcut:
+
+```bash
+PAPER_CAMPAIGN_CONFIG=configs/paper_evidence_campaigns.json \
+  make status-paper-campaigns
+```
 
 ## Market-Data Failure Behavior
 
@@ -68,8 +81,13 @@ the existing parent owns the bounded retry.
 | Campaign | Strategy | Signal source | Daily attempts | State directory |
 |---|---|---|---|---|
 | `es_daily_trend_v1` | `sma_200_trend` | `public_ohlcv_1d` | `2` | `.cbp_state` |
-| `ema_cross_default` | `ema_cross` | `public_ohlcv_5m` | `2` | `.cbp_state_challengers/ema_cross_default_daily` |
 | `breakout_default` | `breakout_donchian` | `public_ohlcv_5m` | `2` | `.cbp_state_challengers/breakout_default_daily` |
+
+Hetzner-owned campaign:
+
+| Campaign | Strategy | Signal source | Daily attempts | State directory |
+|---|---|---|---|---|
+| `ema_cross_default` | `ema_cross` | `public_ohlcv_5m` | `2` | `.cbp_state_challengers/ema_cross_default_daily` |
 
 ## Safety Boundary
 

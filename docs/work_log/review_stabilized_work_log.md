@@ -7245,3 +7245,77 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #93 was merged.
+
+## 2026-06-21T02:33:27Z - Split Laptop Paper Campaign Manifest From Hetzner EMA Owner
+
+Active role: ENGINEER
+
+Objective:
+- Stop the laptop paper-campaign health shortcut from reporting the accepted
+  Hetzner-owned `ema_cross_default` campaign as a local outage.
+
+What was found:
+- SHOWN: `./.venv/bin/python scripts/restore_paper_campaigns.py --status`
+  returned `ok=false`, `all_running=false`, `campaign_count=3`, and
+  `running_count=2` because local `ema_cross_default` was stopped.
+- SHOWN: the same local status showed `es_daily_trend_v1` and
+  `breakout_default` running/idle on the laptop.
+- SHOWN: Hetzner status with
+  `configs/paper_evidence_campaigns.hetzner.example.json` returned `ok=true`,
+  `all_running=true`, `running_count=1`, and `ema_cross_default` running/idle.
+- SHOWN: the accepted Hetzner proof record says `ema_cross_default` is the
+  Hetzner owner after the first hosted UTC cycle.
+
+What changed:
+- Added `configs/paper_evidence_campaigns.laptop.json` with only the laptop
+  owned campaigns: `es_daily_trend_v1` and `breakout_default`.
+- Updated `make status-paper-campaigns` and `make restore-paper-campaigns` to
+  use `PAPER_CAMPAIGN_CONFIG`, defaulting to the laptop manifest.
+- Kept `configs/paper_evidence_campaigns.json` unchanged as the full
+  three-campaign local manifest for pre-migration or single-host operation.
+- Updated `docs/PAPER_CAMPAIGN_RECOVERY.md` and `docs/GOLDEN_PATH.md` to
+  describe the laptop/Hetzner ownership split and the override path.
+- Added a regression test asserting the laptop manifest excludes the
+  Hetzner-owned EMA challenger.
+
+Why this change:
+- Local operator health checks should reflect local ownership, not report an
+  intentionally migrated remote campaign as a laptop outage.
+- Keeping the full manifest available avoids removing a valid single-host
+  operation mode.
+
+Expected outcome:
+- `make status-paper-campaigns` reports only laptop-owned paper collectors.
+- Hetzner EMA health remains checked with the Hetzner manifest.
+- Operators can still opt into the full local manifest by setting
+  `PAPER_CAMPAIGN_CONFIG=configs/paper_evidence_campaigns.json`.
+
+Verification:
+- `make status-paper-campaigns`
+  - SHOWN: command now reads `configs/paper_evidence_campaigns.laptop.json`.
+  - SHOWN: returned `ok=true`, `all_running=true`, `campaign_count=2`, and
+    `running_count=2`.
+  - SHOWN: checked `es_daily_trend_v1` and `breakout_default`; local
+    `ema_cross_default` was not treated as a laptop outage.
+- `./.venv/bin/python -c 'from services.analytics.paper_campaign_recovery import ...'`
+  - SHOWN: laptop manifest resolves to `['es_daily_trend_v1',
+    'breakout_default']`.
+  - SHOWN: Hetzner manifest resolves to `['ema_cross_default']`.
+  - SHOWN: full manifest remains `['es_daily_trend_v1', 'ema_cross_default',
+    'breakout_default']`.
+- `./.venv/bin/python -m py_compile services/analytics/paper_campaign_recovery.py scripts/restore_paper_campaigns.py`
+  - SHOWN: command passed.
+- `./.venv/bin/python -m py_compile tests/test_paper_campaign_recovery.py`
+  - SHOWN: command passed.
+- `git diff --check`
+  - SHOWN: command passed.
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - NOT RUN locally to completion: local `.venv` is missing `pytest`
+    (`No module named pytest`). CI or reviewer should run this targeted slice.
+
+Remaining risk:
+- HIGH: this changes operator recovery shortcuts for background paper
+  campaign processes.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #94 was merged.

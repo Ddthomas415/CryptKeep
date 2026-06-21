@@ -45,12 +45,15 @@ with:
 make restore-paper-campaigns
 ```
 
-The command reads `configs/paper_evidence_campaigns.json`, preserves each
-campaign's isolated `CBP_STATE_DIR`, and delegates startup to the authoritative
-collector `--daily-loop --detach` path. It checks status before launch, so
-repeated restore calls do not create duplicate collectors. Automatic OS-login
-startup is intentionally not enabled; starting financial background jobs
-requires this explicit operator action.
+The command reads `configs/paper_evidence_campaigns.laptop.json`, preserves
+each campaign's isolated `CBP_STATE_DIR`, and delegates startup to the
+authoritative collector `--daily-loop --detach` path. It checks status before
+launch, so repeated restore calls do not create duplicate collectors.
+`ema_cross_default` is intentionally excluded from the laptop shortcut after
+the accepted Hetzner migration proof; use
+`configs/paper_evidence_campaigns.hetzner.example.json` on the Hetzner host for
+that campaign. Automatic OS-login startup is intentionally not enabled;
+starting financial background jobs requires this explicit operator action.
 
 Public-OHLCV campaign health is fail-closed. A collector may remain alive while
 reporting `ok=false`, `status=failed`, and `reason=no_public_ohlcv`. The
