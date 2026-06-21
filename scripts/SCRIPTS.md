@@ -35,6 +35,7 @@ Makefile target when one is shown.
 | `preflight.py` | — | Pre-launch checks |
 | `preflight_check.py` | — | Runtime/config preflight check |
 | `report_paper_run_diagnostics.py` | — | Paper-run diagnostic report |
+| `report_paper_campaign_status.py` | `make status-paper-hetzner` | Read-only campaign-health summary for configured campaign manifests without promotion-gate coupling |
 | `report_supervised_soak_status.py` | `make status-paper-soak` / `make status-paper-soak-json` | Read-only supervised paper-soak summary across configured campaigns and paper promotion gate status |
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
@@ -53,7 +54,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 97 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 98 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
