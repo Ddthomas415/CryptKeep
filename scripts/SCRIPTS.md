@@ -22,6 +22,10 @@ These are the safe daily/operator-facing commands for the current paper evidence
 campaign and local operator visibility. Some have Makefile wrappers; use the
 Makefile target when one is shown.
 
+Use `make status-paper-all` for the full daily paper check-in across the laptop
+and Hetzner-owned campaigns. It is a read-only wrapper around the status targets
+listed below.
+
 | Script | Make target | Purpose |
 |--------|-------------|---------|
 | `bot_status.py` | — | Process status query |

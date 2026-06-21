@@ -7961,4 +7961,67 @@ Verification:
 Remaining risk:
 - LOW: Makefile metadata and work-log update only; no command bodies or runtime
   behavior changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #105 commit
+  `ca31dc5581d90025468d1840237101591a9bfcd0`; PR #105 merged as
+  `be587d7652fab1f2cb518086b23e653860ade0d9`.
+
+## 2026-06-21T11:22:52Z - Add Unified Paper Status Check-In Target
+
+Active role: ENGINEER
+
+Objective:
+- Restore a one-command daily paper check-in while preserving the accepted
+  split-host ownership between laptop campaigns and the Hetzner EMA campaign.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` required `make status-paper-soak` and
+  `make status-paper-hetzner` as two separate routine check-in commands.
+- SHOWN: `docs/GOLDEN_PATH.md` still said to check all accepted paper campaigns
+  with `make status-paper-campaigns`, but that target follows only the laptop
+  manifest after the accepted Hetzner migration.
+- SHOWN: both local and Hetzner status paths are already read-only and accepted.
+
+What changed:
+- Added `make status-paper-all`, a read-only wrapper that runs
+  `status-paper-soak` and `status-paper-hetzner` in sequence.
+- The wrapper preserves both reports even if one side fails, then exits
+  non-zero if either side reports failure.
+- Updated `REMAINING_TASKS.md`, `docs/GOLDEN_PATH.md`,
+  `docs/PAPER_CAMPAIGN_RECOVERY.md`, and `scripts/SCRIPTS.md` to use the new
+  unified check-in command.
+- Updated the prior PR #105 work-log entry from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+
+Why this change:
+- The operator check-in should be one command, not a memory task requiring two
+  separate commands.
+- This is the smallest safe fix because it composes existing read-only status
+  targets and does not alter campaign runtime, restore/start behavior, gate
+  logic, deployment, or secrets.
+
+Expected outcome:
+- Routine check-in becomes `make status-paper-all`.
+- Operators can still run `make status-paper-soak` or
+  `make status-paper-hetzner` when intentionally checking only one host.
+
+Verification:
+- `make -n status-paper-all`
+  - SHOWN: resolved to `status-paper-soak` followed by
+    `status-paper-hetzner`.
+- `make status-paper-all`
+  - SHOWN: local laptop status reported `2/2` campaigns running.
+  - SHOWN: canonical gate remained `ready=False`,
+    `manual_review_required=True`, and `1/10` provenance-qualified round trips.
+  - SHOWN: Hetzner status reported `1/1` campaigns running and
+    `ema_cross_default` idle, waiting for the next UTC day.
+- `git diff --check`
+  - SHOWN: passed.
+- No tests were run because this is a Makefile/docs wrapper over existing
+  read-only status targets.
+
+Remaining risk:
+- LOW: Makefile wrapper and docs only; no campaign restore/start behavior, gate
+  logic, deploy logic, or secret handling changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
