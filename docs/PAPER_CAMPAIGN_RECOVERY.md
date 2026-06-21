@@ -28,7 +28,20 @@ default. That manifest reflects the current laptop ownership split:
 `ema_cross_default` is owned by the Hetzner host through
 `configs/paper_evidence_campaigns.hetzner.example.json`.
 `make status-paper-soak` uses the same local manifest. Check Hetzner-owned
-campaigns from the Hetzner host with the Hetzner manifest.
+campaigns through the accepted Tailscale SSH path:
+
+```bash
+make status-paper-hetzner
+```
+
+Override the remote target or app directory only when the deployment record
+changes:
+
+```bash
+HETZNER_SSH_TARGET=cryptkeep@100.86.128.9 \
+HETZNER_APP_DIR=/srv/cryptkeep/app \
+  make status-paper-hetzner
+```
 
 ## Restore
 
