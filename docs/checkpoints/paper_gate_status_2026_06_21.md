@@ -49,15 +49,29 @@ Interpretation:
 
 ## Hetzner EMA Check
 
-UNVERIFIED in this checkpoint:
-- The Hetzner `ema_cross_default` status command was attempted.
-- Tailscale required an additional browser authentication check and returned:
-  `https://login.tailscale.com/a/l5442b51326264`.
-- The command was interrupted instead of waiting on remote authentication.
+SHOWN after operator Tailscale re-authentication:
+- The Hetzner `ema_cross_default` status command completed.
+- `ok=true`.
+- `all_running=true`.
+- `campaign_count=1`.
+- `running_count=1`.
+- `ema_cross_default` was running and idle as PID `1287182`.
+- `pid_alive=true`.
+- `status=idle`.
+- `reason=waiting_for_next_day`.
+- `last_completed_day=2026-06-21`.
+- State path remained
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily`.
+- The latest hosted run completed with `strategy=ema_cross`,
+  `strategy_preset=ema_cross_default`, `signal_action=hold`, `fills_delta=0`,
+  and `closed_trades_delta=0`.
+- JSONL evidence existed with `files_by_type.fill=4`, `order=4`,
+  `session=17`, and `total_records=44`.
 
 Interpretation:
-- This checkpoint does not disprove Hetzner health.
-- It also does not reverify Hetzner health. A later operator check should run:
+- Hetzner-owned `ema_cross_default` is healthy and remains separate from the
+  laptop-owned campaign shortcut.
+- Future checks should use:
 
 ```bash
 tailscale ssh cryptkeep@100.86.128.9 \
@@ -132,8 +146,8 @@ SHOWN:
 
 Next action:
 - Continue running laptop-owned collectors.
-- Re-authenticate Tailscale and rerun the Hetzner EMA status command to refresh
-  remote ownership health.
+- Continue checking Hetzner-owned `ema_cross_default` with the Hetzner campaign
+  manifest, not the laptop shortcut.
 - Do not migrate canonical `.cbp_state` to Hetzner until a separate canonical
   migration plan is reviewed and accepted.
 

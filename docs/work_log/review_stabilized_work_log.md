@@ -7385,3 +7385,59 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #95 was merged.
+
+## 2026-06-21T03:59:43Z - Record Hetzner EMA Health After Tailscale Re-Auth
+
+Active role: ENGINEER
+
+Objective:
+- Update the June 21 paper-gate checkpoint after the operator completed
+  Tailscale authentication and reran the Hetzner `ema_cross_default` status
+  command.
+
+What was found:
+- SHOWN: `review-stabilized`, `origin/review-stabilized`, and `origin/master`
+  were aligned at `928c60f61471ea2887d77c11600987187e8ba215`.
+- SHOWN from the operator-provided terminal output: Hetzner status returned
+  `ok=true`, `all_running=true`, `campaign_count=1`, and `running_count=1`.
+- SHOWN: Hetzner `ema_cross_default` was running and idle as PID `1287182`.
+- SHOWN: `last_completed_day=2026-06-21`.
+- SHOWN: the hosted state path remained
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily`.
+- SHOWN: the latest hosted run had `strategy=ema_cross`,
+  `strategy_preset=ema_cross_default`, `signal_action=hold`,
+  `fills_delta=0`, and `closed_trades_delta=0`.
+- SHOWN: Hetzner JSONL evidence existed with `fill=4`, `order=4`,
+  `session=17`, and `total_records=44`.
+
+What changed:
+- Updated `docs/checkpoints/paper_gate_status_2026_06_21.md` so the Hetzner
+  EMA section records verified remote health instead of the earlier
+  Tailscale-auth-blocked state.
+- Marked the checkpoint back to `READY_FOR_INDEPENDENT_REVIEW` because this
+  commit amends an accepted audit artifact with new evidence.
+
+Why this change:
+- The previous checkpoint accurately recorded that remote status was blocked by
+  Tailscale re-auth at that moment.
+- The operator-provided command output later supplied the missing material fact:
+  remote EMA ownership is healthy.
+
+Expected outcome:
+- Future audits see both sides of the ownership split as healthy: laptop-owned
+  `es_daily_trend_v1` and `breakout_default`, plus Hetzner-owned
+  `ema_cross_default`.
+
+Verification:
+- SHOWN: read the attached operator terminal output from
+  `/Users/baitus/.codex/attachments/97577ed3-84bb-4c26-a565-34cb52ace869/pasted-text.txt`.
+- `git rev-parse HEAD origin/master origin/review-stabilized`
+  - SHOWN: all three refs were aligned at
+    `928c60f61471ea2887d77c11600987187e8ba215` before this update.
+
+Remaining risk:
+- MEDIUM: this is a read-only checkpoint update for a high-risk
+  deployment/evidence path.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #96 was merged.
