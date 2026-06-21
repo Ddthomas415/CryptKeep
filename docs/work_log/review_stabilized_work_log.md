@@ -7642,4 +7642,64 @@ Verification:
 Remaining risk:
 - LOW: operator workflow wrapper and docs only; no runtime, gate, campaign,
   deploy, or secret behavior changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #100 commit
+  `141756031afc6be8ce7dfc4943791b055bdde100`; PR #100 merged as
+  `a45540eeb905502b1bbbfc8dd22a6060978f5f73`.
+
+## 2026-06-21T04:52:47Z - Point Remaining Tasks To Paper Soak Status Target
+
+Active role: ENGINEER
+
+Objective:
+- Keep the lightweight remaining-task index aligned with the accepted
+  `make status-paper-soak` operator workflow.
+
+What was found:
+- SHOWN: PR #100 merged and branch refs were aligned at
+  `a45540eeb905502b1bbbfc8dd22a6060978f5f73`.
+- SHOWN: `make status-paper-soak` reports the local laptop campaign health and
+  paper-gate state in one read-only command.
+- SHOWN: `REMAINING_TASKS.md` still listed separate local status and raw
+  promotion-gate commands as the current paper-campaign path.
+- SHOWN: current local status remains `2/2` laptop campaigns running, with the
+  paper gate at `1/10` qualified round trips.
+
+What changed:
+- Updated `REMAINING_TASKS.md` so the default local check-in is
+  `make status-paper-soak`.
+- Kept `make status-paper-campaigns` as the lower-level command for raw laptop
+  process restore/status detail.
+- Kept Hetzner-owned `ema_cross_default` as a separate host/manifest check.
+- Updated the previous work-log entry for PR #100 from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+
+Why this change:
+- The index should point operators to the newest accepted workflow rather than
+  the pre-wrapper command sequence.
+- This is the smallest correction and avoids touching campaign runtime or gate
+  behavior.
+
+Expected outcome:
+- Future check-ins use the combined paper-soak status command first.
+- Operators still know when to use raw laptop campaign status and separate
+  Hetzner status.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `sed -n '1,120p' REMAINING_TASKS.md`
+  - SHOWN: the current paper-campaign path now starts with
+    `make status-paper-soak`.
+- `make status-paper-soak`
+  - SHOWN: report completed successfully.
+  - SHOWN: laptop campaigns reported `2/2 running`.
+  - SHOWN: paper gate reported `ready=False`, `machine_ready=False`,
+    `manual_review_required=True`, and `1/10` qualified round trips.
+- No tests were run because this is a docs/index-only change.
+
+Remaining risk:
+- LOW: docs/index and acceptance-log update only; no runtime, gate, campaign,
+  deploy, or secret behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
