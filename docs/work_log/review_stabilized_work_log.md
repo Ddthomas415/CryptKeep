@@ -7905,4 +7905,60 @@ Remaining risk:
 - LOW: Makefile strictness, docs, and a formatter regression test only; no
   campaign restore/start behavior, gate logic, deploy logic, or secret handling
   changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #104 commit
+  `d82d7831660a40db32e9aa7d49147cff0b78616f`; PR #104 merged as
+  `d1a7a588979ef1976e081b3e5263b530dc698822`.
+
+## 2026-06-21T11:08:09Z - Declare Documented Operator Make Targets Phony
+
+Active role: ENGINEER
+
+Objective:
+- Make documented operator-facing Make targets robust against same-named files
+  in the repo.
+
+What was found:
+- SHOWN: `scripts/SCRIPTS.md` and `docs/GOLDEN_PATH.md` document operator
+  Make targets such as `check-gates`, `kill-switch-on`,
+  `kill-switch-off`, and `paper-stop-now`.
+- SHOWN: those later Makefile targets were not covered by the existing `.PHONY`
+  declarations, while earlier paper-campaign targets were.
+- SHOWN: if a file or directory with a target's name appears, `make` can treat
+  that target as up to date and skip the command unless it is phony.
+
+What changed:
+- Added `.PHONY` declarations for the remaining developer, operator, emergency,
+  gate, and script-index Make targets defined later in the file.
+- Updated the prior PR #104 work-log entry from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+
+Why this change:
+- Operator commands should always execute when invoked.
+- This is the smallest safe fix because it changes only Make target metadata;
+  no command body, runtime behavior, gate logic, campaign state, or secrets are
+  touched.
+
+Expected outcome:
+- `make check-gates`, `make paper-stop-now`, `make kill-switch-on/off`, and the
+  other documented targets cannot be shadowed by same-named files.
+
+Verification:
+- `make -n check-gates`
+  - SHOWN: resolved to `./.venv/bin/python scripts/check_promotion_gates.py`.
+- `make -n paper-stop-now`
+  - SHOWN: resolved to `./.venv/bin/python scripts/paper_stop.py --force-now`.
+- `make -n kill-switch-on`
+  - SHOWN: resolved to `./.venv/bin/python scripts/killswitch.py --arm`.
+- `make -n script-index`
+  - SHOWN: resolved to the documented operator script index echo block.
+- `git diff --check`
+  - SHOWN: passed.
+- No runtime commands or tests were run because this change only declares
+  Makefile targets phony and dry-run output proves command resolution.
+
+Remaining risk:
+- LOW: Makefile metadata and work-log update only; no command bodies or runtime
+  behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
