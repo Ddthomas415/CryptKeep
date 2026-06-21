@@ -36,7 +36,9 @@ make status-paper-hetzner
 
 This runs the existing remote read-only status command and formats the returned
 JSON locally into a concise campaign-health summary. It does not start, stop,
-or restore a campaign.
+or restore a campaign. The local formatter runs in strict mode, so malformed
+remote JSON or `ok=false` campaign status exits non-zero after printing the
+investigation recommendation.
 
 Override the remote target or app directory only when the deployment record
 changes:

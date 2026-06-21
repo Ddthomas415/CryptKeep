@@ -116,6 +116,15 @@ def test_main_formats_existing_status_payload(tmp_path, capsys) -> None:
     assert out["campaigns"][0]["fills_total"] == 5
 
 
+def test_main_strict_returns_one_for_invalid_status_payload(tmp_path, capsys) -> None:
+    status_path = tmp_path / "status.json"
+    status_path.write_text("not-json", encoding="utf-8")
+
+    assert script.main(["--strict", "--from-json", str(status_path)]) == 1
+    out = capsys.readouterr().out
+    assert "Recommendations: investigate_report_failure" in out
+
+
 def test_main_strict_returns_one_when_report_not_ok(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,

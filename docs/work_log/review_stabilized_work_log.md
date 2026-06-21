@@ -7841,4 +7841,68 @@ Verification:
 Remaining risk:
 - LOW: read-only operator-output formatting and docs/tests only; no campaign
   restore/start behavior, gate logic, deploy logic, or secret handling changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #103 commit
+  `a99e8a05474fc92a9dfaa0453b68c67cea5583b6`; PR #103 merged as
+  `781fd240d59200c6c3d9f1d6e7f97ca4e25912f5`.
+
+## 2026-06-21T10:48:30Z - Fail Closed On Broken Hetzner Status Formatting
+
+Active role: ENGINEER
+
+Objective:
+- Keep `make status-paper-hetzner` read-only while ensuring broken or malformed
+  remote status output exits non-zero.
+
+What was found:
+- SHOWN: `scripts/report_paper_campaign_status.py --from-json
+  /tmp/definitely-missing-status.json` printed an investigation recommendation
+  but exited `0`.
+- SHOWN: adding `--strict` to the same formatter command returned exit `1`.
+- SHOWN: `services.analytics.paper_campaign_recovery.manage_campaigns` returns
+  `ok=false` unless all selected campaigns are running and individually `ok`.
+
+What changed:
+- Updated `make status-paper-hetzner` to pass `--strict` to the local formatter.
+- Added a regression test proving strict formatting returns `1` for invalid
+  status JSON.
+- Updated `docs/GOLDEN_PATH.md` and `docs/PAPER_CAMPAIGN_RECOVERY.md` to state
+  that malformed remote JSON or `ok=false` remote status exits non-zero after
+  printing the investigation recommendation.
+
+Why this change:
+- A status command used for operations should not silently return success when
+  the remote status payload is missing, malformed, or reports a failed campaign.
+- This is the smallest correction because it does not alter remote recovery
+  behavior, campaign runtime, gate logic, or the operator command name.
+
+Expected outcome:
+- Healthy Hetzner status still prints the concise campaign-health summary.
+- Broken Tailscale/SSH output, malformed JSON, or remote `ok=false` campaign
+  state makes `make status-paper-hetzner` fail at the shell level.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/report_paper_campaign_status.py tests/test_report_paper_campaign_status.py`
+  - SHOWN: passed.
+- `make -n status-paper-hetzner`
+  - SHOWN: target now resolves to remote
+    `restore_paper_campaigns.py --status` piped into local
+    `report_paper_campaign_status.py --strict --from-json -`.
+- `./.venv/bin/python scripts/report_paper_campaign_status.py --strict --from-json /tmp/definitely-missing-status.json; printf 'exit=%s\n' $?`
+  - SHOWN: formatter printed `investigate_report_failure` and returned
+    `exit=1`.
+- `make status-paper-hetzner`
+  - SHOWN: live remote status completed successfully.
+  - SHOWN: Hetzner reported `1/1` campaigns running and
+    `ema_cross_default` idle, waiting for the next UTC day.
+- `git diff --check`
+  - SHOWN: passed.
+- Targeted pytest was not run because this local `.venv` does not have
+  `pytest` installed.
+
+Remaining risk:
+- LOW: Makefile strictness, docs, and a formatter regression test only; no
+  campaign restore/start behavior, gate logic, deploy logic, or secret handling
+  changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
