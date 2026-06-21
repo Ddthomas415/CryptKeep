@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import json
+
+from scripts import report_paper_campaign_status as script
+
+
+def test_build_report_is_read_only_and_summarizes_campaigns(monkeypatch) -> None:
+    monkeypatch.setattr(script, "load_campaign_specs", lambda *args, **kwargs: ("spec",))
+
+    seen: dict[str, object] = {}
+
+    def _manage(specs, *, restore, selected_names):
+        seen["specs"] = specs
+        seen["restore"] = restore
+        seen["selected_names"] = selected_names
+        return {
+            "ok": True,
+            "all_running": True,
+            "campaign_count": 1,
+            "running_count": 1,
+            "campaigns": [
+                {
+                    "name": "ema_cross_default",
+                    "ok": True,
+                    "running": True,
+                    "status": "idle",
+                    "reason": "waiting_for_next_day",
+                    "strategy": "ema_cross",
+                    "session_strategy_id": "ema_cross_default",
+                    "state_dir": "/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily",
+                    "last_completed_day": "2026-06-21",
+                    "pid": 1287182,
+                    "collector": {
+                        "summary_text": "Paper evidence collector is idle.",
+                        "last_result": {
+                            "results": [
+                                {
+                                    "latest_fill_ts": "2026-06-19T00:00:10+00:00",
+                                    "fills_total": 5,
+                                    "closed_trades_total": 2,
+                                    "net_realized_pnl_total": -0.0076,
+                                    "signal_action": "hold",
+                                    "runner_status": "stopped",
+                                }
+                            ]
+                        },
+                    },
+                }
+            ],
+        }
+
+    monkeypatch.setattr(script, "manage_campaigns", _manage)
+
+    out = script.build_report(selected_campaigns=["ema_cross_default"])
+
+    assert seen == {
+        "specs": ("spec",),
+        "restore": False,
+        "selected_names": ["ema_cross_default"],
+    }
+    assert out["read_only"] is True
+    assert out["all_running"] is True
+    assert out["campaigns"][0]["name"] == "ema_cross_default"
+    assert out["campaigns"][0]["fills_total"] == 5
+    assert out["campaigns"][0]["closed_trades_total"] == 2
+    assert out["recommendations"] == ["continue_paper_observation"]
+
+
+def test_main_outputs_json(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(
+        script,
+        "build_report",
+        lambda **kwargs: {
+            "ok": True,
+            "read_only": True,
+            "campaigns": [],
+            "recommendations": ["continue_paper_observation"],
+        },
+    )
+
+    assert script.main(["--json", "--campaign", "ema_cross_default"]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["read_only"] is True
+    assert out["recommendations"] == ["continue_paper_observation"]
+
+
+def test_main_formats_existing_status_payload(tmp_path, capsys) -> None:
+    status_path = tmp_path / "status.json"
+    status_path.write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "all_running": True,
+                "campaign_count": 1,
+                "running_count": 1,
+                "campaigns": [
+                    {
+                        "name": "ema_cross_default",
+                        "ok": True,
+                        "running": True,
+                        "status": "idle",
+                        "reason": "waiting_for_next_day",
+                        "strategy": "ema_cross",
+                        "collector": {"last_result": {"results": [{"fills_total": 5}]}},
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert script.main(["--json", "--from-json", str(status_path)]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["campaigns"][0]["name"] == "ema_cross_default"
+    assert out["campaigns"][0]["fills_total"] == 5
+
+
+def test_main_strict_returns_one_when_report_not_ok(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(
+        script,
+        "build_report",
+        lambda **kwargs: {
+            "ok": False,
+            "read_only": True,
+            "campaigns": [],
+            "recommendations": ["investigate_campaign_status"],
+        },
+    )
+
+    assert script.main(["--strict", "--json"]) == 1
+    out = json.loads(capsys.readouterr().out)
+    assert out["ok"] is False

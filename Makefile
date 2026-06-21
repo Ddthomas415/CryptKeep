@@ -102,7 +102,7 @@ status-paper-soak-json:
 	@$(PYTHON) scripts/report_supervised_soak_status.py --config $(PAPER_CAMPAIGN_CONFIG) --json
 
 status-paper-hetzner:
-	tailscale ssh $(HETZNER_SSH_TARGET) 'cd $(HETZNER_APP_DIR) && ./.venv/bin/python scripts/restore_paper_campaigns.py --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --status'
+	tailscale ssh $(HETZNER_SSH_TARGET) 'cd $(HETZNER_APP_DIR) && ./.venv/bin/python scripts/restore_paper_campaigns.py --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --status' | $(PYTHON) scripts/report_paper_campaign_status.py --from-json -
 
 restore-paper-campaigns:
 	$(PYTHON) scripts/restore_paper_campaigns.py --config $(PAPER_CAMPAIGN_CONFIG) --restore

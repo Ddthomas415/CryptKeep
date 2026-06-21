@@ -34,6 +34,10 @@ campaigns through the accepted Tailscale SSH path:
 make status-paper-hetzner
 ```
 
+This runs the existing remote read-only status command and formats the returned
+JSON locally into a concise campaign-health summary. It does not start, stop,
+or restore a campaign.
+
 Override the remote target or app directory only when the deployment record
 changes:
 

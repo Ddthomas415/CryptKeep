@@ -7774,4 +7774,71 @@ Verification:
 Remaining risk:
 - LOW: read-only operator workflow wrapper and docs only; no runtime, gate,
   campaign restore/start, deploy, or secret behavior changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #102 commit
+  `0d390024a6b592c0bb849314df658ca25e1ad843`; PR #102 merged as
+  `a3983511ca7fb4fc945d6a4fd21dfa44da3003c6`.
+
+## 2026-06-21T10:30:14Z - Format Hetzner Paper Status Output
+
+Active role: ENGINEER
+
+Objective:
+- Keep the accepted `make status-paper-hetzner` command but make its output
+  operator-readable instead of raw campaign-recovery JSON.
+
+What was found:
+- SHOWN: `make status-paper-soak` prints a concise local campaign and paper-gate
+  summary.
+- SHOWN: `make status-paper-hetzner` previously called the remote
+  `restore_paper_campaigns.py --status` command directly, which returned a long
+  raw JSON payload.
+- SHOWN: depending on a new script already being deployed to Hetzner would be
+  brittle, because the remote host may lag the repo branch during review.
+
+What changed:
+- Added `scripts/report_paper_campaign_status.py`, a read-only formatter for
+  paper campaign recovery status.
+- Added `--from-json` support so an existing
+  `restore_paper_campaigns.py --status` payload can be formatted locally from
+  stdin or a file.
+- Updated `make status-paper-hetzner` to run the existing remote raw status
+  command, then format the returned JSON locally.
+- Added `tests/test_report_paper_campaign_status.py`.
+- Updated `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and
+  `docs/PAPER_CAMPAIGN_RECOVERY.md` to document the concise status output.
+
+Why this change:
+- The operator should not need to read raw nested JSON for routine remote
+  campaign check-ins.
+- Keeping the same Make target avoids adding another step to the workflow.
+- Formatting locally avoids a deployment-order dependency on the Hetzner host.
+
+Expected outcome:
+- `make status-paper-hetzner` remains read-only and uses the accepted Tailscale
+  SSH path, but prints the same kind of concise campaign health summary as the
+  local status flow.
+- If the remote repo has not pulled the latest branch yet, the target still
+  works because the remote side only needs the already-accepted recovery script.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/report_paper_campaign_status.py tests/test_report_paper_campaign_status.py`
+  - SHOWN: passed.
+- `make -n status-paper-hetzner`
+  - SHOWN: target now resolves to remote
+    `restore_paper_campaigns.py --status` piped into local
+    `report_paper_campaign_status.py --from-json -`.
+- `./.venv/bin/python scripts/restore_paper_campaigns.py --config configs/paper_evidence_campaigns.laptop.json --status | ./.venv/bin/python scripts/report_paper_campaign_status.py --from-json -`
+  - SHOWN: formatter printed a concise report with `2/2` local campaigns
+    running and recommendation `continue_paper_observation`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_report_paper_campaign_status.py`
+  - SHOWN: not run successfully in this local environment because `.venv` does
+    not have `pytest` installed.
+
+Remaining risk:
+- LOW: read-only operator-output formatting and docs/tests only; no campaign
+  restore/start behavior, gate logic, deploy logic, or secret handling changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

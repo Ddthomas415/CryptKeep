@@ -64,9 +64,10 @@ make status-paper-hetzner
 ```
 
 That target uses Tailscale SSH and
-`configs/paper_evidence_campaigns.hetzner.example.json` on the Hetzner host.
-`make status-paper-soak` follows the local laptop manifest and therefore does
-not replace the separate Hetzner status command. Automatic OS-login startup is
+`configs/paper_evidence_campaigns.hetzner.example.json` on the Hetzner host,
+then prints a concise read-only campaign-health summary. `make
+status-paper-soak` follows the local laptop manifest and therefore does not
+replace the separate Hetzner status command. Automatic OS-login startup is
 intentionally not enabled; starting financial background jobs requires this
 explicit operator action.
 
