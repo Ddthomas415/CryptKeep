@@ -7179,3 +7179,67 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #92 was merged.
+
+## 2026-06-21T02:23:20Z - Record Hetzner EMA First UTC Cycle
+
+Active role: ENGINEER
+
+Objective:
+- Document the first completed server-hosted UTC cycle for the isolated
+  Hetzner `ema_cross_default` challenger.
+
+What was found:
+- SHOWN: PR #92 merged to `master` as `87c4a5b116e892af34b46ff65a35ec07b2ef70e7`.
+- SHOWN: `review-stabilized`, `origin/master`, and
+  `origin/review-stabilized` were aligned at the same commit before this proof.
+- SHOWN: Hetzner `ema_cross_default` completed its first hosted 2026-06-21 UTC
+  cycle and returned to idle.
+- SHOWN: local `ema_cross_default` remained stopped.
+- SHOWN: local `es_daily_trend_v1` and `breakout_default` continued to run on
+  the laptop.
+- SHOWN: local `es_daily_trend_v1` also recorded a new 2026-06-21 fill, which
+  is separate canonical campaign evidence and not part of the Hetzner EMA
+  proof.
+
+What changed:
+- Updated
+  `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
+  with the first UTC-cycle observation.
+- Updated the proof-record status to `FIRST_UTC_CYCLE_READY_FOR_REVIEW`.
+
+Why this change:
+- The Hetzner runbook requires one healthy hosted UTC cycle with public-OHLCV
+  provenance before broader migration planning.
+- Capturing the proof now preserves the exact remote status, evidence counts,
+  and session provenance while keeping canonical state untouched.
+
+Expected outcome:
+- The isolated EMA challenger has satisfied the hosted-cycle implementation
+  proof and is ready for independent review.
+- Canonical `.cbp_state` migration remains blocked until this proof is accepted
+  and a separate canonical migration plan is reviewed.
+
+Verification:
+- SHOWN: Hetzner status returned `ok=true`, `all_running=true`,
+  `running_count=1`, `status=idle`, `reason=waiting_for_next_day`,
+  `pid_alive=true`, and active PID `1287182`.
+- SHOWN: Hetzner `last_completed_day=2026-06-21`.
+- SHOWN: last hosted run started at `2026-06-21T00:01:11.880557+00:00` and
+  ended at `2026-06-21T00:16:15.594165+00:00`.
+- SHOWN: last hosted run had `campaign_status=completed`,
+  `completed_strategies=1`, `strategy=ema_cross`, `signal_action=hold`,
+  `fills_delta=0`, and `closed_trades_delta=0`.
+- SHOWN: `session_2026-06-21.jsonl` existed on Hetzner with `2` rows.
+- SHOWN: session provenance included `market_data_source=public_ohlcv`,
+  `ohlcv_sample_mode=false`, `ohlcv_timeframe=5m`, `ohlcv_venue=coinbase`, and
+  `ohlcv_symbol=BTC/USDT`.
+- SHOWN: Hetzner evidence counts advanced to `session=17` and
+  `total_records=44`.
+- SHOWN: local `ema_cross_default` status remained `pid_alive=false` and
+  `has_pid_file=false`.
+
+Remaining risk:
+- HIGH: this is deployment/background-job ownership proof.
+- Canonical `.cbp_state` migration remains blocked pending independent review
+  and a separate migration plan.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

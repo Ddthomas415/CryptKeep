@@ -1,6 +1,6 @@
 # Hetzner Isolated Challenger Proof Record - 2026-06-20
 
-Status: `CONTROLLED_STOP_READY_FOR_REVIEW_PENDING_FIRST_UTC_CYCLE`
+Status: `FIRST_UTC_CYCLE_READY_FOR_REVIEW`
 
 This record covers only the isolated `ema_cross_default` paper challenger
 migration proof. It does not authorize canonical `.cbp_state` migration, live
@@ -273,7 +273,61 @@ Rollback state:
 
 ## First UTC Cycle Observation
 
-Pending.
+Date/time UTC: `2026-06-21T02:23:20Z`
+
+Scope:
+- Observed only the isolated Hetzner `ema_cross_default` challenger.
+- Did not migrate canonical `.cbp_state`.
+- Did not stop or restart the active Hetzner collector.
+- Did not restart the local `ema_cross_default` collector.
+
+Hetzner status:
+- [x] SHOWN: `restore_paper_campaigns.py --config
+  configs/paper_evidence_campaigns.hetzner.example.json --status` returned
+  `ok=true`.
+- [x] SHOWN: `all_running=true`.
+- [x] SHOWN: `running_count=1`.
+- [x] SHOWN: `last_completed_day=2026-06-21`.
+- [x] SHOWN: `status=idle`.
+- [x] SHOWN: `reason=waiting_for_next_day`.
+- [x] SHOWN: `pid_alive=true`.
+- [x] SHOWN: active Hetzner PID remained `1287182`.
+- [x] SHOWN: state path remained under
+  `/srv/cryptkeep/app/.cbp_state_challengers/ema_cross_default_daily`.
+
+Hosted cycle result:
+- [x] SHOWN: last run started at `2026-06-21T00:01:11.880557+00:00`.
+- [x] SHOWN: last run ended at `2026-06-21T00:16:15.594165+00:00`.
+- [x] SHOWN: `campaign_status=completed`.
+- [x] SHOWN: `completed_strategies=1`.
+- [x] SHOWN: `strategy=ema_cross`.
+- [x] SHOWN: `strategy_preset=ema_cross_default`.
+- [x] SHOWN: `signal_action=hold`.
+- [x] SHOWN: `stop_reason=runtime_elapsed`.
+- [x] SHOWN: `fills_delta=0`, `fills_total=5`.
+- [x] SHOWN: `closed_trades_delta=0`, `closed_trades_total=2`.
+
+Evidence/provenance:
+- [x] SHOWN: `session_2026-06-21.jsonl` existed on the Hetzner host.
+- [x] SHOWN: the session file had `2` rows.
+- [x] SHOWN: the end row had `phase=end`.
+- [x] SHOWN: the end row had `campaign_status=completed`.
+- [x] SHOWN: the end row had `market_data_source=public_ohlcv`.
+- [x] SHOWN: the end row had `ohlcv_sample_mode=false`.
+- [x] SHOWN: the end row had `ohlcv_timeframe=5m`.
+- [x] SHOWN: the end row had `ohlcv_venue=coinbase`.
+- [x] SHOWN: the end row had `ohlcv_symbol=BTC/USDT`.
+- [x] SHOWN: JSONL evidence counts advanced to `session=17` and
+  `total_records=44`.
+
+Laptop single-owner check:
+- [x] SHOWN: local `ema_cross_default` remained stopped with `pid_alive=false`
+  and `has_pid_file=false`.
+- [x] SHOWN: local `es_daily_trend_v1` remained running as PID `80255`.
+- [x] SHOWN: local `breakout_default` remained running as PID `80263`.
+
+Acceptance state:
+- `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## Backup Restore Rehearsal
 
@@ -506,8 +560,7 @@ Current ownership:
 - `ema_cross_default`: Hetzner owner, PID `1287182`.
 
 Remaining required proof:
-- First server-hosted UTC cycle observation for `ema_cross_default`.
-- Human review of the controlled-stop/recovery proof before any canonical
+- Human review of the first UTC-cycle observation before any canonical
   `.cbp_state` migration.
 
 Acceptance state:
