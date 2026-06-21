@@ -7702,4 +7702,76 @@ Verification:
 Remaining risk:
 - LOW: docs/index and acceptance-log update only; no runtime, gate, campaign,
   deploy, or secret behavior changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #101 commit
+  `11777d7f52013d8efeeeab2c275eaaf10ec0ecdd`; PR #101 merged as
+  `e2738a22a64152a6bf93232568089dedf04a6caa`.
+
+## 2026-06-21T10:07:14Z - Add Hetzner Paper Status Make Target
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only Makefile shortcut for the Hetzner-owned paper campaign status
+  check.
+
+What was found:
+- SHOWN: `make status-paper-soak` reports laptop campaign health and the
+  canonical paper gate, but intentionally excludes Hetzner-owned
+  `ema_cross_default`.
+- SHOWN: the Hetzner check currently requires copying the long Tailscale SSH
+  command from docs.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` records the accepted Tailscale SSH target
+  as `cryptkeep@100.86.128.9`, the accepted app path as
+  `/srv/cryptkeep/app`, and the Hetzner manifest as
+  `configs/paper_evidence_campaigns.hetzner.example.json`.
+- SHOWN: current local status remains `2/2` laptop campaigns running, with the
+  paper gate at `1/10` qualified round trips.
+
+What changed:
+- Added Makefile variables:
+  - `HETZNER_SSH_TARGET`
+  - `HETZNER_APP_DIR`
+  - `HETZNER_PAPER_CAMPAIGN_CONFIG`
+- Added `make status-paper-hetzner`, a read-only Tailscale SSH wrapper around
+  the existing remote `restore_paper_campaigns.py --status` command.
+- Updated `docs/GOLDEN_PATH.md`, `docs/PAPER_CAMPAIGN_RECOVERY.md`, and
+  `REMAINING_TASKS.md` to point operators at the new remote check-in target.
+- Updated the previous work-log entry for PR #101 from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+
+Why this change:
+- The local and remote check-in paths should be equally discoverable.
+- A Makefile wrapper reduces copy/paste error without changing campaign runtime,
+  ownership, or restore behavior.
+- The wrapper keeps remote status separate from laptop status so the
+  single-owner split stays explicit.
+
+Expected outcome:
+- Daily check-in path becomes:
+  - `make status-paper-soak` for laptop-owned campaigns and canonical gate
+  - `make status-paper-hetzner` for the Hetzner-owned EMA campaign
+- Operators can override target/app/config variables if the deployment record
+  changes.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `make -n status-paper-hetzner`
+  - SHOWN: target resolves to the accepted Tailscale SSH status command for
+    `cryptkeep@100.86.128.9`, `/srv/cryptkeep/app`, and
+    `configs/paper_evidence_campaigns.hetzner.example.json`.
+- `make status-paper-hetzner`
+  - SHOWN: command completed successfully.
+  - SHOWN: Hetzner status returned `ok=true`, `all_running=true`,
+    `campaign_count=1`, and `running_count=1`.
+  - SHOWN: `ema_cross_default` was running and idle as PID `1287182`, waiting
+    for the next UTC day.
+- No full test suite was run because this is a Makefile/docs read-only wrapper
+  over an existing remote status command.
+
+Remaining risk:
+- LOW: read-only operator workflow wrapper and docs only; no runtime, gate,
+  campaign restore/start, deploy, or secret behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

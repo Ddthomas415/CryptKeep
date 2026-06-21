@@ -57,12 +57,18 @@ each campaign's isolated `CBP_STATE_DIR`, and delegates startup to the
 authoritative collector `--daily-loop --detach` path. It checks status before
 launch, so repeated restore calls do not create duplicate collectors.
 `ema_cross_default` is intentionally excluded from the laptop shortcut after
-the accepted Hetzner migration proof; use
-`configs/paper_evidence_campaigns.hetzner.example.json` on the Hetzner host for
-that campaign. `make status-paper-soak` follows the same local manifest and
-therefore does not replace the separate Hetzner status command. Automatic
-OS-login startup is intentionally not enabled; starting financial background
-jobs requires this explicit operator action.
+the accepted Hetzner migration proof. Check that host separately with:
+
+```
+make status-paper-hetzner
+```
+
+That target uses Tailscale SSH and
+`configs/paper_evidence_campaigns.hetzner.example.json` on the Hetzner host.
+`make status-paper-soak` follows the local laptop manifest and therefore does
+not replace the separate Hetzner status command. Automatic OS-login startup is
+intentionally not enabled; starting financial background jobs requires this
+explicit operator action.
 
 Public-OHLCV campaign health is fail-closed. A collector may remain alive while
 reporting `ok=false`, `status=failed`, and `reason=no_public_ohlcv`. The

@@ -56,8 +56,8 @@ Current paper-campaign path:
 
 1. use `make status-paper-soak` for the local check-in: laptop campaign health
    plus canonical paper-gate progress
-2. keep Hetzner-owned `ema_cross_default` running with
-   `configs/paper_evidence_campaigns.hetzner.example.json`
+2. use `make status-paper-hetzner` for the Hetzner-owned
+   `ema_cross_default` check-in
 3. use `make status-paper-campaigns` only when you need raw laptop process
    restore/status detail
 4. wait for `es_daily_trend_v1` to reach 10 provenance-qualified round trips,
