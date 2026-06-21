@@ -7441,3 +7441,60 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #96 was merged.
+
+## 2026-06-21T04:08:11Z - Refresh Remaining Tasks Index For Active Paper Campaigns
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the lightweight remaining-task index after the accepted paper-gate and
+  Hetzner EMA campaign checkpoints.
+
+What was found:
+- SHOWN: the current active blocker is paper-evidence collection, not live
+  launch.
+- SHOWN: the accepted June 21 checkpoint records laptop-owned
+  `es_daily_trend_v1` and `breakout_default` campaigns as healthy.
+- SHOWN: the accepted June 21 checkpoint records Hetzner-owned
+  `ema_cross_default` as healthy after Tailscale re-authentication.
+- SHOWN: canonical `es_daily_trend_v1` paper promotion remains blocked at
+  `1/10` provenance-qualified round trips, with `9` remaining.
+- SHOWN: raw all-history reports `8` closed trades, but that count is
+  diagnostic unless both entry and exit fills carry the required non-sample
+  public-OHLCV provenance.
+- SHOWN: `REMAINING_TASKS.md` still foregrounded the older root-runtime launch
+  blocker framing.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to make the current paper-campaign/gate state the
+  first visible operator context.
+- Linked the accepted June 21 paper-gate checkpoint.
+- Separated root-runtime launch blockers from paper-evidence campaign blockers.
+- Added the current strategy-research planning links for pullback recovery and
+  short-market strategy work.
+- Added an explicit warning not to treat raw all-history trade count as
+  promotion progress.
+
+Why this change:
+- The remaining-task index is used as operator orientation.
+- Mixing launch blockers with the current paper-evidence blocker caused
+  confusing check-ins and made the next action less clear.
+- The smallest correct fix was to update the index, not change campaign or gate
+  behavior.
+
+Expected outcome:
+- Future check-ins distinguish the active paper-campaign path from the separate
+  live-launch blocker path.
+- Operators use `scripts/check_promotion_gates.py --json` as the promotion
+  source of truth instead of raw all-history trade count.
+
+Verification:
+- `sed -n '1,180p' REMAINING_TASKS.md`
+  - SHOWN: the index now surfaces current paper-campaign state, ownership split,
+    accepted checkpoint, and provenance-qualified gate count.
+- No test suite was run because this is a docs/index-only change.
+
+Remaining risk:
+- LOW: docs/index only; no runtime, gate, campaign, deploy, or secret behavior
+  changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
