@@ -15,11 +15,20 @@ This is read-only. It checks the configured canonical and challenger state
 directories and exits nonzero if any selected collector is not alive or is
 reporting unhealthy campaign status.
 
+For a single local check-in that combines laptop campaign health with the paper
+promotion gate summary, run:
+
+```bash
+make status-paper-soak
+```
+
 The `make` shortcut reads `configs/paper_evidence_campaigns.laptop.json` by
 default. That manifest reflects the current laptop ownership split:
 `es_daily_trend_v1` and `breakout_default` run on the laptop, while
 `ema_cross_default` is owned by the Hetzner host through
 `configs/paper_evidence_campaigns.hetzner.example.json`.
+`make status-paper-soak` uses the same local manifest. Check Hetzner-owned
+campaigns from the Hetzner host with the Hetzner manifest.
 
 ## Restore
 

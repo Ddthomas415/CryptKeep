@@ -7581,3 +7581,65 @@ Remaining risk:
   the Codex session after latest PR #98 commit
   `db39192dd9c14c7c4385aca58b2a538b36a871fc`; PR #98 merged as
   `d3682666a354522c839bdaf003d8493129f1fe27`.
+
+## 2026-06-21T04:35:45Z - Expose Supervised Paper Soak Status Make Target
+
+Active role: ENGINEER
+
+Objective:
+- Make the existing read-only supervised paper-soak status report discoverable
+  through the operator Makefile path.
+
+What was found:
+- SHOWN: `scripts/report_supervised_soak_status.py` already exists and is a
+  read-only combined report for configured campaign health plus paper promotion
+  gate status.
+- SHOWN: `scripts/SCRIPTS.md` listed the script but no Makefile wrapper.
+- SHOWN: `Makefile` exposed `status-paper-campaigns` and `check-gates-json`
+  separately but did not expose the combined report.
+- SHOWN: the script's internal default campaign config is the full
+  `configs/paper_evidence_campaigns.json`, while the current laptop ownership
+  split should use `configs/paper_evidence_campaigns.laptop.json` through
+  `PAPER_CAMPAIGN_CONFIG`.
+
+What changed:
+- Added `make status-paper-soak` and `make status-paper-soak-json`.
+- Wired both targets through `PAPER_CAMPAIGN_CONFIG`, preserving the current
+  laptop-default manifest.
+- Updated `docs/GOLDEN_PATH.md`, `docs/PAPER_CAMPAIGN_RECOVERY.md`, and
+  `scripts/SCRIPTS.md` so the command is visible and scoped as a local/laptop
+  check-in command.
+
+Why this change:
+- The operator has been repeatedly asking for check-ins while the evidence
+  campaign is passive.
+- The repo already had the right read-only report; adding a Make target is the
+  smallest correct change.
+- Using `PAPER_CAMPAIGN_CONFIG` prevents the laptop shortcut from accidentally
+  treating the Hetzner-owned `ema_cross_default` state as local truth.
+
+Expected outcome:
+- Daily local check-ins can use one command for laptop campaign health plus
+  paper gate state: `make status-paper-soak`.
+- Hetzner-owned campaign status remains a separate host-specific check.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `make -n status-paper-soak status-paper-soak-json`
+  - SHOWN: both targets resolve to `scripts/report_supervised_soak_status.py`
+    with `--config configs/paper_evidence_campaigns.laptop.json`.
+- `make status-paper-soak`
+  - SHOWN: report completed successfully.
+  - SHOWN: laptop campaigns reported `2/2 running`.
+  - SHOWN: paper gate reported `ready=False`, `machine_ready=False`,
+    `manual_review_required=True`, and `1/10` qualified round trips.
+- `./.venv/bin/python -m pytest -q tests/test_report_supervised_soak_status.py`
+  - NOT RUN: current local venv lacks `pytest` (`No module named pytest`).
+- No full test suite was run because this is a Makefile/docs operator-wrapper
+  change over an existing script.
+
+Remaining risk:
+- LOW: operator workflow wrapper and docs only; no runtime, gate, campaign,
+  deploy, or secret behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

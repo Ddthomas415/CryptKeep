@@ -4,7 +4,7 @@ CRYPTO_EDGE_INTERVAL_SEC ?= 300
 PAPER_EVIDENCE_RUNTIME_SEC ?= 900
 PAPER_CAMPAIGN_CONFIG ?= configs/paper_evidence_campaigns.laptop.json
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns restore-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json restore-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -91,6 +91,12 @@ status-paper-strategy-evidence:
 
 status-paper-campaigns:
 	$(PYTHON) scripts/restore_paper_campaigns.py --config $(PAPER_CAMPAIGN_CONFIG) --status
+
+status-paper-soak:
+	$(PYTHON) scripts/report_supervised_soak_status.py --config $(PAPER_CAMPAIGN_CONFIG)
+
+status-paper-soak-json:
+	@$(PYTHON) scripts/report_supervised_soak_status.py --config $(PAPER_CAMPAIGN_CONFIG) --json
 
 restore-paper-campaigns:
 	$(PYTHON) scripts/restore_paper_campaigns.py --config $(PAPER_CAMPAIGN_CONFIG) --restore
