@@ -1,6 +1,6 @@
 # Hetzner Isolated Challenger Proof Record - 2026-06-20
 
-Status: `FIRST_UTC_CYCLE_READY_FOR_REVIEW`
+Status: `FIRST_UTC_CYCLE_ACCEPTED`
 
 This record covers only the isolated `ema_cross_default` paper challenger
 migration proof. It does not authorize canonical `.cbp_state` migration, live
@@ -327,7 +327,9 @@ Laptop single-owner check:
 - [x] SHOWN: local `breakout_default` remained running as PID `80263`.
 
 Acceptance state:
-- `READY_FOR_INDEPENDENT_REVIEW`.
+- `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #93 was merged.
 
 ## Backup Restore Rehearsal
 

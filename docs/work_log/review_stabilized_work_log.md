@@ -7242,4 +7242,6 @@ Remaining risk:
 - HIGH: this is deployment/background-job ownership proof.
 - Canonical `.cbp_state` migration remains blocked pending independent review
   and a separate migration plan.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #93 was merged.
