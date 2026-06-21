@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "campaigns": [
+    {
+      "name": "es_daily_trend_v1",
+      "enabled": true,
+      "state_dir": ".cbp_state",
+      "strategy": "sma_200_trend",
+      "session_strategy_id": "es_daily_trend_v1",
+      "symbol": "BTC/USDT",
+      "venue": "coinbase",
+      "signal_source": "public_ohlcv_1d",
+      "runtime_sec": 20,
+      "strategy_drain_sec": 2,
+      "poll_interval_sec": 300,
+      "max_daily_attempts": 2,
+      "desktop_notify": true
+    },
+    {
+      "name": "breakout_default",
+      "enabled": true,
+      "state_dir": ".cbp_state_challengers/breakout_default_daily",
+      "strategy": "breakout_donchian",
+      "session_strategy_id": "breakout_default",
+      "symbol": "BTC/USDT",
+      "venue": "coinbase",
+      "signal_source": "public_ohlcv_5m",
+      "runtime_sec": 900,
+      "strategy_drain_sec": 2,
+      "poll_interval_sec": 300,
+      "max_daily_attempts": 2,
+      "desktop_notify": true
+    }
+  ]
+}

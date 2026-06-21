@@ -192,6 +192,17 @@ def test_hetzner_example_starts_only_headless_ema_challenger() -> None:
     assert "--no-desktop-notify" in recovery._command(spec, restore=True)
 
 
+def test_laptop_manifest_excludes_hetzner_owned_ema_challenger() -> None:
+    config = recovery.DEFAULT_CONFIG_PATH.with_name("paper_evidence_campaigns.laptop.json")
+
+    specs = recovery.load_campaign_specs(config)
+
+    assert [(spec.name, spec.strategy, spec.signal_source) for spec in specs] == [
+        ("es_daily_trend_v1", "sma_200_trend", "public_ohlcv_1d"),
+        ("breakout_default", "breakout_donchian", "public_ohlcv_5m"),
+    ]
+
+
 def test_restore_campaign_does_not_duplicate_running_collector(tmp_path: Path) -> None:
     calls: list[list[str]] = []
 
