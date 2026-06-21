@@ -7316,4 +7316,6 @@ Verification:
 Remaining risk:
 - HIGH: this changes operator recovery shortcuts for background paper
   campaign processes.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #94 was merged.
