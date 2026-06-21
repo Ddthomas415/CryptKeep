@@ -7438,4 +7438,6 @@ Verification:
 Remaining risk:
 - MEDIUM: this is a read-only checkpoint update for a high-risk
   deployment/evidence path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session before PR #96 was merged.
