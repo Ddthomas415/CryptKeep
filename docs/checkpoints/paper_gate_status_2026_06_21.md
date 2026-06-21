@@ -1,6 +1,6 @@
 # Paper Gate Status - 2026-06-21
 
-Status: `READY_FOR_INDEPENDENT_REVIEW`
+Status: `ACCEPTED`
 
 This checkpoint records the June 21, 2026 read-only paper campaign and
 promotion-gate state after the accepted laptop/Hetzner campaign ownership
