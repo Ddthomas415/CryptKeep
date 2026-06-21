@@ -5,7 +5,17 @@ the detached paper evidence collectors.
 
 ## Status
 
-Run:
+For the routine check-in across both the laptop and Hetzner paper campaigns,
+run:
+
+```bash
+make status-paper-all
+```
+
+This is read-only. It runs the laptop soak summary and the Hetzner-owned EMA
+campaign status in sequence, then exits nonzero if either side reports failure.
+
+For raw local campaign process status, run:
 
 ```bash
 make status-paper-campaigns
@@ -15,7 +25,7 @@ This is read-only. It checks the configured canonical and challenger state
 directories and exits nonzero if any selected collector is not alive or is
 reporting unhealthy campaign status.
 
-For a single local check-in that combines laptop campaign health with the paper
+For a single local-only check-in that combines laptop campaign health with the paper
 promotion gate summary, run:
 
 ```bash

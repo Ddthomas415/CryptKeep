@@ -54,10 +54,10 @@ Next action:
 ## Interpretation
 Current paper-campaign path:
 
-1. use `make status-paper-soak` for the local check-in: laptop campaign health
-   plus canonical paper-gate progress
-2. use `make status-paper-hetzner` for the Hetzner-owned
-   `ema_cross_default` check-in
+1. use `make status-paper-all` for the daily check-in: laptop campaign health,
+   canonical paper-gate progress, and Hetzner-owned `ema_cross_default` status
+2. use `make status-paper-soak` or `make status-paper-hetzner` only when you
+   intentionally want one side of the split-host status
 3. use `make status-paper-campaigns` only when you need raw laptop process
    restore/status detail
 4. wait for `es_daily_trend_v1` to reach 10 provenance-qualified round trips,
@@ -85,4 +85,5 @@ Do not mix:
 
 Do not treat raw all-history trade count as promotion progress. The actionable
 paper gate is the provenance-qualified count reported by `make
-status-paper-soak` or `scripts/check_promotion_gates.py --json`.
+status-paper-all`, `make status-paper-soak`, or
+`scripts/check_promotion_gates.py --json`.

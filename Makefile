@@ -7,7 +7,7 @@ HETZNER_SSH_TARGET ?= cryptkeep@100.86.128.9
 HETZNER_APP_DIR ?= /srv/cryptkeep/app
 HETZNER_PAPER_CAMPAIGN_CONFIG ?= configs/paper_evidence_campaigns.hetzner.example.json
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-hetzner restore-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-hetzner status-paper-all restore-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -103,6 +103,15 @@ status-paper-soak-json:
 
 status-paper-hetzner:
 	tailscale ssh $(HETZNER_SSH_TARGET) 'cd $(HETZNER_APP_DIR) && ./.venv/bin/python scripts/restore_paper_campaigns.py --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --status' | $(PYTHON) scripts/report_paper_campaign_status.py --strict --from-json -
+
+status-paper-all:
+	@status=0; \
+	echo "=== Laptop Paper Soak ==="; \
+	$(MAKE) --no-print-directory status-paper-soak || status=$$?; \
+	echo ""; \
+	echo "=== Hetzner Paper Campaign ==="; \
+	$(MAKE) --no-print-directory status-paper-hetzner || status=$$?; \
+	exit $$status
 
 restore-paper-campaigns:
 	$(PYTHON) scripts/restore_paper_campaigns.py --config $(PAPER_CAMPAIGN_CONFIG) --restore

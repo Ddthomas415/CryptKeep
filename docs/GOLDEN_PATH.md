@@ -35,10 +35,14 @@ from daily public OHLCV instead of synthetic tick-derived bars.
 After a host restart, check all accepted paper campaigns with:
 
 ```
-make status-paper-campaigns
+make status-paper-all
 ```
 
-For one local operator check-in that combines laptop campaign health and the
+That target is read-only. It runs the local laptop soak summary and the
+Hetzner-owned EMA campaign status in sequence, then exits non-zero if either
+side reports failure.
+
+For a local-only operator check-in that combines laptop campaign health and the
 paper promotion gate summary, use:
 
 ```
