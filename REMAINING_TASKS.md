@@ -3,17 +3,38 @@
 This file is a lightweight index only.
 
 ## Current state
-The frozen canonical root-runtime path is hardened enough on the repo side.
-The remaining critical path is external environment proof or a human launch decision.
+As of 2026-06-21, the active operating state is paper-evidence collection, not
+live launch.
+
+SHOWN:
+- `master`, `origin/master`, and `review-stabilized` are kept aligned through
+  reviewed PRs.
+- Laptop-owned paper campaigns are healthy:
+  - `es_daily_trend_v1`
+  - `breakout_default`
+- Hetzner-owned `ema_cross_default` is healthy and must be checked with the
+  Hetzner campaign manifest, not the laptop shortcut.
+- Canonical `es_daily_trend_v1` paper promotion remains blocked at `1/10`
+  provenance-qualified round trips, with `9` remaining.
+- Raw all-history currently reports `8` closed trades, but those remain
+  diagnostic unless both entry and exit fills carry the required non-sample
+  public-OHLCV provenance.
+
+Current accepted checkpoint:
+
+- docs/checkpoints/paper_gate_status_2026_06_21.md
 
 ## Canonical blocker list
-See:
+Root-runtime launch blockers are tracked separately. They are not the same as
+the current paper-evidence campaign blocker.
 
 - docs/checkpoints/launch_blockers_root_runtime.md
 
 Strategy-evaluation work is tracked separately:
 
 - docs/checkpoints/strategy_signal_quality_plan_2026_05_22.md
+- docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md
+- docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
 
 ## Master integration TODO
 Master integration completed through
@@ -31,7 +52,17 @@ Next action:
   `master` and the integration branch to accumulate avoidable divergence.
 
 ## Interpretation
-The critical path is:
+Current paper-campaign path:
+
+1. keep laptop-owned collectors running with `make status-paper-campaigns`
+2. keep Hetzner-owned `ema_cross_default` running with
+   `configs/paper_evidence_campaigns.hetzner.example.json`
+3. run `./.venv/bin/python scripts/check_promotion_gates.py --json` after each
+   evidence cycle
+4. wait for `es_daily_trend_v1` to reach 10 provenance-qualified round trips,
+   then perform the manual performance review
+
+Root-runtime launch path:
 
 1. use the frozen canonical root-runtime path recorded in `docs/checkpoints/root_runtime_scope_record.md`
 2. obtain one reachable supported sandbox/testnet venue from the operator environment
@@ -50,3 +81,7 @@ Do not mix:
 - strategy signal-quality / paper-evaluation work
 - conditional broader-scope controls
 - non-blocking architectural debt
+
+Do not treat raw all-history trade count as promotion progress. The actionable
+paper gate is the provenance-qualified count reported by
+`scripts/check_promotion_gates.py --json`.
