@@ -38,6 +38,13 @@ After a host restart, check all accepted paper campaigns with:
 make status-paper-campaigns
 ```
 
+For one local operator check-in that combines laptop campaign health and the
+paper promotion gate summary, use:
+
+```
+make status-paper-soak
+```
+
 If one or more collectors are not alive, restore only the missing processes
 with:
 
@@ -52,8 +59,10 @@ launch, so repeated restore calls do not create duplicate collectors.
 `ema_cross_default` is intentionally excluded from the laptop shortcut after
 the accepted Hetzner migration proof; use
 `configs/paper_evidence_campaigns.hetzner.example.json` on the Hetzner host for
-that campaign. Automatic OS-login startup is intentionally not enabled;
-starting financial background jobs requires this explicit operator action.
+that campaign. `make status-paper-soak` follows the same local manifest and
+therefore does not replace the separate Hetzner status command. Automatic
+OS-login startup is intentionally not enabled; starting financial background
+jobs requires this explicit operator action.
 
 Public-OHLCV campaign health is fail-closed. A collector may remain alive while
 reporting `ok=false`, `status=failed`, and `reason=no_public_ohlcv`. The
