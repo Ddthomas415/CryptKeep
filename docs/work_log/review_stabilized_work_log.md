@@ -7319,3 +7319,67 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session before PR #94 was merged.
+
+## 2026-06-21T03:48:47Z - Record Paper Gate Status After Laptop Manifest Split
+
+Active role: ENGINEER
+
+Objective:
+- Capture the current read-only paper gate and campaign ownership state after
+  PR #94 merged the laptop/Hetzner campaign manifest split.
+
+What was found:
+- SHOWN: `review-stabilized`, `origin/review-stabilized`, and `origin/master`
+  were aligned at `7f884c0f7b251b07a8884614d963e922a0493a96`.
+- SHOWN: laptop campaign status returned `ok=true`, `all_running=true`,
+  `campaign_count=2`, and `running_count=2`.
+- SHOWN: laptop-owned `es_daily_trend_v1` and `breakout_default` were running
+  and idle after recording `2026-06-21`.
+- SHOWN: canonical `es_daily_trend_v1` paper gate remained `ready=false`,
+  `machine_ready=false`, and `manual_review_required=true`.
+- SHOWN: canonical qualified round-trip progress remained `1/10` with
+  `9` remaining.
+- SHOWN: raw all-history reported `17` fills and `8` closed trades, while
+  qualified paper history reported `2` fills and `1` closed trade.
+- SHOWN: the Hetzner status command required Tailscale browser re-auth and was
+  interrupted, so remote EMA health was not reverified in this checkpoint.
+
+What changed:
+- Added `docs/checkpoints/paper_gate_status_2026_06_21.md`.
+- The checkpoint records laptop-owned campaign health, the blocked Hetzner
+  re-auth check, the canonical `1/10` qualified gate state, and the current
+  raw-history versus qualified-evidence distinction.
+
+Why this change:
+- The prior June 20 checkpoint was stale after both the Hetzner EMA ownership
+  split and the new June 21 canonical fill.
+- Capturing the current state prevents the audit trail from drifting back to
+  the obsolete `9/12` unqualified-fill and single-incomplete-fill snapshot.
+
+Expected outcome:
+- Future audits can distinguish the healthy laptop collectors from the
+  unverified remote EMA check.
+- Future gate reviews use the current `9/13` unqualified-fill and
+  `2` incomplete-qualified-fill snapshot.
+
+Verification:
+- `make status-paper-campaigns`
+  - SHOWN: returned `ok=true`, `all_running=true`, `campaign_count=2`, and
+    `running_count=2`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --json`
+  - SHOWN: returned `ready=false`, `machine_ready=false`,
+    `manual_review_required=true`, `47/30` days, `1/10` qualified round trips,
+    and `9` remaining.
+- `./.venv/bin/python -c 'from services.control.paper_promotion_progress import ...'`
+  - SHOWN: returned `round_trips_recorded=1`,
+    `round_trips_remaining=9`, `all_history_round_trips=8`,
+    `unqualified_evidence_fills=9`, and
+    `incomplete_qualified_evidence_fills=2`.
+- `tailscale ssh cryptkeep@100.86.128.9 ... restore_paper_campaigns.py --status`
+  - NOT VERIFIED: Tailscale required browser re-auth and the command was
+    interrupted.
+
+Remaining risk:
+- MEDIUM: this is a read-only checkpoint for a high-risk promotion/evidence
+  path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
