@@ -156,6 +156,14 @@ governance-smoke:
 	./scripts/manual_repo_audit.sh quick
 	./.venv/bin/python -m pytest -q tests/test_manual_repo_audit_paths.py
 
+.PHONY: test-governance precommit-prereqs test-fast test-full test-slow
+.PHONY: kernel-status kernel-status-json kernel-promote kernel-demote
+.PHONY: paper-ps paper-clean-locks paper-run paper-status paper-dry-run
+.PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
+.PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
+.PHONY: inject-test-fill candidate-scan candidate-summary live-reconcile
+.PHONY: script-index paper-run-short paper-stop-now
+
 # Fast test suite — skips blocking service-loop tests
 # Use this in CI or when you don't want to wait for loop tests
 test-fast:
