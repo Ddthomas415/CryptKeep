@@ -8024,4 +8024,52 @@ Verification:
 Remaining risk:
 - LOW: Makefile wrapper and docs only; no campaign restore/start behavior, gate
   logic, deploy logic, or secret handling changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #106 commit
+  `bfe63f9992ac375419340e34780e065c6d24931c`; PR #106 merged as
+  `b49d6c769962a7234ce2362ea92df831a4cf8f7b`.
+
+## 2026-06-22T02:48:29Z - Surface Unified Paper Status In Script Index
+
+Active role: ENGINEER
+
+Objective:
+- Keep the built-in Makefile operator index aligned with the accepted daily
+  paper check-in path.
+
+What was found:
+- SHOWN: `make status-paper-all` is now the documented daily check-in in
+  `REMAINING_TASKS.md`, `docs/GOLDEN_PATH.md`, and `scripts/SCRIPTS.md`.
+- SHOWN: `make script-index` still omitted `status-paper-all`, so the built-in
+  operator command menu did not surface the current daily path.
+
+What changed:
+- Added `make status-paper-all` to the `script-index` echo output.
+- Updated the prior PR #106 work-log entry from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+
+Why this change:
+- The built-in operator menu should match the current documented workflow.
+- This is the smallest safe correction because it only changes an echo line and
+  work-log metadata.
+
+Expected outcome:
+- Running `make script-index` shows the unified daily paper campaign check-in
+  command first.
+
+Verification:
+- `make script-index`
+  - SHOWN: output lists `make status-paper-all` first as the daily paper
+    campaign check-in.
+- `make -n script-index`
+  - SHOWN: dry-run output includes the same `status-paper-all` echo line.
+- `git diff --check`
+  - SHOWN: passed.
+- No tests were run because this change only updates Makefile echo output and
+  work-log metadata.
+
+Remaining risk:
+- LOW: Makefile echo output and work-log update only; no command bodies,
+  campaign behavior, gate logic, deploy logic, or secret handling changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
