@@ -49,8 +49,9 @@ deployment work still needs independent review.
    sandbox/testnet venue, or record an explicit human exception decision.
 4. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
-5. Verify fresh shadow-gate signal records include spread/depth evidence when
-   tick data is fresh.
+5. Verify the next fresh signal records include spread/depth evidence when
+   tick data is fresh; the implementation is accepted, but fresh stamped
+   records still need to be observed.
 6. Rebuild only accepted PR #43 disposition groups from clean `master`: AI
    alert/operator watch layer, managed multi-symbol runtime, safe pipeline
    wrapper/startup hardening, and remaining dashboard/report surfaces.

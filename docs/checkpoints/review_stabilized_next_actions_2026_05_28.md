@@ -143,7 +143,7 @@ Risk:
 
 ## Priority 5 - Prepare Shadow Gate Before Paper Clears
 
-Status: implementation proof ready, pending independent review
+Status: implementation accepted; fresh-record verification pending
 
 Why it matters:
 - Paper gate is close enough that shadow tooling should be validated before the
@@ -171,10 +171,17 @@ Verification:
 - `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_check_promotion_gates.py`
   - SHOWN: `52 passed in 0.80s`.
 
+Acceptance evidence:
+- `9f0dd8b0c` implemented market-quality evidence stamping for future
+  public-OHLCV signal records and shadow-gate recognition of `spread_bps`.
+- `4c414b256` recorded operator acceptance of the shadow spread evidence fix.
+- `64bd86e54` later merged PR #51 to scope shadow-gate readiness to active
+  shadow-stage evidence.
+
 Next action:
-- Independent review of the shadow-gate evidence change.
-- Let the next daily collector run create fresh signal records and verify new
-  records contain `spread_bps` when tick data is fresh.
+- Let a fresh evidence run create signal records when tick data is fresh, then
+  verify the new records contain `spread_bps`.
+- Do not treat historical unstamped signal records as sufficient shadow proof.
 
 Risk:
 - HIGH: promotion path and live-adjacent operational readiness.
