@@ -8200,4 +8200,7 @@ Remaining risk:
 - HIGH-adjacent: runtime supervision supports live-readiness evidence and
   process observability. The change is intentionally narrow, but it should be
   independently reviewed before treating P3 as closed.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #109 implementation commit
+  `b4db2dba2b532dbbdd44519774981d2fdb46f93b`.
