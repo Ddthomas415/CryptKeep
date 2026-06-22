@@ -49,30 +49,33 @@ deployment work still needs independent review.
    sandbox/testnet venue, or record an explicit human exception decision.
 4. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
-5. Capture supervised pipeline stdout/stderr into durable runtime logs before
-   any live-readiness claim.
-6. Verify fresh shadow-gate signal records include spread/depth evidence when
+5. Verify fresh shadow-gate signal records include spread/depth evidence when
    tick data is fresh.
-7. Rebuild only accepted PR #43 disposition groups from clean `master`: AI
+6. Rebuild only accepted PR #43 disposition groups from clean `master`: AI
    alert/operator watch layer, managed multi-symbol runtime, safe pipeline
    wrapper/startup hardening, and remaining dashboard/report surfaces.
-8. Run the full post-fix isolated Stage 0 proof for
+7. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
-9. Design a backtestable composite/hybrid strategy wrapper before combining
+8. Design a backtestable composite/hybrid strategy wrapper before combining
    strategies in production paths.
-10. Run the read-only short-side feasibility audit for `funding_extreme`,
+9. Run the read-only short-side feasibility audit for `funding_extreme`,
     `open_interest_shift`, `order_book_imbalance`, and missing context
     provenance fields.
-11. Continue the derivatives/intraday roadmap as read-only data collection and
+10. Continue the derivatives/intraday roadmap as read-only data collection and
     replay only until compliance, margin, liquidation, reduce-only, and risk
     controls are proven.
-12. Complete Hetzner host follow-through before any canonical `.cbp_state`
+11. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: backup restore rehearsal, disk/health alerting, single-owner
     proof, and reviewed stop-copy-verify-start procedure.
-13. Convert the highest-priority dormant infrastructure activation item into
+12. Convert the highest-priority dormant infrastructure activation item into
     one scoped objective with proof requirements.
-14. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
+13. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
+
+## Recently completed
+- Pipeline exit evidence capture is closed by PR #109:
+  `b4db2dba2` added durable supervised process log paths, the implementation
+  was independently accepted, and PR #109 merged as `f4b8c296d`.
 
 ## Master integration TODO
 Master integration completed through

@@ -64,7 +64,7 @@ Review lane:
 ## Launch-support tasks
 
 ### P3. Pipeline exit evidence capture before live
-Status: implementation proof ready; pending independent review.
+Status: CLOSED.
 
 Problem:
 - `pipeline.status.json` can remain at the last successful `running` write if
@@ -80,9 +80,12 @@ Visible evidence:
 - `tests/test_process_supervisor.py` covers the `pipeline.log` path and proves
   stdout/stderr are routed to the same runtime log file.
 
-Remaining close condition:
-- independently review and accept the implementation proof before treating P3
-  as closed for live-readiness evidence.
+Close evidence:
+- implementation committed as `b4db2dba2`
+  (`runtime: expose supervised process log paths`)
+- human operator independently reviewed and accepted the implementation proof
+  in the Codex session
+- PR #109 merged as `f4b8c296d`, with GitHub checks passing before merge
 
 ### A. Align docs/config with actual supported state
 Evidence:
