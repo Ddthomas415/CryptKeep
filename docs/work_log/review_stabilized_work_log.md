@@ -8255,3 +8255,68 @@ Remaining risk:
 - LOW: docs/work-log alignment only; no runtime, campaign, gate, deployment,
   or secret behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-22T03:34:45Z - Align Shadow Spread Evidence Checkpoint Status
+
+Active role: ENGINEER
+
+Objective:
+- Correct stale checkpoint wording after the shadow spread/depth evidence
+  implementation had already been accepted.
+
+What was found:
+- SHOWN: `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`
+  still listed Priority 5 as `implementation proof ready, pending independent
+  review`.
+- SHOWN: the work log records the shadow spread/depth implementation as
+  accepted after `9f0dd8b0c`.
+- SHOWN: `git log --all --grep='shadow|spread|depth'` shows
+  `4c414b256 docs: accept shadow spread evidence fix` and PR #51 merge
+  `64bd86e54` for shadow-gate evidence scoping.
+- SHOWN: the remaining work is not another implementation review; it is
+  observing fresh signal records with `spread_bps` when tick data is fresh.
+
+What changed:
+- Updated Priority 5 status to `implementation accepted; fresh-record
+  verification pending`.
+- Replaced the stale independent-review next action with explicit acceptance
+  evidence and the remaining fresh-record verification action.
+- Clarified the active backlog item so it says implementation is accepted but
+  fresh stamped records still need to be observed.
+
+Why this change:
+- Planning docs should not route the operator back into an already-completed
+  independent review.
+- The remaining work is evidence collection/verification, not code or policy
+  review.
+
+Expected outcome:
+- Future proactive work does not re-open the accepted shadow spread/depth
+  implementation.
+- The operator-facing backlog points at the real remaining task: verify new
+  stamped evidence when fresh tick data is available.
+
+Verification:
+- `sed -n '145,180p' docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`
+  - SHOWN: Priority 5 status is `implementation accepted; fresh-record
+    verification pending` with acceptance evidence for `9f0dd8b0c`,
+    `4c414b256`, and `64bd86e54`.
+- `sed -n '170,190p' docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`
+  - SHOWN: the next action is now fresh evidence observation, not another
+    independent review.
+- `sed -n '45,62p' REMAINING_TASKS.md`
+  - SHOWN: active backlog item 5 states the implementation is accepted and
+    fresh stamped records still need observation.
+- `rg -n "implementation accepted|fresh-record verification|fresh stamped|9f0dd8b0c|4c414b256|64bd86e54|Align Shadow Spread Evidence" REMAINING_TASKS.md docs/checkpoints/review_stabilized_next_actions_2026_05_28.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: expected references are present in the backlog, checkpoint, and
+    work log.
+- `git diff --check`
+  - SHOWN: passed.
+- No tests were run because this is docs/work-log alignment only.
+
+Remaining risk:
+- LOW: docs/work-log alignment only; no runtime, campaign, gate, deployment,
+  strategy, or secret behavior changed.
+- UNVERIFIED: no fresh post-fix signal record with `spread_bps` was produced
+  during this docs alignment pass.
+- Acceptance state: `ACCEPTED`.
