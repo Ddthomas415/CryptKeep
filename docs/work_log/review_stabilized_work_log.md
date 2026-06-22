@@ -8204,3 +8204,54 @@ Remaining risk:
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session after latest PR #109 implementation commit
   `b4db2dba2b532dbbdd44519774981d2fdb46f93b`.
+
+## 2026-06-22T03:30:09Z - Close Pipeline Log Evidence Backlog Item
+
+Active role: ENGINEER
+
+Objective:
+- Keep the visible backlog and root-runtime blocker list aligned after PR #109
+  was accepted and merged.
+
+What was found:
+- SHOWN: PR #109 merged as `f4b8c296d`.
+- SHOWN: `HEAD`, `origin/master`, and `origin/review-stabilized` all pointed
+  at `f4b8c296d` after branch alignment.
+- SHOWN: `docs/checkpoints/launch_blockers_root_runtime.md` still described
+  P3 as implementation-proof-ready and pending independent review.
+- SHOWN: `REMAINING_TASKS.md` still listed durable supervised pipeline log
+  capture as an active backlog item.
+
+What changed:
+- Marked P3 pipeline exit evidence capture as `CLOSED` in
+  `docs/checkpoints/launch_blockers_root_runtime.md`.
+- Added the PR #109 close evidence: implementation commit, human acceptance,
+  merge commit, and passing GitHub checks before merge.
+- Removed the completed item from the active backlog in `REMAINING_TASKS.md`
+  and added it under `Recently completed`.
+
+Why this change:
+- Completed runtime evidence work should not remain in the active backlog.
+- The smallest correct change is documentation alignment only; the runtime
+  implementation and acceptance already landed through PR #109.
+
+Expected outcome:
+- Future planning starts from the real remaining backlog instead of repeatedly
+  selecting the already-closed pipeline log capture item.
+
+Verification:
+- `sed -n '35,75p' REMAINING_TASKS.md`
+  - SHOWN: active backlog is renumbered to 13 items and no longer lists
+    pipeline log capture as active.
+- `sed -n '64,92p' docs/checkpoints/launch_blockers_root_runtime.md`
+  - SHOWN: P3 status is `CLOSED` and includes PR #109 close evidence.
+- `rg -n "Pipeline exit evidence|Status: CLOSED|Recently completed|PR #109|f4b8c296d|b4db2dba2" REMAINING_TASKS.md docs/checkpoints/launch_blockers_root_runtime.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: backlog, blocker doc, and work log contain the expected references.
+- `git diff --check`
+  - SHOWN: passed.
+- No tests were run because this is docs/work-log alignment only.
+
+Remaining risk:
+- LOW: docs/work-log alignment only; no runtime, campaign, gate, deployment,
+  or secret behavior changed.
+- Acceptance state: `ACCEPTED`.
