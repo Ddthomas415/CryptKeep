@@ -64,17 +64,25 @@ Review lane:
 ## Launch-support tasks
 
 ### P3. Pipeline exit evidence capture before live
+Status: implementation proof ready; pending independent review.
+
 Problem:
-- supervised pipeline child stdout/stderr are not persisted, so an unhandled pipeline exit can leave no durable crash log for postmortem review
-- `pipeline.status.json` can remain at the last successful `running` write if the process exits before writing a failure state
+- `pipeline.status.json` can remain at the last successful `running` write if
+  the process exits before writing a failure state.
 
 Visible evidence:
-- `services/runtime/process_supervisor.py` starts child processes with stdout/stderr redirected to `subprocess.DEVNULL`
-- direct foreground pipeline run writes actionable output to `/tmp/pipeline_exit.log`, but supervised startup does not create an equivalent `pipeline.log`
+- `services/runtime/process_supervisor.py` now captures supervised child
+  stdout/stderr to `<CBP_STATE_DIR>/runtime/logs/<name>.log`.
+- `start_process("pipeline", ...)` returns the durable `log_path` so operators
+  and tooling can find the supervised pipeline log.
+- `process_supervisor.status(["pipeline"])` also returns `log_path`, so
+  operator check-ins can locate the log after the process is already running.
+- `tests/test_process_supervisor.py` covers the `pipeline.log` path and proves
+  stdout/stderr are routed to the same runtime log file.
 
-Close condition:
-- supervised `pipeline` startup captures stdout/stderr to a durable runtime log, for example `runtime/logs/pipeline.log`
-- pipeline unhandled exits leave a failure status or log entry that includes the exception/reason before any live run is considered ready
+Remaining close condition:
+- independently review and accept the implementation proof before treating P3
+  as closed for live-readiness evidence.
 
 ### A. Align docs/config with actual supported state
 Evidence:

@@ -20,6 +20,11 @@ def _pidfile(name: str) -> Path:
     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
     return RUNTIME_DIR / f"{name}.pid"
 
+def _logfile(name: str) -> Path:
+    log_dir = runtime_dir() / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir / f"{name}.log"
+
 def _read_pid(name: str) -> Optional[int]:
     p = _pidfile(name)
     if not p.exists():
@@ -53,8 +58,16 @@ def is_running(name: str) -> bool:
         return False
 
 def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
+    log_path = _logfile(name)
     if is_running(name):
-        return {"ok": True, "note": "already_running", "name": name, "pid": _read_pid(name), "cmd": cmd}
+        return {
+            "ok": True,
+            "note": "already_running",
+            "name": name,
+            "pid": _read_pid(name),
+            "cmd": cmd,
+            "log_path": str(log_path),
+        }
 
     # detach-ish: new process group so we can kill group on unix
     kwargs = {}
@@ -64,19 +77,26 @@ def start_process(name: str, cmd: list[str]) -> Dict[str, object]:
         kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
 
     # Persist stdout/stderr to a named log file so exits leave durable evidence.
-    log_path = runtime_dir() / "logs" / f"{name}.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    log_fh = open(log_path, "a", buffering=1)
-
-    proc = subprocess.Popen(
-        cmd,
-        cwd=str(code_root()),
-        stdout=log_fh,
-        stderr=log_fh,
-        **kwargs,
-    )
+    log_fh = log_path.open("a", buffering=1, encoding="utf-8")
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(code_root()),
+            stdout=log_fh,
+            stderr=log_fh,
+            **kwargs,
+        )
+    finally:
+        log_fh.close()
     _write_pid(name, proc.pid)
-    return {"ok": True, "note": "started", "name": name, "pid": proc.pid, "cmd": cmd}
+    return {
+        "ok": True,
+        "note": "started",
+        "name": name,
+        "pid": proc.pid,
+        "cmd": cmd,
+        "log_path": str(log_path),
+    }
 
 
 def request_system_guard_halt(*, writer: str, reason: str) -> Dict[str, object]:
@@ -145,5 +165,9 @@ def stop_process(name: str, timeout_sec: float = 5.0) -> Dict[str, object]:
 def status(names: list[str]) -> Dict[str, object]:
     out = {}
     for n in names:
-        out[n] = {"running": is_running(n), "pid": _read_pid(n)}
+        out[n] = {
+            "running": is_running(n),
+            "pid": _read_pid(n),
+            "log_path": str(_logfile(n)),
+        }
     return out

@@ -16,18 +16,21 @@ def test_is_running_clears_stale_pid(monkeypatch):
     assert called["cleared"] == 1
 
 
-def test_start_process_already_running(monkeypatch):
+def test_start_process_already_running(monkeypatch, tmp_path):
     monkeypatch.setattr(ps, "is_running", lambda _name: True)
     monkeypatch.setattr(ps, "_read_pid", lambda _name: 777)
+    monkeypatch.setattr(ps, "runtime_dir", lambda: tmp_path / "runtime")
     out = ps.start_process("worker", ["python3", "fake.py"])
     assert out.get("ok") is True
     assert out.get("note") == "already_running"
     assert out.get("pid") == 777
+    assert out.get("log_path") == str(tmp_path / "runtime" / "logs" / "worker.log")
 
 
 def test_start_process_uses_code_root_as_cwd(monkeypatch, tmp_path):
     monkeypatch.setattr(ps, "is_running", lambda _name: False)
     monkeypatch.setattr(ps, "code_root", lambda: tmp_path)
+    monkeypatch.setattr(ps, "runtime_dir", lambda: tmp_path / "runtime")
     monkeypatch.setattr(ps, "_write_pid", lambda _name, _pid: None)
 
     captured: dict[str, object] = {}
@@ -47,6 +50,34 @@ def test_start_process_uses_code_root_as_cwd(monkeypatch, tmp_path):
     assert out.get("ok") is True
     assert captured["cmd"] == ["python3", "fake.py"]
     assert captured["cwd"] == str(tmp_path)
+
+
+def test_start_process_persists_output_to_runtime_log(monkeypatch, tmp_path):
+    monkeypatch.setattr(ps, "is_running", lambda _name: False)
+    monkeypatch.setattr(ps, "code_root", lambda: tmp_path)
+    monkeypatch.setattr(ps, "runtime_dir", lambda: tmp_path / "runtime")
+    monkeypatch.setattr(ps, "_write_pid", lambda _name, _pid: None)
+
+    captured: dict[str, object] = {}
+
+    class _DummyProc:
+        pid = 12345
+
+    def _fake_popen(cmd, **kwargs):
+        captured["stdout"] = kwargs.get("stdout")
+        captured["stderr"] = kwargs.get("stderr")
+        return _DummyProc()
+
+    monkeypatch.setattr(ps.subprocess, "Popen", _fake_popen)
+
+    out = ps.start_process("pipeline", ["python3", "fake.py"])
+
+    expected_log = tmp_path / "runtime" / "logs" / "pipeline.log"
+    assert out["log_path"] == str(expected_log)
+    assert captured["stdout"] is captured["stderr"]
+    assert getattr(captured["stdout"], "name") == str(expected_log)
+    assert getattr(captured["stdout"], "closed") is True
+    assert expected_log.exists()
 
 
 def test_stop_process_not_running():
@@ -84,11 +115,14 @@ def test_request_system_guard_halt_surfaces_write_failure(monkeypatch):
     assert out["error"] == "disk full"
 
 
-def test_status_shape(monkeypatch):
+def test_status_shape(monkeypatch, tmp_path):
+    monkeypatch.setattr(ps, "runtime_dir", lambda: tmp_path / "runtime")
     monkeypatch.setattr(ps, "is_running", lambda name: name == "a")
     monkeypatch.setattr(ps, "_read_pid", lambda name: 11 if name == "a" else None)
     out = ps.status(["a", "b"])
     assert out["a"]["running"] is True
     assert out["a"]["pid"] == 11
+    assert out["a"]["log_path"] == str(tmp_path / "runtime" / "logs" / "a.log")
     assert out["b"]["running"] is False
     assert out["b"]["pid"] is None
+    assert out["b"]["log_path"] == str(tmp_path / "runtime" / "logs" / "b.log")
