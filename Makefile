@@ -293,6 +293,7 @@ live-reconcile:
 # Script index
 script-index:
 	@echo "=== Operational Scripts ==="
+	@echo "  make status-paper-all   — daily paper campaign check-in"
 	@echo "  make paper-run          — run paper campaign"
 	@echo "  make check-gates        — promotion gate status"
 	@echo "  make kill-switch-on/off — arm/disarm kill switch"
