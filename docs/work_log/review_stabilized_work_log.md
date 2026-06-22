@@ -8072,4 +8072,60 @@ Verification:
 Remaining risk:
 - LOW: Makefile echo output and work-log update only; no command bodies,
   campaign behavior, gate logic, deploy logic, or secret handling changed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #107 commit
+  `88b72cb71f5e318b51b3714e0bfd25bf296d1ee7`; PR #107 merged as
+  `06eeefe7e9e982742db4ab20e774aff45da3a9a0`.
+
+## 2026-06-22T03:03:58Z - Capture Active Backlog In Remaining Tasks
+
+Active role: ENGINEER
+
+Objective:
+- Persist the current remaining backlog list in the repo so it is visible in
+  git instead of only in chat.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` pointed at the canonical blocker lists and
+  strategy planning docs, but did not contain a concise current backlog list.
+- SHOWN: the current accepted task sources are
+  `docs/checkpoints/launch_blockers_root_runtime.md`,
+  `docs/checkpoints/root_runtime_next_actions.md`,
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`,
+  `docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md`, and
+  `docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md`.
+- SHOWN: PR #107 was independently accepted and merged as
+  `06eeefe7e9e982742db4ab20e774aff45da3a9a0`.
+
+What changed:
+- Added an `Active Backlog` section to `REMAINING_TASKS.md` summarizing the
+  visible remaining tasks across paper evidence, root-runtime launch,
+  strategy research, Hetzner follow-through, and operator documentation.
+- Updated the prior PR #107 work-log entry from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+
+Why this change:
+- The operator asked for the remaining backlog; keeping it in the repo avoids
+  losing the task list in chat history.
+- The change is intentionally an index only. It does not create new runtime
+  requirements or change gate policy.
+
+Expected outcome:
+- `REMAINING_TASKS.md` is the concise starting point for the next planning
+  pass, with links to the deeper checkpoint docs still preserved above it.
+
+Verification:
+- `sed -n '1,130p' REMAINING_TASKS.md`
+  - SHOWN: the `Active Backlog` section is present and lists 14 remaining
+    tasks.
+- `rg -n 'Active Backlog|PR #107|06eeefe7|Capture Active Backlog' REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: backlog and acceptance references are visible.
+- `git diff --check`
+  - SHOWN: passed.
+- No tests were run because this is a docs/work-log update only.
+
+Remaining risk:
+- LOW: docs/work-log update only; no runtime, campaign, gate, strategy,
+  deployment, or secret behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

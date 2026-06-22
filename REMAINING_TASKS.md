@@ -36,6 +36,44 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
 
+## Active Backlog
+These are the remaining tasks visible from the accepted checkpoint and planning
+documents. Keep implementation scoped; high-risk runtime, launch, strategy, or
+deployment work still needs independent review.
+
+1. Continue canonical paper evidence collection until `es_daily_trend_v1`
+   reaches 10 provenance-qualified round trips.
+2. After the paper gate reaches 10 qualified round trips, write the manual
+   strategy performance decision against the accepted baseline.
+3. Prove private lifecycle runtime flow in one reachable supported
+   sandbox/testnet venue, or record an explicit human exception decision.
+4. Produce the launch evidence packet: restart/recovery, kill-switch,
+   reconciliation halt/resume, rollback, and lifecycle or exception evidence.
+5. Capture supervised pipeline stdout/stderr into durable runtime logs before
+   any live-readiness claim.
+6. Verify fresh shadow-gate signal records include spread/depth evidence when
+   tick data is fresh.
+7. Rebuild only accepted PR #43 disposition groups from clean `master`: AI
+   alert/operator watch layer, managed multi-symbol runtime, safe pipeline
+   wrapper/startup hardening, and remaining dashboard/report surfaces.
+8. Run the full post-fix isolated Stage 0 proof for
+   `pullback_recovery_default` before enabling any persistent campaign.
+9. Design a backtestable composite/hybrid strategy wrapper before combining
+   strategies in production paths.
+10. Run the read-only short-side feasibility audit for `funding_extreme`,
+    `open_interest_shift`, `order_book_imbalance`, and missing context
+    provenance fields.
+11. Continue the derivatives/intraday roadmap as read-only data collection and
+    replay only until compliance, margin, liquidation, reduce-only, and risk
+    controls are proven.
+12. Complete Hetzner host follow-through before any canonical `.cbp_state`
+    migration: backup restore rehearsal, disk/health alerting, single-owner
+    proof, and reviewed stop-copy-verify-start procedure.
+13. Convert the highest-priority dormant infrastructure activation item into
+    one scoped objective with proof requirements.
+14. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
+    whenever operator commands or workflow change.
+
 ## Master integration TODO
 Master integration completed through
 [#49](https://github.com/Ddthomas415/CryptKeep/pull/49) on 2026-06-06.
