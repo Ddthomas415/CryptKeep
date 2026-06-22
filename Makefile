@@ -300,6 +300,7 @@ script-index:
 	@echo "  make gate-inputs        — show live gate current values"
 	@echo "  make inject-test-fill   — inject a test fill (paper only)"
 	@echo "  make candidate-scan     — run candidate signal scan"
+	@echo "  make candidate-summary  — summarize candidate-attributed paper outcomes"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"

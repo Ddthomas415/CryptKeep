@@ -8320,3 +8320,82 @@ Remaining risk:
 - UNVERIFIED: no fresh post-fix signal record with `spread_bps` was produced
   during this docs alignment pass.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-22T03:41:44Z - Scope Read-Only Candidate Layer Activation
+
+Active role: ENGINEER
+
+Objective:
+- Convert the generic dormant-infrastructure backlog item into one concrete
+  scoped objective with proof requirements.
+
+What was found:
+- SHOWN: `docs/OBJECTIVE.md` names learning/adaptive capability as a standing
+  product objective and requires read-only evidence mode first.
+- SHOWN: `docs/checkpoints/infrastructure_activation_audit_2026_06_03.md`
+  identifies the signal/candidate layer as the highest-leverage partially
+  wired activation target after paper-campaign isolation.
+- SHOWN: `docs/ARCHITECTURE.md` documents the candidate layer as paper-only and
+  warns not to enable `CBP_USE_CANDIDATE_ADVISOR=1` until outcome attribution
+  confirms signal value.
+- SHOWN: `services/signals/candidate_engine.py`,
+  `scripts/data/run_candidate_scan.py`, `scripts/candidate_trade_summary.py`,
+  and `scripts/dev/review_candidate_outcomes.py` already provide partial
+  candidate scan and candidate-vs-outcome surfaces.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still has
+  `use_candidate_advisor: false`.
+- SHOWN: `make candidate-summary` existed, but `make script-index` did not
+  display it.
+
+What changed:
+- Added
+  `docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md`.
+- Updated `REMAINING_TASKS.md` to replace the generic dormant-infrastructure
+  item with the accepted candidate outcome report objective.
+- Corrected `docs/ARCHITECTURE.md` candidate-layer script references and linked
+  the scoped activation objective.
+- Updated `make script-index` to show `make candidate-summary`.
+- Clarified `scripts/SCRIPTS.md` so `candidate_trade_summary.py` is explicitly
+  read-only and tied to `make candidate-summary`.
+
+Why this change:
+- The candidate layer is the safest high-leverage dormant subsystem to advance
+  because it directly addresses whether the repo identifies moves early enough
+  while staying read-only.
+- The smallest correct step is a scoped objective and operator-doc alignment,
+  not enabling candidate-advisor strategy selection.
+
+Expected outcome:
+- Future implementation work has a bounded target: produce a read-only
+  candidate outcome artifact before any candidate layer can become
+  authoritative.
+- The operator does not confuse candidate research commands with paper-gate or
+  live-routing controls.
+
+Verification:
+- `sed -n '1,180p' docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md`
+  - SHOWN: the scoped objective, boundaries, implementation path, and proof
+    requirements are present.
+- `sed -n '60,78p' REMAINING_TASKS.md`
+  - SHOWN: backlog item 12 now points to the read-only candidate outcome
+    report objective.
+- `sed -n '251,278p' docs/ARCHITECTURE.md`
+  - SHOWN: candidate-layer script references and the scoped activation
+    objective link are present.
+- `make script-index`
+  - SHOWN: output includes `make candidate-summary`.
+- `rg -n "candidate_layer_read_only_activation_objective|candidate-summary|use_candidate_advisor: false|SCOPED_OBJECTIVE_READY|read-only candidate outcome" REMAINING_TASKS.md docs/ARCHITECTURE.md docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md scripts/SCRIPTS.md Makefile configs/strategies/es_daily_trend_v1.yaml docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: expected references are present and
+    `configs/strategies/es_daily_trend_v1.yaml` still has
+    `use_candidate_advisor: false`.
+- `git diff --check`
+  - SHOWN: passed.
+- No tests were run because this is docs/Makefile index alignment only.
+
+Remaining risk:
+- LOW: docs/Makefile index alignment only; no runtime, campaign, strategy
+  selection, promotion gate, deployment, order routing, or secret behavior
+  changed.
+- UNVERIFIED: the candidate outcome report itself is not implemented by this
+  planning pass.
+- Acceptance state: `ACCEPTED`.
