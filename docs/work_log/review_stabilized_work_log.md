@@ -8128,4 +8128,79 @@ Verification:
 Remaining risk:
 - LOW: docs/work-log update only; no runtime, campaign, gate, strategy,
   deployment, or secret behavior changed.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #108 commit
+  `06bb41c135386a2e45539ad275cc56aa0739ae3e`; PR #108 merged as
+  `494643e6d0ee46a8da8fb59a05cad8b89f69b835`.
+
+## 2026-06-22T03:21:47Z - Persist Supervised Pipeline Log Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Close the root-runtime P3 implementation gap for supervised pipeline exit
+  evidence while the paper campaigns continue passively.
+
+What was found:
+- SHOWN: `docs/checkpoints/launch_blockers_root_runtime.md` still described a
+  live-readiness gap where `pipeline.status.json` can remain stale after a
+  process exits before writing a failure state.
+- SHOWN: `services/runtime/process_supervisor.py` already redirected
+  supervised child stdout/stderr to runtime log files, but the behavior was not
+  covered by a targeted test and the returned/status payloads did not expose a
+  durable `log_path` consistently.
+- SHOWN: `scripts/bot_status.py` and
+  `services/process/bot_runtime_truth.py` read from
+  `process_supervisor.status(...)`, so status-time log discovery belongs in the
+  supervisor status payload rather than only in start-time output.
+
+What changed:
+- Added a `_logfile(name)` helper in `services/runtime/process_supervisor.py`
+  for `<CBP_STATE_DIR>/runtime/logs/<name>.log`.
+- Updated `start_process(...)` to return `log_path` for both newly-started and
+  already-running processes.
+- Updated `status(...)` to return `log_path` with each supervised service row.
+- Added targeted process-supervisor tests for durable `pipeline.log` routing,
+  already-running `log_path` output, and status payload `log_path` output.
+- Updated `docs/checkpoints/launch_blockers_root_runtime.md` to record the
+  implementation-proof state and remaining independent-review close condition.
+
+Why this change:
+- A stale status JSON file should not be the only artifact available after a
+  supervised process exits.
+- Returning `log_path` from both start and status paths is the smallest
+  coherent interface change because existing operator status tools already use
+  the supervisor status surface.
+
+Expected outcome:
+- Supervised runtime processes leave stdout/stderr evidence in deterministic
+  runtime log files.
+- Operators and tooling can locate the relevant log from the process start
+  response or later supervisor status output.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/runtime/process_supervisor.py tests/test_process_supervisor.py`
+  - SHOWN: passed.
+- Direct supervised child proof with
+  `CBP_STATE_DIR=/private/tmp/cbp-process-supervisor-proof`
+  - SHOWN: `start_process(...)` returned
+    `/private/tmp/cbp-process-supervisor-proof/runtime/logs/pipeline_log_proof.log`.
+  - SHOWN: `process_supervisor.status(...)` returned the same `log_path`.
+  - SHOWN: the log file existed and contained `supervised-output-proof`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_process_supervisor.py`
+  - SHOWN: not runnable in this local venv:
+    `No module named pytest`.
+  - UNVERIFIED: pytest execution of the new regression tests is pending CI or
+    an environment with pytest installed.
+
+Remaining risk:
+- HIGH-adjacent: runtime supervision supports live-readiness evidence and
+  process observability. The change is intentionally narrow, but it should be
+  independently reviewed before treating P3 as closed.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: human operator independently reviewed and accepted in
+  the Codex session after latest PR #109 implementation commit
+  `b4db2dba2b532dbbdd44519774981d2fdb46f93b`.
