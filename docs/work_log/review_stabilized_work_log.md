@@ -8399,3 +8399,77 @@ Remaining risk:
 - UNVERIFIED: the candidate outcome report itself is not implemented by this
   planning pass.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-23T02:14:53Z - Implement Read-Only Candidate Outcome Report
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted candidate-layer read-only activation objective without
+  enabling candidate-advisor strategy selection.
+
+What was found:
+- SHOWN: PR #112 merged the scoped candidate-layer objective to `master`.
+- SHOWN: `scripts/dev/review_candidate_outcomes.py` contained useful
+  candidate-vs-journal comparison logic but did not persist an operator-facing
+  report artifact.
+- SHOWN: `scripts/candidate_trade_summary.py` summarized attributed candidate
+  trade buckets but also did not produce the required latest/dated JSON
+  artifact.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still has
+  `use_candidate_advisor: false`.
+
+What changed:
+- Added `services/signals/candidate_outcomes.py` to build and persist a
+  read-only candidate-vs-paper-outcome report.
+- Added `scripts/run_candidate_outcome_report.py` as a root operator CLI.
+- Added `make candidate-outcomes`.
+- Added targeted tests in `tests/test_candidate_outcomes.py` for empty
+  history, no-outcome history, matching closed-outcome metrics, and artifact
+  writes.
+- Updated `docs/ARCHITECTURE.md`, `scripts/SCRIPTS.md`,
+  `REMAINING_TASKS.md`, and the candidate-layer objective checkpoint.
+
+Why this change:
+- The repo needs to answer whether candidate rankings identify useful moves
+  early enough before the candidate layer can become authoritative.
+- Persisting latest and dated artifacts gives operators an audit trail without
+  enabling strategy overrides or changing promotion gates.
+
+Expected outcome:
+- `make candidate-outcomes` produces a read-only candidate outcome report and
+  writes `.cbp_state/data/candidate_outcomes/candidate_outcomes.latest.json`.
+- Empty or insufficient candidate history is reported explicitly instead of
+  being treated as success.
+- Candidate-advisor strategy selection remains disabled.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/signals/candidate_outcomes.py scripts/run_candidate_outcome_report.py tests/test_candidate_outcomes.py`
+  - SHOWN: passed.
+- Synthetic temp-state proof with generated candidate history and SQLite paper
+  fills
+  - SHOWN: report `status` was `ok`.
+  - SHOWN: `candidates_reviewed` was `2`.
+  - SHOWN: top-rank net PnL was `10.0`.
+  - SHOWN: non-top-rank net PnL was `-5.0`.
+  - SHOWN: latest artifact existed.
+  - SHOWN: safety flags were `read_only=true`,
+    `candidate_advisor_enabled=false`, `orders_routed=false`, and
+    `promotion_gate_mutated=false`.
+  - SHOWN: limitations include symbol-level attribution and repeated candidate
+    rows possibly referencing the same paper fills.
+- `make script-index`
+  - SHOWN: output includes `make candidate-outcomes`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_candidate_outcomes.py`
+  - SHOWN: not runnable in the local venv:
+    `No module named pytest`.
+  - UNVERIFIED: pytest execution of the new regression tests is pending CI or
+    an environment with pytest installed.
+
+Remaining risk:
+- HIGH-adjacent: financial/strategy-evaluation logic, even though this pass is
+  read-only and does not affect routing, gates, campaigns, or strategy
+  selection.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

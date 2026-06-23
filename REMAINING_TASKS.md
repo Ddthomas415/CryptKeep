@@ -69,9 +69,8 @@ deployment work still needs independent review.
 11. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: backup restore rehearsal, disk/health alerting, single-owner
     proof, and reviewed stop-copy-verify-start procedure.
-12. Implement the accepted read-only candidate outcome report objective:
-    promote/wrap candidate-vs-outcome review into an operator-facing artifact
-    without enabling candidate-advisor strategy selection.
+12. Independently review the read-only candidate outcome report implementation
+    proof before treating the candidate-layer activation objective as complete.
 13. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 

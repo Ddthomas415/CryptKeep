@@ -170,7 +170,7 @@ governance-smoke:
 .PHONY: paper-ps paper-clean-locks paper-run paper-status paper-dry-run
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
-.PHONY: inject-test-fill candidate-scan candidate-summary live-reconcile
+.PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes live-reconcile
 .PHONY: script-index paper-run-short paper-stop-now
 
 # Fast test suite — skips blocking service-loop tests
@@ -286,6 +286,9 @@ candidate-scan:
 candidate-summary:
 	$(PYTHON) scripts/candidate_trade_summary.py
 
+candidate-outcomes:
+	$(PYTHON) scripts/run_candidate_outcome_report.py
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -301,6 +304,7 @@ script-index:
 	@echo "  make inject-test-fill   — inject a test fill (paper only)"
 	@echo "  make candidate-scan     — run candidate signal scan"
 	@echo "  make candidate-summary  — summarize candidate-attributed paper outcomes"
+	@echo "  make candidate-outcomes — write candidate outcome report artifact"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
