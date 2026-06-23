@@ -258,10 +258,16 @@ upstream of the strategy runner:
 - `services/signals/candidate_strategy_mapper.py` — maps candidate to strategy
 - `services/signals/candidate_store.py` — latest + append-only JSONL history
 - `services/signals/candidate_advisor.py` — top candidate selection
-- `scripts/review_candidate_outcomes.py` — candidate-vs-outcome review loop
+- `scripts/data/run_candidate_scan.py` — read-only candidate scan entrypoint
+- `scripts/candidate_trade_summary.py` — root candidate trade attribution summary
+- `scripts/dev/review_candidate_outcomes.py` — development candidate-vs-outcome
+  review loop; promote or wrap before treating as canonical operator surface
 
 The candidate advisor can optionally override strategy selection via
 `CBP_USE_CANDIDATE_ADVISOR=1`. This is behind a flag and should not be enabled
 in live trading until outcome attribution confirms the layer adds signal.
+
+Current scoped activation objective:
+- `docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md`
 
 **Current status:** paper-only, evidence accumulation phase.

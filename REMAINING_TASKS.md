@@ -35,6 +35,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/strategy_signal_quality_plan_2026_05_22.md
 - docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
+- docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -68,8 +69,9 @@ deployment work still needs independent review.
 11. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: backup restore rehearsal, disk/health alerting, single-owner
     proof, and reviewed stop-copy-verify-start procedure.
-12. Convert the highest-priority dormant infrastructure activation item into
-    one scoped objective with proof requirements.
+12. Implement the accepted read-only candidate outcome report objective:
+    promote/wrap candidate-vs-outcome review into an operator-facing artifact
+    without enabling candidate-advisor strategy selection.
 13. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 

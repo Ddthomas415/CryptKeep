@@ -154,7 +154,8 @@ decision makes them authoritative.
 
 - `apply_pending_model_switch.py` — apply an approved pending model switch.
 - `approve_model_switch.py` — approve a pending model switch.
-- `candidate_trade_summary.py` — candidate trade summary.
+- `candidate_trade_summary.py` — read-only candidate trade attribution summary;
+  use `make candidate-summary`.
 - `collect_live_crypto_edge_snapshot.py` — live crypto edge snapshot collection.
 - `load_sample_crypto_edge_data.py` — load sample crypto edge data.
 - `phase82_apply.py` — phase-specific migration/apply helper.
