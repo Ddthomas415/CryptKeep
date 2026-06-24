@@ -8703,3 +8703,58 @@ Remaining risk:
   idea still requires a fresh current-master gap and separate high-risk review
   before implementation.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-24T03:15:09Z - Close Shadow Spread Fresh-Record Proof
+
+Active role: ENGINEER
+
+Objective:
+- Close Priority 5's remaining observation gap after fresh public-OHLCV signal
+  records were written with spread evidence while tick data was fresh.
+
+What was found:
+- SHOWN: `.cbp_state/data/evidence/es_daily_trend_v1/signal_2026-06-24.jsonl`
+  exists.
+- SHOWN: `wc -l` reported `9` records in the file.
+- SHOWN: `rg -c '"spread_bps"'` returned `9`.
+- SHOWN: `rg -c '"market_quality_reason": "ok"'` returned `9`.
+- SHOWN: sampled records include `market_data_source=public_ohlcv`,
+  `ohlcv_sample_mode=false`, `market_quality_ok=true`, fresh market bid/ask
+  fields, `market_age_sec`, and `spread_bps`.
+
+What changed:
+- Added
+  `docs/checkpoints/shadow_spread_fresh_record_proof_2026_06_24.md`.
+- Updated Priority 5 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` from
+  fresh-record verification pending to complete.
+- Removed the fresh-record observation task from the active backlog in
+  `REMAINING_TASKS.md` and added it under recently completed.
+
+Why this change:
+- The implementation was already accepted, but the repo still needed visible
+  proof that a fresh evidence run actually stamped signal records with spread
+  data.
+- Closing only the observation gap preserves the separate requirement for a
+  future shadow-stage campaign to collect its own signal logs.
+
+Expected outcome:
+- Future backlog work no longer repeats the accepted spread-stamping
+  observation.
+- Historical unstamped records remain insufficient as shadow proof.
+- No strategy, gate, execution, campaign, or runtime behavior changes.
+
+Verification:
+- SHOWN: `wc -l .cbp_state/data/evidence/es_daily_trend_v1/signal_2026-06-24.jsonl`
+  returned `9`.
+- SHOWN: `rg -c '"spread_bps"' .cbp_state/data/evidence/es_daily_trend_v1/signal_2026-06-24.jsonl`
+  returned `9`.
+- SHOWN: `rg -c '"market_quality_reason": "ok"' .cbp_state/data/evidence/es_daily_trend_v1/signal_2026-06-24.jsonl`
+  returned `9`.
+- SHOWN: `git diff --check` passed.
+- Tests not run: documentation-only proof/status update.
+
+Remaining risk:
+- MEDIUM: this proves paper-stage fresh spread stamping, not future
+  shadow-stage readiness or profitability.
+- Acceptance state: `ACCEPTED`.
