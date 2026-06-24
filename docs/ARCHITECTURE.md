@@ -259,6 +259,8 @@ upstream of the strategy runner:
 - `services/signals/candidate_store.py` — latest + append-only JSONL history
 - `services/signals/candidate_advisor.py` — top candidate selection
 - `scripts/data/run_candidate_scan.py` — read-only candidate scan entrypoint
+- `scripts/run_candidate_outcome_report.py` — read-only candidate-vs-outcome
+  artifact writer
 - `scripts/candidate_trade_summary.py` — root candidate trade attribution summary
 - `scripts/dev/review_candidate_outcomes.py` — development candidate-vs-outcome
   review loop; promote or wrap before treating as canonical operator surface

@@ -58,7 +58,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 98 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 99 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -156,6 +156,9 @@ decision makes them authoritative.
 - `approve_model_switch.py` — approve a pending model switch.
 - `candidate_trade_summary.py` — read-only candidate trade attribution summary;
   use `make candidate-summary`.
+- `run_candidate_outcome_report.py` — read-only candidate-vs-paper-outcome
+  report that writes `.cbp_state/data/candidate_outcomes/` artifacts; use
+  `make candidate-outcomes`.
 - `collect_live_crypto_edge_snapshot.py` — live crypto edge snapshot collection.
 - `load_sample_crypto_edge_data.py` — load sample crypto edge data.
 - `phase82_apply.py` — phase-specific migration/apply helper.

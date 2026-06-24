@@ -1,6 +1,6 @@
 # Candidate Layer Read-Only Activation Objective - 2026-06-22
 
-Status: SCOPED_OBJECTIVE_READY
+Status: ACCEPTED
 
 ## Purpose
 
@@ -104,9 +104,48 @@ Before this objective can be marked complete:
 - `docs/ARCHITECTURE.md`, `scripts/SCRIPTS.md`, and `REMAINING_TASKS.md` point
   to the same read-only workflow.
 
+## Implementation Proof
+
+Implemented in this proof pass:
+
+- `services/signals/candidate_outcomes.py`
+  - builds a read-only candidate-vs-paper-outcome report
+  - summarizes top-ranked, non-top-ranked, and all outcome rows
+  - reports insufficient candidate history as insufficient, not success
+  - reports candidate history with no matching outcomes separately
+  - writes latest and dated JSON artifacts under
+    `.cbp_state/data/candidate_outcomes/`
+- `scripts/run_candidate_outcome_report.py`
+  - root operator CLI for the report
+  - writes artifacts by default
+  - supports `--json` and `--no-write`
+- `make candidate-outcomes`
+  - operator Make target for the root report
+- `tests/test_candidate_outcomes.py`
+  - empty-history proof
+  - no-outcome proof
+  - matching closed-outcome summary proof
+  - artifact-write proof
+
+The implementation remains read-only:
+
+- `configs/strategies/es_daily_trend_v1.yaml` still has
+  `use_candidate_advisor: false`
+- no strategy selector override is enabled
+- no order routing, promotion-gate mutation, or leaderboard mutation is added
+
+Known limitation:
+
+- This first report uses symbol-level attribution. Repeated candidate rows can
+  reference the same paper fills. Treat the report as read-only screening
+  evidence, not precise trade-timing proof.
+
 ## Acceptance State
 
-This scoped objective is docs/planning only and is `ACCEPTED`.
+This scoped objective was accepted as docs/planning.
+
+The implementation proof was independently reviewed and accepted by the human
+operator in the Codex session after implementation commit `614bae6e7`.
 
 Any later implementation that changes strategy selection, promotion gates,
 runtime campaigns, or order-routing behavior is HIGH risk and must stop at
