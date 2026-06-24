@@ -34,6 +34,7 @@ Strategy-evaluation work is tracked separately:
 
 - docs/checkpoints/strategy_signal_quality_plan_2026_05_22.md
 - docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md
+- docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
 - docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md
 
@@ -56,8 +57,9 @@ deployment work still needs independent review.
    durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
-7. Design a backtestable composite/hybrid strategy wrapper before combining
-   strategies in production paths.
+7. Independently review the composite/hybrid strategy wrapper design before
+   implementation. Do not combine strategies in production paths until the
+   design is accepted or revised.
 8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or

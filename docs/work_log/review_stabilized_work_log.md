@@ -8758,3 +8758,63 @@ Remaining risk:
 - MEDIUM: this proves paper-stage fresh spread stamping, not future
   shadow-stage readiness or profitability.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-24T03:22:53Z - Composite Hybrid Wrapper Design
+
+Active role: ENGINEER
+
+Objective:
+- Capture a governed design for combining strategies before any composite or
+  hybrid strategy implementation starts.
+
+What was found:
+- SHOWN: `services/strategies/strategy_registry.py` dispatches exactly one
+  configured strategy name through `compute_signal()`.
+- SHOWN: `services/backtest/leaderboard.py` evaluates individual strategy
+  candidates through `run_parity_backtest()`.
+- SHOWN: the existing leaderboard candidate list includes individual
+  `ema_cross`, `breakout_donchian`, `pullback_recovery`, and
+  `sma_200_trend` candidates, but no composite wrapper candidate.
+- SHOWN: `docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md`
+  keeps the candidate layer read-only and confirms
+  `use_candidate_advisor: false`.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still has
+  `use_candidate_advisor: false`.
+- SHOWN: `docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md`
+  requires a post-fix Stage 0 proof before any persistent
+  `pullback_recovery` campaign.
+
+What changed:
+- Added
+  `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`.
+- Updated `REMAINING_TASKS.md` so the active task is independent review of the
+  wrapper design, not direct implementation.
+- Updated Priority 13 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to reference
+  the review-ready design and keep `pullback_recovery` Stage 0 separate.
+
+Why this change:
+- Combining strategies is financial decision logic and should not be
+  implemented ad hoc while evidence campaigns are still running.
+- The design creates a deterministic backtest-first path with explicit
+  boundaries around candidate rankings, exit precedence, strategy IDs, and
+  evidence isolation.
+- A confirmation-gate wrapper is recommended before weighted voting because it
+  is narrower, easier to test, and less likely to mask exits.
+
+Expected outcome:
+- Future composite/hybrid work starts from a reviewed contract instead of
+  directly wiring multiple strategies into production paths.
+- No runtime, campaign, gate, order routing, candidate-advisor, short-side, or
+  live behavior changes.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- Tests not run: documentation-only design and backlog alignment. No Python
+  source, config, runtime path, gate logic, or campaign manifest was changed.
+
+Remaining risk:
+- HIGH: future implementation would affect financial strategy selection and
+  potentially paper, shadow, sandbox, or live behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
