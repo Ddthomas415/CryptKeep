@@ -69,12 +69,14 @@ deployment work still needs independent review.
 11. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: backup restore rehearsal, disk/health alerting, single-owner
     proof, and reviewed stop-copy-verify-start procedure.
-12. Independently review the read-only candidate outcome report implementation
-    proof before treating the candidate-layer activation objective as complete.
-13. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
+12. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 
 ## Recently completed
+- Read-only candidate outcome report objective is accepted by PR #113:
+  `614bae6e7` added the report builder, root CLI, Make target, tests, and
+  artifact path; implementation remains read-only and does not enable
+  candidate-advisor strategy selection.
 - Pipeline exit evidence capture is closed by PR #109:
   `b4db2dba2` added durable supervised process log paths, the implementation
   was independently accepted, and PR #109 merged as `f4b8c296d`.

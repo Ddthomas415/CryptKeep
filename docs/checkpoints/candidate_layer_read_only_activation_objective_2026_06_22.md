@@ -1,6 +1,6 @@
 # Candidate Layer Read-Only Activation Objective - 2026-06-22
 
-Status: IMPLEMENTATION_PROOF_READY
+Status: ACCEPTED
 
 ## Purpose
 
@@ -144,7 +144,8 @@ Known limitation:
 
 This scoped objective was accepted as docs/planning.
 
-The implementation proof is `READY_FOR_INDEPENDENT_REVIEW`.
+The implementation proof was independently reviewed and accepted by the human
+operator in the Codex session after implementation commit `614bae6e7`.
 
 Any later implementation that changes strategy selection, promotion gates,
 runtime campaigns, or order-routing behavior is HIGH risk and must stop at
