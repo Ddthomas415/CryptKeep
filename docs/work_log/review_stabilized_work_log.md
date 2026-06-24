@@ -8655,3 +8655,51 @@ Remaining risk:
   multi-symbol campaign ownership, or operator alerting. This change is
   planning-only.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-24T03:06:33Z - Correct PR #3 Closure Wording
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale present-tense wording from the completed PR #3 cleanup
+  checkpoint after the PR #3, PR #42, and PR #43 disposition paths were already
+  closed.
+
+What was found:
+- SHOWN: Priority 18 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` had status
+  `complete as of 2026-06-19; PR #3 closed after accepted disposition`.
+- SHOWN: the same Priority 18 section still said "PR #3 is still open" in
+  "Why it matters."
+- SHOWN: the same section still said "only PR #42 and PR #43 remain open after
+  the closure check," which was stale after the later accepted PR #43
+  disposition closure.
+- SHOWN: work-log entry `2026-06-19T02:17:25Z` recorded `gh pr view 3`
+  returning `state=CLOSED` and `closed=true`.
+- SHOWN: work-log entry `2026-06-19T17:01:53Z` recorded PR #43 and superseded
+  PR #42 closure after accepted disposition.
+
+What changed:
+- Updated Priority 18 wording to describe PR #3 as a previously stale branch
+  that was closed after accepted disposition.
+- Replaced the stale "only PR #42 and PR #43 remain open" evidence with the
+  current closure state.
+
+Why this change:
+- Completed stale-PR disposition work should not keep present-tense wording
+  that implies an old branch is still open or mergeable.
+
+Expected outcome:
+- Future backlog audits treat PR #3/#42/#43 as closed disposition history, not
+  active stale PR cleanup.
+- No runtime, campaign, strategy, gate, execution, or GitHub state changes.
+
+Verification:
+- SHOWN: `git diff --check` passed.
+- Tests not run: documentation-only wording correction.
+
+Remaining risk:
+- LOW: documentation correction only. Any old PR #3 execution/reconciliation
+  idea still requires a fresh current-master gap and separate high-risk review
+  before implementation.
+- Acceptance state: `ACCEPTED`.

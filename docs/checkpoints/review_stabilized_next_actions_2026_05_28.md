@@ -645,13 +645,14 @@ Risk:
 Status: complete as of 2026-06-19; PR #3 closed after accepted disposition
 
 Why it matters:
-- PR #3 is still open, dirty against `master`, and not tracked by the prior
-  top-priority checkpoint list.
-- The branch contains old execution cleanup, queue authority, paper scenario,
+- PR #3 was a dirty stale branch against `master` and was not tracked by the
+  prior top-priority checkpoint list before the disposition work.
+- The branch contained old execution cleanup, queue authority, paper scenario,
   live reconciler, and CI-collection fixes. Some of those topics have since
-  been independently rebuilt, but the branch still has patch-unique commits.
-- Leaving it open creates the same false backlog problem previously fixed for
-  superseded PR #10.
+  been independently rebuilt, but the branch had patch-unique commits that
+  needed disposition before closure.
+- Closing it after accepted disposition prevents the same false backlog problem
+  previously fixed for superseded PR #10.
 
 Current evidence:
 - SHOWN on 2026-06-19: PR #3 targets `master`, is not draft, and has merge
@@ -663,7 +664,10 @@ Current evidence:
   commits plus 2 merge commits.
 - SHOWN: PR #3 was closed on 2026-06-19 after the accepted disposition
   checkpoint was merged via PR #62.
-- SHOWN: only PR #42 and PR #43 remain open after the closure check.
+- SHOWN: the closure work log recorded `gh pr view 3` returning
+  `state=CLOSED` and `closed=true`.
+- SHOWN: PR #42 and PR #43 were later closed after the accepted PR #43
+  disposition path, so no stale PR #3/#42/#43 merge candidate remains open.
 - SHOWN: the branch touches high-risk execution and live reconciliation files
   including `services/execution/live_reconciler.py`,
   `services/execution/intent_consumer.py`, `services/execution/paper_engine.py`,
