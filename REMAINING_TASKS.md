@@ -50,31 +50,32 @@ deployment work still needs independent review.
    sandbox/testnet venue, or record an explicit human exception decision.
 4. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
-5. Verify the next fresh signal records include spread/depth evidence when
-   tick data is fresh; the implementation is accepted, but fresh stamped
-   records still need to be observed.
-6. Continue only the still-open PR #43 rebuild candidates from clean `master`:
+5. Continue only the still-open PR #43 rebuild candidates from clean `master`:
    AI operator alerting/oversight, managed multi-symbol paper runtime, and
    safe pipeline wrapper/startup hardening. Supervised-soak reporting and
    durable pipeline log evidence are already rebuilt/closed.
-7. Run the full post-fix isolated Stage 0 proof for
+6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
-8. Design a backtestable composite/hybrid strategy wrapper before combining
+7. Design a backtestable composite/hybrid strategy wrapper before combining
    strategies in production paths.
-9. Continue accepted short/context follow-through: resolve the Binance
+8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or
    accepted public row families until that proof exists.
-10. Continue the derivatives/intraday roadmap as read-only data collection and
-    replay only until compliance, margin, liquidation, reduce-only, and risk
-    controls are proven.
-11. Complete Hetzner host follow-through before any canonical `.cbp_state`
+9. Continue the derivatives/intraday roadmap as read-only data collection and
+   replay only until compliance, margin, liquidation, reduce-only, and risk
+   controls are proven.
+10. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: backup restore rehearsal, disk/health alerting, single-owner
     proof, and reviewed stop-copy-verify-start procedure.
-12. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
+11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 
 ## Recently completed
+- Shadow spread fresh-record proof is complete:
+  `docs/checkpoints/shadow_spread_fresh_record_proof_2026_06_24.md` records
+  `9/9` fresh `es_daily_trend_v1` signal records with `spread_bps` and
+  `market_quality_reason=ok`.
 - PR #43 rebuild follow-up narrowed:
   `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md` records
   supervised-soak reporting and durable pipeline log evidence as closed, while

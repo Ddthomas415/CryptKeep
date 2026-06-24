@@ -143,7 +143,8 @@ Risk:
 
 ## Priority 5 - Prepare Shadow Gate Before Paper Clears
 
-Status: implementation accepted; fresh-record verification pending
+Status: complete as of 2026-06-24; fresh signal records observed with
+`spread_bps`
 
 Why it matters:
 - Paper gate is close enough that shadow tooling should be validated before the
@@ -177,14 +178,24 @@ Acceptance evidence:
 - `4c414b256` recorded operator acceptance of the shadow spread evidence fix.
 - `64bd86e54` later merged PR #51 to scope shadow-gate readiness to active
   shadow-stage evidence.
+- `docs/checkpoints/shadow_spread_fresh_record_proof_2026_06_24.md` records
+  fresh `es_daily_trend_v1` public-OHLCV records with spread evidence.
+
+Fresh-record proof:
+- SHOWN: `.cbp_state/data/evidence/es_daily_trend_v1/signal_2026-06-24.jsonl`
+  contains `9` signal records.
+- SHOWN: all `9` records include `spread_bps`.
+- SHOWN: all `9` records include `market_quality_reason=ok`.
 
 Next action:
-- Let a fresh evidence run create signal records when tick data is fresh, then
-  verify the new records contain `spread_bps`.
 - Do not treat historical unstamped signal records as sufficient shadow proof.
+- When the strategy enters shadow stage, collect separate shadow-stage signal
+  logs and evaluate the full shadow checklist against those records.
 
 Risk:
-- HIGH: promotion path and live-adjacent operational readiness.
+- HIGH: promotion path and live-adjacent operational readiness. This closes the
+  fresh-record stamping observation only; it does not complete a future
+  shadow-stage campaign.
 
 ## Priority 6 - `daily_loss_halt_pct` Wiring
 
