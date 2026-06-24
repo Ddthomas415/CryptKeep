@@ -1,6 +1,14 @@
 # Short Context Data Feasibility Audit - 2026-06-19
 
-Status: READY_FOR_INDEPENDENT_REVIEW
+Status: ACCEPTED
+
+Acceptance scope:
+- This audit is accepted as a read-only planning and feasibility record.
+- It does not authorize replay, paper short simulation, strategy routing,
+  derivatives execution, margin, leverage, or live trading changes.
+- The first implementation follow-through was accepted separately by PR #72,
+  which added read-only open-interest and order-book row support to the
+  crypto-edge collector/store/report path.
 
 ## Scope
 
@@ -196,12 +204,28 @@ Stop any implementation if:
 - The implementation requires a venue/jurisdiction assumption that has not been
   reviewed.
 
-## Next Action
+## Completed Follow-Through
 
-The smallest useful next implementation is still read-only:
-- add open-interest and order-book rows to the existing crypto-edge collector
-  and store, with per-symbol checks and explicit provenance.
+PR #72 added read-only open-interest and order-book rows to the existing
+crypto-edge collector/store/report path, with per-symbol checks and explicit
+research-only flags.
 
-That implementation would be high risk because it expands research data
-collection for future financial strategy decisions. It must stop at
-`READY_FOR_INDEPENDENT_REVIEW`.
+Accepted proof after PR #72:
+- deterministic sample proof persisted funding, open-interest, basis, quote,
+  and order-book rows with `research_only=true` and `execution_enabled=false`;
+- live-public proof collected Coinbase/Kraken quote rows and Coinbase
+  order-book rows with `research_only=true` and `execution_enabled=false`;
+- Binance derivatives rows remained blocked: guard-disabled runs were blocked
+  by the Binance guard, and guard-enabled Binance-only proof collected no rows
+  because exchange open failed with `NetworkError`.
+
+## Current Next Action
+
+If derivatives context is needed, resolve the Binance public-data
+`NetworkError` or choose another compliant read-only derivatives venue after
+account/compliance review.
+
+Do not use the new rows in replay analysis unless the replay is explicitly
+limited to deterministic sample data or to row families with accepted
+public-data proof. Any signal replay, paper short simulation, routing, margin,
+leverage, or execution work remains a separate high-risk task.

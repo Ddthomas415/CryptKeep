@@ -1,6 +1,14 @@
 # Short-Market Strategy Research Spec - 2026-06-19
 
-Status: READY_FOR_INDEPENDENT_REVIEW
+Status: ACCEPTED
+
+Acceptance scope:
+- This spec is accepted as the research and governance path for short-market
+  strategy work.
+- It does not authorize short orders, derivatives execution, margin, leverage,
+  promotion-gate changes, or active campaign changes.
+- The requested feasibility audit was completed in
+  `docs/checkpoints/short_context_data_feasibility_audit_2026_06_19.md`.
 
 ## Purpose
 
@@ -228,17 +236,29 @@ Stop short-side work if any of these are true:
 - Paper simulation would write into canonical long/flat campaign state.
 - The work requires live credentials or trade permissions before Stage 4.
 
-## Next Action
+## Completed Follow-Through
 
-Run a read-only feasibility audit for existing short/context modules:
+The read-only feasibility audit for existing short/context modules is complete:
 - `funding_extreme`
 - `open_interest_shift`
 - `order_book_imbalance`
 - market-data funding/open-interest/liquidation scaffolding
 
-The audit should answer one question:
-- Which read-only data collectors and provenance fields are missing before a
-  short-side signal replay can be trusted?
+The audit selected the read-only crypto-edge collector as the safe base and
+identified the missing collectors, provenance fields, storage rows, and replay
+boundaries needed before short-side signal replay can be trusted.
+
+## Current Next Action
+
+Continue only from accepted read-only evidence:
+- use deterministic sample data or accepted public row families for any replay
+  prototype;
+- resolve Binance derivatives public-data collection or select another
+  compliant read-only derivatives venue before relying on funding,
+  open-interest, or basis rows;
+- keep all sell-to-open-short intent explicit and separate from sell-to-exit;
+- do not route any short/context signal to paper or execution without a
+  separate high-risk review.
 
 Acceptance state:
-- READY_FOR_INDEPENDENT_REVIEW
+- ACCEPTED

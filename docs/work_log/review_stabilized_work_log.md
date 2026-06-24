@@ -8476,3 +8476,63 @@ Remaining risk:
 - Acceptance reference: human operator independently reviewed and accepted in
   the Codex session after PR #113 implementation commit
   `614bae6e7a1ab5a16129c00b5b919ecfc5a12ef6`.
+
+## 2026-06-24T02:53:03Z - Align Short Context Backlog State
+
+Active role: ENGINEER
+
+Objective:
+- Remove a stale backlog instruction that still asked operators to run the
+  short-side feasibility audit after that audit and its first accepted
+  read-only follow-through had already landed.
+
+What was found:
+- SHOWN: `docs/checkpoints/short_context_data_feasibility_audit_2026_06_19.md`
+  already exists and documents the read-only short/context feasibility audit.
+- SHOWN: work-log entry `2026-06-19T18:44:46Z` recorded the feasibility audit
+  as completed.
+- SHOWN: Priority 12 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` now reports
+  the collector/store extension accepted, sample and spot-context proofs
+  complete, and Binance derivatives context blocked.
+- SHOWN: work-log entries for PR #72 record accepted open-interest and
+  order-book row support plus deterministic sample and live-public partial
+  proofs.
+- SHOWN: `REMAINING_TASKS.md` still said to run the feasibility audit, which
+  was stale.
+
+What changed:
+- Marked the short-market research spec and short-context feasibility audit as
+  accepted planning/audit artifacts while keeping their no-execution scopes
+  explicit.
+- Updated both documents' next-action sections to point at the current
+  remaining work: deterministic/accepted-public replay only, derivatives
+  public-data proof, and no short/context routing without separate review.
+- Replaced the stale backlog item with the current short/context follow-up and
+  added the completed feasibility audit to `REMAINING_TASKS.md`.
+
+Why this change:
+- The task index should not ask the operator or future agents to repeat an
+  audit that is already present and accepted in the repo.
+- Preserving the remaining blockers prevents the correction from implying that
+  derivatives data, replay, paper short simulation, or execution are ready.
+
+Expected outcome:
+- Future proactive work starts from the correct short/context state: feasibility
+  audit complete, read-only row support accepted, deterministic and partial
+  public proofs recorded, Binance derivatives data still blocked.
+- No strategy routing, paper execution, promotion-gate behavior, credentials,
+  campaign ownership, or live behavior changes.
+
+Verification:
+- SHOWN: `rg -n "Run the read-only short-side feasibility audit|READY_FOR_INDEPENDENT_REVIEW|Acceptance state|Current Next Action|Completed Follow-Through|short-side feasibility audit is complete" REMAINING_TASKS.md docs/checkpoints/short_context_data_feasibility_audit_2026_06_19.md docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md`
+  no longer found the stale active-backlog instruction.
+- SHOWN: `git diff --check` passed.
+- Tests not run: documentation-only backlog/status alignment with no source,
+  config, runtime, gate, or campaign behavior modified.
+
+Remaining risk:
+- HIGH: derivatives, shorting, leverage, margin, liquidation risk, replay
+  analysis, paper short simulation, and future order-routing behavior remain
+  separate high-risk workstreams.
+- Acceptance state: `ACCEPTED`.
