@@ -8592,3 +8592,66 @@ Remaining risk:
   status still requires the accepted remote status command when intentionally
   needed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-24T03:02:24Z - Narrow PR #43 Rebuild Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Replace the broad active PR #43 rebuild instruction with a current-master
+  follow-up status that separates completed rebuild work from still-open
+  candidates.
+
+What was found:
+- SHOWN: `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
+  grouped PR #43 rebuild work into AI operator alerting/oversight, safe runtime
+  wrappers and bot topology, managed multi-symbol paper runtime, and
+  supervised-soak reporting.
+- SHOWN: `scripts/report_supervised_soak_status.py` exists.
+- SHOWN: `tests/test_report_supervised_soak_status.py` exists.
+- SHOWN: `scripts/SCRIPTS.md` lists `report_supervised_soak_status.py` with
+  `make status-paper-soak` and `make status-paper-soak-json`.
+- SHOWN: work-log entry `2026-06-19T17:09:24Z` records supervised-soak
+  reporting as rebuilt and accepted.
+- SHOWN: PR #109 closed durable supervised pipeline log evidence.
+- SHOWN: current source does not contain `scripts/run_ai_alert_monitor.py`,
+  `scripts/run_ai_oversight_watch.py`,
+  `services/ai_copilot/alert_monitor.py`,
+  `services/ai_copilot/oversight_watch.py`,
+  `services/runtime/managed_symbol_config.py`,
+  `services/runtime/managed_symbol_selection.py`, or
+  `scripts/run_pipeline_safe.py`.
+
+What changed:
+- Added `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`.
+- Updated `REMAINING_TASKS.md` so PR #43 follow-up no longer treats
+  supervised-soak reporting or pipeline log evidence as active work.
+- Updated Priority 9 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to list the
+  still-open rebuild candidates and their preconditions.
+
+Why this change:
+- The accepted PR #43 disposition remains useful, but the active backlog should
+  not point future work at groups already rebuilt or closed.
+- Narrowing the task reduces the risk of reviving stale branch code or mixing
+  unrelated runtime surfaces in one PR.
+
+Expected outcome:
+- Future PR #43 follow-up starts from a single scoped candidate: AI alerting,
+  managed multi-symbol runtime, or safe-pipeline wrapper/startup hardening.
+- No runtime, campaign, gate, strategy, dashboard, or execution behavior
+  changes.
+
+Verification:
+- SHOWN: source-existence check found the supervised-soak report/test present
+  and the AI alert/oversight, managed-symbol, and safe-pipeline source files
+  absent.
+- SHOWN: `git diff --check` passed.
+- Tests not run: documentation-only backlog/status alignment.
+
+Remaining risk:
+- HIGH: future implementation of any remaining PR #43 rebuild candidate may
+  affect background jobs, runtime supervision, startup topology,
+  multi-symbol campaign ownership, or operator alerting. This change is
+  planning-only.
+- Acceptance state: `ACCEPTED`.

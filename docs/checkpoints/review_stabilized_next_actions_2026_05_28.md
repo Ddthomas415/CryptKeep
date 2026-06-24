@@ -299,14 +299,28 @@ Current evidence:
   checkpoint was merged via PR #64.
 - SHOWN: no open PRs remained after PR #42 and PR #43 were closed.
 
+Current follow-up status:
+- SHOWN: supervised-soak reporting was rebuilt and accepted through
+  `scripts/report_supervised_soak_status.py` and
+  `tests/test_report_supervised_soak_status.py`.
+- SHOWN: durable supervised pipeline log evidence was rebuilt and accepted by
+  PR #109.
+- SHOWN: the current source tree still does not contain the old PR #43 AI
+  alert/oversight source files, managed-symbol source files, or
+  `scripts/run_pipeline_safe.py`.
+
 Next action:
-- Rebuild only accepted `rebuild` groups from current `master`:
-  1. AI alert monitor and operator watch layer.
-  2. Managed multi-symbol paper runtime.
-  3. Safe pipeline wrapper and startup hardening.
-  4. Any remaining dashboard/report surfaces not already rebuilt.
-- Keep live execution, auth gates, and runtime supervisor changes out of the
-  same PR unless they are required for the specific rebuild.
+- Rebuild only one still-open candidate group at a time from current `master`:
+  1. AI alert monitor and operator oversight, only if current paper-sim watches
+     and reports are insufficient for operator wake-up needs.
+  2. Managed multi-symbol paper runtime, only after campaign ownership and
+     evidence isolation are explicitly scoped.
+  3. Safe pipeline wrapper and startup hardening, only after a current-master
+     startup or fail-closed gap is reproduced.
+- Keep live execution, auth gates, and unrelated runtime supervisor changes out
+  of the same PR unless they are required for the specific rebuild.
+- See
+  `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`.
 
 Risk:
 - HIGH: the old branch mixes operator observability with live execution and
