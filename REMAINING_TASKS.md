@@ -3,26 +3,26 @@
 This file is a lightweight index only.
 
 ## Current state
-As of 2026-06-21, the active operating state is paper-evidence collection, not
+As of 2026-06-24, the active operating state is paper-evidence collection, not
 live launch.
 
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned through
   reviewed PRs.
 - Laptop-owned paper campaigns are healthy:
-  - `es_daily_trend_v1`
-  - `breakout_default`
-- Hetzner-owned `ema_cross_default` is healthy and must be checked with the
-  Hetzner campaign manifest, not the laptop shortcut.
-- Canonical `es_daily_trend_v1` paper promotion remains blocked at `1/10`
-  provenance-qualified round trips, with `9` remaining.
-- Raw all-history currently reports `8` closed trades, but those remain
+  - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
+  - `breakout_default`: `fills=9`, `closed=4`, `pnl=-2.2281`
+- Hetzner-owned `ema_cross_default` must be checked with the Hetzner campaign
+  manifest, not the laptop shortcut.
+- Canonical `es_daily_trend_v1` paper promotion remains blocked at `2/10`
+  provenance-qualified round trips, with `8` remaining.
+- Raw all-history currently reports `9` closed trades, but those remain
   diagnostic unless both entry and exit fills carry the required non-sample
   public-OHLCV provenance.
 
 Current accepted checkpoint:
 
-- docs/checkpoints/paper_gate_status_2026_06_21.md
+- docs/checkpoints/paper_gate_status_2026_06_24.md
 
 ## Canonical blocker list
 Root-runtime launch blockers are tracked separately. They are not the same as
@@ -74,6 +74,10 @@ deployment work still needs independent review.
     whenever operator commands or workflow change.
 
 ## Recently completed
+- Paper gate snapshot refreshed:
+  `docs/checkpoints/paper_gate_status_2026_06_24.md` records local laptop
+  campaigns healthy, canonical `es_daily_trend_v1` at `2/10`
+  provenance-qualified round trips, and manual review still required.
 - Short-side feasibility audit is complete:
   `docs/checkpoints/short_context_data_feasibility_audit_2026_06_19.md`
   selected the read-only crypto-edge collector as the safe base; PR #72 then

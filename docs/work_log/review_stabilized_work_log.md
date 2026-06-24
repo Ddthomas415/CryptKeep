@@ -8536,3 +8536,59 @@ Remaining risk:
   analysis, paper short simulation, and future order-routing behavior remain
   separate high-risk workstreams.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-24T03:00:00Z - Refresh Paper Gate Status Snapshot
+
+Active role: ENGINEER
+
+Objective:
+- Update the lightweight task index with the current local laptop paper-gate
+  status after the previous snapshot became stale.
+
+What was found:
+- SHOWN: `make status-paper-soak` is local-only and calls
+  `scripts/report_supervised_soak_status.py` with the laptop campaign
+  manifest.
+- SHOWN: `make status-paper-soak` reported `Campaigns: 2/2 running
+  (all_running=True)`.
+- SHOWN: `es_daily_trend_v1` reported `fills=18`, `closed=9`, and
+  `pnl=32.1776`.
+- SHOWN: `breakout_default` reported `fills=9`, `closed=4`, and `pnl=-2.2281`.
+- SHOWN: the canonical paper gate reported `2/10` provenance-qualified round
+  trips, `8` remaining, `50/30` days, and manual review still required.
+- SHOWN: raw all-history reported `9` closed trades, but the gate still treated
+  7 all-history round trips as diagnostic-only and reported `9/14` JSONL fills
+  lacking or mismatching required provenance.
+- UNVERIFIED: Hetzner-owned `ema_cross_default` status was not checked by this
+  local-only command.
+
+What changed:
+- Added `docs/checkpoints/paper_gate_status_2026_06_24.md` as a read-only
+  status snapshot.
+- Updated `REMAINING_TASKS.md` current state from the stale June 21 `1/10`
+  gate count to the June 24 local `2/10` gate count.
+- Preserved the distinction between provenance-qualified gate progress and raw
+  diagnostic all-history trade count.
+
+Why this change:
+- Operators were seeing active gate changes in the command output while the
+  task index still displayed the older `1/10` state.
+- Capturing the current snapshot in a checkpoint keeps the repo evidence trail
+  visible without requiring chat history.
+
+Expected outcome:
+- The top-level backlog now reflects current local paper-gate progress:
+  `2/10`, `8` remaining, days satisfied, manual review still required.
+- No campaign, gate, strategy, remote host, or execution behavior changes.
+
+Verification:
+- SHOWN: `make status-paper-soak` returned exit code `0` with the values above.
+- SHOWN: `git diff --check` passed.
+- Tests not run: documentation-only status snapshot with no source, config,
+  runtime, gate, or campaign behavior modified.
+
+Remaining risk:
+- MEDIUM: this is a point-in-time local laptop snapshot only. Hetzner remote
+  status still requires the accepted remote status command when intentionally
+  needed.
+- Acceptance state: `ACCEPTED`.
