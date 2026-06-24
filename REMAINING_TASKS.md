@@ -60,9 +60,10 @@ deployment work still needs independent review.
    `pullback_recovery_default` before enabling any persistent campaign.
 8. Design a backtestable composite/hybrid strategy wrapper before combining
    strategies in production paths.
-9. Run the read-only short-side feasibility audit for `funding_extreme`,
-    `open_interest_shift`, `order_book_imbalance`, and missing context
-    provenance fields.
+9. Continue accepted short/context follow-through: resolve the Binance
+   derivatives public-data `NetworkError` or choose a compliant read-only
+   derivatives venue, and keep replay limited to deterministic sample data or
+   accepted public row families until that proof exists.
 10. Continue the derivatives/intraday roadmap as read-only data collection and
     replay only until compliance, margin, liquidation, reduce-only, and risk
     controls are proven.
@@ -73,6 +74,11 @@ deployment work still needs independent review.
     whenever operator commands or workflow change.
 
 ## Recently completed
+- Short-side feasibility audit is complete:
+  `docs/checkpoints/short_context_data_feasibility_audit_2026_06_19.md`
+  selected the read-only crypto-edge collector as the safe base; PR #72 then
+  added accepted open-interest and order-book row support without enabling
+  replay, paper short simulation, routing, or execution.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable
