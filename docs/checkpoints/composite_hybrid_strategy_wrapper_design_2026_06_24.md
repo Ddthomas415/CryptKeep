@@ -1,6 +1,6 @@
 # Composite Hybrid Strategy Wrapper Design - 2026-06-24
 
-Status: READY_FOR_INDEPENDENT_REVIEW
+Status: ACCEPTED
 
 ## Purpose
 
@@ -241,7 +241,10 @@ Reason:
 This design is HIGH risk because it affects future financial strategy
 selection and may later influence paper, shadow, sandbox, or live behavior.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+Acceptance state: ACCEPTED.
 
-No runtime implementation should start until this design is independently
-reviewed and accepted or revised.
+Acceptance reference: independently reviewed and accepted by the human operator
+on 2026-06-24 in the Codex session after draft PR #119 checks passed.
+
+Implementation should start with pure combiner tests and remain research-only
+until separate backtest and paper-campaign evidence is reviewed.

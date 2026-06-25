@@ -8817,4 +8817,65 @@ Verification:
 Remaining risk:
 - HIGH: future implementation would affect financial strategy selection and
   potentially paper, shadow, sandbox, or live behavior.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-24 in the Codex session after draft PR #119 checks
+  passed.
+
+## 2026-06-24T03:32:00Z - Accept Composite Hybrid Wrapper Design
+
+Active role: ENGINEER
+
+Objective:
+- Record human acceptance of the composite/hybrid strategy wrapper design and
+  move the backlog to the first implementation-proof step.
+
+What was found:
+- SHOWN: PR #119 was open as a draft PR from `review-stabilized` into
+  `master`.
+- SHOWN: PR #119 checks reported 7 passing checks.
+- SHOWN: the local branch was clean and synced with `origin/review-stabilized`
+  before this acceptance update.
+- SHOWN: `make status-paper-soak` reported both laptop campaigns running.
+- SHOWN: canonical `es_daily_trend_v1` gate progress remained `2/10`
+  provenance-qualified round trips with `8` remaining.
+
+What changed:
+- Updated
+  `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`
+  from `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+- Updated `REMAINING_TASKS.md` so the next composite/hybrid task is pure
+  combiner tests before leaderboard, paper, or production activation.
+- Updated Priority 13 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to mark the
+  design accepted and keep implementation staged.
+- Updated the prior work-log entry with the human acceptance reference.
+
+Why this change:
+- The design was high risk and could not be accepted by the same implementation
+  thread without human review.
+- The human operator explicitly provided `INDEPENDENTLY_REVIEWED AND ACCEPTED`.
+- The next safe step is isolated combiner proof, not runtime activation.
+
+Expected outcome:
+- PR #119 can be moved out of draft after this acceptance update.
+- Future implementation remains constrained to pure combiner tests first.
+- No campaign, gate, order routing, candidate-advisor, short-side, or live
+  behavior changes.
+
+Verification:
+- `make status-paper-soak`
+  - SHOWN: `Campaigns: 2/2 running`, `es_daily_trend_v1` at `2/10`
+    provenance-qualified round trips, and `manual_review_required=True`.
+- `gh pr checks 119`
+  - SHOWN: 7 checks passing before this acceptance update.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests not run: documentation-only acceptance/status update. No source,
+  config, gate, campaign, or runtime behavior was changed.
+
+Remaining risk:
+- HIGH: future composite/hybrid implementation remains financial strategy
+  logic and must stay review-gated before any paper, shadow, sandbox, or live
+  activation.
+- Acceptance state: `ACCEPTED`.

@@ -439,7 +439,7 @@ Risk:
 
 Status: `pullback_recovery` plan accepted; attribution fix merged; full
 post-fix Stage 0 rerun pending operator execution; composite/hybrid wrapper
-design ready for independent review
+design accepted
 
 Why it matters:
 - `pullback_recovery` is already coded and wired into the strategy registry.
@@ -454,10 +454,10 @@ Next action:
 - Run only the full post-fix Stage 0 isolated one-shot proof for
   `pullback_recovery_default` when the operator is ready for a 15-minute
   command. Do not enable a persistent daily campaign until that proof passes.
-- Independently review
-  `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`
-  before implementing any composite/hybrid strategy wrapper. The design
-  recommends a confirmation-gate wrapper before weighted voting.
+- Implement the accepted composite/hybrid design's first step as pure
+  combiner tests for a confirmation-gate wrapper. Do not add a leaderboard
+  row, persistent paper campaign, or production path until the combiner proof
+  and follow-up backtest proof are reviewed.
 - Track candlestick recognition as a later versioned strategy such as
   `candlestick_reversal_v1`, after `pullback_recovery` has a baseline.
 - Treat `order_book_imbalance`, `open_interest_shift`, and `funding_extreme` as
