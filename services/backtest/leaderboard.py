@@ -5,7 +5,11 @@ from statistics import pstdev
 from typing import Any, Dict, Iterable, List
 
 from services.backtest.parity_engine import run_parity_backtest
+from services.strategies.composite_hybrid import MODE_CONFIRMATION_GATE, STRATEGY_ID as COMPOSITE_HYBRID_STRATEGY_ID
 from services.strategies.presets import apply_preset
+
+
+COMPOSITE_HYBRID_RESEARCH_CANDIDATE = "composite_hybrid_v1_breakout_sma200_research"
 
 
 def _fnum(value: Any, default: float = 0.0) -> float:
@@ -59,12 +63,30 @@ def _thin_sample_penalty(row: Dict[str, Any]) -> float:
     return 0.0
 
 
+def _preset_strategy_block(base_cfg: Dict[str, Any], preset_name: str) -> Dict[str, Any]:
+    cfg = apply_preset(dict(base_cfg or {}), preset_name)
+    return dict(cfg.get("strategy") or {})
+
+
+def _composite_hybrid_research_cfg(base_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    cfg = dict(base_cfg or {})
+    cfg["strategy"] = {
+        "name": COMPOSITE_HYBRID_STRATEGY_ID,
+        "mode": MODE_CONFIRMATION_GATE,
+        "research_only": True,
+        "primary": _preset_strategy_block(base_cfg, "breakout_default"),
+        "confirmer": _preset_strategy_block(base_cfg, "es_daily_trend_v1"),
+    }
+    return cfg
+
+
 def default_strategy_candidates(base_cfg: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
     cfg = dict(base_cfg or {})
     return [
         {"candidate": "ema_cross_default", "cfg": apply_preset(cfg, "ema_cross_default")},
         {"candidate": "mean_reversion_default", "cfg": apply_preset(cfg, "mean_reversion_default")},
         {"candidate": "breakout_default", "cfg": apply_preset(cfg, "breakout_default")},
+        {"candidate": COMPOSITE_HYBRID_RESEARCH_CANDIDATE, "cfg": _composite_hybrid_research_cfg(cfg)},
         {"candidate": "momentum_default", "cfg": apply_preset(cfg, "momentum_default")},
         {"candidate": "pullback_recovery_default", "cfg": apply_preset(cfg, "pullback_recovery_default")},
         {"candidate": "sma_200_trend_default", "cfg": apply_preset(cfg, "es_daily_trend_v1")},
