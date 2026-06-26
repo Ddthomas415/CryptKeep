@@ -9000,3 +9000,60 @@ Remaining risk:
   and must stop for independent review before any leaderboard, paper, shadow,
   sandbox, or live activation.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-26T19:27:21Z - Composite Hybrid Research Parity Proof
+
+Active role: ENGINEER
+
+Objective:
+- Add research-only parity backtest integration for the accepted
+  `composite_hybrid_v1` confirmation-gate combiner without registering it for
+  runtime strategy dispatch.
+
+What was found:
+- SHOWN: `services/backtest/parity_engine.py` feeds expanding OHLCV windows
+  into `strategy_registry.compute_signal()`.
+- SHOWN: the accepted pure combiner lives in
+  `services/strategies/composite_hybrid.py`.
+- SHOWN: `services/strategies/strategy_registry.py` does not register
+  `composite_hybrid_v1`.
+- SHOWN: the accepted design says parity backtest integration is the next step
+  after pure combiner acceptance.
+
+What changed:
+- Updated `services/backtest/parity_engine.py` to support explicit
+  `composite_hybrid_v1` configs in research backtests.
+- Composite backtests compute child signals through the existing registry
+  path, then pass those child signals into the pure confirmation-gate combiner.
+- Preserved the SMA-200 flat-signal backtest exit translation for both
+  top-level `sma_200_trend` and SMA child signals inside the composite wrapper.
+- Added `tests/test_composite_hybrid_parity.py`.
+- Updated the composite design checkpoint, Priority 13, active backlog, and
+  work log to mark the parity proof ready for independent review.
+
+Why this change:
+- The accepted design requires the wrapper to prove backtest compatibility
+  before any leaderboard row, paper campaign, or production wiring.
+- Keeping the integration inside `services/backtest/parity_engine.py` avoids
+  runtime strategy registration and keeps this proof research-only.
+- Testing with monkeypatched child signals verifies the orchestration contract
+  without relying on market-data fixture luck.
+
+Expected outcome:
+- Operators can evaluate an explicit `composite_hybrid_v1` config through the
+  parity backtest path for research.
+- The wrapper remains unavailable to normal runtime strategy selection.
+- No campaign, gate, leaderboard, candidate-advisor, paper, shadow, sandbox, or
+  live behavior changes.
+
+Verification:
+- `python3 -m pytest -q tests/test_composite_hybrid.py tests/test_composite_hybrid_parity.py tests/test_backtest_parity_engine.py`
+  - SHOWN: `17 passed in 0.26s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: this is financial strategy decision logic. It is research-only and
+  unregistered, but any leaderboard row, paper campaign, or production wiring
+  must remain independently reviewed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

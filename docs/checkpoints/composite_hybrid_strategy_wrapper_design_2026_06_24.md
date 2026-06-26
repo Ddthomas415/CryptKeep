@@ -41,8 +41,15 @@ SHOWN after pure-combiner proof:
   and that the wrapper is not registered as a runtime strategy.
 - PR #120 checks passed before human acceptance.
 
+SHOWN after research parity proof:
+- `services/backtest/parity_engine.py` can evaluate explicit
+  `composite_hybrid_v1` configs in research backtests.
+- `tests/test_composite_hybrid_parity.py` proves the parity engine calls child
+  strategies through the existing registry path, emits composite trades, keeps
+  the wrapper unregistered from runtime strategy dispatch, and translates an
+  SMA-200 child `flat` signal into a composite exit while a long is open.
+
 UNVERIFIED:
-- No parity backtest integration has been implemented or accepted.
 - No accepted baseline proves that any composite beats its strongest child
   strategy after costs, slippage, drawdown, and regime checks.
 - No leaderboard row or persistent campaign has been accepted for a composite
@@ -216,7 +223,9 @@ Required:
    - complete and independently accepted.
    - child-signal inputs are tested without market data or order routing.
 3. Parity backtest integration:
-   - run the wrapper through `run_parity_backtest()` on deterministic candles.
+   - complete, pending independent implementation review.
+   - `run_parity_backtest()` supports explicit `composite_hybrid_v1` configs
+     without registering the wrapper as a runtime strategy.
 4. Leaderboard research row:
    - add a research-only candidate after backtest proof is accepted.
 5. Isolated paper proof:
