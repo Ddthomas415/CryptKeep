@@ -48,6 +48,8 @@ SHOWN after research parity proof:
   strategies through the existing registry path, emits composite trades, keeps
   the wrapper unregistered from runtime strategy dispatch, and translates an
   SMA-200 child `flat` signal into a composite exit while a long is open.
+- PR #121 checks passed, was independently accepted by the human operator, and
+  merged to `master` as `7ab2cb66a` on 2026-06-26.
 
 UNVERIFIED:
 - No accepted baseline proves that any composite beats its strongest child
@@ -223,7 +225,7 @@ Required:
    - complete and independently accepted.
    - child-signal inputs are tested without market data or order routing.
 3. Parity backtest integration:
-   - complete, pending independent implementation review.
+   - complete and independently accepted.
    - `run_parity_backtest()` supports explicit `composite_hybrid_v1` configs
      without registering the wrapper as a runtime strategy.
 4. Leaderboard research row:
@@ -269,3 +271,9 @@ Pure combiner implementation proof is complete and accepted by the human
 operator on 2026-06-26 after PR #120 checks passed. The wrapper remains
 unregistered and research-only until separate backtest and paper-campaign
 evidence is reviewed.
+
+Parity backtest implementation proof is complete and accepted by the human
+operator on 2026-06-26 after PR #121 checks passed and merged as `7ab2cb66a`.
+The next permitted stage is a research-only leaderboard row; persistent paper,
+shadow, sandbox, or live wiring remains blocked until that row is separately
+reviewed.

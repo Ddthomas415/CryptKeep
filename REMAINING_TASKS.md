@@ -3,12 +3,11 @@
 This file is a lightweight index only.
 
 ## Current state
-As of 2026-06-24, the active operating state is paper-evidence collection, not
-live launch.
+The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned through
-  reviewed PRs.
+  reviewed PRs through PR #122.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
   - `breakout_default`: `fills=9`, `closed=4`, `pnl=-2.2281`
@@ -16,6 +15,8 @@ SHOWN:
   manifest, not the laptop shortcut.
 - Canonical `es_daily_trend_v1` paper promotion remains blocked at `2/10`
   provenance-qualified round trips, with `8` remaining.
+- `make status-paper-gate-qualification` now explains which fills count,
+  remain incomplete, or are rejected by provenance checks.
 - Raw all-history currently reports `9` closed trades, but those remain
   diagnostic unless both entry and exit fills carry the required non-sample
   public-OHLCV provenance.
@@ -57,9 +58,10 @@ deployment work still needs independent review.
    durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
-7. Independently review the composite/hybrid parity backtest proof before any
-   leaderboard research row. Do not add a leaderboard row, paper campaign, or
-   production path until the follow-up backtest proof is reviewed.
+7. Design and implement only a research leaderboard row for the accepted
+   composite/hybrid parity proof. Do not add a persistent paper campaign or
+   production path until the leaderboard comparison proof is independently
+   reviewed.
 8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or
