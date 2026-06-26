@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any, Callable, Dict, List
 
 from services.backtest.regimes import build_regime_scorecards, classify_market_regimes
 from services.backtest.scorecard import build_strategy_scorecard
 from services.execution.fill_model import apply_fee_slippage
+from services.strategies.composite_hybrid import MODE_CONFIRMATION_GATE, STRATEGY_ID, combine_confirmation_gate
 from services.strategies.strategy_registry import compute_signal
 
 
@@ -47,6 +49,100 @@ def _safe_ts_ms(v: Any) -> int | None:
         return int(v)
     except Exception:
         return None
+
+
+def _backtest_action(strategy_name: str, sig: Mapping[str, Any], *, position_open: bool) -> str:
+    action = str(sig.get("action") or "hold").lower().strip()
+    # Backtest-only: the live runner owns position state, while this simulator
+    # must translate the documented SMA flat signal into an exit when long.
+    if (
+        action == "hold"
+        and strategy_name == "sma_200_trend"
+        and bool(position_open)
+        and str(sig.get("signal") or "").lower().strip() == "flat"
+    ):
+        return "sell"
+    return action
+
+
+def _child_strategy_cfg(base_cfg: Mapping[str, Any], child_spec: Mapping[str, Any]) -> dict[str, Any]:
+    child_strategy = dict(child_spec)
+    child_strategy["emit_evidence"] = False
+    out = dict(base_cfg)
+    out["strategy"] = child_strategy
+    return out
+
+
+def _compute_composite_signal(
+    *,
+    cfg: Mapping[str, Any],
+    symbol: str,
+    ohlcv: List[list[Any]],
+    position_open: bool,
+) -> dict[str, Any]:
+    st = cfg.get("strategy") if isinstance(cfg.get("strategy"), Mapping) else {}
+    mode = str(st.get("mode") or MODE_CONFIRMATION_GATE).strip()
+    if mode != MODE_CONFIRMATION_GATE:
+        return {
+            "ok": True,
+            "action": "hold",
+            "strategy": STRATEGY_ID,
+            "symbol": str(symbol),
+            "reason": "unsupported_composite_mode",
+            "risk_flags": ["unsupported_composite_mode"],
+        }
+
+    primary_spec = st.get("primary")
+    confirmer_spec = st.get("confirmer")
+    if not isinstance(primary_spec, Mapping) or not isinstance(confirmer_spec, Mapping):
+        return {
+            "ok": True,
+            "action": "hold",
+            "strategy": STRATEGY_ID,
+            "symbol": str(symbol),
+            "reason": "invalid_composite_config",
+            "risk_flags": ["missing_primary_or_confirmer"],
+        }
+
+    primary_name = str(primary_spec.get("name") or "").strip()
+    confirmer_name = str(confirmer_spec.get("name") or "").strip()
+    if not primary_name or not confirmer_name:
+        return {
+            "ok": True,
+            "action": "hold",
+            "strategy": STRATEGY_ID,
+            "symbol": str(symbol),
+            "reason": "invalid_composite_config",
+            "risk_flags": ["missing_child_name"],
+        }
+
+    primary_signal = dict(
+        compute_signal(
+            cfg=_child_strategy_cfg(cfg, primary_spec),
+            symbol=str(symbol),
+            ohlcv=list(ohlcv),
+        )
+        or {}
+    )
+    confirmer_signal = dict(
+        compute_signal(
+            cfg=_child_strategy_cfg(cfg, confirmer_spec),
+            symbol=str(symbol),
+            ohlcv=list(ohlcv),
+        )
+        or {}
+    )
+    primary_signal["action"] = _backtest_action(primary_name, primary_signal, position_open=position_open)
+    confirmer_signal["action"] = _backtest_action(confirmer_name, confirmer_signal, position_open=position_open)
+
+    return combine_confirmation_gate(
+        symbol=str(symbol),
+        primary_name=primary_name,
+        primary_signal=primary_signal,
+        confirmer_name=confirmer_name,
+        confirmer_signal=confirmer_signal,
+        position_open=bool(position_open),
+    )
 
 
 def _max_drawdown_pct(equity: List[Dict[str, Any]]) -> float:
@@ -116,17 +212,16 @@ def run_parity_backtest(
             )
             continue
 
-        sig = compute_signal(cfg=signal_cfg, symbol=symbol_s, ohlcv=list(ohlcv))
-        action = str(sig.get("action") or "hold").lower().strip()
-        # Backtest-only: the live runner owns position state, while this simulator
-        # must translate the documented SMA flat signal into an exit when long.
-        if (
-            action == "hold"
-            and strategy_name == "sma_200_trend"
-            and pos_qty > 1e-12
-            and str(sig.get("signal") or "").lower().strip() == "flat"
-        ):
-            action = "sell"
+        if strategy_name == STRATEGY_ID:
+            sig = _compute_composite_signal(
+                cfg=signal_cfg,
+                symbol=symbol_s,
+                ohlcv=list(ohlcv),
+                position_open=pos_qty > 1e-12,
+            )
+        else:
+            sig = compute_signal(cfg=signal_cfg, symbol=symbol_s, ohlcv=list(ohlcv))
+        action = _backtest_action(strategy_name, sig, position_open=pos_qty > 1e-12)
         close_px = _fnum(row[4], 0.0)
         ts_ms = _safe_ts_ms(row[0])
         reason = str(sig.get("reason") or "")
