@@ -58,6 +58,7 @@ SHOWN after research leaderboard proof:
   with `breakout_donchian` as primary and `sma_200_trend` as confirmer.
 - `tests/test_backtest_leaderboard.py` proves the candidate appears in the
   default leaderboard set and remains absent from runtime strategy registry.
+- PR #124 checks passed before human acceptance on 2026-06-26.
 
 UNVERIFIED:
 - No accepted baseline proves that any composite beats its strongest child
@@ -238,10 +239,11 @@ Required:
    - `run_parity_backtest()` supports explicit `composite_hybrid_v1` configs
      without registering the wrapper as a runtime strategy.
 4. Leaderboard research row:
-   - implemented, pending independent implementation review.
+   - complete and independently accepted.
    - candidate ID: `composite_hybrid_v1_breakout_sma200_research`.
 5. Isolated paper proof:
-   - run a separate state directory only after the research row is accepted.
+   - run a separate state directory only after leaderboard comparison evidence
+     is accepted.
 
 ## Stop Conditions
 
@@ -286,6 +288,7 @@ Parity backtest implementation proof is complete and accepted by the human
 operator on 2026-06-26 after PR #121 checks passed and merged as `7ab2cb66a`.
 
 Research leaderboard row implementation proof is complete and ready for
-independent review as of 2026-06-26. Persistent paper, shadow, sandbox, or live
-wiring remains blocked until that row and its comparison evidence are
+independent review as of 2026-06-26. It was independently accepted by the
+human operator after PR #124 checks passed. Persistent paper, shadow, sandbox,
+or live wiring remains blocked until leaderboard comparison evidence is
 separately reviewed.

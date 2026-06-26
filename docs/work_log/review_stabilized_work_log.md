@@ -9234,4 +9234,52 @@ Remaining risk:
   research-only and unregistered for runtime, but any persistent paper campaign,
   shadow, sandbox, live, promotion, or order-routing use must remain separately
   reviewed.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-26 after PR #124 checks passed.
+
+## 2026-06-26T20:19:33Z - Accept Composite Hybrid Research Leaderboard Row
+
+Active role: GATE
+
+Objective:
+- Record human acceptance of the high-risk composite/hybrid research leaderboard
+  row before merging PR #124.
+
+What was found:
+- SHOWN: PR #124 checks passed: macOS build, Windows build, CI sanity, CI
+  validate, GitGuardian, and both governance smoke jobs.
+- SHOWN: the work log and checkpoints still described the row as pending
+  independent review.
+- SHOWN: the human operator provided `INDEPENDENTLY_REVIEWED AND ACCEPTED` in
+  the Codex session.
+
+What changed:
+- Updated the composite checkpoint, Priority 13, active backlog, and work log to
+  mark the research leaderboard row accepted.
+- Updated the next action to leaderboard comparison evidence review, while
+  preserving the block on persistent paper, shadow, sandbox, live, promotion, or
+  order-routing use.
+
+Why this change:
+- The accepted implementation should not be merged with stale
+  `READY_FOR_INDEPENDENT_REVIEW` governance text.
+- The next risk boundary is not implementation of the row; it is whether the
+  row's comparison evidence justifies any later campaign.
+
+Expected outcome:
+- PR #124 can merge with governance records already aligned.
+- Operators see the correct next task: compare the composite against child
+  strategies before any runtime or campaign expansion.
+
+Verification:
+- `gh pr checks 124`
+  - SHOWN: all 7 checks passed.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not rerun for this docs-only acceptance update.
+
+Remaining risk:
+- MEDIUM: governance/status-only update for high-risk strategy research work.
+  It records human acceptance but does not change source behavior.
+- Acceptance state: `ACCEPTED`.
