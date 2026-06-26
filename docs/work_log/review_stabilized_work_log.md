@@ -9057,3 +9057,67 @@ Remaining risk:
   unregistered, but any leaderboard row, paper campaign, or production wiring
   must remain independently reviewed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-06-26T19:37:00Z - Paper Gate Qualification Diagnostic
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only operator diagnostic that explains why the paper promotion
+  gate reports `2/10` provenance-qualified round trips while all-history paper
+  history reports more closed trades.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py` computes the round-trip gate
+  through `_paper_history_gate_summary(...)`, which delegates to
+  `services.control.paper_evidence_qualification.qualify_paper_history(...)`.
+- SHOWN: the canonical gate expects fill provenance:
+  `market_data_source=public_ohlcv`, `ohlcv_sample_mode=false`,
+  `ohlcv_timeframe=1d`, `ohlcv_venue=coinbase`, and
+  `ohlcv_symbol=BTC/USDT`.
+- SHOWN: current canonical evidence has `14` JSONL fills, `5` fills with
+  matching provenance, `4` fills that form complete qualified round trips, and
+  `2` provenance-qualified closed round trips.
+- SHOWN: the `9` rejected legacy fills are dated 2026-04-20, 2026-05-15, and
+  2026-05-18 and lack all required market-data provenance fields.
+- SHOWN: the 2026-05-26 qualified sell fill does not count because its entry
+  leg was from an unqualified pre-provenance cycle.
+
+What changed:
+- Added `services/control/paper_gate_qualification_report.py`.
+- Added `scripts/report_paper_gate_qualification.py`.
+- Added `make status-paper-gate-qualification` and
+  `make status-paper-gate-qualification-json`.
+- Added `tests/test_paper_gate_qualification_report.py`.
+- Documented the new read-only diagnostic in `scripts/SCRIPTS.md`.
+
+Why this change:
+- The existing status output gives aggregate counts but does not list each fill
+  with its count/reject/incomplete reason.
+- A fill-level report lets operators distinguish strategy inactivity from
+  provenance filtering without weakening the promotion gate or backfilling old
+  unqualified history.
+
+Expected outcome:
+- Operators can run one read-only command to see exactly which fills count
+  toward the gate and why other fills do not.
+- No promotion threshold, qualification rule, campaign, order routing, journal,
+  or evidence-writing behavior changes.
+
+Verification:
+- `python3 -m pytest -q tests/test_paper_gate_qualification_report.py`
+  - SHOWN: `2 passed in 0.13s`.
+- `python3 -m py_compile services/control/paper_gate_qualification_report.py scripts/report_paper_gate_qualification.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `make status-paper-gate-qualification`
+  - SHOWN: report returned `qualified=2`, `all_history=9`, `counted=4`,
+    `incomplete=1`, `rejected=9`, and listed each rejected/incomplete/counting
+    fill with exact reasons.
+
+Remaining risk:
+- MEDIUM: this is read-only gate observability. It does not change gate logic,
+  but future operators could still misread all-history trades as promotion
+  progress unless they use the qualification status.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
