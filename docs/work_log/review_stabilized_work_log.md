@@ -9056,7 +9056,10 @@ Remaining risk:
 - HIGH: this is financial strategy decision logic. It is research-only and
   unregistered, but any leaderboard row, paper campaign, or production wiring
   must remain independently reviewed.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-26 after PR #121 checks passed; merged to `master` as
+  `7ab2cb66a`.
 
 ## 2026-06-26T19:37:00Z - Paper Gate Qualification Diagnostic
 
@@ -9120,4 +9123,54 @@ Remaining risk:
 - MEDIUM: this is read-only gate observability. It does not change gate logic,
   but future operators could still misread all-history trades as promotion
   progress unless they use the qualification status.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-26 after PR #122 checks passed; merged to `master` as
+  `99c54b09d`.
+
+## 2026-06-26T20:01:29Z - Accept Merged Composite And Gate Diagnostic Work
+
+Active role: ENGINEER
+
+Objective:
+- Correct visible governance records after human acceptance and merge of the
+  composite parity proof and paper-gate qualification diagnostic.
+
+What was found:
+- SHOWN: PR #121 merged the composite parity proof to `master` as `7ab2cb66a`
+  after human operator acceptance.
+- SHOWN: PR #122 merged the paper-gate qualification diagnostic to `master` as
+  `99c54b09d` after human operator acceptance.
+- SHOWN: the checkpoint, active backlog, and work log still described the
+  composite parity proof as pending independent review.
+- SHOWN: the work log still described the paper-gate diagnostic as
+  `READY_FOR_INDEPENDENT_REVIEW`.
+
+What changed:
+- Updated the composite design checkpoint to mark parity backtest integration
+  complete and independently accepted.
+- Updated Priority 13 and `REMAINING_TASKS.md` so the next composite step is a
+  research-only leaderboard row, not review of already-accepted parity proof.
+- Updated prior work-log entries for PR #121 and PR #122 from
+  `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED` with merge references.
+
+Why this change:
+- Governance records must match the actual accepted repository state before
+  starting the next implementation stage.
+- Leaving accepted merged work marked as awaiting review creates false blockers
+  and weakens the work log as an audit artifact.
+
+Expected outcome:
+- Operators see the correct current state: parity proof and gate diagnostic are
+  accepted; the next composite task is only the research leaderboard row.
+- No source, runtime, strategy, campaign, gate, or deployment behavior changes.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not run because this is a docs-only governance correction.
+
+Remaining risk:
+- LOW: documentation/governance-only change. It records existing human
+  acceptance and does not change behavior.
+- Acceptance state: `ACCEPTED`.
