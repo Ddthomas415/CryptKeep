@@ -57,9 +57,10 @@ deployment work still needs independent review.
    durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
-7. Implement the accepted composite/hybrid wrapper next step as pure combiner
-   tests first. Do not add a leaderboard row, paper campaign, or production
-   path until the combiner proof and follow-up backtest proof are reviewed.
+7. Independently review the composite/hybrid pure combiner proof before any
+   parity backtest integration. Do not add a leaderboard row, paper campaign,
+   or production path until the combiner proof and follow-up backtest proof are
+   reviewed.
 8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or

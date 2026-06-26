@@ -8879,3 +8879,63 @@ Remaining risk:
   logic and must stay review-gated before any paper, shadow, sandbox, or live
   activation.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-26T04:03:07Z - Composite Hybrid Pure Combiner Proof
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted composite/hybrid wrapper's first proof step as a pure
+  confirmation-gate combiner with targeted tests, without registering it as a
+  runtime strategy.
+
+What was found:
+- SHOWN: `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`
+  is accepted and requires pure combiner tests before parity backtest
+  integration.
+- SHOWN: `services/strategies/strategy_registry.py` registers individual
+  strategies only; no composite strategy is registered.
+- SHOWN: `REMAINING_TASKS.md` says the next composite/hybrid step is pure
+  combiner tests and explicitly blocks leaderboard, paper, and production path
+  activation before review.
+
+What changed:
+- Added `services/strategies/composite_hybrid.py` with a pure Mode A
+  confirmation-gate combiner.
+- Added `tests/test_composite_hybrid.py` covering confirmed entries, blocked
+  unconfirmed entries, long-exit precedence, risk-exit precedence, short-entry
+  blocking, invalid child signals, and non-registration in the runtime
+  strategy registry.
+- Updated
+  `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`
+  with the pure-combiner proof status.
+- Updated `REMAINING_TASKS.md` and Priority 13 so the next step is independent
+  review before any parity backtest integration.
+
+Why this change:
+- The accepted design requires a deterministic combiner contract before any
+  backtest, leaderboard, paper, or production integration.
+- Keeping the function pure prevents accidental market-data access, candidate
+  advisor activation, order routing, or evidence contamination.
+- Tests explicitly prove `sell` remains a long exit and does not become a
+  short entry.
+
+Expected outcome:
+- The repo now has a reviewable pure combiner proof for `composite_hybrid_v1`.
+- No campaign, gate, leaderboard, candidate-advisor, paper, shadow, sandbox, or
+  live behavior changes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_composite_hybrid.py`
+  - SHOWN: failed before test collection because the active `.venv` does not
+    have `pytest` installed.
+- `python3 -m pytest -q tests/test_composite_hybrid.py`
+  - SHOWN: `8 passed in 0.09s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: this is financial strategy decision logic. It is isolated and
+  unregistered, but follow-up backtest or runtime integration must remain
+  review-gated.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
