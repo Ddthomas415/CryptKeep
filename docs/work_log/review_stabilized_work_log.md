@@ -9174,3 +9174,64 @@ Remaining risk:
 - LOW: documentation/governance-only change. It records existing human
   acceptance and does not change behavior.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-26T20:07:52Z - Composite Hybrid Research Leaderboard Row
+
+Active role: ENGINEER
+
+Objective:
+- Add the accepted `composite_hybrid_v1` confirmation-gate wrapper as a
+  research-only default leaderboard candidate without registering it for runtime
+  strategy dispatch or campaign use.
+
+What was found:
+- SHOWN: `services/backtest/leaderboard.py` owns the default aggregate
+  leaderboard candidate set.
+- SHOWN: `services/backtest/parity_engine.py` already supports explicit
+  `composite_hybrid_v1` configs in research backtests.
+- SHOWN: `services/strategies/strategy_registry.py` does not register
+  `composite_hybrid_v1`.
+- SHOWN: the accepted composite checkpoint says the next permitted stage is a
+  research-only leaderboard row after parity proof acceptance.
+
+What changed:
+- Added `COMPOSITE_HYBRID_RESEARCH_CANDIDATE` to
+  `services/backtest/leaderboard.py`.
+- Added a research-only config builder that combines `breakout_donchian` as the
+  primary child and `sma_200_trend` as the confirmer child in confirmation-gate
+  mode.
+- Added that candidate to `default_strategy_candidates(...)`.
+- Updated leaderboard tests to prove the candidate appears in leaderboard
+  output and remains absent from runtime strategy registry.
+- Updated checkpoint/backlog docs to mark the row ready for independent review.
+
+Why this change:
+- The composite wrapper needed a controlled comparison surface before any
+  persistent paper campaign or production path.
+- Keeping the row inside the backtest leaderboard avoids adding a general
+  runtime preset, strategy-registry entry, paper campaign, or order-routing
+  behavior.
+
+Expected outcome:
+- Aggregate research evidence can compare the composite candidate against its
+  child strategies using the existing backtest leaderboard machinery.
+- Runtime strategy selection, paper campaigns, promotion gates, and execution
+  paths remain unchanged.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_leaderboard.py tests/test_composite_hybrid_parity.py`
+  - SHOWN: failed before executing tests because the repo venv did not have
+    `pytest` installed.
+- `python3 -m pytest -q tests/test_backtest_leaderboard.py tests/test_composite_hybrid_parity.py`
+  - SHOWN: `10 passed in 0.44s`.
+- `python3 -m py_compile services/backtest/leaderboard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: this affects financial strategy research ranking. The implementation is
+  research-only and unregistered for runtime, but any persistent paper campaign,
+  shadow, sandbox, live, promotion, or order-routing use must remain separately
+  reviewed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

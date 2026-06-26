@@ -51,11 +51,20 @@ SHOWN after research parity proof:
 - PR #121 checks passed, was independently accepted by the human operator, and
   merged to `master` as `7ab2cb66a` on 2026-06-26.
 
+SHOWN after research leaderboard proof:
+- `services/backtest/leaderboard.py` includes one research-only candidate row:
+  `composite_hybrid_v1_breakout_sma200_research`.
+- The candidate config uses `composite_hybrid_v1` in confirmation-gate mode
+  with `breakout_donchian` as primary and `sma_200_trend` as confirmer.
+- `tests/test_backtest_leaderboard.py` proves the candidate appears in the
+  default leaderboard set and remains absent from runtime strategy registry.
+
 UNVERIFIED:
 - No accepted baseline proves that any composite beats its strongest child
   strategy after costs, slippage, drawdown, and regime checks.
-- No leaderboard row or persistent campaign has been accepted for a composite
-  strategy.
+- No leaderboard comparison result has been independently accepted for a
+  composite strategy.
+- No persistent campaign has been accepted for a composite strategy.
 
 ## Non-Goals
 
@@ -229,7 +238,8 @@ Required:
    - `run_parity_backtest()` supports explicit `composite_hybrid_v1` configs
      without registering the wrapper as a runtime strategy.
 4. Leaderboard research row:
-   - add a research-only candidate after backtest proof is accepted.
+   - implemented, pending independent implementation review.
+   - candidate ID: `composite_hybrid_v1_breakout_sma200_research`.
 5. Isolated paper proof:
    - run a separate state directory only after the research row is accepted.
 
@@ -274,6 +284,8 @@ evidence is reviewed.
 
 Parity backtest implementation proof is complete and accepted by the human
 operator on 2026-06-26 after PR #121 checks passed and merged as `7ab2cb66a`.
-The next permitted stage is a research-only leaderboard row; persistent paper,
-shadow, sandbox, or live wiring remains blocked until that row is separately
-reviewed.
+
+Research leaderboard row implementation proof is complete and ready for
+independent review as of 2026-06-26. Persistent paper, shadow, sandbox, or live
+wiring remains blocked until that row and its comparison evidence are
+separately reviewed.

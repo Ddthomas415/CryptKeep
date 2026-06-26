@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from services.backtest.leaderboard import (
+    COMPOSITE_HYBRID_RESEARCH_CANDIDATE,
     default_strategy_candidates,
     rank_strategy_rows,
     run_strategy_leaderboard,
 )
+from services.strategies.composite_hybrid import MODE_CONFIRMATION_GATE, STRATEGY_ID
+from services.strategies.strategy_registry import SUPPORTED
 
 
 def _candles(closes: list[float]) -> list[list[float]]:
@@ -29,6 +32,7 @@ def test_default_strategy_candidates_returns_supported_defaults():
         "ema_cross_default",
         "mean_reversion_default",
         "breakout_default",
+        COMPOSITE_HYBRID_RESEARCH_CANDIDATE,
         "momentum_default",
         "pullback_recovery_default",
         "sma_200_trend_default",
@@ -37,6 +41,19 @@ def test_default_strategy_candidates_returns_supported_defaults():
         "breakout_volume_default",
     ]
     assert out[0]["cfg"]["risk"]["max_order_quote"] == 25.0
+
+
+def test_default_strategy_candidates_includes_research_only_composite_without_runtime_registration():
+    out = default_strategy_candidates({"risk": {"max_order_quote": 25.0}})
+    row = next(item for item in out if item["candidate"] == COMPOSITE_HYBRID_RESEARCH_CANDIDATE)
+    strategy = row["cfg"]["strategy"]
+
+    assert strategy["name"] == STRATEGY_ID
+    assert strategy["mode"] == MODE_CONFIRMATION_GATE
+    assert strategy["research_only"] is True
+    assert strategy["primary"]["name"] == "breakout_donchian"
+    assert strategy["confirmer"]["name"] == "sma_200_trend"
+    assert STRATEGY_ID not in SUPPORTED
 
 
 def test_leaderboard_backtest_does_not_write_runtime_signal_evidence(tmp_path, monkeypatch):
@@ -211,10 +228,49 @@ def test_run_strategy_leaderboard_returns_ranked_rows():
     )
 
     assert out["ok"] is True
-    assert out["candidate_count"] == 9
+    assert out["candidate_count"] == 10
     assert out["stressed_slippage_bps"] > out["base_slippage_bps"]
-    assert len(out["rows"]) == 9
+    assert len(out["rows"]) == 10
     assert out["rows"][0]["leaderboard_score"] >= out["rows"][-1]["leaderboard_score"]
     assert {"candidate", "strategy", "leaderboard_score", "slippage_sensitivity_pct", "regime_robustness", "closed_trades", "trade_count", "exposure_fraction"} <= set(
         out["rows"][0].keys()
     )
+
+
+def test_run_strategy_leaderboard_surfaces_research_composite_candidate(monkeypatch):
+    calls: list[str] = []
+
+    def fake_run_parity_backtest(*, cfg, symbol, candles, warmup_bars, initial_cash, fee_bps, slippage_bps):
+        strategy_name = str(cfg["strategy"]["name"])
+        calls.append(strategy_name)
+        return {
+            "trade_count": 2,
+            "scorecard": {
+                "strategy": strategy_name,
+                "net_return_after_costs_pct": 1.0,
+                "max_drawdown_pct": 0.5,
+                "expectancy": 0.25,
+                "win_rate_pct": 50.0,
+                "closed_trades": 1,
+                "exposure_fraction": 0.1,
+                "exposure_adjusted_return_pct": 10.0,
+            },
+            "regime_scorecards": {"all": {"bars": 3, "net_return_after_costs_pct": 1.0}},
+        }
+
+    monkeypatch.setattr("services.backtest.leaderboard.run_parity_backtest", fake_run_parity_backtest)
+
+    out = run_strategy_leaderboard(
+        base_cfg={},
+        symbol="BTC/USD",
+        candles=_candles([100.0, 101.0, 102.0]),
+        warmup_bars=1,
+        initial_cash=1_000.0,
+        fee_bps=10.0,
+        slippage_bps=5.0,
+    )
+
+    row = next(item for item in out["rows"] if item["candidate"] == COMPOSITE_HYBRID_RESEARCH_CANDIDATE)
+    assert row["strategy"] == STRATEGY_ID
+    assert calls.count(STRATEGY_ID) == 2
+    assert STRATEGY_ID not in SUPPORTED

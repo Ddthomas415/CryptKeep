@@ -439,7 +439,8 @@ Risk:
 
 Status: `pullback_recovery` plan accepted; attribution fix merged; full
 post-fix Stage 0 rerun pending operator execution; composite/hybrid wrapper
-design accepted; pure combiner proof accepted; parity backtest proof accepted
+design accepted; pure combiner proof accepted; parity backtest proof accepted;
+research leaderboard row ready for independent review
 
 Why it matters:
 - `pullback_recovery` is already coded and wired into the strategy registry.
@@ -454,7 +455,7 @@ Next action:
 - Run only the full post-fix Stage 0 isolated one-shot proof for
   `pullback_recovery_default` when the operator is ready for a 15-minute
   command. Do not enable a persistent daily campaign until that proof passes.
-- Design and implement only a research leaderboard row for the accepted
+- Independently review the research leaderboard row for the accepted
   confirmation-gate combiner. Do not add a persistent paper campaign or
   production path until that leaderboard comparison proof is reviewed.
 - Track candlestick recognition as a later versioned strategy such as
