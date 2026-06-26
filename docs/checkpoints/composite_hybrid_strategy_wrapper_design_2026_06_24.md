@@ -39,6 +39,7 @@ SHOWN after pure-combiner proof:
 - `tests/test_composite_hybrid.py` proves entry confirmation, exit precedence,
   risk-exit precedence, short-entry blocking, invalid child-signal handling,
   and that the wrapper is not registered as a runtime strategy.
+- PR #120 checks passed before human acceptance.
 
 UNVERIFIED:
 - No parity backtest integration has been implemented or accepted.
@@ -212,7 +213,7 @@ Required:
 1. Design review:
    - accept or revise this checkpoint before implementation.
 2. Pure combiner tests:
-   - complete, pending independent implementation review.
+   - complete and independently accepted.
    - child-signal inputs are tested without market data or order routing.
 3. Parity backtest integration:
    - run the wrapper through `run_parity_backtest()` on deterministic candles.
@@ -255,6 +256,7 @@ Acceptance state: ACCEPTED.
 Acceptance reference: independently reviewed and accepted by the human operator
 on 2026-06-24 in the Codex session after draft PR #119 checks passed.
 
-Pure combiner implementation proof is complete and waiting for independent
-review. The wrapper remains unregistered and research-only until separate
-backtest and paper-campaign evidence is reviewed.
+Pure combiner implementation proof is complete and accepted by the human
+operator on 2026-06-26 after PR #120 checks passed. The wrapper remains
+unregistered and research-only until separate backtest and paper-campaign
+evidence is reviewed.
