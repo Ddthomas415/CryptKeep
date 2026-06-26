@@ -33,11 +33,20 @@ SHOWN:
   separate question: did a strategy identify the move early enough to trade it
   profitably?
 
+SHOWN after pure-combiner proof:
+- `services/strategies/composite_hybrid.py` implements a pure Mode A
+  confirmation-gate combiner.
+- `tests/test_composite_hybrid.py` proves entry confirmation, exit precedence,
+  risk-exit precedence, short-entry blocking, invalid child-signal handling,
+  and that the wrapper is not registered as a runtime strategy.
+- PR #120 checks passed before human acceptance.
+
 UNVERIFIED:
-- No composite/hybrid strategy wrapper has been implemented or backtested.
+- No parity backtest integration has been implemented or accepted.
 - No accepted baseline proves that any composite beats its strongest child
   strategy after costs, slippage, drawdown, and regime checks.
-- No persistent campaign has been accepted for a composite strategy.
+- No leaderboard row or persistent campaign has been accepted for a composite
+  strategy.
 
 ## Non-Goals
 
@@ -204,7 +213,8 @@ Required:
 1. Design review:
    - accept or revise this checkpoint before implementation.
 2. Pure combiner tests:
-   - test child-signal inputs without market data or order routing.
+   - complete and independently accepted.
+   - child-signal inputs are tested without market data or order routing.
 3. Parity backtest integration:
    - run the wrapper through `run_parity_backtest()` on deterministic candles.
 4. Leaderboard research row:
@@ -246,5 +256,7 @@ Acceptance state: ACCEPTED.
 Acceptance reference: independently reviewed and accepted by the human operator
 on 2026-06-24 in the Codex session after draft PR #119 checks passed.
 
-Implementation should start with pure combiner tests and remain research-only
-until separate backtest and paper-campaign evidence is reviewed.
+Pure combiner implementation proof is complete and accepted by the human
+operator on 2026-06-26 after PR #120 checks passed. The wrapper remains
+unregistered and research-only until separate backtest and paper-campaign
+evidence is reviewed.

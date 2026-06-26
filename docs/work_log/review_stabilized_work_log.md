@@ -8879,3 +8879,124 @@ Remaining risk:
   logic and must stay review-gated before any paper, shadow, sandbox, or live
   activation.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-26T04:03:07Z - Composite Hybrid Pure Combiner Proof
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted composite/hybrid wrapper's first proof step as a pure
+  confirmation-gate combiner with targeted tests, without registering it as a
+  runtime strategy.
+
+What was found:
+- SHOWN: `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`
+  is accepted and requires pure combiner tests before parity backtest
+  integration.
+- SHOWN: `services/strategies/strategy_registry.py` registers individual
+  strategies only; no composite strategy is registered.
+- SHOWN: `REMAINING_TASKS.md` says the next composite/hybrid step is pure
+  combiner tests and explicitly blocks leaderboard, paper, and production path
+  activation before review.
+
+What changed:
+- Added `services/strategies/composite_hybrid.py` with a pure Mode A
+  confirmation-gate combiner.
+- Added `tests/test_composite_hybrid.py` covering confirmed entries, blocked
+  unconfirmed entries, long-exit precedence, risk-exit precedence, short-entry
+  blocking, invalid child signals, and non-registration in the runtime
+  strategy registry.
+- Updated
+  `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`
+  with the pure-combiner proof status.
+- Updated `REMAINING_TASKS.md` and Priority 13 so the next step is independent
+  review before any parity backtest integration.
+
+Why this change:
+- The accepted design requires a deterministic combiner contract before any
+  backtest, leaderboard, paper, or production integration.
+- Keeping the function pure prevents accidental market-data access, candidate
+  advisor activation, order routing, or evidence contamination.
+- Tests explicitly prove `sell` remains a long exit and does not become a
+  short entry.
+
+Expected outcome:
+- The repo now has a reviewable pure combiner proof for `composite_hybrid_v1`.
+- No campaign, gate, leaderboard, candidate-advisor, paper, shadow, sandbox, or
+  live behavior changes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_composite_hybrid.py`
+  - SHOWN: failed before test collection because the active `.venv` does not
+    have `pytest` installed.
+- `python3 -m pytest -q tests/test_composite_hybrid.py`
+  - SHOWN: `8 passed in 0.09s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: this is financial strategy decision logic. It is isolated and
+  unregistered, but follow-up backtest or runtime integration must remain
+  review-gated.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-26 after PR #120 checks passed.
+
+## 2026-06-26T04:18:49Z - Accept Composite Hybrid Pure Combiner Proof
+
+Active role: ENGINEER
+
+Objective:
+- Record human acceptance of the composite/hybrid pure combiner proof and move
+  the backlog to the next gated step.
+
+What was found:
+- SHOWN: PR #120 was open as a draft PR from `review-stabilized` into
+  `master`.
+- SHOWN: PR #120 checks reported 7 passing checks.
+- SHOWN: the local branch was clean and synced with `origin/review-stabilized`
+  before this acceptance update.
+- SHOWN: the pure combiner remains unregistered in
+  `services/strategies/strategy_registry.py`.
+
+What changed:
+- Updated
+  `docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md`
+  to record the pure combiner proof as independently accepted.
+- Updated `REMAINING_TASKS.md` so the next composite/hybrid task is
+  research-only parity backtest integration, still review-gated before any
+  leaderboard, paper, or production activation.
+- Updated Priority 13 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to record
+  pure-combiner acceptance and the next gated proof step.
+- Updated the prior work-log entry from `READY_FOR_INDEPENDENT_REVIEW` to
+  `ACCEPTED` with the human acceptance reference.
+
+Why this change:
+- The combiner proof was high risk and required human acceptance before moving
+  beyond `READY_FOR_INDEPENDENT_REVIEW`.
+- The next safe progression is parity backtest integration as research-only
+  proof, not leaderboard registration or paper activation.
+
+Expected outcome:
+- PR #120 can be moved out of draft after this acceptance update.
+- Future composite/hybrid implementation remains constrained to backtest proof
+  before any campaign or production path.
+- No source, campaign, gate, order routing, candidate-advisor, short-side, or
+  live behavior changes in this acceptance update.
+
+Verification:
+- `gh pr checks 120`
+  - SHOWN: 7 checks passing before this acceptance update.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests not run for this acceptance update: documentation-only status update.
+  The implementation proof was already verified with
+  `python3 -m pytest -q tests/test_composite_hybrid.py` showing
+  `8 passed in 0.09s`.
+
+Remaining risk:
+- HIGH: future parity backtest integration is still financial strategy logic
+  and must stop for independent review before any leaderboard, paper, shadow,
+  sandbox, or live activation.
+- Acceptance state: `ACCEPTED`.
