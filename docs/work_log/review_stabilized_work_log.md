@@ -9283,3 +9283,52 @@ Remaining risk:
 - MEDIUM: governance/status-only update for high-risk strategy research work.
   It records human acceptance but does not change source behavior.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-27T23:52:01Z - Composite Hybrid Leaderboard Comparison Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Generate read-only comparison evidence for the accepted
+  `composite_hybrid_v1_breakout_sma200_research` leaderboard row.
+
+What was found:
+- SHOWN: `run_strategy_evidence_cycle(...)` can build aggregate synthetic
+  leaderboard evidence without starting a paper campaign.
+- SHOWN: the comparison artifact was written to
+  `/private/tmp/composite_hybrid_leaderboard_comparison_20260627.json`.
+- SHOWN: the composite candidate ranked `5/10`, with decision `freeze`,
+  evidence status `insufficient`, and `0` closed trades.
+- SHOWN: every default evidence window had fewer than `200` bars.
+- SHOWN: `services/strategies/es_daily_trend.py` returns `hold` with reason
+  `insufficient_history` when the bar count is below `sma_period`.
+
+What changed:
+- Added
+  `docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md`.
+- Updated the composite design checkpoint, Priority 13, and active backlog to
+  point at the comparison checkpoint for independent review.
+
+Why this change:
+- The accepted leaderboard row needed comparison evidence before any paper
+  campaign or production path could be considered.
+- The first comparison result should be preserved as a visible audit artifact
+  because it blocks paper advancement for the current composite definition.
+
+Expected outcome:
+- Reviewers can see that the current composite row has no realized
+  participation and should not advance to paper.
+- The next strategy work should either add a longer research-only evidence
+  window or define a separate shorter-confirmer composite candidate.
+
+Verification:
+- `./.venv/bin/python` generated the temp evidence artifact successfully.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not run because this is a docs-only evidence checkpoint.
+
+Remaining risk:
+- HIGH: this is financial strategy comparison evidence. It is read-only and
+  does not change source behavior, but it can influence future campaign
+  selection.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

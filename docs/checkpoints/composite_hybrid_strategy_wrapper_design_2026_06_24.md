@@ -292,3 +292,11 @@ independent review as of 2026-06-26. It was independently accepted by the
 human operator after PR #124 checks passed. Persistent paper, shadow, sandbox,
 or live wiring remains blocked until leaderboard comparison evidence is
 separately reviewed.
+
+Initial leaderboard comparison evidence was generated on 2026-06-27 in:
+
+- `docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md`
+
+The initial comparison is ready for independent review and shows no realized
+participation for the current `breakout_donchian` plus `sma_200_trend`
+confirmation-gate candidate.
