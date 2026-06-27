@@ -121,6 +121,10 @@ The next coherent engineering task is one of:
 Do not start a persistent paper campaign until one of those comparison paths
 produces accepted evidence with realized participation.
 
+This comparison was independently reviewed and accepted by the human operator
+on 2026-06-27 after PR #125 checks passed. The accepted conclusion is that the
+current composite definition does not advance to paper.
+
 ## Acceptance State
 
 Risk: HIGH
@@ -129,5 +133,7 @@ Reason:
 - This is financial strategy comparison evidence that can influence future
   campaign selection.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
 
+Acceptance reference: independently reviewed and accepted by the human operator
+on 2026-06-27 after PR #125 checks passed.

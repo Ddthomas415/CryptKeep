@@ -300,3 +300,7 @@ Initial leaderboard comparison evidence was generated on 2026-06-27 in:
 The initial comparison is ready for independent review and shows no realized
 participation for the current `breakout_donchian` plus `sma_200_trend`
 confirmation-gate candidate.
+
+The initial comparison was independently reviewed and accepted by the human
+operator on 2026-06-27 after PR #125 checks passed. It blocks paper advancement
+for the current composite definition.

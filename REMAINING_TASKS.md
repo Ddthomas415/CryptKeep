@@ -59,9 +59,10 @@ deployment work still needs independent review.
    durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
-7. Independently review the composite/hybrid leaderboard comparison evidence.
-   Do not add a persistent paper campaign or production path until that
-   comparison proof is independently reviewed.
+7. For composite/hybrid follow-up, either add a longer research-only evidence
+   window with at least 220 bars or define a separate shorter-confirmer variant.
+   Do not add a persistent paper campaign or production path until comparison
+   evidence with realized participation is independently reviewed.
 8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or

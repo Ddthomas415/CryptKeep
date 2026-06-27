@@ -9331,4 +9331,52 @@ Remaining risk:
 - HIGH: this is financial strategy comparison evidence. It is read-only and
   does not change source behavior, but it can influence future campaign
   selection.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-27 after PR #125 checks passed.
+
+## 2026-06-27T23:57:38Z - Accept Composite Hybrid Comparison Evidence
+
+Active role: GATE
+
+Objective:
+- Record human acceptance of the read-only composite/hybrid leaderboard
+  comparison checkpoint before merging PR #125.
+
+What was found:
+- SHOWN: PR #125 checks passed: macOS build, Windows build, CI sanity, CI
+  validate, GitGuardian, and both governance smoke jobs.
+- SHOWN: the comparison checkpoint concluded that the current composite
+  candidate should not advance to paper because it produced no realized
+  participation.
+- SHOWN: the human operator provided `INDEPENDENTLY_REVIEWED AND ACCEPTED` in
+  the Codex session.
+
+What changed:
+- Updated the comparison checkpoint, composite design checkpoint, Priority 13,
+  active backlog, and work log to mark the comparison evidence accepted.
+- Updated the next action to either add a longer research-only evidence window
+  or define a separate shorter-confirmer variant before any paper expansion.
+
+Why this change:
+- The accepted evidence should not merge with stale
+  `READY_FOR_INDEPENDENT_REVIEW` text.
+- The accepted conclusion is a blocker: the current composite definition has no
+  realized participation and should not advance to paper.
+
+Expected outcome:
+- PR #125 can merge with governance records aligned.
+- Future composite work stays research-only until it produces accepted
+  comparison evidence with realized participation.
+
+Verification:
+- `gh pr checks 125`
+  - SHOWN: all 7 checks passed.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not rerun for this docs-only acceptance update.
+
+Remaining risk:
+- MEDIUM: governance/status-only update for high-risk strategy comparison
+  evidence. It records human acceptance and does not change source behavior.
+- Acceptance state: `ACCEPTED`.

@@ -440,8 +440,8 @@ Risk:
 Status: `pullback_recovery` plan accepted; attribution fix merged; full
 post-fix Stage 0 rerun pending operator execution; composite/hybrid wrapper
 design accepted; pure combiner proof accepted; parity backtest proof accepted;
-research leaderboard row accepted; first comparison evidence ready for
-independent review
+research leaderboard row accepted; first comparison evidence accepted and
+blocks paper advancement
 
 Why it matters:
 - `pullback_recovery` is already coded and wired into the strategy registry.
@@ -456,10 +456,11 @@ Next action:
 - Run only the full post-fix Stage 0 isolated one-shot proof for
   `pullback_recovery_default` when the operator is ready for a 15-minute
   command. Do not enable a persistent daily campaign until that proof passes.
-- Independently review
-  `docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md`.
-  Do not add a persistent paper campaign or production path until comparison
-  evidence with realized participation is accepted.
+- For composite/hybrid follow-up, either add a longer research-only evidence
+  window with at least 220 bars so the 200-SMA confirmer can warm up, or define
+  a separate shorter-confirmer variant. Do not add a persistent paper campaign
+  or production path until comparison evidence with realized participation is
+  accepted.
 - Track candlestick recognition as a later versioned strategy such as
   `candlestick_reversal_v1`, after `pullback_recovery` has a baseline.
 - Treat `order_book_imbalance`, `open_interest_shift`, and `funding_extreme` as
