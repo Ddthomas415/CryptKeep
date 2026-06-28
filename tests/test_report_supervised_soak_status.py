@@ -69,6 +69,26 @@ def test_build_report_is_read_only_and_summarizes_campaigns(monkeypatch) -> None
                 {"label": "10+ completed round trips", "passed": False, "detail": "1/10"},
                 {"label": "Expectancy within tolerable range of backtest", "passed": None, "detail": "insufficient"},
             ],
+            "paper_history": {
+                "source": "jsonl_provenance+trade_journal_sqlite",
+                "fills": 4,
+                "closed_trades": 2,
+                "latest_fill_ts": "2026-06-24T00:04:01+00:00",
+                "all_history": {
+                    "fills": 18,
+                    "closed_trades": 9,
+                    "latest_fill_ts": "2026-06-24T00:04:01+00:00",
+                },
+                "qualification": {
+                    "evidence_fills": 14,
+                    "qualified_evidence_fills": 4,
+                    "provenance_qualified_evidence_fills": 5,
+                    "completed_evidence_round_trips": 2,
+                    "incomplete_qualified_evidence_fills": 1,
+                    "unqualified_evidence_fills": 9,
+                    "latest_completed_qualified_round_trip_close_ts": "2026-06-24T00:04:01+00:00",
+                },
+            },
             "manual_review": {
                 "summary": "manual review required",
                 "outstanding_items": [
@@ -95,6 +115,20 @@ def test_build_report_is_read_only_and_summarizes_campaigns(monkeypatch) -> None
     assert out["campaigns"][0]["closed_trades_total"] == 8
     assert out["gate"]["round_trips"]["detail"] == "1/10"
     assert out["gate"]["manual_review_required"] is True
+    assert out["gate"]["paper_history"]["closed_trades"] == 2
+    assert out["gate"]["paper_history"]["all_history_closed_trades"] == 9
+    assert out["gate"]["paper_history"]["qualification"] == {
+        "evidence_fills": 14,
+        "qualified_evidence_fills": 4,
+        "provenance_qualified_evidence_fills": 5,
+        "completed_evidence_round_trips": 2,
+        "incomplete_qualified_evidence_fills": 1,
+        "unqualified_evidence_fills": 9,
+        "first_provenance_qualified_fill_ts": None,
+        "latest_provenance_qualified_fill_ts": None,
+        "first_completed_qualified_round_trip_close_ts": None,
+        "latest_completed_qualified_round_trip_close_ts": "2026-06-24T00:04:01+00:00",
+    }
     assert out["recommendations"] == [
         "manual_strategy_review_required",
         "continue_paper_observation",

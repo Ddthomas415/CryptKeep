@@ -9489,3 +9489,65 @@ Remaining risk:
 - MEDIUM: governance/status-only update for high-risk strategy research
   evidence. It records human acceptance and does not change source behavior.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T10:33:21Z - Surface Paper Gate Qualification Timestamps In Soak Status
+
+Active role: ENGINEER
+
+Objective:
+- Make the routine laptop paper-soak status output explain why the paper gate
+  has not advanced when all-history closed trades differ from
+  provenance-qualified round trips.
+
+What was found:
+- SHOWN: `scripts/report_paper_gate_qualification.py --json` reported
+  `all_history_round_trips=9`, `qualified_round_trips=2`,
+  `counted_evidence_fills=4`, `incomplete_evidence_fills=1`, and
+  `rejected_evidence_fills=9`.
+- SHOWN: the rejected fills are dated 2026-04-20, 2026-05-15, and 2026-05-18
+  and are missing market-data source, sample-mode, timeframe, venue, and symbol
+  provenance.
+- SHOWN: the only counted qualified round trips closed on 2026-06-18 and
+  2026-06-24.
+- SHOWN: the latest all-history fill is also 2026-06-24, so the current plateau
+  is explained by no newer qualifying `sma_200_trend` close, not by a hidden
+  gate counting defect.
+
+What changed:
+- `scripts/report_supervised_soak_status.py` now includes paper-history and
+  qualification details from `check_promotion_gates.py` in its JSON payload.
+- The human-readable soak report now prints qualified closed trades,
+  all-history closed trades, latest all-history fill, counted/rejected/incomplete
+  evidence fills, and latest qualified close timestamp.
+- `tests/test_report_supervised_soak_status.py` now covers those added fields.
+
+Why this change:
+- The daily `make status-paper-all` check-in is the operator's primary surface.
+  It should show whether gate progress is waiting on new market behavior or
+  blocked by provenance qualification, without requiring a separate diagnostic
+  command.
+- This preserves the accepted provenance policy and changes reporting only.
+
+Expected outcome:
+- Future check-ins make the `2/10` qualified gate state easier to interpret.
+- Operators can see that old all-history trades remain diagnostic-only while
+  future provenance-complete entry/exit cycles are the path to progress.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/report_supervised_soak_status.py tests/test_report_supervised_soak_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/report_supervised_soak_status.py --config configs/paper_evidence_campaigns.laptop.json`
+  - SHOWN: output includes `paper history: qualified_closed=2
+    all_history_closed=9 latest_all_history_fill=2026-06-24T00:04:01.768973+00:00`.
+  - SHOWN: output includes `qualification: counted_fills=4/14 incomplete=1
+    rejected=9 latest_qualified_close=2026-06-24T00:04:01.770530+00:00`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_report_supervised_soak_status.py`
+  - NOT RUN TO COMPLETION: local `.venv` reported `No module named pytest`.
+- Full test suite was not run per operator constraint against long test runs.
+
+Remaining risk:
+- LOW: reporting-only change. It does not change qualification rules,
+  promotion thresholds, campaign execution, financial logic, or order routing.
+- Acceptance state: `ACCEPTED`.
