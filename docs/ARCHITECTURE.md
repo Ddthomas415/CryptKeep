@@ -105,6 +105,25 @@ This layer is responsible for:
 
 This is a real working subsystem, but current strategy evidence in the repo remains conservative and often thin.
 
+### 6. AI Copilot / Advisory Oversight Layer
+
+Read-only AI copilot and advisory reporting code lives in:
+
+- `services/ai_copilot/*`
+- `scripts/run_ai_operator_oversight.py`
+
+The operator oversight report consumes existing machine facts from the paper
+simulation monitor, recent watch reports, and promotion-gate checks. It is a
+one-shot advisory synthesis surface, not a second background monitor.
+
+This layer must not:
+
+- start or stop campaigns
+- modify paper-sim watches
+- mutate promotion gates
+- enable candidate-advisor strategy selection
+- route, submit, or cancel orders
+
 ## Canonical Safety Boundaries
 
 ### Final live submit boundary

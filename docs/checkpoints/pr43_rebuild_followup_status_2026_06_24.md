@@ -48,12 +48,11 @@ Closed from the active PR #43 rebuild list:
 - Supervised-soak reporting, via `scripts/report_supervised_soak_status.py`
   and its accepted tests/docs.
 - Durable supervised pipeline log evidence, via PR #109.
+- AI operator oversight, accepted as a read-only one-shot synthesis report over
+  existing monitor/watch/gate artifacts in
+  `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`.
 
 Still open as separate scoped rebuild candidates:
-- AI operator oversight, now scoped in
-  `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`
-  as a read-only one-shot synthesis report over existing monitor/watch/gate
-  artifacts, not a second background monitor.
 - Managed multi-symbol paper runtime, if the project is ready to move beyond
   the current explicit campaign manifests.
 - Safe pipeline wrapper/startup hardening, if current process-supervisor and
