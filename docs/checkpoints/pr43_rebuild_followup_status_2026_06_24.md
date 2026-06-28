@@ -59,7 +59,10 @@ Still open as separate scoped rebuild candidates:
   as a read-only campaign proposal planner first, not an autonomous starter.
 - Safe pipeline wrapper/startup hardening, if current process-supervisor and
   bot-runtime truth surfaces still leave a reproduced startup or fail-closed
-  gap.
+  gap. This is now scoped by
+  `docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md`
+  as a read-only startup topology/gap audit first, not a new wrapper by
+  default.
 
 ## Next Action
 

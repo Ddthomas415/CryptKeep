@@ -331,8 +331,10 @@ Next action:
      planner objective in
      `docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md`;
      do not implement autonomous campaign starts.
-  2. Safe pipeline wrapper and startup hardening, only after a current-master
-     startup or fail-closed gap is reproduced.
+  2. Safe pipeline wrapper and startup hardening, only through the accepted
+     read-only startup topology/gap audit objective in
+     `docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md`;
+     do not add a new wrapper unless a current-master gap is reproduced.
 - Keep live execution, auth gates, and unrelated runtime supervisor changes out
   of the same PR unless they are required for the specific rebuild.
 - See
@@ -341,6 +343,8 @@ Next action:
   `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`.
 - See
   `docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md`.
+- See
+  `docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md`.
 
 Risk:
 - HIGH: the old branch mixes operator observability with live execution and

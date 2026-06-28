@@ -9850,3 +9850,63 @@ Remaining risk:
 - Future implementation remains HIGH risk because it affects financial
   strategy experimentation, background job ownership, and evidence attribution.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T11:57:18Z - Scope Safe Pipeline Startup Hardening Rebuild
+
+Active role: ENGINEER
+
+Objective:
+- Convert the remaining PR #43 safe-runtime-wrapper/startup-topology rebuild
+  group into a current-master scoped objective without changing runtime
+  behavior.
+
+What was found:
+- SHOWN: `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
+  groups nine old PR #43 commits under safe runtime wrappers and bot topology.
+- SHOWN: current source lacks `scripts/run_pipeline_safe.py`.
+- SHOWN: current source already has canonical operator controls:
+  `scripts/start_bot.py`, `scripts/stop_bot.py`, and `scripts/bot_status.py`.
+- SHOWN: `docs/CURRENT_RUNTIME_TRUTH.md`, `docs/PROCESS_CONTROL.md`, and
+  `docs/BOT_CONTROL.md` identify those scripts as the canonical control plane
+  and mark `scripts/run_bot_safe.py` as compatibility-only.
+- SHOWN: current source already has several safe wrappers and tests covering
+  safe-idle/startup behavior.
+
+What changed:
+- Added
+  `docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md`.
+- Updated `REMAINING_TASKS.md`,
+  `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`, and
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to point
+  safe-pipeline/startup work at the new read-only topology/gap audit objective.
+
+Why this change:
+- The current repo already has a canonical startup path and existing safe
+  wrappers. Recreating `run_pipeline_safe.py` without a reproduced
+  current-master gap would add another control surface and risk obscuring the
+  runtime truth.
+- A read-only audit report is the smallest safe boundary before any high-risk
+  startup or fail-closed runtime change.
+
+Expected outcome:
+- Future startup-hardening work must first prove whether a current-master gap
+  exists. Only a separate high-risk implementation PR may add a wrapper or
+  change startup behavior.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `sed -n '1,260p' docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md`
+  - SHOWN: the checkpoint defines a read-only topology/gap audit before any
+    runtime behavior change.
+- `rg -n "pr43_safe_pipeline_startup_hardening_objective|read-only startup topology|run_pipeline_safe|current-master gap|MUST NOT|Proof Required|canonical startup|safe wrappers" REMAINING_TASKS.md docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md docs/checkpoints/review_stabilized_next_actions_2026_05_28.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: the checkpoint and indexes contain the expected read-only audit,
+    no-new-wrapper-by-default, proof, and current-master gap language.
+
+Remaining risk:
+- LOW: planning-only documentation update. Runtime behavior, background jobs,
+  startup scripts, service definitions, gates, live execution, and order
+  routing are unchanged.
+- Future implementation remains HIGH risk because it affects startup topology,
+  runtime supervision, and fail-closed behavior.
+- Acceptance state: `ACCEPTED`.
