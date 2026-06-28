@@ -2,7 +2,7 @@
 
 Status: ACCEPTED
 
-Implementation proof status: READY_FOR_INDEPENDENT_REVIEW
+Implementation proof status: ACCEPTED
 
 Active role: DIRECTOR
 
@@ -239,7 +239,10 @@ Verification:
 Remaining risk:
 - HIGH: startup topology, fail-closed behavior, background jobs, and
   live-adjacent service ownership remain high-risk surfaces. This proof does
-  not change them and must remain at `READY_FOR_INDEPENDENT_REVIEW` until a
-  separate reviewer or human accepts it.
+  not change them. Any follow-up wrapper, launch-gate, or service-topology
+  change remains a separate high-risk implementation.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-28 after PR #137 checks
+  passed.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
