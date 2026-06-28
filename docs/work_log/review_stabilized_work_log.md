@@ -9597,3 +9597,71 @@ Remaining risk:
 - LOW: documentation-only status refresh. It does not change runtime behavior,
   gate policy, strategy logic, or operator commands.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T10:52:31Z - Scope PR43 AI Operator Oversight Rebuild
+
+Active role: ENGINEER
+
+Objective:
+- Convert the remaining PR #43 AI operator alerting/oversight rebuild candidate
+  into a current-master scoped objective before any implementation.
+
+What was found:
+- SHOWN: `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`
+  requires a scoped objective before implementing any remaining PR #43 rebuild
+  group.
+- SHOWN: current source still lacks the old PR #43 AI alert/oversight files:
+  `scripts/run_ai_alert_monitor.py`, `scripts/run_ai_oversight_watch.py`,
+  `services/ai_copilot/alert_monitor.py`, and
+  `services/ai_copilot/oversight_watch.py`.
+- SHOWN: current source has the accepted paper simulation monitor at
+  `scripts/run_paper_sim_monitor.py` and
+  `services/analytics/paper_sim_monitor.py`.
+- SHOWN: `./.venv/bin/python scripts/run_paper_sim_monitor.py --status`
+  reported four active watches: `next_fill`, `position_closed`,
+  `campaign_completed`, and `investigate`.
+- SHOWN: the same monitor status reported recent watch reports with
+  `desktop_notification.sent=true`, plus promotion-progress and
+  provenance-qualification context.
+- SHOWN: `services/alerts/alert_dispatcher.py` and
+  `services/alerts/alert_router.py` provide lower-level alert primitives, but
+  not a paper-campaign oversight product by themselves.
+
+What changed:
+- Added
+  `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`.
+- Updated `REMAINING_TASKS.md` to point PR #43 AI operator oversight at a
+  read-only one-shot synthesis report over existing monitor/watch/gate
+  artifacts, not a second background monitor.
+- Updated `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`.
+- Updated Priority 9 in
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`.
+
+Why this change:
+- The current paper-sim monitor is already the wake-up layer. Rebuilding a
+  second background alert monitor from stale PR #43 code would duplicate state
+  ownership and risk contradictory operator guidance.
+- A scoped objective keeps the useful AI oversight idea while requiring any
+  future implementation to remain read-only, one-shot, and based on current
+  artifacts.
+
+Expected outcome:
+- Future PR #43 follow-through starts from a narrow current-master objective.
+- The next implementation, if pursued, builds advisory synthesis instead of
+  duplicating monitor/notification ownership.
+
+Verification:
+- `./.venv/bin/python scripts/run_paper_sim_monitor.py --status`
+  - SHOWN: returned current monitor status with active watches, recent watch
+    reports, desktop notification results, and gate qualification context.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not run because this is a documentation/planning-only change.
+
+Remaining risk:
+- LOW: planning-only change. It does not modify runtime behavior, background
+  jobs, strategy logic, order routing, promotion gates, or alert dispatch.
+- Future implementation of operator oversight remains HIGH risk and must be
+  independently reviewed if it affects background jobs, notifications, or
+  financial operator decisions.
+- Acceptance state: `ACCEPTED`.

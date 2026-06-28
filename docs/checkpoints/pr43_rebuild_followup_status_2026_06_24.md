@@ -50,8 +50,10 @@ Closed from the active PR #43 rebuild list:
 - Durable supervised pipeline log evidence, via PR #109.
 
 Still open as separate scoped rebuild candidates:
-- AI operator alerting and oversight, if current paper-sim watches and reports
-  are insufficient for operator wake-up needs.
+- AI operator oversight, now scoped in
+  `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`
+  as a read-only one-shot synthesis report over existing monitor/watch/gate
+  artifacts, not a second background monitor.
 - Managed multi-symbol paper runtime, if the project is ready to move beyond
   the current explicit campaign manifests.
 - Safe pipeline wrapper/startup hardening, if current process-supervisor and
@@ -60,9 +62,9 @@ Still open as separate scoped rebuild candidates:
 
 ## Next Action
 
-Before implementing any remaining PR #43 rebuild candidate, write a scoped
-objective that names exactly one group and proves the current-master gap still
-exists.
+Before implementing any remaining PR #43 rebuild candidate other than the
+scoped AI operator oversight report, write a scoped objective that names
+exactly one group and proves the current-master gap still exists.
 
 Do not rebuild from compiled cache artifacts or stale PR #43 source. Only use
 current source files and the accepted disposition document as evidence.

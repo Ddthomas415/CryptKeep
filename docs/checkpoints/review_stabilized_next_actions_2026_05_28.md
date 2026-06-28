@@ -322,8 +322,10 @@ Current follow-up status:
 
 Next action:
 - Rebuild only one still-open candidate group at a time from current `master`:
-  1. AI alert monitor and operator oversight, only if current paper-sim watches
-     and reports are insufficient for operator wake-up needs.
+  1. AI operator oversight, scoped by
+     `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`
+     as a read-only one-shot synthesis report over existing monitor/watch/gate
+     artifacts. Do not rebuild a second background monitor.
   2. Managed multi-symbol paper runtime, only after campaign ownership and
      evidence isolation are explicitly scoped.
   3. Safe pipeline wrapper and startup hardening, only after a current-master
@@ -332,6 +334,8 @@ Next action:
   of the same PR unless they are required for the specific rebuild.
 - See
   `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`.
+- See
+  `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`.
 
 Risk:
 - HIGH: the old branch mixes operator observability with live execution and

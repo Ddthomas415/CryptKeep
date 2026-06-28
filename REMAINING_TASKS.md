@@ -41,6 +41,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
 - docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md
+- docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -55,10 +56,12 @@ deployment work still needs independent review.
    sandbox/testnet venue, or record an explicit human exception decision.
 4. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
-5. Continue only the still-open PR #43 rebuild candidates from clean `master`:
-   AI operator alerting/oversight, managed multi-symbol paper runtime, and
-   safe pipeline wrapper/startup hardening. Supervised-soak reporting and
-   durable pipeline log evidence are already rebuilt/closed.
+5. Continue only the still-open PR #43 rebuild candidates from clean `master`.
+   AI operator oversight is now scoped as a read-only one-shot synthesis report
+   over existing monitor/watch/gate artifacts; do not rebuild a second
+   background monitor. Managed multi-symbol paper runtime and safe pipeline
+   wrapper/startup hardening remain separate candidates. Supervised-soak
+   reporting and durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
 7. Add additional composite/hybrid long-window research variants until the
@@ -83,6 +86,11 @@ deployment work still needs independent review.
   PR #127 merged after checks passed, and the daily soak output now shows
   qualified/all-history closed trades, latest all-history fill, counted,
   incomplete, and rejected evidence fills, and latest qualified close.
+- PR #43 AI operator oversight rebuild is scoped:
+  `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`
+  records that the current paper-sim monitor is already the wake-up layer. The
+  next implementation, if pursued, should be a read-only one-shot oversight
+  synthesis report, not a second background monitor.
 - Composite/hybrid long-window research proof is accepted:
   `docs/checkpoints/composite_hybrid_long_window_research_proof_2026_06_27.md`
   records the accepted proof. It fixes the composite warmup/participation gap
