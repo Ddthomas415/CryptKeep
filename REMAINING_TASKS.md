@@ -7,16 +7,18 @@ The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned through
-  reviewed PRs through PR #124.
+  reviewed PRs through PR #127.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
-  - `breakout_default`: `fills=9`, `closed=4`, `pnl=-2.2281`
+  - `breakout_default`: `fills=11`, `closed=5`, `pnl=-4.1182`
 - Hetzner-owned `ema_cross_default` must be checked with the Hetzner campaign
   manifest, not the laptop shortcut.
 - Canonical `es_daily_trend_v1` paper promotion remains blocked at `2/10`
   provenance-qualified round trips, with `8` remaining.
 - `make status-paper-gate-qualification` now explains which fills count,
   remain incomplete, or are rejected by provenance checks.
+- `make status-paper-soak` and `make status-paper-all` now surface compact
+  paper-history qualification details directly in the daily status output.
 - Raw all-history currently reports `9` closed trades, but those remain
   diagnostic unless both entry and exit fills carry the required non-sample
   public-OHLCV provenance.
@@ -77,6 +79,16 @@ deployment work still needs independent review.
     whenever operator commands or workflow change.
 
 ## Recently completed
+- Paper-soak status qualification visibility is complete:
+  PR #127 merged after checks passed, and the daily soak output now shows
+  qualified/all-history closed trades, latest all-history fill, counted,
+  incomplete, and rejected evidence fills, and latest qualified close.
+- Composite/hybrid long-window research proof is accepted:
+  `docs/checkpoints/composite_hybrid_long_window_research_proof_2026_06_27.md`
+  records the accepted proof. It fixes the composite warmup/participation gap
+  for one long synthetic window, but the candidate remains blocked from paper
+  until comparison evidence exists across at least three realized synthetic
+  windows.
 - Shadow spread fresh-record proof is complete:
   `docs/checkpoints/shadow_spread_fresh_record_proof_2026_06_24.md` records
   `9/9` fresh `es_daily_trend_v1` signal records with `spread_bps` and
