@@ -81,6 +81,9 @@ def _gate_summary(gate_payload: dict[str, Any]) -> dict[str, Any]:
     round_trip_gate = _find_gate(gates, "round trip")
     days_gate = _find_gate(gates, "calendar days")
     expectancy_gate = _find_gate(gates, "expectancy")
+    paper_history = dict(gate_payload.get("paper_history") or {})
+    all_history = dict(paper_history.get("all_history") or {})
+    qualification = dict(paper_history.get("qualification") or {})
     return {
         "strategy_id": str(gate_payload.get("strategy_id") or ""),
         "stage": str(gate_payload.get("stage") or ""),
@@ -92,6 +95,50 @@ def _gate_summary(gate_payload: dict[str, Any]) -> dict[str, Any]:
         "round_trips": round_trip_gate,
         "days": days_gate,
         "expectancy": expectancy_gate,
+        "paper_history": {
+            "source": str(paper_history.get("source") or ""),
+            "fills": _as_int(paper_history.get("fills")),
+            "closed_trades": _as_int(paper_history.get("closed_trades")),
+            "latest_fill_ts": paper_history.get("latest_fill_ts"),
+            "all_history_fills": _as_int(
+                paper_history.get("all_history_fills") or all_history.get("fills")
+            ),
+            "all_history_closed_trades": _as_int(
+                paper_history.get("all_history_closed_trades")
+                or all_history.get("closed_trades")
+            ),
+            "all_history_latest_fill_ts": all_history.get("latest_fill_ts"),
+            "qualification": {
+                "evidence_fills": _as_int(qualification.get("evidence_fills")),
+                "qualified_evidence_fills": _as_int(
+                    qualification.get("qualified_evidence_fills")
+                ),
+                "provenance_qualified_evidence_fills": _as_int(
+                    qualification.get("provenance_qualified_evidence_fills")
+                ),
+                "completed_evidence_round_trips": _as_int(
+                    qualification.get("completed_evidence_round_trips")
+                ),
+                "incomplete_qualified_evidence_fills": _as_int(
+                    qualification.get("incomplete_qualified_evidence_fills")
+                ),
+                "unqualified_evidence_fills": _as_int(
+                    qualification.get("unqualified_evidence_fills")
+                ),
+                "first_provenance_qualified_fill_ts": qualification.get(
+                    "first_provenance_qualified_fill_ts"
+                ),
+                "latest_provenance_qualified_fill_ts": qualification.get(
+                    "latest_provenance_qualified_fill_ts"
+                ),
+                "first_completed_qualified_round_trip_close_ts": qualification.get(
+                    "first_completed_qualified_round_trip_close_ts"
+                ),
+                "latest_completed_qualified_round_trip_close_ts": qualification.get(
+                    "latest_completed_qualified_round_trip_close_ts"
+                ),
+            },
+        },
         "manual_review_summary": str(manual.get("summary") or ""),
         "outstanding_manual_items": [
             {
@@ -185,6 +232,25 @@ def print_report(payload: dict[str, Any]) -> None:
     expectancy = dict(gate.get("expectancy") or {})
     if expectancy:
         print(f"- expectancy: {expectancy.get('detail') or '-'}")
+    paper_history = dict(gate.get("paper_history") or {})
+    qualification = dict(paper_history.get("qualification") or {})
+    if paper_history or qualification:
+        print(
+            "- paper history: "
+            f"qualified_closed={paper_history.get('closed_trades', 0)} "
+            f"all_history_closed={paper_history.get('all_history_closed_trades', 0)} "
+            f"latest_all_history_fill={paper_history.get('all_history_latest_fill_ts') or '-'}"
+        )
+    if qualification:
+        print(
+            "- qualification: "
+            f"counted_fills={qualification.get('qualified_evidence_fills', 0)}/"
+            f"{qualification.get('evidence_fills', 0)} "
+            f"incomplete={qualification.get('incomplete_qualified_evidence_fills', 0)} "
+            f"rejected={qualification.get('unqualified_evidence_fills', 0)} "
+            "latest_qualified_close="
+            f"{qualification.get('latest_completed_qualified_round_trip_close_ts') or '-'}"
+        )
     if gate.get("manual_review_summary"):
         print(f"- manual review: {gate.get('manual_review_summary')}")
 
