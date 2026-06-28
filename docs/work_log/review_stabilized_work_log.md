@@ -9742,3 +9742,49 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Acceptance reference: independently reviewed and accepted by the human
   operator on 2026-06-28.
+
+## 2026-06-28T11:24:47Z - Document AI Operator Oversight In Golden Path
+
+Active role: ENGINEER
+
+Objective:
+- Align the narrow daily operator workflow documentation with the accepted
+  read-only AI operator oversight command.
+
+What was found:
+- SHOWN: `make ai-operator-oversight` exists in `Makefile`.
+- SHOWN: `scripts/SCRIPTS.md` documents `run_ai_operator_oversight.py` as a
+  read-only one-shot advisory report.
+- SHOWN: `docs/GOLDEN_PATH.md` documented `make status-paper-all` but did not
+  explain where the accepted operator oversight report fits in the daily
+  workflow.
+
+What changed:
+- Added an optional `make ai-operator-oversight` step after
+  `make status-paper-all` in `docs/GOLDEN_PATH.md`.
+- Documented that the command writes advisory reports under
+  `.cbp_state/runtime/ai_reports/`.
+- Documented the read-only boundary: no campaign start/stop, no watch or gate
+  mutation, and no order routing.
+
+Why this change:
+- `docs/GOLDEN_PATH.md` is the narrow daily-path document. Adding the accepted
+  command there prevents the operator from having to rediscover it from the
+  larger script index while keeping the command clearly optional.
+
+Expected outcome:
+- Operators can run the daily status command first, then optionally generate a
+  read-only synthesis report without confusing it for a campaign controller or
+  promotion authority.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "make ai-operator-oversight|read-only operator synthesis|runtime/ai_reports|does not route orders" docs/GOLDEN_PATH.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: the Golden Path and work log contain the expected operator command,
+    report path, and read-only boundary language.
+
+Remaining risk:
+- LOW: documentation-only workflow clarification. Runtime behavior, strategy
+  logic, background jobs, gates, alerts, and order routing are unchanged.
+- Acceptance state: `ACCEPTED`.
