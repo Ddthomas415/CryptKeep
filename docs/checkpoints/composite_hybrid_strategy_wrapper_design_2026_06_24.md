@@ -304,3 +304,10 @@ confirmation-gate candidate.
 The initial comparison was independently reviewed and accepted by the human
 operator on 2026-06-27 after PR #125 checks passed. It blocks paper advancement
 for the current composite definition.
+
+A long-window research follow-up was implemented on 2026-06-27 in:
+
+- `docs/checkpoints/composite_hybrid_long_window_research_proof_2026_06_27.md`
+
+That follow-up is ready for independent review. It gives the current composite
+one realized synthetic round trip, but the candidate remains blocked from paper.

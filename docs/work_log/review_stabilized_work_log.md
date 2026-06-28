@@ -9380,3 +9380,61 @@ Remaining risk:
 - MEDIUM: governance/status-only update for high-risk strategy comparison
   evidence. It records human acceptance and does not change source behavior.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T00:07:28Z - Composite Hybrid Long Window Research Proof
+
+Active role: ENGINEER
+
+Objective:
+- Add one research-only evidence window long enough for the accepted
+  `composite_hybrid_v1_breakout_sma200_research` candidate to exercise its
+  `sma_200_trend` confirmer.
+
+What was found:
+- SHOWN: the accepted PR #125 comparison had zero composite participation
+  because the default windows had fewer than `200` bars.
+- SHOWN: `sma_200_trend` needs `200` bars for SMA history and additional
+  ATR/regime history before entries can be allowed.
+- SHOWN: a 320-bar long trend/reversal synthetic window produces one closed
+  composite round trip.
+
+What changed:
+- Added `long_trend_confirmation` to `default_evidence_windows()` in both
+  `services/backtest/evidence_cycle.py` and
+  `services/backtest/evidence_windows.py`.
+- Added tests proving both window sources include the long window and that the
+  composite candidate produces a closed trade in that window.
+- Added
+  `docs/checkpoints/composite_hybrid_long_window_research_proof_2026_06_27.md`
+  and updated the active backlog/checkpoints.
+
+Why this change:
+- The accepted comparison showed the current composite could not be judged
+  fairly using only short windows.
+- A longer research-only window is the smallest change that tests the existing
+  200-SMA confirmer without adding a new strategy variant or paper campaign.
+
+Expected outcome:
+- Future evidence cycles can compare the composite candidate after the
+  confirmer has enough history to participate.
+- The candidate remains blocked from paper until accepted comparison evidence
+  exists across at least three realized synthetic windows.
+
+Verification:
+- `python3 -m pytest -q tests/test_backtest_evidence_cycle.py tests/test_backtest_leaderboard.py tests/test_composite_hybrid_parity.py`
+  - SHOWN: `26 passed in 1.86s`.
+- `python3 -m py_compile services/backtest/evidence_cycle.py services/backtest/evidence_windows.py tests/test_backtest_evidence_cycle.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python` generated
+  `/private/tmp/composite_hybrid_leaderboard_comparison_long_window_20260627.json`.
+  - SHOWN: composite rank `3/10`, `1` closed trade, `2.0568%` net return after
+    costs, decision `freeze`, evidence status `synthetic_only`, acceptance
+    `false`.
+
+Remaining risk:
+- HIGH: this changes financial strategy research evidence and future aggregate
+  leaderboard results. It does not add runtime registration, paper campaigns,
+  promotion behavior, or order routing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
