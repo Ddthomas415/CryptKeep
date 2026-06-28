@@ -125,6 +125,21 @@ def default_evidence_windows() -> list[dict[str, Any]]:
                 start_ts_ms=1_700_700_000_000,
             ),
         },
+        {
+            "window_id": "long_trend_confirmation",
+            "label": "Long Trend Confirmation",
+            "notes": "Extended trend and reversal window long enough for 200-SMA confirmation and composite exit testing.",
+            "warmup_bars": 20,
+            "candles": _candles_from_closes(
+                _segment_closes(
+                    (260, 0.40, 17, 0.15),
+                    (30, 0.75, 5, 0.30),
+                    (18, -2.60, 3, -0.80),
+                    (12, 0.20, None, None),
+                ),
+                start_ts_ms=1_700_800_000_000,
+            ),
+        },
     ]
 
 
@@ -516,5 +531,4 @@ def _rerank_rows_by_leaderboard_score(rows: list[dict[str, Any]]) -> list[dict[s
     for idx, row in enumerate(ranked, start=1):
         row["rank"] = int(idx)
     return ranked
-
 

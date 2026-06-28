@@ -4,6 +4,8 @@ import json
 import sqlite3
 
 from services.backtest import evidence_cycle
+from services.backtest import evidence_windows
+from services.backtest.leaderboard import COMPOSITE_HYBRID_RESEARCH_CANDIDATE
 
 
 def test_default_evidence_windows_expose_multiple_benchmarks() -> None:
@@ -15,7 +17,40 @@ def test_default_evidence_windows_expose_multiple_benchmarks() -> None:
     assert "false_breakout_whipsaw" in window_ids
     assert "event_trend_grind" in window_ids
     assert "low_vol_fee_bleed" in window_ids
+    assert "long_trend_confirmation" in window_ids
     assert all(int(item["bars"] if "bars" in item else len(item["candles"])) >= 100 for item in windows)
+
+
+def test_default_evidence_window_sources_include_long_sma_confirmation_window() -> None:
+    for source in (evidence_cycle, evidence_windows):
+        windows = source.default_evidence_windows()
+        row = next(item for item in windows if item["window_id"] == "long_trend_confirmation")
+
+        assert len(row["candles"]) >= 320
+        assert int(row["warmup_bars"]) == 20
+
+
+def test_long_trend_confirmation_window_exercises_composite_candidate() -> None:
+    row = next(
+        item
+        for item in evidence_cycle.default_evidence_windows()
+        if item["window_id"] == "long_trend_confirmation"
+    )
+
+    out = evidence_cycle.run_strategy_leaderboard(
+        base_cfg={},
+        symbol="BTC/USDT",
+        candles=row["candles"],
+        warmup_bars=int(row["warmup_bars"]),
+        initial_cash=10_000.0,
+        fee_bps=10.0,
+        slippage_bps=5.0,
+    )
+    composite = next(item for item in out["rows"] if item["candidate"] == COMPOSITE_HYBRID_RESEARCH_CANDIDATE)
+
+    assert composite["trade_count"] >= 2
+    assert composite["closed_trades"] >= 1
+    assert composite["strategy"] == "composite_hybrid_v1"
 
 
 def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch) -> None:
