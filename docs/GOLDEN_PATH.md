@@ -42,6 +42,17 @@ That target is read-only. It runs the local laptop soak summary and the
 Hetzner-owned EMA campaign status in sequence, then exits non-zero if either
 side reports failure.
 
+For a read-only operator synthesis after the campaign status check, use:
+
+```
+make ai-operator-oversight
+```
+
+This writes an advisory JSON/Markdown report under
+`.cbp_state/runtime/ai_reports/` using existing monitor, watch-report, and
+paper-gate facts. It does not replace `make status-paper-all`, does not start
+or stop campaigns, does not mutate watches or gates, and does not route orders.
+
 For a local-only operator check-in that combines laptop campaign health and the
 paper promotion gate summary, use:
 
