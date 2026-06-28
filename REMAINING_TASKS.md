@@ -7,7 +7,7 @@ The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned through
-  reviewed PRs through PR #129.
+  reviewed PRs through PR #131.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
   - `breakout_default`: `fills=11`, `closed=5`, `pnl=-4.1182`
@@ -42,6 +42,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
 - docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md
 - docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md
+- docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -59,8 +60,9 @@ deployment work still needs independent review.
 5. Continue only the still-open PR #43 rebuild candidates from clean `master`.
    AI operator oversight is independently accepted as a read-only one-shot
    synthesis report over existing monitor/watch/gate artifacts; do not rebuild
-   a second background monitor. Managed multi-symbol paper runtime and safe
-   pipeline wrapper/startup hardening remain separate candidates.
+   a second background monitor. Managed multi-symbol paper runtime is scoped as
+   a read-only planner objective; do not implement autonomous campaign starts.
+   Safe pipeline wrapper/startup hardening remains a separate candidate.
    Supervised-soak reporting and durable pipeline log evidence are already
    rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
@@ -92,6 +94,11 @@ deployment work still needs independent review.
   records that the current paper-sim monitor is already the wake-up layer and
   that the accepted implementation is a read-only one-shot oversight synthesis
   report, not a second background monitor.
+- PR #43 managed multi-symbol runtime is scoped:
+  `docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md`
+  records that the current explicit manifest runtime remains the authority and
+  any rebuild must start as a read-only campaign proposal planner, not an
+  autonomous campaign starter.
 - Composite/hybrid long-window research proof is accepted:
   `docs/checkpoints/composite_hybrid_long_window_research_proof_2026_06_27.md`
   records the accepted proof. It fixes the composite warmup/participation gap
