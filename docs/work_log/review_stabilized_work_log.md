@@ -9910,3 +9910,54 @@ Remaining risk:
 - Future implementation remains HIGH risk because it affects startup topology,
   runtime supervision, and fail-closed behavior.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T18:25:16Z - Refresh Backlog After PR43 Scope Checkpoints
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale backlog wording after PR #132 and PR #133 scoped the final PR
+  #43 rebuild candidates.
+
+What was found:
+- SHOWN: `review-stabilized`, `origin/review-stabilized`, and `origin/master`
+  are aligned at `bc841c33bf9e7e7f0288efc74fc6ab107d66039c`.
+- SHOWN: no open PRs are present.
+- SHOWN: `REMAINING_TASKS.md` still said reviewed PRs were aligned only
+  through PR #131.
+- SHOWN: `REMAINING_TASKS.md` still summarized the PR #43 follow-up as if
+  AI alerting, managed multi-symbol runtime, and safe-pipeline wrapper remained
+  generic separate scoped candidates, even though AI oversight is accepted and
+  the latter two now have explicit objective checkpoints.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to say alignment is current through PR #133.
+- Reworded the PR #43 recently-completed entry to say the follow-up is fully
+  scoped, with managed multi-symbol runtime and safe-pipeline/startup hardening
+  still implementation-open under their read-only objectives.
+- Reworded `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md` to
+  distinguish implementation-open scoped candidates from unscoped rebuild
+  work.
+
+Why this change:
+- The backlog is the operator-facing source for what remains. Leaving it at PR
+  #131 and using stale PR #43 wording would make future work look less settled
+  than it is.
+
+Expected outcome:
+- Future check-ins see the branch state through PR #133 and the remaining PR
+  #43 work as scoped objectives, not broad undefined rebuilds.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "reviewed PRs through PR #131|AI alerting, managed multi-symbol runtime, and safe-pipeline wrapper remain|fully scoped|Implementation-open as separate scoped rebuild candidates|PR #133|bc841c33" REMAINING_TASKS.md docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: stale PR #131 and stale PR #43 summary wording are absent from
+    active backlog text; replacement PR #133 and implementation-open scoped
+    language are present.
+
+Remaining risk:
+- LOW: documentation-only backlog/status correction. Runtime behavior,
+  background jobs, campaigns, gates, strategy logic, live execution, and order
+  routing are unchanged.
+- Acceptance state: `ACCEPTED`.
