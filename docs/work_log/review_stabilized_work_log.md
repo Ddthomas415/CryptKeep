@@ -9961,3 +9961,42 @@ Remaining risk:
   background jobs, campaigns, gates, strategy logic, live execution, and order
   routing are unchanged.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T18:32:39Z - Refresh Branch Alignment After PR134
+
+Active role: ENGINEER
+
+Objective:
+- Keep the lightweight backlog index aligned with the latest merged PR while
+  the operator's full pytest run proceeds separately.
+
+What was found:
+- SHOWN: `review-stabilized`, `origin/review-stabilized`, and `origin/master`
+  are aligned at `a6acaaba507714ae092682d225f9109fa4183ea7`.
+- SHOWN: no open PRs are present.
+- SHOWN: `REMAINING_TASKS.md` still said reviewed PRs were aligned only
+  through PR #133.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to say reviewed PR alignment is current through
+  PR #134.
+
+Why this change:
+- `REMAINING_TASKS.md` is the operator-facing backlog index. Leaving it one PR
+  behind makes check-ins look stale even though the branches are aligned.
+
+Expected outcome:
+- Future check-ins see the current merge boundary without re-checking GitHub
+  history.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "reviewed PRs through PR #13[34]|a6acaaba|Refresh Branch Alignment After PR134|operator's full pytest" REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: PR #134 alignment text and the work-log reference are present.
+
+Remaining risk:
+- LOW: documentation-only alignment correction. Runtime behavior, background
+  jobs, campaigns, gates, strategy logic, live execution, tests, and order
+  routing are unchanged.
+- Acceptance state: `ACCEPTED`.
