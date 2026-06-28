@@ -9551,3 +9551,49 @@ Remaining risk:
 - LOW: reporting-only change. It does not change qualification rules,
   promotion thresholds, campaign execution, financial logic, or order routing.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T10:46:28Z - Refresh Active Backlog After Paper Status Visibility Merge
+
+Active role: ENGINEER
+
+Objective:
+- Keep the visible active backlog aligned after PR #126 and PR #127 merged.
+
+What was found:
+- SHOWN: `master`, `origin/master`, and `origin/review-stabilized` were aligned
+  at `845a4259019295a8a4cd5263b52a9a5a52a6d068` after PR #127 merged.
+- SHOWN: `REMAINING_TASKS.md` still said the branches were aligned only through
+  PR #124.
+- SHOWN: the latest local paper-soak status reported `es_daily_trend_v1`
+  `fills=18`, `closed=9`, `pnl=32.1776` and `breakout_default` `fills=11`,
+  `closed=5`, `pnl=-4.1182`.
+- SHOWN: PR #127 added compact paper-history qualification details to the daily
+  soak status output.
+
+What changed:
+- Updated `REMAINING_TASKS.md` current-state text from PR #124 to PR #127.
+- Refreshed the visible laptop campaign figures for `breakout_default`.
+- Added the PR #127 paper-soak qualification visibility outcome to the current
+  state and recently-completed list.
+- Added the accepted PR #126 composite/hybrid long-window research proof to the
+  recently-completed list.
+
+Why this change:
+- The active backlog is the operator's first orientation surface. Keeping it
+  stale after accepted merges recreates the branch/status confusion this repo
+  has been actively removing.
+
+Expected outcome:
+- Future proactive work starts from the correct state: branches aligned through
+  PR #127, paper gate still blocked at `2/10`, and daily status output now
+  includes qualification visibility.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- No tests were run because this is a documentation-only backlog refresh.
+
+Remaining risk:
+- LOW: documentation-only status refresh. It does not change runtime behavior,
+  gate policy, strategy logic, or operator commands.
+- Acceptance state: `ACCEPTED`.
