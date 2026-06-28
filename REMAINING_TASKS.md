@@ -108,6 +108,12 @@ deployment work still needs independent review.
   records that the current canonical startup path and existing safe wrappers
   must be audited first; do not add `run_pipeline_safe.py` or alter startup
   behavior unless a current-master gap is reproduced and separately reviewed.
+- PR #43 safe-pipeline/startup hardening implementation proof is ready for
+  independent review:
+  `scripts/audit_startup_hardening.py` and
+  `services/runtime/startup_hardening_audit.py` provide a read-only topology
+  audit that writes only startup-audit artifacts. Runtime startup behavior is
+  unchanged and any wrapper/topology change remains a separate high-risk task.
 - Composite/hybrid long-window research proof is accepted:
   `docs/checkpoints/composite_hybrid_long_window_research_proof_2026_06_27.md`
   records the accepted proof. It fixes the composite warmup/participation gap

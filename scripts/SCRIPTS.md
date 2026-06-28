@@ -106,6 +106,8 @@ These inspect or repair operational state. Several are safety-critical or
 live-adjacent; use with the relevant docs and keep output as audit evidence.
 
 - `audit_view.py` — read-only audit viewer.
+- `audit_startup_hardening.py` — read-only startup topology and hardening audit;
+  writes audit artifacts only and does not start or stop services.
 - `cancel_intent.py` — cancel-flow helper.
 - `check_risk_accounting_invariant.py` — risk/fill ledger invariant check.
 - `crash_snapshot.py` — crash snapshot viewer/exporter.

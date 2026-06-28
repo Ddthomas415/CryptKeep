@@ -57,6 +57,18 @@ These remain for compatibility with older callers. They are not the canonical op
 - No current in-repo caller was shown enforcing startup-status freshness on the canonical supervised startup path.
 - Treat `startup_status.json` as recorded reconciliation evidence, not as a current canonical launch gate, unless a caller is wired and documented.
 
+## Read-only startup hardening audit
+
+- `python scripts/audit_startup_hardening.py` builds a current-source startup
+  topology and hardening report.
+- The report reads canonical startup scripts, safe-wrapper paths, pipeline
+  status behavior, and startup-related tests.
+- It writes latest and dated JSON/Markdown artifacts under
+  `.cbp_state/runtime/startup_audits/`.
+- It does not start services, stop services, mutate process-supervisor state,
+  create pid files, change startup gates, enable live execution, or route
+  orders.
+
 ## Historical note
 
 - `docs/checkpoints/root_runtime_scope_record.md` and `docs/checkpoints/hidden_defaults_note.md` preserve earlier `scripts/bot_ctl.py -> scripts/run_bot_safe.py` assumptions for audit history.
