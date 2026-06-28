@@ -10000,3 +10000,46 @@ Remaining risk:
   jobs, campaigns, gates, strategy logic, live execution, tests, and order
   routing are unchanged.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T18:39:28Z - Remove Fragile PR Number From Branch Alignment Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Stop `REMAINING_TASKS.md` from becoming stale after every accepted PR merge.
+
+What was found:
+- SHOWN: `review-stabilized`, `origin/review-stabilized`, and `origin/master`
+  are aligned at `272465f8b3d2c97817c4fbfe26a5301cc9b65d11`.
+- SHOWN: no open PRs are present.
+- SHOWN: `REMAINING_TASKS.md` still said branch alignment was current through
+  PR #134, which became stale immediately after PR #135 merged.
+
+What changed:
+- Replaced the specific "through PR #..." wording in `REMAINING_TASKS.md` with
+  a stable instruction to verify the current boundary using
+  `git rev-parse HEAD origin/master origin/review-stabilized`.
+
+Why this change:
+- Repeatedly updating a PR number creates self-inflicted backlog churn. The
+  repo already has the authoritative branch state in git; the backlog should
+  describe the alignment policy and verification command, not a per-merge
+  number that must be edited after every PR.
+
+Expected outcome:
+- Future accepted PR merges no longer require a follow-up docs-only PR just to
+  bump the latest PR number in the backlog.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "reviewed PRs through PR|git rev-parse HEAD origin/master origin/review-stabilized|Remove Fragile PR Number|272465f8" REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: active `REMAINING_TASKS.md` now uses the stable `git rev-parse`
+    verification command. Remaining `reviewed PRs through PR...` matches are
+    historical work-log entries, not active backlog instructions.
+
+Remaining risk:
+- LOW: documentation-only wording correction. Runtime behavior, background
+  jobs, campaigns, gates, strategy logic, live execution, tests, and order
+  routing are unchanged.
+- Acceptance state: `ACCEPTED`.
