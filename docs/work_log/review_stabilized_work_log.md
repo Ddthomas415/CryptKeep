@@ -9739,4 +9739,6 @@ Remaining risk:
 - No runtime/background job behavior, campaign control, promotion gate,
   strategy selection, alert dispatch, live execution, or order-routing behavior
   was changed.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-28.

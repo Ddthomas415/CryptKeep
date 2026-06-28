@@ -321,20 +321,15 @@ Current follow-up status:
 - SHOWN: the current source tree now contains
   `scripts/run_ai_operator_oversight.py` and
   `services/ai_copilot/operator_oversight.py` as a read-only one-shot
-  implementation proof pending independent review.
+  implementation proof accepted by independent human review.
 - SHOWN: the current source tree still does not contain the old PR #43
   managed-symbol source files or `scripts/run_pipeline_safe.py`.
 
 Next action:
 - Rebuild only one still-open candidate group at a time from current `master`:
-  1. AI operator oversight, implemented as proof and pending independent
-     review under
-     `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`
-     as a read-only one-shot synthesis report over existing monitor/watch/gate
-     artifacts. Do not rebuild a second background monitor.
-  2. Managed multi-symbol paper runtime, only after campaign ownership and
+  1. Managed multi-symbol paper runtime, only after campaign ownership and
      evidence isolation are explicitly scoped.
-  3. Safe pipeline wrapper and startup hardening, only after a current-master
+  2. Safe pipeline wrapper and startup hardening, only after a current-master
      startup or fail-closed gap is reproduced.
 - Keep live execution, auth gates, and unrelated runtime supervisor changes out
   of the same PR unless they are required for the specific rebuild.
