@@ -7,7 +7,7 @@ The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned through
-  reviewed PRs through PR #122.
+  reviewed PRs through PR #124.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
   - `breakout_default`: `fills=9`, `closed=4`, `pnl=-2.2281`
@@ -36,6 +36,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/strategy_signal_quality_plan_2026_05_22.md
 - docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md
 - docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md
+- docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
 - docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md
 
@@ -58,9 +59,10 @@ deployment work still needs independent review.
    durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
-7. Generate and independently review composite/hybrid leaderboard comparison
-   evidence. Do not add a persistent paper campaign or production path until
-   that comparison proof is independently reviewed.
+7. For composite/hybrid follow-up, either add a longer research-only evidence
+   window with at least 220 bars or define a separate shorter-confirmer variant.
+   Do not add a persistent paper campaign or production path until comparison
+   evidence with realized participation is independently reviewed.
 8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or

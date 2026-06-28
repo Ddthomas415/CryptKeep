@@ -9283,3 +9283,100 @@ Remaining risk:
 - MEDIUM: governance/status-only update for high-risk strategy research work.
   It records human acceptance but does not change source behavior.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-27T23:52:01Z - Composite Hybrid Leaderboard Comparison Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Generate read-only comparison evidence for the accepted
+  `composite_hybrid_v1_breakout_sma200_research` leaderboard row.
+
+What was found:
+- SHOWN: `run_strategy_evidence_cycle(...)` can build aggregate synthetic
+  leaderboard evidence without starting a paper campaign.
+- SHOWN: the comparison artifact was written to
+  `/private/tmp/composite_hybrid_leaderboard_comparison_20260627.json`.
+- SHOWN: the composite candidate ranked `5/10`, with decision `freeze`,
+  evidence status `insufficient`, and `0` closed trades.
+- SHOWN: every default evidence window had fewer than `200` bars.
+- SHOWN: `services/strategies/es_daily_trend.py` returns `hold` with reason
+  `insufficient_history` when the bar count is below `sma_period`.
+
+What changed:
+- Added
+  `docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md`.
+- Updated the composite design checkpoint, Priority 13, and active backlog to
+  point at the comparison checkpoint for independent review.
+
+Why this change:
+- The accepted leaderboard row needed comparison evidence before any paper
+  campaign or production path could be considered.
+- The first comparison result should be preserved as a visible audit artifact
+  because it blocks paper advancement for the current composite definition.
+
+Expected outcome:
+- Reviewers can see that the current composite row has no realized
+  participation and should not advance to paper.
+- The next strategy work should either add a longer research-only evidence
+  window or define a separate shorter-confirmer composite candidate.
+
+Verification:
+- `./.venv/bin/python` generated the temp evidence artifact successfully.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not run because this is a docs-only evidence checkpoint.
+
+Remaining risk:
+- HIGH: this is financial strategy comparison evidence. It is read-only and
+  does not change source behavior, but it can influence future campaign
+  selection.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-27 after PR #125 checks passed.
+
+## 2026-06-27T23:57:38Z - Accept Composite Hybrid Comparison Evidence
+
+Active role: GATE
+
+Objective:
+- Record human acceptance of the read-only composite/hybrid leaderboard
+  comparison checkpoint before merging PR #125.
+
+What was found:
+- SHOWN: PR #125 checks passed: macOS build, Windows build, CI sanity, CI
+  validate, GitGuardian, and both governance smoke jobs.
+- SHOWN: the comparison checkpoint concluded that the current composite
+  candidate should not advance to paper because it produced no realized
+  participation.
+- SHOWN: the human operator provided `INDEPENDENTLY_REVIEWED AND ACCEPTED` in
+  the Codex session.
+
+What changed:
+- Updated the comparison checkpoint, composite design checkpoint, Priority 13,
+  active backlog, and work log to mark the comparison evidence accepted.
+- Updated the next action to either add a longer research-only evidence window
+  or define a separate shorter-confirmer variant before any paper expansion.
+
+Why this change:
+- The accepted evidence should not merge with stale
+  `READY_FOR_INDEPENDENT_REVIEW` text.
+- The accepted conclusion is a blocker: the current composite definition has no
+  realized participation and should not advance to paper.
+
+Expected outcome:
+- PR #125 can merge with governance records aligned.
+- Future composite work stays research-only until it produces accepted
+  comparison evidence with realized participation.
+
+Verification:
+- `gh pr checks 125`
+  - SHOWN: all 7 checks passed.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not rerun for this docs-only acceptance update.
+
+Remaining risk:
+- MEDIUM: governance/status-only update for high-risk strategy comparison
+  evidence. It records human acceptance and does not change source behavior.
+- Acceptance state: `ACCEPTED`.
