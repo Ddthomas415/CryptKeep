@@ -7,7 +7,7 @@ The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned through
-  reviewed PRs through PR #127.
+  reviewed PRs through PR #129.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
   - `breakout_default`: `fills=11`, `closed=5`, `pnl=-4.1182`
@@ -57,11 +57,12 @@ deployment work still needs independent review.
 4. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
 5. Continue only the still-open PR #43 rebuild candidates from clean `master`.
-   AI operator oversight is now scoped as a read-only one-shot synthesis report
-   over existing monitor/watch/gate artifacts; do not rebuild a second
-   background monitor. Managed multi-symbol paper runtime and safe pipeline
-   wrapper/startup hardening remain separate candidates. Supervised-soak
-   reporting and durable pipeline log evidence are already rebuilt/closed.
+   AI operator oversight now has an implementation proof ready for independent
+   review as a read-only one-shot synthesis report over existing
+   monitor/watch/gate artifacts; do not rebuild a second background monitor.
+   Managed multi-symbol paper runtime and safe pipeline wrapper/startup
+   hardening remain separate candidates. Supervised-soak reporting and durable
+   pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
 7. Add additional composite/hybrid long-window research variants until the

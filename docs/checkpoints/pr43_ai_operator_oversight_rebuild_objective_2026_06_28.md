@@ -1,6 +1,6 @@
 # PR #43 AI Operator Oversight Rebuild Objective - 2026-06-28
 
-Status: READY_FOR_IMPLEMENTATION
+Status: READY_FOR_INDEPENDENT_REVIEW
 
 Active role: DIRECTOR
 
@@ -146,6 +146,75 @@ Before implementation can be accepted:
 - `scripts/SCRIPTS.md`, `docs/ARCHITECTURE.md`, and `REMAINING_TASKS.md`
   describe the report as read-only advisory oversight.
 
+## Implementation Proof
+
+Implemented in this proof pass:
+
+- `services/ai_copilot/operator_oversight.py`
+  - builds a read-only machine-fact report from the existing paper-sim monitor
+    status, recent watch reports, and canonical paper-gate output
+  - reports missing monitor status as `insufficient_status`
+  - reports missing watch reports as `no_recent_watch_reports`
+  - converts `recommendation_investigate` watch reports into operator action
+    items
+  - surfaces paper-gate blockers without mutating gate state
+  - keeps machine facts separate from optional AI narrative
+  - degrades to machine-only summary when AI is not requested or provider
+    access is unavailable
+  - writes latest and dated JSON/Markdown artifacts under
+    `.cbp_state/runtime/ai_reports/`
+- `scripts/run_ai_operator_oversight.py`
+  - root one-shot operator CLI
+  - writes artifacts by default
+  - supports `--json`, `--no-write`, and explicit `--use-ai`
+- `make ai-operator-oversight`
+  - operator Make target for the report
+- `tests/test_ai_copilot_operator_oversight.py`
+  - missing monitor status proof
+  - missing watch reports proof
+  - investigate watch action proof
+  - paper-gate blocker surfacing proof
+  - AI-provider fallback proof
+  - JSON/Markdown artifact write proof
+  - candidate-advisor disabled proof
+- `tests/test_run_ai_operator_oversight.py`
+  - CLI JSON/no-write proof
+  - CLI default artifact-write proof
+
+The implementation remains read-only:
+
+- no background monitor is started
+- no paper campaign is started or stopped
+- no watch configuration is mutated
+- no external notification is dispatched
+- no promotion gate is mutated
+- no candidate-advisor strategy selection is enabled
+- no order routing, submit, or cancellation path is touched
+- `configs/strategies/es_daily_trend_v1.yaml` still has
+  `use_candidate_advisor: false`
+
+Verification in this environment:
+
+- `./.venv/bin/python -m py_compile services/ai_copilot/operator_oversight.py scripts/run_ai_operator_oversight.py tests/test_ai_copilot_operator_oversight.py tests/test_run_ai_operator_oversight.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/run_ai_operator_oversight.py --no-write`
+  - SHOWN: returned `status=investigate`, `watch_report_status=available`,
+    `read_only=True`, and `ai_summary_status=machine_only` against the current
+    local state.
+- `CBP_STATE_DIR=/private/tmp/cbp-operator-oversight-proof ./.venv/bin/python scripts/run_ai_operator_oversight.py --json`
+  - SHOWN: wrote latest and dated JSON/Markdown artifacts under
+    `/private/tmp/cbp-operator-oversight-proof/runtime/ai_reports/`.
+  - SHOWN: returned `status=insufficient_status`,
+    `watch_report_status=no_recent_watch_reports`, and safety flags showing no
+    background monitor start, no watch mutation, no external notification, no
+    gate mutation, no order routing, and no live execution touch.
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "use_candidate_advisor:" configs/strategies/es_daily_trend_v1.yaml`
+  - SHOWN: `use_candidate_advisor: false`.
+- Targeted pytest was not run locally because this `.venv` currently reports
+  `No module named pytest`.
+
 ## Out Of Scope
 
 - external Slack/email/push notification enablement
@@ -164,8 +233,8 @@ HIGH for later implementation:
 - This touches operator oversight around financial strategy experimentation and
   could influence human decisions.
 
-LOW for this checkpoint:
-- This document changes planning only. It does not modify runtime behavior,
-  background jobs, strategy logic, order routing, or alert dispatch.
+HIGH for this implementation proof:
+- This is read-only, but it produces operator guidance around financial
+  strategy experimentation.
 
-Acceptance state: ACCEPTED
+Acceptance state: READY_FOR_INDEPENDENT_REVIEW

@@ -9665,3 +9665,78 @@ Remaining risk:
   independently reviewed if it affects background jobs, notifications, or
   financial operator decisions.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T11:05:47Z - Implement Read-Only AI Operator Oversight Report
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted PR #43 AI operator oversight objective as a one-shot,
+  read-only synthesis report over existing monitor/watch/gate artifacts.
+
+What was found:
+- SHOWN: the accepted objective requires a read-only one-shot report, not a
+  second background monitor.
+- SHOWN: `scripts/run_paper_sim_monitor.py --status` already exposes active
+  watches, recent watch reports, desktop notification outcomes, and paper-gate
+  qualification context.
+- SHOWN: `services/alerts/alert_dispatcher.py` and
+  `services/alerts/alert_router.py` are lower-level alert primitives, not a
+  paper-campaign oversight product by themselves.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` still has
+  `use_candidate_advisor: false`.
+
+What changed:
+- Added `services/ai_copilot/operator_oversight.py`.
+- Added `scripts/run_ai_operator_oversight.py`.
+- Added `tests/test_ai_copilot_operator_oversight.py`.
+- Added `tests/test_run_ai_operator_oversight.py`.
+- Added `make ai-operator-oversight`.
+- Updated `scripts/SCRIPTS.md`, `docs/ARCHITECTURE.md`,
+  `REMAINING_TASKS.md`, `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`,
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`, and
+  `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`.
+
+Why this change:
+- The paper-sim monitor is already the accepted wake-up layer. The missing
+  piece is advisory synthesis for the operator, using existing facts without
+  duplicating background monitoring or notification ownership.
+- Defaulting to machine-only output avoids network/API dependency and makes the
+  command deterministic unless the operator explicitly passes `--use-ai`.
+
+Expected outcome:
+- Operators get one root command that summarizes current monitor, watch, and
+  paper-gate facts into action items.
+- The report writes durable JSON/Markdown artifacts under
+  `.cbp_state/runtime/ai_reports/`.
+- Missing monitor status, missing watch reports, investigate watches, and
+  paper-gate blockers are surfaced explicitly.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/ai_copilot/operator_oversight.py scripts/run_ai_operator_oversight.py tests/test_ai_copilot_operator_oversight.py tests/test_run_ai_operator_oversight.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/run_ai_operator_oversight.py --no-write`
+  - SHOWN: returned `status=investigate`, `watch_report_status=available`,
+    `read_only=True`, and `ai_summary_status=machine_only` against current
+    local state.
+- `CBP_STATE_DIR=/private/tmp/cbp-operator-oversight-proof ./.venv/bin/python scripts/run_ai_operator_oversight.py --json`
+  - SHOWN: wrote latest and dated JSON/Markdown artifacts under
+    `/private/tmp/cbp-operator-oversight-proof/runtime/ai_reports/`.
+  - SHOWN: returned safety flags with no background monitor start, no watch
+    mutation, no external notification dispatch, no gate mutation, no order
+    routing, and no live execution touch.
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "use_candidate_advisor:" configs/strategies/es_daily_trend_v1.yaml`
+  - SHOWN: `use_candidate_advisor: false`.
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_operator_oversight.py tests/test_run_ai_operator_oversight.py`
+  - NOT RUN TO COMPLETION: local `.venv` reported `No module named pytest`.
+- Full test suite was not run per operator constraint against long test runs.
+
+Remaining risk:
+- HIGH: read-only implementation, but it creates operator guidance around
+  financial strategy experimentation.
+- No runtime/background job behavior, campaign control, promotion gate,
+  strategy selection, alert dispatch, live execution, or order-routing behavior
+  was changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -50,7 +50,8 @@ Closed from the active PR #43 rebuild list:
 - Durable supervised pipeline log evidence, via PR #109.
 
 Still open as separate scoped rebuild candidates:
-- AI operator oversight, now scoped in
+- AI operator oversight, now implemented as a proof pending independent review
+  in
   `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`
   as a read-only one-shot synthesis report over existing monitor/watch/gate
   artifacts, not a second background monitor.
