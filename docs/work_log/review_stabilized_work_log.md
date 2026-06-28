@@ -9788,3 +9788,65 @@ Remaining risk:
 - LOW: documentation-only workflow clarification. Runtime behavior, strategy
   logic, background jobs, gates, alerts, and order routing are unchanged.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T11:45:13Z - Scope Managed Multi-Symbol Paper Runtime Rebuild
+
+Active role: ENGINEER
+
+Objective:
+- Convert the remaining PR #43 managed multi-symbol paper-runtime rebuild group
+  into a current-master scoped objective without changing runtime behavior.
+
+What was found:
+- SHOWN: `docs/checkpoints/pr43_operator_observability_disposition_2026_06_19.md`
+  groups nine old PR #43 commits under managed multi-symbol paper runtime.
+- SHOWN: current source lacks `services/runtime/managed_symbol_config.py` and
+  `services/runtime/managed_symbol_selection.py`.
+- SHOWN: current source already has explicit manifest-based multi-campaign
+  status/restore through `services/analytics/paper_campaign_recovery.py`,
+  `scripts/restore_paper_campaigns.py`, and the accepted laptop/Hetzner
+  campaign manifests.
+- SHOWN: the current manifests already provide per-campaign state isolation
+  and host ownership for `es_daily_trend_v1`, `breakout_default`, and
+  `ema_cross_default`.
+
+What changed:
+- Added
+  `docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md`.
+- Updated `REMAINING_TASKS.md`,
+  `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md`, and
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` to point
+  managed multi-symbol runtime work at the new read-only planner objective.
+- Refreshed `REMAINING_TASKS.md` branch-alignment text through PR #131.
+
+Why this change:
+- The current repo already has an explicit multi-campaign manifest runtime. The
+  missing product capability is not another autonomous starter; it is a
+  reviewed way to propose future campaign rows while preserving state
+  isolation, host ownership, and human control.
+- A read-only planner is the smallest safe next boundary before any high-risk
+  managed campaign runtime work.
+
+Expected outcome:
+- Future managed multi-symbol work starts from a precise objective: propose
+  campaign rows only, reject unsafe duplicates, prove no manifest mutation, and
+  require separate review before any campaign can be started.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `sed -n '1,260p' docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md`
+  - SHOWN: the checkpoint defines a read-only planner, not an autonomous
+    campaign starter.
+- `rg -n "read-only|MUST NOT|MUST:|Proof Required|campaign proposal|autonomous|state directory|host ownership|use_candidate_advisor" docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md`
+  - SHOWN: the checkpoint contains the expected read-only boundaries,
+    proof requirements, duplicate/state isolation constraints, host ownership
+    requirement, and candidate-advisor guard.
+
+Remaining risk:
+- LOW: planning-only documentation update. Runtime behavior, background jobs,
+  campaign manifests, gates, strategy logic, live execution, and order routing
+  are unchanged.
+- Future implementation remains HIGH risk because it affects financial
+  strategy experimentation, background job ownership, and evidence attribution.
+- Acceptance state: `ACCEPTED`.
