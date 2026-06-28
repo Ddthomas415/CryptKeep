@@ -52,7 +52,7 @@ Closed from the active PR #43 rebuild list:
   existing monitor/watch/gate artifacts in
   `docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md`.
 
-Still open as separate scoped rebuild candidates:
+Implementation-open as separate scoped rebuild candidates:
 - Managed multi-symbol paper runtime, if the project is ready to move beyond
   the current explicit campaign manifests. This is now scoped by
   `docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md`
@@ -66,9 +66,8 @@ Still open as separate scoped rebuild candidates:
 
 ## Next Action
 
-Before implementing any remaining PR #43 rebuild candidate, write or follow a
-scoped objective that names exactly one group and proves the current-master gap
-still exists.
+Before implementing any remaining PR #43 rebuild candidate, follow its scoped
+objective and prove the current-master gap still exists.
 
 Do not rebuild from compiled cache artifacts or stale PR #43 source. Only use
 current source files and the accepted disposition document as evidence.

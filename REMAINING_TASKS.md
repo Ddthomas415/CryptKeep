@@ -7,7 +7,7 @@ The active operating state is paper-evidence collection, not live launch.
 
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned through
-  reviewed PRs through PR #131.
+  reviewed PRs through PR #133.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
   - `breakout_default`: `fills=11`, `closed=5`, `pnl=-4.1182`
@@ -117,11 +117,12 @@ deployment work still needs independent review.
   `docs/checkpoints/shadow_spread_fresh_record_proof_2026_06_24.md` records
   `9/9` fresh `es_daily_trend_v1` signal records with `spread_bps` and
   `market_quality_reason=ok`.
-- PR #43 rebuild follow-up narrowed:
+- PR #43 rebuild follow-up is fully scoped:
   `docs/checkpoints/pr43_rebuild_followup_status_2026_06_24.md` records
-  supervised-soak reporting and durable pipeline log evidence as closed, while
-  AI alerting, managed multi-symbol runtime, and safe-pipeline wrapper remain
-  separate scoped candidates.
+  supervised-soak reporting, durable pipeline log evidence, and AI operator
+  oversight as accepted. Managed multi-symbol runtime and safe-pipeline
+  wrapper/startup hardening now have separate read-only objective checkpoints;
+  implementation remains blocked until those scoped proofs are pursued.
 - Paper gate snapshot refreshed:
   `docs/checkpoints/paper_gate_status_2026_06_24.md` records local laptop
   campaigns healthy, canonical `es_daily_trend_v1` at `2/10`
