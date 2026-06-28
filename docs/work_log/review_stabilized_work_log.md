@@ -9437,4 +9437,55 @@ Remaining risk:
 - HIGH: this changes financial strategy research evidence and future aggregate
   leaderboard results. It does not add runtime registration, paper campaigns,
   promotion behavior, or order routing.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-28 after PR #126 checks passed.
+
+## 2026-06-28T00:21:55Z - Accept Composite Hybrid Long Window Research Proof
+
+Active role: GATE
+
+Objective:
+- Record human acceptance of the high-risk composite/hybrid long-window
+  research proof before merging PR #126.
+
+What was found:
+- SHOWN: PR #126 checks passed: macOS build, Windows build, CI sanity, CI
+  validate, GitGuardian, and both governance smoke jobs.
+- SHOWN: the long-window proof fixed the mechanical warmup/participation gap by
+  producing one closed synthetic composite round trip.
+- SHOWN: the proof still blocks paper advancement because evidence remains
+  synthetic-only, low confidence, and represented in only one realized window.
+- SHOWN: the human operator provided `INDEPENDENTLY_REVIEWED AND ACCEPTED` in
+  the Codex session.
+
+What changed:
+- Updated the long-window checkpoint, composite comparison checkpoint, composite
+  design checkpoint, Priority 13, active backlog, and work log to mark the proof
+  accepted.
+- Updated the next action to add more long-window research variants until the
+  candidate has comparison evidence across at least three realized synthetic
+  windows.
+
+Why this change:
+- The accepted proof should not merge with stale `READY_FOR_INDEPENDENT_REVIEW`
+  text.
+- The accepted result improves research fairness but remains insufficient for
+  paper expansion.
+
+Expected outcome:
+- PR #126 can merge with governance records aligned.
+- Future composite work remains research-only and focused on additional
+  realized synthetic windows before any paper campaign is reconsidered.
+
+Verification:
+- `gh pr checks 126`
+  - SHOWN: all 7 checks passed.
+- `git diff --check`
+  - SHOWN: passed.
+- Tests were not rerun for this docs-only acceptance update.
+
+Remaining risk:
+- MEDIUM: governance/status-only update for high-risk strategy research
+  evidence. It records human acceptance and does not change source behavior.
+- Acceptance state: `ACCEPTED`.

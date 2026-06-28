@@ -141,4 +141,5 @@ on 2026-06-27 after PR #125 checks passed.
 Follow-up:
 - `docs/checkpoints/composite_hybrid_long_window_research_proof_2026_06_27.md`
   implements a 320-bar research-only evidence window so the 200-SMA confirmer
-  can participate. That follow-up is separate and requires independent review.
+  can participate. That follow-up was independently reviewed and accepted by
+  the human operator on 2026-06-28 after PR #126 checks passed.

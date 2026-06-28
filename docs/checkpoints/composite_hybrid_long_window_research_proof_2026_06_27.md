@@ -128,6 +128,11 @@ Recommendation:
   tested across at least three realized synthetic windows before any paper
   decision is revisited.
 
+This proof was independently reviewed and accepted by the human operator on
+2026-06-28 after PR #126 checks passed. The accepted conclusion is that the
+long-window proof fixes the mechanical warmup/participation gap, but the
+candidate remains blocked from paper.
+
 ## Acceptance State
 
 Risk: HIGH
@@ -136,5 +141,7 @@ Reason:
 - This changes financial strategy research evidence and can affect future
   candidate ranking.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
 
+Acceptance reference: independently reviewed and accepted by the human operator
+on 2026-06-28 after PR #126 checks passed.
