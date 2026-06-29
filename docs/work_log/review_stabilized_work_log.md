@@ -39,6 +39,74 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-29 - Pullback Stage 0 Proof Verifier
+
+Date: 2026-06-29
+
+Active role: `ENGINEER`
+
+Objective: add a read-only baseline and verifier for the pending
+`pullback_recovery_default` Stage 0 proof, without running the 15-minute proof.
+
+What was found:
+- SHOWN: the first pullback Stage 0 state directory still contains pre-fix
+  session evidence and cannot be accepted as the post-fix proof.
+- SHOWN: the checkpoint requires canonical fill-count isolation, public-OHLCV
+  provenance, clean completion, and no persistent campaign conversion.
+- SHOWN: canonical fill-count isolation cannot be proven after the fact without
+  a before-count baseline.
+
+What changed:
+- Added `services/analytics/pullback_stage0_proof_verifier.py` with
+  `build_pullback_stage0_baseline()` and
+  `build_pullback_stage0_verification()`.
+- Added `scripts/verify_pullback_stage0_proof.py`:
+  - `--record-baseline` captures canonical and challenger fill counts before
+    the long proof.
+  - default verification checks post-baseline completion, expected commit,
+    public-OHLCV provenance, strategy attribution, runtime status, and canonical
+    fill-count isolation.
+- Added targeted service and CLI tests.
+- Updated `scripts/SCRIPTS.md`, the pullback checkpoint, `REMAINING_TASKS.md`,
+  and this work log.
+
+Why this change:
+- The long proof remains operator-run, but the repo now carries the proof
+  validation workflow instead of relying on manual inspection of JSONL,
+  runtime status, and SQLite counts.
+- Capturing the baseline immediately before the long command is the narrowest
+  way to prove canonical paper history was not contaminated.
+
+Expected outcome:
+- The operator can run a short baseline command, then the 15-minute isolated
+  proof, then a short verifier command that returns pass/fail evidence.
+- Persistent `pullback_recovery_default` campaigns remain blocked until the
+  verifier passes and the proof is independently accepted.
+
+Verification:
+- `awk 'length($0)>100 {print FILENAME ":" FNR ":" length($0) ":" $0}' services/analytics/pullback_stage0_proof_verifier.py scripts/verify_pullback_stage0_proof.py tests/test_pullback_stage0_proof_verifier.py tests/test_verify_pullback_stage0_proof_script.py`
+  - SHOWN: no over-100-column lines after formatting.
+- `./.venv/bin/python -m py_compile services/analytics/pullback_stage0_proof_verifier.py scripts/verify_pullback_stage0_proof.py tests/test_pullback_stage0_proof_verifier.py tests/test_verify_pullback_stage0_proof_script.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_pullback_stage0_proof_verifier.py tests/test_verify_pullback_stage0_proof_script.py`
+  - SHOWN: `6 passed in 0.22s`.
+- `./.venv/bin/python scripts/verify_pullback_stage0_proof.py --record-baseline --json --no-write`
+  - SHOWN: produced a read-only baseline with canonical fill count `174`,
+    challenger fill count `0`, and expected commit `9924f0c77`.
+- `CBP_STATE_DIR=/private/tmp/cbp-pullback-stage0-verifier ./.venv/bin/python scripts/verify_pullback_stage0_proof.py --record-baseline --json`
+  - SHOWN: wrote only verifier baseline artifacts under
+    `/private/tmp/cbp-pullback-stage0-verifier/data/pullback_stage0_verification/`.
+- `git diff --check`
+  - SHOWN: passed.
+- `find scripts -maxdepth 1 -type f -name '*.py' | wc -l`
+  - SHOWN: root `scripts/` currently contains `105` Python entrypoints.
+
+Remaining risk:
+- HIGH: strategy campaign proof workflow and future evidence acceptance path.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-29 for PR #141.
+
 ## 2026-06-29 - Pullback Stage 0 Backlog Alignment
 
 Date: 2026-06-29

@@ -98,8 +98,21 @@ Status:
   command for the operator.
 - PR #139 independently accepted and merged the readiness report. The readiness
   review step is closed; the actual full post-fix Stage 0 run is still pending.
+- `scripts/verify_pullback_stage0_proof.py` now provides a read-only
+  baseline/verifier for the full Stage 0 proof. The baseline captures the
+  canonical paper-history fill count before the long run; the verifier checks
+  the completed pullback session after the run and confirms canonical fill-count
+  isolation.
 
-Run the full post-fix Stage 0 proof only when the operator is ready for a
+Immediately before the full post-fix Stage 0 proof, record the baseline:
+
+```bash
+./.venv/bin/python scripts/verify_pullback_stage0_proof.py \
+  --record-baseline \
+  --json
+```
+
+Then run the full post-fix Stage 0 proof only when the operator is ready for a
 15-minute command:
 
 ```bash
@@ -119,6 +132,12 @@ After the run:
 ```bash
 CBP_STATE_DIR="$PWD/.cbp_state_challengers/pullback_recovery_default" \
   ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --status
+```
+
+Then verify the proof:
+
+```bash
+./.venv/bin/python scripts/verify_pullback_stage0_proof.py --json
 ```
 
 Required checks:

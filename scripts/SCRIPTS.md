@@ -59,7 +59,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 100 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 105 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -181,6 +181,11 @@ decision makes them authoritative.
 - `run_phase1_safety.py` — phase 1 safety check wrapper.
 - `smoke_phase1_copilot.py` — phase 1 copilot smoke test.
 - `test_evidence_webhook_roundtrip.py` — evidence webhook round-trip utility.
+- `verify_pullback_stage0_proof.py` — read-only pullback Stage 0 proof
+  baseline/verifier; use `--record-baseline` immediately before the 15-minute
+  proof, then run again after the proof to verify public-OHLCV provenance,
+  post-baseline completion, expected commit, and canonical fill-count
+  isolation.
 
 ### Validation, Alignment, Release, And Maintenance
 
