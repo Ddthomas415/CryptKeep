@@ -2,7 +2,7 @@
 
 Status: ACCEPTED
 
-Implementation proof status: READY_FOR_INDEPENDENT_REVIEW
+Implementation proof status: ACCEPTED
 
 Active role: DIRECTOR
 
@@ -229,7 +229,11 @@ Verification:
 Remaining risk:
 - HIGH: managed campaign expansion affects financial strategy experimentation,
   background job ownership, evidence attribution, and operator workflow. This
-  proof is read-only and must remain at `READY_FOR_INDEPENDENT_REVIEW` until a
-  separate reviewer or human accepts it.
+  proof is read-only. Any follow-up manifest mutation, campaign start, or
+  autonomous managed-runtime behavior remains a separate high-risk
+  implementation.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-29 after PR #138 checks
+  passed.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED

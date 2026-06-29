@@ -10217,5 +10217,52 @@ Verification:
 Remaining risk:
 - HIGH: managed campaign expansion affects financial strategy experimentation,
   background jobs, evidence attribution, and operator workflow. This change is
-  read-only but must stop at independent review before acceptance.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+  read-only. Any follow-up manifest mutation, campaign start, or autonomous
+  managed-runtime behavior remains a separate high-risk implementation.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-29 after PR #138 checks
+  passed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-06-29T04:35:01Z - Record Managed Campaign Planner Acceptance
+
+Active role: ENGINEER
+
+Objective:
+- Record the human acceptance of the PR #138 managed campaign planner proof in
+  governed repo artifacts before merge.
+
+What was found:
+- SHOWN: PR #138 is open and all visible checks are successful.
+- SHOWN: the implementation checkpoint and work-log entry still showed
+  `READY_FOR_INDEPENDENT_REVIEW`.
+- SHOWN: the operator supplied `INDEPENDENTLY_REVIEWED AND ACCEPTED`.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to classify the managed planner implementation
+  proof as accepted.
+- Updated the PR #43 managed-runtime checkpoint implementation proof status
+  from `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+- Updated the implementation work-log entry with the human acceptance
+  reference.
+
+Why this change:
+- Accepted high-risk work should not merge with stale pending-review wording in
+  the governed backlog, checkpoint, and work log.
+
+Expected outcome:
+- Future audits can trace that PR #138 passed CI and was accepted by the human
+  operator before merge.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "managed multi-symbol runtime implementation proof is accepted|Implementation proof status: ACCEPTED|Record Managed Campaign Planner Acceptance|Acceptance reference: accepted by human operator" REMAINING_TASKS.md docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: acceptance status, acceptance references, and this work-log entry
+    are present.
+
+Remaining risk:
+- LOW: docs-only acceptance recording. Runtime behavior, campaign manifests,
+  state directories, background jobs, candidate-advisor configuration, live
+  execution, order routing, and tests are unchanged.
+- Acceptance state: `ACCEPTED`.

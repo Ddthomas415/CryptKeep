@@ -103,8 +103,7 @@ deployment work still needs independent review.
   records that the current explicit manifest runtime remains the authority and
   any rebuild must start as a read-only campaign proposal planner, not an
   autonomous campaign starter.
-- PR #43 managed multi-symbol runtime implementation proof is ready for
-  independent review:
+- PR #43 managed multi-symbol runtime implementation proof is accepted:
   `scripts/plan_managed_paper_campaigns.py` and
   `services/analytics/managed_paper_campaign_planner.py` provide a read-only
   proposal planner that writes only proposal artifacts. Campaign manifests,
