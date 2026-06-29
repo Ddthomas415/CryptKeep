@@ -69,9 +69,10 @@ deployment work still needs independent review.
    topology/gap audit; do not implement a new wrapper unless a current-master
    gap is reproduced and separately reviewed. Supervised-soak reporting and
    durable pipeline log evidence are already rebuilt/closed.
-6. Review the read-only `pullback_recovery_default` Stage 0 readiness report,
-   then run the full post-fix isolated Stage 0 proof before enabling any
-   persistent campaign.
+6. Run the full post-fix isolated Stage 0 proof for
+   `pullback_recovery_default` before enabling any persistent campaign. The
+   read-only readiness report is accepted and merged; do not rerun review of
+   that step.
 7. Add additional composite/hybrid long-window research variants until the
    candidate has comparison evidence across at least three realized synthetic
    windows. Do not add a persistent paper campaign or production path until
@@ -90,6 +91,12 @@ deployment work still needs independent review.
     whenever operator commands or workflow change.
 
 ## Recently completed
+- Pullback Stage 0 readiness report is accepted:
+  PR #139 merged as `f26dd965e`, adding
+  `scripts/check_pullback_stage0_readiness.py` and
+  `services/analytics/pullback_stage0_readiness.py`. The next pullback action
+  is the operator-run 15-minute isolated Stage 0 proof, not another readiness
+  review.
 - Paper-soak status qualification visibility is complete:
   PR #127 merged after checks passed, and the daily soak output now shows
   qualified/all-history closed trades, latest all-history fill, counted,
