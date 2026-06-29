@@ -159,6 +159,9 @@ decision makes them authoritative.
 - `approve_model_switch.py` — approve a pending model switch.
 - `candidate_trade_summary.py` — read-only candidate trade attribution summary;
   use `make candidate-summary`.
+- `plan_managed_paper_campaigns.py` — read-only managed paper-campaign proposal
+  planner; writes proposal artifacts only and does not mutate manifests or
+  start campaigns.
 - `run_candidate_outcome_report.py` — read-only candidate-vs-paper-outcome
   report that writes `.cbp_state/data/candidate_outcomes/` artifacts; use
   `make candidate-outcomes`.

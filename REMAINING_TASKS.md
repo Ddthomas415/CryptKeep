@@ -62,13 +62,13 @@ deployment work still needs independent review.
 5. Continue only the still-open PR #43 rebuild candidates from clean `master`.
    AI operator oversight is independently accepted as a read-only one-shot
    synthesis report over existing monitor/watch/gate artifacts; do not rebuild
-   a second background monitor. Managed multi-symbol paper runtime is scoped as
-   a read-only planner objective; do not implement autonomous campaign starts.
-   Safe pipeline wrapper/startup hardening is scoped as a read-only startup
-   topology/gap audit first; do not implement a new wrapper unless a
-   current-master gap is reproduced and separately reviewed.
-   Supervised-soak reporting and durable pipeline log evidence are already
-   rebuilt/closed.
+   a second background monitor. Managed multi-symbol paper runtime now has a
+   read-only proposal planner implementation proof ready for independent
+   review; do not implement autonomous campaign starts or mutate manifests.
+   Safe pipeline wrapper/startup hardening is accepted as a read-only startup
+   topology/gap audit; do not implement a new wrapper unless a current-master
+   gap is reproduced and separately reviewed. Supervised-soak reporting and
+   durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign.
 7. Add additional composite/hybrid long-window research variants until the
@@ -103,13 +103,17 @@ deployment work still needs independent review.
   records that the current explicit manifest runtime remains the authority and
   any rebuild must start as a read-only campaign proposal planner, not an
   autonomous campaign starter.
+- PR #43 managed multi-symbol runtime implementation proof is accepted:
+  `scripts/plan_managed_paper_campaigns.py` and
+  `services/analytics/managed_paper_campaign_planner.py` provide a read-only
+  proposal planner that writes only proposal artifacts. Campaign manifests,
+  state directories, and running collectors are unchanged.
 - PR #43 safe-pipeline/startup hardening is scoped:
   `docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md`
   records that the current canonical startup path and existing safe wrappers
   must be audited first; do not add `run_pipeline_safe.py` or alter startup
   behavior unless a current-master gap is reproduced and separately reviewed.
-- PR #43 safe-pipeline/startup hardening implementation proof is ready for
-  independent review:
+- PR #43 safe-pipeline/startup hardening implementation proof is accepted:
   `scripts/audit_startup_hardening.py` and
   `services/runtime/startup_hardening_audit.py` provide a read-only topology
   audit that writes only startup-audit artifacts. Runtime startup behavior is

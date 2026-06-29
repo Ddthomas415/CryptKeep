@@ -2,6 +2,8 @@
 
 Status: ACCEPTED
 
+Implementation proof status: ACCEPTED
+
 Active role: DIRECTOR
 
 ## Purpose
@@ -168,5 +170,70 @@ HIGH for later implementation:
 LOW for this checkpoint:
 - This is planning-only. It does not modify runtime behavior, background jobs,
   strategy logic, campaign manifests, gates, live execution, or order routing.
+
+Acceptance state: ACCEPTED
+
+## Implementation Proof - 2026-06-29
+
+SHOWN:
+- `services/analytics/managed_paper_campaign_planner.py` builds a read-only
+  managed paper-campaign proposal report from current manifests and candidate
+  artifacts.
+- `scripts/plan_managed_paper_campaigns.py` exposes the report through a root
+  CLI.
+- The implementation loads laptop and Hetzner manifests through the accepted
+  `paper_campaign_recovery` manifest parser.
+- It detects duplicate campaign names, duplicate state directories, and
+  duplicate `(strategy, session_strategy_id, symbol, venue)` owners across
+  loaded manifests.
+- It reads current candidate, candidate-outcome, and signal-quality artifacts
+  when available, and reports missing candidate rows as
+  `insufficient_candidate_evidence`.
+- It proposes manifest-shaped rows only for supported strategies with explicit
+  host ownership, isolated state directories, explicit session strategy IDs,
+  symbols, venues, and signal sources.
+- It writes latest and dated JSON/Markdown proposal artifacts under
+  `.cbp_state/data/managed_paper_campaign_plans/` only.
+
+Changed artifacts:
+- `services/analytics/managed_paper_campaign_planner.py`
+- `scripts/plan_managed_paper_campaigns.py`
+- `tests/test_managed_paper_campaign_planner.py`
+- `tests/test_plan_managed_paper_campaigns_script.py`
+- `scripts/SCRIPTS.md`
+- `docs/GOLDEN_PATH.md`
+- `REMAINING_TASKS.md`
+- `docs/work_log/review_stabilized_work_log.md`
+
+Expected outcome:
+- Operators can generate explicit campaign-row proposals without modifying
+  manifests, starting collectors, creating state directories, enabling
+  candidate-advisor selection, or routing orders.
+- Any proposed manifest row remains advisory until a separate reviewed change
+  applies it.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/analytics/managed_paper_campaign_planner.py scripts/plan_managed_paper_campaigns.py tests/test_managed_paper_campaign_planner.py tests/test_plan_managed_paper_campaigns_script.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_managed_paper_campaign_planner.py tests/test_plan_managed_paper_campaigns_script.py`
+  - SHOWN: `9 passed in 0.24s`.
+- `./.venv/bin/python scripts/plan_managed_paper_campaigns.py --no-write`
+  - SHOWN: exited 0, reviewed 2 candidate rows, and wrote no artifacts.
+- `CBP_STATE_DIR=/private/tmp/cbp-managed-campaign-plan-proof ./.venv/bin/python scripts/plan_managed_paper_campaigns.py --host laptop --json`
+  - SHOWN: exited 0 and wrote only managed-plan JSON/Markdown artifacts under
+    the isolated state directory.
+- `./.venv/bin/python scripts/plan_managed_paper_campaigns.py --host laptop --json --no-write`
+  - SHOWN: current repo state produces two laptop-targeted
+    `mean_reversion_rsi` proposal rows for human review without writing.
+
+Remaining risk:
+- HIGH: managed campaign expansion affects financial strategy experimentation,
+  background job ownership, evidence attribution, and operator workflow. This
+  proof is read-only. Any follow-up manifest mutation, campaign start, or
+  autonomous managed-runtime behavior remains a separate high-risk
+  implementation.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-29 after PR #138 checks
+  passed.
 
 Acceptance state: ACCEPTED

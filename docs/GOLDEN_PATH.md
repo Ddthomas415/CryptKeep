@@ -53,6 +53,18 @@ This writes an advisory JSON/Markdown report under
 paper-gate facts. It does not replace `make status-paper-all`, does not start
 or stop campaigns, does not mutate watches or gates, and does not route orders.
 
+For read-only planning of possible future explicit campaign rows, use:
+
+```
+python scripts/plan_managed_paper_campaigns.py --no-write
+```
+
+Passing `--host laptop` or `--host hetzner` makes proposed rows target that
+manifest in the generated report, but the command still does not mutate
+`configs/paper_evidence_campaigns*.json`, does not start or stop collectors,
+does not create state directories, and does not enable candidate-advisor
+selection. Any proposal must be reviewed and applied in a separate change.
+
 For a local-only operator check-in that combines laptop campaign health and the
 paper promotion gate summary, use:
 

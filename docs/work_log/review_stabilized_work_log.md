@@ -10153,3 +10153,116 @@ Remaining risk:
 - LOW: docs-only acceptance recording. Runtime behavior, startup topology,
   background jobs, live execution, order routing, and tests are unchanged.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-29T04:14:01Z - Implement Read-Only Managed Campaign Planner
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted PR #43 managed multi-symbol paper-runtime objective
+  as a read-only campaign proposal planner, without changing manifests or
+  starting campaigns.
+
+What was found:
+- SHOWN: the accepted current runtime uses explicit campaign manifests for
+  laptop and Hetzner ownership.
+- SHOWN: `configs/paper_evidence_campaigns.laptop.json` owns
+  `es_daily_trend_v1` and `breakout_default`.
+- SHOWN: `configs/paper_evidence_campaigns.hetzner.example.json` owns
+  `ema_cross_default`.
+- SHOWN: current candidate snapshot data exists under
+  `.cbp_state/runtime/candidates/latest_candidates.json`.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` keeps
+  `use_candidate_advisor: false`.
+
+What changed:
+- Added `services/analytics/managed_paper_campaign_planner.py` to build a
+  static read-only proposal report from current manifests and candidate
+  artifacts.
+- Added `scripts/plan_managed_paper_campaigns.py` as the root CLI.
+- Added tests for explicit host proposals, manifest preservation, duplicate
+  name/state/owner rejection, missing candidate evidence, no-write mode,
+  default artifact writing, and no campaign-start/restore side effects.
+- Documented the command in `scripts/SCRIPTS.md` and `docs/GOLDEN_PATH.md`.
+- Updated `REMAINING_TASKS.md` and the PR #43 managed-runtime checkpoint to
+  mark the implementation proof ready for independent review.
+
+Why this change:
+- The accepted objective rejects autonomous scanner-managed campaign starts.
+  A proposal artifact is the smallest useful implementation: it turns candidate
+  signals into reviewable manifest-shaped rows while preserving explicit human
+  ownership and all running campaign boundaries.
+
+Expected outcome:
+- Operators can run `python scripts/plan_managed_paper_campaigns.py --no-write`
+  for a read-only review, or pass `--host laptop` / `--host hetzner` to produce
+  advisory manifest-shaped rows in the report.
+- Applying any proposed row remains a separate high-risk reviewed change.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/analytics/managed_paper_campaign_planner.py scripts/plan_managed_paper_campaigns.py tests/test_managed_paper_campaign_planner.py tests/test_plan_managed_paper_campaigns_script.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_managed_paper_campaign_planner.py tests/test_plan_managed_paper_campaigns_script.py`
+  - SHOWN: `9 passed in 0.24s`.
+- `./.venv/bin/python scripts/plan_managed_paper_campaigns.py --no-write`
+  - SHOWN: exited 0 with `status=no_eligible_proposals`, `read_only=True`,
+    `candidate_rows_reviewed=2`, and `proposal_count=0`.
+- `CBP_STATE_DIR=/private/tmp/cbp-managed-campaign-plan-proof ./.venv/bin/python scripts/plan_managed_paper_campaigns.py --host laptop --json`
+  - SHOWN: exited 0 and wrote latest/dated JSON and Markdown artifacts under
+    `/private/tmp/cbp-managed-campaign-plan-proof/data/managed_paper_campaign_plans/`.
+- `./.venv/bin/python scripts/plan_managed_paper_campaigns.py --host laptop --json --no-write`
+  - SHOWN: current repo state produces two laptop-targeted
+    `mean_reversion_rsi` proposal rows without writing.
+
+Remaining risk:
+- HIGH: managed campaign expansion affects financial strategy experimentation,
+  background jobs, evidence attribution, and operator workflow. This change is
+  read-only. Any follow-up manifest mutation, campaign start, or autonomous
+  managed-runtime behavior remains a separate high-risk implementation.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-29 after PR #138 checks
+  passed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-06-29T04:35:01Z - Record Managed Campaign Planner Acceptance
+
+Active role: ENGINEER
+
+Objective:
+- Record the human acceptance of the PR #138 managed campaign planner proof in
+  governed repo artifacts before merge.
+
+What was found:
+- SHOWN: PR #138 is open and all visible checks are successful.
+- SHOWN: the implementation checkpoint and work-log entry still showed
+  `READY_FOR_INDEPENDENT_REVIEW`.
+- SHOWN: the operator supplied `INDEPENDENTLY_REVIEWED AND ACCEPTED`.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to classify the managed planner implementation
+  proof as accepted.
+- Updated the PR #43 managed-runtime checkpoint implementation proof status
+  from `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+- Updated the implementation work-log entry with the human acceptance
+  reference.
+
+Why this change:
+- Accepted high-risk work should not merge with stale pending-review wording in
+  the governed backlog, checkpoint, and work log.
+
+Expected outcome:
+- Future audits can trace that PR #138 passed CI and was accepted by the human
+  operator before merge.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "managed multi-symbol runtime implementation proof is accepted|Implementation proof status: ACCEPTED|Record Managed Campaign Planner Acceptance|Acceptance reference: accepted by human operator" REMAINING_TASKS.md docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: acceptance status, acceptance references, and this work-log entry
+    are present.
+
+Remaining risk:
+- LOW: docs-only acceptance recording. Runtime behavior, campaign manifests,
+  state directories, background jobs, candidate-advisor configuration, live
+  execution, order routing, and tests are unchanged.
+- Acceptance state: `ACCEPTED`.
