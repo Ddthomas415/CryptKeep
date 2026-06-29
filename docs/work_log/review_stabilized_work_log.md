@@ -100,7 +100,9 @@ Verification:
 
 Remaining risk:
 - HIGH: strategy campaign workflow and future evidence collection path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-29 for PR #139 after all 9 GitHub checks passed.
 
 ## 2026-05-28 - Master Integration Branch Refresh With Shadow Evidence
 
