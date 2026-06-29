@@ -160,9 +160,9 @@ decision makes them authoritative.
 - `candidate_trade_summary.py` — read-only candidate trade attribution summary;
   use `make candidate-summary`.
 - `check_pullback_stage0_readiness.py` — read-only readiness report for the
-  accepted `pullback_recovery_default` Stage 0 proof; writes report artifacts
-  only and prints the 15-minute operator-run proof command without starting the
-  collector.
+  accepted `pullback_recovery_default` Stage 0 proof; use
+  `make pullback-stage0-readiness`. Writes report artifacts only and prints the
+  15-minute operator-run proof command without starting the collector.
 - `plan_managed_paper_campaigns.py` — read-only managed paper-campaign proposal
   planner; writes proposal artifacts only and does not mutate manifests or
   start campaigns.
@@ -182,10 +182,10 @@ decision makes them authoritative.
 - `smoke_phase1_copilot.py` — phase 1 copilot smoke test.
 - `test_evidence_webhook_roundtrip.py` — evidence webhook round-trip utility.
 - `verify_pullback_stage0_proof.py` — read-only pullback Stage 0 proof
-  baseline/verifier; use `--record-baseline` immediately before the 15-minute
-  proof, then run again after the proof to verify public-OHLCV provenance,
-  post-baseline completion, expected commit, and canonical fill-count
-  isolation.
+  baseline/verifier; use `make pullback-stage0-baseline` immediately before
+  the 15-minute proof, then `make pullback-stage0-verify` after the proof to
+  verify public-OHLCV provenance, post-baseline completion, expected commit,
+  and canonical fill-count isolation.
 
 ### Validation, Alignment, Release, And Maintenance
 

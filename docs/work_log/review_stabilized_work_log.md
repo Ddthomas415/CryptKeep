@@ -39,6 +39,58 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-29 - Pullback Stage 0 Make Targets
+
+Date: 2026-06-29
+
+Active role: `ENGINEER`
+
+Objective: add short operator Make targets for the accepted pullback Stage 0
+readiness and proof-verifier steps without adding a target that runs the
+15-minute proof.
+
+What was found:
+- SHOWN: `scripts/check_pullback_stage0_readiness.py` and
+  `scripts/verify_pullback_stage0_proof.py` exist and are read-only helper
+  surfaces.
+- SHOWN: `Makefile` exposed daily paper and candidate helper targets, but no
+  pullback Stage 0 helper targets.
+- SHOWN: the long proof remains an explicit operator-run command and should not
+  be hidden behind a Make target.
+
+What changed:
+- Added `make pullback-stage0-readiness`.
+- Added `make pullback-stage0-baseline`.
+- Added `make pullback-stage0-verify`.
+- Updated `make script-index`, `scripts/SCRIPTS.md`,
+  `docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md`,
+  `REMAINING_TASKS.md`, and this work log.
+
+Why this change:
+- Make targets reduce copy/paste risk for the short baseline and verification
+  steps while preserving explicit operator control over the long proof run.
+
+Expected outcome:
+- The operator can run the accepted short proof helpers through stable Make
+  commands and still must explicitly choose when to run the 15-minute isolated
+  Stage 0 proof.
+
+Verification:
+- `make -n pullback-stage0-readiness`
+  - SHOWN: expands to `./.venv/bin/python scripts/check_pullback_stage0_readiness.py`.
+- `make -n pullback-stage0-baseline`
+  - SHOWN: expands to
+    `./.venv/bin/python scripts/verify_pullback_stage0_proof.py --record-baseline`.
+- `make -n pullback-stage0-verify`
+  - SHOWN: expands to `./.venv/bin/python scripts/verify_pullback_stage0_proof.py`.
+- `make script-index`
+  - SHOWN: lists all three pullback Stage 0 helper targets.
+
+Remaining risk:
+- LOW: Makefile/docs wrapper only; no collector start, restore, manifest,
+  campaign, or order-routing behavior changes.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-06-29 - Pullback Stage 0 Proof Verifier
 
 Date: 2026-06-29

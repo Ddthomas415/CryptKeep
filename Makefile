@@ -177,6 +177,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify
 .PHONY: script-index paper-run-short paper-stop-now
 
 # Fast test suite — skips blocking service-loop tests
@@ -298,6 +299,16 @@ candidate-outcomes:
 ai-operator-oversight:
 	$(PYTHON) scripts/run_ai_operator_oversight.py
 
+# Pullback Stage 0 proof helpers (read-only; they do not run the 15-minute proof)
+pullback-stage0-readiness:
+	$(PYTHON) scripts/check_pullback_stage0_readiness.py
+
+pullback-stage0-baseline:
+	$(PYTHON) scripts/verify_pullback_stage0_proof.py --record-baseline
+
+pullback-stage0-verify:
+	$(PYTHON) scripts/verify_pullback_stage0_proof.py
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -315,6 +326,9 @@ script-index:
 	@echo "  make candidate-summary  — summarize candidate-attributed paper outcomes"
 	@echo "  make candidate-outcomes — write candidate outcome report artifact"
 	@echo "  make ai-operator-oversight — write read-only AI operator oversight report"
+	@echo "  make pullback-stage0-readiness — check pullback Stage 0 readiness"
+	@echo "  make pullback-stage0-baseline  — record baseline before pullback Stage 0"
+	@echo "  make pullback-stage0-verify    — verify pullback Stage 0 after proof"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
