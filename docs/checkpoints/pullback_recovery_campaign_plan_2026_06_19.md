@@ -107,9 +107,7 @@ Status:
 Immediately before the full post-fix Stage 0 proof, record the baseline:
 
 ```bash
-./.venv/bin/python scripts/verify_pullback_stage0_proof.py \
-  --record-baseline \
-  --json
+make pullback-stage0-baseline
 ```
 
 Then run the full post-fix Stage 0 proof only when the operator is ready for a
@@ -137,7 +135,7 @@ CBP_STATE_DIR="$PWD/.cbp_state_challengers/pullback_recovery_default" \
 Then verify the proof:
 
 ```bash
-./.venv/bin/python scripts/verify_pullback_stage0_proof.py --json
+make pullback-stage0-verify
 ```
 
 Required checks:

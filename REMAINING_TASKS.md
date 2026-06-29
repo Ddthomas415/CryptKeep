@@ -71,9 +71,9 @@ deployment work still needs independent review.
    durable pipeline log evidence are already rebuilt/closed.
 6. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign. The
-   read-only readiness report is accepted and merged; record the
-   `verify_pullback_stage0_proof.py --record-baseline` artifact immediately
-   before the long proof and run the verifier afterward.
+   read-only readiness report is accepted and merged; run
+   `make pullback-stage0-baseline` immediately before the long proof and
+   `make pullback-stage0-verify` afterward.
 7. Add additional composite/hybrid long-window research variants until the
    candidate has comparison evidence across at least three realized synthetic
    windows. Do not add a persistent paper campaign or production path until
