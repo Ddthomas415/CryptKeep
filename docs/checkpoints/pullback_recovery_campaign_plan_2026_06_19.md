@@ -96,6 +96,8 @@ Status:
   preset, collector-session, state-isolation, and campaign-manifest ownership
   checks, writes only readiness artifacts, and prints the exact 15-minute proof
   command for the operator.
+- PR #139 independently accepted and merged the readiness report. The readiness
+  review step is closed; the actual full post-fix Stage 0 run is still pending.
 
 Run the full post-fix Stage 0 proof only when the operator is ready for a
 15-minute command:
@@ -194,7 +196,6 @@ Reject or pause if:
 
 ## Next Action
 
-Review and accept the read-only Stage 0 readiness implementation proof, then
-run the full post-fix Stage 0 isolated one-shot proof when the operator is
+Run the full post-fix Stage 0 isolated one-shot proof when the operator is
 ready for a 15-minute command. Stop before enabling any persistent daily
 campaign.

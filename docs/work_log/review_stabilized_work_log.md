@@ -39,6 +39,51 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-29 - Pullback Stage 0 Backlog Alignment
+
+Date: 2026-06-29
+
+Active role: `ENGINEER`
+
+Objective: align the active backlog and pullback checkpoint after PR #139
+merged, so operators do not re-review an already accepted readiness report.
+
+What was found:
+- SHOWN: PR #139 merged as `f26dd965e`.
+- SHOWN: `REMAINING_TASKS.md` and the pullback checkpoint still described the
+  readiness report review as part of the next action.
+- SHOWN: the actual remaining pullback step is the operator-run 15-minute
+  isolated Stage 0 proof.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to mark the pullback readiness report as
+  recently completed and keep the full Stage 0 run as the active remaining
+  task.
+- Updated `docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md` to
+  record PR #139 acceptance and remove the stale review step from `Next Action`.
+
+Why this change:
+- The backlog should reflect the current operator decision point. Leaving the
+  completed readiness review in the next action creates avoidable workflow
+  ambiguity.
+
+Expected outcome:
+- Future check-ins point directly at the full post-fix Stage 0 proof command
+  and preserve the rule that persistent pullback campaigns remain blocked until
+  that proof is accepted.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "Review and accept the read-only Stage 0 readiness|then run the full post-fix isolated Stage 0 proof|readiness report review" REMAINING_TASKS.md docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: no active stale next-action wording remains; the only remaining
+    `readiness report review` hit is this work-log entry describing the
+    corrected stale state.
+
+Remaining risk:
+- LOW: docs-only accepted-state alignment.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-06-29 - Pullback Stage 0 Readiness Report
 
 Date: 2026-06-29
