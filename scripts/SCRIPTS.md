@@ -59,7 +59,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 99 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 100 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -159,6 +159,10 @@ decision makes them authoritative.
 - `approve_model_switch.py` — approve a pending model switch.
 - `candidate_trade_summary.py` — read-only candidate trade attribution summary;
   use `make candidate-summary`.
+- `check_pullback_stage0_readiness.py` — read-only readiness report for the
+  accepted `pullback_recovery_default` Stage 0 proof; writes report artifacts
+  only and prints the 15-minute operator-run proof command without starting the
+  collector.
 - `plan_managed_paper_campaigns.py` — read-only managed paper-campaign proposal
   planner; writes proposal artifacts only and does not mutate manifests or
   start campaigns.

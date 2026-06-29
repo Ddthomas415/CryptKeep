@@ -69,8 +69,9 @@ deployment work still needs independent review.
    topology/gap audit; do not implement a new wrapper unless a current-master
    gap is reproduced and separately reviewed. Supervised-soak reporting and
    durable pipeline log evidence are already rebuilt/closed.
-6. Run the full post-fix isolated Stage 0 proof for
-   `pullback_recovery_default` before enabling any persistent campaign.
+6. Review the read-only `pullback_recovery_default` Stage 0 readiness report,
+   then run the full post-fix isolated Stage 0 proof before enabling any
+   persistent campaign.
 7. Add additional composite/hybrid long-window research variants until the
    candidate has comparison evidence across at least three realized synthetic
    windows. Do not add a persistent paper campaign or production path until
