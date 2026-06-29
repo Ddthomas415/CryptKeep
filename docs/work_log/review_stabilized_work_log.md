@@ -103,7 +103,9 @@ Verification:
 
 Remaining risk:
 - HIGH: strategy campaign proof workflow and future evidence acceptance path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the operator on
+  2026-06-29 for PR #141.
 
 ## 2026-06-29 - Pullback Stage 0 Backlog Alignment
 
