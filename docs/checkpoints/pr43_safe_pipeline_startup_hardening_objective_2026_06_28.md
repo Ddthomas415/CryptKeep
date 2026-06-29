@@ -2,6 +2,8 @@
 
 Status: ACCEPTED
 
+Implementation proof status: ACCEPTED
+
 Active role: DIRECTOR
 
 ## Purpose
@@ -183,5 +185,64 @@ LOW for this checkpoint:
 - This is planning-only. It does not modify runtime behavior, background jobs,
   startup scripts, service definitions, gates, live execution, or order
   routing.
+
+Acceptance state: ACCEPTED
+
+## Implementation Proof - 2026-06-28
+
+SHOWN:
+- `services/runtime/startup_hardening_audit.py` builds a read-only startup
+  hardening report from current repo source.
+- `scripts/audit_startup_hardening.py` exposes the report through a root CLI.
+- The implementation reads canonical startup scripts, existing safe wrappers,
+  `scripts/compat/run_pipeline_loop.py`, startup-related tests, and the
+  startup-status gate documentation.
+- Initial proof output identifies three unwrapped canonical service commands:
+  `pipeline`, `ops_signal_adapter`, and `ops_risk_gate`.
+- The implementation writes latest and dated JSON/Markdown artifacts under
+  the runtime startup-audit directory only.
+- Tests cover the current topology, unwrapped command classification, existing
+  safe wrappers, the static pipeline pre-status-exit condition, `--json
+  --no-write`, default artifact writing, and the no-pid/status-file boundary.
+
+Changed artifacts:
+- `services/runtime/startup_hardening_audit.py`
+- `scripts/audit_startup_hardening.py`
+- `tests/test_startup_hardening_audit.py`
+- `tests/test_audit_startup_hardening_script.py`
+- `scripts/SCRIPTS.md`
+- `docs/CURRENT_RUNTIME_TRUTH.md`
+- `REMAINING_TASKS.md`
+- `docs/work_log/review_stabilized_work_log.md`
+
+Expected outcome:
+- Operators get a repeatable report that answers whether current startup
+  topology has an identified hardening gap before any wrapper or service
+  topology change is proposed.
+- The audit can report `insufficient_evidence`, `gap_not_reproduced`, or a
+  future reproduced gap without changing runtime behavior.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/runtime/startup_hardening_audit.py scripts/audit_startup_hardening.py tests/test_startup_hardening_audit.py tests/test_audit_startup_hardening_script.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_startup_hardening.py --no-write`
+  - SHOWN: exited 0 and printed `gap_status=insufficient_evidence`,
+    `read_only=True`, and the two warning action items.
+- `CBP_STATE_DIR=/private/tmp/cbp-startup-audit-proof ./.venv/bin/python scripts/audit_startup_hardening.py --json`
+  - SHOWN: exited 0 and wrote startup-audit JSON/Markdown artifacts under the
+    isolated runtime directory.
+- `./.venv/bin/python -m pytest -q tests/test_startup_hardening_audit.py tests/test_audit_startup_hardening_script.py`
+  - SHOWN: `5 passed in 0.43s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: startup topology, fail-closed behavior, background jobs, and
+  live-adjacent service ownership remain high-risk surfaces. This proof does
+  not change them. Any follow-up wrapper, launch-gate, or service-topology
+  change remains a separate high-risk implementation.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-28 after PR #137 checks
+  passed.
 
 Acceptance state: ACCEPTED

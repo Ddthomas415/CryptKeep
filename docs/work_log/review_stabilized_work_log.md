@@ -10043,3 +10043,113 @@ Remaining risk:
   jobs, campaigns, gates, strategy logic, live execution, tests, and order
   routing are unchanged.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T18:49:47Z - Implement Read-Only Startup Hardening Audit
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted PR #43 safe-pipeline/startup hardening objective as
+  a read-only topology and gap audit, without changing runtime startup
+  behavior.
+
+What was found:
+- SHOWN: `scripts/start_bot.py` is the canonical supervised startup surface.
+- SHOWN: current startup commands include safe-wrapper services and three
+  unwrapped commands: `pipeline`, `ops_signal_adapter`, and `ops_risk_gate`.
+- SHOWN: `scripts/compat/run_pipeline_loop.py` can raise the
+  `CBP_CONFIG_REQUIRED` runtime error before its first static `_write_status`
+  call.
+- SHOWN: `docs/STARTUP_STATUS_GATE.md` documents startup-status evidence as
+  reconciliation evidence, not a current canonical launch gate.
+
+What changed:
+- Added `services/runtime/startup_hardening_audit.py` to build a static,
+  read-only startup hardening report.
+- Added `scripts/audit_startup_hardening.py` as the root CLI for the report.
+- Added tests for topology parsing, safe-wrapper recognition, no service
+  start/stop side effects, no pid/status-file writes, JSON no-write mode, and
+  default artifact writing.
+- Documented the CLI in `scripts/SCRIPTS.md` and
+  `docs/CURRENT_RUNTIME_TRUTH.md`.
+- Updated `REMAINING_TASKS.md` and the PR #43 startup checkpoint to mark the
+  implementation proof ready for independent review.
+
+Why this change:
+- The accepted objective requires proving the current startup topology before
+  considering any new wrapper or startup behavior change. A read-only report is
+  the smallest safe implementation that produces machine-readable evidence
+  without touching high-risk runtime behavior.
+
+Expected outcome:
+- Operators can run `python scripts/audit_startup_hardening.py` to generate a
+  latest and dated startup-hardening audit under
+  `.cbp_state/runtime/startup_audits/`.
+- Any future startup wrapper/topology change must cite this report and still
+  go through a separate high-risk review.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/runtime/startup_hardening_audit.py scripts/audit_startup_hardening.py tests/test_startup_hardening_audit.py tests/test_audit_startup_hardening_script.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_startup_hardening.py --no-write`
+  - SHOWN: exited 0 and printed `gap_status=insufficient_evidence`,
+    `read_only=True`, and warning actions for unwrapped startup commands and
+    the pipeline pre-status config-error path.
+- `CBP_STATE_DIR=/private/tmp/cbp-startup-audit-proof ./.venv/bin/python scripts/audit_startup_hardening.py --json`
+  - SHOWN: exited 0 and wrote latest/dated JSON and Markdown artifacts under
+    `/private/tmp/cbp-startup-audit-proof/runtime/startup_audits/`.
+- `./.venv/bin/python -m pytest -q tests/test_startup_hardening_audit.py tests/test_audit_startup_hardening_script.py`
+  - SHOWN: `5 passed in 0.43s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: startup topology, background jobs, fail-closed semantics, and
+  live-adjacent service ownership are high-risk areas. This change is read-only
+  and any follow-up startup wrapper, launch-gate, or service-topology change
+  remains a separate high-risk implementation.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-06-28 after PR #137 checks
+  passed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-06-28T19:10:30Z - Record Startup Hardening Audit Acceptance
+
+Active role: ENGINEER
+
+Objective:
+- Record the human acceptance of the PR #137 startup hardening audit proof in
+  governed repo artifacts before merge.
+
+What was found:
+- SHOWN: PR #137 is open, ready for review, and all visible checks are
+  successful.
+- SHOWN: the implementation checkpoint and work-log entry still showed
+  `READY_FOR_INDEPENDENT_REVIEW`.
+- SHOWN: the operator supplied `INDEPENDENTLY_REVIEWED AND ACCEPTED`.
+
+What changed:
+- Updated the PR #43 startup hardening checkpoint implementation proof status
+  from `READY_FOR_INDEPENDENT_REVIEW` to `ACCEPTED`.
+- Updated the implementation work-log entry with the human acceptance
+  reference.
+
+Why this change:
+- Accepted high-risk work should not merge with stale pending-review wording
+  in the governed checkpoint and work log.
+
+Expected outcome:
+- Future audits can trace that PR #137 passed CI and was accepted by the human
+  operator before merge.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "Implementation proof status: ACCEPTED|Acceptance reference: accepted by human operator|Record Startup Hardening Audit Acceptance" docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: acceptance status, acceptance reference, and this work-log entry are
+    present.
+
+Remaining risk:
+- LOW: docs-only acceptance recording. Runtime behavior, startup topology,
+  background jobs, live execution, order routing, and tests are unchanged.
+- Acceptance state: `ACCEPTED`.
