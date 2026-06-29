@@ -39,6 +39,69 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-29 - Pullback Stage 0 Readiness Report
+
+Date: 2026-06-29
+
+Active role: `ENGINEER`
+
+Objective: add a short, read-only readiness report for the accepted
+`pullback_recovery_default` Stage 0 proof without running the 15-minute
+collector command or enabling a persistent campaign.
+
+What was found:
+- SHOWN: `pullback_recovery` is supported by strategy validation and the
+  strategy registry.
+- SHOWN: `pullback_recovery_default` exists as a preset.
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py` maps
+  `pullback_recovery` to `pullback_recovery_default` by default and supports
+  the explicit one-shot proof flags.
+- SHOWN: the checkpoint still requires the full post-fix isolated Stage 0 run,
+  but the operator requested no long-running commands unless handed off.
+
+What changed:
+- Added `services/analytics/pullback_stage0_readiness.py`, a read-only report
+  builder that validates strategy wiring, preset validation, collector session
+  attribution, challenger-state isolation, and active campaign-manifest
+  ownership conflicts.
+- Added `scripts/check_pullback_stage0_readiness.py`, a root CLI that writes
+  readiness artifacts by default or prints JSON with `--no-write`.
+- Added targeted tests for the report builder and CLI wrapper.
+- Updated `scripts/SCRIPTS.md`, the pullback campaign checkpoint,
+  `REMAINING_TASKS.md`, and this work log.
+
+Why this change:
+- The full Stage 0 proof is intentionally a 15-minute operator-run command.
+  A short readiness report removes avoidable wiring/state-isolation ambiguity
+  before that command is run, without contaminating canonical paper evidence.
+- The change is smaller and safer than adding a persistent campaign or starting
+  another collector from automation.
+
+Expected outcome:
+- Operators can run a fast readiness check, inspect the exact Stage 0 command,
+  and confirm no manifest/state conflict exists before starting the isolated
+  proof manually.
+- The actual Stage 0 campaign proof remains pending until the operator runs the
+  printed long command.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/analytics/pullback_stage0_readiness.py scripts/check_pullback_stage0_readiness.py tests/test_pullback_stage0_readiness.py tests/test_check_pullback_stage0_readiness_script.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_pullback_stage0_readiness.py tests/test_check_pullback_stage0_readiness_script.py`
+  - SHOWN: `5 passed in 0.19s`.
+- `./.venv/bin/python scripts/check_pullback_stage0_readiness.py --json --no-write`
+  - SHOWN: `status=ready_for_operator_stage0`, `blocking_checks=[]`, and all
+    safety mutation flags false.
+- `CBP_STATE_DIR=/private/tmp/cbp-pullback-stage0-readiness ./.venv/bin/python scripts/check_pullback_stage0_readiness.py --json`
+  - SHOWN: wrote only pullback readiness report artifacts under
+    `/private/tmp/cbp-pullback-stage0-readiness/data/pullback_stage0_readiness/`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: strategy campaign workflow and future evidence collection path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-05-28 - Master Integration Branch Refresh With Shadow Evidence
 
 Date: 2026-05-28

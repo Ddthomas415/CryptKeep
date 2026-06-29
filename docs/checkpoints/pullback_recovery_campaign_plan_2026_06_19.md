@@ -91,6 +91,11 @@ Status:
   pre-fix `ema_cross_default` attribution defect.
 - PR #68 fixed the attribution defect and was merged before a full post-fix
   Stage 0 rerun.
+- `scripts/check_pullback_stage0_readiness.py` now provides a read-only
+  readiness report for the post-fix Stage 0 proof. It validates strategy,
+  preset, collector-session, state-isolation, and campaign-manifest ownership
+  checks, writes only readiness artifacts, and prints the exact 15-minute proof
+  command for the operator.
 
 Run the full post-fix Stage 0 proof only when the operator is ready for a
 15-minute command:
@@ -189,5 +194,7 @@ Reject or pause if:
 
 ## Next Action
 
-Run the full post-fix Stage 0 isolated one-shot proof and stop before enabling
-any persistent daily campaign.
+Review and accept the read-only Stage 0 readiness implementation proof, then
+run the full post-fix Stage 0 isolated one-shot proof when the operator is
+ready for a 15-minute command. Stop before enabling any persistent daily
+campaign.
