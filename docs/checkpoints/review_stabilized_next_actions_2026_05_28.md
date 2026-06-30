@@ -455,7 +455,7 @@ post-fix Stage 0 rerun pending operator execution; composite/hybrid wrapper
 design accepted; pure combiner proof accepted; parity backtest proof accepted;
 research leaderboard row accepted; first comparison evidence accepted and
 blocks paper advancement; first long-window research proof accepted; additional
-long-window variants ready for independent review
+long-window variants accepted
 
 Why it matters:
 - `pullback_recovery` is already coded and wired into the strategy registry.
@@ -470,10 +470,9 @@ Next action:
 - Run only the full post-fix Stage 0 isolated one-shot proof for
   `pullback_recovery_default` when the operator is ready for a 15-minute
   command. Do not enable a persistent daily campaign until that proof passes.
-- Review the additional composite/hybrid long-window research variants. They
-  show the current candidate across three realized synthetic windows, but remain
-  high-risk research evidence and do not authorize a persistent paper campaign
-  or production path.
+- Keep composite/hybrid paper advancement blocked. Additional long-window
+  research variants show the current candidate across three realized synthetic
+  windows, but do not authorize a persistent paper campaign or production path.
 - Track candlestick recognition as a later versioned strategy such as
   `candlestick_reversal_v1`, after `pullback_recovery` has a baseline.
 - Treat `order_book_imbalance`, `open_interest_shift`, and `funding_extreme` as

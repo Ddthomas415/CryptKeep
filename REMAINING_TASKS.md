@@ -75,10 +75,10 @@ deployment work still needs independent review.
    read-only readiness report is accepted and merged; run
    `make pullback-stage0-baseline` immediately before the long proof and
    `make pullback-stage0-verify` afterward.
-7. Review the composite/hybrid long-window variant proof. It now shows three
-   realized synthetic windows for the current composite candidate, but remains
-   high-risk research evidence and is not accepted until independent review.
-   Do not add a persistent paper campaign or production path from it.
+7. Keep composite/hybrid paper advancement blocked. The long-window variant
+   proof is accepted and now shows three realized synthetic windows, but the
+   candidate still has synthetic-only, low-confidence evidence and no persisted
+   paper-history support.
 8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or
@@ -134,7 +134,7 @@ deployment work still needs independent review.
   for one long synthetic window, but the candidate remains blocked from paper
   until comparison evidence exists across at least three realized synthetic
   windows.
-- Composite/hybrid long-window variant proof is ready for independent review:
+- Composite/hybrid long-window variant proof is accepted:
   `docs/checkpoints/composite_hybrid_long_window_variant_proof_2026_06_29.md`
   records two additional research-only windows. The composite now has three
   realized synthetic windows, but remains blocked from paper because evidence

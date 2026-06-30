@@ -66,7 +66,7 @@ What changed:
 - Added
   `docs/checkpoints/composite_hybrid_long_window_variant_proof_2026_06_29.md`.
 - Updated `REMAINING_TASKS.md` and the composite/hybrid design checkpoint to
-  show the proof is ready for independent review, not paper advancement.
+  show the accepted proof does not authorize paper advancement.
 
 Why this change:
 - Adding two deterministic research windows is the smallest way to close the
@@ -91,7 +91,9 @@ Verification:
 Remaining risk:
 - HIGH: financial strategy research evidence can affect future candidate
   ranking and campaign selection.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by the human
+  operator on 2026-06-29 after PR #143 was opened for review.
 
 ## 2026-06-29 - Pullback Stage 0 Make Targets
 

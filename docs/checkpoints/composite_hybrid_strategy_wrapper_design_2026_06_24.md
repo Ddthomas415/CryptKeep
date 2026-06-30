@@ -321,7 +321,8 @@ A two-window research follow-up was implemented on 2026-06-29 in:
 
 - `docs/checkpoints/composite_hybrid_long_window_variant_proof_2026_06_29.md`
 
-That follow-up is ready for independent review. It gives the current composite
+That follow-up was independently reviewed and accepted by the human operator on
+2026-06-29 after PR #143 was opened for review. It gives the current composite
 three realized synthetic windows, but the candidate remains blocked from paper
 because the evidence is still synthetic-only, low confidence, and has no
 persisted paper-history support.

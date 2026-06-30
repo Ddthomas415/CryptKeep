@@ -90,9 +90,8 @@ SHOWN:
 
 Recommendation:
 - Do not start a persistent composite paper campaign yet.
-- Use this as implementation proof that the synthetic participation floor is
-  now met.
-- Require independent review before any follow-up changes rely on this evidence.
+- Use this as accepted implementation proof that the synthetic participation
+  floor is now met.
 - Keep paper advancement blocked until a separate accepted decision explicitly
   changes the research acceptance requirement or starts a scoped paper proof.
 
@@ -104,4 +103,7 @@ Reason:
 - This changes financial strategy research evidence and can affect future
   candidate ranking and campaign selection.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
+
+Acceptance reference: independently reviewed and accepted by the human operator
+on 2026-06-29 after PR #143 was opened for review.
