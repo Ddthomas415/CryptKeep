@@ -39,6 +39,48 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-30 - Record PR145 Merge Status
+
+Date: 2026-06-30
+
+Active role: `ENGINEER`
+
+Objective: align backlog and Priority 16 checkpoint language after PR #145 was
+independently accepted and merged.
+
+What was found:
+- SHOWN: PR #145 merged as `6d9f8af66`.
+- SHOWN: `REMAINING_TASKS.md` and the Priority 16 checkpoint still described
+  the Hetzner manifest ownership proof as ready for independent review.
+- SHOWN: runtime duplicate-process proof, backup restore rehearsal,
+  disk/health alerting, and reviewed stop-copy-verify-start remain open.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to mark manifest-level ownership proof accepted
+  and merged by PR #145.
+- Updated
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`
+  to keep only the remaining Hetzner operational blockers open.
+
+Why this change:
+- Completed high-risk review states should not remain in the active backlog as
+  pending review work. Stale status text causes duplicate audits and confuses
+  the next operator action.
+
+Expected outcome:
+- Future check-ins see the correct Hetzner state: manifest ownership is
+  accepted, while runtime host/process and restore proofs remain required.
+
+Verification:
+- SHOWN: `git diff --check` passed.
+- SHOWN: `rg` confirmed no remaining "manifest ownership proof is ready for
+  independent review" wording in the touched backlog surfaces.
+- Tests were not run because this is docs/status alignment only.
+
+Remaining risk:
+- LOW: documentation/status alignment only.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-06-30 - Paper Campaign Ownership Proof
 
 Date: 2026-06-30
