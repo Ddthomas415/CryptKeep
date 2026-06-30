@@ -545,7 +545,8 @@ Status: runbook accepted; host hardening proof complete; Tailscale-only SSH,
 Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
 state-transfer manifest tooling, host preflight tooling, the isolated
 challenger proof template, and manifest-level ownership proof are accepted.
-Campaign deployment remains blocked pending runtime duplicate-process proof,
+Runtime duplicate-process proof tooling is ready for independent review.
+Campaign deployment remains blocked pending current-host runtime proof,
 server-hosted UTC cycle proof, and backup/restore rehearsal.
 
 Why it matters:
@@ -583,6 +584,9 @@ Next action:
 - Use `make check-paper-campaign-ownership` as local manifest-level
   single-owner proof before state transfer. This does not replace host process
   checks.
+- Use `scripts/check_paper_campaign_runtime_ownership.py` on fresh laptop and
+  Hetzner status JSON payloads as runtime duplicate-process proof. This does
+  not collect status, SSH, restore, stop, or start collectors.
 - Record the laptop status, laptop stop proof, manifest create proof, transfer
   proof, Hetzner preflight proof, manifest verify proof, VPS restore proof,
   and single-owner proof in the dated deployment record.
@@ -603,7 +607,8 @@ Proof required:
   `1 Server`, and `Fully applied`.
 - Hetzner backups remain enabled and backup window is visible.
 - Hetzner delete/rebuild protection remains enabled.
-- One collector owner per campaign, with duplicate-process checks passing.
+- One collector owner per campaign, with runtime duplicate-process checks
+  passing against fresh laptop and Hetzner status payloads.
 - State manifest verification reports `ok=true`, `missing=[]`, `changed=[]`,
   and `extra=[]` before the VPS collector starts.
 - Evidence counts match or advance after state transfer; they must not be
@@ -615,6 +620,9 @@ Proof required:
   `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
   and merged by PR #145. Runtime duplicate-process proof remains separate and
   required before relying on the state-transfer path.
+- Runtime duplicate-process proof tooling is ready for independent review in
+  `docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md`.
+  Actual proof requires fresh host status payloads.
 
 Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,
@@ -622,10 +630,10 @@ Risk:
   ownership.
 - Acceptance state: runbook, cloud safeguards, manifest tooling, host preflight
   tooling, proof template, and manifest-level ownership proof are accepted.
-  Actual collector stop, state transfer, VPS restore/start, runtime
-  duplicate-process proof, backup rehearsal, and canonical migration remain
-  high-risk operations and must stop at `READY_FOR_INDEPENDENT_REVIEW` unless
-  separately accepted by the human operator.
+  Actual collector stop, state transfer, VPS restore/start, current-host
+  runtime proof, backup rehearsal, and canonical migration remain high-risk
+  operations and must stop at `READY_FOR_INDEPENDENT_REVIEW` unless separately
+  accepted by the human operator.
 
 ## Priority 17 - Derivatives, Intraday, And Context-Pattern Roadmap
 

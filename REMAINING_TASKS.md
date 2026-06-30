@@ -48,6 +48,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md
 - docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md
 - docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md
+- docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -93,6 +94,8 @@ deployment work still needs independent review.
     migration: backup restore rehearsal, disk/health alerting, runtime
     duplicate-process proof, and reviewed stop-copy-verify-start procedure.
     Manifest-level single-owner proof is accepted and merged by PR #145.
+    Runtime duplicate-process proof tooling is ready for independent review,
+    but current host payloads still need to be captured and checked.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 
@@ -170,6 +173,10 @@ deployment work still needs independent review.
   `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
   adds a read-only laptop/Hetzner manifest ownership check. PR #145 merged as
   `6d9f8af66`. It does not SSH, restore, stop, or start collectors.
+- Hetzner runtime ownership proof tooling is ready for independent review:
+  `docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md`
+  adds a read-only check over already-captured laptop and Hetzner status JSON.
+  It does not SSH, restore, stop, or start collectors.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable
