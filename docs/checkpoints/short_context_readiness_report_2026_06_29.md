@@ -117,4 +117,7 @@ Reason:
 - This is research-governance logic for short/derivatives context data and can
   affect whether future replay work relies on live-public evidence.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
+
+Acceptance reference: independently reviewed and accepted by the human operator
+on 2026-06-30 after PR #144 was opened for review.

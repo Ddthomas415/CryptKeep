@@ -224,6 +224,8 @@ Additional follow-through:
   fail-closed read-only readiness check over stored crypto-edge evidence. It
   distinguishes fixture-only data from `live_public` readiness and does not
   contact exchanges, start collectors, enable replay, or enable execution.
+  This follow-through was independently reviewed and accepted by the human
+  operator on 2026-06-30 after PR #144 was opened for review.
 
 ## Current Next Action
 

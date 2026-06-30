@@ -80,11 +80,11 @@ deployment work still needs independent review.
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
    paper-history support.
-8. Review the short/context readiness report. It adds a fail-closed check over
-   stored crypto-edge evidence, but remains high-risk research governance until
-   independently accepted. Continue to resolve the Binance derivatives
-   public-data `NetworkError` or choose a compliant read-only derivatives venue
-   before relying on derivatives row families.
+8. Continue short/context follow-through from the accepted readiness report.
+   Resolve the Binance derivatives public-data `NetworkError` or choose a
+   compliant read-only derivatives venue before relying on derivatives row
+   families. Keep replay fixture-only unless
+   `make check-short-context-readiness` reports `live_public_replay_ready=true`.
 9. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -160,7 +160,7 @@ deployment work still needs independent review.
   selected the read-only crypto-edge collector as the safe base; PR #72 then
   added accepted open-interest and order-book row support without enabling
   replay, paper short simulation, routing, or execution.
-- Short/context readiness report is ready for independent review:
+- Short/context readiness report is accepted:
   `docs/checkpoints/short_context_readiness_report_2026_06_29.md` adds a
   read-only check that fails closed unless required `live_public` crypto-edge
   row families are present. It does not contact exchanges or enable replay.

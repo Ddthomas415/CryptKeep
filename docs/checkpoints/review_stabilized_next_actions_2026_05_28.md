@@ -397,8 +397,7 @@ Risk:
 ## Priority 12 - Short-Market Strategy Research
 
 Status: read-only collector/store extension accepted; sample and spot-context
-proofs complete; Binance derivatives context blocked; readiness report ready
-for independent review
+proofs complete; Binance derivatives context blocked; readiness report accepted
 
 Why it matters:
 - The current `es_daily_trend_v1` strategy is long/flat only. It does not
@@ -434,7 +433,8 @@ Why it matters:
 - `docs/checkpoints/short_context_readiness_report_2026_06_29.md` adds a
   read-only readiness check over stored crypto-edge evidence. It fails closed
   unless required `live_public` funding, open-interest, basis, and order-book
-  row families are present.
+  row families are present. This proof was independently reviewed and accepted
+  by the human operator on 2026-06-30 after PR #144 was opened for review.
 
 Next action:
 - If derivatives context is needed, resolve the Binance public-data
