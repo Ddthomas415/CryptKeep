@@ -96,7 +96,9 @@ Verification:
 Remaining risk:
 - HIGH: campaign ownership affects persistent financial-evidence background
   jobs and state migration safety.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by human operator on
+  2026-06-30 before PR #145 merge.
 
 ## 2026-06-29 - Short Context Readiness Report
 
