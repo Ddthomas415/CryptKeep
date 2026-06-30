@@ -39,6 +39,65 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-30 - Paper Campaign Ownership Proof
+
+Date: 2026-06-30
+
+Active role: `ENGINEER`
+
+Objective: add a local read-only manifest ownership proof for laptop and
+Hetzner paper campaign configs before any state transfer or canonical
+`.cbp_state` migration.
+
+What was found:
+- SHOWN: the laptop manifest owns `es_daily_trend_v1` and `breakout_default`.
+- SHOWN: the Hetzner manifest owns `ema_cross_default`.
+- SHOWN: the Hetzner follow-through backlog requires one owner per campaign,
+  but runtime host checks, backup restore rehearsal, and canonical migration
+  remain separate high-risk work.
+
+What changed:
+- Added `services/analytics/paper_campaign_ownership.py`.
+- Added `scripts/check_paper_campaign_ownership.py`.
+- Added targeted service and CLI tests.
+- Added `make check-paper-campaign-ownership`.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, Priority 16 checkpoint,
+  and added
+  `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`.
+
+Why this change:
+- A manifest-level ownership check is the smallest safe proof before any
+  stop-copy-verify-start operation. It prevents duplicate campaign/session/state
+  claims across the combined manifests without SSH, restore, start, stop, or
+  state-copy behavior.
+
+Expected outcome:
+- Operators can verify laptop/Hetzner manifest ownership before migration work.
+- The remaining Hetzner blockers are clearer: runtime duplicate-process proof,
+  backup restore rehearsal, disk/health alerting, and reviewed migration steps.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    services/analytics/paper_campaign_ownership.py \
+    scripts/check_paper_campaign_ownership.py \
+    tests/test_paper_campaign_ownership.py \
+    tests/test_check_paper_campaign_ownership_script.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_paper_campaign_ownership.py \
+    tests/test_check_paper_campaign_ownership_script.py
+  ```
+  Result: `5 passed in 0.15s`.
+
+Remaining risk:
+- HIGH: campaign ownership affects persistent financial-evidence background
+  jobs and state migration safety.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-29 - Short Context Readiness Report
 
 Date: 2026-06-29

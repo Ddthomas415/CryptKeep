@@ -545,8 +545,9 @@ Status: runbook accepted; host hardening proof complete; Tailscale-only SSH,
 Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
 state-transfer manifest tooling, host preflight tooling, and the isolated
 challenger proof template are accepted. Campaign deployment remains blocked
-pending explicit single-owner operation, server-hosted UTC cycle proof, and
-backup/restore rehearsal.
+pending runtime duplicate-process proof, server-hosted UTC cycle proof, and
+backup/restore rehearsal. Manifest-level ownership proof is ready for
+independent review.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -580,6 +581,9 @@ Next action:
   ports.
 - Define one owner for `ema_cross_default` before transfer so laptop and VPS
   collectors cannot run simultaneously against copied state.
+- Use `make check-paper-campaign-ownership` as local manifest-level
+  single-owner proof before state transfer. This does not replace host process
+  checks.
 - Record the laptop status, laptop stop proof, manifest create proof, transfer
   proof, Hetzner preflight proof, manifest verify proof, VPS restore proof,
   and single-owner proof in the dated deployment record.
@@ -608,6 +612,9 @@ Proof required:
 - `restore_paper_campaigns.py --status` reports all configured collectors
   healthy on the VPS.
 - A backup can be restored into an isolated directory and read successfully.
+- `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
+  is independently reviewed and accepted before relying on manifest ownership
+  as part of the deployment record.
 
 Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,

@@ -167,6 +167,9 @@ decision makes them authoritative.
   check over stored crypto-edge evidence; use
   `make check-short-context-readiness`. It does not contact exchanges or enable
   replay/execution.
+- `check_paper_campaign_ownership.py` — read-only laptop/Hetzner campaign
+  ownership check; use `make check-paper-campaign-ownership`. It does not SSH,
+  restore, stop, or start collectors.
 - `plan_managed_paper_campaigns.py` — read-only managed paper-campaign proposal
   planner; writes proposal artifacts only and does not mutate manifests or
   start campaigns.

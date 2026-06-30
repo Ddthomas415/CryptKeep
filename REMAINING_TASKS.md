@@ -47,6 +47,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md
 - docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md
 - docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md
+- docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -61,7 +62,7 @@ deployment work still needs independent review.
    sandbox/testnet venue, or record an explicit human exception decision.
 4. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
-5. Continue only the still-open PR #43 rebuild candidates from clean `master`.
+5. Continue only the remaining PR #43 rebuild candidates from clean `master`.
    AI operator oversight is independently accepted as a read-only one-shot
    synthesis report over existing monitor/watch/gate artifacts; do not rebuild
    a second background monitor. Managed multi-symbol paper runtime now has a
@@ -89,8 +90,9 @@ deployment work still needs independent review.
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
 10. Complete Hetzner host follow-through before any canonical `.cbp_state`
-    migration: backup restore rehearsal, disk/health alerting, single-owner
-    proof, and reviewed stop-copy-verify-start procedure.
+    migration: backup restore rehearsal, disk/health alerting, runtime
+    duplicate-process proof, and reviewed stop-copy-verify-start procedure.
+    Manifest-level single-owner proof is ready for independent review.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 
@@ -164,6 +166,10 @@ deployment work still needs independent review.
   `docs/checkpoints/short_context_readiness_report_2026_06_29.md` adds a
   read-only check that fails closed unless required `live_public` crypto-edge
   row families are present. It does not contact exchanges or enable replay.
+- Hetzner manifest ownership proof is ready for independent review:
+  `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
+  adds a read-only laptop/Hetzner manifest ownership check. It does not SSH,
+  restore, stop, or start collectors.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable
