@@ -92,7 +92,7 @@ deployment work still needs independent review.
 10. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: backup restore rehearsal, disk/health alerting, runtime
     duplicate-process proof, and reviewed stop-copy-verify-start procedure.
-    Manifest-level single-owner proof is ready for independent review.
+    Manifest-level single-owner proof is accepted and merged by PR #145.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 
@@ -166,10 +166,10 @@ deployment work still needs independent review.
   `docs/checkpoints/short_context_readiness_report_2026_06_29.md` adds a
   read-only check that fails closed unless required `live_public` crypto-edge
   row families are present. It does not contact exchanges or enable replay.
-- Hetzner manifest ownership proof is ready for independent review:
+- Hetzner manifest ownership proof is accepted:
   `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
-  adds a read-only laptop/Hetzner manifest ownership check. It does not SSH,
-  restore, stop, or start collectors.
+  adds a read-only laptop/Hetzner manifest ownership check. PR #145 merged as
+  `6d9f8af66`. It does not SSH, restore, stop, or start collectors.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable

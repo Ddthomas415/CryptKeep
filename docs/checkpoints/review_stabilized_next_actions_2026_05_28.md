@@ -543,11 +543,10 @@ Risk:
 
 Status: runbook accepted; host hardening proof complete; Tailscale-only SSH,
 Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
-state-transfer manifest tooling, host preflight tooling, and the isolated
-challenger proof template are accepted. Campaign deployment remains blocked
-pending runtime duplicate-process proof, server-hosted UTC cycle proof, and
-backup/restore rehearsal. Manifest-level ownership proof is ready for
-independent review.
+state-transfer manifest tooling, host preflight tooling, the isolated
+challenger proof template, and manifest-level ownership proof are accepted.
+Campaign deployment remains blocked pending runtime duplicate-process proof,
+server-hosted UTC cycle proof, and backup/restore rehearsal.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -612,17 +611,19 @@ Proof required:
 - `restore_paper_campaigns.py --status` reports all configured collectors
   healthy on the VPS.
 - A backup can be restored into an isolated directory and read successfully.
-- `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
-  is independently reviewed and accepted before relying on manifest ownership
-  as part of the deployment record.
+- Manifest-level ownership proof is accepted in
+  `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
+  and merged by PR #145. Runtime duplicate-process proof remains separate and
+  required before relying on the state-transfer path.
 
 Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,
   credentials/configuration, remote host security, and duplicate campaign
   ownership.
 - Acceptance state: runbook, cloud safeguards, manifest tooling, host preflight
-  tooling, and proof template are accepted. Actual collector stop, state
-  transfer, VPS restore/start, backup rehearsal, and canonical migration remain
+  tooling, proof template, and manifest-level ownership proof are accepted.
+  Actual collector stop, state transfer, VPS restore/start, runtime
+  duplicate-process proof, backup rehearsal, and canonical migration remain
   high-risk operations and must stop at `READY_FOR_INDEPENDENT_REVIEW` unless
   separately accepted by the human operator.
 
