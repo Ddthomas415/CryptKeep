@@ -39,6 +39,73 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-30 - Paper Runtime Ownership Proof Tooling
+
+Date: 2026-06-30
+
+Active role: `ENGINEER`
+
+Objective: add a read-only runtime duplicate-process checker for already
+captured laptop and Hetzner paper-campaign status JSON payloads.
+
+What was found:
+- SHOWN: manifest ownership proof is accepted, but it does not prove current
+  process ownership.
+- SHOWN: `restore_paper_campaigns.py --status` emits campaign `name`,
+  `session_strategy_id`, `state_dir`, `running`, and `pid`.
+- SHOWN: the remaining Hetzner blocker needs current-host duplicate-process
+  proof before any state transfer or restore/start operation.
+
+What changed:
+- Added `services/analytics/paper_campaign_runtime_ownership.py`.
+- Added `scripts/check_paper_campaign_runtime_ownership.py`.
+- Added targeted service and CLI tests.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, Priority 16 checkpoint,
+  and added
+  `docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md`.
+
+Why this change:
+- Comparing fresh status payloads is the smallest safe runtime proof before
+  stop-copy-verify-start planning. The checker does not SSH, restore, start,
+  stop, copy state, or migrate `.cbp_state`.
+
+Expected outcome:
+- Operators can detect duplicate running campaign ownership across laptop and
+  Hetzner from captured status JSON before migration work.
+- Actual host/process proof remains explicit and time-bound to the captured
+  payloads.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    services/analytics/paper_campaign_runtime_ownership.py \
+    scripts/check_paper_campaign_runtime_ownership.py \
+    tests/test_paper_campaign_runtime_ownership.py \
+    tests/test_check_paper_campaign_runtime_ownership_script.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_paper_campaign_runtime_ownership.py \
+    tests/test_check_paper_campaign_runtime_ownership_script.py
+  ```
+  Result: `5 passed in 0.15s`.
+- SHOWN: root-script bootstrap slice passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_bootstrap_helper_adoption.py \
+    tests/test_no_duplicate_script_bootstrap.py \
+    tests/test_paper_campaign_runtime_ownership.py \
+    tests/test_check_paper_campaign_runtime_ownership_script.py
+  ```
+  Result: `18 passed in 0.64s`.
+
+Remaining risk:
+- HIGH: runtime ownership affects persistent financial-evidence background jobs
+  and state migration safety.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-30 - Record PR145 Merge Status
 
 Date: 2026-06-30

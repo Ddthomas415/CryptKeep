@@ -170,6 +170,9 @@ decision makes them authoritative.
 - `check_paper_campaign_ownership.py` — read-only laptop/Hetzner campaign
   ownership check; use `make check-paper-campaign-ownership`. It does not SSH,
   restore, stop, or start collectors.
+- `check_paper_campaign_runtime_ownership.py` — read-only runtime ownership
+  check over already-captured laptop and Hetzner status JSON payloads. It does
+  not SSH, restore, stop, or start collectors.
 - `plan_managed_paper_campaigns.py` — read-only managed paper-campaign proposal
   planner; writes proposal artifacts only and does not mutate manifests or
   start campaigns.
