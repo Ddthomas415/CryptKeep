@@ -104,7 +104,9 @@ Verification:
 Remaining risk:
 - HIGH: runtime ownership affects persistent financial-evidence background jobs
   and state migration safety.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Acceptance reference: independently reviewed and accepted by human operator on
+  2026-06-30 before PR #147 merge.
 
 ## 2026-06-30 - Record PR145 Merge Status
 
