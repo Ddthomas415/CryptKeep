@@ -86,6 +86,10 @@ status-live-crypto-edges-loop:
 check-short-context-readiness:
 	$(PYTHON) scripts/check_short_context_readiness.py
 
+.PHONY: check-paper-campaign-ownership
+check-paper-campaign-ownership:
+	$(PYTHON) scripts/check_paper_campaign_ownership.py
+
 collect-paper-strategy-evidence:
 	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --runtime-sec $(PAPER_EVIDENCE_RUNTIME_SEC)
 
@@ -330,6 +334,7 @@ script-index:
 	@echo "  make candidate-outcomes — write candidate outcome report artifact"
 	@echo "  make ai-operator-oversight — write read-only AI operator oversight report"
 	@echo "  make check-short-context-readiness — check short/context data readiness"
+	@echo "  make check-paper-campaign-ownership — check laptop/Hetzner campaign ownership"
 	@echo "  make pullback-stage0-readiness — check pullback Stage 0 readiness"
 	@echo "  make pullback-stage0-baseline  — record baseline before pullback Stage 0"
 	@echo "  make pullback-stage0-verify    — verify pullback Stage 0 after proof"
