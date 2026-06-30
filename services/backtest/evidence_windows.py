@@ -140,6 +140,38 @@ def default_evidence_windows() -> list[dict[str, Any]]:
                 start_ts_ms=1_700_800_000_000,
             ),
         },
+        {
+            "window_id": "long_trend_breakout_retest",
+            "label": "Long Trend Breakout Retest",
+            "notes": "Extended 200-SMA warmup, breakout acceleration, and sharp retest for composite confirmation coverage.",
+            "warmup_bars": 20,
+            "candles": _candles_from_closes(
+                _segment_closes(
+                    (230, 0.34, 17, 0.12),
+                    (42, 0.18, 9, -0.10),
+                    (24, 1.05, 6, 0.25),
+                    (24, -2.10, 4, -0.55),
+                    (12, 0.18, None, None),
+                ),
+                start_ts_ms=1_700_900_000_000,
+            ),
+        },
+        {
+            "window_id": "long_trend_failed_extension",
+            "label": "Long Trend Failed Extension",
+            "notes": "Extended trend, final upside extension, and failed continuation for composite exit coverage.",
+            "warmup_bars": 20,
+            "candles": _candles_from_closes(
+                _segment_closes(
+                    (240, 0.28, 19, 0.08),
+                    (34, 0.62, 7, 0.18),
+                    (16, 1.20, 4, 0.40),
+                    (30, -1.90, 5, -0.45),
+                    (14, -0.04, None, None),
+                ),
+                start_ts_ms=1_701_000_000_000,
+            ),
+        },
     ]
 
 
@@ -531,4 +563,3 @@ def _rerank_rows_by_leaderboard_score(rows: list[dict[str, Any]]) -> list[dict[s
     for idx, row in enumerate(ranked, start=1):
         row["rank"] = int(idx)
     return ranked
-

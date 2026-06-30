@@ -40,6 +40,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/pullback_recovery_campaign_plan_2026_06_19.md
 - docs/checkpoints/composite_hybrid_strategy_wrapper_design_2026_06_24.md
 - docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md
+- docs/checkpoints/composite_hybrid_long_window_variant_proof_2026_06_29.md
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
 - docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md
 - docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md
@@ -74,10 +75,10 @@ deployment work still needs independent review.
    read-only readiness report is accepted and merged; run
    `make pullback-stage0-baseline` immediately before the long proof and
    `make pullback-stage0-verify` afterward.
-7. Add additional composite/hybrid long-window research variants until the
-   candidate has comparison evidence across at least three realized synthetic
-   windows. Do not add a persistent paper campaign or production path until
-   that comparison evidence is independently reviewed and accepted.
+7. Review the composite/hybrid long-window variant proof. It now shows three
+   realized synthetic windows for the current composite candidate, but remains
+   high-risk research evidence and is not accepted until independent review.
+   Do not add a persistent paper campaign or production path from it.
 8. Continue accepted short/context follow-through: resolve the Binance
    derivatives public-data `NetworkError` or choose a compliant read-only
    derivatives venue, and keep replay limited to deterministic sample data or
@@ -133,6 +134,11 @@ deployment work still needs independent review.
   for one long synthetic window, but the candidate remains blocked from paper
   until comparison evidence exists across at least three realized synthetic
   windows.
+- Composite/hybrid long-window variant proof is ready for independent review:
+  `docs/checkpoints/composite_hybrid_long_window_variant_proof_2026_06_29.md`
+  records two additional research-only windows. The composite now has three
+  realized synthetic windows, but remains blocked from paper because evidence
+  is still synthetic-only and low confidence.
 - Shadow spread fresh-record proof is complete:
   `docs/checkpoints/shadow_spread_fresh_record_proof_2026_06_24.md` records
   `9/9` fresh `es_daily_trend_v1` signal records with `spread_bps` and

@@ -39,6 +39,60 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-29 - Composite Hybrid Long Window Variants
+
+Date: 2026-06-29
+
+Active role: `ENGINEER`
+
+Objective: add research-only long-window variants so the accepted
+`composite_hybrid_v1_breakout_sma200_research` candidate can be evaluated
+across at least three realized synthetic windows without enabling paper,
+runtime, promotion, or order-routing behavior.
+
+What was found:
+- SHOWN: the prior accepted long-window proof gave the composite candidate one
+  realized synthetic round trip.
+- SHOWN: the active backlog required at least three realized synthetic windows
+  before any paper decision is revisited.
+- SHOWN: the composite remains unregistered from runtime strategy dispatch.
+
+What changed:
+- Added `long_trend_breakout_retest` and
+  `long_trend_failed_extension` to both `services/backtest/evidence_cycle.py`
+  and `services/backtest/evidence_windows.py`.
+- Updated `tests/test_backtest_evidence_cycle.py` to require all three long
+  SMA confirmation windows and prove each produces a closed composite trade.
+- Added
+  `docs/checkpoints/composite_hybrid_long_window_variant_proof_2026_06_29.md`.
+- Updated `REMAINING_TASKS.md` and the composite/hybrid design checkpoint to
+  show the proof is ready for independent review, not paper advancement.
+
+Why this change:
+- Adding two deterministic research windows is the smallest way to close the
+  synthetic participation coverage gap while preserving the existing safety
+  boundary around paper and runtime paths.
+
+Expected outcome:
+- Composite research comparison has three realized synthetic windows available.
+- The candidate can be reviewed with better synthetic participation evidence
+  while remaining blocked from persistent paper campaigns until a separate
+  accepted decision changes that boundary.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_evidence_cycle.py tests/test_backtest_leaderboard.py tests/test_composite_hybrid_parity.py`
+  - SHOWN: `26 passed in 5.07s`.
+- Read-only aggregate comparison:
+  - SHOWN: composite row `rank=2`, `decision=improve`,
+    `evidence_status=synthetic_only`, `confidence_label=low`,
+    `closed_trades=3`, `closed_trade_window_count=3`,
+    `active_window_count=3`, and `research_acceptance.accepted=false`.
+
+Remaining risk:
+- HIGH: financial strategy research evidence can affect future candidate
+  ranking and campaign selection.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-29 - Pullback Stage 0 Make Targets
 
 Date: 2026-06-29
