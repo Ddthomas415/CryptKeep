@@ -397,7 +397,8 @@ Risk:
 ## Priority 12 - Short-Market Strategy Research
 
 Status: read-only collector/store extension accepted; sample and spot-context
-proofs complete; Binance derivatives context blocked
+proofs complete; Binance derivatives context blocked; readiness report ready
+for independent review
 
 Why it matters:
 - The current `es_daily_trend_v1` strategy is long/flat only. It does not
@@ -430,12 +431,18 @@ Why it matters:
   with `CBP_VENUE=binance` and `CBP_ALLOW_BINANCE=1`. It collected no rows
   because Binance exchange open failed with `NetworkError`; output still
   reported `research_only=true` and `execution_enabled=false`.
+- `docs/checkpoints/short_context_readiness_report_2026_06_29.md` adds a
+  read-only readiness check over stored crypto-edge evidence. It fails closed
+  unless required `live_public` funding, open-interest, basis, and order-book
+  row families are present.
 
 Next action:
 - If derivatives context is needed, resolve the Binance public-data
   `NetworkError` separately or choose a different read-only derivatives venue
   after compliance/account review. Do not run this as a long-lived loop and do
   not treat it as venue/compliance approval.
+- Use `make check-short-context-readiness` before any short/context replay
+  prototype.
 - Do not use the new rows in replay analysis until the public-data proof is
   accepted for the relevant row family, or the replay is explicitly limited to
   deterministic sample data.

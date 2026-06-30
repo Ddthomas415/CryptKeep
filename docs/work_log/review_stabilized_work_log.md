@@ -39,6 +39,55 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-29 - Short Context Readiness Report
+
+Date: 2026-06-29
+
+Active role: `ENGINEER`
+
+Objective: add a fail-closed read-only readiness report for short/context data
+so future replay work can tell whether stored crypto-edge evidence is
+`live_public` ready or fixture-only.
+
+What was found:
+- SHOWN: the crypto-edge store already persists funding, open-interest, basis,
+  quote, and order-book rows with a source label.
+- SHOWN: the accepted short/context audit still blocks Binance derivatives
+  public-data rows because exchange open failed with `NetworkError`.
+- SHOWN: there was no compact operator command that classified whether required
+  `live_public` row families were present before replay.
+
+What changed:
+- Added `services/analytics/short_context_readiness.py`.
+- Added `scripts/check_short_context_readiness.py`.
+- Added targeted service and CLI tests.
+- Added `make check-short-context-readiness`.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, the short-context audit,
+  the next-actions checkpoint, and added
+  `docs/checkpoints/short_context_readiness_report_2026_06_29.md`.
+
+Why this change:
+- A read-only store check is the narrowest useful step before replay. It avoids
+  contacting exchanges, starting collectors, or changing strategy/runtime
+  behavior, while preventing accidental reliance on partial live-public
+  derivatives context.
+
+Expected outcome:
+- Operators can run one short command before any short/context replay prototype.
+- Replay remains fixture-only unless required `live_public` funding,
+  open-interest, basis, and order-book row families are present.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/analytics/short_context_readiness.py scripts/check_short_context_readiness.py tests/test_short_context_readiness.py tests/test_check_short_context_readiness_script.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_short_context_readiness.py tests/test_check_short_context_readiness_script.py`
+  - SHOWN: `6 passed in 0.18s`.
+
+Remaining risk:
+- HIGH: this is short/derivatives research-governance logic and can affect
+  whether future replay work relies on live-public context evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-29 - Composite Hybrid Long Window Variants
 
 Date: 2026-06-29

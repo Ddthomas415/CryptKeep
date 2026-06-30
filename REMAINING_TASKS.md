@@ -42,6 +42,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/composite_hybrid_leaderboard_comparison_2026_06_27.md
 - docs/checkpoints/composite_hybrid_long_window_variant_proof_2026_06_29.md
 - docs/checkpoints/short_market_strategy_research_spec_2026_06_19.md
+- docs/checkpoints/short_context_readiness_report_2026_06_29.md
 - docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md
 - docs/checkpoints/pr43_ai_operator_oversight_rebuild_objective_2026_06_28.md
 - docs/checkpoints/pr43_managed_multi_symbol_runtime_objective_2026_06_28.md
@@ -79,10 +80,11 @@ deployment work still needs independent review.
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
    paper-history support.
-8. Continue accepted short/context follow-through: resolve the Binance
-   derivatives public-data `NetworkError` or choose a compliant read-only
-   derivatives venue, and keep replay limited to deterministic sample data or
-   accepted public row families until that proof exists.
+8. Review the short/context readiness report. It adds a fail-closed check over
+   stored crypto-edge evidence, but remains high-risk research governance until
+   independently accepted. Continue to resolve the Binance derivatives
+   public-data `NetworkError` or choose a compliant read-only derivatives venue
+   before relying on derivatives row families.
 9. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -158,6 +160,10 @@ deployment work still needs independent review.
   selected the read-only crypto-edge collector as the safe base; PR #72 then
   added accepted open-interest and order-book row support without enabling
   replay, paper short simulation, routing, or execution.
+- Short/context readiness report is ready for independent review:
+  `docs/checkpoints/short_context_readiness_report_2026_06_29.md` adds a
+  read-only check that fails closed unless required `live_public` crypto-edge
+  row families are present. It does not contact exchanges or enable replay.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable

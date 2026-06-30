@@ -163,6 +163,10 @@ decision makes them authoritative.
   accepted `pullback_recovery_default` Stage 0 proof; use
   `make pullback-stage0-readiness`. Writes report artifacts only and prints the
   15-minute operator-run proof command without starting the collector.
+- `check_short_context_readiness.py` — read-only short/context data readiness
+  check over stored crypto-edge evidence; use
+  `make check-short-context-readiness`. It does not contact exchanges or enable
+  replay/execution.
 - `plan_managed_paper_campaigns.py` — read-only managed paper-campaign proposal
   planner; writes proposal artifacts only and does not mutate manifests or
   start campaigns.
