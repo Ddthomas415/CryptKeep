@@ -219,11 +219,21 @@ Accepted proof after PR #72:
   by the Binance guard, and guard-enabled Binance-only proof collected no rows
   because exchange open failed with `NetworkError`.
 
+Additional follow-through:
+- `docs/checkpoints/short_context_readiness_report_2026_06_29.md` adds a
+  fail-closed read-only readiness check over stored crypto-edge evidence. It
+  distinguishes fixture-only data from `live_public` readiness and does not
+  contact exchanges, start collectors, enable replay, or enable execution.
+  This follow-through was independently reviewed and accepted by the human
+  operator on 2026-06-30 after PR #144 was opened for review.
+
 ## Current Next Action
 
 If derivatives context is needed, resolve the Binance public-data
 `NetworkError` or choose another compliant read-only derivatives venue after
-account/compliance review.
+account/compliance review. Use `make check-short-context-readiness` before any
+replay prototype and keep replay fixture-only unless
+`live_public_replay_ready=true`.
 
 Do not use the new rows in replay analysis unless the replay is explicitly
 limited to deterministic sample data or to row families with accepted

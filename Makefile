@@ -7,7 +7,7 @@ HETZNER_SSH_TARGET ?= cryptkeep@100.86.128.9
 HETZNER_APP_DIR ?= /srv/cryptkeep/app
 HETZNER_PAPER_CAMPAIGN_CONFIG ?= configs/paper_evidence_campaigns.hetzner.example.json
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-paper-all restore-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-paper-all restore-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -82,6 +82,9 @@ stop-live-crypto-edges-loop:
 
 status-live-crypto-edges-loop:
 	$(PYTHON) scripts/data/run_crypto_edge_collector_loop.py --status
+
+check-short-context-readiness:
+	$(PYTHON) scripts/check_short_context_readiness.py
 
 collect-paper-strategy-evidence:
 	$(PYTHON) scripts/run_paper_strategy_evidence_collector.py --runtime-sec $(PAPER_EVIDENCE_RUNTIME_SEC)
@@ -177,7 +180,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now
 
 # Fast test suite — skips blocking service-loop tests
@@ -326,6 +329,7 @@ script-index:
 	@echo "  make candidate-summary  — summarize candidate-attributed paper outcomes"
 	@echo "  make candidate-outcomes — write candidate outcome report artifact"
 	@echo "  make ai-operator-oversight — write read-only AI operator oversight report"
+	@echo "  make check-short-context-readiness — check short/context data readiness"
 	@echo "  make pullback-stage0-readiness — check pullback Stage 0 readiness"
 	@echo "  make pullback-stage0-baseline  — record baseline before pullback Stage 0"
 	@echo "  make pullback-stage0-verify    — verify pullback Stage 0 after proof"
