@@ -12,45 +12,64 @@ def test_default_evidence_windows_expose_multiple_benchmarks() -> None:
     windows = evidence_cycle.default_evidence_windows()
     window_ids = {str(item["window_id"]) for item in windows}
 
-    assert len(windows) >= 8
+    assert len(windows) >= 10
     assert windows[0]["window_id"] == "synthetic_default"
     assert "false_breakout_whipsaw" in window_ids
     assert "event_trend_grind" in window_ids
     assert "low_vol_fee_bleed" in window_ids
     assert "long_trend_confirmation" in window_ids
+    assert "long_trend_breakout_retest" in window_ids
+    assert "long_trend_failed_extension" in window_ids
     assert all(int(item["bars"] if "bars" in item else len(item["candles"])) >= 100 for item in windows)
 
 
-def test_default_evidence_window_sources_include_long_sma_confirmation_window() -> None:
+def test_default_evidence_window_sources_include_long_sma_confirmation_windows() -> None:
+    expected = {
+        "long_trend_confirmation",
+        "long_trend_breakout_retest",
+        "long_trend_failed_extension",
+    }
     for source in (evidence_cycle, evidence_windows):
         windows = source.default_evidence_windows()
-        row = next(item for item in windows if item["window_id"] == "long_trend_confirmation")
+        rows = {str(item["window_id"]): item for item in windows}
 
-        assert len(row["candles"]) >= 320
-        assert int(row["warmup_bars"]) == 20
+        assert expected.issubset(rows)
+        for window_id in expected:
+            row = rows[window_id]
+            assert len(row["candles"]) >= 320
+            assert int(row["warmup_bars"]) == 20
 
 
-def test_long_trend_confirmation_window_exercises_composite_candidate() -> None:
-    row = next(
-        item
-        for item in evidence_cycle.default_evidence_windows()
-        if item["window_id"] == "long_trend_confirmation"
-    )
+def test_long_sma_confirmation_windows_exercise_composite_candidate() -> None:
+    expected = {
+        "long_trend_confirmation",
+        "long_trend_breakout_retest",
+        "long_trend_failed_extension",
+    }
+    represented: set[str] = set()
 
-    out = evidence_cycle.run_strategy_leaderboard(
-        base_cfg={},
-        symbol="BTC/USDT",
-        candles=row["candles"],
-        warmup_bars=int(row["warmup_bars"]),
-        initial_cash=10_000.0,
-        fee_bps=10.0,
-        slippage_bps=5.0,
-    )
-    composite = next(item for item in out["rows"] if item["candidate"] == COMPOSITE_HYBRID_RESEARCH_CANDIDATE)
+    for row in evidence_cycle.default_evidence_windows():
+        if row["window_id"] not in expected:
+            continue
+        out = evidence_cycle.run_strategy_leaderboard(
+            base_cfg={},
+            symbol="BTC/USDT",
+            candles=row["candles"],
+            warmup_bars=int(row["warmup_bars"]),
+            initial_cash=10_000.0,
+            fee_bps=10.0,
+            slippage_bps=5.0,
+        )
+        composite = next(
+            item for item in out["rows"] if item["candidate"] == COMPOSITE_HYBRID_RESEARCH_CANDIDATE
+        )
 
-    assert composite["trade_count"] >= 2
-    assert composite["closed_trades"] >= 1
-    assert composite["strategy"] == "composite_hybrid_v1"
+        assert composite["trade_count"] >= 2
+        assert composite["closed_trades"] >= 1
+        assert composite["strategy"] == "composite_hybrid_v1"
+        represented.add(str(row["window_id"]))
+
+    assert represented == expected
 
 
 def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch) -> None:
