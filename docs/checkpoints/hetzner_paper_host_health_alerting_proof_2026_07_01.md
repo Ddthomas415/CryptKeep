@@ -140,4 +140,8 @@ Reason:
 - Host health alerting affects persistent financial-evidence background jobs
   and migration readiness, even though this implementation is read-only.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
+
+Review reference:
+- Independently reviewed and accepted by the human operator on 2026-07-01
+  after PR #159 checks passed.

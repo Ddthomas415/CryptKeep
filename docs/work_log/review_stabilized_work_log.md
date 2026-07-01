@@ -108,7 +108,9 @@ Remaining risk:
 - UNVERIFIED: actual Hetzner host health, scheduler installation, external
   alert delivery, backup age checks, backup restore rehearsal, and canonical
   `.cbp_state` migration.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01 after PR #159 checks passed.
 
 ## 2026-07-01 - Close Transitional Family Migration Docs
 
