@@ -231,9 +231,23 @@ timedatectl show -p NTPSynchronized --value
 Expected:
 - the checked-out commit is the independently accepted deployment commit;
 - the preflight reports `ok=true`;
+- `/srv/cryptkeep/backups` exists;
+- the repo filesystem has at least 2 GiB free;
+- the repo filesystem has at least 10,000 free inodes;
 - targeted tests pass;
 - time synchronization reports `yes`;
 - no dashboard or backend listener is enabled.
+
+The storage thresholds are explicit and configurable:
+
+```bash
+./.venv/bin/python scripts/hetzner_paper_host_preflight.py \
+  --config configs/paper_evidence_campaigns.hetzner.example.json \
+  --expected-commit <accepted-deployment-sha> \
+  --backup-dir /srv/cryptkeep/backups \
+  --min-free-gb 2 \
+  --min-free-inodes 10000
+```
 
 Automatic startup after host reboot is not approved by this runbook. During the
 isolated proof, the operator must explicitly run the reviewed restore command
@@ -361,7 +375,8 @@ Host monitoring minimum:
 - collector process/status;
 - last completed UTC day;
 - campaign health, not only PID liveness;
-- disk usage and inode availability;
+- disk usage and inode availability, using the preflight storage check as the
+  minimum threshold;
 - UTC/NTP synchronization;
 - backup age and last restore-test result.
 

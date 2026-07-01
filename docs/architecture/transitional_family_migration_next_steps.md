@@ -11,6 +11,11 @@
 - services/marketdata
 - services/paper
 
+## Deadline
+- Removal deadline: 2026-08-01
+- Extension decision:
+  `docs/strategies/decision_record_2026-07-01_transitional_family_deadline.md`
+
 ## Execution Order
 1. services/paper
    - keep as test-compat until tests are migrated or shimmed

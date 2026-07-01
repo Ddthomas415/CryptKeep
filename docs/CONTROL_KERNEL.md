@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Status:** Normative  
-**Removal target for transitional families:** 2026-07-01
+**Removal target for transitional families:** 2026-08-01
 
 ---
 

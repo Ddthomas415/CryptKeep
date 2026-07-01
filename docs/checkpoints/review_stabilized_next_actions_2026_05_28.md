@@ -546,8 +546,9 @@ Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
 state-transfer manifest tooling, host preflight tooling, the isolated
 challenger proof template, and manifest-level ownership proof are accepted.
 Runtime duplicate-process proof tooling is accepted.
-Campaign deployment remains blocked pending current-host runtime proof,
-server-hosted UTC cycle proof, and backup/restore rehearsal.
+Storage-health preflight tooling is ready for independent review. Campaign
+deployment remains blocked pending current-host runtime proof, server-hosted
+UTC cycle proof, persistent alerting, and backup/restore rehearsal.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -569,6 +570,10 @@ Next action:
   use ad hoc OS-specific checksum commands for this path.
 - Use `scripts/hetzner_paper_host_preflight.py` on the host before restore and
   again with `--require-state` after state transfer.
+- Treat `storage_health` in `scripts/hetzner_paper_host_preflight.py` as the
+  minimum disk/health preflight: backup directory present, at least 2 GiB free,
+  and at least 10,000 free inodes unless a separately accepted policy changes
+  those thresholds.
 - Copy
   `docs/deployment_records/hetzner_isolated_challenger_proof_TEMPLATE.md` to a
   dated deployment record before any collector stop, state transfer, or VPS
@@ -591,7 +596,8 @@ Next action:
   proof, Hetzner preflight proof, manifest verify proof, VPS restore proof,
   and single-owner proof in the dated deployment record.
 - Add disk-space monitoring, collector health alerts, and backup restore
-  rehearsal evidence before any canonical `.cbp_state` migration.
+  rehearsal evidence before any canonical `.cbp_state` migration. The
+  preflight storage check is not persistent alerting.
 - Prove the deployment first with an isolated challenger state directory, then
   migrate canonical `.cbp_state` only after a reviewed stop-copy-verify-start
   procedure.
@@ -603,6 +609,7 @@ Proof required:
 - No externally reachable dashboard or backend port.
 - `scripts/hetzner_paper_host_preflight.py` reports `ok=true` on the host at
   the accepted deployment commit.
+- The preflight `storage_health` check reports `ok=true`.
 - Hetzner Cloud firewall remains `cryptkeep-tailscale-only`, `0 Rules`,
   `1 Server`, and `Fully applied`.
 - Hetzner backups remain enabled and backup window is visible.
@@ -624,6 +631,9 @@ Proof required:
   `docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md`.
   PR #147 merged as `8d75486e`. Actual proof requires fresh host status
   payloads.
+- Storage-health preflight tooling is ready for independent review in
+  `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`. Persistent
+  alerting and backup restore rehearsal remain separate blockers.
 
 Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,
@@ -632,8 +642,9 @@ Risk:
 - Acceptance state: runbook, cloud safeguards, manifest tooling, host preflight
   tooling, proof template, manifest-level ownership proof, and runtime
   duplicate-process proof tooling are accepted. Actual collector stop, state
-  transfer, VPS restore/start, current-host runtime proof, backup rehearsal, and
-  canonical migration remain high-risk operations and must stop at
+  transfer, VPS restore/start, current-host runtime proof, storage-health
+  preflight acceptance, persistent alerting, backup rehearsal, and canonical
+  migration remain high-risk operations and must stop at
   `READY_FOR_INDEPENDENT_REVIEW` unless separately accepted by the human
   operator.
 

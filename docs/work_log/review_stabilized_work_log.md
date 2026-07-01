@@ -39,6 +39,144 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Transitional Family Deadline Extension
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: unblock PR #149 CI after the transitional-family deprecation
+deadline elapsed on 2026-07-01.
+
+What was found:
+- SHOWN: `CI sanity` and `CI validate` both failed only at
+  `tests/test_deprecation_deadline.py::test_deprecation_deadline_not_passed`.
+- SHOWN: the failure reported `services/strategy` and `services/paper` still
+  present after the 2026-07-01 deadline.
+- SHOWN: `docs/architecture/transitional_service_families.md` records
+  `services/paper` as a frozen compatibility layer and `services/strategy` as a
+  frozen internal compatibility island.
+- SHOWN: tests still cover `services/paper` and
+  `services/strategy/startup_guard.py`.
+
+What changed:
+- Extended the transitional-family removal deadline to 2026-08-01 in
+  `tests/test_deprecation_deadline.py`.
+- Aligned deadline text in `docs/ARCHITECTURE.md`, `docs/CONTROL_KERNEL.md`,
+  `services/paper/*`, and `services/strategy/startup_guard.py`.
+- Added
+  `docs/strategies/decision_record_2026-07-01_transitional_family_deadline.md`.
+- Updated `REMAINING_TASKS.md` and
+  `docs/architecture/transitional_family_migration_next_steps.md` so the
+  extended deadline remains visible in the backlog.
+
+Why this change:
+- Removing the compatibility families inside the Hetzner storage-preflight PR
+  would mix unrelated migration work into a host-readiness change and risk
+  deleting covered behavior without focused migration proof.
+- The deprecation test explicitly allows extending the deadline if the date is
+  updated and a decision record explains why.
+
+Expected outcome:
+- CI can run again while preserving the removal pressure.
+- Transitional families remain frozen; no new imports or feature work should
+  target them.
+
+Verification:
+- SHOWN: GitHub Actions logs for PR #149 showed the date-triggered failure.
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    tests/test_deprecation_deadline.py \
+    services/paper/__init__.py \
+    services/paper/main.py \
+    services/paper/paper_broker.py \
+    services/paper/paper_state.py \
+    services/strategy/startup_guard.py
+  ```
+- SHOWN: targeted deadline/compatibility slice passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_deprecation_deadline.py \
+    tests/test_paper_main_mode_gate.py \
+    tests/test_placeholder_recovery_phase3.py \
+    tests/test_startup_guard_regression.py
+  ```
+  Result: `13 passed, 1 skipped, 5 warnings in 1.34s`.
+- UNVERIFIED: GitHub CI rerun on 2026-07-01 after the deadline extension.
+
+Remaining risk:
+- MEDIUM: the compatibility-family migration is deferred, not resolved.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
+
+## 2026-07-01 - Hetzner Storage Preflight
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: add read-only backup-directory, free-space, and free-inode checks to
+the accepted Hetzner paper-host preflight.
+
+What was found:
+- SHOWN: the accepted Hetzner preflight checked repo files, venv, collector
+  imports, Git checkout, NTP, Tailscale, and campaign config.
+- SHOWN: it did not check backup directory presence, free disk space, or free
+  inode availability.
+- SHOWN: persistent alerting and backup restore rehearsal remain separate
+  Priority 16 blockers.
+
+What changed:
+- Added `storage_health` to `scripts/hetzner_paper_host_preflight.py`.
+- Added CLI thresholds: `--backup-dir`, `--min-free-gb`, and
+  `--min-free-inodes`.
+- Added targeted tests for accepted storage, missing backup directory, low
+  space, and low inodes.
+- Updated `docs/HETZNER_PAPER_HOST.md`, `scripts/SCRIPTS.md`,
+  `REMAINING_TASKS.md`, Priority 16 checkpoint, and added
+  `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`.
+
+Why this change:
+- Storage health is a minimum precondition for persistent paper evidence jobs.
+  Adding it to the existing read-only preflight is the smallest safe step
+  before any restore/start or state-transfer operation.
+
+Expected outcome:
+- Operators get a fail-closed storage readiness signal before Hetzner restore
+  or state transfer.
+- The remaining blockers stay explicit: current-host proof, persistent
+  alerting, backup restore rehearsal, and reviewed migration procedure.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    scripts/hetzner_paper_host_preflight.py \
+    tests/test_hetzner_paper_host_preflight.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_hetzner_paper_host_preflight.py
+  ```
+  Result: `12 passed in 0.10s`.
+- SHOWN: root-script bootstrap slice passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_bootstrap_helper_adoption.py \
+  tests/test_no_duplicate_script_bootstrap.py \
+  tests/test_hetzner_paper_host_preflight.py
+  ```
+  Result: `25 passed in 0.57s`.
+
+Remaining risk:
+- HIGH: host storage health affects persistent financial-evidence background
+  jobs and state migration safety.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01 before the CI deadline follow-up.
+
 ## 2026-06-30 - Record PR147 Merge Status
 
 Date: 2026-06-30

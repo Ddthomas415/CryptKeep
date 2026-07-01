@@ -244,7 +244,7 @@ Those decisions should be made explicitly rather than inferred from file presenc
 
 The following parallel/transitional service families are frozen for compatibility
 and scheduled for removal. No new code should be added to transitional families.
-Migration target: **2026-07-01**.
+Migration target: **2026-08-01**.
 
 | Transitional (frozen) | Canonical (use this) | Status |
 |---|---|---|

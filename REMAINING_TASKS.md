@@ -49,6 +49,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/pr43_safe_pipeline_startup_hardening_objective_2026_06_28.md
 - docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md
 - docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md
+- docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -91,13 +92,18 @@ deployment work still needs independent review.
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
 10. Complete Hetzner host follow-through before any canonical `.cbp_state`
-    migration: backup restore rehearsal, disk/health alerting, runtime
-    duplicate-process proof, and reviewed stop-copy-verify-start procedure.
+    migration: backup restore rehearsal, disk/health alerting, current-host
+    runtime proof, and reviewed stop-copy-verify-start procedure.
     Manifest-level single-owner proof is accepted and merged by PR #145.
     Runtime duplicate-process proof tooling is accepted and merged by PR #147,
     but current host payloads still need to be captured and checked.
+    Storage-health preflight tooling is independently accepted, but persistent
+    alerting and backup restore rehearsal remain open.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
+12. Complete transitional-family migration or removal before the extended
+    2026-08-01 deadline. `services/paper` and `services/strategy` remain frozen
+    compatibility surfaces; do not add new imports or feature work there.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
@@ -178,6 +184,10 @@ deployment work still needs independent review.
   adds a read-only check over already-captured laptop and Hetzner status JSON.
   PR #147 merged as `8d75486e`. It does not SSH, restore, stop, or start
   collectors.
+- Hetzner storage-health preflight tooling is ready for independent review:
+  `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`
+  adds read-only backup-directory, free-space, and free-inode checks to the
+  host preflight. It does not SSH, restore, stop, or start collectors.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable
