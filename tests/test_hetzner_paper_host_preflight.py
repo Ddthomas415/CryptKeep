@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 
 from scripts import hetzner_paper_host_preflight as preflight
 
@@ -175,6 +176,79 @@ def test_collector_imports_uses_venv_python_and_reports_missing_dependency(tmp_p
     assert failed["ok"] is False
     assert failed["status"] == "collector_imports_failed"
     assert "yaml" in failed["details"]["stderr"]
+
+
+def test_storage_health_accepts_backup_dir_and_capacity(tmp_path: Path) -> None:
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+
+    result = preflight.check_storage_health(
+        repo_root=tmp_path,
+        backup_dir=backup_dir,
+        min_free_bytes=1024,
+        min_free_inodes=10,
+        disk_usage=lambda _path: SimpleNamespace(free=2048),
+        statvfs=lambda _path: SimpleNamespace(f_favail=20),
+    )
+
+    assert result["ok"] is True
+    assert result["status"] == "ready"
+    assert result["details"]["backup_dir_exists"] is True
+
+
+def test_storage_health_rejects_missing_backup_dir(tmp_path: Path) -> None:
+    result = preflight.check_storage_health(
+        repo_root=tmp_path,
+        backup_dir=tmp_path / "missing-backups",
+        min_free_bytes=1024,
+        min_free_inodes=10,
+        disk_usage=lambda _path: SimpleNamespace(free=2048),
+        statvfs=lambda _path: SimpleNamespace(f_favail=20),
+    )
+
+    assert result["ok"] is False
+    assert result["status"] == "backup_dir_missing"
+
+
+def test_storage_health_rejects_missing_repo_root(tmp_path: Path) -> None:
+    result = preflight.check_storage_health(
+        repo_root=tmp_path / "missing-repo",
+        backup_dir=tmp_path / "backups",
+        min_free_bytes=1024,
+        min_free_inodes=10,
+        disk_usage=lambda _path: SimpleNamespace(free=2048),
+        statvfs=lambda _path: SimpleNamespace(f_favail=20),
+    )
+
+    assert result["ok"] is False
+    assert result["status"] == "repo_root_missing"
+
+
+def test_storage_health_rejects_low_space_and_low_inodes(tmp_path: Path) -> None:
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+
+    low_space = preflight.check_storage_health(
+        repo_root=tmp_path,
+        backup_dir=backup_dir,
+        min_free_bytes=4096,
+        min_free_inodes=10,
+        disk_usage=lambda _path: SimpleNamespace(free=2048),
+        statvfs=lambda _path: SimpleNamespace(f_favail=20),
+    )
+    low_inodes = preflight.check_storage_health(
+        repo_root=tmp_path,
+        backup_dir=backup_dir,
+        min_free_bytes=1024,
+        min_free_inodes=30,
+        disk_usage=lambda _path: SimpleNamespace(free=2048),
+        statvfs=lambda _path: SimpleNamespace(f_favail=20),
+    )
+
+    assert low_space["ok"] is False
+    assert low_space["status"] == "free_space_low"
+    assert low_inodes["ok"] is False
+    assert low_inodes["status"] == "free_inodes_low"
 
 
 def test_time_sync_requires_ntp_yes(monkeypatch) -> None:

@@ -39,6 +39,70 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Hetzner Storage Preflight
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: add read-only backup-directory, free-space, and free-inode checks to
+the accepted Hetzner paper-host preflight.
+
+What was found:
+- SHOWN: the accepted Hetzner preflight checked repo files, venv, collector
+  imports, Git checkout, NTP, Tailscale, and campaign config.
+- SHOWN: it did not check backup directory presence, free disk space, or free
+  inode availability.
+- SHOWN: persistent alerting and backup restore rehearsal remain separate
+  Priority 16 blockers.
+
+What changed:
+- Added `storage_health` to `scripts/hetzner_paper_host_preflight.py`.
+- Added CLI thresholds: `--backup-dir`, `--min-free-gb`, and
+  `--min-free-inodes`.
+- Added targeted tests for accepted storage, missing backup directory, low
+  space, and low inodes.
+- Updated `docs/HETZNER_PAPER_HOST.md`, `scripts/SCRIPTS.md`,
+  `REMAINING_TASKS.md`, Priority 16 checkpoint, and added
+  `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`.
+
+Why this change:
+- Storage health is a minimum precondition for persistent paper evidence jobs.
+  Adding it to the existing read-only preflight is the smallest safe step
+  before any restore/start or state-transfer operation.
+
+Expected outcome:
+- Operators get a fail-closed storage readiness signal before Hetzner restore
+  or state transfer.
+- The remaining blockers stay explicit: current-host proof, persistent
+  alerting, backup restore rehearsal, and reviewed migration procedure.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    scripts/hetzner_paper_host_preflight.py \
+    tests/test_hetzner_paper_host_preflight.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_hetzner_paper_host_preflight.py
+  ```
+  Result: `12 passed in 0.10s`.
+- SHOWN: root-script bootstrap slice passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_bootstrap_helper_adoption.py \
+  tests/test_no_duplicate_script_bootstrap.py \
+  tests/test_hetzner_paper_host_preflight.py
+  ```
+  Result: `25 passed in 0.57s`.
+
+Remaining risk:
+- HIGH: host storage health affects persistent financial-evidence background
+  jobs and state migration safety.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-30 - Record PR147 Merge Status
 
 Date: 2026-06-30

@@ -148,7 +148,8 @@ planning; apply modes are high-risk and require an accepted review.
   accepted no-public-inbound firewall boundary.
 - `hetzner_paper_host_preflight.py` — read-only host readiness check for the
   accepted Hetzner isolated paper challenger path before state transfer or
-  collector restore.
+  collector restore; includes repo/venv/Git/NTP/Tailscale/campaign checks plus
+  backup directory, free-space, and free-inode storage checks.
 
 ### Candidate, Signal, Learning, And Research
 

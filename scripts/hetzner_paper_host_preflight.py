@@ -13,6 +13,7 @@ ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 
 import argparse  # noqa: E402
 import json  # noqa: E402
+import os  # noqa: E402
 import shutil  # noqa: E402
 import subprocess  # noqa: E402
 import sys  # noqa: E402
@@ -22,6 +23,9 @@ from services.analytics.paper_campaign_recovery import load_campaign_specs  # no
 
 DEFAULT_CONFIG_PATH = ROOT / "configs" / "paper_evidence_campaigns.hetzner.example.json"
 DEFAULT_EXPECTED_CAMPAIGN = "ema_cross_default"
+DEFAULT_BACKUP_DIR = ROOT.parent / "backups"
+DEFAULT_MIN_FREE_GB = 2.0
+DEFAULT_MIN_FREE_INODES = 10_000
 
 RunCommand = Callable[..., subprocess.CompletedProcess[str]]
 
@@ -122,6 +126,64 @@ def check_collector_imports(
         returncode=completed.returncode,
         stdout=str(completed.stdout or "").strip(),
         stderr=str(completed.stderr or "").strip(),
+    )
+
+
+def _gb_to_bytes(value: float) -> int:
+    return int(float(value) * 1024 * 1024 * 1024)
+
+
+def check_storage_health(
+    *,
+    repo_root: Path = ROOT,
+    backup_dir: Path = DEFAULT_BACKUP_DIR,
+    min_free_bytes: int = _gb_to_bytes(DEFAULT_MIN_FREE_GB),
+    min_free_inodes: int = DEFAULT_MIN_FREE_INODES,
+    disk_usage: Callable[[Path], Any] = shutil.disk_usage,
+    statvfs: Callable[[Path], Any] = os.statvfs,
+) -> dict[str, Any]:
+    if not repo_root.is_dir():
+        return _check(
+            "storage_health",
+            False,
+            "repo_root_missing",
+            repo_root=str(repo_root),
+            backup_dir=str(backup_dir),
+        )
+
+    try:
+        usage = disk_usage(repo_root)
+        stat = statvfs(repo_root)
+    except OSError as exc:
+        return _check("storage_health", False, f"storage_probe_failed:{type(exc).__name__}")
+
+    free_bytes = int(getattr(usage, "free", 0) or 0)
+    free_inodes = int(getattr(stat, "f_favail", getattr(stat, "f_ffree", 0)) or 0)
+    backup_exists = backup_dir.is_dir()
+    ok = (
+        backup_exists
+        and free_bytes >= int(min_free_bytes)
+        and free_inodes >= int(min_free_inodes)
+    )
+    if not backup_exists:
+        status = "backup_dir_missing"
+    elif free_bytes < int(min_free_bytes):
+        status = "free_space_low"
+    elif free_inodes < int(min_free_inodes):
+        status = "free_inodes_low"
+    else:
+        status = "ready"
+    return _check(
+        "storage_health",
+        ok,
+        status,
+        repo_root=str(repo_root),
+        backup_dir=str(backup_dir),
+        backup_dir_exists=backup_exists,
+        free_bytes=free_bytes,
+        min_free_bytes=int(min_free_bytes),
+        free_inodes=free_inodes,
+        min_free_inodes=int(min_free_inodes),
     )
 
 
@@ -284,6 +346,9 @@ def build_report(
     expected_campaign: str = DEFAULT_EXPECTED_CAMPAIGN,
     expected_commit: str | None = None,
     require_state: bool = False,
+    backup_dir: Path = DEFAULT_BACKUP_DIR,
+    min_free_gb: float = DEFAULT_MIN_FREE_GB,
+    min_free_inodes: int = DEFAULT_MIN_FREE_INODES,
     repo_root: Path = ROOT,
     run_command: RunCommand = subprocess.run,
 ) -> dict[str, Any]:
@@ -291,6 +356,12 @@ def build_report(
         check_required_files(repo_root),
         check_python_venv(repo_root=repo_root),
         check_collector_imports(repo_root=repo_root, run_command=run_command),
+        check_storage_health(
+            repo_root=repo_root,
+            backup_dir=backup_dir,
+            min_free_bytes=_gb_to_bytes(float(min_free_gb)),
+            min_free_inodes=int(min_free_inodes),
+        ),
         check_git_checkout(
             repo_root=repo_root,
             expected_commit=expected_commit,
@@ -312,6 +383,9 @@ def build_report(
         "expected_campaign": expected_campaign,
         "expected_commit": expected_commit,
         "require_state": require_state,
+        "backup_dir": str(backup_dir),
+        "min_free_gb": float(min_free_gb),
+        "min_free_inodes": int(min_free_inodes),
         "checks": checks,
     }
 
@@ -331,6 +405,24 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Require configured state directories to exist; use after state transfer.",
     )
+    ap.add_argument(
+        "--backup-dir",
+        type=Path,
+        default=DEFAULT_BACKUP_DIR,
+        help="Backup directory expected on the paper host.",
+    )
+    ap.add_argument(
+        "--min-free-gb",
+        type=float,
+        default=DEFAULT_MIN_FREE_GB,
+        help="Minimum free disk space required on the repo filesystem.",
+    )
+    ap.add_argument(
+        "--min-free-inodes",
+        type=int,
+        default=DEFAULT_MIN_FREE_INODES,
+        help="Minimum free inodes required on the repo filesystem.",
+    )
     args = ap.parse_args(argv)
 
     payload = build_report(
@@ -338,6 +430,9 @@ def main(argv: list[str] | None = None) -> int:
         expected_campaign=args.expected_campaign,
         expected_commit=args.expected_commit,
         require_state=bool(args.require_state),
+        backup_dir=args.backup_dir,
+        min_free_gb=float(args.min_free_gb),
+        min_free_inodes=int(args.min_free_inodes),
     )
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0 if bool(payload.get("ok")) else 1
