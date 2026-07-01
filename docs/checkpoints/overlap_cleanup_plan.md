@@ -25,12 +25,12 @@ Reduce architecture debt from overlapping module families without breaking activ
 ### strategy family
 - `services/strategies` = active canonical strategy-definition package
 - `services/strategy_runner` = active runner/runtime package
-- `services/strategy` = legacy/compat/parallel overlap debt
+- `services/strategy` = retired compatibility family as of 2026-07-01
 - Plan:
   1. Keep `services/strategies` as canonical definitions layer
   2. Keep `services/strategy_runner` as runtime/runner layer
-  3. Reduce `services/strategy` to compat-only or retire module-by-module
-  4. Remove legacy files only after import/reference audit per module
+  3. Do not reintroduce `services/strategy`
+  4. Continue runtime migration planning for `services/strategy_runner`
 
 ### storage family
 - `services/storage` = likely inactive/legacy overlap relative to top-level `storage`
@@ -41,8 +41,7 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 ## Immediate next actions
 1. Inventory direct imports for `services/storage`
-2. Inventory remaining references to `services/strategy`
-3. Draft one ADR for paper/strategy ownership boundaries
+2. Draft one ADR for remaining `services/strategy_runner` ownership boundary
 
 ## Stop conditions
 - No deletions without import/reference proof
@@ -60,10 +59,10 @@ Reduce architecture debt from overlapping module families without breaking activ
 - Action: do not reintroduce it
 
 ### strategy compat modules
-- `services/strategy/ema_crossover_runner.py` is a pure compatibility re-export to `services.strategy_runner.ema_crossover_runner`
 - `services/strategy_runner` remains an active runtime/runner package
-- `services/strategy` still contains legacy real code in `registry.py`, `filters/*`, and `strategies/*`
-- Action: keep compat wrapper for now; do not delete `services/strategy` wholesale
+- `services/strategy` is retired
+- Action: do not reintroduce `services/strategy`; migrate
+  `services/strategy_runner` only after active runtime callers are moved
 
 ## Next retirement candidate
 - `services/storage`

@@ -39,6 +39,82 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Retire `services/strategy`
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: retire the final `services/strategy` compatibility shim and route
+startup-guard proof to the canonical execution package.
+
+What was found:
+- SHOWN: `services/strategy` had one tracked source file:
+  `services/strategy/startup_guard.py`.
+- SHOWN: `services/execution/startup_guard.py` contains the canonical
+  `require_known_flat_or_override` implementation.
+- SHOWN: active runtime code imports the canonical startup guard from
+  `services.execution.startup_guard`, not `services.strategy.startup_guard`.
+- SHOWN: `tests/test_startup_guard_regression.py` read the deprecated file
+  directly, keeping the retired family alive as test scaffolding.
+
+What changed:
+- Deleted `services/strategy/startup_guard.py`.
+- Updated `tests/test_startup_guard_regression.py` to check
+  `services/execution/startup_guard.py`.
+- Removed `services/strategy` from `tests/test_deprecation_deadline.py`.
+- Updated architecture, transitional-family, overlap, ownership, and backlog
+  docs to mark `services/strategy` retired.
+
+Why this change:
+- The remaining `services/strategy` file was a compatibility shim over a
+  canonical execution guard with active tests. Deleting the shim removes false
+  transitional-family debt without changing the active runtime import path.
+
+Expected outcome:
+- No tracked Python files remain under `services/strategy`.
+- Startup-guard tests and runtime wiring stay anchored to
+  `services/execution/startup_guard.py`.
+- The only remaining transitional runtime family is
+  `services/strategy_runner`.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    services/execution/startup_guard.py \
+    tests/test_startup_guard_regression.py \
+    tests/test_deprecation_deadline.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_startup_guard_behavior.py \
+    tests/test_startup_guard_regression.py \
+    tests/test_deprecation_deadline.py
+  ```
+  Result: `6 passed, 1 skipped in 0.21s`.
+- SHOWN: source-only reference check found no active `services.strategy`
+  imports:
+  ```bash
+  rg --pcre2 -n "services\.strategy(?!_)" \
+    services scripts tests dashboard storage tools --glob '*.py'
+  ```
+- SHOWN: no non-cache files remain under `services/strategy` in the working
+  tree:
+  ```bash
+  find services/strategy -maxdepth 2 -type f -not -path '*/__pycache__/*'
+  ```
+- SHOWN: the final tracked shim is deleted in the working tree:
+  ```bash
+  git ls-files -d services/strategy
+  ```
+
+Remaining risk:
+- MEDIUM: external untracked callers importing `services.strategy.startup_guard`
+  would need to move to `services.execution.startup_guard`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-01 - Mark `services/marketdata` Retired
 
 Date: 2026-07-01

@@ -14,7 +14,6 @@
 - services/strategies
 - services/strategy_runner
 - services/storage
-- services/strategy
 
 ## Interpretation
 - Cache warnings are regenerated during audit execution and are not currently a tracked repo-artifact problem
@@ -38,8 +37,8 @@
 ### strategy family
 - `services/strategies` = active canonical strategy-definition package
 - `services/strategy_runner` = active runner/runtime package
-- `services/strategy` = legacy/compat/parallel overlap debt
-- Action: not safe to delete blindly
+- `services/strategy` = retired compatibility family as of 2026-07-01
+- Action: do not reintroduce `services/strategy`
 
 ### storage family
 - `services/storage` = likely inactive/legacy overlap relative to top-level `storage`

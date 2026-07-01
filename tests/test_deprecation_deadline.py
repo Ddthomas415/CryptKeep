@@ -3,7 +3,7 @@
 Enforces the 2026-08-01 deprecation deadline for transitional service families.
 
 If this test fails, it means the deadline has passed and the deprecated code
-must be removed: services/strategy/
+must be removed from the listed transitional families.
 
 If the deadline needs to be extended, update the date here AND add a decision
 record in docs/strategies/ explaining why.
@@ -16,9 +16,7 @@ from pathlib import Path
 
 
 DEPRECATION_DEADLINE = date(2026, 8, 1)
-DEPRECATED_FAMILIES = [
-    "services/strategy",
-]
+DEPRECATED_FAMILIES = []
 
 
 def test_deprecation_deadline_not_passed():
@@ -35,7 +33,7 @@ def test_deprecation_deadline_not_passed():
     assert not still_present, (
         f"Deprecation deadline {DEPRECATION_DEADLINE} has passed. "
         f"These families must be removed: {still_present}\n"
-        f"See services/strategy/__init__.py for migration guidance."
+        f"See docs/architecture/transitional_service_families.md for migration guidance."
     )
 
 
