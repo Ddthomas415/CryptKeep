@@ -110,4 +110,7 @@ Reason:
 - Host storage health affects persistent financial-evidence background jobs and
   state migration safety.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
+
+Review reference:
+- Independently reviewed and accepted by the human operator on 2026-07-01.

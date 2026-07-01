@@ -97,10 +97,13 @@ deployment work still needs independent review.
     Manifest-level single-owner proof is accepted and merged by PR #145.
     Runtime duplicate-process proof tooling is accepted and merged by PR #147,
     but current host payloads still need to be captured and checked.
-    Storage-health preflight tooling is ready for independent review, but
-    persistent alerting and backup restore rehearsal remain open.
+    Storage-health preflight tooling is independently accepted, but persistent
+    alerting and backup restore rehearsal remain open.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
+12. Complete transitional-family migration or removal before the extended
+    2026-08-01 deadline. `services/paper` and `services/strategy` remain frozen
+    compatibility surfaces; do not add new imports or feature work there.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

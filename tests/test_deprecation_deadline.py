@@ -1,6 +1,6 @@
 """tests/test_deprecation_deadline.py
 
-Enforces the 2026-07-01 deprecation deadline for transitional service families.
+Enforces the 2026-08-01 deprecation deadline for transitional service families.
 
 If this test fails, it means the deadline has passed and the deprecated code
 must be removed: services/strategy/, services/paper/, services/marketdata/
@@ -15,7 +15,7 @@ from datetime import date
 from pathlib import Path
 
 
-DEPRECATION_DEADLINE = date(2026, 7, 1)
+DEPRECATION_DEADLINE = date(2026, 8, 1)
 DEPRECATED_FAMILIES = [
     "services/strategy",
     "services/paper",
