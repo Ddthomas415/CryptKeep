@@ -114,7 +114,9 @@ Remaining risk:
 - MEDIUM: external untracked callers importing `services.strategy_runner` would
   need to move to `services.execution.strategy_runner` or canonical strategy
   modules.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
 
 ## 2026-07-01 - Broaden Strategy Runner Import Guard
 
