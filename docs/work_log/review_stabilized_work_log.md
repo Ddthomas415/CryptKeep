@@ -39,6 +39,64 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Track `services/strategy_runner` Deadline
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: restore deadline enforcement for the remaining frozen
+`services/strategy_runner` transitional family after the paper, marketdata, and
+strategy compatibility families were retired.
+
+What was found:
+- SHOWN: architecture and backlog docs still identify
+  `services/strategy_runner` as frozen transitional code with a 2026-08-01
+  target.
+- SHOWN: `tests/test_deprecation_deadline.py` had `DEPRECATED_FAMILIES = []`,
+  so the deadline test no longer enforced removal for the still-frozen family.
+- SHOWN: `services/strategy_runner/__init__.py` was empty, so re-adding the
+  family to `DEPRECATED_FAMILIES` also required the existing deprecation-warning
+  test to be satisfied.
+
+What changed:
+- Added `services/strategy_runner` back to `DEPRECATED_FAMILIES`.
+- Added an import-time `DeprecationWarning` to
+  `services/strategy_runner/__init__.py`.
+
+Why this change:
+- The deprecation test should keep enforcing the one transitional family that
+  remains frozen, while the retired-family guard separately prevents the already
+  retired families from being reintroduced.
+
+Expected outcome:
+- The repository will fail the deadline test after 2026-08-01 if
+  `services/strategy_runner` remains present.
+- Imports of `services.strategy_runner` expose an explicit deprecation warning
+  before the deadline.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    tests/test_deprecation_deadline.py \
+    services/strategy_runner/__init__.py
+  ```
+- SHOWN: targeted deadline test passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_deprecation_deadline.py
+  ```
+  Result: `2 passed, 1 skipped in 0.07s`.
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- LOW: this is a governance/test coherence fix plus a package-level
+  deprecation warning.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-01 - Retired Family Regression Guard
 
 Date: 2026-07-01
