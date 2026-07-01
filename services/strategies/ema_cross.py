@@ -1,13 +1,52 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Optional
+
 from services.strategies.indicators import ema
 from services.strategies.market_filters import market_context, pct_gap
-from services.strategy_runner.strategies.ema_crossover import (
-    EMACfg,
-    EMAState,
-    update_ema_state,
-    compute_signal as canonical_compute_signal,
-)
+
+
+def _ema_step(prev: Optional[float], x: float, alpha: float) -> float:
+    if prev is None:
+        return x
+    return alpha * x + (1 - alpha) * prev
+
+
+@dataclass
+class EMACfg:
+    fast: int = 12
+    slow: int = 26
+    min_history: int = 30
+    trade_qty: float = 0.01
+
+
+@dataclass
+class EMAState:
+    ema_fast: Optional[float] = None
+    ema_slow: Optional[float] = None
+    last_signal: int = 0
+
+
+def update_ema_state(px: float, cfg: EMACfg, st: EMAState) -> EMAState:
+    a_fast = 2.0 / (cfg.fast + 1.0)
+    a_slow = 2.0 / (cfg.slow + 1.0)
+    st.ema_fast = _ema_step(st.ema_fast, px, a_fast)
+    st.ema_slow = _ema_step(st.ema_slow, px, a_slow)
+    return st
+
+
+def compute_signal(st: EMAState) -> int:
+    if st.ema_fast is None or st.ema_slow is None:
+        return 0
+    if st.ema_fast > st.ema_slow:
+        return +1
+    if st.ema_fast < st.ema_slow:
+        return -1
+    return 0
+
+
+canonical_compute_signal = compute_signal
 
 
 def _ema_pair_from_closes(closes: list[float], *, ema_fast: int, ema_slow: int) -> tuple[float, float, float, float] | None:

@@ -7,6 +7,7 @@ def test_ema_cross_uses_canonical_helpers() -> None:
     assert "update_ema_state" in text
     assert "EMACfg" in text
     assert "EMAState" in text
+    assert "services.strategy_runner" not in text
 
 
 def test_strategy_ema_is_wrapper_over_canonical_helpers() -> None:
@@ -14,6 +15,7 @@ def test_strategy_ema_is_wrapper_over_canonical_helpers() -> None:
     assert "update_ema_state" in text
     assert "compute_signal" in text
     assert "EMACrossStrategy" in text
+    assert "services.strategy_runner" not in text
 
 
 def test_live_runner_no_local_ema_helper() -> None:
