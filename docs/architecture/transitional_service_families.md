@@ -2,15 +2,19 @@
 
 ## Canonical
 - services/strategies
+- services/execution
 - services/market_data
 - services/paper_trader
 
 ## Transitional / Compatibility
-- services/strategy_runner
+- none currently tracked
 
 ## Retired
 - services/strategy: retired on 2026-07-01 after the final startup-guard shim
   was replaced by the canonical `services/execution/startup_guard.py`.
+- services/strategy_runner: retired on 2026-07-01 after runtime ownership moved
+  to `services/execution/strategy_runner.py` and active import checks showed no
+  internal callers remained.
 - services/paper: retired on 2026-07-01 after test-only callers were migrated
   or removed.
 - services/marketdata: retired on 2026-07-01 after import/reference checks
@@ -18,17 +22,10 @@
 
 ## Current Caller Classification
 
-### services/strategy_runner
-- status: frozen compatibility wrapper
-- canonical runtime owner:
-  - services/execution/strategy_runner.py
-- canonical strategy-definition owner:
-  - services/strategies
-- active internal callers should import `services.execution.strategy_runner`
-  instead of `services.strategy_runner.ema_crossover_runner`.
+No tracked transitional compatibility family remains active.
 
 ## Migration Priority
-1. services/strategy_runner
+- none currently tracked
 
 ## Approved review decision: services/paper
 - status: retired on 2026-07-01
@@ -48,3 +45,14 @@
 - canonical replacement: `services/execution/startup_guard.py`
 - decision: deleted after callers were proven to use the canonical path
 - rule: do not reintroduce `services/strategy`
+
+## Approved review decision: services/strategy_runner implementation shape
+- final tracked files:
+  - `services/strategy_runner/ema_crossover_runner.py`
+  - `services/strategy_runner/strategies/ema_crossover.py`
+- canonical replacements:
+  - `services/execution/strategy_runner.py`
+  - `services/strategies/ema_cross.py`
+- decision: deleted after active internal callers were migrated and import
+  guards proved no tracked `services/` or `scripts/` caller remained
+- rule: do not reintroduce `services/strategy_runner`

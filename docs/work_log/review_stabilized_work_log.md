@@ -39,6 +39,85 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Retire `services/strategy_runner`
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: retire the remaining `services/strategy_runner` compatibility
+package after runtime ownership moved to `services/execution/strategy_runner.py`
+and active internal callers were migrated.
+
+What was found:
+- SHOWN: `services/strategy_runner` contained only compatibility wrapper files.
+- SHOWN: active import grep returned no `services.strategy_runner` imports from
+  tracked `services/`, `scripts/`, or `tests/` Python files.
+- SHOWN: canonical strategy runtime now lives at
+  `services/execution/strategy_runner.py`.
+
+What changed:
+- Deleted the remaining tracked `services/strategy_runner` Python files.
+- Moved `services/strategy_runner` from `DEPRECATED_FAMILIES` to
+  `RETIRED_FAMILIES` in `tests/test_deprecation_deadline.py`.
+- Updated architecture, checkpoint, and backlog docs to mark
+  `services/strategy_runner` retired.
+
+Why this change:
+- Keeping a wrapper-only compatibility package after active callers had been
+  migrated preserved overlap debt with no internal runtime benefit. Retiring it
+  completes the transitional-family migration and lets the retired-family guard
+  prevent reintroduction.
+
+Expected outcome:
+- No tracked source files remain under `services/strategy_runner`.
+- New code cannot reintroduce `services/strategy_runner` without failing the
+  retired-family regression test.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    tests/test_deprecation_deadline.py \
+    tests/test_execution_strategy_runner_placeholder.py \
+    services/execution/strategy_runner.py
+  ```
+- SHOWN: targeted retirement/runtime guard tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_deprecation_deadline.py \
+    tests/test_execution_strategy_runner_placeholder.py \
+    tests/test_startup_guard_regression.py \
+    tests/test_ema_runner_risk_defaults.py \
+    tests/test_ema_unification_regression.py
+  ```
+  Result: `10 passed, 1 skipped in 1.49s`.
+- SHOWN: canonical runtime import does not trigger deprecated-wrapper warnings:
+  ```bash
+  ./.venv/bin/python -c 'import warnings; warnings.simplefilter("error", DeprecationWarning); import services.execution.strategy_runner as runner; print(callable(runner.run_forever), callable(runner.request_stop))'
+  ```
+  Result: `True True`.
+- SHOWN: active import grep returned no matches:
+  ```bash
+  rg -n 'from services\.strategy_runner|import services\.strategy_runner' services scripts tests --glob '*.py'
+  ```
+- SHOWN: no non-cache files remain under `services/strategy_runner`:
+  ```bash
+  find services/strategy_runner -type f -not -path '*/__pycache__/*' -print | sort
+  ```
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- MEDIUM: external untracked callers importing `services.strategy_runner` would
+  need to move to `services.execution.strategy_runner` or canonical strategy
+  modules.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
+
 ## 2026-07-01 - Broaden Strategy Runner Import Guard
 
 Date: 2026-07-01

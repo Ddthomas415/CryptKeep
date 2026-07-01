@@ -12,7 +12,6 @@
 - services/paper_trader
 - services/market_data
 - services/strategies
-- services/strategy_runner
 - services/storage
 
 ## Interpretation
@@ -37,9 +36,9 @@
 ### strategy family
 - `services/strategies` = active canonical strategy-definition package
 - `services/execution/strategy_runner.py` = active runner/runtime module
-- `services/strategy_runner` = frozen compatibility wrapper package
+- `services/strategy_runner` = retired compatibility family as of 2026-07-01
 - `services/strategy` = retired compatibility family as of 2026-07-01
-- Action: do not reintroduce `services/strategy`
+- Action: do not reintroduce `services/strategy` or `services/strategy_runner`
 
 ### storage family
 - `services/storage` = likely inactive/legacy overlap relative to top-level `storage`
