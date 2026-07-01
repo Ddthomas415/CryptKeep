@@ -17,25 +17,22 @@ def test_active_paths_do_not_import_transitional_strategy_runner() -> None:
     for root in (Path("services"), Path("scripts")):
         paths = root.rglob("*.py")
         for path in paths:
-            if path == Path("services/strategy_runner/ema_crossover_runner.py"):
+            if Path("services/strategy_runner") in (path, *path.parents):
                 continue
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
             for node in ast.walk(tree):
                 if isinstance(node, ast.ImportFrom):
                     module = node.module or ""
-                    if module == "services.strategy_runner.ema_crossover_runner":
+                    if module == "services.strategy_runner" or module.startswith("services.strategy_runner."):
                         violations.append(str(path))
-                    if module == "services.strategy_runner":
-                        if any(alias.name == "ema_crossover_runner" for alias in node.names):
-                            violations.append(str(path))
                 elif isinstance(node, ast.Import):
                     for alias in node.names:
-                        if alias.name == "services.strategy_runner.ema_crossover_runner":
+                        if alias.name == "services.strategy_runner" or alias.name.startswith("services.strategy_runner."):
                             violations.append(str(path))
 
     assert not violations, (
-        "active paths must import services.execution.strategy_runner instead of "
-        f"the transitional strategy runner wrapper: {violations}"
+        "active paths must not import the transitional services.strategy_runner "
+        f"package: {violations}"
     )
 
 

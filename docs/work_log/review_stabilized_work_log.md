@@ -39,6 +39,66 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Broaden Strategy Runner Import Guard
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: prevent active internal code from reintroducing imports from the
+frozen `services.strategy_runner` compatibility package after runtime ownership
+moved to `services.execution.strategy_runner`.
+
+What was found:
+- SHOWN: `tests/test_execution_strategy_runner_placeholder.py` blocked imports
+  of `services.strategy_runner.ema_crossover_runner`.
+- SHOWN: the guard did not block other transitional imports such as
+  `services.strategy_runner.strategies.ema_crossover`.
+- SHOWN: current `rg` output showed no active `services/` or `scripts/` import
+  from the transitional package after PR #154.
+
+What changed:
+- Broadened the AST import guard to reject any `services.strategy_runner` import
+  from active `services/` and `scripts/` code outside the compatibility package
+  itself.
+
+Why this change:
+- The remaining `services/strategy_runner` files are compatibility wrappers.
+  Active code should not grow new dependencies on that package while it is
+  frozen for retirement.
+
+Expected outcome:
+- Any future internal reintroduction of `services.strategy_runner` imports fails
+  targeted regression tests immediately.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    tests/test_execution_strategy_runner_placeholder.py \
+    tests/test_deprecation_deadline.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_execution_strategy_runner_placeholder.py \
+    tests/test_deprecation_deadline.py
+  ```
+  Result: `5 passed, 1 skipped in 1.29s`.
+- SHOWN: active-code import grep returned no matches:
+  ```bash
+  rg -n 'from services\.strategy_runner|import services\.strategy_runner' services scripts --glob '*.py'
+  ```
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- LOW: this is test-only governance hardening.
+- Acceptance state: `ACCEPTED`.
+- Review reference: same-thread low-risk closure based on targeted proof.
+
 ## 2026-07-01 - Move Strategy Runtime To Execution Package
 
 Date: 2026-07-01
