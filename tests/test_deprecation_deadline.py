@@ -17,6 +17,37 @@ from pathlib import Path
 
 DEPRECATION_DEADLINE = date(2026, 8, 1)
 DEPRECATED_FAMILIES = []
+RETIRED_FAMILIES = [
+    "services/paper",
+    "services/marketdata",
+    "services/strategy",
+]
+
+
+def _tracked_family_python_files(family: str) -> list[str]:
+    root = Path(family)
+    if not root.exists():
+        return []
+    return [
+        str(path)
+        for path in sorted(root.rglob("*.py"))
+        if "__pycache__" not in path.parts
+    ]
+
+
+def test_retired_families_stay_removed():
+    """Prevent retired compatibility packages from being reintroduced."""
+    present = {
+        family: files
+        for family in RETIRED_FAMILIES
+        if (files := _tracked_family_python_files(family))
+    }
+
+    assert not present, (
+        "Retired compatibility families must not contain Python files. "
+        f"Found: {present}\n"
+        "Use docs/architecture/transitional_service_families.md for canonical replacements."
+    )
 
 
 def test_deprecation_deadline_not_passed():

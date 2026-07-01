@@ -39,6 +39,52 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Retired Family Regression Guard
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: prevent retired compatibility families from being silently
+reintroduced after `services/paper`, `services/marketdata`, and
+`services/strategy` were retired.
+
+What was found:
+- SHOWN: `tests/test_deprecation_deadline.py` had no active deprecated family
+  entries after the retirements.
+- SHOWN: without a separate retired-family guard, a future Python file under a
+  retired family could reappear without failing the deprecation test before the
+  2026-08-01 deadline.
+
+What changed:
+- Added `RETIRED_FAMILIES` to `tests/test_deprecation_deadline.py`.
+- Added `test_retired_families_stay_removed`, which fails if any retired family
+  contains non-cache Python files.
+
+Why this change:
+- The deprecation gate should distinguish between families still pending
+  migration and families already retired. Retired families need a permanent
+  no-reintroduction check.
+
+Expected outcome:
+- `services/paper`, `services/marketdata`, and `services/strategy` cannot be
+  reintroduced with Python files without an explicit test failure.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile tests/test_deprecation_deadline.py
+  ```
+- SHOWN: targeted test passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_deprecation_deadline.py
+  ```
+  Result: `2 passed, 1 skipped in 0.07s`.
+
+Remaining risk:
+- LOW: this is a test-only governance guard.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-01 - Retire `services/strategy`
 
 Date: 2026-07-01
