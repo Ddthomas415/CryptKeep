@@ -153,9 +153,11 @@ Today:
 - cancel/fetch/reconcile paths still include direct exchange calls
 - submit safety should not be overgeneralized to full lifecycle safety
 
-## Canonical vs Transitional Families
+## Canonical vs Retired Families
 
-The repo still carries compatibility and transitional families.
+The repo no longer carries tracked transitional compatibility families from the
+2026-07-01 migration set. Retired families are guarded against reintroduction by
+`tests/test_deprecation_deadline.py`.
 
 Current documented split:
 
@@ -170,6 +172,7 @@ Current documented split:
   - `services/strategy_runner`
   - `services/paper`
   - `services/marketdata`
+  - `services/storage`
 
 See:
 
@@ -178,7 +181,8 @@ See:
 Contributor rule:
 
 - prefer canonical families for new work
-- do not add new direct imports into frozen compatibility families unless a migration step explicitly requires it
+- do not reintroduce retired compatibility families without a new accepted
+  architecture decision
 
 ## Runtime Modes
 
@@ -225,7 +229,7 @@ It should not be described as only a market-data collector.
 The current repo still shows these structural realities:
 
 - multiple service families exist for similar concepts
-- some compatibility paths remain intentionally frozen
+- retired compatibility families are guarded against reintroduction
 - docs and implementation have historically drifted
 - submit safety is stronger than full lifecycle proof
 - strategy evidence exists, but strong promotion/profit claims are not supported by current paper-history depth
@@ -242,30 +246,22 @@ The following are still scope questions, not settled facts:
 
 Those decisions should be made explicitly rather than inferred from file presence.
 
-## Service Family Migration Deadlines
+## Retired Service Families
 
-The following parallel/transitional service families are frozen for compatibility
-and scheduled for removal. No new code should be added to transitional families.
-Migration target: **2026-08-01**.
+The 2026-07-01 transitional-family migration set is closed. No tracked
+transitional compatibility family remains active.
 
-| Transitional (frozen) | Canonical (use this) | Status |
+| Retired family | Canonical (use this) | Status |
 |---|---|---|
 | `services/strategy/` | `services/strategies/` | Retired 2026-07-01 |
 | `services/strategy_runner/` | `services/execution/strategy_runner.py` + `services/strategies/` | Retired 2026-07-01 |
 | `services/paper/` | `services/paper_trader/` | Retired 2026-07-01 |
 | `services/marketdata/` | `services/market_data/` | Retired 2026-07-01 |
+| `services/storage/` | top-level `storage/` | Retired 2026-07-01 |
 
-**Rules until removal:**
-- Do not add new files to transitional families.
-- Do not add new callers that import from transitional families.
-- When adding a feature that would touch a transitional family, add it to the canonical family instead.
-- Migration of existing callers can be done incrementally — file a tracking issue per family.
-
-**Removal process (per family):**
-1. Confirm no active callers remain (grep for imports).
-2. Move any still-needed logic to canonical family.
-3. Delete the transitional directory.
-4. Update this doc.
+**Rule:**
+- Do not reintroduce these retired packages without a new accepted architecture
+  decision.
 
 ## Signal / Candidate Layer (System 1)
 
