@@ -19,6 +19,8 @@
   or removed.
 - services/marketdata: retired on 2026-07-01 after import/reference checks
   confirmed no tracked source files or active callers remained.
+- services/storage: retired on 2026-07-01 after import/reference checks
+  confirmed no tracked source files or active callers remained.
 
 ## Current Caller Classification
 
@@ -56,3 +58,10 @@ No tracked transitional compatibility family remains active.
 - decision: deleted after active internal callers were migrated and import
   guards proved no tracked `services/` or `scripts/` caller remained
 - rule: do not reintroduce `services/strategy_runner`
+
+## Approved review decision: services/storage implementation shape
+- final tracked files: none remained when reconciled
+- canonical replacement: top-level `storage/`
+- decision: mark retired after `git ls-files services/storage`, active import
+  grep, and non-cache file checks confirmed no tracked source remained
+- rule: do not reintroduce `services/storage`

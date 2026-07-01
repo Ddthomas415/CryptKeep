@@ -33,13 +33,21 @@ should target them. The new 2026-08-01 deadline is a short extension for a
 separate migration/removal PR, not an acceptance that the compatibility layer is
 permanent.
 
+## Status Update - 2026-07-01
+
+The extended deadline was satisfied early. The tracked compatibility families
+from this migration set were retired, and `tests/test_deprecation_deadline.py`
+now guards against reintroduction through `RETIRED_FAMILIES`.
+
 ## Verification Required
 
-Before 2026-08-01:
-- migrate or retire remaining `services/paper` test callers
-- migrate or retire `services/strategy/startup_guard.py`
-- remove empty transitional directories when no Python files remain
-- update `docs/ARCHITECTURE.md` and `docs/CONTROL_KERNEL.md`
+Completed before 2026-08-01:
+- migrated or retired remaining `services/paper` test callers
+- migrated or retired `services/strategy/startup_guard.py`
+- moved strategy runtime ownership to `services/execution/strategy_runner.py`
+- retired `services/strategy_runner`
+- marked `services/storage` retired after no tracked source remained
+- updated architecture and retired-family guard docs
 
 ## Acceptance State
 

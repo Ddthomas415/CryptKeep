@@ -39,6 +39,67 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Close Transitional Family Migration Docs
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: align architecture docs with the completed compatibility-family
+retirement state after `services/storage` and `services/strategy_runner` were
+added to the retired-family guard.
+
+What was found:
+- SHOWN: `docs/ARCHITECTURE.md` still described transitional families as frozen
+  and scheduled for removal by 2026-08-01.
+- SHOWN: `docs/architecture/transitional_service_families.md` and
+  `docs/architecture/transitional_family_migration_next_steps.md` did not list
+  `services/storage` in the retired family set.
+- SHOWN: `tests/test_deprecation_deadline.py` now guards retired families,
+  including `services/storage` and `services/strategy_runner`.
+
+What changed:
+- Updated `docs/ARCHITECTURE.md` to describe retired service families rather
+  than active transitional families.
+- Added `services/storage` to the canonical transitional-family docs' retired
+  set.
+- Added a status update to the 2026-07-01 deadline decision record indicating
+  the extended deadline was satisfied early.
+
+Why this change:
+- The architectural docs should match the current guarded source state. Leaving
+  deadline language active after the migration was complete would send future
+  agents toward already-closed cleanup work.
+
+Expected outcome:
+- Future contributors see canonical families and retired-family rules without
+  stale instructions to migrate no-longer-tracked packages.
+
+Verification:
+- SHOWN: targeted retired-family test passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_deprecation_deadline.py
+  ```
+  Result: `2 passed, 1 skipped in 0.07s`.
+- SHOWN: stale-transition wording grep returned no matches:
+  ```bash
+  rg -n 'frozen compatibility|scheduled for removal|No new code should be added to transitional|Migration target|wrapper-only|future cleanup candidate|remains a frozen' docs/ARCHITECTURE.md docs/architecture docs/checkpoints/storage_retirement_readiness.md docs/checkpoints/overlap_cleanup_plan.md docs/checkpoints/repo_hygiene_overlap_status.md REMAINING_TASKS.md
+  ```
+- SHOWN: retired-family reference grep showed only expected retired-family and
+  guard references:
+  ```bash
+  rg -n 'services/storage|services/storage/|services\.storage|services/strategy_runner|services/strategy_runner/|services\.strategy_runner' docs/ARCHITECTURE.md docs/architecture docs/checkpoints/storage_retirement_readiness.md docs/checkpoints/overlap_cleanup_plan.md docs/checkpoints/repo_hygiene_overlap_status.md REMAINING_TASKS.md tests/test_deprecation_deadline.py
+  ```
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- LOW: docs-only alignment with already-merged retired-family guard state.
+- Acceptance state: `ACCEPTED`.
+- Review reference: same-thread low-risk closure based on targeted proof.
+
 ## 2026-07-01 - Mark `services/storage` Retired
 
 Date: 2026-07-01

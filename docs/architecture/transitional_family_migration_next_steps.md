@@ -19,10 +19,13 @@
   or removed.
 - services/marketdata: retired on 2026-07-01 after import/reference checks
   confirmed no tracked source files or active callers remained.
+- services/storage: retired on 2026-07-01 after import/reference checks
+  confirmed no tracked source files or active callers remained.
 
 ## Deadline
-- Removal deadline: 2026-08-01
-- Extension decision:
+- Original extended deadline: 2026-08-01
+- Current status: satisfied early; no tracked transitional family remains.
+- Extension decision record:
   `docs/strategies/decision_record_2026-07-01_transitional_family_deadline.md`
 
 ## Execution Order
