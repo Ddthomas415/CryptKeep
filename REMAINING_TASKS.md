@@ -101,11 +101,10 @@ deployment work still needs independent review.
     alerting and backup restore rehearsal remain open.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
-12. Complete transitional-family migration or removal before the extended
-    2026-08-01 deadline. `services/paper`, `services/marketdata`, and
-    `services/strategy` are retired; `services/strategy_runner` remains a
-    frozen compatibility/runtime surface. Do not add new imports or feature
-    work there.
+12. Maintain the retired-family regression guard. `services/paper`,
+    `services/marketdata`, `services/strategy`, and `services/strategy_runner`
+    are retired. Do not reintroduce those packages without a new accepted
+    architecture decision.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

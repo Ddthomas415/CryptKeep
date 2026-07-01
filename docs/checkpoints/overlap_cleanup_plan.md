@@ -25,13 +25,13 @@ Reduce architecture debt from overlapping module families without breaking activ
 ### strategy family
 - `services/strategies` = active canonical strategy-definition package
 - `services/execution/strategy_runner.py` = active runner/runtime module
-- `services/strategy_runner` = frozen compatibility wrapper package
+- `services/strategy_runner` = retired compatibility family as of 2026-07-01
 - `services/strategy` = retired compatibility family as of 2026-07-01
 - Plan:
   1. Keep `services/strategies` as canonical definitions layer
   2. Keep `services/execution/strategy_runner.py` as runtime/runner layer
   3. Do not reintroduce `services/strategy`
-  4. Continue compatibility-wrapper retirement planning for `services/strategy_runner`
+  4. Do not reintroduce `services/strategy_runner`
 
 ### storage family
 - `services/storage` = likely inactive/legacy overlap relative to top-level `storage`
@@ -42,7 +42,7 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 ## Immediate next actions
 1. Inventory direct imports for `services/storage`
-2. Draft one ADR for remaining `services/strategy_runner` ownership boundary
+2. Verify `services/storage` wrapper consumers before any storage cleanup
 
 ## Stop conditions
 - No deletions without import/reference proof
@@ -61,10 +61,9 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 ### strategy compat modules
 - `services/execution/strategy_runner.py` is the active runtime/runner module.
-- `services/strategy_runner` remains a frozen compatibility wrapper package.
+- `services/strategy_runner` is retired
 - `services/strategy` is retired
-- Action: do not reintroduce `services/strategy`; migrate
-  `services/strategy_runner` only after remaining compatibility callers are moved
+- Action: do not reintroduce `services/strategy` or `services/strategy_runner`
 
 ## Next retirement candidate
 - `services/storage`

@@ -16,13 +16,12 @@ from pathlib import Path
 
 
 DEPRECATION_DEADLINE = date(2026, 8, 1)
-DEPRECATED_FAMILIES = [
-    "services/strategy_runner",
-]
+DEPRECATED_FAMILIES = []
 RETIRED_FAMILIES = [
     "services/paper",
     "services/marketdata",
     "services/strategy",
+    "services/strategy_runner",
 ]
 
 
