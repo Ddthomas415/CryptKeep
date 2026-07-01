@@ -167,6 +167,7 @@ Current documented split:
   - `services/strategy`
   - `services/strategy_runner`
   - `services/marketdata`
+- Retired:
   - `services/paper`
 
 See:
@@ -250,7 +251,7 @@ Migration target: **2026-08-01**.
 |---|---|---|
 | `services/strategy/` | `services/strategies/` | Frozen — no new imports |
 | `services/strategy_runner/` | `services/strategies/` + scripts | Frozen — no new imports |
-| `services/paper/` | `services/paper_trader/` | Frozen — no new imports |
+| `services/paper/` | `services/paper_trader/` | Retired 2026-07-01 |
 | `services/marketdata/` | `services/market_data/` | Frozen — no new imports |
 
 **Rules until removal:**

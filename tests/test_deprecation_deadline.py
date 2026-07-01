@@ -3,7 +3,7 @@
 Enforces the 2026-08-01 deprecation deadline for transitional service families.
 
 If this test fails, it means the deadline has passed and the deprecated code
-must be removed: services/strategy/, services/paper/, services/marketdata/
+must be removed: services/strategy/, services/marketdata/
 
 If the deadline needs to be extended, update the date here AND add a decision
 record in docs/strategies/ explaining why.
@@ -18,7 +18,6 @@ from pathlib import Path
 DEPRECATION_DEADLINE = date(2026, 8, 1)
 DEPRECATED_FAMILIES = [
     "services/strategy",
-    "services/paper",
     "services/marketdata",
 ]
 

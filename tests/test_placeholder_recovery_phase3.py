@@ -78,7 +78,7 @@ def test_execution_audit_load_wrappers(monkeypatch):
 
 def test_paper_state_snapshot(monkeypatch, tmp_path):
     _reload_state_modules(monkeypatch, tmp_path)
-    import services.paper.paper_state as paper_state
+    import services.paper_trader.paper_state as paper_state
 
     importlib.reload(paper_state)
     s = paper_state.PaperState()
@@ -88,31 +88,6 @@ def test_paper_state_snapshot(monkeypatch, tmp_path):
     assert snap["ok"] is True
     assert snap["cash_quote"] == 123.45
     assert snap["realized_pnl"] == -4.0
-
-
-def test_paper_broker_uses_engine_contract():
-    import services.paper.paper_broker as paper_broker
-
-    class DummyEngine:
-        def submit_order(self, **kwargs):
-            return {"ok": True, "kind": "submit", "kwargs": kwargs}
-
-        def cancel_order(self, client_order_id):
-            return {"ok": True, "kind": "cancel", "client_order_id": client_order_id}
-
-        def evaluate_open_orders(self):
-            return {"ok": True, "kind": "eval"}
-
-        def mark_to_market(self, venue, symbol):
-            return {"ok": True, "kind": "mtm", "venue": venue, "symbol": symbol}
-
-    b = paper_broker.PaperBroker(engine=DummyEngine())
-    req = paper_broker.PaperOrder(venue="paper", symbol="BTC/USD", side="buy", order_type="market", qty=0.1)
-    sub = b.submit(req)
-    assert sub["ok"] is True and sub["kind"] == "submit"
-    assert b.cancel("cid")["kind"] == "cancel"
-    assert b.evaluate()["kind"] == "eval"
-    assert b.mtm("paper", "BTC/USD")["kind"] == "mtm"
 
 
 def test_position_sizing_and_exit_controls():

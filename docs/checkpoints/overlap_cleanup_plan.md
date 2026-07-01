@@ -15,13 +15,13 @@ Reduce architecture debt from overlapping module families without breaking activ
   4. Remove compat layer only after reference count reaches zero
 
 ### paper family
-- `services/paper` = active legacy/current paper-engine path
+- `services/paper` = retired compatibility family as of 2026-07-01
 - `services/paper_trader` = active parallel execution-venue path
 - Plan:
-  1. Inventory which runtime paths use each family
-  2. Define target ownership boundary
-  3. Avoid deletion until migration plan exists
-  4. Convert overlap into explicit architecture decision record later
+  1. Do not reintroduce `services/paper`
+  2. Use `services/paper_trader` or `services/execution/paper_engine.py`
+     for future paper execution work
+  3. Continue resolving remaining non-paper overlap families separately
 
 ### strategy family
 - `services/strategies` = active canonical strategy-definition package

@@ -5,7 +5,6 @@ Draft
 
 ## Problem
 The repo contains overlapping active families:
-- `services/paper`
 - `services/paper_trader`
 - `services/strategies`
 - `services/strategy_runner`
@@ -21,16 +20,15 @@ These overlaps create unclear ownership boundaries between:
 - `services/strategies` = active canonical strategy-definition package
 - `services/strategy_runner` = active runner/runtime package
 - `services/strategy` = legacy/compat/parallel overlap debt
-- `services/paper` = active legacy/current paper-engine path
-- `services/paper_trader` = active parallel execution-venue path
+- `services/paper` = retired compatibility family as of 2026-07-01
+- `services/paper_trader` = active paper execution package
 
 ## Decision to make
 Define explicit ownership boundaries for:
 1. strategy definitions
 2. strategy runtime/execution
-3. paper trading engine
-4. paper execution venue
-5. compatibility layers slated for retirement later
+3. remaining paper execution surfaces
+4. compatibility layers slated for retirement later
 
 ## Constraints
 - no deletions without import/reference proof
@@ -40,12 +38,13 @@ Define explicit ownership boundaries for:
 ## Proposed boundary questions
 1. Should `services/strategies` remain the sole definitions layer?
 2. Should `services/strategy_runner` remain the sole runtime layer?
-3. Should `services/paper` or `services/paper_trader` be the long-term paper execution owner?
+3. Which remaining paper execution surfaces should be consolidated next?
 4. Which modules are compat-only and candidates for later retirement?
 
 ## Current decision
 - `services/strategies` is the canonical owner of strategy definitions.
 - `services/strategy_runner` is the canonical owner of strategy runtime/execution.
 - `services/strategy` is a legacy/compatibility layer and is not an ownership target.
-- Long-term ownership between `services/paper` and `services/paper_trader` remains unresolved in this ADR draft.
-- No deletions or migrations are approved by this ADR yet.
+- `services/paper` is retired; do not reintroduce it.
+- `services/paper_trader` remains the active paper execution package.
+- Remaining paper execution consolidation is outside this ADR update.

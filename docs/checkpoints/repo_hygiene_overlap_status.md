@@ -9,7 +9,6 @@
 - `overlap_dirs => 11 hits`
 
 ## Current overlap families
-- services/paper
 - services/paper_trader
 - services/market_data
 - services/marketdata
@@ -33,9 +32,9 @@
 - Action: retain for now, do not delete blindly
 
 ### paper family
-- `services/paper` = active legacy/current paper-engine path
-- `services/paper_trader` = active parallel execution-venue path
-- Action: architecture debt, not safe to delete blindly
+- `services/paper` = retired compatibility family as of 2026-07-01
+- `services/paper_trader` = active paper execution package
+- Action: do not reintroduce `services/paper`; use canonical paper paths
 
 ### strategy family
 - `services/strategies` = active canonical strategy-definition package
