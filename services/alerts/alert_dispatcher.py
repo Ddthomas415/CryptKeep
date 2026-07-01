@@ -49,7 +49,7 @@ def _persist_last(obj: dict) -> None:
             json.dumps({**obj, "ts": _now_iso()}, ensure_ascii=False, indent=2, default=str)[:2_000_000],
         )
     except Exception as _silent_err:
-        _LOG.debug("suppressed: %s", _silent_err)
+        logger.debug("suppressed: %s", _silent_err)
 
 
 def _write_local_alert(level: str, message: str, payload: dict | None) -> None:
@@ -66,7 +66,7 @@ def _write_local_alert(level: str, message: str, payload: dict | None) -> None:
         with open(ALERT_LOG_PATH, "a", encoding="utf-8") as fh:
             fh.write(entry + "\n")
     except Exception as _silent_err:
-        _LOG.debug("suppressed: %s", _silent_err)
+        logger.debug("suppressed: %s", _silent_err)
 
 
 def _cfg_alerts(cfg: dict) -> dict:
@@ -152,7 +152,7 @@ def read_alert_log(*, limit: int = 50) -> list[dict]:
             try:
                 entries.append(json.loads(line))
             except Exception as _silent_err:
-                _LOG.debug("suppressed: %s", _silent_err)
+                logger.debug("suppressed: %s", _silent_err)
             if len(entries) >= limit:
                 break
         return entries
