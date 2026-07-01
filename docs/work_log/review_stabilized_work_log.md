@@ -110,7 +110,9 @@ Verification:
 Remaining risk:
 - MEDIUM: compatibility package removal can break any untracked external caller
   that still imports `services.paper`.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
 
 ## 2026-07-01 - Transitional Family Deadline Extension
 
