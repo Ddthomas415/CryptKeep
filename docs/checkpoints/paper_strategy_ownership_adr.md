@@ -8,7 +8,6 @@ The repo contains overlapping active families:
 - `services/paper_trader`
 - `services/strategies`
 - `services/strategy_runner`
-- `services/strategy`
 
 These overlaps create unclear ownership boundaries between:
 - strategy definition
@@ -19,7 +18,7 @@ These overlaps create unclear ownership boundaries between:
 ## Proven current state
 - `services/strategies` = active canonical strategy-definition package
 - `services/strategy_runner` = active runner/runtime package
-- `services/strategy` = legacy/compat/parallel overlap debt
+- `services/strategy` = retired compatibility family as of 2026-07-01
 - `services/paper` = retired compatibility family as of 2026-07-01
 - `services/paper_trader` = active paper execution package
 
@@ -44,7 +43,7 @@ Define explicit ownership boundaries for:
 ## Current decision
 - `services/strategies` is the canonical owner of strategy definitions.
 - `services/strategy_runner` is the canonical owner of strategy runtime/execution.
-- `services/strategy` is a legacy/compatibility layer and is not an ownership target.
+- `services/strategy` is retired; do not reintroduce it.
 - `services/paper` is retired; do not reintroduce it.
 - `services/paper_trader` remains the active paper execution package.
 - Remaining paper execution consolidation is outside this ADR update.

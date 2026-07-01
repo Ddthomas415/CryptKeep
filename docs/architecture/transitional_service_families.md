@@ -6,10 +6,11 @@
 - services/paper_trader
 
 ## Transitional / Compatibility
-- services/strategy
 - services/strategy_runner
 
 ## Retired
+- services/strategy: retired on 2026-07-01 after the final startup-guard shim
+  was replaced by the canonical `services/execution/startup_guard.py`.
 - services/paper: retired on 2026-07-01 after test-only callers were migrated
   or removed.
 - services/marketdata: retired on 2026-07-01 after import/reference checks
@@ -23,19 +24,8 @@
 - script caller:
   - scripts/run_strategy_runner.py
 
-### services/strategy
-- live service caller:
-  - services/analytics/paper_strategy_evidence_service.py
-- internal legacy family:
-  - services/strategy/filters/*
-  - services/strategy/registry.py
-  - services/strategy/strategies/*
-- test caller:
-  - tests/test_strategy_runtime_runner.py
-
 ## Migration Priority
-1. services/strategy
-2. services/strategy_runner
+1. services/strategy_runner
 
 ## Approved review decision: services/paper
 - status: retired on 2026-07-01
@@ -51,7 +41,7 @@
 - rule: no new direct imports; use canonical replacements
 
 ## Approved review decision: services/strategy implementation shape
-- services/strategy/registry.py: legacy internal registry of old strategy compute functions
-- services/strategy/strategies/*: legacy compute implementations returning services.strategy.signals.Signal
-- decision: keep frozen as transitional internal compatibility island
-- rule: no new direct imports; migrate external callers to services/strategies where canonical equivalents exist
+- final tracked file: `services/strategy/startup_guard.py`
+- canonical replacement: `services/execution/startup_guard.py`
+- decision: deleted after callers were proven to use the canonical path
+- rule: do not reintroduce `services/strategy`

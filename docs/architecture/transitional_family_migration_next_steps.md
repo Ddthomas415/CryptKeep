@@ -6,10 +6,11 @@
 - services/paper_trader
 
 ## Transitional
-- services/strategy
 - services/strategy_runner
 
 ## Retired
+- services/strategy: retired on 2026-07-01 after the final startup-guard shim
+  was replaced by the canonical `services/execution/startup_guard.py`.
 - services/paper: retired on 2026-07-01 after test-only callers were migrated
   or removed.
 - services/marketdata: retired on 2026-07-01 after import/reference checks
@@ -21,9 +22,7 @@
   `docs/strategies/decision_record_2026-07-01_transitional_family_deadline.md`
 
 ## Execution Order
-1. services/strategy
-   - migrate live service callers to services/strategies
-2. services/strategy_runner
+1. services/strategy_runner
    - treat as runtime adapter until run_trader path is migrated
 
 ## Rule

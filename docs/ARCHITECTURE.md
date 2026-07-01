@@ -164,9 +164,9 @@ Current documented split:
   - `services/market_data`
   - `services/paper_trader`
 - Transitional / compatibility:
-  - `services/strategy`
   - `services/strategy_runner`
 - Retired:
+  - `services/strategy`
   - `services/paper`
   - `services/marketdata`
 
@@ -249,7 +249,7 @@ Migration target: **2026-08-01**.
 
 | Transitional (frozen) | Canonical (use this) | Status |
 |---|---|---|
-| `services/strategy/` | `services/strategies/` | Frozen — no new imports |
+| `services/strategy/` | `services/strategies/` | Retired 2026-07-01 |
 | `services/strategy_runner/` | `services/strategies/` + scripts | Frozen — no new imports |
 | `services/paper/` | `services/paper_trader/` | Retired 2026-07-01 |
 | `services/marketdata/` | `services/market_data/` | Retired 2026-07-01 |
