@@ -102,8 +102,8 @@ deployment work still needs independent review.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 12. Complete transitional-family migration or removal before the extended
-    2026-08-01 deadline. `services/paper` is retired; `services/strategy`,
-    `services/strategy_runner`, and `services/marketdata` remain frozen
+    2026-08-01 deadline. `services/paper` and `services/marketdata` are
+    retired; `services/strategy` and `services/strategy_runner` remain frozen
     compatibility surfaces. Do not add new imports or feature work there.
 
 ## Recently completed

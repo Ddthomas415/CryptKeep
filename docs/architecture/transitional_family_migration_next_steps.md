@@ -8,11 +8,12 @@
 ## Transitional
 - services/strategy
 - services/strategy_runner
-- services/marketdata
 
 ## Retired
 - services/paper: retired on 2026-07-01 after test-only callers were migrated
   or removed.
+- services/marketdata: retired on 2026-07-01 after import/reference checks
+  confirmed no tracked source files or active callers remained.
 
 ## Deadline
 - Removal deadline: 2026-08-01
@@ -20,11 +21,9 @@
   `docs/strategies/decision_record_2026-07-01_transitional_family_deadline.md`
 
 ## Execution Order
-1. services/marketdata
-   - migrate script/test callers to services/market_data where equivalent exists
-2. services/strategy
+1. services/strategy
    - migrate live service callers to services/strategies
-3. services/strategy_runner
+2. services/strategy_runner
    - treat as runtime adapter until run_trader path is migrated
 
 ## Rule

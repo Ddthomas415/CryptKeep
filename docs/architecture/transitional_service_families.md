@@ -8,11 +8,12 @@
 ## Transitional / Compatibility
 - services/strategy
 - services/strategy_runner
-- services/marketdata
 
 ## Retired
 - services/paper: retired on 2026-07-01 after test-only callers were migrated
   or removed.
+- services/marketdata: retired on 2026-07-01 after import/reference checks
+  confirmed no tracked source files or active callers remained.
 
 ## Current Caller Classification
 
@@ -32,20 +33,9 @@
 - test caller:
   - tests/test_strategy_runtime_runner.py
 
-### services/marketdata
-- internal self-reference:
-  - services/marketdata/ws_ticker_feed.py
-- script caller:
-  - scripts/run_ws_ticker_feed.py
-- test callers:
-  - tests/test_placeholder_recovery_phase5.py
-  - tests/test_ws_ticker_feed.py
-  - tests/test_marketdata_ohlcv_fetcher.py
-
 ## Migration Priority
-1. services/marketdata
-2. services/strategy
-3. services/strategy_runner
+1. services/strategy
+2. services/strategy_runner
 
 ## Approved review decision: services/paper
 - status: retired on 2026-07-01

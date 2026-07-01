@@ -11,7 +11,6 @@
 ## Current overlap families
 - services/paper_trader
 - services/market_data
-- services/marketdata
 - services/strategies
 - services/strategy_runner
 - services/storage
@@ -28,8 +27,8 @@
 
 ### market_data family
 - `services/market_data` = canonical package candidate
-- `services/marketdata` = compatibility alias/wrapper family
-- Action: retain for now, do not delete blindly
+- `services/marketdata` = retired compatibility family as of 2026-07-01
+- Action: do not reintroduce `services/marketdata`; use `services/market_data`
 
 ### paper family
 - `services/paper` = retired compatibility family as of 2026-07-01
