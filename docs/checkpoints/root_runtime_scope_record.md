@@ -44,7 +44,7 @@ Related blocker record:
 ## In scope
 - Root repo baseline
 - Historical operator path at checkpoint time: `scripts/bot_ctl.py` -> `scripts/run_bot_safe.py`
-- Canonical strategy/runtime family: `services.strategy_runner.ema_crossover_runner`
+- Canonical strategy/runtime module: `services.execution.strategy_runner`
 - Local/manual operator flow
 - Paper-first posture with guarded live-capable surfaces present in repo
 

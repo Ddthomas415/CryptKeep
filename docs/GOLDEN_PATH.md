@@ -110,7 +110,7 @@ canonical manifest permits two attempts per UTC day; see
 1. `run_es_daily_trend_paper.py` — orchestrator (parent process)
 2. `run_tick_publisher.py` — market data snapshot publisher
 3. `run_paper_engine.py` — simulated order execution
-4. `run_strategy_runner.py` → `ema_crossover_runner.py` — signal evaluation loop
+4. `run_strategy_runner.py` → `services.execution.strategy_runner` — signal evaluation loop
 5. `run_paper_sim_monitor.py` — auto-supervised read-only runtime monitor
 
 Signal source: `public_ohlcv_1d` → fetches daily OHLCV → calls

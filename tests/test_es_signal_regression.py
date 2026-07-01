@@ -125,7 +125,7 @@ class TestSignalEvidenceRegression:
     def test_campaign_config_has_correct_signal_source(self, isolated_state):
         """Campaign must configure signal_source=public_ohlcv_1d.
         
-        Without this, ema_crossover_runner falls into the tick-based path
+        Without this, the strategy runtime falls into the tick-based path
         which never calls signal_from_ohlcv() — signal evidence never writes.
         """
         from services.analytics.paper_strategy_evidence_service import PaperStrategyEvidenceServiceCfg
@@ -145,7 +145,7 @@ class TestSignalEvidenceRegression:
         If this returns 5 (the fallback), the runner fetches 60 bars and 
         signal_from_ohlcv() hits the early-return branch — no evidence written.
         """
-        from services.strategy_runner.ema_crossover_runner import _required_history
+        from services.execution.strategy_runner import _required_history
         block = {"name": "sma_200_trend", "sma_period": 200, "atr_period": 20}
         n = _required_history(block)
         assert n >= 210, (

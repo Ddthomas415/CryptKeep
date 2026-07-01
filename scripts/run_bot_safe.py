@@ -52,7 +52,7 @@ def _invoke_preflight(*, venue: str, symbols: list[str]) -> Any:
 
 
 def _start_strategy_runner() -> int:
-    from services.strategy_runner import ema_crossover_runner as strategy_runner
+    from services.execution import strategy_runner
 
     if hasattr(strategy_runner, "main") and callable(strategy_runner.main):
         return int(strategy_runner.main())
@@ -63,7 +63,7 @@ def _start_strategy_runner() -> int:
         return 0
     raise SystemExit(
         "strategy runner has no runnable entrypoint (expected main/run/run_forever in "
-        "services.strategy_runner.ema_crossover_runner)"
+        "services.execution.strategy_runner)"
     )
 
 

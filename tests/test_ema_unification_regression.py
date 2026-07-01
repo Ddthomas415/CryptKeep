@@ -19,5 +19,5 @@ def test_strategy_ema_is_wrapper_over_canonical_helpers() -> None:
 
 
 def test_live_runner_no_local_ema_helper() -> None:
-    text = Path("services/strategy_runner/ema_crossover_runner.py").read_text()
+    text = Path("services/execution/strategy_runner.py").read_text()
     assert "def _ema(" not in text

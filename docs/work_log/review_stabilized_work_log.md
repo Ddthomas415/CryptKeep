@@ -39,6 +39,107 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Move Strategy Runtime To Execution Package
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: continue retiring the frozen `services/strategy_runner`
+compatibility family by moving the runtime runner module to the canonical
+execution package.
+
+What was found:
+- SHOWN: current architecture docs marked `services/strategy_runner` as frozen
+  transitional code, but `services/execution/strategy_runner.py` was still a
+  placeholder that told callers to use the transitional module.
+- SHOWN: active runtime callers imported
+  `services.strategy_runner.ema_crossover_runner` directly.
+- SHOWN: the earlier ADR still described `services/strategy_runner` as the
+  canonical runtime package, which conflicted with the migration deadline docs.
+
+What changed:
+- Moved the runner implementation from
+  `services/strategy_runner/ema_crossover_runner.py` to
+  `services/execution/strategy_runner.py`.
+- Replaced the old transitional module with a compatibility re-export wrapper.
+- Migrated active internal runtime imports to `services.execution.strategy_runner`.
+- Updated current architecture/operator docs and regression tests to use the
+  execution runtime path.
+
+Why this change:
+- The strategy runtime is execution behavior. Keeping the real implementation
+  under a frozen compatibility family made the 2026-08-01 retirement deadline
+  unenforceable without a later risky move. This change preserves the runtime
+  API while moving canonical ownership to the execution package.
+
+Expected outcome:
+- New internal code has a canonical runtime path that does not import the
+  transitional package.
+- The remaining `services/strategy_runner` package can be retired later once
+  external/reference proof shows no callers require the compatibility wrapper.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    services/execution/strategy_runner.py \
+    services/strategy_runner/ema_crossover_runner.py \
+    scripts/run_strategy_runner.py \
+    scripts/compat/run_strategy_runner.py \
+    scripts/run_bot_safe.py \
+    services/analytics/paper_strategy_evidence_service.py \
+    services/execution/live_trader_loop.py \
+    tests/test_execution_strategy_runner_placeholder.py \
+    tests/test_strategy_runtime_runner.py \
+    tests/test_intent_emission_gate.py \
+    tests/test_startup_guard_regression.py \
+    tests/test_ema_runner_risk_defaults.py \
+    tests/test_ema_unification_regression.py \
+    tests/test_es_signal_regression.py \
+    tests/test_campaign_summary.py
+  ```
+- SHOWN: focused ownership/import tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_execution_strategy_runner_placeholder.py \
+    tests/test_startup_guard_regression.py \
+    tests/test_ema_runner_risk_defaults.py \
+    tests/test_ema_unification_regression.py \
+    tests/test_intent_emission_gate.py
+  ```
+  Result: `9 passed in 1.58s`.
+- SHOWN: strategy runtime regression tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_strategy_runtime_runner.py \
+    tests/test_es_signal_regression.py \
+    tests/test_campaign_summary.py
+  ```
+  Result: `47 passed in 1.19s`.
+- SHOWN: canonical import does not trigger the deprecated wrapper warning:
+  ```bash
+  ./.venv/bin/python -c 'import warnings; warnings.simplefilter("error", DeprecationWarning); import services.execution.strategy_runner as runner; print(callable(runner.run_forever), callable(runner.request_stop))'
+  ```
+  Result: `True True`.
+- SHOWN: no active `services/` or `scripts/` source imports remain from the
+  transitional runner module:
+  ```bash
+  rg -n 'from services\.strategy_runner\.ema_crossover_runner|import services\.strategy_runner\.ema_crossover_runner|from services\.strategy_runner import ema_crossover_runner' services scripts --glob '*.py'
+  ```
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- HIGH: this changes runtime module ownership for paper/live strategy runner
+  code, even though the implementation body is preserved and callers are
+  migrated mechanically.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
+
 ## 2026-07-01 - Track `services/strategy_runner` Deadline
 
 Date: 2026-07-01

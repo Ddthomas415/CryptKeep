@@ -20,7 +20,7 @@ import argparse
 import json
 import os
 
-from services.strategy_runner.ema_crossover_runner import run_forever, request_stop
+from services.execution.strategy_runner import run_forever, request_stop
 from services.logging.app_logger import get_logger
 
 _LOG = get_logger("run_strategy_runner")

@@ -195,19 +195,19 @@ class TestRequiredHistory:
         """sma_200_trend must request at least sma_period+10 bars — else signal never fires."""
         import sys
         sys.path.insert(0, ".")
-        from services.strategy_runner.ema_crossover_runner import _required_history
+        from services.execution.strategy_runner import _required_history
         block = {"name": "sma_200_trend", "sma_period": 200, "atr_period": 20}
         result = _required_history(block)
         assert result >= 210, f"_required_history returned {result} — must be >= 210 for sma_200_trend"
 
     def test_sma_200_trend_custom_period(self):
-        from services.strategy_runner.ema_crossover_runner import _required_history
+        from services.execution.strategy_runner import _required_history
         block = {"name": "sma_200_trend", "sma_period": 50, "atr_period": 14}
         result = _required_history(block)
         assert result >= 60  # 50 + 10
 
     def test_unknown_strategy_returns_5(self):
-        from services.strategy_runner.ema_crossover_runner import _required_history
+        from services.execution.strategy_runner import _required_history
         block = {"name": "unknown_xyz"}
         assert _required_history(block) == 5
 
@@ -249,7 +249,7 @@ class TestCampaignConfig:
     def test_signal_source_is_public_ohlcv_1d(self, tmp_path):
         """sma_200_trend campaigns must use public_ohlcv_1d signal source.
 
-        Without this, ema_crossover_runner falls into the tick-based path
+        Without this, the strategy runtime falls into the tick-based path
         which never calls signal_from_ohlcv() and signal evidence is never written.
         This test ensures a future change does not silently remove this setting.
         """

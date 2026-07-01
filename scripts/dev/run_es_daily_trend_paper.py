@@ -230,7 +230,7 @@ def main() -> int:
             or strategy_cfg.get("paper_runtime_sec", 3600.0)
         ),
         # public_ohlcv_1d: fetch daily OHLCV bars so signal_from_ohlcv() is called.
-        # Without this, ema_crossover_runner falls into the tick-based price path
+        # Without this, the strategy runtime falls into the tick-based price path.
         # which never calls compute_signal() via the registry — signal evidence never writes.
         signal_source="public_ohlcv_1d",
     )

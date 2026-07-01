@@ -23,7 +23,9 @@
 
 ## Execution Order
 1. services/strategy_runner
-   - treat as runtime adapter until run_trader path is migrated
+   - keep as compatibility wrapper only
+   - do not add new internal imports
+   - remove after external/internal reference proof confirms no callers remain
 
 ## Rule
 - No deletion before caller migration or explicit compatibility shim.

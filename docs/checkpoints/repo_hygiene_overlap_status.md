@@ -36,7 +36,8 @@
 
 ### strategy family
 - `services/strategies` = active canonical strategy-definition package
-- `services/strategy_runner` = active runner/runtime package
+- `services/execution/strategy_runner.py` = active runner/runtime module
+- `services/strategy_runner` = frozen compatibility wrapper package
 - `services/strategy` = retired compatibility family as of 2026-07-01
 - Action: do not reintroduce `services/strategy`
 

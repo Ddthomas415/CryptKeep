@@ -418,7 +418,7 @@ def signal_from_ohlcv(
     reason = f"sma200:{signal}:regime:{reg['regime']}"
 
     # Log every signal call to evidence — this is the production signal path
-    # (signal_from_ohlcv is called by strategy_registry from ema_crossover_runner)
+    # signal_from_ohlcv is called by strategy_registry from the strategy runtime.
     try:
         from datetime import datetime, timezone as _tz
         if write_signal_evidence:

@@ -27,7 +27,7 @@ from services.market_data.symbol_utils import split_symbol
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from services.market_data.system_status_publisher import request_stop as request_tick_publisher_stop
 from services.os.app_paths import code_root, data_dir, ensure_dirs, runtime_dir
-from services.strategy_runner.ema_crossover_runner import request_stop as request_strategy_runner_stop
+from services.execution.strategy_runner import request_stop as request_strategy_runner_stop
 from storage.position_state_sqlite import PositionStateSQLite
 
 logger = logging.getLogger(__name__)

@@ -19,10 +19,13 @@
 ## Current Caller Classification
 
 ### services/strategy_runner
-- live runtime caller:
-  - services/trading_runner/run_trader.py
-- script caller:
-  - scripts/run_strategy_runner.py
+- status: frozen compatibility wrapper
+- canonical runtime owner:
+  - services/execution/strategy_runner.py
+- canonical strategy-definition owner:
+  - services/strategies
+- active internal callers should import `services.execution.strategy_runner`
+  instead of `services.strategy_runner.ema_crossover_runner`.
 
 ## Migration Priority
 1. services/strategy_runner
