@@ -103,7 +103,9 @@ Verification:
 Remaining risk:
 - LOW: no tracked `services/marketdata` source files were removed in this
   change; the main risk is stale docs elsewhere.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
 
 ## 2026-07-01 - Retire `services/paper`
 
