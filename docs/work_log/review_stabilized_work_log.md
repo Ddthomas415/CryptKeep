@@ -136,7 +136,9 @@ Remaining risk:
 - HIGH: this changes runtime module ownership for paper/live strategy runner
   code, even though the implementation body is preserved and callers are
   migrated mechanically.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
 
 ## 2026-07-01 - Track `services/strategy_runner` Deadline
 
