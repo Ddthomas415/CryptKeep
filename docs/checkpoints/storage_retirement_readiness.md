@@ -4,20 +4,19 @@ Status: RETIRED
 
 ## Current status
 - `storage/` is the canonical live package
-- `services/storage` is wrapper-only
-- no live imports should remain in `dashboard`, `services`, or `scripts`
-- remaining references should be wrapper/compat test coverage only
+- `services/storage` is retired
+- no tracked source files remain under `services/storage`
+- no live imports remain in `dashboard`, `services`, or `scripts`
+- `tests/test_deprecation_deadline.py` prevents reintroduction
 
 ## Wrapper files
-- enumerate all files under `services/storage/`
+- no tracked wrapper files remain
 
-## Preconditions before removal
-1. verify no live imports remain
-2. remove or replace wrapper tests
-3. re-run import grep to confirm zero references
-4. remove `services/storage`
-5. run focused tests for storage consumers
+## Removal proof
+1. `git ls-files services/storage` returns no tracked files
+2. active import grep returns no `services.storage` imports
+3. `find services/storage -type f -not -path '*/__pycache__/*'` returns no files
+4. retired-family regression guard includes `services/storage`
 
 ## Current decision
-- ready for future retirement planning
-- not removing in this checkpoint
+- retired; do not reintroduce without a new accepted architecture decision

@@ -12,7 +12,6 @@
 - services/paper_trader
 - services/market_data
 - services/strategies
-- services/storage
 
 ## Interpretation
 - Cache warnings are regenerated during audit execution and are not currently a tracked repo-artifact problem
@@ -41,10 +40,6 @@
 - Action: do not reintroduce `services/strategy` or `services/strategy_runner`
 
 ### storage family
-- `services/storage` = likely inactive/legacy overlap relative to top-level `storage`
-- Action: later cleanup candidate, not safe to delete blindly without a removal pass
-
-### storage family
 - `storage/` = canonical live storage package
-- `services/storage` = compatibility wrapper layer over top-level `storage`
-- Action: retain for now, later deprecate/remove after wrapper consumers are eliminated
+- `services/storage` = retired compatibility family as of 2026-07-01
+- Action: do not reintroduce `services/storage`

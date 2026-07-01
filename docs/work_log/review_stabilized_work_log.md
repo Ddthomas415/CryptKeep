@@ -39,6 +39,71 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Mark `services/storage` Retired
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: reconcile the storage overlap docs and retired-family guard after
+`services/storage` was already absent from tracked source.
+
+What was found:
+- SHOWN: `git ls-files services/storage` returned no tracked files.
+- SHOWN: active import grep returned no `services.storage` imports from tracked
+  source/test paths.
+- SHOWN: no non-cache files remained under `services/storage`.
+- SHOWN: overlap docs still described `services/storage` as a future cleanup
+  candidate instead of a retired family.
+
+What changed:
+- Added `services/storage` to `RETIRED_FAMILIES` in
+  `tests/test_deprecation_deadline.py`.
+- Updated storage overlap/checkpoint/backlog docs to mark `services/storage`
+  retired and top-level `storage/` canonical.
+
+Why this change:
+- The source tree had already reached the retired state. The guard and docs
+  should match the visible repo state so future work does not reopen a removed
+  compatibility package.
+
+Expected outcome:
+- Any future tracked Python file under `services/storage` fails the
+  retired-family regression guard.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile tests/test_deprecation_deadline.py
+  ```
+- SHOWN: targeted deprecation test passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_deprecation_deadline.py
+  ```
+  Result: `2 passed, 1 skipped in 0.08s`.
+- SHOWN: no tracked files remain under `services/storage`:
+  ```bash
+  git ls-files services/storage
+  ```
+- SHOWN: active import grep returned no matches:
+  ```bash
+  rg -n 'from services\.storage|import services\.storage' services scripts tests dashboard tools --glob '*.py'
+  ```
+- SHOWN: no non-cache files remain under `services/storage`:
+  ```bash
+  find services/storage -type f -not -path '*/__pycache__/*' -print | sort
+  ```
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- LOW: no tracked source files are removed in this change; it is docs/test
+  governance alignment.
+- Acceptance state: `ACCEPTED`.
+- Review reference: same-thread low-risk closure based on targeted proof.
+
 ## 2026-07-01 - Retire `services/strategy_runner`
 
 Date: 2026-07-01

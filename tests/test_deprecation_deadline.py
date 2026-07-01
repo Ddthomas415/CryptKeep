@@ -22,6 +22,7 @@ RETIRED_FAMILIES = [
     "services/marketdata",
     "services/strategy",
     "services/strategy_runner",
+    "services/storage",
 ]
 
 
