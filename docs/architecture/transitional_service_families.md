@@ -9,7 +9,10 @@
 - services/strategy
 - services/strategy_runner
 - services/marketdata
-- services/paper
+
+## Retired
+- services/paper: retired on 2026-07-01 after test-only callers were migrated
+  or removed.
 
 ## Current Caller Classification
 
@@ -39,35 +42,23 @@
   - tests/test_ws_ticker_feed.py
   - tests/test_marketdata_ohlcv_fetcher.py
 
-### services/paper
-- test-only callers:
-  - tests/test_paper_main_mode_gate.py
-  - tests/test_placeholder_recovery_phase3.py
-
 ## Migration Priority
-1. services/paper
-2. services/marketdata
-3. services/strategy
-4. services/strategy_runner
+1. services/marketdata
+2. services/strategy
+3. services/strategy_runner
 
 ## Approved review decision: services/paper
-- status: transitional / compatibility
-- current callers: test-only unless a non-test caller is found during review
-- cleanup rule: do not delete yet; migrate tests or keep thin shim first
+- status: retired on 2026-07-01
+- final caller state: test-only callers migrated or removed
+- cleanup rule: do not reintroduce `services/paper`; use `services/paper_trader`
+  or `services/execution/paper_engine.py`.
 
 ## Approved review decision: services/paper implementation shape
 - services/paper/main.py: compatibility paper-mode loop over canonical safety/storage components
 - services/paper/paper_state.py: compatibility wrapper over storage.paper_trading_sqlite.PaperTradingSQLite
 - services/paper/paper_broker.py: compatibility wrapper over services.execution.paper_engine.PaperEngine
-- decision: keep frozen as transitional compatibility layer
-- rule: no new direct imports; migrate callers only if needed
-
-## Approved review decision: services/paper implementation shape
-- services/paper/main.py: compatibility paper-mode loop over canonical safety/storage components
-- services/paper/paper_state.py: compatibility wrapper over storage.paper_trading_sqlite.PaperTradingSQLite
-- services/paper/paper_broker.py: compatibility wrapper over services.execution.paper_engine.PaperEngine
-- decision: keep frozen as transitional compatibility layer
-- rule: no new direct imports; migrate callers only if needed
+- decision: deleted after callers were proven test-only
+- rule: no new direct imports; use canonical replacements
 
 ## Approved review decision: services/strategy implementation shape
 - services/strategy/registry.py: legacy internal registry of old strategy compute functions

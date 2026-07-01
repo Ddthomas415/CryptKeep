@@ -39,6 +39,79 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Retire `services/paper`
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: retire the `services/paper` transitional compatibility package after
+PR #149 extended the transitional-family deadline.
+
+What was found:
+- SHOWN: `rg` found only test callers for `services.paper`.
+- SHOWN: `services.paper.paper_state.PaperState` duplicated the canonical
+  `services.paper_trader.paper_state.PaperState`.
+- SHOWN: `services.paper.paper_broker` was a thin compatibility wrapper over
+  `services.execution.paper_engine.PaperEngine` with no active runtime caller.
+- SHOWN: `services.paper.main` was covered only by a legacy mode-gate test.
+
+What changed:
+- Deleted the tracked `services/paper` package files.
+- Deleted `tests/test_paper_main_mode_gate.py`, which existed only for the
+  retired package.
+- Migrated `test_paper_state_snapshot` to
+  `services.paper_trader.paper_state`.
+- Removed the shim-only paper broker compatibility test.
+- Removed `services/paper` from `tests/test_deprecation_deadline.py`.
+- Updated architecture, overlap, ownership, and backlog docs to mark
+  `services/paper` retired.
+
+Why this change:
+- `services/paper` was the safest transitional-family retirement target because
+  it had no active runtime imports and only test coverage remained.
+- Retiring one family reduces the August deprecation deadline risk without
+  touching active paper campaigns.
+
+Expected outcome:
+- No tracked Python files remain under `services/paper`.
+- Future paper work routes to `services/paper_trader` or
+  `services/execution/paper_engine.py`.
+- The remaining transitional-family work narrows to `services/marketdata`,
+  `services/strategy`, and `services/strategy_runner`.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    tests/test_placeholder_recovery_phase3.py \
+    tests/test_deprecation_deadline.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_placeholder_recovery_phase3.py \
+    tests/test_deprecation_deadline.py
+  ```
+  Result: `9 passed, 1 skipped in 0.23s`.
+- SHOWN: strict source/reference check found no remaining `services.paper`
+  imports:
+  ```bash
+  rg -n -P "services\.paper(?!_)" \
+    tests services scripts dashboard storage tools docs/architecture \
+    docs/checkpoints docs/ARCHITECTURE.md REMAINING_TASKS.md \
+    --glob '*.py' --glob '*.md'
+  ```
+- SHOWN: tracked files under `services/paper` are deleted in the working tree:
+  ```bash
+  git ls-files -d services/paper tests/test_paper_main_mode_gate.py
+  ```
+
+Remaining risk:
+- MEDIUM: compatibility package removal can break any untracked external caller
+  that still imports `services.paper`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-01 - Transitional Family Deadline Extension
 
 Date: 2026-07-01
