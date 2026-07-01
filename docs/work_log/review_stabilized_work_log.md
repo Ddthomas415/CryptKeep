@@ -113,7 +113,9 @@ Verification:
 Remaining risk:
 - MEDIUM: external untracked callers importing `services.strategy.startup_guard`
   would need to move to `services.execution.startup_guard`.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
 
 ## 2026-07-01 - Mark `services/marketdata` Retired
 
