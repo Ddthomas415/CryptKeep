@@ -99,6 +99,77 @@ Remaining risk:
 - Review reference: independently reviewed and accepted by the human operator
   on 2026-07-01.
 
+## 2026-07-01 - Move EMA Helper Ownership To Canonical Strategy
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: prevent canonical EMA strategy imports from depending on the
+deprecated `services.strategy_runner` compatibility package after package-level
+deprecation warnings were added.
+
+What was found:
+- SHOWN: `services/strategies/ema_cross.py` imported `EMACfg`, `EMAState`,
+  `update_ema_state`, and `compute_signal` from
+  `services.strategy_runner.strategies.ema_crossover`.
+- SHOWN: adding a package-level deprecation warning to `services.strategy_runner`
+  would therefore warn even when callers used the canonical
+  `services.strategies.ema_cross` path.
+
+What changed:
+- Moved the EMA helper dataclasses and pure helper functions into
+  `services/strategies/ema_cross.py`.
+- Replaced `services/strategy_runner/strategies/ema_crossover.py` with a
+  compatibility re-export from the canonical strategy module.
+- Migrated active internal callers in `services/strategy_ema.py` and
+  `services/trading_runner/run_trader.py` to the canonical helper path.
+- Added a regression assertion that canonical EMA code does not import
+  `services.strategy_runner`.
+
+Why this change:
+- The canonical strategy package should own reusable strategy logic. The frozen
+  strategy-runner package should remain a temporary runtime/compatibility
+  surface, not the source of reusable strategy helpers.
+
+Expected outcome:
+- Canonical EMA strategy imports no longer trigger the deprecated package
+  warning.
+- Existing deprecated imports continue to resolve through the compatibility
+  re-export until the full `services/strategy_runner` retirement.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile \
+    services/strategies/ema_cross.py \
+    services/strategy_runner/strategies/ema_crossover.py \
+    services/strategy_ema.py \
+    services/trading_runner/run_trader.py \
+    tests/test_ema_unification_regression.py
+  ```
+- SHOWN: targeted EMA/deprecation tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_ema_unification_regression.py \
+    tests/test_ema_parity_regression.py \
+    tests/test_deprecation_deadline.py
+  ```
+  Result: `9 passed, 1 skipped in 1.21s`.
+- SHOWN: canonical imports do not trigger the deprecated package warning:
+  ```bash
+  ./.venv/bin/python -c 'import warnings; warnings.simplefilter("error", DeprecationWarning); import services.strategies.ema_cross; import services.strategy_ema; print("canonical_imports_ok")'
+  ```
+- SHOWN: no active source imports remain from the deprecated EMA helper module:
+  ```bash
+  rg -n 'from services\.strategy_runner\.strategies\.ema_crossover|import services\.strategy_runner\.strategies\.ema_crossover' services scripts --glob '*.py'
+  ```
+
+Remaining risk:
+- MEDIUM: this moves pure EMA helper ownership but preserves function names and
+  behavior through targeted regression tests.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-01 - Retired Family Regression Guard
 
 Date: 2026-07-01

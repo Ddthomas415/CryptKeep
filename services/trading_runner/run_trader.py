@@ -13,7 +13,7 @@ import yaml  # type: ignore
 from core.price_aggregator import AggregationConfig, aggregate_prices
 from core.risk_manager import RiskConfig, RiskState, allow_order
 from services.os.app_paths import data_dir, ensure_dirs
-from services.strategy_runner.strategies.ema_crossover import EMACfg, EMAState, update_ema_state, compute_signal
+from services.strategies.ema_cross import EMACfg, EMAState, update_ema_state, compute_signal
 
 from storage.journal_store_sqlite import SQLiteJournalStore
 from storage.market_data_store_sqlite import SQLiteMarketDataStore

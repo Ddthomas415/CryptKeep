@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from services.strategy_runner.strategies.ema_crossover import (
+from services.strategies.ema_cross import (
     EMACfg,
     EMAState,
     update_ema_state,
