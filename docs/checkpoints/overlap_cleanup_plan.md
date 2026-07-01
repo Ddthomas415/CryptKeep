@@ -34,15 +34,15 @@ Reduce architecture debt from overlapping module families without breaking activ
   4. Do not reintroduce `services/strategy_runner`
 
 ### storage family
-- `services/storage` = likely inactive/legacy overlap relative to top-level `storage`
+- `services/storage` = retired compatibility family as of 2026-07-01
+- `storage/` = canonical live storage package
 - Plan:
-  1. Audit imports and runtime usage
-  2. Confirm whether files are dead or only test-only
-  3. Remove or archive only after explicit verification
+  1. Do not reintroduce `services/storage`
+  2. Use top-level `storage/` for future storage work
 
 ## Immediate next actions
-1. Inventory direct imports for `services/storage`
-2. Verify `services/storage` wrapper consumers before any storage cleanup
+1. Continue monitoring retired-family guard coverage
+2. Move on to non-overlap production hardening work
 
 ## Stop conditions
 - No deletions without import/reference proof
@@ -66,20 +66,11 @@ Reduce architecture debt from overlapping module families without breaking activ
 - Action: do not reintroduce `services/strategy` or `services/strategy_runner`
 
 ## Next retirement candidate
-- `services/storage`
-- Reason: top-level `storage` is the canonical live package; `services/storage` appears to be wrapper-only
-- Preconditions before removal:
-  1. verify no live imports remain
-  2. remove/replace wrapper tests
-  3. verify zero live imports again
-
-
-## Deprecation priority
-1. `services.storage` — next deprecation target after wrapper test replacement
+- none currently identified in this overlap track
 
 ### storage status update
-- No remaining live-code imports of `services.storage` in `dashboard`, `services`, or `scripts`
-- Remaining references are wrapper-test coverage only:
-  - `tests/test_service_storage_wrappers.py`
-- `services.storage` is now wrapper-only / compat-only debt
-- Action: retain for now; later removal can be planned once wrapper-test coverage is intentionally removed or replaced
+- No remaining live-code imports of `services.storage` in `dashboard`,
+  `services`, or `scripts`
+- No tracked source files remain under `services/storage`
+- `services.storage` is retired
+- Action: do not reintroduce `services.storage`

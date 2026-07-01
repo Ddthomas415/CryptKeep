@@ -102,9 +102,9 @@ deployment work still needs independent review.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 12. Maintain the retired-family regression guard. `services/paper`,
-    `services/marketdata`, `services/strategy`, and `services/strategy_runner`
-    are retired. Do not reintroduce those packages without a new accepted
-    architecture decision.
+    `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
+    `services/storage` are retired. Do not reintroduce those packages without a
+    new accepted architecture decision.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
