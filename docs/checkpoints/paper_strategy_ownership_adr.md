@@ -17,7 +17,8 @@ These overlaps create unclear ownership boundaries between:
 
 ## Proven current state
 - `services/strategies` = active canonical strategy-definition package
-- `services/strategy_runner` = active runner/runtime package
+- `services/execution/strategy_runner.py` = active strategy runtime module
+- `services/strategy_runner` = frozen compatibility wrapper package
 - `services/strategy` = retired compatibility family as of 2026-07-01
 - `services/paper` = retired compatibility family as of 2026-07-01
 - `services/paper_trader` = active paper execution package
@@ -36,13 +37,16 @@ Define explicit ownership boundaries for:
 
 ## Proposed boundary questions
 1. Should `services/strategies` remain the sole definitions layer?
-2. Should `services/strategy_runner` remain the sole runtime layer?
+2. Should `services/execution/strategy_runner.py` remain the sole runtime layer?
 3. Which remaining paper execution surfaces should be consolidated next?
 4. Which modules are compat-only and candidates for later retirement?
 
 ## Current decision
 - `services/strategies` is the canonical owner of strategy definitions.
-- `services/strategy_runner` is the canonical owner of strategy runtime/execution.
+- `services/execution/strategy_runner.py` is the canonical owner of strategy
+  runtime/execution.
+- `services/strategy_runner` remains a frozen compatibility wrapper until the
+  2026-08-01 transitional-family deadline.
 - `services/strategy` is retired; do not reintroduce it.
 - `services/paper` is retired; do not reintroduce it.
 - `services/paper_trader` remains the active paper execution package.

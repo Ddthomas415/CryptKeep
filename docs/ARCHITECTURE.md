@@ -37,7 +37,7 @@ It is not the final authority for live-order submission.
 
 Current strategy runtime execution centers on:
 
-- `services/strategy_runner/ema_crossover_runner.py`
+- `services/execution/strategy_runner.py`
 - `scripts/run_strategy_runner.py`
 
 Related strategy implementations live in:
@@ -250,7 +250,7 @@ Migration target: **2026-08-01**.
 | Transitional (frozen) | Canonical (use this) | Status |
 |---|---|---|
 | `services/strategy/` | `services/strategies/` | Retired 2026-07-01 |
-| `services/strategy_runner/` | `services/strategies/` + scripts | Frozen — no new imports |
+| `services/strategy_runner/` | `services/execution/strategy_runner.py` + `services/strategies/` | Frozen compatibility wrapper — no new imports |
 | `services/paper/` | `services/paper_trader/` | Retired 2026-07-01 |
 | `services/marketdata/` | `services/market_data/` | Retired 2026-07-01 |
 

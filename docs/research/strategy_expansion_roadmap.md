@@ -28,7 +28,7 @@ Current repo anchors:
 - webhook signal intake already exists:
   - `<your-repo-path>/services/trader_signals/webhook_server.py`
 - runner-specific trailing stop logic already exists:
-  - `<your-repo-path>/services/strategy_runner/ema_crossover_runner.py`
+  - `<your-repo-path>/services/execution/strategy_runner.py`
 - regime-aware scoring already exists:
   - `<your-repo-path>/services/backtest/parity_engine.py`
   - `<your-repo-path>/services/backtest/regimes.py`
@@ -177,7 +177,7 @@ Purpose:
 
 Implementation target:
 
-- promote current trailing-stop / stop-loss / take-profit / max-bars-hold logic from `<your-repo-path>/services/strategy_runner/ema_crossover_runner.py`
+- promote current trailing-stop / stop-loss / take-profit / max-bars-hold logic from `<your-repo-path>/services/execution/strategy_runner.py`
 - make it a governed shared exit-policy module usable across strategy families
 
 Explicit non-goals:
