@@ -43,4 +43,7 @@ Before 2026-08-01:
 
 ## Acceptance State
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
+
+Review reference:
+- Independently reviewed and accepted by the human operator on 2026-07-01.

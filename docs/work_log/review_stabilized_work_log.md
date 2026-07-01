@@ -107,7 +107,9 @@ Verification:
 
 Remaining risk:
 - MEDIUM: the compatibility-family migration is deferred, not resolved.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
 
 ## 2026-07-01 - Hetzner Storage Preflight
 
