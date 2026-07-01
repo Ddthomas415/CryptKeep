@@ -39,6 +39,72 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Mark `services/marketdata` Retired
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: reconcile the transitional-family docs and deprecation test after
+`services/marketdata` was already absent from tracked source.
+
+What was found:
+- SHOWN: `git ls-files services/marketdata` returned no tracked source files.
+- SHOWN: strict import grep found no active `services.marketdata` imports in
+  source, scripts, or tests.
+- SHOWN: docs still described `services/marketdata` as a pending
+  compatibility wrapper.
+- SHOWN: `tests/test_deprecation_deadline.py` still listed
+  `services/marketdata` even though no tracked Python files remained under that
+  family.
+
+What changed:
+- Removed `services/marketdata` from `tests/test_deprecation_deadline.py`.
+- Updated architecture, transitional-family, overlap, and backlog docs to mark
+  `services/marketdata` retired.
+- Updated the marketdata retirement/deprecation checkpoints to record completed
+  retirement instead of future-retirement planning.
+
+Why this change:
+- The compatibility family had already reached the removal state; leaving docs
+  and deadline tests in a pending state created false backlog noise and could
+  cause future agents to reopen retired work.
+
+Expected outcome:
+- Remaining transitional-family work narrows to `services/strategy` and
+  `services/strategy_runner`.
+- New market-data work stays routed to `services/market_data`.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile tests/test_deprecation_deadline.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q \
+    tests/test_deprecation_deadline.py \
+    tests/test_ws_ticker_feed.py \
+    tests/test_marketdata_ohlcv_fetcher.py \
+    tests/test_repo_layout_scope_doc.py
+  ```
+  Result: `15 passed, 1 skipped in 0.30s`.
+- SHOWN: source-only reference check found no active `services.marketdata`
+  imports:
+  ```bash
+  rg -n -P "services\.marketdata(?!_)" \
+    tests services scripts dashboard storage tools --glob '*.py'
+  ```
+- SHOWN: no tracked files remain under `services/marketdata`:
+  ```bash
+  git ls-files services/marketdata
+  ```
+
+Remaining risk:
+- LOW: no tracked `services/marketdata` source files were removed in this
+  change; the main risk is stale docs elsewhere.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-01 - Retire `services/paper`
 
 Date: 2026-07-01

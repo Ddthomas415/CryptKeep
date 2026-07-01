@@ -2,20 +2,18 @@
 
 ## Current status
 - `services.market_data` is the canonical live package
-- `services.marketdata` is compat-only
+- `services.marketdata` is retired
 - no live imports remain in `dashboard`, `services`, or `scripts`
-- remaining references are compat-test coverage only
+- no tracked source files remain under `services/marketdata`
 
 ## Wrapper files
-- enumerate all files under `services/marketdata/`
+- none tracked
 
-## Preconditions before removal
-1. decide compat support end date
-2. remove or replace compat-wrapper tests
-3. re-run import grep to confirm zero references
-4. remove `services/marketdata`
-5. run focused tests for market-data consumers
+## Removal proof
+1. `git ls-files services/marketdata` returns no tracked files
+2. strict import grep finds no active `services.marketdata` imports
+3. `services.market_data` remains the canonical replacement
 
 ## Current decision
-- ready for future retirement planning
-- not removing in this checkpoint
+- retired
+- do not reintroduce `services.marketdata`

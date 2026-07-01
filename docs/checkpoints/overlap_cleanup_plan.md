@@ -7,12 +7,11 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 ### market family
 - `services/market_data` = canonical candidate
-- `services/marketdata` = compatibility alias/wrapper family
+- `services/marketdata` = retired compatibility family as of 2026-07-01
 - Plan:
-  1. Keep `services/marketdata` as compat for now
-  2. Add deprecation note in package/module headers later
-  3. Migrate any remaining references to `services/market_data`
-  4. Remove compat layer only after reference count reaches zero
+  1. Do not reintroduce `services/marketdata`
+  2. Use `services/market_data` for future market-data work
+  3. Continue resolving remaining non-marketdata overlap families separately
 
 ### paper family
 - `services/paper` = retired compatibility family as of 2026-07-01
@@ -42,9 +41,8 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 ## Immediate next actions
 1. Inventory direct imports for `services/storage`
-2. Inventory remaining references to `services/marketdata`
-3. Inventory remaining references to `services/strategy`
-4. Draft one ADR for paper/strategy ownership boundaries
+2. Inventory remaining references to `services/strategy`
+3. Draft one ADR for paper/strategy ownership boundaries
 
 ## Stop conditions
 - No deletions without import/reference proof
@@ -52,28 +50,20 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 ## Progress
 - Migrated `dashboard/services/view_data.py` from `services.marketdata` to canonical `services.market_data`
-- Compatibility wrapper remains in place for now and is still covered by `tests/test_compat_wrappers.py`
+- Retired `services.marketdata` after reference checks found no tracked source
+  files or active callers.
 
 ### marketdata status update
 - No remaining live-code imports of `services.marketdata` in `dashboard`, `services`, or `scripts`
-- Remaining reference is compat coverage only:
-  - `tests/test_compat_wrappers.py`
-- `services.marketdata` is now compat-only debt
-- Action: retain for now; later removal can be planned once compat support is intentionally dropped
+- No tracked source files remain under `services/marketdata`
+- `services.marketdata` is retired
+- Action: do not reintroduce it
 
 ### strategy compat modules
 - `services/strategy/ema_crossover_runner.py` is a pure compatibility re-export to `services.strategy_runner.ema_crossover_runner`
 - `services/strategy_runner` remains an active runtime/runner package
 - `services/strategy` still contains legacy real code in `registry.py`, `filters/*`, and `strategies/*`
 - Action: keep compat wrapper for now; do not delete `services/strategy` wholesale
-
-## Next retirement candidate
-- `services/marketdata`
-- Reason: no remaining live-code imports; compat-test coverage only
-- Preconditions before removal:
-  1. decide compat support end date
-  2. remove/replace compat wrapper tests
-  3. verify zero live imports again
 
 ## Next retirement candidate
 - `services/storage`
@@ -85,8 +75,7 @@ Reduce architecture debt from overlapping module families without breaking activ
 
 
 ## Deprecation priority
-1. `services.marketdata` — safest first deprecation target
-2. `services.storage` — second deprecation target after wrapper test replacement
+1. `services.storage` — next deprecation target after wrapper test replacement
 
 ### storage status update
 - No remaining live-code imports of `services.storage` in `dashboard`, `services`, or `scripts`
