@@ -545,7 +545,7 @@ Status: runbook accepted; host hardening proof complete; Tailscale-only SSH,
 Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
 state-transfer manifest tooling, host preflight tooling, the isolated
 challenger proof template, and manifest-level ownership proof are accepted.
-Runtime duplicate-process proof tooling is ready for independent review.
+Runtime duplicate-process proof tooling is accepted.
 Campaign deployment remains blocked pending current-host runtime proof,
 server-hosted UTC cycle proof, and backup/restore rehearsal.
 
@@ -620,20 +620,22 @@ Proof required:
   `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
   and merged by PR #145. Runtime duplicate-process proof remains separate and
   required before relying on the state-transfer path.
-- Runtime duplicate-process proof tooling is ready for independent review in
+- Runtime duplicate-process proof tooling is accepted in
   `docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md`.
-  Actual proof requires fresh host status payloads.
+  PR #147 merged as `8d75486e`. Actual proof requires fresh host status
+  payloads.
 
 Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,
   credentials/configuration, remote host security, and duplicate campaign
   ownership.
 - Acceptance state: runbook, cloud safeguards, manifest tooling, host preflight
-  tooling, proof template, and manifest-level ownership proof are accepted.
-  Actual collector stop, state transfer, VPS restore/start, current-host
-  runtime proof, backup rehearsal, and canonical migration remain high-risk
-  operations and must stop at `READY_FOR_INDEPENDENT_REVIEW` unless separately
-  accepted by the human operator.
+  tooling, proof template, manifest-level ownership proof, and runtime
+  duplicate-process proof tooling are accepted. Actual collector stop, state
+  transfer, VPS restore/start, current-host runtime proof, backup rehearsal, and
+  canonical migration remain high-risk operations and must stop at
+  `READY_FOR_INDEPENDENT_REVIEW` unless separately accepted by the human
+  operator.
 
 ## Priority 17 - Derivatives, Intraday, And Context-Pattern Roadmap
 

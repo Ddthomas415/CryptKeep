@@ -39,6 +39,49 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-06-30 - Record PR147 Merge Status
+
+Date: 2026-06-30
+
+Active role: `ENGINEER`
+
+Objective: align backlog and Priority 16 checkpoint language after PR #147 was
+independently accepted and merged.
+
+What was found:
+- SHOWN: PR #147 merged as `8d75486e`.
+- SHOWN: `REMAINING_TASKS.md` and the Priority 16 checkpoint still described
+  runtime duplicate-process proof tooling as ready for independent review.
+- SHOWN: current-host runtime proof still requires fresh laptop and Hetzner
+  status payloads.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to mark runtime duplicate-process proof tooling
+  accepted and merged by PR #147.
+- Updated
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md`
+  to keep only the current-host runtime proof and other operational blockers
+  open.
+
+Why this change:
+- Completed high-risk review states should not remain in the active backlog as
+  pending review work. The repo needs to distinguish accepted tooling from the
+  still-unperformed fresh-host runtime proof.
+
+Expected outcome:
+- Future check-ins see the correct Hetzner state: runtime ownership tooling is
+  accepted, while current-host status payload proof remains required.
+
+Verification:
+- SHOWN: `git diff --check` passed.
+- SHOWN: `rg` confirmed no remaining "runtime duplicate-process proof tooling
+  is ready for independent review" wording in the touched backlog surfaces.
+- Tests were not run because this is docs/status alignment only.
+
+Remaining risk:
+- LOW: documentation/status alignment only.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-06-30 - Paper Runtime Ownership Proof Tooling
 
 Date: 2026-06-30
