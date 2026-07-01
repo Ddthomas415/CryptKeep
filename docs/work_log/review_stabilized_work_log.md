@@ -95,7 +95,9 @@ Verification:
 Remaining risk:
 - LOW: this is a governance/test coherence fix plus a package-level
   deprecation warning.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01.
 
 ## 2026-07-01 - Retired Family Regression Guard
 
