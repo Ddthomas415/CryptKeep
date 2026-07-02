@@ -12139,3 +12139,57 @@ Remaining risk:
 - Remote Hetzner campaign state remains UNVERIFIED until authenticated
   Tailscale SSH status succeeds.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T11:01:54Z - Refresh Remaining Tasks Campaign State
+
+Active role: ENGINEER
+
+Objective:
+- Keep the lightweight backlog index aligned with the latest visible paper
+  campaign status and accepted Hetzner status-reporting workflow.
+
+What was found:
+- SHOWN: `git rev-parse HEAD origin/master origin/review-stabilized` returned
+  the same commit for all three refs.
+- SHOWN: `HETZNER_STATUS_TIMEOUT_SEC=1 make status-paper-all` reported laptop
+  campaigns running, with `es_daily_trend_v1` at `fills=18`, `closed=9`,
+  `pnl=32.1776` and `breakout_default` at `fills=12`, `closed=6`,
+  `pnl=-4.1120`.
+- SHOWN: the same command reported the canonical gate still blocked at `2/10`
+  provenance-qualified round trips.
+- SHOWN: the Hetzner side failed before remote verification because the local
+  Tailscale CLI printed `The Tailscale CLI failed to start: Failed to load
+  preferences.`
+- SHOWN: `REMAINING_TASKS.md` still listed stale `breakout_default` counts.
+
+What changed:
+- Updated `REMAINING_TASKS.md` current-state counts for `breakout_default`.
+- Recorded the current local Hetzner status limitation as unverified remote
+  state caused by a local Tailscale preference failure.
+- Added the accepted timeout-aware Hetzner status-reporting behavior to the
+  recently completed section.
+
+Why this change:
+- The backlog is used as the operator-facing task index. Stale campaign counts
+  and missing Hetzner status-reporting context create avoidable confusion
+  during daily check-ins.
+
+Expected outcome:
+- Future check-ins distinguish three separate facts: laptop campaigns are
+  healthy, the canonical paper gate remains blocked at `2/10`, and Hetzner
+  remote status still requires a working local Tailscale path before it can be
+  trusted.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "breakout_default.*fills=12|The Tailscale CLI failed to start|Hetzner status reporting is bounded|Refresh Remaining Tasks Campaign State|2/10" REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: updated campaign count, local Tailscale failure note, bounded
+    Hetzner status note, and this work-log entry are present.
+
+Remaining risk:
+- LOW: docs-only backlog alignment. Runtime behavior, campaign manifests,
+  state directories, Tailscale commands, collectors, and order routing are
+  unchanged.
+- Remote Hetzner campaign state remains UNVERIFIED.
+- Acceptance state: `ACCEPTED`.

@@ -11,9 +11,13 @@ SHOWN:
   `git rev-parse HEAD origin/master origin/review-stabilized`.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
-  - `breakout_default`: `fills=11`, `closed=5`, `pnl=-4.1182`
+  - `breakout_default`: `fills=12`, `closed=6`, `pnl=-4.1120`
 - Hetzner-owned `ema_cross_default` must be checked with the Hetzner campaign
   manifest, not the laptop shortcut.
+- Current local Hetzner status is not verified: a bounded
+  `HETZNER_STATUS_TIMEOUT_SEC=1 make status-paper-all` check failed on the
+  Hetzner side with `The Tailscale CLI failed to start: Failed to load
+  preferences.`
 - Canonical `es_daily_trend_v1` paper promotion remains blocked at `2/10`
   provenance-qualified round trips, with `8` remaining.
 - `make status-paper-gate-qualification` now explains which fills count,
@@ -201,6 +205,11 @@ deployment work still needs independent review.
   records a read-only scheduled-safe wrapper that writes a latest host-health
   artifact and uses the local critical-alert fallback on failure. It does not
   SSH, restore, stop, or start collectors.
+- Hetzner status reporting is bounded and diagnostic:
+  `make status-paper-hetzner` now routes through a timeout-aware read-only
+  wrapper, prints bounded stdout/stderr previews on failure, and exposes
+  `HETZNER_STATUS_TIMEOUT_SEC` so routine checks do not block indefinitely on
+  Tailscale browser-auth or local Tailscale preference failures.
 - Hetzner isolated EMA backup restore rehearsal is accepted:
   `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
   records the isolated restore path, manifest verification, evidence counts,
