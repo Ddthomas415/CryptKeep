@@ -93,14 +93,16 @@ deployment work still needs independent review.
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
 10. Complete Hetzner host follow-through before any canonical `.cbp_state`
-    migration: backup restore rehearsal, disk/health alerting, current-host
-    runtime proof, and reviewed stop-copy-verify-start procedure.
+    migration: reviewed stop-copy-verify-start procedure, fresh current-host
+    runtime payload capture, and any required host scheduler/external-alert
+    policy proof.
     Manifest-level single-owner proof is accepted and merged by PR #145.
     Runtime duplicate-process proof tooling is accepted and merged by PR #147,
-    but current host payloads still need to be captured and checked.
-    Storage-health preflight tooling is independently accepted. A read-only
-    host-health alerting wrapper now has implementation proof ready for
-    independent review; backup restore rehearsal remains open.
+    and the dated isolated-challenger deployment record shows accepted
+    single-owner, first UTC-cycle, controlled-stop recovery, and backup restore
+    rehearsal proof for `ema_cross_default`. Storage-health preflight tooling
+    is independently accepted. The read-only host-health alerting wrapper is
+    independently accepted. Canonical `.cbp_state` migration remains blocked.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 12. Maintain the retired-family regression guard. `services/paper`,
@@ -187,15 +189,20 @@ deployment work still needs independent review.
   adds a read-only check over already-captured laptop and Hetzner status JSON.
   PR #147 merged as `8d75486e`. It does not SSH, restore, stop, or start
   collectors.
-- Hetzner storage-health preflight tooling is ready for independent review:
+- Hetzner storage-health preflight tooling is accepted:
   `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`
   adds read-only backup-directory, free-space, and free-inode checks to the
   host preflight. It does not SSH, restore, stop, or start collectors.
-- Hetzner host-health alerting wrapper is ready for independent review:
+- Hetzner host-health alerting wrapper is accepted:
   `docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md`
   records a read-only scheduled-safe wrapper that writes a latest host-health
   artifact and uses the local critical-alert fallback on failure. It does not
   SSH, restore, stop, or start collectors.
+- Hetzner isolated EMA backup restore rehearsal is accepted:
+  `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
+  records the isolated restore path, manifest verification, evidence counts,
+  and active-collector non-interference proof. It does not authorize canonical
+  `.cbp_state` migration.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable

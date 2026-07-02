@@ -544,11 +544,12 @@ Risk:
 Status: runbook accepted; host hardening proof complete; Tailscale-only SSH,
 Hetzner Cloud firewall, backups, and delete/rebuild protection applied;
 state-transfer manifest tooling, host preflight tooling, the isolated
-challenger proof template, and manifest-level ownership proof are accepted.
-Runtime duplicate-process proof tooling is accepted.
-Storage-health preflight tooling is ready for independent review. Campaign
-deployment remains blocked pending current-host runtime proof, server-hosted
-UTC cycle proof, persistent alerting, and backup/restore rehearsal.
+challenger proof template, manifest-level ownership proof, runtime
+duplicate-process proof tooling, isolated `ema_cross_default` transfer/start,
+first server-hosted UTC cycle, controlled-stop recovery, backup/restore
+rehearsal, storage-health preflight, and host-health alerting are accepted.
+Canonical `.cbp_state` migration remains blocked pending a fresh reviewed
+stop-copy-verify-start procedure and current-host evidence capture.
 
 Why it matters:
 - The current detached collectors stop when the operator laptop is shut down,
@@ -595,14 +596,15 @@ Next action:
 - Record the laptop status, laptop stop proof, manifest create proof, transfer
   proof, Hetzner preflight proof, manifest verify proof, VPS restore proof,
   and single-owner proof in the dated deployment record.
-- Add disk-space monitoring, collector health alerts, and backup restore
-  rehearsal evidence before any canonical `.cbp_state` migration. The
-  preflight storage check is not persistent alerting.
+- Keep the accepted storage-health preflight and host-health alerting wrapper
+  in the canonical migration preflight packet. The storage preflight is still
+  only a point-in-time check, not external alert-channel proof.
 - Prove the deployment first with an isolated challenger state directory, then
   migrate canonical `.cbp_state` only after a reviewed stop-copy-verify-start
   procedure.
-- Keep the current laptop recovery path available as rollback until the VPS has
-  completed at least one healthy UTC cycle and one restore rehearsal.
+- Keep the current laptop recovery path available as rollback for any future
+  canonical migration until a fresh reviewed stop-copy-verify-start procedure
+  supersedes it.
 
 Proof required:
 - Targeted deployment/config tests and a documented dry run.
@@ -622,7 +624,9 @@ Proof required:
   merged from independently advanced laptop and VPS state trees.
 - `restore_paper_campaigns.py --status` reports all configured collectors
   healthy on the VPS.
-- A backup can be restored into an isolated directory and read successfully.
+- A backup can be restored into an isolated directory and read successfully;
+  accepted proof exists in
+  `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`.
 - Manifest-level ownership proof is accepted in
   `docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md`
   and merged by PR #145. Runtime duplicate-process proof remains separate and
@@ -631,20 +635,23 @@ Proof required:
   `docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md`.
   PR #147 merged as `8d75486e`. Actual proof requires fresh host status
   payloads.
-- Storage-health preflight tooling is ready for independent review in
-  `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`. Persistent
-  alerting and backup restore rehearsal remain separate blockers.
+- Storage-health preflight tooling is accepted in
+  `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`.
+- Host-health alerting wrapper is accepted in
+  `docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md`.
+- Backup/restore rehearsal is accepted in
+  `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`.
 
 Risk:
 - HIGH: persistent financial-evidence background jobs, state migration,
   credentials/configuration, remote host security, and duplicate campaign
   ownership.
 - Acceptance state: runbook, cloud safeguards, manifest tooling, host preflight
-  tooling, proof template, manifest-level ownership proof, and runtime
-  duplicate-process proof tooling are accepted. Actual collector stop, state
-  transfer, VPS restore/start, current-host runtime proof, storage-health
-  preflight acceptance, persistent alerting, backup rehearsal, and canonical
-  migration remain high-risk operations and must stop at
+  tooling, proof template, manifest-level ownership proof, runtime
+  duplicate-process proof tooling, isolated transfer/start, first UTC cycle,
+  backup restore rehearsal, controlled-stop recovery, storage-health preflight,
+  and host-health alerting are accepted. Any future canonical migration remains
+  high-risk and must stop at
   `READY_FOR_INDEPENDENT_REVIEW` unless separately accepted by the human
   operator.
 
