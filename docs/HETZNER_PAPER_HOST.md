@@ -420,12 +420,24 @@ restore-test evidence in its own reviewed migration packet.
 
 Canonical `.cbp_state` migration is a separate high-risk change. It requires:
 - independent acceptance of the isolated challenger proof;
+- a reviewed Hetzner canonical campaign manifest for `es_daily_trend_v1`;
 - a maintenance window after a completed UTC campaign;
 - laptop stop confirmation;
 - content-manifest verification;
 - promotion-gate output captured before and after migration;
 - one declared canonical owner;
 - rollback state retained on the laptop.
+
+Copy the canonical migration template before any runtime action:
+
+```text
+docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md
+```
+
+The completed dated record is the audit artifact for baseline gate capture,
+fresh runtime ownership proof, laptop stop, manifest creation, transfer,
+Hetzner preflight, manifest verification, restore rehearsal, Hetzner start,
+post-migration gate comparison, and rollback readiness.
 
 Do not run canonical collectors on the laptop and Hetzner simultaneously.
 

@@ -39,6 +39,65 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Add Hetzner Canonical State Migration Template
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: add a docs-only canonical `.cbp_state` migration packet template so
+future Hetzner migration work has a reviewed evidence structure before any
+state is stopped, copied, verified, or started.
+
+What was found:
+- SHOWN: `configs/paper_evidence_campaigns.hetzner.example.json` owns only
+  `ema_cross_default`.
+- SHOWN: `configs/paper_evidence_campaigns.laptop.json` owns canonical
+  `es_daily_trend_v1` at `.cbp_state`.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` had Stage 3 requirements but no dated
+  canonical migration packet template.
+
+What changed:
+- Added
+  `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`.
+- Updated `docs/HETZNER_PAPER_HOST.md` to require the template before any
+  canonical migration runtime action.
+- Updated `REMAINING_TASKS.md` to name the reviewed Hetzner canonical campaign
+  manifest as a blocker.
+- Added
+  `docs/checkpoints/hetzner_canonical_state_migration_template_2026_07_01.md`.
+
+Why this change:
+- The isolated EMA proof does not authorize canonical `.cbp_state` migration.
+  The future migration needs a packet that captures baseline gate state, fresh
+  ownership payloads, laptop stop proof, manifest/backup/restore proof,
+  Hetzner start proof, post-migration gate comparison, and rollback readiness.
+
+Expected outcome:
+- Future canonical migration work cannot reasonably proceed from ad hoc shell
+  memory; it has an explicit evidence packet and stop conditions.
+
+Verification:
+- SHOWN: template/reference grep passed:
+  ```bash
+  rg -n 'hetzner_canonical_state_migration_TEMPLATE|reviewed Hetzner canonical campaign manifest|Reviewed Hetzner Canonical Manifest|READY_FOR_INDEPENDENT_REVIEW|stop-copy-verify-start' docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md docs/HETZNER_PAPER_HOST.md REMAINING_TASKS.md docs/checkpoints/hetzner_canonical_state_migration_template_2026_07_01.md docs/work_log/review_stabilized_work_log.md
+  ```
+- SHOWN: manifest ownership grep passed and showed the current split:
+  ```bash
+  rg -n 'es_daily_trend_v1|\.cbp_state|ema_cross_default' configs/paper_evidence_campaigns.hetzner.example.json configs/paper_evidence_campaigns.laptop.json
+  ```
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- HIGH: this is a workflow template for a future migration of persistent
+  financial-evidence state.
+- UNVERIFIED: current Hetzner host runtime state, future reviewed canonical
+  manifest, and future canonical migration readiness.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-01 - Align Hetzner Follow-Through Backlog
 
 Date: 2026-07-01

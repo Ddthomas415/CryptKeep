@@ -51,6 +51,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md
 - docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md
 - docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md
+- docs/checkpoints/hetzner_canonical_state_migration_template_2026_07_01.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -93,9 +94,9 @@ deployment work still needs independent review.
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
 10. Complete Hetzner host follow-through before any canonical `.cbp_state`
-    migration: reviewed stop-copy-verify-start procedure, fresh current-host
-    runtime payload capture, and any required host scheduler/external-alert
-    policy proof.
+    migration: reviewed Hetzner canonical campaign manifest, reviewed
+    stop-copy-verify-start procedure, fresh current-host runtime payload
+    capture, and any required host scheduler/external-alert policy proof.
     Manifest-level single-owner proof is accepted and merged by PR #145.
     Runtime duplicate-process proof tooling is accepted and merged by PR #147,
     and the dated isolated-challenger deployment record shows accepted
@@ -103,6 +104,8 @@ deployment work still needs independent review.
     rehearsal proof for `ema_cross_default`. Storage-health preflight tooling
     is independently accepted. The read-only host-health alerting wrapper is
     independently accepted. Canonical `.cbp_state` migration remains blocked.
+    Use `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`
+    for the future migration packet.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 12. Maintain the retired-family regression guard. `services/paper`,
