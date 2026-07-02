@@ -59,7 +59,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 105 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 109 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -146,6 +146,11 @@ planning; apply modes are high-risk and require an accepted review.
   Cloud firewall, backup, and delete/rebuild protection safeguards for the paper
   host using the OS-keyring token; use `--access-mode tailscale-only` for the
   accepted no-public-inbound firewall boundary.
+- `check_hetzner_paper_host_health.py` — read-only scheduled-safe wrapper around
+  the Hetzner host preflight; writes
+  `.cbp_state/runtime/snapshots/hetzner_paper_host_health.latest.json` and uses
+  the local critical-alert fallback when the preflight fails. It does not SSH,
+  restore, stop, or start collectors.
 - `hetzner_paper_host_preflight.py` — read-only host readiness check for the
   accepted Hetzner isolated paper challenger path before state transfer or
   collector restore; includes repo/venv/Git/NTP/Tailscale/campaign checks plus

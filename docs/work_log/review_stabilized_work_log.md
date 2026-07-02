@@ -39,6 +39,79 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Hetzner Paper Host Health Alerting Wrapper
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: add a scheduled-safe, read-only health wrapper for the Hetzner paper
+host so host-preflight failures produce a durable latest artifact and local
+critical-alert fallback.
+
+What was found:
+- SHOWN: `scripts/hetzner_paper_host_preflight.py` already reports the accepted
+  host-readiness checks, including storage health.
+- SHOWN: `services/alerts/alert_dispatcher.py` already writes a local
+  critical-alert JSONL fallback for error-level alerts, even when external
+  alert channels are disabled.
+- SHOWN: `services/alerts/alert_dispatcher.py` had three suppressed-error paths
+  that referenced undefined `_LOG` instead of the module `logger`.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` listed persistent health alerting as a
+  remaining blocker separate from backup restore rehearsal.
+
+What changed:
+- Added `scripts/check_hetzner_paper_host_health.py`.
+- Added focused tests in `tests/test_check_hetzner_paper_host_health.py`.
+- Fixed the alert dispatcher suppressed-error logger references.
+- Added alert-dispatcher fallback regression tests in
+  `tests/test_alert_dispatcher_fallback.py`.
+- Added `make check-hetzner-paper-host-health`.
+- Updated `docs/HETZNER_PAPER_HOST.md`, `scripts/SCRIPTS.md`,
+  `REMAINING_TASKS.md`, and
+  `docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md`.
+
+Why this change:
+- The smallest useful fix was to wrap the accepted preflight rather than build
+  a second host-health implementation. That keeps the health source of truth in
+  one place and uses the already accepted local alert fallback.
+- The `_LOG` fix was required because the new wrapper depends on alert fallback
+  robustness; leaving it unfixed could turn an alert-write failure into a
+  `NameError`.
+
+Expected outcome:
+- A host-local scheduler can run one command and leave
+  `.cbp_state/runtime/snapshots/hetzner_paper_host_health.latest.json`.
+- Failed preflight checks are visible in `failed_checks` and create a local
+  critical-alert fallback without requiring Slack, email, SSH, restore, stop,
+  start, or campaign mutation.
+
+Verification:
+- SHOWN: compile check passed:
+  ```bash
+  ./.venv/bin/python -m py_compile services/alerts/alert_dispatcher.py scripts/check_hetzner_paper_host_health.py tests/test_alert_dispatcher_fallback.py tests/test_check_hetzner_paper_host_health.py
+  ```
+- SHOWN: targeted tests passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_alert_dispatcher_fallback.py tests/test_check_hetzner_paper_host_health.py
+  ```
+  Result: `7 passed in 0.18s`.
+- SHOWN: root-script bootstrap slice passed:
+  ```bash
+  ./.venv/bin/python -m pytest -q tests/test_bootstrap_helper_adoption.py tests/test_no_duplicate_script_bootstrap.py tests/test_alert_dispatcher_fallback.py tests/test_check_hetzner_paper_host_health.py
+  ```
+  Result: `20 passed in 0.61s`.
+
+Remaining risk:
+- HIGH: this is deployment-adjacent host health alerting for persistent paper
+  evidence jobs.
+- UNVERIFIED: actual Hetzner host health, scheduler installation, external
+  alert delivery, backup age checks, backup restore rehearsal, and canonical
+  `.cbp_state` migration.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01 after PR #159 checks passed.
+
 ## 2026-07-01 - Close Transitional Family Migration Docs
 
 Date: 2026-07-01

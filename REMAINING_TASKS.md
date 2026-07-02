@@ -50,6 +50,7 @@ Strategy-evaluation work is tracked separately:
 - docs/checkpoints/hetzner_paper_campaign_ownership_proof_2026_06_30.md
 - docs/checkpoints/hetzner_paper_runtime_ownership_proof_2026_06_30.md
 - docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md
+- docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md
 
 ## Active Backlog
 These are the remaining tasks visible from the accepted checkpoint and planning
@@ -97,8 +98,9 @@ deployment work still needs independent review.
     Manifest-level single-owner proof is accepted and merged by PR #145.
     Runtime duplicate-process proof tooling is accepted and merged by PR #147,
     but current host payloads still need to be captured and checked.
-    Storage-health preflight tooling is independently accepted, but persistent
-    alerting and backup restore rehearsal remain open.
+    Storage-health preflight tooling is independently accepted. A read-only
+    host-health alerting wrapper now has implementation proof ready for
+    independent review; backup restore rehearsal remains open.
 11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 12. Maintain the retired-family regression guard. `services/paper`,
@@ -189,6 +191,11 @@ deployment work still needs independent review.
   `docs/checkpoints/hetzner_storage_preflight_proof_2026_07_01.md`
   adds read-only backup-directory, free-space, and free-inode checks to the
   host preflight. It does not SSH, restore, stop, or start collectors.
+- Hetzner host-health alerting wrapper is ready for independent review:
+  `docs/checkpoints/hetzner_paper_host_health_alerting_proof_2026_07_01.md`
+  records a read-only scheduled-safe wrapper that writes a latest host-health
+  artifact and uses the local critical-alert fallback on failure. It does not
+  SSH, restore, stop, or start collectors.
 - Read-only candidate outcome report objective is accepted by PR #113:
   `614bae6e7` added the report builder, root CLI, Make target, tests, and
   artifact path; implementation remains read-only and does not enable

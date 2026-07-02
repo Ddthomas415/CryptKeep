@@ -380,6 +380,28 @@ Host monitoring minimum:
 - UTC/NTP synchronization;
 - backup age and last restore-test result.
 
+Use the scheduled-safe host-health wrapper for the first five checks above:
+
+```bash
+./.venv/bin/python scripts/check_hetzner_paper_host_health.py \
+  --config configs/paper_evidence_campaigns.hetzner.example.json \
+  --expected-commit <accepted-deployment-sha> \
+  --backup-dir /srv/cryptkeep/backups \
+  --min-free-gb 2 \
+  --min-free-inodes 10000
+```
+
+The wrapper:
+- runs the existing read-only Hetzner host preflight;
+- writes
+  `.cbp_state/runtime/snapshots/hetzner_paper_host_health.latest.json`;
+- writes the local critical-alert fallback when the preflight fails;
+- does not SSH, restore, stop, start, or mutate collector state.
+
+This is not a backup restore rehearsal. Backup age and last restore-test result
+still require a separate reviewed restore-rehearsal artifact before canonical
+`.cbp_state` migration.
+
 ## Stage 3 - Canonical Migration
 
 Canonical `.cbp_state` migration is a separate high-risk change. It requires:
