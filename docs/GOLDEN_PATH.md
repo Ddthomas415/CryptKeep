@@ -95,8 +95,9 @@ That target uses Tailscale SSH and
 then prints a concise read-only campaign-health summary. The local wrapper is
 timeout-aware: if Tailscale SSH requires browser authentication, fails, times
 out, or returns malformed remote JSON, the command exits non-zero and prints an
-explicit reason instead of blocking indefinitely or rendering an empty campaign
-set. `make status-paper-soak` follows the local laptop manifest and therefore
+explicit reason plus bounded stdout/stderr previews instead of blocking
+indefinitely or rendering an empty campaign set. `make status-paper-soak`
+follows the local laptop manifest and therefore
 does not replace the separate Hetzner status command. The Hetzner formatter is
 strict: malformed remote JSON or `ok=false` campaign status exits non-zero
 after printing the investigation recommendation. Automatic OS-login startup is
