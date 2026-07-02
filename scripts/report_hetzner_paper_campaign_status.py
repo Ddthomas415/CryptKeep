@@ -112,17 +112,16 @@ def fetch_remote_status(
             stderr=result.stderr,
         )
 
-    non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
-    if non_json_reason:
-        return _failure_payload(
-            non_json_reason,
-            stdout=result.stdout,
-            stderr=result.stderr,
-        )
-
     try:
         return formatter.build_report_from_status(json.loads(result.stdout))
     except (json.JSONDecodeError, ValueError) as exc:
+        non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
+        if non_json_reason:
+            return _failure_payload(
+                non_json_reason,
+                stdout=result.stdout,
+                stderr=result.stderr,
+            )
         return _failure_payload(
             f"remote_status_parse_failed:{type(exc).__name__}:{exc}",
             stdout=result.stdout,

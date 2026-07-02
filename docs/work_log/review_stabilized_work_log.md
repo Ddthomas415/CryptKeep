@@ -12296,3 +12296,60 @@ Remaining risk:
 - Remote Hetzner campaign state remains UNVERIFIED until local Tailscale status
   succeeds.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T11:33:53Z - Preserve Valid Hetzner JSON With Tailscale Stderr
+
+Active role: ENGINEER
+
+Objective:
+- Fix the Hetzner status wrapper so valid remote campaign JSON on stdout is not
+  rejected just because Tailscale writes authentication chatter to stderr.
+
+What was found:
+- SHOWN: sandboxed Tailscale CLI calls returned
+  `The Tailscale CLI failed to start: Failed to load preferences.`
+- SHOWN: an out-of-sandbox `tailscale status` succeeded and showed both
+  `macbook-pro` and `ubuntu-4gb-nbg1-3` in the tailnet.
+- SHOWN: an out-of-sandbox `make status-paper-hetzner` produced valid remote
+  JSON on stdout but also Tailscale authentication text on stderr, causing the
+  wrapper to report `tailscale_ssh_auth_required`.
+- SHOWN: after the parsing-order fix, out-of-sandbox
+  `HETZNER_STATUS_TIMEOUT_SEC=20 make status-paper-hetzner` reported
+  `Campaigns: 1/1 running`, `ema_cross_default`, `fills=6`, `closed=3`,
+  `pnl=-0.2678`, latest fill `2026-06-24T00:01:43.601405+00:00`, and
+  `continue_paper_observation`.
+
+What changed:
+- Updated `scripts/report_hetzner_paper_campaign_status.py` to parse and
+  accept valid stdout JSON before classifying known Tailscale non-JSON failure
+  text.
+- Added a regression test for valid campaign JSON on stdout with Tailscale
+  authentication chatter on stderr.
+- Updated `REMAINING_TASKS.md` to replace stale unverified Hetzner status with
+  the verified `ema_cross_default` status and to clarify the Codex sandbox
+  Tailscale limitation.
+
+Why this change:
+- Tailscale may write informational/authentication text to stderr even when the
+  remote command returns valid JSON on stdout. The status wrapper should trust
+  valid stdout JSON and only classify Tailscale text when JSON parsing fails.
+
+Expected outcome:
+- Routine Hetzner status checks report real campaign state when remote JSON is
+  valid, while still failing closed with specific Tailscale reasons when no
+  valid JSON is available.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_paper_campaign_status.py tests/test_report_hetzner_paper_campaign_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_paper_campaign_status.py`
+  - SHOWN: `16 passed in 0.16s`.
+- `HETZNER_STATUS_TIMEOUT_SEC=20 make status-paper-hetzner` outside the Codex
+  sandbox
+  - SHOWN: exited 0 with `Campaigns: 1/1 running`.
+
+Remaining risk:
+- LOW: read-only status parsing, test coverage, and backlog state update. It
+  does not alter SSH targets, remote commands, campaign manifests, collectors,
+  state directories, or order routing.
+- Acceptance state: `ACCEPTED`.
