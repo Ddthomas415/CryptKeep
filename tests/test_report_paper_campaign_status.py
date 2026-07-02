@@ -116,6 +116,55 @@ def test_main_formats_existing_status_payload(tmp_path, capsys) -> None:
     assert out["campaigns"][0]["fills_total"] == 5
 
 
+def test_main_from_json_rejects_malformed_status_payload(tmp_path, capsys) -> None:
+    status_path = tmp_path / "status.json"
+    status_path.write_text(json.dumps({"ok": True}), encoding="utf-8")
+
+    assert script.main(["--strict", "--json", "--from-json", str(status_path)]) == 1
+    out = json.loads(capsys.readouterr().out)
+    assert out["ok"] is False
+    assert "status_payload_missing_campaigns" in out["reason"]
+    assert out["input_preview"] == '{"ok": true}'
+
+
+def test_main_from_json_preserves_failed_status_reason(tmp_path, capsys) -> None:
+    status_path = tmp_path / "status.json"
+    status_path.write_text(
+        json.dumps(
+            {
+                "ok": False,
+                "all_running": False,
+                "campaign_count": 1,
+                "running_count": 0,
+                "campaigns": [],
+                "reason": "tailscale_ssh_auth_required",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert script.main(["--strict", "--json", "--from-json", str(status_path)]) == 1
+    out = json.loads(capsys.readouterr().out)
+    assert out["ok"] is False
+    assert out["campaign_count"] == 1
+    assert out["reason"] == "tailscale_ssh_auth_required"
+
+
+def test_human_report_prints_failure_reason(capsys) -> None:
+    script.print_report(
+        {
+            "ok": False,
+            "read_only": True,
+            "reason": "report_failed:ValueError:bad status",
+            "recommendations": ["investigate_report_failure"],
+        }
+    )
+
+    out = capsys.readouterr().out
+    assert "Reason: report_failed:ValueError:bad status" in out
+    assert "Recommendations: investigate_report_failure" in out
+
+
 def test_main_strict_returns_one_for_invalid_status_payload(tmp_path, capsys) -> None:
     status_path = tmp_path / "status.json"
     status_path.write_text("not-json", encoding="utf-8")

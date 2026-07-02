@@ -11920,3 +11920,54 @@ Remaining risk:
   state directories, background jobs, candidate-advisor configuration, live
   execution, order routing, and tests are unchanged.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T02:01:51Z - Fail Closed On Malformed Paper Campaign Status
+
+Active role: ENGINEER
+
+Objective:
+- Make Hetzner paper campaign status failures visible instead of rendering
+  malformed or failed remote status as a misleading `0/0 running` report.
+
+What was found:
+- SHOWN: `make status-paper-all` reported laptop campaigns running, but the
+  Hetzner status formatter printed `Campaigns: 0/0 running` with only
+  `investigate_report_failure`, hiding the underlying failure reason.
+- SHOWN: direct Tailscale SSH verification required an interactive web
+  authentication check and was cancelled before remote state was verified.
+- SHOWN: `scripts/report_paper_campaign_status.py` accepted any JSON object
+  from `--from-json`, defaulted missing counts to zero, and did not print a
+  top-level failure reason in human-readable output.
+
+What changed:
+- Added validation for `--from-json` status payloads before formatting.
+- Preserved top-level failure reasons from failed status payloads.
+- Printed top-level failure reasons in human-readable reports.
+- Included an input preview when JSON parsing or shape validation fails.
+- Added regression tests for malformed payloads, preserved failure reasons,
+  and human-readable reason output.
+
+Why this change:
+- The formatter is an operator diagnostic surface. If remote status collection
+  fails, the report should fail closed with an explicit reason rather than
+  looking like a valid empty campaign set.
+
+Expected outcome:
+- Future Hetzner status failures should point operators toward the actual
+  status/reporting failure path instead of creating a false impression that
+  there are simply no configured campaigns.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/report_paper_campaign_status.py tests/test_report_paper_campaign_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_report_paper_campaign_status.py`
+  - SHOWN: `8 passed in 0.10s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: this changes read-only status formatting and validation only. It does
+  not start, stop, restore, mutate, or deploy any paper campaign.
+- Remote Hetzner state remains UNVERIFIED because Tailscale SSH required an
+  interactive authentication step during the check.
+- Acceptance state: `ACCEPTED`.
