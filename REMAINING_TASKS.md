@@ -103,10 +103,47 @@ deployment work still needs independent review.
    collector plan still needs an explicit config/docs review. Keep replay
    fixture-only unless
    `make check-short-context-readiness` reports `live_public_replay_ready=true`.
-9. Continue the derivatives/intraday roadmap as read-only data collection and
+9. Make the strategy registry fail closed before new discovery wiring lands.
+   `strategy_registry.compute_signal()` currently falls back to `ema_cross`
+   when `strategy.name` is unknown. That is a latent evidence-poisoning risk
+   once new names like `funding_extreme` enter campaign configs. Unknown
+   strategies should produce a non-actionable error/hold result that is visible
+   in session evidence; prove a typo cannot emit an actionable signal.
+10. Build archive-first backtesting before relying on strategy comparisons.
+   `services/backtest/signal_replay.py` currently fetches OHLCV live with a
+   shallow single-call default, while `storage/market_store_sqlite.py` already
+   has a `market_ohlcv` archive table. Promote paginated OHLCV ingestion into a
+   reusable archive path, make backtests read archive-first with dataset hashes,
+   and prove repeated runs over the same archive are byte-identical.
+11. Wire crypto-edge context strategies into the research/paper execution path.
+    `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
+    as context-signal modules, and `funding_extreme_default` /
+    `open_interest_shift_default` exist in presets/config tooling, but
+    `strategy_registry.py` only executes OHLCV strategies today. Add the
+    smallest read-only/paper context contract needed to pass crypto-edge rows
+    into strategies, then prove one context strategy can emit
+    provenance-qualified paper evidence without enabling live execution. Wire
+    `funding_extreme` first because OKX funding is the smallest proven input and
+    its cadence fits REST snapshots. Defer `open_interest_shift` until previous
+    OI state is derived from snapshot history. Defer `order_book_imbalance`
+    until a tighter-cadence or streaming depth path exists; depth REST snapshots
+    are not sufficient proof-quality evidence for that signal.
+12. Treat any paper-qualification extension for crypto-edge provenance as
+    high-risk gate work. The proof must show an edge-compliant fill is accepted
+    and a deliberately stale/mismatched edge fixture is rejected, while existing
+    OHLCV qualification fixtures remain unchanged. Also prove the session stays
+    paper-only: deployment stage is paper, live intent/order tables are
+    unchanged before/after, and the diff does not touch live execution or risk
+    gates.
+13. Start scheduled read-only crypto-edge collection early once the canonical
+    source decision is accepted. Funding and open-interest history mostly
+    accrue in real time; OKX funding/OI/basis is a validated read-only
+    candidate, but OKX adoption still needs explicit config/docs review and
+    Binance derivatives remain unavailable from the current network.
+14. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
-10. Complete Hetzner host follow-through before any canonical `.cbp_state`
+15. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: reviewed Hetzner canonical campaign manifest, reviewed
     stop-copy-verify-start procedure, fresh current-host runtime payload
     capture, and any required host scheduler/external-alert policy proof.
@@ -119,9 +156,9 @@ deployment work still needs independent review.
     independently accepted. Canonical `.cbp_state` migration remains blocked.
     Use `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`
     for the future migration packet.
-11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
+16. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
-12. Maintain the retired-family regression guard. `services/paper`,
+17. Maintain the retired-family regression guard. `services/paper`,
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a
     new accepted architecture decision.
