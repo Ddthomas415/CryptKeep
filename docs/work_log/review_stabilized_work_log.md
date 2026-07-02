@@ -12030,4 +12030,7 @@ Remaining risk:
   read-only and does not start, stop, restore, mutate, deploy, or route orders.
 - Remote Hetzner campaign state remains UNVERIFIED until an authenticated
   Tailscale SSH status check succeeds.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-07-02 after PR #163 checks
+  passed.
+- Acceptance state: `ACCEPTED`.
