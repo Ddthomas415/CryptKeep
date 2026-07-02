@@ -12,12 +12,15 @@ SHOWN:
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
   - `breakout_default`: `fills=12`, `closed=6`, `pnl=-4.1120`
-- Hetzner-owned `ema_cross_default` must be checked with the Hetzner campaign
-  manifest, not the laptop shortcut.
-- Current local Hetzner status is not verified: a bounded
-  `HETZNER_STATUS_TIMEOUT_SEC=1 make status-paper-all` check failed on the
-  Hetzner side with `The Tailscale CLI failed to start: Failed to load
-  preferences.`
+- Hetzner-owned `ema_cross_default` is healthy when checked through the
+  Hetzner campaign manifest:
+  - `ema_cross_default`: `fills=6`, `closed=3`, `pnl=-0.2678`
+  - latest fill: `2026-06-24T00:01:43.601405+00:00`
+  - status: `idle`, `waiting_for_next_day`, session evidence already recorded
+    for `2026-07-02`
+- Codex sandboxed Tailscale may report
+  `tailscale_cli_preferences_unavailable`; use a normal operator terminal or
+  approved out-of-sandbox status check when Hetzner status must be verified.
 - Canonical `es_daily_trend_v1` paper promotion remains blocked at `2/10`
   provenance-qualified round trips, with `8` remaining.
 - `make status-paper-gate-qualification` now explains which fills count,

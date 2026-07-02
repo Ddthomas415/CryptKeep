@@ -67,6 +67,44 @@ def test_fetch_remote_status_formats_valid_remote_payload(monkeypatch) -> None:
     assert out["campaigns"][0]["name"] == "ema_cross_default"
 
 
+def test_fetch_remote_status_prefers_valid_json_over_tailscale_stderr(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        return subprocess.CompletedProcess(
+            cmd,
+            0,
+            stdout=json.dumps(
+                {
+                    "ok": True,
+                    "all_running": True,
+                    "campaign_count": 1,
+                    "running_count": 1,
+                    "campaigns": [
+                        {
+                            "name": "ema_cross_default",
+                            "ok": True,
+                            "running": True,
+                            "status": "idle",
+                            "reason": "waiting_for_next_day",
+                            "strategy": "ema_cross",
+                        }
+                    ],
+                }
+            ),
+            stderr=(
+                "# Tailscale SSH requires an additional check.\n"
+                "# Authentication checked with Tailscale SSH.\n"
+            ),
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    out = script.fetch_remote_status(timeout_sec=3.0)
+
+    assert out["ok"] is True
+    assert out["all_running"] is True
+    assert out["campaigns"][0]["name"] == "ema_cross_default"
+
+
 def test_fetch_remote_status_fails_closed_when_tailscale_ssh_fails(monkeypatch) -> None:
     def _run(cmd, *, capture_output, check, text, timeout):
         return subprocess.CompletedProcess(
