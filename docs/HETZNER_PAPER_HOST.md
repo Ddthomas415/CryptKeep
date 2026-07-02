@@ -152,10 +152,17 @@ explicitly changed away from Tailscale-only.
 
 ## Stage 0 - Host Preparation
 
-Current status as of `2026-06-20T02:51:31Z`: implementation proof is complete
-for host-level hardening, the Tailscale-only cloud firewall, Hetzner backups,
-and delete/rebuild protection on `ubuntu-4gb-nbg1-3`; campaign deployment
-remains blocked pending restore, server-hosted cycle, and single-owner proof.
+Current status as of `2026-07-01`: implementation proof is complete for
+host-level hardening, the Tailscale-only cloud firewall, Hetzner backups,
+delete/rebuild protection, isolated `ema_cross_default` transfer/start,
+single-owner operation, first server-hosted UTC cycle, controlled-stop recovery,
+backup restore rehearsal, storage-health preflight, and host-health alerting.
+
+The canonical evidence artifact for the isolated challenger proof is:
+
+```text
+docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md
+```
 
 SHOWN:
 - `cryptkeep` non-root user exists with home `/srv/cryptkeep`.
@@ -173,19 +180,24 @@ SHOWN:
 - Hetzner backup window is `10-14`.
 - Public SSH to `178.104.145.242:22` times out.
 - Tailscale SSH to `cryptkeep@100.86.128.9` succeeds.
-- Local paper collectors remained on the laptop; no campaign state was copied
-  and no server collector was started.
+- The isolated `ema_cross_default` challenger was migrated to Hetzner and the
+  dated deployment record shows accepted transfer, manifest verification,
+  first UTC-cycle, backup-restore, and controlled-stop recovery proof.
+- Canonical `.cbp_state` and laptop-owned campaigns remained unmigrated.
 - Earlier read-only inventory on `2026-06-19T01:50:21Z`, before the Tailscale
   firewall change, reported one running server, `ubuntu-4gb-nbg1-3`
   (`id=126306158`, `cax11`, `nbg1`), one SSH key, two primary IPs, zero
   networks, zero volumes, and zero firewalls.
 
 Still blocked:
-- No isolated challenger has completed a server-hosted UTC cycle.
-- No backup/restore rehearsal has been performed.
+- Canonical `.cbp_state` migration.
+- Any additional campaign migration without a fresh reviewed
+  stop-copy-verify-start procedure.
+- External alert-channel proof and host scheduler installation, if those are
+  required for a future operations policy.
 
-Do not migrate `.cbp_state` or start canonical collectors on this host until
-those blockers are independently reviewed and resolved.
+Do not migrate `.cbp_state` or start canonical collectors on this host until a
+new canonical migration procedure is independently reviewed and accepted.
 
 Requirements:
 - a supported Linux host with SSH access;
@@ -398,9 +410,11 @@ The wrapper:
 - writes the local critical-alert fallback when the preflight fails;
 - does not SSH, restore, stop, start, or mutate collector state.
 
-This is not a backup restore rehearsal. Backup age and last restore-test result
-still require a separate reviewed restore-rehearsal artifact before canonical
-`.cbp_state` migration.
+This is not itself a backup restore rehearsal. The accepted isolated EMA
+restore rehearsal is recorded in
+`docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`.
+Any future canonical `.cbp_state` migration still needs fresh backup age and
+restore-test evidence in its own reviewed migration packet.
 
 ## Stage 3 - Canonical Migration
 

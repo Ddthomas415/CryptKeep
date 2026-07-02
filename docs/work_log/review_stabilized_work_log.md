@@ -39,6 +39,70 @@ UNVERIFIED:
 - This retrospective is therefore a best-effort reconstruction, not a substitute
   for the original review transcript.
 
+## 2026-07-01 - Align Hetzner Follow-Through Backlog
+
+Date: 2026-07-01
+
+Active role: `ENGINEER`
+
+Objective: remove stale Hetzner backlog/runbook language that still described
+the isolated challenger UTC-cycle and backup restore rehearsal as open blockers
+after the dated deployment record had accepted proof.
+
+What was found:
+- SHOWN: `docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md`
+  is marked `FIRST_UTC_CYCLE_ACCEPTED`.
+- SHOWN: the same deployment record contains an `ACCEPTED` backup restore
+  rehearsal section with isolated restore path, manifest verification,
+  evidence counts, and active-collector non-interference proof.
+- SHOWN: `REMAINING_TASKS.md`, `docs/HETZNER_PAPER_HOST.md`, and
+  `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` still
+  described restore rehearsal or first UTC-cycle proof as open.
+
+What changed:
+- Updated `docs/HETZNER_PAPER_HOST.md` to point at the accepted dated
+  deployment record and to keep only canonical `.cbp_state` migration and
+  future scheduler/external-alert policy proof as blockers.
+- Updated `REMAINING_TASKS.md` to mark the isolated EMA backup restore
+  rehearsal, storage-health preflight, and host-health alerting wrapper as
+  accepted, while preserving the canonical migration blocker.
+- Updated `docs/checkpoints/review_stabilized_next_actions_2026_05_28.md` so
+  the older checkpoint does not contradict the current accepted deployment
+  record.
+
+Why this change:
+- The backlog should not send future agents to redo already-accepted high-risk
+  operational proof. The correct remaining work is the fresh canonical
+  stop-copy-verify-start migration packet, not another isolated EMA restore
+  rehearsal.
+
+Expected outcome:
+- Future Hetzner work starts from the current accepted proof boundary and does
+  not reopen closed isolated-challenger evidence.
+
+Verification:
+- SHOWN: stale open-blocker grep returned no matches:
+  ```bash
+  rg -n "No isolated challenger has completed|No backup/restore rehearsal has been performed|backup restore rehearsal remains open|Storage-health preflight tooling is ready for independent review|host-health alerting wrapper is ready for independent review|Campaign deployment remains blocked pending current-host runtime proof" REMAINING_TASKS.md docs/HETZNER_PAPER_HOST.md docs/checkpoints/review_stabilized_next_actions_2026_05_28.md
+  ```
+- SHOWN: accepted-proof/current-blocker grep returned the dated deployment
+  record and updated backlog/checkpoint references:
+  ```bash
+  rg -n 'FIRST_UTC_CYCLE_ACCEPTED|Backup Restore Rehearsal|backup/restore rehearsal is accepted|Hetzner isolated EMA backup restore rehearsal is accepted|Canonical `\\.cbp_state` migration remains blocked' REMAINING_TASKS.md docs/HETZNER_PAPER_HOST.md docs/checkpoints/review_stabilized_next_actions_2026_05_28.md docs/deployment_records/hetzner_isolated_challenger_proof_2026_06_20.md
+  ```
+- SHOWN: whitespace check passed:
+  ```bash
+  git diff --check
+  ```
+
+Remaining risk:
+- LOW: docs-only alignment to existing accepted deployment record.
+- UNVERIFIED: current live Hetzner host state and future canonical migration
+  readiness.
+- Acceptance state: `ACCEPTED`.
+- Review reference: same-thread low-risk closure based on visible accepted
+  deployment record evidence.
+
 ## 2026-07-01 - Hetzner Paper Host Health Alerting Wrapper
 
 Date: 2026-07-01
