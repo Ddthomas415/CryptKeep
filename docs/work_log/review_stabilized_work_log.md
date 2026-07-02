@@ -12519,3 +12519,55 @@ Remaining risk:
 - LOW: backlog/work-log documentation only. No runtime, trading, collector,
   gate, or deployment behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T22:21:45Z - Refine Strategy Discovery Implementation Constraints
+
+Active role: ENGINEER
+
+Objective:
+- Add the follow-up implementation-plan findings to the active backlog so the
+  strategy-discovery work is sequenced safely.
+
+What was found:
+- SHOWN: the backlog had archive-first backtesting and context strategy wiring
+  as high-level items.
+- SHOWN: it did not yet state the shared prerequisite that unknown strategy
+  names must fail closed instead of silently falling back to `ema_cross`.
+- SHOWN: it did not yet state that `funding_extreme` should be wired first,
+  `open_interest_shift` should wait for snapshot-history OI deltas, and
+  `order_book_imbalance` should wait for tighter-cadence or streaming depth
+  data.
+- SHOWN: it did not yet call out the crypto-edge paper-qualification extension
+  as high-risk gate work requiring accept-and-reject proof.
+
+What changed:
+- Added an active backlog item for fail-closed strategy registry behavior.
+- Expanded the context-strategy backlog item to prioritize `funding_extreme`
+  and defer `open_interest_shift` / `order_book_imbalance` until their data
+  prerequisites are credible.
+- Added an active backlog item requiring edge-provenance qualification proof
+  and unchanged OHLCV qualification behavior.
+- Added an active backlog item to start scheduled read-only crypto-edge
+  collection after the canonical source decision is accepted.
+- Renumbered the following active backlog items.
+
+Why this change:
+- The implementation-plan audit identified sequencing risks that matter for
+  evidence integrity. The backlog should prevent a future implementation from
+  silently running the wrong strategy, weakening the gate, or producing
+  low-quality order-book evidence from REST snapshots.
+
+Expected outcome:
+- Future strategy-discovery work starts with fail-closed registry behavior,
+  reproducible archive data, and the smallest proofable context strategy
+  (`funding_extreme`) before broader derivative/intraday work.
+
+Verification:
+- `rg -n "fail closed|funding_extreme|open_interest_shift|order_book_imbalance|high-risk gate|scheduled read-only crypto-edge" REMAINING_TASKS.md`
+  - SHOWN: the new prerequisite, strategy ordering, gate-proof requirement, and
+    collection timing are present.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only. No runtime, trading, collector,
+  gate, or deployment behavior changed.
+- Acceptance state: `ACCEPTED`.
