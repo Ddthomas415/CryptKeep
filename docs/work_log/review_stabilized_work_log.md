@@ -12193,3 +12193,55 @@ Remaining risk:
   unchanged.
 - Remote Hetzner campaign state remains UNVERIFIED.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T11:08:54Z - Classify Tailscale Non-JSON Status Failures
+
+Active role: ENGINEER
+
+Objective:
+- Make the Hetzner paper status wrapper report known Tailscale local/auth
+  failures as specific status reasons instead of generic remote JSON parse
+  failures.
+
+What was found:
+- SHOWN: `HETZNER_STATUS_TIMEOUT_SEC=1 make status-paper-hetzner` exited
+  non-zero with `remote_status_parse_failed:JSONDecodeError` even though the
+  bounded output preview clearly showed the local Tailscale CLI failure:
+  `The Tailscale CLI failed to start: Failed to load preferences.`
+- SHOWN: the wrapper already captured stdout/stderr previews, but classified
+  all zero-exit non-JSON output as remote-status parse failure.
+
+What changed:
+- Added pre-JSON classification for known Tailscale non-JSON output:
+  `tailscale_cli_preferences_unavailable` and `tailscale_ssh_auth_required`.
+- Added regression tests for the local Tailscale preferences failure and
+  browser-auth prompt when Tailscale returns non-JSON output with exit code 0.
+- Updated `docs/GOLDEN_PATH.md` and `docs/PAPER_CAMPAIGN_RECOVERY.md` to name
+  the specific reasons and operator interpretation.
+
+Why this change:
+- A local Tailscale CLI failure is materially different from malformed remote
+  campaign JSON. The operator should see the correct failure class immediately
+  from the top-level `Reason:` line.
+
+Expected outcome:
+- Routine Hetzner status checks now distinguish local Tailscale preference
+  failure, Tailscale SSH browser-auth requirement, Tailscale non-zero failure,
+  timeout, and genuine remote status JSON parse failures.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_paper_campaign_status.py tests/test_report_hetzner_paper_campaign_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_paper_campaign_status.py`
+  - SHOWN: `15 passed in 0.17s`.
+- `HETZNER_STATUS_TIMEOUT_SEC=1 make status-paper-hetzner`
+  - SHOWN: exited non-zero with `Reason:
+    tailscale_cli_preferences_unavailable` and the bounded stdout preview.
+
+Remaining risk:
+- LOW: read-only status classification and docs only. It does not alter SSH
+  targets, remote commands, campaign manifests, collectors, state directories,
+  or order routing.
+- Remote Hetzner campaign state remains UNVERIFIED until local Tailscale status
+  succeeds.
+- Acceptance state: `ACCEPTED`.

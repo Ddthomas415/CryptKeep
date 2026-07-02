@@ -106,6 +106,10 @@ strict: malformed remote JSON or `ok=false` campaign status exits non-zero
 after printing the investigation recommendation. Automatic OS-login startup is
 intentionally not enabled; starting financial background jobs requires this
 explicit operator action.
+If the status reason is `tailscale_cli_preferences_unavailable`, fix the local
+Tailscale CLI/app state before trusting Hetzner status. If the status reason is
+`tailscale_ssh_auth_required`, complete the displayed browser authentication
+and rerun the status command.
 
 Public-OHLCV campaign health is fail-closed. A collector may remain alive while
 reporting `ok=false`, `status=failed`, and `reason=no_public_ohlcv`. The

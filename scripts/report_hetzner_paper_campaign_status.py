@@ -65,6 +65,17 @@ def _remote_status_command(*, app_dir: str, config_path: str) -> str:
     )
 
 
+def _tailscale_non_json_reason(*, stdout: Any, stderr: Any) -> str:
+    combined = f"{stdout or ''}\n{stderr or ''}".lower()
+    if "failed to load preferences" in combined:
+        return "tailscale_cli_preferences_unavailable"
+    if "tailscale ssh requires an additional check" in combined:
+        return "tailscale_ssh_auth_required"
+    if "authenticate" in combined and "tailscale" in combined:
+        return "tailscale_ssh_auth_required"
+    return ""
+
+
 def fetch_remote_status(
     *,
     ssh_target: str = DEFAULT_SSH_TARGET,
@@ -97,6 +108,14 @@ def fetch_remote_status(
     if result.returncode != 0:
         return _failure_payload(
             f"tailscale_ssh_failed:{result.returncode}",
+            stdout=result.stdout,
+            stderr=result.stderr,
+        )
+
+    non_json_reason = _tailscale_non_json_reason(stdout=result.stdout, stderr=result.stderr)
+    if non_json_reason:
+        return _failure_payload(
+            non_json_reason,
             stdout=result.stdout,
             stderr=result.stderr,
         )

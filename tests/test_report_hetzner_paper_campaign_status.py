@@ -106,6 +106,45 @@ def test_fetch_remote_status_times_out_instead_of_blocking(monkeypatch) -> None:
     assert "browser auth" in out["stderr_preview"]
 
 
+def test_fetch_remote_status_classifies_tailscale_preferences_output(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        return subprocess.CompletedProcess(
+            cmd,
+            0,
+            stdout="The Tailscale CLI failed to start: Failed to load preferences.",
+            stderr="",
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    out = script.fetch_remote_status(timeout_sec=1.0)
+
+    assert out["ok"] is False
+    assert out["reason"] == "tailscale_cli_preferences_unavailable"
+    assert "Failed to load preferences" in out["stdout_preview"]
+
+
+def test_fetch_remote_status_classifies_tailscale_auth_prompt_output(monkeypatch) -> None:
+    def _run(cmd, *, capture_output, check, text, timeout):
+        return subprocess.CompletedProcess(
+            cmd,
+            0,
+            stdout="",
+            stderr=(
+                "# Tailscale SSH requires an additional check.\n"
+                "# To authenticate, visit: https://login.tailscale.com/a/example\n"
+            ),
+        )
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    out = script.fetch_remote_status(timeout_sec=1.0)
+
+    assert out["ok"] is False
+    assert out["reason"] == "tailscale_ssh_auth_required"
+    assert "login.tailscale.com" in out["stderr_preview"]
+
+
 def test_main_strict_returns_one_for_remote_failure(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,
