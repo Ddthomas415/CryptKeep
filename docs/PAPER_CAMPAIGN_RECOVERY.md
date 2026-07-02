@@ -46,7 +46,8 @@ make status-paper-hetzner
 
 This runs the existing remote read-only status command through a timeout-aware
 local Tailscale SSH wrapper and formats the returned JSON into a concise
-campaign-health summary. It does not start, stop, or restore a campaign. If
+campaign-health summary. It does not start, stop, or restore a campaign. The
+Make target waits up to `HETZNER_STATUS_TIMEOUT_SEC=15` seconds by default. If
 Tailscale SSH requires browser authentication, fails, times out, or returns
 malformed JSON, the command exits non-zero and prints the explicit failure
 reason, bounded stdout/stderr previews, and the investigation recommendation.
@@ -58,6 +59,12 @@ changes:
 HETZNER_SSH_TARGET=cryptkeep@100.86.128.9 \
 HETZNER_APP_DIR=/srv/cryptkeep/app \
   make status-paper-hetzner
+```
+
+Override the status timeout only when a slower host check is intentional:
+
+```bash
+HETZNER_STATUS_TIMEOUT_SEC=30 make status-paper-hetzner
 ```
 
 ## Restore

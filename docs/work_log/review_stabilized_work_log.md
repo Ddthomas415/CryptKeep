@@ -12085,3 +12085,57 @@ Remaining risk:
 - Remote Hetzner campaign state remains UNVERIFIED until an authenticated
   Tailscale SSH status check succeeds.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T03:00:33Z - Expose Hetzner Status Timeout Knob
+
+Active role: ENGINEER
+
+Objective:
+- Bound the routine `make status-paper-hetzner` wait time through a visible
+  Make variable instead of requiring operators to call the wrapper script
+  directly to tune status-check latency.
+
+What was found:
+- SHOWN: `scripts/report_hetzner_paper_campaign_status.py` already accepts
+  `--timeout-sec`.
+- SHOWN: `make status-paper-hetzner` did not expose that timeout, so the daily
+  operator command always used the script default.
+- SHOWN: Tailscale SSH may require browser authentication, making bounded
+  status latency part of the normal operator workflow.
+
+What changed:
+- Added `HETZNER_STATUS_TIMEOUT_SEC ?= 15` to the root Makefile.
+- Passed `--timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)` from
+  `make status-paper-hetzner` to the Hetzner status wrapper.
+- Updated `docs/GOLDEN_PATH.md` and `docs/PAPER_CAMPAIGN_RECOVERY.md` with
+  the default and override form.
+
+Why this change:
+- The daily status command should remain the canonical entrypoint, but
+  operators need a documented way to shorten or lengthen the remote status
+  wait without bypassing the Make target.
+
+Expected outcome:
+- `make status-paper-hetzner` remains read-only and now has an explicit,
+  documented timeout budget. `HETZNER_STATUS_TIMEOUT_SEC=30 make
+  status-paper-hetzner` extends the wait when the operator intentionally wants
+  a slower host check.
+
+Verification:
+- `make -n status-paper-hetzner`
+  - SHOWN: expands to the wrapper with `--timeout-sec 15`.
+- `HETZNER_STATUS_TIMEOUT_SEC=1 make -n status-paper-hetzner`
+  - SHOWN: expands to the wrapper with `--timeout-sec 1`.
+- `HETZNER_STATUS_TIMEOUT_SEC=1 make status-paper-hetzner`
+  - SHOWN: exited non-zero quickly and printed the captured local Tailscale
+    failure preview: `The Tailscale CLI failed to start: Failed to load
+    preferences.`
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: this changes only a read-only Make target's timeout argument and docs.
+  It does not start, stop, restore, mutate, deploy, or route orders.
+- Remote Hetzner campaign state remains UNVERIFIED until authenticated
+  Tailscale SSH status succeeds.
+- Acceptance state: `ACCEPTED`.
