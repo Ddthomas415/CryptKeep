@@ -12459,12 +12459,17 @@ Verification:
   - SHOWN: exited 0; Coinbase and Kraken quote checks passed; Coinbase
     order-book check passed; Binance funding/open-interest/basis checks still
     failed with `exchange_open_failed:ExchangeNotAvailable`.
+- `./.venv/bin/python -c '<read-only OKX derivatives collector probe>'`
+  - SHOWN: OKX funding, open-interest, and basis checks passed and returned
+    rows. This was a candidate probe only; the canonical live collector plan was
+    not changed.
 
 Remaining risk:
 - MEDIUM: this changes public exchange construction for a read-only research
   collector, not execution. It intentionally does not alter order routing,
   credentials, risk gates, or the execution exchange factory.
 - Binance derivatives availability remains externally blocked on this network;
-  choose or validate a compliant derivatives venue before live-public
-  short/context replay can clear.
+  OKX is a validated read-only candidate, but adopting it into the canonical
+  live collector plan still needs explicit config/docs review before
+  live-public short/context replay can clear.
 - Acceptance state: `ACCEPTED`.
