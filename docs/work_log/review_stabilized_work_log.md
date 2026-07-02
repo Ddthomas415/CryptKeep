@@ -12353,3 +12353,55 @@ Remaining risk:
   does not alter SSH targets, remote commands, campaign manifests, collectors,
   state directories, or order routing.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T13:45:50Z - Scope Live Crypto Edge Printed Reports
+
+Active role: ENGINEER
+
+Objective:
+- Prevent the read-only live crypto edge collector CLI from printing a mixed
+  latest report that can include stale `sample_bundle` rows during a
+  `live_public` collection.
+
+What was found:
+- SHOWN: `scripts/collect_live_crypto_edge_snapshot.py --print-report` used
+  `CryptoEdgeStoreSQLite.latest_report()`, which selects the latest snapshot
+  per table without filtering by source.
+- SHOWN: `CryptoEdgeStoreSQLite.latest_report_for_source(source=...)` already
+  exists and is used by the collector service path.
+- SHOWN: a sandboxed live collection attempt collected no live rows because
+  exchange network calls failed, while an escalated read-only collection
+  collected `live_public` quote/order-book rows but still could print old
+  sample funding/basis rows through the global report path.
+
+What changed:
+- Updated `scripts/collect_live_crypto_edge_snapshot.py` so `--print-report`
+  uses `latest_report_for_source(source=args.source or "live_public")`.
+- Added a regression test where a database already contains `sample_bundle`
+  funding, a live collection writes only `live_public` quotes, and the printed
+  report must not show the sample funding as live evidence.
+
+Why this change:
+- The short-context readiness gate already filters by source. The operator CLI
+  output should use the same evidence boundary so a partial live-public
+  collection cannot look more complete than it is.
+
+Expected outcome:
+- `make collect-live-crypto-edges` with `--print-report` reports only rows from
+  the requested source label. Operators will see missing live funding,
+  open-interest, or basis families instead of mixed sample/live evidence.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/collect_live_crypto_edge_snapshot.py tests/test_collect_live_crypto_edge_snapshot.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_collect_live_crypto_edge_snapshot.py tests/test_crypto_edge_store_sqlite.py`
+  - SHOWN: `7 passed in 0.20s`.
+
+Remaining risk:
+- LOW: read-only reporting change. It does not alter collection fetches,
+  database schema, short-context readiness logic, trading execution, or risk
+  gates.
+- Binance-derived live funding/open-interest/basis collection remains
+  incomplete and must still be solved separately before the short/context
+  replay gate is live-public ready.
+- Acceptance state: `ACCEPTED`.

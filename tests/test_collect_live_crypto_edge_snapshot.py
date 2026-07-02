@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from scripts import collect_live_crypto_edge_snapshot as script
+from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
 
 
 def test_collect_live_crypto_edge_snapshot_writes_live_rows(tmp_path, monkeypatch, capsys) -> None:
@@ -72,6 +73,54 @@ def test_collect_live_crypto_edge_snapshot_writes_live_rows(tmp_path, monkeypatc
     assert out["quote_count"] == 1
     assert out["order_book_count"] == 1
     assert out["report"]["has_any_data"] is True
+    assert out["report"]["source_filter"] == "live_public"
+
+
+def test_collect_live_crypto_edge_snapshot_print_report_is_source_scoped(tmp_path, monkeypatch, capsys) -> None:
+    plan_path = tmp_path / "plan.json"
+    plan_path.write_text(json.dumps({"quotes": [{"venue": "coinbase", "symbol": "BTC/USD"}]}), encoding="utf-8")
+    db_path = tmp_path / "crypto_edges.sqlite"
+    store = CryptoEdgeStoreSQLite(path=str(db_path))
+    store.append_funding_rows(
+        [{"symbol": "BTC/USDT:USDT", "venue": "binance", "funding_rate": 0.0002, "interval_hours": 8.0}],
+        source="sample_bundle",
+        capture_ts="2026-06-28T00:00:00+00:00",
+    )
+    monkeypatch.setattr(
+        script,
+        "collect_live_crypto_edge_snapshot",
+        lambda plan: {
+            "ok": True,
+            "research_only": True,
+            "execution_enabled": False,
+            "funding_rows": [],
+            "open_interest_rows": [],
+            "basis_rows": [],
+            "quote_rows": [{"symbol": "BTC/USD", "venue": "coinbase", "bid": 84010.0, "ask": 84015.0}],
+            "order_book_rows": [],
+            "checks": [{"kind": "quotes", "venue": "coinbase", "symbol": "BTC/USD", "ok": True}],
+        },
+    )
+    monkeypatch.setattr(
+        script.sys,
+        "argv",
+        [
+            "collect_live_crypto_edge_snapshot.py",
+            "--plan-file",
+            str(plan_path),
+            "--db-path",
+            str(db_path),
+            "--print-report",
+        ],
+    )
+
+    assert script.main() == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["quote_count"] == 1
+    assert out["report"]["source_filter"] == "live_public"
+    assert out["report"]["funding"]["count"] == 0
+    assert out["report"]["funding_meta"] is None
+    assert out["report"]["quote_meta"]["source"] == "live_public"
 
 
 def test_collect_live_crypto_edge_snapshot_rejects_empty_live_collection(tmp_path, monkeypatch, capsys) -> None:

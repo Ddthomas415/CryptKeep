@@ -101,7 +101,7 @@ def main() -> int:
         )
         out["order_book_count"] = int(len(order_book_rows))
     if args.print_report:
-        out["report"] = store.latest_report()
+        out["report"] = store.latest_report_for_source(source=str(args.source or "live_public"))
     print(json.dumps(out, indent=2, default=str))
     return 0
 
