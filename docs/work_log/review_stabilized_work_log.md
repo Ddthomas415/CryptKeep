@@ -12520,6 +12520,56 @@ Remaining risk:
   gate, or deployment behavior changed.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-07-02T22:31:26Z - Add Remaining Audit Matrix Findings To Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Capture the remaining actionable audit-matrix findings that were not covered
+  by PR #172's strategy-discovery backlog entries.
+
+What was found:
+- SHOWN: PR #172 represented the strategy-discovery findings: fail-closed
+  registry behavior, archive-first backtesting, context strategy wiring,
+  crypto-edge qualification proof, and scheduled edge collection after a source
+  decision.
+- SHOWN: `REMAINING_TASKS.md` did not explicitly track live-money substrate
+  findings for Decimal money math, fail-closed trading config, typed order
+  retry handling, submit-path crash testing, deployment units/Docker cleanup,
+  loop dead-man alerting, trading-state consolidation, or full-state
+  backup/restore drills.
+- SHOWN: it also did not explicitly track lower-priority hygiene findings for
+  runtime stubs, duplicate/twin modules, archive walk-forward depth proof,
+  `ws_*` naming versus REST reality, or backtest-to-paper fill parity.
+
+What changed:
+- Added a `Deferred Live-Money Substrate Backlog` section to
+  `REMAINING_TASKS.md`.
+- Added a `Deferred Structure And Research Hygiene` section to
+  `REMAINING_TASKS.md`.
+- Kept the new items explicitly deferred so they do not interrupt the current
+  paper/research campaign, while making them visible before any capped-live
+  decision.
+
+Why this change:
+- The project is paper-first today, but live-money blockers should not remain
+  only in chat/audit text. Recording them as deferred backlog prevents a future
+  live gate from advancing without revisiting the substrate risks.
+
+Expected outcome:
+- Current work can stay focused on paper evidence and strategy discovery, while
+  the live-readiness substrate and concrete hygiene gaps remain visible in the
+  repo.
+
+Verification:
+- `rg -n "Deferred Live-Money|Decimal|fail closed|clientOrderId|systemd|dead-man|backup/restore|Deferred Structure|run_mode.py|walk-forward|ws_\\*|fill parity" REMAINING_TASKS.md`
+  - SHOWN: all new backlog categories and representative items are present.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only. No runtime, trading, collector,
+  gate, deployment, or test behavior changed.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-07-02T22:21:45Z - Refine Strategy Discovery Implementation Constraints
 
 Active role: ENGINEER

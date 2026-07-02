@@ -163,6 +163,58 @@ deployment work still needs independent review.
     `services/storage` are retired. Do not reintroduce those packages without a
     new accepted architecture decision.
 
+## Deferred Live-Money Substrate Backlog
+These items are not blockers for the current paper/research campaign, but they
+must be resolved or explicitly accepted before any capped-live capital exposure.
+
+1. Convert order qty/price/fee/PnL math to `Decimal` with per-venue step size,
+   lot size, and min-notional quantization. Write golden tests before changing
+   behavior. Blocks capped live.
+2. Make trading config fail closed. Unparseable or corrupt runtime trading
+   config must halt with an alert instead of defaulting to `{}`. Sweep only
+   trading-critical broad exception handlers first. Blocks live; paper-adjacent
+   because bad config can poison evidence context.
+3. Replace string-match order retry classification with typed `ccxt` exception
+   handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
+   retry. Add a kill-between-writes submit-path test. Blocks live.
+4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
+   restart. Kill between each side effect and assert reconciler convergence.
+   This is a launch-packet companion, not a replacement for restart evidence.
+5. Ship server deployment units or retire the stale deployment story. Provide
+   systemd units for collector, trader, reconciler, and dashboard, and either
+   make Docker compose runnable from this repo or move it behind a documented
+   companion-repo pointer. Blocks server shadow quality and live.
+6. Add trading-loop metrics and dead-man alerting. Host health checks are not
+   enough; each managed trading loop needs heartbeat metrics and alert-on-absence
+   within a defined time window. Blocks shadow/live quality.
+7. Write a state-store consolidation decision record before implementation.
+   Decide how fills, positions, PnL, intents, and ledgers should move toward one
+   transactional schema or explicitly accept the current reconciler-dependent
+   multi-store risk. Blocks live.
+8. Add a full-state backup/restore drill to the launch evidence packet. Script
+   backup of all state DBs and record one executed restore-and-resume rehearsal.
+   Blocks live.
+
+## Deferred Structure And Research Hygiene
+These are lower priority than the active paper/research campaign and live-money
+substrate work, but they are concrete enough to keep visible.
+
+1. Resolve `services/runtime/run_mode.py` and
+   `services/runtime/bot_process.py`: implement the Phase 218/220 operator
+   flow or delete the stubs with a documentation update.
+2. Reduce duplicate/twin modules that obscure which code guards money:
+   `live_trader_fleet` versus `live_trader_multi`,
+   `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
+   risk-gate modules. Start with a decision record if behavior differs.
+3. Extend archive-first backtesting proof to include one walk-forward run over
+   the archive producing enough out-of-sample windows to demonstrate research
+   depth, not only byte-identical reruns.
+4. Rename or document `ws_*` / `market_ws` surfaces before intraday work assumes
+   streaming exists. Current accepted direction treats intraday as read-only
+   until data cadence and streaming assumptions are proven.
+5. Add a backtest-to-paper fill parity property test around the shared fill
+   model so paper evidence transferability is tested directly.
+
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
   PR #139 merged as `f26dd965e`, adding
