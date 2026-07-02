@@ -101,6 +101,25 @@ Operator access command:
 tailscale ssh cryptkeep@100.86.128.9
 ```
 
+Routine read-only campaign status command:
+
+```bash
+make status-paper-hetzner
+```
+
+If the command fails, use the top-level `Reason:` line before interpreting the
+Hetzner campaign as unhealthy:
+
+- `tailscale_cli_preferences_unavailable` means the local laptop Tailscale CLI
+  or app state is unavailable. Fix or restart local Tailscale first; the remote
+  campaign state is still unverified.
+- `tailscale_ssh_auth_required` means Tailscale SSH requires browser
+  authentication. Complete the displayed Tailscale auth URL, then rerun the
+  status command.
+
+The status command is read-only. It does not restore, stop, or start Hetzner
+collectors.
+
 ## Cloud Safeguards Command
 
 Status: `ACCEPTED_AND_APPLIED`
