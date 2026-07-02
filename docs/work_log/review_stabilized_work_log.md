@@ -12473,3 +12473,49 @@ Remaining risk:
   live collector plan still needs explicit config/docs review before
   live-public short/context replay can clear.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T22:18:23Z - Add Strategy Discovery Findings To Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Make the accepted strategy-discovery audit findings visible in the canonical
+  backlog instead of leaving them only in chat context.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already recorded the mixed-venue collector fix
+  and the OKX read-only derivatives probe.
+- SHOWN: it did not explicitly track archive-first backtesting or context
+  strategy execution as active backlog items.
+- SHOWN: `services/backtest/signal_replay.py` still fetches OHLCV live with a
+  shallow single-call default while `storage/market_store_sqlite.py` contains a
+  `market_ohlcv` archive table.
+- SHOWN: `funding_extreme`, `open_interest_shift`, and
+  `order_book_imbalance` exist as context-signal strategy modules, while
+  `strategy_registry.py` executes only OHLCV strategy functions today.
+
+What changed:
+- Added an active backlog item for archive-first backtesting with paginated
+  archive ingestion, dataset hashes, and repeatable backtest proof.
+- Added an active backlog item for wiring crypto-edge context strategies into
+  the research/paper execution path without enabling live execution.
+- Renumbered the following active backlog items.
+
+Why this change:
+- The current repo can collect useful crypto-edge context, but strategy
+  discovery remains blocked until backtests become reproducible and the context
+  strategies can run through the same evidence path as OHLCV strategies.
+
+Expected outcome:
+- Future planning can prioritize research/profitability discovery work without
+  confusing it with live-money readiness or collector plumbing.
+
+Verification:
+- `rg -n "archive-first|market_ohlcv|funding_extreme|open_interest_shift|order_book_imbalance|context" REMAINING_TASKS.md`
+  - SHOWN: backlog entries for archive-first backtesting and context strategy
+    wiring are present.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only. No runtime, trading, collector,
+  gate, or deployment behavior changed.
+- Acceptance state: `ACCEPTED`.

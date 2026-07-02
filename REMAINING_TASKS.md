@@ -103,10 +103,25 @@ deployment work still needs independent review.
    collector plan still needs an explicit config/docs review. Keep replay
    fixture-only unless
    `make check-short-context-readiness` reports `live_public_replay_ready=true`.
-9. Continue the derivatives/intraday roadmap as read-only data collection and
+9. Build archive-first backtesting before relying on strategy comparisons.
+   `services/backtest/signal_replay.py` currently fetches OHLCV live with a
+   shallow single-call default, while `storage/market_store_sqlite.py` already
+   has a `market_ohlcv` archive table. Promote paginated OHLCV ingestion into a
+   reusable archive path, make backtests read archive-first with dataset hashes,
+   and prove repeated runs over the same archive are byte-identical.
+10. Wire crypto-edge context strategies into the research/paper execution path.
+    `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
+    as context-signal modules, and `funding_extreme_default` /
+    `open_interest_shift_default` exist in presets/config tooling, but
+    `strategy_registry.py` only executes OHLCV strategies today. Add the
+    smallest read-only/paper context contract needed to pass funding,
+    open-interest, and order-book rows into those strategies, then prove one
+    context strategy can emit provenance-qualified paper evidence without
+    enabling live execution.
+11. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
-10. Complete Hetzner host follow-through before any canonical `.cbp_state`
+12. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: reviewed Hetzner canonical campaign manifest, reviewed
     stop-copy-verify-start procedure, fresh current-host runtime payload
     capture, and any required host scheduler/external-alert policy proof.
@@ -119,9 +134,9 @@ deployment work still needs independent review.
     independently accepted. Canonical `.cbp_state` migration remains blocked.
     Use `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`
     for the future migration packet.
-11. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
+13. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
-12. Maintain the retired-family regression guard. `services/paper`,
+14. Maintain the retired-family regression guard. `services/paper`,
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a
     new accepted architecture decision.
