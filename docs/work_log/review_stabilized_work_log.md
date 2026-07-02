@@ -12245,3 +12245,54 @@ Remaining risk:
 - Remote Hetzner campaign state remains UNVERIFIED until local Tailscale status
   succeeds.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T11:26:49Z - Document Hetzner Tailscale Status Troubleshooting
+
+Active role: ENGINEER
+
+Objective:
+- Align the Hetzner paper-host runbook with the accepted timeout-aware status
+  command and its specific Tailscale failure reasons.
+
+What was found:
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` documented accepted Tailscale SSH access
+  and the operator SSH command.
+- SHOWN: the same runbook did not document `make status-paper-hetzner` or the
+  new `tailscale_cli_preferences_unavailable` and
+  `tailscale_ssh_auth_required` status reasons.
+- SHOWN: `docs/GOLDEN_PATH.md` and `docs/PAPER_CAMPAIGN_RECOVERY.md` already
+  described those reasons, so the host-specific runbook was the remaining
+  source-of-truth gap.
+
+What changed:
+- Added the routine read-only `make status-paper-hetzner` command to
+  `docs/HETZNER_PAPER_HOST.md`.
+- Documented how to interpret `tailscale_cli_preferences_unavailable` and
+  `tailscale_ssh_auth_required`.
+- Clarified that the status command is read-only and does not restore, stop, or
+  start Hetzner collectors.
+
+Why this change:
+- Operators troubleshooting Hetzner access are likely to open the host runbook.
+  The status command's new failure reasons need to be visible there, not only
+  in the Golden Path and recovery docs.
+
+Expected outcome:
+- Future Hetzner check-ins distinguish a local Tailscale CLI/app problem from
+  an unhealthy remote campaign without requiring the operator to cross-reference
+  multiple docs.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+- `rg -n "make status-paper-hetzner|tailscale_cli_preferences_unavailable|tailscale_ssh_auth_required|Document Hetzner Tailscale Status Troubleshooting|does not restore, stop, or start" docs/HETZNER_PAPER_HOST.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: runbook command, both failure reasons, read-only clarification, and
+    this work-log entry are present.
+
+Remaining risk:
+- LOW: docs-only runbook alignment. Runtime behavior, Tailscale commands,
+  campaign manifests, collectors, state directories, and order routing are
+  unchanged.
+- Remote Hetzner campaign state remains UNVERIFIED until local Tailscale status
+  succeeds.
+- Acceptance state: `ACCEPTED`.
