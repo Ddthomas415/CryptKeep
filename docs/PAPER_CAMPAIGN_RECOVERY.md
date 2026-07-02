@@ -49,7 +49,7 @@ local Tailscale SSH wrapper and formats the returned JSON into a concise
 campaign-health summary. It does not start, stop, or restore a campaign. If
 Tailscale SSH requires browser authentication, fails, times out, or returns
 malformed JSON, the command exits non-zero and prints the explicit failure
-reason plus the investigation recommendation.
+reason, bounded stdout/stderr previews, and the investigation recommendation.
 
 Override the remote target or app directory only when the deployment record
 changes:

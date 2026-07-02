@@ -12034,3 +12034,54 @@ Remaining risk:
   `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-07-02 after PR #163 checks
   passed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T02:46:24Z - Surface Hetzner Status Failure Previews
+
+Active role: ENGINEER
+
+Objective:
+- Make the human-readable Hetzner paper status report show the stdout/stderr
+  previews already captured by failed status payloads.
+
+What was found:
+- SHOWN: after PR #163, `make status-paper-all` failed fast for the Hetzner
+  side but the human output still showed only
+  `remote_status_parse_failed:JSONDecodeError` without the captured output.
+- SHOWN: `./.venv/bin/python scripts/report_hetzner_paper_campaign_status.py
+  --strict --json --timeout-sec 5` exposed the real condition in
+  `stderr_preview`: Tailscale SSH required an additional browser
+  authentication check.
+
+What changed:
+- Updated `scripts/report_paper_campaign_status.py` to print bounded
+  `stdout_preview` and `stderr_preview` fields in human-readable reports.
+- Added a regression test proving those previews appear in normal report
+  output.
+- Updated the Golden Path and paper-campaign recovery docs to describe the
+  preview behavior.
+
+Why this change:
+- The captured preview is the actionable diagnostic. Without printing it, the
+  daily operator command still requires a second JSON-only command to discover
+  the Tailscale auth URL or remote failure text.
+
+Expected outcome:
+- `make status-paper-hetzner` and `make status-paper-all` now show the bounded
+  remote/Tailscale failure context directly in their normal output.
+
+Verification:
+- `./.venv/bin/python -m py_compile scripts/report_paper_campaign_status.py tests/test_report_paper_campaign_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_report_paper_campaign_status.py tests/test_report_hetzner_paper_campaign_status.py`
+  - SHOWN: `13 passed in 0.16s`.
+- `./.venv/bin/python scripts/report_hetzner_paper_campaign_status.py --strict --timeout-sec 5`
+  - SHOWN: exited non-zero and printed `Stderr preview:` with the Tailscale
+    browser-auth prompt and authentication URL.
+
+Remaining risk:
+- LOW: read-only human-output formatting only. It does not alter campaign
+  start/stop/restore behavior, Tailscale command arguments, deployment, state,
+  or order routing.
+- Remote Hetzner campaign state remains UNVERIFIED until an authenticated
+  Tailscale SSH status check succeeds.
+- Acceptance state: `ACCEPTED`.

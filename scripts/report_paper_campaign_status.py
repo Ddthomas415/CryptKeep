@@ -131,6 +131,16 @@ def print_report(payload: dict[str, Any]) -> None:
     )
     if payload.get("reason"):
         print(f"Reason: {payload.get('reason')}")
+    for key, label in (
+        ("stdout_preview", "Stdout preview"),
+        ("stderr_preview", "Stderr preview"),
+    ):
+        preview = str(payload.get(key) or "").rstrip()
+        if not preview:
+            continue
+        print(f"{label}:")
+        for line in preview.splitlines():
+            print(f"  {line}")
     for row in list(payload.get("campaigns") or []):
         if not isinstance(row, dict):
             continue

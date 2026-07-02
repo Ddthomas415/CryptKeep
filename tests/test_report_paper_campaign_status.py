@@ -165,6 +165,26 @@ def test_human_report_prints_failure_reason(capsys) -> None:
     assert "Recommendations: investigate_report_failure" in out
 
 
+def test_human_report_prints_failure_previews(capsys) -> None:
+    script.print_report(
+        {
+            "ok": False,
+            "read_only": True,
+            "reason": "tailscale_ssh_timeout:5s",
+            "stdout_preview": "partial stdout",
+            "stderr_preview": "# Tailscale SSH requires an additional check.\n# authenticate",
+            "recommendations": ["investigate_report_failure"],
+        }
+    )
+
+    out = capsys.readouterr().out
+    assert "Stdout preview:" in out
+    assert "  partial stdout" in out
+    assert "Stderr preview:" in out
+    assert "  # Tailscale SSH requires an additional check." in out
+    assert "  # authenticate" in out
+
+
 def test_main_strict_returns_one_for_invalid_status_payload(tmp_path, capsys) -> None:
     status_path = tmp_path / "status.json"
     status_path.write_text("not-json", encoding="utf-8")
