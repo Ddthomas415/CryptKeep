@@ -51,6 +51,10 @@ Make target waits up to `HETZNER_STATUS_TIMEOUT_SEC=15` seconds by default. If
 Tailscale SSH requires browser authentication, fails, times out, or returns
 malformed JSON, the command exits non-zero and prints the explicit failure
 reason, bounded stdout/stderr previews, and the investigation recommendation.
+Known local Tailscale failures are classified before JSON parsing; for example,
+`tailscale_cli_preferences_unavailable` means the local Tailscale CLI could not
+load preferences, and `tailscale_ssh_auth_required` means Tailscale SSH needs
+browser authentication before the remote status can be trusted.
 
 Override the remote target or app directory only when the deployment record
 changes:
