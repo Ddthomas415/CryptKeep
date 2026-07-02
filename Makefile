@@ -115,7 +115,7 @@ status-paper-gate-qualification-json:
 	@$(PYTHON) scripts/report_paper_gate_qualification.py --json
 
 status-paper-hetzner:
-	tailscale ssh $(HETZNER_SSH_TARGET) 'cd $(HETZNER_APP_DIR) && ./.venv/bin/python scripts/restore_paper_campaigns.py --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --status' | $(PYTHON) scripts/report_paper_campaign_status.py --strict --from-json -
+	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG)
 
 status-paper-all:
 	@status=0; \

@@ -11971,3 +11971,66 @@ Remaining risk:
 - Remote Hetzner state remains UNVERIFIED because Tailscale SSH required an
   interactive authentication step during the check.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T02:18:37Z - Add Timeout-Aware Hetzner Status Wrapper
+
+Active role: ENGINEER
+
+Objective:
+- Prevent `make status-paper-hetzner` from blocking indefinitely when
+  Tailscale SSH requires interactive browser authentication or returns a
+  malformed remote status payload.
+
+What was found:
+- SHOWN: the existing `status-paper-hetzner` Make target invoked
+  `tailscale ssh` directly and piped the result into the local formatter.
+- SHOWN: recent remote checks required an interactive Tailscale authentication
+  step, which makes the direct pipeline a poor daily status surface.
+- SHOWN: `scripts/report_paper_campaign_status.py` now fails closed on
+  malformed payloads, but the raw Make pipeline could still block before the
+  formatter receives input.
+
+What changed:
+- Added `scripts/report_hetzner_paper_campaign_status.py`, a read-only
+  timeout-aware Tailscale SSH wrapper around the remote
+  `restore_paper_campaigns.py --status` command.
+- Updated `make status-paper-hetzner` to call the wrapper instead of a raw SSH
+  pipe.
+- Added regression tests for successful remote payload formatting, Tailscale
+  SSH failure, timeout handling, and strict JSON exit behavior.
+- Updated `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and
+  `docs/PAPER_CAMPAIGN_RECOVERY.md` to document the wrapper behavior.
+
+Why this change:
+- Daily operator status should be read-only and bounded. A Tailscale browser
+  auth prompt is an external access condition, not a valid campaign status;
+  the command should report it explicitly and return control to the operator.
+
+Expected outcome:
+- `make status-paper-hetzner` remains the single operator command for Hetzner
+  campaign status, but it now exits with an explicit failure reason if SSH
+  auth, timeout, command failure, or malformed remote JSON prevents a valid
+  status report.
+
+Verification:
+- `find scripts -maxdepth 1 -type f -name '*.py' | wc -l`
+  - SHOWN: `110`, matching the updated script index.
+- `make -n status-paper-hetzner`
+  - SHOWN: invokes `scripts/report_hetzner_paper_campaign_status.py` with the
+    configured target, app directory, and campaign manifest.
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_paper_campaign_status.py tests/test_report_hetzner_paper_campaign_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_paper_campaign_status.py tests/test_report_paper_campaign_status.py`
+  - SHOWN: `12 passed in 0.15s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: this changes an operator workflow and uses Tailscale SSH, but remains
+  read-only and does not start, stop, restore, mutate, deploy, or route orders.
+- Remote Hetzner campaign state remains UNVERIFIED until an authenticated
+  Tailscale SSH status check succeeds.
+- Acceptance reference: accepted by human operator through
+  `INDEPENDENTLY_REVIEWED AND ACCEPTED` on 2026-07-02 after PR #163 checks
+  passed.
+- Acceptance state: `ACCEPTED`.

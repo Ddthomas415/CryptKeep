@@ -39,7 +39,8 @@ listed below.
 | `preflight.py` | — | Pre-launch checks |
 | `preflight_check.py` | — | Runtime/config preflight check |
 | `report_paper_run_diagnostics.py` | — | Paper-run diagnostic report |
-| `report_paper_campaign_status.py` | `make status-paper-hetzner` | Read-only campaign-health summary for configured campaign manifests without promotion-gate coupling |
+| `report_hetzner_paper_campaign_status.py` | `make status-paper-hetzner` | Read-only Tailscale SSH wrapper for Hetzner campaign status with timeout-aware failure reporting |
+| `report_paper_campaign_status.py` | — | Read-only campaign-health formatter for configured campaign status payloads without promotion-gate coupling |
 | `report_paper_gate_qualification.py` | `make status-paper-gate-qualification` / `make status-paper-gate-qualification-json` | Read-only fill-level explanation for which paper fills count toward the provenance-qualified gate and why rejected/incomplete fills do not count |
 | `report_supervised_soak_status.py` | `make status-paper-soak` / `make status-paper-soak-json` | Read-only supervised paper-soak summary across configured campaigns and paper promotion gate status |
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive |
@@ -59,7 +60,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 109 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 110 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
