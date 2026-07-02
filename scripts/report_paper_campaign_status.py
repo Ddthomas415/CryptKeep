@@ -79,6 +79,21 @@ def _recommendations(payload: dict[str, Any]) -> list[str]:
     return ["continue_paper_observation"]
 
 
+def _validate_status_payload(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise ValueError("status_payload_not_object")
+    if "ok" not in payload:
+        raise ValueError("status_payload_missing_ok")
+    campaigns = payload.get("campaigns")
+    if not isinstance(campaigns, list):
+        raise ValueError("status_payload_missing_campaigns")
+    if bool(payload.get("ok")):
+        for key in ("all_running", "campaign_count", "running_count"):
+            if key not in payload:
+                raise ValueError(f"status_payload_missing_{key}")
+    return payload
+
+
 def build_report(
     *,
     config_path: Path = DEFAULT_CONFIG_PATH,
@@ -91,11 +106,13 @@ def build_report(
 
 
 def build_report_from_status(campaigns: dict[str, Any]) -> dict[str, Any]:
+    campaigns = _validate_status_payload(campaigns)
     rows = [_campaign_row(dict(row)) for row in list(campaigns.get("campaigns") or [])]
     payload = {
         "ok": bool(campaigns.get("ok")),
         "action": "report_paper_campaign_status",
         "read_only": True,
+        "reason": str(campaigns.get("reason") or ""),
         "all_running": bool(campaigns.get("all_running")),
         "campaign_count": _as_int(campaigns.get("campaign_count")),
         "running_count": _as_int(campaigns.get("running_count")),
@@ -112,6 +129,8 @@ def print_report(payload: dict[str, Any]) -> None:
         f"{payload.get('running_count', 0)}/{payload.get('campaign_count', 0)} running "
         f"(all_running={bool(payload.get('all_running'))})"
     )
+    if payload.get("reason"):
+        print(f"Reason: {payload.get('reason')}")
     for row in list(payload.get("campaigns") or []):
         if not isinstance(row, dict):
             continue
@@ -152,6 +171,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH, help="Paper campaign manifest path")
     args = ap.parse_args(argv)
 
+    raw = ""
     try:
         if args.from_json:
             raw = (
@@ -170,7 +190,8 @@ def main(argv: list[str] | None = None) -> int:
             "ok": False,
             "action": "report_paper_campaign_status",
             "read_only": True,
-            "reason": f"report_failed:{type(exc).__name__}",
+            "reason": f"report_failed:{type(exc).__name__}:{exc}",
+            "input_preview": raw[:500] if raw else "",
             "recommendations": ["investigate_report_failure"],
         }
 
