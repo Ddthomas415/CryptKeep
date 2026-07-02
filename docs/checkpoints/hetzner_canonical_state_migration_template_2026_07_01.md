@@ -102,4 +102,8 @@ Reason:
 - The template controls a future high-risk migration of persistent financial
   evidence state.
 
-Acceptance state: READY_FOR_INDEPENDENT_REVIEW
+Acceptance state: ACCEPTED
+
+Review reference:
+- Independently reviewed and accepted by the human operator on 2026-07-01
+  after PR #161 checks passed.

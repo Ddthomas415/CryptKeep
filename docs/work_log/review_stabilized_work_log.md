@@ -96,7 +96,9 @@ Remaining risk:
   financial-evidence state.
 - UNVERIFIED: current Hetzner host runtime state, future reviewed canonical
   manifest, and future canonical migration readiness.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-01 after PR #161 checks passed.
 
 ## 2026-07-01 - Align Hetzner Follow-Through Backlog
 
