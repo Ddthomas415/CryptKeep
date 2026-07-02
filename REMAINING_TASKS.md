@@ -93,9 +93,12 @@ deployment work still needs independent review.
    candidate still has synthetic-only, low-confidence evidence and no persisted
    paper-history support.
 8. Continue short/context follow-through from the accepted readiness report.
-   Resolve the Binance derivatives public-data `NetworkError` or choose a
-   compliant read-only derivatives venue before relying on derivatives row
-   families. Keep replay fixture-only unless
+   The repo-side mixed-venue collector conflict is fixed by allowing the
+   read-only research collector to open non-Binance public clients while
+   `CBP_VENUE=binance` and `CBP_ALLOW_BINANCE=1` authorize Binance. Resolve the
+   remaining Binance derivatives public-data `ExchangeNotAvailable` failure or
+   choose a compliant read-only derivatives venue before relying on derivatives
+   row families. Keep replay fixture-only unless
    `make check-short-context-readiness` reports `live_public_replay_ready=true`.
 9. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk

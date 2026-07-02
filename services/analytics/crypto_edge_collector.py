@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import Any
 
 from services.market_data.symbol_router import map_symbol, normalize_venue
-from services.security.exchange_factory import make_exchange
+from services.security.binance_guard import require_binance_allowed
 
 
 def _fnum(value: Any, default: float = 0.0) -> float:
@@ -31,7 +31,21 @@ def _close_exchange(ex: Any) -> None:
 
 
 def _open_public_exchange(venue: str) -> Any:
-    ex = make_exchange(str(venue), {"apiKey": None, "secret": None}, enable_rate_limit=True)
+    venue_id = normalize_venue(str(venue))
+    if venue_id.startswith("binance"):
+        require_binance_allowed(venue_id)
+
+    import ccxt  # type: ignore
+
+    klass = getattr(ccxt, venue_id)
+    cfg: dict[str, Any] = {
+        "enableRateLimit": True,
+        "apiKey": None,
+        "secret": None,
+    }
+    if venue_id.startswith("binance"):
+        cfg["options"] = {"adjustForTimeDifference": True}
+    ex = klass(cfg)
     if hasattr(ex, "load_markets"):
         ex.load_markets()
     return ex

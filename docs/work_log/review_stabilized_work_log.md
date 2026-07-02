@@ -12405,3 +12405,66 @@ Remaining risk:
   incomplete and must still be solved separately before the short/context
   replay gate is live-public ready.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-02T13:52:08Z - Allow Mixed-Venue Crypto Edge Research Collection
+
+Active role: ENGINEER
+
+Objective:
+- Remove the repo-side mixed-venue conflict in the read-only crypto edge
+  collector while preserving the explicit Binance allowance requirement.
+
+What was found:
+- SHOWN: `services/analytics/crypto_edge_collector.py` opened every public
+  venue through `services.security.exchange_factory.make_exchange()`.
+- SHOWN: `make_exchange()` applies the execution-oriented `CBP_VENUE`
+  explicit/env conflict rule.
+- SHOWN: a guarded read-only probe with `CBP_VENUE=binance` and
+  `CBP_ALLOW_BINANCE=1` made Binance eligible but caused Coinbase/Kraken legs
+  to fail with `VenueResolutionError`.
+- SHOWN: without the Binance allowance, the same plan fails Binance rows with
+  the repo's existing Binance guard.
+
+What changed:
+- Updated the crypto edge collector's private `_open_public_exchange()` helper
+  to construct public CCXT clients directly for research-only market-data
+  collection.
+- Kept `require_binance_allowed()` for Binance venues.
+- Kept public clients credentialless with `apiKey=None` and `secret=None`.
+- Added targeted tests proving non-Binance research clients can open under the
+  Binance allowance and Binance remains blocked without the allowance.
+- Updated `REMAINING_TASKS.md` so the short/context backlog now distinguishes
+  the fixed repo-side mixed-venue conflict from the still-open external
+  Binance derivatives availability failure.
+
+Why this change:
+- The crypto edge collector is intentionally mixed-venue and read-only. The
+  execution factory's global `CBP_VENUE` conflict rule is appropriate for order
+  routing surfaces, but it blocks a research snapshot plan that needs Binance
+  derivatives context plus Coinbase/Kraken quote/order-book context in the
+  same run.
+
+Expected outcome:
+- Operators can run a guarded mixed-venue read-only collection with
+  `CBP_VENUE=binance CBP_ALLOW_BINANCE=1` and still collect Coinbase/Kraken
+  public rows. The short/context gate remains fail-closed until live-public
+  derivatives row families are present.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/analytics/crypto_edge_collector.py tests/test_crypto_edge_collector.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_collector.py tests/test_collect_live_crypto_edge_snapshot.py`
+  - SHOWN: `8 passed in 0.21s`.
+- `CBP_VENUE=binance CBP_ALLOW_BINANCE=1 ./.venv/bin/python scripts/collect_live_crypto_edge_snapshot.py --plan-file sample_data/crypto_edges/live_collector_plan.json --db-path /private/tmp/cbp_crypto_edge_mixed_venue_after_fix.sqlite --print-report`
+  - SHOWN: exited 0; Coinbase and Kraken quote checks passed; Coinbase
+    order-book check passed; Binance funding/open-interest/basis checks still
+    failed with `exchange_open_failed:ExchangeNotAvailable`.
+
+Remaining risk:
+- MEDIUM: this changes public exchange construction for a read-only research
+  collector, not execution. It intentionally does not alter order routing,
+  credentials, risk gates, or the execution exchange factory.
+- Binance derivatives availability remains externally blocked on this network;
+  choose or validate a compliant derivatives venue before live-public
+  short/context replay can clear.
+- Acceptance state: `ACCEPTED`.
