@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import sys
+import types
+
+import pytest
+
 from services.analytics import crypto_edge_collector as collector
 
 
@@ -31,6 +36,48 @@ class _FakeExchange:
         if self.venue == "coinbase":
             return {"bids": [[84010.0, 1.0]], "asks": [[84015.0, 1.0]]}
         return {"bids": [[84020.0, 1.0]], "asks": [[84005.0, 1.0]]}
+
+
+class _FakeCCXTExchange:
+    configs: list[dict] = []
+
+    def __init__(self, cfg: dict) -> None:
+        self.configs.append(dict(cfg))
+        self.loaded = False
+
+    def load_markets(self) -> None:
+        self.loaded = True
+
+
+def test_open_public_exchange_allows_mixed_venue_research_under_binance_guard(monkeypatch) -> None:
+    class _FakeCoinbase(_FakeCCXTExchange):
+        configs: list[dict] = []
+
+    fake_ccxt = types.SimpleNamespace(coinbase=_FakeCoinbase)
+    monkeypatch.setitem(sys.modules, "ccxt", fake_ccxt)
+    monkeypatch.setenv("CBP_VENUE", "binance")
+    monkeypatch.setenv("CBP_ALLOW_BINANCE", "1")
+
+    ex = collector._open_public_exchange("coinbase")
+
+    assert isinstance(ex, _FakeCoinbase)
+    assert ex.loaded is True
+    assert _FakeCoinbase.configs == [{"enableRateLimit": True, "apiKey": None, "secret": None}]
+
+
+def test_open_public_exchange_preserves_binance_guard(monkeypatch) -> None:
+    class _FakeBinance(_FakeCCXTExchange):
+        configs: list[dict] = []
+
+    fake_ccxt = types.SimpleNamespace(binance=_FakeBinance)
+    monkeypatch.setitem(sys.modules, "ccxt", fake_ccxt)
+    monkeypatch.delenv("CBP_VENUE", raising=False)
+    monkeypatch.delenv("CBP_ALLOW_BINANCE", raising=False)
+
+    with pytest.raises(RuntimeError, match="Refusing Binance"):
+        collector._open_public_exchange("binance")
+
+    assert _FakeBinance.configs == []
 
 
 def test_collect_live_crypto_edge_snapshot_builds_research_rows(monkeypatch) -> None:
