@@ -92,11 +92,14 @@ make status-paper-hetzner
 
 That target uses Tailscale SSH and
 `configs/paper_evidence_campaigns.hetzner.example.json` on the Hetzner host,
-then prints a concise read-only campaign-health summary. `make
-status-paper-soak` follows the local laptop manifest and therefore does not
-replace the separate Hetzner status command. The Hetzner formatter is strict:
-malformed remote JSON or `ok=false` campaign status exits non-zero after
-printing the investigation recommendation. Automatic OS-login startup is
+then prints a concise read-only campaign-health summary. The local wrapper is
+timeout-aware: if Tailscale SSH requires browser authentication, fails, times
+out, or returns malformed remote JSON, the command exits non-zero and prints an
+explicit reason instead of blocking indefinitely or rendering an empty campaign
+set. `make status-paper-soak` follows the local laptop manifest and therefore
+does not replace the separate Hetzner status command. The Hetzner formatter is
+strict: malformed remote JSON or `ok=false` campaign status exits non-zero
+after printing the investigation recommendation. Automatic OS-login startup is
 intentionally not enabled; starting financial background jobs requires this
 explicit operator action.
 

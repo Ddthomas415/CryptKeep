@@ -44,11 +44,12 @@ campaigns through the accepted Tailscale SSH path:
 make status-paper-hetzner
 ```
 
-This runs the existing remote read-only status command and formats the returned
-JSON locally into a concise campaign-health summary. It does not start, stop,
-or restore a campaign. The local formatter runs in strict mode, so malformed
-remote JSON or `ok=false` campaign status exits non-zero after printing the
-investigation recommendation.
+This runs the existing remote read-only status command through a timeout-aware
+local Tailscale SSH wrapper and formats the returned JSON into a concise
+campaign-health summary. It does not start, stop, or restore a campaign. If
+Tailscale SSH requires browser authentication, fails, times out, or returns
+malformed JSON, the command exits non-zero and prints the explicit failure
+reason plus the investigation recommendation.
 
 Override the remote target or app directory only when the deployment record
 changes:
