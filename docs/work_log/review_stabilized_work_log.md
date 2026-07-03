@@ -13080,6 +13080,80 @@ Remaining risk:
 - UNVERIFIED: implementation designs and test details for each captured item.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-07-03 - Shadow Would-Be-Fill Recorder Implementation Proof
+
+Active role: ENGINEER
+
+Objective:
+- Implement the smallest shadow-stage recorder needed for observe-only submit
+  attempts to produce fill/slippage evidence without placing live orders.
+
+What was found:
+- SHOWN: `services/execution/_executor_submit.py::submit_pending_live()` returns
+  early in `LIVE_SHADOW` observe-only mode before venue submission.
+- SHOWN: `scripts/check_promotion_gates.py::evaluate_shadow_gates()` already
+  reads shadow `fill` evidence and reports manual slippage review as available
+  once fill records exist.
+- SHOWN: `services/strategies/evidence_logger.py` can write `fill_*.jsonl`
+  records under the active strategy evidence directory while preserving
+  caller-supplied `_stage`.
+- SHOWN: the live-executor facade synchronizes monkeypatched dependencies into
+  `_executor_submit`, allowing a focused observe-only regression test.
+
+What changed:
+- Added private shadow-recorder helpers in
+  `services/execution/_executor_submit.py`.
+- In `LIVE_SHADOW` observe-only submit mode, pending live intents are scanned
+  and converted into idempotent `shadow_would_be_fill` evidence records.
+- Each record captures side, quantity, symbol, venue, bid, ask, last,
+  reference mid, spread bps, modeled fill price, fee, slippage, selected
+  strategy, strategy preset, `_stage=shadow`, and non-sample local snapshot
+  provenance.
+- The recorder uses the existing deterministic fill model and does not call the
+  exchange client, update intent status, or insert execution-store fills.
+- Added a regression test proving one pending live intent produces exactly one
+  shadow fill-evidence record and remains pending with zero execution-store
+  fills.
+- Added a gate test proving `evaluate_shadow_gates()` surfaces shadow
+  would-be-fill evidence as manual slippage-review input.
+- Updated `REMAINING_TASKS.md` to mark the item as implementation-proof-ready
+  pending independent review.
+
+Why this change:
+- Shadow mode previously had an unstartable evidence gate: submit was correctly
+  observe-only, but there was no artifact for the slippage gate to inspect.
+- Writing evidence records instead of execution-store fills preserves the
+  observe-only safety boundary while allowing the shadow gate to accumulate
+  reviewable would-be-fill slippage data.
+- Idempotency by intent prevents a repeated shadow submit loop from generating
+  one evidence fill per tick for the same pending intent.
+
+Expected outcome:
+- Once paper promotes to shadow, pending live intents can produce slippage
+  evidence for manual review without opening orders or mutating live fill
+  tables.
+- The shadow gate can distinguish "no slippage evidence exists" from
+  "manual review is required across N would-be-fill records."
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/_executor_submit.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_check_promotion_gates.py`
+  - SHOWN: command completed successfully.
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_check_promotion_gates.py::TestShadowGateMarketQuality`
+  - SHOWN: initial implementation proof returned `9 passed in 0.99s`.
+  - SHOWN: post-acceptance merge-resolution rerun returned
+    `9 passed in 1.04s`.
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- HIGH: this touches executor-adjacent financial logic and shadow/live submit
+  behavior.
+- UNVERIFIED: full-suite result and a live-like shadow campaign run against the
+  operator host were not run in this thread.
+- Human review: user stated `INDEPENDENTLY_REVIEWED AND ACCEPTED` on
+  2026-07-03 after PR #182 checks passed.
+- Acceptance state: `ACCEPTED`.
+
 ## 2026-07-03 - Agent Message Backlog Reconciliation
 
 Active role: AUDITOR
@@ -13149,4 +13223,102 @@ Remaining risk:
 - LOW: docs/backlog reconciliation only.
 - UNVERIFIED: current correctness of every historical pasted-agent claim was
   not re-proven from source; only material backlog coverage was reconciled.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Execution-Cost Research Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the missing maker-vs-taker / execution-cost optimization research
+  item identified by the user's follow-up agent review.
+
+What was found:
+- SHOWN: `rg` found no maker/taker, post-only, fee-tier, limit-fill
+  probability, spread-crossing, or execution-cost backlog item in
+  `REMAINING_TASKS.md`, checkpoint docs, or the work log.
+- SHOWN: `services/execution/paper_engine.py` supports `limit` orders and
+  evaluates open orders for fills.
+- SHOWN: `services/execution/paper_fees.py` exposes a single flat
+  `paper_fee_bps` model.
+- SHOWN: `services/execution/fill_model.py` models fills as mid-price plus or
+  minus configured bps, without maker/taker, queue, or spread-crossing
+  distinctions.
+
+What changed:
+- Added a deferred live-money substrate backlog item for execution-cost
+  research: maker-vs-taker rates, fee tiers, venue cost stack, modeled maker
+  versus taker fills, limit-fill probability, and reproducible cost-stack
+  reporting from shadow records.
+
+Why this change:
+- Execution costs can erase daily-horizon crypto signal edge, and the existing
+  fill-model and shadow-recorder items did not explicitly cover maker/taker
+  policy or venue fee-stack research.
+- The item is scoped as research/shadow-only so it does not alter live routing
+  or the canonical paper campaign while expectancy remains unproven.
+
+Expected outcome:
+- Future profitability work has a visible execution-cost research path that
+  consumes shadow evidence instead of creating a second collection pipeline.
+
+Verification:
+- `rg -n "maker|taker|post-only|fee-tier|limit-fill|spread-crossing|spread crossing|execution-cost|cost stack" REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md docs/checkpoints -g"*.md"`
+  - SHOWN: no matches before the backlog update.
+- `rg -n "limit|fee_bps|paper_fees|apply_fee_slippage|open_orders|order_type" services/execution/paper_engine.py services/execution/fill_model.py services/execution/paper_fees.py`
+  - SHOWN: paper limit-order support exists, while fee/fill modeling remains
+    flat and generic.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: detailed implementation design and venue fee schedule sources.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Decision Checklist Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the actionable decision checklist items from the user's latest agent
+  review so they are visible in the backlog.
+
+What was found:
+- SHOWN: the backlog already tracks paper evidence collection, expectancy
+  baseline, edge collection, execution-cost research, dead-man alerting,
+  backup/restore, advisor strategy coverage, and shadow recorder work.
+- SHOWN: the backlog did not explicitly require written stop/retirement
+  criteria for individual strategies or the whole project.
+- SHOWN: the backlog did not explicitly require a first-hour paper-to-shadow
+  operator runbook before the paper gate turns green.
+- SHOWN: the backlog used copied paper-gate counts in current-state text, but
+  the checklist correctly identified operator-host gate output as the
+  authoritative status artifact.
+
+What changed:
+- Updated the paper manual-review backlog item to state that fresh gate/status
+  command output is the ground truth, not stale backlog counts.
+- Added a backlog item requiring explicit strategy/project stop and retirement
+  criteria before any strategy advances beyond paper.
+- Added a backlog item requiring a first-hour paper-to-shadow runbook and
+  rehearsal before the paper gate turns green.
+
+Why this change:
+- These are decision-quality controls, not code features. Without them, the
+  repo can produce evidence while the operator still lacks written criteria
+  for when to advance, pause, retire, or stop.
+
+Expected outcome:
+- Future gate-green events have a defined operator decision path.
+- Strategy retirement and project stop decisions are made against written
+  thresholds rather than emotional interpretation during drawdown or excitement.
+
+Verification:
+- `rg -n "stop criteria|kill criteria|retire|shutdown|shut down|first hour|paper.*shadow|shadow.*runbook|gate.*ground truth|cost stack|dead-man|restore drill|edge collector|expectancy baseline" REMAINING_TASKS.md docs/checkpoints docs/work_log/review_stabilized_work_log.md -g"*.md"`
+  - SHOWN: related items existed, but explicit stop criteria and first-hour
+    paper-to-shadow runbook language were not present before this update.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: exact stop thresholds and paper-to-shadow runbook content remain
+  to be written in future artifacts.
 - Acceptance state: `ACCEPTED`.

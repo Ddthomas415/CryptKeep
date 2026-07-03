@@ -74,6 +74,9 @@ deployment work still needs independent review.
    `configs/strategies/es_daily_trend_v1.yaml` from an accepted parity/backtest
    baseline; otherwise the gate can report count readiness while the strategy
    performance comparison remains unresolved.
+   Ground truth must come from the operator-host gate/status command output
+   (`make status-paper-gate-qualification` or the equivalent gate JSON), not
+   from stale counts copied into this backlog.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not
@@ -82,7 +85,11 @@ deployment work still needs independent review.
    estimated fill price, slippage, strategy id, stage, and provenance. Proof
    must show shadow mode still creates zero live orders while
    `scripts/check_promotion_gates.py --stage shadow --json` can see the
-   slippage evidence needed for manual review.
+   slippage evidence needed for manual review. Implementation proof is ready
+   for independent review: observe-only submit records one idempotent
+   `shadow_would_be_fill` fill-evidence record per pending live intent, does
+   not instantiate the exchange client, leaves the intent pending, and writes
+   zero execution-store fills.
 4. Prove private lifecycle runtime flow in one reachable supported
    sandbox/testnet venue, or record an explicit human exception decision.
 5. Produce the launch evidence packet: restart/recovery, kill-switch,
@@ -220,6 +227,21 @@ deployment work still needs independent review.
     round-trip changes, gate-ready transitions, campaign stop/failure,
     evidence-write failure thresholds, and strategy decision changes. Keep the
     first implementation read-only/notification-only.
+24. Write explicit stop and retirement criteria before any strategy advances
+    beyond paper. Define, in a decision record, what evidence retires a
+    strategy, freezes it, keeps it in paper, or stops the broader project.
+    Include thresholds for losing qualified round trips, drawdown, negative
+    expectancy versus baseline, repeated evidence/provenance failures, and
+    operator time/cost limits. This decision should be written before a
+    drawdown or gate-green event so the system is not judged emotionally while
+    under pressure.
+25. Write and rehearse the first-hour paper-to-shadow runbook before the paper
+    gate turns green. The runbook should start from fresh gate output, confirm
+    baseline/manual-review status, confirm `observe_only` and no live routing,
+    promote the stage, start the shadow session, verify shadow signal and
+    would-be-fill evidence is being written, verify zero venue orders, and
+    record rollback/recovery steps. This is separate from the later launch
+    evidence packet; it is the operator checklist for the first shadow hour.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
@@ -296,6 +318,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
     incident review.
+15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
+    stack. This is deferred and research/shadow-only until expectancy is
+    proven. Current evidence shows the paper engine supports limit orders, but
+    fee modeling is a single flat rate and the shared fill model is mid-price
+    plus/minus bps with no spread-crossing, queue, post-only, or maker/taker
+    distinction. When activated, extend fee config to maker/taker rates per
+    venue, use shadow would-be-fill records to compare modeled taker fills
+    against modeled maker/resting fills, estimate limit-fill probability from
+    subsequent price paths, and produce a reproducible per-venue/per-strategy
+    cost-stack report in bps. Hard constraint: no live routing or canonical
+    order-type policy changes from this item until strategy expectancy and
+    shadow cost evidence justify a separate reviewed execution-policy change.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money

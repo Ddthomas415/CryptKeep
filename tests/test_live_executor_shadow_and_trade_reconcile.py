@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import json
+import sqlite3
+
 from services.execution import live_executor as le
 from services.execution.safety_gates import SafetyConfig
+from storage.execution_store_sqlite import ExecutionStore
 
 
 def test_submit_pending_live_shadow_mode_is_observe_only(monkeypatch):
@@ -13,6 +17,107 @@ def test_submit_pending_live_shadow_mode_is_observe_only(monkeypatch):
     assert out["submitted"] == 0
     assert out["observe_only"] is True
     assert "LIVE_SHADOW" in str(out["note"])
+
+
+def test_submit_pending_live_shadow_records_would_be_fill_without_live_side_effects(monkeypatch, tmp_path):
+    state_dir = tmp_path / "state"
+    exec_db = tmp_path / "execution.sqlite"
+    monkeypatch.setenv("CBP_STATE_DIR", str(state_dir))
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
+
+    store = ExecutionStore(path=str(exec_db))
+    store.upsert_intent(
+        {
+            "intent_id": "intent-shadow-1",
+            "ts_ms": 1_700_000_000_000,
+            "mode": "live",
+            "exchange": "coinbase",
+            "symbol": "BTC/USD",
+            "side": "buy",
+            "order_type": "market",
+            "qty": 0.25,
+            "limit_price": None,
+            "status": "pending",
+            "meta": {
+                "strategy_preset": "es_daily_trend_v1",
+                "selected_strategy": "sma_200_trend",
+            },
+        }
+    )
+
+    def _unexpected_client(*_args, **_kwargs):
+        raise AssertionError("shadow observe-only submit must not instantiate ExchangeClient")
+
+    monkeypatch.setattr(le, "ExchangeClient", _unexpected_client)
+    monkeypatch.setattr(
+        le,
+        "get_best_bid_ask_last",
+        lambda venue, symbol: {"ts_ms": 1_700_000_000_001, "bid": 100.0, "ask": 100.2, "last": 100.1},
+    )
+
+    cfg = le.LiveCfg(
+        enabled=False,
+        observe_only=True,
+        exchange_id="coinbase",
+        exec_db=str(exec_db),
+        symbol="BTC/USD",
+        max_submit_per_tick=1,
+    )
+
+    out = le.submit_pending_live(cfg)
+
+    assert out["ok"] is True
+    assert out["submitted"] == 0
+    assert out["observe_only"] is True
+    assert out["shadow_pending"] == 1
+    assert out["shadow_would_be_fills"] == 1
+    assert out["shadow_would_be_fills_existing"] == 0
+    assert out["shadow_would_be_fills_missing_quote"] == 0
+
+    pending = store.list_intents(
+        mode="live",
+        exchange="coinbase",
+        symbol="BTC/USD",
+        status="pending",
+        limit=10,
+    )
+    assert len(pending) == 1
+    assert pending[0]["intent_id"] == "intent-shadow-1"
+    with sqlite3.connect(exec_db) as conn:
+        fill_count = conn.execute("select count(*) from fills").fetchone()[0]
+    assert fill_count == 0
+
+    evidence_files = sorted((state_dir / "data" / "evidence" / "es_daily_trend_v1").glob("fill_*.jsonl"))
+    assert len(evidence_files) == 1
+    records = [json.loads(line) for line in evidence_files[0].read_text(encoding="utf-8").splitlines()]
+    assert len(records) == 1
+    record = records[0]
+    assert record["_stage"] == "shadow"
+    assert record["record_subtype"] == "shadow_would_be_fill"
+    assert record["shadow_would_be_fill"] is True
+    assert record["intent_id"] == "intent-shadow-1"
+    assert record["order_id"] == "shadow:intent-shadow-1"
+    assert record["strategy_id"] == "es_daily_trend_v1"
+    assert record["selected_strategy"] == "sma_200_trend"
+    assert record["side"] == "buy"
+    assert record["size"] == 0.25
+    assert record["order_type"] == "market"
+    assert record["intended_limit_price"] is None
+    assert record["bid"] == 100.0
+    assert record["ask"] == 100.2
+    assert record["reference_mid"] == 100.1
+    assert record["quote_ts_ms"] == 1_700_000_000_001
+    assert record["spread_bps"] > 0
+    assert record["slippage_pct"] > 0
+    assert record["fees_paid"] > 0
+    assert record["market_data_source"] == "local_snapshot"
+    assert record["ohlcv_sample_mode"] is False
+
+    out2 = le.submit_pending_live(cfg)
+    assert out2["shadow_would_be_fills"] == 0
+    assert out2["shadow_would_be_fills_existing"] == 1
+    records2 = [json.loads(line) for line in evidence_files[0].read_text(encoding="utf-8").splitlines()]
+    assert len(records2) == 1
 
 
 def test_reconcile_live_shadow_mode_allows_read_only_without_live_arming(monkeypatch, tmp_path):
