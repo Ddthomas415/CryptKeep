@@ -12747,3 +12747,66 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Review reference: independently reviewed and accepted by the human operator
   on 2026-07-03 after PR #175 checks passed.
+
+## 2026-07-03 - Fail Closed on Corrupt Runtime Config for Strategy Runner
+
+Active role: ENGINEER
+
+Objective:
+- Close the highest-risk config fail-open slice identified by the repo audit:
+  an existing corrupt runtime user config must not silently become `{}` and let
+  the strategy runner trade from defaults.
+
+What was found:
+- SHOWN: `services/admin/config_editor.py::load_user_yaml()` caught all load
+  and parse exceptions, printed the error, and returned `{}`.
+- SHOWN: `services/config_loader.py::load_user_config()` and `_load_yaml_file()`
+  caught all load and parse exceptions and returned `{}`.
+- SHOWN: `services/execution/strategy_runner.py::_cfg()` read user config
+  before queue/database setup and was the narrow startup choke point for the
+  active paper strategy dispatch path.
+- UNVERIFIED: other runtime trading-config consumers, including bot startup,
+  live executor/consumer/reconciler, and risk-gate config readers, still need a
+  separate sweep before capped live.
+
+What changed:
+- Added `ConfigLoadError` and `strict=True` load modes to
+  `services/admin/config_editor.py` and `services/config_loader.py`.
+- Preserved existing lenient behavior by default: missing files still return
+  `{}`, and non-strict callers still return `{}` for corrupt or non-mapping
+  files.
+- Changed the strategy runner startup config read to `load_user_yaml(strict=True)`.
+- Added runner startup handling that writes a visible stopped status with
+  `reason=config_load_failed` and returns before queueing any intents.
+- Added tests proving strict loader behavior for missing, corrupt, and explicit
+  runtime config paths, and proving corrupt `user.yaml` produces zero strategy
+  intents, paper orders, and paper fills.
+- Updated `REMAINING_TASKS.md` to mark this as the first proof-ready slice while
+  keeping the broader live-money config sweep open.
+
+Why this change:
+- The smallest safe fix is to add strict behavior without changing every legacy
+  config reader at once, then wire the strict path at the active trading
+  dispatch boundary. This prevents evidence poisoning from a corrupt existing
+  user config while avoiding opportunistic rewrites across unrelated UI/helper
+  consumers.
+
+Expected outcome:
+- A malformed existing runtime `user.yaml` halts the strategy runner visibly
+  instead of applying default strategy settings.
+- Paper evidence campaigns that depend on the strategy runner cannot generate
+  new strategy intents/orders/fills from a silently defaulted corrupt config.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/admin/config_editor.py services/config_loader.py services/execution/strategy_runner.py tests/test_runtime_trading_config.py tests/test_config_editor_compat.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_runtime_trading_config.py tests/test_config_editor_compat.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `55 passed in 0.98s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: runtime config loading controls trading-adjacent financial behavior.
+- UNVERIFIED: full test suite, paper evidence service persistence branch, and
+  live-money runtime consumers beyond the strategy-runner dispatch path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

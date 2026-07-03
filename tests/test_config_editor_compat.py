@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 import importlib
+from pathlib import Path
+
+import pytest
+
+from services.setup.config_manager import ConfigManager, apply_risk_preset
 
 
 def _reload_paths(monkeypatch, tmp_path):
@@ -35,9 +40,20 @@ def test_config_editor_compat_helpers_delegate(monkeypatch, tmp_path):
     )
     updated = config_editor.maybe_auto_update_state_on_snapshot({"tag": "test_tag"})
     assert updated == {"ok": True, "tag": "test_tag"}
-from pathlib import Path
 
-from services.setup.config_manager import ConfigManager, apply_risk_preset
+
+def test_load_user_yaml_strict_raises_for_corrupt_existing_config(monkeypatch, tmp_path):
+    _reload_paths(monkeypatch, tmp_path)
+
+    import services.admin.config_editor as config_editor
+
+    importlib.reload(config_editor)
+
+    config_editor.CONFIG_PATH.write_text("execution: [unterminated\n", encoding="utf-8")
+
+    assert config_editor.load_user_yaml() == {}
+    with pytest.raises(config_editor.ConfigLoadError, match="config_load_failed"):
+        config_editor.load_user_yaml(strict=True)
 
 
 def test_config_manager_ensure_creates_default_file(tmp_path):
@@ -334,4 +350,3 @@ def test_guided_setup_summary_reflects_live_locked_style_config():
     assert out["checks"]["paper_mode"] is False
     assert out["checks"]["live_mode"] is True
     assert out["checks"]["live_explicitly_enabled"] is False
-

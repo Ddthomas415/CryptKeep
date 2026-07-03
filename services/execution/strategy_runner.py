@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from services.admin.config_editor import load_user_yaml
+from services.admin.config_editor import ConfigLoadError, load_user_yaml
 from services.logging.app_logger import get_logger
 from services.market_data.multi_venue_view import best_venue
 from services.market_data.local_data_reader import write_local_ohlcv_snapshot
@@ -230,7 +230,7 @@ def request_stop() -> dict:
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
 def _cfg() -> dict:
-    cfg = load_user_yaml()
+    cfg = load_user_yaml(strict=True)
     s = cfg.get("strategy_runner") if isinstance(cfg.get("strategy_runner"), dict) else {}
     pf = cfg.get("preflight") if isinstance(cfg.get("preflight"), dict) else {}
 
@@ -704,7 +704,19 @@ def run_forever() -> None:
     # - runner does not own order lifecycle; paper/live engines resolve queued intents
     # - source of truth for current position is PaperTradingSQLite.get_position()
     ensure_dirs()
-    cfg = _cfg()
+    try:
+        cfg = _cfg()
+    except ConfigLoadError as exc:
+        _write_status(
+            {
+                "ok": False,
+                "status": "stopped",
+                "reason": "config_load_failed",
+                "error": str(exc),
+                "ts": _now(),
+            }
+        )
+        return
     symbols = list(cfg.get("symbols") or [cfg.get("symbol")])
     symbols = [str(x).strip() for x in symbols if str(x).strip()]
     if not cfg["enabled"]:

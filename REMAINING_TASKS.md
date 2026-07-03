@@ -182,6 +182,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
    because bad config can poison evidence context.
+   2026-07-03: first implementation slice is proof-ready on the strategy-runner
+   dispatch path: existing corrupt `user.yaml` now stops the runner with
+   `config_load_failed` before intents/orders/fills can be produced. Remaining:
+   sweep other runtime trading-config consumers before capped live, especially
+   bot startup, live executor/consumer/reconciler, and risk-gate config reads.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
