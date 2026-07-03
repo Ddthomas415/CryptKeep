@@ -175,7 +175,15 @@ deployment work still needs independent review.
     are not sufficient proof-quality evidence for that signal. Treat
     `funding_extreme` as the flagship profitability hypothesis once wired;
     keep `es_daily_trend_v1` framed as the pipeline-validation strategy unless
-    later evidence proves it is also the best profit candidate.
+    later evidence proves it is also the best profit candidate. Include a
+    shared `regime_context` provider in this context contract. The flagship
+    `sma_200_trend` path already computes and enforces
+    `es_daily_trend.regime_stability()`; extract that market-state awareness so
+    other strategies can consume the same regime facts without duplicating
+    logic, while proving current `sma_200_trend` behavior remains unchanged.
+    Treat `composite_hybrid` confirmation mode as a context/confirmation
+    consumer, not as a standalone live strategy, until archive-backed
+    walk-forward evidence and paper provenance justify runtime registration.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -256,7 +264,11 @@ deployment work still needs independent review.
     rely heavily on presets/defaults. Before `ema_cross`, `breakout_donchian`,
     `pullback_recovery`, or future context strategies become promotion
     candidates, add strategy-specific config files with backtest expectations,
-    risk settings, evidence contract, and manual-review criteria.
+    risk settings, evidence contract, no-trade filter settings, and
+    manual-review criteria. Explicitly verify that each strategy's documented
+    no-trade filters are enabled or consciously waived in its campaign config;
+    documented discipline that is off in runtime config does not count as
+    governed discipline.
 23. Wire paper/gate event alerting into the existing alert dispatcher. The
     dispatcher is now used for Hetzner host-health alerts, but paper events
     still depend on manual polling. Add trigger-based alerts for qualified
@@ -315,7 +327,10 @@ deployment work still needs independent review.
     fee lookups to `0.0`. Smallest acceptable path: make evidence PnL net of
     buy/sell fees or add a versioned net field that gates consume, preserve
     historical comparability explicitly, and add a golden round-trip test where
-    flat price plus fees yields negative `pnl_usd` and fails expectancy.
+    flat price plus fees yields negative `pnl_usd` and fails expectancy. Land
+    this before activating dormant sizing, setup-quality thresholds,
+    confirmation gates, or parameter sweeps; otherwise those systems optimize
+    gross-of-fee PnL and can amplify a measurement error.
 29. Make market-quality guard defaults fail closed before shadow evidence is
     treated as cost/slippage proof. `services/risk/market_quality_guard.py`
     currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,
@@ -326,6 +341,18 @@ deployment work still needs independent review.
     settings do not create false-block storms. Proof: missing-quote fixture
     holds the signal/order with an operator-visible reason, while fresh quoted
     paths remain unaffected.
+30. Govern activation of dormant risk-based sizing before it influences paper
+    or shadow evidence. `services/strategies/es_daily_trend.py::decide()` and
+    `compute_position_size()` implement ATR-stop, regime-aware,
+    capital-at-risk sizing, but repo usage currently shows production campaign
+    orders using the runner's fixed `cfg["qty"]` path while `decide()` is only
+    imported by tests. Treat activation as a strategy/evidence change, not a
+    cleanup. Prerequisites: net-fee paper PnL semantics are fixed, archive
+    walk-forward evidence shows the sizing policy improves risk-adjusted
+    expectancy after costs, and a config flag can keep the canonical campaign
+    on fixed size. Proof: fixed-size behavior unchanged by default; flagged
+    sizing path emits size provenance, respects stage caps, and cannot increase
+    exposure beyond configured notional/risk limits.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
@@ -530,9 +557,15 @@ substrate work, but they are concrete enough to keep visible.
    `signal_library`, `market_ranker`, `candidate_engine`,
    `candidate_strategy_mapper`, `trade_type_classifier`, and
    `universe_loader` contain useful discovery/ranking logic, but their active
-   production path and intended operator workflow are still unclear. Decide
-   which are part of the candidate pipeline, which are research-only, and which
-   should be retired.
+   production path and intended operator workflow are still unclear. Include
+   `services/market_data/composite_ranker.py` and
+   `services/market_data/rotation_engine.py` in the same classification pass:
+   they contain setup-quality / symbol-selection machinery, but the connection
+   from ranking to governed paper campaigns is not yet the canonical strategy
+   path. Decide which are part of the candidate pipeline, which are
+   research-only, and which should be retired. If setup-quality scores are later
+   used for trade/no-trade thresholds or sizing scalars, require archive
+   walk-forward proof and net-fee metrics first.
 10. Classify storage orphan modules before more reconciliation work.
     Prior audits flagged unused SQLite stores such as fill reconciler,
     idempotency, and order-tracker variants. Confirm whether each is truly
@@ -617,6 +650,16 @@ substrate work, but they are concrete enough to keep visible.
     grow indefinitely. "Keep forever" is acceptable if explicit, backed by disk
     monitoring and backup strategy; otherwise define retention windows,
     archival/export rules, and deletion safety checks.
+23. Turn paper diagnostics and loss replay into a scheduled strategy-review
+    ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
+    `scripts/dev/replay_paper_losses.py`, and the AI copilot
+    `paper_loss_replay` job, but the repo does not yet define a weekly
+    operator artifact that reviews wins/losses, records lessons, and updates
+    `services/strategies/hypotheses.py` / `docs/strategies/hypotheses.md`
+    invalidation conditions. Add a `make` target or runbook step that produces
+    a dated read-only review artifact from the current paper journal, links it
+    from the work log or checkpoint docs, and keeps conclusions advisory until
+    a separate governed config/code change is accepted.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

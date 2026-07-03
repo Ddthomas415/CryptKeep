@@ -13806,3 +13806,77 @@ Remaining risk:
   watchdog behavior, market-quality gating, or order-routing gates; those code
   changes require independent review as governed high-risk work.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Trader Method Stack Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's final method-stack audit and capture any missing backlog
+  tasks that move the repo toward disciplined, evidence-backed strategy
+  improvement rather than more raw finding generation.
+
+What was found:
+- SHOWN: `services/strategies/es_daily_trend.py::regime_stability()` computes
+  market regime, entry allowance, and size factor.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` enables
+  `entry.require_regime: true`.
+- SHOWN: `services/strategies/es_daily_trend.py::signal_from_ohlcv()` gates
+  action on both SMA signal and `reg["entry_allowed"]`, then logs
+  `regime_flag` and `entry_allowed`.
+- SHOWN: `services/strategies/es_daily_trend.py::decide()` and
+  `compute_position_size()` implement ATR-stop/capital-at-risk sizing, but repo
+  search found usage only in tests while the strategy runner emits orders using
+  fixed `cfg["qty"]`.
+- SHOWN: `services/strategies/composite_hybrid.py` has confirmation-gate logic,
+  and tests assert `composite_hybrid` is intentionally not in
+  `strategy_registry.SUPPORTED`.
+- SHOWN: `services/signals/signal_library.py`,
+  `services/market_data/composite_ranker.py`, and
+  `services/market_data/rotation_engine.py` contain setup-quality /
+  symbol-selection machinery.
+- SHOWN: paper diagnostic and loss-replay tooling exists through
+  `scripts/report_paper_run_diagnostics.py`,
+  `scripts/dev/replay_paper_losses.py`, and the AI-copilot simulation job.
+- UNVERIFIED: whether every non-flagship strategy's documented no-trade
+  filters are enabled in its actual campaign config.
+
+What changed:
+- Refined the crypto-edge context-strategy item to include a shared
+  `regime_context` provider extracted from existing `sma_200_trend` regime
+  logic, with unchanged flagship behavior as proof.
+- Refined per-strategy governance-config requirements to include explicit
+  no-trade filter enablement or waiver.
+- Refined the fee/PnL item to block activation of sizing, setup-quality
+  thresholds, confirmation gates, and sweeps until net-fee metrics are fixed.
+- Added a governed activation task for dormant risk-based sizing.
+- Refined dormant signal-discovery classification to include
+  `composite_ranker` and `rotation_engine`, and to require archive
+  walk-forward proof before setup scores affect trade/no-trade or sizing.
+- Added a weekly strategy-review ritual task using existing diagnostics and
+  loss-replay tooling.
+
+Why this change:
+- The repo already contains several pieces of a disciplined trader method
+  stack. The production gap is unification, activation governance, and review
+  cadence, not inventing more prediction logic.
+- Dormant sizing and confirmation should not be switched on until the
+  measurement target is net-fee and archive-backed, or the system could
+  optimize the wrong metric.
+
+Expected outcome:
+- Future strategy-improvement work is sequenced through shared context,
+  archive/walk-forward proof, net-fee metrics, and explicit operator review
+  artifacts.
+- The backlog now distinguishes active flagship regime gating from missing
+  shared regime availability for other strategies.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- MEDIUM/HIGH for future implementation, depending on whether it changes
+  strategy sizing, campaign configs, context provenance, or promotion evidence.
+- Acceptance state: `ACCEPTED`.
