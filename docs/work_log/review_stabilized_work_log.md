@@ -13649,3 +13649,78 @@ Remaining risk:
   routing and fail-open behavior; that future code change must stop at
   `READY_FOR_INDEPENDENT_REVIEW`.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Dashboard Resume Gate And Deep-Audit Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's deep audit of previously unexamined areas and add missing
+  backlog tasks or refinements that materially affect production readiness.
+
+What was found:
+- SHOWN: `services/admin/resume_gate.py::resume_if_safe()` can write
+  `execution.live_enabled=true` when live is not enabled, calls
+  `live_allowed()` with kill-switch and system-guard halted bypasses, sets live
+  armed state, sets `CBP_EXECUTION_ARMED=YES`, disarms the kill switch, and sets
+  the system guard RUNNING.
+- SHOWN: `dashboard/pages/60_Operations.py` exposes that path through the
+  `Resume Live Trading` button.
+- SHOWN: `services/execution/live_enable.py` is a separate token/checklist
+  ceremony, so dashboard resume is not currently constrained to prior
+  ceremony provenance.
+- SHOWN: `scripts/check_promotion_gates.py::_count_round_trips()` counts
+  `min(buys, sells)` without symbol-aware chronological pairing.
+- SHOWN: `.github/workflows/ci.yml` runs pytest with permanent `--ignore`
+  entries for `tests/test_symbol_scanner.py`,
+  `tests/test_dashboard_view_data.py`,
+  `tests/test_dashboard_page_runtime.py`, and
+  `tests/test_dashboard_home_digest.py`.
+- SHOWN: `services/execution/live_reconciler.py` contains a
+  verify-before-retry path for `submit_unknown` intents through
+  client-order-id lookup.
+- CLAIMED: the attached audit's broader dashboard/reconciler/supervisor/
+  packaging conclusions were not fully re-audited in this patch.
+
+What changed:
+- Added a deferred live-money substrate backlog item requiring the dashboard
+  resume path to preserve resume-hard governance: no cold write of
+  `live_enabled`, valid prior live-enable ceremony provenance, bounded arming
+  window, and targeted tests.
+- Refined the paper-universe widening item to require symbol-aware,
+  chronological round-trip pairing before cross-symbol fills count toward a
+  gate, or an explicit single-symbol-only gate policy.
+- Refined the retry-classification live blocker to record that
+  verify-before-retry exists, with remaining work focused on typed exception
+  classification, fault-injection proof, and venue-lookup-not-found policy.
+- Refined the duplicate safety-module task with the current four-module
+  kill-switch map.
+- Added a CI/test hygiene item requiring the permanently ignored tests to be
+  made CI-safe, moved to a named optional job, or replaced by covered slices.
+
+Why this change:
+- The resume path is a governance bypass in an action-capable dashboard
+  surface. It is not active while strategies remain paper-stage, but it must be
+  fixed before capped-live exposure.
+- Multi-symbol evidence acceleration should not reuse a single-symbol
+  round-trip helper.
+- CI should not silently exempt dashboard and scanner behavior without a named
+  policy.
+
+Expected outcome:
+- Future live-readiness work has a specific resume-gate blocker instead of a
+  broad "dashboard write surface" concern.
+- Multi-symbol campaign planning keeps the evidence contract honest.
+- Existing retry/reconciler work is scoped to the remaining proof gaps, not
+  re-solving a mechanism that is already present.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- HIGH for the future resume-gate implementation because it touches live
+  arming/governance behavior; that code change must stop at
+  `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.

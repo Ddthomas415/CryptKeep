@@ -285,8 +285,12 @@ deployment work still needs independent review.
     campaign, write a decision record covering candidate symbols, venue/source
     support, provenance qualification, correlation/non-independence caveats,
     per-symbol risk caps, and whether cross-symbol round trips count toward the
-    same strategy gate. Do not retroactively count unqualified history or widen
-    the universe without preserving the evidence contract.
+    same strategy gate. If cross-symbol round trips can count, first replace
+    the current `scripts/check_promotion_gates.py::_count_round_trips`
+    `min(buys, sells)` helper with symbol-aware, chronological entry/exit
+    pairing or explicitly document the gate as single-symbol-only. Do not
+    retroactively count unqualified history or widen the universe without
+    preserving the evidence contract.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,
@@ -326,6 +330,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
+   2026-07-03 audit update: `services/execution/live_reconciler.py` already has
+   a verify-before-retry path for `submit_unknown` intents through
+   client-order-id lookup. Remaining work is typed exception classification,
+   fault-injection proof around crash-between-writes, and explicit policy for
+   the venue-lookup-not-found case.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
@@ -401,6 +410,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     default, docs stop describing pass-through as the default live behavior,
     and tests prove an enabled broken AI gate cannot allow an order. Blocks
     capped live.
+17. Restore resume-hard live governance before capped live. The dashboard
+    `Resume Live Trading` button reaches `services/admin/resume_gate.py`, and
+    the current resume path can set `execution.live_enabled=true`, bypass
+    kill-switch/system-guard halted checks, set live armed state, set
+    `CBP_EXECUTION_ARMED=YES`, disarm the kill switch, and set the system guard
+    RUNNING. That is not equivalent to the one-time-token/checklist ceremony in
+    `services/execution/live_enable.py`. Smallest acceptable fix:
+    `resume_if_safe()` never writes `live_enabled` from a cold/absent state,
+    refuses with a clear reason when no valid prior live-enable ceremony
+    provenance exists, and only resumes inside a bounded accepted arming window.
+    Proof must cover cold-state refusal, ceremony-armed-then-halted success,
+    expired/invalid provenance refusal, and dashboard display of the refusal
+    reason. Blocks capped live.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
@@ -413,6 +435,12 @@ substrate work, but they are concrete enough to keep visible.
    `live_trader_fleet` versus `live_trader_multi`,
    `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
    risk-gate modules. Start with a decision record if behavior differs.
+   2026-07-03 audit map: `services/admin/kill_switch.py` appears to be the
+   operational switch state used by scripts/resume/halt flows;
+   `services/risk/kill_conditions.py` is the strategy-runner risk-block logic;
+   `services/execution/kill_switch.py` is a thin setter wrapper used by one
+   script; `services/risk/killswitch.py` has no production importers and should
+   be deleted, wired, or explicitly retired.
 3. Extend archive-first backtesting proof to include one walk-forward run over
    the archive producing enough out-of-sample windows to demonstrate research
    depth, not only byte-identical reruns.
@@ -516,6 +544,14 @@ substrate work, but they are concrete enough to keep visible.
     LLM providers when `use_ai=true`, and keep `services/ai_copilot/pr_reviewer`
     advisory/non-blocking unless a separate prompt-injection-resistant review
     design is accepted.
+21. Bring permanently ignored CI tests back under an explicit policy. Current
+    CI invokes pytest with four `--ignore` entries:
+    `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
+    `tests/test_dashboard_page_runtime.py`, and
+    `tests/test_dashboard_home_digest.py`. Either make them CI-safe, move them
+    behind a named optional job with documented prerequisites, or replace them
+    with smaller CI-covered regression slices. Tests that only run locally are
+    a drift channel for dashboard and symbol-scanner behavior.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
