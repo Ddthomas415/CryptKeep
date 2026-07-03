@@ -13975,3 +13975,74 @@ Remaining risk:
   strategy gates, shadow evidence, retention deletion, backup automation, or
   alerting still requires separate proof and review.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Structure Classification Backlog Batch
+
+Active role: ENGINEER
+
+Objective:
+- Advance the next batch of low-risk deferred structure/research hygiene tasks
+  through current-source classification and visible policy docs.
+
+What was found:
+- SHOWN: `git ls-files services/paper ...` found no tracked `services/paper/`
+  source, while `services/paper_trader/` and `services/execution/paper_engine.py`
+  remain tracked.
+- SHOWN: `services/execution/paper_engine.py` is imported by canonical paper
+  execution adapters/tests; `services/paper_trader/` is still used by
+  `services/trading_runner/run_trader.py` and compatibility tests.
+- SHOWN: signal discovery modules are imported by the read-only candidate scan
+  and tests, while `composite_ranker` / `rotation_engine` are consumed by
+  selector backtests.
+- SHOWN: `order_dedupe_store_sqlite` and `execution_guard_store_sqlite` are
+  active live/execution boundary stores, while `fill_reconciler_store_sqlite`,
+  `order_idempotency_sqlite`, and `order_tracker_store_sqlite` had no visible
+  current source importers in the static grep used for this pass.
+- SHOWN: `.github/workflows/ci.yml` and `Makefile` ignore four dashboard /
+  symbol-scanner test files in the normal pytest path.
+- SHOWN: docs and smoke scripts reference `phase1_research_copilot/`, but
+  `git ls-files phase1_research_copilot` showed no tracked companion source.
+- SHOWN: `docs/REPO_LAYOUT.md` still described retired overlap families as
+  current unresolved examples, while `docs/ARCHITECTURE.md` marks those
+  families retired as of 2026-07-01.
+
+What changed:
+- Added `docs/CORE.md`.
+- Added `docs/architecture/paper_execution_surfaces.md`.
+- Added `docs/research/signal_discovery_classification.md`.
+- Added `docs/architecture/storage_surface_classification.md`.
+- Added `docs/CI_IGNORED_TEST_POLICY.md`.
+- Added `docs/PRODUCT_SURFACE_TRIAGE.md`.
+- Added `docs/COMPANION_REPO_DEPENDENCY.md`.
+- Added `docs/research/pattern_strategy_backlog.md`.
+- Added `docs/dashboard/DATA_PAGE_BACKLOG.md`.
+- Added `docs/STRATEGY_REVIEW_RITUAL.md`.
+- Linked the new docs from `docs/ARCHITECTURE.md`, `docs/GOLDEN_PATH.md`,
+  `docs/RUNBOOKS.md`, and `docs/REPO_LAYOUT.md`.
+- Updated `REMAINING_TASKS.md` to record which classification/policy tasks are
+  documented and which implementation or proof work remains.
+
+Why this change:
+- These backlog tasks were source-of-truth and classification gaps that could
+  be advanced without changing runtime behavior or restarting any campaign.
+- Capturing the decisions now reduces repeated rediscovery and prevents agents
+  from treating archived, retired, or advisory surfaces as active production
+  requirements.
+
+Expected outcome:
+- Future work can distinguish core, research-only, advisory-only,
+  compatibility, retired, and sidecar surfaces before implementing changes.
+- CI ignored tests, companion repo references, dashboard priorities, and
+  product-surface deferrals are visible policy decisions rather than chat-only
+  context.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: docs/classification only; no runtime behavior changed.
+- MEDIUM/HIGH: future deletion, rewiring, CI behavior changes, dashboard
+  mutations, or storage consolidation still require separate targeted proof and
+  review.
+- Acceptance state: `ACCEPTED`.

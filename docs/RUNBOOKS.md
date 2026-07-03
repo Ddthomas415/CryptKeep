@@ -13,6 +13,8 @@
 - `docs/OPERATOR_GOVERNANCE_LANES.md` - low/medium/high risk governance lanes
   and operator attention cap.
 - `docs/RETENTION_POLICY.md` - evidence, runtime, and log retention baseline.
+- `docs/STRATEGY_REVIEW_RITUAL.md` - weekly paper/shadow strategy review
+  ritual using existing diagnostics and loss replay tooling.
 
 ## Severity Matrix
 

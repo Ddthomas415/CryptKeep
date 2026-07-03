@@ -209,6 +209,8 @@ Before the first intentional paper-to-shadow transition, use
 `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`. The runbook is written but still
 needs a future rehearsal checkpoint.
 
+For the current operational core and quarantine policy, see `docs/CORE.md`.
+
 ## What is core vs optional
 
 **Core** (required for the paper trading loop):
@@ -232,7 +234,8 @@ needs a future rehearsal checkpoint.
 **Archived** (not actively maintained):
 - `crypto-trading-ai/` — earlier sidecar workspace
 - `trade-ai-mvp/` — earlier prototype
-- `phase1_research_copilot/` — research tooling
+- `phase1_research_copilot/` — sidecar/archived companion; see
+  `docs/COMPANION_REPO_DEPENDENCY.md`
 
 ## The one regression test to run after any change to the signal path
 

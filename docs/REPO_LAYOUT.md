@@ -32,8 +32,12 @@ Operational config:
 
 Companion trees currently referenced by the main repo:
 - phase1_research_copilot/
-  - actively referenced from the main README, Makefile, dashboard research fallback, and tests
-  - current repo evidence shows it is a companion subsystem, not dead archive material
+  - referenced from docs, smoke scripts, and tests
+  - no tracked source files are present in this repository as of the
+    2026-07-03 static check
+  - treat as sidecar/archived companion unless explicitly vendored or
+    documented as an external prerequisite
+  - controlling decision: `docs/COMPANION_REPO_DEPENDENCY.md`
 
 Sidecar workspace present in the tree:
 - crypto-trading-ai/
@@ -81,13 +85,16 @@ Managed evidence symbol scope:
 - older docs, journals, and evidence artifacts may still mention historical campaign symbols such as `APR/USD` and `2Z/USD`; treat those as historical evidence inputs, not as the current default managed evidence universe
 
 Overlapping service families:
-- the current tree contains overlapping top-level service families that should be treated as unresolved ownership boundaries until an explicit canonical-owner decision is documented
-- examples currently visible in `services/`:
-  - `market_data/` and `marketdata/`
-  - `paper/` and `paper_trader/`
-  - `strategy/` and `strategies/`
-  - `trading/` and `trading_runner/`
-  - `signals/` and `trader_signals/`
+- retired compatibility families are governed by `docs/ARCHITECTURE.md` and
+  `docs/architecture/transitional_service_families.md`
+- do not reintroduce retired families such as `services/paper/`,
+  `services/marketdata/`, `services/strategy/`, `services/strategy_runner/`,
+  or `services/storage/` without a new accepted architecture decision
+- current ownership/classification details live in:
+  - `docs/CORE.md`
+  - `docs/architecture/paper_execution_surfaces.md`
+  - `docs/research/signal_discovery_classification.md`
+  - `docs/architecture/storage_surface_classification.md`
   - `data/` and `data_collector/`
   - `live_router/`, `live_trader_fleet/`, and `live_trader_multi/`
 - safe rule: do not consolidate or move these families based on naming similarity alone; document canonical ownership first

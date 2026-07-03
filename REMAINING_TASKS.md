@@ -562,7 +562,11 @@ substrate work, but they are concrete enough to keep visible.
    `services/paper_trader/main.py`, and `services/execution/paper_engine.py`
    with different responsibilities. `paper_engine.py` appears to be the
    evidence-aware path; the older runners should either delegate to it, be
-   marked retired, or have an explicit supported-use label.
+   marked retired, or have an explicit supported-use label. 2026-07-03:
+   current classification is documented in
+   `docs/architecture/paper_execution_surfaces.md`: `paper_engine.py` is core,
+   `services/paper_trader/` is compatibility, and `services/paper/` remains
+   retired. Follow-up remains for `services/trading_runner/run_trader.py`.
 9. Classify dormant or partially wired signal-discovery modules.
    `signal_library`, `market_ranker`, `candidate_engine`,
    `candidate_strategy_mapper`, `trade_type_classifier`, and
@@ -575,12 +579,17 @@ substrate work, but they are concrete enough to keep visible.
    path. Decide which are part of the candidate pipeline, which are
    research-only, and which should be retired. If setup-quality scores are later
    used for trade/no-trade thresholds or sizing scalars, require archive
-   walk-forward proof and net-fee metrics first.
+   walk-forward proof and net-fee metrics first. 2026-07-03: classification is
+   documented in `docs/research/signal_discovery_classification.md`; discovery
+   and ranker surfaces remain research/advisory only unless separately proven
+   through archive-backed, net-fee, governed activation.
 10. Classify storage orphan modules before more reconciliation work.
     Prior audits flagged unused SQLite stores such as fill reconciler,
     idempotency, and order-tracker variants. Confirm whether each is truly
     unused on current master, then delete, wire, or document it as a retired
-    compatibility surface.
+    compatibility surface. 2026-07-03: classification is documented in
+    `docs/architecture/storage_surface_classification.md`; three candidate
+    stores remain unwired candidates pending a deeper caller/migration audit.
 11. Extract promotion-gate logic into a library after the current paper gate is
     stable. `scripts/check_promotion_gates.py` is the canonical operator
     command today and should not be churned mid-campaign, but the money-adjacent
@@ -594,24 +603,34 @@ substrate work, but they are concrete enough to keep visible.
     Default near-term stance should be lab-mode concentration: freeze desktop
     packaging, onboarding/product polish, and non-operator-critical dashboard
     work unless it directly improves evidence collection, safety, alerting, or
-    operator decision quality.
+    operator decision quality. 2026-07-03: triage baseline is documented in
+    `docs/PRODUCT_SURFACE_TRIAGE.md`; broader product expansion remains deferred
+    until expectancy is proven or a task supports the retained evidence/safety
+    path.
 13. Keep pattern/candlestick strategy research visible but behind the archive
     and paper-evidence gates. Existing code covers pullbacks, gap fills,
     volatility reversals, order-book imbalance, funding, and open interest.
     Missing pattern work includes candlestick confirmation, fair-value gaps,
     order-block style zones, and larger chart-pattern recognition. Treat these
     as research filters or candidate strategies only after archive-first
-    backtesting and provenance-qualified paper paths are in place.
+    backtesting and provenance-qualified paper paths are in place. 2026-07-03:
+    visible backlog is documented in `docs/research/pattern_strategy_backlog.md`.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
     paper reconciliation, campaign health, market movers, and copilot reports.
+    2026-07-03: priority policy is documented in
+    `docs/dashboard/DATA_PAGE_BACKLOG.md`; state-mutating pages still require
+    role guards and cannot bypass accepted ceremonies.
 15. Vendor, explicitly integrate, or excise the companion-repo dependency.
     `phase1_research_copilot` has appeared in compose/docs/skip-test context
     during audits. Split-brain repos rot deployment stories. Decide whether the
     companion is a vendored dependency, an external documented prerequisite, or
     retired from the canonical path, then update compose, docs, and tests to
-    match.
+    match. 2026-07-03: `docs/COMPANION_REPO_DEPENDENCY.md` classifies it as a
+    sidecar/archived companion, not a required root runtime dependency; future
+    active use must vendor it or document it as an explicit external
+    prerequisite.
 16. Add risk-tiered governance lanes to the operator workflow. Keep full
     ceremony for high-risk changes touching gates, dispatch, execution,
     secrets, deployment, and live-risk surfaces. Allow a lighter documented
@@ -625,7 +644,8 @@ substrate work, but they are concrete enough to keep visible.
     equivalent decision record that names the modules required for the current
     paper/research/shadow path, plus a quarantine/attic policy for surfaces not
     in that core. Do not move broad directories in one sweep; first classify,
-    then retire, delegate, or document.
+    then retire, delegate, or document. 2026-07-03: baseline is documented in
+    `docs/CORE.md`.
 18. Protect operator attention as a managed resource. Add a decision record or
     runbook rule that caps open audit loops, limits low-value review churn, and
     forces each proactive task to tie back to one of: evidence velocity,
@@ -657,7 +677,9 @@ substrate work, but they are concrete enough to keep visible.
     `tests/test_dashboard_home_digest.py`. Either make them CI-safe, move them
     behind a named optional job with documented prerequisites, or replace them
     with smaller CI-covered regression slices. Tests that only run locally are
-    a drift channel for dashboard and symbol-scanner behavior.
+    a drift channel for dashboard and symbol-scanner behavior. 2026-07-03:
+    policy is documented in `docs/CI_IGNORED_TEST_POLICY.md`; actual CI
+    behavior is unchanged.
 22. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging
@@ -677,7 +699,9 @@ substrate work, but they are concrete enough to keep visible.
     invalidation conditions. Add a `make` target or runbook step that produces
     a dated read-only review artifact from the current paper journal, links it
     from the work log or checkpoint docs, and keeps conclusions advisory until
-    a separate governed config/code change is accepted.
+    a separate governed config/code change is accepted. 2026-07-03: runbook
+    step is documented in `docs/STRATEGY_REVIEW_RITUAL.md`; no scheduler or
+    `make` target is added in this docs-only pass.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
