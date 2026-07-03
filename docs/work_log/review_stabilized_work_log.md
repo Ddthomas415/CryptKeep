@@ -13499,7 +13499,8 @@ Remaining risk:
 - MEDIUM: this is strategy-discovery governance, not execution or live routing.
 - Runtime behavior is intended to remain unchanged because the allow-list is
   unchanged; only omitted strategies now have documented rationales.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Independently reviewed and accepted by the human operator on 2026-07-03.
+- Acceptance state: `ACCEPTED`.
 
 ## 2026-07-03 - Single-Operator Continuity Backlog Follow-Up
 
@@ -13879,4 +13880,39 @@ Remaining risk:
 - LOW: this patch is backlog/work-log only.
 - MEDIUM/HIGH for future implementation, depending on whether it changes
   strategy sizing, campaign configs, context provenance, or promotion evidence.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Candidate Advisor Acceptance Record
+
+Active role: ENGINEER
+
+Objective:
+- Record the human operator's independent acceptance for the candidate-advisor
+  strategy classification guard.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` item 19 still described the implementation proof
+  as ready for review after the human operator accepted it.
+- SHOWN: the candidate-advisor work-log entry still ended at
+  `READY_FOR_INDEPENDENT_REVIEW`.
+
+What changed:
+- Updated `REMAINING_TASKS.md` item 19 to state the implementation proof was
+  independently reviewed and accepted by the human operator on 2026-07-03.
+- Updated the candidate-advisor work-log entry acceptance state to `ACCEPTED`.
+
+Why this change:
+- Accepted work should not remain marked as pending review; stale acceptance
+  states make the visible audit trail less trustworthy.
+
+Expected outcome:
+- The backlog and work log now match the human review decision for PR #185's
+  candidate-advisor guard.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: acceptance-record documentation only.
 - Acceptance state: `ACCEPTED`.
