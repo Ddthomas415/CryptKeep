@@ -241,7 +241,10 @@ deployment work still needs independent review.
     `services/execution/strategy_runner.py` is check-then-write and has no
     stale-PID recovery. Replace it with an atomic create path and a stale-lock
     reclamation proof: dead PID lock is reclaimed, and concurrent acquire
-    attempts allow exactly one winner.
+    attempts allow exactly one winner. A 2026-07-03 audit found
+    `services/runtime/managed_component.py::clean_stale_lock_file()` already
+    exists and is used by the intent consumers; prefer adopting that helper in
+    the runner before building a second stale-lock mechanism.
 21. Make sample-mode provenance agree with the actual data source. Current
     paper evidence stamps `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`; the
     promotion gate then treats that label as authoritative. Derive the sample
@@ -300,6 +303,29 @@ deployment work still needs independent review.
     how to restore from backup, and which actions are explicitly forbidden
     without the operator. This is not a staffing fix; it is the minimum proof
     that the system fails safe without constant human attention.
+28. Correct paper fee/PnL semantics before treating expectancy gates as
+    profitability evidence. `storage/paper_trading_sqlite.py::apply_fill()`
+    currently subtracts buy fees from cash and sell fees from proceeds, but the
+    returned/stored `realized_pnl_usd` is gross of both legs:
+    `(sell_price - avg_price) * qty`. `services/execution/paper_engine.py`
+    writes that value to fill evidence as `pnl_usd`, and
+    `scripts/check_promotion_gates.py::_check_expectancy()` gates on that field.
+    Also verify the active campaign config uses realistic `paper_fee_bps` and
+    slippage, because `services/execution/paper_fees.py` defaults ad hoc paper
+    fee lookups to `0.0`. Smallest acceptable path: make evidence PnL net of
+    buy/sell fees or add a versioned net field that gates consume, preserve
+    historical comparability explicitly, and add a golden round-trip test where
+    flat price plus fees yields negative `pnl_usd` and fails expectancy.
+29. Make market-quality guard defaults fail closed before shadow evidence is
+    treated as cost/slippage proof. `services/risk/market_quality_guard.py`
+    currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,
+    and `max_spread_bps=500`, so missing quote data can pass with
+    `reason=no_quote_data`. Start with campaign-config opt-in
+    (`block_when_unknown: true`, `require_bid_ask: true`, realistic spread
+    caps), then flip code defaults after one observed cycle proves the stricter
+    settings do not create false-block storms. Proof: missing-quote fixture
+    holds the signal/order with an operator-visible reason, while fresh quoted
+    paths remain unaffected.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
@@ -352,7 +378,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    test so dead email/Slack credentials are detected. Prefer a simple external
    dead-man and push channel such as healthchecks-style pings plus ntfy,
    Telegram, or another operator-visible channel before writing more custom
-   alert infrastructure. Blocks shadow/live quality.
+   alert infrastructure. A 2026-07-03 audit found
+   `services/process/heartbeat.py::write_heartbeat()` has no callers while
+   `services/process/watchdog.py` reads heartbeat state and can arm the kill
+   switch / set `HALTING` on staleness. Add heartbeat writes in every managed
+   loop that matters for unattended operation: strategy runner, evidence
+   service, collectors, live intent consumer, and reconciler. Also wire alert
+   dispatch on watchdog trigger and `bot_not_running`, prove host scheduling,
+   and fold the status-only `services/admin/watchdog.py` surface into the
+   process watchdog or document why both remain. Blocks shadow/live quality.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
@@ -398,6 +432,10 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     cost-stack report in bps. Hard constraint: no live routing or canonical
     order-type policy changes from this item until strategy expectancy and
     shadow cost evidence justify a separate reviewed execution-policy change.
+    A 2026-07-03 audit tightened the constraint: current paper-engine limit
+    fills are crossing-style only and market fills are full fills, so maker-side
+    research must come from shadow would-be-fill records or an explicit engine
+    extension, not from current paper-fill behavior.
 16. Quarantine or fail-close the optional `ai_engine` live-router hook before
     any capped-live exposure. `services/live_router/router.py` can enable
     `services/ai_engine` through env/config and currently records
@@ -408,8 +446,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     campaign, provenance qualification, and promotion gates. Minimum acceptable
     resolution if the hook remains: AI-service/model errors block orders by
     default, docs stop describing pass-through as the default live behavior,
-    and tests prove an enabled broken AI gate cannot allow an order. Blocks
-    capped live.
+    and tests prove an enabled broken AI gate cannot allow an order. Include
+    `services/feature_gate.py::proba_gate()` in the same quarantine class:
+    it can influence order flow from `CBP_FUSED_PROBA`, tolerates missing or
+    invalid values when strict mode is false, and does not enter through the
+    strategy/evidence/promotion system. Blocks capped live.
 17. Restore resume-hard live governance before capped live. The dashboard
     `Resume Live Trading` button reaches `services/admin/resume_gate.py`, and
     the current resume path can set `execution.live_enabled=true`, bypass
@@ -423,6 +464,23 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     Proof must cover cold-state refusal, ceremony-armed-then-halted success,
     expired/invalid provenance refusal, and dashboard display of the refusal
     reason. Blocks capped live.
+18. Add intent TTL before live/shadow consumers are trusted unattended.
+    `storage/live_intent_queue_sqlite.py` dequeues and claims queued intents by
+    `created_ts ASC`, while current consumers check market snapshot freshness
+    but not the intent's own age. A restart after hours or days could submit an
+    intent sized and justified by stale context at current prices. Add
+    `max_intent_age_sec` with a fail-closed default, mark aged queued/submitting
+    intents `expired` with an operator-visible reason, and make the reconciler
+    treat `expired` as terminal. Proof: aged-intent fixture expires with zero
+    submits; fresh-intent fixture remains eligible.
+19. Remove hardcoded reference-price fallbacks from paper pre-submit safety
+    checks. `services/execution/paper_engine.py` currently falls back to
+    `60000.0` when no limit price, market-quality price, or last price is
+    available, and then uses that reference price for notional/safety checks.
+    Missing quote/reference data should fail closed with `no_reference_price`
+    rather than using a BTC-shaped constant for any symbol. Proof: missing-price
+    fixture rejects before safety-cap math; normal quoted paths remain
+    unchanged.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
@@ -552,6 +610,13 @@ substrate work, but they are concrete enough to keep visible.
     behind a named optional job with documented prerequisites, or replace them
     with smaller CI-covered regression slices. Tests that only run locally are
     a drift channel for dashboard and symbol-scanner behavior.
+22. Decide retention policy for evidence, snapshot, status, and runtime stores
+    before server operation accumulates unbounded state. Prior audits found
+    pruning/DELETE behavior only in narrow strategy-state and desktop logging
+    surfaces; evidence logs, snapshots, status files, and SQLite stores mostly
+    grow indefinitely. "Keep forever" is acceptable if explicit, backed by disk
+    monitoring and backup strategy; otherwise define retention windows,
+    archival/export rules, and deletion safety checks.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

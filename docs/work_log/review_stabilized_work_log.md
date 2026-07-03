@@ -13724,3 +13724,85 @@ Remaining risk:
   arming/governance behavior; that code change must stop at
   `READY_FOR_INDEPENDENT_REVIEW`.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Fee, Heartbeat, And Fail-Open Guard Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's proactive audit findings covering paper profitability
+  measurement, watchdog heartbeats, market-quality defaults, stale intents, and
+  non-evidence order gates, then add any missing backlog tasks or refinements.
+
+What was found:
+- SHOWN: `storage/paper_trading_sqlite.py::apply_fill()` subtracts buy fees
+  from cash and sell fees from proceeds, but returned/stored
+  `realized_pnl_usd` is gross of fees.
+- SHOWN: `services/execution/paper_engine.py` logs sell-fill evidence
+  `pnl_usd` from `realized_pnl_usd`, and
+  `scripts/check_promotion_gates.py::_check_expectancy()` gates on `pnl_usd`.
+- SHOWN: `services/execution/paper_fees.py::fee_bps_paper()` defaults to
+  `0.0` when no paper fee is configured.
+- SHOWN: `services/process/heartbeat.py::write_heartbeat()` exists, but repo
+  search found no callers while `services/process/watchdog.py` reads heartbeat
+  state and can arm the kill switch / set `HALTING` on staleness.
+- SHOWN: `services/risk/market_quality_guard.py` defaults to
+  `block_when_unknown=false`, `require_bid_ask=false`, `max_spread_bps=500`,
+  and missing quotes can return `ok=true`, `reason=no_quote_data`.
+- SHOWN: `storage/live_intent_queue_sqlite.py` claims queued intents by
+  `created_ts ASC` with no visible TTL/age filter in the queue.
+- SHOWN: `services/feature_gate.py::proba_gate()` can influence order flow from
+  `CBP_FUSED_PROBA` and tolerates missing/invalid values when strict mode is
+  false.
+- SHOWN: `services/execution/paper_engine.py` falls back to `60000.0` when no
+  usable reference price is available for pre-submit safety checks.
+- CLAIMED: the pasted audit's broader statements about paper maker-fill
+  semantics, retention policy, and watchdog host scheduling were not fully
+  re-audited beyond the targeted code checks above.
+
+What changed:
+- Added active backlog item 28 to fix paper fee/PnL semantics before treating
+  expectancy gates as profitability evidence.
+- Added active backlog item 29 to make market-quality defaults/config fail
+  closed before shadow cost/slippage evidence is trusted.
+- Refined the trading-loop metrics/dead-man item with the dormant heartbeat
+  writer finding, required loop writers, watchdog alert dispatch, host
+  scheduling proof, and watchdog-surface consolidation.
+- Refined the maker-vs-taker execution-cost item to state that current paper
+  fills cannot be used as maker-fill evidence without shadow records or an
+  explicit engine extension.
+- Refined the AI/probability gate quarantine item to include `proba_gate`.
+- Added live substrate items for stale intent TTL and hardcoded paper
+  reference-price fallback removal.
+- Added a structure/research-hygiene item for explicit retention policy.
+- Refined the runner stale-lock item to reuse the existing stale-lock helper if
+  possible.
+
+Why this change:
+- The paper gate's expectancy surface is the bridge between "machinery works"
+  and "strategy may be profitable"; gross PnL and zero-fee defaults can make a
+  net-negative strategy appear gate-positive.
+- Watchdog design is only useful if managed loops write the heartbeat and
+  operators are alerted when it fires.
+- Fail-open market-quality and probability-gate defaults share the same safety
+  pattern: guards must fail closed by default or carry an explicit opt-out
+  decision.
+
+Expected outcome:
+- The backlog now separates evidence/profitability correctness from broader
+  live-money substrate work.
+- Future shadow/live work has explicit tasks for stale intent expiry, real
+  heartbeat inputs, and reference-price fail-closed behavior.
+- Existing broad execution-cost and AI-quarantine tasks now include the newly
+  verified constraints.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- HIGH for future implementations touching PnL semantics, live consumers,
+  watchdog behavior, market-quality gating, or order-routing gates; those code
+  changes require independent review as governed high-risk work.
+- Acceptance state: `ACCEPTED`.
