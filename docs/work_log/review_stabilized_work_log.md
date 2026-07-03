@@ -13079,3 +13079,74 @@ Remaining risk:
 - LOW: this is a docs/backlog tracking change only.
 - UNVERIFIED: implementation designs and test details for each captured item.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Agent Message Backlog Reconciliation
+
+Active role: AUDITOR
+
+Objective:
+- Reconcile the user's pasted agent/audit messages against
+  `REMAINING_TASKS.md` and make sure material recommendations are visible in
+  the governed backlog.
+
+What was found:
+- SHOWN: 27 pasted attachment files were available under
+  `/Users/baitus/.codex/attachments/*/pasted-text.txt`.
+- SHOWN: the major high-risk production blockers were already tracked:
+  Decimal/venue quantization, fail-closed config, typed retry classification,
+  crash/fault tests, deployment units, loop dead-man alerting,
+  state-store decision record, backup/restore drill, evidence-write failure
+  surfacing, advisor allow-list drift, stale runner locks, and sample-mode
+  provenance.
+- SHOWN: several recommendations from the pasted audits were absent or too
+  implicit in the backlog: per-strategy YAML governance for challengers,
+  paper/gate event alerting, pullback leaderboard/config follow-through,
+  backtest expectation population, crypto-edge collection-decision urgency,
+  config authority consolidation, clock skew checks, server secret rotation,
+  supply-chain verification, operator/action audit coverage, paper-runner
+  surface classification, signal-discovery module classification, storage
+  orphan classification, future gate-library extraction, product-objective
+  triage, pattern/candlestick research, and dashboard data-page wiring.
+
+What changed:
+- Updated `REMAINING_TASKS.md` active backlog items for paper manual review,
+  pullback follow-through, crypto-edge collection urgency, per-strategy config
+  governance, and paper/gate event alerting.
+- Expanded deferred live-money backlog items for boundary quantization,
+  admin-wizard strict config, loop kill-check/alert delivery proof, config
+  authority consolidation, clock/venue-time checks, server secret handling,
+  supply-chain checks, and operator/action audit coverage.
+- Expanded deferred structure/research hygiene with paper-surface
+  classification, signal-discovery module classification, storage orphan
+  classification, gate-library extraction, product-objective triage,
+  pattern/candlestick research, and dashboard data-page wiring.
+
+Why this change:
+- The user explicitly requested that pasted-agent recommendations stop being
+  ignored and be captured in the visible backlog.
+- The patch keeps runtime behavior unchanged while preserving the omitted
+  audit signal for later prioritization.
+
+Expected outcome:
+- Future agents can see the full backlog surface without relying on old chat
+  memory or pasted attachments.
+- The active paper/shadow path remains focused, while larger product,
+  research, and live-money substrate work stays visible but deferred.
+
+Verification:
+- `find /Users/baitus/.codex/attachments -name 'pasted-text.txt' -maxdepth 2 -print`
+  - SHOWN: 27 pasted attachment files were available for reconciliation.
+- `sed -n '1,260p' REMAINING_TASKS.md`
+  - SHOWN: active and deferred backlog sections were read before editing.
+- `rg -n "alert_dispatcher|dispatch_alert|AlertDispatcher" services scripts tests dashboard -g"*.py"`
+  - SHOWN: alert dispatcher is used by Hetzner host health and tests, not yet
+    by paper/gate event transitions.
+- `rg -n "signal_library|market_ranker|candidate_strategy_mapper|trade_type_classifier|universe_loader" services scripts tests dashboard -g"*.py"`
+  - SHOWN: signal-discovery modules exist and are partially wired, but their
+    operator-facing production role remains unclear.
+
+Remaining risk:
+- LOW: docs/backlog reconciliation only.
+- UNVERIFIED: current correctness of every historical pasted-agent claim was
+  not re-proven from source; only material backlog coverage was reconciled.
+- Acceptance state: `ACCEPTED`.

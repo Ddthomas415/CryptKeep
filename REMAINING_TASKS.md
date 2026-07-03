@@ -68,7 +68,12 @@ deployment work still needs independent review.
 1. Continue canonical paper evidence collection until `es_daily_trend_v1`
    reaches 10 provenance-qualified round trips.
 2. After the paper gate reaches 10 qualified round trips, write the manual
-   strategy performance decision against the accepted baseline.
+   strategy performance decision against the accepted baseline. Before relying
+   on the expectancy/manual-review gate, populate or explicitly waive the
+   currently null `backtest_expectations` fields in
+   `configs/strategies/es_daily_trend_v1.yaml` from an accepted parity/backtest
+   baseline; otherwise the gate can report count readiness while the strategy
+   performance comparison remains unresolved.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not
@@ -96,7 +101,10 @@ deployment work still needs independent review.
    `pullback_recovery_default` before enabling any persistent campaign. The
    read-only readiness report is accepted and merged; run
    `make pullback-stage0-baseline` immediately before the long proof and
-   `make pullback-stage0-verify` afterward.
+   `make pullback-stage0-verify` afterward. After proof, decide whether to add
+   `pullback_recovery_default` to the leaderboard/default candidate set and
+   create a governed strategy config before treating it as more than an
+   isolated candidate.
 8. Keep composite/hybrid paper advancement blocked. The long-window variant
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
@@ -156,7 +164,9 @@ deployment work still needs independent review.
     source decision is accepted. Funding and open-interest history mostly
     accrue in real time; OKX funding/OI/basis is a validated read-only
     candidate, but OKX adoption still needs explicit config/docs review and
-    Binance derivatives remain unavailable from the current network.
+    Binance derivatives remain unavailable from the current network. If the
+    canonical source decision remains open, prioritize the decision itself
+    because every idle day loses mostly unrecoverable funding/OI history.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -197,14 +207,28 @@ deployment work still needs independent review.
     promotion gate then treats that label as authoritative. Derive the sample
     label from the data source/path used, and make mismatched env/source labels
     fail closed or record explicit sample provenance.
+22. Add per-strategy governance configs before promoting additional
+    challenger strategies. `configs/strategies/es_daily_trend_v1.yaml` is the
+    only full strategy YAML contract today; challenger campaigns currently
+    rely heavily on presets/defaults. Before `ema_cross`, `breakout_donchian`,
+    `pullback_recovery`, or future context strategies become promotion
+    candidates, add strategy-specific config files with backtest expectations,
+    risk settings, evidence contract, and manual-review criteria.
+23. Wire paper/gate event alerting into the existing alert dispatcher. The
+    dispatcher is now used for Hetzner host-health alerts, but paper events
+    still depend on manual polling. Add trigger-based alerts for qualified
+    round-trip changes, gate-ready transitions, campaign stop/failure,
+    evidence-write failure thresholds, and strategy decision changes. Keep the
+    first implementation read-only/notification-only.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
 must be resolved or explicitly accepted before any capped-live capital exposure.
 
 1. Convert order qty/price/fee/PnL math to `Decimal` with per-venue step size,
-   lot size, and min-notional quantization. Write golden tests before changing
-   behavior. Blocks capped live.
+   lot size, and min-notional quantization. Start with the order-construction
+   boundary quantizer before a full end-to-end migration, and write venue
+   golden tests before changing behavior. Blocks capped live.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
@@ -220,7 +244,9 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    config writes `config_load_failed`, emits no runner intent, and prevents
    leaderboard/decision-record persistence from `{}` defaults. Remaining
    capped-live blocker: safety/load-gates and live executor/consumer/reconciler
-   config consumers still require their own fail-closed sweep.
+   config consumers still require their own fail-closed sweep. Include
+   admin/live enable-disable wizards in that sweep so operator-facing live
+   controls do not read corrupt config through a permissive path.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
@@ -233,7 +259,10 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    companion-repo pointer. Blocks server shadow quality and live.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
-   within a defined time window. Blocks shadow/live quality.
+   within a defined time window. Include a watchdog proof that each loop checks
+   kill/stop signals within a bounded interval and a synthetic alert-delivery
+   test so dead email/Slack credentials are detected. Blocks shadow/live
+   quality.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
@@ -245,6 +274,28 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
    rather than silently starving the promotion gate.
+10. Consolidate config authority before live expansion. The repo still has
+    legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
+    and compatibility normalization between `live.enabled` and
+    `execution.live_enabled`. Decide the canonical schema, migrate readers, and
+    retire or document compatibility shims so the most dangerous live flag has
+    one authority.
+11. Add clock/venue-time sanity checks before capped live. Funding age,
+    candle boundaries, order timestamps, and reconciliation windows assume UTC
+    clock correctness. Add a host/venue skew check and operator-visible status
+    before relying on timestamp-sensitive shadow/live evidence.
+12. Define the server secrets and rotation model before capped live. Current
+    keyring/env handling is adequate for desktop/paper, but server operation
+    needs a documented injection path, rotation procedure, and proof that
+    secrets are not written to deployment records, logs, or evidence artifacts.
+13. Add supply-chain verification to release/CI policy. Requirements are
+    pinned, but hash pinning and dependency-audit evidence are not yet a
+    visible release gate. Decide whether to add `pip-audit`/hash checks or
+    explicitly accept the risk for paper-only operation.
+14. Audit operator/action event coverage. Event stores, journals, and fill
+    logs exist, but it is not yet shown that every material operator action
+    and state transition has a who/what/when trail sufficient for live
+    incident review.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
@@ -278,6 +329,45 @@ substrate work, but they are concrete enough to keep visible.
    transaction, which is stronger than earlier fragmented-store framing. Add a
    property or sequence test proving cash, fills, and positions reconcile after
    mixed buy/sell fills so future changes preserve that invariant.
+8. Classify the three paper execution surfaces and retire or document
+   non-canonical paths. Audits found `services/paper/main.py`,
+   `services/paper_trader/main.py`, and `services/execution/paper_engine.py`
+   with different responsibilities. `paper_engine.py` appears to be the
+   evidence-aware path; the older runners should either delegate to it, be
+   marked retired, or have an explicit supported-use label.
+9. Classify dormant or partially wired signal-discovery modules.
+   `signal_library`, `market_ranker`, `candidate_engine`,
+   `candidate_strategy_mapper`, `trade_type_classifier`, and
+   `universe_loader` contain useful discovery/ranking logic, but their active
+   production path and intended operator workflow are still unclear. Decide
+   which are part of the candidate pipeline, which are research-only, and which
+   should be retired.
+10. Classify storage orphan modules before more reconciliation work.
+    Prior audits flagged unused SQLite stores such as fill reconciler,
+    idempotency, and order-tracker variants. Confirm whether each is truly
+    unused on current master, then delete, wire, or document it as a retired
+    compatibility surface.
+11. Extract promotion-gate logic into a library after the current paper gate is
+    stable. `scripts/check_promotion_gates.py` is the canonical operator
+    command today and should not be churned mid-campaign, but the money-adjacent
+    gate logic should eventually live in `services/control/` with the script,
+    dashboard, and monitors consuming the same implementation.
+12. Triage the broader product objective explicitly. `docs/OBJECTIVE.md`
+    describes learning/adaptive capability, multi-exchange support, and a
+    packaged desktop app. Current operation is paper/research plus server
+    monitoring. Create a decision record for each larger product surface:
+    retain and schedule, defer, or retire from the near-term production path.
+13. Keep pattern/candlestick strategy research visible but behind the archive
+    and paper-evidence gates. Existing code covers pullbacks, gap fills,
+    volatility reversals, order-book imbalance, funding, and open interest.
+    Missing pattern work includes candlestick confirmation, fair-value gaps,
+    order-block style zones, and larger chart-pattern recognition. Treat these
+    as research filters or candidate strategies only after archive-first
+    backtesting and provenance-qualified paper paths are in place.
+14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
+    Several dashboard pages have UI surfaces without confirmed live service
+    data behind them. Prioritize operator-critical pages first: gate status,
+    paper reconciliation, campaign health, market movers, and copilot reports.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
