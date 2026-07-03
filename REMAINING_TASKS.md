@@ -74,6 +74,9 @@ deployment work still needs independent review.
    `configs/strategies/es_daily_trend_v1.yaml` from an accepted parity/backtest
    baseline; otherwise the gate can report count readiness while the strategy
    performance comparison remains unresolved.
+   Ground truth must come from the operator-host gate/status command output
+   (`make status-paper-gate-qualification` or the equivalent gate JSON), not
+   from stale counts copied into this backlog.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not
@@ -224,6 +227,21 @@ deployment work still needs independent review.
     round-trip changes, gate-ready transitions, campaign stop/failure,
     evidence-write failure thresholds, and strategy decision changes. Keep the
     first implementation read-only/notification-only.
+24. Write explicit stop and retirement criteria before any strategy advances
+    beyond paper. Define, in a decision record, what evidence retires a
+    strategy, freezes it, keeps it in paper, or stops the broader project.
+    Include thresholds for losing qualified round trips, drawdown, negative
+    expectancy versus baseline, repeated evidence/provenance failures, and
+    operator time/cost limits. This decision should be written before a
+    drawdown or gate-green event so the system is not judged emotionally while
+    under pressure.
+25. Write and rehearse the first-hour paper-to-shadow runbook before the paper
+    gate turns green. The runbook should start from fresh gate output, confirm
+    baseline/manual-review status, confirm `observe_only` and no live routing,
+    promote the stage, start the shadow session, verify shadow signal and
+    would-be-fill evidence is being written, verify zero venue orders, and
+    record rollback/recovery steps. This is separate from the later launch
+    evidence packet; it is the operator checklist for the first shadow hour.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they

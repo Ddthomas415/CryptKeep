@@ -13273,3 +13273,52 @@ Remaining risk:
 - LOW: docs/backlog tracking only.
 - UNVERIFIED: detailed implementation design and venue fee schedule sources.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Decision Checklist Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the actionable decision checklist items from the user's latest agent
+  review so they are visible in the backlog.
+
+What was found:
+- SHOWN: the backlog already tracks paper evidence collection, expectancy
+  baseline, edge collection, execution-cost research, dead-man alerting,
+  backup/restore, advisor strategy coverage, and shadow recorder work.
+- SHOWN: the backlog did not explicitly require written stop/retirement
+  criteria for individual strategies or the whole project.
+- SHOWN: the backlog did not explicitly require a first-hour paper-to-shadow
+  operator runbook before the paper gate turns green.
+- SHOWN: the backlog used copied paper-gate counts in current-state text, but
+  the checklist correctly identified operator-host gate output as the
+  authoritative status artifact.
+
+What changed:
+- Updated the paper manual-review backlog item to state that fresh gate/status
+  command output is the ground truth, not stale backlog counts.
+- Added a backlog item requiring explicit strategy/project stop and retirement
+  criteria before any strategy advances beyond paper.
+- Added a backlog item requiring a first-hour paper-to-shadow runbook and
+  rehearsal before the paper gate turns green.
+
+Why this change:
+- These are decision-quality controls, not code features. Without them, the
+  repo can produce evidence while the operator still lacks written criteria
+  for when to advance, pause, retire, or stop.
+
+Expected outcome:
+- Future gate-green events have a defined operator decision path.
+- Strategy retirement and project stop decisions are made against written
+  thresholds rather than emotional interpretation during drawdown or excitement.
+
+Verification:
+- `rg -n "stop criteria|kill criteria|retire|shutdown|shut down|first hour|paper.*shadow|shadow.*runbook|gate.*ground truth|cost stack|dead-man|restore drill|edge collector|expectancy baseline" REMAINING_TASKS.md docs/checkpoints docs/work_log/review_stabilized_work_log.md -g"*.md"`
+  - SHOWN: related items existed, but explicit stop criteria and first-hour
+    paper-to-shadow runbook language were not present before this update.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: exact stop thresholds and paper-to-shadow runbook content remain
+  to be written in future artifacts.
+- Acceptance state: `ACCEPTED`.
