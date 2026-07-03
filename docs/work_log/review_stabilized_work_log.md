@@ -12873,3 +12873,72 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Review reference: independently reviewed and accepted by the human operator
   on 2026-07-03 before PR #176 merge.
+
+## 2026-07-03 - Strict Config Reloads for Active Paper Evidence Path
+
+Active role: ENGINEER
+
+Objective:
+- Finish the #177 follow-through in the active paper evidence path so
+  mid-session corrupt runtime user config cannot silently revert to `{}` while
+  the strategy runner or evidence service continues producing evidence.
+
+What was found:
+- SHOWN: `services/execution/strategy_runner.py::_cfg()` already used
+  `load_user_yaml(strict=True)` at startup after PR #177.
+- SHOWN: `_resolve_venue_candidates()` still used non-strict
+  `load_user_yaml()` for in-loop venue candidate fallback.
+- SHOWN: the public-OHLCV signal branch still used non-strict
+  `load_user_yaml()` before building the selected strategy block.
+- SHOWN: `services/analytics/paper_strategy_evidence_service.py` still used
+  non-strict `load_user_yaml()` as `base_cfg` immediately before regenerating
+  leaderboard evidence and decision records.
+- UNVERIFIED: live-money config consumers outside the active paper evidence
+  path remain open backlog work.
+
+What changed:
+- Added a shared strategy-runner status writer for `config_load_failed` that
+  records a non-actionable hold signal.
+- Made `_resolve_venue_candidates()` and the public-OHLCV selected strategy
+  config reload use `load_user_yaml(strict=True)`.
+- Handled in-loop `ConfigLoadError` by writing visible `config_load_failed`
+  status, sleeping, and skipping the tick without enqueuing strategy intents.
+- Made paper evidence service use strict config loading before the evidence
+  cycle; on failure it writes a failed campaign status and returns before
+  leaderboard persistence or decision-record generation.
+- Added targeted tests proving mid-session runner config corruption writes
+  `config_load_failed`, holds without side effects, and creates zero intents,
+  paper orders, or paper fills.
+- Added targeted tests proving paper evidence service config-load failure
+  stops before evidence persistence.
+- Updated `REMAINING_TASKS.md` to record the active paper evidence path proof
+  while keeping the broader capped-live config sweep open.
+
+Why this change:
+- The prior strict startup fix prevented a corrupt config from starting a new
+  runner, but non-strict reloads could still poison evidence after startup.
+  Strict reload handling at the active evidence boundary is the smallest patch
+  that closes the paper-campaign gap without sweeping unrelated live consumers.
+
+Expected outcome:
+- Corrupt runtime config during a paper evidence session becomes an explicit
+  `config_load_failed` status instead of silently defaulting to `{}`.
+- Strategy runner does not enqueue new intents while config is unreadable.
+- Paper evidence service does not regenerate leaderboard or decision artifacts
+  from default config after a strict config-load failure.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py services/analytics/paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `57 passed in 1.02s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: runtime config loading affects trading-adjacent strategy dispatch and
+  evidence generation.
+- UNVERIFIED: full suite, long-running campaign behavior, safety/load-gates,
+  live executor/consumer/reconciler config consumers, and master promotion PR
+  #178.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -531,7 +531,7 @@ def test_run_campaign_prefers_explicit_evidence_symbol_over_user_yaml_symbols(tm
             "latest_fill_ts": "",
         },
     )
-    monkeypatch.setattr(svc, "load_user_yaml", lambda: {"symbols": ["APR/USD"]})
+    monkeypatch.setattr(svc, "load_user_yaml", lambda **kwargs: {"symbols": ["APR/USD"]})
     monkeypatch.setattr(
         svc,
         "run_strategy_evidence_cycle",
@@ -558,6 +558,63 @@ def test_run_campaign_prefers_explicit_evidence_symbol_over_user_yaml_symbols(tm
     assert out["ok"] is True
     assert seen["kwargs"]["symbol"] == "SOL/USD"
     assert seen["kwargs"]["base_cfg"] == {"symbols": ["APR/USD"]}
+
+
+def test_run_campaign_config_load_failure_stops_before_evidence_persist(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+    monkeypatch.setattr(
+        svc,
+        "_component_runtime",
+        lambda name: {"name": name, "pid_alive": False, "pid": 0, "status": "not_started"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_ensure_component",
+        lambda name, *, cfg: {"name": name, "started": True, "pid": 123 if name == "tick_publisher" else 456, "status": "running"},
+    )
+    monkeypatch.setattr(
+        svc,
+        "_run_strategy_window",
+        lambda *, cfg, strategy_name: {
+            "strategy": str(strategy_name),
+            "runtime_sec": 1.0,
+            "stop_reason": "runtime_elapsed",
+            "runner_status": "stopped",
+            "enqueued_total": 1,
+            "fills_delta": 1,
+            "closed_trades_delta": 1,
+            "net_realized_pnl_delta": 0.0,
+            "fills_total": 1,
+            "closed_trades_total": 1,
+            "net_realized_pnl_total": 0.0,
+            "latest_fill_ts": "",
+        },
+    )
+    monkeypatch.setattr(
+        svc,
+        "load_user_yaml",
+        lambda **kwargs: (_ for _ in ()).throw(svc.ConfigLoadError("config_load_failed:/tmp/user.yaml:ParserError")),
+    )
+    monkeypatch.setattr(svc, "run_strategy_evidence_cycle", lambda **kwargs: (_ for _ in ()).throw(AssertionError("should not rerun evidence")))
+    monkeypatch.setattr(svc, "persist_strategy_evidence", lambda report: (_ for _ in ()).throw(AssertionError("should not persist evidence")))
+    monkeypatch.setattr(svc, "write_decision_record", lambda report, *, artifact_path="": (_ for _ in ()).throw(AssertionError("should not rewrite decision record")))
+    monkeypatch.setattr(svc, "_wait_for_component_stop", lambda name, *, timeout_sec=10.0: True)
+    monkeypatch.setattr(svc, "_stop_component", lambda name: {"ok": True, "component": name})
+
+    out = svc.run_campaign(
+        svc.PaperStrategyEvidenceServiceCfg(
+            strategies=("ema_cross",),
+            per_strategy_runtime_sec=1.0,
+        )
+    )
+
+    assert out["ok"] is False
+    assert out["status"] == "failed"
+    assert out["reason"] == "config_load_failed"
+    assert "config_load_failed" in out["error"]
+    status = json.loads(svc.status_file().read_text(encoding="utf-8"))
+    assert status["reason"] == "config_load_failed"
 
 
 def test_run_campaign_refuses_busy_strategy_runner(tmp_path, monkeypatch) -> None:

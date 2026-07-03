@@ -191,6 +191,39 @@ def _write_status(obj: dict) -> None:
     STATUS_FILE.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _write_config_load_failed_status(
+    exc: ConfigLoadError,
+    *,
+    status: str,
+    loops: int | None = None,
+    enqueued: int | None = None,
+    cfg: dict | None = None,
+    venue: str | None = None,
+    symbol: str | None = None,
+) -> None:
+    payload: dict[str, object] = {
+        "ok": False,
+        "status": status,
+        "reason": "config_load_failed",
+        "error": str(exc),
+        "ts": _now(),
+        "signal_action": "hold",
+        "signal_reason": "config_load_failed",
+    }
+    if loops is not None:
+        payload["loops"] = int(loops)
+    if enqueued is not None:
+        payload["enqueued_total"] = int(enqueued)
+    if isinstance(cfg, dict):
+        payload["strategy_id"] = cfg.get("strategy_id")
+        payload["signal_source"] = cfg.get("signal_source")
+    if venue:
+        payload["venue"] = str(venue)
+    if symbol:
+        payload["symbol"] = str(symbol)
+    _write_status(payload)
+
+
 def _no_fresh_tick_note(*, stale_after_sec: float = 30.0) -> str:
     if not TICK_SNAPSHOT_FILE.exists():
         return "no_fresh_tick:snapshot_file_missing:start_tick_publisher"
@@ -663,7 +696,7 @@ def _fetch_mid(cfg: dict) -> Optional[tuple[float, int]]:
 def _resolve_venue_candidates(cfg: dict) -> list[str]:
     candidates = cfg.get("venue_candidates")
     if not isinstance(candidates, list) or not candidates:
-        base_cfg = load_user_yaml()
+        base_cfg = load_user_yaml(strict=True)
         pf = base_cfg.get("preflight") if isinstance(base_cfg.get("preflight"), dict) else {}
         candidates = pf.get("venues") if isinstance(pf.get("venues"), list) else [cfg["venue"]]
     out: list[str] = []
@@ -707,15 +740,7 @@ def run_forever() -> None:
     try:
         cfg = _cfg()
     except ConfigLoadError as exc:
-        _write_status(
-            {
-                "ok": False,
-                "status": "stopped",
-                "reason": "config_load_failed",
-                "error": str(exc),
-                "ts": _now(),
-            }
-        )
+        _write_config_load_failed_status(exc, status="stopped")
         return
     symbols = list(cfg.get("symbols") or [cfg.get("symbol")])
     symbols = [str(x).strip() for x in symbols if str(x).strip()]
@@ -762,7 +787,12 @@ def run_forever() -> None:
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued": enqueued})
                 break
-            venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
+            try:
+                venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
+            except ConfigLoadError as exc:
+                _write_config_load_failed_status(exc, status="running", loops=loops, enqueued=enqueued, cfg=cfg)
+                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                continue
 
             for symbol in symbols:
                 selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
@@ -860,7 +890,20 @@ def run_forever() -> None:
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
                     selected_strategy = str(cfg.get("strategy_id") or selection.get("selected_strategy") or "ema_cross")
-                    raw_cfg = load_user_yaml()
+                    try:
+                        raw_cfg = load_user_yaml(strict=True)
+                    except ConfigLoadError as exc:
+                        _write_config_load_failed_status(
+                            exc,
+                            status="running",
+                            loops=loops,
+                            enqueued=enqueued,
+                            cfg=cfg,
+                            venue=selected_venue,
+                            symbol=symbol,
+                        )
+                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                        continue
                     raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
                     raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
 

@@ -799,6 +799,76 @@ def test_run_forever_config_load_failure_stops_without_side_effects(monkeypatch,
     assert pdb.list_fills(limit=10) == []
 
 
+def test_run_forever_mid_session_config_load_failure_holds_without_side_effects(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+
+    import services.admin.config_editor as config_editor
+
+    config_editor.CONFIG_PATH.write_text(
+        """
+strategy_runner:
+  strategy:
+    name: breakout_donchian
+    trade_enabled: true
+    donchian_len: 3
+    filter_window: 3
+    min_volatility_pct: 0.0
+    min_volume_ratio: 0.0
+    min_trend_efficiency: 0.0
+    min_channel_width_pct: 0.0
+    breakout_buffer_pct: 0.0
+    require_directional_confirmation: false
+  symbol: BTC/USD
+  venue: coinbase
+  min_bars: 5
+  max_bars: 10
+  loop_interval_sec: 0.0
+  qty: 0.5
+  allow_first_signal_trade: true
+  use_ccxt_fallback: false
+  signal_source: public_ohlcv_1m
+""",
+        encoding="utf-8",
+    )
+
+    def _fetch_public_ohlcv(_cfg):
+        config_editor.CONFIG_PATH.write_text("strategy_runner: [unterminated\n", encoding="utf-8")
+        return [
+            [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+        ]
+
+    captured_statuses: list[dict[str, object]] = []
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            captured_statuses.append(status)
+            if status.get("reason") == "config_load_failed":
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", _fetch_public_ohlcv)
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert any(status.get("reason") == "config_load_failed" for status in captured_statuses)
+    failed_status = next(status for status in captured_statuses if status.get("reason") == "config_load_failed")
+    assert failed_status["signal_action"] == "hold"
+    assert failed_status["signal_reason"] == "config_load_failed"
+    assert failed_status["strategy_id"] == "breakout_donchian"
+    assert failed_status["symbol"] == "BTC/USD"
+    assert qdb.list_intents(limit=10) == []
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
+
+
 @pytest.mark.slow
 def test_run_forever_time_stop_advances_on_new_market_bars(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
