@@ -287,7 +287,9 @@ deployment work still needs independent review.
     operator must revise the thesis, change strategy family/horizon, or wind
     the project down. This decision should be written before a drawdown or
     gate-green event so the system is not judged emotionally while under
-    pressure.
+    pressure. 2026-07-03: baseline policy is written in
+    `docs/STRATEGY_STOP_AND_RETIREMENT_POLICY.md`; future strategy promotion
+    still requires a dated per-strategy decision record using fresh gate output.
 25. Write and rehearse the first-hour paper-to-shadow runbook before the paper
     gate turns green. The runbook should start from fresh gate output, confirm
     baseline/manual-review status, confirm `observe_only` and no live routing,
@@ -295,6 +297,10 @@ deployment work still needs independent review.
     would-be-fill evidence is being written, verify zero venue orders, and
     record rollback/recovery steps. This is separate from the later launch
     evidence packet; it is the operator checklist for the first shadow hour.
+    2026-07-03: runbook is written in
+    `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`; rehearsal remains open until
+    a future checkpoint records command output, stage before/after, shadow
+    evidence, and zero venue orders.
 26. Decide whether to widen the paper universe to accelerate qualified evidence.
     The current canonical paper gate is slow because daily strategies on a
     narrow symbol set produce few qualified round trips. Before changing the
@@ -315,7 +321,10 @@ deployment work still needs independent review.
     automatically degrades or stops, who can access the host/repo if needed,
     how to restore from backup, and which actions are explicitly forbidden
     without the operator. This is not a staffing fix; it is the minimum proof
-    that the system fails safe without constant human attention.
+    that the system fails safe without constant human attention. 2026-07-03:
+    baseline runbook is written in `docs/SINGLE_OPERATOR_CONTINUITY.md`;
+    backup restore, dead-man alert, and stopped-campaign recovery drills remain
+    open proof.
 28. Correct paper fee/PnL semantics before treating expectancy gates as
     profitability evidence. `storage/paper_trading_sqlite.py::apply_fill()`
     currently subtracts buy fees from cash and sell fees from proceeds, but the
@@ -609,7 +618,9 @@ substrate work, but they are concrete enough to keep visible.
     lane for low-risk docs/tests/reporting changes with clear PR labeling,
     targeted verification, and work-log coverage. The goal is to preserve
     rigor where it protects money while reducing process tax where it only
-    delays low-risk cleanup.
+    delays low-risk cleanup. 2026-07-03: baseline lane policy is written in
+    `docs/OPERATOR_GOVERNANCE_LANES.md`; future work should apply the lane
+    label in PRs without weakening AGENTS.md high-risk review rules.
 17. Define the operational core and quarantine policy. Add a `CORE.md` or
     equivalent decision record that names the modules required for the current
     paper/research/shadow path, plus a quarantine/attic policy for surfaces not
@@ -619,12 +630,15 @@ substrate work, but they are concrete enough to keep visible.
     runbook rule that caps open audit loops, limits low-value review churn, and
     forces each proactive task to tie back to one of: evidence velocity,
     profitability discovery, cost measurement, safety, recovery, or operator
-    wake-up quality.
+    wake-up quality. 2026-07-03: this rule is captured in
+    `docs/OPERATOR_GOVERNANCE_LANES.md` as the operator attention cap.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
     archive-backed research, shadow cost measurement, and stop criteria ahead
-    of dashboard/product polish.
+    of dashboard/product polish. 2026-07-03: `docs/PROJECT_IDENTITY_AND_SCOPE.md`
+    defines the current identity, and `docs/GOLDEN_PATH.md` /
+    `docs/OBJECTIVE.md` now link that scope.
 20. Harden AI-copilot context access and provider-data governance before
     enabling external LLM summaries as a normal operator path.
     `services/ai_copilot/context_collector.py::_safe_sqlite_query` currently
@@ -650,7 +664,10 @@ substrate work, but they are concrete enough to keep visible.
     surfaces; evidence logs, snapshots, status files, and SQLite stores mostly
     grow indefinitely. "Keep forever" is acceptable if explicit, backed by disk
     monitoring and backup strategy; otherwise define retention windows,
-    archival/export rules, and deletion safety checks.
+    archival/export rules, and deletion safety checks. 2026-07-03: baseline
+    paper/research retention policy is written in `docs/RETENTION_POLICY.md`;
+    server-specific disk, backup, restore, and alert thresholds remain open
+    before canonical server operation.
 23. Turn paper diagnostics and loss replay into a scheduled strategy-review
     ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
     `scripts/dev/replay_paper_losses.py`, and the AI copilot

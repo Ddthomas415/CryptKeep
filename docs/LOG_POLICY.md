@@ -5,6 +5,7 @@
 - Plaintext logs and session transcripts are acceptable for now.
 - Logs and transcripts may contain raw prompts, filenames, and outputs.
 - Logs and transcripts should not be shared externally without review.
+- Evidence/runtime retention policy lives in `docs/RETENTION_POLICY.md`.
 
 ## Current storage
 - session transcripts are stored locally

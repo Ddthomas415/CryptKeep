@@ -13916,3 +13916,62 @@ Verification:
 Remaining risk:
 - LOW: acceptance-record documentation only.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Operator Runbook And Governance Backlog Batch
+
+Active role: ENGINEER
+
+Objective:
+- Advance as many low-risk backlog items as possible in one pass without
+  touching high-risk money, live, gate, or background-job code paths.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` had written-runbook/policy tasks for strategy
+  stop criteria, first-hour paper-to-shadow operation, single-operator
+  continuity, governance lanes, operator attention, repo identity, and
+  retention policy.
+- SHOWN: `docs/RUNBOOKS.md`, `docs/GOLDEN_PATH.md`, `docs/OBJECTIVE.md`, and
+  `docs/LOG_POLICY.md` existed as the visible places to link or clarify these
+  operator policies.
+- SHOWN: `docs/runbooks/` did not exist, so adding unlinked runbook files there
+  would create another source-of-truth convention.
+- UNVERIFIED: first-hour shadow rehearsal, backup restore rehearsal, dead-man
+  alert delivery, and server-specific retention thresholds still require future
+  runtime proof.
+
+What changed:
+- Added `docs/STRATEGY_STOP_AND_RETIREMENT_POLICY.md`.
+- Added `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`.
+- Added `docs/SINGLE_OPERATOR_CONTINUITY.md`.
+- Added `docs/OPERATOR_GOVERNANCE_LANES.md`.
+- Added `docs/RETENTION_POLICY.md`.
+- Added `docs/PROJECT_IDENTITY_AND_SCOPE.md`.
+- Linked the new policies from `docs/RUNBOOKS.md`, `docs/GOLDEN_PATH.md`,
+  `docs/OBJECTIVE.md`, and `docs/LOG_POLICY.md`.
+- Updated `REMAINING_TASKS.md` to record which policy/runbook work is written
+  and which rehearsal or host-specific proof remains open.
+
+Why this change:
+- These tasks were decision/runbook gaps that could be closed or materially
+  advanced without waiting for campaign round trips and without changing
+  financial runtime behavior.
+- The high-risk backlog items remain separate because they require targeted
+  implementation proof and independent review.
+
+Expected outcome:
+- Operators now have visible written criteria for strategy retirement,
+  paper-to-shadow first-hour operation, one-operator absence, governance
+  friction, repo identity, and retention.
+- Future runtime work has clearer preconditions and proof requirements instead
+  of relying on chat history.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: documentation/runbook/policy changes only.
+- MEDIUM/HIGH: future implementation work that changes stage transitions,
+  strategy gates, shadow evidence, retention deletion, backup automation, or
+  alerting still requires separate proof and review.
+- Acceptance state: `ACCEPTED`.

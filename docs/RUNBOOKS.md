@@ -2,6 +2,18 @@
 
 ---
 
+## Related operator runbooks and policies
+
+- `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md` - first-hour checklist for the
+  paper-to-shadow transition after paper gate and manual review acceptance.
+- `docs/SINGLE_OPERATOR_CONTINUITY.md` - absence/delegate rules for one-day,
+  one-week, and one-month operator unavailability.
+- `docs/STRATEGY_STOP_AND_RETIREMENT_POLICY.md` - strategy freeze, retirement,
+  and project thesis-gate policy.
+- `docs/OPERATOR_GOVERNANCE_LANES.md` - low/medium/high risk governance lanes
+  and operator attention cap.
+- `docs/RETENTION_POLICY.md` - evidence, runtime, and log retention baseline.
+
 ## Severity Matrix
 
 | Severity | Definition | Examples | Response time | First action |
