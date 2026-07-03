@@ -69,11 +69,20 @@ deployment work still needs independent review.
    reaches 10 provenance-qualified round trips.
 2. After the paper gate reaches 10 qualified round trips, write the manual
    strategy performance decision against the accepted baseline.
-3. Prove private lifecycle runtime flow in one reachable supported
+3. Build the shadow would-be-fill recorder before treating shadow slippage
+   gates as actionable. The shadow gate asks for fill/slippage evidence, but
+   observe-only shadow submit currently blocks real submissions and does not
+   create would-be-fill records. Add a paper/shadow-safe recorder that captures
+   intended side, quantity, reference price, contemporaneous bid/ask or depth,
+   estimated fill price, slippage, strategy id, stage, and provenance. Proof
+   must show shadow mode still creates zero live orders while
+   `scripts/check_promotion_gates.py --stage shadow --json` can see the
+   slippage evidence needed for manual review.
+4. Prove private lifecycle runtime flow in one reachable supported
    sandbox/testnet venue, or record an explicit human exception decision.
-4. Produce the launch evidence packet: restart/recovery, kill-switch,
+5. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
-5. Continue only the remaining PR #43 rebuild candidates from clean `master`.
+6. Continue only the remaining PR #43 rebuild candidates from clean `master`.
    AI operator oversight is independently accepted as a read-only one-shot
    synthesis report over existing monitor/watch/gate artifacts; do not rebuild
    a second background monitor. Managed multi-symbol paper runtime now has a
@@ -83,16 +92,16 @@ deployment work still needs independent review.
    topology/gap audit; do not implement a new wrapper unless a current-master
    gap is reproduced and separately reviewed. Supervised-soak reporting and
    durable pipeline log evidence are already rebuilt/closed.
-6. Run the full post-fix isolated Stage 0 proof for
+7. Run the full post-fix isolated Stage 0 proof for
    `pullback_recovery_default` before enabling any persistent campaign. The
    read-only readiness report is accepted and merged; run
    `make pullback-stage0-baseline` immediately before the long proof and
    `make pullback-stage0-verify` afterward.
-7. Keep composite/hybrid paper advancement blocked. The long-window variant
+8. Keep composite/hybrid paper advancement blocked. The long-window variant
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
    paper-history support.
-8. Continue short/context follow-through from the accepted readiness report.
+9. Continue short/context follow-through from the accepted readiness report.
    The repo-side mixed-venue collector conflict is fixed by allowing the
    read-only research collector to open non-Binance public clients while
    `CBP_VENUE=binance` and `CBP_ALLOW_BINANCE=1` authorize Binance. Resolve the
@@ -103,7 +112,7 @@ deployment work still needs independent review.
    collector plan still needs an explicit config/docs review. Keep replay
    fixture-only unless
    `make check-short-context-readiness` reports `live_public_replay_ready=true`.
-9. Make the strategy registry fail closed before new discovery wiring lands.
+10. Make the strategy registry fail closed before new discovery wiring lands.
    `strategy_registry.compute_signal()` currently falls back to `ema_cross`
    when `strategy.name` is unknown. That is a latent evidence-poisoning risk
    once new names like `funding_extreme` enter campaign configs. Unknown
@@ -117,13 +126,13 @@ deployment work still needs independent review.
    public-OHLCV runner loop records `signal_ok=false` and
    `signal_reason=unknown_strategy`, and no intents, paper orders, or paper
    fills are created.
-10. Build archive-first backtesting before relying on strategy comparisons.
+11. Build archive-first backtesting before relying on strategy comparisons.
    `services/backtest/signal_replay.py` currently fetches OHLCV live with a
    shallow single-call default, while `storage/market_store_sqlite.py` already
    has a `market_ohlcv` archive table. Promote paginated OHLCV ingestion into a
    reusable archive path, make backtests read archive-first with dataset hashes,
    and prove repeated runs over the same archive are byte-identical.
-11. Wire crypto-edge context strategies into the research/paper execution path.
+12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /
     `open_interest_shift_default` exist in presets/config tooling, but
@@ -136,22 +145,22 @@ deployment work still needs independent review.
     OI state is derived from snapshot history. Defer `order_book_imbalance`
     until a tighter-cadence or streaming depth path exists; depth REST snapshots
     are not sufficient proof-quality evidence for that signal.
-12. Treat any paper-qualification extension for crypto-edge provenance as
+13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
     OHLCV qualification fixtures remain unchanged. Also prove the session stays
     paper-only: deployment stage is paper, live intent/order tables are
     unchanged before/after, and the diff does not touch live execution or risk
     gates.
-13. Start scheduled read-only crypto-edge collection early once the canonical
+14. Start scheduled read-only crypto-edge collection early once the canonical
     source decision is accepted. Funding and open-interest history mostly
     accrue in real time; OKX funding/OI/basis is a validated read-only
     candidate, but OKX adoption still needs explicit config/docs review and
     Binance derivatives remain unavailable from the current network.
-14. Continue the derivatives/intraday roadmap as read-only data collection and
+15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
-15. Complete Hetzner host follow-through before any canonical `.cbp_state`
+16. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: reviewed Hetzner canonical campaign manifest, reviewed
     stop-copy-verify-start procedure, fresh current-host runtime payload
     capture, and any required host scheduler/external-alert policy proof.
@@ -164,9 +173,9 @@ deployment work still needs independent review.
     independently accepted. Canonical `.cbp_state` migration remains blocked.
     Use `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`
     for the future migration packet.
-16. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
+17. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
-17. Maintain the retired-family regression guard. `services/paper`,
+18. Maintain the retired-family regression guard. `services/paper`,
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a
     new accepted architecture decision.

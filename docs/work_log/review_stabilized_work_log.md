@@ -12958,3 +12958,62 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Review reference: independently reviewed and accepted by the human operator
   on 2026-07-03 after PR #179 CI passed.
+
+## 2026-07-03 - Strategic Review Backlog Triage
+
+Active role: ENGINEER
+
+Objective:
+- Process the strategic production-readiness review findings that were not
+  covered by the strict config reload implementation, and preserve any missing
+  actionable item in the visible backlog.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracks archive-first backtesting,
+  crypto-edge context strategy wiring, Decimal money math, typed retry
+  classification, fault-injection, systemd deployment, loop dead-man alerting,
+  state-store consolidation, backup/restore drill, and duplicate-module
+  cleanup.
+- SHOWN: `scripts/check_promotion_gates.py` requires shadow fill/slippage
+  evidence for the shadow slippage gate.
+- SHOWN: `services/execution/_executor_shared.py` blocks submit operations in
+  observe-only shadow mode.
+- SHOWN: the existing shadow backlog/proof text covered spread/depth stamping,
+  but did not explicitly require a would-be-fill recorder.
+
+What changed:
+- Added an active backlog item requiring a shadow would-be-fill recorder before
+  shadow slippage gates are treated as actionable.
+- The item requires proof that shadow mode records intended fill/slippage
+  evidence while still creating zero live orders.
+- Renumbered the active backlog so the shadow recorder is visible before
+  sandbox lifecycle and launch-packet work.
+
+Why this change:
+- The strategic review identified a structural proof gap: shadow can collect
+  signal records, but the slippage gate cannot be satisfied if observe-only
+  submits do not persist would-be-fill records.
+- Capturing the task in `REMAINING_TASKS.md` prevents the repo from treating
+  shadow spread/depth stamping as complete shadow readiness.
+
+Expected outcome:
+- The next shadow-stage implementation has a clear objective: record
+  would-be-fill slippage evidence without placing live orders.
+- Operators can distinguish completed spread/depth signal proof from the still
+  missing fill/slippage evidence path.
+
+Verification:
+- `sed -n '1,240p' /Users/baitus/.codex/attachments/23e1567a-b478-4841-9ed5-0be75b60e09c/pasted-text.txt`
+  - SHOWN: the strategic review identifies shadow would-be-fill recording as a
+    missing proof path.
+- `sed -n '780,825p' scripts/check_promotion_gates.py`
+  - SHOWN: the shadow slippage gate reports missing shadow fill/slippage
+    evidence and asks operators to collect would-be-fill slippage evidence.
+- `sed -n '400,425p' services/execution/_executor_shared.py`
+  - SHOWN: shadow observe-only mode disables submit operations.
+
+Remaining risk:
+- LOW: this is a docs/backlog tracking change only.
+- UNVERIFIED: implementation design for the future recorder, storage schema,
+  and gate integration.
+- Acceptance state: `ACCEPTED`.
