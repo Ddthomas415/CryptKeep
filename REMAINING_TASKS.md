@@ -179,6 +179,24 @@ deployment work still needs independent review.
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a
     new accepted architecture decision.
+19. Classify candidate-advisor strategy coverage against the registry.
+    `services/signals/candidate_advisor.py` currently allows only a subset of
+    `services/strategies/strategy_registry.py::SUPPORTED`; the current drift is
+    `breakout_volume`, `gap_fill`, `sma_200_trend`, and
+    `volatility_reversal`. Add an explicit exclusion set with rationale, and a
+    test that fails whenever a registered strategy is neither advisor-allowed
+    nor deliberately excluded. This prevents future discovery wiring from
+    silently omitting strategies.
+20. Harden the strategy-runner single-instance lock. `_acquire_lock()` in
+    `services/execution/strategy_runner.py` is check-then-write and has no
+    stale-PID recovery. Replace it with an atomic create path and a stale-lock
+    reclamation proof: dead PID lock is reclaimed, and concurrent acquire
+    attempts allow exactly one winner.
+21. Make sample-mode provenance agree with the actual data source. Current
+    paper evidence stamps `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`; the
+    promotion gate then treats that label as authoritative. Derive the sample
+    label from the data source/path used, and make mismatched env/source labels
+    fail closed or record explicit sample provenance.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
@@ -223,6 +241,10 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 8. Add a full-state backup/restore drill to the launch evidence packet. Script
    backup of all state DBs and record one executed restore-and-resume rehearsal.
    Blocks live.
+9. Surface evidence-write failures in session status. If signal/fill evidence
+   writes fail repeatedly while a campaign keeps running, operators should see a
+   failure counter and the session should refuse after a bounded threshold
+   rather than silently starving the promotion gate.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
@@ -251,6 +273,11 @@ substrate work, but they are concrete enough to keep visible.
    branch now calls `_strategy_signal()` after warmup, and the targeted runner
    regression proves a synthetic buy signal creates one queued strategy intent
    without paper orders or fills.
+7. Add paper-ledger invariant tests around `PaperTradingSQLite.apply_fill`.
+   The store updates order, fill, position, cash, and realized PnL in one
+   transaction, which is stronger than earlier fragmented-store framing. Add a
+   property or sequence test proving cash, fills, and positions reconcile after
+   mixed buy/sell fills so future changes preserve that invariant.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
