@@ -31,6 +31,16 @@ ALLOWED_STRATEGIES: frozenset[str] = frozenset({
     "ema_cross",
 })
 
+# Registered strategies that are intentionally not advisor-selectable yet.
+# Every registry strategy must be either allowed here or explicitly excluded so
+# discovery coverage cannot drift silently as new strategies are added.
+ADVISOR_EXCLUDED_STRATEGIES: dict[str, str] = {
+    "breakout_volume": "variant of breakout_donchian; requires separate paper/config evidence",
+    "gap_fill": "pattern strategy remains research-only until governed config and paper proof exist",
+    "sma_200_trend": "canonical pipeline-validation campaign; not a rotation/advisor override target",
+    "volatility_reversal": "event-driven crash-recovery strategy; no governed paper campaign yet",
+}
+
 DEFAULT_MIN_SCORE: float = 38.0
 DEFAULT_MAX_AGE_SEC: int = 3600  # 1 hour — candidates older than this are stale
 

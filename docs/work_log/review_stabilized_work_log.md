@@ -13452,3 +13452,51 @@ Remaining risk:
   from the readable attachment content, but it is not a source-code re-audit of
   every claim inside those attachments.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Candidate Advisor Strategy Classification Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent the candidate advisor's strategy allow-list from silently drifting
+  away from the executable strategy registry.
+
+What was found:
+- SHOWN: `services/strategies/strategy_registry.py::SUPPORTED` registers nine
+  OHLCV strategies.
+- SHOWN: `services/signals/candidate_advisor.py::ALLOWED_STRATEGIES` allowed
+  only five of those strategies.
+- SHOWN: the omitted registry strategies were `breakout_volume`, `gap_fill`,
+  `sma_200_trend`, and `volatility_reversal`.
+- SHOWN: no existing test required advisor strategies to be explicitly allowed
+  or explicitly excluded.
+
+What changed:
+- Added `ADVISOR_EXCLUDED_STRATEGIES` with one-line rationales for the four
+  registered strategies that are intentionally not advisor-selectable yet.
+- Added `tests/test_candidate_advisor_classification.py` to assert every
+  registry strategy is classified as either advisor-allowed or
+  advisor-excluded, that the sets do not overlap, and that exclusion rationales
+  are non-empty.
+- Updated `REMAINING_TASKS.md` item 19 to record the implementation proof.
+
+Why this change:
+- Future strategy additions should not disappear from the advisor path by
+  omission. A failing classification test forces a conscious allowed/excluded
+  decision whenever the registry changes.
+
+Expected outcome:
+- Candidate discovery coverage becomes explicit and regression-guarded without
+  changing runtime advisor recommendations.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_candidate_advisor_classification.py tests/test_candidate_layer.py`
+  - SHOWN: `42 passed in 0.27s`.
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- MEDIUM: this is strategy-discovery governance, not execution or live routing.
+- Runtime behavior is intended to remain unchanged because the allow-list is
+  unchanged; only omitted strategies now have documented rationales.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

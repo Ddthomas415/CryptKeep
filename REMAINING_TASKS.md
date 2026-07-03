@@ -227,7 +227,9 @@ deployment work still needs independent review.
     `volatility_reversal`. Add an explicit exclusion set with rationale, and a
     test that fails whenever a registered strategy is neither advisor-allowed
     nor deliberately excluded. This prevents future discovery wiring from
-    silently omitting strategies.
+    silently omitting strategies. Implementation proof is ready for review:
+    the advisor now has an explicit exclusion-rationale map, and the test suite
+    fails if any registry strategy is not classified as allowed or excluded.
 20. Harden the strategy-runner single-instance lock. `_acquire_lock()` in
     `services/execution/strategy_runner.py` is check-then-write and has no
     stale-PID recovery. Replace it with an atomic create path and a stale-lock
