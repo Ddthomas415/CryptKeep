@@ -13224,3 +13224,52 @@ Remaining risk:
 - UNVERIFIED: current correctness of every historical pasted-agent claim was
   not re-proven from source; only material backlog coverage was reconciled.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Execution-Cost Research Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the missing maker-vs-taker / execution-cost optimization research
+  item identified by the user's follow-up agent review.
+
+What was found:
+- SHOWN: `rg` found no maker/taker, post-only, fee-tier, limit-fill
+  probability, spread-crossing, or execution-cost backlog item in
+  `REMAINING_TASKS.md`, checkpoint docs, or the work log.
+- SHOWN: `services/execution/paper_engine.py` supports `limit` orders and
+  evaluates open orders for fills.
+- SHOWN: `services/execution/paper_fees.py` exposes a single flat
+  `paper_fee_bps` model.
+- SHOWN: `services/execution/fill_model.py` models fills as mid-price plus or
+  minus configured bps, without maker/taker, queue, or spread-crossing
+  distinctions.
+
+What changed:
+- Added a deferred live-money substrate backlog item for execution-cost
+  research: maker-vs-taker rates, fee tiers, venue cost stack, modeled maker
+  versus taker fills, limit-fill probability, and reproducible cost-stack
+  reporting from shadow records.
+
+Why this change:
+- Execution costs can erase daily-horizon crypto signal edge, and the existing
+  fill-model and shadow-recorder items did not explicitly cover maker/taker
+  policy or venue fee-stack research.
+- The item is scoped as research/shadow-only so it does not alter live routing
+  or the canonical paper campaign while expectancy remains unproven.
+
+Expected outcome:
+- Future profitability work has a visible execution-cost research path that
+  consumes shadow evidence instead of creating a second collection pipeline.
+
+Verification:
+- `rg -n "maker|taker|post-only|fee-tier|limit-fill|spread-crossing|spread crossing|execution-cost|cost stack" REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md docs/checkpoints -g"*.md"`
+  - SHOWN: no matches before the backlog update.
+- `rg -n "limit|fee_bps|paper_fees|apply_fee_slippage|open_orders|order_type" services/execution/paper_engine.py services/execution/fill_model.py services/execution/paper_fees.py`
+  - SHOWN: paper limit-order support exists, while fee/fill modeling remains
+    flat and generic.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: detailed implementation design and venue fee schedule sources.
+- Acceptance state: `ACCEPTED`.

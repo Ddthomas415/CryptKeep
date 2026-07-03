@@ -300,6 +300,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
     incident review.
+15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
+    stack. This is deferred and research/shadow-only until expectancy is
+    proven. Current evidence shows the paper engine supports limit orders, but
+    fee modeling is a single flat rate and the shared fill model is mid-price
+    plus/minus bps with no spread-crossing, queue, post-only, or maker/taker
+    distinction. When activated, extend fee config to maker/taker rates per
+    venue, use shadow would-be-fill records to compare modeled taker fills
+    against modeled maker/resting fills, estimate limit-fill probability from
+    subsequent price paths, and produce a reproducible per-venue/per-strategy
+    cost-stack report in bps. Hard constraint: no live routing or canonical
+    order-type policy changes from this item until strategy expectancy and
+    shadow cost evidence justify a separate reviewed execution-policy change.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
