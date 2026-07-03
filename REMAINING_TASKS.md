@@ -196,6 +196,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `config_load_failed` before intents/orders/fills can be produced. Remaining:
    sweep other runtime trading-config consumers before capped live, especially
    bot startup, live executor/consumer/reconciler, and risk-gate config reads.
+   2026-07-03 follow-through: active paper evidence path proof is ready:
+   strategy-runner in-loop user-config reloads and paper evidence service
+   evidence persistence now use strict config loading. Corrupt mid-session
+   config writes `config_load_failed`, emits no runner intent, and prevents
+   leaderboard/decision-record persistence from `{}` defaults. Remaining
+   capped-live blocker: safety/load-gates and live executor/consumer/reconciler
+   config consumers still require their own fail-closed sweep.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
