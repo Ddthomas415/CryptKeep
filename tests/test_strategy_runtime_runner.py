@@ -60,7 +60,7 @@ def _breakout_runner_cfg(*, max_bars_hold: int) -> dict:
 def test_cfg_uses_canonical_breakout_strategy(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STRATEGY_NAME", "breakout")
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
-    monkeypatch.setattr(runner, "load_user_yaml", lambda: {"strategy_runner": {}})
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
 
     cfg = runner._cfg()
 
@@ -73,7 +73,7 @@ def test_cfg_uses_canonical_breakout_strategy(monkeypatch, tmp_path):
 def test_cfg_uses_canonical_pullback_recovery_strategy(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STRATEGY_NAME", "pullback")
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
-    monkeypatch.setattr(runner, "load_user_yaml", lambda: {"strategy_runner": {}})
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
 
     cfg = runner._cfg()
 
@@ -88,7 +88,7 @@ def test_cfg_honors_env_min_bars_override_without_going_below_required_history(m
     monkeypatch.setenv("CBP_STRATEGY_NAME", "ema_cross")
     monkeypatch.setenv("CBP_STRATEGY_MIN_BARS", "28")
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
-    monkeypatch.setattr(runner, "load_user_yaml", lambda: {"strategy_runner": {}})
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
 
     cfg = runner._cfg()
 
@@ -100,7 +100,7 @@ def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_pa
     monkeypatch.setenv("CBP_STRATEGY_SIGNAL_SOURCE", "public_ohlcv_5m")
     monkeypatch.setenv("CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE", "1")
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
-    monkeypatch.setattr(runner, "load_user_yaml", lambda: {"strategy_runner": {}})
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
 
     cfg = runner._cfg()
 
@@ -113,7 +113,7 @@ def test_cfg_preserves_explicit_unknown_strategy_as_unsupported(monkeypatch, tmp
     monkeypatch.setattr(
         runner,
         "load_user_yaml",
-        lambda: {
+        lambda **kwargs: {
             "strategy_runner": {
                 "strategy": {"name": "funding_extrem", "trade_enabled": True},
                 "strategy_preset": "funding_extreme_default",
@@ -134,7 +134,7 @@ def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp
     monkeypatch.setattr(
         runner,
         "load_user_yaml",
-        lambda: {"strategy_runner": {"strategy": {"name": "", "trade_enabled": True}}},
+        lambda **kwargs: {"strategy_runner": {"strategy": {"name": "", "trade_enabled": True}}},
     )
 
     cfg = runner._cfg()
@@ -189,7 +189,7 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
     monkeypatch.setattr(
         runner,
         "load_user_yaml",
-        lambda: {
+        lambda **kwargs: {
             "strategy_runner": {
                 "strategy": {
                     "name": "breakout_donchian",
@@ -471,7 +471,7 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     monkeypatch.setattr(
         runner,
         "load_user_yaml",
-        lambda: {
+        lambda **kwargs: {
             "strategy_runner": {
                 "strategy": {
                     "name": "breakout_donchian",
@@ -547,7 +547,7 @@ def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch,
     monkeypatch.setattr(
         runner,
         "_cfg",
-        lambda: {
+        lambda **kwargs: {
             "enabled": True,
             "strategy_id": "breakout_donchian",
             "strategy": {
@@ -729,7 +729,7 @@ def test_run_forever_unknown_strategy_records_status_without_side_effects(monkey
     monkeypatch.setattr(
         runner,
         "load_user_yaml",
-        lambda: {
+        lambda **kwargs: {
             "strategy_runner": {
                 "strategy": {"name": "funding_extrem", "trade_enabled": True},
                 "strategy_preset": "funding_extreme_default",
@@ -773,6 +773,27 @@ def test_run_forever_unknown_strategy_records_status_without_side_effects(monkey
     assert status["signal_ok"] is False
     assert status["signal_action"] == "hold"
     assert status["signal_reason"] == "unknown_strategy"
+    assert qdb.list_intents(limit=10) == []
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
+
+
+def test_run_forever_config_load_failure_stops_without_side_effects(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+
+    import services.admin.config_editor as config_editor
+
+    config_editor.CONFIG_PATH.write_text("strategy_runner: [unterminated\n", encoding="utf-8")
+
+    runner.run_forever()
+
+    status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+    assert status["ok"] is False
+    assert status["status"] == "stopped"
+    assert status["reason"] == "config_load_failed"
+    assert "user.yaml" in status["error"]
     assert qdb.list_intents(limit=10) == []
     assert pdb.list_orders(limit=10) == []
     assert pdb.list_fills(limit=10) == []

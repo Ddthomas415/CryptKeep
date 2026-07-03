@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from services import config_loader as loader
 
 
@@ -112,3 +114,34 @@ def test_runtime_trading_config_available_accepts_runtime_only_default_path(monk
     monkeypatch.setattr(loader, "_CFG_PATH", runtime_cfg)
 
     assert loader.runtime_trading_config_available() is True
+
+
+def test_load_user_config_strict_allows_missing_runtime_config(monkeypatch, tmp_path):
+    monkeypatch.setattr(loader, "_CFG_PATH", tmp_path / "missing.yaml")
+
+    assert loader.load_user_config(strict=True) == {}
+
+
+def test_load_user_config_non_strict_returns_empty_for_corrupt_runtime_config(monkeypatch, tmp_path):
+    runtime_cfg = tmp_path / "runtime-user.yaml"
+    runtime_cfg.write_text("execution: [unterminated\n", encoding="utf-8")
+    monkeypatch.setattr(loader, "_CFG_PATH", runtime_cfg)
+
+    assert loader.load_user_config() == {}
+
+
+def test_load_user_config_strict_raises_for_corrupt_runtime_config(monkeypatch, tmp_path):
+    runtime_cfg = tmp_path / "runtime-user.yaml"
+    runtime_cfg.write_text("execution: [unterminated\n", encoding="utf-8")
+    monkeypatch.setattr(loader, "_CFG_PATH", runtime_cfg)
+
+    with pytest.raises(loader.ConfigLoadError, match="config_load_failed"):
+        loader.load_user_config(strict=True)
+
+
+def test_load_runtime_trading_config_strict_raises_for_corrupt_explicit_path(tmp_path):
+    explicit_cfg = tmp_path / "bad-trading.yaml"
+    explicit_cfg.write_text("execution: [unterminated\n", encoding="utf-8")
+
+    with pytest.raises(loader.ConfigLoadError, match="config_load_failed"):
+        loader.load_runtime_trading_config(str(explicit_cfg), strict=True)
