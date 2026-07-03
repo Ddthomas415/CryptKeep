@@ -225,9 +225,11 @@ substrate work, but they are concrete enough to keep visible.
 6. Investigate the `synthetic_mid_ohlcv` branch in
    `services/execution/strategy_runner.py`. During the unknown-strategy runner
    proof, the public-OHLCV branch was shown to call `compute_signal()`, while
-   `_strategy_signal()` has no visible caller in the current runner. Treat this
-   as a separate scoped task before relying on tick/synthetic strategy-runner
-   mode for evidence.
+   `_strategy_signal()` had no visible caller in the current runner. An
+   implementation proof is ready for independent review: the tick/synthetic
+   branch now calls `_strategy_signal()` after warmup, and the targeted runner
+   regression proves a synthetic buy signal creates one queued strategy intent
+   without paper orders or fills.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
