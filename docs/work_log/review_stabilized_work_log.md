@@ -12940,6 +12940,10 @@ Verification:
 - GitHub Actions for PR #179
   - SHOWN: CI failed in `test_ops_services_do_not_log_raw_exception_text`
     because `paper_strategy_evidence_service.py` contained `"error": str(exc)`.
+- GitHub Actions for PR #179 after sanitized-status follow-up
+  - SHOWN: all 7 checks passed: CI validate, CI sanity, macOS wrapper build,
+    Windows wrapper build, Governance smoke push, Governance smoke pull request,
+    and GitGuardian.
 - `./.venv/bin/python -m pytest -q tests/test_ops_services_no_raw_exception_text.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
   - SHOWN: `58 passed in 0.98s`.
 - `git diff --check`
@@ -12951,4 +12955,6 @@ Remaining risk:
 - UNVERIFIED: full suite, long-running campaign behavior, safety/load-gates,
   live executor/consumer/reconciler config consumers, and master promotion PR
   #178.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-03 after PR #179 CI passed.
