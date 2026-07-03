@@ -174,6 +174,9 @@ deployment work still needs independent review.
     Binance derivatives remain unavailable from the current network. If the
     canonical source decision remains open, prioritize the decision itself
     because every idle day loses mostly unrecoverable funding/OI history.
+    Treat this as a one-venue research focus until one venue/strategy pair
+    proves expectancy; multi-exchange remains a scaling objective, not the
+    near-term discovery path.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -232,9 +235,13 @@ deployment work still needs independent review.
     strategy, freezes it, keeps it in paper, or stops the broader project.
     Include thresholds for losing qualified round trips, drawdown, negative
     expectancy versus baseline, repeated evidence/provenance failures, and
-    operator time/cost limits. This decision should be written before a
-    drawdown or gate-green event so the system is not judged emotionally while
-    under pressure.
+    operator time/cost limits. Include a project-level thesis gate with a
+    dated review window: if the flagship profitability hypothesis does not show
+    positive walk-forward expectancy after measured costs by that date, the
+    operator must revise the thesis, change strategy family/horizon, or wind
+    the project down. This decision should be written before a drawdown or
+    gate-green event so the system is not judged emotionally while under
+    pressure.
 25. Write and rehearse the first-hour paper-to-shadow runbook before the paper
     gate turns green. The runbook should start from fresh gate output, confirm
     baseline/manual-review status, confirm `observe_only` and no live routing,
@@ -242,6 +249,14 @@ deployment work still needs independent review.
     would-be-fill evidence is being written, verify zero venue orders, and
     record rollback/recovery steps. This is separate from the later launch
     evidence packet; it is the operator checklist for the first shadow hour.
+26. Decide whether to widen the paper universe to accelerate qualified evidence.
+    The current canonical paper gate is slow because daily strategies on a
+    narrow symbol set produce few qualified round trips. Before changing the
+    campaign, write a decision record covering candidate symbols, venue/source
+    support, provenance qualification, correlation/non-independence caveats,
+    per-symbol risk caps, and whether cross-symbol round trips count toward the
+    same strategy gate. Do not retroactively count unqualified history or widen
+    the universe without preserving the evidence contract.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
@@ -278,13 +293,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 5. Ship server deployment units or retire the stale deployment story. Provide
    systemd units for collector, trader, reconciler, and dashboard, and either
    make Docker compose runnable from this repo or move it behind a documented
-   companion-repo pointer. Blocks server shadow quality and live.
+   companion-repo pointer. Prefer boring host infrastructure (`systemd`,
+   `journald`, bounded status commands, and external dead-man checks) over
+   expanding custom supervisor code unless a repo-specific need is shown.
+   Blocks server shadow quality and live.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
    kill/stop signals within a bounded interval and a synthetic alert-delivery
-   test so dead email/Slack credentials are detected. Blocks shadow/live
-   quality.
+   test so dead email/Slack credentials are detected. Prefer a simple external
+   dead-man and push channel such as healthchecks-style pings plus ntfy,
+   Telegram, or another operator-visible channel before writing more custom
+   alert infrastructure. Blocks shadow/live quality.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
@@ -391,6 +411,10 @@ substrate work, but they are concrete enough to keep visible.
     packaged desktop app. Current operation is paper/research plus server
     monitoring. Create a decision record for each larger product surface:
     retain and schedule, defer, or retire from the near-term production path.
+    Default near-term stance should be lab-mode concentration: freeze desktop
+    packaging, onboarding/product polish, and non-operator-critical dashboard
+    work unless it directly improves evidence collection, safety, alerting, or
+    operator decision quality.
 13. Keep pattern/candlestick strategy research visible but behind the archive
     and paper-evidence gates. Existing code covers pullbacks, gap fills,
     volatility reversals, order-book imbalance, funding, and open interest.
@@ -402,6 +426,34 @@ substrate work, but they are concrete enough to keep visible.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
     paper reconciliation, campaign health, market movers, and copilot reports.
+15. Vendor, explicitly integrate, or excise the companion-repo dependency.
+    `phase1_research_copilot` has appeared in compose/docs/skip-test context
+    during audits. Split-brain repos rot deployment stories. Decide whether the
+    companion is a vendored dependency, an external documented prerequisite, or
+    retired from the canonical path, then update compose, docs, and tests to
+    match.
+16. Add risk-tiered governance lanes to the operator workflow. Keep full
+    ceremony for high-risk changes touching gates, dispatch, execution,
+    secrets, deployment, and live-risk surfaces. Allow a lighter documented
+    lane for low-risk docs/tests/reporting changes with clear PR labeling,
+    targeted verification, and work-log coverage. The goal is to preserve
+    rigor where it protects money while reducing process tax where it only
+    delays low-risk cleanup.
+17. Define the operational core and quarantine policy. Add a `CORE.md` or
+    equivalent decision record that names the modules required for the current
+    paper/research/shadow path, plus a quarantine/attic policy for surfaces not
+    in that core. Do not move broad directories in one sweep; first classify,
+    then retire, delegate, or document.
+18. Protect operator attention as a managed resource. Add a decision record or
+    runbook rule that caps open audit loops, limits low-value review churn, and
+    forces each proactive task to tie back to one of: evidence velocity,
+    profitability discovery, cost measurement, safety, recovery, or operator
+    wake-up quality.
+19. Clarify repo identity in public/operator docs. Until live expectancy is
+    proven, describe CryptKeep as a profit-measurement and evidence-generation
+    lab, not a profitable trading bot. This keeps strategy discovery,
+    archive-backed research, shadow cost measurement, and stop criteria ahead
+    of dashboard/product polish.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

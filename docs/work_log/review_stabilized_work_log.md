@@ -13322,3 +13322,64 @@ Remaining risk:
 - UNVERIFIED: exact stop thresholds and paper-to-shadow runbook content remain
   to be written in future artifacts.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Strategic Concentration Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the user's latest pasted strategic assessment in the governed backlog
+  so the repo keeps the material "full control" recommendations visible.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracked product-objective triage,
+  dead-man alerting, deployment units, execution-cost research, stop criteria,
+  crypto-edge collection, and shadow runbook work.
+- SHOWN: the backlog did not explicitly state the lab-mode concentration
+  stance: freeze desktop/product polish until expectancy is proven, focus on
+  one venue/strategy pair for discovery, decide whether to widen the paper
+  symbol universe to buy evidence velocity, tier governance by risk, prefer
+  boring infrastructure over custom ops code, and define the repo as a
+  profit-measurement lab rather than a profitable trading product.
+- CLAIMED: the pasted assessment referenced broad surfaces such as desktop,
+  dashboard, and companion-repo residue. This entry captures the strategic
+  recommendations as backlog decisions; it does not re-audit every file count
+  from that pasted text.
+
+What changed:
+- Updated the crypto-edge collection item to state that one-venue research is
+  the near-term focus and multi-exchange is a later scaling objective.
+- Expanded stop criteria to include a dated project-level thesis gate.
+- Added an active backlog item requiring an explicit decision before widening
+  the paper universe for faster qualified evidence.
+- Expanded live-substrate items to prefer systemd/journald/external dead-man
+  checks before more custom supervisor or alert infrastructure.
+- Expanded structure/research backlog with lab-mode product-surface freeze,
+  companion-repo decision, risk-tiered governance lanes, operational-core and
+  quarantine policy, operator-attention protection, and repo-identity clarity.
+
+Why this change:
+- The recommendations change project direction and operator workflow, not
+  runtime behavior. Capturing them as backlog/decision items is the smallest
+  safe change and avoids turning strategic advice into unreviewed code churn.
+
+Expected outcome:
+- Future work can prioritize evidence velocity, profitability discovery, cost
+  measurement, safety, recovery, and operator wake-up quality ahead of product
+  polish or low-value audit churn.
+- Future agents can see the concentration decisions in git without relying on
+  chat memory.
+
+Verification:
+- `sed -n '1,420p' REMAINING_TASKS.md`
+  - SHOWN: active and deferred backlog sections were read before editing.
+- `tail -n 180 docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: existing work-log format and recent backlog entries were read before
+    adding this entry.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: no independent source audit was performed for every pasted-file
+  claim in the strategic assessment; this patch records decisions to evaluate,
+  not proof that all claims are current.
+- Acceptance state: `ACCEPTED`.
