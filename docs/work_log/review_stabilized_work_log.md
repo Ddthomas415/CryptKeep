@@ -13017,3 +13017,65 @@ Remaining risk:
 - UNVERIFIED: implementation design for the future recorder, storage schema,
   and gate integration.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Principal Audit Delta Backlog Capture
+
+Active role: ENGINEER
+
+Objective:
+- Capture the new actionable deltas from the principal-engineer
+  production-readiness audit so they remain visible after the shadow recorder
+  and strict-config items were already merged or tracked.
+
+What was found:
+- SHOWN: `SUPPORTED - ALLOWED_STRATEGIES` is
+  `breakout_volume`, `gap_fill`, `sma_200_trend`, and
+  `volatility_reversal`; `ALLOWED_STRATEGIES - SUPPORTED` is empty.
+- SHOWN: `services/signals/candidate_advisor.py` defines
+  `ALLOWED_STRATEGIES` as a hard-coded subset of the strategy registry with no
+  explicit exclusion set.
+- SHOWN: `services/execution/strategy_runner.py::_acquire_lock()` checks
+  `LOCK_FILE.exists()` and then writes the lock file, with no atomic create
+  path and no stale-PID recovery.
+- SHOWN: `services/execution/strategy_runner.py` and
+  `scripts/run_paper_strategy_evidence_collector.py` stamp sample-mode
+  provenance from `CBP_USE_SAMPLE_OHLCV`; the paper qualification gate then
+  treats `ohlcv_sample_mode` as authoritative.
+- SHOWN: the audit identified evidence-write failure surfacing and
+  paper-ledger invariant tests as proof gaps.
+
+What changed:
+- Added backlog items for advisor/registry classification, strategy-runner
+  atomic lock and stale-PID recovery, and source-derived sample-mode
+  provenance.
+- Added deferred proof items for surfacing repeated evidence-write failures and
+  preserving paper-ledger invariants around `PaperTradingSQLite.apply_fill`.
+
+Why this change:
+- The findings are real but should not be mixed into the accepted strict-config
+  or shadow-recorder tracking PRs.
+- Capturing them in `REMAINING_TASKS.md` preserves the audit signal without
+  starting new high-risk implementation work inside a docs-only branch.
+
+Expected outcome:
+- Future strategy-discovery work cannot silently omit registered strategies
+  without an explicit exclusion rationale.
+- Runner restart robustness, sample/provenance trust, evidence-write
+  observability, and paper-ledger consistency have visible follow-up tasks.
+
+Verification:
+- `./.venv/bin/python - <<'PY' ...`
+  - SHOWN: `SUPPORTED_MINUS_ALLOWED=['breakout_volume', 'gap_fill',
+    'sma_200_trend', 'volatility_reversal']` and
+    `ALLOWED_MINUS_SUPPORTED=[]`.
+- `nl -ba services/execution/strategy_runner.py | sed -n '240,260p;748,760p'`
+  - SHOWN: `_acquire_lock()` is check-then-write and `run_forever()` reports
+    `lock_exists` without stale lock recovery.
+- `rg -n "ohlcv_sample_mode|CBP_USE_SAMPLE_OHLCV|sample_mode" services/execution services/control scripts tests`
+  - SHOWN: sample-mode provenance is stamped from env and later consumed by
+    paper evidence qualification.
+
+Remaining risk:
+- LOW: this is a docs/backlog tracking change only.
+- UNVERIFIED: implementation designs and test details for each captured item.
+- Acceptance state: `ACCEPTED`.
