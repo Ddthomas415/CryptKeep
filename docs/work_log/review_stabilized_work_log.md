@@ -12677,3 +12677,71 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Review reference: independently reviewed and accepted by the human operator
   on 2026-07-03 before PR publication.
+
+## 2026-07-03 - Prove Unknown Strategy Fails Closed Through Runner Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Extend the accepted registry fail-closed behavior through the strategy runner
+  evidence path so an explicit strategy-name typo cannot be canonicalized to
+  `ema_cross` before reaching the registry.
+
+What was found:
+- SHOWN: `services/execution/strategy_runner.py` still had its own
+  `_canonical_strategy_name()` fallback that mapped unsupported names to
+  `ema_cross` before calling `strategy_registry.compute_signal()`.
+- SHOWN: the public-OHLCV branch rebuilt a selected strategy block with
+  `build_strategy_block()`, which could not carry an unsupported name through
+  to the registry for a fail-closed status result.
+- SHOWN: `es_daily_trend_v1` is a common strategy identifier in configs/docs
+  while the executable registry strategy is `sma_200_trend`.
+- SHOWN: during test construction, `_strategy_signal()` had no visible caller
+  in the current runner; the accepted proof therefore targets the public-OHLCV
+  path used by the active paper evidence campaigns and records the
+  synthetic/tick branch as a separate backlog investigation.
+
+What changed:
+- Added explicit strategy-name source detection so missing strategy config
+  still defaults to `ema_cross`, while explicit unknown or empty names become
+  unsupported strategy blocks.
+- Added an `es_daily_trend_v1` alias to `sma_200_trend` to avoid treating the
+  canonical campaign identifier as an unknown runner strategy.
+- Made unsupported strategy blocks use the generic 5-bar minimum history
+  instead of falling through to EMA history defaults.
+- Added a helper for public-OHLCV selected strategy blocks so unsupported names
+  pass through to the registry and produce `unknown_strategy` hold results
+  instead of falling back or raising in `build_strategy_block()`.
+- Added runner tests proving explicit unknown and explicit empty names are
+  preserved as unsupported config, and a public-OHLCV runner loop records
+  `signal_ok=false`, `signal_action=hold`, and
+  `signal_reason=unknown_strategy` with zero intents, zero paper orders, and
+  zero paper fills.
+- Updated `REMAINING_TASKS.md` with the runner proof status and the separate
+  synthetic/tick branch follow-up.
+
+Why this change:
+- The registry-only fix protected direct registry callers, but the production
+  runner had a pre-registry alias layer that could still silently execute EMA
+  for a typo. The smallest correct fix is to fail closed at the runner config
+  boundary while preserving missing-config defaults and known aliases.
+
+Expected outcome:
+- Future strategy-discovery wiring can rely on the runner preserving an
+  unsupported strategy name through status/evidence as a non-actionable hold.
+- A typo such as `funding_extrem` does not enqueue a strategy intent and does
+  not create paper orders or fills on the public-OHLCV runner path.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `38 passed in 0.72s`.
+
+Remaining risk:
+- HIGH: strategy-runner dispatch is trading-adjacent financial logic.
+- UNVERIFIED: full suite, live execution surfaces, and the tick/synthetic
+  strategy-runner branch. The latter is documented as a separate backlog item
+  because `_strategy_signal()` currently has no visible caller in
+  `services/execution/strategy_runner.py`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

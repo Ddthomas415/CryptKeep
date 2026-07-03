@@ -51,6 +51,7 @@ _STRATEGY_ALIASES = {
     "ema_crossover": "ema_cross",
     "ema_xover": "ema_cross",
     "ema_xover_v1": "ema_cross",
+    "es_daily_trend_v1": "sma_200_trend",
     "sma_200_trend": "sma_200_trend",
     "mean_reversion": "mean_reversion_rsi",
     "mean_reversion_rsi": "mean_reversion_rsi",
@@ -292,9 +293,32 @@ def _cfg() -> dict:
     }
 
 
-def _canonical_strategy_name(raw: object) -> str:
+def _configured_strategy_name(s: dict, nested: dict) -> tuple[object, bool]:
+    env_name = os.environ.get("CBP_STRATEGY_NAME")
+    if env_name is not None:
+        return env_name, True
+    if "name" in nested:
+        return nested.get("name"), True
+    if "strategy_name" in s:
+        return s.get("strategy_name"), True
+    if "strategy_id" in s:
+        return s.get("strategy_id"), True
+    return "ema_cross", False
+
+
+def _canonical_strategy_name(raw: object) -> str | None:
     key = str(raw or "").strip().lower()
-    return _STRATEGY_ALIASES.get(key, "ema_cross")
+    if not key:
+        return None
+    return _STRATEGY_ALIASES.get(key)
+
+
+def _unsupported_strategy_block(raw_name: object, nested: dict) -> dict:
+    return {
+        "name": str(raw_name or "").strip().lower(),
+        "trade_enabled": bool(nested.get("trade_enabled", True)),
+        "unsupported": True,
+    }
 
 
 def _legacy_strategy_params(s: dict, strategy_name: str) -> dict:
@@ -348,14 +372,17 @@ def _legacy_strategy_params(s: dict, strategy_name: str) -> dict:
 
 def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
     nested = s.get("strategy") if isinstance(s.get("strategy"), dict) else {}
-    raw_name = (
-        os.environ.get("CBP_STRATEGY_NAME")
-        or nested.get("name")
-        or s.get("strategy_name")
-        or s.get("strategy_id")
-        or "ema_cross"
-    )
+    raw_name, explicitly_configured = _configured_strategy_name(s, nested)
     strategy_name = _canonical_strategy_name(raw_name)
+    if strategy_name is None:
+        if explicitly_configured:
+            preset_name = str(
+                os.environ.get("CBP_STRATEGY_PRESET")
+                or s.get("strategy_preset")
+                or "unknown_strategy"
+            ).strip() or "unknown_strategy"
+            return _unsupported_strategy_block(raw_name, nested), preset_name
+        strategy_name = "ema_cross"
     default_preset = _DEFAULT_PRESET_BY_STRATEGY[strategy_name]
     preset_name = str(
         os.environ.get("CBP_STRATEGY_PRESET")
@@ -382,7 +409,24 @@ def _strategy_block_from_runner_cfg(s: dict) -> tuple[dict, str]:
     return strategy_block, preset_name
 
 
+def _signal_strategy_block_from_selected_name(selected_strategy: object, raw_strategy: dict) -> dict:
+    strategy_name = _canonical_strategy_name(selected_strategy)
+    if strategy_name is None:
+        return _unsupported_strategy_block(selected_strategy, raw_strategy)
+
+    selected_params = dict(raw_strategy)
+    selected_params.pop("name", None)
+    selected_params.pop("trade_enabled", None)
+    return build_strategy_block(
+        name=strategy_name,
+        trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
+        params=selected_params,
+    )
+
+
 def _required_history(strategy_block: dict) -> int:
+    if bool(strategy_block.get("unsupported")):
+        return 5
     name = str(strategy_block.get("name") or "ema_cross")
     if name == "ema_cross":
         return max(
@@ -808,15 +852,7 @@ def run_forever() -> None:
                     raw_runner = raw_cfg.get("strategy_runner") if isinstance(raw_cfg.get("strategy_runner"), dict) else {}
                     raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
 
-                    selected_params = dict(raw_strategy)
-                    selected_params.pop("name", None)
-                    selected_params.pop("trade_enabled", None)
-
-                    selected_block = build_strategy_block(
-                        name=selected_strategy,
-                        trade_enabled=bool(raw_strategy.get("trade_enabled", True)),
-                        params=selected_params,
-                    )
+                    selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
                     evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe)
                     evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
                     selected_block["evidence_extra"] = evidence_extra
