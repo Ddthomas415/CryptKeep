@@ -13543,3 +13543,51 @@ Remaining risk:
 - UNVERIFIED: the actual runbook content, access model, and emergency delegate
   remain to be written and reviewed later.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Edge Collector And Baseline Sequencing Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's autonomous-execution sequencing plan and capture missing
+  backlog refinements that improve evidence velocity and gate readiness.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracks shadow would-be-fill recording,
+  archive-first backtesting, crypto-edge strategy wiring, edge-collector
+  cadence alerts, full-state drills, and process-cap/operator attention.
+- SHOWN: the backlog did not explicitly state that `es_daily_trend_v1`
+  expectancy fields should prefer an archive-backed multi-year baseline if the
+  archive lands before manual review.
+- SHOWN: the edge-collector item required scheduled collection and cadence-gap
+  alerts, but did not explicitly require a first operational proof showing host
+  schedule state, recent snapshot timestamps, and cadence gaps before downstream
+  strategy wiring depends on the history.
+
+What changed:
+- Updated the paper manual-review item to prefer archive-backed, dataset-hashed
+  multi-year baseline metrics before populating `es_daily_trend_v1.yaml`
+  expectancy fields.
+- Updated the scheduled crypto-edge collection item to require a first
+  post-source-decision operational proof of scheduler and snapshot cadence.
+
+Why this change:
+- These are sequencing details that prevent two common failure modes:
+  populating a gate baseline from shallow non-reproducible data, and wiring
+  `funding_extreme` against an edge-history clock that is not actually running.
+
+Expected outcome:
+- When the paper gate reaches manual review, the expectancy comparison points
+  at the best available reproducible dataset.
+- When crypto-edge wiring begins, the team already has proof that funding/OI
+  history is accruing on schedule.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: backlog/work-log only.
+- UNVERIFIED: the archive implementation, edge collector scheduler, and
+  baseline regeneration remain future work.
+- Acceptance state: `ACCEPTED`.

@@ -74,6 +74,11 @@ deployment work still needs independent review.
    `configs/strategies/es_daily_trend_v1.yaml` from an accepted parity/backtest
    baseline; otherwise the gate can report count readiness while the strategy
    performance comparison remains unresolved.
+   If archive-first backtesting lands before the manual review, prefer an
+   archive-backed multi-year baseline with dataset hashes over any shallow
+   single-fetch baseline. Do not populate the expectancy fields from a
+   short-window or non-reproducible run unless that limitation is explicitly
+   accepted in the decision record.
    Ground truth must come from the operator-host gate/status command output
    (`make status-paper-gate-qualification` or the equivalent gate JSON), not
    from stale counts copied into this backlog.
@@ -192,7 +197,9 @@ deployment work still needs independent review.
     read-only support is available, at least one second venue for comparison.
     Add a cadence-gap alert for the edge collector specifically; a silent
     collector outage burns unrecoverable funding/OI history even when paper
-    campaigns keep running.
+    campaigns keep running. The first post-decision proof should verify the
+    collector schedule on the host, show recent snapshot timestamps, and report
+    any cadence gaps before more strategy wiring depends on that history.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
