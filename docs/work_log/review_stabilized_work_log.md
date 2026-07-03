@@ -13591,3 +13591,61 @@ Remaining risk:
 - UNVERIFIED: the archive implementation, edge collector scheduler, and
   baseline regeneration remain future work.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - AI Copilot And AI Engine Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's AI-layer audit and add any missing backlog tasks that
+  materially affect production readiness.
+
+What was found:
+- SHOWN: `docs/AI_COPILOT_BOUNDARY.md` already states that AI/copilot surfaces
+  are advisory and cannot become direct live-trading authority.
+- SHOWN: `services/ai_copilot/context_collector.py::_safe_sqlite_query` opens
+  SQLite databases through a normal read-write connection while accepting a SQL
+  string from its caller. Current callers pass hardcoded read queries, but the
+  read-only assumption is not enforced by the helper.
+- SHOWN: `services/live_router/router.py` can enable `services/ai_engine`
+  through env/config and, on AI-service/model exceptions, records
+  `ai_error_ignored` with `ok=true` unless strict mode is explicitly enabled.
+- SHOWN: `docs/AI_ENGINE.md` documents default pass-through behavior for the
+  AI engine.
+- CLAIMED: the attached audit characterizes `services/ai_copilot` as generally
+  capability-limited/read-only and `services/ai_engine` as the material
+  doctrine violation. That broader package assessment was not fully re-audited
+  in this patch.
+
+What changed:
+- Added a deferred live-money substrate backlog item requiring the optional
+  `ai_engine` live-router hook to be quarantined or made fail-closed before any
+  capped-live exposure.
+- Added a deferred structure/research-hygiene backlog item requiring enforced
+  read-only SQLite access for AI-copilot context collection, explicit provider
+  data-governance documentation for `use_ai=true`, and advisory-only handling
+  for the LLM PR reviewer unless a stronger design is accepted.
+
+Why this change:
+- The AI-engine hook sits on an order-routing path and should not be treated as
+  a generic research scaffold if it can fail open when enabled.
+- The copilot context collector is lower risk today, but its helper name
+  implies a safety property the code does not enforce. Recording the gap keeps
+  future AI-summary work bounded by actual read-only controls.
+
+Expected outcome:
+- Live-readiness work has an explicit AI-engine quarantine/fail-closed blocker
+  instead of relying on broad fail-open backlog language.
+- AI-copilot reporting can mature without accidentally widening data-access or
+  provider-disclosure assumptions.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- HIGH for the future `ai_engine` implementation because it touches live order
+  routing and fail-open behavior; that future code change must stop at
+  `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.

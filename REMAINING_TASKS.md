@@ -389,6 +389,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     cost-stack report in bps. Hard constraint: no live routing or canonical
     order-type policy changes from this item until strategy expectancy and
     shadow cost evidence justify a separate reviewed execution-policy change.
+16. Quarantine or fail-close the optional `ai_engine` live-router hook before
+    any capped-live exposure. `services/live_router/router.py` can enable
+    `services/ai_engine` through env/config and currently records
+    `ai_error_ignored` with `ok=true` unless strict mode is explicitly enabled.
+    That contradicts the repo's fail-closed doctrine for order-routing paths.
+    Preferred resolution: remove or hard-disable the live-router AI hook until
+    any ML signal enters through the normal strategy registry, evidence
+    campaign, provenance qualification, and promotion gates. Minimum acceptable
+    resolution if the hook remains: AI-service/model errors block orders by
+    default, docs stop describing pass-through as the default live behavior,
+    and tests prove an enabled broken AI gate cannot allow an order. Blocks
+    capped live.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
@@ -493,6 +505,17 @@ substrate work, but they are concrete enough to keep visible.
     lab, not a profitable trading bot. This keeps strategy discovery,
     archive-backed research, shadow cost measurement, and stop criteria ahead
     of dashboard/product polish.
+20. Harden AI-copilot context access and provider-data governance before
+    enabling external LLM summaries as a normal operator path.
+    `services/ai_copilot/context_collector.py::_safe_sqlite_query` currently
+    accepts caller-provided SQL on a normal SQLite connection; today's callers
+    are hardcoded reads, but the read-only assumption is not enforced. Open
+    SQLite databases in read-only mode, keep the query surface allowlisted or
+    internal-only, and add a small regression proving write SQL cannot mutate
+    the source DB. Also document what runtime fields may be sent to external
+    LLM providers when `use_ai=true`, and keep `services/ai_copilot/pr_reviewer`
+    advisory/non-blocking unless a separate prompt-injection-resistant review
+    design is accepted.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
