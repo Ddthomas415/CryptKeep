@@ -24,9 +24,16 @@ SUPPORTED = {
 
 def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
     st = cfg.get("strategy") if isinstance(cfg.get("strategy"), dict) else {}
-    name = str(st.get("name", "ema_cross")).strip()
+    raw_name = st.get("name") if "name" in st else "ema_cross"
+    name = str(raw_name or "").strip()
     if name not in SUPPORTED:
-        name = "ema_cross"
+        return {
+            "ok": False,
+            "action": "hold",
+            "reason": "unknown_strategy",
+            "strategy": name,
+            "symbol": symbol,
+        }
 
     if not bool(st.get("trade_enabled", True)):
         return {"ok": True, "action": "hold", "reason": "trade_disabled", "strategy": name, "symbol": symbol}

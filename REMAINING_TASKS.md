@@ -109,6 +109,9 @@ deployment work still needs independent review.
    once new names like `funding_extreme` enter campaign configs. Unknown
    strategies should produce a non-actionable error/hold result that is visible
    in session evidence; prove a typo cannot emit an actionable signal.
+   Implementation is independently accepted: the registry returns `ok=false`,
+   `action=hold`, and `reason=unknown_strategy` for explicit unknown names
+   while preserving the existing missing-name `ema_cross` default.
 10. Build archive-first backtesting before relying on strategy comparisons.
    `services/backtest/signal_replay.py` currently fetches OHLCV live with a
    shallow single-call default, while `storage/market_store_sqlite.py` already

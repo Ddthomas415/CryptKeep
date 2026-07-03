@@ -12621,3 +12621,59 @@ Remaining risk:
 - LOW: backlog/work-log documentation only. No runtime, trading, collector,
   gate, or deployment behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Make Strategy Registry Fail Closed For Unknown Names
+
+Active role: ENGINEER
+
+Objective:
+- Prevent explicit unknown strategy names from silently falling back to
+  `ema_cross` before crypto-edge context strategy wiring lands.
+
+What was found:
+- SHOWN: `services/strategies/strategy_registry.py` converted any unsupported
+  `strategy.name` to `ema_cross`.
+- SHOWN: `tests/test_strategy_registry.py` had a regression test asserting that
+  unknown strategies fall back instead of failing closed.
+- SHOWN: `REMAINING_TASKS.md` tracks this as the prerequisite for new strategy
+  discovery wiring because typos such as `funding_extrem` could otherwise
+  produce actionable EMA signals under the wrong strategy identity.
+
+What changed:
+- Updated `compute_signal()` so an explicit unknown strategy returns
+  `ok=false`, `action=hold`, `reason=unknown_strategy`, the requested strategy
+  name, and the symbol.
+- Preserved the existing missing-name default to `ema_cross` for configs that
+  do not provide a strategy block.
+- Replaced the old fallback test with a fail-closed regression test and added a
+  test for the preserved missing-name default.
+- Updated `REMAINING_TASKS.md` to mark the implementation proof ready for
+  independent review.
+
+Why this change:
+- The smallest safe boundary fix is inside the registry itself. It prevents an
+  unsupported or mistyped strategy from emitting a buy/sell signal while
+  avoiding a broader runner, gate, or context-strategy change.
+
+Expected outcome:
+- A typo in strategy configuration becomes visible as a non-actionable
+  `unknown_strategy` signal instead of being silently executed as `ema_cross`.
+- Future `funding_extreme` / context-strategy wiring can rely on fail-closed
+  dispatch before adding new execution contracts.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/strategies/strategy_registry.py tests/test_strategy_registry.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py`
+  - SHOWN: `11 passed in 0.10s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: strategy dispatch is financial/trading-adjacent logic and may affect
+  paper/live-adjacent runtime decisions if an invalid strategy name is supplied.
+- UNVERIFIED: broader strategy-runner and paper-campaign integration beyond
+  the targeted registry tests.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-03 before PR publication.
