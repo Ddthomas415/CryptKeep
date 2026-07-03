@@ -12674,4 +12674,6 @@ Remaining risk:
   paper/live-adjacent runtime decisions if an invalid strategy name is supplied.
 - UNVERIFIED: broader strategy-runner and paper-campaign integration beyond
   the targeted registry tests.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-03 before PR publication.
