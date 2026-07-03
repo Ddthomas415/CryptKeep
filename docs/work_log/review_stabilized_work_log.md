@@ -12809,4 +12809,67 @@ Remaining risk:
 - HIGH: runtime config loading controls trading-adjacent financial behavior.
 - UNVERIFIED: full test suite, paper evidence service persistence branch, and
   live-money runtime consumers beyond the strategy-runner dispatch path.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-03 before PR #177 merge.
+
+## 2026-07-03 - Restore Synthetic Strategy Runner Signal Dispatch
+
+Active role: ENGINEER
+
+Objective:
+- Restore strategy signal computation in the `synthetic_mid_ohlcv` /
+  tick-based strategy runner path after PR #175 exposed that `_strategy_signal()`
+  had no visible caller.
+
+What was found:
+- SHOWN: `services/execution/strategy_runner.py` initialized each loop with
+  `signal = {"ok": True, "action": "hold", "reason": "no_signal"}`.
+- SHOWN: the public-OHLCV branch computed `signal` from `compute_signal()`, but
+  the tick/synthetic branch continued after warmup without calling
+  `_strategy_signal()`.
+- SHOWN: `_strategy_signal()` existed and had direct unit coverage, but no
+  visible runtime caller.
+- SHOWN: the tick/synthetic warmup block had an unconditional sleep/continue
+  after writing warmup status, preventing the shared decision/action section
+  from seeing a computed strategy signal.
+
+What changed:
+- Moved the tick/synthetic sleep/continue inside the `len(prices) < min_bars`
+  warmup branch.
+- Called `_strategy_signal(sym_cfg, prices, ts_ms=ts_ms)` once enough prices
+  exist, and set `bars = len(prices)` for downstream status.
+- Added a runner regression proving `synthetic_mid_ohlcv` calls
+  `_strategy_signal()` after warmup, records the signal reason in the queued
+  intent metadata, creates exactly one queued strategy intent for a synthetic
+  buy signal, and creates zero paper orders/fills.
+- Updated `REMAINING_TASKS.md` so the synthetic/tick branch item records the
+  implementation proof boundary.
+
+Why this change:
+- The previous runner proof deliberately scoped itself to public OHLCV, but
+  leaving the synthetic/tick branch unable to call strategy logic would keep a
+  dormant runtime path misleadingly present. The smallest correction is to
+  restore the existing helper call after warmup without touching public-OHLCV,
+  risk gates, order routing, or paper order execution.
+
+Expected outcome:
+- Tick/synthetic strategy-runner mode can once again convert warmed mid-price
+  history into strategy signals and queued intents.
+- The paper order/fill boundary remains unchanged: the strategy runner only
+  queues intents; paper execution still belongs to the paper runner/reconciler.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `39 passed in 1.68s`.
+
+Remaining risk:
+- HIGH: strategy-runner dispatch is trading-adjacent financial logic and this
+  restores actionable signal generation in tick/synthetic mode.
+- UNVERIFIED: full suite, long-running paper campaigns, and any live-adjacent
+  runtime surface outside the targeted strategy-runner tests.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-03 before PR #176 merge.

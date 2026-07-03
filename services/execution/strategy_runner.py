@@ -908,11 +908,13 @@ def run_forever() -> None:
                                 "note": "warming",
                                 "enqueued": enqueued,
                                 "strategy_id": cfg["strategy_id"],
-                            "strategy_source": cfg["signal_source"],
-                        }
-                    )
-                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
-                    continue
+                                "strategy_source": cfg["signal_source"],
+                            }
+                        )
+                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                        continue
+                    signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
+                    bars = len(prices)
             decision = str(signal.get("action") or "hold").lower().strip()
             if decision not in ("buy", "sell", "hold"):
                 decision = "hold"

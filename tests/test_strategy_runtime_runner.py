@@ -604,6 +604,80 @@ def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch,
     assert intents == []
 
 
+def test_run_forever_synthetic_mid_uses_strategy_signal_after_warmup(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    signal_calls: list[tuple[dict, list[float], int | None]] = []
+    ticks = {"count": 0}
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "ema_cross",
+            "strategy": {
+                "name": "ema_cross",
+                "trade_enabled": True,
+                "ema_fast": 2,
+                "ema_slow": 3,
+            },
+            "strategy_preset": "ema_cross_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "fast_n": 2,
+            "slow_n": 3,
+            "min_bars": 3,
+            "max_bars": 10,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": True,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+
+    def fake_fetch_mid(_cfg):
+        ticks["count"] += 1
+        return 100.0 + float(ticks["count"]), ticks["count"] * 1000
+
+    def fake_strategy_signal(cfg, prices, ts_ms=None):
+        signal_calls.append((dict(cfg), list(prices), ts_ms))
+        return {"ok": True, "action": "buy", "reason": "synthetic_buy", "ind": {}}
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if int(status.get("enqueued_total") or 0) >= 1:
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner, "_fetch_mid", fake_fetch_mid)
+    monkeypatch.setattr(runner, "_strategy_signal", fake_strategy_signal)
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert signal_calls
+    assert signal_calls[0][0]["signal_source"] == "synthetic_mid_ohlcv"
+    assert len(signal_calls[0][1]) >= 3
+    queued = qdb.list_intents(limit=10, status="queued")
+    assert len(queued) == 1
+    assert queued[0]["strategy_id"] == "ema_cross"
+    assert queued[0]["side"] == "buy"
+    assert queued[0]["meta"]["signal_reason"] == "synthetic_buy"
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
+
+
 @pytest.mark.slow
 def test_run_forever_does_not_consume_time_stop_on_repeated_same_bar(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
