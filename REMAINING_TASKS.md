@@ -112,6 +112,11 @@ deployment work still needs independent review.
    Implementation is independently accepted: the registry returns `ok=false`,
    `action=hold`, and `reason=unknown_strategy` for explicit unknown names
    while preserving the existing missing-name `ema_cross` default.
+   Runner/evidence integration proof is independently accepted: explicit
+   unknown names remain unsupported through runner config resolution, the
+   public-OHLCV runner loop records `signal_ok=false` and
+   `signal_reason=unknown_strategy`, and no intents, paper orders, or paper
+   fills are created.
 10. Build archive-first backtesting before relying on strategy comparisons.
    `services/backtest/signal_replay.py` currently fetches OHLCV live with a
    shallow single-call default, while `storage/market_store_sqlite.py` already
@@ -217,6 +222,12 @@ substrate work, but they are concrete enough to keep visible.
    until data cadence and streaming assumptions are proven.
 5. Add a backtest-to-paper fill parity property test around the shared fill
    model so paper evidence transferability is tested directly.
+6. Investigate the `synthetic_mid_ohlcv` branch in
+   `services/execution/strategy_runner.py`. During the unknown-strategy runner
+   proof, the public-OHLCV branch was shown to call `compute_signal()`, while
+   `_strategy_signal()` has no visible caller in the current runner. Treat this
+   as a separate scoped task before relying on tick/synthetic strategy-runner
+   mode for evidence.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

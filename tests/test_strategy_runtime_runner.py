@@ -108,6 +108,42 @@ def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_pa
     assert cfg["allow_first_signal_trade"] is True
 
 
+def test_cfg_preserves_explicit_unknown_strategy_as_unsupported(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda: {
+            "strategy_runner": {
+                "strategy": {"name": "funding_extrem", "trade_enabled": True},
+                "strategy_preset": "funding_extreme_default",
+            }
+        },
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "funding_extrem"
+    assert cfg["strategy"]["name"] == "funding_extrem"
+    assert cfg["strategy"]["unsupported"] is True
+    assert cfg["strategy_preset"] == "funding_extreme_default"
+
+
+def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda: {"strategy_runner": {"strategy": {"name": "", "trade_enabled": True}}},
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == ""
+    assert cfg["strategy"]["name"] == ""
+    assert cfg["strategy"]["unsupported"] is True
+
+
 def test_held_bar_counter_advances_only_for_new_market_bar(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
 
@@ -609,6 +645,63 @@ def test_run_forever_does_not_consume_time_stop_on_repeated_same_bar(monkeypatch
     assert qdb.list_intents(limit=10) == []
     assert sdb.get("bars_held:coinbase:BTC/USD:breakout_donchian") == "0"
     assert sdb.get("last_held_bar_ts:coinbase:BTC/USD:breakout_donchian") == "1000"
+
+
+def test_run_forever_unknown_strategy_records_status_without_side_effects(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda: {
+            "strategy_runner": {
+                "strategy": {"name": "funding_extrem", "trade_enabled": True},
+                "strategy_preset": "funding_extreme_default",
+                "venue": "coinbase",
+                "symbol": "BTC/USD",
+                "min_bars": 5,
+                "max_bars": 10,
+                "loop_interval_sec": 0.0,
+                "qty": 0.5,
+                "allow_first_signal_trade": True,
+                "use_ccxt_fallback": False,
+                "signal_source": "public_ohlcv_1m",
+            }
+        },
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if status.get("signal_reason") == "unknown_strategy":
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        runner,
+        "_fetch_public_ohlcv",
+        lambda cfg: [
+            [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+            [5, 100.0, 100.0, 100.0, 100.0, 1.0],
+        ],
+    )
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+    assert status["strategy_id"] == "funding_extrem"
+    assert status["signal_ok"] is False
+    assert status["signal_action"] == "hold"
+    assert status["signal_reason"] == "unknown_strategy"
+    assert qdb.list_intents(limit=10) == []
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
 
 
 @pytest.mark.slow
