@@ -13383,3 +13383,72 @@ Remaining risk:
   claim in the strategic assessment; this patch records decisions to evaluate,
   not proof that all claims are current.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Recent Attachment Reconciliation Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Re-read the recent pasted attachment set instead of relying on chat memory,
+  then compare material recommendations against `REMAINING_TASKS.md`.
+
+What was found:
+- SHOWN: 29 pasted attachment files were present under
+  `/Users/baitus/.codex/attachments/*/pasted-text.txt`, totaling 4,484 lines.
+- SHOWN: the major production and research findings were already represented
+  in the backlog: fail-closed config, retry typing, Decimal/venue
+  quantization, crash-consistency tests, state-store consolidation, deployment
+  units, dead-man alerting, full-state restore, archive-first backtesting,
+  crypto-edge strategy wiring, advisor/registry drift, stale runner locks,
+  sample-mode provenance, dashboard/product triage, companion-repo cleanup,
+  execution-cost research, and stop criteria.
+- SHOWN: several recommendations were present only implicitly or lacked
+  operational specificity: sandbox lifecycle proof can be run before the paper
+  gate because it is no-capital testnet learning, archive work should feed
+  systematic parameter sweeps and walk-forward discovery, `funding_extreme`
+  should be treated as the flagship profitability hypothesis once wired,
+  edge-collector history should be collected beyond the active campaign and
+  alerted on cadence gaps, and Hetzner runbooks must distinguish server
+  commands from laptop commands with verified privilege/venv prerequisites.
+
+What changed:
+- Updated the sandbox/testnet lifecycle item to state it can be executed before
+  the paper gate clears if kept isolated and no-capital.
+- Expanded archive-first backtesting to include post-archive parameter-sweep
+  and walk-forward research throughput.
+- Expanded crypto-edge strategy wiring to frame `funding_extreme` as the first
+  profitability hypothesis, with `es_daily_trend_v1` remaining the
+  pipeline-validation strategy unless evidence changes that.
+- Expanded scheduled edge collection with broader symbol/second-venue data
+  hoarding and a cadence-gap alert requirement.
+- Expanded Hetzner follow-through with explicit host privilege, venv/app-path,
+  Tailscale host, and laptop-vs-server command requirements.
+
+Why this change:
+- The user explicitly challenged whether recent pasted messages had actually
+  been read. This change makes the reconciliation visible in git and captures
+  the remaining materially distinct recommendations without touching runtime
+  code.
+
+Expected outcome:
+- The backlog better preserves the strategic direction from the recent
+  attachments: improve evidence velocity, widen edge discovery, avoid
+  deployment/runbook confusion, and do no-capital execution-stack learning in
+  parallel with paper evidence collection.
+
+Verification:
+- `find /Users/baitus/.codex/attachments -maxdepth 2 -name pasted-text.txt -print | sort`
+  - SHOWN: 29 pasted attachment files were available.
+- `wc -l /Users/baitus/.codex/attachments/*/pasted-text.txt`
+  - SHOWN: 4,484 total lines across the pasted attachment set.
+- `sed -n '70,230p' REMAINING_TASKS.md`
+  - SHOWN: active backlog items were read before patching the missing
+    refinements.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: some attachment command-output logs were truncated in terminal
+  display during review; the patch captures material recommendations observed
+  from the readable attachment content, but it is not a source-code re-audit of
+  every claim inside those attachments.
+- Acceptance state: `ACCEPTED`.

@@ -91,7 +91,11 @@ deployment work still needs independent review.
    not instantiate the exchange client, leaves the intent pending, and writes
    zero execution-store fills.
 4. Prove private lifecycle runtime flow in one reachable supported
-   sandbox/testnet venue, or record an explicit human exception decision.
+   sandbox/testnet venue, or record an explicit human exception decision. This
+   proof can run before the paper gate clears because it is a no-capital
+   execution-stack learning exercise, not a promotion decision. Keep it
+   isolated from paper evidence, require sandbox/testnet credentials only, and
+   record place/fill/cancel/reconcile evidence without changing strategy stage.
 5. Produce the launch evidence packet: restart/recovery, kill-switch,
    reconciliation halt/resume, rollback, and lifecycle or exception evidence.
 6. Continue only the remaining PR #43 rebuild candidates from clean `master`.
@@ -146,7 +150,11 @@ deployment work still needs independent review.
    shallow single-call default, while `storage/market_store_sqlite.py` already
    has a `market_ohlcv` archive table. Promote paginated OHLCV ingestion into a
    reusable archive path, make backtests read archive-first with dataset hashes,
-   and prove repeated runs over the same archive are byte-identical.
+   and prove repeated runs over the same archive are byte-identical. After the
+   archive proof lands, add a systematic parameter-sweep and walk-forward
+   research runner over registered strategy families so discovery throughput is
+   measured by reproducible out-of-sample hypotheses, not hand-picked one-off
+   windows.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /
@@ -159,7 +167,10 @@ deployment work still needs independent review.
     its cadence fits REST snapshots. Defer `open_interest_shift` until previous
     OI state is derived from snapshot history. Defer `order_book_imbalance`
     until a tighter-cadence or streaming depth path exists; depth REST snapshots
-    are not sufficient proof-quality evidence for that signal.
+    are not sufficient proof-quality evidence for that signal. Treat
+    `funding_extreme` as the flagship profitability hypothesis once wired;
+    keep `es_daily_trend_v1` framed as the pipeline-validation strategy unless
+    later evidence proves it is also the best profit candidate.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -176,7 +187,12 @@ deployment work still needs independent review.
     because every idle day loses mostly unrecoverable funding/OI history.
     Treat this as a one-venue research focus until one venue/strategy pair
     proves expectancy; multi-exchange remains a scaling objective, not the
-    near-term discovery path.
+    near-term discovery path. Once the source decision is accepted, collect a
+    broader plausible symbol universe than the active campaign needs and, if
+    read-only support is available, at least one second venue for comparison.
+    Add a cadence-gap alert for the edge collector specifically; a silent
+    collector outage burns unrecoverable funding/OI history even when paper
+    campaigns keep running.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -192,7 +208,12 @@ deployment work still needs independent review.
     is independently accepted. The read-only host-health alerting wrapper is
     independently accepted. Canonical `.cbp_state` migration remains blocked.
     Use `docs/deployment_records/hetzner_canonical_state_migration_TEMPLATE.md`
-    for the future migration packet.
+    for the future migration packet. Before any server setup or migration
+    command is treated as actionable, verify the host has the required
+    privilege path (`sudo`/root), `python3.12-venv` or equivalent installed,
+    and the expected app path. Runbook commands must use the Tailscale host or
+    actual server address, not placeholders, and must distinguish laptop
+    commands from server commands.
 17. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
 18. Maintain the retired-family regression guard. `services/paper`,
