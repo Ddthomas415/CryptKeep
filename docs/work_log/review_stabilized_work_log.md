@@ -13500,3 +13500,46 @@ Remaining risk:
 - Runtime behavior is intended to remain unchanged because the allow-list is
   unchanged; only omitted strategies now have documented rationales.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-03 - Single-Operator Continuity Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's production-repo comparison and add any missing backlog task
+  that materially improves production readiness.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracks Decimal money math, transactional
+  state decisions, typed retry classification, crash/fault tests, systemd
+  deployment, loop heartbeats/dead-man alerting, full-state restore drills,
+  duplicate safety modules, sandbox lifecycle proof, and operator stop
+  criteria.
+- SHOWN: the backlog did not explicitly require a single-operator continuity or
+  absence runbook, even though the pasted assessment correctly identified that
+  the repo's recovery knowledge still depends heavily on one operator.
+
+What changed:
+- Added active backlog item 27 requiring a single-operator continuity and
+  absence runbook before shadow or server migration becomes the primary
+  operating mode.
+
+Why this change:
+- The repo's technical controls are only production-grade if they fail safe
+  while the operator is asleep, unavailable, or disconnected. This item turns
+  that human-dependency risk into a concrete operator-workflow artifact.
+
+Expected outcome:
+- Future shadow/server operation has a written answer for what continues,
+  alerts, degrades, stops, can be accessed, can be restored, and must not be
+  touched when the operator is unavailable.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: backlog/work-log only.
+- UNVERIFIED: the actual runbook content, access model, and emergency delegate
+  remain to be written and reviewed later.
+- Acceptance state: `ACCEPTED`.

@@ -280,6 +280,15 @@ deployment work still needs independent review.
     per-symbol risk caps, and whether cross-symbol round trips count toward the
     same strategy gate. Do not retroactively count unqualified history or widen
     the universe without preserving the evidence contract.
+27. Write a single-operator continuity and absence runbook before shadow or
+    server migration becomes the primary operating mode. The system currently
+    depends on one operator knowing which checks, hosts, branches, campaigns,
+    and recovery procedures matter. Document what continues running if the
+    operator is unreachable for a week or a month, what alerts must fire, what
+    automatically degrades or stops, who can access the host/repo if needed,
+    how to restore from backup, and which actions are explicitly forbidden
+    without the operator. This is not a staffing fix; it is the minimum proof
+    that the system fails safe without constant human attention.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
