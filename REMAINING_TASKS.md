@@ -112,7 +112,7 @@ deployment work still needs independent review.
    Implementation is independently accepted: the registry returns `ok=false`,
    `action=hold`, and `reason=unknown_strategy` for explicit unknown names
    while preserving the existing missing-name `ema_cross` default.
-   Runner/evidence integration proof is ready for independent review: explicit
+   Runner/evidence integration proof is independently accepted: explicit
    unknown names remain unsupported through runner config resolution, the
    public-OHLCV runner loop records `signal_ok=false` and
    `signal_reason=unknown_strategy`, and no intents, paper orders, or paper

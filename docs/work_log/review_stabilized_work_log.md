@@ -12744,4 +12744,6 @@ Remaining risk:
   strategy-runner branch. The latter is documented as a separate backlog item
   because `_strategy_signal()` currently has no visible caller in
   `services/execution/strategy_runner.py`.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-03 after PR #175 checks passed.
