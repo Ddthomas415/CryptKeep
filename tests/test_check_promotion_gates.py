@@ -1057,6 +1057,26 @@ class TestShadowGateMarketQuality:
         assert gate["passed"] is True
         assert gate["detail"] == "1/1 shadow signals include spread/depth"
 
+    def test_shadow_gate_surfaces_would_be_fill_slippage_evidence(self):
+        from scripts.check_promotion_gates import evaluate_shadow_gates
+
+        gates = evaluate_shadow_gates(
+            {},
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "ops_checks_passed": True}],
+            [{"timestamp": "2026-05-01T00:00:00+00:00", "spread_bps": 4.2}],
+            [
+                {
+                    "timestamp": "2026-05-01T00:00:00+00:00",
+                    "record_subtype": "shadow_would_be_fill",
+                    "slippage_pct": 0.05,
+                }
+            ],
+        )
+
+        gate = next(g for g in gates if g["label"] == "Slippage within 1.5× backtest estimate")
+        assert gate["passed"] is None
+        assert gate["detail"] == "manual check required across 1 shadow fill records"
+
     def test_shadow_gate_blocks_signals_without_spread_or_depth(self):
         from scripts.check_promotion_gates import evaluate_shadow_gates
 

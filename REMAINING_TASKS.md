@@ -77,7 +77,11 @@ deployment work still needs independent review.
    estimated fill price, slippage, strategy id, stage, and provenance. Proof
    must show shadow mode still creates zero live orders while
    `scripts/check_promotion_gates.py --stage shadow --json` can see the
-   slippage evidence needed for manual review.
+   slippage evidence needed for manual review. Implementation proof is ready
+   for independent review: observe-only submit records one idempotent
+   `shadow_would_be_fill` fill-evidence record per pending live intent, does
+   not instantiate the exchange client, leaves the intent pending, and writes
+   zero execution-store fills.
 4. Prove private lifecycle runtime flow in one reachable supported
    sandbox/testnet venue, or record an explicit human exception decision.
 5. Produce the launch evidence packet: restart/recovery, kill-switch,

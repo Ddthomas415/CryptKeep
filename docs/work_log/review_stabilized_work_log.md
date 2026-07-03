@@ -13079,3 +13079,73 @@ Remaining risk:
 - LOW: this is a docs/backlog tracking change only.
 - UNVERIFIED: implementation designs and test details for each captured item.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Shadow Would-Be-Fill Recorder Implementation Proof
+
+Active role: ENGINEER
+
+Objective:
+- Implement the smallest shadow-stage recorder needed for observe-only submit
+  attempts to produce fill/slippage evidence without placing live orders.
+
+What was found:
+- SHOWN: `services/execution/_executor_submit.py::submit_pending_live()` returns
+  early in `LIVE_SHADOW` observe-only mode before venue submission.
+- SHOWN: `scripts/check_promotion_gates.py::evaluate_shadow_gates()` already
+  reads shadow `fill` evidence and reports manual slippage review as available
+  once fill records exist.
+- SHOWN: `services/strategies/evidence_logger.py` can write `fill_*.jsonl`
+  records under the active strategy evidence directory while preserving
+  caller-supplied `_stage`.
+- SHOWN: the live-executor facade synchronizes monkeypatched dependencies into
+  `_executor_submit`, allowing a focused observe-only regression test.
+
+What changed:
+- Added private shadow-recorder helpers in
+  `services/execution/_executor_submit.py`.
+- In `LIVE_SHADOW` observe-only submit mode, pending live intents are scanned
+  and converted into idempotent `shadow_would_be_fill` evidence records.
+- Each record captures side, quantity, symbol, venue, bid, ask, last,
+  reference mid, spread bps, modeled fill price, fee, slippage, selected
+  strategy, strategy preset, `_stage=shadow`, and non-sample local snapshot
+  provenance.
+- The recorder uses the existing deterministic fill model and does not call the
+  exchange client, update intent status, or insert execution-store fills.
+- Added a regression test proving one pending live intent produces exactly one
+  shadow fill-evidence record and remains pending with zero execution-store
+  fills.
+- Added a gate test proving `evaluate_shadow_gates()` surfaces shadow
+  would-be-fill evidence as manual slippage-review input.
+- Updated `REMAINING_TASKS.md` to mark the item as implementation-proof-ready
+  pending independent review.
+
+Why this change:
+- Shadow mode previously had an unstartable evidence gate: submit was correctly
+  observe-only, but there was no artifact for the slippage gate to inspect.
+- Writing evidence records instead of execution-store fills preserves the
+  observe-only safety boundary while allowing the shadow gate to accumulate
+  reviewable would-be-fill slippage data.
+- Idempotency by intent prevents a repeated shadow submit loop from generating
+  one evidence fill per tick for the same pending intent.
+
+Expected outcome:
+- Once paper promotes to shadow, pending live intents can produce slippage
+  evidence for manual review without opening orders or mutating live fill
+  tables.
+- The shadow gate can distinguish "no slippage evidence exists" from
+  "manual review is required across N would-be-fill records."
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/_executor_submit.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_check_promotion_gates.py`
+  - SHOWN: command completed successfully.
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_check_promotion_gates.py::TestShadowGateMarketQuality`
+  - SHOWN: `9 passed in 0.99s`.
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- HIGH: this touches executor-adjacent financial logic and shadow/live submit
+  behavior.
+- UNVERIFIED: full-suite result and a live-like shadow campaign run against the
+  operator host were not run in this thread.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -4,10 +4,12 @@ _LOG = get_logger("_executor_submit")
 from services.risk.market_quality_guard import check_market_quality
 
 import os
+import json
 import logging
 import threading
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -25,8 +27,9 @@ from services.execution.lifecycle_boundary import (
 )
 from services.execution.safety_gates import SafetyConfig
 from services.execution.exchange_client import ExchangeClient
+from services.execution.fill_model import apply_fee_slippage
 from services.journal.fill_sink import CanonicalFillSink
-from services.market_data.tick_reader import get_best_bid_ask_last
+from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
 from services.os.app_paths import data_dir, ensure_dirs
 from services.preflight.preflight import run_preflight
 from services.risk.live_risk_gates import (
@@ -64,11 +67,208 @@ from services.execution._executor_shared import (
     _local_gate_price,
 )
 
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _safe_float(value: Any) -> float | None:
+    try:
+        if value is None:
+            return None
+        out = float(value)
+    except Exception:
+        return None
+    return out if out > 0 else None
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = str(os.environ.get(name) or "").strip()
+    if not raw:
+        return float(default)
+    try:
+        return float(raw)
+    except Exception:
+        return float(default)
+
+
+def _evidence_strategy_id_for_shadow(it: dict[str, Any]) -> str:
+    meta = dict(it.get("meta") or {}) if isinstance(it.get("meta"), dict) else {}
+    for candidate in (
+        meta.get("strategy_preset"),
+        meta.get("session_strategy_id"),
+        os.environ.get("CBP_SESSION_STRATEGY_ID"),
+        meta.get("strategy_id"),
+        it.get("strategy_id"),
+        meta.get("selected_strategy"),
+        os.environ.get("CBP_STRATEGY_ID"),
+    ):
+        value = str(candidate or "").strip()
+        if value:
+            return value
+    return "shadow_unknown_strategy"
+
+
+def _shadow_would_be_fill_exists(strategy_id: str, intent_id: str) -> bool:
+    ev_dir = data_dir() / "evidence" / strategy_id
+    if not ev_dir.exists():
+        return False
+    target_order_id = f"shadow:{intent_id}"
+    for path in sorted(ev_dir.glob("fill_*.jsonl")):
+        try:
+            for line in path.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                if (
+                    row.get("record_subtype") == "shadow_would_be_fill"
+                    and str(row.get("intent_id") or "") == intent_id
+                ):
+                    return True
+                if str(row.get("order_id") or "") == target_order_id:
+                    return True
+        except Exception:
+            continue
+    return False
+
+
+def _record_shadow_would_be_fill(cfg: LiveCfg, it: dict[str, Any]) -> str:
+    intent_id = str(it.get("intent_id") or "").strip()
+    side = str(it.get("side") or "").lower().strip()
+    symbol = str(it.get("symbol") or cfg.symbol or "").strip()
+    qty = _safe_float(it.get("qty"))
+    if not intent_id or side not in {"buy", "sell"} or not symbol or qty is None:
+        return "invalid_intent"
+
+    strategy_id = _evidence_strategy_id_for_shadow(it)
+    if _shadow_would_be_fill_exists(strategy_id, intent_id):
+        return "already_recorded"
+
+    quote = get_best_bid_ask_last(cfg.exchange_id, symbol)
+    mid = mid_price(quote or {}) if quote else None
+    mid = _safe_float(mid)
+    if quote is None or mid is None:
+        return "missing_quote"
+
+    bid = _safe_float(quote.get("bid"))
+    ask = _safe_float(quote.get("ask"))
+    last = _safe_float(quote.get("last"))
+    spread_bps = None
+    if bid is not None and ask is not None and ask >= bid and mid > 0:
+        spread_bps = round(((ask - bid) / mid) * 10000.0, 6)
+
+    fee_bps = _env_float("CBP_SHADOW_FEE_BPS", 10.0)
+    slippage_bps = _env_float("CBP_SHADOW_SLIPPAGE_BPS", 5.0)
+    modeled = apply_fee_slippage(
+        mid_px=mid,
+        side=side,
+        qty=qty,
+        fee_bps=fee_bps,
+        slippage_bps=slippage_bps,
+    )
+    if modeled.exec_px <= 0:
+        return "invalid_model"
+
+    meta = dict(it.get("meta") or {}) if isinstance(it.get("meta"), dict) else {}
+    selected_strategy = str(meta.get("selected_strategy") or it.get("strategy_id") or "").strip() or None
+    slippage_points = abs(float(modeled.exec_px) - mid)
+    slippage_pct = (slippage_points / mid) * 100.0 if mid > 0 else 0.0
+
+    from services.strategies.evidence_logger import EvidenceLogger
+
+    EvidenceLogger(strategy_id).log_fill(
+        timestamp=_now_iso(),
+        fill_price=float(modeled.exec_px),
+        slippage_points=round(slippage_points, 10),
+        slippage_pct=round(slippage_pct, 8),
+        fees_paid=float(modeled.fee),
+        side=side,
+        size=qty,
+        pnl_usd=None,
+        order_id=f"shadow:{intent_id}",
+        extra={
+            "_stage": "shadow",
+            "record_subtype": "shadow_would_be_fill",
+            "shadow_would_be_fill": True,
+            "intent_id": intent_id,
+            "exchange": cfg.exchange_id,
+            "venue": cfg.exchange_id,
+            "symbol": symbol,
+            "qty": qty,
+            "order_type": str(it.get("order_type") or "").strip() or None,
+            "intended_limit_price": _safe_float(it.get("limit_price")),
+            "reference_mid": mid,
+            "bid": bid,
+            "ask": ask,
+            "last": last,
+            "quote_ts_ms": int(quote.get("ts_ms") or 0),
+            "spread_bps": spread_bps,
+            "modeled_fill_price": float(modeled.exec_px),
+            "notional": float(modeled.notional),
+            "fee_bps": fee_bps,
+            "slippage_bps": slippage_bps,
+            "selected_strategy": selected_strategy,
+            "strategy_preset": meta.get("strategy_preset"),
+            "market_data_source": "local_snapshot",
+            "ohlcv_sample_mode": False,
+        },
+    )
+    return "recorded"
+
+
+def _record_shadow_would_be_fills(cfg: LiveCfg) -> dict[str, int]:
+    counts = {
+        "pending": 0,
+        "recorded": 0,
+        "already_recorded": 0,
+        "missing_quote": 0,
+        "invalid_intent": 0,
+        "invalid_model": 0,
+        "errors": 0,
+    }
+    try:
+        store = ExecutionStore(path=cfg.exec_db)
+        pending = _list_intents_any(
+            store,
+            mode="live",
+            exchange=cfg.exchange_id,
+            symbol=cfg.symbol,
+            statuses=["pending"],
+            limit=200,
+        )
+    except Exception as exc:
+        _LOG.warning("shadow_would_be_fill_pending_scan_failed err=%s", exc)
+        counts["errors"] = 1
+        return counts
+
+    counts["pending"] = len(pending)
+    max_records = max(0, int(cfg.max_submit_per_tick or 0))
+    for it in pending[:max_records]:
+        try:
+            status = _record_shadow_would_be_fill(cfg, it)
+        except Exception as exc:
+            _LOG.warning("shadow_would_be_fill_record_failed intent=%s err=%s", it.get("intent_id"), exc)
+            status = "errors"
+        counts[status if status in counts else "errors"] += 1
+    return counts
+
+
 def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     ok, why = _hard_off_guard(cfg, operation="submit")
     if not ok:
         if str(why).startswith("LIVE_SHADOW"):
-            return {"ok": True, "note": why, "submitted": 0, "errors": 0, "observe_only": True}
+            shadow_counts = _record_shadow_would_be_fills(cfg)
+            return {
+                "ok": True,
+                "note": why,
+                "submitted": 0,
+                "errors": shadow_counts["errors"],
+                "observe_only": True,
+                "shadow_pending": shadow_counts["pending"],
+                "shadow_would_be_fills": shadow_counts["recorded"],
+                "shadow_would_be_fills_existing": shadow_counts["already_recorded"],
+                "shadow_would_be_fills_missing_quote": shadow_counts["missing_quote"],
+            }
         return {"ok": False, "note": why, "submitted": 0}
 
     guard_ok, guard_reason, guard_meta = _system_guard_submit_open()
@@ -275,4 +475,3 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
         "safety_blocked": safety_blocked,
         "latency_breaches": latency_breaches,
     }
-
