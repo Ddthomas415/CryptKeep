@@ -182,6 +182,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
    because bad config can poison evidence context.
+   2026-07-03: first implementation slice is proof-ready on the strategy-runner
+   dispatch path: existing corrupt `user.yaml` now stops the runner with
+   `config_load_failed` before intents/orders/fills can be produced. Remaining:
+   sweep other runtime trading-config consumers before capped live, especially
+   bot startup, live executor/consumer/reconciler, and risk-gate config reads.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
@@ -225,9 +230,11 @@ substrate work, but they are concrete enough to keep visible.
 6. Investigate the `synthetic_mid_ohlcv` branch in
    `services/execution/strategy_runner.py`. During the unknown-strategy runner
    proof, the public-OHLCV branch was shown to call `compute_signal()`, while
-   `_strategy_signal()` has no visible caller in the current runner. Treat this
-   as a separate scoped task before relying on tick/synthetic strategy-runner
-   mode for evidence.
+   `_strategy_signal()` had no visible caller in the current runner. An
+   implementation proof is ready for independent review: the tick/synthetic
+   branch now calls `_strategy_signal()` after warmup, and the targeted runner
+   regression proves a synthetic buy signal creates one queued strategy intent
+   without paper orders or fills.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

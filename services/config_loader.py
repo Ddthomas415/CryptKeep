@@ -9,24 +9,48 @@ ensure_dirs()
 _CFG_PATH = config_dir() / "user.yaml"
 DEFAULT_TRADING_CFG_PATH = "config/trading.yaml"
 
-def load_user_config() -> Dict[str, Any]:
+class ConfigLoadError(RuntimeError):
+    """Raised when an existing runtime config cannot be trusted."""
+
+
+def _config_load_error(path: Path, reason: str) -> ConfigLoadError:
+    return ConfigLoadError(f"config_load_failed:{path}:{reason}")
+
+
+def load_user_config(*, strict: bool = False) -> Dict[str, Any]:
     if not _CFG_PATH.exists():
         return {}
     try:
         data = yaml.safe_load(_CFG_PATH.read_text(encoding="utf-8")) or {}
-        return data if isinstance(data, dict) else {}
-    except Exception:
+        if isinstance(data, dict):
+            return data
+        if strict:
+            raise _config_load_error(_CFG_PATH, "not_mapping")
+        return {}
+    except ConfigLoadError:
+        raise
+    except Exception as e:
+        if strict:
+            raise _config_load_error(_CFG_PATH, f"{type(e).__name__}:{e}") from e
         return {}
 
 
-def _load_yaml_file(path: str | Path) -> Dict[str, Any]:
+def _load_yaml_file(path: str | Path, *, strict: bool = False) -> Dict[str, Any]:
     p = Path(path)
     if not p.exists():
         return {}
     try:
         data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-        return data if isinstance(data, dict) else {}
-    except Exception:
+        if isinstance(data, dict):
+            return data
+        if strict:
+            raise _config_load_error(p, "not_mapping")
+        return {}
+    except ConfigLoadError:
+        raise
+    except Exception as e:
+        if strict:
+            raise _config_load_error(p, f"{type(e).__name__}:{e}") from e
         return {}
 
 
@@ -102,10 +126,10 @@ def runtime_trading_config_available(path: str = DEFAULT_TRADING_CFG_PATH) -> bo
     return p.exists()
 
 
-def load_runtime_trading_config(path: str = DEFAULT_TRADING_CFG_PATH) -> Dict[str, Any]:
+def load_runtime_trading_config(path: str = DEFAULT_TRADING_CFG_PATH, *, strict: bool = False) -> Dict[str, Any]:
     if not _is_default_trading_cfg_path(path):
-        return _normalize_runtime_trading_config(_load_yaml_file(path))
+        return _normalize_runtime_trading_config(_load_yaml_file(path, strict=strict))
 
-    legacy_cfg = _load_yaml_file(code_root() / DEFAULT_TRADING_CFG_PATH)
-    runtime_cfg = load_user_config()
+    legacy_cfg = _load_yaml_file(code_root() / DEFAULT_TRADING_CFG_PATH, strict=strict)
+    runtime_cfg = load_user_config(strict=strict)
     return _normalize_runtime_trading_config(_merge_dicts(legacy_cfg, runtime_cfg))

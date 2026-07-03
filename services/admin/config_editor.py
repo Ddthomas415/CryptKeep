@@ -8,14 +8,30 @@ ensure_dirs()
 CONFIG_PATH = config_dir() / "user.yaml"
 BACKUP_PATH = config_dir() / "user.yaml.bak"
 
-def load_user_yaml() -> Dict[str, Any]:
+class ConfigLoadError(RuntimeError):
+    """Raised when an existing user config cannot be trusted."""
+
+
+def _config_load_error(path: Path, reason: str) -> ConfigLoadError:
+    return ConfigLoadError(f"config_load_failed:{path}:{reason}")
+
+
+def load_user_yaml(*, strict: bool = False) -> Dict[str, Any]:
     if not CONFIG_PATH.exists():
         return {}
     try:
         with CONFIG_PATH.open("r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
-            return data if isinstance(data, dict) else {}
+            if isinstance(data, dict):
+                return data
+            if strict:
+                raise _config_load_error(CONFIG_PATH, "not_mapping")
+            return {}
+    except ConfigLoadError:
+        raise
     except Exception as e:
+        if strict:
+            raise _config_load_error(CONFIG_PATH, f"{type(e).__name__}:{e}") from e
         print(f"Error loading config: {type(e).__name__}: {e}")
         return {}
 
