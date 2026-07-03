@@ -793,7 +793,8 @@ def test_run_forever_config_load_failure_stops_without_side_effects(monkeypatch,
     assert status["ok"] is False
     assert status["status"] == "stopped"
     assert status["reason"] == "config_load_failed"
-    assert "user.yaml" in status["error"]
+    assert status["error"] == "config_load_failed:ConfigLoadError"
+    assert status["error_type"] == "ConfigLoadError"
     assert qdb.list_intents(limit=10) == []
     assert pdb.list_orders(limit=10) == []
     assert pdb.list_fills(limit=10) == []

@@ -1142,15 +1142,20 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                     "has_status": True,
                     "status": "failed",
                     "reason": campaign_reason,
-                    "error": str(exc),
+                    "error": f"config_load_failed:{type(exc).__name__}",
+                    "error_type": type(exc).__name__,
                     "ts": _now_iso(),
                     "pid": current_pid,
                     "strategies": strategies,
                     "completed_strategies": len(results),
                     "total_strategies": len(strategies),
                     "current_strategy": "",
-                    "current_strategy_preset": str(results[-1].get("strategy_preset") or "") if results else "",
-                    "last_completed_strategy": str(results[-1].get("strategy") or "") if results else "",
+                    "current_strategy_preset": (
+                        str(results[-1].get("strategy_preset") or "") if results else ""
+                    ),
+                    "last_completed_strategy": (
+                        str(results[-1].get("strategy") or "") if results else ""
+                    ),
                     "symbol": str(cfg.symbol or DEFAULT_SYMBOL),
                     "venue": str(cfg.venue or DEFAULT_VENUE),
                     "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
@@ -1158,7 +1163,10 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
                     "reused_components": reused_components,
                     "paper_sim_monitor_watch_seed": monitor_watch_seed_out,
                     "results": results,
-                    "summary_text": "Paper strategy evidence collection failed because runtime config could not be loaded.",
+                    "summary_text": (
+                        "Paper strategy evidence collection failed because runtime config "
+                        "could not be loaded."
+                    ),
                 }
                 _write_status(out)
                 return out

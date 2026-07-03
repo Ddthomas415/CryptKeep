@@ -205,7 +205,8 @@ def _write_config_load_failed_status(
         "ok": False,
         "status": status,
         "reason": "config_load_failed",
-        "error": str(exc),
+        "error": f"config_load_failed:{type(exc).__name__}",
+        "error_type": type(exc).__name__,
         "ts": _now(),
         "signal_action": "hold",
         "signal_reason": "config_load_failed",
@@ -785,12 +786,31 @@ def run_forever() -> None:
         while True:
             loops += 1
             if STOP_FILE.exists():
-                _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops, "enqueued": enqueued})
+                _write_status(
+                    {
+                        "ok": True,
+                        "status": "stopping",
+                        "pid": os.getpid(),
+                        "ts": _now(),
+                        "loops": loops,
+                        "enqueued": enqueued,
+                    }
+                )
                 break
             try:
-                venue_candidates = _resolve_venue_candidates(cfg) if bool(cfg.get("auto_select_best_venue")) else []
+                venue_candidates = (
+                    _resolve_venue_candidates(cfg)
+                    if bool(cfg.get("auto_select_best_venue"))
+                    else []
+                )
             except ConfigLoadError as exc:
-                _write_config_load_failed_status(exc, status="running", loops=loops, enqueued=enqueued, cfg=cfg)
+                _write_config_load_failed_status(
+                    exc,
+                    status="running",
+                    loops=loops,
+                    enqueued=enqueued,
+                    cfg=cfg,
+                )
                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                 continue
 
@@ -889,7 +909,11 @@ def run_forever() -> None:
                         default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
-                    selected_strategy = str(cfg.get("strategy_id") or selection.get("selected_strategy") or "ema_cross")
+                    selected_strategy = str(
+                        cfg.get("strategy_id")
+                        or selection.get("selected_strategy")
+                        or "ema_cross"
+                    )
                     try:
                         raw_cfg = load_user_yaml(strict=True)
                     except ConfigLoadError as exc:

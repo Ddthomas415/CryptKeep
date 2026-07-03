@@ -12911,6 +12911,9 @@ What changed:
   paper orders, or paper fills.
 - Added targeted tests proving paper evidence service config-load failure
   stops before evidence persistence.
+- After CI exposed the repository's no-raw-exception-text guard, sanitized the
+  paper evidence and strategy-runner config-load failure payloads to expose
+  `config_load_failed` plus `error_type` instead of raw parser/path text.
 - Updated `REMAINING_TASKS.md` to record the active paper evidence path proof
   while keeping the broader capped-live config sweep open.
 
@@ -12926,12 +12929,19 @@ Expected outcome:
 - Strategy runner does not enqueue new intents while config is unreadable.
 - Paper evidence service does not regenerate leaderboard or decision artifacts
   from default config after a strict config-load failure.
+- Config-load failure status remains operator-visible without leaking raw
+  exception text.
 
 Verification:
 - `./.venv/bin/python -m py_compile services/execution/strategy_runner.py services/analytics/paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
   - SHOWN: passed.
 - `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
   - SHOWN: `57 passed in 1.02s`.
+- GitHub Actions for PR #179
+  - SHOWN: CI failed in `test_ops_services_do_not_log_raw_exception_text`
+    because `paper_strategy_evidence_service.py` contained `"error": str(exc)`.
+- `./.venv/bin/python -m pytest -q tests/test_ops_services_no_raw_exception_text.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `58 passed in 0.98s`.
 - `git diff --check`
   - SHOWN: passed.
 
