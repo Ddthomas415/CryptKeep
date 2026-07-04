@@ -159,9 +159,15 @@ class PaperEngine:
         if not bool(mq.get("ok")):
             return False, f"market_quality:{str(mq.get('reason') or 'blocked')}"
 
-        reference_price = float(limit_price or mq.get("price_used") or mq.get("last") or 60000.0)
+        reference_source = limit_price if limit_price is not None else mq.get("price_used")
+        if reference_source is None:
+            reference_source = mq.get("last")
+        try:
+            reference_price = float(reference_source)
+        except (TypeError, ValueError):
+            return False, "market_quality:no_reference_price"
         if not math.isfinite(reference_price) or reference_price <= 0.0:
-            reference_price = 60000.0
+            return False, "market_quality:no_reference_price"
         try:
             gates = load_gates()
             store = ExecutionGuardStoreSQLite()

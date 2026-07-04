@@ -471,6 +471,44 @@ def test_paper_engine_submit_blocks_on_market_quality(monkeypatch, tmp_path):
     assert eng.db.get_order_by_client_id("paper-gate-mq") is None
 
 
+def test_paper_engine_submit_blocks_when_market_quality_has_no_reference_price(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    _, paper_engine = _reload_paper_modules()
+
+    monkeypatch.setattr(
+        paper_engine,
+        "load_user_yaml",
+        lambda: {
+            "paper_trading": {
+                "starting_cash_quote": 1000.0,
+                "fee_bps": 0.0,
+                "slippage_bps": 0.0,
+                "use_ccxt_fallback": False,
+            }
+        },
+    )
+    monkeypatch.setattr(paper_engine, "is_snapshot_fresh", lambda: (True, None))
+    monkeypatch.setattr(paper_engine, "is_master_read_only", lambda: (False, {}))
+    monkeypatch.setattr(
+        paper_engine,
+        "check_market_quality",
+        lambda venue, symbol: {"ok": True, "reason": "no_quote_data"},
+    )
+
+    eng = paper_engine.PaperEngine()
+    out = eng.submit_order(
+        client_order_id="paper-gate-mq-no-price",
+        venue="coinbase",
+        symbol="BTC/USD",
+        side="buy",
+        order_type="market",
+        qty=1.0,
+    )
+
+    assert out == {"ok": False, "reason": "market_quality:no_reference_price"}
+    assert eng.db.get_order_by_client_id("paper-gate-mq-no-price") is None
+
+
 def test_paper_engine_submit_blocks_on_master_read_only(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     _, paper_engine = _reload_paper_modules()
