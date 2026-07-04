@@ -14374,3 +14374,50 @@ Remaining risk:
 - UNVERIFIED: archived/migration data dependency on these schemas was not
   proven or disproven.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Strategy Review Make Target
+
+Active role: ENGINEER
+
+Objective:
+- Convert the documented weekly strategy-review ritual into an explicit
+  operator-run command without adding automatic scheduling.
+
+What was found:
+- SHOWN: `docs/STRATEGY_REVIEW_RITUAL.md` documented the weekly review inputs
+  and suggested commands.
+- SHOWN: `Makefile` had paper status and evidence targets but no
+  `strategy-review` target.
+- SHOWN: `scripts/report_paper_run_diagnostics.py` and
+  `scripts/dev/replay_paper_losses.py` already exist.
+
+What changed:
+- Added `make strategy-review`.
+- Added overridable variables:
+  `STRATEGY_REVIEW_STRATEGY_ID`, `STRATEGY_REVIEW_SYMBOL`, and
+  `STRATEGY_REVIEW_LOSS_LIMIT`.
+- Updated `docs/STRATEGY_REVIEW_RITUAL.md` and `REMAINING_TASKS.md`.
+
+Why this change:
+- The review ritual was documented but not easy to run consistently. A Make
+  target is the smallest operator workflow improvement and does not schedule or
+  mutate strategy decisions.
+
+Expected outcome:
+- Operators have one repeatable command to produce the status, diagnostics, and
+  loss replay inputs for a dated advisory strategy review.
+
+Verification:
+- `make -n strategy-review`
+  - SHOWN: dry-run prints `status-paper-all`,
+    `scripts/report_paper_run_diagnostics.py`, and
+    the expected `replay_paper_losses.py` command for `sma_200_trend` /
+    `BTC/USD` without executing them.
+
+Remaining risk:
+- LOW: operator workflow/docs only; no automatic scheduler or runtime trading
+  behavior changed.
+- UNVERIFIED: the target was not executed against live campaign state in this
+  pass because it can invoke remote status checks and the operator requested
+  avoidance of long-running commands.
+- Acceptance state: `ACCEPTED`.

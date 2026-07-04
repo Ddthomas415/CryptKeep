@@ -739,7 +739,10 @@ substrate work, but they are concrete enough to keep visible.
     from the work log or checkpoint docs, and keeps conclusions advisory until
     a separate governed config/code change is accepted. 2026-07-03: runbook
     step is documented in `docs/STRATEGY_REVIEW_RITUAL.md`; no scheduler or
-    `make` target is added in this docs-only pass.
+    `make` target is added in this docs-only pass. 2026-07-04: `make
+    strategy-review` is added as an operator-run target that executes
+    `status-paper-all`, paper diagnostics, and loss replay with overridable
+    strategy/symbol/limit variables. No automatic scheduler was added.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
