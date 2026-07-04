@@ -14201,3 +14201,45 @@ Remaining risk:
 - UNVERIFIED: live intent consumers and legacy executor submit paths still need
   separate review before any equivalent live/shadow behavior change.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-07-04 - Fixed-Size Sizing Activation Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard the canonical strategy runner against accidental activation of dormant
+  risk-based sizing for `sma_200_trend`.
+
+What was found:
+- SHOWN: `services/strategies/es_daily_trend.py::compute_position_size()` and
+  `decide()` implement capital-at-risk sizing.
+- SHOWN: `services/execution/strategy_runner.py` emits strategy intents using
+  `qty = float(cfg["qty"])`.
+- SHOWN: `REMAINING_TASKS.md` item 30 requires fixed-size behavior unchanged by
+  default before any future risk-based sizing activation.
+
+What changed:
+- Added a strategy-runner regression where `sma_200_trend` has risk-sizing
+  fields present but still emits the configured fixed `qty`.
+- Updated `REMAINING_TASKS.md` item 30 to record the guard and keep actual
+  risk-based sizing activation deferred behind archive/walk-forward proof,
+  explicit config, size provenance, and exposure-cap tests.
+
+Why this change:
+- The repo already has sizing logic, but accidental activation would change
+  paper evidence semantics. A test guard is the smallest useful protection
+  while the sizing policy remains unproven.
+
+Expected outcome:
+- Future changes that switch `sma_200_trend` from fixed-size campaign behavior
+  to risk-based sizing must update the guard and provide the activation proof.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py::test_run_forever_keeps_sma_200_trend_fixed_size_when_risk_sizing_config_present`
+  - SHOWN: `1 passed in 0.16s`.
+
+Remaining risk:
+- LOW: test/backlog/work-log only; runtime behavior was not changed.
+- UNVERIFIED: actual risk-based sizing activation design and walk-forward proof
+  remain future work.
+- Acceptance state: `ACCEPTED`.
