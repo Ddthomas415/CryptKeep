@@ -14140,10 +14140,10 @@ Verification:
   - SHOWN: `56 passed in 1.66s`.
 
 Remaining risk:
-- HIGH: this changes financial/evidence semantics and must be independently
-  reviewed before acceptance.
+- HIGH: this changes financial/evidence semantics; human/operator independent
+  review accepted the implementation on 2026-07-04.
 - UNVERIFIED: active campaign config fee/slippage values were not read from the
   operator host in this implementation pass.
 - UNVERIFIED: historical paper evidence remains gross or unknown semantics
   unless regenerated or explicitly segmented during analysis.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED_WITH_RISK`.

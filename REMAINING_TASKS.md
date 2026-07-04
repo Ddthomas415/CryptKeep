@@ -345,9 +345,10 @@ deployment work still needs independent review.
     folded into cost basis, sell fees reduce realized proceeds, new fill
     evidence carries `pnl_usd_semantics=net_of_fees`, and targeted tests prove
     a flat round trip with 10 bps fees records negative `pnl_usd` and fails the
-    expectancy helper. Remaining proof before acceptance: independent review
-    of the financial-logic diff and active campaign config verification for
-    realistic fee/slippage values.
+    expectancy helper. 2026-07-04: human/operator independent review accepted
+    the implementation with risk. Remaining operational proof: verify the
+    active campaign config uses realistic fee/slippage values, and segment old
+    gross/unknown-semantics evidence during future analysis.
 29. Make market-quality guard defaults fail closed before shadow evidence is
     treated as cost/slippage proof. `services/risk/market_quality_guard.py`
     currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,
