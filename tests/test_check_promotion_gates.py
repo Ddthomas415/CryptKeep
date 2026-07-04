@@ -54,6 +54,43 @@ class TestGateOutput:
         assert s["unknown"] == sum(1 for g in gates if g["passed"] is None)
         assert s["total"] == len(gates)
 
+    def test_refusing_evidence_writer_blocks_machine_readiness(self, tmp_path):
+        from services.strategies.evidence_logger import evidence_writer_status_file
+        from scripts.check_promotion_gates import run_check
+
+        status_path = evidence_writer_status_file()
+        status_path.parent.mkdir(parents=True, exist_ok=True)
+        status_path.write_text(
+            json.dumps(
+                {
+                    "ok": False,
+                    "evidence_writer_status": "refusing",
+                    "evidence_write_failures_total": 3,
+                    "evidence_write_failures_consecutive": 3,
+                    "last_evidence_write_error_type": "OSError",
+                    "last_evidence_write_error_ts": "2026-07-04T00:00:00+00:00",
+                    "last_successful_evidence_write_ts": "",
+                    "evidence_refusal_reason": "3 consecutive evidence write failures",
+                    "threshold": 3,
+                    "updated_ts": "2026-07-04T00:00:00+00:00",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = run_check(stage_override="paper")
+        gate = next(
+            item
+            for item in result["gates"]
+            if item["label"] == "Evidence writer accepting records"
+        )
+
+        assert result["evidence_writer"]["evidence_writer_status"] == "refusing"
+        assert gate["passed"] is False
+        assert "consecutive evidence write failures" in gate["hint"]
+        assert result["machine_ready"] is False
+
     def test_passed_gate_suppresses_remediation_hint(self, tmp_path):
         from scripts.check_promotion_gates import _gate
 
@@ -981,8 +1018,13 @@ class TestShadowGateMarketQuality:
         assert result["evidence_scope"]["status"] == "not_started"
         assert result["evidence_scope"]["counts"]["signal"] == 0
         assert result["evidence_scope"]["counts"]["session"] == 0
-        assert result["summary"] == {"pass": 0, "fail": 0, "unknown": 5, "total": 5}
-        assert all(gate["passed"] is None for gate in result["gates"])
+        assert result["summary"] == {"pass": 1, "fail": 0, "unknown": 5, "total": 6}
+        scoped_gates = [
+            gate
+            for gate in result["gates"]
+            if gate["label"] != "Evidence writer accepting records"
+        ]
+        assert all(gate["passed"] is None for gate in scoped_gates)
         assert all(item["total"] == 0 for item in result["schema"].values())
         assert result["provenance"]["total"] == 0
         assert result["provenance_all_time"]["total"] == 2

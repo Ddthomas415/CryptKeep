@@ -1,6 +1,6 @@
 # CryptKeep Evidence-Write Failure Status Policy
 
-Status: `IMPLEMENTATION_PROOF_READY`
+Status: `GATE_INTEGRATION_PROOF_READY`
 
 ## Purpose
 
@@ -18,9 +18,8 @@ SHOWN:
 
 UNVERIFIED:
 
-- Campaign/gate status does not yet consume the persisted writer status.
-- No promotion gate rejection has been executed against a persisted
-  writer-refusal fixture.
+- No real operator-host writer failure has been observed in production paper
+  state; current proof uses injected fixtures.
 
 SHOWN by the 2026-07-04 implementation proof:
 
@@ -30,6 +29,10 @@ SHOWN by the 2026-07-04 implementation proof:
   `refusing`.
 - A recovered writer resets consecutive failures while preserving total
   failures.
+- `scripts/check_promotion_gates.py` surfaces `evidence_writer` status and adds
+  a failed gate when the writer is `refusing`.
+- `scripts/report_supervised_soak_status.py` surfaces the writer status and
+  recommends `investigate_evidence_writer` when refusal is active.
 
 ## Required Status Fields
 
@@ -66,5 +69,5 @@ Before capped live, add tests or an evidence packet showing:
 - promotion status surfaces the failure/refusal reason;
 - no gate treats a refusing evidence session as promotion-quality evidence.
 
-The first three proof points are implementation-ready as of 2026-07-04. The
-last two remain open integration work for campaign/gate summaries.
+All five proof points are implementation-ready as of 2026-07-04, pending
+independent review because this is an evidence/gate reliability surface.

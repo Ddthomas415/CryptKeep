@@ -490,7 +490,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    write failures become `refusing` and recovery resets consecutive failures.
    Remaining integration proof: campaign/gate summaries must surface the
    status, and no gate should treat a refusing evidence session as
-   promotion-quality evidence.
+   promotion-quality evidence. 2026-07-04: gate/status integration proof is
+   ready for independent review: `check_promotion_gates.py` now includes
+   `evidence_writer` status, adds an `Evidence writer accepting records` gate,
+   fails that gate when persisted status is `refusing`, and supervised soak
+   status surfaces the writer and recommends `investigate_evidence_writer`.
+   Remaining: independent review and any future alert-dispatch hook under
+   paper/gate event alerting.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and

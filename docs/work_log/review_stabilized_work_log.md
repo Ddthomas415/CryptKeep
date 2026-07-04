@@ -14915,3 +14915,56 @@ Remaining risk:
 - UNVERIFIED: campaign summaries do not yet surface the writer status, and
   promotion gates do not yet reject or flag a `refusing` evidence writer.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-04 - Evidence Writer Gate And Status Integration
+
+Active role: ENGINEER
+
+Objective:
+- Wire persisted evidence-writer health into promotion and operator status so a
+  refusing writer cannot be treated as promotion-quality evidence.
+
+What was found:
+- SHOWN: PR #206 added the central
+  `runtime/health/evidence_writer.status.json` artifact and targeted writer
+  counters.
+- SHOWN: `scripts/check_promotion_gates.py::run_check()` is the canonical gate
+  payload consumed by supervised soak status.
+- SHOWN: `scripts/report_supervised_soak_status.py` already summarizes gate
+  JSON for daily operator checks.
+- UNVERIFIED: no real operator-host writer failure has occurred; this proof
+  uses injected persisted status.
+
+What changed:
+- Added `evidence_writer` status to promotion gate JSON.
+- Added an `Evidence writer accepting records` gate that fails when persisted
+  status is `refusing`.
+- Added supervised-soak summary and recommendation output for refusing writer
+  status.
+- Added targeted tests proving a persisted `refusing` status fails the gate and
+  that supervised soak recommends `investigate_evidence_writer`.
+- Updated `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md` and
+  `REMAINING_TASKS.md` to mark the gate/status integration proof ready.
+
+Why this change:
+- The smallest correct follow-through is to consume the central writer-health
+  artifact in the existing gate/status path instead of adding a second monitor
+  or changing evidence-write semantics.
+
+Expected outcome:
+- Daily gate/status commands can tell the operator when evidence is starving,
+  and a refusing writer is a machine gate failure until recovered/reviewed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py::TestGateOutput::test_refusing_evidence_writer_blocks_machine_readiness tests/test_report_supervised_soak_status.py`
+  - SHOWN: `4 passed in 0.24s`.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_report_supervised_soak_status.py`
+  - SHOWN: `48 passed in 1.32s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- HIGH: evidence/gate reliability surface.
+- UNVERIFIED: real host writer-failure observation and alert-dispatch wiring
+  remain outside this implementation proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

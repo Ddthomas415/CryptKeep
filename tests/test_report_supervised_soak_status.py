@@ -69,6 +69,13 @@ def test_build_report_is_read_only_and_summarizes_campaigns(monkeypatch) -> None
                 {"label": "10+ completed round trips", "passed": False, "detail": "1/10"},
                 {"label": "Expectancy within tolerable range of backtest", "passed": None, "detail": "insufficient"},
             ],
+            "evidence_writer": {
+                "evidence_writer_status": "refusing",
+                "evidence_write_failures_total": 3,
+                "evidence_write_failures_consecutive": 3,
+                "last_evidence_write_error_type": "OSError",
+                "threshold": 3,
+            },
             "paper_history": {
                 "source": "jsonl_provenance+trade_journal_sqlite",
                 "fills": 4,
@@ -115,6 +122,7 @@ def test_build_report_is_read_only_and_summarizes_campaigns(monkeypatch) -> None
     assert out["campaigns"][0]["closed_trades_total"] == 8
     assert out["gate"]["round_trips"]["detail"] == "1/10"
     assert out["gate"]["manual_review_required"] is True
+    assert out["gate"]["evidence_writer"]["evidence_writer_status"] == "refusing"
     assert out["gate"]["paper_history"]["closed_trades"] == 2
     assert out["gate"]["paper_history"]["all_history_closed_trades"] == 9
     assert out["gate"]["paper_history"]["qualification"] == {
@@ -130,6 +138,7 @@ def test_build_report_is_read_only_and_summarizes_campaigns(monkeypatch) -> None
         "latest_completed_qualified_round_trip_close_ts": "2026-06-24T00:04:01+00:00",
     }
     assert out["recommendations"] == [
+        "investigate_evidence_writer",
         "manual_strategy_review_required",
         "continue_paper_observation",
     ]
