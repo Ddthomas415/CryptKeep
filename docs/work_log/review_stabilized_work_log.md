@@ -14086,3 +14086,64 @@ Verification:
 Remaining risk:
 - LOW: docs-only compatibility fix.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Paper Fee PnL Semantics Fix
+
+Active role: ENGINEER
+
+Objective:
+- Correct forward paper PnL semantics so expectancy evidence is net of paper
+  fees instead of gross of fees.
+
+What was found:
+- SHOWN: `storage/paper_trading_sqlite.py::apply_fill()` subtracted buy fees
+  from cash and sell fees from proceeds, but returned/stored sell
+  `realized_pnl_usd` as `(sell_price - avg_price) * qty`.
+- SHOWN: `services/execution/paper_engine.py` wrote that value to strategy fill
+  evidence as `pnl_usd`.
+- SHOWN: `scripts/check_promotion_gates.py::_check_expectancy()` gates on
+  `pnl_usd`.
+
+What changed:
+- Updated paper buy fills to fold fees into average cost basis.
+- Updated paper sell fills to compute realized PnL as fee-adjusted proceeds
+  minus fee-inclusive cost basis.
+- Added `pnl_usd_semantics=net_of_fees` to new paper fill results and evidence
+  records.
+- Updated the paper-engine fill-evidence regression so a flat round trip with
+  10 bps fees records negative `pnl_usd`.
+- Added a promotion-gate helper regression proving negative net-fee PnL fails
+  expectancy.
+- Updated `REMAINING_TASKS.md` item 28 with implementation-proof status and
+  remaining review/config checks.
+
+Why this change:
+- The paper gate's expectancy surface is the bridge between "the machinery
+  works" and "the strategy may be profitable." Gross-of-fee PnL can let
+  fee-negative strategies appear profitable.
+- Folding fees into cost basis is the smallest forward-compatible change that
+  makes new paper evidence net of both buy and sell fees without adding a DB
+  migration.
+- The semantics marker preserves historical comparability: old records lack
+  `pnl_usd_semantics`, new records explicitly identify `net_of_fees`.
+
+Expected outcome:
+- New paper evidence and paper-gate expectancy checks use net-fee PnL for paper
+  fills produced through the canonical paper engine.
+- A flat-price round trip with fees is treated as a losing trade instead of a
+  break-even trade.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_engine_integration.py`
+  - SHOWN: `12 passed in 0.49s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_engine_integration.py tests/test_check_promotion_gates.py`
+  - SHOWN: `56 passed in 1.66s`.
+
+Remaining risk:
+- HIGH: this changes financial/evidence semantics and must be independently
+  reviewed before acceptance.
+- UNVERIFIED: active campaign config fee/slippage values were not read from the
+  operator host in this implementation pass.
+- UNVERIFIED: historical paper evidence remains gross or unknown semantics
+  unless regenerated or explicitly segmented during analysis.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

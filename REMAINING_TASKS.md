@@ -340,7 +340,14 @@ deployment work still needs independent review.
     flat price plus fees yields negative `pnl_usd` and fails expectancy. Land
     this before activating dormant sizing, setup-quality thresholds,
     confirmation gates, or parameter sweeps; otherwise those systems optimize
-    gross-of-fee PnL and can amplify a measurement error.
+    gross-of-fee PnL and can amplify a measurement error. 2026-07-04:
+    implementation proof is ready for independent review: paper buy fees are
+    folded into cost basis, sell fees reduce realized proceeds, new fill
+    evidence carries `pnl_usd_semantics=net_of_fees`, and targeted tests prove
+    a flat round trip with 10 bps fees records negative `pnl_usd` and fails the
+    expectancy helper. Remaining proof before acceptance: independent review
+    of the financial-logic diff and active campaign config verification for
+    realistic fee/slippage values.
 29. Make market-quality guard defaults fail closed before shadow evidence is
     treated as cost/slippage proof. `services/risk/market_quality_guard.py`
     currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,

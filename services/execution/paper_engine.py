@@ -326,6 +326,9 @@ class PaperEngine:
                 pnl = None
                 if order.get("side") == "sell":
                     pnl = round(float(result.get("realized_pnl_usd") or 0.0), 4)
+                extra = _evidence_execution_extra(meta)
+                if result.get("pnl_usd_semantics"):
+                    extra["pnl_usd_semantics"] = str(result["pnl_usd_semantics"])
                 EvidenceLogger(evidence_strategy_id).log_fill(
                     timestamp=_now(),
                     fill_price=float(price),
@@ -336,7 +339,7 @@ class PaperEngine:
                     size=float(qty),
                     pnl_usd=pnl,
                     order_id=str(order.get("order_id", "")),
-                    extra=_evidence_execution_extra(meta),
+                    extra=extra,
                 )
         except Exception as _silent_err:
             _LOG.warning("fill evidence logging failed strategy_id=%s order_id=%s: %s", self.cfg.get("strategy_id",""), order.get("order_id",""), _silent_err)
