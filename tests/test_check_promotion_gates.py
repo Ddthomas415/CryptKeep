@@ -65,6 +65,19 @@ class TestGateOutput:
         assert failed["hint"] == "fix this"
         assert unknown["hint"] == "check this"
 
+    def test_expectancy_rejects_negative_net_fee_pnl(self):
+        from scripts.check_promotion_gates import _check_expectancy
+
+        fills = [
+            {"pnl_usd": -0.2, "pnl_usd_semantics": "net_of_fees"}
+            for _ in range(10)
+        ]
+
+        passed, value = _check_expectancy(fills)
+
+        assert passed is False
+        assert value == pytest.approx(-0.2)
+
     def test_json_output_surfaces_blocking_backtest_comparison(self, tmp_path):
         from scripts.check_promotion_gates import run_check
 
