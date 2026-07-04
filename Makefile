@@ -7,6 +7,9 @@ HETZNER_SSH_TARGET ?= cryptkeep@100.86.128.9
 HETZNER_APP_DIR ?= /srv/cryptkeep/app
 HETZNER_PAPER_CAMPAIGN_CONFIG ?= configs/paper_evidence_campaigns.hetzner.example.json
 HETZNER_STATUS_TIMEOUT_SEC ?= 15
+STRATEGY_REVIEW_STRATEGY_ID ?= sma_200_trend
+STRATEGY_REVIEW_SYMBOL ?= BTC/USD
+STRATEGY_REVIEW_LOSS_LIMIT ?= 10
 
 .PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-paper-all check-hetzner-paper-host-health restore-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight
 
@@ -135,6 +138,15 @@ restore-paper-campaigns:
 
 strategy-evidence-cycle:
 	$(PYTHON) scripts/data/run_strategy_evidence_cycle.py --write-decision-record
+
+.PHONY: strategy-review
+strategy-review:
+	$(MAKE) --no-print-directory status-paper-all
+	$(PYTHON) scripts/report_paper_run_diagnostics.py
+	$(PYTHON) scripts/dev/replay_paper_losses.py \
+		--strategy-id $(STRATEGY_REVIEW_STRATEGY_ID) \
+		--symbol $(STRATEGY_REVIEW_SYMBOL) \
+		--limit $(STRATEGY_REVIEW_LOSS_LIMIT)
 
 system-diagnostics:
 	$(PYTHON) scripts/run_system_diagnostics.py

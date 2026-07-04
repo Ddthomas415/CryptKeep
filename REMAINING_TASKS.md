@@ -448,7 +448,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
-   multi-store risk. Blocks live.
+   multi-store risk. Blocks live. 2026-07-04: decision record is written in
+   `docs/architecture/state_store_consolidation_decision.md`. It freezes current
+   store ownership during the paper campaign, names current accounting/evidence
+   authorities, sets the long-term transactional boundary target, and explicitly
+   accepts the current multi-store design for paper/research only. Remaining
+   capped-live work: caller/migration audit for unwired stores, crash-consistency
+   tests, backup/restore drill, and either transactional migration proof or an
+   explicit accepted split-store risk decision.
 8. Add a full-state backup/restore drill to the launch evidence packet. Script
    backup of all state DBs and record one executed restore-and-resume rehearsal.
    Blocks live.
@@ -577,7 +584,11 @@ substrate work, but they are concrete enough to keep visible.
    The store updates order, fill, position, cash, and realized PnL in one
    transaction, which is stronger than earlier fragmented-store framing. Add a
    property or sequence test proving cash, fills, and positions reconcile after
-   mixed buy/sell fills so future changes preserve that invariant.
+   mixed buy/sell fills so future changes preserve that invariant. 2026-07-04:
+   implementation proof is ready: direct storage-level tests cover a mixed
+   buy/sell sequence and a flat-price round trip with fees, asserting cash,
+   fills, positions, realized PnL, filled order status, and
+   `pnl_usd_semantics=net_of_fees` stay reconciled.
 8. Classify the three paper execution surfaces and retire or document
    non-canonical paths. Audits found `services/paper/main.py`,
    `services/paper_trader/main.py`, and `services/execution/paper_engine.py`
@@ -611,6 +622,12 @@ substrate work, but they are concrete enough to keep visible.
     compatibility surface. 2026-07-03: classification is documented in
     `docs/architecture/storage_surface_classification.md`; three candidate
     stores remain unwired candidates pending a deeper caller/migration audit.
+    2026-07-04: targeted caller audit found no visible production source
+    importers for `fill_reconciler_store_sqlite.py`,
+    `order_idempotency_sqlite.py`, or `order_tracker_store_sqlite.py`; matches
+    are the modules themselves and prior docs/audit artifacts. Remaining
+    decision: delete, migrate, or explicitly retain these schemas before the
+    next reconciliation implementation.
 11. Extract promotion-gate logic into a library after the current paper gate is
     stable. `scripts/check_promotion_gates.py` is the canonical operator
     command today and should not be churned mid-campaign, but the money-adjacent
@@ -722,7 +739,10 @@ substrate work, but they are concrete enough to keep visible.
     from the work log or checkpoint docs, and keeps conclusions advisory until
     a separate governed config/code change is accepted. 2026-07-03: runbook
     step is documented in `docs/STRATEGY_REVIEW_RITUAL.md`; no scheduler or
-    `make` target is added in this docs-only pass.
+    `make` target is added in this docs-only pass. 2026-07-04: `make
+    strategy-review` is added as an operator-run target that executes
+    `status-paper-all`, paper diagnostics, and loss replay with overridable
+    strategy/symbol/limit variables. No automatic scheduler was added.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
