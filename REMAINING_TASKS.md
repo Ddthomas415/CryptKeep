@@ -720,7 +720,12 @@ substrate work, but they are concrete enough to keep visible.
     the source DB. Also document what runtime fields may be sent to external
     LLM providers when `use_ai=true`, and keep `services/ai_copilot/pr_reviewer`
     advisory/non-blocking unless a separate prompt-injection-resistant review
-    design is accepted.
+    design is accepted. 2026-07-04: provider-data disclosure boundary is
+    documented in `docs/AI_COPILOT_OPERATING_RULES.md`, including allowed
+    summary fields, forbidden secret/account/config payloads, and advisory-only
+    constraints. Remaining work: enforce read-only SQLite access and add the
+    write-SQL regression before external LLM summaries become a normal operator
+    path.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
@@ -743,7 +748,12 @@ substrate work, but they are concrete enough to keep visible.
     archival/export rules, and deletion safety checks. 2026-07-03: baseline
     paper/research retention policy is written in `docs/RETENTION_POLICY.md`;
     server-specific disk, backup, restore, and alert thresholds remain open
-    before canonical server operation.
+    before canonical server operation. 2026-07-04: retention policy now links
+    the current Hetzner server threshold baseline from `docs/HETZNER_PAPER_HOST.md`
+    including `/srv/cryptkeep/backups`, minimum 2 GiB free space, minimum
+    10,000 free inodes, backup age, UTC/NTP sync, and restore-test status.
+    Remaining proof: fresh backup/restore drill evidence for any future
+    canonical server/capped-live launch packet.
 23. Turn paper diagnostics and loss replay into a scheduled strategy-review
     ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
     `scripts/dev/replay_paper_losses.py`, and the AI copilot

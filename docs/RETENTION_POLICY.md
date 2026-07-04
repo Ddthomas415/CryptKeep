@@ -71,10 +71,28 @@ must name:
 
 ## Server Migration Requirement
 
-Before canonical server operation, add a host-specific retention packet covering:
+Before canonical server operation, keep a host-specific retention packet covering:
 
 - disk limit
 - backup schedule
 - restore drill
 - log rotation mechanism
 - alert threshold for storage pressure
+
+## Current Server Threshold Baseline
+
+`docs/HETZNER_PAPER_HOST.md` is the current server-specific retention and
+storage-health packet for the Hetzner paper host.
+
+Current accepted minimums:
+
+- repo filesystem free space: at least 2 GiB
+- repo filesystem free inodes: at least 10,000
+- backup directory: `/srv/cryptkeep/backups`
+- status evidence: collector status, latest completed UTC day, campaign health,
+  disk/inode availability, UTC/NTP sync, backup age, and last restore-test
+  result
+
+These thresholds are paper/server-operation minimums, not capped-live launch
+proof. Capped-live still requires a fresh backup/restore drill and accepted
+launch packet.
