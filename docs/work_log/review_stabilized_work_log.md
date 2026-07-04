@@ -14595,3 +14595,43 @@ Remaining risk:
 - UNVERIFIED: PR #196 promotion checks are still pending at the time of this
   entry.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Retention Policy Server Threshold Link
+
+Active role: ENGINEER
+
+Objective:
+- Close the documentation gap between the general retention policy and the
+  existing Hetzner server storage-health thresholds.
+
+What was found:
+- SHOWN: `docs/RETENTION_POLICY.md` still said a host-specific retention packet
+  was required before canonical server operation.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` already defines the paper-host storage
+  baseline: `/srv/cryptkeep/backups`, minimum 2 GiB free space, minimum 10,000
+  free inodes, UTC/NTP sync, backup age, restore-test status, and campaign
+  health checks.
+
+What changed:
+- Updated `docs/RETENTION_POLICY.md` to link the current Hetzner threshold
+  baseline.
+- Updated `REMAINING_TASKS.md` item 22 to preserve the remaining
+  backup/restore-drill proof requirement.
+
+Why this change:
+- The backlog should distinguish missing policy from missing executed proof.
+  The threshold policy exists; the future launch packet still needs fresh
+  restore evidence.
+
+Expected outcome:
+- Operators looking at retention policy can find the server minimums without
+  duplicating or contradicting the Hetzner runbook.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no retention/pruning command or server
+  behavior changed.
+- UNVERIFIED: no fresh backup/restore drill was run in this pass.
+- Acceptance state: `ACCEPTED`.

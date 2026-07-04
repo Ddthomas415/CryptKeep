@@ -743,7 +743,12 @@ substrate work, but they are concrete enough to keep visible.
     archival/export rules, and deletion safety checks. 2026-07-03: baseline
     paper/research retention policy is written in `docs/RETENTION_POLICY.md`;
     server-specific disk, backup, restore, and alert thresholds remain open
-    before canonical server operation.
+    before canonical server operation. 2026-07-04: retention policy now links
+    the current Hetzner server threshold baseline from `docs/HETZNER_PAPER_HOST.md`
+    including `/srv/cryptkeep/backups`, minimum 2 GiB free space, minimum
+    10,000 free inodes, backup age, UTC/NTP sync, and restore-test status.
+    Remaining proof: fresh backup/restore drill evidence for any future
+    canonical server/capped-live launch packet.
 23. Turn paper diagnostics and loss replay into a scheduled strategy-review
     ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
     `scripts/dev/replay_paper_losses.py`, and the AI copilot
