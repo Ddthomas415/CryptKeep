@@ -730,7 +730,10 @@ substrate work, but they are concrete enough to keep visible.
     with smaller CI-covered regression slices. Tests that only run locally are
     a drift channel for dashboard and symbol-scanner behavior. 2026-07-03:
     policy is documented in `docs/CI_IGNORED_TEST_POLICY.md`; actual CI
-    behavior is unchanged.
+    behavior is unchanged. 2026-07-04: `make test-ci-ignored` is added as the
+    named optional local job for the exact ignored slice. CI behavior remains
+    unchanged; future work is to make these tests CI-safe, split them into
+    smaller CI-covered regressions, or move them to an explicit optional CI job.
 22. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging

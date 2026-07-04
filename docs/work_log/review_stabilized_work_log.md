@@ -14511,3 +14511,42 @@ Remaining risk:
 - UNVERIFIED: future symbol-aware counting and per-symbol provenance fixtures
   remain unimplemented.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - CI-Ignored Test Optional Target
+
+Active role: ENGINEER
+
+Objective:
+- Add a named optional local command for the pytest files intentionally ignored
+  by the fast/full CI paths.
+
+What was found:
+- SHOWN: `docs/CI_IGNORED_TEST_POLICY.md` documents four ignored test files and
+  the manual command to run them.
+- SHOWN: `Makefile` ignored those files in `test-fast` and `test-full`, but had
+  no named target for the exact ignored slice.
+
+What changed:
+- Added `make test-ci-ignored`.
+- Updated `docs/CI_IGNORED_TEST_POLICY.md`.
+- Updated `REMAINING_TASKS.md` item 21.
+
+Why this change:
+- A named optional local job makes the ignored slice easier to run and record
+  before dashboard or symbol-scanner changes, without changing CI behavior in
+  this low-risk batch.
+
+Expected outcome:
+- Operators and reviewers have one stable command for the ignored test slice
+  while the longer-term CI-safe split remains open.
+
+Verification:
+- `make -n test-ci-ignored`
+  - SHOWN: dry-run prints the four expected ignored test files without
+    executing pytest.
+
+Remaining risk:
+- LOW: Make/docs/backlog/work-log only; CI behavior was not changed.
+- UNVERIFIED: the ignored tests were not executed in this pass by operator
+  request to avoid excessive long-running tests.
+- Acceptance state: `ACCEPTED`.
