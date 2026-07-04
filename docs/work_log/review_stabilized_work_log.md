@@ -14147,3 +14147,57 @@ Remaining risk:
 - UNVERIFIED: historical paper evidence remains gross or unknown semantics
   unless regenerated or explicitly segmented during analysis.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-07-04 - Paper Market Quality Reference Price Guard
+
+Active role: ENGINEER
+
+Objective:
+- Make the canonical paper engine fail closed when market-quality output lacks
+  a usable reference price.
+
+What was found:
+- SHOWN: `services/risk/market_quality_guard.py` can return `ok=true` with
+  `reason=no_quote_data` when `block_when_unknown` is not configured.
+- SHOWN: `services/execution/paper_engine.py::_pre_submit_gate()` previously
+  used `60000.0` as a fallback reference price when market-quality output did
+  not include `price_used` or `last`.
+- SHOWN: active backlog item 29 requires missing-quote fixtures to hold
+  orders/signals with an operator-visible reason before shadow cost evidence is
+  trusted.
+
+What changed:
+- Removed the paper pre-submit fallback from missing/invalid reference price to
+  `60000.0`.
+- Added a deterministic `market_quality:no_reference_price` block when neither
+  limit price nor market-quality `price_used`/`last` is usable.
+- Added a paper-engine regression where market quality returns `ok=true` with
+  `reason=no_quote_data` and no price fields; the order is not inserted.
+- Updated `REMAINING_TASKS.md` item 29 to mark this as partial implementation
+  proof and preserve the remaining strict-config/default-flip work.
+
+Why this change:
+- A hardcoded BTC-shaped reference price can make safety/notional checks run on
+  garbage when quote data is missing.
+- Blocking the paper order at the canonical evidence path is the smallest
+  useful hardening step and avoids changing live routing or global
+  market-quality defaults before the requested observed cycle.
+
+Expected outcome:
+- Paper evidence cannot record an order based on a synthetic fallback reference
+  price when market quality has no usable quote.
+- Operators see the explicit block reason
+  `market_quality:no_reference_price`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_engine_integration.py`
+  - SHOWN: `13 passed in 0.51s`.
+
+Remaining risk:
+- HIGH: this changes paper execution gate behavior; human/operator independent
+  review accepted the implementation on 2026-07-04.
+- UNVERIFIED: active campaign market-quality config was not changed or observed
+  for a no-storm cycle in this pass.
+- UNVERIFIED: live intent consumers and legacy executor submit paths still need
+  separate review before any equivalent live/shadow behavior change.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
