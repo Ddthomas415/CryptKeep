@@ -14867,3 +14867,51 @@ Remaining risk:
 - UNVERIFIED: all runtime proof remains open before capped live or execution
   policy changes.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Evidence Writer Status Counters
+
+Active role: ENGINEER
+
+Objective:
+- Surface central evidence JSONL writer health so repeated write failures are
+  visible instead of silently starving promotion evidence.
+
+What was found:
+- SHOWN: `services/strategies/evidence_logger.py::_append()` is the central
+  JSONL evidence writer for signal, order, fill, session, and drawdown records.
+- SHOWN: the existing writer logs write exceptions but does not persist bounded
+  failure counters or a refusal/degraded status for operators or gates to read.
+- UNVERIFIED: campaign status and promotion gates do not yet consume a persisted
+  writer-health artifact.
+
+What changed:
+- Added `runtime/health/evidence_writer.status.json` as the persisted writer
+  health artifact, resolved through `CBP_STATE_DIR`.
+- Added total and consecutive failure counters, last error/success timestamps,
+  last record/strategy/path metadata, and `ok`/`degraded`/`refusing` state.
+- Added targeted tests proving successful writes update status, repeated
+  injected write failures become `refusing`, and recovery resets consecutive
+  failures while preserving total failures.
+- Updated `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md` and
+  `REMAINING_TASKS.md` to distinguish implementation proof from remaining
+  campaign/gate integration proof.
+
+Why this change:
+- The central logger is the smallest correct boundary: every existing
+  EvidenceLogger caller gains writer-health visibility without touching
+  trading/order behavior or broadening the change into gate semantics.
+
+Expected outcome:
+- Operators and later status/gate code can read one state-scoped health artifact
+  to detect evidence starvation, rather than inferring it from missing JSONL
+  rows after the fact.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_evidence_logger.py`
+  - SHOWN: `21 passed in 1.57s`.
+
+Remaining risk:
+- HIGH: evidence/gate reliability surface.
+- UNVERIFIED: campaign summaries do not yet surface the writer status, and
+  promotion gates do not yet reject or flag a `refusing` evidence writer.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

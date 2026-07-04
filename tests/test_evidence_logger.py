@@ -156,6 +156,87 @@ class TestEvidenceLogger:
         assert rec["market_data_source"] == "public_ohlcv"
         assert rec["ohlcv_sample_mode"] is False
 
+    def test_successful_write_updates_evidence_writer_status(self, tmp_path):
+        from services.strategies.evidence_logger import (
+            EvidenceLogger,
+            load_evidence_writer_status,
+        )
+
+        logger = EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+        logger.log_signal(
+            timestamp=_now(), price=5000.0, sma_200=4800.0,
+            atr_ratio=1.0, signal_direction="flat", regime_flag="chop",
+        )
+
+        status = load_evidence_writer_status()
+        assert status["ok"] is True
+        assert status["evidence_writer_status"] == "ok"
+        assert status["evidence_write_failures_consecutive"] == 0
+        assert status["last_successful_evidence_write_ts"]
+        assert status["last_record_type"] == "signal"
+        assert status["last_strategy_id"] == "test_strat"
+
+    def test_repeated_write_failures_mark_writer_refusing(
+        self,
+        tmp_path,
+        monkeypatch,
+    ):
+        from services.strategies import evidence_logger as module
+
+        def fail_write(*_args, **_kwargs):
+            raise OSError("disk full")
+
+        monkeypatch.setenv("CBP_EVIDENCE_WRITE_REFUSAL_THRESHOLD", "2")
+        monkeypatch.setattr(module, "atomic_write", fail_write)
+        logger = module.EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+
+        logger.log_signal(
+            timestamp=_now(), price=5000.0, sma_200=4800.0,
+            atr_ratio=1.0, signal_direction="flat", regime_flag="chop",
+        )
+        logger.log_fill(
+            timestamp=_now(), fill_price=5005.0,
+            slippage_points=5.0, slippage_pct=0.1, fees_paid=2.50,
+            pnl_usd=150.0, side="sell",
+        )
+
+        status = module.load_evidence_writer_status()
+        assert status["ok"] is False
+        assert status["evidence_writer_status"] == "refusing"
+        assert status["evidence_write_failures_total"] == 2
+        assert status["evidence_write_failures_consecutive"] == 2
+        assert status["last_evidence_write_error_type"] == "OSError"
+        assert status["last_evidence_write_error_ts"]
+        assert "consecutive evidence write failures" in status["evidence_refusal_reason"]
+
+    def test_recovered_write_resets_consecutive_failures(self, tmp_path, monkeypatch):
+        from services.strategies import evidence_logger as module
+
+        original_atomic_write = module.atomic_write
+
+        def fail_write(*_args, **_kwargs):
+            raise OSError("disk full")
+
+        monkeypatch.setattr(module, "atomic_write", fail_write)
+        logger = module.EvidenceLogger("test_strat", log_dir=tmp_path / "ev")
+        logger.log_signal(
+            timestamp=_now(), price=5000.0, sma_200=4800.0,
+            atr_ratio=1.0, signal_direction="flat", regime_flag="chop",
+        )
+
+        monkeypatch.setattr(module, "atomic_write", original_atomic_write)
+        logger.log_signal(
+            timestamp=_now(), price=5001.0, sma_200=4800.0,
+            atr_ratio=1.0, signal_direction="long", regime_flag="trending",
+        )
+
+        status = module.load_evidence_writer_status()
+        assert status["ok"] is True
+        assert status["evidence_writer_status"] == "ok"
+        assert status["evidence_write_failures_total"] == 1
+        assert status["evidence_write_failures_consecutive"] == 0
+        assert status["last_successful_evidence_write_ts"]
+
 
 # ---------------------------------------------------------------------------
 # check_promotion_gates
