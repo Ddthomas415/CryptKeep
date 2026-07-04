@@ -14046,3 +14046,43 @@ Remaining risk:
   mutations, or storage consolidation still require separate targeted proof and
   review.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Repo Layout CI Compatibility Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the PR #185 CI failure caused by the structure-classification docs batch.
+
+What was found:
+- SHOWN: PR #185 `CI sanity` failed in
+  `tests/test_repo_layout_scope_doc.py`.
+- SHOWN: the failing assertions expected
+  `actively referenced from the main README, Makefile, dashboard research fallback, and tests`
+  and the historical overlap examples ``market_data/` and `marketdata/``,
+  ``paper/` and `paper_trader/``, ``strategy/` and `strategies/``, and
+  ``trading/` and `trading_runner/`` to remain visible in
+  `docs/REPO_LAYOUT.md`.
+
+What changed:
+- Restored those tested phrases in `docs/REPO_LAYOUT.md` while preserving the
+  newer sidecar/archived companion and retired-family classification language.
+
+Why this change:
+- The previous docs batch changed wording that existing CI treats as a
+  regression guard. Restoring the phrases keeps compatibility with the guard
+  without weakening the new classification decision.
+
+Expected outcome:
+- PR #185 `CI sanity` and `CI validate` no longer fail on
+  `tests/test_repo_layout_scope_doc.py`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_repo_layout_scope_doc.py`
+  - SHOWN: `9 passed in 0.08s`.
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: docs-only compatibility fix.
+- Acceptance state: `ACCEPTED`.

@@ -32,6 +32,7 @@ Operational config:
 
 Companion trees currently referenced by the main repo:
 - phase1_research_copilot/
+  - actively referenced from the main README, Makefile, dashboard research fallback, and tests
   - referenced from docs, smoke scripts, and tests
   - no tracked source files are present in this repository as of the
     2026-07-03 static check
@@ -87,6 +88,11 @@ Managed evidence symbol scope:
 Overlapping service families:
 - retired compatibility families are governed by `docs/ARCHITECTURE.md` and
   `docs/architecture/transitional_service_families.md`
+- historical overlap examples that must not be reintroduced casually:
+  - `market_data/` and `marketdata/`
+  - `paper/` and `paper_trader/`
+  - `strategy/` and `strategies/`
+  - `trading/` and `trading_runner/`
 - do not reintroduce retired families such as `services/paper/`,
   `services/marketdata/`, `services/strategy/`, `services/strategy_runner/`,
   or `services/storage/` without a new accepted architecture decision
