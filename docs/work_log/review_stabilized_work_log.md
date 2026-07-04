@@ -14550,3 +14550,48 @@ Remaining risk:
 - UNVERIFIED: the ignored tests were not executed in this pass by operator
   request to avoid excessive long-running tests.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Promotion Branch Deletion Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent future master-promotion merges from deleting the long-lived
+  `review-stabilized` branch.
+
+What was found:
+- SHOWN: PR #194 used `review-stabilized` as the head branch for promotion to
+  `master`.
+- SHOWN: merging PR #194 with branch deletion removed remote
+  `review-stabilized`; `git ls-remote origin refs/heads/review-stabilized`
+  returned no remote ref.
+- SHOWN: local `review-stabilized` remained intact at the accepted PR #195
+  merge commit and was pushed back to restore the remote branch.
+
+What changed:
+- Updated `docs/GITHUB_BRANCH_PROTECTION.md` with a long-lived branch safety
+  rule: do not use `--delete-branch` or delete the branch in the UI when
+  `review-stabilized` is the PR head.
+- Added verification and recovery commands for accidental deletion.
+
+Why this change:
+- `review-stabilized` is an integration branch, not a disposable feature
+  branch. Deleting it during promotion creates avoidable branch drift and PR
+  creation failures.
+
+Expected outcome:
+- Future accepted/admin promotion merges preserve the long-lived branch and
+  keep the `master` / `review-stabilized` workflow stable.
+
+Verification:
+- `git ls-remote origin refs/heads/master refs/heads/review-stabilized`
+  - SHOWN during the incident: only `master` was returned.
+- `git push origin review-stabilized`
+  - SHOWN: remote `review-stabilized` was recreated.
+
+Remaining risk:
+- LOW: docs/work-log only; no branch protection settings or runtime behavior
+  changed.
+- UNVERIFIED: PR #196 promotion checks are still pending at the time of this
+  entry.
+- Acceptance state: `ACCEPTED`.
