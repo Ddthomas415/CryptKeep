@@ -74,6 +74,11 @@ deployment work still needs independent review.
    `configs/strategies/es_daily_trend_v1.yaml` from an accepted parity/backtest
    baseline; otherwise the gate can report count readiness while the strategy
    performance comparison remains unresolved.
+   If archive-first backtesting lands before the manual review, prefer an
+   archive-backed multi-year baseline with dataset hashes over any shallow
+   single-fetch baseline. Do not populate the expectancy fields from a
+   short-window or non-reproducible run unless that limitation is explicitly
+   accepted in the decision record.
    Ground truth must come from the operator-host gate/status command output
    (`make status-paper-gate-qualification` or the equivalent gate JSON), not
    from stale counts copied into this backlog.
@@ -170,7 +175,15 @@ deployment work still needs independent review.
     are not sufficient proof-quality evidence for that signal. Treat
     `funding_extreme` as the flagship profitability hypothesis once wired;
     keep `es_daily_trend_v1` framed as the pipeline-validation strategy unless
-    later evidence proves it is also the best profit candidate.
+    later evidence proves it is also the best profit candidate. Include a
+    shared `regime_context` provider in this context contract. The flagship
+    `sma_200_trend` path already computes and enforces
+    `es_daily_trend.regime_stability()`; extract that market-state awareness so
+    other strategies can consume the same regime facts without duplicating
+    logic, while proving current `sma_200_trend` behavior remains unchanged.
+    Treat `composite_hybrid` confirmation mode as a context/confirmation
+    consumer, not as a standalone live strategy, until archive-backed
+    walk-forward evidence and paper provenance justify runtime registration.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -192,7 +205,9 @@ deployment work still needs independent review.
     read-only support is available, at least one second venue for comparison.
     Add a cadence-gap alert for the edge collector specifically; a silent
     collector outage burns unrecoverable funding/OI history even when paper
-    campaigns keep running.
+    campaigns keep running. The first post-decision proof should verify the
+    collector schedule on the host, show recent snapshot timestamps, and report
+    any cadence gaps before more strategy wiring depends on that history.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -227,12 +242,18 @@ deployment work still needs independent review.
     `volatility_reversal`. Add an explicit exclusion set with rationale, and a
     test that fails whenever a registered strategy is neither advisor-allowed
     nor deliberately excluded. This prevents future discovery wiring from
-    silently omitting strategies.
+    silently omitting strategies. Implementation proof was independently
+    reviewed and accepted by the human operator on 2026-07-03: the advisor now
+    has an explicit exclusion-rationale map, and the test suite fails if any
+    registry strategy is not classified as allowed or excluded.
 20. Harden the strategy-runner single-instance lock. `_acquire_lock()` in
     `services/execution/strategy_runner.py` is check-then-write and has no
     stale-PID recovery. Replace it with an atomic create path and a stale-lock
     reclamation proof: dead PID lock is reclaimed, and concurrent acquire
-    attempts allow exactly one winner.
+    attempts allow exactly one winner. A 2026-07-03 audit found
+    `services/runtime/managed_component.py::clean_stale_lock_file()` already
+    exists and is used by the intent consumers; prefer adopting that helper in
+    the runner before building a second stale-lock mechanism.
 21. Make sample-mode provenance agree with the actual data source. Current
     paper evidence stamps `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`; the
     promotion gate then treats that label as authoritative. Derive the sample
@@ -244,7 +265,11 @@ deployment work still needs independent review.
     rely heavily on presets/defaults. Before `ema_cross`, `breakout_donchian`,
     `pullback_recovery`, or future context strategies become promotion
     candidates, add strategy-specific config files with backtest expectations,
-    risk settings, evidence contract, and manual-review criteria.
+    risk settings, evidence contract, no-trade filter settings, and
+    manual-review criteria. Explicitly verify that each strategy's documented
+    no-trade filters are enabled or consciously waived in its campaign config;
+    documented discipline that is off in runtime config does not count as
+    governed discipline.
 23. Wire paper/gate event alerting into the existing alert dispatcher. The
     dispatcher is now used for Hetzner host-health alerts, but paper events
     still depend on manual polling. Add trigger-based alerts for qualified
@@ -262,7 +287,9 @@ deployment work still needs independent review.
     operator must revise the thesis, change strategy family/horizon, or wind
     the project down. This decision should be written before a drawdown or
     gate-green event so the system is not judged emotionally while under
-    pressure.
+    pressure. 2026-07-03: baseline policy is written in
+    `docs/STRATEGY_STOP_AND_RETIREMENT_POLICY.md`; future strategy promotion
+    still requires a dated per-strategy decision record using fresh gate output.
 25. Write and rehearse the first-hour paper-to-shadow runbook before the paper
     gate turns green. The runbook should start from fresh gate output, confirm
     baseline/manual-review status, confirm `observe_only` and no live routing,
@@ -270,14 +297,72 @@ deployment work still needs independent review.
     would-be-fill evidence is being written, verify zero venue orders, and
     record rollback/recovery steps. This is separate from the later launch
     evidence packet; it is the operator checklist for the first shadow hour.
+    2026-07-03: runbook is written in
+    `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`; rehearsal remains open until
+    a future checkpoint records command output, stage before/after, shadow
+    evidence, and zero venue orders.
 26. Decide whether to widen the paper universe to accelerate qualified evidence.
     The current canonical paper gate is slow because daily strategies on a
     narrow symbol set produce few qualified round trips. Before changing the
     campaign, write a decision record covering candidate symbols, venue/source
     support, provenance qualification, correlation/non-independence caveats,
     per-symbol risk caps, and whether cross-symbol round trips count toward the
-    same strategy gate. Do not retroactively count unqualified history or widen
-    the universe without preserving the evidence contract.
+    same strategy gate. If cross-symbol round trips can count, first replace
+    the current `scripts/check_promotion_gates.py::_count_round_trips`
+    `min(buys, sells)` helper with symbol-aware, chronological entry/exit
+    pairing or explicitly document the gate as single-symbol-only. Do not
+    retroactively count unqualified history or widen the universe without
+    preserving the evidence contract.
+27. Write a single-operator continuity and absence runbook before shadow or
+    server migration becomes the primary operating mode. The system currently
+    depends on one operator knowing which checks, hosts, branches, campaigns,
+    and recovery procedures matter. Document what continues running if the
+    operator is unreachable for a week or a month, what alerts must fire, what
+    automatically degrades or stops, who can access the host/repo if needed,
+    how to restore from backup, and which actions are explicitly forbidden
+    without the operator. This is not a staffing fix; it is the minimum proof
+    that the system fails safe without constant human attention. 2026-07-03:
+    baseline runbook is written in `docs/SINGLE_OPERATOR_CONTINUITY.md`;
+    backup restore, dead-man alert, and stopped-campaign recovery drills remain
+    open proof.
+28. Correct paper fee/PnL semantics before treating expectancy gates as
+    profitability evidence. `storage/paper_trading_sqlite.py::apply_fill()`
+    currently subtracts buy fees from cash and sell fees from proceeds, but the
+    returned/stored `realized_pnl_usd` is gross of both legs:
+    `(sell_price - avg_price) * qty`. `services/execution/paper_engine.py`
+    writes that value to fill evidence as `pnl_usd`, and
+    `scripts/check_promotion_gates.py::_check_expectancy()` gates on that field.
+    Also verify the active campaign config uses realistic `paper_fee_bps` and
+    slippage, because `services/execution/paper_fees.py` defaults ad hoc paper
+    fee lookups to `0.0`. Smallest acceptable path: make evidence PnL net of
+    buy/sell fees or add a versioned net field that gates consume, preserve
+    historical comparability explicitly, and add a golden round-trip test where
+    flat price plus fees yields negative `pnl_usd` and fails expectancy. Land
+    this before activating dormant sizing, setup-quality thresholds,
+    confirmation gates, or parameter sweeps; otherwise those systems optimize
+    gross-of-fee PnL and can amplify a measurement error.
+29. Make market-quality guard defaults fail closed before shadow evidence is
+    treated as cost/slippage proof. `services/risk/market_quality_guard.py`
+    currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,
+    and `max_spread_bps=500`, so missing quote data can pass with
+    `reason=no_quote_data`. Start with campaign-config opt-in
+    (`block_when_unknown: true`, `require_bid_ask: true`, realistic spread
+    caps), then flip code defaults after one observed cycle proves the stricter
+    settings do not create false-block storms. Proof: missing-quote fixture
+    holds the signal/order with an operator-visible reason, while fresh quoted
+    paths remain unaffected.
+30. Govern activation of dormant risk-based sizing before it influences paper
+    or shadow evidence. `services/strategies/es_daily_trend.py::decide()` and
+    `compute_position_size()` implement ATR-stop, regime-aware,
+    capital-at-risk sizing, but repo usage currently shows production campaign
+    orders using the runner's fixed `cfg["qty"]` path while `decide()` is only
+    imported by tests. Treat activation as a strategy/evidence change, not a
+    cleanup. Prerequisites: net-fee paper PnL semantics are fixed, archive
+    walk-forward evidence shows the sizing policy improves risk-adjusted
+    expectancy after costs, and a config flag can keep the canonical campaign
+    on fixed size. Proof: fixed-size behavior unchanged by default; flagged
+    sizing path emits size provenance, respects stage caps, and cannot increase
+    exposure beyond configured notional/risk limits.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
@@ -308,6 +393,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
+   2026-07-03 audit update: `services/execution/live_reconciler.py` already has
+   a verify-before-retry path for `submit_unknown` intents through
+   client-order-id lookup. Remaining work is typed exception classification,
+   fault-injection proof around crash-between-writes, and explicit policy for
+   the venue-lookup-not-found case.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
@@ -325,7 +415,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    test so dead email/Slack credentials are detected. Prefer a simple external
    dead-man and push channel such as healthchecks-style pings plus ntfy,
    Telegram, or another operator-visible channel before writing more custom
-   alert infrastructure. Blocks shadow/live quality.
+   alert infrastructure. A 2026-07-03 audit found
+   `services/process/heartbeat.py::write_heartbeat()` has no callers while
+   `services/process/watchdog.py` reads heartbeat state and can arm the kill
+   switch / set `HALTING` on staleness. Add heartbeat writes in every managed
+   loop that matters for unattended operation: strategy runner, evidence
+   service, collectors, live intent consumer, and reconciler. Also wire alert
+   dispatch on watchdog trigger and `bot_not_running`, prove host scheduling,
+   and fold the status-only `services/admin/watchdog.py` surface into the
+   process watchdog or document why both remain. Blocks shadow/live quality.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
@@ -371,6 +469,55 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     cost-stack report in bps. Hard constraint: no live routing or canonical
     order-type policy changes from this item until strategy expectancy and
     shadow cost evidence justify a separate reviewed execution-policy change.
+    A 2026-07-03 audit tightened the constraint: current paper-engine limit
+    fills are crossing-style only and market fills are full fills, so maker-side
+    research must come from shadow would-be-fill records or an explicit engine
+    extension, not from current paper-fill behavior.
+16. Quarantine or fail-close the optional `ai_engine` live-router hook before
+    any capped-live exposure. `services/live_router/router.py` can enable
+    `services/ai_engine` through env/config and currently records
+    `ai_error_ignored` with `ok=true` unless strict mode is explicitly enabled.
+    That contradicts the repo's fail-closed doctrine for order-routing paths.
+    Preferred resolution: remove or hard-disable the live-router AI hook until
+    any ML signal enters through the normal strategy registry, evidence
+    campaign, provenance qualification, and promotion gates. Minimum acceptable
+    resolution if the hook remains: AI-service/model errors block orders by
+    default, docs stop describing pass-through as the default live behavior,
+    and tests prove an enabled broken AI gate cannot allow an order. Include
+    `services/feature_gate.py::proba_gate()` in the same quarantine class:
+    it can influence order flow from `CBP_FUSED_PROBA`, tolerates missing or
+    invalid values when strict mode is false, and does not enter through the
+    strategy/evidence/promotion system. Blocks capped live.
+17. Restore resume-hard live governance before capped live. The dashboard
+    `Resume Live Trading` button reaches `services/admin/resume_gate.py`, and
+    the current resume path can set `execution.live_enabled=true`, bypass
+    kill-switch/system-guard halted checks, set live armed state, set
+    `CBP_EXECUTION_ARMED=YES`, disarm the kill switch, and set the system guard
+    RUNNING. That is not equivalent to the one-time-token/checklist ceremony in
+    `services/execution/live_enable.py`. Smallest acceptable fix:
+    `resume_if_safe()` never writes `live_enabled` from a cold/absent state,
+    refuses with a clear reason when no valid prior live-enable ceremony
+    provenance exists, and only resumes inside a bounded accepted arming window.
+    Proof must cover cold-state refusal, ceremony-armed-then-halted success,
+    expired/invalid provenance refusal, and dashboard display of the refusal
+    reason. Blocks capped live.
+18. Add intent TTL before live/shadow consumers are trusted unattended.
+    `storage/live_intent_queue_sqlite.py` dequeues and claims queued intents by
+    `created_ts ASC`, while current consumers check market snapshot freshness
+    but not the intent's own age. A restart after hours or days could submit an
+    intent sized and justified by stale context at current prices. Add
+    `max_intent_age_sec` with a fail-closed default, mark aged queued/submitting
+    intents `expired` with an operator-visible reason, and make the reconciler
+    treat `expired` as terminal. Proof: aged-intent fixture expires with zero
+    submits; fresh-intent fixture remains eligible.
+19. Remove hardcoded reference-price fallbacks from paper pre-submit safety
+    checks. `services/execution/paper_engine.py` currently falls back to
+    `60000.0` when no limit price, market-quality price, or last price is
+    available, and then uses that reference price for notional/safety checks.
+    Missing quote/reference data should fail closed with `no_reference_price`
+    rather than using a BTC-shaped constant for any symbol. Proof: missing-price
+    fixture rejects before safety-cap math; normal quoted paths remain
+    unchanged.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
@@ -383,6 +530,12 @@ substrate work, but they are concrete enough to keep visible.
    `live_trader_fleet` versus `live_trader_multi`,
    `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
    risk-gate modules. Start with a decision record if behavior differs.
+   2026-07-03 audit map: `services/admin/kill_switch.py` appears to be the
+   operational switch state used by scripts/resume/halt flows;
+   `services/risk/kill_conditions.py` is the strategy-runner risk-block logic;
+   `services/execution/kill_switch.py` is a thin setter wrapper used by one
+   script; `services/risk/killswitch.py` has no production importers and should
+   be deleted, wired, or explicitly retired.
 3. Extend archive-first backtesting proof to include one walk-forward run over
    the archive producing enough out-of-sample windows to demonstrate research
    depth, not only byte-identical reruns.
@@ -409,19 +562,34 @@ substrate work, but they are concrete enough to keep visible.
    `services/paper_trader/main.py`, and `services/execution/paper_engine.py`
    with different responsibilities. `paper_engine.py` appears to be the
    evidence-aware path; the older runners should either delegate to it, be
-   marked retired, or have an explicit supported-use label.
+   marked retired, or have an explicit supported-use label. 2026-07-03:
+   current classification is documented in
+   `docs/architecture/paper_execution_surfaces.md`: `paper_engine.py` is core,
+   `services/paper_trader/` is compatibility, and `services/paper/` remains
+   retired. Follow-up remains for `services/trading_runner/run_trader.py`.
 9. Classify dormant or partially wired signal-discovery modules.
    `signal_library`, `market_ranker`, `candidate_engine`,
    `candidate_strategy_mapper`, `trade_type_classifier`, and
    `universe_loader` contain useful discovery/ranking logic, but their active
-   production path and intended operator workflow are still unclear. Decide
-   which are part of the candidate pipeline, which are research-only, and which
-   should be retired.
+   production path and intended operator workflow are still unclear. Include
+   `services/market_data/composite_ranker.py` and
+   `services/market_data/rotation_engine.py` in the same classification pass:
+   they contain setup-quality / symbol-selection machinery, but the connection
+   from ranking to governed paper campaigns is not yet the canonical strategy
+   path. Decide which are part of the candidate pipeline, which are
+   research-only, and which should be retired. If setup-quality scores are later
+   used for trade/no-trade thresholds or sizing scalars, require archive
+   walk-forward proof and net-fee metrics first. 2026-07-03: classification is
+   documented in `docs/research/signal_discovery_classification.md`; discovery
+   and ranker surfaces remain research/advisory only unless separately proven
+   through archive-backed, net-fee, governed activation.
 10. Classify storage orphan modules before more reconciliation work.
     Prior audits flagged unused SQLite stores such as fill reconciler,
     idempotency, and order-tracker variants. Confirm whether each is truly
     unused on current master, then delete, wire, or document it as a retired
-    compatibility surface.
+    compatibility surface. 2026-07-03: classification is documented in
+    `docs/architecture/storage_surface_classification.md`; three candidate
+    stores remain unwired candidates pending a deeper caller/migration audit.
 11. Extract promotion-gate logic into a library after the current paper gate is
     stable. `scripts/check_promotion_gates.py` is the canonical operator
     command today and should not be churned mid-campaign, but the money-adjacent
@@ -435,46 +603,105 @@ substrate work, but they are concrete enough to keep visible.
     Default near-term stance should be lab-mode concentration: freeze desktop
     packaging, onboarding/product polish, and non-operator-critical dashboard
     work unless it directly improves evidence collection, safety, alerting, or
-    operator decision quality.
+    operator decision quality. 2026-07-03: triage baseline is documented in
+    `docs/PRODUCT_SURFACE_TRIAGE.md`; broader product expansion remains deferred
+    until expectancy is proven or a task supports the retained evidence/safety
+    path.
 13. Keep pattern/candlestick strategy research visible but behind the archive
     and paper-evidence gates. Existing code covers pullbacks, gap fills,
     volatility reversals, order-book imbalance, funding, and open interest.
     Missing pattern work includes candlestick confirmation, fair-value gaps,
     order-block style zones, and larger chart-pattern recognition. Treat these
     as research filters or candidate strategies only after archive-first
-    backtesting and provenance-qualified paper paths are in place.
+    backtesting and provenance-qualified paper paths are in place. 2026-07-03:
+    visible backlog is documented in `docs/research/pattern_strategy_backlog.md`.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
     paper reconciliation, campaign health, market movers, and copilot reports.
+    2026-07-03: priority policy is documented in
+    `docs/dashboard/DATA_PAGE_BACKLOG.md`; state-mutating pages still require
+    role guards and cannot bypass accepted ceremonies.
 15. Vendor, explicitly integrate, or excise the companion-repo dependency.
     `phase1_research_copilot` has appeared in compose/docs/skip-test context
     during audits. Split-brain repos rot deployment stories. Decide whether the
     companion is a vendored dependency, an external documented prerequisite, or
     retired from the canonical path, then update compose, docs, and tests to
-    match.
+    match. 2026-07-03: `docs/COMPANION_REPO_DEPENDENCY.md` classifies it as a
+    sidecar/archived companion, not a required root runtime dependency; future
+    active use must vendor it or document it as an explicit external
+    prerequisite.
 16. Add risk-tiered governance lanes to the operator workflow. Keep full
     ceremony for high-risk changes touching gates, dispatch, execution,
     secrets, deployment, and live-risk surfaces. Allow a lighter documented
     lane for low-risk docs/tests/reporting changes with clear PR labeling,
     targeted verification, and work-log coverage. The goal is to preserve
     rigor where it protects money while reducing process tax where it only
-    delays low-risk cleanup.
+    delays low-risk cleanup. 2026-07-03: baseline lane policy is written in
+    `docs/OPERATOR_GOVERNANCE_LANES.md`; future work should apply the lane
+    label in PRs without weakening AGENTS.md high-risk review rules.
 17. Define the operational core and quarantine policy. Add a `CORE.md` or
     equivalent decision record that names the modules required for the current
     paper/research/shadow path, plus a quarantine/attic policy for surfaces not
     in that core. Do not move broad directories in one sweep; first classify,
-    then retire, delegate, or document.
+    then retire, delegate, or document. 2026-07-03: baseline is documented in
+    `docs/CORE.md`.
 18. Protect operator attention as a managed resource. Add a decision record or
     runbook rule that caps open audit loops, limits low-value review churn, and
     forces each proactive task to tie back to one of: evidence velocity,
     profitability discovery, cost measurement, safety, recovery, or operator
-    wake-up quality.
+    wake-up quality. 2026-07-03: this rule is captured in
+    `docs/OPERATOR_GOVERNANCE_LANES.md` as the operator attention cap.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
     archive-backed research, shadow cost measurement, and stop criteria ahead
-    of dashboard/product polish.
+    of dashboard/product polish. 2026-07-03: `docs/PROJECT_IDENTITY_AND_SCOPE.md`
+    defines the current identity, and `docs/GOLDEN_PATH.md` /
+    `docs/OBJECTIVE.md` now link that scope.
+20. Harden AI-copilot context access and provider-data governance before
+    enabling external LLM summaries as a normal operator path.
+    `services/ai_copilot/context_collector.py::_safe_sqlite_query` currently
+    accepts caller-provided SQL on a normal SQLite connection; today's callers
+    are hardcoded reads, but the read-only assumption is not enforced. Open
+    SQLite databases in read-only mode, keep the query surface allowlisted or
+    internal-only, and add a small regression proving write SQL cannot mutate
+    the source DB. Also document what runtime fields may be sent to external
+    LLM providers when `use_ai=true`, and keep `services/ai_copilot/pr_reviewer`
+    advisory/non-blocking unless a separate prompt-injection-resistant review
+    design is accepted.
+21. Bring permanently ignored CI tests back under an explicit policy. Current
+    CI invokes pytest with four `--ignore` entries:
+    `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
+    `tests/test_dashboard_page_runtime.py`, and
+    `tests/test_dashboard_home_digest.py`. Either make them CI-safe, move them
+    behind a named optional job with documented prerequisites, or replace them
+    with smaller CI-covered regression slices. Tests that only run locally are
+    a drift channel for dashboard and symbol-scanner behavior. 2026-07-03:
+    policy is documented in `docs/CI_IGNORED_TEST_POLICY.md`; actual CI
+    behavior is unchanged.
+22. Decide retention policy for evidence, snapshot, status, and runtime stores
+    before server operation accumulates unbounded state. Prior audits found
+    pruning/DELETE behavior only in narrow strategy-state and desktop logging
+    surfaces; evidence logs, snapshots, status files, and SQLite stores mostly
+    grow indefinitely. "Keep forever" is acceptable if explicit, backed by disk
+    monitoring and backup strategy; otherwise define retention windows,
+    archival/export rules, and deletion safety checks. 2026-07-03: baseline
+    paper/research retention policy is written in `docs/RETENTION_POLICY.md`;
+    server-specific disk, backup, restore, and alert thresholds remain open
+    before canonical server operation.
+23. Turn paper diagnostics and loss replay into a scheduled strategy-review
+    ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
+    `scripts/dev/replay_paper_losses.py`, and the AI copilot
+    `paper_loss_replay` job, but the repo does not yet define a weekly
+    operator artifact that reviews wins/losses, records lessons, and updates
+    `services/strategies/hypotheses.py` / `docs/strategies/hypotheses.md`
+    invalidation conditions. Add a `make` target or runbook step that produces
+    a dated read-only review artifact from the current paper journal, links it
+    from the work log or checkpoint docs, and keeps conclusions advisory until
+    a separate governed config/code change is accepted. 2026-07-03: runbook
+    step is documented in `docs/STRATEGY_REVIEW_RITUAL.md`; no scheduler or
+    `make` target is added in this docs-only pass.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

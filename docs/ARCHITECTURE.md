@@ -290,3 +290,9 @@ Current scoped activation objective:
 - `docs/checkpoints/candidate_layer_read_only_activation_objective_2026_06_22.md`
 
 **Current status:** paper-only, evidence accumulation phase.
+
+Current classification:
+- `docs/CORE.md`
+- `docs/research/signal_discovery_classification.md`
+- `docs/architecture/paper_execution_surfaces.md`
+- `docs/architecture/storage_surface_classification.md`

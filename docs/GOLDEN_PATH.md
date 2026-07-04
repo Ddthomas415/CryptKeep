@@ -4,8 +4,10 @@ One page. What runs, in what order, where evidence goes, what is optional.
 
 ## The product
 
-CryptKeep is a safety-first paper and guarded-live trading runtime with evidence,
-reconciliation, promotion gates, and operator controls.
+CryptKeep is currently a safety-first profit-measurement and
+evidence-generation lab with paper, shadow, and guarded-live promotion controls.
+It is not yet proven to be a profitable trading bot. See
+`docs/PROJECT_IDENTITY_AND_SCOPE.md` for the current scope boundary.
 
 ## The canonical runtime
 
@@ -203,6 +205,12 @@ explicitly stamped `_stage=shadow` and logged on or after that stage's
 retirement checks. `provenance_all_time` remains diagnostic and does not make
 the shadow gate pass or fail.
 
+Before the first intentional paper-to-shadow transition, use
+`docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`. The runbook is written but still
+needs a future rehearsal checkpoint.
+
+For the current operational core and quarantine policy, see `docs/CORE.md`.
+
 ## What is core vs optional
 
 **Core** (required for the paper trading loop):
@@ -226,7 +234,8 @@ the shadow gate pass or fail.
 **Archived** (not actively maintained):
 - `crypto-trading-ai/` — earlier sidecar workspace
 - `trade-ai-mvp/` — earlier prototype
-- `phase1_research_copilot/` — research tooling
+- `phase1_research_copilot/` — sidecar/archived companion; see
+  `docs/COMPANION_REPO_DEPENDENCY.md`
 
 ## The one regression test to run after any change to the signal path
 
