@@ -269,7 +269,15 @@ deployment work still needs independent review.
     manual-review criteria. Explicitly verify that each strategy's documented
     no-trade filters are enabled or consciously waived in its campaign config;
     documented discipline that is off in runtime config does not count as
-    governed discipline.
+    governed discipline. 2026-07-04: governance-only configs are added for
+    `ema_cross_default`, `breakout_default`, and
+    `pullback_recovery_default`. They are not campaign manifests, keep
+    `trade_enabled=false`, require archive-backed baselines and manual review,
+    and are guarded by a test that verifies inactive activation state,
+    registry-backed strategy names, null baseline placeholders, net-fee manual
+    review, and explicit no-trade filter contracts. Remaining work: populate
+    accepted archive baselines and create separately reviewed campaign
+    manifests before any challenger is promoted.
 23. Wire paper/gate event alerting into the existing alert dispatcher. The
     dispatcher is now used for Hetzner host-health alerts, but paper events
     still depend on manual polling. Add trigger-based alerts for qualified

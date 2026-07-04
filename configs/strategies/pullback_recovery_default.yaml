@@ -1,0 +1,94 @@
+# configs/strategies/pullback_recovery_default.yaml
+#
+# Governance-only contract for the Pullback Recovery challenger.
+# This file is not a campaign manifest and is not auto-loaded by the current
+# canonical paper gate. Keep trade_enabled=false until a separate governed
+# activation creates a campaign manifest and fresh evidence baseline.
+
+activation:
+  status: governance_only
+  campaign_enabled: false
+  promotion_candidate: false
+  activation_requires:
+    - archive_first_backtest_baseline
+    - stage0_isolated_paper_proof
+    - paper_campaign_manifest
+    - strategy_specific_manual_review
+    - net_fee_expectancy_comparison
+
+min_bars: 70
+max_bars: 300
+signal_source: public_ohlcv
+
+strategy:
+  id: pullback_recovery_default
+  name: pullback_recovery
+  version: "0.1.0"
+  stage: research
+  symbol: BTC/USDT
+  venue: coinbase
+  trade_enabled: false
+
+  signal:
+    type: trend_pullback_recovery
+    fast_sma_period: 20
+    trend_sma_period: 50
+    rsi_period: 14
+    direction: long_flat_only
+
+  no_trade_filters:
+    min_pullback_pct: 2.0
+    max_pullback_pct: 12.0
+    rsi_reentry_max: 55.0
+    rebound_confirm_pct: 0.0
+    trend_reclaim_tolerance_pct: 1.5
+    exit_rsi: 68.0
+    stop_below_trend_sma: true
+
+risk:
+  sizing_mode: fixed_qty_until_reviewed
+  max_concurrent_positions: 5
+  max_symbol_exposure_pct: 20.0
+  max_total_exposure_pct: 80.0
+  max_strategy_exposure_pct: 50.0
+  max_open_intents_per_symbol: 1
+  max_consecutive_losing_exits: 3
+  max_strategy_drawdown_pct: 10.0
+
+promotion:
+  paper:
+    min_days: 30
+    min_round_trips: 10
+    backtest_expectations:
+      source: null
+      tolerance_pct: 25.0
+      metric_basis: net_return_pct
+      win_rate: null
+      avg_win_return_pct: null
+      avg_loss_return_pct: null
+
+manual_review:
+  required: true
+  checklist:
+    - stage0_isolated_proof_accepted
+    - backtest_expectations_populated_from_archive
+    - observed_win_rate_within_tolerance
+    - average_win_loss_within_tolerance
+    - net_fee_expectancy_positive
+    - no_trade_filters_enabled_or_explicitly_waived
+    - provenance_qualified_paper_fills_only
+
+evidence:
+  required_signal_fields:
+    - timestamp
+    - price
+    - pullback_pct
+    - rsi
+    - trend_sma
+    - signal_direction
+  required_fill_fields:
+    - timestamp
+    - fill_price
+    - fees_paid
+    - pnl_usd
+    - pnl_usd_semantics
