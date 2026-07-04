@@ -14323,8 +14323,6 @@ Expected outcome:
 Verification:
 - `git diff --check`
   - SHOWN: passed with no whitespace errors.
-- `rg -n "SERVER_SECRETS_ROTATION_MODEL|server secrets|rotation drill|secret injection" docs/SERVER_SECRETS_ROTATION_MODEL.md docs/LAUNCH_CHECKLIST.md docs/AUTHORITY_MATRIX.md REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
-  - SHOWN: model links and remaining proof language are present.
 
 Remaining risk:
 - LOW: docs/backlog/work-log only; no runtime behavior changed.
@@ -14506,7 +14504,10 @@ Expected outcome:
   acceleration shortcut.
 
 Verification:
-- Docs-only change. `git diff --check` will be run before commit.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+- `rg -n "SERVER_SECRETS_ROTATION_MODEL|server secrets|rotation drill|secret injection" docs/SERVER_SECRETS_ROTATION_MODEL.md docs/LAUNCH_CHECKLIST.md docs/AUTHORITY_MATRIX.md REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: model links and remaining proof language are present.
 
 Remaining risk:
 - LOW: docs/backlog/work-log only; no runtime campaign, gate, or config behavior
@@ -14722,4 +14723,51 @@ Remaining risk:
 - HIGH/UNVERIFIED for the later capped-live proof: server secret injection,
   rotation, revocation, redacted status output, and artifact leak scans still
   need an executed evidence packet.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Supply-Chain Release Verification Policy
+
+Active role: ENGINEER
+
+Objective:
+- Document the supply-chain/release verification policy required before
+  capped-live deployment.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` listed supply-chain verification as a deferred
+  live-money substrate blocker.
+- SHOWN: `requirements.txt` points at pinned requirements, CI installs pinned
+  runtime dependencies in the main validation workflow, and release docs already
+  describe artifact hash manifests.
+- UNVERIFIED: no dependency vulnerability audit, SBOM, hash-locked install, or
+  release attestation is currently a required gate for capped live.
+
+What changed:
+- Added `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`.
+- Linked the policy from `docs/CI_GITHUB_ACTIONS.md` and
+  `docs/LAUNCH_CHECKLIST.md`.
+- Updated `REMAINING_TASKS.md` item 13 to distinguish documented policy from
+  remaining capped-live proof.
+
+Why this change:
+- The repo needed a clear decision boundary before adding CI scanners or
+  stricter release gates. A docs-only policy preserves current paper/research
+  speed while making capped-live supply-chain proof explicit.
+
+Expected outcome:
+- Future release/live work can decide whether to add `pip-audit`, SBOMs,
+  hash-locked installs, or attestations against a visible policy instead of
+  treating the current pinned requirements as full production proof.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+- `rg -n "SUPPLY_CHAIN_RELEASE_POLICY|supply-chain|dependency vulnerability audit|hash-locked|SBOM" docs/SUPPLY_CHAIN_RELEASE_POLICY.md docs/CI_GITHUB_ACTIONS.md docs/LAUNCH_CHECKLIST.md REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: policy links and remaining capped-live proof language are present.
+
+Remaining risk:
+- LOW: docs/backlog/checklist update only; no CI, dependency, release,
+  signing, or runtime behavior changed.
+- UNVERIFIED: dependency audit, SBOM, hash-locked install, and release
+  attestation proof remain open before capped live.
 - Acceptance state: `ACCEPTED`.
