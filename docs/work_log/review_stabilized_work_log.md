@@ -14194,10 +14194,10 @@ Verification:
   - SHOWN: `13 passed in 0.51s`.
 
 Remaining risk:
-- HIGH: this changes paper execution gate behavior and should be independently
-  reviewed before acceptance.
+- HIGH: this changes paper execution gate behavior; human/operator independent
+  review accepted the implementation on 2026-07-04.
 - UNVERIFIED: active campaign market-quality config was not changed or observed
   for a no-storm cycle in this pass.
 - UNVERIFIED: live intent consumers and legacy executor submit paths still need
   separate review before any equivalent live/shadow behavior change.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED_WITH_RISK`.

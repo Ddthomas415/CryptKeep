@@ -362,9 +362,11 @@ deployment work still needs independent review.
     for independent review: the canonical paper engine no longer falls back to
     `60000.0` when market quality returns `ok=true` without a usable
     `price_used`/`last`; the order is held with
-    `market_quality:no_reference_price`. Remaining work: committed or
-    operator-applied strict market-quality config, one observed no-storm cycle,
-    and later default flip if the stricter settings prove stable.
+    `market_quality:no_reference_price`. 2026-07-04: human/operator
+    independent review accepted this partial implementation with risk.
+    Remaining work: committed or operator-applied strict market-quality config,
+    one observed no-storm cycle, and later default flip if the stricter
+    settings prove stable.
 30. Govern activation of dormant risk-based sizing before it influences paper
     or shadow evidence. `services/strategies/es_daily_trend.py::decide()` and
     `compute_position_size()` implement ATR-stop, regime-aware,
