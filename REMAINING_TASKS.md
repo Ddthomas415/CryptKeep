@@ -622,6 +622,12 @@ substrate work, but they are concrete enough to keep visible.
     compatibility surface. 2026-07-03: classification is documented in
     `docs/architecture/storage_surface_classification.md`; three candidate
     stores remain unwired candidates pending a deeper caller/migration audit.
+    2026-07-04: targeted caller audit found no visible production source
+    importers for `fill_reconciler_store_sqlite.py`,
+    `order_idempotency_sqlite.py`, or `order_tracker_store_sqlite.py`; matches
+    are the modules themselves and prior docs/audit artifacts. Remaining
+    decision: delete, migrate, or explicitly retain these schemas before the
+    next reconciliation implementation.
 11. Extract promotion-gate logic into a library after the current paper gate is
     stable. `scripts/check_promotion_gates.py` is the canonical operator
     command today and should not be churned mid-campaign, but the money-adjacent

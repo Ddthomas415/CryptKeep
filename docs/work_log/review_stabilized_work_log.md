@@ -14328,3 +14328,49 @@ Remaining risk:
 - UNVERIFIED: actual transactional migration, fault-injection tests, and
   backup/restore drill remain future capped-live work.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Storage Candidate Caller Audit
+
+Active role: ENGINEER
+
+Objective:
+- Complete the current-master caller audit for the three storage modules
+  previously classified as unwired candidates.
+
+What was found:
+- SHOWN: `storage/fill_reconciler_store_sqlite.py` defines
+  `FillReconcilerStoreSQLite`.
+- SHOWN: `storage/order_idempotency_sqlite.py` defines
+  `OrderIdempotencySQLite`.
+- SHOWN: `storage/order_tracker_store_sqlite.py` defines
+  `OrderTrackerStoreSQLite`.
+- SHOWN: static caller audit across `services`, `scripts`, `storage`, `tests`,
+  `docs`, and `REMAINING_TASKS.md` found no visible current production source
+  importer for those modules; matches were the modules themselves and prior
+  docs/audit artifacts.
+
+What changed:
+- Updated `docs/architecture/storage_surface_classification.md` with the
+  2026-07-04 caller audit command and result.
+- Updated `REMAINING_TASKS.md` item 10 with the current audit result and the
+  remaining delete/migrate/retain decision.
+
+Why this change:
+- Reconciliation work should not build on dormant or duplicate storage schemas
+  without an explicit migration decision.
+
+Expected outcome:
+- Future reconciliation/storage work can see that these three modules are still
+  unwired candidates and must not be adopted accidentally.
+
+Verification:
+- Caller audit command is recorded in
+  `docs/architecture/storage_surface_classification.md`.
+  - SHOWN: only self/docs/audit artifact matches for the three candidate
+    modules.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no runtime behavior changed.
+- UNVERIFIED: archived/migration data dependency on these schemas was not
+  proven or disproven.
+- Acceptance state: `ACCEPTED`.
