@@ -15,15 +15,13 @@ It is a documentation pass only; no store is deleted or rewired here.
 | `storage/execution_guard_store_sqlite.py` | `core_execution_guard` | Imported by safety, live router/traders, and paper engine |
 | `storage/reconciliation_store_sqlite.py` | `compatibility_or_reconcile` | Imported by exchange reconciler and compatibility tests |
 | `storage/idempotency_sqlite.py` | `legacy_or_low_level` | Imported by order router; also defines compatibility `OrderDedupeStore` |
-| `storage/fill_reconciler_store_sqlite.py` | `unwired_candidate` | 2026-07-04 audit: only self/docs/audit hits |
-| `storage/order_idempotency_sqlite.py` | `unwired_candidate` | 2026-07-04 audit: only self/docs/audit hits |
-| `storage/order_tracker_store_sqlite.py` | `unwired_candidate` | 2026-07-04 audit: only self/docs/audit hits |
+| `storage/fill_reconciler_store_sqlite.py` | `quarantined_retained_schema` | 2026-07-04 audit: only self/docs/audit hits |
+| `storage/order_idempotency_sqlite.py` | `quarantined_retained_schema` | 2026-07-04 audit: only self/docs/audit hits |
+| `storage/order_tracker_store_sqlite.py` | `quarantined_retained_schema` | 2026-07-04 audit: only self/docs/audit hits |
 
 ## Policy
 
-- Do not delete the `unwired_candidate` stores until an explicit caller audit
-  confirms they are not needed for migration or incident recovery.
-- Do not build new reconciliation logic on an unwired candidate store without
+- Do not build new reconciliation logic on a quarantined retained schema without
   first deciding whether it should replace, delegate to, or remain separate
   from the core stores.
 - Prefer one canonical store for each live-money concept before capped live.
@@ -48,7 +46,20 @@ Result:
 
 ## Open Follow-Up
 
-- Do not use the three `unwired_candidate` stores for new reconciliation,
-  idempotency, or order-tracking work without a separate migration decision.
-- Decide whether to delete, migrate, or explicitly retain the three candidates
-  before the next reconciliation implementation.
+Closed 2026-07-04.
+
+Decision:
+
+- explicitly retain the three schemas as quarantined retained schemas during
+  the current paper/research phase;
+- do not wire new callers to them;
+- do not delete them until the state-store consolidation migration packet
+  decides whether any schema/data is needed for comparison, migration, or
+  incident recovery.
+
+Implementation consequence:
+
+- new reconciliation, idempotency, and order-tracking work must use the current
+  core stores or include a separate reviewed migration decision;
+- these retained schemas are not production authorities and must not be treated
+  as evidence that the corresponding runtime path is active.

@@ -616,7 +616,10 @@ substrate work, but they are concrete enough to keep visible.
 
 1. Resolve `services/runtime/run_mode.py` and
    `services/runtime/bot_process.py`: implement the Phase 218/220 operator
-   flow or delete the stubs with a documentation update.
+   flow or delete the stubs with a documentation update. 2026-07-04: deleted
+   both TODO-only placeholder modules after source import scan found no active
+   importers; disposition is documented in
+   `docs/architecture/runtime_stub_disposition.md`.
 2. Reduce duplicate/twin modules that obscure which code guards money:
    `live_trader_fleet` versus `live_trader_multi`,
    `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
@@ -661,7 +664,11 @@ substrate work, but they are concrete enough to keep visible.
    current classification is documented in
    `docs/architecture/paper_execution_surfaces.md`: `paper_engine.py` is core,
    `services/paper_trader/` is compatibility, and `services/paper/` remains
-   retired. Follow-up remains for `services/trading_runner/run_trader.py`.
+   retired. 2026-07-04: follow-up for
+   `services/trading_runner/run_trader.py` is closed by classifying it as a
+   legacy compatibility runner: paper-only local EMA smoke coverage, not a
+   canonical promotion-evidence path and not a surface for new paper execution
+   features.
 9. Classify dormant or partially wired signal-discovery modules.
    `signal_library`, `market_ranker`, `candidate_engine`,
    `candidate_strategy_mapper`, `trade_type_classifier`, and
@@ -688,9 +695,12 @@ substrate work, but they are concrete enough to keep visible.
     2026-07-04: targeted caller audit found no visible production source
     importers for `fill_reconciler_store_sqlite.py`,
     `order_idempotency_sqlite.py`, or `order_tracker_store_sqlite.py`; matches
-    are the modules themselves and prior docs/audit artifacts. Remaining
-    decision: delete, migrate, or explicitly retain these schemas before the
-    next reconciliation implementation.
+    are the modules themselves and prior docs/audit artifacts. 2026-07-04:
+    disposition decision is recorded in
+    `docs/architecture/storage_surface_classification.md`: explicitly retain
+    the three schemas as quarantined retained schemas during paper/research,
+    do not wire new callers, and defer deletion/migration until the state-store
+    consolidation migration packet decides whether any schema/data is needed.
 11. Extract promotion-gate logic into a library after the current paper gate is
     stable. `scripts/check_promotion_gates.py` is the canonical operator
     command today and should not be churned mid-campaign, but the money-adjacent
