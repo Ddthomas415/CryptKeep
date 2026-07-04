@@ -74,10 +74,34 @@ When admin bypass is used, record an audit note on the PR explaining:
 - that required checks were passing before merge
 - whether the bypass was performed directly by the human repo admin or by a
   Codex agent after explicit human chat acceptance
+- whether the PR head was a long-lived branch such as `review-stabilized`, and
+  if so, that the head branch was not deleted
 
 If the project adds a second human reviewer, consider tightening the rule by
 enabling "Do not allow bypassing the above settings" and requiring external
 review even for administrators.
+
+## Long-Lived Branch Safety
+
+`review-stabilized` is a long-lived integration branch. Do not delete it as part
+of a promotion PR from `review-stabilized` to `master`.
+
+For promotion PRs where `review-stabilized` is the head branch:
+
+- Do not use `gh pr merge --delete-branch`.
+- Do not click "delete branch" in the GitHub UI after merge.
+- After merge, verify the remote branch still exists:
+
+```bash
+git ls-remote origin refs/heads/review-stabilized
+```
+
+If it was deleted by mistake, restore it from the verified local branch before
+continuing:
+
+```bash
+git push origin review-stabilized
+```
 
 ## Post-Merge Branch Alignment
 

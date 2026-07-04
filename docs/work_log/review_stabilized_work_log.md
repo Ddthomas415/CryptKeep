@@ -14550,3 +14550,126 @@ Remaining risk:
 - UNVERIFIED: the ignored tests were not executed in this pass by operator
   request to avoid excessive long-running tests.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Promotion Branch Deletion Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent future master-promotion merges from deleting the long-lived
+  `review-stabilized` branch.
+
+What was found:
+- SHOWN: PR #194 used `review-stabilized` as the head branch for promotion to
+  `master`.
+- SHOWN: merging PR #194 with branch deletion removed remote
+  `review-stabilized`; `git ls-remote origin refs/heads/review-stabilized`
+  returned no remote ref.
+- SHOWN: local `review-stabilized` remained intact at the accepted PR #195
+  merge commit and was pushed back to restore the remote branch.
+
+What changed:
+- Updated `docs/GITHUB_BRANCH_PROTECTION.md` with a long-lived branch safety
+  rule: do not use `--delete-branch` or delete the branch in the UI when
+  `review-stabilized` is the PR head.
+- Added verification and recovery commands for accidental deletion.
+
+Why this change:
+- `review-stabilized` is an integration branch, not a disposable feature
+  branch. Deleting it during promotion creates avoidable branch drift and PR
+  creation failures.
+
+Expected outcome:
+- Future accepted/admin promotion merges preserve the long-lived branch and
+  keep the `master` / `review-stabilized` workflow stable.
+
+Verification:
+- `git ls-remote origin refs/heads/master refs/heads/review-stabilized`
+  - SHOWN during the incident: only `master` was returned.
+- `git push origin review-stabilized`
+  - SHOWN: remote `review-stabilized` was recreated.
+
+Remaining risk:
+- LOW: docs/work-log only; no branch protection settings or runtime behavior
+  changed.
+- UNVERIFIED: PR #196 promotion checks are still pending at the time of this
+  entry.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Retention Policy Server Threshold Link
+
+Active role: ENGINEER
+
+Objective:
+- Close the documentation gap between the general retention policy and the
+  existing Hetzner server storage-health thresholds.
+
+What was found:
+- SHOWN: `docs/RETENTION_POLICY.md` still said a host-specific retention packet
+  was required before canonical server operation.
+- SHOWN: `docs/HETZNER_PAPER_HOST.md` already defines the paper-host storage
+  baseline: `/srv/cryptkeep/backups`, minimum 2 GiB free space, minimum 10,000
+  free inodes, UTC/NTP sync, backup age, restore-test status, and campaign
+  health checks.
+
+What changed:
+- Updated `docs/RETENTION_POLICY.md` to link the current Hetzner threshold
+  baseline.
+- Updated `REMAINING_TASKS.md` item 22 to preserve the remaining
+  backup/restore-drill proof requirement.
+
+Why this change:
+- The backlog should distinguish missing policy from missing executed proof.
+  The threshold policy exists; the future launch packet still needs fresh
+  restore evidence.
+
+Expected outcome:
+- Operators looking at retention policy can find the server minimums without
+  duplicating or contradicting the Hetzner runbook.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no retention/pruning command or server
+  behavior changed.
+- UNVERIFIED: no fresh backup/restore drill was run in this pass.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - AI Copilot Provider Data Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Document what runtime fields may be sent to external LLM providers when an
+  AI-backed copilot summary is explicitly enabled.
+
+What was found:
+- SHOWN: `docs/AI_COPILOT_OPERATING_RULES.md` defined copilot jobs as
+  advisory/read-only.
+- SHOWN: `REMAINING_TASKS.md` item 20 required provider-data governance in
+  addition to future read-only SQLite enforcement.
+
+What changed:
+- Added an external provider data-boundary section to
+  `docs/AI_COPILOT_OPERATING_RULES.md`.
+- Updated `REMAINING_TASKS.md` item 20 to mark the disclosure-policy subtask
+  documented while preserving the SQLite read-only enforcement task.
+
+Why this change:
+- External provider summaries need an explicit data boundary before they become
+  a routine operator path. Documentation is the smallest safe slice; changing
+  database access enforcement remains a separate security-sensitive task.
+
+Expected outcome:
+- Copilot jobs have a visible allowed/forbidden payload policy and remain
+  advisory-only when `use_ai=true`.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW for this docs slice.
+- HIGH/UNVERIFIED for the remaining code task: `_safe_sqlite_query()` still
+  needs read-only connection enforcement and a write-SQL regression.
+- Acceptance state: `ACCEPTED`.
