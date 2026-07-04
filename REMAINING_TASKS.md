@@ -490,10 +490,21 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     keyring/env handling is adequate for desktop/paper, but server operation
     needs a documented injection path, rotation procedure, and proof that
     secrets are not written to deployment records, logs, or evidence artifacts.
+    2026-07-04: policy is documented in
+    `docs/SERVER_SECRETS_ROTATION_MODEL.md` and linked from the launch
+    checklist/authority matrix. Remaining capped-live proof: execute a server
+    injection and rotation drill, verify redacted status/preflight output,
+    confirm old credential revocation, and scan deployment/evidence artifacts
+    for secret leakage.
 13. Add supply-chain verification to release/CI policy. Requirements are
     pinned, but hash pinning and dependency-audit evidence are not yet a
     visible release gate. Decide whether to add `pip-audit`/hash checks or
-    explicitly accept the risk for paper-only operation.
+    explicitly accept the risk for paper-only operation. 2026-07-04: policy is
+    documented in `docs/SUPPLY_CHAIN_RELEASE_POLICY.md` and linked from CI and
+    launch docs. Remaining capped-live proof: run or explicitly waive a
+    dependency vulnerability audit, record artifact hashes/provenance for the
+    deployed SHA, and decide whether hash-locked installs or SBOMs become
+    release gates.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
