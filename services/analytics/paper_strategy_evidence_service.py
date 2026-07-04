@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.admin.config_editor import load_user_yaml
+from services.admin.config_editor import ConfigLoadError, load_user_yaml
 from services.analytics.paper_evidence_artifacts import decision_record_dir
 from services.backtest.evidence_cycle import (
     load_paper_history_evidence,
@@ -1133,8 +1133,45 @@ def run_campaign(cfg: PaperStrategyEvidenceServiceCfg, *, max_strategies: int | 
             }
             progress["summary_text"] = _summary_text(progress)
             _write_status(progress)
+            try:
+                base_cfg = load_user_yaml(strict=True)
+            except ConfigLoadError as exc:
+                campaign_reason = "config_load_failed"
+                out = {
+                    "ok": False,
+                    "has_status": True,
+                    "status": "failed",
+                    "reason": campaign_reason,
+                    "error": f"config_load_failed:{type(exc).__name__}",
+                    "error_type": type(exc).__name__,
+                    "ts": _now_iso(),
+                    "pid": current_pid,
+                    "strategies": strategies,
+                    "completed_strategies": len(results),
+                    "total_strategies": len(strategies),
+                    "current_strategy": "",
+                    "current_strategy_preset": (
+                        str(results[-1].get("strategy_preset") or "") if results else ""
+                    ),
+                    "last_completed_strategy": (
+                        str(results[-1].get("strategy") or "") if results else ""
+                    ),
+                    "symbol": str(cfg.symbol or DEFAULT_SYMBOL),
+                    "venue": str(cfg.venue or DEFAULT_VENUE),
+                    "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
+                    "started_components": started_components,
+                    "reused_components": reused_components,
+                    "paper_sim_monitor_watch_seed": monitor_watch_seed_out,
+                    "results": results,
+                    "summary_text": (
+                        "Paper strategy evidence collection failed because runtime config "
+                        "could not be loaded."
+                    ),
+                }
+                _write_status(out)
+                return out
             report = run_strategy_evidence_cycle(
-                base_cfg=load_user_yaml(),
+                base_cfg=base_cfg,
                 symbol=str(cfg.evidence_symbol or cfg.symbol or DEFAULT_SYMBOL),
                 initial_cash=float(cfg.initial_cash),
                 fee_bps=float(cfg.fee_bps),

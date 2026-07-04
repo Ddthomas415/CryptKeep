@@ -12873,3 +12873,1216 @@ Remaining risk:
 - Acceptance state: `ACCEPTED`.
 - Review reference: independently reviewed and accepted by the human operator
   on 2026-07-03 before PR #176 merge.
+
+## 2026-07-03 - Strict Config Reloads for Active Paper Evidence Path
+
+Active role: ENGINEER
+
+Objective:
+- Finish the #177 follow-through in the active paper evidence path so
+  mid-session corrupt runtime user config cannot silently revert to `{}` while
+  the strategy runner or evidence service continues producing evidence.
+
+What was found:
+- SHOWN: `services/execution/strategy_runner.py::_cfg()` already used
+  `load_user_yaml(strict=True)` at startup after PR #177.
+- SHOWN: `_resolve_venue_candidates()` still used non-strict
+  `load_user_yaml()` for in-loop venue candidate fallback.
+- SHOWN: the public-OHLCV signal branch still used non-strict
+  `load_user_yaml()` before building the selected strategy block.
+- SHOWN: `services/analytics/paper_strategy_evidence_service.py` still used
+  non-strict `load_user_yaml()` as `base_cfg` immediately before regenerating
+  leaderboard evidence and decision records.
+- UNVERIFIED: live-money config consumers outside the active paper evidence
+  path remain open backlog work.
+
+What changed:
+- Added a shared strategy-runner status writer for `config_load_failed` that
+  records a non-actionable hold signal.
+- Made `_resolve_venue_candidates()` and the public-OHLCV selected strategy
+  config reload use `load_user_yaml(strict=True)`.
+- Handled in-loop `ConfigLoadError` by writing visible `config_load_failed`
+  status, sleeping, and skipping the tick without enqueuing strategy intents.
+- Made paper evidence service use strict config loading before the evidence
+  cycle; on failure it writes a failed campaign status and returns before
+  leaderboard persistence or decision-record generation.
+- Added targeted tests proving mid-session runner config corruption writes
+  `config_load_failed`, holds without side effects, and creates zero intents,
+  paper orders, or paper fills.
+- Added targeted tests proving paper evidence service config-load failure
+  stops before evidence persistence.
+- After CI exposed the repository's no-raw-exception-text guard, sanitized the
+  paper evidence and strategy-runner config-load failure payloads to expose
+  `config_load_failed` plus `error_type` instead of raw parser/path text.
+- Updated `REMAINING_TASKS.md` to record the active paper evidence path proof
+  while keeping the broader capped-live config sweep open.
+
+Why this change:
+- The prior strict startup fix prevented a corrupt config from starting a new
+  runner, but non-strict reloads could still poison evidence after startup.
+  Strict reload handling at the active evidence boundary is the smallest patch
+  that closes the paper-campaign gap without sweeping unrelated live consumers.
+
+Expected outcome:
+- Corrupt runtime config during a paper evidence session becomes an explicit
+  `config_load_failed` status instead of silently defaulting to `{}`.
+- Strategy runner does not enqueue new intents while config is unreadable.
+- Paper evidence service does not regenerate leaderboard or decision artifacts
+  from default config after a strict config-load failure.
+- Config-load failure status remains operator-visible without leaking raw
+  exception text.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py services/analytics/paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `57 passed in 1.02s`.
+- GitHub Actions for PR #179
+  - SHOWN: CI failed in `test_ops_services_do_not_log_raw_exception_text`
+    because `paper_strategy_evidence_service.py` contained `"error": str(exc)`.
+- GitHub Actions for PR #179 after sanitized-status follow-up
+  - SHOWN: all 7 checks passed: CI validate, CI sanity, macOS wrapper build,
+    Windows wrapper build, Governance smoke push, Governance smoke pull request,
+    and GitGuardian.
+- `./.venv/bin/python -m pytest -q tests/test_ops_services_no_raw_exception_text.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `58 passed in 0.98s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: runtime config loading affects trading-adjacent strategy dispatch and
+  evidence generation.
+- UNVERIFIED: full suite, long-running campaign behavior, safety/load-gates,
+  live executor/consumer/reconciler config consumers, and master promotion PR
+  #178.
+- Acceptance state: `ACCEPTED`.
+- Review reference: independently reviewed and accepted by the human operator
+  on 2026-07-03 after PR #179 CI passed.
+
+## 2026-07-03 - Strategic Review Backlog Triage
+
+Active role: ENGINEER
+
+Objective:
+- Process the strategic production-readiness review findings that were not
+  covered by the strict config reload implementation, and preserve any missing
+  actionable item in the visible backlog.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracks archive-first backtesting,
+  crypto-edge context strategy wiring, Decimal money math, typed retry
+  classification, fault-injection, systemd deployment, loop dead-man alerting,
+  state-store consolidation, backup/restore drill, and duplicate-module
+  cleanup.
+- SHOWN: `scripts/check_promotion_gates.py` requires shadow fill/slippage
+  evidence for the shadow slippage gate.
+- SHOWN: `services/execution/_executor_shared.py` blocks submit operations in
+  observe-only shadow mode.
+- SHOWN: the existing shadow backlog/proof text covered spread/depth stamping,
+  but did not explicitly require a would-be-fill recorder.
+
+What changed:
+- Added an active backlog item requiring a shadow would-be-fill recorder before
+  shadow slippage gates are treated as actionable.
+- The item requires proof that shadow mode records intended fill/slippage
+  evidence while still creating zero live orders.
+- Renumbered the active backlog so the shadow recorder is visible before
+  sandbox lifecycle and launch-packet work.
+
+Why this change:
+- The strategic review identified a structural proof gap: shadow can collect
+  signal records, but the slippage gate cannot be satisfied if observe-only
+  submits do not persist would-be-fill records.
+- Capturing the task in `REMAINING_TASKS.md` prevents the repo from treating
+  shadow spread/depth stamping as complete shadow readiness.
+
+Expected outcome:
+- The next shadow-stage implementation has a clear objective: record
+  would-be-fill slippage evidence without placing live orders.
+- Operators can distinguish completed spread/depth signal proof from the still
+  missing fill/slippage evidence path.
+
+Verification:
+- `sed -n '1,240p' /Users/baitus/.codex/attachments/23e1567a-b478-4841-9ed5-0be75b60e09c/pasted-text.txt`
+  - SHOWN: the strategic review identifies shadow would-be-fill recording as a
+    missing proof path.
+- `sed -n '780,825p' scripts/check_promotion_gates.py`
+  - SHOWN: the shadow slippage gate reports missing shadow fill/slippage
+    evidence and asks operators to collect would-be-fill slippage evidence.
+- `sed -n '400,425p' services/execution/_executor_shared.py`
+  - SHOWN: shadow observe-only mode disables submit operations.
+
+Remaining risk:
+- LOW: this is a docs/backlog tracking change only.
+- UNVERIFIED: implementation design for the future recorder, storage schema,
+  and gate integration.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Principal Audit Delta Backlog Capture
+
+Active role: ENGINEER
+
+Objective:
+- Capture the new actionable deltas from the principal-engineer
+  production-readiness audit so they remain visible after the shadow recorder
+  and strict-config items were already merged or tracked.
+
+What was found:
+- SHOWN: `SUPPORTED - ALLOWED_STRATEGIES` is
+  `breakout_volume`, `gap_fill`, `sma_200_trend`, and
+  `volatility_reversal`; `ALLOWED_STRATEGIES - SUPPORTED` is empty.
+- SHOWN: `services/signals/candidate_advisor.py` defines
+  `ALLOWED_STRATEGIES` as a hard-coded subset of the strategy registry with no
+  explicit exclusion set.
+- SHOWN: `services/execution/strategy_runner.py::_acquire_lock()` checks
+  `LOCK_FILE.exists()` and then writes the lock file, with no atomic create
+  path and no stale-PID recovery.
+- SHOWN: `services/execution/strategy_runner.py` and
+  `scripts/run_paper_strategy_evidence_collector.py` stamp sample-mode
+  provenance from `CBP_USE_SAMPLE_OHLCV`; the paper qualification gate then
+  treats `ohlcv_sample_mode` as authoritative.
+- SHOWN: the audit identified evidence-write failure surfacing and
+  paper-ledger invariant tests as proof gaps.
+
+What changed:
+- Added backlog items for advisor/registry classification, strategy-runner
+  atomic lock and stale-PID recovery, and source-derived sample-mode
+  provenance.
+- Added deferred proof items for surfacing repeated evidence-write failures and
+  preserving paper-ledger invariants around `PaperTradingSQLite.apply_fill`.
+
+Why this change:
+- The findings are real but should not be mixed into the accepted strict-config
+  or shadow-recorder tracking PRs.
+- Capturing them in `REMAINING_TASKS.md` preserves the audit signal without
+  starting new high-risk implementation work inside a docs-only branch.
+
+Expected outcome:
+- Future strategy-discovery work cannot silently omit registered strategies
+  without an explicit exclusion rationale.
+- Runner restart robustness, sample/provenance trust, evidence-write
+  observability, and paper-ledger consistency have visible follow-up tasks.
+
+Verification:
+- `./.venv/bin/python - <<'PY' ...`
+  - SHOWN: `SUPPORTED_MINUS_ALLOWED=['breakout_volume', 'gap_fill',
+    'sma_200_trend', 'volatility_reversal']` and
+    `ALLOWED_MINUS_SUPPORTED=[]`.
+- `nl -ba services/execution/strategy_runner.py | sed -n '240,260p;748,760p'`
+  - SHOWN: `_acquire_lock()` is check-then-write and `run_forever()` reports
+    `lock_exists` without stale lock recovery.
+- `rg -n "ohlcv_sample_mode|CBP_USE_SAMPLE_OHLCV|sample_mode" services/execution services/control scripts tests`
+  - SHOWN: sample-mode provenance is stamped from env and later consumed by
+    paper evidence qualification.
+
+Remaining risk:
+- LOW: this is a docs/backlog tracking change only.
+- UNVERIFIED: implementation designs and test details for each captured item.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Shadow Would-Be-Fill Recorder Implementation Proof
+
+Active role: ENGINEER
+
+Objective:
+- Implement the smallest shadow-stage recorder needed for observe-only submit
+  attempts to produce fill/slippage evidence without placing live orders.
+
+What was found:
+- SHOWN: `services/execution/_executor_submit.py::submit_pending_live()` returns
+  early in `LIVE_SHADOW` observe-only mode before venue submission.
+- SHOWN: `scripts/check_promotion_gates.py::evaluate_shadow_gates()` already
+  reads shadow `fill` evidence and reports manual slippage review as available
+  once fill records exist.
+- SHOWN: `services/strategies/evidence_logger.py` can write `fill_*.jsonl`
+  records under the active strategy evidence directory while preserving
+  caller-supplied `_stage`.
+- SHOWN: the live-executor facade synchronizes monkeypatched dependencies into
+  `_executor_submit`, allowing a focused observe-only regression test.
+
+What changed:
+- Added private shadow-recorder helpers in
+  `services/execution/_executor_submit.py`.
+- In `LIVE_SHADOW` observe-only submit mode, pending live intents are scanned
+  and converted into idempotent `shadow_would_be_fill` evidence records.
+- Each record captures side, quantity, symbol, venue, bid, ask, last,
+  reference mid, spread bps, modeled fill price, fee, slippage, selected
+  strategy, strategy preset, `_stage=shadow`, and non-sample local snapshot
+  provenance.
+- The recorder uses the existing deterministic fill model and does not call the
+  exchange client, update intent status, or insert execution-store fills.
+- Added a regression test proving one pending live intent produces exactly one
+  shadow fill-evidence record and remains pending with zero execution-store
+  fills.
+- Added a gate test proving `evaluate_shadow_gates()` surfaces shadow
+  would-be-fill evidence as manual slippage-review input.
+- Updated `REMAINING_TASKS.md` to mark the item as implementation-proof-ready
+  pending independent review.
+
+Why this change:
+- Shadow mode previously had an unstartable evidence gate: submit was correctly
+  observe-only, but there was no artifact for the slippage gate to inspect.
+- Writing evidence records instead of execution-store fills preserves the
+  observe-only safety boundary while allowing the shadow gate to accumulate
+  reviewable would-be-fill slippage data.
+- Idempotency by intent prevents a repeated shadow submit loop from generating
+  one evidence fill per tick for the same pending intent.
+
+Expected outcome:
+- Once paper promotes to shadow, pending live intents can produce slippage
+  evidence for manual review without opening orders or mutating live fill
+  tables.
+- The shadow gate can distinguish "no slippage evidence exists" from
+  "manual review is required across N would-be-fill records."
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/_executor_submit.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_check_promotion_gates.py`
+  - SHOWN: command completed successfully.
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_check_promotion_gates.py::TestShadowGateMarketQuality`
+  - SHOWN: initial implementation proof returned `9 passed in 0.99s`.
+  - SHOWN: post-acceptance merge-resolution rerun returned
+    `9 passed in 1.04s`.
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- HIGH: this touches executor-adjacent financial logic and shadow/live submit
+  behavior.
+- UNVERIFIED: full-suite result and a live-like shadow campaign run against the
+  operator host were not run in this thread.
+- Human review: user stated `INDEPENDENTLY_REVIEWED AND ACCEPTED` on
+  2026-07-03 after PR #182 checks passed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Agent Message Backlog Reconciliation
+
+Active role: AUDITOR
+
+Objective:
+- Reconcile the user's pasted agent/audit messages against
+  `REMAINING_TASKS.md` and make sure material recommendations are visible in
+  the governed backlog.
+
+What was found:
+- SHOWN: 27 pasted attachment files were available under
+  `/Users/baitus/.codex/attachments/*/pasted-text.txt`.
+- SHOWN: the major high-risk production blockers were already tracked:
+  Decimal/venue quantization, fail-closed config, typed retry classification,
+  crash/fault tests, deployment units, loop dead-man alerting,
+  state-store decision record, backup/restore drill, evidence-write failure
+  surfacing, advisor allow-list drift, stale runner locks, and sample-mode
+  provenance.
+- SHOWN: several recommendations from the pasted audits were absent or too
+  implicit in the backlog: per-strategy YAML governance for challengers,
+  paper/gate event alerting, pullback leaderboard/config follow-through,
+  backtest expectation population, crypto-edge collection-decision urgency,
+  config authority consolidation, clock skew checks, server secret rotation,
+  supply-chain verification, operator/action audit coverage, paper-runner
+  surface classification, signal-discovery module classification, storage
+  orphan classification, future gate-library extraction, product-objective
+  triage, pattern/candlestick research, and dashboard data-page wiring.
+
+What changed:
+- Updated `REMAINING_TASKS.md` active backlog items for paper manual review,
+  pullback follow-through, crypto-edge collection urgency, per-strategy config
+  governance, and paper/gate event alerting.
+- Expanded deferred live-money backlog items for boundary quantization,
+  admin-wizard strict config, loop kill-check/alert delivery proof, config
+  authority consolidation, clock/venue-time checks, server secret handling,
+  supply-chain checks, and operator/action audit coverage.
+- Expanded deferred structure/research hygiene with paper-surface
+  classification, signal-discovery module classification, storage orphan
+  classification, gate-library extraction, product-objective triage,
+  pattern/candlestick research, and dashboard data-page wiring.
+
+Why this change:
+- The user explicitly requested that pasted-agent recommendations stop being
+  ignored and be captured in the visible backlog.
+- The patch keeps runtime behavior unchanged while preserving the omitted
+  audit signal for later prioritization.
+
+Expected outcome:
+- Future agents can see the full backlog surface without relying on old chat
+  memory or pasted attachments.
+- The active paper/shadow path remains focused, while larger product,
+  research, and live-money substrate work stays visible but deferred.
+
+Verification:
+- `find /Users/baitus/.codex/attachments -name 'pasted-text.txt' -maxdepth 2 -print`
+  - SHOWN: 27 pasted attachment files were available for reconciliation.
+- `sed -n '1,260p' REMAINING_TASKS.md`
+  - SHOWN: active and deferred backlog sections were read before editing.
+- `rg -n "alert_dispatcher|dispatch_alert|AlertDispatcher" services scripts tests dashboard -g"*.py"`
+  - SHOWN: alert dispatcher is used by Hetzner host health and tests, not yet
+    by paper/gate event transitions.
+- `rg -n "signal_library|market_ranker|candidate_strategy_mapper|trade_type_classifier|universe_loader" services scripts tests dashboard -g"*.py"`
+  - SHOWN: signal-discovery modules exist and are partially wired, but their
+    operator-facing production role remains unclear.
+
+Remaining risk:
+- LOW: docs/backlog reconciliation only.
+- UNVERIFIED: current correctness of every historical pasted-agent claim was
+  not re-proven from source; only material backlog coverage was reconciled.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Execution-Cost Research Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the missing maker-vs-taker / execution-cost optimization research
+  item identified by the user's follow-up agent review.
+
+What was found:
+- SHOWN: `rg` found no maker/taker, post-only, fee-tier, limit-fill
+  probability, spread-crossing, or execution-cost backlog item in
+  `REMAINING_TASKS.md`, checkpoint docs, or the work log.
+- SHOWN: `services/execution/paper_engine.py` supports `limit` orders and
+  evaluates open orders for fills.
+- SHOWN: `services/execution/paper_fees.py` exposes a single flat
+  `paper_fee_bps` model.
+- SHOWN: `services/execution/fill_model.py` models fills as mid-price plus or
+  minus configured bps, without maker/taker, queue, or spread-crossing
+  distinctions.
+
+What changed:
+- Added a deferred live-money substrate backlog item for execution-cost
+  research: maker-vs-taker rates, fee tiers, venue cost stack, modeled maker
+  versus taker fills, limit-fill probability, and reproducible cost-stack
+  reporting from shadow records.
+
+Why this change:
+- Execution costs can erase daily-horizon crypto signal edge, and the existing
+  fill-model and shadow-recorder items did not explicitly cover maker/taker
+  policy or venue fee-stack research.
+- The item is scoped as research/shadow-only so it does not alter live routing
+  or the canonical paper campaign while expectancy remains unproven.
+
+Expected outcome:
+- Future profitability work has a visible execution-cost research path that
+  consumes shadow evidence instead of creating a second collection pipeline.
+
+Verification:
+- `rg -n "maker|taker|post-only|fee-tier|limit-fill|spread-crossing|spread crossing|execution-cost|cost stack" REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md docs/checkpoints -g"*.md"`
+  - SHOWN: no matches before the backlog update.
+- `rg -n "limit|fee_bps|paper_fees|apply_fee_slippage|open_orders|order_type" services/execution/paper_engine.py services/execution/fill_model.py services/execution/paper_fees.py`
+  - SHOWN: paper limit-order support exists, while fee/fill modeling remains
+    flat and generic.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: detailed implementation design and venue fee schedule sources.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Decision Checklist Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the actionable decision checklist items from the user's latest agent
+  review so they are visible in the backlog.
+
+What was found:
+- SHOWN: the backlog already tracks paper evidence collection, expectancy
+  baseline, edge collection, execution-cost research, dead-man alerting,
+  backup/restore, advisor strategy coverage, and shadow recorder work.
+- SHOWN: the backlog did not explicitly require written stop/retirement
+  criteria for individual strategies or the whole project.
+- SHOWN: the backlog did not explicitly require a first-hour paper-to-shadow
+  operator runbook before the paper gate turns green.
+- SHOWN: the backlog used copied paper-gate counts in current-state text, but
+  the checklist correctly identified operator-host gate output as the
+  authoritative status artifact.
+
+What changed:
+- Updated the paper manual-review backlog item to state that fresh gate/status
+  command output is the ground truth, not stale backlog counts.
+- Added a backlog item requiring explicit strategy/project stop and retirement
+  criteria before any strategy advances beyond paper.
+- Added a backlog item requiring a first-hour paper-to-shadow runbook and
+  rehearsal before the paper gate turns green.
+
+Why this change:
+- These are decision-quality controls, not code features. Without them, the
+  repo can produce evidence while the operator still lacks written criteria
+  for when to advance, pause, retire, or stop.
+
+Expected outcome:
+- Future gate-green events have a defined operator decision path.
+- Strategy retirement and project stop decisions are made against written
+  thresholds rather than emotional interpretation during drawdown or excitement.
+
+Verification:
+- `rg -n "stop criteria|kill criteria|retire|shutdown|shut down|first hour|paper.*shadow|shadow.*runbook|gate.*ground truth|cost stack|dead-man|restore drill|edge collector|expectancy baseline" REMAINING_TASKS.md docs/checkpoints docs/work_log/review_stabilized_work_log.md -g"*.md"`
+  - SHOWN: related items existed, but explicit stop criteria and first-hour
+    paper-to-shadow runbook language were not present before this update.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: exact stop thresholds and paper-to-shadow runbook content remain
+  to be written in future artifacts.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Strategic Concentration Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Capture the user's latest pasted strategic assessment in the governed backlog
+  so the repo keeps the material "full control" recommendations visible.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracked product-objective triage,
+  dead-man alerting, deployment units, execution-cost research, stop criteria,
+  crypto-edge collection, and shadow runbook work.
+- SHOWN: the backlog did not explicitly state the lab-mode concentration
+  stance: freeze desktop/product polish until expectancy is proven, focus on
+  one venue/strategy pair for discovery, decide whether to widen the paper
+  symbol universe to buy evidence velocity, tier governance by risk, prefer
+  boring infrastructure over custom ops code, and define the repo as a
+  profit-measurement lab rather than a profitable trading product.
+- CLAIMED: the pasted assessment referenced broad surfaces such as desktop,
+  dashboard, and companion-repo residue. This entry captures the strategic
+  recommendations as backlog decisions; it does not re-audit every file count
+  from that pasted text.
+
+What changed:
+- Updated the crypto-edge collection item to state that one-venue research is
+  the near-term focus and multi-exchange is a later scaling objective.
+- Expanded stop criteria to include a dated project-level thesis gate.
+- Added an active backlog item requiring an explicit decision before widening
+  the paper universe for faster qualified evidence.
+- Expanded live-substrate items to prefer systemd/journald/external dead-man
+  checks before more custom supervisor or alert infrastructure.
+- Expanded structure/research backlog with lab-mode product-surface freeze,
+  companion-repo decision, risk-tiered governance lanes, operational-core and
+  quarantine policy, operator-attention protection, and repo-identity clarity.
+
+Why this change:
+- The recommendations change project direction and operator workflow, not
+  runtime behavior. Capturing them as backlog/decision items is the smallest
+  safe change and avoids turning strategic advice into unreviewed code churn.
+
+Expected outcome:
+- Future work can prioritize evidence velocity, profitability discovery, cost
+  measurement, safety, recovery, and operator wake-up quality ahead of product
+  polish or low-value audit churn.
+- Future agents can see the concentration decisions in git without relying on
+  chat memory.
+
+Verification:
+- `sed -n '1,420p' REMAINING_TASKS.md`
+  - SHOWN: active and deferred backlog sections were read before editing.
+- `tail -n 180 docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: existing work-log format and recent backlog entries were read before
+    adding this entry.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: no independent source audit was performed for every pasted-file
+  claim in the strategic assessment; this patch records decisions to evaluate,
+  not proof that all claims are current.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Recent Attachment Reconciliation Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Re-read the recent pasted attachment set instead of relying on chat memory,
+  then compare material recommendations against `REMAINING_TASKS.md`.
+
+What was found:
+- SHOWN: 29 pasted attachment files were present under
+  `/Users/baitus/.codex/attachments/*/pasted-text.txt`, totaling 4,484 lines.
+- SHOWN: the major production and research findings were already represented
+  in the backlog: fail-closed config, retry typing, Decimal/venue
+  quantization, crash-consistency tests, state-store consolidation, deployment
+  units, dead-man alerting, full-state restore, archive-first backtesting,
+  crypto-edge strategy wiring, advisor/registry drift, stale runner locks,
+  sample-mode provenance, dashboard/product triage, companion-repo cleanup,
+  execution-cost research, and stop criteria.
+- SHOWN: several recommendations were present only implicitly or lacked
+  operational specificity: sandbox lifecycle proof can be run before the paper
+  gate because it is no-capital testnet learning, archive work should feed
+  systematic parameter sweeps and walk-forward discovery, `funding_extreme`
+  should be treated as the flagship profitability hypothesis once wired,
+  edge-collector history should be collected beyond the active campaign and
+  alerted on cadence gaps, and Hetzner runbooks must distinguish server
+  commands from laptop commands with verified privilege/venv prerequisites.
+
+What changed:
+- Updated the sandbox/testnet lifecycle item to state it can be executed before
+  the paper gate clears if kept isolated and no-capital.
+- Expanded archive-first backtesting to include post-archive parameter-sweep
+  and walk-forward research throughput.
+- Expanded crypto-edge strategy wiring to frame `funding_extreme` as the first
+  profitability hypothesis, with `es_daily_trend_v1` remaining the
+  pipeline-validation strategy unless evidence changes that.
+- Expanded scheduled edge collection with broader symbol/second-venue data
+  hoarding and a cadence-gap alert requirement.
+- Expanded Hetzner follow-through with explicit host privilege, venv/app-path,
+  Tailscale host, and laptop-vs-server command requirements.
+
+Why this change:
+- The user explicitly challenged whether recent pasted messages had actually
+  been read. This change makes the reconciliation visible in git and captures
+  the remaining materially distinct recommendations without touching runtime
+  code.
+
+Expected outcome:
+- The backlog better preserves the strategic direction from the recent
+  attachments: improve evidence velocity, widen edge discovery, avoid
+  deployment/runbook confusion, and do no-capital execution-stack learning in
+  parallel with paper evidence collection.
+
+Verification:
+- `find /Users/baitus/.codex/attachments -maxdepth 2 -name pasted-text.txt -print | sort`
+  - SHOWN: 29 pasted attachment files were available.
+- `wc -l /Users/baitus/.codex/attachments/*/pasted-text.txt`
+  - SHOWN: 4,484 total lines across the pasted attachment set.
+- `sed -n '70,230p' REMAINING_TASKS.md`
+  - SHOWN: active backlog items were read before patching the missing
+    refinements.
+
+Remaining risk:
+- LOW: docs/backlog tracking only.
+- UNVERIFIED: some attachment command-output logs were truncated in terminal
+  display during review; the patch captures material recommendations observed
+  from the readable attachment content, but it is not a source-code re-audit of
+  every claim inside those attachments.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Candidate Advisor Strategy Classification Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent the candidate advisor's strategy allow-list from silently drifting
+  away from the executable strategy registry.
+
+What was found:
+- SHOWN: `services/strategies/strategy_registry.py::SUPPORTED` registers nine
+  OHLCV strategies.
+- SHOWN: `services/signals/candidate_advisor.py::ALLOWED_STRATEGIES` allowed
+  only five of those strategies.
+- SHOWN: the omitted registry strategies were `breakout_volume`, `gap_fill`,
+  `sma_200_trend`, and `volatility_reversal`.
+- SHOWN: no existing test required advisor strategies to be explicitly allowed
+  or explicitly excluded.
+
+What changed:
+- Added `ADVISOR_EXCLUDED_STRATEGIES` with one-line rationales for the four
+  registered strategies that are intentionally not advisor-selectable yet.
+- Added `tests/test_candidate_advisor_classification.py` to assert every
+  registry strategy is classified as either advisor-allowed or
+  advisor-excluded, that the sets do not overlap, and that exclusion rationales
+  are non-empty.
+- Updated `REMAINING_TASKS.md` item 19 to record the implementation proof.
+
+Why this change:
+- Future strategy additions should not disappear from the advisor path by
+  omission. A failing classification test forces a conscious allowed/excluded
+  decision whenever the registry changes.
+
+Expected outcome:
+- Candidate discovery coverage becomes explicit and regression-guarded without
+  changing runtime advisor recommendations.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_candidate_advisor_classification.py tests/test_candidate_layer.py`
+  - SHOWN: `42 passed in 0.27s`.
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- MEDIUM: this is strategy-discovery governance, not execution or live routing.
+- Runtime behavior is intended to remain unchanged because the allow-list is
+  unchanged; only omitted strategies now have documented rationales.
+- Independently reviewed and accepted by the human operator on 2026-07-03.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Single-Operator Continuity Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's production-repo comparison and add any missing backlog task
+  that materially improves production readiness.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracks Decimal money math, transactional
+  state decisions, typed retry classification, crash/fault tests, systemd
+  deployment, loop heartbeats/dead-man alerting, full-state restore drills,
+  duplicate safety modules, sandbox lifecycle proof, and operator stop
+  criteria.
+- SHOWN: the backlog did not explicitly require a single-operator continuity or
+  absence runbook, even though the pasted assessment correctly identified that
+  the repo's recovery knowledge still depends heavily on one operator.
+
+What changed:
+- Added active backlog item 27 requiring a single-operator continuity and
+  absence runbook before shadow or server migration becomes the primary
+  operating mode.
+
+Why this change:
+- The repo's technical controls are only production-grade if they fail safe
+  while the operator is asleep, unavailable, or disconnected. This item turns
+  that human-dependency risk into a concrete operator-workflow artifact.
+
+Expected outcome:
+- Future shadow/server operation has a written answer for what continues,
+  alerts, degrades, stops, can be accessed, can be restored, and must not be
+  touched when the operator is unavailable.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: backlog/work-log only.
+- UNVERIFIED: the actual runbook content, access model, and emergency delegate
+  remain to be written and reviewed later.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Edge Collector And Baseline Sequencing Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's autonomous-execution sequencing plan and capture missing
+  backlog refinements that improve evidence velocity and gate readiness.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` already tracks shadow would-be-fill recording,
+  archive-first backtesting, crypto-edge strategy wiring, edge-collector
+  cadence alerts, full-state drills, and process-cap/operator attention.
+- SHOWN: the backlog did not explicitly state that `es_daily_trend_v1`
+  expectancy fields should prefer an archive-backed multi-year baseline if the
+  archive lands before manual review.
+- SHOWN: the edge-collector item required scheduled collection and cadence-gap
+  alerts, but did not explicitly require a first operational proof showing host
+  schedule state, recent snapshot timestamps, and cadence gaps before downstream
+  strategy wiring depends on the history.
+
+What changed:
+- Updated the paper manual-review item to prefer archive-backed, dataset-hashed
+  multi-year baseline metrics before populating `es_daily_trend_v1.yaml`
+  expectancy fields.
+- Updated the scheduled crypto-edge collection item to require a first
+  post-source-decision operational proof of scheduler and snapshot cadence.
+
+Why this change:
+- These are sequencing details that prevent two common failure modes:
+  populating a gate baseline from shallow non-reproducible data, and wiring
+  `funding_extreme` against an edge-history clock that is not actually running.
+
+Expected outcome:
+- When the paper gate reaches manual review, the expectancy comparison points
+  at the best available reproducible dataset.
+- When crypto-edge wiring begins, the team already has proof that funding/OI
+  history is accruing on schedule.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: backlog/work-log only.
+- UNVERIFIED: the archive implementation, edge collector scheduler, and
+  baseline regeneration remain future work.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - AI Copilot And AI Engine Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's AI-layer audit and add any missing backlog tasks that
+  materially affect production readiness.
+
+What was found:
+- SHOWN: `docs/AI_COPILOT_BOUNDARY.md` already states that AI/copilot surfaces
+  are advisory and cannot become direct live-trading authority.
+- SHOWN: `services/ai_copilot/context_collector.py::_safe_sqlite_query` opens
+  SQLite databases through a normal read-write connection while accepting a SQL
+  string from its caller. Current callers pass hardcoded read queries, but the
+  read-only assumption is not enforced by the helper.
+- SHOWN: `services/live_router/router.py` can enable `services/ai_engine`
+  through env/config and, on AI-service/model exceptions, records
+  `ai_error_ignored` with `ok=true` unless strict mode is explicitly enabled.
+- SHOWN: `docs/AI_ENGINE.md` documents default pass-through behavior for the
+  AI engine.
+- CLAIMED: the attached audit characterizes `services/ai_copilot` as generally
+  capability-limited/read-only and `services/ai_engine` as the material
+  doctrine violation. That broader package assessment was not fully re-audited
+  in this patch.
+
+What changed:
+- Added a deferred live-money substrate backlog item requiring the optional
+  `ai_engine` live-router hook to be quarantined or made fail-closed before any
+  capped-live exposure.
+- Added a deferred structure/research-hygiene backlog item requiring enforced
+  read-only SQLite access for AI-copilot context collection, explicit provider
+  data-governance documentation for `use_ai=true`, and advisory-only handling
+  for the LLM PR reviewer unless a stronger design is accepted.
+
+Why this change:
+- The AI-engine hook sits on an order-routing path and should not be treated as
+  a generic research scaffold if it can fail open when enabled.
+- The copilot context collector is lower risk today, but its helper name
+  implies a safety property the code does not enforce. Recording the gap keeps
+  future AI-summary work bounded by actual read-only controls.
+
+Expected outcome:
+- Live-readiness work has an explicit AI-engine quarantine/fail-closed blocker
+  instead of relying on broad fail-open backlog language.
+- AI-copilot reporting can mature without accidentally widening data-access or
+  provider-disclosure assumptions.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- HIGH for the future `ai_engine` implementation because it touches live order
+  routing and fail-open behavior; that future code change must stop at
+  `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Dashboard Resume Gate And Deep-Audit Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's deep audit of previously unexamined areas and add missing
+  backlog tasks or refinements that materially affect production readiness.
+
+What was found:
+- SHOWN: `services/admin/resume_gate.py::resume_if_safe()` can write
+  `execution.live_enabled=true` when live is not enabled, calls
+  `live_allowed()` with kill-switch and system-guard halted bypasses, sets live
+  armed state, sets `CBP_EXECUTION_ARMED=YES`, disarms the kill switch, and sets
+  the system guard RUNNING.
+- SHOWN: `dashboard/pages/60_Operations.py` exposes that path through the
+  `Resume Live Trading` button.
+- SHOWN: `services/execution/live_enable.py` is a separate token/checklist
+  ceremony, so dashboard resume is not currently constrained to prior
+  ceremony provenance.
+- SHOWN: `scripts/check_promotion_gates.py::_count_round_trips()` counts
+  `min(buys, sells)` without symbol-aware chronological pairing.
+- SHOWN: `.github/workflows/ci.yml` runs pytest with permanent `--ignore`
+  entries for `tests/test_symbol_scanner.py`,
+  `tests/test_dashboard_view_data.py`,
+  `tests/test_dashboard_page_runtime.py`, and
+  `tests/test_dashboard_home_digest.py`.
+- SHOWN: `services/execution/live_reconciler.py` contains a
+  verify-before-retry path for `submit_unknown` intents through
+  client-order-id lookup.
+- CLAIMED: the attached audit's broader dashboard/reconciler/supervisor/
+  packaging conclusions were not fully re-audited in this patch.
+
+What changed:
+- Added a deferred live-money substrate backlog item requiring the dashboard
+  resume path to preserve resume-hard governance: no cold write of
+  `live_enabled`, valid prior live-enable ceremony provenance, bounded arming
+  window, and targeted tests.
+- Refined the paper-universe widening item to require symbol-aware,
+  chronological round-trip pairing before cross-symbol fills count toward a
+  gate, or an explicit single-symbol-only gate policy.
+- Refined the retry-classification live blocker to record that
+  verify-before-retry exists, with remaining work focused on typed exception
+  classification, fault-injection proof, and venue-lookup-not-found policy.
+- Refined the duplicate safety-module task with the current four-module
+  kill-switch map.
+- Added a CI/test hygiene item requiring the permanently ignored tests to be
+  made CI-safe, moved to a named optional job, or replaced by covered slices.
+
+Why this change:
+- The resume path is a governance bypass in an action-capable dashboard
+  surface. It is not active while strategies remain paper-stage, but it must be
+  fixed before capped-live exposure.
+- Multi-symbol evidence acceleration should not reuse a single-symbol
+  round-trip helper.
+- CI should not silently exempt dashboard and scanner behavior without a named
+  policy.
+
+Expected outcome:
+- Future live-readiness work has a specific resume-gate blocker instead of a
+  broad "dashboard write surface" concern.
+- Multi-symbol campaign planning keeps the evidence contract honest.
+- Existing retry/reconciler work is scoped to the remaining proof gaps, not
+  re-solving a mechanism that is already present.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- HIGH for the future resume-gate implementation because it touches live
+  arming/governance behavior; that code change must stop at
+  `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Fee, Heartbeat, And Fail-Open Guard Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's proactive audit findings covering paper profitability
+  measurement, watchdog heartbeats, market-quality defaults, stale intents, and
+  non-evidence order gates, then add any missing backlog tasks or refinements.
+
+What was found:
+- SHOWN: `storage/paper_trading_sqlite.py::apply_fill()` subtracts buy fees
+  from cash and sell fees from proceeds, but returned/stored
+  `realized_pnl_usd` is gross of fees.
+- SHOWN: `services/execution/paper_engine.py` logs sell-fill evidence
+  `pnl_usd` from `realized_pnl_usd`, and
+  `scripts/check_promotion_gates.py::_check_expectancy()` gates on `pnl_usd`.
+- SHOWN: `services/execution/paper_fees.py::fee_bps_paper()` defaults to
+  `0.0` when no paper fee is configured.
+- SHOWN: `services/process/heartbeat.py::write_heartbeat()` exists, but repo
+  search found no callers while `services/process/watchdog.py` reads heartbeat
+  state and can arm the kill switch / set `HALTING` on staleness.
+- SHOWN: `services/risk/market_quality_guard.py` defaults to
+  `block_when_unknown=false`, `require_bid_ask=false`, `max_spread_bps=500`,
+  and missing quotes can return `ok=true`, `reason=no_quote_data`.
+- SHOWN: `storage/live_intent_queue_sqlite.py` claims queued intents by
+  `created_ts ASC` with no visible TTL/age filter in the queue.
+- SHOWN: `services/feature_gate.py::proba_gate()` can influence order flow from
+  `CBP_FUSED_PROBA` and tolerates missing/invalid values when strict mode is
+  false.
+- SHOWN: `services/execution/paper_engine.py` falls back to `60000.0` when no
+  usable reference price is available for pre-submit safety checks.
+- CLAIMED: the pasted audit's broader statements about paper maker-fill
+  semantics, retention policy, and watchdog host scheduling were not fully
+  re-audited beyond the targeted code checks above.
+
+What changed:
+- Added active backlog item 28 to fix paper fee/PnL semantics before treating
+  expectancy gates as profitability evidence.
+- Added active backlog item 29 to make market-quality defaults/config fail
+  closed before shadow cost/slippage evidence is trusted.
+- Refined the trading-loop metrics/dead-man item with the dormant heartbeat
+  writer finding, required loop writers, watchdog alert dispatch, host
+  scheduling proof, and watchdog-surface consolidation.
+- Refined the maker-vs-taker execution-cost item to state that current paper
+  fills cannot be used as maker-fill evidence without shadow records or an
+  explicit engine extension.
+- Refined the AI/probability gate quarantine item to include `proba_gate`.
+- Added live substrate items for stale intent TTL and hardcoded paper
+  reference-price fallback removal.
+- Added a structure/research-hygiene item for explicit retention policy.
+- Refined the runner stale-lock item to reuse the existing stale-lock helper if
+  possible.
+
+Why this change:
+- The paper gate's expectancy surface is the bridge between "machinery works"
+  and "strategy may be profitable"; gross PnL and zero-fee defaults can make a
+  net-negative strategy appear gate-positive.
+- Watchdog design is only useful if managed loops write the heartbeat and
+  operators are alerted when it fires.
+- Fail-open market-quality and probability-gate defaults share the same safety
+  pattern: guards must fail closed by default or carry an explicit opt-out
+  decision.
+
+Expected outcome:
+- The backlog now separates evidence/profitability correctness from broader
+  live-money substrate work.
+- Future shadow/live work has explicit tasks for stale intent expiry, real
+  heartbeat inputs, and reference-price fail-closed behavior.
+- Existing broad execution-cost and AI-quarantine tasks now include the newly
+  verified constraints.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- HIGH for future implementations touching PnL semantics, live consumers,
+  watchdog behavior, market-quality gating, or order-routing gates; those code
+  changes require independent review as governed high-risk work.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Trader Method Stack Backlog Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Review the user's final method-stack audit and capture any missing backlog
+  tasks that move the repo toward disciplined, evidence-backed strategy
+  improvement rather than more raw finding generation.
+
+What was found:
+- SHOWN: `services/strategies/es_daily_trend.py::regime_stability()` computes
+  market regime, entry allowance, and size factor.
+- SHOWN: `configs/strategies/es_daily_trend_v1.yaml` enables
+  `entry.require_regime: true`.
+- SHOWN: `services/strategies/es_daily_trend.py::signal_from_ohlcv()` gates
+  action on both SMA signal and `reg["entry_allowed"]`, then logs
+  `regime_flag` and `entry_allowed`.
+- SHOWN: `services/strategies/es_daily_trend.py::decide()` and
+  `compute_position_size()` implement ATR-stop/capital-at-risk sizing, but repo
+  search found usage only in tests while the strategy runner emits orders using
+  fixed `cfg["qty"]`.
+- SHOWN: `services/strategies/composite_hybrid.py` has confirmation-gate logic,
+  and tests assert `composite_hybrid` is intentionally not in
+  `strategy_registry.SUPPORTED`.
+- SHOWN: `services/signals/signal_library.py`,
+  `services/market_data/composite_ranker.py`, and
+  `services/market_data/rotation_engine.py` contain setup-quality /
+  symbol-selection machinery.
+- SHOWN: paper diagnostic and loss-replay tooling exists through
+  `scripts/report_paper_run_diagnostics.py`,
+  `scripts/dev/replay_paper_losses.py`, and the AI-copilot simulation job.
+- UNVERIFIED: whether every non-flagship strategy's documented no-trade
+  filters are enabled in its actual campaign config.
+
+What changed:
+- Refined the crypto-edge context-strategy item to include a shared
+  `regime_context` provider extracted from existing `sma_200_trend` regime
+  logic, with unchanged flagship behavior as proof.
+- Refined per-strategy governance-config requirements to include explicit
+  no-trade filter enablement or waiver.
+- Refined the fee/PnL item to block activation of sizing, setup-quality
+  thresholds, confirmation gates, and sweeps until net-fee metrics are fixed.
+- Added a governed activation task for dormant risk-based sizing.
+- Refined dormant signal-discovery classification to include
+  `composite_ranker` and `rotation_engine`, and to require archive
+  walk-forward proof before setup scores affect trade/no-trade or sizing.
+- Added a weekly strategy-review ritual task using existing diagnostics and
+  loss-replay tooling.
+
+Why this change:
+- The repo already contains several pieces of a disciplined trader method
+  stack. The production gap is unification, activation governance, and review
+  cadence, not inventing more prediction logic.
+- Dormant sizing and confirmation should not be switched on until the
+  measurement target is net-fee and archive-backed, or the system could
+  optimize the wrong metric.
+
+Expected outcome:
+- Future strategy-improvement work is sequenced through shared context,
+  archive/walk-forward proof, net-fee metrics, and explicit operator review
+  artifacts.
+- The backlog now distinguishes active flagship regime gating from missing
+  shared regime availability for other strategies.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: this patch is backlog/work-log only.
+- MEDIUM/HIGH for future implementation, depending on whether it changes
+  strategy sizing, campaign configs, context provenance, or promotion evidence.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Candidate Advisor Acceptance Record
+
+Active role: ENGINEER
+
+Objective:
+- Record the human operator's independent acceptance for the candidate-advisor
+  strategy classification guard.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` item 19 still described the implementation proof
+  as ready for review after the human operator accepted it.
+- SHOWN: the candidate-advisor work-log entry still ended at
+  `READY_FOR_INDEPENDENT_REVIEW`.
+
+What changed:
+- Updated `REMAINING_TASKS.md` item 19 to state the implementation proof was
+  independently reviewed and accepted by the human operator on 2026-07-03.
+- Updated the candidate-advisor work-log entry acceptance state to `ACCEPTED`.
+
+Why this change:
+- Accepted work should not remain marked as pending review; stale acceptance
+  states make the visible audit trail less trustworthy.
+
+Expected outcome:
+- The backlog and work log now match the human review decision for PR #185's
+  candidate-advisor guard.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: acceptance-record documentation only.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Operator Runbook And Governance Backlog Batch
+
+Active role: ENGINEER
+
+Objective:
+- Advance as many low-risk backlog items as possible in one pass without
+  touching high-risk money, live, gate, or background-job code paths.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` had written-runbook/policy tasks for strategy
+  stop criteria, first-hour paper-to-shadow operation, single-operator
+  continuity, governance lanes, operator attention, repo identity, and
+  retention policy.
+- SHOWN: `docs/RUNBOOKS.md`, `docs/GOLDEN_PATH.md`, `docs/OBJECTIVE.md`, and
+  `docs/LOG_POLICY.md` existed as the visible places to link or clarify these
+  operator policies.
+- SHOWN: `docs/runbooks/` did not exist, so adding unlinked runbook files there
+  would create another source-of-truth convention.
+- UNVERIFIED: first-hour shadow rehearsal, backup restore rehearsal, dead-man
+  alert delivery, and server-specific retention thresholds still require future
+  runtime proof.
+
+What changed:
+- Added `docs/STRATEGY_STOP_AND_RETIREMENT_POLICY.md`.
+- Added `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`.
+- Added `docs/SINGLE_OPERATOR_CONTINUITY.md`.
+- Added `docs/OPERATOR_GOVERNANCE_LANES.md`.
+- Added `docs/RETENTION_POLICY.md`.
+- Added `docs/PROJECT_IDENTITY_AND_SCOPE.md`.
+- Linked the new policies from `docs/RUNBOOKS.md`, `docs/GOLDEN_PATH.md`,
+  `docs/OBJECTIVE.md`, and `docs/LOG_POLICY.md`.
+- Updated `REMAINING_TASKS.md` to record which policy/runbook work is written
+  and which rehearsal or host-specific proof remains open.
+
+Why this change:
+- These tasks were decision/runbook gaps that could be closed or materially
+  advanced without waiting for campaign round trips and without changing
+  financial runtime behavior.
+- The high-risk backlog items remain separate because they require targeted
+  implementation proof and independent review.
+
+Expected outcome:
+- Operators now have visible written criteria for strategy retirement,
+  paper-to-shadow first-hour operation, one-operator absence, governance
+  friction, repo identity, and retention.
+- Future runtime work has clearer preconditions and proof requirements instead
+  of relying on chat history.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: documentation/runbook/policy changes only.
+- MEDIUM/HIGH: future implementation work that changes stage transitions,
+  strategy gates, shadow evidence, retention deletion, backup automation, or
+  alerting still requires separate proof and review.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-03 - Structure Classification Backlog Batch
+
+Active role: ENGINEER
+
+Objective:
+- Advance the next batch of low-risk deferred structure/research hygiene tasks
+  through current-source classification and visible policy docs.
+
+What was found:
+- SHOWN: `git ls-files services/paper ...` found no tracked `services/paper/`
+  source, while `services/paper_trader/` and `services/execution/paper_engine.py`
+  remain tracked.
+- SHOWN: `services/execution/paper_engine.py` is imported by canonical paper
+  execution adapters/tests; `services/paper_trader/` is still used by
+  `services/trading_runner/run_trader.py` and compatibility tests.
+- SHOWN: signal discovery modules are imported by the read-only candidate scan
+  and tests, while `composite_ranker` / `rotation_engine` are consumed by
+  selector backtests.
+- SHOWN: `order_dedupe_store_sqlite` and `execution_guard_store_sqlite` are
+  active live/execution boundary stores, while `fill_reconciler_store_sqlite`,
+  `order_idempotency_sqlite`, and `order_tracker_store_sqlite` had no visible
+  current source importers in the static grep used for this pass.
+- SHOWN: `.github/workflows/ci.yml` and `Makefile` ignore four dashboard /
+  symbol-scanner test files in the normal pytest path.
+- SHOWN: docs and smoke scripts reference `phase1_research_copilot/`, but
+  `git ls-files phase1_research_copilot` showed no tracked companion source.
+- SHOWN: `docs/REPO_LAYOUT.md` still described retired overlap families as
+  current unresolved examples, while `docs/ARCHITECTURE.md` marks those
+  families retired as of 2026-07-01.
+
+What changed:
+- Added `docs/CORE.md`.
+- Added `docs/architecture/paper_execution_surfaces.md`.
+- Added `docs/research/signal_discovery_classification.md`.
+- Added `docs/architecture/storage_surface_classification.md`.
+- Added `docs/CI_IGNORED_TEST_POLICY.md`.
+- Added `docs/PRODUCT_SURFACE_TRIAGE.md`.
+- Added `docs/COMPANION_REPO_DEPENDENCY.md`.
+- Added `docs/research/pattern_strategy_backlog.md`.
+- Added `docs/dashboard/DATA_PAGE_BACKLOG.md`.
+- Added `docs/STRATEGY_REVIEW_RITUAL.md`.
+- Linked the new docs from `docs/ARCHITECTURE.md`, `docs/GOLDEN_PATH.md`,
+  `docs/RUNBOOKS.md`, and `docs/REPO_LAYOUT.md`.
+- Updated `REMAINING_TASKS.md` to record which classification/policy tasks are
+  documented and which implementation or proof work remains.
+
+Why this change:
+- These backlog tasks were source-of-truth and classification gaps that could
+  be advanced without changing runtime behavior or restarting any campaign.
+- Capturing the decisions now reduces repeated rediscovery and prevents agents
+  from treating archived, retired, or advisory surfaces as active production
+  requirements.
+
+Expected outcome:
+- Future work can distinguish core, research-only, advisory-only,
+  compatibility, retired, and sidecar surfaces before implementing changes.
+- CI ignored tests, companion repo references, dashboard priorities, and
+  product-surface deferrals are visible policy decisions rather than chat-only
+  context.
+
+Verification:
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: docs/classification only; no runtime behavior changed.
+- MEDIUM/HIGH: future deletion, rewiring, CI behavior changes, dashboard
+  mutations, or storage consolidation still require separate targeted proof and
+  review.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Repo Layout CI Compatibility Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the PR #185 CI failure caused by the structure-classification docs batch.
+
+What was found:
+- SHOWN: PR #185 `CI sanity` failed in
+  `tests/test_repo_layout_scope_doc.py`.
+- SHOWN: the failing assertions expected
+  `actively referenced from the main README, Makefile, dashboard research fallback, and tests`
+  and the historical overlap examples ``market_data/` and `marketdata/``,
+  ``paper/` and `paper_trader/``, ``strategy/` and `strategies/``, and
+  ``trading/` and `trading_runner/`` to remain visible in
+  `docs/REPO_LAYOUT.md`.
+
+What changed:
+- Restored those tested phrases in `docs/REPO_LAYOUT.md` while preserving the
+  newer sidecar/archived companion and retired-family classification language.
+
+Why this change:
+- The previous docs batch changed wording that existing CI treats as a
+  regression guard. Restoring the phrases keeps compatibility with the guard
+  without weakening the new classification decision.
+
+Expected outcome:
+- PR #185 `CI sanity` and `CI validate` no longer fail on
+  `tests/test_repo_layout_scope_doc.py`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_repo_layout_scope_doc.py`
+  - SHOWN: `9 passed in 0.08s`.
+- `git diff --check`
+  - SHOWN: command completed successfully.
+
+Remaining risk:
+- LOW: docs-only compatibility fix.
+- Acceptance state: `ACCEPTED`.
