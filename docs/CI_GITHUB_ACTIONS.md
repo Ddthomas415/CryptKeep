@@ -22,6 +22,9 @@ Signing/notarization in CI:
 - Keep signing secrets in GitHub Actions Secrets.
 - Our repo supports *local* signing scripts and opt-in release hooks (Phase 306).
 - CI signing is a later step if/when you want it (fail-closed, secrets never stored in repo).
+- Supply-chain verification policy is documented in
+  `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`; adding a dependency-audit or
+  hash-locked install gate remains a separate reviewed CI change.
 
 ## Required PR Check Fast Path
 

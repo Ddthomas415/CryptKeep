@@ -33,6 +33,7 @@ Complete each section in order. Do not skip sections. Record the result
 | 2.7 | `config/user.yaml` is in `.gitignore` (not tracked) | Required | | |
 | 2.8 | API keys are in keyring or `.env`, not in YAML files | Required | | |
 | 2.9 | Preflight passes in live mode with no ERROR checks | `run_preflight()` returns `ok=True` | | |
+| 2.10 | Supply-chain/release verification packet is accepted | `docs/SUPPLY_CHAIN_RELEASE_POLICY.md` capped-live policy satisfied or waived | | |
 
 ---
 
