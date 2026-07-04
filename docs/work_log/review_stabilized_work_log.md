@@ -14321,7 +14321,10 @@ Expected outcome:
   capped-live reliance.
 
 Verification:
-- Docs-only change. `git diff --check` will be run before commit.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+- `rg -n "SERVER_SECRETS_ROTATION_MODEL|server secrets|rotation drill|secret injection" docs/SERVER_SECRETS_ROTATION_MODEL.md docs/LAUNCH_CHECKLIST.md docs/AUTHORITY_MATRIX.md REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: model links and remaining proof language are present.
 
 Remaining risk:
 - LOW: docs/backlog/work-log only; no runtime behavior changed.
@@ -14672,4 +14675,51 @@ Remaining risk:
 - LOW for this docs slice.
 - HIGH/UNVERIFIED for the remaining code task: `_safe_sqlite_query()` still
   needs read-only connection enforcement and a write-SQL regression.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Server Secrets Rotation Model
+
+Active role: ENGINEER
+
+Objective:
+- Document the server-side secret injection and rotation model required before
+  capped-live deployment.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` listed server secrets and rotation as a deferred
+  live-money substrate blocker.
+- SHOWN: existing docs covered pieces of the boundary: Hetzner paper-host docs
+  forbid live exchange credentials on the paper host, launch checklist requires
+  API keys outside YAML, and AI copilot rules forbid sending secrets to
+  providers.
+- UNVERIFIED: no capped-live server secret injection rehearsal or rotation
+  drill has been executed.
+
+What changed:
+- Added `docs/SERVER_SECRETS_ROTATION_MODEL.md`.
+- Linked the model from `docs/LAUNCH_CHECKLIST.md` and
+  `docs/AUTHORITY_MATRIX.md`.
+- Updated `REMAINING_TASKS.md` item 12 to distinguish documented policy from
+  remaining executed proof.
+
+Why this change:
+- A capped-live server needs a visible credential authority, injection path,
+  rotation trigger list, redaction rule, and launch-gate proof packet before
+  any real-money deployment. A docs-only policy is the smallest safe step and
+  avoids changing secret handling behavior during paper evidence collection.
+
+Expected outcome:
+- Future server/live work has a concrete checklist for secret handling and
+  cannot treat current desktop/paper keyring/env handling as sufficient
+  capped-live proof.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/checklist/authority update only; no credential, runtime,
+  deploy, or live-order behavior changed.
+- HIGH/UNVERIFIED for the later capped-live proof: server secret injection,
+  rotation, revocation, redacted status output, and artifact leak scans still
+  need an executed evidence packet.
 - Acceptance state: `ACCEPTED`.
