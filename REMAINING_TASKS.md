@@ -481,11 +481,20 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     and compatibility normalization between `live.enabled` and
     `execution.live_enabled`. Decide the canonical schema, migrate readers, and
     retire or document compatibility shims so the most dangerous live flag has
-    one authority.
+    one authority. 2026-07-04: policy is documented in
+    `docs/CONFIG_AUTHORITY_DECISION.md`. Remaining capped-live proof:
+    live/risk/dashboard/preflight/executor reader inventory, corrupt-config
+    fail-closed tests for trading-critical readers, one startup from the
+    documented config bundle, and accepted rationale for any remaining
+    compatibility shims.
 11. Add clock/venue-time sanity checks before capped live. Funding age,
     candle boundaries, order timestamps, and reconciliation windows assume UTC
     clock correctness. Add a host/venue skew check and operator-visible status
-    before relying on timestamp-sensitive shadow/live evidence.
+    before relying on timestamp-sensitive shadow/live evidence. 2026-07-04:
+    policy is documented in `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
+    Remaining capped-live proof: host UTC/NTP status, venue server-time query
+    or limitation record, observed skew against threshold, fail-closed behavior
+    for excessive skew, and operator-visible status output.
 12. Define the server secrets and rotation model before capped live. Current
     keyring/env handling is adequate for desktop/paper, but server operation
     needs a documented injection path, rotation procedure, and proof that
@@ -508,7 +517,11 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
-    incident review.
+    incident review. 2026-07-04: coverage policy is documented in
+    `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md`. Remaining capped-live proof:
+    dashboard/CLI/system/automation coverage matrix, audit-log replay of at
+    least one live-arm-to-halt drill, no-secret audit payload scan, and
+    fail-closed behavior for critical audit-write failures.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but
