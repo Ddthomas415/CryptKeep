@@ -532,6 +532,76 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     assert "exit_stack_rule" not in queued[0]["meta"]
 
 
+def test_run_forever_keeps_sma_200_trend_fixed_size_when_risk_sizing_config_present(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    monkeypatch.setattr(
+        runner,
+        "collect_runtime_rows",
+        lambda paper_db, intent_db: ([], []),
+    )
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "sma_200_trend",
+            "strategy": {
+                "name": "sma_200_trend",
+                "trade_enabled": True,
+                "sma_period": 3,
+                "capital_at_risk_per_trade_pct": 0.50,
+                "max_position_notional_pct": 10.0,
+            },
+            "strategy_preset": "es_daily_trend_v1",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "symbols": ["BTC/USD"],
+            "min_bars": 1,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": True,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (100.0, 1))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {
+            "ok": True,
+            "action": "buy",
+            "reason": "sma_above_trend",
+            "ind": {},
+        },
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if qdb.list_intents(limit=10, status="queued"):
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    queued = qdb.list_intents(limit=10, status="queued")
+    assert len(queued) == 1
+    assert queued[0]["strategy_id"] == "sma_200_trend"
+    assert queued[0]["side"] == "buy"
+    assert queued[0]["qty"] == 0.5
+
+
 @pytest.mark.slow
 def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)

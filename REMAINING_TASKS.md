@@ -378,7 +378,12 @@ deployment work still needs independent review.
     expectancy after costs, and a config flag can keep the canonical campaign
     on fixed size. Proof: fixed-size behavior unchanged by default; flagged
     sizing path emits size provenance, respects stage caps, and cannot increase
-    exposure beyond configured notional/risk limits.
+    exposure beyond configured notional/risk limits. 2026-07-04: default
+    fixed-size behavior is now guarded by a runner regression: `sma_200_trend`
+    with risk-sizing fields present still emits the configured fixed `qty`.
+    Remaining work: actual risk-based sizing activation remains deferred behind
+    archive/walk-forward proof, explicit config, size provenance, and exposure
+    cap tests.
 
 ## Deferred Live-Money Substrate Backlog
 These items are not blockers for the current paper/research campaign, but they
