@@ -14243,3 +14243,181 @@ Remaining risk:
 - UNVERIFIED: actual risk-based sizing activation design and walk-forward proof
   remain future work.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Paper Ledger Invariant Coverage
+
+Active role: ENGINEER
+
+Objective:
+- Close the deferred backlog item requiring direct invariant tests around
+  `PaperTradingSQLite.apply_fill()`.
+
+What was found:
+- SHOWN: `storage/paper_trading_sqlite.py::apply_fill()` updates order status,
+  fills, position quantity/average price, cash, and realized PnL in one
+  transaction.
+- SHOWN: existing paper-engine tests covered fee semantics through the engine
+  path, but the deferred backlog item specifically asked for direct storage
+  invariant coverage.
+
+What changed:
+- Added direct storage-level tests for a mixed buy/sell fill sequence.
+- Added a flat-price round-trip test proving fees make net realized PnL
+  negative.
+- Updated `REMAINING_TASKS.md` item 7 with the implementation proof.
+
+Why this change:
+- The ledger is the accounting substrate behind paper evidence. Direct tests
+  make the cash/position/fill/PnL reconciliation invariant visible even if the
+  engine path changes later.
+
+Expected outcome:
+- Future changes to `PaperTradingSQLite.apply_fill()` that break fee-inclusive
+  average cost, net realized PnL, cash reconciliation, filled order status, or
+  fill insertion will fail a narrow regression before affecting evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_trading_sqlite_invariants.py`
+  - SHOWN: `2 passed in 0.13s`.
+
+Remaining risk:
+- LOW: test/backlog/work-log only; runtime behavior was not changed.
+- UNVERIFIED: broader paper-engine and gate suites were not rerun in this pass
+  by operator request to avoid excessive long-running tests.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - State Store Consolidation Decision Record
+
+Active role: ENGINEER
+
+Objective:
+- Close the backlog requirement to write a state-store consolidation decision
+  record before implementation.
+
+What was found:
+- SHOWN: `PaperTradingSQLite` is the paper execution accounting authority for
+  paper orders, fills, positions, cash, and realized PnL.
+- SHOWN: `TradeJournalSQLite` is a paper/history evidence surface consumed by
+  feedback and promotion paths.
+- SHOWN: `ExecutionStore`, live intent/position/risk stores, and execution DB
+  tables remain separate live/execution surfaces.
+- SHOWN: storage-surface classification already exists, but it did not state a
+  consolidation target or accepted-risk boundary.
+
+What changed:
+- Added `docs/architecture/state_store_consolidation_decision.md`.
+- Updated `REMAINING_TASKS.md` live-money substrate item 7 to link the decision
+  and preserve remaining migration/proof work.
+
+Why this change:
+- The repo needed a written ownership and migration policy before more
+  reconciliation or live-accounting work adds new stores or broadens state
+  drift.
+
+Expected outcome:
+- Future storage work has a documented rule: freeze current store ownership
+  during the paper campaign, treat evidence as derivative rather than
+  accounting authority, and require transactional/fault-injection proof before
+  capped-live reliance.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no runtime behavior changed.
+- UNVERIFIED: actual transactional migration, fault-injection tests, and
+  backup/restore drill remain future capped-live work.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Storage Candidate Caller Audit
+
+Active role: ENGINEER
+
+Objective:
+- Complete the current-master caller audit for the three storage modules
+  previously classified as unwired candidates.
+
+What was found:
+- SHOWN: `storage/fill_reconciler_store_sqlite.py` defines
+  `FillReconcilerStoreSQLite`.
+- SHOWN: `storage/order_idempotency_sqlite.py` defines
+  `OrderIdempotencySQLite`.
+- SHOWN: `storage/order_tracker_store_sqlite.py` defines
+  `OrderTrackerStoreSQLite`.
+- SHOWN: static caller audit across `services`, `scripts`, `storage`, `tests`,
+  `docs`, and `REMAINING_TASKS.md` found no visible current production source
+  importer for those modules; matches were the modules themselves and prior
+  docs/audit artifacts.
+
+What changed:
+- Updated `docs/architecture/storage_surface_classification.md` with the
+  2026-07-04 caller audit command and result.
+- Updated `REMAINING_TASKS.md` item 10 with the current audit result and the
+  remaining delete/migrate/retain decision.
+
+Why this change:
+- Reconciliation work should not build on dormant or duplicate storage schemas
+  without an explicit migration decision.
+
+Expected outcome:
+- Future reconciliation/storage work can see that these three modules are still
+  unwired candidates and must not be adopted accidentally.
+
+Verification:
+- Caller audit command is recorded in
+  `docs/architecture/storage_surface_classification.md`.
+  - SHOWN: only self/docs/audit artifact matches for the three candidate
+    modules.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no runtime behavior changed.
+- UNVERIFIED: archived/migration data dependency on these schemas was not
+  proven or disproven.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Strategy Review Make Target
+
+Active role: ENGINEER
+
+Objective:
+- Convert the documented weekly strategy-review ritual into an explicit
+  operator-run command without adding automatic scheduling.
+
+What was found:
+- SHOWN: `docs/STRATEGY_REVIEW_RITUAL.md` documented the weekly review inputs
+  and suggested commands.
+- SHOWN: `Makefile` had paper status and evidence targets but no
+  `strategy-review` target.
+- SHOWN: `scripts/report_paper_run_diagnostics.py` and
+  `scripts/dev/replay_paper_losses.py` already exist.
+
+What changed:
+- Added `make strategy-review`.
+- Added overridable variables:
+  `STRATEGY_REVIEW_STRATEGY_ID`, `STRATEGY_REVIEW_SYMBOL`, and
+  `STRATEGY_REVIEW_LOSS_LIMIT`.
+- Updated `docs/STRATEGY_REVIEW_RITUAL.md` and `REMAINING_TASKS.md`.
+
+Why this change:
+- The review ritual was documented but not easy to run consistently. A Make
+  target is the smallest operator workflow improvement and does not schedule or
+  mutate strategy decisions.
+
+Expected outcome:
+- Operators have one repeatable command to produce the status, diagnostics, and
+  loss replay inputs for a dated advisory strategy review.
+
+Verification:
+- `make -n strategy-review`
+  - SHOWN: dry-run prints `status-paper-all`,
+    `scripts/report_paper_run_diagnostics.py`, and
+    the expected `replay_paper_losses.py` command for `sma_200_trend` /
+    `BTC/USD` without executing them.
+
+Remaining risk:
+- LOW: operator workflow/docs only; no automatic scheduler or runtime trading
+  behavior changed.
+- UNVERIFIED: the target was not executed against live campaign state in this
+  pass because it can invoke remote status checks and the operator requested
+  avoidance of long-running commands.
+- Acceptance state: `ACCEPTED`.

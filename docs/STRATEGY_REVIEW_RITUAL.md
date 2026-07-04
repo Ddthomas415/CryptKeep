@@ -37,9 +37,21 @@ Write a dated checkpoint or strategy decision note that records:
 Do not run these automatically if the operator has asked to avoid long commands:
 
 ```bash
+make strategy-review
+```
+
+The target uses:
+
+```bash
 make status-paper-all
 ./.venv/bin/python scripts/report_paper_run_diagnostics.py
 ./.venv/bin/python scripts/dev/replay_paper_losses.py
+```
+
+Override the defaults when reviewing a different strategy or symbol:
+
+```bash
+make strategy-review STRATEGY_REVIEW_STRATEGY_ID=ema_cross STRATEGY_REVIEW_SYMBOL=BTC/USD
 ```
 
 ## Rule
