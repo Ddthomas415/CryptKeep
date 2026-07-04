@@ -144,6 +144,26 @@ PASS if the system behaved as specified — not just if it didn't crash.
 
 ---
 
+### Drill 3.7 — Full-state backup/restore drill
+
+**Steps:**
+1. Record source host, Git SHA, and state root.
+2. Produce a backup manifest with file sizes and hashes.
+3. Restore into a scratch directory or isolated host.
+4. Run read-only status and integrity checks from restored state.
+5. Resume only a paper/sandbox-safe component from restored state.
+6. Confirm no duplicate campaigns, intents, fills, or evidence windows were created.
+
+**Pass criteria:** Restored state matches manifest, status commands read the
+restored stores, resume is idempotent, no secrets are present in the backup,
+and source campaign state is untouched.
+
+| Result | Observed behavior | Date |
+|---|---|---|
+| | | |
+
+---
+
 ## Section 4 — Paper trading gate
 
 | # | Check | Threshold | Result | Date |
@@ -154,6 +174,8 @@ PASS if the system behaved as specified — not just if it didn't crash.
 | 4.4 | No duplicate fill events in paper run | 0 duplicate trade_ids in fills table | | |
 | 4.5 | Paper PnL is within expected range for the strategy | Not deeply negative over the paper period | | |
 | 4.6 | All Phase 1–4 audit tasks are committed | All 24 build plan tasks closed | | |
+| 4.7 | Evidence-write failure status is visible | `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md` proof complete | | |
+| 4.8 | Execution-cost research packet is accepted or explicitly deferred | `docs/EXECUTION_COST_RESEARCH_POLICY.md` recommendation recorded | | |
 
 ---
 
