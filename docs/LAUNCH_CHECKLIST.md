@@ -33,6 +33,7 @@ Complete each section in order. Do not skip sections. Record the result
 | 2.7 | `config/user.yaml` is in `.gitignore` (not tracked) | Required | | |
 | 2.8 | API keys are in keyring or `.env`, not in YAML files | Required | | |
 | 2.9 | Preflight passes in live mode with no ERROR checks | `run_preflight()` returns `ok=True` | | |
+| 2.10 | Server secrets model has an executed injection/rotation proof packet | `docs/SERVER_SECRETS_ROTATION_MODEL.md` proof complete | | |
 
 ---
 
