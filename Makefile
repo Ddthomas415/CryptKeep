@@ -169,6 +169,14 @@ test-runtime:
 test-checkpoints:
 	$(PYTHON) -m pytest -q -m checkpoint tests
 
+.PHONY: test-ci-ignored
+test-ci-ignored:
+	$(PYTHON) -m pytest -q \
+		tests/test_symbol_scanner.py \
+		tests/test_dashboard_view_data.py \
+		tests/test_dashboard_page_runtime.py \
+		tests/test_dashboard_home_digest.py
+
 test-governance:
 	$(PYTHON) -m pytest -q \
 	  tests/test_governance_blockers_minimum.py \

@@ -1,0 +1,88 @@
+# configs/strategies/ema_cross_default.yaml
+#
+# Governance-only contract for the EMA Cross challenger.
+# This file is not a campaign manifest and is not auto-loaded by the current
+# canonical paper gate. Keep trade_enabled=false until a separate governed
+# activation creates a campaign manifest and fresh evidence baseline.
+
+activation:
+  status: governance_only
+  campaign_enabled: false
+  promotion_candidate: false
+  activation_requires:
+    - archive_first_backtest_baseline
+    - paper_campaign_manifest
+    - strategy_specific_manual_review
+    - net_fee_expectancy_comparison
+
+min_bars: 40
+max_bars: 300
+signal_source: public_ohlcv
+
+strategy:
+  id: ema_cross_default
+  name: ema_cross
+  version: "0.1.0"
+  stage: research
+  symbol: BTC/USDT
+  venue: coinbase
+  trade_enabled: false
+
+  signal:
+    type: ema_cross
+    ema_fast: 12
+    ema_slow: 26
+    direction: long_flat_only
+
+  no_trade_filters:
+    filter_window: 8
+    min_volatility_pct: 0.20
+    min_volume_ratio: 0.95
+    min_trend_efficiency: 0.15
+    min_cross_gap_pct: 0.02
+
+risk:
+  sizing_mode: fixed_qty_until_reviewed
+  max_concurrent_positions: 5
+  max_symbol_exposure_pct: 20.0
+  max_total_exposure_pct: 80.0
+  max_strategy_exposure_pct: 50.0
+  max_open_intents_per_symbol: 1
+  max_consecutive_losing_exits: 3
+  max_strategy_drawdown_pct: 10.0
+
+promotion:
+  paper:
+    min_days: 30
+    min_round_trips: 10
+    backtest_expectations:
+      source: null
+      tolerance_pct: 25.0
+      metric_basis: net_return_pct
+      win_rate: null
+      avg_win_return_pct: null
+      avg_loss_return_pct: null
+
+manual_review:
+  required: true
+  checklist:
+    - backtest_expectations_populated_from_archive
+    - observed_win_rate_within_tolerance
+    - average_win_loss_within_tolerance
+    - net_fee_expectancy_positive
+    - no_trade_filters_enabled_or_explicitly_waived
+    - provenance_qualified_paper_fills_only
+
+evidence:
+  required_signal_fields:
+    - timestamp
+    - price
+    - ema_fast
+    - ema_slow
+    - signal_direction
+  required_fill_fields:
+    - timestamp
+    - fill_price
+    - fees_paid
+    - pnl_usd
+    - pnl_usd_semantics

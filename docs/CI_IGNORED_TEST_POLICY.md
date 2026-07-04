@@ -41,6 +41,12 @@ Do not run this automatically in Codex sessions if the user has asked to avoid
 long tests:
 
 ```bash
+make test-ci-ignored
+```
+
+The target expands to:
+
+```bash
 ./.venv/bin/python -m pytest -q \
   tests/test_symbol_scanner.py \
   tests/test_dashboard_view_data.py \
