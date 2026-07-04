@@ -269,7 +269,15 @@ deployment work still needs independent review.
     manual-review criteria. Explicitly verify that each strategy's documented
     no-trade filters are enabled or consciously waived in its campaign config;
     documented discipline that is off in runtime config does not count as
-    governed discipline.
+    governed discipline. 2026-07-04: governance-only configs are added for
+    `ema_cross_default`, `breakout_default`, and
+    `pullback_recovery_default`. They are not campaign manifests, keep
+    `trade_enabled=false`, require archive-backed baselines and manual review,
+    and are guarded by a test that verifies inactive activation state,
+    registry-backed strategy names, null baseline placeholders, net-fee manual
+    review, and explicit no-trade filter contracts. Remaining work: populate
+    accepted archive baselines and create separately reviewed campaign
+    manifests before any challenger is promoted.
 23. Wire paper/gate event alerting into the existing alert dispatcher. The
     dispatcher is now used for Hetzner host-health alerts, but paper events
     still depend on manual polling. Add trigger-based alerts for qualified
@@ -312,7 +320,12 @@ deployment work still needs independent review.
     `min(buys, sells)` helper with symbol-aware, chronological entry/exit
     pairing or explicitly document the gate as single-symbol-only. Do not
     retroactively count unqualified history or widen the universe without
-    preserving the evidence contract.
+    preserving the evidence contract. 2026-07-04: decision record written in
+    `docs/strategies/paper_universe_widening_decision_2026-07-04.md`; do not
+    widen the canonical campaign yet. Reconsider only after fresh gate output,
+    symbol-aware round-trip counting or explicit single-symbol gate policy,
+    per-symbol provenance/risk proof, and correlation/non-independence
+    acceptance.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,
@@ -717,7 +730,10 @@ substrate work, but they are concrete enough to keep visible.
     with smaller CI-covered regression slices. Tests that only run locally are
     a drift channel for dashboard and symbol-scanner behavior. 2026-07-03:
     policy is documented in `docs/CI_IGNORED_TEST_POLICY.md`; actual CI
-    behavior is unchanged.
+    behavior is unchanged. 2026-07-04: `make test-ci-ignored` is added as the
+    named optional local job for the exact ignored slice. CI behavior remains
+    unchanged; future work is to make these tests CI-safe, split them into
+    smaller CI-covered regressions, or move them to an explicit optional CI job.
 22. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging

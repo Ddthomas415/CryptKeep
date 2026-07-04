@@ -14421,3 +14421,132 @@ Remaining risk:
   pass because it can invoke remote status checks and the operator requested
   avoidance of long-running commands.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Challenger Strategy Governance Configs
+
+Active role: ENGINEER
+
+Objective:
+- Add inactive per-strategy governance configs for challenger strategies before
+  any future promotion or persistent campaign activation.
+
+What was found:
+- SHOWN: `configs/strategies/` only contained `es_daily_trend_v1.yaml`.
+- SHOWN: backlog item 22 requires strategy-specific config contracts for
+  `ema_cross`, `breakout_donchian`, `pullback_recovery`, and future context
+  strategies before promotion.
+- SHOWN: visible runtime/gate code references `es_daily_trend_v1.yaml` by
+  explicit path; no current source path was shown to auto-load every strategy
+  YAML in `configs/strategies/`.
+
+What changed:
+- Added governance-only configs for `ema_cross_default`,
+  `breakout_default`, and `pullback_recovery_default`.
+- Each config keeps `trade_enabled=false`, `campaign_enabled=false`, and
+  `promotion_candidate=false`.
+- Added a config regression test verifying inactive activation state,
+  registry-backed strategy names, baseline placeholders, net-fee manual review,
+  and explicit no-trade filter contracts.
+- Updated `REMAINING_TASKS.md` item 22.
+
+Why this change:
+- Challenger strategies need documented risk/evidence/manual-review contracts
+  before campaign manifests or promotion gates can rely on them. Keeping them
+  inactive prevents a config file from becoming an accidental runtime signal.
+
+Expected outcome:
+- Future challenger activation starts from an explicit governance contract and
+  cannot silently reference an unsupported strategy or skip baseline/manual
+  review requirements.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_challenger_strategy_governance_configs.py`
+  - SHOWN: `2 passed in 0.11s`.
+
+Remaining risk:
+- LOW: inactive configs plus tests; no campaign manifest or runtime behavior
+  changed.
+- UNVERIFIED: archive-backed baselines are still null and must be populated
+  before these strategies become promotion candidates.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Paper Universe Widening Decision
+
+Active role: ENGINEER
+
+Objective:
+- Decide whether to widen the canonical paper universe to accelerate qualified
+  evidence.
+
+What was found:
+- SHOWN: backlog item 26 identified evidence velocity as a problem and required
+  a decision record before changing the campaign.
+- SHOWN: the backlog also identified
+  `scripts/check_promotion_gates.py::_count_round_trips` as needing
+  symbol-aware chronological pairing before cross-symbol round trips can count.
+- CLAIMED: operator status has shown qualified round trips progressing slowly,
+  but current raw/cross-symbol fills must not bypass provenance qualification.
+
+What changed:
+- Added
+  `docs/strategies/paper_universe_widening_decision_2026-07-04.md`.
+- Updated `REMAINING_TASKS.md` item 26.
+
+Why this change:
+- Widening the universe changes the meaning of the paper gate. The smallest
+  safe decision is to defer widening until symbol-aware counting, per-symbol
+  provenance, risk caps, and correlation caveats are proven.
+
+Expected outcome:
+- The canonical paper campaign remains unchanged, and any future multi-symbol
+  expansion starts as a separate evidence-design change instead of an ad hoc
+  acceleration shortcut.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no runtime campaign, gate, or config behavior
+  changed.
+- UNVERIFIED: future symbol-aware counting and per-symbol provenance fixtures
+  remain unimplemented.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - CI-Ignored Test Optional Target
+
+Active role: ENGINEER
+
+Objective:
+- Add a named optional local command for the pytest files intentionally ignored
+  by the fast/full CI paths.
+
+What was found:
+- SHOWN: `docs/CI_IGNORED_TEST_POLICY.md` documents four ignored test files and
+  the manual command to run them.
+- SHOWN: `Makefile` ignored those files in `test-fast` and `test-full`, but had
+  no named target for the exact ignored slice.
+
+What changed:
+- Added `make test-ci-ignored`.
+- Updated `docs/CI_IGNORED_TEST_POLICY.md`.
+- Updated `REMAINING_TASKS.md` item 21.
+
+Why this change:
+- A named optional local job makes the ignored slice easier to run and record
+  before dashboard or symbol-scanner changes, without changing CI behavior in
+  this low-risk batch.
+
+Expected outcome:
+- Operators and reviewers have one stable command for the ignored test slice
+  while the longer-term CI-safe split remains open.
+
+Verification:
+- `make -n test-ci-ignored`
+  - SHOWN: dry-run prints the four expected ignored test files without
+    executing pytest.
+
+Remaining risk:
+- LOW: Make/docs/backlog/work-log only; CI behavior was not changed.
+- UNVERIFIED: the ignored tests were not executed in this pass by operator
+  request to avoid excessive long-running tests.
+- Acceptance state: `ACCEPTED`.
