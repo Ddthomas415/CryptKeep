@@ -471,11 +471,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    explicit accepted split-store risk decision.
 8. Add a full-state backup/restore drill to the launch evidence packet. Script
    backup of all state DBs and record one executed restore-and-resume rehearsal.
-   Blocks live.
+   Blocks live. 2026-07-04: drill policy is documented in
+   `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` and linked from the launch
+   checklist. Remaining proof: execute the drill against the future capped-live
+   state bundle, record manifests/hashes, prove read-only restored status,
+   prove idempotent paper/sandbox resume, and scan the backup for secrets.
 9. Surface evidence-write failures in session status. If signal/fill evidence
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
-   rather than silently starving the promotion gate.
+   rather than silently starving the promotion gate. 2026-07-04: status policy
+   is documented in `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md`. Remaining
+   proof: implement counters/status fields, repeated-failure refusal behavior,
+   recovery semantics, and promotion-gate visibility tests.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and
@@ -537,7 +544,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     A 2026-07-03 audit tightened the constraint: current paper-engine limit
     fills are crossing-style only and market fills are full fills, so maker-side
     research must come from shadow would-be-fill records or an explicit engine
-    extension, not from current paper-fill behavior.
+    extension, not from current paper-fill behavior. 2026-07-04: research
+    policy is documented in `docs/EXECUTION_COST_RESEARCH_POLICY.md`.
+    Remaining proof: accepted shadow-derived cost-stack report with maker/taker
+    bps, limit-fill probability estimates, source artifact hash, and explicit
+    `no_change` / `research_more` / `candidate_execution_policy_change`
+    recommendation.
 16. Quarantine or fail-close the optional `ai_engine` live-router hook before
     any capped-live exposure. `services/live_router/router.py` can enable
     `services/ai_engine` through env/config and currently records

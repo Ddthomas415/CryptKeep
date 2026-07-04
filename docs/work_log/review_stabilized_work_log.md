@@ -14673,7 +14673,10 @@ Expected outcome:
   advisory-only when `use_ai=true`.
 
 Verification:
-- Docs-only change. `git diff --check` will be run before commit.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+- `rg -n "FULL_STATE_BACKUP_RESTORE_DRILL|EVIDENCE_WRITE_FAILURE_STATUS_POLICY|EXECUTION_COST_RESEARCH_POLICY|3\\.7|4\\.7|4\\.8" docs/FULL_STATE_BACKUP_RESTORE_DRILL.md docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md docs/EXECUTION_COST_RESEARCH_POLICY.md docs/LAUNCH_CHECKLIST.md REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: launch-checklist links, backlog links, and work-log references are present.
 
 Remaining risk:
 - LOW for this docs slice.
@@ -14817,4 +14820,50 @@ Remaining risk:
 - LOW: docs/backlog/checklist update only; no runtime, deployment, order,
   config-loading, audit-store, or gate behavior changed.
 - UNVERIFIED: all runtime proof remains open before capped live.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Evidence Ops Policy Batch
+
+Active role: ENGINEER
+
+Objective:
+- Advance backup/restore, evidence-write failure status, and execution-cost
+  research backlog items through docs-only policy packets.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` listed full-state backup/restore drill,
+  evidence-write failure status, and execution-cost research as unresolved
+  deferred work.
+- SHOWN: existing docs/code already include partial pieces: Hetzner storage
+  preflight, paper campaign restore tooling, shadow would-be-fill requirements,
+  and basic fee/slippage modeling.
+- UNVERIFIED: no full canonical state restore drill, bounded evidence-writer
+  refusal proof, or accepted maker/taker cost-stack report has been executed.
+
+What changed:
+- Added `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`.
+- Added `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md`.
+- Added `docs/EXECUTION_COST_RESEARCH_POLICY.md`.
+- Linked the policies from `docs/LAUNCH_CHECKLIST.md`.
+- Updated `REMAINING_TASKS.md` items 8, 9, and 15 to distinguish documented
+  policy from remaining executed proof.
+
+Why this change:
+- These items need clear proof packets before runtime work starts. A docs-only
+  policy pass is the smallest safe progress that does not disturb paper
+  evidence collection or alter execution behavior.
+
+Expected outcome:
+- Future implementation can target explicit acceptance criteria for restore,
+  evidence-write failure visibility, and execution-cost research instead of
+  broad backlog descriptions.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/checklist update only; no backup, restore, evidence writer,
+  gate, order-routing, or execution-cost behavior changed.
+- UNVERIFIED: all runtime proof remains open before capped live or execution
+  policy changes.
 - Acceptance state: `ACCEPTED`.
