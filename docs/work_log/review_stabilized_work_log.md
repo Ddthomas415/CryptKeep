@@ -14243,3 +14243,45 @@ Remaining risk:
 - UNVERIFIED: actual risk-based sizing activation design and walk-forward proof
   remain future work.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Paper Ledger Invariant Coverage
+
+Active role: ENGINEER
+
+Objective:
+- Close the deferred backlog item requiring direct invariant tests around
+  `PaperTradingSQLite.apply_fill()`.
+
+What was found:
+- SHOWN: `storage/paper_trading_sqlite.py::apply_fill()` updates order status,
+  fills, position quantity/average price, cash, and realized PnL in one
+  transaction.
+- SHOWN: existing paper-engine tests covered fee semantics through the engine
+  path, but the deferred backlog item specifically asked for direct storage
+  invariant coverage.
+
+What changed:
+- Added direct storage-level tests for a mixed buy/sell fill sequence.
+- Added a flat-price round-trip test proving fees make net realized PnL
+  negative.
+- Updated `REMAINING_TASKS.md` item 7 with the implementation proof.
+
+Why this change:
+- The ledger is the accounting substrate behind paper evidence. Direct tests
+  make the cash/position/fill/PnL reconciliation invariant visible even if the
+  engine path changes later.
+
+Expected outcome:
+- Future changes to `PaperTradingSQLite.apply_fill()` that break fee-inclusive
+  average cost, net realized PnL, cash reconciliation, filled order status, or
+  fill insertion will fail a narrow regression before affecting evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_trading_sqlite_invariants.py`
+  - SHOWN: `2 passed in 0.13s`.
+
+Remaining risk:
+- LOW: test/backlog/work-log only; runtime behavior was not changed.
+- UNVERIFIED: broader paper-engine and gate suites were not rerun in this pass
+  by operator request to avoid excessive long-running tests.
+- Acceptance state: `ACCEPTED`.

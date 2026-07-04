@@ -577,7 +577,11 @@ substrate work, but they are concrete enough to keep visible.
    The store updates order, fill, position, cash, and realized PnL in one
    transaction, which is stronger than earlier fragmented-store framing. Add a
    property or sequence test proving cash, fills, and positions reconcile after
-   mixed buy/sell fills so future changes preserve that invariant.
+   mixed buy/sell fills so future changes preserve that invariant. 2026-07-04:
+   implementation proof is ready: direct storage-level tests cover a mixed
+   buy/sell sequence and a flat-price round trip with fees, asserting cash,
+   fills, positions, realized PnL, filled order status, and
+   `pnl_usd_semantics=net_of_fees` stay reconciled.
 8. Classify the three paper execution surfaces and retire or document
    non-canonical paths. Audits found `services/paper/main.py`,
    `services/paper_trader/main.py`, and `services/execution/paper_engine.py`
