@@ -720,6 +720,47 @@ def _latest_evidence_log_presence(evidence: dict[str, list[dict]]) -> dict:
     }
 
 
+def _evidence_writer_status() -> dict:
+    try:
+        from services.strategies.evidence_logger import load_evidence_writer_status
+        status = load_evidence_writer_status()
+        return dict(status) if isinstance(status, dict) else {}
+    except Exception as exc:
+        return {
+            "ok": False,
+            "evidence_writer_status": "degraded",
+            "evidence_write_failures_total": 0,
+            "evidence_write_failures_consecutive": 0,
+            "last_evidence_write_error_type": type(exc).__name__,
+            "last_evidence_write_error_ts": datetime.now(timezone.utc).isoformat(),
+            "last_successful_evidence_write_ts": "",
+            "evidence_refusal_reason": "evidence writer status unavailable",
+            "threshold": 0,
+            "updated_ts": datetime.now(timezone.utc).isoformat(),
+        }
+
+
+def _evidence_writer_gate(status: dict) -> dict:
+    writer_status = str(status.get("evidence_writer_status") or "ok").strip().lower()
+    consecutive = int(status.get("evidence_write_failures_consecutive") or 0)
+    total = int(status.get("evidence_write_failures_total") or 0)
+    threshold = int(status.get("threshold") or 0)
+    last_error = str(status.get("last_evidence_write_error_type") or "")
+    detail = (
+        f"status:{writer_status or 'ok'} consecutive:{consecutive}/{threshold} "
+        f"total:{total}"
+    )
+    if last_error:
+        detail += f" last_error:{last_error}"
+    refusing = writer_status == "refusing"
+    return _gate(
+        "Evidence writer accepting records",
+        False if refusing else True,
+        detail,
+        str(status.get("evidence_refusal_reason") or "recover evidence writer before promotion"),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Gate evaluation
 # ---------------------------------------------------------------------------
@@ -1197,6 +1238,9 @@ def run_check(stage_override: str | None = None) -> dict:
             "rule": "no gate evidence scope is defined for this stage",
         }
 
+    evidence_writer = _evidence_writer_status()
+    gates.append(_evidence_writer_gate(evidence_writer))
+
     schema = _validate_evidence_schema(gate_evidence, cfg)
     passed  = [g for g in gates if g["passed"] is True]
     failed  = [g for g in gates if g["passed"] is False]
@@ -1241,6 +1285,7 @@ def run_check(stage_override: str | None = None) -> dict:
         },
         "gates":        gates,
         "schema":       schema,
+        "evidence_writer": evidence_writer,
         "paper_history": paper_history,
         "provenance":   provenance,
         "provenance_all_time": provenance_all_time,
