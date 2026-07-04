@@ -5,6 +5,8 @@ import json
 import sqlite3
 from pathlib import Path
 
+import pytest
+
 
 def _reload_paper_modules():
     import services.os.app_paths as app_paths
@@ -274,7 +276,7 @@ def test_paper_engine_fill_is_idempotent_for_stale_order_snapshot(monkeypatch, t
     assert pos["qty"] == 2.0
 
 
-def test_paper_engine_sell_fill_evidence_uses_realized_pnl_delta(monkeypatch, tmp_path):
+def test_paper_engine_sell_fill_evidence_uses_net_fee_pnl(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     _, paper_engine = _reload_paper_modules()
 
@@ -285,7 +287,7 @@ def test_paper_engine_sell_fill_evidence_uses_realized_pnl_delta(monkeypatch, tm
         lambda: {
             "paper_trading": {
                 "starting_cash_quote": 1000.0,
-                "fee_bps": 0.0,
+                "fee_bps": 10.0,
                 "slippage_bps": 0.0,
                 "use_ccxt_fallback": False,
                 "strategy_id": strategy_id,
@@ -317,7 +319,7 @@ def test_paper_engine_sell_fill_evidence_uses_realized_pnl_delta(monkeypatch, tm
     assert buy["ok"] is True
     assert eng.evaluate_open_orders()["filled"] == 1
 
-    current_price["value"] = 120.0
+    current_price["value"] = 100.0
     sell = eng.submit_order(
         client_order_id="paper-pnl-sell",
         venue="coinbase",
@@ -329,7 +331,8 @@ def test_paper_engine_sell_fill_evidence_uses_realized_pnl_delta(monkeypatch, tm
     assert sell["ok"] is True
     sell_cycle = eng.evaluate_open_orders()
     assert sell_cycle["filled"] == 1
-    assert sell_cycle["details_sample"][0]["result"]["realized_pnl_usd"] == 20.0
+    assert sell_cycle["details_sample"][0]["result"]["realized_pnl_usd"] == pytest.approx(-0.2)
+    assert sell_cycle["details_sample"][0]["result"]["pnl_usd_semantics"] == "net_of_fees"
     assert eng.db.get_position("BTC/USD")["avg_price"] == 0.0
 
     fill_files = sorted((tmp_path / "data" / "evidence" / strategy_id).glob("fill_*.jsonl"))
@@ -342,7 +345,8 @@ def test_paper_engine_sell_fill_evidence_uses_realized_pnl_delta(monkeypatch, tm
     ]
     sell_fills = [f for f in fills if f.get("side") == "sell"]
     assert len(sell_fills) == 1
-    assert sell_fills[0]["pnl_usd"] == 20.0
+    assert sell_fills[0]["pnl_usd"] == pytest.approx(-0.2)
+    assert sell_fills[0]["pnl_usd_semantics"] == "net_of_fees"
 
 
 def test_paper_engine_fill_rolls_back_on_storage_failure(monkeypatch, tmp_path):

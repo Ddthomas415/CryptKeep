@@ -340,7 +340,8 @@ class PaperTradingSQLite:
                     con.execute("COMMIT")
                     return {"ok": False, "reason": "insufficient_cash"}
                 new_qty = pos_qty + float(qty)
-                new_avg = ((avg * pos_qty) + (float(price) * float(qty))) / new_qty if new_qty > 0 else 0.0
+                # Store fee-inclusive cost basis so later sell PnL is net of both legs.
+                new_avg = ((avg * pos_qty) + (float(price) * float(qty)) + float(fee)) / new_qty if new_qty > 0 else 0.0
                 new_cash = cash - cost
                 new_realized_total = realized_total
                 new_pos_realized = realized_pos
@@ -350,7 +351,7 @@ class PaperTradingSQLite:
                     con.execute("COMMIT")
                     return {"ok": False, "reason": "insufficient_position"}
                 proceeds = float(price) * float(qty) - float(fee)
-                fill_realized_pnl = (float(price) - avg) * float(qty)
+                fill_realized_pnl = proceeds - (avg * float(qty))
                 new_qty = pos_qty - float(qty)
                 new_avg = avg if new_qty > 0 else 0.0
                 new_cash = cash + proceeds
@@ -388,6 +389,7 @@ class PaperTradingSQLite:
                 "fill_id": fill_id,
                 "fee": float(fee),
                 "realized_pnl_usd": float(fill_realized_pnl),
+                "pnl_usd_semantics": "net_of_fees",
                 "idempotent": False,
             }
         except Exception:
