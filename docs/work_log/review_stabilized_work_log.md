@@ -14968,3 +14968,49 @@ Remaining risk:
 - UNVERIFIED: real host writer-failure observation and alert-dispatch wiring
   remain outside this implementation proof.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-04 - AI Copilot Read-Only SQLite Context
+
+Active role: ENGINEER
+
+Objective:
+- Enforce read-only SQLite access for AI-copilot incident context collection
+  before external LLM summaries become a normal operator path.
+
+What was found:
+- SHOWN: `services/ai_copilot/context_collector.py::_safe_sqlite_query()`
+  opened SQLite databases with a normal writable connection.
+- SHOWN: current callers pass hardcoded `SELECT` queries, but the helper did
+  not enforce that contract.
+- SHOWN: backlog item 20 required read-only SQLite access plus a regression
+  proving write SQL cannot mutate the source DB.
+
+What changed:
+- `_safe_sqlite_query()` now rejects non-`SELECT` SQL before opening a DB.
+- SQLite connections now use a `mode=ro` URI, so missing DB files are not
+  created as a side effect of context collection.
+- Added targeted regressions proving normal reads still work, rejected write
+  SQL does not mutate the DB, and missing DB reads do not create files.
+- Updated `docs/AI_COPILOT_OPERATING_RULES.md` and `REMAINING_TASKS.md` to
+  record the enforced boundary.
+
+Why this change:
+- The helper boundary is the smallest correct enforcement point: all incident
+  context SQLite reads go through it, and no provider, prompt, trading, gate, or
+  dashboard behavior needs to change.
+
+Expected outcome:
+- AI-copilot incident context remains advisory/read-only even if a future
+  caller accidentally passes write SQL.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_context_collector.py`
+  - SHOWN: `3 passed in 0.09s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- HIGH: security-sensitive AI/provider context surface.
+- UNVERIFIED: broader external provider prompt-injection hardening remains out
+  of scope; this proof covers SQLite mutation prevention only.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
