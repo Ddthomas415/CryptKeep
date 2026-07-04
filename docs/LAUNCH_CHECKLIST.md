@@ -35,6 +35,9 @@ Complete each section in order. Do not skip sections. Record the result
 | 2.9 | Preflight passes in live mode with no ERROR checks | `run_preflight()` returns `ok=True` | | |
 | 2.10 | Server secrets model has an executed injection/rotation proof packet | `docs/SERVER_SECRETS_ROTATION_MODEL.md` proof complete | | |
 | 2.11 | Supply-chain/release verification packet is accepted | `docs/SUPPLY_CHAIN_RELEASE_POLICY.md` capped-live policy satisfied or waived | | |
+| 2.12 | Config authority packet is accepted | `docs/CONFIG_AUTHORITY_DECISION.md` capped-live proof complete | | |
+| 2.13 | Clock/venue-time sanity packet is accepted | `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md` proof complete | | |
+| 2.14 | Operator/action audit coverage packet is accepted | `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md` proof complete | | |
 
 ---
 

@@ -14632,7 +14632,10 @@ Expected outcome:
   duplicating or contradicting the Hetzner runbook.
 
 Verification:
-- Docs-only change. `git diff --check` will be run before commit.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+- `rg -n "CONFIG_AUTHORITY_DECISION|CLOCK_VENUE_TIME_SANITY_POLICY|OPERATOR_ACTION_AUDIT_COVERAGE|2\\.12|2\\.13|2\\.14" docs/CONFIG_AUTHORITY_DECISION.md docs/CLOCK_VENUE_TIME_SANITY_POLICY.md docs/OPERATOR_ACTION_AUDIT_COVERAGE.md docs/LAUNCH_CHECKLIST.md REMAINING_TASKS.md docs/work_log/review_stabilized_work_log.md`
+  - SHOWN: launch-checklist links, backlog links, and work-log references are present.
 
 Remaining risk:
 - LOW: docs/backlog/work-log only; no retention/pruning command or server
@@ -14770,4 +14773,48 @@ Remaining risk:
   signing, or runtime behavior changed.
 - UNVERIFIED: dependency audit, SBOM, hash-locked install, and release
   attestation proof remain open before capped live.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Live-Readiness Policy Batch
+
+Active role: ENGINEER
+
+Objective:
+- Advance multiple deferred live-readiness backlog items through docs-only
+  policy decisions without touching runtime, gate, or execution code.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` listed config authority consolidation,
+  clock/venue-time sanity, and operator/action audit coverage as deferred
+  capped-live substrate work.
+- SHOWN: existing docs/code already contain pieces of each topic, including
+  `execution.live_enabled`, UTC campaign windows, Hetzner UTC/NTP requirements,
+  and audit/event surfaces.
+- UNVERIFIED: no capped-live config-reader inventory, host-to-venue skew proof,
+  or complete operator-action audit coverage matrix has been executed.
+
+What changed:
+- Added `docs/CONFIG_AUTHORITY_DECISION.md`.
+- Added `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
+- Added `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md`.
+- Linked all three policies from `docs/LAUNCH_CHECKLIST.md`.
+- Updated `REMAINING_TASKS.md` items 10, 11, and 14 to distinguish documented
+  policy from remaining executed proof.
+
+Why this change:
+- These tasks need explicit production rules before later code work starts.
+  The smallest safe step is to make the authority/proof requirements visible
+  while avoiding any behavior change during paper evidence collection.
+
+Expected outcome:
+- Future capped-live work has concrete acceptance packets for config
+  authority, clock sanity, and audit coverage instead of vague backlog labels.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/checklist update only; no runtime, deployment, order,
+  config-loading, audit-store, or gate behavior changed.
+- UNVERIFIED: all runtime proof remains open before capped live.
 - Acceptance state: `ACCEPTED`.
