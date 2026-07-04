@@ -14635,3 +14635,41 @@ Remaining risk:
   behavior changed.
 - UNVERIFIED: no fresh backup/restore drill was run in this pass.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - AI Copilot Provider Data Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Document what runtime fields may be sent to external LLM providers when an
+  AI-backed copilot summary is explicitly enabled.
+
+What was found:
+- SHOWN: `docs/AI_COPILOT_OPERATING_RULES.md` defined copilot jobs as
+  advisory/read-only.
+- SHOWN: `REMAINING_TASKS.md` item 20 required provider-data governance in
+  addition to future read-only SQLite enforcement.
+
+What changed:
+- Added an external provider data-boundary section to
+  `docs/AI_COPILOT_OPERATING_RULES.md`.
+- Updated `REMAINING_TASKS.md` item 20 to mark the disclosure-policy subtask
+  documented while preserving the SQLite read-only enforcement task.
+
+Why this change:
+- External provider summaries need an explicit data boundary before they become
+  a routine operator path. Documentation is the smallest safe slice; changing
+  database access enforcement remains a separate security-sensitive task.
+
+Expected outcome:
+- Copilot jobs have a visible allowed/forbidden payload policy and remain
+  advisory-only when `use_ai=true`.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW for this docs slice.
+- HIGH/UNVERIFIED for the remaining code task: `_safe_sqlite_query()` still
+  needs read-only connection enforcement and a write-SQL regression.
+- Acceptance state: `ACCEPTED`.

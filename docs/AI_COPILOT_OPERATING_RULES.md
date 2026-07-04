@@ -168,6 +168,46 @@ Every copilot review should preserve:
 - recommendations
 - approval-required yes/no
 
+## External Provider Data Boundary
+
+External LLM providers may be used only when an operator explicitly enables an
+AI-backed summary, for example through a `use_ai=true` option or an accepted
+environment/provider setting.
+
+Allowed provider payload fields:
+
+- high-level campaign health and status summaries
+- strategy ids, strategy labels, venue names, and symbols
+- non-secret gate status, blocker names, and recommendation labels
+- aggregate fill counts, qualified round-trip counts, and PnL summaries
+- recent error messages after redaction of secrets, tokens, URLs with
+  credentials, and private key material
+- file paths and commit ids that are already part of the repo/audit context
+
+Forbidden provider payload fields:
+
+- API keys, access tokens, signing keys, webhook secrets, or credential prompts
+- raw exchange authentication headers or account secrets
+- private SSH material, Tailscale auth links, or cloud-provider write tokens
+- full unredacted config files
+- raw SQLite dumps
+- raw order/fill payloads containing account identifiers unless explicitly
+  redacted and needed for an accepted incident packet
+- any field whose only purpose is live order routing, live arming, or
+  credential recovery
+
+Provider-backed summaries are advisory. They must not:
+
+- submit orders
+- change config
+- promote stages
+- arm or resume live trading
+- mark work accepted
+- override deterministic gates
+
+If a copilot job needs data outside the allowed boundary, stop and require a
+separate accepted data-disclosure decision before sending it to a provider.
+
 ## Planned jobs
 
 These should remain read-only, paper-only, or draft-only until explicitly

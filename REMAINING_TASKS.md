@@ -720,7 +720,12 @@ substrate work, but they are concrete enough to keep visible.
     the source DB. Also document what runtime fields may be sent to external
     LLM providers when `use_ai=true`, and keep `services/ai_copilot/pr_reviewer`
     advisory/non-blocking unless a separate prompt-injection-resistant review
-    design is accepted.
+    design is accepted. 2026-07-04: provider-data disclosure boundary is
+    documented in `docs/AI_COPILOT_OPERATING_RULES.md`, including allowed
+    summary fields, forbidden secret/account/config payloads, and advisory-only
+    constraints. Remaining work: enforce read-only SQLite access and add the
+    write-SQL regression before external LLM summaries become a normal operator
+    path.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
