@@ -15,7 +15,7 @@ account with ADMIN role. "Any" means any process or script.
 | Override reconciliation | ADMIN only | CLI only — no dashboard path |
 | Approve config changes with trading impact | OPERATOR | Must save via dashboard or commit + deploy |
 | Change live risk limits (`CBP_MAX_*`) | ADMIN | Environment variable change + process restart |
-| Rotate API credentials | ADMIN | Keyring or `.env` update + process restart |
+| Rotate API credentials | ADMIN | Follow `docs/SERVER_SECRETS_ROTATION_MODEL.md`; keyring, protected env injection, or `.env` update + process restart |
 | Force-delete a stuck intent | ADMIN | CLI only — `sqlite3` direct or admin script |
 | Merge code to `master` | Repository owner | GitHub PR + CI pass |
 | Enable a new strategy in paper mode | OPERATOR | Dashboard → Operations → Strategy Controls |
