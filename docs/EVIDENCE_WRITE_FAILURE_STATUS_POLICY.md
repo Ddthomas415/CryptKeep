@@ -1,12 +1,11 @@
 # CryptKeep Evidence-Write Failure Status Policy
 
-Status: `POLICY_DOCUMENTED`
+Status: `IMPLEMENTATION_PROOF_READY`
 
 ## Purpose
 
 Define how evidence write failures must surface before paper, shadow, or live
-promotion evidence can be trusted. This document does not implement counters or
-session refusal behavior.
+promotion evidence can be trusted.
 
 ## Current Boundary
 
@@ -19,10 +18,18 @@ SHOWN:
 
 UNVERIFIED:
 
-- Session status does not yet prove bounded evidence-write failure counters for
-  every signal/fill/session writer.
-- No refusal threshold has been executed against a repeated writer-failure
-  fixture.
+- Campaign/gate status does not yet consume the persisted writer status.
+- No promotion gate rejection has been executed against a persisted
+  writer-refusal fixture.
+
+SHOWN by the 2026-07-04 implementation proof:
+
+- The central `EvidenceLogger` writer persists health at
+  `runtime/health/evidence_writer.status.json`.
+- Repeated injected JSONL write failures transition writer status to
+  `refusing`.
+- A recovered writer resets consecutive failures while preserving total
+  failures.
 
 ## Required Status Fields
 
@@ -59,3 +66,5 @@ Before capped live, add tests or an evidence packet showing:
 - promotion status surfaces the failure/refusal reason;
 - no gate treats a refusing evidence session as promotion-quality evidence.
 
+The first three proof points are implementation-ready as of 2026-07-04. The
+last two remain open integration work for campaign/gate summaries.

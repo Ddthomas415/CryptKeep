@@ -482,7 +482,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    rather than silently starving the promotion gate. 2026-07-04: status policy
    is documented in `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md`. Remaining
    proof: implement counters/status fields, repeated-failure refusal behavior,
-   recovery semantics, and promotion-gate visibility tests.
+   recovery semantics, and promotion-gate visibility tests. 2026-07-04:
+   implementation proof is ready for independent review: the central
+   `EvidenceLogger` persists `runtime/health/evidence_writer.status.json` with
+   total/consecutive failures, last error/success timestamps, and
+   `ok`/`degraded`/`refusing` status; targeted tests prove repeated injected
+   write failures become `refusing` and recovery resets consecutive failures.
+   Remaining integration proof: campaign/gate summaries must surface the
+   status, and no gate should treat a refusing evidence session as
+   promotion-quality evidence.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and
