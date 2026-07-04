@@ -320,7 +320,12 @@ deployment work still needs independent review.
     `min(buys, sells)` helper with symbol-aware, chronological entry/exit
     pairing or explicitly document the gate as single-symbol-only. Do not
     retroactively count unqualified history or widen the universe without
-    preserving the evidence contract.
+    preserving the evidence contract. 2026-07-04: decision record written in
+    `docs/strategies/paper_universe_widening_decision_2026-07-04.md`; do not
+    widen the canonical campaign yet. Reconsider only after fresh gate output,
+    symbol-aware round-trip counting or explicit single-symbol gate policy,
+    per-symbol provenance/risk proof, and correlation/non-independence
+    acceptance.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

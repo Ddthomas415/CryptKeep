@@ -14469,3 +14469,45 @@ Remaining risk:
 - UNVERIFIED: archive-backed baselines are still null and must be populated
   before these strategies become promotion candidates.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Paper Universe Widening Decision
+
+Active role: ENGINEER
+
+Objective:
+- Decide whether to widen the canonical paper universe to accelerate qualified
+  evidence.
+
+What was found:
+- SHOWN: backlog item 26 identified evidence velocity as a problem and required
+  a decision record before changing the campaign.
+- SHOWN: the backlog also identified
+  `scripts/check_promotion_gates.py::_count_round_trips` as needing
+  symbol-aware chronological pairing before cross-symbol round trips can count.
+- CLAIMED: operator status has shown qualified round trips progressing slowly,
+  but current raw/cross-symbol fills must not bypass provenance qualification.
+
+What changed:
+- Added
+  `docs/strategies/paper_universe_widening_decision_2026-07-04.md`.
+- Updated `REMAINING_TASKS.md` item 26.
+
+Why this change:
+- Widening the universe changes the meaning of the paper gate. The smallest
+  safe decision is to defer widening until symbol-aware counting, per-symbol
+  provenance, risk caps, and correlation caveats are proven.
+
+Expected outcome:
+- The canonical paper campaign remains unchanged, and any future multi-symbol
+  expansion starts as a separate evidence-design change instead of an ad hoc
+  acceleration shortcut.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no runtime campaign, gate, or config behavior
+  changed.
+- UNVERIFIED: future symbol-aware counting and per-symbol provenance fixtures
+  remain unimplemented.
+- Acceptance state: `ACCEPTED`.
