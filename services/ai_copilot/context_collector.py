@@ -5,17 +5,24 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Any, Dict
+from urllib.parse import quote
 
 from services.os.app_paths import data_dir, runtime_dir
 from services.ai_copilot.policy import MAX_CONTEXT_CHARS
 
 
 def _safe_sqlite_query(db_path: Path, query: str, limit: int = 20) -> list[dict]:
+    stripped = str(query or "").strip()
+    if not stripped or stripped.split(None, 1)[0].lower() != "select":
+        return []
     try:
-        conn = sqlite3.connect(str(db_path), timeout=5)
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(query).fetchmany(limit)
-        conn.close()
+        uri = f"file:{quote(str(db_path.resolve()), safe='/')}?mode=ro"
+        conn = sqlite3.connect(uri, timeout=5, uri=True)
+        try:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(stripped).fetchmany(limit)
+        finally:
+            conn.close()
         return [dict(r) for r in rows]
     except Exception:
         return []

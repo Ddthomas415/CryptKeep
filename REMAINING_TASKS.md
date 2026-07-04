@@ -773,9 +773,13 @@ substrate work, but they are concrete enough to keep visible.
     design is accepted. 2026-07-04: provider-data disclosure boundary is
     documented in `docs/AI_COPILOT_OPERATING_RULES.md`, including allowed
     summary fields, forbidden secret/account/config payloads, and advisory-only
-    constraints. Remaining work: enforce read-only SQLite access and add the
-    write-SQL regression before external LLM summaries become a normal operator
-    path.
+    constraints. 2026-07-04: SQLite context-access implementation proof is
+    ready for independent review: AI-copilot incident context queries now use
+    SQLite read-only URI connections, reject non-`SELECT` SQL, do not create
+    missing DB files, and include a regression proving rejected write SQL does
+    not mutate the source DB. Remaining work: independent review before
+    external LLM summaries become a normal operator path, and any future
+    provider expansion must stay within the documented payload boundary.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
