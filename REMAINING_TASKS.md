@@ -448,7 +448,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
-   multi-store risk. Blocks live.
+   multi-store risk. Blocks live. 2026-07-04: decision record is written in
+   `docs/architecture/state_store_consolidation_decision.md`. It freezes current
+   store ownership during the paper campaign, names current accounting/evidence
+   authorities, sets the long-term transactional boundary target, and explicitly
+   accepts the current multi-store design for paper/research only. Remaining
+   capped-live work: caller/migration audit for unwired stores, crash-consistency
+   tests, backup/restore drill, and either transactional migration proof or an
+   explicit accepted split-store risk decision.
 8. Add a full-state backup/restore drill to the launch evidence packet. Script
    backup of all state DBs and record one executed restore-and-resume rehearsal.
    Blocks live.

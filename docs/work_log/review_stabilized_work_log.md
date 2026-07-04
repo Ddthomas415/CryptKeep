@@ -14285,3 +14285,46 @@ Remaining risk:
 - UNVERIFIED: broader paper-engine and gate suites were not rerun in this pass
   by operator request to avoid excessive long-running tests.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - State Store Consolidation Decision Record
+
+Active role: ENGINEER
+
+Objective:
+- Close the backlog requirement to write a state-store consolidation decision
+  record before implementation.
+
+What was found:
+- SHOWN: `PaperTradingSQLite` is the paper execution accounting authority for
+  paper orders, fills, positions, cash, and realized PnL.
+- SHOWN: `TradeJournalSQLite` is a paper/history evidence surface consumed by
+  feedback and promotion paths.
+- SHOWN: `ExecutionStore`, live intent/position/risk stores, and execution DB
+  tables remain separate live/execution surfaces.
+- SHOWN: storage-surface classification already exists, but it did not state a
+  consolidation target or accepted-risk boundary.
+
+What changed:
+- Added `docs/architecture/state_store_consolidation_decision.md`.
+- Updated `REMAINING_TASKS.md` live-money substrate item 7 to link the decision
+  and preserve remaining migration/proof work.
+
+Why this change:
+- The repo needed a written ownership and migration policy before more
+  reconciliation or live-accounting work adds new stores or broadens state
+  drift.
+
+Expected outcome:
+- Future storage work has a documented rule: freeze current store ownership
+  during the paper campaign, treat evidence as derivative rather than
+  accounting authority, and require transactional/fault-injection proof before
+  capped-live reliance.
+
+Verification:
+- Docs-only change. `git diff --check` will be run before commit.
+
+Remaining risk:
+- LOW: docs/backlog/work-log only; no runtime behavior changed.
+- UNVERIFIED: actual transactional migration, fault-injection tests, and
+  backup/restore drill remain future capped-live work.
+- Acceptance state: `ACCEPTED`.
