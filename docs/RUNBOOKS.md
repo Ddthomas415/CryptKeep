@@ -15,6 +15,8 @@
 - `docs/RETENTION_POLICY.md` - evidence, runtime, and log retention baseline.
 - `docs/STRATEGY_REVIEW_RITUAL.md` - weekly paper/shadow strategy review
   ritual using existing diagnostics and loss replay tooling.
+- `docs/research/crypto_edge_source_decision.md` - read-only crypto-edge source
+  decision for funding, open-interest, and basis research collection.
 
 ## Severity Matrix
 
