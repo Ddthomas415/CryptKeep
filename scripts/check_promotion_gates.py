@@ -207,6 +207,29 @@ def _check_expectancy(fills: list[dict]) -> tuple[bool | None, float | None]:
     return avg > 0, avg
 
 
+def _pnl_semantics_summary(fills: list[dict]) -> dict:
+    """Summarize pnl_usd semantics for expectancy-eligible evidence.
+
+    This is report-only. It makes mixed legacy gross-PnL and net-of-fees
+    evidence visible without changing gate pass/fail behavior.
+    """
+    counts: dict[str, int] = {}
+    for fill in fills:
+        if "pnl_usd" not in fill:
+            continue
+        semantics = str(fill.get("pnl_usd_semantics") or "unknown_legacy")
+        counts[semantics] = counts.get(semantics, 0) + 1
+    distinct = [key for key, value in counts.items() if value > 0]
+    warning = ""
+    if len(distinct) > 1:
+        warning = (
+            "expectancy averages fills with mixed pnl_usd semantics; segment "
+            "legacy gross-PnL and net_of_fees evidence before treating the "
+            "value as profitability proof"
+        )
+    return {"counts": counts, "mixed": len(distinct) > 1, "warning": warning}
+
+
 def _target_feedback_strategy(cfg: dict) -> str:
     strategy = cfg.get("strategy") or {}
     strategy_id = str(strategy.get("id") or STRATEGY_ID).strip().lower()
@@ -297,6 +320,7 @@ def _paper_history_gate_summary(cfg: dict, evidence_fills: list[dict] | None = N
 def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = None) -> dict:
     history = dict(paper_history or {})
     jsonl_trips = _count_round_trips(fills)
+    semantics = _pnl_semantics_summary(fills)
     if history.get("qualification") is not None or (
         history.get("ok") is True and int(history.get("fills") or 0) > 0
     ):
@@ -372,6 +396,9 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
             "round_trip_detail": f"{trips} round trips recorded from {source}{mismatch}",
             "expectancy_ok": (exp_val > 0.0) if exp_val is not None else None,
             "expectancy_value": exp_val,
+            "expectancy_pnl_semantics": semantics["counts"],
+            "expectancy_mixed_semantics": semantics["mixed"],
+            "expectancy_semantics_warning": semantics["warning"],
             "expectancy_detail": (
                 f"avg pnl/round trip = ${exp_val:.2f} from {source}"
                 if exp_val is not None
@@ -387,6 +414,9 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
         "round_trip_detail": f"{jsonl_trips} round trips recorded",
         "expectancy_ok": exp_ok,
         "expectancy_value": exp_val,
+        "expectancy_pnl_semantics": semantics["counts"],
+        "expectancy_mixed_semantics": semantics["mixed"],
+        "expectancy_semantics_warning": semantics["warning"],
         "expectancy_detail": (
             f"avg pnl/trade = ${exp_val:.2f}"
             if exp_val is not None

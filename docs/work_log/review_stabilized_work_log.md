@@ -15474,3 +15474,69 @@ Remaining risk:
 - LOW: docs-only planning metadata. No command behavior, collector behavior,
   execution path, strategy routing, or gate behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T14:09:55Z - Backlog Hardening Batch 223
+
+Active role: ENGINEER
+
+Objective:
+- Remediate a small batch of verified backlog hardening items from the attached
+  agent reports without importing generated artifacts or changing campaign state.
+
+What was found:
+- SHOWN: the attached first patch was not directly usable because it included a
+  corrupt generated `.coverage` binary patch.
+- SHOWN: `services/live_router/router.py` still recorded `ai_error_ignored` and
+  `proba_gate_error_ignored` in enabled gate error paths.
+- SHOWN: `services/execution/strategy_runner.py::_acquire_lock()` still used a
+  check-then-write lock file path with no stale-PID recovery.
+- SHOWN: `scripts/check_promotion_gates.py` did not surface
+  `pnl_usd_semantics`, so legacy gross-PnL and new net-of-fees evidence could
+  be averaged without operator visibility.
+- SHOWN: no committed strict market-quality operator template existed under
+  `config/templates/`.
+
+What changed:
+- Enabled AI/proba router gate errors now fail closed; disabled gates remain
+  non-blocking.
+- Strategy-runner lock acquisition now uses atomic `O_CREAT|O_EXCL`, reclaims
+  only dead-PID stale locks via `clean_stale_lock_file()`, and treats malformed
+  locks as held.
+- Promotion gate paper metrics now report `expectancy_pnl_semantics`,
+  `expectancy_mixed_semantics`, and `expectancy_semantics_warning` on both the
+  paper-history and JSONL evidence paths without changing expectancy pass/fail.
+- Added `config/templates/market_quality_strict.yaml` as an opt-in fail-closed
+  market-quality template.
+- Added targeted tests for router gate fail-closed behavior, runner locks,
+  PnL-semantics visibility, and the strict market-quality template.
+- Updated `REMAINING_TASKS.md` to mark these remediations as implementation
+  proof ready for independent review.
+
+Why this change:
+- These items remove fail-open routing behavior, close a runner concurrency
+  race, make mixed legacy/net evidence visible before gate decisions, and
+  provide a versioned operator config for stricter market-quality evidence.
+
+Expected outcome:
+- Enabled optional routing gates cannot silently pass orders after internal
+  errors.
+- Duplicate strategy-runner starts are prevented atomically, and dead stale
+  locks are recoverable without manual deletion.
+- Operators can identify mixed PnL semantics before treating expectancy as
+  profitability evidence.
+- The market-quality no-storm cycle can be run from a reviewed template instead
+  of ad hoc host config.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py tests/test_gate_pnl_semantics_visibility.py tests/test_market_quality_strict_template.py tests/test_strategy_runner_lock.py`
+  - SHOWN: `24 passed in 0.56s`.
+- `git diff --check`
+  - SHOWN: passed.
+- Full suite was not run in this thread per the operator instruction to avoid
+  long-running tests unless explicitly requested.
+
+Remaining risk:
+- HIGH: this batch touches order-routing fail-open behavior, promotion gate
+  reporting, and runner concurrency. Behavior is targeted-test verified, but
+  it requires independent review before acceptance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
