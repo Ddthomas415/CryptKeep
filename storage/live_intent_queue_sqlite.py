@@ -204,11 +204,11 @@ class LiveIntentQueueSQLite:
                 UPDATE live_trade_intents
                    SET status=?, last_error=?, client_order_id=COALESCE(?, client_order_id), exchange_order_id=COALESCE(?, exchange_order_id), updated_ts=?
                  WHERE intent_id=?
-                   AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled', 'error')
+                   AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled', 'error', 'expired')
                    AND (
                         status = ?
-                     OR (status = 'queued' AND ? IN ('submitting', 'submitted', 'rejected', 'held', 'submit_unknown'))
-                     OR (status = 'submitting' AND ? IN ('submitted', 'rejected', 'submit_unknown'))
+                     OR (status = 'queued' AND ? IN ('submitting', 'submitted', 'rejected', 'held', 'submit_unknown', 'expired'))
+                     OR (status = 'submitting' AND ? IN ('submitted', 'rejected', 'submit_unknown', 'expired'))
                      OR (status = 'submitted' AND ? IN ('filled', 'canceled', 'cancelled', 'rejected', 'error', 'held'))
                      OR (status = 'submit_unknown' AND ? IN ('submitted', 'rejected', 'error'))
                      OR (status = 'held' AND ? IN ('queued', 'rejected'))

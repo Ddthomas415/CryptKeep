@@ -1,4 +1,10 @@
+from datetime import datetime, timezone
+
 from services.execution import live_intent_consumer as lic
+
+
+def _fresh_ts() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
 def test_recovered_before_submit_does_not_upsert_order_when_queue_update_fails(monkeypatch, tmp_path):
@@ -15,6 +21,7 @@ def test_recovered_before_submit_does_not_upsert_order_when_queue_update_fails(m
             self.claimed = True
             return [{
                 "intent_id": "i1",
+                "created_ts": _fresh_ts(),
                 "venue": "coinbase",
                 "symbol": "BTC/USD",
                 "side": "buy",
@@ -105,6 +112,7 @@ def test_submit_success_does_not_upsert_order_when_queue_update_fails(monkeypatc
             self.claimed = True
             return [{
                 "intent_id": "i1",
+                "created_ts": _fresh_ts(),
                 "venue": "coinbase",
                 "symbol": "BTC/USD",
                 "side": "buy",
@@ -198,6 +206,7 @@ def test_missing_exchange_order_id_does_not_upsert_order_when_queue_update_fails
             self.claimed = True
             return [{
                 "intent_id": "i1",
+                "created_ts": _fresh_ts(),
                 "venue": "coinbase",
                 "symbol": "BTC/USD",
                 "side": "buy",
@@ -291,6 +300,7 @@ def test_exception_submit_unknown_does_not_upsert_order_when_queue_update_fails(
             self.claimed = True
             return [{
                 "intent_id": "i1",
+                "created_ts": _fresh_ts(),
                 "venue": "coinbase",
                 "symbol": "BTC/USD",
                 "side": "buy",

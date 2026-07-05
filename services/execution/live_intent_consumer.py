@@ -12,6 +12,7 @@ from services.os.app_paths import runtime_dir, ensure_dirs
 from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
 from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
+from services.execution.intent_ttl import check_intent_age
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from services.live_router.router import decide_order
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
@@ -113,6 +114,7 @@ def run_forever() -> None:
     loops = 0
     submitted = 0
     rejected = 0
+    expired = 0
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now()})
     try:
         while True:
@@ -132,12 +134,22 @@ def run_forever() -> None:
                 continue
             batch = qdb.claim_next_queued(limit=10)
             if not batch:
-                _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "queue": 0, "submitted": submitted, "rejected": rejected})
+                _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "queue": 0, "submitted": submitted, "rejected": rejected, "expired": expired})
                 time.sleep(0.6)
                 continue
             sandbox = _live_sandbox_enabled()
             for it in batch:
                 ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="live_intent_consumer")
+                ttl = check_intent_age(it.get("created_ts"))
+                if not bool(ttl.get("ok")):
+                    ttl_reason = str(ttl.get("reason") or "intent_ttl:unknown")
+                    wrote = update_live_queue_status_as_intent_consumer(qdb, it, "expired", ctx=ctx, last_error=ttl_reason)
+                    if wrote:
+                        expired += 1
+                        _write_status({"ok": True, "status": "running", "ts": _now(), "note": "intent_expired", "reason": ttl_reason, "intent": it.get("intent_id"), "expired": expired})
+                    else:
+                        _LOG.error("live_intent_consumer.intent_ttl_expiry_write_failed intent_id=%s reason=%s", it.get("intent_id"), ttl_reason)
+                    continue
                 venue = normalize_venue(it["venue"])
                 symbol = normalize_symbol(it["symbol"])
                 mq = mq_check(venue, symbol)
@@ -383,8 +395,8 @@ def run_forever() -> None:
                 finally:
                     if ad:
                         ad.close()
-            _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "submitted": submitted, "rejected": rejected})
+            _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "submitted": submitted, "rejected": rejected, "expired": expired})
             time.sleep(0.4)
     finally:
         _release_lock()
-        _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now(), "loops": loops, "submitted": submitted, "rejected": rejected})
+        _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now(), "loops": loops, "submitted": submitted, "rejected": rejected, "expired": expired})
