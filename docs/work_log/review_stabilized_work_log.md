@@ -15185,3 +15185,59 @@ Remaining risk:
 - UNVERIFIED: external consumers outside this repository and host-level
   websocket supervision were not checked.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Backlog Acceptance-State Cleanup
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale backlog wording after accepted/merged work and master branch
+  synchronization.
+
+What was found:
+- SHOWN: PR #211 merged the accepted `review-stabilized` batch to `master` at
+  merge commit `7861f7292b418f8ccbc53ca002635618f87a079b`.
+- SHOWN: `HEAD`, `origin/master`, and `origin/review-stabilized` were all
+  verified at `7861f7292b418f8ccbc53ca002635618f87a079b`.
+- SHOWN: `scripts/check_promotion_gates.py` includes the `evidence_writer`
+  status and an `Evidence writer accepting records` gate that fails when the
+  persisted writer status is `refusing`.
+- SHOWN: `services/ai_copilot/context_collector.py` uses SQLite read-only URI
+  connections and rejects non-`SELECT` context queries.
+- SHOWN: `services/execution/paper_engine.py` returns
+  `market_quality:no_reference_price` instead of using the previous hardcoded
+  `60000.0` reference-price fallback in the canonical paper pre-submit gate.
+
+What changed:
+- Updated `REMAINING_TASKS.md` to describe the strategy-registry unknown-name
+  fallback as a resolved prior finding, not current behavior.
+- Updated `REMAINING_TASKS.md` to describe the paper fee/PnL semantics proof
+  as independently accepted, with remaining operational proof separated.
+- Updated `REMAINING_TASKS.md` to mark the evidence-writer status/gate work as
+  accepted rather than awaiting independent review.
+- Updated `REMAINING_TASKS.md` to mark AI-copilot read-only context access as
+  accepted rather than awaiting independent review.
+- Updated `REMAINING_TASKS.md` to mark the canonical paper-engine reference
+  price fallback as accepted, leaving only broader legacy/demo price cleanup.
+- Recorded the PR #211 master synchronization boundary.
+
+Why this change:
+- The backlog should reflect current accepted state. Stale "ready for review"
+  wording creates false open blockers and makes future prioritization worse.
+
+Expected outcome:
+- Future backlog passes start from the real remaining work: alert dispatch,
+  provider-boundary preservation, broader legacy hardcoded-price cleanup, and
+  high-risk gate/execution/deploy items.
+
+Verification:
+- `git rev-parse HEAD origin/master origin/review-stabilized`
+  - SHOWN: all three refs returned
+    `7861f7292b418f8ccbc53ca002635618f87a079b`.
+- Targeted source reads listed above.
+  - SHOWN: backlog status updates match visible code and accepted branch state.
+
+Remaining risk:
+- LOW: docs/backlog only; no runtime behavior changed.
+- UNVERIFIED: external runtime host state was not checked.
+- Acceptance state: `ACCEPTED`.
