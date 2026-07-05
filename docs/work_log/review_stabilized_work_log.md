@@ -15285,3 +15285,63 @@ Remaining risk:
 - LOW: docs/backlog only; no runtime behavior changed.
 - UNVERIFIED: host-level websocket service deployment was not checked.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T08:45:00Z - Crypto Edge Source Decision
+
+Active role: ENGINEER
+
+Objective:
+- Close the low-risk config/docs review gap for the read-only crypto-edge
+  derivatives source without touching execution, risk, gates, or strategy
+  routing.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` recorded OKX funding/open-interest/basis as a
+  validated read-only candidate, but still said OKX adoption needed explicit
+  config/docs review.
+- SHOWN: `docs/work_log/review_stabilized_work_log.md` records the 2026-07-02
+  bounded OKX read-only collector probe and says funding, open-interest, and
+  basis checks passed.
+- SHOWN: `sample_data/crypto_edges/live_collector_plan.json` still pointed its
+  derivatives legs at Binance even though Binance derivatives availability was
+  recorded as externally blocked from the current network.
+
+What changed:
+- Added `docs/research/crypto_edge_source_decision.md`.
+- Changed the default read-only collector plan's funding, open-interest, and
+  basis legs from Binance to OKX.
+- Updated `REMAINING_TASKS.md` item 14 to record the source decision and the
+  remaining host-schedule/cadence proof.
+- Added dated follow-up notes to the short/context feasibility and research
+  checkpoint docs so their next-action guidance points at the accepted OKX
+  read-only source decision instead of the now-resolved venue-selection step.
+
+Why this change:
+- Funding and open-interest history mostly accrues in real time. Leaving the
+  default plan on an externally blocked derivatives source delays the
+  profitability research path without improving safety.
+- OKX adoption is constrained to read-only research collection. No live venue,
+  order routing, risk gate, promotion gate, or strategy-dispatch behavior is
+  changed.
+
+Expected outcome:
+- Operators have a default read-only collector plan that can accumulate the
+  context history needed for future `funding_extreme` and
+  `open_interest_shift` research, pending host cadence proof.
+
+Verification:
+- `./.venv/bin/python -m json.tool sample_data/crypto_edges/live_collector_plan.json`
+  - SHOWN: plan JSON parsed successfully.
+- `rg -n '"venue": "okx"|crypto_edge_source_decision|OKX|live_collector_plan.json' ...`
+  - SHOWN: OKX plan entries and decision-record references are present.
+- `git diff --check`
+  - SHOWN: passed.
+- Long live-public collection was not run in this pass by operator rule; the
+  required host proof remains explicitly open.
+
+Remaining risk:
+- MEDIUM: this changes a read-only research data-source default. It does not
+  authorize live routing or strategy promotion evidence. Long-run OKX
+  reliability, scheduled collection, and cadence-gap alerting remain
+  UNVERIFIED.
+- Acceptance state: `ACCEPTED_WITH_RISK`.

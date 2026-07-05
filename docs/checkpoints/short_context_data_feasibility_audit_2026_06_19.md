@@ -229,11 +229,11 @@ Additional follow-through:
 
 ## Current Next Action
 
-If derivatives context is needed, resolve the Binance public-data
-`NetworkError` or choose another compliant read-only derivatives venue after
-account/compliance review. Use `make check-short-context-readiness` before any
-replay prototype and keep replay fixture-only unless
-`live_public_replay_ready=true`.
+2026-07-05 update: `docs/research/crypto_edge_source_decision.md` chooses OKX
+as the default read-only derivatives context source for the crypto-edge
+collector plan. This only resolves the source-selection/config-docs question.
+Use `make check-short-context-readiness` before any replay prototype and keep
+replay fixture-only unless `live_public_replay_ready=true`.
 
 Do not use the new rows in replay analysis unless the replay is explicitly
 limited to deterministic sample data or to row families with accepted

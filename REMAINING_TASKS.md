@@ -135,8 +135,10 @@ deployment work still needs independent review.
    remaining Binance derivatives public-data `ExchangeNotAvailable` failure or
    choose a compliant read-only derivatives venue before relying on derivatives
    row families. A bounded read-only OKX probe on 2026-07-02 collected funding,
-   open-interest, and basis rows, but adopting OKX into the canonical live
-   collector plan still needs an explicit config/docs review. Keep replay
+   open-interest, and basis rows. 2026-07-05: OKX is documented as the default
+   read-only derivatives context source for the crypto-edge collector plan in
+   `docs/research/crypto_edge_source_decision.md`; this does not approve OKX
+   for live routing or strategy promotion evidence. Keep replay
    fixture-only unless
    `make check-short-context-readiness` reports `live_public_replay_ready=true`.
 10. Make the strategy registry fail closed before new discovery wiring lands.
@@ -197,9 +199,8 @@ deployment work still needs independent review.
     gates.
 14. Start scheduled read-only crypto-edge collection early once the canonical
     source decision is accepted. Funding and open-interest history mostly
-    accrue in real time; OKX funding/OI/basis is a validated read-only
-    candidate, but OKX adoption still needs explicit config/docs review and
-    Binance derivatives remain unavailable from the current network. If the
+    accrue in real time; Binance derivatives remain unavailable from the
+    current network. If the
     canonical source decision remains open, prioritize the decision itself
     because every idle day loses mostly unrecoverable funding/OI history.
     Treat this as a one-venue research focus until one venue/strategy pair
@@ -212,6 +213,14 @@ deployment work still needs independent review.
     campaigns keep running. The first post-decision proof should verify the
     collector schedule on the host, show recent snapshot timestamps, and report
     any cadence gaps before more strategy wiring depends on that history.
+    2026-07-05: read-only OKX source decision is documented in
+    `docs/research/crypto_edge_source_decision.md`; the default
+    `sample_data/crypto_edges/live_collector_plan.json` now uses OKX for
+    funding, open-interest, and basis rows. This does not approve OKX for live
+    routing, derivatives execution, strategy promotion evidence, or
+    order-routing venue use. Remaining proof: operator-host schedule, recent
+    OKX snapshot timestamps, cadence-gap alerting, and downstream context
+    strategy/provenance review.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
