@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import logging
+import math
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -30,6 +31,16 @@ def _truthy(v: Any) -> bool:
     return str(v).strip().lower() in ("1", "true", "yes", "y", "on")
 
 
+def _positive_float_or_none(value: Any) -> float | None:
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(out) or out <= 0.0:
+        return None
+    return out
+
+
 async def decide_order(
     venue: str,
     symbol_norm: str,
@@ -55,14 +66,16 @@ async def decide_order(
     if ro_on:
         return RouterDecision(False, "master_read_only", "none", 0.0, "none", None, meta)
 
-    # Simulated decision price placeholder. In production this should be
-    # a fresh routed quote, but safety gates still need a non-zero reference.
-    limit_price = float(
+    reference_source = (
         ov_router.get("limit_price")
         or ov_router.get("reference_price")
         or ov.get("reference_price")
-        or 60000.0
     )
+    limit_price = _positive_float_or_none(reference_source)
+    if limit_price is None:
+        meta["reference_price"] = None
+        meta["reference_price_reason"] = "missing_or_invalid"
+        return RouterDecision(False, "no_reference_price", "none", 0.0, "none", None, meta)
     meta["reference_price"] = limit_price
 
     # Safety gates (deterministic). Executors also enforce.
@@ -70,8 +83,8 @@ async def decide_order(
         gates = load_gates()
         store = ExecutionGuardStoreSQLite()
         ok_s, why_s = should_allow_order(venue, symbol_norm, side, float(qty), float(limit_price), gates, store)
-    except Exception:
-        ok_s, why_s = True, "safety_check_error_ignored"
+    except Exception as exc:
+        ok_s, why_s = False, f"safety_check_error_fail_closed:{type(exc).__name__}"
 
     meta["safety_ok"] = bool(ok_s)
     meta["safety_reason"] = str(why_s)

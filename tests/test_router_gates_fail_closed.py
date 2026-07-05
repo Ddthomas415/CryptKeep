@@ -26,7 +26,12 @@ def test_ai_gate_error_fails_closed_when_enabled(monkeypatch):
     monkeypatch.delenv("CBP_AI_ENGINE_STRICT", raising=False)
 
     dec = asyncio.run(
-        decide_order(venue="coinbase", symbol_norm="BTC/USD", delta_qty=1.0)
+        decide_order(
+            venue="coinbase",
+            symbol_norm="BTC/USD",
+            delta_qty=1.0,
+            overrides={"reference_price": 60000.0},
+        )
     )
     assert dec.allowed is False
     assert str(dec.reason).startswith("ai_gate:error:")
@@ -45,7 +50,12 @@ def test_ai_gate_disabled_is_not_evaluated(monkeypatch):
     monkeypatch.delenv("CBP_USE_FUSED_PROBA", raising=False)
 
     dec = asyncio.run(
-        decide_order(venue="coinbase", symbol_norm="BTC/USD", delta_qty=1.0)
+        decide_order(
+            venue="coinbase",
+            symbol_norm="BTC/USD",
+            delta_qty=1.0,
+            overrides={"reference_price": 60000.0},
+        )
     )
     # Disabled gate: routing proceeds and no ai meta indicates a fail-closed block.
     assert dec.allowed is True
@@ -62,6 +72,11 @@ def test_proba_gate_disabled_import_error_does_not_block(monkeypatch):
     monkeypatch.delenv("CBP_USE_FUSED_PROBA", raising=False)
 
     dec = asyncio.run(
-        decide_order(venue="coinbase", symbol_norm="BTC/USD", delta_qty=1.0)
+        decide_order(
+            venue="coinbase",
+            symbol_norm="BTC/USD",
+            delta_qty=1.0,
+            overrides={"reference_price": 60000.0},
+        )
     )
     assert dec.allowed is True

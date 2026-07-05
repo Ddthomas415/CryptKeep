@@ -32,7 +32,10 @@ def test_live_router_allows_with_ai_gate_pass(monkeypatch, tmp_path):
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
-            overrides={"ai_context": {"telemetry": {"order_reject_rate": 0.02}}},
+            overrides={
+                "reference_price": 60000.0,
+                "ai_context": {"telemetry": {"order_reject_rate": 0.02}},
+            },
         )
     )
     assert dec.allowed is True
@@ -51,7 +54,10 @@ def test_live_router_blocks_with_ai_gate_fail(monkeypatch, tmp_path):
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
-            overrides={"ai_context": {"telemetry": {"order_reject_rate": 0.5}}},
+            overrides={
+                "reference_price": 60000.0,
+                "ai_context": {"telemetry": {"order_reject_rate": 0.5}},
+            },
         )
     )
     assert dec.allowed is False
@@ -76,6 +82,7 @@ def test_live_router_proba_gate_error_fails_closed_when_enabled(monkeypatch):
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
+            overrides={"reference_price": 60000.0},
         )
     )
     assert dec.allowed is False
@@ -98,6 +105,7 @@ def test_live_router_proba_gate_error_blocks_when_strict(monkeypatch):
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
+            overrides={"reference_price": 60000.0},
         )
     )
     assert dec.allowed is False
