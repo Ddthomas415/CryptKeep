@@ -274,7 +274,31 @@ deployment work still needs independent review.
     paper evidence stamps `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`; the
     promotion gate then treats that label as authoritative. Derive the sample
     label from the data source/path used, and make mismatched env/source labels
-    fail closed or record explicit sample provenance.
+    fail closed or record explicit sample provenance. 2026-07-05:
+    implementation proof is ready for independent review:
+    `strategy_runner._fetch_public_ohlcv()` now returns the actual source
+    alongside rows (`sample_ohlcv` with file path, `public_ohlcv`, or `none`;
+    the defensively retained sample-fallback branch is tagged
+    `sample_fallback`), `_public_ohlcv_evidence_extra()` derives
+    `market_data_source`/`ohlcv_sample_mode` from that source with
+    `ohlcv_sample_mode_origin="source"`, records the env claim as
+    `ohlcv_sample_mode_env`, and sets `ohlcv_source_mismatch` on any
+    disagreement; the runner loop holds the signal fail-closed on mismatch
+    (operator-visible `sample_mode_provenance_mismatch` status, no signal, no
+    intent). Env-only stampers (`evidence_logger._sample_provenance_stamp`,
+    collector `_campaign_provenance_extra`, `es_daily_trend`
+    `_default_evidence_extra`, `_executor_submit` shadow fill stamp) now mark
+    labels `ohlcv_sample_mode_origin="env"`, and the executor-submit stamp no
+    longer hardcodes `ohlcv_sample_mode=False`. Gate provenance bucketing is
+    proven unchanged for both new-field and legacy records. Remaining work
+    (2026-07-05 audit finding): the local OHLCV snapshot store
+    (`local_data_reader.write_local_ohlcv_snapshot`) persists rows without
+    source metadata, sample-mode runs persist sample rows into that shared
+    store, and downstream stampers label snapshot reads `local_snapshot`,
+    which the gate counts as public — so sample data can still launder into
+    public provenance through the snapshot store. Closing that requires
+    snapshot-schema source metadata or skipping snapshot persistence in
+    sample mode; treat as a separate reviewed change.
 22. Add per-strategy governance configs before promoting additional
     challenger strategies. `configs/strategies/es_daily_trend_v1.yaml` is the
     only full strategy YAML contract today; challenger campaigns currently

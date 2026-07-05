@@ -86,6 +86,7 @@ def _campaign_provenance_extra(cfg: PaperStrategyEvidenceServiceCfg) -> dict[str
     return {
         "market_data_source": "sample_ohlcv" if sample_mode else "public_ohlcv",
         "ohlcv_sample_mode": sample_mode,
+        "ohlcv_sample_mode_origin": "env",
         "ohlcv_timeframe": source.removeprefix("public_ohlcv_") or None,
         "ohlcv_venue": str(cfg.venue or ""),
         "ohlcv_symbol": str(cfg.symbol or ""),

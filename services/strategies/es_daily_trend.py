@@ -44,6 +44,7 @@ def _default_evidence_extra(extra: dict[str, Any] | None = None) -> dict[str, An
         sample_mode = str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
         out["market_data_source"] = "sample_ohlcv" if sample_mode else "unknown_ohlcv"
         out["ohlcv_sample_mode"] = sample_mode
+        out["ohlcv_sample_mode_origin"] = "env"
     return out
 
 

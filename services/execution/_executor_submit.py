@@ -210,7 +210,8 @@ def _record_shadow_would_be_fill(cfg: LiveCfg, it: dict[str, Any]) -> str:
             "selected_strategy": selected_strategy,
             "strategy_preset": meta.get("strategy_preset"),
             "market_data_source": "local_snapshot",
-            "ohlcv_sample_mode": False,
+            "ohlcv_sample_mode": str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"},
+            "ohlcv_sample_mode_origin": "env",
         },
     )
     return "recorded"
