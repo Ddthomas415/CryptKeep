@@ -15431,3 +15431,46 @@ Remaining risk:
 - LOW: backlog/work-log wording only. No command behavior, collector behavior,
   execution path, strategy routing, or gate behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T10:45:00Z - Backlog Lane Map OKX Cleanup
+
+Active role: ENGINEER
+
+Objective:
+- Keep the backlog execution-lane map aligned with the accepted OKX read-only
+  source decision and latest backlog wording.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` still listed "Short/context venue
+  readiness and source decision" and "Scheduled crypto-edge collection source
+  decision and host schedule proof" under passive/operator evidence.
+- SHOWN: `REMAINING_TASKS.md` now records OKX as the accepted read-only
+  derivatives context source and keeps remaining proof focused on live-public
+  data readiness, host cadence, snapshots, and cadence-gap alerting.
+
+What changed:
+- Updated the passive/operator evidence lane entries to remove source
+  selection as open work.
+- Added the OKX source-decision docs/backlog cleanup to the low-risk recent
+  examples list.
+
+Why this change:
+- The lane map controls batching decisions. If it says source selection is
+  still open, future passes can waste time redoing an accepted decision instead
+  of collecting host evidence.
+
+Expected outcome:
+- Future proactive passes distinguish passive host/data-readiness proof from
+  completed source-decision documentation.
+
+Verification:
+- `rg -n "source decision|OKX read-only|host cadence|data readiness|Backlog Lane Map OKX Cleanup|Crypto-edge OKX" ...`
+  - SHOWN: lane-map entries now describe accepted OKX source-decision status
+    and remaining host/data-readiness proof.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs-only planning metadata. No command behavior, collector behavior,
+  execution path, strategy routing, or gate behavior changed.
+- Acceptance state: `ACCEPTED`.

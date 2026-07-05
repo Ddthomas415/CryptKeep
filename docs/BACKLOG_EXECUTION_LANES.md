@@ -32,8 +32,10 @@ These tasks cannot be completed by local code changes alone:
 - Launch evidence packet: restart, recovery, kill-switch, reconcile, rollback.
 - Pullback Stage 0 long proof.
 - Composite/hybrid paper advancement decision after evidence changes.
-- Short/context venue readiness and source decision.
-- Scheduled crypto-edge collection source decision and host schedule proof.
+- Short/context live-public data readiness after the accepted OKX read-only
+  source decision.
+- Scheduled crypto-edge collection host cadence, snapshot, and cadence-gap
+  proof after the accepted OKX read-only source decision.
 - Hetzner canonical `.cbp_state` migration follow-through.
 - Paper-to-shadow first-hour rehearsal.
 - Backup/restore drill evidence.
@@ -57,6 +59,7 @@ Recent examples:
 - Safety surface and websocket surface classifications.
 - Backtest-to-paper fill parity guard.
 - Fixed-size default guard for dormant risk sizing.
+- Crypto-edge OKX source-decision docs and backlog-status cleanup.
 
 ### Medium-Risk Runtime / Read-Only
 
