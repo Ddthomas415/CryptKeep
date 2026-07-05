@@ -653,7 +653,10 @@ substrate work, but they are concrete enough to keep visible.
    local tests, while `ws_clients`, `ws_common`, feature blacklist, and health
    logger modules are helpers/telemetry. New intraday or shadow work still must
    prove venue support, supervision, freshness, and evidence authority before
-   treating websocket data as canonical.
+   treating websocket data as canonical. 2026-07-04: stale
+   `docs/WS_AUTO_DISABLE.md` references to retired `services/marketdata/*` and
+   non-present `ws_microstructure_manager.py` were corrected to the current
+   `services/market_data/*` ticker-feed/blacklist surfaces.
 5. Add a backtest-to-paper fill parity property test around the shared fill
    model so paper evidence transferability is tested directly. 2026-07-04:
    parity guard added for paper market buy/sell fills: paper engine fill price
