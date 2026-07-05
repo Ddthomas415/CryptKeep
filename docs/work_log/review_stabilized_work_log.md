@@ -15729,9 +15729,10 @@ Verification:
     optional-companion or dated-deadline skips.
 
 Remaining risk:
-- HIGH: this changes live-governance behavior and two prior safety-test
-  contracts; it must not land without independent human review.
-- The resume window default and the future-skew tolerance (`60s`) are policy
-  numbers, not derived from evidence; operator may adjust in review.
-- Local full suite passed in this environment; GitHub CI must re-run.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- HIGH-risk review completed: independently reviewed and accepted by the human
+  operator on 2026-07-05, then merged as PR #226 to `review-stabilized` and
+  synced to `master` by PR #227.
+- The accepted resume window default is `3600.0` seconds with `60s`
+  future-skew tolerance unless a future reviewed policy change adjusts it.
+- CI passed on PR #226 and on the master sync PR #227 before merge.
+- Acceptance state: `ACCEPTED`.
