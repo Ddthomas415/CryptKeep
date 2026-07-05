@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import importlib
 
-import services.admin.live_guard as live_guard
-
 
 def test_resume_gate_blocks_when_not_safe(monkeypatch):
     import services.admin.resume_gate as resume_gate
@@ -12,8 +10,8 @@ def test_resume_gate_blocks_when_not_safe(monkeypatch):
     monkeypatch.setattr(resume_gate, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
     monkeypatch.setattr(
         resume_gate,
-        "save_user_yaml",
-        lambda cfg, dry_run=False: (_ for _ in ()).throw(AssertionError("should not save config")),
+        "ceremony_resume_provenance",
+        lambda: {"ok": True, "reason": "ok"},
     )
     monkeypatch.setattr(
         resume_gate,
@@ -35,8 +33,8 @@ def test_resume_gate_disarms_when_safe(monkeypatch):
     monkeypatch.setattr(resume_gate, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
     monkeypatch.setattr(
         resume_gate,
-        "save_user_yaml",
-        lambda cfg, dry_run=False: (_ for _ in ()).throw(AssertionError("should not save config")),
+        "ceremony_resume_provenance",
+        lambda: {"ok": True, "reason": "ok"},
     )
     monkeypatch.setattr(
         resume_gate,
@@ -81,18 +79,15 @@ def test_resume_gate_rolls_back_kill_switch_when_system_guard_restore_fails(monk
     import services.admin.resume_gate as resume_gate
 
     importlib.reload(resume_gate)
-    cfg_state = {"execution": {"live_enabled": False}}
+    cfg_state = {"execution": {"live_enabled": True}}
     calls: list[tuple[bool, str]] = []
-    saves: list[dict[str, object]] = []
-
-    def _save(cfg, dry_run=False):
-        saves.append({"cfg": dict(cfg), "dry_run": bool(dry_run)})
-        cfg_state.clear()
-        cfg_state.update(cfg)
-        return True, "Saved"
 
     monkeypatch.setattr(resume_gate, "load_user_yaml", lambda: dict(cfg_state))
-    monkeypatch.setattr(resume_gate, "save_user_yaml", _save)
+    monkeypatch.setattr(
+        resume_gate,
+        "ceremony_resume_provenance",
+        lambda: {"ok": True, "reason": "ok"},
+    )
     monkeypatch.setattr(
         resume_gate,
         "live_allowed",
@@ -130,57 +125,62 @@ def test_resume_gate_rolls_back_kill_switch_when_system_guard_restore_fails(monk
         (False, "safe"),
         (True, "safe:rollback_system_guard_failed"),
     ]
-    assert out["config_restore"]["ok"] is True
-    assert cfg_state["execution"]["live_enabled"] is False
-    assert [item["cfg"]["execution"]["live_enabled"] for item in saves] == [True, False]
+    assert "config_restore" not in out
+    assert "save" not in out
+    assert cfg_state["execution"]["live_enabled"] is True
 
 
-def test_resume_gate_reenables_live_config_before_real_guard_check(monkeypatch):
+def test_resume_gate_cold_state_refuses_without_config_write(monkeypatch):
+    """
+    Substrate backlog #17 proof: a cold/absent live config refuses before any
+    provenance read, guard check, config write, arm, kill-switch, or
+    system-guard mutation. The resume gate module no longer imports
+    ``save_user_yaml`` at all, so it cannot re-enable live config.
+    """
     import services.admin.resume_gate as resume_gate
 
-    importlib.reload(live_guard)
     importlib.reload(resume_gate)
 
     cfg_state = {"execution": {"live_enabled": False}}
-    saved: list[dict[str, object]] = []
-    arm_calls: list[tuple[bool, str, str]] = []
-
-    def _save(cfg, dry_run=False):
-        saved.append({"cfg": dict(cfg), "dry_run": bool(dry_run)})
-        cfg_state.clear()
-        cfg_state.update(cfg)
-        return True, "Saved"
+    touched: list[str] = []
 
     monkeypatch.setattr(resume_gate, "load_user_yaml", lambda: dict(cfg_state))
-    monkeypatch.setattr(resume_gate, "save_user_yaml", _save)
-    monkeypatch.setattr(resume_gate, "live_allowed", live_guard.live_allowed)
-    monkeypatch.setattr(live_guard, "load_user_config", lambda: dict(cfg_state))
-    monkeypatch.setattr(live_guard, "is_live_enabled", lambda cfg: bool((cfg.get("execution") or {}).get("live_enabled")))
-    monkeypatch.setattr(live_guard, "kill_state", lambda: {"armed": True, "note": "halted"})
     monkeypatch.setattr(
-        live_guard,
-        "get_system_guard_state",
-        lambda **_kwargs: {"state": "HALTED", "writer": "watchdog", "reason": "stale"},
+        resume_gate,
+        "ceremony_resume_provenance",
+        lambda: touched.append("provenance") or {"ok": True, "reason": "ok"},
+    )
+    monkeypatch.setattr(
+        resume_gate,
+        "live_allowed",
+        lambda **kwargs: touched.append("live_allowed") or (True, "ok", {}),
     )
     monkeypatch.setattr(
         resume_gate,
         "set_live_armed_state",
-        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+        lambda armed, *, writer, reason: touched.append("arm") or {"armed": armed},
     )
-    monkeypatch.setattr(resume_gate, "set_armed", lambda state, note="": {"armed": state, "note": note})
+    monkeypatch.setattr(
+        resume_gate,
+        "set_armed",
+        lambda state, note="": touched.append("kill_switch") or {"armed": state},
+    )
     monkeypatch.setattr(
         resume_gate,
         "set_system_guard_state",
-        lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
+        lambda state, *, writer, reason="": touched.append("system_guard") or {"state": state},
     )
 
-    out = resume_gate.resume_if_safe(note="safe")
+    out = resume_gate.resume_if_safe(note="cold")
 
-    assert out["ok"] is True
-    assert cfg_state["execution"]["live_enabled"] is True
-    assert out["details"]["live_enabled"] is True
-    assert saved and saved[0]["cfg"]["execution"]["live_enabled"] is True
-    assert arm_calls == [(True, "resume_gate", "safe")]
+    assert out["ok"] is False
+    assert out["resumed"] is False
+    assert out["reason"] == "live_not_enabled_ceremony_required"
+    assert touched == []
+    assert cfg_state["execution"]["live_enabled"] is False
+    assert not hasattr(resume_gate, "save_user_yaml")
+    assert "save" not in out
+    assert "config_restore" not in out
 
 
 def test_resume_gate_restores_persisted_arm_signal_visible_to_live_arming(monkeypatch, tmp_path):
@@ -191,8 +191,8 @@ def test_resume_gate_restores_persisted_arm_signal_visible_to_live_arming(monkey
     monkeypatch.setattr(resume_gate, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
     monkeypatch.setattr(
         resume_gate,
-        "save_user_yaml",
-        lambda cfg, dry_run=False: (_ for _ in ()).throw(AssertionError("should not save config")),
+        "ceremony_resume_provenance",
+        lambda: {"ok": True, "reason": "ok"},
     )
     monkeypatch.setattr(live_arming, "STATE_PATH", tmp_path / "live_arming.json")
     monkeypatch.setattr(live_arming, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})

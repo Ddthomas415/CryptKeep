@@ -15641,3 +15641,97 @@ Remaining risk:
 - HIGH: this is still part of the live-router/paper-runner safety precondition
   change. Full suite and GitHub CI must be re-run by the operator/CI.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-05T17:14:29Z - Resume-Hard Live Governance (Substrate Backlog #17)
+
+Active role: ENGINEER
+
+Objective:
+- Close the substrate backlog #17 dashboard resume bypass: the
+  `Resume Live Trading` path could re-enable live config from a cold state
+  without the one-time-token live-enable ceremony.
+
+What was found:
+- SHOWN: `services/admin/resume_gate.py::resume_if_safe()` wrote
+  `execution.live_enabled=true` via `save_user_yaml` whenever
+  `is_live_enabled()` was false, then armed live state, set
+  `CBP_EXECUTION_ARMED=YES`, disarmed the kill switch, and set the system
+  guard RUNNING, with no ceremony provenance requirement.
+- SHOWN: two existing tests encoded that bypass as expected behavior:
+  `test_resume_gate_reenables_live_config_before_real_guard_check` and the
+  cold-state setup of
+  `test_resume_gate_rolls_back_kill_switch_when_system_guard_restore_fails`
+  in `tests/test_placeholder_recovery_phase2.py`.
+- SHOWN: the live-enable ceremony (`services/execution/live_enable.py::enable_live`)
+  already leaves durable provenance in `live_arming.json`: a consumed token
+  record with `consumed`/`consumed_epoch` written by
+  `services/execution/live_arming.py::verify_and_consume`.
+- SHOWN (same-file fail-open sweep): Python `json.loads` accepts `NaN`, so an
+  unguarded `consumed_epoch: NaN` in the state file would make every window
+  comparison false and pass provenance; an env window of `inf`/`nan` would
+  create an unbounded resume window. A non-finite explicit `now_epoch` input
+  would create the same age-comparison fail-open in future helper/test callers.
+  All three were guarded before landing.
+
+What changed:
+- `services/execution/live_arming.py` adds read-only
+  `ceremony_resume_provenance()`: valid provenance requires a consumed
+  ceremony token with a finite positive `consumed_epoch` inside a bounded
+  window (`CBP_RESUME_CEREMONY_MAX_AGE_S`, default `3600.0` seconds,
+  non-finite/non-positive/invalid env values fall back to the strict
+  default), refusing with stable reasons: `no_ceremony_provenance`,
+  `ceremony_token_not_consumed`, `ceremony_provenance_invalid_ts`,
+  `ceremony_provenance_future_ts`, `ceremony_window_expired:<age>s`.
+- `services/admin/resume_gate.py::resume_if_safe()` no longer imports
+  `save_user_yaml` or `set_live_enabled` and cannot write config. Cold/absent
+  live config refuses with `live_not_enabled_ceremony_required` before any
+  provenance read, guard check, or mutation. Missing/expired provenance
+  refuses with `ceremony_provenance:<reason>`. All refusal and success
+  payloads include the provenance record for dashboard/audit visibility; the
+  existing Operations page already renders `reason` on refusal.
+- `dashboard/pages/60_Operations.py` updates the Live Trading Control caption
+  so the Resume button no longer claims to re-enable live trading; it now
+  states the ceremony requirement and RUNNING restore behavior.
+- Tests: `tests/test_resume_gate_ceremony_provenance.py` (new) proves the
+  fail-closed provenance matrix (missing file, unconsumed token, invalid ts,
+  future ts, expired window, corrupt state file, env override + invalid env
+  fallback, non-finite `consumed_epoch` and non-finite explicit clock
+  regressions) and the resume proofs required by the backlog item: refusal
+  without ceremony, refusal on expired window, and
+  ceremony-armed-then-halted success using the real provenance reader.
+  `tests/test_placeholder_recovery_phase2.py` updates the two
+  bypass-encoding tests (cold-state now must refuse without any config
+  write) and adds a provenance stub plus removes obsolete `save_user_yaml`
+  guard patches on the three preserved tests.
+
+Why this change:
+- The resume gate must be a bounded recovery path inside an accepted arming
+  window, not a second live-enable path. Anchoring resume authority to the
+  consumed ceremony token keeps `services/execution/live_enable.py` the only
+  path that can turn live on.
+
+Deliberate contract changes for reviewer attention:
+- Cold-state resume now refuses instead of re-enabling live config; the
+  operator recovery path is re-running the ceremony.
+- A halt older than the resume window also requires a fresh ceremony. The
+  `3600.0`-second default window is a policy number chosen conservatively and
+  is explicitly open to operator adjustment in review.
+
+Verification:
+- `python3 -m pytest -q tests/test_resume_gate_ceremony_provenance.py tests/test_placeholder_recovery_phase2.py`
+  - SHOWN: `22 passed`.
+- Neighborhood (all arming/resume/live-enable test files):
+  - SHOWN: `51 passed`.
+- Every test file importing `live_arming`/`resume_gate`/`live_enable` (28 files):
+  - SHOWN: `262 passed, 1 warning`.
+- Full local suite in six chunks over all 707 test files:
+  - SHOWN: `2358 passed, 33 skipped, 0 failed`; all skips are explicit
+    optional-companion or dated-deadline skips.
+
+Remaining risk:
+- HIGH: this changes live-governance behavior and two prior safety-test
+  contracts; it must not land without independent human review.
+- The resume window default and the future-skew tolerance (`60s`) are policy
+  numbers, not derived from evidence; operator may adjust in review.
+- Local full suite passed in this environment; GitHub CI must re-run.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
