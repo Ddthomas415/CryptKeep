@@ -15014,3 +15014,62 @@ Remaining risk:
 - UNVERIFIED: broader external provider prompt-injection hardening remains out
   of scope; this proof covers SQLite mutation prevention only.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-04 - Structure Disposition Batch
+
+Active role: ENGINEER
+
+Objective:
+- Close low-risk structure-hygiene backlog decisions for runtime TODO stubs,
+  legacy paper runner classification, and unwired storage candidate disposition.
+
+What was found:
+- SHOWN: `services/runtime/run_mode.py` and
+  `services/runtime/bot_process.py` contained only phase comments and
+  `TODO: implement`.
+- SHOWN: source import scan found no active source importers for either runtime
+  placeholder module.
+- SHOWN: `services/trading_runner/run_trader.py` is a paper-only EMA runner
+  using `services/paper_trader/`, not the canonical
+  `services/execution/paper_engine.py` evidence path.
+- SHOWN: storage candidate scan still shows no visible production source
+  importers for `fill_reconciler_store_sqlite.py`,
+  `order_idempotency_sqlite.py`, or `order_tracker_store_sqlite.py`.
+
+What changed:
+- Deleted the two TODO-only runtime placeholder modules.
+- Added `docs/architecture/runtime_stub_disposition.md`.
+- Updated `docs/architecture/paper_execution_surfaces.md` to classify
+  `services/trading_runner/run_trader.py` as a legacy compatibility runner.
+- Updated `docs/architecture/storage_surface_classification.md` to explicitly
+  retain the three unwired storage candidates as quarantined retained schemas,
+  not runtime authorities.
+- Updated `REMAINING_TASKS.md` for the three backlog entries.
+
+Why this change:
+- The smallest correct path is to remove misleading empty placeholders and
+  classify legacy/unwired surfaces before anyone builds new runtime or
+  reconciliation work on the wrong module.
+
+Expected outcome:
+- Future runtime/process work starts from documented managed-component/control
+  surfaces, new paper execution work stays on the canonical paper engine, and
+  reconciliation work does not accidentally adopt dormant storage schemas.
+
+Verification:
+- `rg -n "runtime\\.run_mode|runtime\\.bot_process|services/runtime/run_mode|services/runtime/bot_process" services scripts tests docs Makefile pyproject.toml -g '*.*'`
+  - SHOWN: only `docs/architecture/runtime_stub_disposition.md` references
+    remain.
+- `rg -n "fill_reconciler_store_sqlite|order_idempotency_sqlite|order_tracker_store_sqlite|FillReconciler|OrderIdempotency|OrderTracker" services scripts storage tests docs REMAINING_TASKS.md -g '*.*'`
+  - SHOWN: no production source importers; matches are modules themselves and
+    docs/audit references.
+- `./.venv/bin/python -m pytest -q tests/test_run_trader_compat.py tests/test_run_trader_integration_minimal.py`
+  - SHOWN: `5 passed in 0.82s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- LOW: structure/docs classification plus deletion of TODO-only modules with no
+  source importers.
+- UNVERIFIED: external consumers outside the repo are not checked.
+- Acceptance state: `ACCEPTED`.
