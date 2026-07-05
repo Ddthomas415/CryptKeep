@@ -627,8 +627,10 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     provenance exists, and only resumes inside a bounded accepted arming window.
     Proof must cover cold-state refusal, ceremony-armed-then-halted success,
     expired/invalid provenance refusal, and dashboard display of the refusal
-    reason. Blocks capped live. 2026-07-05: implementation proof is ready for
-    independent review: `resume_if_safe()` no longer imports or calls config
+    reason. Blocks capped live. 2026-07-05: implementation proof was
+    independently reviewed and accepted by the human operator, merged as
+    PR #226 to `review-stabilized`, and synced to `master` by PR #227:
+    `resume_if_safe()` no longer imports or calls config
     save paths and cannot write `execution.live_enabled`; cold/absent live
     config refuses with `live_not_enabled_ceremony_required`; resume authority
     is anchored to the consumed live-enable ceremony token via read-only
@@ -640,8 +642,9 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     provenance refusal, corrupt state file refusal, and
     ceremony-armed-then-halted resume success, with provenance included in the
     dashboard-visible payload. Two prior tests that encoded the cold-state
-    re-enable bypass were deliberately rewritten to refuse; reviewer should
-    confirm that contract change and the window default.
+    re-enable bypass were deliberately rewritten to refuse; the accepted
+    policy window is `3600s` with `60s` future-skew tolerance unless a future
+    reviewed policy change adjusts it.
 18. Add intent TTL before live/shadow consumers are trusted unattended.
     `storage/live_intent_queue_sqlite.py` dequeues and claims queued intents by
     `created_ts ASC`, while current consumers check market snapshot freshness
