@@ -15073,3 +15073,48 @@ Remaining risk:
   source importers.
 - UNVERIFIED: external consumers outside the repo are not checked.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Backtest-To-Paper Fill Parity Guard
+
+Active role: ENGINEER
+
+Objective:
+- Add a direct regression that paper market fills stay aligned with the shared
+  fee/slippage model used by backtest parity.
+
+What was found:
+- SHOWN: `services/backtest/parity_engine.py` calls
+  `services.execution.fill_model.apply_fee_slippage()`.
+- SHOWN: `services/execution/paper_engine.py` applies equivalent mid-price
+  plus/minus slippage math inline for market orders and computes fees from the
+  executed price.
+- SHOWN: `services/execution/fill_model.py` explicitly states that paper should
+  call the same function for perfect parity, but the current paper engine does
+  not delegate to it.
+
+What changed:
+- Added a paper-engine honesty regression proving paper market buy and sell
+  fill price/fee match `apply_fee_slippage()` for the same mid price, side,
+  qty, fee bps, and slippage bps.
+- Updated `REMAINING_TASKS.md` to record the parity guard.
+
+Why this change:
+- The smallest safe proof is a regression around current behavior. It guards
+  transferability without changing paper execution semantics during an active
+  evidence campaign.
+
+Expected outcome:
+- Future changes to either the shared fill model or paper market-fill math will
+  fail a targeted test if they drift apart.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_engine_honesty.py`
+  - SHOWN: `2 passed in 0.19s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- LOW: test-only guard; no runtime behavior changed.
+- UNVERIFIED: limit-order parity and full backtest-to-paper lifecycle parity
+  remain outside this narrow guard.
+- Acceptance state: `ACCEPTED`.
