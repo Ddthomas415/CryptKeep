@@ -15387,3 +15387,47 @@ Remaining risk:
 - LOW: docs-only operator guidance. No command behavior, collector behavior,
   execution path, strategy routing, or gate behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T10:36:00Z - OKX Backlog Status Cleanup
+
+Active role: ENGINEER
+
+Objective:
+- Remove stale backlog wording that still treated the crypto-edge source
+  decision as open after the accepted OKX read-only decision landed.
+
+What was found:
+- SHOWN: `REMAINING_TASKS.md` item 14 still said "If the canonical source
+  decision remains open" after OKX had been documented as the default
+  read-only derivatives context source.
+- SHOWN: item 9 still mixed venue-selection wording with the now-accepted OKX
+  decision.
+
+What changed:
+- Updated item 9 to say remaining short/context proof is data-readiness, not
+  venue selection.
+- Updated item 14 to start from the accepted OKX source decision and keep the
+  remaining proof focused on host schedule, recent snapshots, cadence-gap
+  alerting, and downstream context/provenance review.
+
+Why this change:
+- The backlog should not direct operators to redo a decision that has already
+  been documented. The remaining blocker is operational evidence that the
+  collector is actually running and producing usable `live_public` rows.
+
+Expected outcome:
+- Future backlog reads distinguish the closed source-selection decision from
+  the still-open host-cadence and data-readiness proof.
+
+Verification:
+- `rg -n "canonical source decision remains open|remaining short/context proof is now data-readiness|Start scheduled read-only crypto-edge collection from the accepted OKX|OKX Backlog Status Cleanup" ...`
+  - SHOWN: `REMAINING_TASKS.md` now uses the accepted OKX status wording; the
+    old open-decision phrase remains only in this work-log finding as quoted
+    historical evidence.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: backlog/work-log wording only. No command behavior, collector behavior,
+  execution path, strategy routing, or gate behavior changed.
+- Acceptance state: `ACCEPTED`.
