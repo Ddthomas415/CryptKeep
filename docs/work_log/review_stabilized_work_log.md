@@ -15736,3 +15736,180 @@ Remaining risk:
   future-skew tolerance unless a future reviewed policy change adjusts it.
 - CI passed on PR #226 and on the master sync PR #227 before merge.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T21:42:07Z - Intent TTL For Live Consumers (Substrate Backlog #18)
+
+Active role: ENGINEER
+
+Objective:
+- Close the substrate backlog #18 intent-age gap: live consumers checked
+  market snapshot freshness but not the intent's own age, so a restart after
+  hours or days could submit an intent sized and justified by stale context
+  at current prices.
+
+What was found:
+- SHOWN: `storage/live_intent_queue_sqlite.py::claim_next_queued()` dequeues
+  by `created_ts ASC` and `services/execution/live_intent_consumer.py`
+  processes claimed intents through market-quality/risk/dedupe/router with no
+  check on `created_ts` age; only `is_snapshot_fresh()` gates market data
+  freshness before queue claims.
+- SHOWN: the canonical production consumer is `live_intent_consumer.py`
+  (wrapped by `scripts/run_intent_consumer_safe.py` via
+  `scripts.live.run_live_intent_consumer`); the older
+  `services/execution/intent_consumer.py` is reached only through
+  `scripts/compat/run_intent_consumer.py` and uses non-claiming `next_queued()`.
+  TTL was scoped to the canonical consumer only.
+- SHOWN: reconciler scan sources are `submitted`/`submit_unknown`
+  (`intent_lifecycle.RECONCILER_LIVE_QUEUE_SOURCES`), so an `expired` status
+  outside that set is terminal for the reconciler by construction.
+- SHOWN: pre-change fixture audit found the fail-closed contract would affect
+  exactly three test files: two live-consumer harness files whose fake intents
+  carried no `created_ts`, and `tests/test_live_execution_wiring.py` whose two
+  real-store intents carried a hardcoded stale `2026-04-02` timestamp. Those
+  fixtures were updated to runtime-fresh timestamps as a direct consequence of
+  the new contract.
+
+What changed:
+- `services/execution/intent_ttl.py` (new): `check_intent_age()` with
+  `CBP_MAX_INTENT_AGE_SEC` (default `300.0`s). Fail-closed matrix: missing
+  `created_ts` -> `intent_ttl:missing_created_ts`; unparseable or non-finite
+  -> `intent_ttl:invalid_created_ts`; non-finite explicit clock input ->
+  `intent_ttl:invalid_now`; more than 60s in the future ->
+  `intent_ttl:future_created_ts`; older than the window ->
+  `intent_ttl:expired:<age>s`. Env overrides that are empty, unparseable,
+  non-finite, or non-positive fall back to the strict default.
+- `services/execution/intent_lifecycle.py`: `expired` added as a terminal
+  status reachable from `queued` and `submitting` only, and added to
+  `SUBMIT_OWNER_LIVE_QUEUE_TARGETS`. `submitted` intents deliberately cannot
+  expire because that lane belongs to the reconciler. Reconciler source/target
+  sets are unchanged.
+- `storage/live_intent_queue_sqlite.py::update_status()`: SQL transition
+  guard kept in sync with the lifecycle table (`expired` in the terminal
+  NOT-IN list; reachable from `queued`/`submitting`).
+- `services/execution/live_intent_consumer.py`: age check at the claim
+  boundary before market-quality, risk, dedupe, and router processing.
+  Age-failed intents are marked `expired` with the TTL reason as `last_error`;
+  an `expired` counter is included in consumer status writes. If the expiry
+  write itself fails, the consumer logs and skips the intent without submitting
+  because nothing has reached the venue.
+- Tests: `tests/test_intent_ttl_expiry.py` (new) covers the fail-closed unit
+  matrix, lifecycle vocabulary, real-SQLite store transitions, and consumer
+  integration for aged, missing-ts, fresh, and mixed batches. Existing
+  live-consumer harness fixtures gained fresh `created_ts` values.
+
+Why this change:
+- The claim boundary is the single choke point every live submission passes
+  through, so one check there covers restart-after-idle, backlog-drain, and
+  stale-queue scenarios without touching queue schema, paper paths, or
+  reconciler behavior.
+
+Deliberate contract changes for reviewer attention:
+- Intents without a usable `created_ts` are now expired rather than submitted.
+- The `300.0`s default window and `60`s future-skew tolerance are policy
+  numbers, not evidence-derived; operator may adjust in review.
+- The legacy compat consumer (`services/execution/intent_consumer.py`) is
+  explicitly out of scope and should be retired or classified before any live
+  use.
+- Intents already in `submitted` cannot expire through TTL; reconciler remains
+  authoritative for that state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_intent_ttl_expiry.py tests/test_live_execution_wiring.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_order_store_gating.py`
+  - SHOWN: `35 passed in 2.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_intent_ttl_expiry.py tests/test_live_execution_wiring.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_order_store_gating.py tests/test_live_consumer_risk_claim.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_intent_queue_claim_race.py tests/test_live_intent_queue_integrity.py tests/test_live_queue_submit_owner_authority.py tests/test_live_state_authority_write_result.py`
+  - SHOWN: `55 passed in 2.48s`.
+- `./.venv/bin/python -m py_compile services/execution/intent_ttl.py services/execution/intent_lifecycle.py services/execution/live_intent_consumer.py storage/live_intent_queue_sqlite.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH-risk review completed: independently reviewed and accepted by the human
+  operator on 2026-07-05, then merged as PR #230 to `review-stabilized`.
+  GitHub CI passed on PR #230 before merge.
+- Intents stranded in `submitting` by a crashed consumer are not reclaimed or
+  expired by this change (pre-existing behavior, unchanged); they remain
+  visible via queue listing.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T22:38:00Z - Sample-Mode Provenance From Actual OHLCV Source (Active Backlog #21)
+
+Active role: ENGINEER
+
+Objective:
+- Close Active Backlog #21's evidence-poisoning gap: paper evidence labels
+  `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`, while the trust decision
+  should derive from the actual data source/path that produced OHLCV rows.
+
+What was found:
+- SHOWN: `services/execution/strategy_runner.py::_fetch_public_ohlcv()` returned
+  rows only, so the caller could not distinguish public exchange OHLCV from
+  sample-file OHLCV after fetch.
+- SHOWN: `_public_ohlcv_evidence_extra()` previously stamped
+  `market_data_source` and `ohlcv_sample_mode` from the env flag, then the
+  runner attached those fields to strategy evidence and intent metadata.
+- SHOWN: env-only stampers also existed in
+  `services/strategies/evidence_logger.py`,
+  `scripts/run_paper_strategy_evidence_collector.py`,
+  `services/strategies/es_daily_trend.py`, and the shadow would-be-fill stamp
+  in `services/execution/_executor_submit.py`; none marked those labels as
+  env-derived.
+- SHOWN: the submitted patch had one parser inconsistency: fetch treated only
+  `1`/`true`/`yes` as sample mode, while evidence stamping also treated `on`
+  as truthy. That could create a false provenance mismatch for
+  `CBP_USE_SAMPLE_OHLCV=on`.
+
+What changed:
+- `strategy_runner._fetch_public_ohlcv()` now returns `(rows, source_info)`.
+  `source_info` carries the actual source (`sample_ohlcv`, `public_ohlcv`, or
+  `none`), sample file path when applicable, fallback flag, row count, and the
+  env claim at fetch time.
+- `strategy_runner._public_ohlcv_evidence_extra()` derives
+  `market_data_source` and `ohlcv_sample_mode` from `source_info`, records the
+  env claim as `ohlcv_sample_mode_env`, marks source-derived fields with
+  `ohlcv_sample_mode_origin="source"`, and sets `ohlcv_source_mismatch` on
+  env/source disagreement or unknown source.
+- The runner loop holds the signal fail-closed on `ohlcv_source_mismatch`:
+  operator status note `sample_mode_provenance_mismatch`, no signal
+  computation, no intent enqueue.
+- Env-only stampers now mark `ohlcv_sample_mode_origin="env"`, so claimed
+  labels are distinguishable from source-derived labels.
+- `_executor_submit` no longer hardcodes `ohlcv_sample_mode=False`; it records
+  the env-derived claim and origin marker for shadow would-be-fill records.
+- Local correction added in this thread: `_sample_ohlcv_env_enabled()` centralizes
+  runner truthy parsing and includes `on`, with a regression proving fetch and
+  evidence agree for `CBP_USE_SAMPLE_OHLCV=on`.
+- `REMAINING_TASKS.md` documents the separate remaining laundering path:
+  sample rows can still be persisted into the local OHLCV snapshot store
+  without source metadata and later read as `local_snapshot`, which the gate
+  currently counts as public.
+
+Why this change:
+- The fetch site is the earliest point where the runner knows whether rows
+  came from public exchange data or a sample file. Carrying that truth forward
+  is smaller and safer than trying to infer provenance later from env or
+  downstream artifacts.
+
+Expected outcome:
+- Paper evidence cannot be labeled public merely because the env flag says it
+  is public when the runner knows rows came from sample data.
+- If future code drift creates a disagreement between env claim and fetch
+  source, the campaign holds fail-closed before producing signal or intent
+  evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_sample_mode_provenance.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `44 passed in 1.43s`.
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py services/execution/_executor_submit.py services/strategies/es_daily_trend.py services/strategies/evidence_logger.py scripts/run_paper_strategy_evidence_collector.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this changes provenance semantics for the canonical paper evidence
+  runner and can affect what the promotion gate means; it must not land without
+  independent human review and a fresh GitHub CI run.
+- The local snapshot-store laundering path is documented but not closed in
+  this patch; it needs a separate reviewed schema/source-metadata change or a
+  sample-mode snapshot persistence block.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

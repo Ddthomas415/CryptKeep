@@ -159,6 +159,7 @@ def _sample_provenance_stamp() -> dict[str, Any]:
     return {
         "market_data_source": "sample_ohlcv",
         "ohlcv_sample_mode": True,
+        "ohlcv_sample_mode_origin": "env",
     }
 
 

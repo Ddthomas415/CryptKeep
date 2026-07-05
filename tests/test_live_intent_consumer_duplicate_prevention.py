@@ -1,4 +1,10 @@
+from datetime import datetime, timezone
+
 from services.execution import live_intent_consumer as lic
+
+
+def _fresh_ts() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
 def test_restart_after_submit_before_status_update_does_not_submit_duplicate(monkeypatch, tmp_path):
@@ -46,6 +52,7 @@ def test_restart_after_submit_before_status_update_does_not_submit_duplicate(mon
             self.claimed = True
             return [{
                 "intent_id": "i1",
+                "created_ts": _fresh_ts(),
                 "venue": "coinbase",
                 "symbol": "BTC/USD",
                 "side": "buy",

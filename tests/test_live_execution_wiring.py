@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
 import services.execution.live_exchange_adapter as live_exchange_adapter
@@ -270,7 +271,7 @@ def test_live_intent_consumer_recovers_existing_remote_order_before_submit(monke
     qdb = queue_mod.LiveIntentQueueSQLite()
     qdb.upsert_intent({
         "intent_id": "recover-before-submit",
-        "created_ts": "2026-04-02T12:00:00Z",
+        "created_ts": datetime.now(timezone.utc).isoformat(),  # fresh: live consumer expires aged intents (substrate #18)
         "ts": "2026-04-02T12:00:00Z",
         "source": "strategy",
         "venue": "coinbase",
@@ -366,7 +367,7 @@ def test_live_intent_consumer_missing_submit_exchange_id_becomes_submit_unknown(
     qdb = queue_mod.LiveIntentQueueSQLite()
     qdb.upsert_intent({
         "intent_id": "missing-submit-exchange-id",
-        "created_ts": "2026-04-02T12:00:00Z",
+        "created_ts": datetime.now(timezone.utc).isoformat(),  # fresh: live consumer expires aged intents (substrate #18)
         "ts": "2026-04-02T12:00:00Z",
         "source": "strategy",
         "venue": "coinbase",
