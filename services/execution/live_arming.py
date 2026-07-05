@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import secrets
 import time
@@ -186,6 +187,83 @@ def live_armed_signal() -> tuple[bool, str]:
         return False, f"persisted_stale:{age_s:.0f}s"
 
     return True, "persisted:live_arming.json"
+
+
+RESUME_CEREMONY_MAX_AGE_ENV = "CBP_RESUME_CEREMONY_MAX_AGE_S"
+RESUME_CEREMONY_MAX_AGE_S_DEFAULT = 3600.0
+_RESUME_FUTURE_SKEW_S = 60.0
+
+
+def _resume_ceremony_window_s() -> float:
+    """
+    Bounded resume window measured from ceremony token consumption.
+
+    Invalid, empty, or non-positive env overrides fall back to the strict
+    default instead of widening the window.
+    """
+    raw = os.environ.get(RESUME_CEREMONY_MAX_AGE_ENV)
+    if raw is None or str(raw).strip() == "":
+        return RESUME_CEREMONY_MAX_AGE_S_DEFAULT
+    try:
+        value = float(raw)
+    except Exception as _err:
+        return RESUME_CEREMONY_MAX_AGE_S_DEFAULT
+    if not math.isfinite(value) or value <= 0.0:
+        return RESUME_CEREMONY_MAX_AGE_S_DEFAULT
+    return value
+
+
+def ceremony_resume_provenance(*, now_epoch: float | None = None) -> dict[str, Any]:
+    """
+    Read-only check that a completed live-enable ceremony authorizes resume.
+
+    The only path that consumes a live-enable token is
+    ``services.execution.live_enable.enable_live``, so a consumed token record
+    with a sane ``consumed_epoch`` inside the bounded resume window is the
+    ceremony provenance. Missing, incomplete, malformed, future-dated, or
+    expired provenance refuses with a stable reason (fail closed).
+    """
+    max_age_s = _resume_ceremony_window_s()
+    out: dict[str, Any] = {
+        "ok": False,
+        "reason": "no_ceremony_provenance",
+        "max_age_s": max_age_s,
+        "consumed_epoch": None,
+        "age_s": None,
+    }
+    try:
+        now = float(now_epoch) if now_epoch is not None else float(time.time())
+    except Exception as _err:
+        now = 0.0
+    if not math.isfinite(now) or now <= 0.0:
+        out["reason"] = "ceremony_provenance_invalid_now"
+        return out
+    st = _load()
+    active = st.get("active")
+    if not isinstance(active, dict):
+        return out
+    if not bool(active.get("consumed")):
+        out["reason"] = "ceremony_token_not_consumed"
+        return out
+    try:
+        consumed_epoch = float(active.get("consumed_epoch") or 0.0)
+    except Exception as _err:
+        consumed_epoch = 0.0
+    if not math.isfinite(consumed_epoch) or consumed_epoch <= 0.0:
+        out["reason"] = "ceremony_provenance_invalid_ts"
+        return out
+    out["consumed_epoch"] = consumed_epoch
+    age_s = now - consumed_epoch
+    out["age_s"] = age_s
+    if age_s < -_RESUME_FUTURE_SKEW_S:
+        out["reason"] = "ceremony_provenance_future_ts"
+        return out
+    if age_s > max_age_s:
+        out["reason"] = f"ceremony_window_expired:{age_s:.0f}s"
+        return out
+    out["ok"] = True
+    out["reason"] = "ok"
+    return out
 
 
 def live_enabled_and_armed() -> tuple[bool, str]:

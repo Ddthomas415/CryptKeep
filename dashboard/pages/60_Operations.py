@@ -1028,7 +1028,8 @@ with tab_safety:
         st.markdown("### Live Trading Control")
         st.caption(
             "Halt immediately arms the kill switch and sets system guard to HALTED. "
-            "Resume checks all guards before re-enabling. Both actions are logged."
+            "Resume requires a recent live-enable ceremony and checks guards before "
+            "restoring RUNNING. Both actions are logged."
         )
         try:
             from services.admin.live_guard import live_allowed
