@@ -253,9 +253,11 @@ boundaries needed before short-side signal replay can be trusted.
 Continue only from accepted read-only evidence:
 - use deterministic sample data or accepted public row families for any replay
   prototype;
-- resolve Binance derivatives public-data collection or select another
-  compliant read-only derivatives venue before relying on funding,
-  open-interest, or basis rows;
+- use the OKX read-only derivatives source decision in
+  `docs/research/crypto_edge_source_decision.md` as the default collection
+  direction for funding, open-interest, and basis rows;
+- keep replay fixture-only unless `make check-short-context-readiness` reports
+  `live_public_replay_ready=true`;
 - keep all sell-to-open-short intent explicit and separate from sell-to-exit;
 - do not route any short/context signal to paper or execution without a
   separate high-risk review.
