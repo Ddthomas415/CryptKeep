@@ -15345,3 +15345,45 @@ Remaining risk:
   reliability, scheduled collection, and cadence-gap alerting remain
   UNVERIFIED.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-07-05T09:12:00Z - Crypto Edge Operator Guide Follow-Up
+
+Active role: ENGINEER
+
+Objective:
+- Keep operator-facing crypto-edge documentation aligned with the accepted OKX
+  read-only source decision.
+
+What was found:
+- SHOWN: `docs/research/crypto_edge_source_decision.md` now records OKX as the
+  default read-only derivatives context source.
+- SHOWN: `docs/research/crypto_structural_edges.md` described the collector
+  generically but did not point operators to the source decision or explain the
+  OKX/Binance implication.
+- SHOWN: `docs/RUNBOOKS.md` linked the main runbooks but not the crypto-edge
+  source decision.
+
+What changed:
+- Added the OKX source decision and live-collector plan interpretation to the
+  crypto structural edges guide.
+- Linked the source decision from the runbook index.
+
+Why this change:
+- The source decision changes what the default read-only collector plan means.
+  Operator docs should show that this is research collection only, not a live
+  venue approval or strategy-promotion proof.
+
+Expected outcome:
+- Operators following the crypto-edge guide can see why OKX is used and what
+  remains blocked before context rows can influence strategy promotion.
+
+Verification:
+- `rg -n "crypto_edge_source_decision|OKX|read-only derivatives|strategy promotion|live trading venue" ...`
+  - SHOWN: source-decision links and OKX/read-only boundaries are present.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs-only operator guidance. No command behavior, collector behavior,
+  execution path, strategy routing, or gate behavior changed.
+- Acceptance state: `ACCEPTED`.
