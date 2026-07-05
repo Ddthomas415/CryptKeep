@@ -1,20 +1,20 @@
 {
   "funding": [
     {
-      "venue": "binance",
+      "venue": "okx",
       "symbol": "BTC/USDT:USDT",
       "interval_hours": 8.0
     }
   ],
   "open_interest": [
     {
-      "venue": "binance",
+      "venue": "okx",
       "symbol": "BTC/USDT:USDT"
     }
   ],
   "basis": [
     {
-      "venue": "binance",
+      "venue": "okx",
       "spot_symbol": "BTC/USDT",
       "perp_symbol": "BTC/USDT:USDT",
       "days_to_expiry": 7
