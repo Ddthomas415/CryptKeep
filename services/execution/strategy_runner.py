@@ -545,15 +545,52 @@ def _public_ohlcv_timeframe(cfg: dict) -> str | None:
     return None
 
 
-def _public_ohlcv_evidence_extra(cfg: dict, timeframe: str) -> dict:
-    sample_mode = str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
-    return {
-        "market_data_source": "sample_ohlcv" if sample_mode else "public_ohlcv",
-        "ohlcv_sample_mode": sample_mode,
+def _sample_ohlcv_env_enabled() -> bool:
+    return str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _public_ohlcv_evidence_extra(cfg: dict, timeframe: str, source_info: dict | None = None) -> dict:
+    """
+    Stamp OHLCV provenance from the actual data source reported by
+    ``_fetch_public_ohlcv``, not from the env flag. The env claim is recorded
+    alongside for auditability, and any disagreement between the env claim
+    and the actual source sets ``ohlcv_source_mismatch`` (the runner holds
+    the signal fail-closed on that flag).
+
+    ``source_info=None`` preserves the legacy env-derived behavior for any
+    caller without fetch-site truth; those labels are marked
+    ``ohlcv_sample_mode_origin="env"`` so derived and claimed labels are
+    distinguishable downstream.
+    """
+    env_sample_mode = _sample_ohlcv_env_enabled()
+    out: dict[str, object] = {
         "ohlcv_timeframe": timeframe,
         "ohlcv_venue": str(cfg.get("venue") or ""),
         "ohlcv_symbol": str(cfg.get("symbol") or ""),
+        "ohlcv_sample_mode_env": env_sample_mode,
     }
+    if not isinstance(source_info, dict):
+        out.update({
+            "market_data_source": "sample_ohlcv" if env_sample_mode else "public_ohlcv",
+            "ohlcv_sample_mode": env_sample_mode,
+            "ohlcv_sample_mode_origin": "env",
+        })
+        return out
+
+    actual_source = str(source_info.get("source") or "none")
+    actual_sample = actual_source == "sample_ohlcv"
+    out.update({
+        "market_data_source": actual_source if actual_source in {"sample_ohlcv", "public_ohlcv"} else "unknown_ohlcv",
+        "ohlcv_sample_mode": actual_sample,
+        "ohlcv_sample_mode_origin": "source",
+        "ohlcv_source_mismatch": bool(env_sample_mode != actual_sample or actual_source not in {"sample_ohlcv", "public_ohlcv"}),
+    })
+    if actual_sample:
+        if source_info.get("sample_path"):
+            out["ohlcv_sample_path"] = str(source_info.get("sample_path"))
+        if bool(source_info.get("sample_fallback")):
+            out["ohlcv_sample_fallback"] = True
+    return out
 
 
 def _market_quality_evidence_extra(venue: str, symbol: str) -> dict:
@@ -588,13 +625,30 @@ def _market_quality_evidence_extra(venue: str, symbol: str) -> dict:
     return out
 
 
-def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
+def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
+    """
+    Fetch OHLCV rows and report the actual source that produced them.
+
+    Returns ``(rows, source_info)`` where ``source_info`` carries the truth
+    for evidence labeling: ``source`` is ``sample_ohlcv``/``public_ohlcv``/
+    ``none``, plus ``sample_path``, ``sample_fallback``, ``row_count``, and
+    the env claim at fetch time (``env_sample_mode``). Substrate: sample-mode
+    provenance must agree with the actual data source, not the env flag.
+    """
+    env_sample_mode = _sample_ohlcv_env_enabled()
+    source_info: dict[str, object] = {
+        "source": "none",
+        "sample_path": None,
+        "sample_fallback": False,
+        "row_count": 0,
+        "env_sample_mode": env_sample_mode,
+    }
     timeframe = _public_ohlcv_timeframe(cfg)
     if not timeframe:
-        return []
+        return [], source_info
 
     # In sample mode, skip live fetch entirely and go straight to sample data.
-    if str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip() in ("1", "true", "yes"):
+    if env_sample_mode:
         import json as _json
         raw_sym = str(cfg.get("symbol") or "BTC/USDT").replace("/", "_")
         sample = (
@@ -607,10 +661,11 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
                 _LOG.info("ohlcv_sample_primary symbol=%s rows=%s", raw_sym, len(rows))
                 result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
                 _persist_public_ohlcv_snapshot(cfg, timeframe, result)
-                return result
+                source_info.update({"source": "sample_ohlcv", "sample_path": str(sample), "row_count": len(result)})
+                return result, source_info
             except Exception as _se:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
-        return []
+        return [], source_info
 
     ex = None
     try:
@@ -621,7 +676,8 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
         result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
         if result:
             _persist_public_ohlcv_snapshot(cfg, timeframe, result)
-            return result
+            source_info.update({"source": "public_ohlcv", "row_count": len(result)})
+            return result, source_info
     except Exception as _fetch_err:
         _LOG.warning("ohlcv_live_fetch_failed venue=%s symbol=%s timeframe=%s err=%s",
                      cfg.get("venue"), cfg.get("symbol"), timeframe, _fetch_err)
@@ -634,7 +690,10 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
 
     # Fallback: use sample OHLCV data for paper/dev mode.
     # Only activates when CBP_USE_SAMPLE_OHLCV=1 (set in paper runner for dev).
-    if str(os.environ.get("CBP_USE_SAMPLE_OHLCV") or "").strip() in ("1", "true", "yes"):
+    # NOTE: with the sample-primary branch above, this fallback is only
+    # reachable if the env flag flips mid-call; kept defensively and tagged
+    # truthfully so any rows it ever produces are labeled sample+fallback.
+    if _sample_ohlcv_env_enabled():
         import json as _json
         raw_sym = str(cfg.get("symbol") or "BTC/USDT").replace("/", "_")
         sample = (
@@ -647,12 +706,19 @@ def _fetch_public_ohlcv(cfg: dict) -> list[list[float]]:
                 _LOG.info("ohlcv_sample_fallback symbol=%s rows=%s", raw_sym, len(rows))
                 result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
                 _persist_public_ohlcv_snapshot(cfg, timeframe, result)
-                return result
+                source_info.update({
+                    "source": "sample_ohlcv",
+                    "sample_path": str(sample),
+                    "sample_fallback": True,
+                    "row_count": len(result),
+                    "env_sample_mode": True,
+                })
+                return result, source_info
             except Exception as _se:
                 _LOG.warning("ohlcv_sample_read_failed: %s", _se)
         else:
             _LOG.warning("ohlcv_sample_not_found: %s", sample)
-    return []
+    return [], source_info
 
 
 def _persist_public_ohlcv_snapshot(cfg: dict, timeframe: str, rows: list[list[float]]) -> None:
@@ -885,7 +951,8 @@ def run_forever() -> None:
                     f"public_ohlcv:{timeframe}" if timeframe else "tick_based",
                 )
                 if timeframe:
-                    ohlcv = _fetch_public_ohlcv(sym_cfg) or []
+                    ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg)
+                    ohlcv = ohlcv or []
                     if not ohlcv:
                         _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
                         _LOG.warning(
@@ -949,7 +1016,28 @@ def run_forever() -> None:
                     raw_strategy = raw_runner.get("strategy") if isinstance(raw_runner.get("strategy"), dict) else {}
 
                     selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
-                    evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe)
+                    evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)
+                    if bool(evidence_extra.get("ohlcv_source_mismatch")):
+                        mismatch_note = (
+                            f"env_sample_mode={evidence_extra.get('ohlcv_sample_mode_env')} "
+                            f"actual_source={evidence_extra.get('market_data_source')}"
+                        )
+                        _LOG.error(
+                            "sample_mode_provenance_mismatch strategy=%s symbol=%s %s — holding signal fail-closed",
+                            sym_cfg.get("name"), sym_cfg.get("symbol"), mismatch_note,
+                        )
+                        _write_status({
+                            "ok": True,
+                            "status": "running",
+                            "pid": os.getpid(),
+                            "ts": _now(),
+                            "note": "sample_mode_provenance_mismatch",
+                            "detail": mismatch_note,
+                            "loops": loops,
+                            "enqueued": enqueued,
+                        })
+                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                        continue
                     evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
                     selected_block["evidence_extra"] = evidence_extra
                     signal = compute_signal(

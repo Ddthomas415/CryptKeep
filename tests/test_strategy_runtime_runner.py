@@ -216,13 +216,16 @@ def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tm
     monkeypatch.setattr(
         runner,
         "_fetch_public_ohlcv",
-        lambda cfg: [
-            [1, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [2, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [3, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [4, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [5, 100.0, 101.0, 100.0, 101.0, 1.0],
-        ],
+        lambda cfg: (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        ),
     )
 
     def fake_sleep(_seconds: float) -> None:
@@ -254,7 +257,7 @@ def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_pat
         lambda venue, creds, enable_rate_limit=True: (_ for _ in ()).throw(RuntimeError("boom")),
     )
 
-    out = runner._fetch_public_ohlcv(
+    out, source_info = runner._fetch_public_ohlcv(
         {
             "signal_source": "public_ohlcv_5m",
             "venue": "coinbase",
@@ -265,13 +268,14 @@ def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_pat
     )
 
     assert out == []
+    assert source_info["source"] == "none"
 
 
 def test_fetch_public_ohlcv_persists_sample_snapshot(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
 
-    rows = runner._fetch_public_ohlcv(
+    rows, source_info = runner._fetch_public_ohlcv(
         {
             "signal_source": "public_ohlcv_1d",
             "venue": "coinbase",
@@ -282,6 +286,9 @@ def test_fetch_public_ohlcv_persists_sample_snapshot(monkeypatch, tmp_path):
     )
 
     assert rows
+    assert source_info["source"] == "sample_ohlcv"
+    assert str(source_info["sample_path"]).endswith("BTC_USDT_1d.json")
+    assert source_info["sample_fallback"] is False
     from services.market_data.local_data_reader import _load_local_ohlcv
 
     loaded = _load_local_ohlcv("coinbase", "BTC/USDT", timeframe="1d", limit=5000)
@@ -304,7 +311,7 @@ def test_fetch_public_ohlcv_persists_live_snapshot(monkeypatch, tmp_path):
 
     monkeypatch.setattr(runner, "make_exchange", lambda venue, creds, enable_rate_limit=True: _FakeExchange())
 
-    rows = runner._fetch_public_ohlcv(
+    rows, source_info = runner._fetch_public_ohlcv(
         {
             "signal_source": "public_ohlcv_1d",
             "venue": "coinbase",
@@ -315,6 +322,7 @@ def test_fetch_public_ohlcv_persists_live_snapshot(monkeypatch, tmp_path):
     )
 
     assert rows[-1][4] == 109.0
+    assert source_info["source"] == "public_ohlcv"
     from services.market_data.local_data_reader import _load_local_ohlcv
 
     loaded = _load_local_ohlcv("coinbase", "BTC/USDT", timeframe="1d", limit=10)
@@ -507,13 +515,16 @@ def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeyp
     monkeypatch.setattr(
         runner,
         "_fetch_public_ohlcv",
-        lambda cfg: [
-            [1, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [2, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [3, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [4, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [5, 100.0, 101.0, 100.0, 101.0, 1.0],
-        ],
+        lambda cfg: (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        ),
     )
     monkeypatch.setattr(
         runner,
@@ -826,13 +837,16 @@ def test_run_forever_unknown_strategy_records_status_without_side_effects(monkey
     monkeypatch.setattr(
         runner,
         "_fetch_public_ohlcv",
-        lambda cfg: [
-            [1, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [2, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [3, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [4, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [5, 100.0, 100.0, 100.0, 100.0, 1.0],
-        ],
+        lambda cfg: (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 100.0, 100.0, 100.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        ),
     )
     monkeypatch.setattr(runner.time, "sleep", fake_sleep)
 
@@ -906,13 +920,16 @@ strategy_runner:
 
     def _fetch_public_ohlcv(_cfg):
         config_editor.CONFIG_PATH.write_text("strategy_runner: [unterminated\n", encoding="utf-8")
-        return [
-            [1, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [2, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [3, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [4, 100.0, 100.0, 100.0, 100.0, 1.0],
-            [5, 100.0, 101.0, 100.0, 101.0, 1.0],
-        ]
+        return (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        )
 
     captured_statuses: list[dict[str, object]] = []
 

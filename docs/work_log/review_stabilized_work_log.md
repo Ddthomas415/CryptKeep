@@ -15824,10 +15824,92 @@ Verification:
   - SHOWN: clean.
 
 Remaining risk:
-- HIGH: this changes live-order eligibility semantics and the live queue state
-  machine; it must not land without independent human review and a fresh
-  GitHub CI run.
+- HIGH-risk review completed: independently reviewed and accepted by the human
+  operator on 2026-07-05, then merged as PR #230 to `review-stabilized`.
+  GitHub CI passed on PR #230 before merge.
 - Intents stranded in `submitting` by a crashed consumer are not reclaimed or
   expired by this change (pre-existing behavior, unchanged); they remain
   visible via queue listing.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T22:38:00Z - Sample-Mode Provenance From Actual OHLCV Source (Active Backlog #21)
+
+Active role: ENGINEER
+
+Objective:
+- Close Active Backlog #21's evidence-poisoning gap: paper evidence labels
+  `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`, while the trust decision
+  should derive from the actual data source/path that produced OHLCV rows.
+
+What was found:
+- SHOWN: `services/execution/strategy_runner.py::_fetch_public_ohlcv()` returned
+  rows only, so the caller could not distinguish public exchange OHLCV from
+  sample-file OHLCV after fetch.
+- SHOWN: `_public_ohlcv_evidence_extra()` previously stamped
+  `market_data_source` and `ohlcv_sample_mode` from the env flag, then the
+  runner attached those fields to strategy evidence and intent metadata.
+- SHOWN: env-only stampers also existed in
+  `services/strategies/evidence_logger.py`,
+  `scripts/run_paper_strategy_evidence_collector.py`,
+  `services/strategies/es_daily_trend.py`, and the shadow would-be-fill stamp
+  in `services/execution/_executor_submit.py`; none marked those labels as
+  env-derived.
+- SHOWN: the submitted patch had one parser inconsistency: fetch treated only
+  `1`/`true`/`yes` as sample mode, while evidence stamping also treated `on`
+  as truthy. That could create a false provenance mismatch for
+  `CBP_USE_SAMPLE_OHLCV=on`.
+
+What changed:
+- `strategy_runner._fetch_public_ohlcv()` now returns `(rows, source_info)`.
+  `source_info` carries the actual source (`sample_ohlcv`, `public_ohlcv`, or
+  `none`), sample file path when applicable, fallback flag, row count, and the
+  env claim at fetch time.
+- `strategy_runner._public_ohlcv_evidence_extra()` derives
+  `market_data_source` and `ohlcv_sample_mode` from `source_info`, records the
+  env claim as `ohlcv_sample_mode_env`, marks source-derived fields with
+  `ohlcv_sample_mode_origin="source"`, and sets `ohlcv_source_mismatch` on
+  env/source disagreement or unknown source.
+- The runner loop holds the signal fail-closed on `ohlcv_source_mismatch`:
+  operator status note `sample_mode_provenance_mismatch`, no signal
+  computation, no intent enqueue.
+- Env-only stampers now mark `ohlcv_sample_mode_origin="env"`, so claimed
+  labels are distinguishable from source-derived labels.
+- `_executor_submit` no longer hardcodes `ohlcv_sample_mode=False`; it records
+  the env-derived claim and origin marker for shadow would-be-fill records.
+- Local correction added in this thread: `_sample_ohlcv_env_enabled()` centralizes
+  runner truthy parsing and includes `on`, with a regression proving fetch and
+  evidence agree for `CBP_USE_SAMPLE_OHLCV=on`.
+- `REMAINING_TASKS.md` documents the separate remaining laundering path:
+  sample rows can still be persisted into the local OHLCV snapshot store
+  without source metadata and later read as `local_snapshot`, which the gate
+  currently counts as public.
+
+Why this change:
+- The fetch site is the earliest point where the runner knows whether rows
+  came from public exchange data or a sample file. Carrying that truth forward
+  is smaller and safer than trying to infer provenance later from env or
+  downstream artifacts.
+
+Expected outcome:
+- Paper evidence cannot be labeled public merely because the env flag says it
+  is public when the runner knows rows came from sample data.
+- If future code drift creates a disagreement between env claim and fetch
+  source, the campaign holds fail-closed before producing signal or intent
+  evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_sample_mode_provenance.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `44 passed in 1.43s`.
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py services/execution/_executor_submit.py services/strategies/es_daily_trend.py services/strategies/evidence_logger.py scripts/run_paper_strategy_evidence_collector.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this changes provenance semantics for the canonical paper evidence
+  runner and can affect what the promotion gate means; it must not land without
+  independent human review and a fresh GitHub CI run.
+- The local snapshot-store laundering path is documented but not closed in
+  this patch; it needs a separate reviewed schema/source-metadata change or a
+  sample-mode snapshot persistence block.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
