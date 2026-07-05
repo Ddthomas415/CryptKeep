@@ -293,6 +293,9 @@ Current scoped activation objective:
 
 Current classification:
 - `docs/CORE.md`
+- `docs/BACKLOG_EXECUTION_LANES.md`
 - `docs/research/signal_discovery_classification.md`
 - `docs/architecture/paper_execution_surfaces.md`
+- `docs/architecture/safety_surface_classification.md`
 - `docs/architecture/storage_surface_classification.md`
+- `docs/architecture/websocket_surface_classification.md`

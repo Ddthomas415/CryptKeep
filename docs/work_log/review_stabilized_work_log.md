@@ -15118,3 +15118,70 @@ Remaining risk:
 - UNVERIFIED: limit-order parity and full backtest-to-paper lifecycle parity
   remain outside this narrow guard.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Safety And Websocket Surface Classification
+
+Active role: ENGINEER
+
+Objective:
+- Close low-risk structure backlog items by documenting duplicate-looking
+  safety/order/risk surfaces and websocket-named surfaces without changing
+  runtime behavior.
+
+What was found:
+- SHOWN: `services/admin/kill_switch.py` is the canonical operator kill-switch
+  state used by CLI/admin/onboarding/watchdog/paper-status flows.
+- SHOWN: `services/risk/killswitch.py` is not dormant; `place_order` imports it
+  as the live kill-switch safety probe, and it also reads the canonical admin
+  switch.
+- SHOWN: `services/risk/kill_conditions.py` is strategy-runner cooldown logic,
+  not the global kill-switch state.
+- SHOWN: `services/risk/live_risk_gates.py`, `services/execution/risk_gates.py`,
+  and `services/ops/risk_gate_*` represent different concepts: hard live risk
+  enforcement, executor adapter, and ops telemetry gating.
+- SHOWN: `services/execution/client_order_id.py` is the governed live
+  client-order-id builder; `services/execution/client_oid.py` is used by
+  legacy/compat intent executors.
+- SHOWN: `services/live_trader_multi/main.py` and
+  `services/live_trader_fleet/main.py` are duplicate dry-run legacy stubs.
+- SHOWN: `services/market_data/ws_ticker_feed.py` and
+  `services/fills/user_stream_ws.py` are real optional ccxt.pro websocket
+  wrappers, while `ws_clients`, `ws_common`, feature blacklist, and health
+  logger modules are helpers/telemetry.
+
+What changed:
+- Added `docs/BACKLOG_EXECUTION_LANES.md`.
+- Added `docs/architecture/safety_surface_classification.md`.
+- Added `docs/architecture/websocket_surface_classification.md`.
+- Updated `docs/CORE.md`, `docs/ARCHITECTURE.md`, and `docs/REPO_LAYOUT.md`
+  so the operational-core policy links the new classification records.
+- Updated `REMAINING_TASKS.md` items 2, 4, 17, and 18 with the disposition.
+
+Why this change:
+- The smallest safe improvement is classification before consolidation.
+  Deleting or rewiring live-money safety surfaces would be high risk; this
+  patch only records which surface owns which concept.
+
+Expected outcome:
+- Future agents should not add new code to legacy dry-run live traders, should
+  not delete active kill-switch probes as dormant, and should not assume every
+  `ws_*` file is a canonical streaming data path.
+- Future cleanup should start from the core/quarantine classification records
+  rather than naming similarity alone.
+- Future backlog batches should stay within one risk lane; high-risk
+  gate/execution/deploy work should be split into separate objectives and stop
+  at `READY_FOR_INDEPENDENT_REVIEW`.
+
+Verification:
+- `rg --files services scripts docs tests | rg '(ws|websocket|user_stream|ticker_feed|market_ws)'`
+  - SHOWN: visible websocket-named surfaces enumerated.
+- `rg --files services scripts docs tests | rg '(kill|killswitch|client_oid|client_order_id|live_trader|risk_gate)'`
+  - SHOWN: visible safety/order/risk surfaces enumerated.
+- Targeted file reads of classified modules.
+  - SHOWN: classification matches imports and module behavior listed above.
+
+Remaining risk:
+- LOW: docs/backlog only; no runtime behavior changed.
+- UNVERIFIED: external consumers outside this repository and host-level
+  websocket supervision were not checked.
+- Acceptance state: `ACCEPTED`.

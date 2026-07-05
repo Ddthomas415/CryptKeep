@@ -628,14 +628,31 @@ substrate work, but they are concrete enough to keep visible.
    operational switch state used by scripts/resume/halt flows;
    `services/risk/kill_conditions.py` is the strategy-runner risk-block logic;
    `services/execution/kill_switch.py` is a thin setter wrapper used by one
-   script; `services/risk/killswitch.py` has no production importers and should
-   be deleted, wired, or explicitly retired.
+   script; `services/risk/killswitch.py` was initially suspected dormant.
+   2026-07-04: current source audit showed `services/risk/killswitch.py` is
+   active in the live `place_order` kill-switch probe, so it is not dormant.
+   Classification is documented in
+   `docs/architecture/safety_surface_classification.md`: admin kill-switch is
+   canonical operator state, `risk.killswitch` is the live-order safety probe,
+   `kill_conditions` is strategy-runner cooldown logic,
+   `live_risk_gates.py` is canonical live hard-limit enforcement,
+   `ops/risk_gate_*` is telemetry gating, `client_order_id.py` is the
+   governed client-order-id builder, `client_oid.py` remains legacy/compat,
+   and `live_trader_multi` / `live_trader_fleet` are duplicate dry-run legacy
+   stubs that should not receive new live-execution features.
 3. Extend archive-first backtesting proof to include one walk-forward run over
    the archive producing enough out-of-sample windows to demonstrate research
    depth, not only byte-identical reruns.
 4. Rename or document `ws_*` / `market_ws` surfaces before intraday work assumes
    streaming exists. Current accepted direction treats intraday as read-only
-   until data cadence and streaming assumptions are proven.
+   until data cadence and streaming assumptions are proven. 2026-07-04:
+   classification is documented in
+   `docs/architecture/websocket_surface_classification.md`: `ws_ticker_feed`
+   and `user_stream_ws` are real optional ccxt.pro websocket wrappers with
+   local tests, while `ws_clients`, `ws_common`, feature blacklist, and health
+   logger modules are helpers/telemetry. New intraday or shadow work still must
+   prove venue support, supervision, freshness, and evidence authority before
+   treating websocket data as canonical.
 5. Add a backtest-to-paper fill parity property test around the shared fill
    model so paper evidence transferability is tested directly. 2026-07-04:
    parity guard added for paper market buy/sell fills: paper engine fill price
@@ -759,13 +776,21 @@ substrate work, but they are concrete enough to keep visible.
     paper/research/shadow path, plus a quarantine/attic policy for surfaces not
     in that core. Do not move broad directories in one sweep; first classify,
     then retire, delegate, or document. 2026-07-03: baseline is documented in
-    `docs/CORE.md`.
+    `docs/CORE.md`. 2026-07-04: `docs/CORE.md`, `docs/ARCHITECTURE.md`, and
+    `docs/REPO_LAYOUT.md` now link the paper execution, safety, storage,
+    websocket, and signal-discovery classification records so the quarantine
+    policy points at concrete disposition docs.
 18. Protect operator attention as a managed resource. Add a decision record or
     runbook rule that caps open audit loops, limits low-value review churn, and
     forces each proactive task to tie back to one of: evidence velocity,
     profitability discovery, cost measurement, safety, recovery, or operator
     wake-up quality. 2026-07-03: this rule is captured in
     `docs/OPERATOR_GOVERNANCE_LANES.md` as the operator attention cap.
+    2026-07-04: `docs/BACKLOG_EXECUTION_LANES.md` classifies the remaining
+    backlog into passive/operator evidence, low-risk docs/tests, medium-risk
+    read-only runtime work, and high-risk gate/execution/deploy work so
+    same-lane batching is explicit and high-risk work is not mixed into
+    cleanup passes.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
