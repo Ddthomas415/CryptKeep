@@ -8,7 +8,10 @@ The active operating state is paper-evidence collection, not live launch.
 SHOWN:
 - `master`, `origin/master`, and `review-stabilized` are kept aligned after
   accepted PR merges. Verify the exact current boundary with
-  `git rev-parse HEAD origin/master origin/review-stabilized`.
+  `git rev-parse HEAD origin/master origin/review-stabilized`. 2026-07-04:
+  PR #211 merged the accepted `review-stabilized` batch to `master`, then
+  `review-stabilized` was fast-forwarded; all three refs were verified at
+  `7861f7292b418f8ccbc53ca002635618f87a079b`.
 - Laptop-owned paper campaigns are healthy:
   - `es_daily_trend_v1`: `fills=18`, `closed=9`, `pnl=32.1776`
   - `breakout_default`: `fills=12`, `closed=6`, `pnl=-4.1120`
@@ -137,11 +140,12 @@ deployment work still needs independent review.
    fixture-only unless
    `make check-short-context-readiness` reports `live_public_replay_ready=true`.
 10. Make the strategy registry fail closed before new discovery wiring lands.
-   `strategy_registry.compute_signal()` currently falls back to `ema_cross`
-   when `strategy.name` is unknown. That is a latent evidence-poisoning risk
-   once new names like `funding_extreme` enter campaign configs. Unknown
-   strategies should produce a non-actionable error/hold result that is visible
-   in session evidence; prove a typo cannot emit an actionable signal.
+   Earlier audit found `strategy_registry.compute_signal()` fell back to
+   `ema_cross` when `strategy.name` was unknown. That was a latent
+   evidence-poisoning risk once new names like `funding_extreme` entered
+   campaign configs. Unknown strategies needed to produce a non-actionable
+   error/hold result visible in session evidence, proving a typo could not emit
+   an actionable signal.
    Implementation is independently accepted: the registry returns `ok=false`,
    `action=hold`, and `reason=unknown_strategy` for explicit unknown names
    while preserving the existing missing-name `ema_cross` default.
@@ -354,13 +358,13 @@ deployment work still needs independent review.
     this before activating dormant sizing, setup-quality thresholds,
     confirmation gates, or parameter sweeps; otherwise those systems optimize
     gross-of-fee PnL and can amplify a measurement error. 2026-07-04:
-    implementation proof is ready for independent review: paper buy fees are
+    implementation proof is independently accepted: paper buy fees are
     folded into cost basis, sell fees reduce realized proceeds, new fill
     evidence carries `pnl_usd_semantics=net_of_fees`, and targeted tests prove
     a flat round trip with 10 bps fees records negative `pnl_usd` and fails the
-    expectancy helper. 2026-07-04: human/operator independent review accepted
-    the implementation with risk. Remaining operational proof: verify the
-    active campaign config uses realistic fee/slippage values, and segment old
+    expectancy helper. Acceptance is with risk. Remaining operational proof:
+    verify the active campaign config uses realistic fee/slippage values, and
+    segment old
     gross/unknown-semantics evidence during future analysis.
 29. Make market-quality guard defaults fail closed before shadow evidence is
     treated as cost/slippage proof. `services/risk/market_quality_guard.py`
@@ -480,23 +484,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
    rather than silently starving the promotion gate. 2026-07-04: status policy
-   is documented in `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md`. Remaining
-   proof: implement counters/status fields, repeated-failure refusal behavior,
-   recovery semantics, and promotion-gate visibility tests. 2026-07-04:
-   implementation proof is ready for independent review: the central
+   is documented in `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md`. 2026-07-04:
+   implementation proof is accepted: the central
    `EvidenceLogger` persists `runtime/health/evidence_writer.status.json` with
    total/consecutive failures, last error/success timestamps, and
    `ok`/`degraded`/`refusing` status; targeted tests prove repeated injected
    write failures become `refusing` and recovery resets consecutive failures.
-   Remaining integration proof: campaign/gate summaries must surface the
-   status, and no gate should treat a refusing evidence session as
-   promotion-quality evidence. 2026-07-04: gate/status integration proof is
-   ready for independent review: `check_promotion_gates.py` now includes
+   2026-07-04: gate/status integration proof is accepted:
+   `check_promotion_gates.py` now includes
    `evidence_writer` status, adds an `Evidence writer accepting records` gate,
    fails that gate when persisted status is `refusing`, and supervised soak
    status surfaces the writer and recommends `investigate_evidence_writer`.
-   Remaining: independent review and any future alert-dispatch hook under
-   paper/gate event alerting.
+   Remaining: any future alert-dispatch hook belongs under paper/gate event
+   alerting.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and
@@ -602,13 +602,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     treat `expired` as terminal. Proof: aged-intent fixture expires with zero
     submits; fresh-intent fixture remains eligible.
 19. Remove hardcoded reference-price fallbacks from paper pre-submit safety
-    checks. `services/execution/paper_engine.py` currently falls back to
-    `60000.0` when no limit price, market-quality price, or last price is
-    available, and then uses that reference price for notional/safety checks.
-    Missing quote/reference data should fail closed with `no_reference_price`
-    rather than using a BTC-shaped constant for any symbol. Proof: missing-price
-    fixture rejects before safety-cap math; normal quoted paths remain
-    unchanged.
+    checks. This is accepted for the canonical paper engine:
+    `services/execution/paper_engine.py` now returns
+    `market_quality:no_reference_price` when no limit price, market-quality
+    `price_used`, or market-quality `last` can provide a finite positive
+    reference price. Targeted proof exists in
+    `tests/test_paper_engine_integration.py`. Remaining work is broader
+    hardcoded-price cleanup in legacy/demo surfaces only, not the canonical
+    paper pre-submit gate.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
@@ -812,12 +813,11 @@ substrate work, but they are concrete enough to keep visible.
     documented in `docs/AI_COPILOT_OPERATING_RULES.md`, including allowed
     summary fields, forbidden secret/account/config payloads, and advisory-only
     constraints. 2026-07-04: SQLite context-access implementation proof is
-    ready for independent review: AI-copilot incident context queries now use
-    SQLite read-only URI connections, reject non-`SELECT` SQL, do not create
-    missing DB files, and include a regression proving rejected write SQL does
-    not mutate the source DB. Remaining work: independent review before
-    external LLM summaries become a normal operator path, and any future
-    provider expansion must stay within the documented payload boundary.
+    accepted: AI-copilot incident context queries now use SQLite read-only URI
+    connections, reject non-`SELECT` SQL, do not create missing DB files, and
+    include a regression proving rejected write SQL does not mutate the source
+    DB. Remaining work: any future provider expansion must stay within the
+    documented payload boundary.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
