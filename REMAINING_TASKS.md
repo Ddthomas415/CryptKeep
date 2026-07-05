@@ -138,9 +138,10 @@ deployment work still needs independent review.
    open-interest, and basis rows. 2026-07-05: OKX is documented as the default
    read-only derivatives context source for the crypto-edge collector plan in
    `docs/research/crypto_edge_source_decision.md`; this does not approve OKX
-   for live routing or strategy promotion evidence. Keep replay
-   fixture-only unless
-   `make check-short-context-readiness` reports `live_public_replay_ready=true`.
+   for live routing or strategy promotion evidence. Remaining short/context
+   proof is now data-readiness, not venue selection: keep replay fixture-only
+   unless `make check-short-context-readiness` reports
+   `live_public_replay_ready=true`.
 10. Make the strategy registry fail closed before new discovery wiring lands.
    Earlier audit found `strategy_registry.compute_signal()` fell back to
    `ema_cross` when `strategy.name` was unknown. That was a latent
@@ -197,17 +198,14 @@ deployment work still needs independent review.
     paper-only: deployment stage is paper, live intent/order tables are
     unchanged before/after, and the diff does not touch live execution or risk
     gates.
-14. Start scheduled read-only crypto-edge collection early once the canonical
-    source decision is accepted. Funding and open-interest history mostly
-    accrue in real time; Binance derivatives remain unavailable from the
-    current network. If the
-    canonical source decision remains open, prioritize the decision itself
-    because every idle day loses mostly unrecoverable funding/OI history.
+14. Start scheduled read-only crypto-edge collection from the accepted OKX
+    source decision. Funding and open-interest history mostly accrue in real
+    time, and Binance derivatives remain unavailable from the current network.
     Treat this as a one-venue research focus until one venue/strategy pair
     proves expectancy; multi-exchange remains a scaling objective, not the
-    near-term discovery path. Once the source decision is accepted, collect a
-    broader plausible symbol universe than the active campaign needs and, if
-    read-only support is available, at least one second venue for comparison.
+    near-term discovery path. Collect a broader plausible symbol universe than
+    the active campaign needs and, if read-only support is available, at least
+    one second venue for comparison.
     Add a cadence-gap alert for the edge collector specifically; a silent
     collector outage burns unrecoverable funding/OI history even when paper
     campaigns keep running. The first post-decision proof should verify the
