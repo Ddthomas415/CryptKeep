@@ -637,7 +637,10 @@ substrate work, but they are concrete enough to keep visible.
    streaming exists. Current accepted direction treats intraday as read-only
    until data cadence and streaming assumptions are proven.
 5. Add a backtest-to-paper fill parity property test around the shared fill
-   model so paper evidence transferability is tested directly.
+   model so paper evidence transferability is tested directly. 2026-07-04:
+   parity guard added for paper market buy/sell fills: paper engine fill price
+   and fee must match `services.execution.fill_model.apply_fee_slippage()` for
+   the same mid price, side, qty, fee bps, and slippage bps.
 6. Investigate the `synthetic_mid_ohlcv` branch in
    `services/execution/strategy_runner.py`. During the unknown-strategy runner
    proof, the public-OHLCV branch was shown to call `compute_signal()`, while
