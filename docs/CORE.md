@@ -55,3 +55,21 @@ New functionality should land in the core only when it directly improves one of:
 - operator wake-up quality
 
 Otherwise it belongs in research/advisory scope or should be deferred.
+
+## Classification Records
+
+Use these records before adding new callers to legacy-looking surfaces or
+consolidating modules by name:
+
+- `docs/architecture/paper_execution_surfaces.md` - paper execution authorities
+  and compatibility runners.
+- `docs/architecture/safety_surface_classification.md` - kill-switch, risk-gate,
+  client-order-id, and legacy live-trader dispositions.
+- `docs/architecture/storage_surface_classification.md` - core, candidate, and
+  quarantined SQLite store surfaces.
+- `docs/architecture/websocket_surface_classification.md` - optional websocket
+  services versus helper/status modules.
+- `docs/research/signal_discovery_classification.md` - research/advisory signal
+  discovery and ranker surfaces.
+- `docs/BACKLOG_EXECUTION_LANES.md` - remaining-work batching lanes and
+  high-risk split rule.

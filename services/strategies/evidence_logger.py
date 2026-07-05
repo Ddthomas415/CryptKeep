@@ -22,11 +22,129 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.os.app_paths import data_dir
+from services.os.app_paths import data_dir, runtime_dir
 from services.os.file_utils import atomic_write
 from services.logging.app_logger import get_logger
 
 _LOG = get_logger("strategy.evidence_logger")
+
+DEFAULT_EVIDENCE_WRITE_REFUSAL_THRESHOLD = 3
+
+
+def evidence_writer_status_file() -> Path:
+    return runtime_dir() / "health" / "evidence_writer.status.json"
+
+
+def _evidence_write_refusal_threshold() -> int:
+    raw = str(os.environ.get("CBP_EVIDENCE_WRITE_REFUSAL_THRESHOLD") or "").strip()
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        return DEFAULT_EVIDENCE_WRITE_REFUSAL_THRESHOLD
+    return value if value > 0 else DEFAULT_EVIDENCE_WRITE_REFUSAL_THRESHOLD
+
+
+def _empty_evidence_writer_status() -> dict[str, Any]:
+    return {
+        "ok": True,
+        "evidence_writer_status": "ok",
+        "evidence_write_failures_total": 0,
+        "evidence_write_failures_consecutive": 0,
+        "last_evidence_write_error_type": "",
+        "last_evidence_write_error_ts": "",
+        "last_successful_evidence_write_ts": "",
+        "evidence_refusal_reason": "",
+        "last_record_type": "",
+        "last_strategy_id": "",
+        "last_path_name": "",
+        "threshold": _evidence_write_refusal_threshold(),
+        "updated_ts": "",
+    }
+
+
+def load_evidence_writer_status() -> dict[str, Any]:
+    path = evidence_writer_status_file()
+    status = _empty_evidence_writer_status()
+    try:
+        if path.exists():
+            loaded = json.loads(path.read_text(encoding="utf-8") or "{}")
+            if isinstance(loaded, dict):
+                status.update(loaded)
+    except Exception as exc:
+        status.update(
+            {
+                "ok": False,
+                "evidence_writer_status": "degraded",
+                "last_evidence_write_error_type": type(exc).__name__,
+                "last_evidence_write_error_ts": _now_iso(),
+                "evidence_refusal_reason": "evidence writer status unreadable",
+                "updated_ts": _now_iso(),
+            }
+        )
+    status["threshold"] = _evidence_write_refusal_threshold()
+    return status
+
+
+def _persist_evidence_writer_status(status: dict[str, Any]) -> None:
+    path = evidence_writer_status_file()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(status, sort_keys=True) + "\n", encoding="utf-8")
+    except Exception as exc:
+        _LOG.error("evidence writer status persist failed err=%s", exc)
+
+
+def _record_evidence_write_success(strategy_id: str, record_type: str, path: Path) -> None:
+    status = load_evidence_writer_status()
+    status.update(
+        {
+            "ok": True,
+            "evidence_writer_status": "ok",
+            "evidence_write_failures_consecutive": 0,
+            "last_successful_evidence_write_ts": _now_iso(),
+            "evidence_refusal_reason": "",
+            "last_record_type": record_type,
+            "last_strategy_id": strategy_id,
+            "last_path_name": path.name,
+            "threshold": _evidence_write_refusal_threshold(),
+            "updated_ts": _now_iso(),
+        }
+    )
+    _persist_evidence_writer_status(status)
+
+
+def _record_evidence_write_failure(
+    strategy_id: str,
+    record_type: str,
+    path: Path,
+    exc: Exception,
+) -> None:
+    status = load_evidence_writer_status()
+    threshold = _evidence_write_refusal_threshold()
+    total = int(status.get("evidence_write_failures_total") or 0) + 1
+    consecutive = int(status.get("evidence_write_failures_consecutive") or 0) + 1
+    refusing = consecutive >= threshold
+    status.update(
+        {
+            "ok": not refusing,
+            "evidence_writer_status": "refusing" if refusing else "degraded",
+            "evidence_write_failures_total": total,
+            "evidence_write_failures_consecutive": consecutive,
+            "last_evidence_write_error_type": type(exc).__name__,
+            "last_evidence_write_error_ts": _now_iso(),
+            "evidence_refusal_reason": (
+                f"{consecutive} consecutive evidence write failures"
+                if refusing
+                else ""
+            ),
+            "last_record_type": record_type,
+            "last_strategy_id": strategy_id,
+            "last_path_name": path.name,
+            "threshold": threshold,
+            "updated_ts": _now_iso(),
+        }
+    )
+    _persist_evidence_writer_status(status)
 
 
 def _trace_enabled() -> bool:
@@ -97,9 +215,11 @@ class EvidenceLogger:
         try:
             existing = path.read_text(encoding="utf-8") if path.exists() else ""
             atomic_write(path, existing + json.dumps(record) + "\n")
+            _record_evidence_write_success(self.strategy_id, record_type, path)
             if record_type == "signal" and _trace_enabled():
                 _LOG.debug("evidence_logger signal write path=%s", path)
         except Exception as e:
+            _record_evidence_write_failure(self.strategy_id, record_type, path, e)
             _LOG.error("evidence_logger write failed type=%s err=%s", record_type, e)
             if record_type == "signal" and _trace_enabled():
                 _LOG.debug("evidence_logger signal write failed path=%s err=%s", path, e)

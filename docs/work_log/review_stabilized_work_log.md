@@ -14867,3 +14867,321 @@ Remaining risk:
 - UNVERIFIED: all runtime proof remains open before capped live or execution
   policy changes.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Evidence Writer Status Counters
+
+Active role: ENGINEER
+
+Objective:
+- Surface central evidence JSONL writer health so repeated write failures are
+  visible instead of silently starving promotion evidence.
+
+What was found:
+- SHOWN: `services/strategies/evidence_logger.py::_append()` is the central
+  JSONL evidence writer for signal, order, fill, session, and drawdown records.
+- SHOWN: the existing writer logs write exceptions but does not persist bounded
+  failure counters or a refusal/degraded status for operators or gates to read.
+- UNVERIFIED: campaign status and promotion gates do not yet consume a persisted
+  writer-health artifact.
+
+What changed:
+- Added `runtime/health/evidence_writer.status.json` as the persisted writer
+  health artifact, resolved through `CBP_STATE_DIR`.
+- Added total and consecutive failure counters, last error/success timestamps,
+  last record/strategy/path metadata, and `ok`/`degraded`/`refusing` state.
+- Added targeted tests proving successful writes update status, repeated
+  injected write failures become `refusing`, and recovery resets consecutive
+  failures while preserving total failures.
+- Updated `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md` and
+  `REMAINING_TASKS.md` to distinguish implementation proof from remaining
+  campaign/gate integration proof.
+
+Why this change:
+- The central logger is the smallest correct boundary: every existing
+  EvidenceLogger caller gains writer-health visibility without touching
+  trading/order behavior or broadening the change into gate semantics.
+
+Expected outcome:
+- Operators and later status/gate code can read one state-scoped health artifact
+  to detect evidence starvation, rather than inferring it from missing JSONL
+  rows after the fact.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_evidence_logger.py`
+  - SHOWN: `21 passed in 1.57s`.
+
+Remaining risk:
+- HIGH: evidence/gate reliability surface.
+- UNVERIFIED: campaign summaries do not yet surface the writer status, and
+  promotion gates do not yet reject or flag a `refusing` evidence writer.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-04 - Evidence Writer Gate And Status Integration
+
+Active role: ENGINEER
+
+Objective:
+- Wire persisted evidence-writer health into promotion and operator status so a
+  refusing writer cannot be treated as promotion-quality evidence.
+
+What was found:
+- SHOWN: PR #206 added the central
+  `runtime/health/evidence_writer.status.json` artifact and targeted writer
+  counters.
+- SHOWN: `scripts/check_promotion_gates.py::run_check()` is the canonical gate
+  payload consumed by supervised soak status.
+- SHOWN: `scripts/report_supervised_soak_status.py` already summarizes gate
+  JSON for daily operator checks.
+- UNVERIFIED: no real operator-host writer failure has occurred; this proof
+  uses injected persisted status.
+
+What changed:
+- Added `evidence_writer` status to promotion gate JSON.
+- Added an `Evidence writer accepting records` gate that fails when persisted
+  status is `refusing`.
+- Added supervised-soak summary and recommendation output for refusing writer
+  status.
+- Added targeted tests proving a persisted `refusing` status fails the gate and
+  that supervised soak recommends `investigate_evidence_writer`.
+- Updated `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md` and
+  `REMAINING_TASKS.md` to mark the gate/status integration proof ready.
+
+Why this change:
+- The smallest correct follow-through is to consume the central writer-health
+  artifact in the existing gate/status path instead of adding a second monitor
+  or changing evidence-write semantics.
+
+Expected outcome:
+- Daily gate/status commands can tell the operator when evidence is starving,
+  and a refusing writer is a machine gate failure until recovered/reviewed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py::TestGateOutput::test_refusing_evidence_writer_blocks_machine_readiness tests/test_report_supervised_soak_status.py`
+  - SHOWN: `4 passed in 0.24s`.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_report_supervised_soak_status.py`
+  - SHOWN: `48 passed in 1.32s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- HIGH: evidence/gate reliability surface.
+- UNVERIFIED: real host writer-failure observation and alert-dispatch wiring
+  remain outside this implementation proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-04 - AI Copilot Read-Only SQLite Context
+
+Active role: ENGINEER
+
+Objective:
+- Enforce read-only SQLite access for AI-copilot incident context collection
+  before external LLM summaries become a normal operator path.
+
+What was found:
+- SHOWN: `services/ai_copilot/context_collector.py::_safe_sqlite_query()`
+  opened SQLite databases with a normal writable connection.
+- SHOWN: current callers pass hardcoded `SELECT` queries, but the helper did
+  not enforce that contract.
+- SHOWN: backlog item 20 required read-only SQLite access plus a regression
+  proving write SQL cannot mutate the source DB.
+
+What changed:
+- `_safe_sqlite_query()` now rejects non-`SELECT` SQL before opening a DB.
+- SQLite connections now use a `mode=ro` URI, so missing DB files are not
+  created as a side effect of context collection.
+- Added targeted regressions proving normal reads still work, rejected write
+  SQL does not mutate the DB, and missing DB reads do not create files.
+- Updated `docs/AI_COPILOT_OPERATING_RULES.md` and `REMAINING_TASKS.md` to
+  record the enforced boundary.
+
+Why this change:
+- The helper boundary is the smallest correct enforcement point: all incident
+  context SQLite reads go through it, and no provider, prompt, trading, gate, or
+  dashboard behavior needs to change.
+
+Expected outcome:
+- AI-copilot incident context remains advisory/read-only even if a future
+  caller accidentally passes write SQL.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_context_collector.py`
+  - SHOWN: `3 passed in 0.09s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- HIGH: security-sensitive AI/provider context surface.
+- UNVERIFIED: broader external provider prompt-injection hardening remains out
+  of scope; this proof covers SQLite mutation prevention only.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-04 - Structure Disposition Batch
+
+Active role: ENGINEER
+
+Objective:
+- Close low-risk structure-hygiene backlog decisions for runtime TODO stubs,
+  legacy paper runner classification, and unwired storage candidate disposition.
+
+What was found:
+- SHOWN: `services/runtime/run_mode.py` and
+  `services/runtime/bot_process.py` contained only phase comments and
+  `TODO: implement`.
+- SHOWN: source import scan found no active source importers for either runtime
+  placeholder module.
+- SHOWN: `services/trading_runner/run_trader.py` is a paper-only EMA runner
+  using `services/paper_trader/`, not the canonical
+  `services/execution/paper_engine.py` evidence path.
+- SHOWN: storage candidate scan still shows no visible production source
+  importers for `fill_reconciler_store_sqlite.py`,
+  `order_idempotency_sqlite.py`, or `order_tracker_store_sqlite.py`.
+
+What changed:
+- Deleted the two TODO-only runtime placeholder modules.
+- Added `docs/architecture/runtime_stub_disposition.md`.
+- Updated `docs/architecture/paper_execution_surfaces.md` to classify
+  `services/trading_runner/run_trader.py` as a legacy compatibility runner.
+- Updated `docs/architecture/storage_surface_classification.md` to explicitly
+  retain the three unwired storage candidates as quarantined retained schemas,
+  not runtime authorities.
+- Updated `REMAINING_TASKS.md` for the three backlog entries.
+
+Why this change:
+- The smallest correct path is to remove misleading empty placeholders and
+  classify legacy/unwired surfaces before anyone builds new runtime or
+  reconciliation work on the wrong module.
+
+Expected outcome:
+- Future runtime/process work starts from documented managed-component/control
+  surfaces, new paper execution work stays on the canonical paper engine, and
+  reconciliation work does not accidentally adopt dormant storage schemas.
+
+Verification:
+- `rg -n "runtime\\.run_mode|runtime\\.bot_process|services/runtime/run_mode|services/runtime/bot_process" services scripts tests docs Makefile pyproject.toml -g '*.*'`
+  - SHOWN: only `docs/architecture/runtime_stub_disposition.md` references
+    remain.
+- `rg -n "fill_reconciler_store_sqlite|order_idempotency_sqlite|order_tracker_store_sqlite|FillReconciler|OrderIdempotency|OrderTracker" services scripts storage tests docs REMAINING_TASKS.md -g '*.*'`
+  - SHOWN: no production source importers; matches are modules themselves and
+    docs/audit references.
+- `./.venv/bin/python -m pytest -q tests/test_run_trader_compat.py tests/test_run_trader_integration_minimal.py`
+  - SHOWN: `5 passed in 0.82s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- LOW: structure/docs classification plus deletion of TODO-only modules with no
+  source importers.
+- UNVERIFIED: external consumers outside the repo are not checked.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Backtest-To-Paper Fill Parity Guard
+
+Active role: ENGINEER
+
+Objective:
+- Add a direct regression that paper market fills stay aligned with the shared
+  fee/slippage model used by backtest parity.
+
+What was found:
+- SHOWN: `services/backtest/parity_engine.py` calls
+  `services.execution.fill_model.apply_fee_slippage()`.
+- SHOWN: `services/execution/paper_engine.py` applies equivalent mid-price
+  plus/minus slippage math inline for market orders and computes fees from the
+  executed price.
+- SHOWN: `services/execution/fill_model.py` explicitly states that paper should
+  call the same function for perfect parity, but the current paper engine does
+  not delegate to it.
+
+What changed:
+- Added a paper-engine honesty regression proving paper market buy and sell
+  fill price/fee match `apply_fee_slippage()` for the same mid price, side,
+  qty, fee bps, and slippage bps.
+- Updated `REMAINING_TASKS.md` to record the parity guard.
+
+Why this change:
+- The smallest safe proof is a regression around current behavior. It guards
+  transferability without changing paper execution semantics during an active
+  evidence campaign.
+
+Expected outcome:
+- Future changes to either the shared fill model or paper market-fill math will
+  fail a targeted test if they drift apart.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_engine_honesty.py`
+  - SHOWN: `2 passed in 0.19s`.
+- `git diff --check`
+  - SHOWN: passed with no whitespace errors.
+
+Remaining risk:
+- LOW: test-only guard; no runtime behavior changed.
+- UNVERIFIED: limit-order parity and full backtest-to-paper lifecycle parity
+  remain outside this narrow guard.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Safety And Websocket Surface Classification
+
+Active role: ENGINEER
+
+Objective:
+- Close low-risk structure backlog items by documenting duplicate-looking
+  safety/order/risk surfaces and websocket-named surfaces without changing
+  runtime behavior.
+
+What was found:
+- SHOWN: `services/admin/kill_switch.py` is the canonical operator kill-switch
+  state used by CLI/admin/onboarding/watchdog/paper-status flows.
+- SHOWN: `services/risk/killswitch.py` is not dormant; `place_order` imports it
+  as the live kill-switch safety probe, and it also reads the canonical admin
+  switch.
+- SHOWN: `services/risk/kill_conditions.py` is strategy-runner cooldown logic,
+  not the global kill-switch state.
+- SHOWN: `services/risk/live_risk_gates.py`, `services/execution/risk_gates.py`,
+  and `services/ops/risk_gate_*` represent different concepts: hard live risk
+  enforcement, executor adapter, and ops telemetry gating.
+- SHOWN: `services/execution/client_order_id.py` is the governed live
+  client-order-id builder; `services/execution/client_oid.py` is used by
+  legacy/compat intent executors.
+- SHOWN: `services/live_trader_multi/main.py` and
+  `services/live_trader_fleet/main.py` are duplicate dry-run legacy stubs.
+- SHOWN: `services/market_data/ws_ticker_feed.py` and
+  `services/fills/user_stream_ws.py` are real optional ccxt.pro websocket
+  wrappers, while `ws_clients`, `ws_common`, feature blacklist, and health
+  logger modules are helpers/telemetry.
+
+What changed:
+- Added `docs/BACKLOG_EXECUTION_LANES.md`.
+- Added `docs/architecture/safety_surface_classification.md`.
+- Added `docs/architecture/websocket_surface_classification.md`.
+- Updated `docs/CORE.md`, `docs/ARCHITECTURE.md`, and `docs/REPO_LAYOUT.md`
+  so the operational-core policy links the new classification records.
+- Updated `REMAINING_TASKS.md` items 2, 4, 17, and 18 with the disposition.
+
+Why this change:
+- The smallest safe improvement is classification before consolidation.
+  Deleting or rewiring live-money safety surfaces would be high risk; this
+  patch only records which surface owns which concept.
+
+Expected outcome:
+- Future agents should not add new code to legacy dry-run live traders, should
+  not delete active kill-switch probes as dormant, and should not assume every
+  `ws_*` file is a canonical streaming data path.
+- Future cleanup should start from the core/quarantine classification records
+  rather than naming similarity alone.
+- Future backlog batches should stay within one risk lane; high-risk
+  gate/execution/deploy work should be split into separate objectives and stop
+  at `READY_FOR_INDEPENDENT_REVIEW`.
+
+Verification:
+- `rg --files services scripts docs tests | rg '(ws|websocket|user_stream|ticker_feed|market_ws)'`
+  - SHOWN: visible websocket-named surfaces enumerated.
+- `rg --files services scripts docs tests | rg '(kill|killswitch|client_oid|client_order_id|live_trader|risk_gate)'`
+  - SHOWN: visible safety/order/risk surfaces enumerated.
+- Targeted file reads of classified modules.
+  - SHOWN: classification matches imports and module behavior listed above.
+
+Remaining risk:
+- LOW: docs/backlog only; no runtime behavior changed.
+- UNVERIFIED: external consumers outside this repository and host-level
+  websocket supervision were not checked.
+- Acceptance state: `ACCEPTED`.

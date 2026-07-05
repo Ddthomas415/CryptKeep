@@ -482,7 +482,21 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    rather than silently starving the promotion gate. 2026-07-04: status policy
    is documented in `docs/EVIDENCE_WRITE_FAILURE_STATUS_POLICY.md`. Remaining
    proof: implement counters/status fields, repeated-failure refusal behavior,
-   recovery semantics, and promotion-gate visibility tests.
+   recovery semantics, and promotion-gate visibility tests. 2026-07-04:
+   implementation proof is ready for independent review: the central
+   `EvidenceLogger` persists `runtime/health/evidence_writer.status.json` with
+   total/consecutive failures, last error/success timestamps, and
+   `ok`/`degraded`/`refusing` status; targeted tests prove repeated injected
+   write failures become `refusing` and recovery resets consecutive failures.
+   Remaining integration proof: campaign/gate summaries must surface the
+   status, and no gate should treat a refusing evidence session as
+   promotion-quality evidence. 2026-07-04: gate/status integration proof is
+   ready for independent review: `check_promotion_gates.py` now includes
+   `evidence_writer` status, adds an `Evidence writer accepting records` gate,
+   fails that gate when persisted status is `refusing`, and supervised soak
+   status surfaces the writer and recommends `investigate_evidence_writer`.
+   Remaining: independent review and any future alert-dispatch hook under
+   paper/gate event alerting.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and
@@ -602,7 +616,10 @@ substrate work, but they are concrete enough to keep visible.
 
 1. Resolve `services/runtime/run_mode.py` and
    `services/runtime/bot_process.py`: implement the Phase 218/220 operator
-   flow or delete the stubs with a documentation update.
+   flow or delete the stubs with a documentation update. 2026-07-04: deleted
+   both TODO-only placeholder modules after source import scan found no active
+   importers; disposition is documented in
+   `docs/architecture/runtime_stub_disposition.md`.
 2. Reduce duplicate/twin modules that obscure which code guards money:
    `live_trader_fleet` versus `live_trader_multi`,
    `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
@@ -611,16 +628,36 @@ substrate work, but they are concrete enough to keep visible.
    operational switch state used by scripts/resume/halt flows;
    `services/risk/kill_conditions.py` is the strategy-runner risk-block logic;
    `services/execution/kill_switch.py` is a thin setter wrapper used by one
-   script; `services/risk/killswitch.py` has no production importers and should
-   be deleted, wired, or explicitly retired.
+   script; `services/risk/killswitch.py` was initially suspected dormant.
+   2026-07-04: current source audit showed `services/risk/killswitch.py` is
+   active in the live `place_order` kill-switch probe, so it is not dormant.
+   Classification is documented in
+   `docs/architecture/safety_surface_classification.md`: admin kill-switch is
+   canonical operator state, `risk.killswitch` is the live-order safety probe,
+   `kill_conditions` is strategy-runner cooldown logic,
+   `live_risk_gates.py` is canonical live hard-limit enforcement,
+   `ops/risk_gate_*` is telemetry gating, `client_order_id.py` is the
+   governed client-order-id builder, `client_oid.py` remains legacy/compat,
+   and `live_trader_multi` / `live_trader_fleet` are duplicate dry-run legacy
+   stubs that should not receive new live-execution features.
 3. Extend archive-first backtesting proof to include one walk-forward run over
    the archive producing enough out-of-sample windows to demonstrate research
    depth, not only byte-identical reruns.
 4. Rename or document `ws_*` / `market_ws` surfaces before intraday work assumes
    streaming exists. Current accepted direction treats intraday as read-only
-   until data cadence and streaming assumptions are proven.
+   until data cadence and streaming assumptions are proven. 2026-07-04:
+   classification is documented in
+   `docs/architecture/websocket_surface_classification.md`: `ws_ticker_feed`
+   and `user_stream_ws` are real optional ccxt.pro websocket wrappers with
+   local tests, while `ws_clients`, `ws_common`, feature blacklist, and health
+   logger modules are helpers/telemetry. New intraday or shadow work still must
+   prove venue support, supervision, freshness, and evidence authority before
+   treating websocket data as canonical.
 5. Add a backtest-to-paper fill parity property test around the shared fill
-   model so paper evidence transferability is tested directly.
+   model so paper evidence transferability is tested directly. 2026-07-04:
+   parity guard added for paper market buy/sell fills: paper engine fill price
+   and fee must match `services.execution.fill_model.apply_fee_slippage()` for
+   the same mid price, side, qty, fee bps, and slippage bps.
 6. Investigate the `synthetic_mid_ohlcv` branch in
    `services/execution/strategy_runner.py`. During the unknown-strategy runner
    proof, the public-OHLCV branch was shown to call `compute_signal()`, while
@@ -647,7 +684,11 @@ substrate work, but they are concrete enough to keep visible.
    current classification is documented in
    `docs/architecture/paper_execution_surfaces.md`: `paper_engine.py` is core,
    `services/paper_trader/` is compatibility, and `services/paper/` remains
-   retired. Follow-up remains for `services/trading_runner/run_trader.py`.
+   retired. 2026-07-04: follow-up for
+   `services/trading_runner/run_trader.py` is closed by classifying it as a
+   legacy compatibility runner: paper-only local EMA smoke coverage, not a
+   canonical promotion-evidence path and not a surface for new paper execution
+   features.
 9. Classify dormant or partially wired signal-discovery modules.
    `signal_library`, `market_ranker`, `candidate_engine`,
    `candidate_strategy_mapper`, `trade_type_classifier`, and
@@ -674,9 +715,12 @@ substrate work, but they are concrete enough to keep visible.
     2026-07-04: targeted caller audit found no visible production source
     importers for `fill_reconciler_store_sqlite.py`,
     `order_idempotency_sqlite.py`, or `order_tracker_store_sqlite.py`; matches
-    are the modules themselves and prior docs/audit artifacts. Remaining
-    decision: delete, migrate, or explicitly retain these schemas before the
-    next reconciliation implementation.
+    are the modules themselves and prior docs/audit artifacts. 2026-07-04:
+    disposition decision is recorded in
+    `docs/architecture/storage_surface_classification.md`: explicitly retain
+    the three schemas as quarantined retained schemas during paper/research,
+    do not wire new callers, and defer deletion/migration until the state-store
+    consolidation migration packet decides whether any schema/data is needed.
 11. Extract promotion-gate logic into a library after the current paper gate is
     stable. `scripts/check_promotion_gates.py` is the canonical operator
     command today and should not be churned mid-campaign, but the money-adjacent
@@ -732,13 +776,21 @@ substrate work, but they are concrete enough to keep visible.
     paper/research/shadow path, plus a quarantine/attic policy for surfaces not
     in that core. Do not move broad directories in one sweep; first classify,
     then retire, delegate, or document. 2026-07-03: baseline is documented in
-    `docs/CORE.md`.
+    `docs/CORE.md`. 2026-07-04: `docs/CORE.md`, `docs/ARCHITECTURE.md`, and
+    `docs/REPO_LAYOUT.md` now link the paper execution, safety, storage,
+    websocket, and signal-discovery classification records so the quarantine
+    policy points at concrete disposition docs.
 18. Protect operator attention as a managed resource. Add a decision record or
     runbook rule that caps open audit loops, limits low-value review churn, and
     forces each proactive task to tie back to one of: evidence velocity,
     profitability discovery, cost measurement, safety, recovery, or operator
     wake-up quality. 2026-07-03: this rule is captured in
     `docs/OPERATOR_GOVERNANCE_LANES.md` as the operator attention cap.
+    2026-07-04: `docs/BACKLOG_EXECUTION_LANES.md` classifies the remaining
+    backlog into passive/operator evidence, low-risk docs/tests, medium-risk
+    read-only runtime work, and high-risk gate/execution/deploy work so
+    same-lane batching is explicit and high-risk work is not mixed into
+    cleanup passes.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
@@ -759,9 +811,13 @@ substrate work, but they are concrete enough to keep visible.
     design is accepted. 2026-07-04: provider-data disclosure boundary is
     documented in `docs/AI_COPILOT_OPERATING_RULES.md`, including allowed
     summary fields, forbidden secret/account/config payloads, and advisory-only
-    constraints. Remaining work: enforce read-only SQLite access and add the
-    write-SQL regression before external LLM summaries become a normal operator
-    path.
+    constraints. 2026-07-04: SQLite context-access implementation proof is
+    ready for independent review: AI-copilot incident context queries now use
+    SQLite read-only URI connections, reject non-`SELECT` SQL, do not create
+    missing DB files, and include a regression proving rejected write SQL does
+    not mutate the source DB. Remaining work: independent review before
+    external LLM summaries become a normal operator path, and any future
+    provider expansion must stay within the documented payload boundary.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,

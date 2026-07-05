@@ -84,6 +84,7 @@ def _gate_summary(gate_payload: dict[str, Any]) -> dict[str, Any]:
     paper_history = dict(gate_payload.get("paper_history") or {})
     all_history = dict(paper_history.get("all_history") or {})
     qualification = dict(paper_history.get("qualification") or {})
+    evidence_writer = dict(gate_payload.get("evidence_writer") or {})
     return {
         "strategy_id": str(gate_payload.get("strategy_id") or ""),
         "stage": str(gate_payload.get("stage") or ""),
@@ -95,6 +96,7 @@ def _gate_summary(gate_payload: dict[str, Any]) -> dict[str, Any]:
         "round_trips": round_trip_gate,
         "days": days_gate,
         "expectancy": expectancy_gate,
+        "evidence_writer": evidence_writer,
         "paper_history": {
             "source": str(paper_history.get("source") or ""),
             "fills": _as_int(paper_history.get("fills")),
@@ -156,6 +158,9 @@ def _recommendations(campaigns: dict[str, Any], gate: dict[str, Any]) -> list[st
     recs: list[str] = []
     if not bool(campaigns.get("all_running")):
         recs.append("investigate_campaign_processes")
+    evidence_writer = dict(gate.get("evidence_writer") or {})
+    if str(evidence_writer.get("evidence_writer_status") or "").strip().lower() == "refusing":
+        recs.append("investigate_evidence_writer")
     if bool(gate.get("manual_review_required")):
         recs.append("manual_strategy_review_required")
     if not bool(gate.get("machine_ready")):
@@ -232,6 +237,16 @@ def print_report(payload: dict[str, Any]) -> None:
     expectancy = dict(gate.get("expectancy") or {})
     if expectancy:
         print(f"- expectancy: {expectancy.get('detail') or '-'}")
+    evidence_writer = dict(gate.get("evidence_writer") or {})
+    if evidence_writer:
+        print(
+            "- evidence writer: "
+            f"status={evidence_writer.get('evidence_writer_status') or 'ok'} "
+            f"consecutive={evidence_writer.get('evidence_write_failures_consecutive', 0)}/"
+            f"{evidence_writer.get('threshold', 0)} "
+            f"total={evidence_writer.get('evidence_write_failures_total', 0)} "
+            f"last_error={evidence_writer.get('last_evidence_write_error_type') or '-'}"
+        )
     paper_history = dict(gate.get("paper_history") or {})
     qualification = dict(paper_history.get("qualification") or {})
     if paper_history or qualification:

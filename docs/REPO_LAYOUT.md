@@ -98,9 +98,12 @@ Overlapping service families:
   or `services/storage/` without a new accepted architecture decision
 - current ownership/classification details live in:
   - `docs/CORE.md`
+  - `docs/BACKLOG_EXECUTION_LANES.md`
   - `docs/architecture/paper_execution_surfaces.md`
+  - `docs/architecture/safety_surface_classification.md`
   - `docs/research/signal_discovery_classification.md`
   - `docs/architecture/storage_surface_classification.md`
+  - `docs/architecture/websocket_surface_classification.md`
   - `data/` and `data_collector/`
   - `live_router/`, `live_trader_fleet/`, and `live_trader_multi/`
 - safe rule: do not consolidate or move these families based on naming similarity alone; document canonical ownership first

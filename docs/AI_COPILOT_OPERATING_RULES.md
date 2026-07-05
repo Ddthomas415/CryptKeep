@@ -31,6 +31,12 @@ Hard rule:
 
 - read-only only
 
+SQLite context access:
+
+- incident context reads SQLite stores through read-only URI connections;
+- caller-provided SQL must be a `SELECT` statement;
+- non-`SELECT` SQL returns no rows and must not mutate or create a database.
+
 ### Safety Auditor
 
 Entry points:
