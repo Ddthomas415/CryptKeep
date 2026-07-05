@@ -38,6 +38,16 @@ Explicit non-goals:
 
 The current module accepts deterministic input rows and produces descriptive summaries only.
 
+Current read-only source decision:
+
+- `docs/research/crypto_edge_source_decision.md`
+- The bundled live collector plan uses OKX for derivatives context rows
+  (`funding`, `open_interest`, and `basis`) and Coinbase/Kraken for spot quote
+  and order-book context.
+- This is a research-source decision only. It does not approve OKX as a live
+  trading venue and does not allow strategy promotion evidence without a
+  separate context-strategy/provenance review.
+
 ## Local sample workflow
 
 To load deterministic sample data into the local research store:
@@ -72,6 +82,10 @@ make collect-live-crypto-edges
 This reads the collection plan from:
 
 - `<your-repo-path>/sample_data/crypto_edges/live_collector_plan.json`
+
+The bundled plan follows `docs/research/crypto_edge_source_decision.md`: OKX is
+the default read-only derivatives context source because prior Binance
+derivatives collection was externally blocked from the current network.
 
 The collector remains read-only:
 
