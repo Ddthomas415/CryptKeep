@@ -32,7 +32,10 @@ def test_live_router_allows_with_ai_gate_pass(monkeypatch, tmp_path):
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
-            overrides={"ai_context": {"telemetry": {"order_reject_rate": 0.02}}},
+            overrides={
+                "reference_price": 60000.0,
+                "ai_context": {"telemetry": {"order_reject_rate": 0.02}},
+            },
         )
     )
     assert dec.allowed is True
@@ -51,14 +54,20 @@ def test_live_router_blocks_with_ai_gate_fail(monkeypatch, tmp_path):
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
-            overrides={"ai_context": {"telemetry": {"order_reject_rate": 0.5}}},
+            overrides={
+                "reference_price": 60000.0,
+                "ai_context": {"telemetry": {"order_reject_rate": 0.5}},
+            },
         )
     )
     assert dec.allowed is False
     assert str(dec.reason).startswith("ai_gate:")
 
 
-def test_live_router_proba_gate_error_is_non_blocking_when_not_strict(monkeypatch):
+def test_live_router_proba_gate_error_fails_closed_when_enabled(monkeypatch):
+    """Replaced (deferred item 16): the old test pinned ok=True on gate error
+    when not strict — the fail-open behavior itself. An ENABLED proba gate
+    that cannot evaluate must block, strict or not."""
     from services import feature_gate as fg
 
     def _boom(*_args, **_kwargs):
@@ -73,10 +82,12 @@ def test_live_router_proba_gate_error_is_non_blocking_when_not_strict(monkeypatc
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
+            overrides={"reference_price": 60000.0},
         )
     )
-    assert dec.allowed is True
-    assert str(dec.meta.get("proba", {}).get("reason", "")).startswith("proba_gate_error_ignored:")
+    assert dec.allowed is False
+    assert str(dec.reason).startswith("proba_gate:error:")
+    assert str(dec.meta.get("proba", {}).get("reason", "")).startswith("proba_gate_error_fail_closed:")
 
 
 def test_live_router_proba_gate_error_blocks_when_strict(monkeypatch):
@@ -94,6 +105,7 @@ def test_live_router_proba_gate_error_blocks_when_strict(monkeypatch):
             venue="coinbase",
             symbol_norm="BTC/USD",
             delta_qty=1.0,
+            overrides={"reference_price": 60000.0},
         )
     )
     assert dec.allowed is False

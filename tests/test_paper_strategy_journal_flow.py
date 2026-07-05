@@ -69,6 +69,10 @@ def test_queued_strategy_intent_becomes_journaled_paper_fill(monkeypatch, tmp_pa
             "last_error": None,
             "client_order_id": None,
             "linked_order_id": None,
+            "meta": {
+                "reference_price": 100.0,
+                "reference_price_source": "test_fixture",
+            },
         }
     )
 
@@ -155,6 +159,8 @@ def test_exit_attribution_survives_paper_order_fill_and_outcome(monkeypatch, tmp
                 "signal_reason": "no_cross",
                 "exit_reason": "strategy_exit:ema_cross:time_stop",
                 "exit_stack_rule": "time_stop",
+                "reference_price": 100.0,
+                "reference_price_source": "test_fixture",
                 "market_data_source": "public_ohlcv",
                 "ohlcv_sample_mode": False,
                 "ohlcv_timeframe": "5m",

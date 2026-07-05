@@ -264,7 +264,12 @@ deployment work still needs independent review.
     attempts allow exactly one winner. A 2026-07-03 audit found
     `services/runtime/managed_component.py::clean_stale_lock_file()` already
     exists and is used by the intent consumers; prefer adopting that helper in
-    the runner before building a second stale-lock mechanism.
+    the runner before building a second stale-lock mechanism. 2026-07-05:
+    implementation proof is ready for independent review: `_acquire_lock()`
+    now uses atomic `O_CREAT|O_EXCL`, reclaims only dead-PID locks through the
+    shared `clean_stale_lock_file()` helper, treats malformed locks as held,
+    and targeted tests cover live PID refusal, dead PID reclaim, release/reacquire,
+    malformed-lock fail-closed behavior, and a simulated race.
 21. Make sample-mode provenance agree with the actual data source. Current
     paper evidence stamps `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`; the
     promotion gate then treats that label as authoritative. Derive the sample
@@ -372,7 +377,13 @@ deployment work still needs independent review.
     expectancy helper. Acceptance is with risk. Remaining operational proof:
     verify the active campaign config uses realistic fee/slippage values, and
     segment old
-    gross/unknown-semantics evidence during future analysis.
+    gross/unknown-semantics evidence during future analysis. 2026-07-05:
+    implementation proof is ready for independent review: the promotion gate
+    now reports `expectancy_pnl_semantics`, `expectancy_mixed_semantics`, and
+    `expectancy_semantics_warning` on both JSONL and paper-history metric paths
+    without changing expectancy pass/fail behavior. Remaining operational proof:
+    verify host fee/slippage values and use the report fields to segment old
+    gross/unknown-semantics evidence.
 29. Make market-quality guard defaults fail closed before shadow evidence is
     treated as cost/slippage proof. `services/risk/market_quality_guard.py`
     currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,
@@ -390,7 +401,13 @@ deployment work still needs independent review.
     independent review accepted this partial implementation with risk.
     Remaining work: committed or operator-applied strict market-quality config,
     one observed no-storm cycle, and later default flip if the stricter
-    settings prove stable.
+    settings prove stable. 2026-07-05: implementation proof is ready for
+    independent review: `config/templates/market_quality_strict.yaml` documents
+    the fail-closed operator config and targeted tests prove missing quotes hold
+    with a visible reason, fresh quotes pass, wide spreads are blocked, and code
+    defaults remain permissive until an accepted no-storm cycle supports the
+    default flip. Remaining work: apply the template to the host config and
+    observe one no-storm cycle.
 30. Govern activation of dormant risk-based sizing before it influences paper
     or shadow evidence. `services/strategies/es_daily_trend.py::decide()` and
     `compute_position_size()` implement ATR-stop, regime-aware,
@@ -434,7 +451,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    capped-live blocker: safety/load-gates and live executor/consumer/reconciler
    config consumers still require their own fail-closed sweep. Include
    admin/live enable-disable wizards in that sweep so operator-facing live
-   controls do not read corrupt config through a permissive path.
+   controls do not read corrupt config through a permissive path. 2026-07-05:
+   implementation proof is ready for independent review for the live-router
+   order decision boundary: missing/invalid reference prices now fail closed
+   before safety gates run, and safety-gate exceptions now block with
+   `safety_check_error_fail_closed:*` instead of allowing the order. Remaining
+   capped-live blocker: continue the fail-closed sweep across live executor,
+   consumer, reconciler, risk-gate config reads, and admin live controls.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
@@ -585,7 +608,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `services/feature_gate.py::proba_gate()` in the same quarantine class:
     it can influence order flow from `CBP_FUSED_PROBA`, tolerates missing or
     invalid values when strict mode is false, and does not enter through the
-    strategy/evidence/promotion system. Blocks capped live.
+    strategy/evidence/promotion system. Blocks capped live. 2026-07-05:
+    implementation proof is ready for independent review: enabled AI and proba
+    gates now fail closed on evaluation/import errors regardless of strict-mode
+    compatibility flags, while disabled gates remain non-blocking. Targeted
+    router tests cover enabled AI error blocking, disabled AI not being
+    evaluated, enabled proba error blocking, and disabled proba import/evaluation
+    errors not affecting routing.
 17. Restore resume-hard live governance before capped live. The dashboard
     `Resume Live Trading` button reaches `services/admin/resume_gate.py`, and
     the current resume path can set `execution.live_enabled=true`, bypass
@@ -615,8 +644,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `price_used`, or market-quality `last` can provide a finite positive
     reference price. Targeted proof exists in
     `tests/test_paper_engine_integration.py`. Remaining work is broader
-    hardcoded-price cleanup in legacy/demo surfaces only, not the canonical
-    paper pre-submit gate.
+    hardcoded-price cleanup in legacy/demo surfaces and live-router safety
+    boundaries only, not the canonical paper pre-submit gate. 2026-07-05:
+    implementation proof is ready for independent review for
+    `services/live_router/router.py`: the router no longer falls back to a
+    BTC-shaped `60000.0` reference price and instead refuses
+    `no_reference_price` when no finite positive explicit reference is supplied.
+    2026-07-05 CI follow-up: real strategy-runner queued intents now include
+    `reference_price` and `reference_price_source` in metadata so downstream
+    paper-router checks receive explicit price authority instead of relying on
+    the removed fallback; paper-flow fixtures were updated to the same contract.
+    Remaining hardcoded `60000.0` references are tests/fixtures or documented
+    legacy dry-run stubs (`live_trader_multi` / `live_trader_fleet`) that remain
+    outside the canonical paper/live promotion path unless separately revived.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money

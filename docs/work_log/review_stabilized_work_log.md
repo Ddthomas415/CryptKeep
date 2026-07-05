@@ -15474,3 +15474,170 @@ Remaining risk:
 - LOW: docs-only planning metadata. No command behavior, collector behavior,
   execution path, strategy routing, or gate behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T14:09:55Z - Backlog Hardening Batch 223
+
+Active role: ENGINEER
+
+Objective:
+- Remediate a small batch of verified backlog hardening items from the attached
+  agent reports without importing generated artifacts or changing campaign state.
+
+What was found:
+- SHOWN: the attached first patch was not directly usable because it included a
+  corrupt generated `.coverage` binary patch.
+- SHOWN: `services/live_router/router.py` still recorded `ai_error_ignored` and
+  `proba_gate_error_ignored` in enabled gate error paths.
+- SHOWN: `services/execution/strategy_runner.py::_acquire_lock()` still used a
+  check-then-write lock file path with no stale-PID recovery.
+- SHOWN: `scripts/check_promotion_gates.py` did not surface
+  `pnl_usd_semantics`, so legacy gross-PnL and new net-of-fees evidence could
+  be averaged without operator visibility.
+- SHOWN: no committed strict market-quality operator template existed under
+  `config/templates/`.
+
+What changed:
+- Enabled AI/proba router gate errors now fail closed; disabled gates remain
+  non-blocking.
+- Strategy-runner lock acquisition now uses atomic `O_CREAT|O_EXCL`, reclaims
+  only dead-PID stale locks via `clean_stale_lock_file()`, and treats malformed
+  locks as held.
+- Promotion gate paper metrics now report `expectancy_pnl_semantics`,
+  `expectancy_mixed_semantics`, and `expectancy_semantics_warning` on both the
+  paper-history and JSONL evidence paths without changing expectancy pass/fail.
+- Added `config/templates/market_quality_strict.yaml` as an opt-in fail-closed
+  market-quality template.
+- Added targeted tests for router gate fail-closed behavior, runner locks,
+  PnL-semantics visibility, and the strict market-quality template.
+- Updated `REMAINING_TASKS.md` to mark these remediations as implementation
+  proof ready for independent review.
+
+Why this change:
+- These items remove fail-open routing behavior, close a runner concurrency
+  race, make mixed legacy/net evidence visible before gate decisions, and
+  provide a versioned operator config for stricter market-quality evidence.
+
+Expected outcome:
+- Enabled optional routing gates cannot silently pass orders after internal
+  errors.
+- Duplicate strategy-runner starts are prevented atomically, and dead stale
+  locks are recoverable without manual deletion.
+- Operators can identify mixed PnL semantics before treating expectancy as
+  profitability evidence.
+- The market-quality no-storm cycle can be run from a reviewed template instead
+  of ad hoc host config.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py tests/test_gate_pnl_semantics_visibility.py tests/test_market_quality_strict_template.py tests/test_strategy_runner_lock.py`
+  - SHOWN: `24 passed in 0.56s`.
+- `git diff --check`
+  - SHOWN: passed.
+- Full suite was not run in this thread per the operator instruction to avoid
+  long-running tests unless explicitly requested.
+
+Remaining risk:
+- HIGH: this batch touches order-routing fail-open behavior, promotion gate
+  reporting, and runner concurrency. Behavior is targeted-test verified, but
+  it requires independent review before acceptance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-05T14:35:03Z - Live Router Reference Price And Safety Fail-Closed
+
+Active role: ENGINEER
+
+Objective:
+- Remove the live-router hardcoded reference-price fallback and close the
+  safety-gate exception fail-open path.
+
+What was found:
+- SHOWN: `services/live_router/router.py` used `60000.0` when no explicit
+  `limit_price` or `reference_price` was supplied.
+- SHOWN: the same router converted safety-gate exceptions into
+  `ok_s=True, why_s="safety_check_error_ignored"`, allowing the order to
+  continue after a safety-check failure.
+- SHOWN: existing live-router tests pinned the old BTC-shaped fallback by
+  expecting an allowed order with `limit_price == 60000.0`.
+
+What changed:
+- Added `_positive_float_or_none()` and require a finite positive explicit
+  reference price from router or top-level overrides.
+- Missing, zero, non-finite, or invalid reference prices now return
+  `RouterDecision(False, "no_reference_price", ...)` before safety gates run.
+- Safety-gate exceptions now set `safety_ok=false` and return
+  `safety:safety_check_error_fail_closed:<ExceptionType>`.
+- Updated live-router tests to provide explicit reference prices when testing
+  downstream AI/proba/safety behavior.
+- Added tests for missing reference price, invalid reference price, and
+  safety-gate exception fail-closed behavior.
+- Updated `REMAINING_TASKS.md` to record the live-router implementation proof
+  and keep the remaining broader live fail-closed sweep visible.
+
+Why this change:
+- A synthetic BTC-shaped price can make notional/safety checks look valid for
+  the wrong symbol or wrong context. A safety gate that errors must not become
+  an allow decision. Both issues are order-routing fail-open risks.
+
+Expected outcome:
+- Live-router decisions require caller-provided price authority before any
+  safety decision.
+- Router safety-gate failures are visible and blocking instead of silently
+  permissive.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py`
+  - SHOWN: `13 passed in 0.34s`.
+- `rg "safety_check_error_ignored|or 60000\\.0|no_reference_price|safety_check_error_fail_closed" services/live_router tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py -n`
+  - SHOWN: no stale `safety_check_error_ignored` or `or 60000.0` remains in
+    the live-router path; new fail-closed reasons are covered by tests.
+
+Remaining risk:
+- HIGH: this touches live order-routing preconditions and fail-open behavior.
+  Targeted tests pass, but independent review is required before acceptance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-05T14:54:16Z - PR 224 Paper Runner Reference Price CI Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the PR #224 CI/full-suite regression caused by removing the live-router
+  synthetic reference-price fallback.
+
+What was found:
+- SHOWN: the operator full-suite output failed three tests:
+  `test_consume_queued_intents_once_submits_and_links_order`,
+  `test_queued_strategy_intent_becomes_journaled_paper_fill`, and
+  `test_exit_attribution_survives_paper_order_fill_and_outcome`.
+- SHOWN: those failures rejected synthetic paper market intents before
+  submission because `paper_runner._decide_batch()` now called the live router
+  without any explicit reference price after the `60000.0` fallback was removed.
+- SHOWN: real `strategy_runner` queued intents also did not persist the current
+  signal price as `reference_price` metadata.
+
+What changed:
+- Strategy-runner queued intent metadata now includes `reference_price=float(m)`
+  and `reference_price_source="strategy_runner_signal_price"`.
+- Paper-runner and paper-journal flow fixtures now include explicit
+  `reference_price` metadata instead of relying on the removed router fallback.
+
+Why this change:
+- PR #224's fail-closed router rule is correct, but paper-market intents need a
+  caller-provided price authority before the router can run safety gates. The
+  correct integration fix is to pass the strategy signal price, not restore a
+  BTC-shaped synthetic fallback.
+
+Expected outcome:
+- Real strategy-runner paper intents can pass router safety preconditions with
+  explicit price provenance.
+- Synthetic paper-flow tests exercise the same contract.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_runner_lifecycle.py::test_consume_queued_intents_once_submits_and_links_order tests/test_paper_strategy_journal_flow.py::test_queued_strategy_intent_becomes_journaled_paper_fill tests/test_paper_strategy_journal_flow.py::test_exit_attribution_survives_paper_order_fill_and_outcome tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py`
+  - SHOWN: `16 passed in 1.09s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_runner_lifecycle.py tests/test_paper_strategy_journal_flow.py tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py`
+  - SHOWN: `19 passed in 0.78s`.
+
+Remaining risk:
+- HIGH: this is still part of the live-router/paper-runner safety precondition
+  change. Full suite and GitHub CI must be re-run by the operator/CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

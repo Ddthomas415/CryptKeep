@@ -19,6 +19,7 @@ from services.market_data.symbol_router import map_symbol, normalize_symbol, nor
 from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
 from services.os.app_paths import ensure_dirs, runtime_dir
 from services.risk.market_quality_guard import check as mq_check
+from services.control.managed_component import clean_stale_lock_file
 from services.security.exchange_factory import make_exchange
 from services.strategies.config_tools import build_strategy_block
 from services.strategies.presets import get_preset
@@ -244,11 +245,27 @@ def _no_fresh_tick_note(*, stale_after_sec: float = 30.0) -> str:
     return "no_fresh_tick:snapshot_present_but_symbol_missing:check_symbol_or_venue_mapping"
 
 def _acquire_lock() -> bool:
+    """Acquire the single-instance runner lock atomically.
+
+    Reclaim only locks whose recorded PID is provably dead. Malformed or
+    unreadable lock files fail closed, because stealing unattributable locks can
+    create duplicate runners.
+    """
     LOCKS.mkdir(parents=True, exist_ok=True)
-    if LOCK_FILE.exists():
-        return False
-    LOCK_FILE.write_text(json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n", encoding="utf-8")
-    return True
+    payload = (json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n").encode("utf-8")
+    for attempt in (1, 2):
+        try:
+            fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        except FileExistsError:
+            if attempt == 1 and clean_stale_lock_file(LOCK_FILE):
+                continue
+            return False
+        try:
+            os.write(fd, payload)
+        finally:
+            os.close(fd)
+        return True
+    return False
 
 def _release_lock() -> None:
     try:
@@ -1372,6 +1389,8 @@ def run_forever() -> None:
                             "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            "reference_price": float(m),
+                            "reference_price_source": "strategy_runner_signal_price",
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
                             **({"exit_reason": exit_reason} if exit_reason else {}),
                             **(

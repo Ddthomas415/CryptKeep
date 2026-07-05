@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import logging
+import math
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -30,6 +31,16 @@ def _truthy(v: Any) -> bool:
     return str(v).strip().lower() in ("1", "true", "yes", "y", "on")
 
 
+def _positive_float_or_none(value: Any) -> float | None:
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(out) or out <= 0.0:
+        return None
+    return out
+
+
 async def decide_order(
     venue: str,
     symbol_norm: str,
@@ -55,14 +66,16 @@ async def decide_order(
     if ro_on:
         return RouterDecision(False, "master_read_only", "none", 0.0, "none", None, meta)
 
-    # Simulated decision price placeholder. In production this should be
-    # a fresh routed quote, but safety gates still need a non-zero reference.
-    limit_price = float(
+    reference_source = (
         ov_router.get("limit_price")
         or ov_router.get("reference_price")
         or ov.get("reference_price")
-        or 60000.0
     )
+    limit_price = _positive_float_or_none(reference_source)
+    if limit_price is None:
+        meta["reference_price"] = None
+        meta["reference_price_reason"] = "missing_or_invalid"
+        return RouterDecision(False, "no_reference_price", "none", 0.0, "none", None, meta)
     meta["reference_price"] = limit_price
 
     # Safety gates (deterministic). Executors also enforce.
@@ -70,8 +83,8 @@ async def decide_order(
         gates = load_gates()
         store = ExecutionGuardStoreSQLite()
         ok_s, why_s = should_allow_order(venue, symbol_norm, side, float(qty), float(limit_price), gates, store)
-    except Exception:
-        ok_s, why_s = True, "safety_check_error_ignored"
+    except Exception as exc:
+        ok_s, why_s = False, f"safety_check_error_fail_closed:{type(exc).__name__}"
 
     meta["safety_ok"] = bool(ok_s)
     meta["safety_reason"] = str(why_s)
@@ -118,9 +131,15 @@ async def decide_order(
             if not ai.ok:
                 return RouterDecision(False, f"ai_gate:{ai.reason}", "none", 0.0, "none", None, meta)
         except Exception as e:
-            meta["ai"] = {"ok": True, "reason": f"ai_error_ignored:{type(e).__name__}"}
-            if ai_strict:
-                return RouterDecision(False, f"ai_gate:error:{type(e).__name__}", "none", 0.0, "none", None, meta)
+            # Fail closed (REMAINING_TASKS deferred item 16): an ENABLED order
+            # gate that cannot evaluate must not pass orders. The previous
+            # behavior (ok=True, ai_error_ignored unless ai_strict) was the
+            # only fail-open error path in an order-routing gate and
+            # contradicted the repo's fail-closed doctrine. ai_strict is
+            # retained for config compatibility but no longer weakens this.
+            meta["ai"] = {"ok": False, "reason": f"ai_error_fail_closed:{type(e).__name__}"}
+            logger.warning("live_router_ai_gate_error_fail_closed: %s: %s", type(e).__name__, e)
+            return RouterDecision(False, f"ai_gate:error:{type(e).__name__}", "none", 0.0, "none", None, meta)
 
     # Optional proba gate (explicit toggle)
     try:
@@ -142,11 +161,18 @@ async def decide_order(
             if not gv.ok:
                 return RouterDecision(False, f"proba_gate:{gv.reason}", "none", 0.0, "none", None, meta)
     except Exception as e:
-        meta["proba"] = {"ok": True, "reason": f"proba_gate_error_ignored:{type(e).__name__}"}
-        logger.warning("live_router_proba_gate_error: %s: %s", type(e).__name__, e)
-        proba_strict = bool(int(os.environ.get("CBP_PROBA_STRICT", "0") or "0"))
-        if proba_strict:
+        # Fail closed when the proba gate was explicitly enabled (deferred
+        # item 16 companion): use_fused not determinable inside this except
+        # scope on import failure, so re-derive the toggle; only an enabled
+        # gate blocks — the import merely failing while the gate is OFF must
+        # not affect routing.
+        env_use = (os.environ.get("CBP_USE_FUSED_PROBA", "") or "").strip().lower() in ("1", "true", "yes", "on")
+        use_fused = bool(env_use or ov_router.get("use_fused_proba", False))
+        if use_fused:
+            meta["proba"] = {"ok": False, "reason": f"proba_gate_error_fail_closed:{type(e).__name__}"}
+            logger.warning("live_router_proba_gate_error_fail_closed: %s: %s", type(e).__name__, e)
             return RouterDecision(False, f"proba_gate:error:{type(e).__name__}", "none", 0.0, "none", None, meta)
+        meta["proba"] = {"ok": True, "reason": f"proba_gate_disabled_import_error:{type(e).__name__}"}
 
     return RouterDecision(True, "ok", side, qty, "limit", limit_price, meta)
 
