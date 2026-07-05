@@ -15736,3 +15736,98 @@ Remaining risk:
   future-skew tolerance unless a future reviewed policy change adjusts it.
 - CI passed on PR #226 and on the master sync PR #227 before merge.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-05T21:42:07Z - Intent TTL For Live Consumers (Substrate Backlog #18)
+
+Active role: ENGINEER
+
+Objective:
+- Close the substrate backlog #18 intent-age gap: live consumers checked
+  market snapshot freshness but not the intent's own age, so a restart after
+  hours or days could submit an intent sized and justified by stale context
+  at current prices.
+
+What was found:
+- SHOWN: `storage/live_intent_queue_sqlite.py::claim_next_queued()` dequeues
+  by `created_ts ASC` and `services/execution/live_intent_consumer.py`
+  processes claimed intents through market-quality/risk/dedupe/router with no
+  check on `created_ts` age; only `is_snapshot_fresh()` gates market data
+  freshness before queue claims.
+- SHOWN: the canonical production consumer is `live_intent_consumer.py`
+  (wrapped by `scripts/run_intent_consumer_safe.py` via
+  `scripts.live.run_live_intent_consumer`); the older
+  `services/execution/intent_consumer.py` is reached only through
+  `scripts/compat/run_intent_consumer.py` and uses non-claiming `next_queued()`.
+  TTL was scoped to the canonical consumer only.
+- SHOWN: reconciler scan sources are `submitted`/`submit_unknown`
+  (`intent_lifecycle.RECONCILER_LIVE_QUEUE_SOURCES`), so an `expired` status
+  outside that set is terminal for the reconciler by construction.
+- SHOWN: pre-change fixture audit found the fail-closed contract would affect
+  exactly three test files: two live-consumer harness files whose fake intents
+  carried no `created_ts`, and `tests/test_live_execution_wiring.py` whose two
+  real-store intents carried a hardcoded stale `2026-04-02` timestamp. Those
+  fixtures were updated to runtime-fresh timestamps as a direct consequence of
+  the new contract.
+
+What changed:
+- `services/execution/intent_ttl.py` (new): `check_intent_age()` with
+  `CBP_MAX_INTENT_AGE_SEC` (default `300.0`s). Fail-closed matrix: missing
+  `created_ts` -> `intent_ttl:missing_created_ts`; unparseable or non-finite
+  -> `intent_ttl:invalid_created_ts`; non-finite explicit clock input ->
+  `intent_ttl:invalid_now`; more than 60s in the future ->
+  `intent_ttl:future_created_ts`; older than the window ->
+  `intent_ttl:expired:<age>s`. Env overrides that are empty, unparseable,
+  non-finite, or non-positive fall back to the strict default.
+- `services/execution/intent_lifecycle.py`: `expired` added as a terminal
+  status reachable from `queued` and `submitting` only, and added to
+  `SUBMIT_OWNER_LIVE_QUEUE_TARGETS`. `submitted` intents deliberately cannot
+  expire because that lane belongs to the reconciler. Reconciler source/target
+  sets are unchanged.
+- `storage/live_intent_queue_sqlite.py::update_status()`: SQL transition
+  guard kept in sync with the lifecycle table (`expired` in the terminal
+  NOT-IN list; reachable from `queued`/`submitting`).
+- `services/execution/live_intent_consumer.py`: age check at the claim
+  boundary before market-quality, risk, dedupe, and router processing.
+  Age-failed intents are marked `expired` with the TTL reason as `last_error`;
+  an `expired` counter is included in consumer status writes. If the expiry
+  write itself fails, the consumer logs and skips the intent without submitting
+  because nothing has reached the venue.
+- Tests: `tests/test_intent_ttl_expiry.py` (new) covers the fail-closed unit
+  matrix, lifecycle vocabulary, real-SQLite store transitions, and consumer
+  integration for aged, missing-ts, fresh, and mixed batches. Existing
+  live-consumer harness fixtures gained fresh `created_ts` values.
+
+Why this change:
+- The claim boundary is the single choke point every live submission passes
+  through, so one check there covers restart-after-idle, backlog-drain, and
+  stale-queue scenarios without touching queue schema, paper paths, or
+  reconciler behavior.
+
+Deliberate contract changes for reviewer attention:
+- Intents without a usable `created_ts` are now expired rather than submitted.
+- The `300.0`s default window and `60`s future-skew tolerance are policy
+  numbers, not evidence-derived; operator may adjust in review.
+- The legacy compat consumer (`services/execution/intent_consumer.py`) is
+  explicitly out of scope and should be retired or classified before any live
+  use.
+- Intents already in `submitted` cannot expire through TTL; reconciler remains
+  authoritative for that state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_intent_ttl_expiry.py tests/test_live_execution_wiring.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_order_store_gating.py`
+  - SHOWN: `35 passed in 2.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_intent_ttl_expiry.py tests/test_live_execution_wiring.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_order_store_gating.py tests/test_live_consumer_risk_claim.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_intent_queue_claim_race.py tests/test_live_intent_queue_integrity.py tests/test_live_queue_submit_owner_authority.py tests/test_live_state_authority_write_result.py`
+  - SHOWN: `55 passed in 2.48s`.
+- `./.venv/bin/python -m py_compile services/execution/intent_ttl.py services/execution/intent_lifecycle.py services/execution/live_intent_consumer.py storage/live_intent_queue_sqlite.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this changes live-order eligibility semantics and the live queue state
+  machine; it must not land without independent human review and a fresh
+  GitHub CI run.
+- Intents stranded in `submitting` by a crashed consumer are not reclaimed or
+  expired by this change (pre-existing behavior, unchanged); they remain
+  visible via queue listing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

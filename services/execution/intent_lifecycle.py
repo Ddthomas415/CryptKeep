@@ -3,20 +3,21 @@ from __future__ import annotations
 from typing import Any
 
 
-LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error"}
+LIVE_QUEUE_TERMINAL_STATUSES = {"filled", "canceled", "cancelled", "rejected", "error", "expired"}
 RECONCILER_LIVE_QUEUE_TARGETS = {"submitted", "filled", "canceled", "rejected", "error"}
 RECONCILER_LIVE_QUEUE_SOURCES = {"submitted", "submit_unknown"}
-SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitting", "submitted", "rejected", "submit_unknown"}
+SUBMIT_OWNER_LIVE_QUEUE_TARGETS = {"queued", "submitting", "submitted", "rejected", "submit_unknown", "expired"}
 SUBMIT_OWNER_LIVE_QUEUE_SOURCES = {"queued", "submitting"}
 LIVE_QUEUE_STATUS_TRANSITIONS = {
-    "queued": {"queued", "submitting", "submitted", "rejected", "held", "submit_unknown"},
-    "submitting": {"submitted", "rejected", "submit_unknown"},
+    "queued": {"queued", "submitting", "submitted", "rejected", "held", "submit_unknown", "expired"},
+    "submitting": {"submitted", "rejected", "submit_unknown", "expired"},
     "submitted": {"submitted", "filled", "canceled", "cancelled", "rejected", "error", "held"},
     "filled": set(),
     "canceled": set(),
     "cancelled": set(),
     "rejected": set(),
     "error": set(),
+    "expired": set(),
     "submit_unknown": {"submitted", "rejected", "error"},
     "held": {"queued", "rejected"},
 }

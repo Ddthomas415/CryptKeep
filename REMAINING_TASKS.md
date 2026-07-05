@@ -653,7 +653,28 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `max_intent_age_sec` with a fail-closed default, mark aged queued/submitting
     intents `expired` with an operator-visible reason, and make the reconciler
     treat `expired` as terminal. Proof: aged-intent fixture expires with zero
-    submits; fresh-intent fixture remains eligible.
+    submits; fresh-intent fixture remains eligible. 2026-07-05: implementation
+    proof is ready for independent review: `services/execution/intent_ttl.py`
+    adds a fail-closed age check (`CBP_MAX_INTENT_AGE_SEC`, default 300s;
+    missing/unparseable/non-finite/future `created_ts`, non-finite explicit
+    clock inputs, and non-finite or non-positive env overrides all fail
+    closed), the canonical
+    `services/execution/live_intent_consumer.py` expires age-failed intents at
+    the claim boundary before market-quality/risk/dedupe/router processing
+    with an operator-visible `expired` counter in consumer status, `expired`
+    is a terminal status reachable only from `queued`/`submitting` in both
+    `intent_lifecycle.py` and the store SQL transition guard, and the
+    reconciler treats `expired` as terminal by construction because its scan
+    sources remain `submitted`/`submit_unknown`. Targeted proof covers the
+    fail-closed matrix, store transitions (including never re-claiming
+    expired), aged/missing-ts intents expiring with zero submits, and fresh
+    intents submitting. Deliberate scope notes for review: `submitted`
+    intents cannot be expired (reconciler authority); the legacy
+    `services/execution/intent_consumer.py` compat consumer (reached only via
+    `scripts/compat/run_intent_consumer.py`) did not receive the TTL check
+    and should be retired or explicitly classified before any live use; the
+    paper consumer path is deliberately untouched; the 300s default and 60s
+    future-skew tolerance are policy numbers open to operator adjustment.
 19. Remove hardcoded reference-price fallbacks from paper pre-submit safety
     checks. This is accepted for the canonical paper engine:
     `services/execution/paper_engine.py` now returns
