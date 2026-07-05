@@ -1389,6 +1389,8 @@ def run_forever() -> None:
                             "regime": selection.get("regime") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "volume_surge": selection.get("volume_surge") if 'selection' in locals() and isinstance(selection, dict) else None,
                             "volume_ratio": selection.get("volume_ratio") if 'selection' in locals() and isinstance(selection, dict) else None,
+                            "reference_price": float(m),
+                            "reference_price_source": "strategy_runner_signal_price",
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
                             **({"exit_reason": exit_reason} if exit_reason else {}),
                             **(

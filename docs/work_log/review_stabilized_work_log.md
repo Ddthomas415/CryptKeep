@@ -15594,3 +15594,50 @@ Remaining risk:
 - HIGH: this touches live order-routing preconditions and fail-open behavior.
   Targeted tests pass, but independent review is required before acceptance.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-05T14:54:16Z - PR 224 Paper Runner Reference Price CI Fix
+
+Active role: ENGINEER
+
+Objective:
+- Fix the PR #224 CI/full-suite regression caused by removing the live-router
+  synthetic reference-price fallback.
+
+What was found:
+- SHOWN: the operator full-suite output failed three tests:
+  `test_consume_queued_intents_once_submits_and_links_order`,
+  `test_queued_strategy_intent_becomes_journaled_paper_fill`, and
+  `test_exit_attribution_survives_paper_order_fill_and_outcome`.
+- SHOWN: those failures rejected synthetic paper market intents before
+  submission because `paper_runner._decide_batch()` now called the live router
+  without any explicit reference price after the `60000.0` fallback was removed.
+- SHOWN: real `strategy_runner` queued intents also did not persist the current
+  signal price as `reference_price` metadata.
+
+What changed:
+- Strategy-runner queued intent metadata now includes `reference_price=float(m)`
+  and `reference_price_source="strategy_runner_signal_price"`.
+- Paper-runner and paper-journal flow fixtures now include explicit
+  `reference_price` metadata instead of relying on the removed router fallback.
+
+Why this change:
+- PR #224's fail-closed router rule is correct, but paper-market intents need a
+  caller-provided price authority before the router can run safety gates. The
+  correct integration fix is to pass the strategy signal price, not restore a
+  BTC-shaped synthetic fallback.
+
+Expected outcome:
+- Real strategy-runner paper intents can pass router safety preconditions with
+  explicit price provenance.
+- Synthetic paper-flow tests exercise the same contract.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_runner_lifecycle.py::test_consume_queued_intents_once_submits_and_links_order tests/test_paper_strategy_journal_flow.py::test_queued_strategy_intent_becomes_journaled_paper_fill tests/test_paper_strategy_journal_flow.py::test_exit_attribution_survives_paper_order_fill_and_outcome tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py`
+  - SHOWN: `16 passed in 1.09s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_runner_lifecycle.py tests/test_paper_strategy_journal_flow.py tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py`
+  - SHOWN: `19 passed in 0.78s`.
+
+Remaining risk:
+- HIGH: this is still part of the live-router/paper-runner safety precondition
+  change. Full suite and GitHub CI must be re-run by the operator/CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -650,6 +650,10 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `services/live_router/router.py`: the router no longer falls back to a
     BTC-shaped `60000.0` reference price and instead refuses
     `no_reference_price` when no finite positive explicit reference is supplied.
+    2026-07-05 CI follow-up: real strategy-runner queued intents now include
+    `reference_price` and `reference_price_source` in metadata so downstream
+    paper-router checks receive explicit price authority instead of relying on
+    the removed fallback; paper-flow fixtures were updated to the same contract.
     Remaining hardcoded `60000.0` references are tests/fixtures or documented
     legacy dry-run stubs (`live_trader_multi` / `live_trader_fleet`) that remain
     outside the canonical paper/live promotion path unless separately revived.

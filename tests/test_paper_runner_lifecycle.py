@@ -110,6 +110,10 @@ def test_consume_queued_intents_once_submits_and_links_order(monkeypatch, tmp_pa
             "last_error": None,
             "client_order_id": None,
             "linked_order_id": None,
+            "meta": {
+                "reference_price": 100.0,
+                "reference_price_source": "test_fixture",
+            },
         }
     )
 
