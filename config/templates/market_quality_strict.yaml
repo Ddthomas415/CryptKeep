@@ -1,0 +1,25 @@
+# Strict market-quality guard settings.
+#
+# Purpose: make market-quality checks fail closed so shadow/paper cost evidence
+# cannot silently include decisions evaluated without usable quote data.
+#
+# How to apply: merge this block into the operator user.yaml. The code defaults
+# remain permissive until one observed no-storm cycle is accepted.
+#
+# Semantics:
+# - block_when_unknown: missing/failed quote lookups hold the decision.
+# - require_bid_ask: bid and ask are required; last-only quotes are not enough.
+# - max_spread_bps: 0.50% cap by default, with tighter major-pair examples.
+# - max_tick_age_sec: quotes older than 2 minutes are stale for entries.
+
+market_quality_guard:
+  enabled: true
+  block_when_unknown: true
+  require_bid_ask: true
+  max_spread_bps: 50
+  max_tick_age_sec: 120
+  symbol_thresholds:
+    "BTC/USDT":
+      max_spread_bps: 20
+    "ETH/USDT":
+      max_spread_bps: 30

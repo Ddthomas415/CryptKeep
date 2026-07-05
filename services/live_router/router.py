@@ -118,9 +118,15 @@ async def decide_order(
             if not ai.ok:
                 return RouterDecision(False, f"ai_gate:{ai.reason}", "none", 0.0, "none", None, meta)
         except Exception as e:
-            meta["ai"] = {"ok": True, "reason": f"ai_error_ignored:{type(e).__name__}"}
-            if ai_strict:
-                return RouterDecision(False, f"ai_gate:error:{type(e).__name__}", "none", 0.0, "none", None, meta)
+            # Fail closed (REMAINING_TASKS deferred item 16): an ENABLED order
+            # gate that cannot evaluate must not pass orders. The previous
+            # behavior (ok=True, ai_error_ignored unless ai_strict) was the
+            # only fail-open error path in an order-routing gate and
+            # contradicted the repo's fail-closed doctrine. ai_strict is
+            # retained for config compatibility but no longer weakens this.
+            meta["ai"] = {"ok": False, "reason": f"ai_error_fail_closed:{type(e).__name__}"}
+            logger.warning("live_router_ai_gate_error_fail_closed: %s: %s", type(e).__name__, e)
+            return RouterDecision(False, f"ai_gate:error:{type(e).__name__}", "none", 0.0, "none", None, meta)
 
     # Optional proba gate (explicit toggle)
     try:
@@ -142,11 +148,18 @@ async def decide_order(
             if not gv.ok:
                 return RouterDecision(False, f"proba_gate:{gv.reason}", "none", 0.0, "none", None, meta)
     except Exception as e:
-        meta["proba"] = {"ok": True, "reason": f"proba_gate_error_ignored:{type(e).__name__}"}
-        logger.warning("live_router_proba_gate_error: %s: %s", type(e).__name__, e)
-        proba_strict = bool(int(os.environ.get("CBP_PROBA_STRICT", "0") or "0"))
-        if proba_strict:
+        # Fail closed when the proba gate was explicitly enabled (deferred
+        # item 16 companion): use_fused not determinable inside this except
+        # scope on import failure, so re-derive the toggle; only an enabled
+        # gate blocks — the import merely failing while the gate is OFF must
+        # not affect routing.
+        env_use = (os.environ.get("CBP_USE_FUSED_PROBA", "") or "").strip().lower() in ("1", "true", "yes", "on")
+        use_fused = bool(env_use or ov_router.get("use_fused_proba", False))
+        if use_fused:
+            meta["proba"] = {"ok": False, "reason": f"proba_gate_error_fail_closed:{type(e).__name__}"}
+            logger.warning("live_router_proba_gate_error_fail_closed: %s: %s", type(e).__name__, e)
             return RouterDecision(False, f"proba_gate:error:{type(e).__name__}", "none", 0.0, "none", None, meta)
+        meta["proba"] = {"ok": True, "reason": f"proba_gate_disabled_import_error:{type(e).__name__}"}
 
     return RouterDecision(True, "ok", side, qty, "limit", limit_price, meta)
 

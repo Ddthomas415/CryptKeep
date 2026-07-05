@@ -264,7 +264,12 @@ deployment work still needs independent review.
     attempts allow exactly one winner. A 2026-07-03 audit found
     `services/runtime/managed_component.py::clean_stale_lock_file()` already
     exists and is used by the intent consumers; prefer adopting that helper in
-    the runner before building a second stale-lock mechanism.
+    the runner before building a second stale-lock mechanism. 2026-07-05:
+    implementation proof is ready for independent review: `_acquire_lock()`
+    now uses atomic `O_CREAT|O_EXCL`, reclaims only dead-PID locks through the
+    shared `clean_stale_lock_file()` helper, treats malformed locks as held,
+    and targeted tests cover live PID refusal, dead PID reclaim, release/reacquire,
+    malformed-lock fail-closed behavior, and a simulated race.
 21. Make sample-mode provenance agree with the actual data source. Current
     paper evidence stamps `ohlcv_sample_mode` from `CBP_USE_SAMPLE_OHLCV`; the
     promotion gate then treats that label as authoritative. Derive the sample
@@ -372,7 +377,13 @@ deployment work still needs independent review.
     expectancy helper. Acceptance is with risk. Remaining operational proof:
     verify the active campaign config uses realistic fee/slippage values, and
     segment old
-    gross/unknown-semantics evidence during future analysis.
+    gross/unknown-semantics evidence during future analysis. 2026-07-05:
+    implementation proof is ready for independent review: the promotion gate
+    now reports `expectancy_pnl_semantics`, `expectancy_mixed_semantics`, and
+    `expectancy_semantics_warning` on both JSONL and paper-history metric paths
+    without changing expectancy pass/fail behavior. Remaining operational proof:
+    verify host fee/slippage values and use the report fields to segment old
+    gross/unknown-semantics evidence.
 29. Make market-quality guard defaults fail closed before shadow evidence is
     treated as cost/slippage proof. `services/risk/market_quality_guard.py`
     currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,
@@ -390,7 +401,13 @@ deployment work still needs independent review.
     independent review accepted this partial implementation with risk.
     Remaining work: committed or operator-applied strict market-quality config,
     one observed no-storm cycle, and later default flip if the stricter
-    settings prove stable.
+    settings prove stable. 2026-07-05: implementation proof is ready for
+    independent review: `config/templates/market_quality_strict.yaml` documents
+    the fail-closed operator config and targeted tests prove missing quotes hold
+    with a visible reason, fresh quotes pass, wide spreads are blocked, and code
+    defaults remain permissive until an accepted no-storm cycle supports the
+    default flip. Remaining work: apply the template to the host config and
+    observe one no-storm cycle.
 30. Govern activation of dormant risk-based sizing before it influences paper
     or shadow evidence. `services/strategies/es_daily_trend.py::decide()` and
     `compute_position_size()` implement ATR-stop, regime-aware,
@@ -585,7 +602,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `services/feature_gate.py::proba_gate()` in the same quarantine class:
     it can influence order flow from `CBP_FUSED_PROBA`, tolerates missing or
     invalid values when strict mode is false, and does not enter through the
-    strategy/evidence/promotion system. Blocks capped live.
+    strategy/evidence/promotion system. Blocks capped live. 2026-07-05:
+    implementation proof is ready for independent review: enabled AI and proba
+    gates now fail closed on evaluation/import errors regardless of strict-mode
+    compatibility flags, while disabled gates remain non-blocking. Targeted
+    router tests cover enabled AI error blocking, disabled AI not being
+    evaluated, enabled proba error blocking, and disabled proba import/evaluation
+    errors not affecting routing.
 17. Restore resume-hard live governance before capped live. The dashboard
     `Resume Live Trading` button reaches `services/admin/resume_gate.py`, and
     the current resume path can set `execution.live_enabled=true`, bypass
