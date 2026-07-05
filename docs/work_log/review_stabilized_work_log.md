@@ -15241,3 +15241,47 @@ Remaining risk:
 - LOW: docs/backlog only; no runtime behavior changed.
 - UNVERIFIED: external runtime host state was not checked.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-04 - Websocket Auto-Disable Doc Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Align the websocket auto-disable note with current source paths and the new
+  websocket surface classification.
+
+What was found:
+- SHOWN: `docs/WS_AUTO_DISABLE.md` referenced retired
+  `services/marketdata/*` paths.
+- SHOWN: current source contains `services/market_data/ws_feature_blacklist.py`
+  and `services/market_data/ws_ticker_feed.py`.
+- SHOWN: no current tracked `services/market_data/ws_microstructure_manager.py`
+  or `services/marketdata/ws_microstructure_manager.py` file was found.
+
+What changed:
+- Updated `docs/WS_AUTO_DISABLE.md` to name the current
+  `services/market_data/*` ticker-feed/blacklist surfaces, identify
+  `scripts/data/run_ws_ticker_feed.py` as the canonical runner implementation,
+  and mark the old microstructure manager reference as not currently present.
+- Updated `REMAINING_TASKS.md` item 4 to record the stale-doc correction.
+
+Why this change:
+- The smallest safe fix is documentation alignment. Intraday/shadow work should
+  not infer a supported order-book/trades websocket manager from a stale phase
+  note.
+
+Expected outcome:
+- Operators and future agents see the current optional ticker websocket path
+  and do not route new work through retired `services/marketdata` paths.
+
+Verification:
+- `rg --files services/market_data services/marketdata docs | rg '(ws_feature_blacklist|ws_microstructure_manager|ws_ticker_feed|WS_AUTO_DISABLE|websocket_surface)'`
+  - SHOWN: current ticker/blacklist docs and modules exist; no microstructure
+    manager source was listed.
+- `rg -n 'services/marketdata|marketdata/ws_|ws_microstructure_manager|ws_feature_blacklist|ws_ticker_feed' docs/WS_AUTO_DISABLE.md docs/architecture/websocket_surface_classification.md docs/REPO_LAYOUT.md docs/ARCHITECTURE.md`
+  - SHOWN before patch: stale `docs/WS_AUTO_DISABLE.md` references existed.
+
+Remaining risk:
+- LOW: docs/backlog only; no runtime behavior changed.
+- UNVERIFIED: host-level websocket service deployment was not checked.
+- Acceptance state: `ACCEPTED`.
