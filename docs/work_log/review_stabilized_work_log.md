@@ -15540,3 +15540,57 @@ Remaining risk:
   reporting, and runner concurrency. Behavior is targeted-test verified, but
   it requires independent review before acceptance.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-05T14:35:03Z - Live Router Reference Price And Safety Fail-Closed
+
+Active role: ENGINEER
+
+Objective:
+- Remove the live-router hardcoded reference-price fallback and close the
+  safety-gate exception fail-open path.
+
+What was found:
+- SHOWN: `services/live_router/router.py` used `60000.0` when no explicit
+  `limit_price` or `reference_price` was supplied.
+- SHOWN: the same router converted safety-gate exceptions into
+  `ok_s=True, why_s="safety_check_error_ignored"`, allowing the order to
+  continue after a safety-check failure.
+- SHOWN: existing live-router tests pinned the old BTC-shaped fallback by
+  expecting an allowed order with `limit_price == 60000.0`.
+
+What changed:
+- Added `_positive_float_or_none()` and require a finite positive explicit
+  reference price from router or top-level overrides.
+- Missing, zero, non-finite, or invalid reference prices now return
+  `RouterDecision(False, "no_reference_price", ...)` before safety gates run.
+- Safety-gate exceptions now set `safety_ok=false` and return
+  `safety:safety_check_error_fail_closed:<ExceptionType>`.
+- Updated live-router tests to provide explicit reference prices when testing
+  downstream AI/proba/safety behavior.
+- Added tests for missing reference price, invalid reference price, and
+  safety-gate exception fail-closed behavior.
+- Updated `REMAINING_TASKS.md` to record the live-router implementation proof
+  and keep the remaining broader live fail-closed sweep visible.
+
+Why this change:
+- A synthetic BTC-shaped price can make notional/safety checks look valid for
+  the wrong symbol or wrong context. A safety gate that errors must not become
+  an allow decision. Both issues are order-routing fail-open risks.
+
+Expected outcome:
+- Live-router decisions require caller-provided price authority before any
+  safety decision.
+- Router safety-gate failures are visible and blocking instead of silently
+  permissive.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py`
+  - SHOWN: `13 passed in 0.34s`.
+- `rg "safety_check_error_ignored|or 60000\\.0|no_reference_price|safety_check_error_fail_closed" services/live_router tests/test_live_router_safety_contract.py tests/test_live_router_ai_engine.py tests/test_router_gates_fail_closed.py -n`
+  - SHOWN: no stale `safety_check_error_ignored` or `or 60000.0` remains in
+    the live-router path; new fail-closed reasons are covered by tests.
+
+Remaining risk:
+- HIGH: this touches live order-routing preconditions and fail-open behavior.
+  Targeted tests pass, but independent review is required before acceptance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

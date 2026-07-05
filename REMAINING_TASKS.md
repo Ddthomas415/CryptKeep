@@ -451,7 +451,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    capped-live blocker: safety/load-gates and live executor/consumer/reconciler
    config consumers still require their own fail-closed sweep. Include
    admin/live enable-disable wizards in that sweep so operator-facing live
-   controls do not read corrupt config through a permissive path.
+   controls do not read corrupt config through a permissive path. 2026-07-05:
+   implementation proof is ready for independent review for the live-router
+   order decision boundary: missing/invalid reference prices now fail closed
+   before safety gates run, and safety-gate exceptions now block with
+   `safety_check_error_fail_closed:*` instead of allowing the order. Remaining
+   capped-live blocker: continue the fail-closed sweep across live executor,
+   consumer, reconciler, risk-gate config reads, and admin live controls.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
@@ -638,8 +644,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `price_used`, or market-quality `last` can provide a finite positive
     reference price. Targeted proof exists in
     `tests/test_paper_engine_integration.py`. Remaining work is broader
-    hardcoded-price cleanup in legacy/demo surfaces only, not the canonical
-    paper pre-submit gate.
+    hardcoded-price cleanup in legacy/demo surfaces and live-router safety
+    boundaries only, not the canonical paper pre-submit gate. 2026-07-05:
+    implementation proof is ready for independent review for
+    `services/live_router/router.py`: the router no longer falls back to a
+    BTC-shaped `60000.0` reference price and instead refuses
+    `no_reference_price` when no finite positive explicit reference is supplied.
+    Remaining hardcoded `60000.0` references are tests/fixtures or documented
+    legacy dry-run stubs (`live_trader_multi` / `live_trader_fleet`) that remain
+    outside the canonical paper/live promotion path unless separately revived.
 
 ## Deferred Structure And Research Hygiene
 These are lower priority than the active paper/research campaign and live-money
