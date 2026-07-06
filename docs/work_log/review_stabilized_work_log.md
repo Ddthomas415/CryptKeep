@@ -15913,3 +15913,48 @@ Remaining risk:
   this patch; it needs a separate reviewed schema/source-metadata change or a
   sample-mode snapshot persistence block.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-06T19:08:55Z - Next Strategy Validation Sequencing Note
+
+Active role: DIRECTOR
+
+Objective:
+- Make the 2026-07-06 check-in recommendation visible in git: identify the
+  next strategy validation action without starting another persistent campaign.
+
+What was found:
+- SHOWN: `configs/paper_evidence_campaigns.laptop.json` already runs
+  `es_daily_trend_v1` and `breakout_default`.
+- SHOWN: `configs/paper_evidence_campaigns.hetzner.example.json` already runs
+  `ema_cross_default`.
+- SHOWN: `configs/strategies/pullback_recovery_default.yaml` exists, and
+  `REMAINING_TASKS.md` already requires an isolated Stage 0 proof before any
+  persistent `pullback_recovery_default` campaign.
+- SHOWN: `REMAINING_TASKS.md` item 12 already frames `funding_extreme` as the
+  first crypto-edge context strategy to wire, but that path still needs the
+  context/crypto-edge contract before it can produce governed paper evidence.
+
+What changed:
+- Updated `REMAINING_TASKS.md` current state, item 7, and item 12 to record:
+  `pullback_recovery_default` is the next runnable non-persistent Stage 0
+  validation candidate; `funding_extreme` is the higher-value profitability
+  candidate but remains blocked on context/crypto-edge wiring; no new
+  persistent campaign should be started before proof.
+
+Why this change:
+- The note prevents the next check-in from conflating two different tasks:
+  a runnable isolated proof (`pullback_recovery_default`) versus a higher-value
+  strategy family that first needs infrastructure (`funding_extreme`).
+
+Expected outcome:
+- Future strategy work follows the intended order: run isolated Stage 0
+  pullback proof first; build crypto-edge context wiring before attempting a
+  governed `funding_extreme` paper campaign.
+
+Verification:
+- Docs-only change.
+- No tests run; no runtime behavior changed.
+
+Remaining risk:
+- LOW: backlog sequencing note only.
+- Acceptance state: `ACCEPTED`.
