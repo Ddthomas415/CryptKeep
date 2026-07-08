@@ -505,6 +505,28 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
+   2026-07-06: implementation proof is ready for independent review:
+   `tests/test_crash_consistency_fault_injection.py` (7 scenarios, real
+   sqlite stores, SystemExit as the process-death mechanism so consumer
+   error-recovery paths cannot soften the crash) kills inside the venue
+   submit, before the dedupe mark, before the queue status write, before the
+   order-store upsert, inside canonical fill accounting, and before the
+   `filled` transition, plus the ambiguous-submit `submit_unknown` lane.
+   Exactly-once venue submission held in every scenario, and fill accounting
+   held exactly-once per fill_id at both the trading store and the canonical
+   journal. Two findings from the injection runs, filed here for decision:
+   (a) documented-safe stranding — a crash between the dedupe claim/venue
+   submit and the queue status write leaves the intent at `submitting`
+   permanently (the dedupe guard prevents resubmission and the reconciler
+   does not scan `submitting`); safety holds but the intent needs operator
+   attention; consider a reconciler or consumer sweep for aged `submitting`
+   rows with dedupe-informed recovery; (b) convergence-by-design confirmed —
+   a crash after fill accounting but before the `filled` transition
+   converges on the next pass via the reconciler's 60s cursor overlap
+   re-fetch (`CBP_RECONCILER_CURSOR_OVERLAP_MS`) plus INSERT OR IGNORE
+   idempotence; the residual edge is a later trade advancing the cursor more
+   than the overlap window past an earlier fill whose transition never
+   landed — multi-fill lookback would close it.
 5. Ship server deployment units or retire the stale deployment story. Provide
    systemd units for collector, trader, reconciler, and dashboard, and either
    make Docker compose runnable from this repo or move it behind a documented

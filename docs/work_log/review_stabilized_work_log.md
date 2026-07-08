@@ -15958,3 +15958,57 @@ Verification:
 Remaining risk:
 - LOW: backlog sequencing note only.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-08T21:47:35Z - Crash-Consistency Fault-Injection Proof
+
+Active role: ENGINEER
+
+Objective:
+- Package the accepted crash-consistency proof for live submit, fill,
+  reconcile, and restart paths without changing production behavior.
+
+What was found:
+- SHOWN: the new test file uses real sqlite stores and raises `SystemExit`
+  from mocked side effects so the consumer's `except Exception` recovery path
+  cannot soften the simulated process death.
+- SHOWN: exactly-once venue submission is pinned across submit crash points,
+  and fill accounting is pinned exactly-once by fill id across replay.
+- SHOWN: crashes between dedupe claim or venue submit and queue status write
+  strand intents at `submitting`; the dedupe guard preserves safety by blocking
+  resubmission, but liveness still needs operator attention or a future
+  dedupe-informed aged-submitting sweep.
+- SHOWN: crashes after canonical fill accounting but before the `filled`
+  transition converge via the reconciler cursor overlap and idempotent inserts.
+
+What changed:
+- Added `tests/test_crash_consistency_fault_injection.py` with seven
+  crash-injection scenarios covering submit, ambiguous submit recovery,
+  reconciler fill convergence, canonical fill accounting replay, and filled
+  transition replay.
+- Updated `REMAINING_TASKS.md` to record the implementation proof and the two
+  follow-up findings: aged `submitting` liveness and the residual multi-fill
+  cursor edge beyond the overlap window.
+
+Why this change:
+- Fault injection converts prior code-reading assumptions about live-path
+  crash behavior into executable regression proof while keeping production
+  logic unchanged.
+
+Expected outcome:
+- Future changes to live intent consumption, reconciliation, or canonical fill
+  accounting fail tests if they break exactly-once submit/accounting or the
+  documented convergence behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crash_consistency_fault_injection.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_reconciler_cursor_safety.py tests/test_live_intent_queue_claim_race.py tests/test_intent_ttl_expiry.py`
+  - SHOWN: `32 passed, 4 warnings in 2.77s`.
+- `./.venv/bin/python -m py_compile tests/test_crash_consistency_fault_injection.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM/HIGH: test-only proof touches live-trading failure modes but does not
+  implement production recovery for aged `submitting` rows or the residual
+  multi-fill cursor edge.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
