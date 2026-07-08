@@ -501,7 +501,24 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    a verify-before-retry path for `submit_unknown` intents through
    client-order-id lookup. Remaining work is typed exception classification,
    fault-injection proof around crash-between-writes, and explicit policy for
-   the venue-lookup-not-found case.
+   the venue-lookup-not-found case. 2026-07-06: the typed-classification slice
+   is ready for independent review: `services/execution/retry_policy.py`
+   `is_retryable_exception()` now classifies by exception type only —
+   ccxt `NetworkError` and subclasses (RequestTimeout, ExchangeNotAvailable,
+   OnMaintenance, DDoSProtection, RateLimitExceeded) plus builtin
+   `ConnectionError`/`TimeoutError` and an exact-type-name fallback are
+   retryable; `InsufficientFunds`/`InvalidOrder`(incl. OrderNotFound)/
+   `AuthenticationError`/`BadRequest`/`ArgumentsRequired`/`NotSupported`/
+   `InvalidNonce` are definitive; generic `ExchangeError`/`BaseError` and all
+   unknown exceptions fail closed to non-retryable (the router's
+   verify-before-retry reconcile lane owns ambiguity). Message text is never
+   consulted, removing the legacy hazards where an order id containing `429`
+   flipped an exception retryable or venue phrasing containing `account`
+   blocked a legitimate transient retry. Deliberate precedence for review:
+   ccxt classes `InvalidNonce` under `NetworkError` (transient), but the
+   stricter legacy non-retryable stance is preserved. Still open from this
+   item: fault-injection crash-between-writes proof (item #4 companion) and
+   the venue-lookup-not-found policy.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
