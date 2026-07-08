@@ -33,6 +33,12 @@ SHOWN:
 - Raw all-history currently reports `9` closed trades, but those remain
   diagnostic unless both entry and exit fills carry the required non-sample
   public-OHLCV provenance.
+- 2026-07-06 strategy validation note: do not add another persistent campaign
+  before proof. The next runnable non-persistent validation candidate is
+  `pullback_recovery_default`, via isolated Stage 0 proof. `funding_extreme`
+  remains the higher-value profitability candidate, but it is blocked on the
+  crypto-edge/context strategy wiring path before it can produce governed
+  paper evidence.
 
 Current accepted checkpoint:
 
@@ -123,7 +129,9 @@ deployment work still needs independent review.
    `make pullback-stage0-verify` afterward. After proof, decide whether to add
    `pullback_recovery_default` to the leaderboard/default candidate set and
    create a governed strategy config before treating it as more than an
-   isolated candidate.
+   isolated candidate. 2026-07-06 check-in confirmed this remains the next
+   runnable strategy-validation action; keep it isolated until Stage 0 proof
+   passes, and do not start it as a persistent campaign first.
 8. Keep composite/hybrid paper advancement blocked. The long-window variant
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
@@ -191,6 +199,10 @@ deployment work still needs independent review.
     Treat `composite_hybrid` confirmation mode as a context/confirmation
     consumer, not as a standalone live strategy, until archive-backed
     walk-forward evidence and paper provenance justify runtime registration.
+    2026-07-06 check-in confirmed `funding_extreme` should not be treated as
+    the next immediate campaign start; it is the next higher-value strategy
+    validation target after the context/crypto-edge contract can feed governed
+    paper evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
