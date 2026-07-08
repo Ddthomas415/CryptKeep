@@ -660,7 +660,7 @@ def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
                 rows = _json.loads(sample.read_text())
                 _LOG.info("ohlcv_sample_primary symbol=%s rows=%s", raw_sym, len(rows))
                 result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
-                _persist_public_ohlcv_snapshot(cfg, timeframe, result)
+                _persist_public_ohlcv_snapshot(cfg, timeframe, result, source="sample_ohlcv")
                 source_info.update({"source": "sample_ohlcv", "sample_path": str(sample), "row_count": len(result)})
                 return result, source_info
             except Exception as _se:
@@ -675,7 +675,7 @@ def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
         rows = ex.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
         result = [list(row) for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
         if result:
-            _persist_public_ohlcv_snapshot(cfg, timeframe, result)
+            _persist_public_ohlcv_snapshot(cfg, timeframe, result, source="public_ohlcv")
             source_info.update({"source": "public_ohlcv", "row_count": len(result)})
             return result, source_info
     except Exception as _fetch_err:
@@ -705,7 +705,7 @@ def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
                 rows = _json.loads(sample.read_text())
                 _LOG.info("ohlcv_sample_fallback symbol=%s rows=%s", raw_sym, len(rows))
                 result = [list(r) for r in rows if isinstance(r, list) and len(r) >= 6]
-                _persist_public_ohlcv_snapshot(cfg, timeframe, result)
+                _persist_public_ohlcv_snapshot(cfg, timeframe, result, source="sample_ohlcv")
                 source_info.update({
                     "source": "sample_ohlcv",
                     "sample_path": str(sample),
@@ -721,7 +721,7 @@ def _fetch_public_ohlcv(cfg: dict) -> tuple[list[list[float]], dict]:
     return [], source_info
 
 
-def _persist_public_ohlcv_snapshot(cfg: dict, timeframe: str, rows: list[list[float]]) -> None:
+def _persist_public_ohlcv_snapshot(cfg: dict, timeframe: str, rows: list[list[float]], *, source: str = "unknown") -> None:
     if not rows:
         return
     venue = str(cfg.get("venue") or "").strip()
@@ -729,7 +729,7 @@ def _persist_public_ohlcv_snapshot(cfg: dict, timeframe: str, rows: list[list[fl
     if not venue or not symbol:
         return
     try:
-        write_local_ohlcv_snapshot(venue, symbol, rows, timeframe=timeframe)
+        write_local_ohlcv_snapshot(venue, symbol, rows, timeframe=timeframe, source=source)
     except Exception as exc:
         _LOG.warning(
             "ohlcv_snapshot_write_failed venue=%s symbol=%s timeframe=%s err=%s",

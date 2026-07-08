@@ -10,7 +10,10 @@ from statistics import median
 from typing import Any
 
 from services.control.retirement_checker import load_all_evidence
-from services.market_data.local_data_reader import _load_local_ohlcv
+from services.market_data.local_data_reader import (
+    _load_local_ohlcv,
+    load_local_ohlcv_snapshot_provenance,
+)
 from services.os.app_paths import data_dir
 
 DEFAULT_TARGET_MOVE_PCT = 0.10
@@ -117,14 +120,18 @@ def _signal_provenance_rejection_reason(
     return ""
 
 
-def _load_ohlcv_rows_from_path(path: Path) -> list[list]:
+def _load_ohlcv_rows_from_path(path: Path) -> tuple[list[list], dict[str, Any]]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     rows = raw if isinstance(raw, list) else raw.get("candles") or []
+    meta: dict[str, Any] = {
+        "snapshot_source": "unknown" if isinstance(raw, list) else str(raw.get("source") or "unknown"),
+        "snapshot_source_legacy": isinstance(raw, list),
+    }
     out: list[list] = []
     for row in rows:
         if isinstance(row, list) and len(row) >= 5:
             out.append(row)
-    return out
+    return out, meta
 
 
 def load_ohlcv_for_signal_quality(
@@ -139,10 +146,12 @@ def load_ohlcv_for_signal_quality(
         path = Path(ohlcv_path).expanduser().resolve()
         if not path.exists():
             return [], {"type": "explicit_file", "path": str(path), "exists": False}
-        return _load_ohlcv_rows_from_path(path), {
+        rows, source_meta = _load_ohlcv_rows_from_path(path)
+        return rows, {
             "type": "explicit_file",
             "path": str(path),
             "exists": True,
+            **source_meta,
         }
     if not symbol:
         return [], {
@@ -152,6 +161,7 @@ def load_ohlcv_for_signal_quality(
             "timeframe": timeframe,
         }
     rows = _load_local_ohlcv(venue, symbol, timeframe=timeframe, limit=limit)
+    snapshot_meta = load_local_ohlcv_snapshot_provenance(venue, symbol, timeframe=timeframe)
     return rows, {
         "type": "local_snapshot",
         "path": str((data_dir() / "snapshots").resolve()),
@@ -159,6 +169,8 @@ def load_ohlcv_for_signal_quality(
         "venue": venue,
         "symbol": symbol,
         "timeframe": timeframe,
+        "snapshot_source": str(snapshot_meta.get("source") or "unknown"),
+        "snapshot_source_legacy": bool(snapshot_meta.get("legacy")),
     }
 
 
