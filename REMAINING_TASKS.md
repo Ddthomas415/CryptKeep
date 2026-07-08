@@ -310,7 +310,30 @@ deployment work still needs independent review.
     which the gate counts as public — so sample data can still launder into
     public provenance through the snapshot store. Closing that requires
     snapshot-schema source metadata or skipping snapshot persistence in
-    sample mode; treat as a separate reviewed change.
+    sample mode; treat as a separate reviewed change. 2026-07-06:
+    implementation proof for that remaining work is ready for independent
+    review: `write_local_ohlcv_snapshot` (single production writer, called
+    only via the runner persist helper) now writes a versioned envelope
+    `{version: 2, source, written_ts, candles}` with the source threaded
+    from the fetch branch that actually produced the rows
+    (sample/public); idempotent rewrites compare candles+source so
+    `written_ts` does not churn; the legacy bare-list format still reads
+    everywhere (scanner, correlation inputs, signal quality, dashboards) and
+    legacy/corrupt/missing snapshots report `source="unknown"` fail-closed
+    via the new read-only `load_local_ohlcv_snapshot_provenance()` inspector;
+    a caller omitting `source` mints `unknown`, never public.
+    `signal_quality` provenance now carries `snapshot_source`/
+    `snapshot_source_legacy` for both local-snapshot and explicit-file loads,
+    so sample ancestry is visible in the campaign-planner artifact chain.
+    Deliberate scope boundaries: `symbol_scanner` and `correlation_inputs`
+    remain unlabeled research readers (inspectable via the provenance
+    reader); the market-ticker snapshot store (`market_*.json`, written by
+    the live poller/WS feed) is not sample-fed and was left untouched. This
+    adds the provenance substrate, but no gate logic changed; if future
+    promotion evidence accepts `market_data_source=local_snapshot`, add a
+    separate reviewed gate assertion requiring non-legacy
+    `snapshot_source=public_ohlcv` before treating this laundering path as
+    closed end-to-end.
 22. Add per-strategy governance configs before promoting additional
     challenger strategies. `configs/strategies/es_daily_trend_v1.yaml` is the
     only full strategy YAML contract today; challenger campaigns currently
