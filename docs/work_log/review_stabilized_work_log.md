@@ -16031,3 +16031,74 @@ Remaining risk:
 - External scripts outside the repo that parse OHLCV snapshot JSON as a bare
   list would need to adopt the envelope-tolerant reader pattern.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-08T21:43:22Z - Typed Order Retry Classification
+
+Active role: ENGINEER
+
+Objective:
+- Replace substring/message-based retry classification with typed,
+  fail-closed exception classification for order submission/retry paths.
+
+What was found:
+- SHOWN: `services/execution/retry_policy.py::is_retryable_exception()` used
+  substrings from both exception type name and message text.
+- SHOWN: that legacy classifier could misclassify a transient venue/network
+  error as non-retryable if the message contained words like `account`, and
+  could classify an arbitrary exception as retryable if the message contained
+  strings like `429`, `503`, `timeout`, or `temporary`.
+- SHOWN: current installed `ccxt.InvalidNonce` subclasses `ccxt.NetworkError`,
+  but the prior policy treated invalid nonce as a hard non-retryable class.
+- SHOWN: `services/execution/order_router.py` and
+  `services/execution/fill_confirmation.py` are the in-repo users of
+  `is_retryable_exception()`.
+
+What changed:
+- `is_retryable_exception()` now classifies by exception type only.
+- Retryable classes: `ccxt.NetworkError` and subclasses, built-in
+  `ConnectionError`/`TimeoutError`, plus exact transient type-name fallbacks
+  for non-ccxt transport errors.
+- Definitive non-retryable classes: `InsufficientFunds`, `InvalidOrder`
+  including `OrderNotFound`, `AuthenticationError`, `BadRequest`,
+  `ArgumentsRequired`, `NotSupported`, and `InvalidNonce`.
+- Generic `ccxt.ExchangeError`/`ccxt.BaseError` and unknown exceptions now fail
+  closed to non-retryable.
+- Message text is never consulted.
+- Added `tests/test_retry_policy_typed.py` to pin transient/fatal ccxt classes,
+  `InvalidNonce` precedence, generic exchange error fail-closed behavior,
+  message-immunity regressions, built-in transport exceptions, exact name
+  fallback, and unknown exception default.
+- `REMAINING_TASKS.md` documents this slice and leaves the fault-injection
+  proof plus venue-lookup-not-found policy as separate remaining work.
+
+Why this change:
+- Retry eligibility should depend on a typed error contract, not mutable venue
+  phrasing, order IDs, quantities, or arbitrary message contents. For submit
+  paths, fail-closed non-retryable classification is safer than duplicate
+  submission.
+
+Expected outcome:
+- Transient ccxt/network failures can still enter the router's
+  verify-before-retry path.
+- Definitive venue/request/auth/funds/order errors stop retrying immediately.
+- Unknown venue errors no longer blind-retry; ambiguity is left to reconcile
+  paths rather than message guessing.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_retry_policy_typed.py tests/test_order_router_retry_flow.py`
+  - SHOWN: `26 passed in 0.74s`.
+- `./.venv/bin/python -m py_compile services/execution/retry_policy.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+- An earlier attempted pytest command used stale test filenames
+  (`tests/test_order_router.py`, etc.) and did not run tests; it was replaced
+  by the repo-discovered affected test files above.
+
+Remaining risk:
+- HIGH: this changes live order retry semantics and must go through
+  independent review and GitHub CI before merge.
+- Deliberate policy choices needing review: generic `ccxt.ExchangeError` is
+  non-retryable, and `InvalidNonce` stays non-retryable despite its current
+  ccxt `NetworkError` inheritance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
