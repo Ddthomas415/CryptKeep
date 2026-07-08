@@ -15959,6 +15959,150 @@ Remaining risk:
 - LOW: backlog sequencing note only.
 - Acceptance state: `ACCEPTED`.
 
+## 2026-07-08T21:39:10Z - OHLCV Snapshot Source Provenance Substrate
+
+Active role: ENGINEER
+
+Objective:
+- Add source provenance to local OHLCV snapshots so sample-fed rows cannot be
+  indistinguishable from public OHLCV at the snapshot-file layer.
+
+What was found:
+- SHOWN: `services/market_data/local_data_reader.py::write_local_ohlcv_snapshot`
+  wrote bare JSON candle lists with no source metadata.
+- SHOWN: `services/execution/strategy_runner.py::_fetch_public_ohlcv` already
+  knows which branch produced rows (`sample_ohlcv` or `public_ohlcv`) after the
+  prior sample-mode provenance work, but `_persist_public_ohlcv_snapshot`
+  discarded that source when writing the shared snapshot file.
+- SHOWN: `services/analytics/signal_quality.py` reads either explicit OHLCV
+  files or local snapshots; before this change, its provenance metadata could
+  not report whether snapshot rows came from sample or public data.
+- SHOWN: the promotion gate still counts `market_data_source=local_snapshot` as
+  public. Therefore this change adds provenance substrate but does not by
+  itself close gate-level acceptance of local snapshots.
+
+What changed:
+- `write_local_ohlcv_snapshot(..., source=)` now writes a versioned envelope:
+  `{version: 2, source, written_ts, candles}`. The default source is
+  `"unknown"` so a caller that forgets to pass source cannot mint public
+  ancestry.
+- Existing `_load_local_ohlcv()` remains envelope-compatible and still reads
+  legacy bare-list snapshots.
+- Added `load_local_ohlcv_snapshot_provenance()` to inspect source, legacy
+  status, row count, path, and timestamp without changing consumer data paths.
+  Missing, corrupt, and legacy snapshots report `source="unknown"` fail-closed.
+- `strategy_runner` now threads fetch-branch truth into snapshot writes:
+  sample fetch/fallback writes `sample_ohlcv`; live fetch writes
+  `public_ohlcv`.
+- `signal_quality` now includes `snapshot_source` and
+  `snapshot_source_legacy` for local-snapshot and explicit-file OHLCV loads.
+- `REMAINING_TASKS.md` was updated to state the remaining boundary explicitly:
+  if future promotion evidence accepts `market_data_source=local_snapshot`, a
+  separate reviewed gate assertion should require non-legacy
+  `snapshot_source=public_ohlcv`.
+
+Why this change:
+- The snapshot writer is the single point where OHLCV rows are persisted into
+  local files. Carrying source there is the smallest compatible way to prevent
+  sample/public ancestry from being lost before downstream research or gate
+  code can assert it.
+
+Expected outcome:
+- New snapshot files are self-describing with source ancestry.
+- Legacy snapshots remain readable but are explicitly unknown rather than
+  trusted public.
+- Campaign-planner/signal-quality artifacts can expose sample ancestry instead
+  of silently treating every local snapshot the same.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_snapshot_provenance.py tests/test_signal_quality.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `49 passed in 1.12s`.
+- `./.venv/bin/python -m py_compile services/market_data/local_data_reader.py services/execution/strategy_runner.py services/analytics/signal_quality.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- HIGH: this touches paper evidence/provenance substrate and the canonical
+  runner snapshot path; it needs independent review and CI before merge.
+- Gate-level closure remains separate: `scripts/check_promotion_gates.py` still
+  treats `local_snapshot` as public and does not yet consume
+  `snapshot_source`.
+- External scripts outside the repo that parse OHLCV snapshot JSON as a bare
+  list would need to adopt the envelope-tolerant reader pattern.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-08T21:43:22Z - Typed Order Retry Classification
+
+Active role: ENGINEER
+
+Objective:
+- Replace substring/message-based retry classification with typed,
+  fail-closed exception classification for order submission/retry paths.
+
+What was found:
+- SHOWN: `services/execution/retry_policy.py::is_retryable_exception()` used
+  substrings from both exception type name and message text.
+- SHOWN: that legacy classifier could misclassify a transient venue/network
+  error as non-retryable if the message contained words like `account`, and
+  could classify an arbitrary exception as retryable if the message contained
+  strings like `429`, `503`, `timeout`, or `temporary`.
+- SHOWN: current installed `ccxt.InvalidNonce` subclasses `ccxt.NetworkError`,
+  but the prior policy treated invalid nonce as a hard non-retryable class.
+- SHOWN: `services/execution/order_router.py` and
+  `services/execution/fill_confirmation.py` are the in-repo users of
+  `is_retryable_exception()`.
+
+What changed:
+- `is_retryable_exception()` now classifies by exception type only.
+- Retryable classes: `ccxt.NetworkError` and subclasses, built-in
+  `ConnectionError`/`TimeoutError`, plus exact transient type-name fallbacks
+  for non-ccxt transport errors.
+- Definitive non-retryable classes: `InsufficientFunds`, `InvalidOrder`
+  including `OrderNotFound`, `AuthenticationError`, `BadRequest`,
+  `ArgumentsRequired`, `NotSupported`, and `InvalidNonce`.
+- Generic `ccxt.ExchangeError`/`ccxt.BaseError` and unknown exceptions now fail
+  closed to non-retryable.
+- Message text is never consulted.
+- Added `tests/test_retry_policy_typed.py` to pin transient/fatal ccxt classes,
+  `InvalidNonce` precedence, generic exchange error fail-closed behavior,
+  message-immunity regressions, built-in transport exceptions, exact name
+  fallback, and unknown exception default.
+- `REMAINING_TASKS.md` documents this slice and leaves the fault-injection
+  proof plus venue-lookup-not-found policy as separate remaining work.
+
+Why this change:
+- Retry eligibility should depend on a typed error contract, not mutable venue
+  phrasing, order IDs, quantities, or arbitrary message contents. For submit
+  paths, fail-closed non-retryable classification is safer than duplicate
+  submission.
+
+Expected outcome:
+- Transient ccxt/network failures can still enter the router's
+  verify-before-retry path.
+- Definitive venue/request/auth/funds/order errors stop retrying immediately.
+- Unknown venue errors no longer blind-retry; ambiguity is left to reconcile
+  paths rather than message guessing.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_retry_policy_typed.py tests/test_order_router_retry_flow.py`
+  - SHOWN: `26 passed in 0.74s`.
+- `./.venv/bin/python -m py_compile services/execution/retry_policy.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+- An earlier attempted pytest command used stale test filenames
+  (`tests/test_order_router.py`, etc.) and did not run tests; it was replaced
+  by the repo-discovered affected test files above.
+
+Remaining risk:
+- HIGH: this changes live order retry semantics and must go through
+  independent review and GitHub CI before merge.
+- Deliberate policy choices needing review: generic `ccxt.ExchangeError` is
+  non-retryable, and `InvalidNonce` stays non-retryable despite its current
+  ccxt `NetworkError` inheritance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-08T21:47:35Z - Crash-Consistency Fault-Injection Proof
 
 Active role: ENGINEER

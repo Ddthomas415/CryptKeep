@@ -310,7 +310,30 @@ deployment work still needs independent review.
     which the gate counts as public — so sample data can still launder into
     public provenance through the snapshot store. Closing that requires
     snapshot-schema source metadata or skipping snapshot persistence in
-    sample mode; treat as a separate reviewed change.
+    sample mode; treat as a separate reviewed change. 2026-07-06:
+    implementation proof for that remaining work is ready for independent
+    review: `write_local_ohlcv_snapshot` (single production writer, called
+    only via the runner persist helper) now writes a versioned envelope
+    `{version: 2, source, written_ts, candles}` with the source threaded
+    from the fetch branch that actually produced the rows
+    (sample/public); idempotent rewrites compare candles+source so
+    `written_ts` does not churn; the legacy bare-list format still reads
+    everywhere (scanner, correlation inputs, signal quality, dashboards) and
+    legacy/corrupt/missing snapshots report `source="unknown"` fail-closed
+    via the new read-only `load_local_ohlcv_snapshot_provenance()` inspector;
+    a caller omitting `source` mints `unknown`, never public.
+    `signal_quality` provenance now carries `snapshot_source`/
+    `snapshot_source_legacy` for both local-snapshot and explicit-file loads,
+    so sample ancestry is visible in the campaign-planner artifact chain.
+    Deliberate scope boundaries: `symbol_scanner` and `correlation_inputs`
+    remain unlabeled research readers (inspectable via the provenance
+    reader); the market-ticker snapshot store (`market_*.json`, written by
+    the live poller/WS feed) is not sample-fed and was left untouched. This
+    adds the provenance substrate, but no gate logic changed; if future
+    promotion evidence accepts `market_data_source=local_snapshot`, add a
+    separate reviewed gate assertion requiring non-legacy
+    `snapshot_source=public_ohlcv` before treating this laundering path as
+    closed end-to-end.
 22. Add per-strategy governance configs before promoting additional
     challenger strategies. `configs/strategies/es_daily_trend_v1.yaml` is the
     only full strategy YAML contract today; challenger campaigns currently
@@ -501,7 +524,24 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    a verify-before-retry path for `submit_unknown` intents through
    client-order-id lookup. Remaining work is typed exception classification,
    fault-injection proof around crash-between-writes, and explicit policy for
-   the venue-lookup-not-found case.
+   the venue-lookup-not-found case. 2026-07-06: the typed-classification slice
+   is ready for independent review: `services/execution/retry_policy.py`
+   `is_retryable_exception()` now classifies by exception type only —
+   ccxt `NetworkError` and subclasses (RequestTimeout, ExchangeNotAvailable,
+   OnMaintenance, DDoSProtection, RateLimitExceeded) plus builtin
+   `ConnectionError`/`TimeoutError` and an exact-type-name fallback are
+   retryable; `InsufficientFunds`/`InvalidOrder`(incl. OrderNotFound)/
+   `AuthenticationError`/`BadRequest`/`ArgumentsRequired`/`NotSupported`/
+   `InvalidNonce` are definitive; generic `ExchangeError`/`BaseError` and all
+   unknown exceptions fail closed to non-retryable (the router's
+   verify-before-retry reconcile lane owns ambiguity). Message text is never
+   consulted, removing the legacy hazards where an order id containing `429`
+   flipped an exception retryable or venue phrasing containing `account`
+   blocked a legitimate transient retry. Deliberate precedence for review:
+   ccxt classes `InvalidNonce` under `NetworkError` (transient), but the
+   stricter legacy non-retryable stance is preserved. Still open from this
+   item: fault-injection crash-between-writes proof (item #4 companion) and
+   the venue-lookup-not-found policy.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
