@@ -4,6 +4,7 @@ import sqlite3
 from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
 import asyncio
 import json
+import math
 import os
 import time
 from datetime import datetime, timezone
@@ -98,6 +99,137 @@ def _live_sandbox_enabled() -> bool:
         return True
 
 
+SUBMITTING_STALE_RECOVERY_MS_ENV = "CBP_SUBMITTING_STALE_RECOVERY_MS"
+SUBMITTING_STALE_RECOVERY_MS_DEFAULT = 120_000.0
+
+
+def _submitting_stale_recovery_ms() -> float:
+    """Age threshold for the startup recovery sweep. Invalid, non-finite, or
+    non-positive env overrides fall back to the strict default."""
+    raw = os.environ.get(SUBMITTING_STALE_RECOVERY_MS_ENV)
+    if raw is None or str(raw).strip() == "":
+        return SUBMITTING_STALE_RECOVERY_MS_DEFAULT
+    try:
+        value = float(raw)
+    except Exception as _err:
+        return SUBMITTING_STALE_RECOVERY_MS_DEFAULT
+    if not math.isfinite(value) or value <= 0.0:
+        return SUBMITTING_STALE_RECOVERY_MS_DEFAULT
+    return value
+
+
+def _recover_stale_submitting(qdb: LiveIntentQueueSQLite, ldb: LiveTradingSQLite, dedupe: OrderDedupeStore) -> dict:
+    """
+    Startup recovery for intents stranded at `submitting` by a crash between
+    the dedupe claim/venue submit and the queue status write (fault-injection
+    finding, substrate backlog #4).
+
+    Fail-closed contract: this sweep NEVER submits. For each `submitting`
+    intent older than the threshold, the venue is consulted by
+    client_order_id:
+      - order found  -> dedupe mark_submitted + status `submitted` (the
+        normal reconciler lanes take over);
+      - order absent -> status `submit_unknown` with a recovery reason (the
+        reconciler's single ambiguity lane owns it);
+      - lookup error -> the row is left untouched for the next restart.
+    Rows younger than the threshold are left for the in-flight consumer.
+    Missing/unparseable timestamps are treated as aged (the sweep itself is
+    read-then-classify and cannot double-submit).
+    """
+    stale_ms = _submitting_stale_recovery_ms()
+    now_epoch = datetime.now(timezone.utc).timestamp()
+    out = {"scanned": 0, "recovered_submitted": 0, "moved_submit_unknown": 0, "left_untouched": 0}
+    try:
+        rows = qdb.list_intents(limit=200, status="submitting")
+    except Exception as exc:
+        _LOG.error("stale_submitting_recovery.list_failed err=%s:%s", type(exc).__name__, exc)
+        return out
+    aged = []
+    for it in rows:
+        out["scanned"] += 1
+        ts_epoch = _parse_intent_ts_epoch(it.get("updated_ts") or it.get("created_ts"))
+        if ts_epoch is not None and (now_epoch - ts_epoch) * 1000.0 < stale_ms:
+            out["left_untouched"] += 1
+            continue
+        aged.append(it)
+    if not aged:
+        return out
+    sandbox = _live_sandbox_enabled()
+    adapters: dict[str, LiveExchangeAdapter] = {}
+    try:
+        for it in aged:
+            ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="live_intent_consumer.stale_submitting_recovery")
+            venue = normalize_venue(it["venue"])
+            symbol = normalize_symbol(it["symbol"])
+            client_order_id = str(it.get("client_order_id") or f"live_intent_{it['intent_id']}")
+            try:
+                ad = adapters.get(venue)
+                if ad is None:
+                    ad = LiveExchangeAdapter(venue, sandbox=sandbox)
+                    adapters[venue] = ad
+                found = ad.find_order_by_client_oid(symbol, client_order_id)
+            except Exception as exc:
+                _LOG.warning(
+                    "stale_submitting_recovery.lookup_failed intent_id=%s err=%s:%s — leaving untouched",
+                    it.get("intent_id"), type(exc).__name__, exc,
+                )
+                out["left_untouched"] += 1
+                continue
+            ex_oid = str((found or {}).get("id") or (found or {}).get("orderId") or "").strip()
+            if found and ex_oid:
+                # a crash may have struck before dedupe.claim ever ran; claim is
+                # an idempotent get-or-create, so the mark always has a row
+                dedupe.claim(
+                    exchange_id=venue,
+                    intent_id=str(it["intent_id"]),
+                    symbol=symbol,
+                    client_order_id=client_order_id,
+                    meta={"source": "live_intent_consumer.stale_submitting_recovery"},
+                )
+                dedupe.mark_submitted(exchange_id=venue, intent_id=str(it["intent_id"]), remote_order_id=ex_oid)
+                if update_live_queue_status_as_intent_consumer(
+                    qdb, it, "submitted", ctx=ctx, last_error=None,
+                    client_order_id=client_order_id, exchange_order_id=ex_oid,
+                ):
+                    ldb.upsert_order({
+                        "client_order_id": client_order_id,
+                        "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                        "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                        "exchange_order_id": ex_oid, "status": "submitted", "last_error": None,
+                    })
+                    out["recovered_submitted"] += 1
+                else:
+                    out["left_untouched"] += 1
+                continue
+            reason = "stale_submitting_recovery:order_not_found"
+            if update_live_queue_status_as_intent_consumer(
+                qdb, it, "submit_unknown", ctx=ctx, last_error=reason, client_order_id=client_order_id,
+            ):
+                ldb.upsert_order({
+                    "client_order_id": client_order_id,
+                    "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                    "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                    "exchange_order_id": None, "status": "submit_unknown", "last_error": reason,
+                })
+                out["moved_submit_unknown"] += 1
+            else:
+                out["left_untouched"] += 1
+    finally:
+        for ad in adapters.values():
+            try:
+                ad.close()
+            except Exception:
+                pass
+    return out
+
+
+def _parse_intent_ts_epoch(raw) -> float | None:
+    """Tolerant ISO/epoch parse mirroring intent_ttl semantics; None on failure."""
+    from services.execution.intent_ttl import _parse_created_epoch
+
+    return _parse_created_epoch(raw)
+
+
 def run_forever() -> None:
     ensure_dirs()
     try:
@@ -116,6 +248,9 @@ def run_forever() -> None:
     rejected = 0
     expired = 0
     _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now()})
+    recovery = _recover_stale_submitting(qdb, ldb, dedupe)
+    if recovery.get("scanned"):
+        _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "stale_submitting_recovery", **recovery})
     try:
         while True:
             loops += 1

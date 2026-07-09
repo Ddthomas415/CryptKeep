@@ -18,15 +18,15 @@ Invariants asserted per scenario:
   strands in a documented-safe state, which the test pins explicitly.
 
 Findings pinned here:
-- documented-safe stranding (safety holds, liveness gap filed in
-  REMAINING_TASKS): a crash between dedupe claim/venue submit and the queue
-  status write leaves the intent at `submitting`; the dedupe guard prevents
-  resubmission and the reconciler does not scan `submitting`;
+- crashes between dedupe claim/venue submit and the queue status write leave
+  the intent at `submitting`; the dedupe guard prevents resubmission, and the
+  consumer's startup stale-`submitting` recovery sweep converges the row from
+  the venue's record without ever resubmitting;
 - convergence-by-design: a crash after fill accounting but before the
   `filled` transition converges on the next pass via the reconciler's 60s
   cursor overlap re-fetch plus INSERT OR IGNORE idempotence in the trading
-  store and canonical journal (residual multi-fill edge beyond the overlap
-  window filed in REMAINING_TASKS).
+  store and canonical journal; the multi-fill edge beyond the overlap window
+  converges via the canonical-journal accounted-fill lookback.
 """
 from __future__ import annotations
 
@@ -153,6 +153,7 @@ def _wire_consumer(monkeypatch, consumer, venue_state: _Venue, *, kill_in_submit
 
 def _wire_consumer_guards_only(monkeypatch, consumer):
     """Consumer wiring without replacing LiveExchangeAdapter (caller sets it)."""
+    monkeypatch.setenv(consumer.SUBMITTING_STALE_RECOVERY_MS_ENV, "1")
     monkeypatch.setattr(consumer, "live_enabled_and_armed", lambda: (True, "armed"))
     monkeypatch.setattr(consumer, "is_snapshot_fresh", lambda: (True, None))
     monkeypatch.setattr(consumer, "_live_sandbox_enabled", lambda: True)
@@ -265,8 +266,9 @@ def _fill_rows(trading_mod) -> list[dict]:
 def test_kill_in_submit_then_restart_never_resubmits(monkeypatch, tmp_path):
     """
     Kill inside the venue submit (order placed, response lost). Restart must
-    not submit again: the dedupe claim row from phase 1 blocks the intent.
-    Pins the documented-safe stranding: status stays `submitting`.
+    not submit again: the dedupe claim row blocks the main loop, and the
+    startup stale-`submitting` recovery sweep verifies the order at the
+    venue and converges the intent to `submitted` without resubmitting.
     """
     queue_mod, trading_mod, dedupe_mod, consumer, reconciler = _reload_live_stack(monkeypatch, tmp_path)
     _seed_intent(queue_mod, "s1")
@@ -286,14 +288,16 @@ def test_kill_in_submit_then_restart_never_resubmits(monkeypatch, tmp_path):
 
     assert len(venue.submits) == 1  # the money invariant: exactly one submit
     row = _intent_row(queue_mod, "s1")
-    assert row["status"] == "submitting"  # documented-safe stranding (backlog)
+    assert row["status"] == "submitted"  # startup sweep converged the stranding
+    assert row["exchange_order_id"] == "ex-cid-s1"
 
 
 def test_kill_after_submit_before_dedupe_mark_then_restart(monkeypatch, tmp_path):
     """
     Venue submit succeeds; process dies inside dedupe.mark_submitted. The
-    dedupe row is still `created`, so restart skips the intent without
-    resubmitting.
+    dedupe row is still `created`, so the restart main loop skips the intent
+    without resubmitting, and the startup sweep converges it to `submitted`
+    from the venue's record.
     """
     queue_mod, trading_mod, dedupe_mod, consumer, reconciler = _reload_live_stack(monkeypatch, tmp_path)
     _seed_intent(queue_mod, "s2")
@@ -318,13 +322,14 @@ def test_kill_after_submit_before_dedupe_mark_then_restart(monkeypatch, tmp_path
     _run_consumer(consumer, expect_kill=False)
 
     assert len(venue.submits) == 1
-    assert _intent_row(queue_mod, "s2")["status"] == "submitting"  # documented-safe stranding
+    assert _intent_row(queue_mod, "s2")["status"] == "submitted"  # sweep converged
 
 
 def test_kill_after_dedupe_mark_before_status_write_then_restart(monkeypatch, tmp_path):
     """
     Venue submit + dedupe mark succeed; process dies inside the queue status
-    write. The dedupe remote-id guard blocks the restart from resubmitting.
+    write. The dedupe remote-id guard blocks the restart main loop from
+    resubmitting, and the startup sweep converges the row to `submitted`.
     """
     queue_mod, trading_mod, dedupe_mod, consumer, reconciler = _reload_live_stack(monkeypatch, tmp_path)
     _seed_intent(queue_mod, "s3")
@@ -345,6 +350,7 @@ def test_kill_after_dedupe_mark_before_status_write_then_restart(monkeypatch, tm
     assert len(venue.submits) == 1
 
     monkeypatch.setattr(consumer, "update_live_queue_status_as_intent_consumer", real_update)
+    venue.lookup_enabled = True
     _wire_consumer(monkeypatch, consumer, venue)
     _run_consumer(consumer, expect_kill=False)
 
@@ -352,7 +358,7 @@ def test_kill_after_dedupe_mark_before_status_write_then_restart(monkeypatch, tm
     dedupe = dedupe_mod.OrderDedupeStore()
     ded_row = dedupe.claim(exchange_id="coinbase", intent_id="s3", symbol="BTC/USD", client_order_id="cid-s3")
     assert str(ded_row.get("remote_order_id") or "") == "ex-cid-s3"
-    assert _intent_row(queue_mod, "s3")["status"] == "submitting"  # documented-safe stranding
+    assert _intent_row(queue_mod, "s3")["status"] == "submitted"  # sweep converged
 
 
 def test_kill_after_status_write_reconciler_converges_fill(monkeypatch, tmp_path):
@@ -514,9 +520,8 @@ def test_kill_after_accounting_before_filled_transition_converges_via_overlap(mo
     the canonical journal absorbs the replay, canonical accounting stays
     exactly-once per fill_id, and the intent converges to `filled`.
 
-    Residual edge NOT covered by the overlap (filed in REMAINING_TASKS): a
-    later trade advancing the cursor more than the overlap window past an
-    earlier fill whose `filled` transition never landed.
+    The multi-fill edge beyond the overlap window is covered separately by
+    test_multi_fill_cursor_edge_converges_via_lookback.
     """
     queue_mod, trading_mod, consumer, reconciler, venue = _submitted_intent_with_trade(monkeypatch, tmp_path)
 
@@ -556,3 +561,100 @@ def test_kill_after_accounting_before_filled_transition_converges_via_overlap(mo
     assert _canonical_fill_count(reconciler, "t-f1-1") == 1
     # ...and the interrupted transition converges
     assert _intent_row(queue_mod, "f1")["status"] == "filled"
+
+
+# ---------------------------------------------------------------------------
+# multi-fill cursor edge beyond the overlap window (finding (b) closure)
+# ---------------------------------------------------------------------------
+
+
+def test_multi_fill_cursor_edge_converges_via_lookback(monkeypatch, tmp_path):
+    """
+    Finding (b) closure: intent A's fill is accounted but its `filled`
+    transition is killed; a later intent B fills far beyond the 60s overlap
+    window and advances the shared venue:symbol cursor past A's fill on the
+    rerun (list_intents is newest-first, so B processes before A). A's
+    re-fetch then misses its own fill entirely — previously deferring
+    forever — and now converges to `filled` via the canonical-journal
+    accounted-fill lookback, with accounting still exactly-once.
+    """
+    queue_mod, trading_mod, dedupe_mod, consumer, reconciler = _reload_live_stack(monkeypatch, tmp_path)
+    _seed_intent(queue_mod, "A")
+    venue = _Venue()
+    _wire_consumer(monkeypatch, consumer, venue)
+    _run_consumer(consumer, expect_kill=False)
+    assert _intent_row(queue_mod, "A")["status"] == "submitted"
+
+    t1 = 1_750_000_000_000
+    venue.orders["cid-A"]["status"] = "closed"
+    venue.trades.append({
+        "id": "t-A-1", "order": venue.orders["cid-A"]["id"], "clientOrderId": "cid-A",
+        "timestamp": t1, "datetime": "2026-07-06T00:00:00+00:00",
+        "side": "buy", "amount": 0.5, "price": 100.0, "fee": {"cost": 0.1, "currency": "USD"},
+    })
+
+    # pass 1: A's fill accounted + cursor advanced, filled transition killed
+    real_update = reconciler.update_live_queue_status_as_reconciler
+
+    def kill_on_filled(qdb, it, status, **kwargs):
+        if status == "filled":
+            raise _Kill("kill:before_filled_transition")
+        return real_update(qdb, it, status, **kwargs)
+
+    monkeypatch.setattr(reconciler, "update_live_queue_status_as_reconciler", kill_on_filled)
+    _wire_reconciler(monkeypatch, reconciler, venue)
+    _run_reconciler(reconciler, expect_kill=True)
+    assert _canonical_fill_count(reconciler, "t-A-1") == 1
+    assert _intent_row(queue_mod, "A")["status"] == "submitted"
+
+    # intent B fills 10 minutes later — far beyond the 60s overlap window
+    _seed_intent(queue_mod, "B")
+    _wire_consumer(monkeypatch, consumer, venue)
+    _run_consumer(consumer, expect_kill=False)
+    t2 = t1 + 600_000
+    venue.orders["cid-B"]["status"] = "closed"
+    venue.trades.append({
+        "id": "t-B-1", "order": venue.orders["cid-B"]["id"], "clientOrderId": "cid-B",
+        "timestamp": t2, "datetime": "2026-07-06T00:10:00+00:00",
+        "side": "buy", "amount": 0.5, "price": 100.0, "fee": {"cost": 0.1, "currency": "USD"},
+    })
+
+    monkeypatch.setattr(reconciler, "update_live_queue_status_as_reconciler", real_update)
+    _wire_reconciler(monkeypatch, reconciler, venue)
+    _run_reconciler(reconciler)
+
+    # B converged normally; A converged via lookback despite its fill being
+    # outside the cursor overlap re-fetch window
+    assert _intent_row(queue_mod, "B")["status"] == "filled"
+    assert _intent_row(queue_mod, "A")["status"] == "filled"
+    # exactly-once accounting held for both fills
+    assert _canonical_fill_count(reconciler, "t-A-1") == 1
+    assert _canonical_fill_count(reconciler, "t-B-1") == 1
+    assert sorted(f["trade_id"] for f in _fill_rows(trading_mod)) == ["t-A-1", "t-B-1"]
+    # A's fill was NOT re-fetched (cursor honesty): the lookback, not a
+    # replay, produced the convergence
+    cursor = int(queue_mod.LiveIntentQueueSQLite().get_state("trades_since_ms:coinbase:BTC/USD"))
+    assert cursor == t2 + 1
+
+
+def test_fill_lookback_helper_fail_closed(monkeypatch, tmp_path):
+    queue_mod, trading_mod, dedupe_mod, consumer, reconciler = _reload_live_stack(monkeypatch, tmp_path)
+    exec_db = reconciler._default_exec_db_path()
+
+    # missing db / empty journal -> 0
+    assert reconciler._accounted_fills_for_order(str(tmp_path / "nope.sqlite"), venue="coinbase", client_order_id="c", exchange_order_id="e") == 0
+    # no identifiers -> 0 without touching the db
+    assert reconciler._accounted_fills_for_order(exec_db, venue="coinbase", client_order_id="", exchange_order_id="") == 0
+
+    from services.journal.fill_sink import CanonicalFillSink
+
+    CanonicalFillSink(exec_db=exec_db).on_fill({
+        "venue": "coinbase", "fill_id": "lk-1", "symbol": "BTC/USD", "side": "buy",
+        "qty": 0.5, "price": 100.0, "ts": "2026-07-06T00:00:00+00:00", "fee_usd": 0.1,
+        "client_order_id": "cid-lk", "order_id": "ex-lk",
+    })
+
+    assert reconciler._accounted_fills_for_order(exec_db, venue="coinbase", client_order_id="cid-lk", exchange_order_id="") == 1
+    assert reconciler._accounted_fills_for_order(exec_db, venue="coinbase", client_order_id="", exchange_order_id="ex-lk") == 1
+    assert reconciler._accounted_fills_for_order(exec_db, venue="coinbase", client_order_id="other", exchange_order_id="other") == 0
+    assert reconciler._accounted_fills_for_order(exec_db, venue="kraken", client_order_id="cid-lk", exchange_order_id="ex-lk") == 0

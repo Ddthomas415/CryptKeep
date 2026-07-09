@@ -16156,3 +16156,75 @@ Remaining risk:
   implement production recovery for aged `submitting` rows or the residual
   multi-fill cursor edge.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-09T23:13:04Z - Live Submit/Reconcile Convergence Recovery Stack
+
+Active role: ENGINEER
+
+Objective:
+- Package the accepted stacked live-path recovery patches that convert the
+  crash-consistency findings into convergence behavior: stale `submitting`
+  recovery, canonical-fill lookback for deferred filled transitions, and
+  bounded terminal disposition for persistent venue not-found `submit_unknown`
+  intents.
+
+What was found:
+- SHOWN: the prior fault-injection proof left three documented-safe
+  `submitting` strandings where duplicate submission was prevented but liveness
+  required operator attention.
+- SHOWN: a later fill can advance the shared venue/symbol trade cursor beyond
+  the overlap window while an earlier order is already canonically accounted
+  but still waiting on its `filled` queue transition.
+- SHOWN: the `submit_unknown` recovery lane confirmed ambiguous venue orders
+  when found by client order id, but had no bounded terminal policy for repeated
+  clean venue not-found responses.
+
+What changed:
+- `services/execution/live_intent_consumer.py` now runs a startup
+  `_recover_stale_submitting()` sweep. It never submits; aged venue-found rows
+  converge to `submitted`, aged venue-absent rows move to `submit_unknown`,
+  young rows and lookup failures stay untouched, and env parsing fails back to
+  a strict default.
+- `services/execution/live_reconciler.py` now has a read-only
+  `_accounted_fills_for_order()` lookback in the deferred filled-transition
+  branch. If the trade cursor no longer re-fetches a fill but the canonical
+  journal already accounted it by order id or client order id, the queue
+  transition can converge to `filled`.
+- `services/execution/live_reconciler.py` now tracks repeated clean
+  not-found observations for `submit_unknown` intents and permits terminal
+  `error` disposition only after both configured thresholds pass.
+- `services/execution/intent_lifecycle.py` now permits the reconciler-specific
+  `submit_unknown -> error` transition for that bounded terminal policy while
+  still blocking other premature submit-unknown targets.
+- Added `tests/test_stale_submitting_recovery.py` and
+  `tests/test_submit_unknown_not_found_policy.py`, and extended
+  `tests/test_crash_consistency_fault_injection.py`.
+- Updated `REMAINING_TASKS.md` item 3 and item 4 with the closure proofs and
+  remaining live-capital review risks.
+
+Why this change:
+- The smallest production change is to let existing authority owners converge
+  their own states: the consumer owns stale `submitting` recovery, and the
+  reconciler owns ambiguous submit recovery and filled-transition convergence.
+  This avoids a new repair daemon or schema migration.
+
+Expected outcome:
+- Crash/restart cases that were previously safe-but-stranded now converge
+  without duplicate venue submission.
+- Already-accounted fills do not remain deferred forever solely because a
+  later fill advanced the cursor outside the overlap window.
+- Persistent venue not-found responses leave an auditable terminal error after
+  a bounded observation window instead of polling forever.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_stale_submitting_recovery.py tests/test_crash_consistency_fault_injection.py tests/test_submit_unknown_not_found_policy.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_reconciler_cursor_safety.py tests/test_live_intent_queue_claim_race.py tests/test_intent_ttl_expiry.py tests/test_retry_policy_typed.py tests/test_order_router_retry_flow.py`
+  - SHOWN: `73 passed, 7 warnings in 3.94s`.
+
+Remaining risk:
+- HIGH: this changes live intent consumer/reconciler behavior and lifecycle
+  authority for `submit_unknown -> error`; it requires independent review and
+  GitHub CI before merge.
+- Policy values are review decisions: stale `submitting` recovery defaults to
+  120 seconds; terminal not-found disposition defaults to 3 observations and
+  15 minutes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
