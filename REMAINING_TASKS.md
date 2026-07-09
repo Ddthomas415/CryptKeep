@@ -539,9 +539,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    flipped an exception retryable or venue phrasing containing `account`
    blocked a legitimate transient retry. Deliberate precedence for review:
    ccxt classes `InvalidNonce` under `NetworkError` (transient), but the
-   stricter legacy non-retryable stance is preserved. Still open from this
-   item: fault-injection crash-between-writes proof (item #4 companion) and
-   the venue-lookup-not-found policy.
+   stricter legacy non-retryable stance is preserved. 2026-07-09: the
+   venue-lookup-not-found terminal policy is proof-ready for independent
+   review: `submit_unknown` intents now track clean venue not-found
+   observations in queue state and only transition to `error` when both
+   thresholds pass (`CBP_SUBMIT_UNKNOWN_NOT_FOUND_MIN_OBS` default 3 and
+   `CBP_SUBMIT_UNKNOWN_NOT_FOUND_TERMINAL_MS` default 900000ms). Lookup
+   exceptions do not count, successful recovery clears the observation record,
+   corrupt records restart the window, and the terminal reason includes
+   observation count and age. Remaining risk: a live-but-persistently-invisible
+   venue order could still be disposed after the bounded window; review the
+   default window before live capital.
 4. Add crash-consistency/fault-injection tests for submit, fill, reconcile, and
    restart. Kill between each side effect and assert reconciler convergence.
    This is a launch-packet companion, not a replacement for restart evidence.
@@ -560,13 +568,32 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    permanently (the dedupe guard prevents resubmission and the reconciler
    does not scan `submitting`); safety holds but the intent needs operator
    attention; consider a reconciler or consumer sweep for aged `submitting`
-   rows with dedupe-informed recovery; (b) convergence-by-design confirmed —
+   rows with dedupe-informed recovery; 2026-07-09: closure proof ready for
+   independent review — the consumer now runs a startup
+   stale-`submitting` recovery sweep (`_recover_stale_submitting`,
+   threshold `CBP_SUBMITTING_STALE_RECOVERY_MS` default 120000ms,
+   fail-closed env parsing) that never submits: venue-found rows converge
+   to `submitted` (with an idempotent dedupe claim-then-mark so a crash
+   before the original dedupe claim is also covered), venue-absent rows
+   move to `submit_unknown` for the reconciler's single ambiguity lane,
+   lookup errors and young rows are left untouched, and corrupted
+   timestamps are treated as aged (safe: read-then-classify). The three
+   fault-injection stranding pins were converted to convergence proofs; (b) convergence-by-design confirmed —
    a crash after fill accounting but before the `filled` transition
    converges on the next pass via the reconciler's 60s cursor overlap
    re-fetch (`CBP_RECONCILER_CURSOR_OVERLAP_MS`) plus INSERT OR IGNORE
    idempotence; the residual edge is a later trade advancing the cursor more
    than the overlap window past an earlier fill whose transition never
-   landed — multi-fill lookback would close it.
+   landed — multi-fill lookback would close it. 2026-07-09: lookback closure
+   proof ready for independent review — the reconciler's deferred branch now
+   consults the canonical journal by (venue, order_id/client_order_id) via
+   read-only `_accounted_fills_for_order` (fail-closed: any read problem
+   returns 0 and keeps the deferred behavior); a closed order with zero
+   re-fetched fills but existing accounted fills transitions to `filled` via
+   lookback, and the fault-injection suite proves the multi-fill edge
+   converges with exactly-once accounting and an honest cursor (no replay
+   past the overlap window). Genuinely unaccounted closed-with-zero-trades
+   anomalies still defer, unchanged.
 5. Ship server deployment units or retire the stale deployment story. Provide
    systemd units for collector, trader, reconciler, and dashboard, and either
    make Docker compose runnable from this repo or move it behind a documented

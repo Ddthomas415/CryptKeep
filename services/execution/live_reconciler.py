@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import math
 import logging
 import os
 import sqlite3
@@ -212,6 +213,38 @@ def _trade_realized_pnl_usd(tr: dict) -> float | None:
     return None
 
 
+def _accounted_fills_for_order(exec_db: str, *, venue: str, client_order_id: str, exchange_order_id: str) -> int:
+    """
+    Count canonical-journal fills already accounted for an order (backlog #4
+    finding (b) lookback). Used only when a closed order's `filled`
+    transition is pending but the trade cursor has advanced past its fills'
+    re-fetch overlap window. Fail closed: any read problem returns 0, which
+    keeps the current deferred behavior.
+    """
+    cid = str(client_order_id or "").strip()
+    ex_oid = str(exchange_order_id or "").strip()
+    if not cid and not ex_oid:
+        return 0
+    try:
+        con = sqlite3.connect(exec_db)
+        try:
+            cur = con.execute(
+                "SELECT COUNT(*) FROM canonical_fills WHERE venue = ? "
+                "AND ((order_id != '' AND order_id IS NOT NULL AND order_id = ?) "
+                "  OR (client_order_id != '' AND client_order_id IS NOT NULL AND client_order_id = ?))",
+                (str(venue), ex_oid, cid),
+            )
+            return int(cur.fetchone()[0])
+        finally:
+            con.close()
+    except Exception as exc:
+        _LOG.warning(
+            "live_reconciler.fill_lookback_failed venue=%s ex_oid=%s err=%s:%s",
+            venue, ex_oid, type(exc).__name__, exc,
+        )
+        return 0
+
+
 def _emit_canonical_fill(*, exec_db: str, fill: dict) -> bool:
     """Return True only when canonical fill accounting succeeds."""
     try:
@@ -231,6 +264,73 @@ def _emit_canonical_fill(*, exec_db: str, fill: dict) -> bool:
         return False
 
 
+SU_NOT_FOUND_TERMINAL_MS_ENV = "CBP_SUBMIT_UNKNOWN_NOT_FOUND_TERMINAL_MS"
+SU_NOT_FOUND_TERMINAL_MS_DEFAULT = 900_000.0  # 15 minutes
+SU_NOT_FOUND_MIN_OBS_ENV = "CBP_SUBMIT_UNKNOWN_NOT_FOUND_MIN_OBS"
+SU_NOT_FOUND_MIN_OBS_DEFAULT = 3
+
+
+def _su_not_found_terminal_ms() -> float:
+    raw = os.environ.get(SU_NOT_FOUND_TERMINAL_MS_ENV)
+    if raw is None or str(raw).strip() == "":
+        return SU_NOT_FOUND_TERMINAL_MS_DEFAULT
+    try:
+        value = float(raw)
+    except Exception as _err:
+        return SU_NOT_FOUND_TERMINAL_MS_DEFAULT
+    if not math.isfinite(value) or value <= 0.0:
+        return SU_NOT_FOUND_TERMINAL_MS_DEFAULT
+    return value
+
+
+def _su_not_found_min_obs() -> int:
+    raw = os.environ.get(SU_NOT_FOUND_MIN_OBS_ENV)
+    if raw is None or str(raw).strip() == "":
+        return SU_NOT_FOUND_MIN_OBS_DEFAULT
+    try:
+        value = int(float(raw))
+    except Exception as _err:
+        return SU_NOT_FOUND_MIN_OBS_DEFAULT
+    if value < 1:
+        return SU_NOT_FOUND_MIN_OBS_DEFAULT
+    return value
+
+
+def _su_not_found_state_key(intent_id: str) -> str:
+    return f"su_not_found:{intent_id}"
+
+
+def _record_su_not_found(qdb: LiveIntentQueueSQLite, intent_id: str, now_ms: int) -> dict:
+    """
+    Track consecutive clean venue not-found observations for a submit_unknown
+    intent. Only clean not-found answers reach this (lookup exceptions
+    propagate before it); a successful recovery clears the record.
+    """
+    key = _su_not_found_state_key(intent_id)
+    state = {"first_ms": now_ms, "count": 0}
+    try:
+        raw = qdb.get_state(key)
+        if raw:
+            loaded = json.loads(raw)
+            if isinstance(loaded, dict) and isinstance(loaded.get("first_ms"), (int, float)):
+                state = {"first_ms": int(loaded["first_ms"]), "count": int(loaded.get("count") or 0)}
+    except Exception as _err:
+        pass  # corrupt record: restart the observation window (fail toward NOT disposing)
+    state["count"] = int(state["count"]) + 1
+    try:
+        qdb.set_state(key, json.dumps(state))
+    except Exception as _err:
+        pass
+    return state
+
+
+def _clear_su_not_found(qdb: LiveIntentQueueSQLite, intent_id: str) -> None:
+    try:
+        qdb.set_state(_su_not_found_state_key(intent_id), "")
+    except Exception as _err:
+        pass
+
+
 def _recover_submit_unknown_by_client_order_id(
     *,
     qdb: LiveIntentQueueSQLite,
@@ -248,6 +348,36 @@ def _recover_submit_unknown_by_client_order_id(
 
     recovered = ad.find_order_by_client_oid(symbol, client_order_id)
     if not recovered:
+        now_ms = _now_ms()
+        state = _record_su_not_found(qdb, str(intent["intent_id"]), now_ms)
+        age_ms = max(0, now_ms - int(state["first_ms"]))
+        if state["count"] >= _su_not_found_min_obs() and age_ms >= _su_not_found_terminal_ms():
+            reason = f"submit_unknown_not_found_terminal:obs={state['count']}:age_ms={age_ms}"
+            _LOG.warning(
+                "live_reconciler.submit_unknown_not_found_terminal intent_id=%s client_order_id=%s %s",
+                intent.get("intent_id"), client_order_id, reason,
+            )
+            if update_live_queue_status_as_reconciler(
+                qdb,
+                intent,
+                "error",
+                ctx=_RECONCILER_STATE_CONTEXT,
+                last_error=reason,
+            ):
+                ldb.upsert_order({
+                    "client_order_id": client_order_id,
+                    "venue": venue,
+                    "symbol": symbol,
+                    "side": intent["side"],
+                    "order_type": intent["order_type"],
+                    "qty": float(intent["qty"]),
+                    "limit_price": intent.get("limit_price"),
+                    "exchange_order_id": None,
+                    "status": "error",
+                    "last_error": reason,
+                })
+                _clear_su_not_found(qdb, str(intent["intent_id"]))
+                return True
         return False
 
     ex_oid = str(recovered.get("id") or recovered.get("orderId") or "").strip()
@@ -276,6 +406,7 @@ def _recover_submit_unknown_by_client_order_id(
         "status": "submitted",
         "last_error": None,
     })
+    _clear_su_not_found(qdb, str(intent["intent_id"]))
     return True
 
 
@@ -501,17 +632,48 @@ def run_forever() -> None:
                                         it.get("intent_id"), ex_oid,
                                     )
                             else:
-                                _LOG.info(
-                                    "live_reconciler.filled_transition_deferred intent_id=%s ex_oid=%s zero_accounted_fills",
-                                    it.get("intent_id"), ex_oid,
+                                _lookback = _accounted_fills_for_order(
+                                    exec_db,
+                                    venue=venue,
+                                    client_order_id=str(it.get("client_order_id") or ""),
+                                    exchange_order_id=ex_oid,
                                 )
-                                update_live_queue_status_as_reconciler(
-                                    qdb,
-                                    it,
-                                    "submitted",
-                                    ctx=_RECONCILER_STATE_CONTEXT,
-                                    last_error="filled_deferred:zero_accounted_fills",
-                                )
+                                if _lookback > 0:
+                                    _LOG.info(
+                                        "live_reconciler.filled_transition_via_lookback intent_id=%s ex_oid=%s accounted_fills=%s",
+                                        it.get("intent_id"), ex_oid, _lookback,
+                                    )
+                                    _transitioned = update_live_queue_status_as_reconciler(
+                                        qdb,
+                                        it,
+                                        "filled",
+                                        ctx=_RECONCILER_STATE_CONTEXT,
+                                        last_error=None,
+                                    )
+                                    if _transitioned:
+                                        ldb.upsert_order({
+                                            "client_order_id": it.get("client_order_id") or f"live_intent_{it['intent_id']}",
+                                            "venue": venue, "symbol": symbol, "side": it["side"], "order_type": it["order_type"],
+                                            "qty": float(it["qty"]), "limit_price": it.get("limit_price"),
+                                            "exchange_order_id": ex_oid, "status": "filled", "last_error": None,
+                                        })
+                                    else:
+                                        _LOG.warning(
+                                            "live_reconciler.filled_transition_failed intent_id=%s ex_oid=%s (lookback)",
+                                            it.get("intent_id"), ex_oid,
+                                        )
+                                else:
+                                    _LOG.info(
+                                        "live_reconciler.filled_transition_deferred intent_id=%s ex_oid=%s zero_accounted_fills",
+                                        it.get("intent_id"), ex_oid,
+                                    )
+                                    update_live_queue_status_as_reconciler(
+                                        qdb,
+                                        it,
+                                        "submitted",
+                                        ctx=_RECONCILER_STATE_CONTEXT,
+                                        last_error="filled_deferred:zero_accounted_fills",
+                                    )
                     except Exception as e:
                         _err = f"{type(e).__name__}:{e}"
                         if ex_oid and _submitted_ts_ms and _age_ms >= _stale_after_ms:

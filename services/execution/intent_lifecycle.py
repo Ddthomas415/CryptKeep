@@ -74,7 +74,11 @@ def validate_reconciler_live_queue_transition(
         raise IntentLifecycleViolation(
             f"blocked live queue transition: terminal status {current!r} is immutable"
         )
-    if current == "submit_unknown" and nxt != "submitted":
+    if current == "submit_unknown" and nxt not in {"submitted", "error"}:
+        # Deliberate contract: the reconciler may only CONFIRM ambiguous
+        # submits (-> submitted) or terminally dispose them (-> error) under
+        # the bounded venue-not-found policy in live_reconciler; premature
+        # rejection remains blocked.
         raise IntentLifecycleViolation(
             f"blocked live queue transition: invalid submit_unknown target {nxt!r}"
         )
