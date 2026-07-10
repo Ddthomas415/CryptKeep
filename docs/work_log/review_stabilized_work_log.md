@@ -16402,3 +16402,86 @@ Remaining risk:
   secrets scan are operator follow-through.
 - Independent human review and GitHub CI required before landing.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T20:53:00Z - Paper/Gate Event Alerting, First Slice (Active Backlog #23)
+
+Active role: ENGINEER
+
+Objective:
+- Apply the first notification-only paper/gate event alerting slice so
+  evidence-writer health transitions and promotion-gate flips can wake the
+  operator instead of relying only on manual polling.
+
+What was found:
+- SHOWN: Active backlog item #23 asks for paper/gate event alerting, with
+  evidence-write failure thresholds and gate-ready transitions included in
+  the first read-only/notification-only implementation target.
+- SHOWN: substrate backlog item #9 previously deferred any future
+  alert-dispatch hook to the paper/gate event alerting item.
+- SHOWN: the incoming patch applied cleanly to current `review-stabilized`
+  except for the work-log tail because #244 had advanced the branch. The
+  functional hunks were applied unchanged; this entry was appended at the
+  current tail.
+- SHOWN: the incoming module/test docstrings referred to "Active backlog
+  #19"; the actual backlog item is #23, so both docstrings were corrected.
+
+What changed:
+- `services/alerts/paper_gate_events.py` (new): best-effort
+  notification-only helpers for evidence-writer status transitions and
+  promotion-gate flip snapshots. The gate snapshot is written to
+  `runtime/health/promotion_gates.last.json`, first run is a silent
+  baseline, and alert dispatch errors are swallowed so snapshots still
+  advance.
+- `services/strategies/evidence_logger.py`: evidence-writer success and
+  failure recorders now capture the prior status, persist the new status,
+  then call the transition alert hook inside a never-raise wrapper.
+- `scripts/check_promotion_gates.py`: adds `--alert`; gate results and
+  exit-code behavior are unchanged, and snapshot persistence runs
+  best-effort outside the gate decision.
+- `tests/test_paper_gate_event_alerts.py` (new): pins transition
+  deduplication, severity levels, evidence-writer end-to-end behavior,
+  gate baseline/flip/recovery behavior, corrupt snapshot recovery, and
+  never-raise alert handling.
+- `REMAINING_TASKS.md`: records this as the first Active #23 slice and
+  marks substrate #9's alert-dispatch hook as implemented by this item.
+
+Why this change was chosen:
+- It is the smallest operator-visible alerting slice: notification-only,
+  opt-in for promotion-gate alerts, no trading decisions, no gate
+  pass/fail changes, and no evidence-write control-flow dependency on
+  the alert stack.
+
+Expected outcome:
+- Evidence-writer degradation/refusal/recovery and promotion-gate flips
+  become visible through the existing alert dispatcher without changing
+  trading, evidence, or promotion decisions.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py`
+  - SHOWN: `8 passed in 0.11s`.
+- `./.venv/bin/python -m py_compile services/alerts/paper_gate_events.py services/strategies/evidence_logger.py scripts/check_promotion_gates.py tests/test_paper_gate_event_alerts.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py tests/test_evidence_logger.py tests/test_check_promotion_gates.py tests/test_alert_dispatcher_fallback.py`
+  - SHOWN: `77 passed in 1.66s`.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, guard tests `23 passed`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --help`
+  - SHOWN: help lists `--alert`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m ruff check ...`
+  - SHOWN: not run successfully because this local venv has no `ruff`
+    module installed. Use GitHub CI as the lint proof.
+- Full local suite not run in this branch per operator time constraint;
+  use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- HIGH by repo rule because this touches gate/evidence surfaces, even
+  though the implementation is notification-only and wrapped never-raise.
+- Remaining Active #23 event families are still open: qualified
+  round-trip changes, campaign stop/failure, and strategy decision
+  changes.
+- Independent human review and GitHub CI required before landing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

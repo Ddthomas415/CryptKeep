@@ -1370,9 +1370,27 @@ def main() -> int:
     ap.add_argument("--json",   action="store_true", help="Output JSON")
     ap.add_argument("--strict", action="store_true",
                     help="Exit 1 if any gate fails or is unknown")
+    ap.add_argument(
+        "--alert",
+        action="store_true",
+        help="Dispatch alerts on gate flips vs the previous persisted snapshot (best-effort)",
+    )
     args = ap.parse_args()
 
     result = run_check(stage_override=args.stage)
+
+    try:  # notification-only; never affects gate results or exit codes
+        from datetime import datetime, timezone
+
+        from services.alerts.paper_gate_events import record_gate_result_and_alert
+
+        record_gate_result_and_alert(
+            result,
+            alert=args.alert,
+            now_iso=datetime.now(timezone.utc).isoformat(),
+        )
+    except Exception:
+        pass
 
     if args.json:
         print(json.dumps(result, indent=2, default=str))
