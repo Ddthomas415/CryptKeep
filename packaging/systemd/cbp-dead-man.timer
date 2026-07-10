@@ -1,0 +1,11 @@
+# Runs the dead-man check every minute after a 2-minute boot grace.
+[Unit]
+Description=CryptKeep dead-man liveness timer
+
+[Timer]
+OnBootSec=120
+OnUnitActiveSec=60
+AccuracySec=10
+
+[Install]
+WantedBy=timers.target

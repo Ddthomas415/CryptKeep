@@ -1,0 +1,22 @@
+# CryptKeep dead-man liveness check (driven by cbp-dead-man.timer).
+# Exit codes: 0 healthy, 1 stale heartbeat, 2 missing heartbeat.
+# Adjust --names to the loops that MUST be alive on this host.
+[Unit]
+Description=CryptKeep dead-man liveness check
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=cbp
+Group=cbp
+WorkingDirectory=/opt/crypto-bot-pro
+EnvironmentFile=/etc/cbp/cbp.env
+Environment=CBP_STATE_DIR=/var/lib/cbp
+ExecStart=/opt/crypto-bot-pro/.venv/bin/python scripts/check_dead_man.py --alert --names intent_consumer,live_reconciler
+StateDirectory=cbp
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/cbp

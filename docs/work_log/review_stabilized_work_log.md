@@ -16309,3 +16309,92 @@ Remaining risk:
 - Host-side NTP enforcement remains an operator/server task; the script
   provides the evidence artifact.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T08:26:56Z - Trading-Loop Heartbeats + External Dead-Man (Substrate Backlog #6 Slice)
+
+Active role: ENGINEER
+
+Objective:
+- Give each managed trading loop an independent liveness signal and an
+  external alert-on-absence check within a defined window. Systemd units
+  (#5 slice) restart crashes; nothing detected silent hangs — existing
+  status files are event-driven and can read "running" while a loop is
+  stuck inside a venue call.
+
+Course correction (recorded deliberately):
+- SHOWN: mid-batch, the item's own 2026-07-03 audit note surfaced existing
+  dormant infrastructure — `services/process/heartbeat.py::write_heartbeat()`
+  with zero callers and `services/process/watchdog.py` reading heartbeat
+  state. A parallel heartbeat module had already been drafted; it was
+  deleted and the work reshaped to EXTEND the existing module instead,
+  per the item's "prefer boring infrastructure over more custom code" and
+  Structure Hygiene #1 (no twin modules).
+
+What changed:
+- `services/process/heartbeat.py`: named per-loop beats added —
+  `write_named_heartbeat(name, extra=)` writes
+  `runtime/heartbeats/{name}.json` atomically (tmp+rename) with pid/seq,
+  rate-limited via `CBP_HEARTBEAT_MIN_INTERVAL_S` (default 5.0s; 0 =
+  every iteration; invalid/non-finite -> default), and NEVER raises — a
+  heartbeat must not be able to break a trading loop. Readers:
+  `read_named_heartbeat`, `named_heartbeat_age_s`. The legacy
+  single-file bot-runner path is byte-identical (watchdog and
+  crash-snapshot readers untouched; contract pinned by test).
+- `services/execution/live_intent_consumer.py` +
+  `services/execution/live_reconciler.py`: one `write_named_heartbeat`
+  call at the top of each loop iteration (`intent_consumer`,
+  `live_reconciler`) with the loop counter as extra. No other loop
+  behavior changed.
+- `scripts/check_dead_man.py`: external liveness verdicts over named
+  beats — exit 0 healthy / 1 stale / 2 missing (missing dominates);
+  `--names` declares what MUST be alive on the host and an empty name set
+  fails closed as missing;
+  `CBP_DEAD_MAN_MAX_AGE_S` default 180.0s fail-closed parsed; `--json`
+  report; `--alert` dispatches a critical alert best-effort through the
+  existing `services/alerts/alert_dispatcher.send_alert` (never raises).
+- `packaging/systemd/cbp-dead-man.service` (oneshot, hardened, no arming
+  tokens, `CBP_STATE_DIR=/var/lib/cbp`, `StateDirectory=cbp`) +
+  `cbp-dead-man.timer` (every 60s, 120s boot grace).
+  `scripts/SCRIPTS.md` entry anchored away from the pending #5 slice's
+  insertion point so both patches apply in either order.
+- `tests/test_dead_man.py` (new, 11 tests): sequenced atomic payloads;
+  rate limiting; never-raises on unwritable dir; interval env fallbacks;
+  checker verdict matrix incl. missing-dominates-stale, empty-name
+  fail-closed behavior, and max-age env fallbacks; CLI end-to-end exit
+  codes 0/2; both loops emit beats under a
+  one-iteration harness; LEGACY-CONTRACT PIN (single-file payload shape and
+  path unchanged); item-mandated bounded-stop proof (stop honored one
+  iteration after request — startup deliberately clears stale stop files,
+  which the proof respects); item-mandated synthetic alert-delivery proof
+  (no configured channels still lands the local JSONL fallback).
+
+Deliberate boundaries for reviewer attention:
+- Policy numbers: 5.0s beat interval, 180s dead-man age, 60s timer cadence.
+- The watchdog's auto-stop is NOT wired to named beats in this slice; the
+  item prefers the external dead-man lane first, and watchdog policy per
+  loop is a separate decision. Push channels (healthchecks/ntfy) layer on
+  the checker's exit codes as operator choices.
+
+Verification:
+- `python3 -m pytest -q tests/test_dead_man.py`
+  - CLAIMED by originating patch author before review packaging:
+    `11 passed`.
+- `./.venv/bin/python -m py_compile services/process/heartbeat.py services/execution/live_intent_consumer.py services/execution/live_reconciler.py scripts/check_dead_man.py tests/test_dead_man.py`
+  - SHOWN in review branch: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_dead_man.py`
+  - SHOWN in review branch: `11 passed in 0.80s`.
+- 31 nearby test files importing or exercising the touched loop, reconciler,
+  heartbeat, checker, and alert surfaces:
+  - SHOWN in review branch: `189 passed, 7 warnings in 7.18s`.
+- `git diff --check`
+  - SHOWN in review branch: passed with no output.
+
+Remaining risk:
+- MEDIUM-HIGH: one added call per iteration in both live loops (wrapped
+  never-raise); everything else is new files. Independent human review and
+  GitHub CI required before landing.
+- Full local suite was not rerun in this review branch per operator time
+  constraints; use GitHub CI as the broad-suite proof.
+- Independent of the pending systemd-units slice except trivial doc-tail
+  overlaps; both orders apply.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
