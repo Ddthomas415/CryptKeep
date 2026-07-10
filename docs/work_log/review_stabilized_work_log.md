@@ -16707,3 +16707,78 @@ Remaining risk:
 - Remaining substrate #2 sweep is still open for other live executor,
   consumer/reconciler config reads, and admin live controls.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T22:35:13Z - Qualified Round-Trip Change Alerts (Active Backlog #23 Slice)
+
+Active role: ENGINEER
+
+Objective:
+- Continue paper/gate event alerting with the smallest notification-only
+  slice still open under Active backlog #23: alert when the machine-gate
+  qualified paper round-trip count changes.
+
+What was found:
+- SHOWN: `evaluate_paper_gates()` already computes the qualified
+  `round_trips` from `paper_history`, but `run_check()` exposed that count
+  only through the human-readable gate detail string.
+- SHOWN: `services/alerts/paper_gate_events.py` already persists a
+  first-run silent baseline for gate pass/fail flips in
+  `runtime/health/promotion_gates.last.json`, making it the correct
+  single snapshot for this notification family.
+
+What changed:
+- `scripts/check_promotion_gates.py`: adds an additive paper-stage
+  `paper_progress` object to the JSON result. It contains the structured
+  qualified round-trip count used by the machine gate:
+  `round_trips_recorded`, `round_trips_required`,
+  `round_trips_remaining`, `round_trips_ready`, source, and diagnostic
+  all-history round-trip count. Gate pass/fail logic, printed report, and
+  exit codes are unchanged.
+- `services/alerts/paper_gate_events.py`: persists `paper_progress` in the
+  existing promotion-gate snapshot and, when `--alert` is used, dispatches
+  `paper_gate:qualified_round_trips_changed` exactly once per count change.
+  Count increases alert at `info`; count decreases alert at `warning`
+  because they usually mean requalification/provenance recalculation
+  invalidated previously counted history. First run remains a silent
+  baseline. Alert dispatch remains best-effort and never freezes snapshot
+  advancement.
+- `tests/test_paper_gate_event_alerts.py`: pins baseline behavior,
+  increase alert, decrease warning, steady-state dedupe, and snapshot
+  advancement when the alert channel raises.
+- `tests/test_check_promotion_gates.py`: pins the new source-level
+  `paper_progress` contract for both zero qualified trips with diagnostic
+  all-history and one qualified round trip.
+- `REMAINING_TASKS.md`: records this as the second Active #23
+  notification-only slice and leaves campaign stop/failure and strategy
+  decision alerts open.
+
+Why this change was chosen:
+- The alert must follow the same structured value the machine gate uses,
+  not parse display text or use a separate dashboard progress service.
+  Keeping this as an additive JSON field avoids changing existing gate
+  behavior while making the operator wake-up condition machine-readable.
+
+Expected outcome:
+- Operators running `scripts/check_promotion_gates.py --alert` receive a
+  notification when qualified paper round-trip progress moves, including
+  regressions caused by stricter provenance qualification. Manual polling is
+  still possible, but the count-change event no longer depends on the
+  operator noticing the gate output.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py tests/test_check_promotion_gates.py`
+  - SHOWN: `56 passed in 0.95s`.
+- `./.venv/bin/python -m py_compile services/alerts/paper_gate_events.py scripts/check_promotion_gates.py tests/test_paper_gate_event_alerts.py tests/test_check_promotion_gates.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: touches promotion-gate JSON and operator alerting. Notification-only
+  code must still receive independent human review and GitHub CI before
+  landing.
+- Full suite not run locally per operator time rule; use GitHub CI as broad
+  proof.
+- Remaining Active #23 event families: campaign stop/failure and strategy
+  decision changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

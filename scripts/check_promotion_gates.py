@@ -426,6 +426,20 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
     }
 
 
+def _paper_progress_summary(paper_history: dict | None) -> dict:
+    """Machine-readable paper threshold progress for alerts and dashboards."""
+    history = dict(paper_history or {})
+    round_trips = int(history.get("closed_trades") or 0)
+    return {
+        "source": str(history.get("source") or "paper_history"),
+        "round_trips_recorded": round_trips,
+        "round_trips_required": PAPER_MIN_ROUND_TRIPS,
+        "round_trips_remaining": max(0, PAPER_MIN_ROUND_TRIPS - round_trips),
+        "round_trips_ready": round_trips >= PAPER_MIN_ROUND_TRIPS,
+        "all_history_round_trips": int(history.get("all_history_closed_trades") or 0),
+    }
+
+
 def _weeks_at_stage(stage: Stage) -> float | None:
     """Estimate weeks the strategy has been at the current stage."""
     summary = stage_summary(STRATEGY_ID)
@@ -1317,6 +1331,11 @@ def run_check(stage_override: str | None = None) -> dict:
         "schema":       schema,
         "evidence_writer": evidence_writer,
         "paper_history": paper_history,
+        "paper_progress": (
+            _paper_progress_summary(paper_history)
+            if stage == Stage.PAPER
+            else None
+        ),
         "provenance":   provenance,
         "provenance_all_time": provenance_all_time,
         "slippage":     slippage_check,

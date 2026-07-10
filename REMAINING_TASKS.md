@@ -374,8 +374,21 @@ deployment work still needs independent review.
     first run is a silent baseline; a raising channel is contained so the
     snapshot always advances (a frozen snapshot would re-alert forever and
     break recovery detection — caught by the batch's own never-raise test).
-    Remaining event families for later slices: qualified round-trip
-    changes, campaign stop/failure, and strategy decision changes.
+    2026-07-10: the second notification-only slice is ready for
+    independent review: `check_promotion_gates.py` now emits an additive
+    `paper_progress` object for paper-stage checks with the structured
+    qualified round-trip count the machine gate already uses
+    (`round_trips_recorded`, `round_trips_required`,
+    `round_trips_remaining`, `round_trips_ready`, source, and diagnostic
+    all-history count), and `paper_gate_events` persists that progress in
+    the existing `promotion_gates.last.json` snapshot. With `--alert`,
+    qualified round-trip count changes dispatch exactly once per change:
+    increases are info, decreases are warning because they usually mean
+    requalification/provenance recalculation invalidated history. First run
+    remains a silent baseline; unchanged counts do not re-alert; a raising
+    alert channel is contained so the snapshot still advances. Remaining
+    event families for later slices: campaign stop/failure and strategy
+    decision changes.
 24. Write explicit stop and retirement criteria before any strategy advances
     beyond paper. Define, in a decision record, what evidence retires a
     strategy, freezes it, keeps it in paper, or stops the broader project.

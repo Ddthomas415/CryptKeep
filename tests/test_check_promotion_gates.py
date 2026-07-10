@@ -441,6 +441,14 @@ class TestGateLogic:
         assert result["paper_history"]["all_history_fills"] == 14
         assert result["paper_history"]["all_history_closed_trades"] == 7
         assert result["paper_history"]["qualification"]["qualified_evidence_fills"] == 0
+        assert result["paper_progress"] == {
+            "source": "jsonl_provenance+trade_journal_sqlite",
+            "round_trips_recorded": 0,
+            "round_trips_required": 10,
+            "round_trips_remaining": 10,
+            "round_trips_ready": False,
+            "all_history_round_trips": 7,
+        }
         assert "0 round trips recorded" in round_trip_gate["detail"]
         assert "7 diagnostic-only all-history round trips" in round_trip_gate["detail"]
         assert (
@@ -561,6 +569,10 @@ class TestGateLogic:
         assert result["paper_history"]["closed_trades"] == 1
         assert result["paper_history"]["all_history_closed_trades"] == 1
         assert result["paper_history"]["qualification"]["unqualified_evidence_fills"] == 0
+        assert result["paper_progress"]["round_trips_recorded"] == 1
+        assert result["paper_progress"]["round_trips_required"] == 10
+        assert result["paper_progress"]["round_trips_remaining"] == 9
+        assert result["paper_progress"]["round_trips_ready"] is False
         assert (
             result["paper_history"]["qualification"]["first_provenance_qualified_fill_ts"]
             == "2026-05-01T00:00:00+00:00"

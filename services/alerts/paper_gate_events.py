@@ -89,6 +89,32 @@ def _persist_snapshot(snapshot: dict[str, Any]) -> None:
         pass
 
 
+def _int_or_none(value: Any) -> int | None:
+    try:
+        return int(value)
+    except Exception:
+        return None
+
+
+def _paper_progress_snapshot(result: dict[str, Any]) -> dict[str, Any] | None:
+    progress = result.get("paper_progress")
+    if not isinstance(progress, dict):
+        return None
+    observed = _int_or_none(progress.get("round_trips_recorded"))
+    required = _int_or_none(progress.get("round_trips_required"))
+    remaining = _int_or_none(progress.get("round_trips_remaining"))
+    if observed is None:
+        return None
+    return {
+        "round_trips_recorded": observed,
+        "round_trips_required": required,
+        "round_trips_remaining": remaining,
+        "round_trips_ready": bool(progress.get("round_trips_ready")),
+        "all_history_round_trips": _int_or_none(progress.get("all_history_round_trips")),
+        "source": str(progress.get("source") or ""),
+    }
+
+
 def record_gate_result_and_alert(
     result: dict[str, Any],
     *,
@@ -110,8 +136,14 @@ def record_gate_result_and_alert(
             if g.get("label") is not None and g.get("passed") is not None
         }
         ready = bool(result.get("ready"))
+        paper_progress = _paper_progress_snapshot(result)
         prev = _load_snapshot()
         prev_gates = prev.get("gates") if isinstance(prev.get("gates"), dict) else None
+        prev_paper_progress = (
+            prev.get("paper_progress")
+            if isinstance(prev.get("paper_progress"), dict)
+            else None
+        )
 
         if prev_gates is None:
             out["baseline"] = True
@@ -145,6 +177,32 @@ def record_gate_result_and_alert(
                 if ready and not prev_ready:
                     _send("info", "promotion_gates:ready_recovered", {"stage": result.get("stage")})
                     out["alerted"].append("ready_recovered")
+                if paper_progress is not None and prev_paper_progress is not None:
+                    current_trips = paper_progress.get("round_trips_recorded")
+                    previous_trips = _int_or_none(
+                        prev_paper_progress.get("round_trips_recorded")
+                    )
+                    if (
+                        isinstance(current_trips, int)
+                        and previous_trips is not None
+                        and current_trips != previous_trips
+                    ):
+                        delta = current_trips - previous_trips
+                        _send(
+                            "info" if delta > 0 else "warning",
+                            "paper_gate:qualified_round_trips_changed",
+                            {
+                                "previous": previous_trips,
+                                "current": current_trips,
+                                "delta": delta,
+                                "required": paper_progress.get("round_trips_required"),
+                                "remaining": paper_progress.get("round_trips_remaining"),
+                                "ready": paper_progress.get("round_trips_ready"),
+                                "source": paper_progress.get("source"),
+                                "stage": result.get("stage"),
+                            },
+                        )
+                        out["alerted"].append("qualified_round_trips_changed")
             except Exception:
                 out["alerted"] = []
 
@@ -154,6 +212,7 @@ def record_gate_result_and_alert(
                 "ready": ready,
                 "stage": result.get("stage"),
                 "gates": gates,
+                "paper_progress": paper_progress,
             }
         )
     except Exception:
