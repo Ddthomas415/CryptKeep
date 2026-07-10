@@ -167,6 +167,34 @@ def test_build_snapshot_uses_seeded_inputs(tmp_path):
     assert snap.leverage > 0.0
 
 
+def test_build_snapshot_surfaces_corrupt_risk_daily_marker(tmp_path):
+    from services.ops.risk_gate_engine import decide_gate
+    from services.ops.risk_gate_contract import RiskGateState
+    from services.ops.telemetry_snapshot_builder import TelemetrySnapshotCfg, build_snapshot
+    from services.risk.risk_daily import RiskDailyDB
+
+    exec_db = tmp_path / "execution.sqlite"
+    system_status = tmp_path / "system_status.latest.json"
+    _seed_system_status(system_status)
+
+    rdb = RiskDailyDB(exec_db=str(exec_db))
+    rdb.get()
+    with rdb._conn() as con:
+        con.execute("UPDATE risk_daily SET realized_pnl_usd='nan'")
+
+    snap = build_snapshot(
+        TelemetrySnapshotCfg(
+            system_status_path=str(system_status),
+            exec_db_path=str(exec_db),
+        )
+    )
+
+    assert snap.extra["risk_daily_corrupt"] is True
+    assert snap.extra["risk_daily_corrupt_fields"] == ["realized_pnl_usd"]
+    gate = decide_gate(snap)
+    assert gate.gate_state == RiskGateState.FULL_STOP
+
+
 def test_publish_snapshot_writes_ops_store(tmp_path):
     from services.ops.telemetry_snapshot_builder import TelemetrySnapshotCfg, publish_snapshot
 
@@ -188,4 +216,3 @@ def test_publish_snapshot_writes_ops_store(tmp_path):
     latest = store.latest_raw_signal()
     assert isinstance(latest, dict)
     assert latest.get("source") == "ops_signal_adapter"
-

@@ -355,6 +355,32 @@ def test_enforce_fail_closed_blocks_max_daily_loss(monkeypatch):
         )
 
 
+def test_enforce_fail_closed_blocks_corrupt_risk_daily_snapshot(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(
+        monkeypatch,
+        risk_snapshot={
+            "trades": 1,
+            "pnl": 0,
+            "notional": 0,
+            "risk_daily_corrupt": True,
+            "risk_daily_corrupt_fields": ["realized_pnl_usd"],
+            "risk_daily_corrupt_reason": "invalid_numeric:realized_pnl_usd",
+        },
+    )
+
+    with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:risk_daily_corrupt"):
+        po._enforce_fail_closed(
+            DummyExchange(),
+            symbol="BTC/USD",
+            side="buy",
+            amount=0.1,
+            price=100.0,
+            params={},
+            order_type="limit",
+        )
+
+
 def test_enforce_fail_closed_blocks_max_daily_notional(monkeypatch):
     _set_limit_env(monkeypatch, CBP_MAX_DAILY_NOTIONAL="1000")
     _install_boundary_success_deps(monkeypatch, risk_snapshot={"trades": 1, "pnl": 0, "notional": 990})

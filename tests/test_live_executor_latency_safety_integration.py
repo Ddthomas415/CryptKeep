@@ -153,6 +153,73 @@ def test_submit_pending_live_uses_risk_daily_for_gate_one_loss_block(monkeypatch
     ]
 
 
+def test_submit_pending_live_fails_closed_on_corrupt_risk_daily(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+    exec_db = str(tmp_path / "execution.sqlite")
+    cfg = le.LiveCfg(
+        enabled=True,
+        exchange_id="coinbase",
+        exec_db=exec_db,
+        symbol="BTC/USD",
+        max_submit_per_tick=1,
+    )
+
+    _guard_running(monkeypatch)
+    rdb = le.RiskDailyDB(exec_db)
+    rdb.get()
+    with rdb._conn() as con:
+        con.execute("UPDATE risk_daily SET realized_pnl_usd='nan'")
+
+    class _FakeStore:
+        def __init__(self):
+            self.status_updates: list[tuple[str, str, str]] = []
+
+        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+            if status != "pending":
+                return []
+            return [
+                {
+                    "intent_id": "intent-corrupt",
+                    "symbol": symbol,
+                    "side": "buy",
+                    "order_type": "limit",
+                    "qty": 0.25,
+                    "limit_price": 100.0,
+                    "reason": "",
+                }
+            ]
+
+        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
+            self.status_updates.append((intent_id, status, reason))
+
+    class _NeverSubmitClient:
+        def submit_order(self, **kwargs):
+            raise AssertionError("submit_order should not run with corrupt risk_daily")
+
+    fake_store = _FakeStore()
+
+    monkeypatch.setattr(le, "_execution_safety_pause_open", lambda **_: (True, "OK", {}))
+    monkeypatch.setattr(le, "_load_execution_safety_cfg", lambda *_, **__: SafetyConfig(enabled=True))
+    monkeypatch.setattr(le, "_check_market_freshness_for_live", lambda *_args, **_kwargs: (True, "OK", {}))
+    monkeypatch.setattr(le.LiveRiskLimits, "from_trading_yaml", staticmethod(lambda _path: object()))
+    monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
+    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: object())
+    monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _NeverSubmitClient())
+
+    out = le.submit_pending_live(cfg)
+
+    assert out["ok"] is True
+    assert out["submitted"] == 0
+    assert out["errors"] == 1
+    assert fake_store.status_updates == [
+        (
+            "intent-corrupt",
+            "pending",
+            "submit_error:ValueError:risk_daily_corrupt:realized_pnl_usd",
+        )
+    ]
+
+
 def test_submit_pending_live_records_submit_and_ack_latency(monkeypatch):
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD", max_submit_per_tick=1)

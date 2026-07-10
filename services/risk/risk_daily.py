@@ -6,6 +6,7 @@ _LOG = logging.getLogger(__name__)
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 import datetime
+import math
 import sqlite3
 from pathlib import Path
 
@@ -18,6 +19,29 @@ def _utc_iso(now: Optional[datetime.datetime] = None) -> str:
     if n.tzinfo is None:
         n = n.replace(tzinfo=datetime.timezone.utc)
     return n.isoformat().replace("+00:00", "Z")
+
+def _finite_float_field(
+    row: Dict[str, Any],
+    field: str,
+    default: float = 0.0,
+) -> tuple[float, str | None]:
+    try:
+        out = float(row.get(field, default) if row.get(field) is not None else default)
+    except Exception:
+        return float(default), field
+    if not math.isfinite(out):
+        return float(default), field
+    return out, None
+
+def _finite_nonnegative_int_field(row: Dict[str, Any], field: str) -> tuple[int, str | None]:
+    try:
+        raw = row.get(field, 0)
+        out = float(raw if raw is not None else 0)
+    except Exception:
+        return 0, field
+    if not math.isfinite(out) or out < 0.0:
+        return 0, field
+    return int(out), None
 
 class RiskDailyDB:
     """
@@ -158,7 +182,11 @@ class RiskDailyDB:
             c.close()
 
     def realized_today_usd(self) -> float:
-        return float(self.get(_utc_day_key()).get("realized_pnl_usd", 0.0))
+        snap = snapshot(self.exec_db)
+        if bool(snap.get("risk_daily_corrupt")):
+            fields = ",".join(str(x) for x in (snap.get("risk_daily_corrupt_fields") or []))
+            raise ValueError(f"risk_daily_corrupt:{fields}")
+        return float(snap.get("realized_pnl", 0.0))
 
     def trades_today(self) -> int:
         return int(self.get(_utc_day_key()).get("trades", 0))
@@ -254,18 +282,34 @@ def snapshot(exec_db: str | None = None) -> dict:
     db = exec_db or _default_exec_db()
     rdb = RiskDailyDB(db)
     row = rdb.get()
-    realized = float(row.get("realized_pnl_usd", 0.0) or 0.0)
-    fees = float(row.get("fees_usd", 0.0) or 0.0)
-    notional = float(row.get("notional_usd", 0.0) or 0.0)
+    corrupt_fields: list[str] = []
+    trades, bad = _finite_nonnegative_int_field(row, "trades")
+    if bad:
+        corrupt_fields.append(bad)
+    realized, bad = _finite_float_field(row, "realized_pnl_usd")
+    if bad:
+        corrupt_fields.append(bad)
+    fees, bad = _finite_float_field(row, "fees_usd")
+    if bad:
+        corrupt_fields.append(bad)
+    notional, bad = _finite_float_field(row, "notional_usd")
+    if bad or notional < 0.0:
+        corrupt_fields.append(bad or "notional_usd")
+        notional = 0.0
     return {
         "day": str(row.get("day") or ""),
-        "trades": int(row.get("trades", 0) or 0),
+        "trades": trades,
         "realized_pnl": realized,
         "fees": fees,
         "pnl": (realized - fees),
         "notional": notional,
         "updated_at": str(row.get("updated_at") or ""),
         "exec_db": db,
+        "risk_daily_corrupt": bool(corrupt_fields),
+        "risk_daily_corrupt_fields": list(corrupt_fields),
+        "risk_daily_corrupt_reason": (
+            f"invalid_numeric:{','.join(corrupt_fields)}" if corrupt_fields else ""
+        ),
     }
 
 def record_order_attempt(notional_usd: float | None, exec_db: str | None = None) -> None:

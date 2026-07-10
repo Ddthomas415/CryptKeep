@@ -16637,3 +16637,73 @@ Remaining risk:
   changes.
 - Independent human review and GitHub CI required before landing.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T21:58:00Z - Risk Daily Corrupt Snapshot Marker (Substrate Backlog #2 Follow-up)
+
+Active role: ENGINEER
+
+Objective:
+- Close the filed-but-not-fixed `risk_daily.snapshot` read-side gap from
+  the config fail-closed sweep: non-finite or unparseable stored risk
+  fields must not silently become safe defaults in downstream gates.
+
+What was found:
+- SHOWN: `risk_daily.snapshot()` converted `trades`, `realized_pnl_usd`,
+  `fees_usd`, and `notional_usd` directly into numeric fields without a
+  corruption marker. A stored `nan` could make downstream comparisons
+  silently false if consumers converted it without checking.
+- SHOWN: direct live order fail-closed logic in `place_order` consumes
+  `risk_daily.snapshot()` and compares `trades`, `pnl`, and `notional`.
+- SHOWN: ops telemetry consumes the same snapshot and feeds the ops risk
+  gate through `RawSignalSnapshot.extra`.
+- SHOWN: `_executor_submit` uses `RiskDailyDB.realized_today_usd()` rather
+  than `snapshot()`, so that read path also needed fail-closed handling.
+
+What changed:
+- `services/risk/risk_daily.py`: `snapshot()` now returns additive fields
+  `risk_daily_corrupt`, `risk_daily_corrupt_fields`, and
+  `risk_daily_corrupt_reason` when stored numeric fields are unparseable,
+  non-finite, or invalid. Numeric fields remain present for compatibility,
+  but the marker is authoritative for consumers. `realized_today_usd()`
+  now raises `ValueError("risk_daily_corrupt:...")` when the snapshot is
+  corrupt, causing live submit paths to fail closed instead of comparing
+  against NaN.
+- `services/execution/place_order.py`: blocks directly with
+  `CBP_ORDER_BLOCKED:risk_daily_corrupt` before evaluating daily trade,
+  PnL, or notional limits.
+- `services/ops/telemetry_snapshot_builder.py`: carries the corrupt marker
+  and field list into `RawSignalSnapshot.extra`.
+- `services/ops/risk_gate_engine.py`: classifies a corrupt risk-daily
+  marker as `FULL_STOP`, with `risk_daily_corrupt` hazard/reason and a
+  high stress score.
+- Tests pin corrupt snapshot marking, direct order blocking,
+  `realized_today_usd()` fail-closed behavior, telemetry propagation, and
+  ops risk-gate `FULL_STOP` classification.
+
+Why this change was chosen:
+- This is the narrowest read-side fix: ingestion remains best-effort and
+  existing numeric keys remain backward-compatible, while critical
+  consumers honor an explicit corruption marker in the fail-closed
+  direction.
+
+Expected outcome:
+- A poisoned `risk_daily` row can no longer make live order and ops risk
+  gates treat unknown risk state as safe.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_risk_daily_atomic.py tests/test_place_order_fail_closed.py tests/test_ops_risk_gate_engine.py tests/test_ops_signal_adapter_service.py tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: `54 passed in 1.09s`.
+- `./.venv/bin/python -m py_compile services/risk/risk_daily.py services/execution/place_order.py services/ops/telemetry_snapshot_builder.py services/ops/risk_gate_engine.py tests/test_risk_daily_atomic.py tests/test_place_order_fail_closed.py tests/test_ops_risk_gate_engine.py tests/test_ops_signal_adapter_service.py tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- Full local suite not run in this branch per operator time constraint;
+  use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- HIGH: changes live risk/read-side gate semantics and order-blocking
+  behavior for corrupt risk state. Independent human review and GitHub CI
+  required before landing.
+- Remaining substrate #2 sweep is still open for other live executor,
+  consumer/reconciler config reads, and admin live controls.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

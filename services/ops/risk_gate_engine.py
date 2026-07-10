@@ -41,6 +41,8 @@ class RiskGateThresholds:
 
 def _hazards(snapshot: RawSignalSnapshot, th: RiskGateThresholds) -> list[str]:
     hz: list[str] = []
+    if bool((snapshot.extra or {}).get("risk_daily_corrupt")):
+        hz.append("risk_daily_corrupt")
     if not bool(snapshot.exchange_api_ok):
         hz.append("exchange_api_down")
     if float(snapshot.order_reject_rate) >= float(th.reject_rate_block):
@@ -123,6 +125,8 @@ def compute_system_stress(snapshot: RawSignalSnapshot | Dict[str, Any], th: Risk
     # Hard penalty when venue API is down.
     if not bool(snap.exchange_api_ok):
         weighted = max(weighted, 0.95)
+    if bool((snap.extra or {}).get("risk_daily_corrupt")):
+        weighted = max(weighted, 0.95)
     return _clip01(weighted)
 
 
@@ -142,7 +146,11 @@ def decide_gate(snapshot: RawSignalSnapshot | Dict[str, Any], th: RiskGateThresh
     regime = classify_regime(snap, t)
     stress = compute_system_stress(snap, t)
 
-    if "exchange_api_down" in hazards:
+    if "risk_daily_corrupt" in hazards:
+        gate = RiskGateState.FULL_STOP
+        zone = "critical"
+        reasons = ["risk_daily_corrupt"]
+    elif "exchange_api_down" in hazards:
         gate = RiskGateState.FULL_STOP
         zone = "critical"
         reasons = ["venue_api_unavailable"]
