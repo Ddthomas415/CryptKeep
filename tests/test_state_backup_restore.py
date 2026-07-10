@@ -116,6 +116,8 @@ def test_backup_is_consistent_under_active_writer(monkeypatch, tmp_path):
     snap = Path(out["backup_dir"]) / "state" / "live_trading.sqlite"
     assert bs._integrity_ok(snap)
     assert _count(snap) >= 100  # at least the seeded rows, transactionally whole
+    manifest = json.loads((Path(out["backup_dir"]) / bs.MANIFEST_NAME).read_text(encoding="utf-8"))
+    assert not any(str(entry["rel"]).endswith("-journal") for entry in manifest["files"])
 
 
 def test_verify_detects_tamper_and_missing(monkeypatch, tmp_path):

@@ -53,7 +53,9 @@ procedure steps 3-5 with drill-grade guarantees (proven by
 - `backup --dest <dir>`: sqlite-backup-API snapshots (transactionally
   consistent even under active writers — plain file copies tear under
   WAL), checksummed manifest (`backup_manifest.json`: per-file sha256,
-  sizes, counts). Safe while services run.
+  sizes, counts). SQLite sidecars (`-wal`, `-shm`, `-journal`) are
+  excluded because the backup API folds committed database content into
+  the snapshot. Safe while services run.
 - `verify <backup>`: read-only; every checksum plus `PRAGMA
   integrity_check` on every database; rejects invalid relative paths
   before restore can touch the target.

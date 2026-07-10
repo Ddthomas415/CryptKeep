@@ -16338,7 +16338,9 @@ What changed:
   transactionally consistent even under active writers, where plain file
   copies tear pages under WAL — plus checksummed copies of non-database
   state, recorded in `backup_manifest.json` (per-file sha256, sizes,
-  counts); safe to run while services are live. `verify` is read-only:
+  counts); SQLite sidecars (`-wal`, `-shm`, `-journal`) are excluded
+  because the backup API folds committed database content into the
+  snapshot; safe to run while services are live. `verify` is read-only:
   every checksum plus `PRAGMA integrity_check` per database, and rejects
   invalid manifest relative paths.
   `restore [--force]` fail-closed guard order: (1) the backup must
@@ -16368,17 +16370,26 @@ What changed:
   guard-blocked 2.
 
 Verification:
+- GitHub Actions `CI validate` before follow-up fix:
+  - SHOWN: failed in `test_backup_is_consistent_under_active_writer`;
+    snapshot verify reported `integrity_failed:state/live_trading.sqlite`
+    under Linux CI writer concurrency.
+- Follow-up fix:
+  - SHOWN: source snapshots now open through a normal SQLite connection
+    with `PRAGMA busy_timeout=5000`, and `_iter_state_files` excludes
+    rollback-journal sidecars (`-journal`) alongside WAL sidecars.
 - `python3 -m pytest -q tests/test_state_backup_restore.py`
   - CLAIMED by originating patch author before review packaging:
     `7 passed`.
 - `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py`
-  - SHOWN in review branch: `9 passed in 0.53s`.
+  - SHOWN in review branch after CI fix: `9 passed in 0.39s`.
 - `./.venv/bin/python -m py_compile scripts/backup_state.py tests/test_state_backup_restore.py`
   - SHOWN in review branch: passed with no output.
 - `./.venv/bin/python scripts/validate_script_paths.py --strict`
   - SHOWN in review branch: `OK: script paths validated`.
 - `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN in review branch: `"ok": true`, guard tests `23 passed`.
+  - SHOWN in review branch after CI fix: `"ok": true`, guard tests
+    `23 passed`.
 - `git diff --check`
   - SHOWN in review branch: passed with no output.
 - Full local suite was not rerun in this review branch per operator time

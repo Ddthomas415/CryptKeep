@@ -57,10 +57,12 @@ def _snapshot_sqlite(src: Path, dest: Path) -> None:
     file copy of a live database tears pages under WAL/concurrent writes;
     the backup API takes a transactionally consistent snapshot even while
     writers are active."""
-    src_con = sqlite3.connect(f"file:{src}?mode=ro", uri=True)
+    src_con = sqlite3.connect(src)
     try:
+        src_con.execute("PRAGMA busy_timeout=5000")
         dest_con = sqlite3.connect(dest)
         try:
+            dest_con.execute("PRAGMA busy_timeout=5000")
             src_con.backup(dest_con)
         finally:
             dest_con.close()
@@ -84,7 +86,7 @@ def _iter_state_files(root: Path):
     for path in sorted(root.rglob("*")):
         if not path.is_file():
             continue
-        if path.name.endswith((".tmp", ".json.tmp", "-wal", "-shm", ".lock")):
+        if path.name.endswith((".tmp", ".json.tmp", "-wal", "-shm", "-journal", ".lock")):
             continue  # ephemera; sqlite snapshots fold WAL content in
         yield path
 
