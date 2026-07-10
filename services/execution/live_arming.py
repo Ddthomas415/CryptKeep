@@ -66,9 +66,12 @@ def _float_value(*values: Any, default: float = 0.0) -> float:
         if value is None:
             continue
         try:
-            return float(value)
+            out = float(value)
         except Exception as _err:
             continue
+        if not math.isfinite(out):
+            continue
+        return out
     return float(default)
 
 

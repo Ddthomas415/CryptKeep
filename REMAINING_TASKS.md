@@ -534,6 +534,24 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `safety_check_error_fail_closed:*` instead of allowing the order. Remaining
    capped-live blocker: continue the fail-closed sweep across live executor,
    consumer, reconciler, risk-gate config reads, and admin live controls.
+   2026-07-10: risk-gate/router slice is ready for independent review.
+   Shared bug class: NaN/inf survives `float()` and makes threshold/cap
+   comparisons silently false. Covered surfaces: (a)
+   `market_quality_guard.check` fails closed with
+   `invalid_threshold:<name>` for non-numeric, non-finite, or non-positive
+   base/per-symbol thresholds instead of passing stale ticks or wide
+   spreads; (b) `order_router` retry knobs are bounded
+   (`max_order_retries` 0..10, base delay 0.05..60s, max delay
+   0.05..300s; garbage -> defaults) so corrupt config cannot hang or
+   disable backoff; (c) `live_arming._float_value` skips non-finite cap
+   candidates and falls through to the next/default value; (d)
+   `atomic_risk_claim` rejects non-finite caps (`risk:invalid_cap`),
+   bad estimates (`risk:invalid_notional_est`), and poisoned stored
+   accumulators (`risk:corrupt_state`) while preserving the cap<=0
+   no-cap contract. Filed, not fixed: `risk_daily.snapshot` can still
+   pass non-finite store fields to downstream gates; the read side needs
+   a corrupt marker consumers honor. Remaining sweep: live executor,
+   consumer/reconciler config reads, admin live controls.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
