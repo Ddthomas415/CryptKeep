@@ -37,6 +37,22 @@ def test_decide_gate_full_stop_when_exchange_api_down():
     assert gate.system_stress >= 0.95
 
 
+def test_decide_gate_full_stop_when_risk_daily_snapshot_corrupt():
+    payload = _base_snapshot()
+    payload["extra"] = {
+        "risk_daily_corrupt": True,
+        "risk_daily_corrupt_fields": ["realized_pnl_usd"],
+    }
+
+    gate = decide_gate(payload)
+
+    assert gate.gate_state == RiskGateState.FULL_STOP
+    assert gate.zone == "critical"
+    assert "risk_daily_corrupt" in gate.hazards
+    assert "risk_daily_corrupt" in gate.reasons
+    assert gate.system_stress >= 0.95
+
+
 def test_decide_gate_halt_new_positions_on_block_latency():
     payload = _base_snapshot()
     payload["ws_lag_ms"] = 4000.0

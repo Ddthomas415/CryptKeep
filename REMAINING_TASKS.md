@@ -548,10 +548,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `atomic_risk_claim` rejects non-finite caps (`risk:invalid_cap`),
    bad estimates (`risk:invalid_notional_est`), and poisoned stored
    accumulators (`risk:corrupt_state`) while preserving the cap<=0
-   no-cap contract. Filed, not fixed: `risk_daily.snapshot` can still
-   pass non-finite store fields to downstream gates; the read side needs
-   a corrupt marker consumers honor. Remaining sweep: live executor,
-   consumer/reconciler config reads, admin live controls.
+   no-cap contract. 2026-07-10 follow-up: `risk_daily.snapshot` now
+   marks corrupt/non-finite fields with `risk_daily_corrupt`,
+   `risk_daily_corrupt_fields`, and `risk_daily_corrupt_reason`; direct
+   `place_order` blocks with `CBP_ORDER_BLOCKED:risk_daily_corrupt`;
+   `RiskDailyDB.realized_today_usd()` raises on corrupt snapshots; and
+   the ops telemetry/risk-gate path surfaces the marker and classifies it
+   as `FULL_STOP`. Remaining sweep: live executor, consumer/reconciler
+   config reads, admin live controls.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
