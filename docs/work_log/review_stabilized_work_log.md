@@ -16398,3 +16398,178 @@ Remaining risk:
 - Independent of the pending systemd-units slice except trivial doc-tail
   overlaps; both orders apply.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-10T15:25:22Z - Durable Data-State Backup/Restore Tooling (Substrate Backlog #8 Tooling Half)
+
+Active role: ENGINEER
+
+Objective:
+- Ship the durable `data_dir()` tooling half of the full-state
+  backup/restore drill: consistent backups of data-state databases,
+  tamper-evident verification, and a guarded restore — leaving runtime/
+  config/snapshot family inclusion decisions, host drill execution, and
+  evidence filing as the operator half, per the existing policy doc.
+
+What was found:
+- SHOWN: `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` already documents the
+  drill policy, procedure, and pass criteria (status POLICY_DOCUMENTED,
+  "does not execute"). A freshly drafted duplicate runbook was deleted and
+  the existing doc extended with a Tooling section instead — same
+  no-twin discipline as the heartbeat batch, applied to docs.
+- SHOWN (alignment guard catch): a `Path("data")` literal in the new
+  script tripped `test_no_legacy_state_paths`; the archive-internal
+  prefix was renamed to a named constant (`ARCHIVE_SUBDIR="state"`) so
+  state paths flow only through `app_paths`.
+
+What changed:
+- `scripts/backup_state.py` (new): `backup --dest` takes sqlite
+  backup-API snapshots of every database under the data dir —
+  transactionally consistent even under active writers, where plain file
+  copies tear pages under WAL — plus checksummed copies of non-database
+  state, recorded in `backup_manifest.json` (per-file sha256, sizes,
+  counts); SQLite sidecars (`-wal`, `-shm`, `-journal`) are excluded
+  because the backup API folds committed database content into the
+  snapshot; safe to run while services are live. `verify` is read-only:
+  every checksum plus `PRAGMA integrity_check` per database, and rejects
+  invalid manifest relative paths.
+  `restore [--force]` fail-closed guard order: (1) the backup must
+  verify completely before anything is touched; (2) any `*.lock` under
+  the state dir blocks restore — live writers during restore corrupt both
+  worlds; (3) a non-empty data dir requires `--force` and the existing
+  data is moved aside to `data.pre-restore-<stamp>`, never deleted;
+  (4) only manifest-listed files are restored; (5) post-restore every
+  file is re-checksummed against the manifest. Exit codes 0/1/2
+  (ok/failure/guard-blocked). Scratch restore per policy step 4 = point
+  `CBP_STATE_DIR` at the scratch root.
+- `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`: Tooling section mapping the
+  tool to procedure steps 3-5; boundary updated (tooling SHOWN, drill
+  execution still UNVERIFIED); runtime/config/snapshot families outside
+  `data_dir()`, secrets scan, and resume/idempotence proofs named as
+  deliberately drill-time operator steps.
+- `scripts/SCRIPTS.md`: entry at a third distinct anchor so the two
+  pending batches' entries and this one apply in any order.
+- `tests/test_state_backup_restore.py` (new, 9 tests): round trip
+  recovers exactly backup-time state with the mutated world preserved
+  aside; consistency under a hammering concurrent writer
+  (integrity_check clean, transactionally whole); verify detects tamper
+  and missing files; restore refuses a tampered backup BEFORE touching the
+  target; restore rejects manifest path traversal BEFORE touching the
+  target; restore ignores unmanifested backup files; live-lock guard;
+  non-empty-target --force guard; CLI end-to-end exit codes including the
+  guard-blocked 2.
+
+Verification:
+- GitHub Actions `CI validate` before follow-up fix:
+  - SHOWN: failed in `test_backup_is_consistent_under_active_writer`;
+    snapshot verify reported `integrity_failed:state/live_trading.sqlite`
+    under Linux CI writer concurrency.
+- Follow-up fix:
+  - SHOWN: source snapshots now open through a normal SQLite connection
+    with `PRAGMA busy_timeout=5000`, and `_iter_state_files` excludes
+    rollback-journal sidecars (`-journal`) alongside WAL sidecars.
+- `python3 -m pytest -q tests/test_state_backup_restore.py`
+  - CLAIMED by originating patch author before review packaging:
+    `7 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py`
+  - SHOWN in review branch after CI fix: `9 passed in 0.39s`.
+- `./.venv/bin/python -m py_compile scripts/backup_state.py tests/test_state_backup_restore.py`
+  - SHOWN in review branch: passed with no output.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN in review branch: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN in review branch after CI fix: `"ok": true`, guard tests
+    `23 passed`.
+- `git diff --check`
+  - SHOWN in review branch: passed with no output.
+- Full local suite was not rerun in this review branch per operator time
+  constraints; use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- New files plus doc edits only; no production code paths changed. The
+  drill execution on the Hetzner host, explicit runtime/config/snapshot
+  family inclusion or exclusion, evidence filing, and the backup-artifact
+  secrets scan are operator follow-through.
+- Independent human review and GitHub CI required before landing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T20:53:00Z - Paper/Gate Event Alerting, First Slice (Active Backlog #23)
+
+Active role: ENGINEER
+
+Objective:
+- Apply the first notification-only paper/gate event alerting slice so
+  evidence-writer health transitions and promotion-gate flips can wake the
+  operator instead of relying only on manual polling.
+
+What was found:
+- SHOWN: Active backlog item #23 asks for paper/gate event alerting, with
+  evidence-write failure thresholds and gate-ready transitions included in
+  the first read-only/notification-only implementation target.
+- SHOWN: substrate backlog item #9 previously deferred any future
+  alert-dispatch hook to the paper/gate event alerting item.
+- SHOWN: the incoming patch applied cleanly to current `review-stabilized`
+  except for the work-log tail because #244 had advanced the branch. The
+  functional hunks were applied unchanged; this entry was appended at the
+  current tail.
+- SHOWN: the incoming module/test docstrings referred to "Active backlog
+  #19"; the actual backlog item is #23, so both docstrings were corrected.
+
+What changed:
+- `services/alerts/paper_gate_events.py` (new): best-effort
+  notification-only helpers for evidence-writer status transitions and
+  promotion-gate flip snapshots. The gate snapshot is written to
+  `runtime/health/promotion_gates.last.json`, first run is a silent
+  baseline, and alert dispatch errors are swallowed so snapshots still
+  advance.
+- `services/strategies/evidence_logger.py`: evidence-writer success and
+  failure recorders now capture the prior status, persist the new status,
+  then call the transition alert hook inside a never-raise wrapper.
+- `scripts/check_promotion_gates.py`: adds `--alert`; gate results and
+  exit-code behavior are unchanged, and snapshot persistence runs
+  best-effort outside the gate decision.
+- `tests/test_paper_gate_event_alerts.py` (new): pins transition
+  deduplication, severity levels, evidence-writer end-to-end behavior,
+  gate baseline/flip/recovery behavior, corrupt snapshot recovery, and
+  never-raise alert handling.
+- `REMAINING_TASKS.md`: records this as the first Active #23 slice and
+  marks substrate #9's alert-dispatch hook as implemented by this item.
+
+Why this change was chosen:
+- It is the smallest operator-visible alerting slice: notification-only,
+  opt-in for promotion-gate alerts, no trading decisions, no gate
+  pass/fail changes, and no evidence-write control-flow dependency on
+  the alert stack.
+
+Expected outcome:
+- Evidence-writer degradation/refusal/recovery and promotion-gate flips
+  become visible through the existing alert dispatcher without changing
+  trading, evidence, or promotion decisions.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py`
+  - SHOWN: `8 passed in 0.11s`.
+- `./.venv/bin/python -m py_compile services/alerts/paper_gate_events.py services/strategies/evidence_logger.py scripts/check_promotion_gates.py tests/test_paper_gate_event_alerts.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py tests/test_evidence_logger.py tests/test_check_promotion_gates.py tests/test_alert_dispatcher_fallback.py`
+  - SHOWN: `77 passed in 1.66s`.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, guard tests `23 passed`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --help`
+  - SHOWN: help lists `--alert`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m ruff check ...`
+  - SHOWN: not run successfully because this local venv has no `ruff`
+    module installed. Use GitHub CI as the lint proof.
+- Full local suite not run in this branch per operator time constraint;
+  use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- HIGH by repo rule because this touches gate/evidence surfaces, even
+  though the implementation is notification-only and wrapped never-raise.
+- Remaining Active #23 event families are still open: qualified
+  round-trip changes, campaign stop/failure, and strategy decision
+  changes.
+- Independent human review and GitHub CI required before landing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

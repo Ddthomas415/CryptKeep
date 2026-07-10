@@ -46,6 +46,7 @@ listed below.
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
+| `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
 | `run_preflight.py` | — | Preflight entrypoint |
 | `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
