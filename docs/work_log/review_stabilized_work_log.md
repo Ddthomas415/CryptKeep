@@ -16309,3 +16309,85 @@ Remaining risk:
 - Host-side NTP enforcement remains an operator/server task; the script
   provides the evidence artifact.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T15:25:22Z - Durable Data-State Backup/Restore Tooling (Substrate Backlog #8 Tooling Half)
+
+Active role: ENGINEER
+
+Objective:
+- Ship the durable `data_dir()` tooling half of the full-state
+  backup/restore drill: consistent backups of data-state databases,
+  tamper-evident verification, and a guarded restore — leaving runtime/
+  config/snapshot family inclusion decisions, host drill execution, and
+  evidence filing as the operator half, per the existing policy doc.
+
+What was found:
+- SHOWN: `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` already documents the
+  drill policy, procedure, and pass criteria (status POLICY_DOCUMENTED,
+  "does not execute"). A freshly drafted duplicate runbook was deleted and
+  the existing doc extended with a Tooling section instead — same
+  no-twin discipline as the heartbeat batch, applied to docs.
+- SHOWN (alignment guard catch): a `Path("data")` literal in the new
+  script tripped `test_no_legacy_state_paths`; the archive-internal
+  prefix was renamed to a named constant (`ARCHIVE_SUBDIR="state"`) so
+  state paths flow only through `app_paths`.
+
+What changed:
+- `scripts/backup_state.py` (new): `backup --dest` takes sqlite
+  backup-API snapshots of every database under the data dir —
+  transactionally consistent even under active writers, where plain file
+  copies tear pages under WAL — plus checksummed copies of non-database
+  state, recorded in `backup_manifest.json` (per-file sha256, sizes,
+  counts); safe to run while services are live. `verify` is read-only:
+  every checksum plus `PRAGMA integrity_check` per database, and rejects
+  invalid manifest relative paths.
+  `restore [--force]` fail-closed guard order: (1) the backup must
+  verify completely before anything is touched; (2) any `*.lock` under
+  the state dir blocks restore — live writers during restore corrupt both
+  worlds; (3) a non-empty data dir requires `--force` and the existing
+  data is moved aside to `data.pre-restore-<stamp>`, never deleted;
+  (4) only manifest-listed files are restored; (5) post-restore every
+  file is re-checksummed against the manifest. Exit codes 0/1/2
+  (ok/failure/guard-blocked). Scratch restore per policy step 4 = point
+  `CBP_STATE_DIR` at the scratch root.
+- `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`: Tooling section mapping the
+  tool to procedure steps 3-5; boundary updated (tooling SHOWN, drill
+  execution still UNVERIFIED); runtime/config/snapshot families outside
+  `data_dir()`, secrets scan, and resume/idempotence proofs named as
+  deliberately drill-time operator steps.
+- `scripts/SCRIPTS.md`: entry at a third distinct anchor so the two
+  pending batches' entries and this one apply in any order.
+- `tests/test_state_backup_restore.py` (new, 9 tests): round trip
+  recovers exactly backup-time state with the mutated world preserved
+  aside; consistency under a hammering concurrent writer
+  (integrity_check clean, transactionally whole); verify detects tamper
+  and missing files; restore refuses a tampered backup BEFORE touching the
+  target; restore rejects manifest path traversal BEFORE touching the
+  target; restore ignores unmanifested backup files; live-lock guard;
+  non-empty-target --force guard; CLI end-to-end exit codes including the
+  guard-blocked 2.
+
+Verification:
+- `python3 -m pytest -q tests/test_state_backup_restore.py`
+  - CLAIMED by originating patch author before review packaging:
+    `7 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py`
+  - SHOWN in review branch: `9 passed in 0.53s`.
+- `./.venv/bin/python -m py_compile scripts/backup_state.py tests/test_state_backup_restore.py`
+  - SHOWN in review branch: passed with no output.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN in review branch: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN in review branch: `"ok": true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN in review branch: passed with no output.
+- Full local suite was not rerun in this review branch per operator time
+  constraints; use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- New files plus doc edits only; no production code paths changed. The
+  drill execution on the Hetzner host, explicit runtime/config/snapshot
+  family inclusion or exclusion, evidence filing, and the backup-artifact
+  secrets scan are operator follow-through.
+- Independent human review and GitHub CI required before landing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
