@@ -635,6 +635,23 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    checklist. Remaining proof: execute the drill against the future capped-live
    state bundle, record manifests/hashes, prove read-only restored status,
    prove idempotent paper/sandbox resume, and scan the backup for secrets.
+   2026-07-10: the durable data-state tooling half is ready for independent review —
+   `scripts/backup_state.py` backup/verify/restore with drill-grade
+   guarantees proven by `tests/test_state_backup_restore.py`: sqlite
+   backup-API snapshots pass integrity_check under an active concurrent
+   writer (the property plain file copies lack) while excluding SQLite
+   sidecars (`-wal`, `-shm`, `-journal`) from the manifest; checksummed
+   manifest detects tamper, missing files, and invalid relative paths;
+   restore fail-closed guard order is verify-completely-first, refuse on
+   any *.lock (live writers), require --force on a non-empty target and
+   then move the old data aside (data.pre-restore-<stamp>, never
+   deleted), restore only manifest-listed files, and re-checksum
+   everything post-restore; round trip recovers exactly backup-time state.
+   `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` gained a Tooling section
+   mapping the tool to procedure steps 3-5; runtime/config/snapshot
+   families outside `data_dir()`, the secrets scan, and
+   resume/idempotence proofs stay drill-time operator steps by design.
+   Remaining: execute the drill on the host and file the evidence.
 9. Surface evidence-write failures in session status. If signal/fill evidence
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
