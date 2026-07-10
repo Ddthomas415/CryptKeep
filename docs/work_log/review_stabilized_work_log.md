@@ -16228,3 +16228,84 @@ Remaining risk:
   120 seconds; terminal not-found disposition defaults to 3 observations and
   15 minutes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T00:10:54Z - Clock/Venue-Time Sanity Gate (Backlog Item #11)
+
+Active role: ENGINEER
+
+Objective:
+- Implement the clock/venue-time sanity slice: every window-based safety
+  mechanism now on master (intent TTL, resume ceremony window,
+  stale-submitting threshold, submit-unknown not-found age, reconciler
+  cursor overlap) silently assumes sane host and venue clocks; a skewed
+  clock corrupts all of them at once.
+
+What was found:
+- CLAIMED by the submitted patch author: `ccxt.coinbase().has['fetchTime'] == True`;
+  this thread did not perform a live venue probe.
+- SHOWN: the consumer's market-quality block provides the established
+  reject-with-reason + escalate-on-write-failure pattern; the clock gate
+  mirrors it exactly.
+- Interaction considered: a skew rejection is terminal (`rejected`), so a
+  blocked intent never enters the stale-submitting -> submit_unknown ->
+  not-found disposition chain; and because exceeded measurements are never
+  cached, a single-measurement blip rejects at most one loop iteration's
+  intents before re-measuring.
+
+What changed:
+- `services/execution/clock_sanity.py` (new): `measure_venue_skew(ex)`
+  computes skew = venue_time − round-trip midpoint with rtt recorded as
+  measurement quality; non-finite/non-positive venue times are unmeasured
+  (fail-closed shape checks). `check_venue_clock(venue, factory)` is the
+  cached gate: `ok=False` ONLY on an affirmative measured skew beyond
+  `CBP_MAX_CLOCK_SKEW_MS` (default 5000ms); OK results cached for
+  `CBP_CLOCK_SKEW_CHECK_INTERVAL_S` (default 300s); exceeded and failed
+  measurements never cached; unsupported venues are a cached limitation
+  record; the factory is invoked only on cache misses and its handle is
+  closed after measurement. Both envs fail-closed parsed.
+- `services/execution/live_intent_consumer.py`: per-intent gate after the
+  market-quality check, before the risk claim (no risk budget consumed for
+  clock-blocked intents): not-ok -> status note `clock_skew_blocked` +
+  reject with `clock_skew_blocked:<reason>`, escalating to
+  `submit_unknown` if the rejection write fails — byte-for-byte the mq
+  pattern.
+- `scripts/check_clock_sanity.py` (new): operator launch-evidence tool —
+  host UTC, best-effort NTP status (timedatectl/chronyc, degrades to
+  "unavailable"), per-venue skew and verdict; exit codes 0 ok / 1 exceeded
+  / 2 unmeasurable.
+- `tests/test_clock_sanity.py` (new, 18 tests): midpoint math incl.
+  negative skew; unsupported/limitation record; fetch errors and invalid
+  venue times (nan/inf/0/negative/non-numeric) unmeasured; gate blocks only
+  on affirmative excess; unsupported/unmeasured/factory errors never block;
+  OK-result caching honors the interval; exceeded results re-measure
+  immediately; unsupported venues cached; env overrides with nan/inf
+  fallbacks for both knobs; consumer integration — exceeded skew rejects
+  the intent with the reason and zero venue submits, ok skew submits.
+
+Deliberate v1 boundaries for reviewer attention:
+- Venues without a server-time endpoint never block (recorded limitation,
+  per the backlog's "venue server-time query or limitation record").
+- Measurement errors never block — only affirmative measured excess does.
+  Blocking on persistently unmeasurable time is a stricter follow-up if
+  desired.
+- Policy numbers: 5000ms threshold, 300s check interval; both
+  operator-adjustable via env with fail-closed parsing.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_clock_sanity.py`
+  - SHOWN: `18 passed in 0.22s`.
+- `./.venv/bin/python -m pytest -q tests/test_clock_sanity.py tests/test_consumer_locking_and_paths.py tests/test_crash_consistency_fault_injection.py tests/test_intent_ttl_expiry.py tests/test_live_consumer_state_risk_reset.py tests/test_live_consumer_risk_claim.py tests/test_live_execution_wiring.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_intent_queue_claim_race.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_queue_lifecycle_fields.py tests/test_live_intent_upsert_insert_only.py tests/test_live_lock_stale_pid_cleanup.py tests/test_live_reconciler_cursor_safety.py tests/test_live_intent_consumer_order_store_gating.py tests/test_live_reconciler_fill_attribution.py tests/test_live_intent_queue_integrity.py tests/test_live_reconciler_order_store_gating.py tests/test_live_submit_unknown_lifecycle.py tests/test_live_reconciler.py tests/test_queue_update_status_preserves_ids.py tests/test_stale_submitting_recovery.py tests/test_submit_unknown_not_found_policy.py`
+  - SHOWN: `124 passed, 7 warnings in 4.67s`.
+- `./.venv/bin/python -m py_compile services/execution/clock_sanity.py services/execution/live_intent_consumer.py scripts/check_clock_sanity.py tests/test_clock_sanity.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: clean.
+- Full local suite was not run by this thread; GitHub CI remains the required
+  merge gate.
+
+Remaining risk:
+- HIGH: adds a gate on the live submit path; independent human review and
+  GitHub CI required before landing.
+- Host-side NTP enforcement remains an operator/server task; the script
+  provides the evidence artifact.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

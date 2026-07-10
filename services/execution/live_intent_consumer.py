@@ -14,6 +14,7 @@ from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
 from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
 from services.execution.intent_ttl import check_intent_age
+from services.execution.clock_sanity import check_venue_clock
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from services.live_router.router import decide_order
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
@@ -302,6 +303,22 @@ def run_forever() -> None:
                         )
                         if not escalated:
                             _LOG.error("live_intent_consumer.mq_submit_unknown_write_failed intent_id=%s reason=%s", it.get("intent_id"), mq_reason)
+                    continue
+                clock = check_venue_clock(venue, lambda v=venue: LiveExchangeAdapter(v, sandbox=sandbox))
+                if not clock.get("ok"):
+                    clock_reason = f"clock_skew_blocked:{clock.get('reason', 'unknown')}"
+                    _write_status({"ok": True, "status": "running", "ts": _now(), "note": "clock_skew_blocked", "blocked": {k: clock.get(k) for k in ("venue", "skew_ms", "rtt_ms", "threshold_ms", "reason")}, "intent": it.get("intent_id")})
+                    wrote = update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=clock_reason)
+                    if wrote:
+                        rejected += 1
+                    else:
+                        _LOG.error("live_intent_consumer.clock_rejection_write_failed intent_id=%s reason=%s", it.get("intent_id"), clock_reason)
+                        escalated = update_live_queue_status_as_intent_consumer(
+                            qdb, it, "submit_unknown", ctx=ctx,
+                            last_error=f"clock_rejected_write_failed:{clock_reason}",
+                        )
+                        if not escalated:
+                            _LOG.error("live_intent_consumer.clock_submit_unknown_write_failed intent_id=%s reason=%s", it.get("intent_id"), clock_reason)
                     continue
                 notional_est = float(it["qty"]) * float(it.get("limit_price") or (mq.get("last") or 0.0) or 0.0)
                 ok, rreason = _risk_check_and_claim(qdb, notional_est)
