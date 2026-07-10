@@ -96,6 +96,7 @@ def _persist_evidence_writer_status(status: dict[str, Any]) -> None:
 
 def _record_evidence_write_success(strategy_id: str, record_type: str, path: Path) -> None:
     status = load_evidence_writer_status()
+    _prev_writer_status = str(status.get("evidence_writer_status") or "ok")
     status.update(
         {
             "ok": True,
@@ -111,6 +112,14 @@ def _record_evidence_write_success(strategy_id: str, record_type: str, path: Pat
         }
     )
     _persist_evidence_writer_status(status)
+    try:  # notification-only; must never affect the evidence path
+        from services.alerts.paper_gate_events import alert_evidence_writer_transition
+
+        alert_evidence_writer_transition(
+            _prev_writer_status, "ok", {"strategy_id": strategy_id, "record_type": record_type}
+        )
+    except Exception:
+        pass
 
 
 def _record_evidence_write_failure(
@@ -120,6 +129,7 @@ def _record_evidence_write_failure(
     exc: Exception,
 ) -> None:
     status = load_evidence_writer_status()
+    _prev_writer_status = str(status.get("evidence_writer_status") or "ok")
     threshold = _evidence_write_refusal_threshold()
     total = int(status.get("evidence_write_failures_total") or 0) + 1
     consecutive = int(status.get("evidence_write_failures_consecutive") or 0) + 1
@@ -145,6 +155,22 @@ def _record_evidence_write_failure(
         }
     )
     _persist_evidence_writer_status(status)
+    try:  # notification-only; must never affect the evidence path
+        from services.alerts.paper_gate_events import alert_evidence_writer_transition
+
+        alert_evidence_writer_transition(
+            _prev_writer_status,
+            str(status.get("evidence_writer_status") or ""),
+            {
+                "strategy_id": strategy_id,
+                "record_type": record_type,
+                "consecutive": status.get("evidence_write_failures_consecutive"),
+                "threshold": status.get("threshold"),
+                "error_type": status.get("last_evidence_write_error_type"),
+            },
+        )
+    except Exception:
+        pass
 
 
 def _trace_enabled() -> bool:

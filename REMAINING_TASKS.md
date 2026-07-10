@@ -358,7 +358,24 @@ deployment work still needs independent review.
     still depend on manual polling. Add trigger-based alerts for qualified
     round-trip changes, gate-ready transitions, campaign stop/failure,
     evidence-write failure thresholds, and strategy decision changes. Keep the
-    first implementation read-only/notification-only.
+    first implementation read-only/notification-only. 2026-07-10: the first
+    notification-only slice is ready for independent review —
+    `services/alerts/paper_gate_events.py` wires two event families through
+    the existing dispatcher: (a) evidence-writer status TRANSITIONS
+    (ok->degraded warning, ->refusing critical, ->ok info recovery),
+    alerting once per transition never per failure, hooked into
+    `evidence_logger` after status persistence and wrapped never-raise so
+    an alerting problem cannot affect an evidence write; this closes the
+    alert-dispatch hook that substrate #9 deferred here; (b) promotion-gate
+    flips: `check_promotion_gates.py --alert` compares against a persisted
+    per-gate snapshot (`runtime/health/promotion_gates.last.json`, written
+    on every run so a first `--alert` run has a baseline) and dispatches
+    ready-lost critical / gate-flipped-fail warning / ready-recovered info;
+    first run is a silent baseline; a raising channel is contained so the
+    snapshot always advances (a frozen snapshot would re-alert forever and
+    break recovery detection — caught by the batch's own never-raise test).
+    Remaining event families for later slices: qualified round-trip
+    changes, campaign stop/failure, and strategy decision changes.
 24. Write explicit stop and retirement criteria before any strategy advances
     beyond paper. Define, in a decision record, what evidence retires a
     strategy, freezes it, keeps it in paper, or stops the broader project.
@@ -653,6 +670,23 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    checklist. Remaining proof: execute the drill against the future capped-live
    state bundle, record manifests/hashes, prove read-only restored status,
    prove idempotent paper/sandbox resume, and scan the backup for secrets.
+   2026-07-10: the durable data-state tooling half is ready for independent review —
+   `scripts/backup_state.py` backup/verify/restore with drill-grade
+   guarantees proven by `tests/test_state_backup_restore.py`: sqlite
+   backup-API snapshots pass integrity_check under an active concurrent
+   writer (the property plain file copies lack) while excluding SQLite
+   sidecars (`-wal`, `-shm`, `-journal`) from the manifest; checksummed
+   manifest detects tamper, missing files, and invalid relative paths;
+   restore fail-closed guard order is verify-completely-first, refuse on
+   any *.lock (live writers), require --force on a non-empty target and
+   then move the old data aside (data.pre-restore-<stamp>, never
+   deleted), restore only manifest-listed files, and re-checksum
+   everything post-restore; round trip recovers exactly backup-time state.
+   `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` gained a Tooling section
+   mapping the tool to procedure steps 3-5; runtime/config/snapshot
+   families outside `data_dir()`, the secrets scan, and
+   resume/idempotence proofs stay drill-time operator steps by design.
+   Remaining: execute the drill on the host and file the evidence.
 9. Surface evidence-write failures in session status. If signal/fill evidence
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
@@ -669,7 +703,9 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    fails that gate when persisted status is `refusing`, and supervised soak
    status surfaces the writer and recommends `investigate_evidence_writer`.
    Remaining: any future alert-dispatch hook belongs under paper/gate event
-   alerting.
+   alerting. 2026-07-10: that hook is implemented in the paper/gate event
+   alerting slice (Active #23) — evidence-writer status transitions now
+   dispatch through the alert stack, notification-only and never-raise.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and
