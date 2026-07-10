@@ -16309,3 +16309,68 @@ Remaining risk:
 - Host-side NTP enforcement remains an operator/server task; the script
   provides the evidence artifact.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T17:02:00Z - Config Fail-Closed Sweep: Risk-Gate/Router Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Continue the fail-closed trading-config sweep on surfaces independent of
+  the pending backup/dead-man branches: order-router retry knobs,
+  market-quality thresholds, live-arming cap parsing, and the atomic risk
+  claim enforcement layer.
+
+What was found:
+- SHOWN: `market_quality_guard.check` compared `age_sec` and
+  `spread_bps` against config thresholds after permissive float parsing;
+  NaN/inf thresholds make the comparisons silently false. Base
+  non-numeric thresholds could also crash before the guard returned.
+- SHOWN: per-symbol market-quality overrides still coerced with `float()`
+  before validation; targeted test initially failed on that path and the
+  fix moved coercion behind the shared fail-closed threshold validation.
+- SHOWN: `order_router._cfg()` parsed retry knobs with raw `int()` and
+  `float()`, allowing non-finite delay values or config-load crashes.
+- SHOWN: `live_arming._float_value()` returned NaN/inf candidates instead
+  of skipping to the next/default cap.
+- SHOWN: `atomic_risk_claim()` enforced cap<=0 as no-cap; NaN/inf caps or
+  poisoned stored accumulators could disable comparisons.
+
+What changed:
+- `services/risk/market_quality_guard.py`: base and per-symbol
+  `max_tick_age_sec` / `max_spread_bps` now validate after final threshold
+  selection; non-numeric, non-finite, or non-positive values return
+  `invalid_threshold:<name>`.
+- `services/execution/order_router.py`: `_bounded_float` and
+  `_bounded_int` helpers bound retry config: max retries 0..10, base delay
+  0.05..60s, max delay 0.05..300s; garbage/non-finite values fall back to
+  defaults.
+- `services/execution/live_arming.py`: `_float_value` skips non-finite
+  values and falls through to the next/default candidate.
+- `storage/live_intent_queue_sqlite.py`: `atomic_risk_claim` now rejects
+  non-finite caps (`risk:invalid_cap`), non-finite or negative estimates
+  (`risk:invalid_notional_est`), and corrupt stored counters
+  (`risk:corrupt_state`); cap<=0 no-cap behavior remains unchanged.
+- `tests/test_config_fail_closed_sweep.py` added 11 regression tests for
+  the changed contracts.
+
+Filed, not fixed:
+- `risk_daily.snapshot` may still pass non-finite store fields to
+  downstream gates; ingestion is best-effort-never-raise, so the read side
+  needs a corrupt marker that consumers honor.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/risk/market_quality_guard.py services/execution/order_router.py services/execution/live_arming.py storage/live_intent_queue_sqlite.py tests/test_config_fail_closed_sweep.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_config_fail_closed_sweep.py`
+  - SHOWN: first run failed on invalid per-symbol override, then passed
+    after moving override coercion behind shared validation:
+    `11 passed in 0.45s`.
+- 40 nearby test files importing or exercising the touched surfaces:
+  - SHOWN: `282 passed, 7 warnings in 6.48s`.
+
+Remaining risk:
+- HIGH: changes live risk enforcement and market-quality failure modes;
+  independent human review and GitHub CI required before merge.
+- Policy values are review decisions: retry clamp bounds 0..10,
+  0.05..60s, and 0.05..300s.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

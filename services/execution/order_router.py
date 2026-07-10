@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import math
 from typing import Any, Dict
 
 from services.admin.config_editor import load_user_yaml
@@ -15,6 +16,31 @@ from services.execution.order_reconciliation import reconcile_ambiguous_submissi
 
 _PO_SIG = inspect.signature(_place_order)
 _PO_PARAM_NAMES = tuple(_PO_SIG.parameters.keys())
+
+
+def _bounded_float(value: Any, *, default: float, lo: float, hi: float) -> float:
+    """Parse a retry delay knob into a finite bounded value.
+
+    Config must not be able to hang the submit path with NaN/inf sleeps or
+    unbounded exponential backoff.
+    """
+    try:
+        parsed = float(value)
+    except Exception:
+        return float(default)
+    if not math.isfinite(parsed):
+        return float(default)
+    return min(float(hi), max(float(lo), parsed))
+
+
+def _bounded_int(value: Any, *, default: int, lo: int, hi: int) -> int:
+    try:
+        parsed = float(value)
+    except Exception:
+        return int(default)
+    if not math.isfinite(parsed):
+        return int(default)
+    return int(min(int(hi), max(int(lo), parsed)))
 
 
 def _place_order_ccxt(ex, symbol, type, side, amount, price, params, context: ExecutionContext | None = None):
@@ -50,9 +76,15 @@ def _cfg() -> dict:
     lt = cfg.get("live_trading") or {}
     ex = lt.get("execution") or {}
     return {
-        "max_order_retries": int(ex.get("max_order_retries", 3)),
-        "base_retry_delay_sec": float(ex.get("base_retry_delay_sec", 0.6)),
-        "max_retry_delay_sec": float(ex.get("max_retry_delay_sec", 6.0)),
+        "max_order_retries": _bounded_int(
+            ex.get("max_order_retries"), default=3, lo=0, hi=10
+        ),
+        "base_retry_delay_sec": _bounded_float(
+            ex.get("base_retry_delay_sec"), default=0.6, lo=0.05, hi=60.0
+        ),
+        "max_retry_delay_sec": _bounded_float(
+            ex.get("max_retry_delay_sec"), default=6.0, lo=0.05, hi=300.0
+        ),
     }
 
 
