@@ -670,7 +670,24 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     policy is documented in `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
     Remaining capped-live proof: host UTC/NTP status, venue server-time query
     or limitation record, observed skew against threshold, fail-closed behavior
-    for excessive skew, and operator-visible status output.
+    for excessive skew, and operator-visible status output. 2026-07-10: the
+    implementation slice is ready for independent review —
+    `services/execution/clock_sanity.py` measures venue skew against the
+    round-trip midpoint (`measure_venue_skew`, rtt recorded as measurement
+    quality) and gates the live consumer per intent via `check_venue_clock`:
+    an affirmative measured skew beyond `CBP_MAX_CLOCK_SKEW_MS` (default
+    5000ms, fail-closed parsed) rejects the intent with
+    `clock_skew_blocked:*` mirroring the market-quality block pattern; OK
+    results are cached for `CBP_CLOCK_SKEW_CHECK_INTERVAL_S` (default 300s)
+    while exceeded/failed measurements are never cached so blips clear in
+    about one loop. Deliberate v1 boundaries flagged for review: venues
+    without a server-time endpoint are a recorded limitation and never
+    block, and measurement errors never block — only affirmative excess
+    does. Operator-visible status: consumer status notes plus
+    `scripts/check_clock_sanity.py` (host UTC, best-effort NTP status,
+    per-venue skew, verdict; exit codes 0/1/2) as the launch-evidence
+    artifact tool. Host-side NTP enforcement remains an operator/server
+    task per `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
 12. Define the server secrets and rotation model before capped live. Current
     keyring/env handling is adequate for desktop/paper, but server operation
     needs a documented injection path, rotation procedure, and proof that
