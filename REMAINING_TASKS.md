@@ -358,7 +358,24 @@ deployment work still needs independent review.
     still depend on manual polling. Add trigger-based alerts for qualified
     round-trip changes, gate-ready transitions, campaign stop/failure,
     evidence-write failure thresholds, and strategy decision changes. Keep the
-    first implementation read-only/notification-only.
+    first implementation read-only/notification-only. 2026-07-10: the first
+    notification-only slice is ready for independent review —
+    `services/alerts/paper_gate_events.py` wires two event families through
+    the existing dispatcher: (a) evidence-writer status TRANSITIONS
+    (ok->degraded warning, ->refusing critical, ->ok info recovery),
+    alerting once per transition never per failure, hooked into
+    `evidence_logger` after status persistence and wrapped never-raise so
+    an alerting problem cannot affect an evidence write; this closes the
+    alert-dispatch hook that substrate #9 deferred here; (b) promotion-gate
+    flips: `check_promotion_gates.py --alert` compares against a persisted
+    per-gate snapshot (`runtime/health/promotion_gates.last.json`, written
+    on every run so a first `--alert` run has a baseline) and dispatches
+    ready-lost critical / gate-flipped-fail warning / ready-recovered info;
+    first run is a silent baseline; a raising channel is contained so the
+    snapshot always advances (a frozen snapshot would re-alert forever and
+    break recovery detection — caught by the batch's own never-raise test).
+    Remaining event families for later slices: qualified round-trip
+    changes, campaign stop/failure, and strategy decision changes.
 24. Write explicit stop and retirement criteria before any strategy advances
     beyond paper. Define, in a decision record, what evidence retires a
     strategy, freezes it, keeps it in paper, or stops the broader project.
@@ -668,7 +685,9 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    fails that gate when persisted status is `refusing`, and supervised soak
    status surfaces the writer and recommends `investigate_evidence_writer`.
    Remaining: any future alert-dispatch hook belongs under paper/gate event
-   alerting.
+   alerting. 2026-07-10: that hook is implemented in the paper/gate event
+   alerting slice (Active #23) — evidence-writer status transitions now
+   dispatch through the alert stack, notification-only and never-raise.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and
