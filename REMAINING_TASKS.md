@@ -634,6 +634,27 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    dispatch on watchdog trigger and `bot_not_running`, prove host scheduling,
    and fold the status-only `services/admin/watchdog.py` surface into the
    process watchdog or document why both remain. Blocks shadow/live quality.
+   2026-07-10: the heartbeat/dead-man slice is ready for independent review,
+   built by extending the audited-existing module rather than twinning it:
+   `services/process/heartbeat.py` gains named per-loop beats
+   (`write_named_heartbeat` — atomic tmp+rename, sequenced, rate-limited via
+   `CBP_HEARTBEAT_MIN_INTERVAL_S` default 5.0s, and never-raising so a
+   heartbeat cannot break a trading loop) while the legacy single-file
+   bot-runner path stays byte-identical for the watchdog/crash-snapshot
+   readers (pinned by test). Both live loops now beat every iteration.
+   External dead-man: `scripts/check_dead_man.py` (exit 0 ok / 1 stale /
+   2 missing; empty heartbeat-name configuration also fails closed as
+   missing; `CBP_DEAD_MAN_MAX_AGE_S` default 180s; `--json`; `--alert`
+   dispatches best-effort through the existing alert stack) driven by
+   `packaging/systemd/cbp-dead-man.timer` every 60s. The systemd oneshot
+   pins `CBP_STATE_DIR=/var/lib/cbp` and uses `StateDirectory=cbp` so the
+   hardened service has a writable state root. Item-mandated proofs
+   included: loops honor the stop signal within one iteration of the
+   request, and synthetic alert delivery lands the local fallback with no
+   configured channels. Boundaries: the watchdog's auto-stop wiring for
+   named beats and per-loop watchdog policy remain follow-ups (the item
+   prefers the external dead-man first); healthchecks/ntfy push channels
+   remain operator choices layered on the checker's exit codes.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
