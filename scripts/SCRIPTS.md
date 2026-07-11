@@ -46,6 +46,7 @@ listed below.
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
+| `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
 | `run_preflight.py` | — | Preflight entrypoint |
 | `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
@@ -213,6 +214,8 @@ are not paper-campaign controls.
 - `check_repo_alignment.py` — repo alignment guard.
 - `generate_release_notes.py` — release-notes generator.
 - `install.py` — install/setup helper.
+- `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats (exit 0/1/2; `--alert` dispatches via the alert stack; driven by `packaging/systemd/cbp-dead-man.timer`).
+- `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort; schedulable by `packaging/systemd/cbp-edge-cadence.timer`).
 - `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.

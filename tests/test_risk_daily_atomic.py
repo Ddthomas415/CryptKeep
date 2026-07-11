@@ -64,3 +64,41 @@ def test_risk_daily_increment_helpers_are_additive(tmp_path):
     row = db.get()
     assert row["trades"] == 6
     assert row["notional_usd"] == 25.0
+
+
+def test_snapshot_marks_corrupt_numeric_fields_and_realized_today_fails_closed(tmp_path):
+    from services.risk.risk_daily import snapshot
+
+    exec_db = str(tmp_path / "execution.sqlite")
+    db = RiskDailyDB(exec_db)
+    db.get()
+
+    with db._conn() as con:
+        con.execute(
+            """
+            UPDATE risk_daily
+            SET trades='nan',
+                realized_pnl_usd='nan',
+                fees_usd='not-a-number',
+                notional_usd='inf'
+            """
+        )
+
+    snap = snapshot(exec_db=exec_db)
+
+    assert snap["risk_daily_corrupt"] is True
+    assert set(snap["risk_daily_corrupt_fields"]) == {
+        "trades",
+        "realized_pnl_usd",
+        "fees_usd",
+        "notional_usd",
+    }
+    assert snap["trades"] == 0
+    assert snap["pnl"] == 0.0
+
+    try:
+        db.realized_today_usd()
+    except ValueError as exc:
+        assert "risk_daily_corrupt" in str(exc)
+    else:
+        raise AssertionError("realized_today_usd should fail closed on corrupt risk_daily")

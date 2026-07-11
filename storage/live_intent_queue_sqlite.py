@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import math
 import sqlite3
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
@@ -254,6 +255,20 @@ class LiveIntentQueueSQLite:
         Day-rollover and min-notional checks remain in application code.
         Returns (True, None) if within limits and counters incremented.
         Returns (False, reason) if any limit exceeded — no mutation occurs."""
+        try:
+            max_trades_f = float(max_trades)
+            max_notional_f = float(max_notional)
+        except Exception:
+            return False, "risk:invalid_cap"
+        if not math.isfinite(max_trades_f) or not math.isfinite(max_notional_f):
+            return False, "risk:invalid_cap"
+        try:
+            notional_est_f = float(notional_est)
+        except Exception:
+            return False, "risk:invalid_notional_est"
+        if not math.isfinite(notional_est_f) or notional_est_f < 0.0:
+            return False, "risk:invalid_notional_est"
+
         con = _connect()
         try:
             con.execute("BEGIN IMMEDIATE")
@@ -262,12 +277,19 @@ class LiveIntentQueueSQLite:
                     "SELECT v FROM live_consumer_state WHERE k=?", (k,)
                 ).fetchone()
                 return r[0] if r else "0"
-            trades = int(float(_get("risk:trades")))
-            notional = float(_get("risk:notional"))
-            if max_trades > 0 and trades >= max_trades:
+            try:
+                trades = int(float(_get("risk:trades")))
+                notional = float(_get("risk:notional"))
+            except Exception:
+                con.execute("ROLLBACK")
+                return False, "risk:corrupt_state"
+            if trades < 0 or not math.isfinite(notional) or notional < 0.0:
+                con.execute("ROLLBACK")
+                return False, "risk:corrupt_state"
+            if max_trades_f > 0 and trades >= int(max_trades_f):
                 con.execute("ROLLBACK")
                 return False, "risk:max_trades_per_day"
-            if max_notional > 0 and notional + notional_est > max_notional:
+            if max_notional_f > 0 and notional + notional_est_f > max_notional_f:
                 con.execute("ROLLBACK")
                 return False, "risk:max_daily_notional_quote"
             con.execute(
@@ -276,7 +298,7 @@ class LiveIntentQueueSQLite:
             )
             con.execute(
                 "INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES(?,?)",
-                ("risk:notional", str(notional + float(notional_est))),
+                ("risk:notional", str(notional + notional_est_f)),
             )
             con.execute("COMMIT")
             return True, None

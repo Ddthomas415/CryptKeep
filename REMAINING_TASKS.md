@@ -175,6 +175,42 @@ deployment work still needs independent review.
    research runner over registered strategy families so discovery throughput is
    measured by reproducible out-of-sample hypotheses, not hand-picked one-off
    windows.
+   2026-07-11: first archive-first slice is accepted.
+   `MarketStore.load_ohlcv()` reads archived OHLCV from `market_ohlcv`;
+   `services.backtest.ohlcv_archive` normalizes/deduplicates archived rows and
+   emits a deterministic dataset hash; `signal_replay.fetch_ohlcv()` now uses a
+   complete archive window before falling back to the existing exchange fetch.
+   Incomplete/missing archives do not shrink a backtest window silently; they
+   retain the old ccxt fallback behavior. 2026-07-11: second archive-first
+   slice is accepted. Strategy evidence windows now carry
+   `dataset_hash` and a `dataset` metadata block with source, venue,
+   timeframe, symbol, bars, and start/end timestamps; the persisted evidence
+   report includes a `dataset_summary` across all scored windows. Current
+   synthetic windows are labeled `synthetic_evidence_window` rather than
+   archive data, and any future archive/provided window can carry its own
+   source/path metadata. 2026-07-11: third archive-first slice is accepted.
+   `signal_replay.fetch_ohlcv_with_meta()` surfaces rows
+   plus source/dataset-hash metadata while preserving `fetch_ohlcv()` as a
+   bare-rows compatibility wrapper; `ohlcv_archive.paginate_ohlcv()` and
+   `backfill_archive()` provide reusable, fetcher-injectable pagination and
+   idempotent archive upsert; the ES daily-trend baseline report now persists
+   a `dataset` block with the exact-row SHA-256. 2026-07-11: fourth
+   archive-first slice is accepted.
+   `walk_forward.run_archive_backed_walk_forward()` runs one explicit strategy
+   config over a complete archive window, stamps the top-level artifact and
+   every walk-forward window with the archive dataset hash, and refuses
+   incomplete archives rather than falling back to live OHLCV.
+   `scripts/research/run_archive_walk_forward.py` writes the same research-only
+   JSON artifact from a JSON/YAML config. 2026-07-11: fifth archive-first
+   slice is accepted. `services.backtest.parameter_sweep`
+   expands bounded dot-path parameter grids, runs each variant through the
+   archive-backed walk-forward wrapper, and emits deterministic research-only
+   ranks with explicit ranking policy, dataset summary, config hashes, and
+   top-variant metadata. `scripts/research/run_archive_parameter_sweep.py`
+   writes the ranked JSON artifact from a base config plus grid file. Remaining
+   item #11 work after acceptance is operational, not code plumbing: run real
+   multi-year archive sweeps and require separate review before any strategy
+   config or campaign changes use the results.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /
@@ -202,7 +238,47 @@ deployment work still needs independent review.
     2026-07-06 check-in confirmed `funding_extreme` should not be treated as
     the next immediate campaign start; it is the next higher-value strategy
     validation target after the context/crypto-edge contract can feed governed
-    paper evidence.
+    paper evidence. 2026-07-11: first context-strategy slice was independently
+    reviewed and accepted. `strategy_registry.compute_signal()` now accepts an
+    optional explicit `context` payload, registers `funding_extreme`, fails
+    closed with `missing_funding_context` when no funding context is supplied,
+    and can route direct percent or nested decimal funding rows into
+    `funding_extreme.signal_from_context()`. `funding_extreme` is explicitly
+    excluded from candidate-advisor recommendations until governed context paper
+    provenance exists. 2026-07-11: second slice was independently reviewed and
+    accepted by the operator.
+    A read-only funding context provider now selects fresh `live_public`
+    funding rows from the crypto-edge store, converts stored decimal rates into
+    `funding_rate_pct`, and fails closed on missing/stale/malformed context.
+    `strategy_runner` recognizes `funding_extreme`, passes fresh context into
+    the registry only for that strategy, and surfaces context diagnostics in
+    status/intent metadata. 2026-07-11: third slice was independently reviewed
+    and accepted by the operator. The paper runner now accepts optional `strategy_context_symbol` and
+    `strategy_context_venue` overrides, passes them through the managed
+    campaign CLI as `--strategy-context-symbol/--strategy-context-venue`, and
+    records the resolved context symbol/venue in status/intent metadata. This
+    preserves existing defaults while allowing spot OHLCV/ticks to be paired
+    with OKX perp funding context for `funding_extreme`. SHOWN: in-process
+    proof consumed fresh `live_public` OKX `BTC/USDT:USDT` funding context
+    and Coinbase public OHLCV, returning `action=hold`, `reason=funding_neutral`,
+    `strategy_context_ok=true`. FILED, NOT FIXED: the managed subprocess
+    Stage 0 campaign still fails with `no_public_ohlcv` because child
+    `strategy_runner` / tick-publisher processes report public exchange
+    metadata `NetworkError` even when direct in-process fetches succeed.
+    2026-07-11: component-env leakage slice was independently reviewed and
+    accepted by the operator.
+    Managed paper child processes no longer receive global `CBP_VENUE` /
+    `CBP_SYMBOLS`; the service now passes `CBP_COMPONENT_VENUE` /
+    `CBP_COMPONENT_SYMBOLS`, and the strategy runner / tick publisher prefer
+    those values while preserving legacy direct-script fallback. SHOWN: unit
+    tests prove parent global env cannot leak into managed children, and a
+    child-process probe using the service env returned Coinbase public OHLCV
+    rows with `CBP_VENUE`/`CBP_SYMBOLS` absent. FILED, NOT FIXED: local
+    managed Stage 0 still fails with `no_public_ohlcv` because this host shows
+    intermittent Coinbase DNS/metadata failures in isolated subprocess probes;
+    do not treat that as an accepted end-to-end paper proof. Remaining item
+    #12 work: prove a governed `funding_extreme` paper evidence session
+    end-to-end on a stable network/host without enabling live execution.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -230,7 +306,24 @@ deployment work still needs independent review.
     routing, derivatives execution, strategy promotion evidence, or
     order-routing venue use. Remaining proof: operator-host schedule, recent
     OKX snapshot timestamps, cadence-gap alerting, and downstream context
-    strategy/provenance review.
+    strategy/provenance review. 2026-07-11 review of the proposed
+    `check_edge_cadence.py` patch accepted the read-only checker direction but
+    required revision before merge. 2026-07-11: revised code slice is ready for
+    independent review. `services/analytics/edge_cadence.py` and
+    `scripts/check_edge_cadence.py` add a read-only checker over stored
+    funding/open-interest/basis snapshot timestamps. Defaults use 12h slow-family
+    thresholds to measure collector snapshot freshness without assuming venue
+    funding updates hourly; quote/order-book checks remain opt-in. The checker
+    fails closed on missing/unparseable snapshots, treats a newly created empty
+    store as missing families rather than a store error, and tests that `--alert`
+    is best-effort/never-raise. Remaining proof is operational: verify the
+    collector schedule on the host, show recent OKX snapshot timestamps, and
+    wire/schedule the checker if accepted. 2026-07-11: scheduling-unit slice is
+    ready for independent review. `packaging/systemd/cbp-edge-cadence.service`
+    and `.timer` run the read-only checker hourly with `--alert`, carry no live
+    arming tokens, and mirror the existing dead-man hardening pattern. Remaining
+    proof is host-side: install/enable the timer, verify the collector's actual
+    schedule, and show recent OKX snapshot timestamps.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -258,11 +351,12 @@ deployment work still needs independent review.
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a
     new accepted architecture decision.
-19. Classify candidate-advisor strategy coverage against the registry.
-    `services/signals/candidate_advisor.py` currently allows only a subset of
-    `services/strategies/strategy_registry.py::SUPPORTED`; the current drift is
-    `breakout_volume`, `gap_fill`, `sma_200_trend`, and
-    `volatility_reversal`. Add an explicit exclusion set with rationale, and a
+19. [DONE — accepted 2026-07-03] Classify candidate-advisor strategy coverage
+    against the registry.
+    `services/signals/candidate_advisor.py` allows only a subset of
+    `services/strategies/strategy_registry.py::SUPPORTED`; the excluded set
+    (`breakout_volume`, `gap_fill`, `sma_200_trend`, `volatility_reversal`) is
+    now explicit with rationale via `ADVISOR_EXCLUDED_STRATEGIES`, and a
     test that fails whenever a registered strategy is neither advisor-allowed
     nor deliberately excluded. This prevents future discovery wiring from
     silently omitting strategies. Implementation proof was independently
@@ -358,7 +452,54 @@ deployment work still needs independent review.
     still depend on manual polling. Add trigger-based alerts for qualified
     round-trip changes, gate-ready transitions, campaign stop/failure,
     evidence-write failure thresholds, and strategy decision changes. Keep the
-    first implementation read-only/notification-only.
+    first implementation read-only/notification-only. 2026-07-10: the first
+    notification-only slice is ready for independent review —
+    `services/alerts/paper_gate_events.py` wires two event families through
+    the existing dispatcher: (a) evidence-writer status TRANSITIONS
+    (ok->degraded warning, ->refusing critical, ->ok info recovery),
+    alerting once per transition never per failure, hooked into
+    `evidence_logger` after status persistence and wrapped never-raise so
+    an alerting problem cannot affect an evidence write; this closes the
+    alert-dispatch hook that substrate #9 deferred here; (b) promotion-gate
+    flips: `check_promotion_gates.py --alert` compares against a persisted
+    per-gate snapshot (`runtime/health/promotion_gates.last.json`, written
+    on every run so a first `--alert` run has a baseline) and dispatches
+    ready-lost critical / gate-flipped-fail warning / ready-recovered info;
+    first run is a silent baseline; a raising channel is contained so the
+    snapshot always advances (a frozen snapshot would re-alert forever and
+    break recovery detection — caught by the batch's own never-raise test).
+    2026-07-10: the second notification-only slice is ready for
+    independent review: `check_promotion_gates.py` now emits an additive
+    `paper_progress` object for paper-stage checks with the structured
+    qualified round-trip count the machine gate already uses
+    (`round_trips_recorded`, `round_trips_required`,
+    `round_trips_remaining`, `round_trips_ready`, source, and diagnostic
+    all-history count), and `paper_gate_events` persists that progress in
+    the existing `promotion_gates.last.json` snapshot. With `--alert`,
+    qualified round-trip count changes dispatch exactly once per change:
+    increases are info, decreases are warning because they usually mean
+    requalification/provenance recalculation invalidated history. First run
+    remains a silent baseline; unchanged counts do not re-alert; a raising
+    alert channel is contained so the snapshot still advances. 2026-07-11:
+    Batch A for the remaining alert lane is accepted:
+    `services/alerts/campaign_events.py` alerts once per campaign status
+    transition into stop/failure states (`failed`/`error`/`aborted` critical,
+    `stopped` warning), keeps first observation as a silent baseline, does not
+    alert on normal `completed`, and never raises. The hook is in
+    `paper_strategy_evidence_service._write_status()` after the status file
+    write succeeds, so notification failure cannot block campaign status
+    advancement. 2026-07-11: Batch B for the remaining alert lane is accepted:
+    `services/alerts/strategy_decision_events.py` alerts
+    when the persisted strategy evidence comparison shows strategy decision
+    changes versus the previous latest artifact. First persisted evidence is a
+    silent baseline, rank/score-only movement stays silent, new/improved
+    decisions alert at info level, degraded decisions alert at warning level,
+    and retire decisions alert at critical level. The hook is in
+    `services.backtest.evidence_cycle.persist_strategy_evidence()` after the
+    latest/history JSON artifacts are written, so notification failure cannot
+    block evidence persistence. Boundary: the dormant duplicate
+    `services/backtest/evidence_persist.py` was not widened because no active
+    caller imports it; active callers use `evidence_cycle.persist_strategy_evidence`.
 24. Write explicit stop and retirement criteria before any strategy advances
     beyond paper. Define, in a decision record, what evidence retires a
     strategy, freezes it, keeps it in paper, or stops the broader project.
@@ -517,6 +658,28 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `safety_check_error_fail_closed:*` instead of allowing the order. Remaining
    capped-live blocker: continue the fail-closed sweep across live executor,
    consumer, reconciler, risk-gate config reads, and admin live controls.
+   2026-07-10: risk-gate/router slice is ready for independent review.
+   Shared bug class: NaN/inf survives `float()` and makes threshold/cap
+   comparisons silently false. Covered surfaces: (a)
+   `market_quality_guard.check` fails closed with
+   `invalid_threshold:<name>` for non-numeric, non-finite, or non-positive
+   base/per-symbol thresholds instead of passing stale ticks or wide
+   spreads; (b) `order_router` retry knobs are bounded
+   (`max_order_retries` 0..10, base delay 0.05..60s, max delay
+   0.05..300s; garbage -> defaults) so corrupt config cannot hang or
+   disable backoff; (c) `live_arming._float_value` skips non-finite cap
+   candidates and falls through to the next/default value; (d)
+   `atomic_risk_claim` rejects non-finite caps (`risk:invalid_cap`),
+   bad estimates (`risk:invalid_notional_est`), and poisoned stored
+   accumulators (`risk:corrupt_state`) while preserving the cap<=0
+   no-cap contract. 2026-07-10 follow-up: `risk_daily.snapshot` now
+   marks corrupt/non-finite fields with `risk_daily_corrupt`,
+   `risk_daily_corrupt_fields`, and `risk_daily_corrupt_reason`; direct
+   `place_order` blocks with `CBP_ORDER_BLOCKED:risk_daily_corrupt`;
+   `RiskDailyDB.realized_today_usd()` raises on corrupt snapshots; and
+   the ops telemetry/risk-gate path surfaces the marker and classifies it
+   as `FULL_STOP`. Remaining sweep: live executor, consumer/reconciler
+   config reads, admin live controls.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
@@ -617,6 +780,27 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    dispatch on watchdog trigger and `bot_not_running`, prove host scheduling,
    and fold the status-only `services/admin/watchdog.py` surface into the
    process watchdog or document why both remain. Blocks shadow/live quality.
+   2026-07-10: the heartbeat/dead-man slice is ready for independent review,
+   built by extending the audited-existing module rather than twinning it:
+   `services/process/heartbeat.py` gains named per-loop beats
+   (`write_named_heartbeat` — atomic tmp+rename, sequenced, rate-limited via
+   `CBP_HEARTBEAT_MIN_INTERVAL_S` default 5.0s, and never-raising so a
+   heartbeat cannot break a trading loop) while the legacy single-file
+   bot-runner path stays byte-identical for the watchdog/crash-snapshot
+   readers (pinned by test). Both live loops now beat every iteration.
+   External dead-man: `scripts/check_dead_man.py` (exit 0 ok / 1 stale /
+   2 missing; empty heartbeat-name configuration also fails closed as
+   missing; `CBP_DEAD_MAN_MAX_AGE_S` default 180s; `--json`; `--alert`
+   dispatches best-effort through the existing alert stack) driven by
+   `packaging/systemd/cbp-dead-man.timer` every 60s. The systemd oneshot
+   pins `CBP_STATE_DIR=/var/lib/cbp` and uses `StateDirectory=cbp` so the
+   hardened service has a writable state root. Item-mandated proofs
+   included: loops honor the stop signal within one iteration of the
+   request, and synthetic alert delivery lands the local fallback with no
+   configured channels. Boundaries: the watchdog's auto-stop wiring for
+   named beats and per-loop watchdog policy remain follow-ups (the item
+   prefers the external dead-man first); healthchecks/ntfy push channels
+   remain operator choices layered on the checker's exit codes.
 7. Write a state-store consolidation decision record before implementation.
    Decide how fills, positions, PnL, intents, and ledgers should move toward one
    transactional schema or explicitly accept the current reconciler-dependent
@@ -635,6 +819,23 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    checklist. Remaining proof: execute the drill against the future capped-live
    state bundle, record manifests/hashes, prove read-only restored status,
    prove idempotent paper/sandbox resume, and scan the backup for secrets.
+   2026-07-10: the durable data-state tooling half is ready for independent review —
+   `scripts/backup_state.py` backup/verify/restore with drill-grade
+   guarantees proven by `tests/test_state_backup_restore.py`: sqlite
+   backup-API snapshots pass integrity_check under an active concurrent
+   writer (the property plain file copies lack) while excluding SQLite
+   sidecars (`-wal`, `-shm`, `-journal`) from the manifest; checksummed
+   manifest detects tamper, missing files, and invalid relative paths;
+   restore fail-closed guard order is verify-completely-first, refuse on
+   any *.lock (live writers), require --force on a non-empty target and
+   then move the old data aside (data.pre-restore-<stamp>, never
+   deleted), restore only manifest-listed files, and re-checksum
+   everything post-restore; round trip recovers exactly backup-time state.
+   `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` gained a Tooling section
+   mapping the tool to procedure steps 3-5; runtime/config/snapshot
+   families outside `data_dir()`, the secrets scan, and
+   resume/idempotence proofs stay drill-time operator steps by design.
+   Remaining: execute the drill on the host and file the evidence.
 9. Surface evidence-write failures in session status. If signal/fill evidence
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
@@ -651,7 +852,9 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    fails that gate when persisted status is `refusing`, and supervised soak
    status surfaces the writer and recommends `investigate_evidence_writer`.
    Remaining: any future alert-dispatch hook belongs under paper/gate event
-   alerting.
+   alerting. 2026-07-10: that hook is implemented in the paper/gate event
+   alerting slice (Active #23) — evidence-writer status transitions now
+   dispatch through the alert stack, notification-only and never-raise.
 10. Consolidate config authority before live expansion. The repo still has
     legacy/default `config/` surfaces, strategy/campaign `configs/` surfaces,
     and compatibility normalization between `live.enabled` and

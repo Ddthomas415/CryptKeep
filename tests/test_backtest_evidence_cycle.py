@@ -232,6 +232,11 @@ def test_run_strategy_evidence_cycle_aggregates_stubbed_window_rows(monkeypatch)
     assert out["ok"] is True
     assert calls == ["1", "2"]
     assert out["window_count"] == 2
+    assert out["dataset_summary"]["all_windows_hashed"] is True
+    assert out["dataset_summary"]["sources"] == ["synthetic_evidence_window"]
+    assert len(out["dataset_summary"]["dataset_hashes"]) == 2
+    assert out["windows"][0]["dataset"]["source"] == "synthetic_evidence_window"
+    assert out["windows"][0]["dataset_hash"] == out["windows"][0]["dataset"]["dataset_hash"]
     rows = out["aggregate_leaderboard"]["rows"]
     assert rows[0]["candidate"] == "breakout_default"
     assert rows[0]["closed_trades"] == 4

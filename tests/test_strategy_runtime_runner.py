@@ -108,6 +108,21 @@ def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_pa
     assert cfg["allow_first_signal_trade"] is True
 
 
+def test_cfg_prefers_component_symbol_and_venue_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_VENUE", "should_not_win")
+    monkeypatch.setenv("CBP_SYMBOLS", "SHOULD/NOT_WIN")
+    monkeypatch.setenv("CBP_COMPONENT_VENUE", "coinbase")
+    monkeypatch.setenv("CBP_COMPONENT_SYMBOLS", "BTC/USD,ETH/USD")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["venue"] == "coinbase"
+    assert cfg["symbol"] == "BTC/USD"
+    assert cfg["symbols"] == ["BTC/USD", "ETH/USD"]
+
+
 def test_cfg_preserves_explicit_unknown_strategy_as_unsupported(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(
@@ -129,6 +144,34 @@ def test_cfg_preserves_explicit_unknown_strategy_as_unsupported(monkeypatch, tmp
     assert cfg["strategy_preset"] == "funding_extreme_default"
 
 
+def test_cfg_uses_canonical_funding_extreme_strategy(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {
+            "strategy_runner": {
+                "strategy": {"name": "funding_extreme", "trade_enabled": True},
+                "strategy_preset": "funding_extreme_default",
+                "strategy_context_source": "live_public",
+                "strategy_context_max_age_sec": 3600,
+                "strategy_context_symbol": "BTC/USDT:USDT",
+                "strategy_context_venue": "okx",
+            }
+        },
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "funding_extreme"
+    assert cfg["strategy"]["name"] == "funding_extreme"
+    assert cfg["strategy_preset"] == "funding_extreme_default"
+    assert cfg["strategy_context_source"] == "live_public"
+    assert cfg["strategy_context_max_age_sec"] == 3600.0
+    assert cfg["strategy_context_symbol"] == "BTC/USDT:USDT"
+    assert cfg["strategy_context_venue"] == "okx"
+
+
 def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(
@@ -142,6 +185,87 @@ def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp
     assert cfg["strategy_id"] == ""
     assert cfg["strategy"]["name"] == ""
     assert cfg["strategy"]["unsupported"] is True
+
+
+def test_registry_signal_with_context_passes_funding_context(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    captured = {}
+    captured_context_kwargs = {}
+
+    def fake_funding_context(**kwargs):
+        captured_context_kwargs.update(kwargs)
+        return {
+            "ok": True,
+            "reason": "funding_context_ready",
+            "source": "live_public",
+            "symbol": kwargs.get("symbol"),
+            "venue": kwargs.get("venue"),
+            "capture_ts": "2026-07-10T16:00:00+00:00",
+            "snapshot_id": "funding-ctx",
+            "context": {"funding": {"funding_rate": 0.0008, "funding_rate_pct": 0.08}},
+        }
+
+    monkeypatch.setattr(
+        runner,
+        "funding_context_from_crypto_edge_store",
+        fake_funding_context,
+    )
+
+    def fake_compute_signal(*, cfg, symbol, ohlcv, context=None):
+        captured["context"] = context
+        return {"ok": True, "action": "sell", "reason": "funding_extreme_longs", "ind": {}}
+
+    monkeypatch.setattr(runner, "compute_signal", fake_compute_signal)
+
+    signal = runner._registry_signal_with_context(
+        cfg={
+            "strategy_context_source": "live_public",
+            "strategy_context_max_age_sec": 3600,
+            "strategy_context_symbol": "BTC/USDT:USDT",
+            "strategy_context_venue": "okx",
+        },
+        strategy_block={"name": "funding_extreme", "long_crowded_threshold": 0.05},
+        symbol="BTC/USDT",
+        venue="okx",
+        ohlcv=[],
+    )
+
+    assert captured_context_kwargs["symbol"] == "BTC/USDT:USDT"
+    assert captured_context_kwargs["venue"] == "okx"
+    assert captured["context"]["funding"]["funding_rate_pct"] == 0.08
+    assert signal["action"] == "sell"
+    assert signal["strategy_context_ok"] is True
+    assert signal["strategy_context_reason"] == "funding_context_ready"
+    assert signal["strategy_context_symbol"] == "BTC/USDT:USDT"
+    assert signal["strategy_context_venue"] == "okx"
+    assert signal["strategy_context_snapshot_id"] == "funding-ctx"
+
+
+def test_registry_signal_with_context_fails_closed_when_funding_context_missing(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "funding_context_from_crypto_edge_store",
+        lambda **kwargs: {
+            "ok": False,
+            "reason": "funding_context_missing",
+            "source": "live_public",
+        },
+    )
+
+    signal = runner._registry_signal_with_context(
+        cfg={"strategy_context_source": "live_public", "strategy_context_max_age_sec": 3600},
+        strategy_block={"name": "funding_extreme"},
+        symbol="BTC/USDT:USDT",
+        venue="okx",
+        ohlcv=[],
+    )
+
+    assert signal["ok"] is False
+    assert signal["action"] == "hold"
+    assert signal["reason"] == "missing_funding_context"
+    assert signal["strategy_context_ok"] is False
+    assert signal["strategy_context_reason"] == "funding_context_missing"
 
 
 def test_held_bar_counter_advances_only_for_new_market_bar(monkeypatch, tmp_path):

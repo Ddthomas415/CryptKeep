@@ -84,6 +84,9 @@ def test_build_baseline_report_marks_non_closing_sample_not_ready() -> None:
     assert out["candidate_backtest_metrics"]["metric_basis"] == "net_return_pct"
     assert out["source"]["symbol"] == "BTC/USDT"
     assert out["source"]["data_symbol"] == "BTC/USDT"
+    assert out["dataset"]["source_label"] == "unit:no_exit"
+    assert out["dataset"]["row_count"] == len(rows)
+    assert len(out["dataset"]["sha256"]) == 64
     assert out["backtest_expectations"]["source"] is None
     assert out["backtest_expectations"]["win_rate"] is None
     assert out["backtest_expectations"]["avg_win_return_pct"] is None
@@ -130,6 +133,9 @@ def test_main_reads_input_and_writes_report(tmp_path: Path, capsys) -> None:
     assert report["backtest_expectations"]["source"] == "unit:fixture"
     assert report["backtest_expectations"]["metric_basis"] == "net_return_pct"
     assert report["backtest_expectations"]["avg_loss_return_pct"] < 0.0
+    assert report["dataset"]["source_label"] == "unit:fixture"
+    assert report["dataset"]["row_count"] == len(closes)
+    assert report["dataset"]["sha256"] == printed["dataset"]["sha256"]
 
 
 def test_closed_trade_return_pcts_uses_entry_notional_and_net_pnl() -> None:

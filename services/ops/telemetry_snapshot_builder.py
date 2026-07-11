@@ -249,6 +249,9 @@ def build_snapshot(cfg: TelemetrySnapshotCfg | None = None) -> RawSignalSnapshot
         extra={
             "trades_today": _safe_int(rd.get("trades"), 0),
             "risk_day": str(rd.get("day") or ""),
+            "risk_daily_corrupt": bool(rd.get("risk_daily_corrupt")),
+            "risk_daily_corrupt_fields": list(rd.get("risk_daily_corrupt_fields") or []),
+            "risk_daily_corrupt_reason": str(rd.get("risk_daily_corrupt_reason") or ""),
             "system_status_path": c.system_status_path,
         },
     )
@@ -260,4 +263,3 @@ def publish_snapshot(cfg: TelemetrySnapshotCfg | None = None) -> dict[str, Any]:
     adapter = LiveSignalAdapter.from_default_db(path=str(c.ops_db_path))
     raw_id = adapter.publish_snapshot(snap)
     return {"ok": True, "raw_id": int(raw_id), "snapshot": snap.to_dict()}
-

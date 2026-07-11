@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 import math
 import time
+from services.backtest.ohlcv_archive import load_archived_ohlcv
 from services.security.exchange_factory import make_exchange
 from services.market_data.symbol_router import normalize_venue, map_symbol, normalize_symbol
 
@@ -15,6 +16,61 @@ def _f(x, default=0.0):
     except Exception:
         return default
 
+def fetch_ohlcv_with_meta(
+    venue: str,
+    canonical_symbol: str,
+    timeframe: str = "1h",
+    limit: int = 500,
+    since_ms: int | None = None,
+) -> dict:
+    v = normalize_venue(venue)
+    sym = map_symbol(v, normalize_symbol(canonical_symbol))
+    archived = load_archived_ohlcv(
+        v,
+        canonical_symbol,
+        timeframe=timeframe,
+        limit=int(limit),
+        since_ms=since_ms,
+    )
+    if archived.get("ok") and archived.get("complete"):
+        rows = list(archived.get("rows") or [])
+        return {
+            "rows": rows,
+            "source": archived.get("source"),
+            "dataset_hash": archived.get("dataset_hash"),
+            "complete": True,
+            "venue": v,
+            "symbol": normalize_symbol(canonical_symbol),
+            "timeframe": str(timeframe),
+            "count": int(len(rows)),
+            "archive_path": archived.get("archive_path"),
+            "stored_symbol": archived.get("stored_symbol"),
+        }
+    ex = make_exchange(v, {"apiKey": None, "secret": None}, enable_rate_limit=True)
+    try:
+        kwargs = {"timeframe": timeframe, "limit": int(limit)}
+        if since_ms is not None:
+            kwargs["since"] = int(since_ms)
+        rows = ex.fetch_ohlcv(sym, **kwargs)
+    finally:
+        try:
+            if hasattr(ex, "close"):
+                ex.close()
+        except Exception as _err:
+            pass  # suppressed: signal_replay.py
+    rows = list(rows or [])
+    return {
+        "rows": rows,
+        "source": "live_ccxt",
+        "dataset_hash": None,
+        "complete": False,
+        "venue": v,
+        "symbol": normalize_symbol(canonical_symbol),
+        "timeframe": str(timeframe),
+        "count": int(len(rows)),
+    }
+
+
 def fetch_ohlcv(
     venue: str,
     canonical_symbol: str,
@@ -22,20 +78,15 @@ def fetch_ohlcv(
     limit: int = 500,
     since_ms: int | None = None,
 ) -> list[list]:
-    v = normalize_venue(venue)
-    sym = map_symbol(v, normalize_symbol(canonical_symbol))
-    ex = make_exchange(v, {"apiKey": None, "secret": None}, enable_rate_limit=True)
-    try:
-        kwargs = {"timeframe": timeframe, "limit": int(limit)}
-        if since_ms is not None:
-            kwargs["since"] = int(since_ms)
-        return ex.fetch_ohlcv(sym, **kwargs)
-    finally:
-        try:
-            if hasattr(ex, "close"):
-                ex.close()
-        except Exception as _err:
-            pass  # suppressed: signal_replay.py
+    return list(
+        fetch_ohlcv_with_meta(
+            venue,
+            canonical_symbol,
+            timeframe=timeframe,
+            limit=int(limit),
+            since_ms=since_ms,
+        ).get("rows") or []
+    )
 
 def replay_signals_on_ohlcv(
     ohlcv: list[list],

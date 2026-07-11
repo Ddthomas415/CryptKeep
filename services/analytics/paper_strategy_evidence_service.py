@@ -115,6 +115,27 @@ def _write_status(obj: dict[str, Any]) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
 
+    # Notification-only (Active #23): fire AFTER the write succeeds so a raising
+    # alert channel can never block campaign status advancement. Best-effort;
+    # never raises. current_status was read above (empty on first write ->
+    # silent baseline inside the alerter).
+    try:
+        from services.alerts.campaign_events import alert_campaign_status_transition
+
+        alert_campaign_status_transition(
+            prev_status=current_status,
+            new_status=status,
+            payload={
+                "reason": obj.get("reason"),
+                "symbol": obj.get("symbol"),
+                "completed_strategies": obj.get("completed_strategies"),
+                "total_strategies": obj.get("total_strategies"),
+                "ts": obj.get("ts"),
+            },
+        )
+    except Exception:
+        pass
+
 
 def _write_pid_state(obj: dict[str, Any]) -> None:
     ensure_dirs()
@@ -536,13 +557,19 @@ def _wait_for(predicate, *, timeout_sec: float, sleep_sec: float = 0.2) -> bool:
 
 def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str | None = None) -> dict[str, str]:
     env = dict(os.environ)
-    env["CBP_SYMBOLS"] = str(cfg.symbol or DEFAULT_SYMBOL)
-    env["CBP_VENUE"] = str(cfg.venue or DEFAULT_VENUE)
+    env.pop("CBP_SYMBOLS", None)
+    env.pop("CBP_VENUE", None)
+    env["CBP_COMPONENT_SYMBOLS"] = str(cfg.symbol or DEFAULT_SYMBOL)
+    env["CBP_COMPONENT_VENUE"] = str(cfg.venue or DEFAULT_VENUE)
     env["CBP_TICK_PUBLISH_INTERVAL_SEC"] = str(float(cfg.tick_publish_interval_sec))
     if int(cfg.strategy_min_bars or 0) > 0:
         env["CBP_STRATEGY_MIN_BARS"] = str(int(cfg.strategy_min_bars))
     if str(cfg.signal_source or "").strip():
         env["CBP_STRATEGY_SIGNAL_SOURCE"] = str(cfg.signal_source).strip()
+    if str(cfg.strategy_context_symbol or "").strip():
+        env["CBP_STRATEGY_CONTEXT_SYMBOL"] = str(cfg.strategy_context_symbol).strip()
+    if str(cfg.strategy_context_venue or "").strip():
+        env["CBP_STRATEGY_CONTEXT_VENUE"] = str(cfg.strategy_context_venue).strip()
     if bool(cfg.allow_first_signal_trade):
         env["CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE"] = "1"
     if strategy_name:
@@ -887,6 +914,8 @@ class PaperStrategyEvidenceServiceCfg:
     tick_publish_interval_sec: float = 2.0
     strategy_min_bars: int = 0
     signal_source: str = ""
+    strategy_context_symbol: str = ""
+    strategy_context_venue: str = ""
     allow_first_signal_trade: bool = False
     evidence_symbol: str = ""
     initial_cash: float = 10_000.0

@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json
 import math
+from services.process.heartbeat import write_named_heartbeat
 import logging
 import os
 import sqlite3
@@ -429,6 +430,7 @@ def run_forever() -> None:
     try:
         while True:
             loops += 1
+            write_named_heartbeat("live_reconciler", extra={"loops": loops})
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "ts": _now(), "loops": loops})
                 break

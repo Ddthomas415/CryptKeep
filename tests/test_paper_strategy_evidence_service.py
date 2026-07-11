@@ -331,6 +331,29 @@ def test_component_argv_builds_paper_sim_monitor_args_with_no_desktop_notify() -
     assert out == ["--interval-sec", "7.5", "--min-closed-trades", "3", "--no-desktop-notify"]
 
 
+def test_component_env_passes_strategy_context_overrides(monkeypatch) -> None:
+    monkeypatch.setenv("CBP_SYMBOLS", "SHOULD/NOT_LEAK")
+    monkeypatch.setenv("CBP_VENUE", "should_not_leak")
+    monkeypatch.delenv("CBP_STRATEGY_CONTEXT_SYMBOL", raising=False)
+    monkeypatch.delenv("CBP_STRATEGY_CONTEXT_VENUE", raising=False)
+    cfg = svc.PaperStrategyEvidenceServiceCfg(
+        symbol="BTC/USDT",
+        venue="okx",
+        strategy_context_symbol="BTC/USDT:USDT",
+        strategy_context_venue="okx",
+    )
+
+    out = svc._component_env(cfg, strategy_name="funding_extreme")
+
+    assert "CBP_SYMBOLS" not in out
+    assert "CBP_VENUE" not in out
+    assert out["CBP_COMPONENT_SYMBOLS"] == "BTC/USDT"
+    assert out["CBP_COMPONENT_VENUE"] == "okx"
+    assert out["CBP_STRATEGY_CONTEXT_SYMBOL"] == "BTC/USDT:USDT"
+    assert out["CBP_STRATEGY_CONTEXT_VENUE"] == "okx"
+    assert out["CBP_STRATEGY_NAME"] == "funding_extreme"
+
+
 def test_run_campaign_continues_when_default_watch_seed_fails(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
 

@@ -99,6 +99,48 @@ class MarketStore:
         finally:
             con.close()
 
+    def load_ohlcv(
+        self,
+        *,
+        exchange: str,
+        symbol: str,
+        timeframe: str,
+        limit: int = 500,
+        since_ms: int | None = None,
+    ) -> list[list[Any]]:
+        lim = max(1, int(limit))
+        con = self._connect()
+        try:
+            if since_ms is None:
+                rows = con.execute(
+                    """
+                    SELECT ts_ms, o, h, l, cl, v
+                    FROM market_ohlcv
+                    WHERE exchange=? AND symbol=? AND timeframe=?
+                    ORDER BY ts_ms DESC
+                    LIMIT ?
+                    """,
+                    (str(exchange), str(symbol), str(timeframe), lim),
+                ).fetchall()
+                rows = list(reversed(rows))
+            else:
+                rows = con.execute(
+                    """
+                    SELECT ts_ms, o, h, l, cl, v
+                    FROM market_ohlcv
+                    WHERE exchange=? AND symbol=? AND timeframe=? AND ts_ms>=?
+                    ORDER BY ts_ms ASC
+                    LIMIT ?
+                    """,
+                    (str(exchange), str(symbol), str(timeframe), int(since_ms), lim),
+                ).fetchall()
+        finally:
+            con.close()
+        return [
+            [int(r[0]), float(r[1]), float(r[2]), float(r[3]), float(r[4]), r[5]]
+            for r in rows
+        ]
+
     def last_tickers(self, *, exchange: str, symbol: str, limit: int = 1) -> list[dict[str, Any]]:
         con = self._connect()
         try:

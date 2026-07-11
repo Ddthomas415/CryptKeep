@@ -14,6 +14,7 @@ from services.analytics.strategy_feedback import (
     load_strategy_feedback_ledger,
 )
 from services.analytics.paper_evidence_artifacts import decision_record_dir
+from services.backtest.ohlcv_archive import normalize_ohlcv_rows, ohlcv_dataset_hash
 from services.backtest.leaderboard import rank_strategy_rows, run_strategy_leaderboard
 from services.backtest.walk_forward import run_anchored_walk_forward
 from services.os.app_paths import code_root, data_dir, ensure_dirs
@@ -66,6 +67,56 @@ def _candles_from_closes(closes: list[float], *, start_ts_ms: int) -> list[list[
         )
         prev = cur
     return rows
+
+
+def _window_dataset_metadata(
+    item: dict[str, Any],
+    *,
+    symbol: str,
+    candles: list[list[Any]],
+) -> dict[str, Any]:
+    rows = normalize_ohlcv_rows(candles)
+    source = str(
+        item.get("dataset_source")
+        or item.get("source")
+        or "synthetic_evidence_window"
+    )
+    venue = str(item.get("venue") or item.get("exchange") or "evidence_cycle")
+    timeframe = str(item.get("timeframe") or "synthetic")
+    dataset_hash = str(item.get("dataset_hash") or "").strip() or ohlcv_dataset_hash(
+        venue=venue,
+        symbol=str(symbol or ""),
+        timeframe=timeframe,
+        rows=rows,
+        source=source,
+    )
+    out: dict[str, Any] = {
+        "source": source,
+        "dataset_hash": dataset_hash,
+        "symbol": str(symbol or ""),
+        "venue": venue,
+        "timeframe": timeframe,
+        "bars": int(len(rows)),
+        "start_ts_ms": int(rows[0][0]) if rows else None,
+        "end_ts_ms": int(rows[-1][0]) if rows else None,
+    }
+    for key in ("archive_path", "stored_symbol", "requested_limit"):
+        if item.get(key) is not None:
+            out[key] = item.get(key)
+    return out
+
+
+def _dataset_summary(window_reports: list[dict[str, Any]]) -> dict[str, Any]:
+    datasets = [dict(row.get("dataset") or {}) for row in list(window_reports or [])]
+    hashes = [str(row.get("dataset_hash") or "") for row in datasets if str(row.get("dataset_hash") or "")]
+    sources = sorted({str(row.get("source") or "unknown") for row in datasets})
+    return {
+        "window_count": int(len(datasets)),
+        "hashed_window_count": int(len(hashes)),
+        "all_windows_hashed": bool(datasets) and len(hashes) == len(datasets),
+        "sources": sources,
+        "dataset_hashes": hashes,
+    }
 
 
 def _default_benchmark_closes(*, count: int = 180, start_px: float = 100.0) -> list[float]:
@@ -942,6 +993,7 @@ def run_strategy_evidence_cycle(
     window_reports: list[dict[str, Any]] = []
     for item in window_defs:
         candles = [list(row) for row in list(item.get("candles") or [])]
+        dataset = _window_dataset_metadata(dict(item), symbol=str(symbol or ""), candles=candles)
         result = run_strategy_leaderboard(
             base_cfg=dict(base_cfg or {}),
             symbol=str(symbol or ""),
@@ -958,6 +1010,8 @@ def run_strategy_evidence_cycle(
                 "notes": str(item.get("notes") or ""),
                 "bars": int(len(candles)),
                 "warmup_bars": int(item.get("warmup_bars") or 20),
+                "dataset_hash": str(dataset.get("dataset_hash") or ""),
+                "dataset": dataset,
                 "rows": [dict(row) for row in list(result.get("rows") or [])],
             }
         )
@@ -1037,6 +1091,7 @@ def run_strategy_evidence_cycle(
         "source": "multi_window_synthetic",
         "symbol": str(symbol or ""),
         "window_count": int(len(window_reports)),
+        "dataset_summary": _dataset_summary(window_reports),
         "fee_bps": float(fee_bps),
         "slippage_bps": float(slippage_bps),
         "initial_cash": float(initial_cash),
@@ -1246,6 +1301,14 @@ def persist_strategy_evidence(report: dict[str, Any], *, latest_path: str = "") 
         report["comparison"] = comparison
     latest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     history.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    # Notification-only (Active #23): alert after persistence succeeds so a
+    # raising channel can never block strategy evidence artifacts.
+    try:
+        from services.alerts.strategy_decision_events import alert_strategy_decision_changes
+
+        alert_strategy_decision_changes(comparison)
+    except Exception:
+        pass
     return {
         "ok": True,
         "latest_path": str(latest),

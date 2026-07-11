@@ -426,6 +426,20 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
     }
 
 
+def _paper_progress_summary(paper_history: dict | None) -> dict:
+    """Machine-readable paper threshold progress for alerts and dashboards."""
+    history = dict(paper_history or {})
+    round_trips = int(history.get("closed_trades") or 0)
+    return {
+        "source": str(history.get("source") or "paper_history"),
+        "round_trips_recorded": round_trips,
+        "round_trips_required": PAPER_MIN_ROUND_TRIPS,
+        "round_trips_remaining": max(0, PAPER_MIN_ROUND_TRIPS - round_trips),
+        "round_trips_ready": round_trips >= PAPER_MIN_ROUND_TRIPS,
+        "all_history_round_trips": int(history.get("all_history_closed_trades") or 0),
+    }
+
+
 def _weeks_at_stage(stage: Stage) -> float | None:
     """Estimate weeks the strategy has been at the current stage."""
     summary = stage_summary(STRATEGY_ID)
@@ -1317,6 +1331,11 @@ def run_check(stage_override: str | None = None) -> dict:
         "schema":       schema,
         "evidence_writer": evidence_writer,
         "paper_history": paper_history,
+        "paper_progress": (
+            _paper_progress_summary(paper_history)
+            if stage == Stage.PAPER
+            else None
+        ),
         "provenance":   provenance,
         "provenance_all_time": provenance_all_time,
         "slippage":     slippage_check,
@@ -1370,9 +1389,27 @@ def main() -> int:
     ap.add_argument("--json",   action="store_true", help="Output JSON")
     ap.add_argument("--strict", action="store_true",
                     help="Exit 1 if any gate fails or is unknown")
+    ap.add_argument(
+        "--alert",
+        action="store_true",
+        help="Dispatch alerts on gate flips vs the previous persisted snapshot (best-effort)",
+    )
     args = ap.parse_args()
 
     result = run_check(stage_override=args.stage)
+
+    try:  # notification-only; never affects gate results or exit codes
+        from datetime import datetime, timezone
+
+        from services.alerts.paper_gate_events import record_gate_result_and_alert
+
+        record_gate_result_and_alert(
+            result,
+            alert=args.alert,
+            now_iso=datetime.now(timezone.utc).isoformat(),
+        )
+    except Exception:
+        pass
 
     if args.json:
         print(json.dumps(result, indent=2, default=str))

@@ -780,7 +780,7 @@ Verification:
 
 Remaining risk:
 - LOW: this is a test-only governance guard.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
 
 ## 2026-07-01 - Retire `services/strategy`
 
@@ -6566,7 +6566,6 @@ Remaining risk:
 - UNVERIFIED: Hetzner Cloud firewall, backups, delete/rebuild protection, host
   backup/restore rehearsal, and server-hosted UTC campaign execution.
 - SHOWN: Ubuntu reports `40` packages not upgraded after installing `fail2ban`.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-06-17T01:59:15Z - Hetzner Cloud safeguard planner
 
@@ -7535,6 +7534,57 @@ Remaining risk:
   derivatives/margin assumptions, risk controls, and potential order routing.
   This change is planning-only and must be independently reviewed before it is
   used as implementation authority.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T10:05:00Z - Crypto-Edge Cadence Systemd Units (Active Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Add schedulable systemd units for the accepted read-only crypto-edge cadence
+  checker without touching collectors, gates, live execution, or risk controls.
+
+What was found:
+- SHOWN: `packaging/systemd/cbp-dead-man.service` and `.timer` already define
+  the hardened oneshot/timer pattern for read-only alert checks.
+- SHOWN: item 14 leaves checker scheduling as the remaining repo-side step
+  after the cadence checker itself was accepted.
+
+What changed:
+- `packaging/systemd/cbp-edge-cadence.service`: new oneshot service that runs
+  `scripts/check_edge_cadence.py --alert` under the same `/var/lib/cbp`
+  state-directory convention and hardening posture as the existing dead-man
+  service.
+- `packaging/systemd/cbp-edge-cadence.timer`: new hourly timer with a
+  five-minute boot grace.
+- `tests/test_edge_cadence.py`: adds a unit contract test proving the service
+  and timer carry no live-arming tokens, call the edge cadence checker, and use
+  the expected hourly cadence.
+- `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`: document the schedulable
+  checker and leave host installation/timestamp proof open.
+
+Why this change was chosen:
+- It is the smallest repo-side scheduling artifact for the accepted checker and
+  keeps alerting independent from trading-loop dead-man checks. It remains
+  read-only and does not alter collector behavior.
+
+Expected outcome:
+- Operators can install/enable the timer on the host and receive cadence alerts
+  if history-critical crypto-edge snapshots stop updating.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_edge_cadence.py tests/test_dead_man.py`
+  - SHOWN: `21 passed in 0.89s`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: background-job deployment artifacts require independent review even
+  though this job is read-only and alert-only.
+- UNVERIFIED: units were not installed or enabled on the Hetzner host.
+- UNVERIFIED: recent OKX snapshot timestamps and the live collector schedule
+  were not checked in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-06-19T18:44:46Z - Audit Short Context Data Feasibility
@@ -16309,3 +16359,1338 @@ Remaining risk:
 - Host-side NTP enforcement remains an operator/server task; the script
   provides the evidence artifact.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T08:26:56Z - Trading-Loop Heartbeats + External Dead-Man (Substrate Backlog #6 Slice)
+
+Active role: ENGINEER
+
+Objective:
+- Give each managed trading loop an independent liveness signal and an
+  external alert-on-absence check within a defined window. Systemd units
+  (#5 slice) restart crashes; nothing detected silent hangs — existing
+  status files are event-driven and can read "running" while a loop is
+  stuck inside a venue call.
+
+Course correction (recorded deliberately):
+- SHOWN: mid-batch, the item's own 2026-07-03 audit note surfaced existing
+  dormant infrastructure — `services/process/heartbeat.py::write_heartbeat()`
+  with zero callers and `services/process/watchdog.py` reading heartbeat
+  state. A parallel heartbeat module had already been drafted; it was
+  deleted and the work reshaped to EXTEND the existing module instead,
+  per the item's "prefer boring infrastructure over more custom code" and
+  Structure Hygiene #1 (no twin modules).
+
+What changed:
+- `services/process/heartbeat.py`: named per-loop beats added —
+  `write_named_heartbeat(name, extra=)` writes
+  `runtime/heartbeats/{name}.json` atomically (tmp+rename) with pid/seq,
+  rate-limited via `CBP_HEARTBEAT_MIN_INTERVAL_S` (default 5.0s; 0 =
+  every iteration; invalid/non-finite -> default), and NEVER raises — a
+  heartbeat must not be able to break a trading loop. Readers:
+  `read_named_heartbeat`, `named_heartbeat_age_s`. The legacy
+  single-file bot-runner path is byte-identical (watchdog and
+  crash-snapshot readers untouched; contract pinned by test).
+- `services/execution/live_intent_consumer.py` +
+  `services/execution/live_reconciler.py`: one `write_named_heartbeat`
+  call at the top of each loop iteration (`intent_consumer`,
+  `live_reconciler`) with the loop counter as extra. No other loop
+  behavior changed.
+- `scripts/check_dead_man.py`: external liveness verdicts over named
+  beats — exit 0 healthy / 1 stale / 2 missing (missing dominates);
+  `--names` declares what MUST be alive on the host and an empty name set
+  fails closed as missing;
+  `CBP_DEAD_MAN_MAX_AGE_S` default 180.0s fail-closed parsed; `--json`
+  report; `--alert` dispatches a critical alert best-effort through the
+  existing `services/alerts/alert_dispatcher.send_alert` (never raises).
+- `packaging/systemd/cbp-dead-man.service` (oneshot, hardened, no arming
+  tokens, `CBP_STATE_DIR=/var/lib/cbp`, `StateDirectory=cbp`) +
+  `cbp-dead-man.timer` (every 60s, 120s boot grace).
+  `scripts/SCRIPTS.md` entry anchored away from the pending #5 slice's
+  insertion point so both patches apply in either order.
+- `tests/test_dead_man.py` (new, 11 tests): sequenced atomic payloads;
+  rate limiting; never-raises on unwritable dir; interval env fallbacks;
+  checker verdict matrix incl. missing-dominates-stale, empty-name
+  fail-closed behavior, and max-age env fallbacks; CLI end-to-end exit
+  codes 0/2; both loops emit beats under a
+  one-iteration harness; LEGACY-CONTRACT PIN (single-file payload shape and
+  path unchanged); item-mandated bounded-stop proof (stop honored one
+  iteration after request — startup deliberately clears stale stop files,
+  which the proof respects); item-mandated synthetic alert-delivery proof
+  (no configured channels still lands the local JSONL fallback).
+
+Deliberate boundaries for reviewer attention:
+- Policy numbers: 5.0s beat interval, 180s dead-man age, 60s timer cadence.
+- The watchdog's auto-stop is NOT wired to named beats in this slice; the
+  item prefers the external dead-man lane first, and watchdog policy per
+  loop is a separate decision. Push channels (healthchecks/ntfy) layer on
+  the checker's exit codes as operator choices.
+
+Verification:
+- `python3 -m pytest -q tests/test_dead_man.py`
+  - CLAIMED by originating patch author before review packaging:
+    `11 passed`.
+- `./.venv/bin/python -m py_compile services/process/heartbeat.py services/execution/live_intent_consumer.py services/execution/live_reconciler.py scripts/check_dead_man.py tests/test_dead_man.py`
+  - SHOWN in review branch: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_dead_man.py`
+  - SHOWN in review branch: `11 passed in 0.80s`.
+- 31 nearby test files importing or exercising the touched loop, reconciler,
+  heartbeat, checker, and alert surfaces:
+  - SHOWN in review branch: `189 passed, 7 warnings in 7.18s`.
+- `git diff --check`
+  - SHOWN in review branch: passed with no output.
+
+Remaining risk:
+- MEDIUM-HIGH: one added call per iteration in both live loops (wrapped
+  never-raise); everything else is new files. Independent human review and
+  GitHub CI required before landing.
+- Full local suite was not rerun in this review branch per operator time
+  constraints; use GitHub CI as the broad-suite proof.
+- Independent of the pending systemd-units slice except trivial doc-tail
+  overlaps; both orders apply.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-10T15:25:22Z - Durable Data-State Backup/Restore Tooling (Substrate Backlog #8 Tooling Half)
+
+Active role: ENGINEER
+
+Objective:
+- Ship the durable `data_dir()` tooling half of the full-state
+  backup/restore drill: consistent backups of data-state databases,
+  tamper-evident verification, and a guarded restore — leaving runtime/
+  config/snapshot family inclusion decisions, host drill execution, and
+  evidence filing as the operator half, per the existing policy doc.
+
+What was found:
+- SHOWN: `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` already documents the
+  drill policy, procedure, and pass criteria (status POLICY_DOCUMENTED,
+  "does not execute"). A freshly drafted duplicate runbook was deleted and
+  the existing doc extended with a Tooling section instead — same
+  no-twin discipline as the heartbeat batch, applied to docs.
+- SHOWN (alignment guard catch): a `Path("data")` literal in the new
+  script tripped `test_no_legacy_state_paths`; the archive-internal
+  prefix was renamed to a named constant (`ARCHIVE_SUBDIR="state"`) so
+  state paths flow only through `app_paths`.
+
+What changed:
+- `scripts/backup_state.py` (new): `backup --dest` takes sqlite
+  backup-API snapshots of every database under the data dir —
+  transactionally consistent even under active writers, where plain file
+  copies tear pages under WAL — plus checksummed copies of non-database
+  state, recorded in `backup_manifest.json` (per-file sha256, sizes,
+  counts); SQLite sidecars (`-wal`, `-shm`, `-journal`) are excluded
+  because the backup API folds committed database content into the
+  snapshot; safe to run while services are live. `verify` is read-only:
+  every checksum plus `PRAGMA integrity_check` per database, and rejects
+  invalid manifest relative paths.
+  `restore [--force]` fail-closed guard order: (1) the backup must
+  verify completely before anything is touched; (2) any `*.lock` under
+  the state dir blocks restore — live writers during restore corrupt both
+  worlds; (3) a non-empty data dir requires `--force` and the existing
+  data is moved aside to `data.pre-restore-<stamp>`, never deleted;
+  (4) only manifest-listed files are restored; (5) post-restore every
+  file is re-checksummed against the manifest. Exit codes 0/1/2
+  (ok/failure/guard-blocked). Scratch restore per policy step 4 = point
+  `CBP_STATE_DIR` at the scratch root.
+- `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`: Tooling section mapping the
+  tool to procedure steps 3-5; boundary updated (tooling SHOWN, drill
+  execution still UNVERIFIED); runtime/config/snapshot families outside
+  `data_dir()`, secrets scan, and resume/idempotence proofs named as
+  deliberately drill-time operator steps.
+- `scripts/SCRIPTS.md`: entry at a third distinct anchor so the two
+  pending batches' entries and this one apply in any order.
+- `tests/test_state_backup_restore.py` (new, 9 tests): round trip
+  recovers exactly backup-time state with the mutated world preserved
+  aside; consistency under a hammering concurrent writer
+  (integrity_check clean, transactionally whole); verify detects tamper
+  and missing files; restore refuses a tampered backup BEFORE touching the
+  target; restore rejects manifest path traversal BEFORE touching the
+  target; restore ignores unmanifested backup files; live-lock guard;
+  non-empty-target --force guard; CLI end-to-end exit codes including the
+  guard-blocked 2.
+
+Verification:
+- GitHub Actions `CI validate` before follow-up fix:
+  - SHOWN: failed in `test_backup_is_consistent_under_active_writer`;
+    snapshot verify reported `integrity_failed:state/live_trading.sqlite`
+    under Linux CI writer concurrency.
+- Follow-up fix:
+  - SHOWN: source snapshots now open through a normal SQLite connection
+    with `PRAGMA busy_timeout=5000`, and `_iter_state_files` excludes
+    rollback-journal sidecars (`-journal`) alongside WAL sidecars.
+- `python3 -m pytest -q tests/test_state_backup_restore.py`
+  - CLAIMED by originating patch author before review packaging:
+    `7 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py`
+  - SHOWN in review branch after CI fix: `9 passed in 0.39s`.
+- `./.venv/bin/python -m py_compile scripts/backup_state.py tests/test_state_backup_restore.py`
+  - SHOWN in review branch: passed with no output.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN in review branch: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN in review branch after CI fix: `"ok": true`, guard tests
+    `23 passed`.
+- `git diff --check`
+  - SHOWN in review branch: passed with no output.
+- Full local suite was not rerun in this review branch per operator time
+  constraints; use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- New files plus doc edits only; no production code paths changed. The
+  drill execution on the Hetzner host, explicit runtime/config/snapshot
+  family inclusion or exclusion, evidence filing, and the backup-artifact
+  secrets scan are operator follow-through.
+- Independent human review and GitHub CI required before landing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T17:02:00Z - Config Fail-Closed Sweep: Risk-Gate/Router Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Continue the fail-closed trading-config sweep on surfaces independent of
+  the pending backup/dead-man branches: order-router retry knobs,
+  market-quality thresholds, live-arming cap parsing, and the atomic risk
+  claim enforcement layer.
+
+What was found:
+- SHOWN: `market_quality_guard.check` compared `age_sec` and
+  `spread_bps` against config thresholds after permissive float parsing;
+  NaN/inf thresholds make the comparisons silently false. Base
+  non-numeric thresholds could also crash before the guard returned.
+- SHOWN: per-symbol market-quality overrides still coerced with `float()`
+  before validation; targeted test initially failed on that path and the
+  fix moved coercion behind the shared fail-closed threshold validation.
+- SHOWN: `order_router._cfg()` parsed retry knobs with raw `int()` and
+  `float()`, allowing non-finite delay values or config-load crashes.
+- SHOWN: `live_arming._float_value()` returned NaN/inf candidates instead
+  of skipping to the next/default cap.
+- SHOWN: `atomic_risk_claim()` enforced cap<=0 as no-cap; NaN/inf caps or
+  poisoned stored accumulators could disable comparisons.
+
+What changed:
+- `services/risk/market_quality_guard.py`: base and per-symbol
+  `max_tick_age_sec` / `max_spread_bps` now validate after final threshold
+  selection; non-numeric, non-finite, or non-positive values return
+  `invalid_threshold:<name>`.
+- `services/execution/order_router.py`: `_bounded_float` and
+  `_bounded_int` helpers bound retry config: max retries 0..10, base delay
+  0.05..60s, max delay 0.05..300s; garbage/non-finite values fall back to
+  defaults.
+- `services/execution/live_arming.py`: `_float_value` skips non-finite
+  values and falls through to the next/default candidate.
+- `storage/live_intent_queue_sqlite.py`: `atomic_risk_claim` now rejects
+  non-finite caps (`risk:invalid_cap`), non-finite or negative estimates
+  (`risk:invalid_notional_est`), and corrupt stored counters
+  (`risk:corrupt_state`); cap<=0 no-cap behavior remains unchanged.
+- `tests/test_config_fail_closed_sweep.py` added 11 regression tests for
+  the changed contracts.
+
+Filed, not fixed:
+- `risk_daily.snapshot` may still pass non-finite store fields to
+  downstream gates; ingestion is best-effort-never-raise, so the read side
+  needs a corrupt marker that consumers honor.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/risk/market_quality_guard.py services/execution/order_router.py services/execution/live_arming.py storage/live_intent_queue_sqlite.py tests/test_config_fail_closed_sweep.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_config_fail_closed_sweep.py`
+  - SHOWN: first run failed on invalid per-symbol override, then passed
+    after moving override coercion behind shared validation:
+    `11 passed in 0.45s`.
+- 40 nearby test files importing or exercising the touched surfaces:
+  - SHOWN: `282 passed, 7 warnings in 6.48s`.
+
+Remaining risk:
+- HIGH: changes live risk enforcement and market-quality failure modes;
+  independent human review and GitHub CI required before merge.
+- Policy values are review decisions: retry clamp bounds 0..10,
+  0.05..60s, and 0.05..300s.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-10T20:53:00Z - Paper/Gate Event Alerting, First Slice (Active Backlog #23)
+
+Active role: ENGINEER
+
+Objective:
+- Apply the first notification-only paper/gate event alerting slice so
+  evidence-writer health transitions and promotion-gate flips can wake the
+  operator instead of relying only on manual polling.
+
+What was found:
+- SHOWN: Active backlog item #23 asks for paper/gate event alerting, with
+  evidence-write failure thresholds and gate-ready transitions included in
+  the first read-only/notification-only implementation target.
+- SHOWN: substrate backlog item #9 previously deferred any future
+  alert-dispatch hook to the paper/gate event alerting item.
+- SHOWN: the incoming patch applied cleanly to current `review-stabilized`
+  except for the work-log tail because #244 had advanced the branch. The
+  functional hunks were applied unchanged; this entry was appended at the
+  current tail.
+- SHOWN: the incoming module/test docstrings referred to "Active backlog
+  #19"; the actual backlog item is #23, so both docstrings were corrected.
+
+What changed:
+- `services/alerts/paper_gate_events.py` (new): best-effort
+  notification-only helpers for evidence-writer status transitions and
+  promotion-gate flip snapshots. The gate snapshot is written to
+  `runtime/health/promotion_gates.last.json`, first run is a silent
+  baseline, and alert dispatch errors are swallowed so snapshots still
+  advance.
+- `services/strategies/evidence_logger.py`: evidence-writer success and
+  failure recorders now capture the prior status, persist the new status,
+  then call the transition alert hook inside a never-raise wrapper.
+- `scripts/check_promotion_gates.py`: adds `--alert`; gate results and
+  exit-code behavior are unchanged, and snapshot persistence runs
+  best-effort outside the gate decision.
+- `tests/test_paper_gate_event_alerts.py` (new): pins transition
+  deduplication, severity levels, evidence-writer end-to-end behavior,
+  gate baseline/flip/recovery behavior, corrupt snapshot recovery, and
+  never-raise alert handling.
+- `REMAINING_TASKS.md`: records this as the first Active #23 slice and
+  marks substrate #9's alert-dispatch hook as implemented by this item.
+
+Why this change was chosen:
+- It is the smallest operator-visible alerting slice: notification-only,
+  opt-in for promotion-gate alerts, no trading decisions, no gate
+  pass/fail changes, and no evidence-write control-flow dependency on
+  the alert stack.
+
+Expected outcome:
+- Evidence-writer degradation/refusal/recovery and promotion-gate flips
+  become visible through the existing alert dispatcher without changing
+  trading, evidence, or promotion decisions.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py`
+  - SHOWN: `8 passed in 0.11s`.
+- `./.venv/bin/python -m py_compile services/alerts/paper_gate_events.py services/strategies/evidence_logger.py scripts/check_promotion_gates.py tests/test_paper_gate_event_alerts.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py tests/test_evidence_logger.py tests/test_check_promotion_gates.py tests/test_alert_dispatcher_fallback.py`
+  - SHOWN: `77 passed in 1.66s`.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, guard tests `23 passed`.
+- `./.venv/bin/python scripts/check_promotion_gates.py --help`
+  - SHOWN: help lists `--alert`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m ruff check ...`
+  - SHOWN: not run successfully because this local venv has no `ruff`
+    module installed. Use GitHub CI as the lint proof.
+- Full local suite not run in this branch per operator time constraint;
+  use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- HIGH by repo rule because this touches gate/evidence surfaces, even
+  though the implementation is notification-only and wrapped never-raise.
+- Remaining Active #23 event families are still open: qualified
+  round-trip changes, campaign stop/failure, and strategy decision
+  changes.
+- Independent human review and GitHub CI required before landing.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T21:58:00Z - Risk Daily Corrupt Snapshot Marker (Substrate Backlog #2 Follow-up)
+
+Active role: ENGINEER
+
+Objective:
+- Close the filed-but-not-fixed `risk_daily.snapshot` read-side gap from
+  the config fail-closed sweep: non-finite or unparseable stored risk
+  fields must not silently become safe defaults in downstream gates.
+
+What was found:
+- SHOWN: `risk_daily.snapshot()` converted `trades`, `realized_pnl_usd`,
+  `fees_usd`, and `notional_usd` directly into numeric fields without a
+  corruption marker. A stored `nan` could make downstream comparisons
+  silently false if consumers converted it without checking.
+- SHOWN: direct live order fail-closed logic in `place_order` consumes
+  `risk_daily.snapshot()` and compares `trades`, `pnl`, and `notional`.
+- SHOWN: ops telemetry consumes the same snapshot and feeds the ops risk
+  gate through `RawSignalSnapshot.extra`.
+- SHOWN: `_executor_submit` uses `RiskDailyDB.realized_today_usd()` rather
+  than `snapshot()`, so that read path also needed fail-closed handling.
+
+What changed:
+- `services/risk/risk_daily.py`: `snapshot()` now returns additive fields
+  `risk_daily_corrupt`, `risk_daily_corrupt_fields`, and
+  `risk_daily_corrupt_reason` when stored numeric fields are unparseable,
+  non-finite, or invalid. Numeric fields remain present for compatibility,
+  but the marker is authoritative for consumers. `realized_today_usd()`
+  now raises `ValueError("risk_daily_corrupt:...")` when the snapshot is
+  corrupt, causing live submit paths to fail closed instead of comparing
+  against NaN.
+- `services/execution/place_order.py`: blocks directly with
+  `CBP_ORDER_BLOCKED:risk_daily_corrupt` before evaluating daily trade,
+  PnL, or notional limits.
+- `services/ops/telemetry_snapshot_builder.py`: carries the corrupt marker
+  and field list into `RawSignalSnapshot.extra`.
+- `services/ops/risk_gate_engine.py`: classifies a corrupt risk-daily
+  marker as `FULL_STOP`, with `risk_daily_corrupt` hazard/reason and a
+  high stress score.
+- Tests pin corrupt snapshot marking, direct order blocking,
+  `realized_today_usd()` fail-closed behavior, telemetry propagation, and
+  ops risk-gate `FULL_STOP` classification.
+
+Why this change was chosen:
+- This is the narrowest read-side fix: ingestion remains best-effort and
+  existing numeric keys remain backward-compatible, while critical
+  consumers honor an explicit corruption marker in the fail-closed
+  direction.
+
+Expected outcome:
+- A poisoned `risk_daily` row can no longer make live order and ops risk
+  gates treat unknown risk state as safe.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_risk_daily_atomic.py tests/test_place_order_fail_closed.py tests/test_ops_risk_gate_engine.py tests/test_ops_signal_adapter_service.py tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: `54 passed in 1.09s`.
+- `./.venv/bin/python -m py_compile services/risk/risk_daily.py services/execution/place_order.py services/ops/telemetry_snapshot_builder.py services/ops/risk_gate_engine.py tests/test_risk_daily_atomic.py tests/test_place_order_fail_closed.py tests/test_ops_risk_gate_engine.py tests/test_ops_signal_adapter_service.py tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- Full local suite not run in this branch per operator time constraint;
+  use GitHub CI as the broad-suite proof.
+
+Remaining risk:
+- HIGH: changes live risk/read-side gate semantics and order-blocking
+  behavior for corrupt risk state. Independent human review and GitHub CI
+  required before landing.
+- Remaining substrate #2 sweep is still open for other live executor,
+  consumer/reconciler config reads, and admin live controls.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-10T22:35:13Z - Qualified Round-Trip Change Alerts (Active Backlog #23 Slice)
+
+Active role: ENGINEER
+
+Objective:
+- Continue paper/gate event alerting with the smallest notification-only
+  slice still open under Active backlog #23: alert when the machine-gate
+  qualified paper round-trip count changes.
+
+What was found:
+- SHOWN: `evaluate_paper_gates()` already computes the qualified
+  `round_trips` from `paper_history`, but `run_check()` exposed that count
+  only through the human-readable gate detail string.
+- SHOWN: `services/alerts/paper_gate_events.py` already persists a
+  first-run silent baseline for gate pass/fail flips in
+  `runtime/health/promotion_gates.last.json`, making it the correct
+  single snapshot for this notification family.
+
+What changed:
+- `scripts/check_promotion_gates.py`: adds an additive paper-stage
+  `paper_progress` object to the JSON result. It contains the structured
+  qualified round-trip count used by the machine gate:
+  `round_trips_recorded`, `round_trips_required`,
+  `round_trips_remaining`, `round_trips_ready`, source, and diagnostic
+  all-history round-trip count. Gate pass/fail logic, printed report, and
+  exit codes are unchanged.
+- `services/alerts/paper_gate_events.py`: persists `paper_progress` in the
+  existing promotion-gate snapshot and, when `--alert` is used, dispatches
+  `paper_gate:qualified_round_trips_changed` exactly once per count change.
+  Count increases alert at `info`; count decreases alert at `warning`
+  because they usually mean requalification/provenance recalculation
+  invalidated previously counted history. First run remains a silent
+  baseline. Alert dispatch remains best-effort and never freezes snapshot
+  advancement.
+- `tests/test_paper_gate_event_alerts.py`: pins baseline behavior,
+  increase alert, decrease warning, steady-state dedupe, and snapshot
+  advancement when the alert channel raises.
+- `tests/test_check_promotion_gates.py`: pins the new source-level
+  `paper_progress` contract for both zero qualified trips with diagnostic
+  all-history and one qualified round trip.
+- `REMAINING_TASKS.md`: records this as the second Active #23
+  notification-only slice and leaves campaign stop/failure and strategy
+  decision alerts open.
+
+Why this change was chosen:
+- The alert must follow the same structured value the machine gate uses,
+  not parse display text or use a separate dashboard progress service.
+  Keeping this as an additive JSON field avoids changing existing gate
+  behavior while making the operator wake-up condition machine-readable.
+
+Expected outcome:
+- Operators running `scripts/check_promotion_gates.py --alert` receive a
+  notification when qualified paper round-trip progress moves, including
+  regressions caused by stricter provenance qualification. Manual polling is
+  still possible, but the count-change event no longer depends on the
+  operator noticing the gate output.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_event_alerts.py tests/test_check_promotion_gates.py`
+  - SHOWN: `56 passed in 0.95s`.
+- `./.venv/bin/python -m py_compile services/alerts/paper_gate_events.py scripts/check_promotion_gates.py tests/test_paper_gate_event_alerts.py tests/test_check_promotion_gates.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: touches promotion-gate JSON and operator alerting. Notification-only
+  code must still receive independent human review and GitHub CI before
+  landing.
+- Full suite not run locally per operator time rule; use GitHub CI as broad
+  proof.
+- Remaining Active #23 event families: campaign stop/failure and strategy
+  decision changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-11T02:13:35Z - Campaign Stop/Failure Alerts (Active Backlog #23 Batch A)
+
+Active role: ENGINEER
+
+Objective:
+- Add the campaign stop/failure half of the remaining Active #23 alert lane
+  without mixing in strategy-decision or deployment-stage transition alerts.
+- Fold candidate-advisor backlog hygiene into the same docs touch because
+  that classification was already accepted and no longer belongs in active
+  remaining wording.
+
+What was found:
+- SHOWN: `services.analytics.paper_strategy_evidence_service._write_status()`
+  is the single campaign status chokepoint and already reads
+  `current_status` before validating and writing the new status. That makes
+  it the correct seam for campaign status transition alerting.
+- SHOWN: `services.alerts.paper_gate_events` establishes the local alerting
+  pattern to match: notification-only, first observation silent baseline,
+  alert once per transition, never raise, and do not affect gate/evidence
+  decisions.
+- SHOWN: candidate-advisor classification is already implemented and
+  accepted via `ADVISOR_EXCLUDED_STRATEGIES` plus the registry coverage test,
+  so the active backlog wording was stale.
+
+What changed:
+- `services/alerts/campaign_events.py`: new notification-only alerter for
+  campaign status transitions. It alerts only on transitions into
+  stop/failure terminal states: `failed`/`error`/`aborted` are critical,
+  `stopped` is warning, and normal `completed` is intentionally silent.
+  First observation remains a silent baseline, repeated same-status writes
+  do not re-alert, and the entry point never raises.
+- `services/analytics/paper_strategy_evidence_service.py`: `_write_status()`
+  invokes the alerter after the status file write succeeds, using the
+  already-read previous status. Alert failures are swallowed so campaign
+  status advancement cannot be blocked by notification delivery.
+- `tests/test_campaign_event_alerts.py`: pins transition semantics,
+  severity, baseline, no-alert cases, payload forwarding, and never-raise
+  behavior.
+- `tests/test_campaign_event_alerts_integration.py`: proves the real
+  `_write_status()` path alerts on `running -> stopped` and that a raising
+  alert channel does not block a `failed` status write.
+- `REMAINING_TASKS.md`: reclassifies candidate-advisor coverage as done and
+  records campaign stop/failure alerting as Batch A; strategy decision-change
+  alerts remain open as Batch B.
+
+Why this change was chosen:
+- Campaign status transitions have a distinct detection seam from strategy
+  decision changes and deployment-stage transitions. Keeping this batch to
+  one seam avoids a cross-subsystem patch while still improving operator
+  wake-up quality.
+
+Expected outcome:
+- Operators receive an alert when a governed paper evidence campaign stops
+  or fails abnormally, without changing campaign status persistence,
+  evidence generation, trading behavior, or promotion-gate results.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: `12 passed in 0.25s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_strategy_evidence_service.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: `39 passed in 0.43s`.
+- `./.venv/bin/python -m py_compile services/alerts/campaign_events.py services/analytics/paper_strategy_evidence_service.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: touches operator alerting and campaign status workflow. The change is
+  notification-only and ordered after status persistence.
+- Strategy decision-change alerts remain open as Active #23 Batch B.
+- Deployment-stage transition alerts are a separate surface and are not part
+  of this batch.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.
+
+## 2026-07-11T02:27:48Z - Strategy Decision-Change Alerts (Active Backlog #23 Batch B)
+
+Active role: ENGINEER
+
+Objective:
+- Add the remaining Active #23 strategy decision-change alert lane without
+  mixing in deployment-stage transition alerts or changing promotion-gate
+  decisions.
+
+What was found:
+- SHOWN: `services.backtest.evidence_cycle.persist_strategy_evidence()`
+  is the active persistence entry point used by
+  `scripts/data/run_strategy_evidence_cycle.py` and
+  `services.analytics.paper_strategy_evidence_service`.
+- SHOWN: `persist_strategy_evidence()` already builds a `comparison` object
+  from the previous latest strategy evidence artifact before writing the new
+  latest/history JSON files. That comparison includes per-strategy
+  `decision_changed`, previous/current decisions, top-strategy change state,
+  and previous/current `as_of` values.
+- SHOWN: `services/backtest/evidence_persist.py` duplicates similar
+  persistence logic but has no active callers in the current grep results, so
+  widening it would broaden a dormant surface rather than improve the active
+  operator path.
+
+What changed:
+- `services/alerts/strategy_decision_events.py`: new notification-only
+  alerter for persisted strategy decision changes. First persisted evidence
+  remains a silent baseline, rank/score-only movement does not alert,
+  new/improved decisions alert at info level, degraded decisions alert at
+  warning level, and retire decisions alert at critical level. The entry
+  point never raises.
+- `services/backtest/evidence_cycle.py`: `persist_strategy_evidence()`
+  invokes the alerter after latest/history JSON artifacts are written.
+  Alert failures are swallowed so strategy evidence persistence cannot be
+  blocked by notification delivery.
+- `tests/test_strategy_decision_event_alerts.py`: pins alert semantics and
+  the real persistence path, including the proof that a raising alert channel
+  still leaves the latest evidence artifact advanced.
+- `REMAINING_TASKS.md`: records Active #23 Batch B and the explicit
+  `evidence_persist.py` dormant-surface boundary.
+
+Why this change was chosen:
+- The existing comparison object already defines the exact decision delta the
+  operator cares about. Reusing it keeps the alert read-only and avoids a
+  second snapshot or decision-comparison implementation.
+
+Expected outcome:
+- Operators receive one alert when persisted strategy decisions change versus
+  the previous latest evidence artifact, without changing strategy ranking,
+  evidence persistence, decision-record rendering, trading behavior, or
+  promotion-gate results.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: `8 passed in 0.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_backtest_evidence_cycle.py tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: `24 passed in 4.98s`.
+- `./.venv/bin/python -m py_compile services/alerts/strategy_decision_events.py services/backtest/evidence_cycle.py tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: passed with no output.
+- `LC_ALL=C rg -n "[^\\x00-\\x7F]" services/alerts/strategy_decision_events.py tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: no non-ASCII matches.
+
+Remaining risk:
+- HIGH: touches operator alerting and strategy decision workflow. The change
+  is notification-only and ordered after evidence persistence.
+- Deployment-stage transition alerts are a separate surface and are not part
+  of this batch.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.
+
+## 2026-07-11T02:38:54Z - Archive-First Backtesting Slice (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Make the existing `market_ohlcv` archive table usable by the shared
+  backtest OHLCV fetch path before relying on strategy comparisons.
+
+What was found:
+- SHOWN: `storage/market_store_sqlite.py` already owns a `market_ohlcv`
+  table and `upsert_ohlcv()` writer, but had no read API for backtests.
+- SHOWN: `services.backtest.signal_replay.fetch_ohlcv()` was a single
+  exchange fetch through ccxt and had no archive path or dataset hash.
+- SHOWN: `services.market_data.ohlcv_fetcher` delegates to
+  `signal_replay.fetch_ohlcv()`, so a narrow change there reaches existing
+  backtest/market-data callers without creating a second fetcher.
+
+What changed:
+- `storage/market_store_sqlite.py`: added `MarketStore.load_ohlcv()` with
+  latest-window and `since_ms` reads from `market_ohlcv`.
+- `services/backtest/ohlcv_archive.py`: added archive path resolution
+  (`CBP_MARKET_ARCHIVE_DB` or app data `market_raw.sqlite`), row
+  normalization/deduplication, symbol-candidate lookup, complete-window
+  archive loading, and deterministic dataset hashing.
+- `services/backtest/signal_replay.py`: now tries a complete archive window
+  first and falls back to the existing exchange fetch when the archive is
+  missing or incomplete.
+- `tests/test_ohlcv_archive_backtest.py`: added regression proof for archive
+  reads, archive-first no-exchange behavior, incomplete-archive fallback, and
+  dataset-hash determinism.
+- `tests/test_signal_replay.py`: pinned the legacy exchange-delegation test to
+  a missing archive path so local operator archives cannot make the test
+  environment-sensitive.
+- `REMAINING_TASKS.md`: recorded this as the first archive-first slice and
+  left pagination/backfill, downstream hash persistence, and walk-forward
+  sweeps open.
+
+Why this change was chosen:
+- It is the smallest path that converts already-collected OHLCV into
+  reproducible backtest input without changing caller return types or removing
+  the existing ccxt fallback.
+
+Expected outcome:
+- Backtests use archived OHLCV when enough rows exist for the requested window;
+  repeated runs over the same archive rows have a stable dataset hash; partial
+  archives do not silently shorten a backtest sample.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_signal_replay.py tests/test_marketdata_ohlcv_fetcher.py`
+  - SHOWN: `9 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile services/backtest/ohlcv_archive.py services/backtest/signal_replay.py storage/market_store_sqlite.py tests/test_ohlcv_archive_backtest.py tests/test_signal_replay.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: this touches research/profitability measurement plumbing, not live
+  trading, but incorrect archive selection could bias strategy comparisons.
+- UNVERIFIED: paginated archive ingestion/backfill is still not reusable here.
+- UNVERIFIED: downstream backtest artifacts do not yet persist the dataset
+  hash emitted by `ohlcv_archive`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.
+
+## 2026-07-11T02:52:59Z - Strategy Evidence Dataset Metadata (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Persist dataset identity in downstream strategy-evidence artifacts so
+  strategy comparisons can be tied back to the exact scored OHLCV windows.
+
+What was found:
+- SHOWN: `run_strategy_evidence_cycle()` built `window_reports` from candles
+  but did not persist any dataset hash or source metadata for those windows.
+- SHOWN: current default evidence windows are synthetic benchmark windows, so
+  blindly labeling hashes as archive-backed would misrepresent the source.
+- SHOWN: `persist_strategy_evidence()` writes the report payload as-is, so
+  adding metadata at `run_strategy_evidence_cycle()` is sufficient to make it
+  visible in both latest and history artifacts.
+
+What changed:
+- `services/backtest/ohlcv_archive.py`: `ohlcv_dataset_hash()` now accepts an
+  explicit `source` while preserving the archive default.
+- `services/backtest/evidence_cycle.py`: each evidence window now carries
+  `dataset_hash` and a `dataset` metadata block with source, venue, timeframe,
+  symbol, bars, and start/end timestamps. The top-level report includes a
+  `dataset_summary` containing hashed-window count, source list, and hashes.
+- `tests/test_ohlcv_archive_backtest.py`: proves hashes are source-sensitive.
+- `tests/test_backtest_evidence_cycle.py`: proves strategy-evidence reports
+  include dataset metadata and that the current default source is
+  `synthetic_evidence_window`.
+- `REMAINING_TASKS.md`: records this as the second archive-first slice and
+  keeps reusable pagination/backfill and archive-backed sweeps open.
+
+Why this change was chosen:
+- It adds data-identity evidence without changing ranking inputs, decision
+  policy, persistence shape beyond additive fields, or live trading paths.
+
+Expected outcome:
+- Operators and reviewers can see which exact OHLCV datasets were scored in a
+  strategy-evidence artifact, preventing synthetic, archive, and future
+  provided windows from being conflated.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_backtest_evidence_cycle.py`
+  - SHOWN: `21 passed in 5.11s`.
+- `./.venv/bin/python -m py_compile services/backtest/evidence_cycle.py services/backtest/ohlcv_archive.py tests/test_backtest_evidence_cycle.py tests/test_ohlcv_archive_backtest.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: still profitability-measurement plumbing. Additive metadata should not
+  alter decisions, but reviewers should confirm no downstream consumer assumes
+  a fixed evidence payload schema.
+- UNVERIFIED: reusable paginated archive ingestion/backfill is still open.
+- UNVERIFIED: archive-backed parameter sweep/walk-forward research is still
+  open.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.
+
+## 2026-07-11T08:16:18Z - Archive Pagination and Baseline Dataset Hash (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Finish the reusable archive pagination/backfill slice and make the ES
+  daily-trend baseline artifact persist the exact-row dataset hash.
+
+What was found:
+- SHOWN: `signal_replay.fetch_ohlcv()` had archive-first behavior but returned
+  only rows, discarding source and dataset-hash metadata.
+- SHOWN: `scripts/research/run_es_daily_trend_backtest_baseline.py` still owned
+  its own pagination loop, so the logic was not reusable outside that script.
+- SHOWN: the ES baseline report wrote source/options/metrics but did not stamp
+  a deterministic hash of the rows used for the run.
+
+What changed:
+- `services/backtest/signal_replay.py`: added `fetch_ohlcv_with_meta()` that
+  returns rows plus source, dataset hash, venue, symbol, timeframe, count, and
+  archive path/stored symbol when archive-backed. Existing `fetch_ohlcv()`
+  remains a bare-rows wrapper.
+- `services/backtest/ohlcv_archive.py`: added `paginate_ohlcv()` with bounded
+  forward paging, max-pages/max-bars/until controls, and non-advancing-cursor
+  termination; added `backfill_archive()` for idempotent upsert into
+  `market_ohlcv`.
+- `scripts/research/run_es_daily_trend_backtest_baseline.py`: switched
+  `fetch_paginated_ohlcv()` to the shared paginator and added a `dataset`
+  block with source label, venue, symbol/data symbol, timeframe, row count,
+  first/last timestamps, and SHA-256/dataset hash.
+- `tests/test_ohlcv_archive_pagination.py`: added offline tests for
+  pagination, bounds, empty termination, idempotent backfill, archive loading,
+  and metadata fetch.
+- `tests/test_es_daily_trend_backtest_baseline_runner.py`: pins baseline report
+  dataset metadata and output/printed hash consistency.
+- `REMAINING_TASKS.md`: records the third archive-first slice and leaves only
+  archive-backed parameter-sweep/walk-forward research open under item #11.
+
+Why this change was chosen:
+- It keeps existing row-only callers stable while exposing metadata to callers
+  that need reproducibility, and it removes the one-off pagination loop from
+  the baseline script by routing through a reusable archive primitive.
+
+Expected outcome:
+- Archive backfills can be run and re-run idempotently; archive-backed fetches
+  can surface their dataset hash; ES baseline artifacts now identify the exact
+  dataset used rather than relying on a label alone.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py tests/test_signal_replay.py tests/test_marketdata_ohlcv_fetcher.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_backtest_evidence_cycle.py`
+  - SHOWN: `35 passed in 5.33s`.
+- `./.venv/bin/python -m py_compile services/backtest/ohlcv_archive.py services/backtest/signal_replay.py scripts/research/run_es_daily_trend_backtest_baseline.py tests/test_ohlcv_archive_pagination.py tests/test_es_daily_trend_backtest_baseline_runner.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: research/profitability measurement plumbing. It does not touch live
+  trading, order routing, or promotion gates, but review should confirm the
+  compatibility wrapper preserves existing row-only behavior.
+- UNVERIFIED: archive-backed parameter-sweep/walk-forward research remains
+  open.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T15:44:00Z - Archive-Backed Walk-Forward Artifact (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Add the safe half of archive-backed walk-forward research: one explicit
+  strategy config, complete archive rows only, anchored walk-forward windows,
+  and a reproducible JSON artifact stamped with dataset hashes. Exclude
+  parameter sweeps, ranking policy, and strategy-selection decisions.
+
+What was found:
+- SHOWN: `run_anchored_walk_forward()` already produced anchored train/test
+  windows from caller-provided candles, but it had no archive loader or dataset
+  provenance contract.
+- SHOWN: `ohlcv_archive.load_archived_ohlcv()` already returned complete
+  archive rows plus `dataset_hash`, `archive_path`, stored symbol, venue,
+  timeframe, and row counts.
+- SHOWN: the previous archive-pagination slice made archive backfill reusable,
+  so the remaining safe seam was a consumer wrapper and artifact writer, not a
+  new backtest engine.
+
+What changed:
+- `services/backtest/walk_forward.py`: added
+  `run_archive_backed_walk_forward()` and a config hash helper. The wrapper
+  refuses missing/incomplete archives, never falls back to live OHLCV, runs the
+  existing anchored walk-forward over complete archive rows, and stamps the
+  result plus each window with the archive dataset hash/source.
+- `scripts/research/run_archive_walk_forward.py`: added a research-only CLI
+  that requires an explicit JSON/YAML `strategy.name` config and writes the
+  archive-backed walk-forward JSON artifact. It supports archive DB selection,
+  row limit/since, walk-forward sizing parameters, fee/slippage assumptions,
+  and `--fail-if-not-ok`.
+- `tests/test_backtest_walk_forward.py`: added archive-backed service tests
+  for dataset-hash stamping and incomplete-archive refusal.
+- `tests/test_archive_walk_forward_runner.py`: added CLI artifact tests for
+  output/printed JSON consistency and missing-archive exit code behavior.
+- `REMAINING_TASKS.md`: marks the prior pagination slice accepted and records
+  this single-config artifact slice as ready for review, leaving only the
+  separate parameter-sweep/ranking layer open under item #11.
+
+Why this change was chosen:
+- It keeps the work mechanical and provable: archive-backed reproducibility
+  before any parameter-grid or ranking decisions that could create misleading
+  research conclusions. Reusing the existing walk-forward engine avoids a twin
+  research path.
+
+Expected outcome:
+- Operators can run one archived strategy config through multi-window
+  walk-forward validation and keep a JSON artifact that proves the exact OHLCV
+  archive dataset and config hash behind the result.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `17 passed in 0.59s`.
+- `./.venv/bin/python -m py_compile services/backtest/walk_forward.py scripts/research/run_archive_walk_forward.py tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: financial strategy research infrastructure can affect future strategy
+  selection even though this patch is read-only and does not touch live
+  trading, order routing, or promotion gates.
+- UNVERIFIED: full test suite and GitHub CI were not run in this session.
+- UNVERIFIED: parameter-grid sweeps and ranking/selection policy remain a
+  separate follow-up.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T16:12:00Z - Archive-Backed Parameter Sweep Artifact (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Add the second half of archive-backed walk-forward research: bounded
+  parameter-grid expansion, one archive-backed walk-forward per variant, and a
+  deterministic ranked research artifact. Keep ranking descriptive only and do
+  not alter strategy configs, paper campaigns, promotion gates, or live paths.
+
+What was found:
+- SHOWN: Batch E exposed `run_archive_backed_walk_forward()` as a complete
+  archive-only, dataset-hashed single-config primitive.
+- SHOWN: item #11 still had the explicit remaining gap of a parameter-sweep
+  and walk-forward research runner after the single-config proof.
+- SHOWN: ranking policy is the research-design risk, so it needed to be
+  transparent in the artifact rather than hidden inside an opaque score.
+
+What changed:
+- `services/backtest/parameter_sweep.py`: added `expand_parameter_grid()` for
+  dot-path Cartesian parameter grids with a default 50-variant cap, and
+  `run_archive_parameter_sweep()` to run each variant through the archive-backed
+  walk-forward wrapper. The output is research-only and includes ranked
+  variants, config hashes, dataset hashes, dataset summary, top variant, and an
+  explicit deterministic ranking policy.
+- `scripts/research/run_archive_parameter_sweep.py`: added a research CLI that
+  requires a base JSON/YAML strategy config and JSON/YAML grid file, writes the
+  ranked JSON artifact, and supports `--fail-if-not-ok`.
+- `tests/test_archive_parameter_sweep.py`: added offline proofs for grid
+  expansion, ranked artifact shape, max-variant refusal, and CLI output/file
+  consistency.
+- `REMAINING_TASKS.md`: marks the single-config walk-forward slice accepted and
+  records this parameter-sweep artifact as ready for review.
+
+Why this change was chosen:
+- It builds directly on the accepted archive-backed primitive and keeps the
+  ranking policy deterministic, visible, and non-authoritative. The cap avoids
+  accidental long-running research sweeps from a malformed grid.
+
+Expected outcome:
+- Operators can run reproducible archive-backed parameter sweeps and compare
+  variants using stored dataset/config hashes, while any strategy/campaign
+  change based on those results remains a separate governed decision.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_archive_parameter_sweep.py tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `21 passed in 0.87s`.
+- `./.venv/bin/python -m py_compile services/backtest/parameter_sweep.py scripts/research/run_archive_parameter_sweep.py tests/test_archive_parameter_sweep.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: financial strategy research/ranking infrastructure can influence
+  future strategy-selection decisions even though this patch is read-only and
+  does not touch runtime execution.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- UNVERIFIED: no real multi-year archive sweep was executed here; tests use
+  local deterministic archive fixtures only.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T16:31:00Z - Funding Context Strategy Registry Contract (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Start the crypto-edge context strategy wiring with the smallest safe
+  contract: register `funding_extreme` in the strategy registry and require an
+  explicit context payload before it can emit a signal. Do not read the
+  crypto-edge store, alter paper qualification, or enable a persistent campaign
+  in this slice.
+
+What was found:
+- SHOWN: `funding_extreme`, `open_interest_shift`, and
+  `order_book_imbalance` modules existed, but `strategy_registry.SUPPORTED`
+  still only registered OHLCV strategies plus `sma_200_trend`.
+- SHOWN: `funding_extreme_default` already existed in presets/config tooling,
+  so the config name could be selected, but the runtime registry could not
+  execute it.
+- SHOWN: candidate-advisor classification requires every registry strategy to
+  be either allowed or explicitly excluded; adding `funding_extreme` to the
+  registry would otherwise create a drift failure.
+
+What changed:
+- `services/strategies/strategy_registry.py`: imports and registers
+  `funding_extreme.signal_from_context`; `compute_signal()` now accepts an
+  optional `context` payload while preserving existing callers. For
+  `funding_extreme`, missing context returns `ok=false`, `action=hold`,
+  `reason=missing_funding_context`; direct `funding_rate_pct` and nested
+  decimal `funding.funding_rate` are routed into the strategy.
+- `services/signals/candidate_advisor.py`: adds `funding_extreme` to
+  `ADVISOR_EXCLUDED_STRATEGIES` with a context/provenance rationale, so the
+  advisor cannot recommend it before governed paper proof exists.
+- `tests/test_strategy_registry.py`: adds registry and routing tests for
+  missing funding context, direct percent context, and nested decimal context.
+- `REMAINING_TASKS.md`: records this as the first context-strategy slice and
+  leaves store/provider, paper runner context, and qualification-gate work open.
+
+Why this change was chosen:
+- It creates the minimal executable contract without pretending that stored
+  crypto-edge rows are already paper-qualified evidence. Missing context fails
+  closed, and explicit context is required before any action can be emitted.
+
+Expected outcome:
+- Future crypto-edge provider work can call the registry with a typed context
+  payload, and typo/empty/missing-context cases remain non-actionable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py`
+  - SHOWN: `14 passed in 0.10s`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py tests/test_challenger_strategy_governance_configs.py tests/test_strategy_runtime_runner.py tests/test_candidate_advisor_classification.py`
+  - SHOWN: `49 passed in 0.92s`.
+- `./.venv/bin/python -m py_compile services/strategies/strategy_registry.py services/signals/candidate_advisor.py tests/test_strategy_registry.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: financial strategy signal wiring can affect future paper/research
+  decisions. This slice is fail-closed without explicit context and does not
+  touch live trading, paper qualification, or crypto-edge storage.
+- UNVERIFIED: no paper evidence row is produced from `funding_extreme` yet.
+- UNVERIFIED: crypto-edge store/provider integration and qualification-gate
+  extension remain separate follow-ups.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T09:08:32Z - Funding Context Provider and Paper Runner Handoff (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Continue context-strategy wiring by adding a read-only crypto-edge funding
+  context provider and passing that context into the paper strategy runner when
+  `funding_extreme` is selected. Do not touch live execution, paper
+  qualification, or order routing.
+
+What was found:
+- SHOWN: `storage/crypto_edge_store_sqlite.py` persisted funding snapshots and
+  source-filtered latest reports, but did not expose a latest matching funding
+  row for a target venue/symbol.
+- SHOWN: `strategy_runner.py` had a single public-OHLCV registry call site that
+  called `compute_signal()` without context.
+- SHOWN: `funding_extreme_default` existed, but `strategy_runner.py` did not
+  include `funding_extreme` in its alias/default-preset maps, so the runner
+  could not select it cleanly even after registry support landed.
+
+What changed:
+- `storage/crypto_edge_store_sqlite.py`: adds
+  `recent_funding_rows_for_source()` as a read-only accessor returning funding
+  rows with source/snapshot metadata.
+- `services/strategies/crypto_edge_context.py`: new provider that selects the
+  newest matching funding row for source/venue/symbol, converts stored decimal
+  `funding_rate` to `funding_rate_pct`, and fails closed on missing, stale,
+  malformed, or store-error context.
+- `services/execution/strategy_runner.py`: recognizes `funding_extreme`,
+  defaults it to `funding_extreme_default`, adds bounded context source/max-age
+  config, passes context into `compute_signal()` only for `funding_extreme`,
+  and surfaces strategy-context diagnostics in runner status and queued intent
+  metadata.
+- `tests/test_crypto_edge_context.py` and
+  `tests/test_strategy_runtime_runner.py`: add provider, config-recognition,
+  context pass-through, and missing-context fail-closed proofs.
+- `REMAINING_TASKS.md`: marks the registry-contract slice accepted and records
+  this provider/runner handoff as the next item #12 slice.
+
+Why this change was chosen:
+- It is the smallest path from stored crypto-edge data to an executable paper
+  signal contract. The provider is read-only and fail-closed; missing or stale
+  context remains non-actionable, preserving the existing live boundary and
+  leaving qualification-gate work as a separate high-risk item.
+
+Expected outcome:
+- A `funding_extreme` paper runner can consume fresh stored funding context
+  without falling back to OHLCV-only behavior, and operators can see whether a
+  funding signal used valid context or failed closed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_context.py tests/test_strategy_runtime_runner.py tests/test_strategy_registry.py`
+  - SHOWN: `50 passed in 0.98s`.
+- `./.venv/bin/python -m py_compile services/strategies/crypto_edge_context.py services/execution/strategy_runner.py storage/crypto_edge_store_sqlite.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_store_sqlite.py tests/test_crypto_edge_context.py tests/test_strategy_runtime_runner.py tests/test_strategy_registry.py tests/test_challenger_strategy_governance_configs.py tests/test_candidate_advisor_classification.py`
+  - SHOWN: `58 passed in 1.16s`.
+
+Remaining risk:
+- HIGH: financial strategy signal wiring can affect future paper/research
+  decisions even though this patch is read-only with respect to crypto-edge
+  storage and does not touch live execution or paper qualification.
+- UNVERIFIED: no end-to-end `funding_extreme` paper evidence session has been
+  produced yet.
+- UNVERIFIED: crypto-edge provenance qualification remains a separate backlog
+  item before these signals can count toward promotion gates.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-11T09:35:00Z - Crypto-Edge Cadence Checker Patch Review Record (Active Backlog #14)
+
+Active role: AUDITOR
+
+Objective:
+- Review the proposed read-only crypto-edge collector cadence/dead-man checker
+  patch and preserve acceptance conditions in the backlog without rebuilding
+  the patch locally.
+
+What was found:
+- SHOWN: the proposed patch adds `services/analytics/edge_cadence.py`,
+  `scripts/check_edge_cadence.py`, and `tests/test_edge_cadence.py`.
+- SHOWN: the proposed design is read-only and does not touch gates, live
+  execution, order routing, or collector writes.
+- SHOWN: the proposed patch text did not include `REMAINING_TASKS.md`,
+  `docs/work_log/review_stabilized_work_log.md`, or `scripts/SCRIPTS.md`
+  updates.
+- SHOWN: the proposed default `funding` max age is `3h`, while the patch text
+  also describes funding as an approximately 8-hour venue-cadence family.
+
+What changed:
+- `REMAINING_TASKS.md` item 14 now records the review outcome and required
+  patch revisions: add docs/script-index coverage, clarify cadence-threshold
+  policy, test best-effort `--alert`, and document missing-store behavior
+  accurately.
+
+Why this change was chosen:
+- The patch is not present in the local worktree. Recording the review
+  conditions avoids blindly applying stale patch text while keeping the next
+  implementer aligned with the accepted direction.
+
+Expected outcome:
+- The cadence checker can be revised and reviewed against explicit acceptance
+  criteria without weakening gate/execution boundaries or consuming extra
+  implementation cycles.
+
+Verification:
+- Not yet run at entry time; docs-only change to be checked with `git diff
+  --check`.
+
+Remaining risk:
+- LOW: documentation-only review record.
+- UNVERIFIED: the cadence checker code is not merged locally in this branch.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-11T09:50:00Z - Crypto-Edge Cadence Checker Code Slice (Active Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted safe parallel item for a read-only crypto-edge
+  collector cadence/dead-man checker, incorporating the review requirements
+  recorded earlier in item 14.
+
+What was found:
+- SHOWN: `CryptoEdgeStoreSQLite.latest_report()` already exposes per-family
+  metadata blocks (`funding_meta`, `open_interest_meta`, `basis_meta`, etc.)
+  with `capture_ts`, so no store schema or write-path change is needed.
+- SHOWN: existing `scripts/check_dead_man.py` establishes the exit-code and
+  best-effort alerting convention to mirror.
+- SHOWN: the proposed prior patch used a 3h funding threshold while also
+  describing funding as an approximately 8h venue-cadence family; the safer
+  default is to measure collector snapshot freshness with a 12h threshold until
+  hourly host collection is proven.
+
+What changed:
+- `services/analytics/edge_cadence.py`: new read-only cadence evaluator over
+  latest crypto-edge metadata. Funding, open-interest, and basis are enabled by
+  default with 12h max age; quote and order-book checks are opt-in. Missing,
+  unparseable, or stale enabled families fail closed.
+- `scripts/check_edge_cadence.py`: new CLI with exit 0 fresh / 1 stale / 2
+  missing-or-store-error and best-effort `--alert`.
+- `tests/test_edge_cadence.py`: covers fresh, stale, missing, unparseable,
+  disabled, env override, bad env fallback, empty-created-store behavior, and
+  alert dispatch never-raise behavior.
+- `scripts/SCRIPTS.md`: documents the new operator script.
+- `REMAINING_TASKS.md`: records the implemented code slice and leaves host
+  schedule/timestamp/timer proof open.
+
+Why this change was chosen:
+- It protects unrecoverable funding/open-interest/basis history without
+  touching collection, execution, gates, or storage writes. The checker uses
+  existing metadata and reports silence as unhealthy.
+
+Expected outcome:
+- Operators can run a cheap read-only cadence check locally or from a timer and
+  get an explicit failure if the history-critical edge families stop updating.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_edge_cadence.py tests/test_dead_man.py tests/test_alert_dispatcher_fallback.py`
+  - SHOWN: `23 passed in 1.13s`.
+- `./.venv/bin/python -m py_compile services/analytics/edge_cadence.py scripts/check_edge_cadence.py tests/test_edge_cadence.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_edge_cadence.py --store-path /private/tmp/cbp_edge_cadence_empty.sqlite --json`
+  - SHOWN: exit code `2`; JSON reported `ok=false` with `funding`,
+    `open_interest`, and `basis` missing.
+
+Remaining risk:
+- MEDIUM: operator alerting tooling affects wake-up quality, but does not feed
+  trading decisions, gates, or execution.
+- UNVERIFIED: host scheduling and recent OKX snapshot timestamps have not been
+  checked in this session.
+- UNVERIFIED: full suite and GitHub CI were not run.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-11T14:45:10Z - Funding Extreme Context Symbol Override Slice (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Continue crypto-edge context strategy wiring by allowing `funding_extreme`
+  paper runs to use separate market-data and context contracts: spot OHLCV/tick
+  symbol for the paper runner, and OKX perpetual funding symbol for the
+  strategy context.
+
+What was found:
+- SHOWN: live OKX crypto-edge collection is fresh and returns funding,
+  open-interest, and basis rows.
+- SHOWN: `funding_context_from_crypto_edge_store(symbol="BTC/USDT:USDT",
+  venue="okx")` returns `ok=true`, `reason=funding_context_ready`.
+- SHOWN: `normalize_symbol("BTC/USDT") != normalize_symbol("BTC/USDT:USDT")`,
+  so the existing single-symbol contract cannot pair spot OHLCV with perpetual
+  funding context.
+- SHOWN: an isolated managed `funding_extreme` run using OKX perp symbol failed
+  safely with `no_public_ohlcv`, zero intents, zero fills.
+- SHOWN: an isolated managed `funding_extreme` run using Coinbase spot OHLCV
+  plus explicit OKX context overrides still failed safely with
+  `no_public_ohlcv`; child `strategy_runner` / tick-publisher logs report
+  public exchange metadata `NetworkError` from subprocesses even though direct
+  in-process exchange fetches succeed.
+
+What changed:
+- `services/execution/strategy_runner.py` now accepts optional
+  `strategy_context_symbol` and `strategy_context_venue` config/env fields,
+  defaulting to the runtime symbol/venue to preserve existing behavior.
+- `strategy_runner` passes the context override only to
+  `funding_context_from_crypto_edge_store()` and records resolved context
+  symbol/venue in status and intent metadata.
+- `services/analytics/paper_strategy_evidence_service.py` carries the optional
+  context symbol/venue into child strategy-runner environment variables.
+- `scripts/run_paper_strategy_evidence_collector.py` exposes
+  `--strategy-context-symbol` and `--strategy-context-venue` for isolated
+  Stage 0 / managed paper proofs without editing persistent user config.
+- Targeted tests pin config parsing, CLI passthrough, service env passthrough,
+  and registry context override behavior.
+
+Why this change was chosen:
+- It is the smallest contract needed for context-backed strategies: the traded
+  paper symbol and the derivative context symbol are not always the same
+  instrument string. Keeping explicit overrides avoids weakening symbol
+  matching inside the context provider.
+
+Expected outcome:
+- `funding_extreme` can consume governed OKX funding context while the paper
+  runner uses a separate public OHLCV/tick venue. Existing strategies and
+  existing `funding_extreme` configs without overrides keep current behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py tests/test_run_paper_strategy_evidence_collector.py`
+  - SHOWN: `76 passed in 1.04s`.
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py services/analytics/paper_strategy_evidence_service.py scripts/run_paper_strategy_evidence_collector.py`
+  - SHOWN: passed with no output.
+- In-process live-context proof:
+  - SHOWN: fresh OKX `BTC/USDT:USDT` funding context returned
+    `funding_context_ready`; Coinbase `BTC/USD` public OHLCV returned 5 rows;
+    `_registry_signal_with_context(...)` returned `ok=true`, `action=hold`,
+    `reason=funding_neutral`, `strategy_context_ok=true`,
+    `strategy_context_symbol=BTC/USDT:USDT`, `strategy_context_venue=okx`.
+- Managed Stage 0 proof:
+  - SHOWN: still fails safely with `no_public_ohlcv`, zero intents/fills; this
+    is recorded as remaining work, not accepted as an end-to-end proof.
+
+Remaining risk:
+- HIGH: context-backed strategy wiring can affect future paper/research
+  decisions and promotion evidence if later connected to gate qualification.
+- UNVERIFIED: no managed end-to-end `funding_extreme` paper evidence session
+  has completed yet.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
+  review.
+
+## 2026-07-11T15:00:00Z - Managed Paper Component Env Isolation (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Remove global `CBP_VENUE` / `CBP_SYMBOLS` leakage from managed paper child
+  processes while preserving direct-script compatibility. This continues the
+  `funding_extreme` context-strategy Stage 0 path without changing strategy
+  decisions or promotion gates.
+
+What was found:
+- SHOWN: a direct child process launched with service-built component env can
+  fetch Coinbase public OHLCV when `CBP_VENUE` and `CBP_SYMBOLS` are absent.
+- SHOWN: managed paper service previously wrote `CBP_VENUE` and `CBP_SYMBOLS`
+  into every child environment, even though `CBP_VENUE` is also consumed by
+  `exchange_factory.resolve_exchange_id()` as a global venue guard.
+- SHOWN: local laptop campaign status after restart check reports both laptop
+  campaigns already running: `es_daily_trend_v1` and `breakout_default`, both
+  idle after recording 2026-07-11 evidence and waiting for the next UTC day.
+- SHOWN: local managed `funding_extreme` Stage 0 still fails with
+  `no_public_ohlcv`; app logs show Coinbase metadata `NetworkError` from
+  subprocesses. Raw Coinbase fetches also showed intermittent DNS failure in
+  isolated env probes, while no-env raw fetches succeeded.
+
+What changed:
+- `services/analytics/paper_strategy_evidence_service.py` now removes global
+  `CBP_VENUE` / `CBP_SYMBOLS` from child environments and passes
+  `CBP_COMPONENT_VENUE` / `CBP_COMPONENT_SYMBOLS` instead.
+- `services/execution/strategy_runner.py` prefers component-scoped venue/symbol
+  env and falls back to legacy `CBP_VENUE` / `CBP_SYMBOLS` for direct scripts.
+- `services/market_data/system_status_publisher.py` applies the same
+  component-scoped preference for the managed tick publisher.
+- Tests pin that poisoned parent global env cannot override managed component
+  env, while legacy direct env fallback remains available.
+
+Why this change was chosen:
+- It isolates managed component runtime metadata from global exchange guards
+  without weakening any venue-resolution checks for direct scripts. It is the
+  smallest contract change that removes one known managed-subprocess ambiguity.
+
+Expected outcome:
+- Managed paper components receive explicit per-component venue/symbol inputs
+  without mutating global `CBP_VENUE` / `CBP_SYMBOLS`. This keeps direct CLI
+  behavior backward-compatible and reduces managed campaign env coupling.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_tick_publisher_runtime.py`
+  - SHOWN: `76 passed in 1.00s`.
+- `./.venv/bin/python -m py_compile services/analytics/paper_strategy_evidence_service.py services/execution/strategy_runner.py services/market_data/system_status_publisher.py tests/test_paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_tick_publisher_runtime.py`
+  - SHOWN: passed with no output.
+- Component-env child probe:
+  - SHOWN: `CBP_VENUE=None`, `CBP_SYMBOLS=None`,
+    `CBP_COMPONENT_VENUE=coinbase`, `CBP_COMPONENT_SYMBOLS=BTC/USD`, and
+    Coinbase public OHLCV returned `300` rows with source `public_ohlcv`.
+- Laptop campaign status:
+  - SHOWN: `make status-paper-campaigns` reported `all_running=true`,
+    `campaign_count=2`, with both `es_daily_trend_v1` and `breakout_default`
+    running and waiting for next UTC day.
+
+Remaining risk:
+- HIGH: this is managed paper/context plumbing for future profitability
+  evidence. It does not touch live execution, but bad env routing can poison
+  paper evidence or block Stage 0 validation.
+- UNVERIFIED: governed end-to-end `funding_extreme` managed Stage 0 still has
+  not completed; local probes still hit intermittent Coinbase DNS/metadata
+  failures.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
+  review.

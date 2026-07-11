@@ -150,6 +150,10 @@ def test_run_paper_strategy_evidence_collector_runs_with_cfg(monkeypatch, capsys
             "28",
             "--signal-source",
             "public_ohlcv_5m",
+            "--strategy-context-symbol",
+            "BTC/USDT:USDT",
+            "--strategy-context-venue",
+            "okx",
             "--allow-first-signal-trade",
             "--no-desktop-notify",
             "--max-strategies",
@@ -168,6 +172,8 @@ def test_run_paper_strategy_evidence_collector_runs_with_cfg(monkeypatch, capsys
     assert getattr(cfg, "tick_publish_interval_sec") == 1.5
     assert getattr(cfg, "strategy_min_bars") == 28
     assert getattr(cfg, "signal_source") == "public_ohlcv_5m"
+    assert getattr(cfg, "strategy_context_symbol") == "BTC/USDT:USDT"
+    assert getattr(cfg, "strategy_context_venue") == "okx"
     assert getattr(cfg, "allow_first_signal_trade") is True
     assert getattr(cfg, "paper_sim_monitor_desktop_notify") is False
     assert seen["max_strategies"] == 1

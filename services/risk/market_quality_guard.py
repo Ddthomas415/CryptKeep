@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 _LOG = logging.getLogger(__name__)
+import math
 import time
 from typing import Dict, Any, Optional
 from services.admin.config_editor import load_user_yaml
@@ -13,28 +14,22 @@ def _cfg() -> Dict[str, Any]:
     cfg = load_user_yaml()
     g = cfg.get("market_quality_guard", {}) if isinstance(cfg.get("market_quality_guard"), dict) else {}
     symbol_thresholds = g.get("symbol_thresholds") if isinstance(g.get("symbol_thresholds"), dict) else {}
-    st_norm: Dict[str, Dict[str, float]] = {}
+    st_norm: Dict[str, Dict[str, Any]] = {}
     for k, v in symbol_thresholds.items():
         if not isinstance(v, dict):
             continue
         sym = normalize_symbol(str(k))
-        item: Dict[str, float] = {}
+        item: Dict[str, Any] = {}
         if v.get("max_tick_age_sec") is not None:
-            try:
-                item["max_tick_age_sec"] = float(v.get("max_tick_age_sec"))
-            except Exception as _err:
-                pass  # suppressed: see _LOG.debug below
+            item["max_tick_age_sec"] = v.get("max_tick_age_sec")
         if v.get("max_spread_bps") is not None:
-            try:
-                item["max_spread_bps"] = float(v.get("max_spread_bps"))
-            except Exception as _err:
-                pass  # suppressed: see _LOG.debug below
+            item["max_spread_bps"] = v.get("max_spread_bps")
         if item:
             st_norm[sym] = item
     return {
         "enabled": bool(g.get("enabled", True)),
-        "max_tick_age_sec": float(g.get("max_tick_age_sec", 600.0)),   # 10 min
-        "max_spread_bps": float(g.get("max_spread_bps", 500.0)),       # 5%
+        "max_tick_age_sec": g.get("max_tick_age_sec", 600.0),   # 10 min
+        "max_spread_bps": g.get("max_spread_bps", 500.0),       # 5%
         "require_bid_ask": bool(g.get("require_bid_ask", False)),
         "block_when_unknown": bool(g.get("block_when_unknown", False)),
         "symbol_thresholds": st_norm,
@@ -48,11 +43,22 @@ def check(venue: str, symbol: str) -> Dict[str, Any]:
     per = cfg_base.get("symbol_thresholds", {}).get(sym)
     if isinstance(per, dict):
         if per.get("max_tick_age_sec") is not None:
-            cfg["max_tick_age_sec"] = float(per["max_tick_age_sec"])
+            cfg["max_tick_age_sec"] = per["max_tick_age_sec"]
         if per.get("max_spread_bps") is not None:
-            cfg["max_spread_bps"] = float(per["max_spread_bps"])
+            cfg["max_spread_bps"] = per["max_spread_bps"]
     if not cfg["enabled"]:
         return {"ok": True, "reason": "guard_disabled"}
+
+    # Fail closed on garbage thresholds: NaN/inf/non-positive values make
+    # comparisons below silently false, passing stale ticks and wide spreads.
+    for name in ("max_tick_age_sec", "max_spread_bps"):
+        try:
+            value = float(cfg[name])
+        except Exception:
+            return {"ok": False, "reason": f"invalid_threshold:{name}"}
+        if not math.isfinite(value) or value <= 0.0:
+            return {"ok": False, "reason": f"invalid_threshold:{name}"}
+        cfg[name] = value
 
     q = get_best_bid_ask_last(venue, sym)
     if not q:

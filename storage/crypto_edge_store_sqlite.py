@@ -430,6 +430,35 @@ class CryptoEdgeStoreSQLite:
     def latest_funding_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
         return self._latest_snapshot_rows_for_source("funding_snapshots", source=source)
 
+    def recent_funding_rows_for_source(self, *, source: str, limit: int = 500) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT snapshot_id, capture_ts, source, symbol, venue, funding_rate, interval_hours, payload_json
+                FROM funding_snapshots
+                WHERE source = ?
+                ORDER BY capture_ts DESC, id DESC
+                LIMIT ?
+                """,
+                (str(source or ""), int(max(limit, 1))),
+            ).fetchall()
+        out: list[dict[str, Any]] = []
+        for row in rows:
+            payload = dict(json.loads(str(row["payload_json"] or "{}")))
+            payload.update(
+                {
+                    "snapshot_id": str(row["snapshot_id"]),
+                    "capture_ts": str(row["capture_ts"]),
+                    "source": str(row["source"]),
+                    "symbol": str(row["symbol"]),
+                    "venue": str(row["venue"]),
+                    "funding_rate": float(row["funding_rate"]),
+                    "interval_hours": float(row["interval_hours"]),
+                }
+            )
+            out.append(payload)
+        return out
+
     def latest_basis_rows_for_source(self, *, source: str) -> list[dict[str, Any]]:
         return self._latest_snapshot_rows_for_source("basis_snapshots", source=source)
 

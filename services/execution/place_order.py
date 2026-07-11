@@ -572,6 +572,12 @@ def _enforce_fail_closed(
 
     if not isinstance(snap, dict) or not snap:
         raise RuntimeError("CBP_ORDER_BLOCKED:missing_risk_daily_snapshot")
+    if bool(snap.get("risk_daily_corrupt")):
+        fields = ",".join(str(x) for x in (snap.get("risk_daily_corrupt_fields") or []))
+        reason = str(snap.get("risk_daily_corrupt_reason") or "unknown")
+        raise RuntimeError(
+            f"CBP_ORDER_BLOCKED:risk_daily_corrupt fields={fields} reason={reason}"
+        )
 
     trades_today = float(snap.get("trades", 0) or 0)
     pnl_today = float(snap.get("pnl", 0) or 0)

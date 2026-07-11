@@ -15,6 +15,7 @@ from services.market_data.symbol_router import normalize_venue, normalize_symbol
 from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
 from services.execution.intent_ttl import check_intent_age
 from services.execution.clock_sanity import check_venue_clock
+from services.process.heartbeat import write_named_heartbeat
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
 from services.live_router.router import decide_order
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
@@ -255,6 +256,7 @@ def run_forever() -> None:
     try:
         while True:
             loops += 1
+            write_named_heartbeat("intent_consumer", extra={"loops": loops})
             if STOP_FILE.exists():
                 _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops})
                 break
