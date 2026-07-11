@@ -17678,6 +17678,60 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-11T20:46:30Z - Optional CI Lane For Ignored Test Slice (Deferred Hygiene #21)
+
+Active role: ENGINEER
+
+Objective:
+- Give the four permanently ignored tests a named GitHub Actions lane without
+  changing required CI behavior.
+
+What was found:
+- SHOWN: `.github/workflows/ci.yml` still excludes
+  `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
+  `tests/test_dashboard_page_runtime.py`, and
+  `tests/test_dashboard_home_digest.py` from the required core pytest job.
+- SHOWN: `Makefile` already exposes `make test-ci-ignored` for the exact same
+  four-test slice.
+- SHOWN: `docs/CI_IGNORED_TEST_POLICY.md` required each ignored file to be
+  made CI-safe, split into smaller required regressions, retired, or moved to
+  a named optional job.
+
+What changed:
+- Added `.github/workflows/ci-ignored-tests.yml`, a manual
+  `workflow_dispatch`-only workflow named **Optional Ignored Tests** that
+  installs dependencies and runs `make test-ci-ignored`.
+- Updated `docs/CI_IGNORED_TEST_POLICY.md` to document the optional GitHub
+  lane and state that it does not run on `pull_request` or `push`.
+- Added `tests/test_ci_ignored_tests_policy.py` to pin the manual-only
+  workflow contract and alignment between CI ignores, Makefile, and policy.
+
+Why this change was chosen:
+- It closes the "no named GitHub lane" part of the policy without making
+  unstable dashboard/symbol-scanner tests block every PR. Required CI remains
+  unchanged until those tests are made CI-safe or split into smaller required
+  checks.
+
+Expected outcome:
+- Operators can run the ignored slice from GitHub Actions when relevant, and
+  future changes cannot silently convert the optional workflow into a required
+  PR/push trigger without breaking the alignment test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ci_ignored_tests_policy.py`
+  - SHOWN: `2 passed in 0.08s`.
+- `./.venv/bin/python -m py_compile tests/test_ci_ignored_tests_policy.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: workflow/docs/test alignment only. It does not change required CI,
+  runtime behavior, trading logic, or operator commands beyond an optional
+  manual GitHub Actions job.
+- UNVERIFIED: the optional GitHub workflow itself has not been run on GitHub.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T16:12:00Z - Public OHLCV Reachability Preflight (Active Backlog #12/#13 Support)
 
 Active role: ENGINEER
