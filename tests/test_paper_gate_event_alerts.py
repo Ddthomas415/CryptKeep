@@ -123,12 +123,29 @@ def test_evidence_logger_emits_transitions_not_per_failure(monkeypatch, tmp_path
 # ---------------------------------------------------------------------------
 
 
-def _result(*, ready: bool, gates: dict[str, bool], stage: str = "paper") -> dict:
-    return {
+def _result(
+    *,
+    ready: bool,
+    gates: dict[str, bool],
+    stage: str = "paper",
+    round_trips: int | None = None,
+    round_trips_required: int = 10,
+) -> dict:
+    result = {
         "ready": ready,
         "stage": stage,
         "gates": [{"label": k, "passed": v} for k, v in gates.items()],
     }
+    if round_trips is not None:
+        result["paper_progress"] = {
+            "source": "jsonl_provenance+trade_journal_sqlite",
+            "round_trips_recorded": round_trips,
+            "round_trips_required": round_trips_required,
+            "round_trips_remaining": max(0, round_trips_required - round_trips),
+            "round_trips_ready": round_trips >= round_trips_required,
+            "all_history_round_trips": round_trips,
+        }
+    return result
 
 
 def test_gate_snapshot_baseline_then_flip_then_recovery(monkeypatch, tmp_path):
@@ -180,6 +197,67 @@ def test_gate_flip_without_ready_change_is_warning(monkeypatch, tmp_path):
     assert sent[-1][2]["flipped_to_fail"] == ["A"]
 
 
+def test_qualified_round_trip_increase_alerts_once(monkeypatch, tmp_path):
+    pge = _reload(monkeypatch, tmp_path)
+    sent = _capture(monkeypatch, pge)
+
+    out = pge.record_gate_result_and_alert(
+        _result(ready=False, gates={"A": False}, round_trips=2),
+        alert=True,
+        now_iso="t0",
+    )
+    assert out["baseline"] is True and sent == []
+
+    out = pge.record_gate_result_and_alert(
+        _result(ready=False, gates={"A": False}, round_trips=3),
+        alert=True,
+        now_iso="t1",
+    )
+
+    assert out["alerted"] == ["qualified_round_trips_changed"]
+    level, message, payload = sent[-1]
+    assert (level, message) == ("info", "paper_gate:qualified_round_trips_changed")
+    assert payload == {
+        "previous": 2,
+        "current": 3,
+        "delta": 1,
+        "required": 10,
+        "remaining": 7,
+        "ready": False,
+        "source": "jsonl_provenance+trade_journal_sqlite",
+        "stage": "paper",
+    }
+
+    out = pge.record_gate_result_and_alert(
+        _result(ready=False, gates={"A": False}, round_trips=3),
+        alert=True,
+        now_iso="t2",
+    )
+    assert out["alerted"] == []  # no steady-state re-alert
+
+
+def test_qualified_round_trip_decrease_is_warning(monkeypatch, tmp_path):
+    pge = _reload(monkeypatch, tmp_path)
+    sent = _capture(monkeypatch, pge)
+
+    pge.record_gate_result_and_alert(
+        _result(ready=False, gates={"A": False}, round_trips=4),
+        alert=True,
+        now_iso="t0",
+    )
+    out = pge.record_gate_result_and_alert(
+        _result(ready=False, gates={"A": False}, round_trips=2),
+        alert=True,
+        now_iso="t1",
+    )
+
+    assert out["alerted"] == ["qualified_round_trips_changed"]
+    assert sent[-1][0] == "warning"
+    assert sent[-1][2]["previous"] == 4
+    assert sent[-1][2]["current"] == 2
+    assert sent[-1][2]["delta"] == -2
+
+
 def test_snapshot_persists_without_alert_flag(monkeypatch, tmp_path):
     pge = _reload(monkeypatch, tmp_path)
     sent = _capture(monkeypatch, pge)
@@ -198,6 +276,30 @@ def test_snapshot_persists_without_alert_flag(monkeypatch, tmp_path):
     assert sent == []  # opt-in respected
     snap = json.loads(pge._snapshot_path().read_text(encoding="utf-8"))
     assert snap["ready"] is False and snap["gates"] == {"A": False}
+
+
+def test_round_trip_alert_hook_never_freezes_snapshot(monkeypatch, tmp_path):
+    pge = _reload(monkeypatch, tmp_path)
+
+    pge.record_gate_result_and_alert(
+        _result(ready=False, gates={"A": False}, round_trips=1),
+        alert=True,
+        now_iso="t0",
+    )
+
+    def boom(level, message, payload):
+        raise RuntimeError("channel down")
+
+    monkeypatch.setattr(pge, "_send", boom)
+    out = pge.record_gate_result_and_alert(
+        _result(ready=False, gates={"A": False}, round_trips=2),
+        alert=True,
+        now_iso="t1",
+    )
+
+    assert out["alerted"] == []
+    snap = json.loads(pge._snapshot_path().read_text(encoding="utf-8"))
+    assert snap["paper_progress"]["round_trips_recorded"] == 2
 
 
 def test_corrupt_snapshot_resets_baseline_without_crash(monkeypatch, tmp_path):
