@@ -15,6 +15,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from services.backtest.parity_engine import run_parity_backtest
+from services.backtest.ohlcv_archive import ohlcv_dataset_hash, paginate_ohlcv
 from services.backtest.signal_replay import fetch_ohlcv
 
 MS_PER_DAY = 86_400_000
@@ -104,37 +105,17 @@ def fetch_paginated_ohlcv(
 ) -> list[list[Any]]:
     since_ms = parse_utc_ms(opts.since)
     until_ms = parse_utc_ms(opts.until)
-    cursor = since_ms
-    rows: list[list[Any]] = []
-
-    for _page in range(max(1, int(opts.max_pages))):
-        batch = fetcher(
-            opts.venue,
-            opts.data_symbol or opts.symbol,
-            timeframe=opts.timeframe,
-            limit=max(1, int(opts.page_limit)),
-            since_ms=cursor,
-        )
-        clean_batch = dedupe_sort_ohlcv(list(batch or []))
-        if not clean_batch:
-            break
-        rows = dedupe_sort_ohlcv(rows + clean_batch)
-        if len(rows) >= int(opts.max_bars):
-            rows = rows[: int(opts.max_bars)]
-            break
-        last_ts = _safe_ts_ms(rows[-1])
-        if last_ts is None:
-            break
-        if until_ms is not None and last_ts >= until_ms:
-            break
-        next_cursor = int(last_ts) + 1
-        if cursor is not None and next_cursor <= int(cursor):
-            break
-        cursor = next_cursor
-
-    if until_ms is not None:
-        rows = [row for row in rows if (_safe_ts_ms(row) or 0) <= until_ms]
-    return dedupe_sort_ohlcv(rows)
+    return paginate_ohlcv(
+        fetcher,
+        venue=opts.venue,
+        symbol=opts.data_symbol or opts.symbol,
+        timeframe=opts.timeframe,
+        since_ms=since_ms or 0,
+        until_ms=until_ms,
+        page_limit=opts.page_limit,
+        max_pages=opts.max_pages,
+        max_bars=opts.max_bars,
+    )
 
 
 def closed_trade_return_pcts(trades: list[dict[str, Any]]) -> list[float]:
@@ -184,6 +165,13 @@ def build_baseline_report(rows: list[list[Any]], opts: BaselineOptions) -> dict[
 
     first_ts = _safe_ts_ms(clean_rows[0]) if clean_rows else None
     last_ts = _safe_ts_ms(clean_rows[-1]) if clean_rows else None
+    dataset_hash = ohlcv_dataset_hash(
+        venue=str(opts.venue),
+        symbol=str(opts.data_symbol or opts.symbol),
+        timeframe=str(opts.timeframe),
+        rows=clean_rows,
+        source=str(opts.source_label or "es_daily_trend_baseline"),
+    )
     win_rate_pct = float(scorecard.get("win_rate_pct") or 0.0)
     trade_returns = closed_trade_return_pcts(list(result.get("trades") or []))
     winning_returns = [value for value in trade_returns if value > 0.0]
@@ -232,6 +220,18 @@ def build_baseline_report(rows: list[list[Any]], opts: BaselineOptions) -> dict[
             "rows": len(clean_rows),
             "first_ts": iso_from_ms(first_ts),
             "last_ts": iso_from_ms(last_ts),
+        },
+        "dataset": {
+            "source_label": str(opts.source_label or ""),
+            "venue": str(opts.venue),
+            "symbol": str(opts.symbol),
+            "data_symbol": str(opts.data_symbol or opts.symbol),
+            "timeframe": str(opts.timeframe),
+            "row_count": int(len(clean_rows)),
+            "first_ts": iso_from_ms(first_ts),
+            "last_ts": iso_from_ms(last_ts),
+            "sha256": dataset_hash,
+            "dataset_hash": dataset_hash,
         },
         "strategy_config": cfg,
         "assumptions": {

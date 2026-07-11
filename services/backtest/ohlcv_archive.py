@@ -143,3 +143,130 @@ def load_archived_ohlcv(
         "timeframe": str(timeframe),
         "rows": [],
     }
+
+
+def _row_ts_ms(row: list[Any]) -> int | None:
+    if not isinstance(row, (list, tuple)) or not row:
+        return None
+    try:
+        ts = int(float(row[0]))
+    except Exception:
+        return None
+    if ts <= 0:
+        return None
+    if ts < 10_000_000_000:
+        ts *= 1000
+    return ts
+
+
+def paginate_ohlcv(
+    fetcher: Any,
+    *,
+    venue: str,
+    symbol: str,
+    timeframe: str,
+    since_ms: int,
+    until_ms: int | None = None,
+    page_limit: int = 500,
+    max_pages: int = 50,
+    max_bars: int = 50_000,
+) -> list[list[Any]]:
+    cursor = int(since_ms)
+    rows: list[list[Any]] = []
+    page_size = max(1, int(page_limit))
+    max_page_count = max(1, int(max_pages))
+    max_row_count = max(1, int(max_bars))
+
+    for _page in range(max_page_count):
+        batch = fetcher(
+            venue,
+            symbol,
+            timeframe=str(timeframe),
+            limit=page_size,
+            since_ms=cursor,
+        )
+        clean = normalize_ohlcv_rows(list(batch or []))
+        if not clean:
+            break
+        rows = normalize_ohlcv_rows(rows + clean)
+        if len(rows) >= max_row_count:
+            rows = rows[:max_row_count]
+            break
+        last_ts = _row_ts_ms(rows[-1])
+        if last_ts is None:
+            break
+        if until_ms is not None and last_ts >= int(until_ms):
+            break
+        next_cursor = int(last_ts) + 1
+        if next_cursor <= cursor:
+            break
+        cursor = next_cursor
+
+    if until_ms is not None:
+        rows = [row for row in rows if (_row_ts_ms(row) or 0) <= int(until_ms)]
+    return normalize_ohlcv_rows(rows)
+
+
+def backfill_archive(
+    fetcher: Any,
+    *,
+    venue: str,
+    symbol: str,
+    timeframe: str,
+    since_ms: int,
+    until_ms: int | None = None,
+    page_limit: int = 500,
+    max_pages: int = 50,
+    max_bars: int = 50_000,
+    db_path: str | Path | None = None,
+) -> dict[str, Any]:
+    path = Path(db_path).expanduser().resolve() if db_path is not None else default_archive_db_path()
+    exchange = normalize_venue(venue)
+    stored_symbol = map_symbol(exchange, normalize_symbol(symbol))
+    rows = paginate_ohlcv(
+        fetcher,
+        venue=exchange,
+        symbol=symbol,
+        timeframe=str(timeframe),
+        since_ms=int(since_ms),
+        until_ms=until_ms,
+        page_limit=page_limit,
+        max_pages=max_pages,
+        max_bars=max_bars,
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    store = MarketStore(path)
+    written = 0
+    for row in rows:
+        ts = _row_ts_ms(row)
+        if ts is None:
+            continue
+        vol = row[5] if len(row) > 5 else None
+        store.upsert_ohlcv(
+            ts_ms=ts,
+            exchange=exchange,
+            symbol=stored_symbol,
+            timeframe=str(timeframe),
+            o=float(row[1]),
+            h=float(row[2]),
+            l=float(row[3]),
+            cl=float(row[4]),
+            v=None if vol is None else float(vol),
+        )
+        written += 1
+
+    return {
+        "ok": written > 0,
+        "archive_path": str(path),
+        "exchange": exchange,
+        "stored_symbol": stored_symbol,
+        "symbol": normalize_symbol(symbol),
+        "timeframe": str(timeframe),
+        "rows_written": int(written),
+        "dataset_hash": ohlcv_dataset_hash(
+            venue=exchange,
+            symbol=symbol,
+            timeframe=str(timeframe),
+            rows=rows,
+        ),
+    }

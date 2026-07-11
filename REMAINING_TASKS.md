@@ -182,15 +182,20 @@ deployment work still needs independent review.
    complete archive window before falling back to the existing exchange fetch.
    Incomplete/missing archives do not shrink a backtest window silently; they
    retain the old ccxt fallback behavior. 2026-07-11: second archive-first
-   slice is ready for independent review. Strategy evidence windows now carry
+   slice is accepted. Strategy evidence windows now carry
    `dataset_hash` and a `dataset` metadata block with source, venue,
    timeframe, symbol, bars, and start/end timestamps; the persisted evidence
    report includes a `dataset_summary` across all scored windows. Current
    synthetic windows are labeled `synthetic_evidence_window` rather than
    archive data, and any future archive/provided window can carry its own
-   source/path metadata. Remaining item #11 work: promote paginated
-   ingestion/backfill into reusable archive tooling and build archive-backed
-   parameter-sweep/walk-forward research.
+   source/path metadata. 2026-07-11: third archive-first slice is ready for
+   independent review. `signal_replay.fetch_ohlcv_with_meta()` surfaces rows
+   plus source/dataset-hash metadata while preserving `fetch_ohlcv()` as a
+   bare-rows compatibility wrapper; `ohlcv_archive.paginate_ohlcv()` and
+   `backfill_archive()` provide reusable, fetcher-injectable pagination and
+   idempotent archive upsert; the ES daily-trend baseline report now persists
+   a `dataset` block with the exact-row SHA-256. Remaining item #11 work:
+   build archive-backed parameter-sweep/walk-forward research.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /

@@ -17053,4 +17053,70 @@ Remaining risk:
 - UNVERIFIED: reusable paginated archive ingestion/backfill is still open.
 - UNVERIFIED: archive-backed parameter sweep/walk-forward research is still
   open.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.
+
+## 2026-07-11T08:16:18Z - Archive Pagination and Baseline Dataset Hash (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Finish the reusable archive pagination/backfill slice and make the ES
+  daily-trend baseline artifact persist the exact-row dataset hash.
+
+What was found:
+- SHOWN: `signal_replay.fetch_ohlcv()` had archive-first behavior but returned
+  only rows, discarding source and dataset-hash metadata.
+- SHOWN: `scripts/research/run_es_daily_trend_backtest_baseline.py` still owned
+  its own pagination loop, so the logic was not reusable outside that script.
+- SHOWN: the ES baseline report wrote source/options/metrics but did not stamp
+  a deterministic hash of the rows used for the run.
+
+What changed:
+- `services/backtest/signal_replay.py`: added `fetch_ohlcv_with_meta()` that
+  returns rows plus source, dataset hash, venue, symbol, timeframe, count, and
+  archive path/stored symbol when archive-backed. Existing `fetch_ohlcv()`
+  remains a bare-rows wrapper.
+- `services/backtest/ohlcv_archive.py`: added `paginate_ohlcv()` with bounded
+  forward paging, max-pages/max-bars/until controls, and non-advancing-cursor
+  termination; added `backfill_archive()` for idempotent upsert into
+  `market_ohlcv`.
+- `scripts/research/run_es_daily_trend_backtest_baseline.py`: switched
+  `fetch_paginated_ohlcv()` to the shared paginator and added a `dataset`
+  block with source label, venue, symbol/data symbol, timeframe, row count,
+  first/last timestamps, and SHA-256/dataset hash.
+- `tests/test_ohlcv_archive_pagination.py`: added offline tests for
+  pagination, bounds, empty termination, idempotent backfill, archive loading,
+  and metadata fetch.
+- `tests/test_es_daily_trend_backtest_baseline_runner.py`: pins baseline report
+  dataset metadata and output/printed hash consistency.
+- `REMAINING_TASKS.md`: records the third archive-first slice and leaves only
+  archive-backed parameter-sweep/walk-forward research open under item #11.
+
+Why this change was chosen:
+- It keeps existing row-only callers stable while exposing metadata to callers
+  that need reproducibility, and it removes the one-off pagination loop from
+  the baseline script by routing through a reusable archive primitive.
+
+Expected outcome:
+- Archive backfills can be run and re-run idempotently; archive-backed fetches
+  can surface their dataset hash; ES baseline artifacts now identify the exact
+  dataset used rather than relying on a label alone.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py tests/test_signal_replay.py tests/test_marketdata_ohlcv_fetcher.py tests/test_es_daily_trend_backtest_baseline_runner.py tests/test_backtest_evidence_cycle.py`
+  - SHOWN: `35 passed in 5.33s`.
+- `./.venv/bin/python -m py_compile services/backtest/ohlcv_archive.py services/backtest/signal_replay.py scripts/research/run_es_daily_trend_backtest_baseline.py tests/test_ohlcv_archive_pagination.py tests/test_es_daily_trend_backtest_baseline_runner.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: research/profitability measurement plumbing. It does not touch live
+  trading, order routing, or promotion gates, but review should confirm the
+  compatibility wrapper preserves existing row-only behavior.
+- UNVERIFIED: archive-backed parameter-sweep/walk-forward research remains
+  open.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
