@@ -57,7 +57,8 @@ def _symbol() -> str:
 
 
 def _symbols() -> list[str]:
-    env_symbols = [str(item).strip() for item in str(os.environ.get("CBP_SYMBOLS") or "").split(",") if str(item).strip()]
+    raw_symbols = os.environ.get("CBP_COMPONENT_SYMBOLS") or os.environ.get("CBP_SYMBOLS") or ""
+    env_symbols = [str(item).strip() for item in str(raw_symbols).split(",") if str(item).strip()]
     if env_symbols:
         return env_symbols
     return ["BTC/USD"]
@@ -126,9 +127,10 @@ def fetch_status() -> dict:
         "venues": {},
         "ticks": [],
     }
-    venues = [v.strip() for v in (os.environ.get("CBP_VENUE") or "coinbase").split(",") if v.strip()]
+    raw_venues = os.environ.get("CBP_COMPONENT_VENUE") or os.environ.get("CBP_VENUE") or "coinbase"
+    venues = [v.strip() for v in raw_venues.split(",") if v.strip()]
     venues = [str(v).lower().strip() for v in venues]
-    if not (os.environ.get("CBP_VENUE") or "").lower().startswith("binance"):
+    if not str(raw_venues or "").lower().startswith("binance"):
         venues = [v for v in venues if not v.startswith("binance")]
 
     symbols = _symbols()

@@ -17623,3 +17623,72 @@ Remaining risk:
   has completed yet.
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-11T15:00:00Z - Managed Paper Component Env Isolation (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Remove global `CBP_VENUE` / `CBP_SYMBOLS` leakage from managed paper child
+  processes while preserving direct-script compatibility. This continues the
+  `funding_extreme` context-strategy Stage 0 path without changing strategy
+  decisions or promotion gates.
+
+What was found:
+- SHOWN: a direct child process launched with service-built component env can
+  fetch Coinbase public OHLCV when `CBP_VENUE` and `CBP_SYMBOLS` are absent.
+- SHOWN: managed paper service previously wrote `CBP_VENUE` and `CBP_SYMBOLS`
+  into every child environment, even though `CBP_VENUE` is also consumed by
+  `exchange_factory.resolve_exchange_id()` as a global venue guard.
+- SHOWN: local laptop campaign status after restart check reports both laptop
+  campaigns already running: `es_daily_trend_v1` and `breakout_default`, both
+  idle after recording 2026-07-11 evidence and waiting for the next UTC day.
+- SHOWN: local managed `funding_extreme` Stage 0 still fails with
+  `no_public_ohlcv`; app logs show Coinbase metadata `NetworkError` from
+  subprocesses. Raw Coinbase fetches also showed intermittent DNS failure in
+  isolated env probes, while no-env raw fetches succeeded.
+
+What changed:
+- `services/analytics/paper_strategy_evidence_service.py` now removes global
+  `CBP_VENUE` / `CBP_SYMBOLS` from child environments and passes
+  `CBP_COMPONENT_VENUE` / `CBP_COMPONENT_SYMBOLS` instead.
+- `services/execution/strategy_runner.py` prefers component-scoped venue/symbol
+  env and falls back to legacy `CBP_VENUE` / `CBP_SYMBOLS` for direct scripts.
+- `services/market_data/system_status_publisher.py` applies the same
+  component-scoped preference for the managed tick publisher.
+- Tests pin that poisoned parent global env cannot override managed component
+  env, while legacy direct env fallback remains available.
+
+Why this change was chosen:
+- It isolates managed component runtime metadata from global exchange guards
+  without weakening any venue-resolution checks for direct scripts. It is the
+  smallest contract change that removes one known managed-subprocess ambiguity.
+
+Expected outcome:
+- Managed paper components receive explicit per-component venue/symbol inputs
+  without mutating global `CBP_VENUE` / `CBP_SYMBOLS`. This keeps direct CLI
+  behavior backward-compatible and reduces managed campaign env coupling.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_tick_publisher_runtime.py`
+  - SHOWN: `76 passed in 1.00s`.
+- `./.venv/bin/python -m py_compile services/analytics/paper_strategy_evidence_service.py services/execution/strategy_runner.py services/market_data/system_status_publisher.py tests/test_paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_tick_publisher_runtime.py`
+  - SHOWN: passed with no output.
+- Component-env child probe:
+  - SHOWN: `CBP_VENUE=None`, `CBP_SYMBOLS=None`,
+    `CBP_COMPONENT_VENUE=coinbase`, `CBP_COMPONENT_SYMBOLS=BTC/USD`, and
+    Coinbase public OHLCV returned `300` rows with source `public_ohlcv`.
+- Laptop campaign status:
+  - SHOWN: `make status-paper-campaigns` reported `all_running=true`,
+    `campaign_count=2`, with both `es_daily_trend_v1` and `breakout_default`
+    running and waiting for next UTC day.
+
+Remaining risk:
+- HIGH: this is managed paper/context plumbing for future profitability
+  evidence. It does not touch live execution, but bad env routing can poison
+  paper evidence or block Stage 0 validation.
+- UNVERIFIED: governed end-to-end `funding_extreme` managed Stage 0 still has
+  not completed; local probes still hit intermittent Coinbase DNS/metadata
+  failures.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

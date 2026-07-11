@@ -36,6 +36,13 @@ def test_tick_publisher_symbol_uses_first_env_symbol(monkeypatch) -> None:
     assert system_status_publisher._symbol() == "ETH/USD"
 
 
+def test_tick_publisher_prefers_component_symbols(monkeypatch) -> None:
+    monkeypatch.setenv("CBP_SYMBOLS", "SHOULD/NOT_WIN")
+    monkeypatch.setenv("CBP_COMPONENT_SYMBOLS", "BTC/USD,ETH/USD")
+
+    assert system_status_publisher._symbols() == ["BTC/USD", "ETH/USD"]
+
+
 def test_fetch_status_includes_symbol_specific_ticks(monkeypatch) -> None:
     class _FakeExchange:
         id = "coinbase"
@@ -70,6 +77,32 @@ def test_fetch_status_includes_symbol_specific_ticks(monkeypatch) -> None:
             "exchange_ts_ms": 111111,
         }
     ]
+
+
+def test_fetch_status_prefers_component_venue(monkeypatch) -> None:
+    calls: list[str] = []
+
+    class _FakeExchange:
+        id = "coinbase"
+
+        def fetch_ticker(self, symbol):
+            return {"bid": 1.0, "ask": 1.2, "last": 1.1, "timestamp": 111111}
+
+        def close(self):
+            return None
+
+    monkeypatch.setenv("CBP_VENUE", "should_not_win")
+    monkeypatch.setenv("CBP_COMPONENT_VENUE", "coinbase")
+    monkeypatch.setenv("CBP_COMPONENT_SYMBOLS", "SUI/USD")
+    monkeypatch.setattr(system_status_publisher.time, "time", lambda: 123.456)
+    monkeypatch.setattr(system_status_publisher, "make_exchange", lambda venue, creds, enable_rate_limit=True: calls.append(venue) or _FakeExchange())
+    monkeypatch.setattr(system_status_publisher, "map_symbol", lambda venue, symbol: symbol)
+
+    out = system_status_publisher.fetch_status()
+
+    assert calls == ["coinbase"]
+    assert out["venues"]["coinbase"]["ok"] is True
+    assert out["ticks"][0]["symbol"] == "SUI/USD"
 
 
 def test_fetch_status_uses_sample_ohlcv_ticks_when_enabled(monkeypatch) -> None:

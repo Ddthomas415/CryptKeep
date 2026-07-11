@@ -264,9 +264,19 @@ deployment work still needs independent review.
     Stage 0 campaign still fails with `no_public_ohlcv` because child
     `strategy_runner` / tick-publisher processes report public exchange
     metadata `NetworkError` even when direct in-process fetches succeed.
-    Remaining item #12 work: fix or bypass that managed-subprocess OHLCV
-    environment issue, then prove a governed `funding_extreme` paper evidence
-    session end-to-end without enabling live execution.
+    2026-07-11: component-env leakage slice is ready for independent review.
+    Managed paper child processes no longer receive global `CBP_VENUE` /
+    `CBP_SYMBOLS`; the service now passes `CBP_COMPONENT_VENUE` /
+    `CBP_COMPONENT_SYMBOLS`, and the strategy runner / tick publisher prefer
+    those values while preserving legacy direct-script fallback. SHOWN: unit
+    tests prove parent global env cannot leak into managed children, and a
+    child-process probe using the service env returned Coinbase public OHLCV
+    rows with `CBP_VENUE`/`CBP_SYMBOLS` absent. FILED, NOT FIXED: local
+    managed Stage 0 still fails with `no_public_ohlcv` because this host shows
+    intermittent Coinbase DNS/metadata failures in isolated subprocess probes;
+    do not treat that as an accepted end-to-end paper proof. Remaining item
+    #12 work: prove a governed `funding_extreme` paper evidence session
+    end-to-end on a stable network/host without enabling live execution.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

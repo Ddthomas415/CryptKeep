@@ -332,6 +332,8 @@ def test_component_argv_builds_paper_sim_monitor_args_with_no_desktop_notify() -
 
 
 def test_component_env_passes_strategy_context_overrides(monkeypatch) -> None:
+    monkeypatch.setenv("CBP_SYMBOLS", "SHOULD/NOT_LEAK")
+    monkeypatch.setenv("CBP_VENUE", "should_not_leak")
     monkeypatch.delenv("CBP_STRATEGY_CONTEXT_SYMBOL", raising=False)
     monkeypatch.delenv("CBP_STRATEGY_CONTEXT_VENUE", raising=False)
     cfg = svc.PaperStrategyEvidenceServiceCfg(
@@ -343,8 +345,10 @@ def test_component_env_passes_strategy_context_overrides(monkeypatch) -> None:
 
     out = svc._component_env(cfg, strategy_name="funding_extreme")
 
-    assert out["CBP_SYMBOLS"] == "BTC/USDT"
-    assert out["CBP_VENUE"] == "okx"
+    assert "CBP_SYMBOLS" not in out
+    assert "CBP_VENUE" not in out
+    assert out["CBP_COMPONENT_SYMBOLS"] == "BTC/USDT"
+    assert out["CBP_COMPONENT_VENUE"] == "okx"
     assert out["CBP_STRATEGY_CONTEXT_SYMBOL"] == "BTC/USDT:USDT"
     assert out["CBP_STRATEGY_CONTEXT_VENUE"] == "okx"
     assert out["CBP_STRATEGY_NAME"] == "funding_extreme"

@@ -307,10 +307,11 @@ def _cfg() -> dict:
     pf_venues = pf.get("venues") if isinstance(pf.get("venues"), list) else []
     pf_symbols = pf.get("symbols") if isinstance(pf.get("symbols"), list) else []
 
-    env_v = (os.environ.get("CBP_VENUE") or "").strip().lower()
+    env_v = (os.environ.get("CBP_COMPONENT_VENUE") or os.environ.get("CBP_VENUE") or "").strip().lower()
     venue = str(env_v or s.get("venue") or (pf_venues[0] if pf_venues else "coinbase")).lower().strip()
 
-    env_syms = [x.strip() for x in (os.environ.get("CBP_SYMBOLS") or "").split(",") if x.strip()]
+    env_symbols_raw = os.environ.get("CBP_COMPONENT_SYMBOLS") or os.environ.get("CBP_SYMBOLS") or ""
+    env_syms = [x.strip() for x in env_symbols_raw.split(",") if x.strip()]
     cfg_symbols = s.get("symbols") if isinstance(s.get("symbols"), list) else []
     symbols = (
         env_syms

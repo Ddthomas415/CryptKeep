@@ -108,6 +108,21 @@ def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_pa
     assert cfg["allow_first_signal_trade"] is True
 
 
+def test_cfg_prefers_component_symbol_and_venue_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_VENUE", "should_not_win")
+    monkeypatch.setenv("CBP_SYMBOLS", "SHOULD/NOT_WIN")
+    monkeypatch.setenv("CBP_COMPONENT_VENUE", "coinbase")
+    monkeypatch.setenv("CBP_COMPONENT_SYMBOLS", "BTC/USD,ETH/USD")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["venue"] == "coinbase"
+    assert cfg["symbol"] == "BTC/USD"
+    assert cfg["symbols"] == ["BTC/USD", "ETH/USD"]
+
+
 def test_cfg_preserves_explicit_unknown_strategy_as_unsupported(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     monkeypatch.setattr(

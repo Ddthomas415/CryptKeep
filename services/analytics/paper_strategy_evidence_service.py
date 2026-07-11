@@ -557,8 +557,10 @@ def _wait_for(predicate, *, timeout_sec: float, sleep_sec: float = 0.2) -> bool:
 
 def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str | None = None) -> dict[str, str]:
     env = dict(os.environ)
-    env["CBP_SYMBOLS"] = str(cfg.symbol or DEFAULT_SYMBOL)
-    env["CBP_VENUE"] = str(cfg.venue or DEFAULT_VENUE)
+    env.pop("CBP_SYMBOLS", None)
+    env.pop("CBP_VENUE", None)
+    env["CBP_COMPONENT_SYMBOLS"] = str(cfg.symbol or DEFAULT_SYMBOL)
+    env["CBP_COMPONENT_VENUE"] = str(cfg.venue or DEFAULT_VENUE)
     env["CBP_TICK_PUBLISH_INTERVAL_SEC"] = str(float(cfg.tick_publish_interval_sec))
     if int(cfg.strategy_min_bars or 0) > 0:
         env["CBP_STRATEGY_MIN_BARS"] = str(int(cfg.strategy_min_bars))
