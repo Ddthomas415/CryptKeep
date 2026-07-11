@@ -195,15 +195,22 @@ deployment work still needs independent review.
    `backfill_archive()` provide reusable, fetcher-injectable pagination and
    idempotent archive upsert; the ES daily-trend baseline report now persists
    a `dataset` block with the exact-row SHA-256. 2026-07-11: fourth
-   archive-first slice is ready for independent review.
+   archive-first slice is accepted.
    `walk_forward.run_archive_backed_walk_forward()` runs one explicit strategy
    config over a complete archive window, stamps the top-level artifact and
    every walk-forward window with the archive dataset hash, and refuses
    incomplete archives rather than falling back to live OHLCV.
-   `scripts/research/run_archive_walk_forward.py` writes the same
-   research-only JSON artifact from a JSON/YAML config. Remaining item #11
-   work: add the separate parameter-sweep/ranking layer on top of this
-   single-config proof.
+   `scripts/research/run_archive_walk_forward.py` writes the same research-only
+   JSON artifact from a JSON/YAML config. 2026-07-11: fifth archive-first
+   slice is ready for independent review. `services.backtest.parameter_sweep`
+   expands bounded dot-path parameter grids, runs each variant through the
+   archive-backed walk-forward wrapper, and emits deterministic research-only
+   ranks with explicit ranking policy, dataset summary, config hashes, and
+   top-variant metadata. `scripts/research/run_archive_parameter_sweep.py`
+   writes the ranked JSON artifact from a base config plus grid file. Remaining
+   item #11 work after acceptance is operational, not code plumbing: run real
+   multi-year archive sweeps and require separate review before any strategy
+   config or campaign changes use the results.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /

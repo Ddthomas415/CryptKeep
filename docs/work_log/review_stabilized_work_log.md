@@ -17190,4 +17190,68 @@ Remaining risk:
 - UNVERIFIED: full test suite and GitHub CI were not run in this session.
 - UNVERIFIED: parameter-grid sweeps and ranking/selection policy remain a
   separate follow-up.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T16:12:00Z - Archive-Backed Parameter Sweep Artifact (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Add the second half of archive-backed walk-forward research: bounded
+  parameter-grid expansion, one archive-backed walk-forward per variant, and a
+  deterministic ranked research artifact. Keep ranking descriptive only and do
+  not alter strategy configs, paper campaigns, promotion gates, or live paths.
+
+What was found:
+- SHOWN: Batch E exposed `run_archive_backed_walk_forward()` as a complete
+  archive-only, dataset-hashed single-config primitive.
+- SHOWN: item #11 still had the explicit remaining gap of a parameter-sweep
+  and walk-forward research runner after the single-config proof.
+- SHOWN: ranking policy is the research-design risk, so it needed to be
+  transparent in the artifact rather than hidden inside an opaque score.
+
+What changed:
+- `services/backtest/parameter_sweep.py`: added `expand_parameter_grid()` for
+  dot-path Cartesian parameter grids with a default 50-variant cap, and
+  `run_archive_parameter_sweep()` to run each variant through the archive-backed
+  walk-forward wrapper. The output is research-only and includes ranked
+  variants, config hashes, dataset hashes, dataset summary, top variant, and an
+  explicit deterministic ranking policy.
+- `scripts/research/run_archive_parameter_sweep.py`: added a research CLI that
+  requires a base JSON/YAML strategy config and JSON/YAML grid file, writes the
+  ranked JSON artifact, and supports `--fail-if-not-ok`.
+- `tests/test_archive_parameter_sweep.py`: added offline proofs for grid
+  expansion, ranked artifact shape, max-variant refusal, and CLI output/file
+  consistency.
+- `REMAINING_TASKS.md`: marks the single-config walk-forward slice accepted and
+  records this parameter-sweep artifact as ready for review.
+
+Why this change was chosen:
+- It builds directly on the accepted archive-backed primitive and keeps the
+  ranking policy deterministic, visible, and non-authoritative. The cap avoids
+  accidental long-running research sweeps from a malformed grid.
+
+Expected outcome:
+- Operators can run reproducible archive-backed parameter sweeps and compare
+  variants using stored dataset/config hashes, while any strategy/campaign
+  change based on those results remains a separate governed decision.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_archive_parameter_sweep.py tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `21 passed in 0.87s`.
+- `./.venv/bin/python -m py_compile services/backtest/parameter_sweep.py scripts/research/run_archive_parameter_sweep.py tests/test_archive_parameter_sweep.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: financial strategy research/ranking infrastructure can influence
+  future strategy-selection decisions even though this patch is read-only and
+  does not touch runtime execution.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- UNVERIFIED: no real multi-year archive sweep was executed here; tests use
+  local deterministic archive fixtures only.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
