@@ -30,6 +30,7 @@ listed below.
 |--------|-------------|---------|
 | `bot_status.py` | — | Process status query |
 | `check_promotion_gates.py` | `make check-gates` / `make check-gates-json` | Promotion gate status |
+| `check_ohlcv_preflight.py` | — | Read-only public-OHLCV reachability preflight before governed Stage 0 runs; exit 2 means source/network unreachable, not a strategy result |
 | `check_system_health.py` | — | System health summary |
 | `doctor.py` | `make doctor-strict` | Diagnostic checks |
 | `hetzner_account_status.py` | — | Read-only Hetzner project inventory using an OS-keyring token; never accepts a token argument |
@@ -61,7 +62,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 110 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 111 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
