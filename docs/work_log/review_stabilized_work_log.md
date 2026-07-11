@@ -17622,7 +17622,8 @@ Remaining risk:
 - UNVERIFIED: no managed end-to-end `funding_extreme` paper evidence session
   has completed yet.
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
+  review.
 
 ## 2026-07-11T15:00:00Z - Managed Paper Component Env Isolation (Active Backlog #12)
 
@@ -17691,4 +17692,5 @@ Remaining risk:
   not completed; local probes still hit intermittent Coinbase DNS/metadata
   failures.
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
+  review.

@@ -245,14 +245,15 @@ deployment work still needs independent review.
     and can route direct percent or nested decimal funding rows into
     `funding_extreme.signal_from_context()`. `funding_extreme` is explicitly
     excluded from candidate-advisor recommendations until governed context paper
-    provenance exists. 2026-07-11: second slice is ready for independent review.
+    provenance exists. 2026-07-11: second slice was independently reviewed and
+    accepted by the operator.
     A read-only funding context provider now selects fresh `live_public`
     funding rows from the crypto-edge store, converts stored decimal rates into
     `funding_rate_pct`, and fails closed on missing/stale/malformed context.
     `strategy_runner` recognizes `funding_extreme`, passes fresh context into
     the registry only for that strategy, and surfaces context diagnostics in
-    status/intent metadata. 2026-07-11: third slice is ready for independent
-    review. The paper runner now accepts optional `strategy_context_symbol` and
+    status/intent metadata. 2026-07-11: third slice was independently reviewed
+    and accepted by the operator. The paper runner now accepts optional `strategy_context_symbol` and
     `strategy_context_venue` overrides, passes them through the managed
     campaign CLI as `--strategy-context-symbol/--strategy-context-venue`, and
     records the resolved context symbol/venue in status/intent metadata. This
@@ -264,7 +265,8 @@ deployment work still needs independent review.
     Stage 0 campaign still fails with `no_public_ohlcv` because child
     `strategy_runner` / tick-publisher processes report public exchange
     metadata `NetworkError` even when direct in-process fetches succeed.
-    2026-07-11: component-env leakage slice is ready for independent review.
+    2026-07-11: component-env leakage slice was independently reviewed and
+    accepted by the operator.
     Managed paper child processes no longer receive global `CBP_VENUE` /
     `CBP_SYMBOLS`; the service now passes `CBP_COMPONENT_VENUE` /
     `CBP_COMPONENT_SYMBOLS`, and the strategy runner / tick publisher prefer
