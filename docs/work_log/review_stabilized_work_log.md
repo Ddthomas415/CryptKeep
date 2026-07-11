@@ -16859,3 +16859,73 @@ Remaining risk:
   of this batch.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
   targeted proof was shown.
+
+## 2026-07-11T02:27:48Z - Strategy Decision-Change Alerts (Active Backlog #23 Batch B)
+
+Active role: ENGINEER
+
+Objective:
+- Add the remaining Active #23 strategy decision-change alert lane without
+  mixing in deployment-stage transition alerts or changing promotion-gate
+  decisions.
+
+What was found:
+- SHOWN: `services.backtest.evidence_cycle.persist_strategy_evidence()`
+  is the active persistence entry point used by
+  `scripts/data/run_strategy_evidence_cycle.py` and
+  `services.analytics.paper_strategy_evidence_service`.
+- SHOWN: `persist_strategy_evidence()` already builds a `comparison` object
+  from the previous latest strategy evidence artifact before writing the new
+  latest/history JSON files. That comparison includes per-strategy
+  `decision_changed`, previous/current decisions, top-strategy change state,
+  and previous/current `as_of` values.
+- SHOWN: `services/backtest/evidence_persist.py` duplicates similar
+  persistence logic but has no active callers in the current grep results, so
+  widening it would broaden a dormant surface rather than improve the active
+  operator path.
+
+What changed:
+- `services/alerts/strategy_decision_events.py`: new notification-only
+  alerter for persisted strategy decision changes. First persisted evidence
+  remains a silent baseline, rank/score-only movement does not alert,
+  new/improved decisions alert at info level, degraded decisions alert at
+  warning level, and retire decisions alert at critical level. The entry
+  point never raises.
+- `services/backtest/evidence_cycle.py`: `persist_strategy_evidence()`
+  invokes the alerter after latest/history JSON artifacts are written.
+  Alert failures are swallowed so strategy evidence persistence cannot be
+  blocked by notification delivery.
+- `tests/test_strategy_decision_event_alerts.py`: pins alert semantics and
+  the real persistence path, including the proof that a raising alert channel
+  still leaves the latest evidence artifact advanced.
+- `REMAINING_TASKS.md`: records Active #23 Batch B and the explicit
+  `evidence_persist.py` dormant-surface boundary.
+
+Why this change was chosen:
+- The existing comparison object already defines the exact decision delta the
+  operator cares about. Reusing it keeps the alert read-only and avoids a
+  second snapshot or decision-comparison implementation.
+
+Expected outcome:
+- Operators receive one alert when persisted strategy decisions change versus
+  the previous latest evidence artifact, without changing strategy ranking,
+  evidence persistence, decision-record rendering, trading behavior, or
+  promotion-gate results.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: `8 passed in 0.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_backtest_evidence_cycle.py tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: `24 passed in 4.98s`.
+- `./.venv/bin/python -m py_compile services/alerts/strategy_decision_events.py services/backtest/evidence_cycle.py tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: passed with no output.
+- `LC_ALL=C rg -n "[^\\x00-\\x7F]" services/alerts/strategy_decision_events.py tests/test_strategy_decision_event_alerts.py`
+  - SHOWN: no non-ASCII matches.
+
+Remaining risk:
+- HIGH: touches operator alerting and strategy decision workflow. The change
+  is notification-only and ordered after evidence persistence, but it still
+  needs independent review and GitHub CI before landing.
+- Deployment-stage transition alerts are a separate surface and are not part
+  of this batch.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -1246,6 +1246,14 @@ def persist_strategy_evidence(report: dict[str, Any], *, latest_path: str = "") 
         report["comparison"] = comparison
     latest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     history.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    # Notification-only (Active #23): alert after persistence succeeds so a
+    # raising channel can never block strategy evidence artifacts.
+    try:
+        from services.alerts.strategy_decision_events import alert_strategy_decision_changes
+
+        alert_strategy_decision_changes(comparison)
+    except Exception:
+        pass
     return {
         "ok": True,
         "latest_path": str(latest),

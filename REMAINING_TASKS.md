@@ -395,8 +395,18 @@ deployment work still needs independent review.
     alert on normal `completed`, and never raises. The hook is in
     `paper_strategy_evidence_service._write_status()` after the status file
     write succeeds, so notification failure cannot block campaign status
-    advancement. Remaining event family for a later slice: strategy decision
-    changes.
+    advancement. 2026-07-11: Batch B for the remaining alert lane is ready for
+    independent review: `services/alerts/strategy_decision_events.py` alerts
+    when the persisted strategy evidence comparison shows strategy decision
+    changes versus the previous latest artifact. First persisted evidence is a
+    silent baseline, rank/score-only movement stays silent, new/improved
+    decisions alert at info level, degraded decisions alert at warning level,
+    and retire decisions alert at critical level. The hook is in
+    `services.backtest.evidence_cycle.persist_strategy_evidence()` after the
+    latest/history JSON artifacts are written, so notification failure cannot
+    block evidence persistence. Boundary: the dormant duplicate
+    `services/backtest/evidence_persist.py` was not widened because no active
+    caller imports it; active callers use `evidence_cycle.persist_strategy_evidence`.
 24. Write explicit stop and retirement criteria before any strategy advances
     beyond paper. Define, in a decision record, what evidence retires a
     strategy, freezes it, keeps it in paper, or stops the broader project.
