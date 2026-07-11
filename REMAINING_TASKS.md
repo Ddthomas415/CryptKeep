@@ -1280,6 +1280,13 @@ substrate work, but they are concrete enough to keep visible.
     named optional local job for the exact ignored slice. CI behavior remains
     unchanged; future work is to make these tests CI-safe, split them into
     smaller CI-covered regressions, or move them to an explicit optional CI job.
+    2026-07-11: implementation proof is ready for independent review for the
+    optional CI lane: `.github/workflows/ci-ignored-tests.yml` adds a
+    `workflow_dispatch`-only **Optional Ignored Tests** job that runs
+    `make test-ci-ignored`. It is deliberately not triggered on
+    `pull_request` or `push`, so required CI behavior remains unchanged.
+    Remaining work: make the four ignored tests CI-safe, split them into
+    smaller required regressions, or retire unsupported surfaces.
 22. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging

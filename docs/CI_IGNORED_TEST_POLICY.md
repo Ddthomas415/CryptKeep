@@ -12,7 +12,13 @@ currently ignore:
 - `tests/test_dashboard_page_runtime.py`
 - `tests/test_dashboard_home_digest.py`
 
-This policy records the state. It does not change CI.
+This policy records the state. It does not change required CI.
+
+An optional GitHub Actions workflow,
+`.github/workflows/ci-ignored-tests.yml`, can run the same slice manually via
+`workflow_dispatch`. It is intentionally not triggered on `pull_request` or
+`push`, so required CI behavior remains unchanged until the ignored tests are
+made CI-safe or split into smaller required regressions.
 
 ## Risk
 
@@ -53,3 +59,9 @@ The target expands to:
   tests/test_dashboard_page_runtime.py \
   tests/test_dashboard_home_digest.py
 ```
+
+## Optional GitHub Check
+
+Run **Optional Ignored Tests** from the GitHub Actions UI when dashboard or
+symbol-scanner changes need a repository-hosted check but should not block the
+normal required CI suite.
