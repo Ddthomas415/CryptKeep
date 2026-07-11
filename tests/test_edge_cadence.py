@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from services.analytics import edge_cadence as ec
+
+REPO = Path(__file__).resolve().parents[1]
 
 
 def _meta(age_sec: float, *, now: datetime) -> dict:
@@ -123,3 +126,22 @@ def test_alert_dispatch_is_best_effort(monkeypatch):
     monkeypatch.setattr(dispatcher, "send_alert", lambda **kwargs: (_ for _ in ()).throw(RuntimeError("boom")))
 
     script._dispatch_alert({"ok": False, "missing": ["funding"], "stale": [], "families": []})
+
+
+def test_edge_cadence_units_are_read_only_and_scheduled():
+    unit_dir = REPO / "packaging" / "systemd"
+    service = (unit_dir / "cbp-edge-cadence.service").read_text(encoding="utf-8")
+    timer = (unit_dir / "cbp-edge-cadence.timer").read_text(encoding="utf-8")
+
+    for text, name in ((service, "service"), (timer, "timer")):
+        effective = "\n".join(line for line in text.splitlines() if not line.strip().startswith("#"))
+        for token in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED"):
+            assert token not in effective, f"{name} must not carry {token}"
+
+    assert "Type=oneshot" in service
+    assert "Environment=CBP_STATE_DIR=/var/lib/cbp" in service
+    assert "StateDirectory=cbp" in service
+    assert "check_edge_cadence.py --alert" in service
+    assert "check_dead_man.py" not in service
+    assert "OnUnitActiveSec=3600" in timer
+    assert (REPO / "scripts" / "check_edge_cadence.py").exists()

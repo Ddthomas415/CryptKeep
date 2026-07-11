@@ -1,0 +1,11 @@
+# Runs the crypto-edge cadence check every hour after a 5-minute boot grace.
+[Unit]
+Description=CryptKeep crypto-edge collector cadence timer
+
+[Timer]
+OnBootSec=300
+OnUnitActiveSec=3600
+AccuracySec=60
+
+[Install]
+WantedBy=timers.target

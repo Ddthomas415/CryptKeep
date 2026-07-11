@@ -7534,6 +7534,57 @@ Remaining risk:
   derivatives/margin assumptions, risk controls, and potential order routing.
   This change is planning-only and must be independently reviewed before it is
   used as implementation authority.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T10:05:00Z - Crypto-Edge Cadence Systemd Units (Active Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Add schedulable systemd units for the accepted read-only crypto-edge cadence
+  checker without touching collectors, gates, live execution, or risk controls.
+
+What was found:
+- SHOWN: `packaging/systemd/cbp-dead-man.service` and `.timer` already define
+  the hardened oneshot/timer pattern for read-only alert checks.
+- SHOWN: item 14 leaves checker scheduling as the remaining repo-side step
+  after the cadence checker itself was accepted.
+
+What changed:
+- `packaging/systemd/cbp-edge-cadence.service`: new oneshot service that runs
+  `scripts/check_edge_cadence.py --alert` under the same `/var/lib/cbp`
+  state-directory convention and hardening posture as the existing dead-man
+  service.
+- `packaging/systemd/cbp-edge-cadence.timer`: new hourly timer with a
+  five-minute boot grace.
+- `tests/test_edge_cadence.py`: adds a unit contract test proving the service
+  and timer carry no live-arming tokens, call the edge cadence checker, and use
+  the expected hourly cadence.
+- `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`: document the schedulable
+  checker and leave host installation/timestamp proof open.
+
+Why this change was chosen:
+- It is the smallest repo-side scheduling artifact for the accepted checker and
+  keeps alerting independent from trading-loop dead-man checks. It remains
+  read-only and does not alter collector behavior.
+
+Expected outcome:
+- Operators can install/enable the timer on the host and receive cadence alerts
+  if history-critical crypto-edge snapshots stop updating.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_edge_cadence.py tests/test_dead_man.py`
+  - SHOWN: `21 passed in 0.89s`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: background-job deployment artifacts require independent review even
+  though this job is read-only and alert-only.
+- UNVERIFIED: units were not installed or enabled on the Hetzner host.
+- UNVERIFIED: recent OKX snapshot timestamps and the live collector schedule
+  were not checked in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-06-19T18:44:46Z - Audit Short Context Data Feasibility

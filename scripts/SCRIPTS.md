@@ -215,7 +215,7 @@ are not paper-campaign controls.
 - `generate_release_notes.py` — release-notes generator.
 - `install.py` — install/setup helper.
 - `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats (exit 0/1/2; `--alert` dispatches via the alert stack; driven by `packaging/systemd/cbp-dead-man.timer`).
-- `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort).
+- `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort; schedulable by `packaging/systemd/cbp-edge-cadence.timer`).
 - `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.

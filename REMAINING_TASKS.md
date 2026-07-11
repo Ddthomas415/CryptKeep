@@ -293,7 +293,12 @@ deployment work still needs independent review.
     store as missing families rather than a store error, and tests that `--alert`
     is best-effort/never-raise. Remaining proof is operational: verify the
     collector schedule on the host, show recent OKX snapshot timestamps, and
-    wire/schedule the checker if accepted.
+    wire/schedule the checker if accepted. 2026-07-11: scheduling-unit slice is
+    ready for independent review. `packaging/systemd/cbp-edge-cadence.service`
+    and `.timer` run the read-only checker hourly with `--alert`, carry no live
+    arming tokens, and mirror the existing dead-man hardening pattern. Remaining
+    proof is host-side: install/enable the timer, verify the collector's actual
+    schedule, and show recent OKX snapshot timestamps.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

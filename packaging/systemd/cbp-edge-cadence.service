@@ -1,0 +1,21 @@
+# CryptKeep crypto-edge collector cadence check (driven by cbp-edge-cadence.timer).
+# Exit codes: 0 fresh, 1 stale snapshot family, 2 missing snapshot family/store error.
+[Unit]
+Description=CryptKeep crypto-edge collector cadence check
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=cbp
+Group=cbp
+WorkingDirectory=/opt/crypto-bot-pro
+EnvironmentFile=/etc/cbp/cbp.env
+Environment=CBP_STATE_DIR=/var/lib/cbp
+ExecStart=/opt/crypto-bot-pro/.venv/bin/python scripts/check_edge_cadence.py --alert
+StateDirectory=cbp
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/cbp
