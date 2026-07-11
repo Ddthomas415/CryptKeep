@@ -16924,8 +16924,8 @@ Verification:
 
 Remaining risk:
 - HIGH: touches operator alerting and strategy decision workflow. The change
-  is notification-only and ordered after evidence persistence, but it still
-  needs independent review and GitHub CI before landing.
+  is notification-only and ordered after evidence persistence.
 - Deployment-stage transition alerts are a separate surface and are not part
   of this batch.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.

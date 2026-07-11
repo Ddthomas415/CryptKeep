@@ -395,8 +395,8 @@ deployment work still needs independent review.
     alert on normal `completed`, and never raises. The hook is in
     `paper_strategy_evidence_service._write_status()` after the status file
     write succeeds, so notification failure cannot block campaign status
-    advancement. 2026-07-11: Batch B for the remaining alert lane is ready for
-    independent review: `services/alerts/strategy_decision_events.py` alerts
+    advancement. 2026-07-11: Batch B for the remaining alert lane is accepted:
+    `services/alerts/strategy_decision_events.py` alerts
     when the persisted strategy evidence comparison shows strategy decision
     changes versus the previous latest artifact. First persisted evidence is a
     silent baseline, rank/score-only movement stays silent, new/improved
