@@ -4,6 +4,7 @@ from services.backtest.signal_replay import replay_signals_on_ohlcv
 
 def test_fetch_ohlcv_passes_since_ms(monkeypatch):
     seen: dict[str, object] = {}
+    monkeypatch.setenv("CBP_MARKET_ARCHIVE_DB", "/tmp/cryptkeep-missing-archive.sqlite")
 
     class _FakeExchange:
         def fetch_ohlcv(self, symbol, **kwargs):

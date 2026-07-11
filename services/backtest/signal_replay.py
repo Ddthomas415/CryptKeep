@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 import math
 import time
+from services.backtest.ohlcv_archive import load_archived_ohlcv
 from services.security.exchange_factory import make_exchange
 from services.market_data.symbol_router import normalize_venue, map_symbol, normalize_symbol
 
@@ -24,6 +25,15 @@ def fetch_ohlcv(
 ) -> list[list]:
     v = normalize_venue(venue)
     sym = map_symbol(v, normalize_symbol(canonical_symbol))
+    archived = load_archived_ohlcv(
+        v,
+        canonical_symbol,
+        timeframe=timeframe,
+        limit=int(limit),
+        since_ms=since_ms,
+    )
+    if archived.get("ok") and archived.get("complete"):
+        return list(archived.get("rows") or [])
     ex = make_exchange(v, {"apiKey": None, "secret": None}, enable_rate_limit=True)
     try:
         kwargs = {"timeframe": timeframe, "limit": int(limit)}

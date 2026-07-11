@@ -16929,3 +16929,68 @@ Remaining risk:
   of this batch.
 - Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
   targeted proof was shown.
+
+## 2026-07-11T02:38:54Z - Archive-First Backtesting Slice (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Make the existing `market_ohlcv` archive table usable by the shared
+  backtest OHLCV fetch path before relying on strategy comparisons.
+
+What was found:
+- SHOWN: `storage/market_store_sqlite.py` already owns a `market_ohlcv`
+  table and `upsert_ohlcv()` writer, but had no read API for backtests.
+- SHOWN: `services.backtest.signal_replay.fetch_ohlcv()` was a single
+  exchange fetch through ccxt and had no archive path or dataset hash.
+- SHOWN: `services.market_data.ohlcv_fetcher` delegates to
+  `signal_replay.fetch_ohlcv()`, so a narrow change there reaches existing
+  backtest/market-data callers without creating a second fetcher.
+
+What changed:
+- `storage/market_store_sqlite.py`: added `MarketStore.load_ohlcv()` with
+  latest-window and `since_ms` reads from `market_ohlcv`.
+- `services/backtest/ohlcv_archive.py`: added archive path resolution
+  (`CBP_MARKET_ARCHIVE_DB` or app data `market_raw.sqlite`), row
+  normalization/deduplication, symbol-candidate lookup, complete-window
+  archive loading, and deterministic dataset hashing.
+- `services/backtest/signal_replay.py`: now tries a complete archive window
+  first and falls back to the existing exchange fetch when the archive is
+  missing or incomplete.
+- `tests/test_ohlcv_archive_backtest.py`: added regression proof for archive
+  reads, archive-first no-exchange behavior, incomplete-archive fallback, and
+  dataset-hash determinism.
+- `tests/test_signal_replay.py`: pinned the legacy exchange-delegation test to
+  a missing archive path so local operator archives cannot make the test
+  environment-sensitive.
+- `REMAINING_TASKS.md`: recorded this as the first archive-first slice and
+  left pagination/backfill, downstream hash persistence, and walk-forward
+  sweeps open.
+
+Why this change was chosen:
+- It is the smallest path that converts already-collected OHLCV into
+  reproducible backtest input without changing caller return types or removing
+  the existing ccxt fallback.
+
+Expected outcome:
+- Backtests use archived OHLCV when enough rows exist for the requested window;
+  repeated runs over the same archive rows have a stable dataset hash; partial
+  archives do not silently shorten a backtest sample.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_signal_replay.py tests/test_marketdata_ohlcv_fetcher.py`
+  - SHOWN: `9 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile services/backtest/ohlcv_archive.py services/backtest/signal_replay.py storage/market_store_sqlite.py tests/test_ohlcv_archive_backtest.py tests/test_signal_replay.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: this touches research/profitability measurement plumbing, not live
+  trading, but incorrect archive selection could bias strategy comparisons.
+- UNVERIFIED: paginated archive ingestion/backfill is still not reusable here.
+- UNVERIFIED: downstream backtest artifacts do not yet persist the dataset
+  hash emitted by `ohlcv_archive`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
