@@ -6566,7 +6566,6 @@ Remaining risk:
 - UNVERIFIED: Hetzner Cloud firewall, backups, delete/rebuild protection, host
   backup/restore rehearsal, and server-hosted UTC campaign execution.
 - SHOWN: Ubuntu reports `40` packages not upgraded after installing `fail2ban`.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-06-17T01:59:15Z - Hetzner Cloud safeguard planner
 
@@ -17322,4 +17321,74 @@ Remaining risk:
 - UNVERIFIED: no paper evidence row is produced from `funding_extreme` yet.
 - UNVERIFIED: crypto-edge store/provider integration and qualification-gate
   extension remain separate follow-ups.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T09:08:32Z - Funding Context Provider and Paper Runner Handoff (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Continue context-strategy wiring by adding a read-only crypto-edge funding
+  context provider and passing that context into the paper strategy runner when
+  `funding_extreme` is selected. Do not touch live execution, paper
+  qualification, or order routing.
+
+What was found:
+- SHOWN: `storage/crypto_edge_store_sqlite.py` persisted funding snapshots and
+  source-filtered latest reports, but did not expose a latest matching funding
+  row for a target venue/symbol.
+- SHOWN: `strategy_runner.py` had a single public-OHLCV registry call site that
+  called `compute_signal()` without context.
+- SHOWN: `funding_extreme_default` existed, but `strategy_runner.py` did not
+  include `funding_extreme` in its alias/default-preset maps, so the runner
+  could not select it cleanly even after registry support landed.
+
+What changed:
+- `storage/crypto_edge_store_sqlite.py`: adds
+  `recent_funding_rows_for_source()` as a read-only accessor returning funding
+  rows with source/snapshot metadata.
+- `services/strategies/crypto_edge_context.py`: new provider that selects the
+  newest matching funding row for source/venue/symbol, converts stored decimal
+  `funding_rate` to `funding_rate_pct`, and fails closed on missing, stale,
+  malformed, or store-error context.
+- `services/execution/strategy_runner.py`: recognizes `funding_extreme`,
+  defaults it to `funding_extreme_default`, adds bounded context source/max-age
+  config, passes context into `compute_signal()` only for `funding_extreme`,
+  and surfaces strategy-context diagnostics in runner status and queued intent
+  metadata.
+- `tests/test_crypto_edge_context.py` and
+  `tests/test_strategy_runtime_runner.py`: add provider, config-recognition,
+  context pass-through, and missing-context fail-closed proofs.
+- `REMAINING_TASKS.md`: marks the registry-contract slice accepted and records
+  this provider/runner handoff as the next item #12 slice.
+
+Why this change was chosen:
+- It is the smallest path from stored crypto-edge data to an executable paper
+  signal contract. The provider is read-only and fail-closed; missing or stale
+  context remains non-actionable, preserving the existing live boundary and
+  leaving qualification-gate work as a separate high-risk item.
+
+Expected outcome:
+- A `funding_extreme` paper runner can consume fresh stored funding context
+  without falling back to OHLCV-only behavior, and operators can see whether a
+  funding signal used valid context or failed closed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_context.py tests/test_strategy_runtime_runner.py tests/test_strategy_registry.py`
+  - SHOWN: `50 passed in 0.98s`.
+- `./.venv/bin/python -m py_compile services/strategies/crypto_edge_context.py services/execution/strategy_runner.py storage/crypto_edge_store_sqlite.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_store_sqlite.py tests/test_crypto_edge_context.py tests/test_strategy_runtime_runner.py tests/test_strategy_registry.py tests/test_challenger_strategy_governance_configs.py tests/test_candidate_advisor_classification.py`
+  - SHOWN: `58 passed in 1.16s`.
+
+Remaining risk:
+- HIGH: financial strategy signal wiring can affect future paper/research
+  decisions even though this patch is read-only with respect to crypto-edge
+  storage and does not touch live execution or paper qualification.
+- UNVERIFIED: no end-to-end `funding_extreme` paper evidence session has been
+  produced yet.
+- UNVERIFIED: crypto-edge provenance qualification remains a separate backlog
+  item before these signals can count toward promotion gates.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

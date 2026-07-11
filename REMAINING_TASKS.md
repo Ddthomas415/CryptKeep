@@ -238,17 +238,22 @@ deployment work still needs independent review.
     2026-07-06 check-in confirmed `funding_extreme` should not be treated as
     the next immediate campaign start; it is the next higher-value strategy
     validation target after the context/crypto-edge contract can feed governed
-    paper evidence. 2026-07-11: first context-strategy slice is ready for
-    independent review. `strategy_registry.compute_signal()` now accepts an
+    paper evidence. 2026-07-11: first context-strategy slice was independently
+    reviewed and accepted. `strategy_registry.compute_signal()` now accepts an
     optional explicit `context` payload, registers `funding_extreme`, fails
     closed with `missing_funding_context` when no funding context is supplied,
     and can route direct percent or nested decimal funding rows into
     `funding_extreme.signal_from_context()`. `funding_extreme` is explicitly
-    excluded from candidate-advisor recommendations until governed context
-    paper provenance exists. Remaining item #12 work: add the read-only
-    crypto-edge store/provider path, pass context through the paper runner, and
-    prove a funding strategy can emit governed paper evidence without enabling
-    live execution.
+    excluded from candidate-advisor recommendations until governed context paper
+    provenance exists. 2026-07-11: second slice is ready for independent review.
+    A read-only funding context provider now selects fresh `live_public`
+    funding rows from the crypto-edge store, converts stored decimal rates into
+    `funding_rate_pct`, and fails closed on missing/stale/malformed context.
+    `strategy_runner` recognizes `funding_extreme`, passes fresh context into
+    the registry only for that strategy, and surfaces context diagnostics in
+    status/intent metadata. Remaining item #12 work: prove a governed
+    `funding_extreme` paper evidence session end-to-end without enabling live
+    execution.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

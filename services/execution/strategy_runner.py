@@ -34,6 +34,11 @@ from storage.intent_queue_sqlite import IntentQueueSQLite
 from storage.paper_trading_sqlite import PaperTradingSQLite
 from storage.strategy_state_sqlite import StrategyStateSQLite
 from services.execution.startup_guard import require_known_flat_or_override
+from services.strategies.crypto_edge_context import (
+    DEFAULT_CONTEXT_SOURCE,
+    DEFAULT_FUNDING_MAX_AGE_SEC,
+    funding_context_from_crypto_edge_store,
+)
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
@@ -65,6 +70,7 @@ _STRATEGY_ALIASES = {
     "volatility_reversal": "volatility_reversal",
     "gap_fill": "gap_fill",
     "breakout_volume": "breakout_volume",
+    "funding_extreme": "funding_extreme",
 }
 _DEFAULT_PRESET_BY_STRATEGY = {
     "ema_cross": "ema_cross_default",
@@ -76,6 +82,7 @@ _DEFAULT_PRESET_BY_STRATEGY = {
     "volatility_reversal": "volatility_reversal_default",
     "gap_fill": "gap_fill_default",
     "breakout_volume": "breakout_volume_default",
+    "funding_extreme": "funding_extreme_default",
 }
 _EMA_FIELDS = (
     "ema_fast",
@@ -280,6 +287,17 @@ def request_stop() -> dict:
     STOP_FILE.write_text(_now() + "\n", encoding="utf-8")
     return {"ok": True, "stop_file": str(STOP_FILE)}
 
+
+def _safe_positive_float(value: object, *, default: float) -> float:
+    try:
+        out = float(value)
+    except Exception:
+        return float(default)
+    if not math.isfinite(out) or out < 0.0:
+        return float(default)
+    return out
+
+
 def _cfg() -> dict:
     cfg = load_user_yaml(strict=True)
     s = cfg.get("strategy_runner") if isinstance(cfg.get("strategy_runner"), dict) else {}
@@ -341,6 +359,17 @@ def _cfg() -> dict:
         "auto_select_best_venue": bool(s.get("auto_select_best_venue", False)),
         "switch_only_when_blocked": bool(s.get("switch_only_when_blocked", True)),
         "venue_candidates": [str(v).lower().strip() for v in venue_candidates if str(v).strip()],
+        "strategy_context_source": str(
+            os.environ.get("CBP_STRATEGY_CONTEXT_SOURCE")
+            or s.get("strategy_context_source")
+            or DEFAULT_CONTEXT_SOURCE
+        ).strip() or DEFAULT_CONTEXT_SOURCE,
+        "strategy_context_max_age_sec": _safe_positive_float(
+            os.environ.get("CBP_STRATEGY_CONTEXT_MAX_AGE_SEC")
+            or s.get("strategy_context_max_age_sec")
+            or DEFAULT_FUNDING_MAX_AGE_SEC,
+            default=DEFAULT_FUNDING_MAX_AGE_SEC,
+        ),
     }
 
 
@@ -535,6 +564,51 @@ def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None
         symbol=str(cfg.get("symbol") or ""),
         ohlcv=_synth_ohlcv(prices, ts_ms=ts_ms),
     )
+
+
+def _context_meta_from_result(result: dict) -> dict:
+    return {
+        "strategy_context_ok": bool(result.get("ok")),
+        "strategy_context_reason": result.get("reason"),
+        "strategy_context_source": result.get("source"),
+        "strategy_context_capture_ts": result.get("capture_ts"),
+        "strategy_context_snapshot_id": result.get("snapshot_id"),
+    }
+
+
+def _registry_signal_with_context(
+    *,
+    cfg: dict,
+    strategy_block: dict,
+    symbol: str,
+    venue: str,
+    ohlcv: list[list[float]],
+) -> dict:
+    strategy_name = str(strategy_block.get("name") or "").strip()
+    context = None
+    context_meta: dict = {}
+    if strategy_name == "funding_extreme":
+        context_result = funding_context_from_crypto_edge_store(
+            symbol=symbol,
+            venue=venue,
+            source=str(cfg.get("strategy_context_source") or DEFAULT_CONTEXT_SOURCE),
+            max_age_sec=float(cfg.get("strategy_context_max_age_sec") or DEFAULT_FUNDING_MAX_AGE_SEC),
+        )
+        context_meta = _context_meta_from_result(context_result)
+        if bool(context_result.get("ok")):
+            context = context_result.get("context")
+
+    kwargs = {
+        "cfg": {"strategy": strategy_block},
+        "symbol": symbol,
+        "ohlcv": ohlcv,
+    }
+    if context is not None:
+        kwargs["context"] = context
+    signal = compute_signal(**kwargs)
+    if isinstance(signal, dict) and context_meta:
+        signal.update({k: v for k, v in context_meta.items() if v is not None})
+    return signal
 
 
 def _public_ohlcv_timeframe(cfg: dict) -> str | None:
@@ -1040,9 +1114,11 @@ def run_forever() -> None:
                         continue
                     evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
                     selected_block["evidence_extra"] = evidence_extra
-                    signal = compute_signal(
-                        cfg={"strategy": selected_block},
+                    signal = _registry_signal_with_context(
+                        cfg=cfg,
+                        strategy_block=selected_block,
                         symbol=symbol,
+                        venue=selected_venue,
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
                     bars = len(ohlcv)
@@ -1480,6 +1556,11 @@ def run_forever() -> None:
                             "reference_price": float(m),
                             "reference_price_source": "strategy_runner_signal_price",
                             "signal_reason": signal.get("reason") if isinstance(signal, dict) else None,
+                            "strategy_context_ok": signal.get("strategy_context_ok") if isinstance(signal, dict) else None,
+                            "strategy_context_reason": signal.get("strategy_context_reason") if isinstance(signal, dict) else None,
+                            "strategy_context_source": signal.get("strategy_context_source") if isinstance(signal, dict) else None,
+                            "strategy_context_capture_ts": signal.get("strategy_context_capture_ts") if isinstance(signal, dict) else None,
+                            "strategy_context_snapshot_id": signal.get("strategy_context_snapshot_id") if isinstance(signal, dict) else None,
                             **({"exit_reason": exit_reason} if exit_reason else {}),
                             **(
                                 {"exit_stack_rule": exit_out.get("stack_rule")}
@@ -1517,6 +1598,11 @@ def run_forever() -> None:
                 "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,
                 "signal_action": decision if 'decision' in locals() else None,
                 "signal_reason": signal.get("reason") if 'signal' in locals() and isinstance(signal, dict) else None,
+                "strategy_context_ok": signal.get("strategy_context_ok") if 'signal' in locals() and isinstance(signal, dict) else None,
+                "strategy_context_reason": signal.get("strategy_context_reason") if 'signal' in locals() and isinstance(signal, dict) else None,
+                "strategy_context_source": signal.get("strategy_context_source") if 'signal' in locals() and isinstance(signal, dict) else None,
+                "strategy_context_capture_ts": signal.get("strategy_context_capture_ts") if 'signal' in locals() and isinstance(signal, dict) else None,
+                "strategy_context_snapshot_id": signal.get("strategy_context_snapshot_id") if 'signal' in locals() and isinstance(signal, dict) else None,
                 "symbols": symbols,
                 "symbol": symbol,
                 "signal_ok": bool(signal.get("ok", False)) if 'signal' in locals() and isinstance(signal, dict) else None,
@@ -1558,6 +1644,11 @@ def run_forever() -> None:
             "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,
             "signal_action": decision if 'decision' in locals() else None,
             "signal_reason": signal.get("reason") if 'signal' in locals() and isinstance(signal, dict) else None,
+            "strategy_context_ok": signal.get("strategy_context_ok") if 'signal' in locals() and isinstance(signal, dict) else None,
+            "strategy_context_reason": signal.get("strategy_context_reason") if 'signal' in locals() and isinstance(signal, dict) else None,
+            "strategy_context_source": signal.get("strategy_context_source") if 'signal' in locals() and isinstance(signal, dict) else None,
+            "strategy_context_capture_ts": signal.get("strategy_context_capture_ts") if 'signal' in locals() and isinstance(signal, dict) else None,
+            "strategy_context_snapshot_id": signal.get("strategy_context_snapshot_id") if 'signal' in locals() and isinstance(signal, dict) else None,
             "signal_ok": bool(signal.get("ok", False)) if 'signal' in locals() and isinstance(signal, dict) else None,
             "signal_changed": bool(changed) if 'changed' in locals() else None,
             "signal_indicators": signal.get("ind") if 'signal' in locals() and isinstance(signal, dict) else None,
