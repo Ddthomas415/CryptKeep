@@ -17392,3 +17392,48 @@ Remaining risk:
   item before these signals can count toward promotion gates.
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-11T09:35:00Z - Crypto-Edge Cadence Checker Patch Review Record (Active Backlog #14)
+
+Active role: AUDITOR
+
+Objective:
+- Review the proposed read-only crypto-edge collector cadence/dead-man checker
+  patch and preserve acceptance conditions in the backlog without rebuilding
+  the patch locally.
+
+What was found:
+- SHOWN: the proposed patch adds `services/analytics/edge_cadence.py`,
+  `scripts/check_edge_cadence.py`, and `tests/test_edge_cadence.py`.
+- SHOWN: the proposed design is read-only and does not touch gates, live
+  execution, order routing, or collector writes.
+- SHOWN: the proposed patch text did not include `REMAINING_TASKS.md`,
+  `docs/work_log/review_stabilized_work_log.md`, or `scripts/SCRIPTS.md`
+  updates.
+- SHOWN: the proposed default `funding` max age is `3h`, while the patch text
+  also describes funding as an approximately 8-hour venue-cadence family.
+
+What changed:
+- `REMAINING_TASKS.md` item 14 now records the review outcome and required
+  patch revisions: add docs/script-index coverage, clarify cadence-threshold
+  policy, test best-effort `--alert`, and document missing-store behavior
+  accurately.
+
+Why this change was chosen:
+- The patch is not present in the local worktree. Recording the review
+  conditions avoids blindly applying stale patch text while keeping the next
+  implementer aligned with the accepted direction.
+
+Expected outcome:
+- The cadence checker can be revised and reviewed against explicit acceptance
+  criteria without weakening gate/execution boundaries or consuming extra
+  implementation cycles.
+
+Verification:
+- Not yet run at entry time; docs-only change to be checked with `git diff
+  --check`.
+
+Remaining risk:
+- LOW: documentation-only review record.
+- UNVERIFIED: the cadence checker code is not merged locally in this branch.
+- Acceptance state: `ACCEPTED`.

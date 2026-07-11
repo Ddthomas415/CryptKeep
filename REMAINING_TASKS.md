@@ -281,7 +281,15 @@ deployment work still needs independent review.
     routing, derivatives execution, strategy promotion evidence, or
     order-routing venue use. Remaining proof: operator-host schedule, recent
     OKX snapshot timestamps, cadence-gap alerting, and downstream context
-    strategy/provenance review.
+    strategy/provenance review. 2026-07-11 review of the proposed
+    `check_edge_cadence.py` patch accepted the read-only checker direction but
+    required revision before merge: add `REMAINING_TASKS.md`, work-log, and
+    `scripts/SCRIPTS.md` coverage; clarify whether the default funding/OI/basis
+    age limits measure collector snapshot cadence or venue funding-update
+    cadence, using a safer 10-12h default unless hourly snapshots are proven;
+    test that `--alert` remains best-effort/never-raise; and document that a
+    missing DB path may be created as an empty store and therefore reports
+    missing families rather than a store error.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
