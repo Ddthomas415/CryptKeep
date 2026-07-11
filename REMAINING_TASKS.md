@@ -283,13 +283,17 @@ deployment work still needs independent review.
     OKX snapshot timestamps, cadence-gap alerting, and downstream context
     strategy/provenance review. 2026-07-11 review of the proposed
     `check_edge_cadence.py` patch accepted the read-only checker direction but
-    required revision before merge: add `REMAINING_TASKS.md`, work-log, and
-    `scripts/SCRIPTS.md` coverage; clarify whether the default funding/OI/basis
-    age limits measure collector snapshot cadence or venue funding-update
-    cadence, using a safer 10-12h default unless hourly snapshots are proven;
-    test that `--alert` remains best-effort/never-raise; and document that a
-    missing DB path may be created as an empty store and therefore reports
-    missing families rather than a store error.
+    required revision before merge. 2026-07-11: revised code slice is ready for
+    independent review. `services/analytics/edge_cadence.py` and
+    `scripts/check_edge_cadence.py` add a read-only checker over stored
+    funding/open-interest/basis snapshot timestamps. Defaults use 12h slow-family
+    thresholds to measure collector snapshot freshness without assuming venue
+    funding updates hourly; quote/order-book checks remain opt-in. The checker
+    fails closed on missing/unparseable snapshots, treats a newly created empty
+    store as missing families rather than a store error, and tests that `--alert`
+    is best-effort/never-raise. Remaining proof is operational: verify the
+    collector schedule on the host, show recent OKX snapshot timestamps, and
+    wire/schedule the checker if accepted.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

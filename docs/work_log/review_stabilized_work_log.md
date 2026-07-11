@@ -17437,3 +17437,63 @@ Remaining risk:
 - LOW: documentation-only review record.
 - UNVERIFIED: the cadence checker code is not merged locally in this branch.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-11T09:50:00Z - Crypto-Edge Cadence Checker Code Slice (Active Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted safe parallel item for a read-only crypto-edge
+  collector cadence/dead-man checker, incorporating the review requirements
+  recorded earlier in item 14.
+
+What was found:
+- SHOWN: `CryptoEdgeStoreSQLite.latest_report()` already exposes per-family
+  metadata blocks (`funding_meta`, `open_interest_meta`, `basis_meta`, etc.)
+  with `capture_ts`, so no store schema or write-path change is needed.
+- SHOWN: existing `scripts/check_dead_man.py` establishes the exit-code and
+  best-effort alerting convention to mirror.
+- SHOWN: the proposed prior patch used a 3h funding threshold while also
+  describing funding as an approximately 8h venue-cadence family; the safer
+  default is to measure collector snapshot freshness with a 12h threshold until
+  hourly host collection is proven.
+
+What changed:
+- `services/analytics/edge_cadence.py`: new read-only cadence evaluator over
+  latest crypto-edge metadata. Funding, open-interest, and basis are enabled by
+  default with 12h max age; quote and order-book checks are opt-in. Missing,
+  unparseable, or stale enabled families fail closed.
+- `scripts/check_edge_cadence.py`: new CLI with exit 0 fresh / 1 stale / 2
+  missing-or-store-error and best-effort `--alert`.
+- `tests/test_edge_cadence.py`: covers fresh, stale, missing, unparseable,
+  disabled, env override, bad env fallback, empty-created-store behavior, and
+  alert dispatch never-raise behavior.
+- `scripts/SCRIPTS.md`: documents the new operator script.
+- `REMAINING_TASKS.md`: records the implemented code slice and leaves host
+  schedule/timestamp/timer proof open.
+
+Why this change was chosen:
+- It protects unrecoverable funding/open-interest/basis history without
+  touching collection, execution, gates, or storage writes. The checker uses
+  existing metadata and reports silence as unhealthy.
+
+Expected outcome:
+- Operators can run a cheap read-only cadence check locally or from a timer and
+  get an explicit failure if the history-critical edge families stop updating.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_edge_cadence.py tests/test_dead_man.py tests/test_alert_dispatcher_fallback.py`
+  - SHOWN: `23 passed in 1.13s`.
+- `./.venv/bin/python -m py_compile services/analytics/edge_cadence.py scripts/check_edge_cadence.py tests/test_edge_cadence.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_edge_cadence.py --store-path /private/tmp/cbp_edge_cadence_empty.sqlite --json`
+  - SHOWN: exit code `2`; JSON reported `ok=false` with `funding`,
+    `open_interest`, and `basis` missing.
+
+Remaining risk:
+- MEDIUM: operator alerting tooling affects wake-up quality, but does not feed
+  trading decisions, gates, or execution.
+- UNVERIFIED: host scheduling and recent OKX snapshot timestamps have not been
+  checked in this session.
+- UNVERIFIED: full suite and GitHub CI were not run.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
