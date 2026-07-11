@@ -117,6 +117,13 @@ def test_archive_hash_is_stable_and_metadata_sensitive(tmp_path):
         timeframe="1h",
         rows=loaded["rows"],
     )
+    assert loaded["dataset_hash"] != ohlcv_dataset_hash(
+        venue="coinbase",
+        symbol="BTC/USD",
+        timeframe="1h",
+        rows=loaded["rows"],
+        source="synthetic_evidence_window",
+    )
 
 
 def test_load_archived_ohlcv_reports_incomplete_without_exchange(tmp_path):

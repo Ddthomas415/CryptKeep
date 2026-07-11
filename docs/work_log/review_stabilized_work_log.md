@@ -16993,4 +16993,64 @@ Remaining risk:
 - UNVERIFIED: paginated archive ingestion/backfill is still not reusable here.
 - UNVERIFIED: downstream backtest artifacts do not yet persist the dataset
   hash emitted by `ohlcv_archive`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.
+
+## 2026-07-11T02:52:59Z - Strategy Evidence Dataset Metadata (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Persist dataset identity in downstream strategy-evidence artifacts so
+  strategy comparisons can be tied back to the exact scored OHLCV windows.
+
+What was found:
+- SHOWN: `run_strategy_evidence_cycle()` built `window_reports` from candles
+  but did not persist any dataset hash or source metadata for those windows.
+- SHOWN: current default evidence windows are synthetic benchmark windows, so
+  blindly labeling hashes as archive-backed would misrepresent the source.
+- SHOWN: `persist_strategy_evidence()` writes the report payload as-is, so
+  adding metadata at `run_strategy_evidence_cycle()` is sufficient to make it
+  visible in both latest and history artifacts.
+
+What changed:
+- `services/backtest/ohlcv_archive.py`: `ohlcv_dataset_hash()` now accepts an
+  explicit `source` while preserving the archive default.
+- `services/backtest/evidence_cycle.py`: each evidence window now carries
+  `dataset_hash` and a `dataset` metadata block with source, venue, timeframe,
+  symbol, bars, and start/end timestamps. The top-level report includes a
+  `dataset_summary` containing hashed-window count, source list, and hashes.
+- `tests/test_ohlcv_archive_backtest.py`: proves hashes are source-sensitive.
+- `tests/test_backtest_evidence_cycle.py`: proves strategy-evidence reports
+  include dataset metadata and that the current default source is
+  `synthetic_evidence_window`.
+- `REMAINING_TASKS.md`: records this as the second archive-first slice and
+  keeps reusable pagination/backfill and archive-backed sweeps open.
+
+Why this change was chosen:
+- It adds data-identity evidence without changing ranking inputs, decision
+  policy, persistence shape beyond additive fields, or live trading paths.
+
+Expected outcome:
+- Operators and reviewers can see which exact OHLCV datasets were scored in a
+  strategy-evidence artifact, preventing synthetic, archive, and future
+  provided windows from being conflated.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_backtest_evidence_cycle.py`
+  - SHOWN: `21 passed in 5.11s`.
+- `./.venv/bin/python -m py_compile services/backtest/evidence_cycle.py services/backtest/ohlcv_archive.py tests/test_backtest_evidence_cycle.py tests/test_ohlcv_archive_backtest.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: still profitability-measurement plumbing. Additive metadata should not
+  alter decisions, but reviewers should confirm no downstream consumer assumes
+  a fixed evidence payload schema.
+- UNVERIFIED: reusable paginated archive ingestion/backfill is still open.
+- UNVERIFIED: archive-backed parameter sweep/walk-forward research is still
+  open.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

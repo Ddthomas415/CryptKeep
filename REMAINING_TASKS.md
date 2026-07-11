@@ -175,15 +175,21 @@ deployment work still needs independent review.
    research runner over registered strategy families so discovery throughput is
    measured by reproducible out-of-sample hypotheses, not hand-picked one-off
    windows.
-   2026-07-11: first archive-first slice is ready for independent review.
+   2026-07-11: first archive-first slice is accepted.
    `MarketStore.load_ohlcv()` reads archived OHLCV from `market_ohlcv`;
    `services.backtest.ohlcv_archive` normalizes/deduplicates archived rows and
    emits a deterministic dataset hash; `signal_replay.fetch_ohlcv()` now uses a
    complete archive window before falling back to the existing exchange fetch.
    Incomplete/missing archives do not shrink a backtest window silently; they
-   retain the old ccxt fallback behavior. Remaining item #11 work: promote
-   paginated ingestion/backfill into reusable archive tooling, persist dataset
-   hash metadata in downstream backtest artifacts, and build archive-backed
+   retain the old ccxt fallback behavior. 2026-07-11: second archive-first
+   slice is ready for independent review. Strategy evidence windows now carry
+   `dataset_hash` and a `dataset` metadata block with source, venue,
+   timeframe, symbol, bars, and start/end timestamps; the persisted evidence
+   report includes a `dataset_summary` across all scored windows. Current
+   synthetic windows are labeled `synthetic_evidence_window` rather than
+   archive data, and any future archive/provided window can carry its own
+   source/path metadata. Remaining item #11 work: promote paginated
+   ingestion/backfill into reusable archive tooling and build archive-backed
    parameter-sweep/walk-forward research.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist

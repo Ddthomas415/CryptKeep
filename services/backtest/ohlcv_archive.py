@@ -52,9 +52,10 @@ def ohlcv_dataset_hash(
     symbol: str,
     timeframe: str,
     rows: list[list[Any]],
+    source: str = ARCHIVE_SOURCE,
 ) -> str:
     payload = {
-        "source": ARCHIVE_SOURCE,
+        "source": str(source or ARCHIVE_SOURCE),
         "venue": normalize_venue(venue),
         "symbol": normalize_symbol(symbol),
         "timeframe": str(timeframe),
