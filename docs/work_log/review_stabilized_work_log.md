@@ -16853,9 +16853,9 @@ Verification:
 
 Remaining risk:
 - HIGH: touches operator alerting and campaign status workflow. The change is
-  notification-only and ordered after status persistence, but it still needs
-  independent review and GitHub CI before landing.
+  notification-only and ordered after status persistence.
 - Strategy decision-change alerts remain open as Active #23 Batch B.
 - Deployment-stage transition alerts are a separate surface and are not part
   of this batch.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-10 after
+  targeted proof was shown.

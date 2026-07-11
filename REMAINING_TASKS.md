@@ -388,7 +388,7 @@ deployment work still needs independent review.
     requalification/provenance recalculation invalidated history. First run
     remains a silent baseline; unchanged counts do not re-alert; a raising
     alert channel is contained so the snapshot still advances. 2026-07-11:
-    Batch A for the remaining alert lane is ready for independent review:
+    Batch A for the remaining alert lane is accepted:
     `services/alerts/campaign_events.py` alerts once per campaign status
     transition into stop/failure states (`failed`/`error`/`aborted` critical,
     `stopped` warning), keeps first observation as a silent baseline, does not
