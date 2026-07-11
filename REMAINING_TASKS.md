@@ -1027,6 +1027,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     and should be retired or explicitly classified before any live use; the
     paper consumer path is deliberately untouched; the 300s default and 60s
     future-skew tolerance are policy numbers open to operator adjustment.
+    2026-07-11: implementation proof is ready for independent review for the
+    legacy compat classification: `scripts/compat/run_intent_consumer.py` now
+    fails closed in `run` mode with stable reason
+    `legacy_intent_consumer_retired` and points operators to the canonical
+    `scripts/run_intent_consumer_safe.py` wrapper. The compat `stop` command
+    remains available for old operator stop commands, but the script no longer
+    imports or calls `run_forever`. `docs/architecture/legacy_intent_consumer_retirement.md`
+    records the decision and states that any revival requires a separate
+    high-risk review proving parity with the canonical live consumer.
 19. Remove hardcoded reference-price fallbacks from paper pre-submit safety
     checks. This is accepted for the canonical paper engine:
     `services/execution/paper_engine.py` now returns

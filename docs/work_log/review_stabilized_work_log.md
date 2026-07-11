@@ -17625,6 +17625,59 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-11T20:27:09Z - Legacy Intent Consumer Retirement Guard (Backlog #18)
+
+Active role: ENGINEER
+
+Objective:
+- Classify the legacy compat intent consumer before any unattended live or
+  shadow use, without broadening scope into the canonical live consumer.
+
+What was found:
+- SHOWN: the canonical managed consumer entrypoint is
+  `scripts/run_intent_consumer_safe.py`, which delegates to
+  `scripts.live.run_live_intent_consumer`.
+- SHOWN: the legacy `scripts/compat/run_intent_consumer.py` entrypoint
+  directly imported `services.execution.intent_consumer.run_forever`, which
+  bypasses the canonical TTL/state-authority wrapper path.
+- SHOWN: backlog item #18 already classified the legacy compat consumer as
+  missing the TTL check and needing retirement or explicit classification
+  before live use.
+
+What changed:
+- `scripts/compat/run_intent_consumer.py` now fails closed in `run` mode with
+  stable reason `legacy_intent_consumer_retired` and points operators to
+  `scripts/run_intent_consumer_safe.py`.
+- The compat script no longer imports or exposes `run_forever`.
+- The compat `stop` command remains available and imports `request_stop`
+  lazily, preserving old stop commands without allowing the retired run path.
+- `docs/architecture/legacy_intent_consumer_retirement.md` records the
+  retirement decision and requires separate high-risk review for any revival.
+- `tests/test_legacy_intent_consumer_retirement.py` pins the refusal payload,
+  stop compatibility, and canonical wrapper boundary.
+
+Why this change was chosen:
+- Retiring the compat run entrypoint is smaller and safer than retrofitting
+  TTL and state-authority behavior into a dead path. The canonical consumer
+  remains the only managed run path.
+
+Expected outcome:
+- Operators and scripts cannot accidentally start the legacy intent consumer.
+  Any attempted compat run receives an explicit refusal and migration target.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_legacy_intent_consumer_retirement.py tests/test_intent_services_safe_import.py`
+  - SHOWN: `8 passed in 0.16s`.
+- `./.venv/bin/python -m py_compile scripts/compat/run_intent_consumer.py tests/test_legacy_intent_consumer_retirement.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: this is live-execution-adjacent operator tooling. The change disables
+  the unsafe compat run path rather than changing order routing, but it still
+  affects live-intent operations and requires independent review.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T16:12:00Z - Public OHLCV Reachability Preflight (Active Backlog #12/#13 Support)
 
 Active role: ENGINEER
