@@ -564,6 +564,10 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
         env["CBP_STRATEGY_MIN_BARS"] = str(int(cfg.strategy_min_bars))
     if str(cfg.signal_source or "").strip():
         env["CBP_STRATEGY_SIGNAL_SOURCE"] = str(cfg.signal_source).strip()
+    if str(cfg.strategy_context_symbol or "").strip():
+        env["CBP_STRATEGY_CONTEXT_SYMBOL"] = str(cfg.strategy_context_symbol).strip()
+    if str(cfg.strategy_context_venue or "").strip():
+        env["CBP_STRATEGY_CONTEXT_VENUE"] = str(cfg.strategy_context_venue).strip()
     if bool(cfg.allow_first_signal_trade):
         env["CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE"] = "1"
     if strategy_name:
@@ -908,6 +912,8 @@ class PaperStrategyEvidenceServiceCfg:
     tick_publish_interval_sec: float = 2.0
     strategy_min_bars: int = 0
     signal_source: str = ""
+    strategy_context_symbol: str = ""
+    strategy_context_venue: str = ""
     allow_first_signal_trade: bool = False
     evidence_symbol: str = ""
     initial_cash: float = 10_000.0

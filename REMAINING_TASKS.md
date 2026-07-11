@@ -251,9 +251,22 @@ deployment work still needs independent review.
     `funding_rate_pct`, and fails closed on missing/stale/malformed context.
     `strategy_runner` recognizes `funding_extreme`, passes fresh context into
     the registry only for that strategy, and surfaces context diagnostics in
-    status/intent metadata. Remaining item #12 work: prove a governed
-    `funding_extreme` paper evidence session end-to-end without enabling live
-    execution.
+    status/intent metadata. 2026-07-11: third slice is ready for independent
+    review. The paper runner now accepts optional `strategy_context_symbol` and
+    `strategy_context_venue` overrides, passes them through the managed
+    campaign CLI as `--strategy-context-symbol/--strategy-context-venue`, and
+    records the resolved context symbol/venue in status/intent metadata. This
+    preserves existing defaults while allowing spot OHLCV/ticks to be paired
+    with OKX perp funding context for `funding_extreme`. SHOWN: in-process
+    proof consumed fresh `live_public` OKX `BTC/USDT:USDT` funding context
+    and Coinbase public OHLCV, returning `action=hold`, `reason=funding_neutral`,
+    `strategy_context_ok=true`. FILED, NOT FIXED: the managed subprocess
+    Stage 0 campaign still fails with `no_public_ohlcv` because child
+    `strategy_runner` / tick-publisher processes report public exchange
+    metadata `NetworkError` even when direct in-process fetches succeed.
+    Remaining item #12 work: fix or bypass that managed-subprocess OHLCV
+    environment issue, then prove a governed `funding_extreme` paper evidence
+    session end-to-end without enabling live execution.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

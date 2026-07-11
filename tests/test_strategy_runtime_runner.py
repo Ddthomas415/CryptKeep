@@ -140,6 +140,8 @@ def test_cfg_uses_canonical_funding_extreme_strategy(monkeypatch, tmp_path):
                 "strategy_preset": "funding_extreme_default",
                 "strategy_context_source": "live_public",
                 "strategy_context_max_age_sec": 3600,
+                "strategy_context_symbol": "BTC/USDT:USDT",
+                "strategy_context_venue": "okx",
             }
         },
     )
@@ -151,6 +153,8 @@ def test_cfg_uses_canonical_funding_extreme_strategy(monkeypatch, tmp_path):
     assert cfg["strategy_preset"] == "funding_extreme_default"
     assert cfg["strategy_context_source"] == "live_public"
     assert cfg["strategy_context_max_age_sec"] == 3600.0
+    assert cfg["strategy_context_symbol"] == "BTC/USDT:USDT"
+    assert cfg["strategy_context_venue"] == "okx"
 
 
 def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp_path):
@@ -171,18 +175,25 @@ def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp
 def test_registry_signal_with_context_passes_funding_context(monkeypatch, tmp_path):
     runner = _reload_strategy_runner(monkeypatch, tmp_path)
     captured = {}
+    captured_context_kwargs = {}
+
+    def fake_funding_context(**kwargs):
+        captured_context_kwargs.update(kwargs)
+        return {
+            "ok": True,
+            "reason": "funding_context_ready",
+            "source": "live_public",
+            "symbol": kwargs.get("symbol"),
+            "venue": kwargs.get("venue"),
+            "capture_ts": "2026-07-10T16:00:00+00:00",
+            "snapshot_id": "funding-ctx",
+            "context": {"funding": {"funding_rate": 0.0008, "funding_rate_pct": 0.08}},
+        }
 
     monkeypatch.setattr(
         runner,
         "funding_context_from_crypto_edge_store",
-        lambda **kwargs: {
-            "ok": True,
-            "reason": "funding_context_ready",
-            "source": "live_public",
-            "capture_ts": "2026-07-10T16:00:00+00:00",
-            "snapshot_id": "funding-ctx",
-            "context": {"funding": {"funding_rate": 0.0008, "funding_rate_pct": 0.08}},
-        },
+        fake_funding_context,
     )
 
     def fake_compute_signal(*, cfg, symbol, ohlcv, context=None):
@@ -192,17 +203,26 @@ def test_registry_signal_with_context_passes_funding_context(monkeypatch, tmp_pa
     monkeypatch.setattr(runner, "compute_signal", fake_compute_signal)
 
     signal = runner._registry_signal_with_context(
-        cfg={"strategy_context_source": "live_public", "strategy_context_max_age_sec": 3600},
+        cfg={
+            "strategy_context_source": "live_public",
+            "strategy_context_max_age_sec": 3600,
+            "strategy_context_symbol": "BTC/USDT:USDT",
+            "strategy_context_venue": "okx",
+        },
         strategy_block={"name": "funding_extreme", "long_crowded_threshold": 0.05},
-        symbol="BTC/USDT:USDT",
+        symbol="BTC/USDT",
         venue="okx",
         ohlcv=[],
     )
 
+    assert captured_context_kwargs["symbol"] == "BTC/USDT:USDT"
+    assert captured_context_kwargs["venue"] == "okx"
     assert captured["context"]["funding"]["funding_rate_pct"] == 0.08
     assert signal["action"] == "sell"
     assert signal["strategy_context_ok"] is True
     assert signal["strategy_context_reason"] == "funding_context_ready"
+    assert signal["strategy_context_symbol"] == "BTC/USDT:USDT"
+    assert signal["strategy_context_venue"] == "okx"
     assert signal["strategy_context_snapshot_id"] == "funding-ctx"
 
 

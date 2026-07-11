@@ -17548,3 +17548,78 @@ Remaining risk:
   checked in this session.
 - UNVERIFIED: full suite and GitHub CI were not run.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-11T14:45:10Z - Funding Extreme Context Symbol Override Slice (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Continue crypto-edge context strategy wiring by allowing `funding_extreme`
+  paper runs to use separate market-data and context contracts: spot OHLCV/tick
+  symbol for the paper runner, and OKX perpetual funding symbol for the
+  strategy context.
+
+What was found:
+- SHOWN: live OKX crypto-edge collection is fresh and returns funding,
+  open-interest, and basis rows.
+- SHOWN: `funding_context_from_crypto_edge_store(symbol="BTC/USDT:USDT",
+  venue="okx")` returns `ok=true`, `reason=funding_context_ready`.
+- SHOWN: `normalize_symbol("BTC/USDT") != normalize_symbol("BTC/USDT:USDT")`,
+  so the existing single-symbol contract cannot pair spot OHLCV with perpetual
+  funding context.
+- SHOWN: an isolated managed `funding_extreme` run using OKX perp symbol failed
+  safely with `no_public_ohlcv`, zero intents, zero fills.
+- SHOWN: an isolated managed `funding_extreme` run using Coinbase spot OHLCV
+  plus explicit OKX context overrides still failed safely with
+  `no_public_ohlcv`; child `strategy_runner` / tick-publisher logs report
+  public exchange metadata `NetworkError` from subprocesses even though direct
+  in-process exchange fetches succeed.
+
+What changed:
+- `services/execution/strategy_runner.py` now accepts optional
+  `strategy_context_symbol` and `strategy_context_venue` config/env fields,
+  defaulting to the runtime symbol/venue to preserve existing behavior.
+- `strategy_runner` passes the context override only to
+  `funding_context_from_crypto_edge_store()` and records resolved context
+  symbol/venue in status and intent metadata.
+- `services/analytics/paper_strategy_evidence_service.py` carries the optional
+  context symbol/venue into child strategy-runner environment variables.
+- `scripts/run_paper_strategy_evidence_collector.py` exposes
+  `--strategy-context-symbol` and `--strategy-context-venue` for isolated
+  Stage 0 / managed paper proofs without editing persistent user config.
+- Targeted tests pin config parsing, CLI passthrough, service env passthrough,
+  and registry context override behavior.
+
+Why this change was chosen:
+- It is the smallest contract needed for context-backed strategies: the traded
+  paper symbol and the derivative context symbol are not always the same
+  instrument string. Keeping explicit overrides avoids weakening symbol
+  matching inside the context provider.
+
+Expected outcome:
+- `funding_extreme` can consume governed OKX funding context while the paper
+  runner uses a separate public OHLCV/tick venue. Existing strategies and
+  existing `funding_extreme` configs without overrides keep current behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py tests/test_run_paper_strategy_evidence_collector.py`
+  - SHOWN: `76 passed in 1.04s`.
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py services/analytics/paper_strategy_evidence_service.py scripts/run_paper_strategy_evidence_collector.py`
+  - SHOWN: passed with no output.
+- In-process live-context proof:
+  - SHOWN: fresh OKX `BTC/USDT:USDT` funding context returned
+    `funding_context_ready`; Coinbase `BTC/USD` public OHLCV returned 5 rows;
+    `_registry_signal_with_context(...)` returned `ok=true`, `action=hold`,
+    `reason=funding_neutral`, `strategy_context_ok=true`,
+    `strategy_context_symbol=BTC/USDT:USDT`, `strategy_context_venue=okx`.
+- Managed Stage 0 proof:
+  - SHOWN: still fails safely with `no_public_ohlcv`, zero intents/fills; this
+    is recorded as remaining work, not accepted as an end-to-end proof.
+
+Remaining risk:
+- HIGH: context-backed strategy wiring can affect future paper/research
+  decisions and promotion evidence if later connected to gate qualification.
+- UNVERIFIED: no managed end-to-end `funding_extreme` paper evidence session
+  has completed yet.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
