@@ -17732,6 +17732,65 @@ Remaining risk:
 - UNVERIFIED: the optional GitHub workflow itself has not been run on GitHub.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-11T21:21:56Z - Pullback Recovery Stage 0 Proof Recorded
+
+Active role: AUDITOR
+
+Objective:
+- Record the operator-run post-fix isolated Stage 0 proof result for
+  `pullback_recovery_default`.
+
+What was found:
+- SHOWN: `make pullback-stage0-verify` generated
+  `.cbp_state/data/pullback_stage0_verification/pullback_stage0_verification.latest.json`
+  with `status=passed` and `blocking_checks=0`.
+- SHOWN: the verifier loaded the baseline recorded at commit `2953af16a`,
+  found the completed session after baseline, and confirmed
+  `expected=2953af16a actual=2953af16a`.
+- SHOWN: the completed session carried public OHLCV provenance:
+  `market_data_source=public_ohlcv`, `ohlcv_venue=coinbase`,
+  `ohlcv_symbol=BTC/USDT`, and `ohlcv_timeframe=5m`.
+- SHOWN: strategy attribution was preserved as
+  `strategy_id=pullback_recovery_default` and
+  `_strategy_id=pullback_recovery_default`.
+- SHOWN: reconciliation passed and canonical paper fill count remained
+  unchanged (`before=176 after=176`).
+- SHOWN: the runner ended with `signal_action=hold` and
+  `signal_reason=pullback_out_of_range,no_rebound_confirmation`; no new fills
+  or closed trades were recorded during the proof window.
+
+What changed:
+- `REMAINING_TASKS.md` item 7 now records the accepted Stage 0 proof outcome
+  and moves the remaining work to the strategy decision: isolated candidate
+  only, leaderboard/default-candidate inclusion, or governed persistent
+  campaign config.
+
+Why this change was chosen:
+- The repo should not keep treating `pullback_recovery_default` Stage 0 as
+  pending after the verifier produced a passing artifact. Recording the proof
+  prevents duplicate proof runs and makes the next decision explicit.
+
+Expected outcome:
+- Future work on `pullback_recovery_default` starts from the passed Stage 0
+  artifact, not from the old "proof pending" state.
+
+Verification:
+- Operator command:
+  `make pullback-stage0-verify`
+  - SHOWN from user-provided terminal output: `status=passed`,
+    `blocking_checks=0`.
+- Artifact inspection:
+  `./.venv/bin/python -m json.tool .cbp_state/data/pullback_stage0_verification/pullback_stage0_verification.latest.json`
+  - SHOWN: all required checks passed; canonical fill count unchanged
+    `176 -> 176`.
+
+Remaining risk:
+- LOW: docs-only evidence recording. No runtime behavior, strategy selection,
+  campaign manifests, or gate logic changed.
+- UNVERIFIED: no decision has been made yet to promote, persist, or retire
+  `pullback_recovery_default`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T16:12:00Z - Public OHLCV Reachability Preflight (Active Backlog #12/#13 Support)
 
 Active role: ENGINEER
