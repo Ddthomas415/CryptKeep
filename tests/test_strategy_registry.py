@@ -18,7 +18,8 @@ class TestRegistryContents:
     def test_all_expected_strategies_registered(self):
         expected = {"ema_cross", "mean_reversion_rsi", "breakout_donchian",
                     "momentum", "pullback_recovery", "volatility_reversal",
-                    "gap_fill", "breakout_volume", "sma_200_trend"}
+                    "gap_fill", "breakout_volume", "sma_200_trend",
+                    "funding_extreme"}
         for name in expected:
             assert name in SUPPORTED, f"'{name}' not in registry"
 
@@ -62,6 +63,48 @@ class TestSignalRouting:
         result = compute_signal(cfg=cfg, symbol="BTC/USD", ohlcv=_ohlcv())
         assert result["action"] == "hold"
         assert result["reason"] == "trade_disabled"
+
+    def test_funding_extreme_requires_explicit_context(self):
+        cfg = {"strategy": {"name": "funding_extreme"}}
+        result = compute_signal(cfg=cfg, symbol="BTC/USDT:USDT", ohlcv=_ohlcv())
+        assert result["ok"] is False
+        assert result["action"] == "hold"
+        assert result["reason"] == "missing_funding_context"
+        assert result["strategy"] == "funding_extreme"
+        assert result["context_required"] == "funding_rate_pct"
+
+    def test_funding_extreme_routes_direct_percent_context(self):
+        cfg = {
+            "strategy": {
+                "name": "funding_extreme",
+                "long_crowded_threshold": 0.05,
+                "short_crowded_threshold": -0.01,
+            }
+        }
+        result = compute_signal(
+            cfg=cfg,
+            symbol="BTC/USDT:USDT",
+            ohlcv=_ohlcv(),
+            context={"funding_rate_pct": 0.08},
+        )
+        assert result["ok"] is True
+        assert result["action"] == "sell"
+        assert result["reason"] == "funding_extreme_longs"
+        assert result["strategy"] == "funding_extreme"
+        assert result["context_source"] == "explicit"
+
+    def test_funding_extreme_routes_nested_decimal_funding_context(self):
+        cfg = {"strategy": {"name": "funding_extreme", "short_crowded_threshold": -0.01}}
+        result = compute_signal(
+            cfg=cfg,
+            symbol="BTC/USDT:USDT",
+            ohlcv=_ohlcv(),
+            context={"funding": {"funding_rate": -0.0002}},
+        )
+        assert result["ok"] is True
+        assert result["action"] == "buy"
+        assert result["reason"] == "funding_extreme_shorts"
+        assert result["ind"]["funding_rate_pct"] == -0.02
 
     def test_symbol_is_passed_through(self):
         for sym in ("ETH/USD", "SOL/USDT", "BTC/USD"):

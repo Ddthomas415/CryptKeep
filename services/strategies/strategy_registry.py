@@ -9,6 +9,7 @@ from services.strategies.gap_fill import signal_from_ohlcv as gap_fill
 from services.strategies.breakout_volume import signal_from_ohlcv as breakout_volume
 from services.strategies.pullback_recovery import compute_signal as pullback_recovery_compute_signal
 from services.strategies.es_daily_trend import signal_from_ohlcv as es_daily_trend_signal
+from services.strategies.funding_extreme import signal_from_context as funding_extreme_signal
 
 SUPPORTED = {
     "ema_cross": ema_cross,
@@ -20,9 +21,41 @@ SUPPORTED = {
     "breakout_volume": breakout_volume,
     "pullback_recovery": pullback_recovery_compute_signal,
     "sma_200_trend": es_daily_trend_signal,      # ES Daily Trend v1 — daily 200-SMA
+    "funding_extreme": funding_extreme_signal,   # Crypto-edge context strategy — funding rate
 }
 
-def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
+def _nested_dict(value) -> dict:
+    return dict(value) if isinstance(value, dict) else {}
+
+
+def _context_value(context: dict, *keys: str):
+    cur = context
+    for key in keys:
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(key)
+    return cur
+
+
+def _funding_rate_pct_from_context(context: dict):
+    direct = _context_value(context, "funding_rate_pct")
+    if direct is not None:
+        return direct
+    nested = _context_value(context, "funding", "funding_rate_pct")
+    if nested is not None:
+        return nested
+    raw_rate = _context_value(context, "funding_rate")
+    if raw_rate is None:
+        raw_rate = _context_value(context, "funding", "funding_rate")
+    if raw_rate is None:
+        return None
+    try:
+        return float(raw_rate) * 100.0
+    except Exception:
+        return None
+
+
+def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None = None) -> dict:
     st = cfg.get("strategy") if isinstance(cfg.get("strategy"), dict) else {}
     raw_name = st.get("name") if "name" in st else "ema_cross"
     name = str(raw_name or "").strip()
@@ -39,6 +72,29 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list) -> dict:
         return {"ok": True, "action": "hold", "reason": "trade_disabled", "strategy": name, "symbol": symbol}
 
     fn = SUPPORTED[name]
+
+    if name == "funding_extreme":
+        ctx = _nested_dict(context)
+        funding_rate_pct = _funding_rate_pct_from_context(ctx)
+        if funding_rate_pct is None:
+            return {
+                "ok": False,
+                "action": "hold",
+                "reason": "missing_funding_context",
+                "strategy": name,
+                "symbol": symbol,
+                "context_required": "funding_rate_pct",
+            }
+        return {
+            **fn(
+                funding_rate_pct=funding_rate_pct,
+                long_crowded_threshold=float(st.get("long_crowded_threshold", 0.05)),
+                short_crowded_threshold=float(st.get("short_crowded_threshold", -0.01)),
+            ),
+            "strategy": name,
+            "symbol": symbol,
+            "context_source": "explicit",
+        }
 
     if name == "ema_cross":
         return {

@@ -17254,4 +17254,72 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
 - UNVERIFIED: no real multi-year archive sweep was executed here; tests use
   local deterministic archive fixtures only.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T16:31:00Z - Funding Context Strategy Registry Contract (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Start the crypto-edge context strategy wiring with the smallest safe
+  contract: register `funding_extreme` in the strategy registry and require an
+  explicit context payload before it can emit a signal. Do not read the
+  crypto-edge store, alter paper qualification, or enable a persistent campaign
+  in this slice.
+
+What was found:
+- SHOWN: `funding_extreme`, `open_interest_shift`, and
+  `order_book_imbalance` modules existed, but `strategy_registry.SUPPORTED`
+  still only registered OHLCV strategies plus `sma_200_trend`.
+- SHOWN: `funding_extreme_default` already existed in presets/config tooling,
+  so the config name could be selected, but the runtime registry could not
+  execute it.
+- SHOWN: candidate-advisor classification requires every registry strategy to
+  be either allowed or explicitly excluded; adding `funding_extreme` to the
+  registry would otherwise create a drift failure.
+
+What changed:
+- `services/strategies/strategy_registry.py`: imports and registers
+  `funding_extreme.signal_from_context`; `compute_signal()` now accepts an
+  optional `context` payload while preserving existing callers. For
+  `funding_extreme`, missing context returns `ok=false`, `action=hold`,
+  `reason=missing_funding_context`; direct `funding_rate_pct` and nested
+  decimal `funding.funding_rate` are routed into the strategy.
+- `services/signals/candidate_advisor.py`: adds `funding_extreme` to
+  `ADVISOR_EXCLUDED_STRATEGIES` with a context/provenance rationale, so the
+  advisor cannot recommend it before governed paper proof exists.
+- `tests/test_strategy_registry.py`: adds registry and routing tests for
+  missing funding context, direct percent context, and nested decimal context.
+- `REMAINING_TASKS.md`: records this as the first context-strategy slice and
+  leaves store/provider, paper runner context, and qualification-gate work open.
+
+Why this change was chosen:
+- It creates the minimal executable contract without pretending that stored
+  crypto-edge rows are already paper-qualified evidence. Missing context fails
+  closed, and explicit context is required before any action can be emitted.
+
+Expected outcome:
+- Future crypto-edge provider work can call the registry with a typed context
+  payload, and typo/empty/missing-context cases remain non-actionable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py`
+  - SHOWN: `14 passed in 0.10s`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py tests/test_challenger_strategy_governance_configs.py tests/test_strategy_runtime_runner.py tests/test_candidate_advisor_classification.py`
+  - SHOWN: `49 passed in 0.92s`.
+- `./.venv/bin/python -m py_compile services/strategies/strategy_registry.py services/signals/candidate_advisor.py tests/test_strategy_registry.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: financial strategy signal wiring can affect future paper/research
+  decisions. This slice is fail-closed without explicit context and does not
+  touch live trading, paper qualification, or crypto-edge storage.
+- UNVERIFIED: no paper evidence row is produced from `funding_extreme` yet.
+- UNVERIFIED: crypto-edge store/provider integration and qualification-gate
+  extension remain separate follow-ups.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

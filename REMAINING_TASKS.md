@@ -202,7 +202,7 @@ deployment work still needs independent review.
    incomplete archives rather than falling back to live OHLCV.
    `scripts/research/run_archive_walk_forward.py` writes the same research-only
    JSON artifact from a JSON/YAML config. 2026-07-11: fifth archive-first
-   slice is ready for independent review. `services.backtest.parameter_sweep`
+   slice is accepted. `services.backtest.parameter_sweep`
    expands bounded dot-path parameter grids, runs each variant through the
    archive-backed walk-forward wrapper, and emits deterministic research-only
    ranks with explicit ranking policy, dataset summary, config hashes, and
@@ -238,7 +238,17 @@ deployment work still needs independent review.
     2026-07-06 check-in confirmed `funding_extreme` should not be treated as
     the next immediate campaign start; it is the next higher-value strategy
     validation target after the context/crypto-edge contract can feed governed
-    paper evidence.
+    paper evidence. 2026-07-11: first context-strategy slice is ready for
+    independent review. `strategy_registry.compute_signal()` now accepts an
+    optional explicit `context` payload, registers `funding_extreme`, fails
+    closed with `missing_funding_context` when no funding context is supplied,
+    and can route direct percent or nested decimal funding rows into
+    `funding_extreme.signal_from_context()`. `funding_extreme` is explicitly
+    excluded from candidate-advisor recommendations until governed context
+    paper provenance exists. Remaining item #12 work: add the read-only
+    crypto-edge store/provider path, pass context through the paper runner, and
+    prove a funding strategy can emit governed paper evidence without enabling
+    live execution.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

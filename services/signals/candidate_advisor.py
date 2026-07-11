@@ -36,6 +36,7 @@ ALLOWED_STRATEGIES: frozenset[str] = frozenset({
 # discovery coverage cannot drift silently as new strategies are added.
 ADVISOR_EXCLUDED_STRATEGIES: dict[str, str] = {
     "breakout_volume": "variant of breakout_donchian; requires separate paper/config evidence",
+    "funding_extreme": "crypto-edge context strategy; requires governed context/paper provenance before advisor use",
     "gap_fill": "pattern strategy remains research-only until governed config and paper proof exist",
     "sma_200_trend": "canonical pipeline-validation campaign; not a rotation/advisor override target",
     "volatility_reversal": "event-driven crash-recovery strategy; no governed paper campaign yet",
