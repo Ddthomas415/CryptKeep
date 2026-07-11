@@ -17625,6 +17625,62 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-11T16:12:00Z - Public OHLCV Reachability Preflight (Active Backlog #12/#13 Support)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only preflight that checks whether a governed Stage 0 run can
+  reach its configured public-OHLCV source before the strategy runner starts.
+  The goal is to separate source/network failure from strategy failure.
+
+What was found:
+- SHOWN: `funding_extreme` Stage 0 remains blocked by `no_public_ohlcv` on this
+  host after context wiring; prior probes showed intermittent Coinbase
+  DNS/metadata failures in isolated subprocess contexts.
+- SHOWN: no dedicated OHLCV reachability preflight script existed before this
+  change.
+- SHOWN: the strategy runner derives timeframe from `signal_source` and fetches
+  via `make_exchange(venue, ...)`, `map_symbol(...)`, and `fetch_ohlcv(...)`.
+
+What changed:
+- Added `services/execution/ohlcv_preflight.py`, a never-raising, read-only
+  probe that mirrors the runner fetch path and persists nothing.
+- Added `scripts/check_ohlcv_preflight.py` with exit code policy:
+  `0` reachable/non-empty, `1` config problem or reachable-empty source, `2`
+  network/source unreachable.
+- Added `tests/test_ohlcv_preflight.py` covering reachable, unreachable,
+  empty, non-public source, invalid config, runner timeframe-parser parity,
+  config-wrapper behavior, no snapshot persistence, and CLI exit-code policy.
+- Updated `scripts/SCRIPTS.md` and this backlog item.
+
+Why this change was chosen:
+- It does not fix host DNS. It makes the network/source precondition explicit
+  before governed Stage 0, preventing a flaky source from being recorded or
+  interpreted as a strategy result.
+
+Expected outcome:
+- Operators can fail fast on `ohlcv_source_unreachable` and label the attempt
+  as an infrastructure/source issue, not `funding_extreme` strategy evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_preflight.py`
+  - SHOWN: `15 passed in 0.12s`.
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_preflight.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `78 passed in 1.10s`.
+- `./.venv/bin/python -m py_compile services/execution/ohlcv_preflight.py scripts/check_ohlcv_preflight.py tests/test_ohlcv_preflight.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_ohlcv_preflight.py --venue definitely_not_a_venue --symbol BTC/USDT --signal-source public_ohlcv_5m --json`
+  - SHOWN: exit code `1`, `status=invalid_preflight_config`,
+    `reason=unknown venue`.
+
+Remaining risk:
+- MEDIUM: operator preflight tooling affects evidence interpretation and
+  workflow, but does not change strategy, gate, order, or live execution
+  behavior.
+- UNVERIFIED: no live Coinbase/OKX reachability command was run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T15:00:00Z - Managed Paper Component Env Isolation (Active Backlog #12)
 
 Active role: ENGINEER

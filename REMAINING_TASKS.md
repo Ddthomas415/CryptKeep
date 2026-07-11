@@ -279,6 +279,13 @@ deployment work still needs independent review.
     do not treat that as an accepted end-to-end paper proof. Remaining item
     #12 work: prove a governed `funding_extreme` paper evidence session
     end-to-end on a stable network/host without enabling live execution.
+    2026-07-11: public-OHLCV reachability preflight tooling is ready for
+    independent review. `scripts/check_ohlcv_preflight.py` mirrors the runner
+    fetch path (`make_exchange` -> `map_symbol` -> `fetch_ohlcv`) and exits
+    `0` for reachable/non-empty public OHLCV, `1` for config/empty-source
+    problems, and `2` for network/source unreachable. This does not fix host
+    DNS, but it makes the Stage 0 precondition explicit so `no_public_ohlcv`
+    cannot be mistaken for a strategy result when the source is unreachable.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
