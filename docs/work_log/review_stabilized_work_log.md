@@ -16782,3 +16782,80 @@ Remaining risk:
 - Remaining Active #23 event families: campaign stop/failure and strategy
   decision changes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-11T02:13:35Z - Campaign Stop/Failure Alerts (Active Backlog #23 Batch A)
+
+Active role: ENGINEER
+
+Objective:
+- Add the campaign stop/failure half of the remaining Active #23 alert lane
+  without mixing in strategy-decision or deployment-stage transition alerts.
+- Fold candidate-advisor backlog hygiene into the same docs touch because
+  that classification was already accepted and no longer belongs in active
+  remaining wording.
+
+What was found:
+- SHOWN: `services.analytics.paper_strategy_evidence_service._write_status()`
+  is the single campaign status chokepoint and already reads
+  `current_status` before validating and writing the new status. That makes
+  it the correct seam for campaign status transition alerting.
+- SHOWN: `services.alerts.paper_gate_events` establishes the local alerting
+  pattern to match: notification-only, first observation silent baseline,
+  alert once per transition, never raise, and do not affect gate/evidence
+  decisions.
+- SHOWN: candidate-advisor classification is already implemented and
+  accepted via `ADVISOR_EXCLUDED_STRATEGIES` plus the registry coverage test,
+  so the active backlog wording was stale.
+
+What changed:
+- `services/alerts/campaign_events.py`: new notification-only alerter for
+  campaign status transitions. It alerts only on transitions into
+  stop/failure terminal states: `failed`/`error`/`aborted` are critical,
+  `stopped` is warning, and normal `completed` is intentionally silent.
+  First observation remains a silent baseline, repeated same-status writes
+  do not re-alert, and the entry point never raises.
+- `services/analytics/paper_strategy_evidence_service.py`: `_write_status()`
+  invokes the alerter after the status file write succeeds, using the
+  already-read previous status. Alert failures are swallowed so campaign
+  status advancement cannot be blocked by notification delivery.
+- `tests/test_campaign_event_alerts.py`: pins transition semantics,
+  severity, baseline, no-alert cases, payload forwarding, and never-raise
+  behavior.
+- `tests/test_campaign_event_alerts_integration.py`: proves the real
+  `_write_status()` path alerts on `running -> stopped` and that a raising
+  alert channel does not block a `failed` status write.
+- `REMAINING_TASKS.md`: reclassifies candidate-advisor coverage as done and
+  records campaign stop/failure alerting as Batch A; strategy decision-change
+  alerts remain open as Batch B.
+
+Why this change was chosen:
+- Campaign status transitions have a distinct detection seam from strategy
+  decision changes and deployment-stage transitions. Keeping this batch to
+  one seam avoids a cross-subsystem patch while still improving operator
+  wake-up quality.
+
+Expected outcome:
+- Operators receive an alert when a governed paper evidence campaign stops
+  or fails abnormally, without changing campaign status persistence,
+  evidence generation, trading behavior, or promotion-gate results.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: `12 passed in 0.25s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_strategy_evidence_service.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: `39 passed in 0.43s`.
+- `./.venv/bin/python -m py_compile services/alerts/campaign_events.py services/analytics/paper_strategy_evidence_service.py tests/test_campaign_event_alerts.py tests/test_campaign_event_alerts_integration.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: touches operator alerting and campaign status workflow. The change is
+  notification-only and ordered after status persistence, but it still needs
+  independent review and GitHub CI before landing.
+- Strategy decision-change alerts remain open as Active #23 Batch B.
+- Deployment-stage transition alerts are a separate surface and are not part
+  of this batch.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

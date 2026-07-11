@@ -258,11 +258,12 @@ deployment work still needs independent review.
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a
     new accepted architecture decision.
-19. Classify candidate-advisor strategy coverage against the registry.
-    `services/signals/candidate_advisor.py` currently allows only a subset of
-    `services/strategies/strategy_registry.py::SUPPORTED`; the current drift is
-    `breakout_volume`, `gap_fill`, `sma_200_trend`, and
-    `volatility_reversal`. Add an explicit exclusion set with rationale, and a
+19. [DONE — accepted 2026-07-03] Classify candidate-advisor strategy coverage
+    against the registry.
+    `services/signals/candidate_advisor.py` allows only a subset of
+    `services/strategies/strategy_registry.py::SUPPORTED`; the excluded set
+    (`breakout_volume`, `gap_fill`, `sma_200_trend`, `volatility_reversal`) is
+    now explicit with rationale via `ADVISOR_EXCLUDED_STRATEGIES`, and a
     test that fails whenever a registered strategy is neither advisor-allowed
     nor deliberately excluded. This prevents future discovery wiring from
     silently omitting strategies. Implementation proof was independently
@@ -386,9 +387,16 @@ deployment work still needs independent review.
     increases are info, decreases are warning because they usually mean
     requalification/provenance recalculation invalidated history. First run
     remains a silent baseline; unchanged counts do not re-alert; a raising
-    alert channel is contained so the snapshot still advances. Remaining
-    event families for later slices: campaign stop/failure and strategy
-    decision changes.
+    alert channel is contained so the snapshot still advances. 2026-07-11:
+    Batch A for the remaining alert lane is ready for independent review:
+    `services/alerts/campaign_events.py` alerts once per campaign status
+    transition into stop/failure states (`failed`/`error`/`aborted` critical,
+    `stopped` warning), keeps first observation as a silent baseline, does not
+    alert on normal `completed`, and never raises. The hook is in
+    `paper_strategy_evidence_service._write_status()` after the status file
+    write succeeds, so notification failure cannot block campaign status
+    advancement. Remaining event family for a later slice: strategy decision
+    changes.
 24. Write explicit stop and retirement criteria before any strategy advances
     beyond paper. Define, in a decision record, what evidence retires a
     strategy, freezes it, keeps it in paper, or stops the broader project.

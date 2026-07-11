@@ -115,6 +115,27 @@ def _write_status(obj: dict[str, Any]) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(obj, indent=2, sort_keys=True), encoding="utf-8")
 
+    # Notification-only (Active #23): fire AFTER the write succeeds so a raising
+    # alert channel can never block campaign status advancement. Best-effort;
+    # never raises. current_status was read above (empty on first write ->
+    # silent baseline inside the alerter).
+    try:
+        from services.alerts.campaign_events import alert_campaign_status_transition
+
+        alert_campaign_status_transition(
+            prev_status=current_status,
+            new_status=status,
+            payload={
+                "reason": obj.get("reason"),
+                "symbol": obj.get("symbol"),
+                "completed_strategies": obj.get("completed_strategies"),
+                "total_strategies": obj.get("total_strategies"),
+                "ts": obj.get("ts"),
+            },
+        )
+    except Exception:
+        pass
+
 
 def _write_pid_state(obj: dict[str, Any]) -> None:
     ensure_dirs()
