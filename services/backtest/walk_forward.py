@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
+from services.backtest.ohlcv_archive import ARCHIVE_SOURCE, load_archived_ohlcv, normalize_ohlcv_rows
 from services.backtest.parity_engine import run_parity_backtest
 
 
@@ -17,6 +20,11 @@ def _safe_ts_ms(value: Any) -> int | None:
         return int(value)
     except Exception:
         return None
+
+
+def _config_hash(cfg: dict[str, Any]) -> str:
+    encoded = json.dumps(dict(cfg or {}), sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _to_ohlcv_rows(candles: list[list[Any]]) -> list[list[Any]]:
@@ -169,6 +177,35 @@ def _summary_for_windows(windows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _archive_dataset_block(
+    *,
+    loaded: dict[str, Any],
+    rows: list[list[Any]],
+    venue: str,
+    symbol: str,
+    timeframe: str,
+    limit: int,
+    since_ms: int | None,
+) -> dict[str, Any]:
+    first_ts = _safe_ts_ms(rows[0][0]) if rows else None
+    last_ts = _safe_ts_ms(rows[-1][0]) if rows else None
+    return {
+        "source": str(loaded.get("source") or ARCHIVE_SOURCE),
+        "dataset_hash": str(loaded.get("dataset_hash") or ""),
+        "venue": str(loaded.get("exchange") or venue),
+        "symbol": str(loaded.get("symbol") or symbol),
+        "stored_symbol": str(loaded.get("stored_symbol") or ""),
+        "timeframe": str(loaded.get("timeframe") or timeframe),
+        "archive_path": str(loaded.get("archive_path") or ""),
+        "requested_limit": int(limit),
+        "since_ms": since_ms,
+        "row_count": int(len(rows)),
+        "first_ts_ms": first_ts,
+        "last_ts_ms": last_ts,
+        "complete": bool(loaded.get("complete")),
+    }
+
+
 def run_anchored_walk_forward(
     *,
     cfg: dict[str, Any],
@@ -267,3 +304,103 @@ def run_anchored_walk_forward(
         "windows": out_windows,
         "summary": _summary_for_windows(out_windows),
     }
+
+
+def run_archive_backed_walk_forward(
+    *,
+    cfg: dict[str, Any],
+    venue: str,
+    symbol: str,
+    timeframe: str = "1h",
+    limit: int = 500,
+    since_ms: int | None = None,
+    db_path: str | None = None,
+    warmup_bars: int = 50,
+    min_train_bars: int = 120,
+    test_bars: int = 30,
+    step_bars: int | None = None,
+    max_windows: int = 0,
+    initial_cash: float = 10_000.0,
+    fee_bps: float = 10.0,
+    slippage_bps: float = 5.0,
+) -> dict[str, Any]:
+    """
+    Research-only archive-backed walk-forward runner for one explicit config.
+
+    This intentionally does not rank or sweep parameters; it only proves that
+    one config can be evaluated over archived rows with reproducible dataset
+    provenance attached to the result artifact.
+    """
+    requested_limit = max(1, int(limit))
+    loaded = load_archived_ohlcv(
+        venue,
+        symbol,
+        timeframe=str(timeframe),
+        limit=requested_limit,
+        since_ms=since_ms,
+        db_path=db_path,
+    )
+    rows = normalize_ohlcv_rows(list(loaded.get("rows") or []))
+    dataset = _archive_dataset_block(
+        loaded=loaded,
+        rows=rows,
+        venue=str(venue),
+        symbol=str(symbol),
+        timeframe=str(timeframe),
+        limit=requested_limit,
+        since_ms=since_ms,
+    )
+    strategy_name = str(((cfg or {}).get("strategy") or {}).get("name") or "ema_cross")
+    cfg_hash = _config_hash(dict(cfg or {}))
+
+    if not (loaded.get("ok") and loaded.get("complete")):
+        return {
+            "ok": False,
+            "reason": str(loaded.get("reason") or "archive_unavailable"),
+            "research_only": True,
+            "archive_backed": False,
+            "artifact_type": "archive_backed_walk_forward_v1",
+            "venue": str(venue),
+            "symbol": str(symbol),
+            "timeframe": str(timeframe),
+            "strategy": strategy_name,
+            "config_hash": cfg_hash,
+            "dataset_hash": str(dataset.get("dataset_hash") or ""),
+            "dataset": dataset,
+            "bars": int(len(rows)),
+            "window_count": 0,
+            "windows": [],
+            "summary": _summary_for_windows([]),
+        }
+
+    result = run_anchored_walk_forward(
+        cfg=dict(cfg or {}),
+        symbol=str(symbol),
+        candles=rows,
+        warmup_bars=int(warmup_bars),
+        min_train_bars=int(min_train_bars),
+        test_bars=int(test_bars),
+        step_bars=step_bars,
+        max_windows=int(max_windows),
+        initial_cash=float(initial_cash),
+        fee_bps=float(fee_bps),
+        slippage_bps=float(slippage_bps),
+    )
+    dataset_hash = str(dataset.get("dataset_hash") or "")
+    for window in list(result.get("windows") or []):
+        if isinstance(window, dict):
+            window["dataset_hash"] = dataset_hash
+            window["dataset_source"] = str(dataset.get("source") or ARCHIVE_SOURCE)
+
+    result.update(
+        {
+            "archive_backed": True,
+            "artifact_type": "archive_backed_walk_forward_v1",
+            "venue": str(venue),
+            "timeframe": str(timeframe),
+            "config_hash": cfg_hash,
+            "dataset_hash": dataset_hash,
+            "dataset": dataset,
+        }
+    )
+    return result

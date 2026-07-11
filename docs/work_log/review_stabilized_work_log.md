@@ -780,7 +780,7 @@ Verification:
 
 Remaining risk:
 - LOW: this is a test-only governance guard.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- Acceptance state: `ACCEPTED`.
 
 ## 2026-07-01 - Retire `services/strategy`
 
@@ -17119,4 +17119,75 @@ Remaining risk:
   compatibility wrapper preserves existing row-only behavior.
 - UNVERIFIED: archive-backed parameter-sweep/walk-forward research remains
   open.
+- Acceptance state: `ACCEPTED` by human operator review on 2026-07-11 after
+  targeted proof was shown.
+
+## 2026-07-11T15:44:00Z - Archive-Backed Walk-Forward Artifact (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Add the safe half of archive-backed walk-forward research: one explicit
+  strategy config, complete archive rows only, anchored walk-forward windows,
+  and a reproducible JSON artifact stamped with dataset hashes. Exclude
+  parameter sweeps, ranking policy, and strategy-selection decisions.
+
+What was found:
+- SHOWN: `run_anchored_walk_forward()` already produced anchored train/test
+  windows from caller-provided candles, but it had no archive loader or dataset
+  provenance contract.
+- SHOWN: `ohlcv_archive.load_archived_ohlcv()` already returned complete
+  archive rows plus `dataset_hash`, `archive_path`, stored symbol, venue,
+  timeframe, and row counts.
+- SHOWN: the previous archive-pagination slice made archive backfill reusable,
+  so the remaining safe seam was a consumer wrapper and artifact writer, not a
+  new backtest engine.
+
+What changed:
+- `services/backtest/walk_forward.py`: added
+  `run_archive_backed_walk_forward()` and a config hash helper. The wrapper
+  refuses missing/incomplete archives, never falls back to live OHLCV, runs the
+  existing anchored walk-forward over complete archive rows, and stamps the
+  result plus each window with the archive dataset hash/source.
+- `scripts/research/run_archive_walk_forward.py`: added a research-only CLI
+  that requires an explicit JSON/YAML `strategy.name` config and writes the
+  archive-backed walk-forward JSON artifact. It supports archive DB selection,
+  row limit/since, walk-forward sizing parameters, fee/slippage assumptions,
+  and `--fail-if-not-ok`.
+- `tests/test_backtest_walk_forward.py`: added archive-backed service tests
+  for dataset-hash stamping and incomplete-archive refusal.
+- `tests/test_archive_walk_forward_runner.py`: added CLI artifact tests for
+  output/printed JSON consistency and missing-archive exit code behavior.
+- `REMAINING_TASKS.md`: marks the prior pagination slice accepted and records
+  this single-config artifact slice as ready for review, leaving only the
+  separate parameter-sweep/ranking layer open under item #11.
+
+Why this change was chosen:
+- It keeps the work mechanical and provable: archive-backed reproducibility
+  before any parameter-grid or ranking decisions that could create misleading
+  research conclusions. Reusing the existing walk-forward engine avoids a twin
+  research path.
+
+Expected outcome:
+- Operators can run one archived strategy config through multi-window
+  walk-forward validation and keep a JSON artifact that proves the exact OHLCV
+  archive dataset and config hash behind the result.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `17 passed in 0.59s`.
+- `./.venv/bin/python -m py_compile services/backtest/walk_forward.py scripts/research/run_archive_walk_forward.py tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- HIGH: financial strategy research infrastructure can affect future strategy
+  selection even though this patch is read-only and does not touch live
+  trading, order routing, or promotion gates.
+- UNVERIFIED: full test suite and GitHub CI were not run in this session.
+- UNVERIFIED: parameter-grid sweeps and ranking/selection policy remain a
+  separate follow-up.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

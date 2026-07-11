@@ -188,14 +188,22 @@ deployment work still needs independent review.
    report includes a `dataset_summary` across all scored windows. Current
    synthetic windows are labeled `synthetic_evidence_window` rather than
    archive data, and any future archive/provided window can carry its own
-   source/path metadata. 2026-07-11: third archive-first slice is ready for
-   independent review. `signal_replay.fetch_ohlcv_with_meta()` surfaces rows
+   source/path metadata. 2026-07-11: third archive-first slice is accepted.
+   `signal_replay.fetch_ohlcv_with_meta()` surfaces rows
    plus source/dataset-hash metadata while preserving `fetch_ohlcv()` as a
    bare-rows compatibility wrapper; `ohlcv_archive.paginate_ohlcv()` and
    `backfill_archive()` provide reusable, fetcher-injectable pagination and
    idempotent archive upsert; the ES daily-trend baseline report now persists
-   a `dataset` block with the exact-row SHA-256. Remaining item #11 work:
-   build archive-backed parameter-sweep/walk-forward research.
+   a `dataset` block with the exact-row SHA-256. 2026-07-11: fourth
+   archive-first slice is ready for independent review.
+   `walk_forward.run_archive_backed_walk_forward()` runs one explicit strategy
+   config over a complete archive window, stamps the top-level artifact and
+   every walk-forward window with the archive dataset hash, and refuses
+   incomplete archives rather than falling back to live OHLCV.
+   `scripts/research/run_archive_walk_forward.py` writes the same
+   research-only JSON artifact from a JSON/YAML config. Remaining item #11
+   work: add the separate parameter-sweep/ranking layer on top of this
+   single-config proof.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /
