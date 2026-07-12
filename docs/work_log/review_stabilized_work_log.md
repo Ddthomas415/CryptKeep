@@ -17755,6 +17755,76 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-12T08:08:35Z - Execution-Cost Stack Report Consumer (Backlog #15)
+
+Active role: ENGINEER
+
+Objective:
+- Add the first read-only execution-cost research report consumer over stored
+  shadow would-be-fill evidence, without changing live routing, order-type
+  policy, or canonical paper campaign behavior.
+
+What was found:
+- SHOWN: the shadow recorder already writes `shadow_would_be_fill` evidence
+  records from `services/execution/_executor_submit.py` with bid/ask/mid,
+  modeled fill price, fee bps, spread bps, side, qty, venue, symbol, and
+  strategy fields.
+- SHOWN: `docs/EXECUTION_COST_RESEARCH_POLICY.md` requires maker/taker bps,
+  fill-probability estimates, source artifact hash, and a recommendation enum,
+  but explicitly prohibits live routing/order-type changes and maker
+  conclusions from ordinary paper fills.
+- SHOWN: current shadow records do not guarantee `subsequent_price_path`; a
+  report must therefore be able to compute taker/quote metrics while refusing
+  maker fill-probability conclusions until path-backed records exist.
+
+What changed:
+- Added `services/analytics/execution_cost_stack_report.py`.
+  - Loads only `shadow_would_be_fill` records from evidence `fill_*.jsonl`.
+  - Excludes ordinary paper fills.
+  - Stamps source file hashes and a canonical source artifact hash.
+  - Computes taker cost bps from modeled shadow fill price, reference mid, and
+    recorded fees.
+  - Computes quote-only maker/resting metrics.
+  - Estimates maker fill probability only when stored
+    `subsequent_price_path` data exists.
+  - Emits only the accepted recommendation enum:
+    `no_change`, `research_more`, or `candidate_execution_policy_change`.
+- Added `scripts/report_execution_cost_stack.py`, a read-only CLI wrapper that
+  can print JSON or write an artifact plus `execution_cost_stack.latest.json`.
+- Added `tests/test_execution_cost_stack_report.py`.
+- Updated `scripts/SCRIPTS.md`, `docs/EXECUTION_COST_RESEARCH_POLICY.md`, and
+  `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It closes the report-consumer portion of #15 without creating a second data
+  pipeline or touching any execution path. The conservative behavior is
+  intentional: incomplete shadow data returns `research_more`, not a maker
+  policy recommendation.
+
+Expected outcome:
+- Operators can generate a reproducible execution-cost artifact from stored
+  shadow records. Current records without path data will show cost metrics but
+  keep the research item open until enough path-backed shadow data exists.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_execution_cost_stack_report.py`
+  - SHOWN: first run exposed a zero-record status bug, then after fix:
+    `4 passed in 0.10s`.
+- `./.venv/bin/python -m py_compile services/analytics/execution_cost_stack_report.py scripts/report_execution_cost_stack.py tests/test_execution_cost_stack_report.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN: `OK: script paths validated`.
+
+Remaining risk:
+- HIGH: execution-cost research is financial/profitability logic and can
+  influence future execution-policy decisions. This patch is read-only and
+  research-only, but it should still receive independent review before being
+  treated as accepted evidence tooling.
+- UNVERIFIED: no real host shadow record set was available in this session; the
+  report has not been run against an operator shadow campaign artifact.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-12T07:40:38Z - Current-Base Stack Repair: Systemd, Supply Chain, Audit Matrix
 
 Active role: ENGINEER

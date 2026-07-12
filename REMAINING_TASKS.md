@@ -1033,6 +1033,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     research must come from shadow would-be-fill records or an explicit engine
     extension, not from current paper-fill behavior. 2026-07-04: research
     policy is documented in `docs/EXECUTION_COST_RESEARCH_POLICY.md`.
+    2026-07-12: read-only report-consumer implementation proof is ready for
+    independent review. `scripts/report_execution_cost_stack.py` consumes only
+    stored `shadow_would_be_fill` evidence, excludes normal paper fills, stamps
+    source artifact hashes, computes taker cost in bps from modeled shadow fill
+    price plus recorded fees, and reports quote-only maker/resting metrics.
+    It refuses to promote maker conclusions without enough stored
+    `subsequent_price_path` records to estimate maker fill probability, so
+    current shadow records without price-path data produce `research_more`.
+    No live routing, order-type policy, or canonical paper-campaign behavior is
+    changed.
     Remaining proof: accepted shadow-derived cost-stack report with maker/taker
     bps, limit-fill probability estimates, source artifact hash, and explicit
     `no_change` / `research_more` / `candidate_execution_policy_change`

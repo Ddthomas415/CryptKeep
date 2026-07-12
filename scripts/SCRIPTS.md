@@ -63,7 +63,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 120 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 121 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -197,6 +197,11 @@ decision makes them authoritative.
 - `run_candidate_outcome_report.py` — read-only candidate-vs-paper-outcome
   report that writes `.cbp_state/data/candidate_outcomes/` artifacts; use
   `make candidate-outcomes`.
+- `report_execution_cost_stack.py` — read-only research report over stored
+  `shadow_would_be_fill` records; computes taker cost and quote-only maker
+  metrics, requires stored subsequent price path before fill-probability
+  conclusions, and never changes routing, order type, or paper campaign
+  behavior.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
