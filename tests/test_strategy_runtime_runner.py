@@ -3,6 +3,7 @@ import pytest
 
 import importlib
 import json
+from pathlib import Path
 
 
 def _reload_strategy_runner(monkeypatch, tmp_path):
@@ -185,6 +186,70 @@ def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp
     assert cfg["strategy_id"] == ""
     assert cfg["strategy"]["name"] == ""
     assert cfg["strategy"]["unsupported"] is True
+
+
+def test_strategy_resolution_sites_do_not_substitute_empty_identity(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    src = Path(runner.__file__).read_text(encoding="utf-8")
+    assignments = [
+        line.strip()
+        for line in src.splitlines()
+        if line.strip().startswith("selected_strategy = str(")
+    ]
+
+    assert len(assignments) == 2
+    assert assignments == ['selected_strategy = str(cfg.get("strategy_id") or "")'] * 2
+
+
+def test_explicit_empty_identity_flows_to_registry_fail_closed(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {"strategy_runner": {"strategy": {"name": "", "trade_enabled": True}}},
+    )
+
+    cfg = runner._cfg()
+    selected_strategy = str(cfg.get("strategy_id") or "")
+    block = runner._signal_strategy_block_from_selected_name(selected_strategy, {})
+
+    assert selected_strategy == ""
+    assert block["unsupported"] is True
+
+    signal = runner.compute_signal(cfg={"strategy": block}, symbol="BTC/USDT", ohlcv=[])
+    assert signal["ok"] is False
+    assert signal["action"] == "hold"
+    assert signal["reason"] == "unknown_strategy"
+
+
+def test_missing_strategy_name_keeps_existing_ema_cross_default(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "ema_cross"
+    assert cfg["strategy"]["name"] == "ema_cross"
+    assert not cfg["strategy"].get("unsupported")
+
+
+def test_synthetic_signal_executes_from_strategy_block_not_selected_label(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    captured = {}
+
+    def fake_compute_signal(*, cfg, symbol, ohlcv, context=None):
+        captured["strategy"] = dict(cfg.get("strategy") or {})
+        return {"ok": False, "action": "hold", "reason": "unknown_strategy"}
+
+    monkeypatch.setattr(runner, "compute_signal", fake_compute_signal)
+
+    runner._strategy_signal(
+        {"strategy_id": "ema_cross", "strategy": {"name": "", "unsupported": True}, "symbol": "BTC/USDT"},
+        [100.0, 101.0, 102.0],
+        ts_ms=1_700_000_000_000,
+    )
+
+    assert captured["strategy"] == {"name": "", "unsupported": True}
 
 
 def test_registry_signal_with_context_passes_funding_context(monkeypatch, tmp_path):

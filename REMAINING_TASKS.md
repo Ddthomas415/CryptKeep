@@ -91,6 +91,15 @@ deployment work still needs independent review.
    Ground truth must come from the operator-host gate/status command output
    (`make status-paper-gate-qualification` or the equivalent gate JSON), not
    from stale counts copied into this backlog.
+   2026-07-12 authority-boundary audit follow-up: before any real promotion,
+   choose the promotion-authority model for script/Makefile stage transitions
+   (gate-enforced, human-only, or artifact-backed) because the documented
+   `make promote-strategy` path reaches `deployment_stage.promote()` without
+   consuming the gate verdict. Also choose the canonical expectancy model for
+   fallback/no-history and retirement consumers; the primary paper-history path
+   is per-closed-trade, but the JSONL fallback and retirement checks still use
+   different denominator semantics. This is decision work, not part of the
+   strategy-selection runtime fix.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not

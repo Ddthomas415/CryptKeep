@@ -17755,6 +17755,65 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-12T15:31:47Z - Strategy-Selection Authority Boundary Option A
+
+Active role: ENGINEER
+
+Objective:
+- Apply the independently accepted Option A strategy-selection authority fix on
+  current master without taking the separate promotion-authority or canonical
+  expectancy decisions in the same branch.
+
+What was found:
+- SHOWN: the attached 7-commit audit stack was not directly applyable from
+  current master because only the final three patches were supplied and the
+  decision/test files from the earlier commits were absent locally.
+- SHOWN: current `services/execution/strategy_runner.py` still had two
+  `selected_strategy` fallback sites: the synthetic branch defaulted an empty
+  identity to `ema_cross`, and the public-OHLCV branch could use
+  `selection.get("selected_strategy")` or `ema_cross`.
+- SHOWN: `_cfg()` already preserves the accepted behavior that a missing
+  strategy name resolves to `ema_cross`, while an explicitly empty strategy name
+  yields `strategy_id == ""` and an unsupported strategy block.
+
+What changed:
+- `services/execution/strategy_runner.py` now resolves both `selected_strategy`
+  sites as `str(cfg.get("strategy_id") or "")`.
+- Added `docs/decisions/strategy_selection_authority_decision.md` documenting
+  Option A: selector/advisor output is advisory only and cannot become
+  execution authority through fallback.
+- Added targeted tests to `tests/test_strategy_runtime_runner.py` proving no
+  selected-strategy resolution site substitutes empty identity, explicit empty
+  identity flows to registry fail-closed, missing name still defaults to
+  `ema_cross`, and synthetic execution consumes the strategy block rather than
+  the reporting label.
+- Updated `REMAINING_TASKS.md` to track the two remaining audit decisions:
+  promotion-stage authority and canonical expectancy fallback/retirement
+  semantics.
+
+Why this change was chosen:
+- It closes the accepted selector/advisor authority leak with the smallest
+  runtime diff, while keeping the two unresolved policy decisions out of scope.
+
+Expected outcome:
+- Advisory strategy selection remains available for evidence context, but it
+  cannot execute a strategy when configured identity is explicitly invalid.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py`
+  - SHOWN: `39 passed in 0.82s`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_registry.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `53 passed in 0.82s`.
+- `./.venv/bin/python -m py_compile services/execution/strategy_runner.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: touches canonical strategy-selection runtime behavior. Human acceptance
+  was provided before implementation, but GitHub CI and independent review of
+  the final current-master branch are still required before merge.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-12T08:56:40Z - System Blueprint Invariants for Cost, PnL, and Expectancy Semantics
 
 Active role: ENGINEER
