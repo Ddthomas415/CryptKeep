@@ -29,6 +29,32 @@ def _write_evidence(ev_dir: Path, record_type: str, record: dict) -> None:
     getattr(logger, f"log_{record_type}")(**record)
 
 
+def _write_test_journal(path: Path, rows: list[tuple]) -> None:
+    con = sqlite3.connect(str(path))
+    try:
+        con.execute(
+            """
+            CREATE TABLE journal_fills (
+              fill_id TEXT PRIMARY KEY,
+              journal_ts TEXT NOT NULL,
+              order_id TEXT NOT NULL,
+              fill_ts TEXT NOT NULL,
+              venue TEXT NOT NULL,
+              symbol TEXT NOT NULL,
+              side TEXT NOT NULL,
+              qty REAL NOT NULL,
+              price REAL NOT NULL,
+              fee REAL NOT NULL,
+              fee_currency TEXT NOT NULL
+            )
+            """
+        )
+        con.executemany("INSERT INTO journal_fills VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
+        con.commit()
+    finally:
+        con.close()
+
+
 class TestGateOutput:
     def test_json_output_is_valid_and_complete(self, tmp_path):
         from scripts.check_promotion_gates import run_check
@@ -651,6 +677,161 @@ class TestGateLogic:
         assert result["qualification"]["unqualified_evidence_fills"] == 2
         assert result["qualification"]["unqualified_reason_counts"] == {
             "ohlcv_timeframe_mismatch": 2
+        }
+
+    def test_crypto_edge_context_round_trip_counts_with_fresh_matching_provenance(self, tmp_path):
+        from services.control.paper_evidence_qualification import qualify_paper_history
+
+        journal = tmp_path / "trade_journal.sqlite"
+        _write_test_journal(
+            journal,
+            [
+                (
+                    "fill-buy",
+                    "2026-07-12T02:00:00+00:00",
+                    "order-buy",
+                    "2026-07-12T02:00:00+00:00",
+                    "okx",
+                    "BTC/USDT",
+                    "buy",
+                    1.0,
+                    100.0,
+                    0.1,
+                    "USD",
+                ),
+                (
+                    "fill-sell",
+                    "2026-07-12T02:05:00+00:00",
+                    "order-sell",
+                    "2026-07-12T02:05:00+00:00",
+                    "okx",
+                    "BTC/USDT",
+                    "sell",
+                    1.0,
+                    110.0,
+                    0.1,
+                    "USD",
+                ),
+            ],
+        )
+        fills = [
+            {
+                "timestamp": f"2026-07-12T02:0{idx * 5}:00+00:00",
+                "side": side,
+                "size": 1.0,
+                "order_id": f"order-{side}",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+                "ohlcv_timeframe": "5m",
+                "ohlcv_venue": "okx",
+                "ohlcv_symbol": "BTC/USDT",
+                "strategy_context_ok": True,
+                "strategy_context_reason": "funding_context_ready",
+                "strategy_context_source": "live_public",
+                "strategy_context_symbol": "BTC/USDT:USDT",
+                "strategy_context_venue": "okx",
+                "strategy_context_capture_ts": "2026-07-12T01:55:00+00:00",
+                "strategy_context_snapshot_id": "funding-good",
+            }
+            for idx, side in enumerate(("buy", "sell"))
+        ]
+
+        result = qualify_paper_history(
+            evidence_fills=fills,
+            config={
+                "signal_source": "public_ohlcv_5m",
+                "strategy_context_source": "live_public",
+                "strategy_context_symbol": "BTC/USDT:USDT",
+                "strategy_context_venue": "okx",
+                "strategy_context_max_age_sec": 3600,
+                "strategy": {
+                    "name": "funding_extreme",
+                    "venue": "okx",
+                    "symbol": "BTC/USDT",
+                    "signal": {"timeframe": "5m"},
+                },
+            },
+            journal_path=str(journal),
+        )
+
+        assert result["closed_trades"] == 1
+        assert result["qualification"]["completed_evidence_round_trips"] == 1
+        assert result["qualification"]["unqualified_evidence_fills"] == 0
+        assert result["qualification"]["expected"]["context"] == {
+            "source": "live_public",
+            "symbol": "BTC/USDT:USDT",
+            "venue": "okx",
+            "max_age_sec": 3600.0,
+        }
+
+    def test_crypto_edge_context_round_trip_rejects_stale_or_mismatched_context(self, tmp_path):
+        from services.control.paper_evidence_qualification import qualify_paper_history
+
+        journal = tmp_path / "trade_journal.sqlite"
+        _write_test_journal(
+            journal,
+            [
+                (
+                    f"fill-{side}",
+                    f"2026-07-12T02:0{idx * 5}:00+00:00",
+                    f"order-{side}",
+                    f"2026-07-12T02:0{idx * 5}:00+00:00",
+                    "okx",
+                    "BTC/USDT",
+                    side,
+                    1.0,
+                    price,
+                    0.1,
+                    "USD",
+                )
+                for idx, (side, price) in enumerate((("buy", 100.0), ("sell", 110.0)))
+            ],
+        )
+        fills = [
+            {
+                "timestamp": f"2026-07-12T02:0{idx * 5}:00+00:00",
+                "side": side,
+                "size": 1.0,
+                "order_id": f"order-{side}",
+                "market_data_source": "public_ohlcv",
+                "ohlcv_sample_mode": False,
+                "ohlcv_timeframe": "5m",
+                "ohlcv_venue": "okx",
+                "ohlcv_symbol": "BTC/USDT",
+                "strategy_context_ok": True,
+                "strategy_context_reason": "funding_context_ready",
+                "strategy_context_source": "live_public",
+                "strategy_context_symbol": "ETH/USDT:USDT",
+                "strategy_context_venue": "okx",
+                "strategy_context_capture_ts": "2026-07-11T00:00:00+00:00",
+                "strategy_context_snapshot_id": "funding-stale-wrong",
+            }
+            for idx, side in enumerate(("buy", "sell"))
+        ]
+
+        result = qualify_paper_history(
+            evidence_fills=fills,
+            config={
+                "signal_source": "public_ohlcv_5m",
+                "strategy_context_source": "live_public",
+                "strategy_context_symbol": "BTC/USDT:USDT",
+                "strategy_context_venue": "okx",
+                "strategy_context_max_age_sec": 3600,
+                "strategy": {
+                    "name": "funding_extreme",
+                    "venue": "okx",
+                    "symbol": "BTC/USDT",
+                    "signal": {"timeframe": "5m"},
+                },
+            },
+            journal_path=str(journal),
+        )
+
+        assert result["closed_trades"] == 0
+        assert result["qualification"]["completed_evidence_round_trips"] == 0
+        assert result["qualification"]["unqualified_reason_counts"] == {
+            "strategy_context_stale": 2,
+            "strategy_context_symbol_mismatch": 2,
         }
 
     def test_paper_gate_does_not_bridge_across_unqualified_trade_legs(self, tmp_path):
