@@ -993,7 +993,9 @@ def run_forever() -> None:
 
                 signal = {"ok": True, "action": "hold", "reason": "no_signal"}
                 selection = {}
-                selected_strategy = str(cfg.get("strategy_id") or "ema_cross")
+                # Evidence label only. Empty means explicitly invalid identity;
+                # do not invent an executable/reporting fallback.
+                selected_strategy = str(cfg.get("strategy_id") or "")
 
                 k_prices = f"prices:{selected_venue}:{symbol}:{cfg['strategy_id']}"
                 k_last_action = f"last_action:{selected_venue}:{symbol}:{cfg['strategy_id']}"
@@ -1080,11 +1082,10 @@ def run_forever() -> None:
                         default_strategy=str(cfg.get("strategy_id") or "ema_cross"),
                         ohlcv=ohlcv[-int(cfg["min_bars"]):],
                     )
-                    selected_strategy = str(
-                        cfg.get("strategy_id")
-                        or selection.get("selected_strategy")
-                        or "ema_cross"
-                    )
+                    # Authority boundary: selector output is advisory, not an
+                    # executable fallback. Missing names already default in
+                    # _cfg(); empty here means explicitly invalid identity.
+                    selected_strategy = str(cfg.get("strategy_id") or "")
                     try:
                         raw_cfg = load_user_yaml(strict=True)
                     except ConfigLoadError as exc:
