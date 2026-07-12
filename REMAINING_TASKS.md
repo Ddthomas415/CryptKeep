@@ -654,7 +654,23 @@ deployment work still needs independent review.
     `expectancy_semantics_warning` on both JSONL and paper-history metric paths
     without changing expectancy pass/fail behavior. Remaining operational proof:
     verify host fee/slippage values and use the report fields to segment old
-    gross/unknown-semantics evidence.
+    gross/unknown-semantics evidence. 2026-07-12: implementation proof is ready
+    for independent review for the host cost-assumption validator.
+    `scripts/check_cost_assumptions.py` now reads `user.yaml` strictly and
+    reports the paper-fill, evidence-scoring, dormant `paper_fees`, and
+    backtest/walk-forward cost surfaces without mutating config or trading
+    state. It fails on explicit invalid/non-finite/negative paper fee/slippage
+    values, fails when modeled round-trip cost is below the declared
+    `CBP_MIN_PLAUSIBLE_ROUND_TRIP_BPS` policy floor, warns on code defaults,
+    zero modeled fee/slippage, dormant lookup ambiguity, and independently
+    sourced backtest costs. Audit-invariant tests pin the traced structural
+    claims so the report must be revised if `paper_fees` gains production
+    callers, backtests start reading `user.yaml`, or cost defaults drift.
+    Local laptop run returned `overall=warning`: paper engine uses code defaults
+    `7.5/5.0`, modeled round-trip is plausible at `25.0` bps, and
+    evidence/backtest defaults are separately sourced at `10.0/5.0`. Remaining
+    operational proof: run the validator on the Hetzner host and record/segment
+    evidence by the reported cost assumptions.
 29. Make market-quality guard defaults fail closed before shadow evidence is
     treated as cost/slippage proof. `services/risk/market_quality_guard.py`
     currently defaults to `block_when_unknown=false`, `require_bid_ask=false`,

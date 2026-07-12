@@ -63,7 +63,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 121 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 122 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -240,6 +240,10 @@ are not paper-campaign controls.
 - `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats (exit 0/1/2; `--alert` dispatches via the alert stack; driven by `packaging/systemd/cbp-dead-man.timer`).
 - `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort; schedulable by `packaging/systemd/cbp-edge-cadence.timer`).
 - `check_supply_chain.py` — pin integrity + environment match + optional pip-audit lane; `--evidence-dest` writes launch-packet provenance JSON (see `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
+- `check_cost_assumptions.py` — read-only paper fee/slippage cost-assumption
+  validator for the active `user.yaml`; reports paper-fill, evidence-scoring,
+  dormant lookup, and backtest cost surfaces without mutating config or trading
+  state.
 - `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.
