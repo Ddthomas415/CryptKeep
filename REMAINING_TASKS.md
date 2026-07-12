@@ -835,6 +835,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `journald`, bounded status commands, and external dead-man checks) over
    expanding custom supervisor code unless a repo-specific need is shown.
    Blocks server shadow quality and live.
+   2026-07-12: systemd deployment unit slice is ready for independent review.
+   `packaging/systemd/` now includes hardened units for collector, intent
+   consumer, reconciler, and dashboard, plus `cbp.env.example`. Units use
+   journald logging, `Restart=on-failure`, bounded start limits in `[Unit]`,
+   `NoNewPrivileges`, `ProtectSystem=strict`, and
+   `ReadWritePaths=/var/lib/cbp`. Authority boundary is explicit and tested:
+   unit/env files carry no `CBP_EXECUTION_ARMED` or live-enable token, and
+   `scripts/install_systemd_units.py` verifies that boundary in dry-run mode
+   before any install. `docs/DEPLOYMENT.md` documents host prerequisites,
+   per-unit enable policy, and keeps the intent-consumer enable decision as an
+   operator action. Docker-compose disposition and host-side installation
+   remain open.
 6. Add trading-loop metrics and dead-man alerting. Host health checks are not
    enough; each managed trading loop needs heartbeat metrics and alert-on-absence
    within a defined time window. Include a watchdog proof that each loop checks
@@ -981,6 +993,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     dependency vulnerability audit, record artifact hashes/provenance for the
     deployed SHA, and decide whether hash-locked installs or SBOMs become
     release gates.
+    2026-07-12: supply-chain verification tooling is ready for independent
+    review. `scripts/check_supply_chain.py` verifies exact-pin integrity,
+    installed environment drift against pinned requirements, optional
+    best-effort `pip-audit`, and `--evidence-dest` provenance JSON containing
+    Git SHA, dirty flag, requirement-file hashes, and verdicts. The policy doc
+    is updated; hash-locked installs, SBOMs, and CI-gate decisions remain
+    operator decisions.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
@@ -989,6 +1008,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     dashboard/CLI/system/automation coverage matrix, audit-log replay of at
     least one live-arm-to-halt drill, no-secret audit payload scan, and
     fail-closed behavior for critical audit-write failures.
+    2026-07-12: executable audit-coverage matrix tooling is ready for
+    independent review. `scripts/audit_coverage_matrix.py` classifies policy
+    families as SHOWN/PARTIAL/MISSING with store pointers and runtime probes,
+    supports JSON/Markdown/evidence output, and `--strict` fails unless all
+    families are SHOWN. Current honest verdict remains intentionally not-green:
+    the matrix shows no dedicated unified append-only operator event journal
+    yet, so replay drill, no-secret scan, and audit-write fail-closed behavior
+    remain open.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

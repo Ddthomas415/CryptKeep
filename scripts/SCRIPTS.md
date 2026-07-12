@@ -46,6 +46,7 @@ listed below.
 | `report_supervised_soak_status.py` | `make status-paper-soak` / `make status-paper-soak-json` | Read-only supervised paper-soak summary across configured campaigns and paper promotion gate status |
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
+| `install_systemd_units.py` | — | Verify and install systemd units from `packaging/systemd/` (dry-run by default; never arms live trading) |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
 | `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
@@ -62,7 +63,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 111 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 120 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers
@@ -230,8 +231,10 @@ are not paper-campaign controls.
 - `check_repo_alignment.py` — repo alignment guard.
 - `generate_release_notes.py` — release-notes generator.
 - `install.py` — install/setup helper.
+- `audit_coverage_matrix.py` — operator/action audit coverage matrix (SHOWN/PARTIAL/MISSING per policy family; `--strict` capped-live posture; see `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md`).
 - `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats (exit 0/1/2; `--alert` dispatches via the alert stack; driven by `packaging/systemd/cbp-dead-man.timer`).
 - `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort; schedulable by `packaging/systemd/cbp-edge-cadence.timer`).
+- `check_supply_chain.py` — pin integrity + environment match + optional pip-audit lane; `--evidence-dest` writes launch-packet provenance JSON (see `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
 - `set_hetzner_api_token.py` — interactively store/status/delete the Hetzner token in the OS keyring; never accepts a token argument.
 - `maintenance.py` — maintenance task runner.
 - `pre_release_sanity.py` — pre-release sanity checks.

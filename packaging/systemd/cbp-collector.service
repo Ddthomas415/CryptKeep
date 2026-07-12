@@ -1,0 +1,26 @@
+# CryptKeep market-data collector (loop mode).
+# Review User/WorkingDirectory/ExecStart paths before install.
+[Unit]
+Description=CryptKeep market data collector
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=exec
+User=cbp
+Group=cbp
+WorkingDirectory=/opt/crypto-bot-pro
+EnvironmentFile=/etc/cbp/cbp.env
+ExecStart=/opt/crypto-bot-pro/.venv/bin/python scripts/collect_market_data_multi.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/cbp
+
+[Install]
+WantedBy=multi-user.target

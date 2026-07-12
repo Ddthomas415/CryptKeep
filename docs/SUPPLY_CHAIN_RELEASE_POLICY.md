@@ -1,6 +1,6 @@
 # CryptKeep Supply-Chain and Release Verification Policy
 
-Status: `POLICY_DOCUMENTED`
+Status: `POLICY_DOCUMENTED` · Tooling: `scripts/check_supply_chain.py` (proof-ready)
 
 ## Purpose
 
@@ -18,6 +18,14 @@ SHOWN:
   outputs.
 - Signing/notarization is optional and gated by secrets; unsigned builds remain
   allowed for current paper/research operation.
+
+SHOWN (2026-07-10): `scripts/check_supply_chain.py` verifies exact-pin
+integrity (rejects ranges/unpinned/conflicting pins within and across the
+pinned files), verifies the installed environment matches pins, runs a
+best-effort `pip-audit` lane when requested (`--strict-audit` for the
+capped-live posture), and writes provenance evidence (git SHA + dirty
+flag, requirement-file sha256s, all verdicts) via `--evidence-dest` for
+the launch packet.
 
 UNVERIFIED:
 
