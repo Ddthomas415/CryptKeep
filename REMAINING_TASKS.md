@@ -324,6 +324,22 @@ deployment work still needs independent review.
     have baseline/verify check the same venue contract. The readiness helper
     uses bounded public-OHLCV retry attempts, and the OKX readiness command
     passed outside the sandbox with zero blockers.
+    2026-07-11/12: governed isolated `funding_extreme_default` Stage 0 proof
+    passed after seeding the challenger crypto-edge store from canonical
+    crypto-edge evidence and using the OKX OHLCV contract. SHOWN:
+    `make funding-stage0-verify FUNDING_STAGE0_ARGS="--venue okx"` returned
+    `status=passed`, `blocking_checks=0`, `expected_commit=f652f8321`,
+    completed session `2026-07-12T02:53:13.816650+00:00`,
+    reconciliation `pass`, `market_data_source=public_ohlcv`,
+    `ohlcv_sample_mode=false`, OHLCV `okx BTC/USDT 5m`,
+    `strategy_context_ok=true`, `strategy_context_reason=funding_context_ready`,
+    context `live_public okx BTC/USDT:USDT`, signal `hold/funding_neutral`,
+    canonical fill count unchanged at `176`, challenger fill count `0`.
+    Decision recorded in
+    `docs/strategies/funding_extreme_stage0_decision_2026-07-11.md`: Stage 0
+    wiring proof accepted, but no persistent campaign or promotion treatment
+    until archive-backed research and the high-risk crypto-edge qualification
+    extension are separately reviewed.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

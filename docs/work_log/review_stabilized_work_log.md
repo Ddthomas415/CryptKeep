@@ -17618,6 +17618,67 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-12T02:58:00Z - Funding Extreme Stage 0 Proof Accepted
+
+Active role: DIRECTOR
+
+Objective:
+- Record the governed isolated `funding_extreme_default` Stage 0 proof result
+  and convert it into a scoped next-step decision.
+
+What was found:
+- SHOWN: first OKX Stage 0 run completed but failed verification because the
+  isolated challenger `CBP_STATE_DIR` had an empty `crypto_edge_research.sqlite`;
+  the runner returned `missing_funding_context`.
+- SHOWN: seeding
+  `.cbp_state_challengers/funding_extreme_default/data/crypto_edge_research.sqlite`
+  from canonical `.cbp_state/data/crypto_edge_research.sqlite` let the
+  challenger state resolve OKX `BTC/USDT:USDT` funding context.
+- SHOWN: rerun completed one `funding_extreme` strategy window in 905 seconds,
+  with zero intents, zero fills, and zero closed trades.
+- SHOWN: `make funding-stage0-verify FUNDING_STAGE0_ARGS="--venue okx"`
+  returned `status=passed`, `blocking_checks=0`, `expected_commit=f652f8321`.
+
+What changed:
+- Added `docs/strategies/funding_extreme_stage0_decision_2026-07-11.md`.
+- Updated `REMAINING_TASKS.md` item 12 to mark the Stage 0 wiring proof as
+  accepted while keeping persistent campaign/promotion treatment blocked.
+
+Decision:
+- Accept the `funding_extreme_default` Stage 0 wiring proof.
+- Do not start a persistent campaign and do not treat the result as promotion
+  evidence.
+- Next work remains archive-backed research plus the separately reviewed
+  high-risk crypto-edge qualification extension.
+
+Verification:
+- `make funding-stage0-readiness FUNDING_STAGE0_ARGS="--venue okx"`
+  - SHOWN: `status=ready_for_operator_stage0`, `blocking_checks=0`.
+- `make funding-stage0-baseline FUNDING_STAGE0_ARGS="--venue okx"`
+  - SHOWN: baseline recorded with `expected_commit=f652f8321`.
+- Operator-run isolated proof command:
+  - SHOWN: completed at `2026-07-12T02:53:12.139430+00:00`,
+    `completed_strategies=1`, `signal_action=hold`, `enqueued_total=0`,
+    `fills_delta=0`, `closed_trades_delta=0`.
+- `make funding-stage0-verify FUNDING_STAGE0_ARGS="--venue okx"`
+  - SHOWN: `status=passed`, `blocking_checks=0`.
+- Verification artifact summary:
+  - SHOWN: completed session `2026-07-12T02:53:13.816650+00:00`,
+    reconciliation `pass`, OHLCV `okx BTC/USDT 5m`, public-OHLCV provenance,
+    `ohlcv_sample_mode=false`, `strategy_context_ok=true`,
+    `strategy_context_reason=funding_context_ready`,
+    context `live_public okx BTC/USDT:USDT`,
+    signal `signal_ok=true`, `signal_action=hold`,
+    `signal_reason=funding_neutral`, canonical count `176`, challenger count
+    `0`.
+
+Remaining risk:
+- LOW: docs-only strategy decision based on an accepted operator proof.
+- UNVERIFIED: profitability/expectancy remains unproven.
+- UNVERIFIED: crypto-edge provenance is not yet part of the paper gate
+  qualification logic.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T14:45:10Z - Funding Extreme Context Symbol Override Slice (Active Backlog #12)
 
 Active role: ENGINEER
