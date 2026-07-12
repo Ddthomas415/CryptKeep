@@ -1,6 +1,6 @@
 # CryptKeep Operator Action Audit Coverage
 
-Status: `POLICY_DOCUMENTED`
+Status: `POLICY_DOCUMENTED` · Matrix tooling: `scripts/audit_coverage_matrix.py` (proof-ready)
 
 ## Purpose
 
@@ -25,6 +25,22 @@ UNVERIFIED:
   reconciled into one coverage matrix.
 - No capped-live incident-review drill has replayed actions from the event
   trail.
+
+## Coverage Matrix Tooling
+
+`scripts/audit_coverage_matrix.py` (2026-07-10) turns this policy into
+executable launch-packet evidence: every family below is classified
+SHOWN/PARTIAL/MISSING with store pointers and runtime probes
+(`--json`, `--markdown`, `--evidence-dest` writes the packet artifact,
+`--strict` fails unless every family is SHOWN — the capped-live posture).
+`tests/test_operator_audit_coverage.py` parses the family list FROM this
+document so the matrix and policy cannot drift silently. Current honest
+verdict: SHOWN 0 · PARTIAL 4 · MISSING 7 — the arming state file and
+intent rows carry who/what/when pieces but lack append-only transition
+history; most families have no event writer at all. Closing those gaps
+(a unified operator event journal), the arm-to-halt replay drill, the
+no-secret payload scan, and audit-write fail-closed behavior remain open
+under the backlog item.
 
 ## Actions That Must Be Auditable
 

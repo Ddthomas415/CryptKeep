@@ -17755,6 +17755,68 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-12T07:40:38Z - Current-Base Stack Repair: Systemd, Supply Chain, Audit Matrix
+
+Active role: ENGINEER
+
+Objective:
+- Convert the agent-provided 8-patch stack into a current-base branch without
+  duplicating already-landed work or recording stale backlog claims.
+
+What was found:
+- SHOWN: PR #258 was independently accepted by the operator, checks were green,
+  and it was merged to `master` before this branch started.
+- SHOWN: current `master` already contained the stack's heartbeat/dead-man,
+  config fail-closed, backup/restore, and paper/gate alerting slices.
+- SHOWN: current `master` already contains the shadow
+  `shadow_would_be_fill` recorder in `services/execution/_executor_submit.py`
+  and tests in `tests/test_live_executor_shadow_and_trade_reconcile.py`; the
+  agent stack's patch #8 claim that the recorder was absent is stale and was
+  not applied.
+- SHOWN: the original patch #1 work-log hunk would have inserted a systemd
+  heading directly under an existing clock-sanity heading; the original patch
+  #7 work-log hunk used a combined active-role label, which violates the repo's
+  one-active-role rule.
+
+What changed:
+- Applied only the missing stack slices to current `master`: systemd
+  deployment units/install verifier, supply-chain verification tooling, and
+  operator/action audit coverage matrix tooling.
+- Added `docs/DEPLOYMENT.md`, `packaging/systemd/cbp-collector.service`,
+  `cbp-intent-consumer.service`, `cbp-reconciler.service`,
+  `cbp-dashboard.service`, and `cbp.env.example`.
+- Added `scripts/install_systemd_units.py`, `scripts/check_supply_chain.py`,
+  and `scripts/audit_coverage_matrix.py`, with their corresponding tests.
+- Updated existing policy docs and `scripts/SCRIPTS.md` on current anchors.
+- Updated `REMAINING_TASKS.md` for only the three missing slices. No stale #15
+  scope note was applied.
+
+Why this change was chosen:
+- It preserves the useful code from the agent stack while removing stale,
+  duplicate, and governance-invalid documentation from the old patch base.
+
+Expected outcome:
+- Operators get deployment-unit, supply-chain, and audit-coverage proof tooling
+  without reopening already-merged backlog items or recording false state about
+  the shadow recorder.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_systemd_units.py tests/test_supply_chain_check.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `23 passed in 0.71s`.
+- `./.venv/bin/python -m py_compile scripts/install_systemd_units.py scripts/check_supply_chain.py scripts/audit_coverage_matrix.py tests/test_systemd_units.py tests/test_supply_chain_check.py tests/test_operator_audit_coverage.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard tests `23 passed in 2.62s`.
+
+Remaining risk:
+- MEDIUM-HIGH: systemd/deployment tooling and release/audit evidence affect
+  launch posture but do not change live order routing or strategy decisions.
+- UNVERIFIED: host-side systemd installation, actual supply-chain audit
+  execution, and operator audit replay drill remain operator follow-through.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-12T03:14:34Z - Crypto-Edge Paper Qualification Extension (Active Backlog #13)
 
 Active role: ENGINEER

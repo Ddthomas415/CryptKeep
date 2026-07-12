@@ -1,0 +1,28 @@
+# CryptKeep live intent consumer (submit path).
+# NOTE: enabling this unit does NOT arm live trading. Arming flows only
+# through the live-enable ceremony; this unit must never carry
+# CBP_EXECUTION_ARMED or live-enable state.
+[Unit]
+Description=CryptKeep live intent consumer
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=exec
+User=cbp
+Group=cbp
+WorkingDirectory=/opt/crypto-bot-pro
+EnvironmentFile=/etc/cbp/cbp.env
+ExecStart=/opt/crypto-bot-pro/.venv/bin/python scripts/run_intent_consumer_safe.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/cbp
+
+[Install]
+WantedBy=multi-user.target
