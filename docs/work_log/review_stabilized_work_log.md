@@ -17755,6 +17755,66 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-12T03:14:34Z - Crypto-Edge Paper Qualification Extension (Active Backlog #13)
+
+Active role: ENGINEER
+
+Objective:
+- Extend the paper-history promotion qualification gate so crypto-edge/context
+  strategy fills must carry fresh, matching strategy-context provenance before
+  they can count toward promotion evidence.
+
+What was found:
+- SHOWN: `services/control/paper_evidence_qualification.py` was the shared
+  qualification seam used by the paper gate and paper qualification reporting.
+- SHOWN: the existing gate required only configured non-sample OHLCV
+  provenance (`market_data_source`, `ohlcv_*`, `ohlcv_sample_mode`) and did
+  not inspect `strategy_context_*` fields emitted by the `funding_extreme`
+  runner path.
+- SHOWN: `strategy_runner.py` already stamps `strategy_context_ok`,
+  `strategy_context_reason`, `strategy_context_source`,
+  `strategy_context_symbol`, `strategy_context_venue`,
+  `strategy_context_capture_ts`, and `strategy_context_snapshot_id` into
+  evidence metadata.
+
+What changed:
+- `services/control/paper_evidence_qualification.py` now adds an expected
+  context contract only for context strategies (`funding_extreme`,
+  `open_interest_shift`, `order_book_imbalance`) or configs that explicitly
+  define `strategy_context_*`.
+- Context-qualified fills must show ready context, expected source/symbol/venue,
+  a snapshot id, parseable capture timestamp, and freshness within configured
+  `strategy_context_max_age_sec` before they count.
+- Existing OHLCV-only qualification behavior is preserved because configs
+  without context strategies or context keys do not activate the context gate.
+- `tests/test_check_promotion_gates.py` now proves a fresh matching
+  `funding_extreme` round trip counts, while stale plus mismatched context is
+  rejected without completing a qualified round trip.
+
+Why this change was chosen:
+- It is the smallest high-risk gate change that prevents crypto-edge strategy
+  fills from being promoted on OHLCV provenance alone while keeping the existing
+  `es_daily_trend` paper-gate fixtures unchanged.
+
+Expected outcome:
+- Future context-strategy paper evidence must prove both its OHLCV source and
+  its crypto-edge context source before contributing to promotion round trips.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py`
+  - SHOWN: `47 passed in 0.75s`.
+- `./.venv/bin/python -m py_compile services/control/paper_evidence_qualification.py tests/test_check_promotion_gates.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m ruff check services/control/paper_evidence_qualification.py tests/test_check_promotion_gates.py`
+  - SHOWN: unavailable locally, `/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python: No module named ruff`.
+
+Remaining risk:
+- HIGH: this is promotion-gate behavior for financial strategy evidence.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- UNVERIFIED: no live execution/order/risk file was changed, but independent
+  review should verify the diff boundary before merge.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T21:45:00Z - Funding Extreme Stage 0 Readiness And Proof Helpers (Active Backlog #12)
 
 Active role: ENGINEER

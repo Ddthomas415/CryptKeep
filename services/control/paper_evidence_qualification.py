@@ -1,15 +1,27 @@
 from __future__ import annotations
 
+import math
 import sqlite3
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from services.analytics.journal_analytics import fifo_pnl_from_fills
 from services.os.app_paths import data_dir
+from services.strategies.crypto_edge_context import (
+    DEFAULT_CONTEXT_SOURCE,
+    DEFAULT_FUNDING_MAX_AGE_SEC,
+)
+
+_CONTEXT_STRATEGIES = {
+    "funding_extreme",
+    "open_interest_shift",
+    "order_book_imbalance",
+}
 
 
-def _expected_contract(config: dict[str, Any]) -> dict[str, str]:
+def _expected_contract(config: dict[str, Any]) -> dict[str, Any]:
     strategy = config.get("strategy") if isinstance(config.get("strategy"), dict) else {}
     signal = strategy.get("signal") if isinstance(strategy.get("signal"), dict) else {}
     timeframe = str(signal.get("timeframe") or "").strip().lower()
@@ -20,12 +32,98 @@ def _expected_contract(config: dict[str, Any]) -> dict[str, str]:
         if suffix and configured_source.endswith(suffix)
         else configured_source
     )
-    return {
+    expected: dict[str, Any] = {
         "market_data_source": source,
         "ohlcv_timeframe": timeframe,
         "ohlcv_venue": str(strategy.get("venue") or "").strip().lower(),
         "ohlcv_symbol": str(strategy.get("symbol") or "").strip().upper(),
     }
+    context = _expected_context_contract(config, strategy)
+    if context:
+        expected["context"] = context
+    return expected
+
+
+def _context_config_value(
+    config: dict[str, Any],
+    strategy: dict[str, Any],
+    key: str,
+    default: Any = "",
+) -> Any:
+    if key in config:
+        return config.get(key)
+    if key in strategy:
+        return strategy.get(key)
+    return default
+
+
+def _expected_context_contract(
+    config: dict[str, Any],
+    strategy: dict[str, Any],
+) -> dict[str, Any]:
+    strategy_name = str(strategy.get("name") or config.get("strategy_id") or "").strip().lower()
+    explicit_context_keys = {
+        "strategy_context_source",
+        "strategy_context_symbol",
+        "strategy_context_venue",
+        "strategy_context_max_age_sec",
+    }
+    requires_context = strategy_name in _CONTEXT_STRATEGIES or any(
+        key in config or key in strategy for key in explicit_context_keys
+    )
+    if not requires_context:
+        return {}
+
+    max_age = _positive_float(
+        _context_config_value(
+            config,
+            strategy,
+            "strategy_context_max_age_sec",
+            DEFAULT_FUNDING_MAX_AGE_SEC,
+        ),
+        default=DEFAULT_FUNDING_MAX_AGE_SEC,
+    )
+    return {
+        "source": str(
+            _context_config_value(
+                config,
+                strategy,
+                "strategy_context_source",
+                DEFAULT_CONTEXT_SOURCE,
+            )
+            or DEFAULT_CONTEXT_SOURCE
+        ).strip()
+        or DEFAULT_CONTEXT_SOURCE,
+        "symbol": str(
+            _context_config_value(
+                config,
+                strategy,
+                "strategy_context_symbol",
+                strategy.get("symbol") or "",
+            )
+            or ""
+        ).strip().upper(),
+        "venue": str(
+            _context_config_value(
+                config,
+                strategy,
+                "strategy_context_venue",
+                strategy.get("venue") or "",
+            )
+            or ""
+        ).strip().lower(),
+        "max_age_sec": max_age,
+    }
+
+
+def _positive_float(value: Any, *, default: float) -> float:
+    try:
+        out = float(value)
+    except Exception:
+        return float(default)
+    if not math.isfinite(out) or out <= 0.0:
+        return float(default)
+    return out
 
 
 def _explicit_non_sample(value: Any) -> bool:
@@ -42,7 +140,26 @@ def _record_date(fill: dict[str, Any]) -> str:
     return _record_ts(fill)[:10]
 
 
-def _fill_rejection_reasons(fill: dict[str, Any], expected: dict[str, str]) -> list[str]:
+def _parse_record_ts(value: Any) -> datetime | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except Exception:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _explicit_true(value: Any) -> bool:
+    if value is True or value == 1:
+        return True
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _fill_rejection_reasons(fill: dict[str, Any], expected: dict[str, Any]) -> list[str]:
     reasons: list[str] = []
     order_id = str(fill.get("order_id") or "").strip()
     if not order_id:
@@ -77,6 +194,62 @@ def _fill_rejection_reasons(fill: dict[str, Any], expected: dict[str, str]) -> l
     elif expected["ohlcv_symbol"] and symbol != expected["ohlcv_symbol"]:
         reasons.append("ohlcv_symbol_mismatch")
 
+    context_expected = expected.get("context")
+    if isinstance(context_expected, dict) and context_expected:
+        reasons.extend(_context_rejection_reasons(fill, context_expected))
+
+    return reasons
+
+
+def _context_rejection_reasons(fill: dict[str, Any], expected: dict[str, Any]) -> list[str]:
+    reasons: list[str] = []
+    if "strategy_context_ok" not in fill:
+        reasons.append("missing_strategy_context_ok")
+    elif not _explicit_true(fill.get("strategy_context_ok")):
+        reasons.append("strategy_context_not_ready")
+
+    reason = str(fill.get("strategy_context_reason") or "").strip()
+    if not reason:
+        reasons.append("missing_strategy_context_reason")
+    elif reason != "funding_context_ready":
+        reasons.append("strategy_context_not_ready")
+
+    source = str(fill.get("strategy_context_source") or "").strip()
+    if not source:
+        reasons.append("missing_strategy_context_source")
+    elif source != str(expected.get("source") or "").strip():
+        reasons.append("strategy_context_source_mismatch")
+
+    symbol = str(fill.get("strategy_context_symbol") or "").strip().upper()
+    if not symbol:
+        reasons.append("missing_strategy_context_symbol")
+    elif symbol != str(expected.get("symbol") or "").strip().upper():
+        reasons.append("strategy_context_symbol_mismatch")
+
+    venue = str(fill.get("strategy_context_venue") or "").strip().lower()
+    if not venue:
+        reasons.append("missing_strategy_context_venue")
+    elif venue != str(expected.get("venue") or "").strip().lower():
+        reasons.append("strategy_context_venue_mismatch")
+
+    if not str(fill.get("strategy_context_snapshot_id") or "").strip():
+        reasons.append("missing_strategy_context_snapshot_id")
+
+    capture_ts = _parse_record_ts(fill.get("strategy_context_capture_ts"))
+    if capture_ts is None:
+        reasons.append("missing_strategy_context_capture_ts")
+        return reasons
+
+    fill_ts = _parse_record_ts(_record_ts(fill))
+    if fill_ts is None:
+        reasons.append("invalid_fill_timestamp_for_context")
+        return reasons
+    age_sec = (fill_ts - capture_ts).total_seconds()
+    if age_sec < -60.0:
+        reasons.append("strategy_context_capture_after_fill")
+        return reasons
+    if age_sec > float(expected.get("max_age_sec") or DEFAULT_FUNDING_MAX_AGE_SEC):
+        reasons.append("strategy_context_stale")
     return reasons
 
 

@@ -347,6 +347,16 @@ deployment work still needs independent review.
     paper-only: deployment stage is paper, live intent/order tables are
     unchanged before/after, and the diff does not touch live execution or risk
     gates.
+    2026-07-12: crypto-edge paper qualification extension is ready for
+    independent review. The shared paper-history qualification service now
+    requires `strategy_context_*` provenance only for context strategies
+    (`funding_extreme`, `open_interest_shift`, `order_book_imbalance`) or
+    configs that explicitly declare `strategy_context_*`. Fresh matching
+    `funding_extreme` context counts toward qualified paper round trips;
+    stale or mismatched context is rejected with stable reasons while existing
+    OHLCV-only gate fixtures remain unchanged. Diff boundary is limited to
+    paper qualification tests/docs; no live execution or risk-gate files are
+    touched. Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 14. Start scheduled read-only crypto-edge collection from the accepted OKX
     source decision. Funding and open-interest history mostly accrue in real
     time, and Binance derivatives remain unavailable from the current network.
