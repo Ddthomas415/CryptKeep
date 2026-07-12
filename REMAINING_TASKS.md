@@ -132,6 +132,16 @@ deployment work still needs independent review.
    isolated candidate. 2026-07-06 check-in confirmed this remains the next
    runnable strategy-validation action; keep it isolated until Stage 0 proof
    passes, and do not start it as a persistent campaign first.
+   2026-07-11: post-fix isolated Stage 0 proof passed. Baseline was recorded
+   at commit `2953af16a`; the 15-minute proof completed after baseline with
+   zero blocking verifier checks, matched expected commit `2953af16a`, carried
+   public OHLCV provenance (`coinbase`, `BTC/USDT`, `5m`), preserved
+   `pullback_recovery_default` strategy attribution, reconciled successfully,
+   and left canonical paper fill count unchanged (`176` before and after).
+   The strategy held during the window (`pullback_out_of_range`,
+   `no_rebound_confirmation`) with no new fills. Remaining action: decide
+   whether to keep this as an isolated candidate, add it to the leaderboard /
+   default candidate set, or create a governed persistent campaign config.
 8. Keep composite/hybrid paper advancement blocked. The long-window variant
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
