@@ -55,7 +55,15 @@ def _check(name: str, ok: bool, detail: str, *, required: bool = True) -> dict[s
     }
 
 
-def _proof_argv(*, status: bool = False) -> list[str]:
+def _proof_argv(
+    *,
+    status: bool = False,
+    symbol: str = SYMBOL,
+    venue: str = VENUE,
+    signal_source: str = SIGNAL_SOURCE,
+    context_symbol: str = CONTEXT_SYMBOL,
+    context_venue: str = CONTEXT_VENUE,
+) -> list[str]:
     argv = ["./.venv/bin/python", "scripts/run_paper_strategy_evidence_collector.py"]
     if status:
         return [*argv, "--status"]
@@ -66,15 +74,15 @@ def _proof_argv(*, status: bool = False) -> list[str]:
         "--session-strategy-id",
         SESSION_STRATEGY_ID,
         "--symbol",
-        SYMBOL,
+        symbol,
         "--venue",
-        VENUE,
+        venue,
         "--signal-source",
-        SIGNAL_SOURCE,
+        signal_source,
         "--strategy-context-symbol",
-        CONTEXT_SYMBOL,
+        context_symbol,
         "--strategy-context-venue",
-        CONTEXT_VENUE,
+        context_venue,
         "--runtime-sec",
         str(RUNTIME_SEC),
         "--strategy-drain-sec",
@@ -128,9 +136,14 @@ def _manifest_rows(*, root: Path, manifests: dict[str, Path]) -> tuple[list[dict
     return rows, errors
 
 
-def _campaign_conflicts(rows: list[dict[str, Any]]) -> list[dict[str, str]]:
+def _campaign_conflicts(
+    rows: list[dict[str, Any]],
+    *,
+    symbol: str = SYMBOL,
+    venue: str = VENUE,
+) -> list[dict[str, str]]:
     conflicts: list[dict[str, str]] = []
-    planned_owner = (STRATEGY, SESSION_STRATEGY_ID, SYMBOL.upper(), VENUE.lower())
+    planned_owner = (STRATEGY, SESSION_STRATEGY_ID, str(symbol or "").upper(), str(venue or "").lower())
     for row in rows:
         row_owner = (
             str(row.get("strategy") or ""),
@@ -170,8 +183,20 @@ def build_funding_stage0_readiness(
     laptop_manifest: Path = DEFAULT_LAPTOP_MANIFEST,
     hetzner_manifest: Path = DEFAULT_HETZNER_MANIFEST,
     run_ohlcv_preflight: bool = True,
+    symbol: str = SYMBOL,
+    venue: str = VENUE,
+    signal_source: str = SIGNAL_SOURCE,
+    context_symbol: str = CONTEXT_SYMBOL,
+    context_venue: str = CONTEXT_VENUE,
+    context_source: str = CONTEXT_SOURCE,
 ) -> dict[str, Any]:
     root = (repo_root or code_root()).resolve()
+    symbol = str(symbol or SYMBOL).strip() or SYMBOL
+    venue = str(venue or VENUE).strip() or VENUE
+    signal_source = str(signal_source or SIGNAL_SOURCE).strip() or SIGNAL_SOURCE
+    context_symbol = str(context_symbol or CONTEXT_SYMBOL).strip() or CONTEXT_SYMBOL
+    context_venue = str(context_venue or CONTEXT_VENUE).strip() or CONTEXT_VENUE
+    context_source = str(context_source or CONTEXT_SOURCE).strip() or CONTEXT_SOURCE
     state_dir = (root / STATE_DIR_REL).resolve()
     canonical_state_dir = (root / ".cbp_state").resolve()
     manifests = {
@@ -180,25 +205,32 @@ def build_funding_stage0_readiness(
     }
     configured, validation = apply_preset_and_validate({}, SESSION_STRATEGY_ID)
     manifest_rows, manifest_errors = _manifest_rows(root=root, manifests=manifests)
-    conflicts = _campaign_conflicts(manifest_rows)
+    conflicts = _campaign_conflicts(manifest_rows, symbol=symbol, venue=venue)
     collector_ok, collector_detail = _collector_explicit_session_id_ok()
-    proof_argv = _proof_argv()
+    proof_argv = _proof_argv(
+        symbol=symbol,
+        venue=venue,
+        signal_source=signal_source,
+        context_symbol=context_symbol,
+        context_venue=context_venue,
+    )
     status_argv = _proof_argv(status=True)
     ohlcv = (
         check_ohlcv_reachable(
-            venue=VENUE,
-            symbol=SYMBOL,
-            signal_source=SIGNAL_SOURCE,
+            venue=venue,
+            symbol=symbol,
+            signal_source=signal_source,
             probe_limit=5,
+            attempts=3,
         )
         if run_ohlcv_preflight
         else {"ok": True, "status": "skipped", "reason": "run_ohlcv_preflight=false"}
     )
     edge_cadence = check_edge_cadence()
     funding_context = funding_context_from_crypto_edge_store(
-        symbol=CONTEXT_SYMBOL,
-        venue=CONTEXT_VENUE,
-        source=CONTEXT_SOURCE,
+        symbol=context_symbol,
+        venue=context_venue,
+        source=context_source,
     )
 
     checks = [
@@ -253,12 +285,12 @@ def build_funding_stage0_readiness(
         "read_only": True,
         "strategy": STRATEGY,
         "session_strategy_id": SESSION_STRATEGY_ID,
-        "symbol": SYMBOL,
-        "venue": VENUE,
-        "signal_source": SIGNAL_SOURCE,
-        "strategy_context_symbol": CONTEXT_SYMBOL,
-        "strategy_context_venue": CONTEXT_VENUE,
-        "strategy_context_source": CONTEXT_SOURCE,
+        "symbol": symbol,
+        "venue": venue,
+        "signal_source": signal_source,
+        "strategy_context_symbol": context_symbol,
+        "strategy_context_venue": context_venue,
+        "strategy_context_source": context_source,
         "runtime_sec": RUNTIME_SEC,
         "strategy_drain_sec": STRATEGY_DRAIN_SEC,
         "state_dir": STATE_DIR_REL,

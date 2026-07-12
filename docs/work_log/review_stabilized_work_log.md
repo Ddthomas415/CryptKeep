@@ -17549,6 +17549,75 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-11T22:05:00Z - Funding Extreme Stage 0 Configurable OHLCV Source (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Make the `funding_extreme` Stage 0 readiness/baseline/verify helper accept an
+  explicit OHLCV venue/symbol contract so the proof can run on a stable public
+  OHLCV source when Coinbase metadata reachability is the blocker.
+
+What was found:
+- SHOWN: after PR #255 merged, `make funding-stage0-readiness` blocked on
+  `public_ohlcv_reachable` with
+  `NetworkError: coinbase GET https://api.coinbase.com/v2/currencies`.
+- SHOWN: `./.venv/bin/python scripts/check_ohlcv_preflight.py --venue okx --symbol BTC/USDT --signal-source public_ohlcv_5m --json`
+  passed with 5 public OHLCV rows.
+- SHOWN: `./.venv/bin/python scripts/check_edge_cadence.py --json` reported
+  fresh funding/open-interest/basis cadence.
+
+What changed:
+- `scripts/check_funding_stage0_readiness.py` now accepts explicit
+  `--venue`, `--symbol`, `--signal-source`, `--strategy-context-symbol`,
+  `--strategy-context-venue`, and `--strategy-context-source` overrides.
+- `scripts/verify_funding_stage0_proof.py` records the expected runtime/context
+  contract in the baseline and uses that same contract during verification.
+- `services/execution/ohlcv_preflight.py` now supports bounded retry attempts
+  for network/source failures only. Config errors and reachable-empty sources
+  still fail immediately.
+- Make targets now accept `FUNDING_STAGE0_ARGS`, for example:
+  `make funding-stage0-readiness FUNDING_STAGE0_ARGS="--venue okx"`.
+- Tests pin that readiness probes the requested OHLCV venue while preserving OKX
+  funding context, and that verification honors an OKX OHLCV venue recorded in
+  the baseline.
+
+Why this change was chosen:
+- The core proof should validate the source actually used by the operator-run
+  Stage 0 campaign. Hardcoding Coinbase would keep the workflow blocked by a
+  host-specific metadata failure even when an alternate public source is
+  reachable and explicitly chosen.
+
+Expected outcome:
+- Operators can run the `funding_extreme` Stage 0 proof with either the default
+  Coinbase OHLCV contract or an explicit OKX OHLCV contract, and the verifier
+  will check the same contract recorded at baseline time.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_stage0_readiness.py tests/test_funding_stage0_proof_verifier.py`
+  - SHOWN: superseded by broader targeted run below.
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_preflight.py tests/test_funding_stage0_readiness.py tests/test_funding_stage0_proof_verifier.py`
+  - SHOWN: `25 passed in 0.35s`.
+- `./.venv/bin/python -m py_compile services/execution/ohlcv_preflight.py services/analytics/funding_stage0_readiness.py services/analytics/funding_stage0_proof_verifier.py scripts/check_ohlcv_preflight.py scripts/check_funding_stage0_readiness.py scripts/verify_funding_stage0_proof.py`
+  - SHOWN: passed with no output.
+- `make funding-stage0-readiness FUNDING_STAGE0_ARGS="--venue okx"`
+  - SHOWN: inside sandbox, failed closed after three OKX metadata failures.
+- `make funding-stage0-readiness FUNDING_STAGE0_ARGS="--venue okx"` outside
+  sandbox
+  - SHOWN: exit code `0`; `status=ready_for_operator_stage0`,
+    `blocking_checks=0`, and the printed one-shot proof command uses
+    `--venue okx`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: this changes operator proof workflow and verification expectations,
+  but does not alter strategy decisions, gates, order routing, or live
+  execution.
+- UNVERIFIED: actual 15-minute `funding_extreme` Stage 0 campaign not run.
+- UNVERIFIED: full suite and GitHub CI were not run.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T14:45:10Z - Funding Extreme Context Symbol Override Slice (Active Backlog #12)
 
 Active role: ENGINEER

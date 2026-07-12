@@ -315,6 +315,15 @@ deployment work still needs independent review.
     post-baseline session consumed public OHLCV plus funding context while
     leaving canonical fill counts unchanged. This is tooling only; it does not
     complete item #12 until the operator-run Stage 0 campaign passes.
+    2026-07-11 follow-up: default Coinbase OHLCV readiness blocked on
+    `NetworkError: coinbase GET https://api.coinbase.com/v2/currencies`, while
+    `scripts/check_ohlcv_preflight.py --venue okx --symbol BTC/USDT
+    --signal-source public_ohlcv_5m --json` passed with 5 rows. A configurable
+    OHLCV proof-source slice is ready for independent review so operators can
+    run `make funding-stage0-readiness FUNDING_STAGE0_ARGS="--venue okx"` and
+    have baseline/verify check the same venue contract. The readiness helper
+    uses bounded public-OHLCV retry attempts, and the OKX readiness command
+    passed outside the sandbox with zero blockers.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
