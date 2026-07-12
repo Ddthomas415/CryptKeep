@@ -23,6 +23,23 @@ UNVERIFIED:
 - No venue fee-tier comparison is a promotion gate.
 - No limit-fill probability model has been validated from stored shadow data.
 
+## Current Tooling
+
+`scripts/report_execution_cost_stack.py` is the research-only report consumer
+for stored `shadow_would_be_fill` records. It is read-only, excludes normal
+paper fills, and writes no trading, routing, or campaign state.
+
+Current boundary:
+
+- taker cost is computed from modeled shadow fill price, reference mid, and
+  recorded fee bps;
+- maker-side output is quote-only unless records also include
+  `subsequent_price_path`;
+- without enough stored subsequent-path records, the recommendation must remain
+  `research_more`;
+- `candidate_execution_policy_change` is possible only from path-backed shadow
+  records and still requires separate high-risk execution-policy review.
+
 ## Research Data Required
 
 The research report must be reproducible from stored records containing:
@@ -55,4 +72,3 @@ Gap closure requires one accepted report showing:
 - source data hash or artifact path;
 - explicit recommendation: `no_change`, `research_more`, or
   `candidate_execution_policy_change`.
-
