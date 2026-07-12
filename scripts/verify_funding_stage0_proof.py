@@ -25,17 +25,37 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--record-baseline", action="store_true", help="record canonical/challenger counts before the 15-minute Stage 0 proof")
     parser.add_argument("--baseline-path", default="", help="optional baseline JSON path override")
     parser.add_argument("--expected-commit", default="", help="expected short commit; defaults to current HEAD or baseline")
+    parser.add_argument("--symbol", default="", help="OHLCV/tick symbol used by the Stage 0 paper run")
+    parser.add_argument("--venue", default="", help="OHLCV/tick venue used by the Stage 0 paper run")
+    parser.add_argument("--signal-source", default="", help="signal source used by the Stage 0 paper run")
+    parser.add_argument("--strategy-context-symbol", default="", help="funding context symbol used by the Stage 0 paper run")
+    parser.add_argument("--strategy-context-venue", default="", help="funding context venue used by the Stage 0 paper run")
+    parser.add_argument("--strategy-context-source", default="", help="funding context source used by the Stage 0 paper run")
     parser.add_argument("--json", action="store_true", help="print JSON and do not write artifacts")
     args = parser.parse_args(argv)
 
     if args.record_baseline:
-        report = build_funding_stage0_baseline(expected_commit=args.expected_commit)
+        report = build_funding_stage0_baseline(
+            expected_commit=args.expected_commit,
+            symbol=args.symbol,
+            venue=args.venue,
+            signal_source=args.signal_source,
+            context_symbol=args.strategy_context_symbol,
+            context_venue=args.strategy_context_venue,
+            context_source=args.strategy_context_source,
+        )
         if not args.json:
             report["artifact_paths"] = write_funding_stage0_baseline(report)
     else:
         report = build_funding_stage0_verification(
             baseline_path=Path(args.baseline_path) if args.baseline_path else None,
             expected_commit=args.expected_commit,
+            symbol=args.symbol,
+            venue=args.venue,
+            signal_source=args.signal_source,
+            context_symbol=args.strategy_context_symbol,
+            context_venue=args.strategy_context_venue,
+            context_source=args.strategy_context_source,
         )
         if not args.json:
             report["artifact_paths"] = write_funding_stage0_verification(report)

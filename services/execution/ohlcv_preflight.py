@@ -6,6 +6,7 @@ public-OHLCV fetch path but never writes snapshots, evidence, or state.
 """
 from __future__ import annotations
 
+import time
 from typing import Any
 
 
@@ -38,6 +39,8 @@ def check_ohlcv_reachable(
     symbol: str,
     signal_source: str,
     probe_limit: int = 5,
+    attempts: int = 1,
+    attempt_delay_sec: float = 0.0,
 ) -> dict[str, Any]:
     """Probe whether a config can fetch public OHLCV.
 
@@ -53,6 +56,14 @@ def check_ohlcv_reachable(
         limit_i = int(probe_limit)
     except Exception:
         limit_i = 0
+    try:
+        attempts_i = max(1, int(attempts))
+    except Exception:
+        attempts_i = 1
+    try:
+        delay = max(0.0, float(attempt_delay_sec))
+    except Exception:
+        delay = 0.0
 
     if not venue_s:
         return _config_error("missing venue", venue=venue_s, symbol=symbol_s, signal_source=signal_source_s, probe_limit=limit_i)
@@ -71,6 +82,8 @@ def check_ohlcv_reachable(
         "signal_source": signal_source_s,
         "timeframe": timeframe,
         "probe_limit": limit_i,
+        "attempts": attempts_i,
+        "errors": [],
         "row_count": 0,
         "error": None,
     }
@@ -81,11 +94,20 @@ def check_ohlcv_reachable(
         )
         return result
 
-    ex = None
     try:
         from services.market_data.symbol_router import map_symbol, normalize_symbol
         from services.security.exchange_factory import make_exchange
+    except Exception as exc:
+        result.update(
+            status="invalid_preflight_config",
+            reason="preflight import failed",
+            error=f"{type(exc).__name__}: {exc}",
+        )
+        return result
 
+    mapped_symbol = map_symbol(venue_s, normalize_symbol(symbol_s))
+    for attempt in range(1, attempts_i + 1):
+        ex = None
         try:
             ex = make_exchange(venue_s, {"apiKey": None, "secret": None}, enable_rate_limit=True)
         except AttributeError as exc:
@@ -95,26 +117,32 @@ def check_ohlcv_reachable(
                 error=f"{type(exc).__name__}: {exc}",
             )
             return result
-        mapped_symbol = map_symbol(venue_s, normalize_symbol(symbol_s))
-        rows = ex.fetch_ohlcv(mapped_symbol, timeframe=timeframe, limit=limit_i)
-        clean_rows = [row for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
-        result["row_count"] = len(clean_rows)
-        if clean_rows:
-            result.update(ok=True, status="ok", reason="public_ohlcv_reachable")
-        else:
-            result.update(status="ohlcv_source_empty", reason="fetch returned no usable rows")
-    except Exception as exc:
-        result.update(
-            status="ohlcv_source_unreachable",
-            reason="public ohlcv fetch failed",
-            error=f"{type(exc).__name__}: {exc}",
-        )
-    finally:
         try:
-            if ex is not None and hasattr(ex, "close"):
-                ex.close()
-        except Exception:
-            pass
+            rows = ex.fetch_ohlcv(mapped_symbol, timeframe=timeframe, limit=limit_i)
+            clean_rows = [row for row in list(rows or []) if isinstance(row, (list, tuple)) and len(row) >= 6]
+            result["row_count"] = len(clean_rows)
+            result["attempts_used"] = attempt
+            if clean_rows:
+                result.update(ok=True, status="ok", reason="public_ohlcv_reachable", error=None)
+            else:
+                result.update(status="ohlcv_source_empty", reason="fetch returned no usable rows")
+            return result
+        except Exception as exc:
+            err = f"{type(exc).__name__}: {exc}"
+            result["error"] = err
+            result["attempts_used"] = attempt
+            errors = list(result.get("errors") or [])
+            errors.append(err)
+            result["errors"] = errors
+            result.update(status="ohlcv_source_unreachable", reason="public ohlcv fetch failed")
+            if attempt < attempts_i and delay > 0.0:
+                time.sleep(delay)
+        finally:
+            try:
+                if ex is not None and hasattr(ex, "close"):
+                    ex.close()
+            except Exception:
+                pass
     return result
 
 

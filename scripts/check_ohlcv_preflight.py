@@ -23,6 +23,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--symbol", required=True)
     parser.add_argument("--signal-source", required=True, help="Expected form: public_ohlcv_<timeframe>")
     parser.add_argument("--probe-limit", type=int, default=5)
+    parser.add_argument("--attempts", type=int, default=1, help="retry count for network/source failures")
+    parser.add_argument("--attempt-delay-sec", type=float, default=0.0, help="optional delay between retry attempts")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
@@ -31,6 +33,8 @@ def main(argv: list[str] | None = None) -> int:
         symbol=args.symbol,
         signal_source=args.signal_source,
         probe_limit=args.probe_limit,
+        attempts=args.attempts,
+        attempt_delay_sec=args.attempt_delay_sec,
     )
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))

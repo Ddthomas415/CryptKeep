@@ -23,6 +23,17 @@ class _FakeExchange:
         self.closed = True
 
 
+class _SequenceFactory:
+    def __init__(self, exchanges):
+        self.exchanges = list(exchanges)
+        self.created = []
+
+    def __call__(self, *args, **kwargs):
+        ex = self.exchanges.pop(0)
+        self.created.append(ex)
+        return ex
+
+
 def _rows(count: int) -> list[list[float]]:
     return [[1_700_000_000_000 + idx * 60_000, 100, 101, 99, 100.5, 10] for idx in range(count)]
 
@@ -68,6 +79,31 @@ def test_unreachable_source_is_flagged_not_raised(monkeypatch: pytest.MonkeyPatc
     assert result["status"] == "ohlcv_source_unreachable"
     assert "ConnectionError" in str(result["error"])
     assert exchange.closed is True
+
+
+def test_transient_unreachable_source_retries_then_passes(monkeypatch: pytest.MonkeyPatch) -> None:
+    import services.market_data.symbol_router as symbol_router
+    import services.security.exchange_factory as exchange_factory
+
+    first = _FakeExchange(error=ConnectionError("dns failure"))
+    second = _FakeExchange(rows=_rows(2))
+    factory = _SequenceFactory([first, second])
+    monkeypatch.setattr(exchange_factory, "make_exchange", factory)
+    monkeypatch.setattr(symbol_router, "normalize_symbol", lambda symbol: str(symbol).upper())
+    monkeypatch.setattr(symbol_router, "map_symbol", lambda venue, symbol: f"{venue}:{symbol}")
+
+    result = preflight.check_ohlcv_reachable(
+        venue="okx",
+        symbol="BTC/USDT",
+        signal_source="public_ohlcv_5m",
+        attempts=2,
+    )
+
+    assert result["ok"] is True
+    assert result["attempts_used"] == 2
+    assert result["errors"] == ["ConnectionError: dns failure"]
+    assert first.closed is True
+    assert second.closed is True
 
 
 def test_reachable_but_empty_is_distinct(monkeypatch: pytest.MonkeyPatch) -> None:

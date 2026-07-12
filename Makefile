@@ -341,14 +341,15 @@ pullback-stage0-verify:
 	$(PYTHON) scripts/verify_pullback_stage0_proof.py
 
 # Funding Extreme Stage 0 proof helpers (read-only; they do not run the 15-minute proof)
+FUNDING_STAGE0_ARGS ?=
 funding-stage0-readiness:
-	$(PYTHON) scripts/check_funding_stage0_readiness.py
+	$(PYTHON) scripts/check_funding_stage0_readiness.py $(FUNDING_STAGE0_ARGS)
 
 funding-stage0-baseline:
-	$(PYTHON) scripts/verify_funding_stage0_proof.py --record-baseline
+	$(PYTHON) scripts/verify_funding_stage0_proof.py --record-baseline $(FUNDING_STAGE0_ARGS)
 
 funding-stage0-verify:
-	$(PYTHON) scripts/verify_funding_stage0_proof.py
+	$(PYTHON) scripts/verify_funding_stage0_proof.py $(FUNDING_STAGE0_ARGS)
 
 # Live reconciliation (shadow/live stages)
 live-reconcile:

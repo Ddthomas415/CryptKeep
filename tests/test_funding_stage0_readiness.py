@@ -87,6 +87,55 @@ def test_funding_stage0_readiness_blocks_unreachable_ohlcv(monkeypatch, tmp_path
     assert any(check["name"] == "public_ohlcv_reachable" for check in report["blocking_checks"])
 
 
+def test_funding_stage0_readiness_accepts_ohlcv_overrides(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(readiness, "code_root", lambda: tmp_path)
+    monkeypatch.setattr(readiness, "supported_strategies", lambda: {readiness.STRATEGY})
+    monkeypatch.setattr(readiness, "REGISTRY_SUPPORTED", {readiness.STRATEGY: object()})
+    monkeypatch.setattr(
+        readiness,
+        "apply_preset_and_validate",
+        lambda _cfg, preset: ({"strategy": {"name": readiness.STRATEGY}}, {"ok": True}),
+    )
+    monkeypatch.setattr(readiness, "PRESETS", {readiness.SESSION_STRATEGY_ID: {}})
+    monkeypatch.setattr(readiness, "load_campaign_specs", lambda *args, **kwargs: [])
+    seen = {}
+
+    def fake_ohlcv(**kwargs):
+        seen["ohlcv"] = kwargs
+        return {"ok": True, "status": "ok"}
+
+    def fake_context(**kwargs):
+        seen["context"] = kwargs
+        return {"ok": True, "reason": "funding_context_ready"}
+
+    monkeypatch.setattr(
+        readiness,
+        "check_ohlcv_reachable",
+        fake_ohlcv,
+    )
+    monkeypatch.setattr(readiness, "check_edge_cadence", lambda: {"ok": True})
+    monkeypatch.setattr(
+        readiness,
+        "funding_context_from_crypto_edge_store",
+        fake_context,
+    )
+    (tmp_path / "services" / "strategies").mkdir(parents=True)
+    (tmp_path / "services" / "strategies" / "funding_extreme.py").write_text("# ok\n", encoding="utf-8")
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "run_paper_strategy_evidence_collector.py").write_text("# ok\n", encoding="utf-8")
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "paper_evidence_campaigns.laptop.json").write_text("[]", encoding="utf-8")
+    (tmp_path / "configs" / "paper_evidence_campaigns.hetzner.example.json").write_text("[]", encoding="utf-8")
+
+    report = readiness.build_funding_stage0_readiness(repo_root=tmp_path, venue="okx", symbol="BTC/USDT")
+
+    assert report["ready"] is True
+    assert report["venue"] == "okx"
+    assert seen["ohlcv"]["venue"] == "okx"
+    assert "--venue okx" in report["proof_command"]["shell"]
+    assert seen["context"]["venue"] == readiness.CONTEXT_VENUE
+
+
 def test_write_funding_stage0_readiness_only_writes_report_artifacts(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(readiness, "data_dir", lambda: tmp_path)
     report = {

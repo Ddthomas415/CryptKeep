@@ -177,7 +177,9 @@ decision makes them authoritative.
   `make funding-stage0-readiness`. Verifies the known preconditions
   (public-OHLCV reachability, crypto-edge cadence, and fresh OKX funding
   context) and prints the 15-minute operator-run proof command without starting
-  the collector.
+  the collector. Use `FUNDING_STAGE0_ARGS="--venue okx"` when Coinbase
+  public-OHLCV reachability is the blocker and OKX public OHLCV is the intended
+  proof source.
 - `check_short_context_readiness.py` — read-only short/context data readiness
   check over stored crypto-edge evidence; use
   `make check-short-context-readiness`. It does not contact exchanges or enable
@@ -215,7 +217,9 @@ decision makes them authoritative.
   baseline/verifier; use `make funding-stage0-baseline` immediately before the
   15-minute proof, then `make funding-stage0-verify` after the proof to verify
   public-OHLCV provenance, fresh funding-context consumption, post-baseline
-  completion, expected commit, and canonical fill-count isolation.
+  completion, expected commit, and canonical fill-count isolation. Pass the
+  same `FUNDING_STAGE0_ARGS` to baseline and verify if the proof uses a
+  non-default OHLCV venue/symbol.
 
 ### Validation, Alignment, Release, And Maintenance
 

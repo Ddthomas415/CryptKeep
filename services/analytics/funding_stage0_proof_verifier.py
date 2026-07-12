@@ -146,11 +146,78 @@ def _latest_completed_after(rows: list[dict[str, Any]], *, baseline_ts: datetime
     return dict(candidates[-1]) if candidates else {}
 
 
-def build_funding_stage0_baseline(*, repo_root: Path | None = None, expected_commit: str = "") -> dict[str, Any]:
+def _default_contract() -> dict[str, str]:
+    return {
+        "symbol": SYMBOL,
+        "venue": VENUE,
+        "signal_source": SIGNAL_SOURCE,
+        "strategy_context_symbol": CONTEXT_SYMBOL,
+        "strategy_context_venue": CONTEXT_VENUE,
+        "strategy_context_source": CONTEXT_SOURCE,
+    }
+
+
+def _contract_from_args(
+    *,
+    symbol: str = "",
+    venue: str = "",
+    signal_source: str = "",
+    context_symbol: str = "",
+    context_venue: str = "",
+    context_source: str = "",
+) -> dict[str, str]:
+    contract = _default_contract()
+    if str(symbol or "").strip():
+        contract["symbol"] = str(symbol).strip()
+    if str(venue or "").strip():
+        contract["venue"] = str(venue).strip()
+    if str(signal_source or "").strip():
+        contract["signal_source"] = str(signal_source).strip()
+    if str(context_symbol or "").strip():
+        contract["strategy_context_symbol"] = str(context_symbol).strip()
+    if str(context_venue or "").strip():
+        contract["strategy_context_venue"] = str(context_venue).strip()
+    if str(context_source or "").strip():
+        contract["strategy_context_source"] = str(context_source).strip()
+    return contract
+
+
+def _contract_from_baseline(base: dict[str, Any], *, overrides: dict[str, str] | None = None) -> dict[str, str]:
+    contract = _default_contract()
+    stored = base.get("expected_contract") if isinstance(base, dict) else None
+    if isinstance(stored, dict):
+        for key in contract:
+            if str(stored.get(key) or "").strip():
+                contract[key] = str(stored[key]).strip()
+    for key, value in dict(overrides or {}).items():
+        if key in contract and str(value or "").strip():
+            contract[key] = str(value).strip()
+    return contract
+
+
+def build_funding_stage0_baseline(
+    *,
+    repo_root: Path | None = None,
+    expected_commit: str = "",
+    symbol: str = SYMBOL,
+    venue: str = VENUE,
+    signal_source: str = SIGNAL_SOURCE,
+    context_symbol: str = CONTEXT_SYMBOL,
+    context_venue: str = CONTEXT_VENUE,
+    context_source: str = CONTEXT_SOURCE,
+) -> dict[str, Any]:
     root = (repo_root or code_root()).resolve()
     paths = _state_paths(root)
     expected = str(expected_commit or "").strip() or _git_short(root)
     canonical_journal = root / ".cbp_state" / "data" / "trade_journal.sqlite"
+    expected_contract = _contract_from_args(
+        symbol=symbol,
+        venue=venue,
+        signal_source=signal_source,
+        context_symbol=context_symbol,
+        context_venue=context_venue,
+        context_source=context_source,
+    )
     return {
         "report_type": BASELINE_REPORT_TYPE,
         "generated_at": _now_iso(),
@@ -159,6 +226,7 @@ def build_funding_stage0_baseline(*, repo_root: Path | None = None, expected_com
         "strategy": STRATEGY,
         "session_strategy_id": SESSION_STRATEGY_ID,
         "state_dir": STATE_DIR_REL,
+        "expected_contract": expected_contract,
         "canonical_journal": _journal_count(canonical_journal),
         "challenger_journal": _journal_count(paths["journal"], strategy_id=SESSION_STRATEGY_ID),
         "session_rows_before": len(_session_rows(paths["evidence_dir"])),
@@ -186,13 +254,13 @@ def _load_baseline(path: Path | None) -> tuple[dict[str, Any], str]:
     return (dict(payload) if isinstance(payload, dict) else {}), str(baseline_path)
 
 
-def _context_status_ok(status: dict[str, Any]) -> bool:
+def _context_status_ok(status: dict[str, Any], *, expected_contract: dict[str, str]) -> bool:
     return (
         bool(status.get("strategy_context_ok")) is True
         and str(status.get("strategy_context_reason") or "") == "funding_context_ready"
-        and str(status.get("strategy_context_source") or "") == CONTEXT_SOURCE
-        and str(status.get("strategy_context_symbol") or "") == CONTEXT_SYMBOL
-        and str(status.get("strategy_context_venue") or "").lower() == CONTEXT_VENUE
+        and str(status.get("strategy_context_source") or "") == expected_contract["strategy_context_source"]
+        and str(status.get("strategy_context_symbol") or "") == expected_contract["strategy_context_symbol"]
+        and str(status.get("strategy_context_venue") or "").lower() == expected_contract["strategy_context_venue"]
         and bool(status.get("strategy_context_snapshot_id"))
         and _parse_ts(status.get("strategy_context_capture_ts")) is not None
     )
@@ -204,12 +272,31 @@ def build_funding_stage0_verification(
     baseline_path: Path | None = None,
     expected_commit: str = "",
     baseline: dict[str, Any] | None = None,
+    symbol: str = "",
+    venue: str = "",
+    signal_source: str = "",
+    context_symbol: str = "",
+    context_venue: str = "",
+    context_source: str = "",
 ) -> dict[str, Any]:
     root = (repo_root or code_root()).resolve()
     paths = _state_paths(root)
     loaded_baseline, loaded_path = ({}, "") if baseline is not None else _load_baseline(baseline_path)
     base = dict(baseline if baseline is not None else loaded_baseline)
     expected = str(expected_commit or base.get("expected_commit") or _git_short(root)).strip()
+    expected_contract = _contract_from_baseline(
+        base,
+        overrides=_contract_from_args(
+            symbol=symbol,
+            venue=venue,
+            signal_source=signal_source,
+            context_symbol=context_symbol,
+            context_venue=context_venue,
+            context_source=context_source,
+        )
+        if any(str(v or "").strip() for v in (symbol, venue, signal_source, context_symbol, context_venue, context_source))
+        else None,
+    )
     baseline_ts = _parse_ts(base.get("generated_at"))
     canonical_before = int(dict(base.get("canonical_journal") or {}).get("count") or 0)
     canonical_now = _journal_count(root / ".cbp_state" / "data" / "trade_journal.sqlite")
@@ -220,9 +307,9 @@ def build_funding_stage0_verification(
     provenance_ok = (
         str(completed.get("market_data_source") or "") == "public_ohlcv"
         and bool(completed.get("ohlcv_sample_mode")) is False
-        and str(completed.get("ohlcv_timeframe") or "") == "5m"
-        and str(completed.get("ohlcv_venue") or "").lower() == VENUE
-        and str(completed.get("ohlcv_symbol") or "").upper() == SYMBOL.upper()
+        and str(completed.get("ohlcv_timeframe") or "") == expected_contract["signal_source"].removeprefix("public_ohlcv_")
+        and str(completed.get("ohlcv_venue") or "").lower() == expected_contract["venue"].lower()
+        and str(completed.get("ohlcv_symbol") or "").upper() == expected_contract["symbol"].upper()
     )
     checks = [
         _check("baseline_loaded", bool(base), str(loaded_path or "<provided>") if base else "missing_baseline"),
@@ -244,10 +331,10 @@ def build_funding_stage0_verification(
             f"strategy_id={completed.get('strategy_id')} _strategy_id={completed.get('_strategy_id')}",
         ),
         _check("strategy_status_preset", str(strategy_status.get("strategy_preset") or "") == SESSION_STRATEGY_ID, str(strategy_status.get("strategy_preset") or "")),
-        _check("strategy_status_source", str(strategy_status.get("signal_source") or "") == SIGNAL_SOURCE, str(strategy_status.get("signal_source") or "")),
+        _check("strategy_status_source", str(strategy_status.get("signal_source") or "") == expected_contract["signal_source"], str(strategy_status.get("signal_source") or "")),
         _check(
             "strategy_status_funding_context",
-            _context_status_ok(strategy_status),
+            _context_status_ok(strategy_status, expected_contract=expected_contract),
             json.dumps(strategy_status, sort_keys=True),
         ),
         _check(
@@ -278,6 +365,7 @@ def build_funding_stage0_verification(
         "strategy": STRATEGY,
         "session_strategy_id": SESSION_STRATEGY_ID,
         "expected_commit": expected,
+        "expected_contract": expected_contract,
         "state_dir": STATE_DIR_REL,
         "baseline_path": loaded_path,
         "baseline": base,
