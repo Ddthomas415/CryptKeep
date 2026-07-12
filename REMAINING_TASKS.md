@@ -142,6 +142,15 @@ deployment work still needs independent review.
    `no_rebound_confirmation`) with no new fills. Remaining action: decide
    whether to keep this as an isolated candidate, add it to the leaderboard /
    default candidate set, or create a governed persistent campaign config.
+   2026-07-11 decision recorded in
+   `docs/strategies/pullback_recovery_stage0_decision_2026-07-11.md`:
+   keep `pullback_recovery_default` as an isolated research candidate. It is
+   already present in the research leaderboard and already has a
+   governance-only config, but it remains `campaign_enabled=false`,
+   `promotion_candidate=false`, and `trade_enabled=false`. Do not start a
+   persistent paper campaign until archive-backed baseline expectations,
+   positive net-fee research evidence, no-trade filter review, and a separately
+   reviewed campaign manifest exist.
 8. Keep composite/hybrid paper advancement blocked. The long-window variant
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted
