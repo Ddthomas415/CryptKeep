@@ -17825,6 +17825,84 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-12T08:30:13Z - Paper Cost-Assumption Validator (Backlog #28)
+
+Active role: ENGINEER
+
+Objective:
+- Replace manual fee/slippage inspection with a read-only validator that reports
+  the active paper-fill cost assumptions and the adjacent evidence/backtest cost
+  surfaces before paper expectancy is treated as profitability evidence.
+
+What was found:
+- SHOWN: `services/execution/paper_engine.py::_cfg()` reads
+  `user.yaml` `paper_trading.fee_bps` / `paper_trading.slippage_bps` and
+  defaults to `7.5` / `5.0`.
+- SHOWN: `PaperStrategyEvidenceServiceCfg` defaults to `10.0` / `5.0` and
+  passes those values into evidence/backtest-style scoring, not the paper fill
+  path.
+- SHOWN: `services/execution/paper_fees.py` defaults ad hoc
+  `execution.paper_fee_bps` lookup to `0.0`, but currently has no production
+  callers outside the module itself.
+- SHOWN: `run_anchored_walk_forward()` has independent `fee_bps=10.0` and
+  `slippage_bps=5.0` defaults. Backtest/archive sweep cost assumptions are a
+  separate surface from paper-fill costs.
+- SHOWN: the agent-proposed patch direction was useful but needed tightening:
+  explicit `NaN`/`inf`/non-numeric/negative paper cost values must fail rather
+  than falling back to defaults, and config loading must be strict to distinguish
+  unreadable config from a merely unset config.
+
+What changed:
+- Added `services/analytics/cost_assumptions.py`.
+  - Strictly reads `user.yaml` through `load_user_yaml(strict=True)`.
+  - Reports paper-fill, evidence-scoring, dormant lookup, and backtest
+    cost surfaces.
+  - Fails explicit invalid/non-finite/negative paper fee/slippage values.
+  - Fails modeled round-trip cost below `CBP_MIN_PLAUSIBLE_ROUND_TRIP_BPS`.
+  - Warns on code defaults, zero modeled fee/slippage, dormant lookup ambiguity,
+    evidence-scoring fee divergence, and separately sourced backtest defaults.
+  - Derives `PaperStrategyEvidenceServiceCfg` and `run_anchored_walk_forward`
+    defaults at runtime instead of pinning those values in comments.
+- Added `scripts/check_cost_assumptions.py`, a read-only CLI with exit codes:
+  `0` ok, `1` warning, `2` fail, `3` config_unreadable.
+- Added `tests/test_cost_assumptions.py` and
+  `tests/test_cost_surface_audit_invariants.py`.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The repo already corrected paper PnL semantics, but the remaining operational
+  proof was verifying the actual fee/slippage assumptions in force. An
+  executable validator is safer than manual inspection because it separates
+  computed facts, structural audit invariants, and host-specific config values.
+
+Expected outcome:
+- Operators can run one command on the laptop/Hetzner hosts to prove whether
+  current paper expectancy is measured under explicit, finite, plausible
+  paper-fill cost assumptions and see which adjacent cost surfaces remain
+  separate.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_cost_assumptions.py tests/test_cost_surface_audit_invariants.py`
+  - SHOWN: `17 passed in 0.44s`.
+- `./.venv/bin/python -m py_compile services/analytics/cost_assumptions.py scripts/check_cost_assumptions.py tests/test_cost_assumptions.py tests/test_cost_surface_audit_invariants.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/validate_script_paths.py --strict`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_cost_assumptions.py --json`
+  - SHOWN: exit code `1` by design for warning state; local config reported
+    `overall=warning`, paper engine using code defaults `7.5/5.0`, modeled
+    round-trip `25.0` bps, and separately sourced evidence/backtest defaults
+    `10.0/5.0`.
+
+Remaining risk:
+- HIGH: this is profitability-measurement tooling for paper expectancy. It is
+  read-only and does not change trading behavior, but bad interpretation could
+  affect future promotion decisions.
+- UNVERIFIED: the validator has not yet been run on the Hetzner host config in
+  this session.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-12T07:40:38Z - Current-Base Stack Repair: Systemd, Supply Chain, Audit Matrix
 
 Active role: ENGINEER
