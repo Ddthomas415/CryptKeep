@@ -17791,6 +17791,60 @@ Remaining risk:
   `pullback_recovery_default`.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-12T00:57:02Z - Pullback Recovery Post-Stage-0 Decision
+
+Active role: DIRECTOR
+
+Objective:
+- Convert the passed `pullback_recovery_default` Stage 0 proof into a scoped
+  next-step decision without changing runtime behavior.
+
+What was found:
+- SHOWN: `configs/strategies/pullback_recovery_default.yaml` already exists as
+  a governance-only config with `activation.campaign_enabled=false`,
+  `activation.promotion_candidate=false`, and `strategy.trade_enabled=false`.
+- SHOWN: `services/backtest/leaderboard.py` already includes
+  `pullback_recovery_default` in the research candidate set.
+- SHOWN: the accepted Stage 0 verifier artifact proved public-OHLCV
+  provenance, correct strategy attribution, reconciliation pass, and canonical
+  fill-count isolation, but produced no fills or expectancy evidence.
+
+Decision:
+- Keep `pullback_recovery_default` as an isolated research candidate.
+- Do not start a persistent paper campaign and do not mark it as a promotion
+  candidate yet.
+
+What changed:
+- Added `docs/strategies/pullback_recovery_stage0_decision_2026-07-11.md`.
+- Updated `REMAINING_TASKS.md` item 7 to record that the remaining action is
+  no longer Stage 0 proof, but future promotion prerequisites.
+
+Why this change was chosen:
+- Stage 0 proved the isolated machinery, not profitability. Since no fills were
+  generated, there is no paper expectancy basis for a persistent campaign.
+  Keeping the strategy isolated preserves evidence discipline and avoids
+  adding campaign surface area while the canonical paper gate and
+  `funding_extreme` path remain higher-value priorities.
+
+Expected outcome:
+- Future pullback work should focus on archive-backed baselines, parameter
+  sweeps, and manual review before any persistent campaign or promotion status.
+
+Verification:
+- Source inspection:
+  - SHOWN: `configs/strategies/pullback_recovery_default.yaml` is
+    governance-only and disabled for campaign/promotion/trading.
+  - SHOWN: `services/backtest/leaderboard.py` includes
+    `pullback_recovery_default`.
+- Docs-only change; no runtime tests were run.
+
+Remaining risk:
+- LOW: docs-only strategy decision. No campaign manifest, runtime behavior,
+  gate logic, or trading code changed.
+- UNVERIFIED: archive-backed expectancy for `pullback_recovery_default` has not
+  been produced.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T16:12:00Z - Public OHLCV Reachability Preflight (Active Backlog #12/#13 Support)
 
 Active role: ENGINEER
