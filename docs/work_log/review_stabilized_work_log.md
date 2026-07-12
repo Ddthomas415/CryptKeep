@@ -17625,6 +17625,85 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-11T21:45:00Z - Funding Extreme Stage 0 Readiness And Proof Helpers (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Add the missing operator tooling for a governed `funding_extreme` Stage 0
+  proof without starting the long proof run, changing strategy behavior, or
+  touching paper qualification gates.
+
+What was found:
+- SHOWN: `funding_extreme` is registered in the strategy registry, has a
+  `funding_extreme_default` preset, and the managed paper CLI accepts
+  `--strategy-context-symbol` / `--strategy-context-venue`.
+- SHOWN: `funding_extreme` is not in the collector default session-ID map, so
+  the Stage 0 command must explicitly pass
+  `--session-strategy-id funding_extreme_default`.
+- SHOWN: pullback already has a repeatable readiness/baseline/verify operator
+  path, but the higher-value `funding_extreme` path did not.
+
+What changed:
+- Added `services/analytics/funding_stage0_readiness.py` and
+  `scripts/check_funding_stage0_readiness.py`.
+  - Read-only readiness checks now verify strategy/preset support, isolated
+    challenger state-dir ownership, persistent campaign manifest non-ownership,
+    Coinbase public-OHLCV reachability for `BTC/USDT` on `public_ohlcv_5m`,
+    crypto-edge cadence, and fresh OKX `BTC/USDT:USDT` `live_public` funding
+    context.
+  - The report prints the exact 15-minute one-shot proof command and status
+    command, including explicit context-symbol/context-venue flags.
+- Added `services/analytics/funding_stage0_proof_verifier.py` and
+  `scripts/verify_funding_stage0_proof.py`.
+  - `make funding-stage0-baseline` records pre-proof canonical/challenger
+    counts.
+  - `make funding-stage0-verify` validates a completed post-baseline session
+    with public-OHLCV provenance, expected commit, strategy attribution,
+    `strategy_context_ok=true`, fresh funding-context status fields, completed
+    collector status, and unchanged canonical fill count.
+- Added Make targets and script-index documentation.
+
+Why this change was chosen:
+- The next critical path is proving a governed `funding_extreme` paper session
+  end-to-end on a stable OHLCV source. Readiness/proof tooling makes that proof
+  repeatable and prevents `no_public_ohlcv`/network failures from being
+  confused with strategy evidence, while avoiding high-risk qualification-gate
+  changes before Stage 0 passes.
+
+Expected outcome:
+- Operators can run:
+  - `make funding-stage0-readiness`
+  - `make funding-stage0-baseline`
+  - the printed 15-minute proof command
+  - `make funding-stage0-verify`
+  to produce reviewable Stage 0 evidence for item #12.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_stage0_readiness.py tests/test_funding_stage0_proof_verifier.py`
+  - SHOWN: `7 passed in 0.21s`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_stage0_readiness.py services/analytics/funding_stage0_proof_verifier.py scripts/check_funding_stage0_readiness.py scripts/verify_funding_stage0_proof.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_funding_stage0_readiness.py --json`
+  - SHOWN: exit code `0`; `status=ready_for_operator_stage0`,
+    Coinbase `public_ohlcv_5m` returned 4 rows, edge cadence was fresh, and OKX
+    `BTC/USDT:USDT` funding context returned `funding_context_ready`.
+- `./.venv/bin/python scripts/verify_funding_stage0_proof.py --record-baseline --json`
+  - SHOWN: exit code `0`; read-only baseline reported canonical journal count
+    `176`, missing challenger journal, zero prior `funding_extreme_default`
+    session rows, and expected commit `735f1b48c`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: this changes operator proof workflow and writes read-only report
+  artifacts, but it does not alter strategy decisions, gates, order routing, or
+  live execution.
+- UNVERIFIED: the actual 15-minute `funding_extreme` Stage 0 campaign was not
+  run in this session.
+- UNVERIFIED: full suite and GitHub CI were not run.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-11T20:27:09Z - Legacy Intent Consumer Retirement Guard (Backlog #18)
 
 Active role: ENGINEER

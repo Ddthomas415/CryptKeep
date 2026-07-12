@@ -172,6 +172,12 @@ decision makes them authoritative.
   accepted `pullback_recovery_default` Stage 0 proof; use
   `make pullback-stage0-readiness`. Writes report artifacts only and prints the
   15-minute operator-run proof command without starting the collector.
+- `check_funding_stage0_readiness.py` — read-only readiness report for the
+  `funding_extreme_default` Stage 0 proof; use
+  `make funding-stage0-readiness`. Verifies the known preconditions
+  (public-OHLCV reachability, crypto-edge cadence, and fresh OKX funding
+  context) and prints the 15-minute operator-run proof command without starting
+  the collector.
 - `check_short_context_readiness.py` — read-only short/context data readiness
   check over stored crypto-edge evidence; use
   `make check-short-context-readiness`. It does not contact exchanges or enable
@@ -205,6 +211,11 @@ decision makes them authoritative.
   the 15-minute proof, then `make pullback-stage0-verify` after the proof to
   verify public-OHLCV provenance, post-baseline completion, expected commit,
   and canonical fill-count isolation.
+- `verify_funding_stage0_proof.py` — read-only `funding_extreme` Stage 0 proof
+  baseline/verifier; use `make funding-stage0-baseline` immediately before the
+  15-minute proof, then `make funding-stage0-verify` after the proof to verify
+  public-OHLCV provenance, fresh funding-context consumption, post-baseline
+  completion, expected commit, and canonical fill-count isolation.
 
 ### Validation, Alignment, Release, And Maintenance
 
