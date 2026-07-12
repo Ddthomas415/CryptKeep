@@ -208,7 +208,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now
 
 # Fast test suite — skips blocking service-loop tests
@@ -340,6 +340,16 @@ pullback-stage0-baseline:
 pullback-stage0-verify:
 	$(PYTHON) scripts/verify_pullback_stage0_proof.py
 
+# Funding Extreme Stage 0 proof helpers (read-only; they do not run the 15-minute proof)
+funding-stage0-readiness:
+	$(PYTHON) scripts/check_funding_stage0_readiness.py
+
+funding-stage0-baseline:
+	$(PYTHON) scripts/verify_funding_stage0_proof.py --record-baseline
+
+funding-stage0-verify:
+	$(PYTHON) scripts/verify_funding_stage0_proof.py
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -362,6 +372,9 @@ script-index:
 	@echo "  make pullback-stage0-readiness — check pullback Stage 0 readiness"
 	@echo "  make pullback-stage0-baseline  — record baseline before pullback Stage 0"
 	@echo "  make pullback-stage0-verify    — verify pullback Stage 0 after proof"
+	@echo "  make funding-stage0-readiness  — check funding_extreme Stage 0 readiness"
+	@echo "  make funding-stage0-baseline   — record baseline before funding_extreme Stage 0"
+	@echo "  make funding-stage0-verify     — verify funding_extreme Stage 0 after proof"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"

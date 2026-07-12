@@ -305,6 +305,16 @@ deployment work still needs independent review.
     problems, and `2` for network/source unreachable. This does not fix host
     DNS, but it makes the Stage 0 precondition explicit so `no_public_ohlcv`
     cannot be mistaken for a strategy result when the source is unreachable.
+    2026-07-11: `funding_extreme` Stage 0 readiness/proof helper tooling is
+    ready for independent review. `make funding-stage0-readiness` verifies the
+    three known preconditions before the governed 15-minute proof:
+    Coinbase public-OHLCV reachability for `BTC/USDT` on `public_ohlcv_5m`,
+    crypto-edge cadence, and fresh OKX `BTC/USDT:USDT` `live_public` funding
+    context. `make funding-stage0-baseline` records pre-proof canonical and
+    challenger state, and `make funding-stage0-verify` checks that a completed
+    post-baseline session consumed public OHLCV plus funding context while
+    leaving canonical fill counts unchanged. This is tooling only; it does not
+    complete item #12 until the operator-run Stage 0 campaign passes.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
