@@ -27,6 +27,39 @@ from services.control.cognitive_budget import budget_summary
 from services.control.kernel import ControlKernel, METRIC_THRESHOLDS, UTILITY_CONSTRAINTS
 
 
+def _promotion_gate_authorization(strategy_id: str) -> dict:
+    """Return a fail-closed authorization for the documented promotion path."""
+    try:
+        from scripts import check_promotion_gates as gates
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": "promotion_gate_unavailable",
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+
+    gate_strategy = str(getattr(gates, "STRATEGY_ID", "") or "")
+    if str(strategy_id) != gate_strategy:
+        return {
+            "ok": False,
+            "reason": "promotion_gate_unsupported_strategy",
+            "strategy_id": str(strategy_id),
+            "gate_strategy_id": gate_strategy,
+        }
+
+    current = stage_summary(strategy_id)
+    result = gates.run_check(stage_override=str(current.get("stage") or "paper"))
+    return {
+        "ok": bool(result.get("ready")),
+        "reason": "promotion_gate_ready" if bool(result.get("ready")) else "promotion_gate_not_ready",
+        "strategy_id": str(strategy_id),
+        "stage": result.get("stage"),
+        "current_stage": result.get("current_stage"),
+        "summary": result.get("summary"),
+        "manual_review_required": bool(result.get("manual_review_required")),
+    }
+
+
 def _list_strategy_ids() -> list[str]:
     """Scan the stages directory for tracked strategies."""
     stages_dir = data_dir() / "control" / "stages"
@@ -77,6 +110,12 @@ def main() -> int:
 
     # Mutations
     if args.promote:
+        auth = _promotion_gate_authorization(args.promote)
+        if not bool(auth.get("ok")):
+            result = {"ok": False, **auth}
+            print(json.dumps(result, indent=2) if args.json else
+                  f"Promotion blocked {args.promote}: {result}")
+            return 1
         result = promote(args.promote, reason=args.reason, actor="operator_script")
         print(json.dumps(result, indent=2) if args.json else
               f"Promoted {args.promote}: {result}")

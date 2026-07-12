@@ -100,6 +100,14 @@ deployment work still needs independent review.
    is per-closed-trade, but the JSONL fallback and retirement checks still use
    different denominator semantics. This is decision work, not part of the
    strategy-selection runtime fix.
+   2026-07-12 follow-up implementation proof is ready for independent review:
+   the documented operator promotion entrypoint now fails closed unless
+   `check_promotion_gates.run_check()` reports ready for the strategy's current
+   stage, and the paper-promotion JSONL fallback no longer computes an
+   authoritative per-fill expectancy. Decision records:
+   `docs/decisions/promotion_stage_authority_decision.md` and
+   `docs/decisions/canonical_expectancy_decision.md`. Remaining before real
+   promotion: GitHub CI/review, plus operator-host gate output as ground truth.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not

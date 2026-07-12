@@ -407,22 +407,20 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
             "expectancy_hint": "need 10+ paper-history fills" if exp_val is None else "",
         }
 
-    exp_ok, exp_val = _check_expectancy(fills)
     return {
         "source": "jsonl_evidence",
         "round_trips": jsonl_trips,
         "round_trip_detail": f"{jsonl_trips} round trips recorded",
-        "expectancy_ok": exp_ok,
-        "expectancy_value": exp_val,
+        "expectancy_ok": None,
+        "expectancy_value": None,
         "expectancy_pnl_semantics": semantics["counts"],
         "expectancy_mixed_semantics": semantics["mixed"],
         "expectancy_semantics_warning": semantics["warning"],
-        "expectancy_detail": (
-            f"avg pnl/trade = ${exp_val:.2f}"
-            if exp_val is not None
-            else "insufficient fills for calculation"
+        "expectancy_detail": "paper-history qualification is required for authoritative expectancy",
+        "expectancy_hint": (
+            "do not use JSONL per-fill pnl fallback for paper promotion; "
+            "collect provenance-qualified paper-history round trips"
         ),
-        "expectancy_hint": "need 10+ fills with pnl_usd field" if exp_ok is None else "",
     }
 
 
