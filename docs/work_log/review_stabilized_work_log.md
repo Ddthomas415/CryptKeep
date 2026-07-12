@@ -17755,6 +17755,59 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-12T08:56:40Z - System Blueprint Invariants for Cost, PnL, and Expectancy Semantics
+
+Active role: ENGINEER
+
+Objective:
+- Land the system-blueprint audit as executable documentation and invariants,
+  aligned to current master, without changing live trading behavior.
+
+What was found:
+- SHOWN: the supplied patch was traced against an older base and its invariant
+  census missed the current `services/backtest/parameter_sweep.py` fee surface.
+  Initial verification failed with `16 passed, 2 failed` because the current
+  backtest family has seven modules, not six.
+- SHOWN: promotion-gate expectancy has a per-fill denominator on the JSONL path:
+  entry fills write a present `pnl_usd` key with `None`, and
+  `scripts/check_promotion_gates.py` coerces that to `0.0`.
+- SHOWN: paper realized PnL is net-of-fees while live position-store realized
+  PnL is gross-of-fees; the live fee is carried separately into `risk_daily`.
+- SHOWN: `risk_daily.snapshot()` exposes both gross (`realized_pnl`) and net
+  (`pnl = realized_pnl - fees`) PnL, but
+  `RiskDailyDB.realized_today_usd()` returns gross and `_executor_submit.py`
+  feeds that value into the live risk gates.
+
+What changed:
+- Added `docs/architecture/SYSTEM_BLUEPRINT.md` with scoped authority and risk
+  maps for cost surfaces, PnL semantics, expectancy denominators, and named
+  UNKNOWNs.
+- Added `tests/test_blueprint_invariants.py` with 18 executable invariants.
+  The tests protect traced facts and intentionally fail when the blueprint
+  needs re-verification.
+- Replaced shell-grep based invariant checks with Python source scanning.
+- Updated `REMAINING_TASKS.md` with the capped-live decision required for
+  daily-loss policy: gross vs net PnL.
+
+Why this change was chosen:
+- The branch documents and pins high-risk semantics before behavior changes.
+  It avoids silently changing live risk gates while still making the unsafe
+  gross/net daily-loss policy fork visible before capped-live.
+
+Expected outcome:
+- Future changes to cost/PnL/expectancy semantics fail a targeted invariant
+  test until the blueprint and backlog are re-verified.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py`
+  - SHOWN: `18 passed in 0.23s`.
+
+Remaining risk:
+- HIGH: findings concern financial math and live risk-gate semantics. This
+  branch is docs+tests only and does not resolve the live daily-loss policy.
+- UNVERIFIED: full suite and GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-12T08:08:35Z - Execution-Cost Stack Report Consumer (Backlog #15)
 
 Active role: ENGINEER

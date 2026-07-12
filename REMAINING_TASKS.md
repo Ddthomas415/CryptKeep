@@ -767,6 +767,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    the ops telemetry/risk-gate path surfaces the marker and classifies it
    as `FULL_STOP`. Remaining sweep: live executor, consumer/reconciler
    config reads, admin live controls.
+   2026-07-12 blueprint audit follow-up: `risk_daily.snapshot()` exposes
+   both gross realized PnL (`realized_pnl`) and net PnL (`pnl =
+   realized_pnl - fees`), but `RiskDailyDB.realized_today_usd()` returns
+   the gross field and `_executor_submit.py` feeds that value into the
+   PHASE82 live risk gates. Before capped-live, choose and implement the
+   intended daily-loss policy (gross vs net). Current code permits true
+   net loss to exceed a configured loss cap by fees paid on a losing day;
+   this branch documents and pins the behavior, but does not change live
+   gate semantics.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
