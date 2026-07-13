@@ -1,5 +1,5 @@
 from __future__ import annotations
-from services.admin.config_editor import load_user_yaml, save_user_yaml
+from services.admin.config_editor import ConfigLoadError, load_user_yaml, save_user_yaml
 from services.execution.live_arming import set_live_armed_state, set_live_enabled, verify_and_consume
 from services.preflight.preflight import run_preflight
 
@@ -26,7 +26,17 @@ def enable_live(*, token: str, checklist: dict) -> dict:
     tok = verify_and_consume(token)
     if not tok.get("ok"):
         return {"ok": False, "reason": "token_failed", "token": tok, "preflight": preflight}
-    cfg = set_live_enabled(load_user_yaml(), True)
+    try:
+        raw_cfg = load_user_yaml(strict=True)
+    except ConfigLoadError as exc:
+        return {
+            "ok": False,
+            "reason": "config_load_failed",
+            "error": str(exc),
+            "token": tok,
+            "preflight": preflight,
+        }
+    cfg = set_live_enabled(raw_cfg, True)
     ok, msg = save_user_yaml(cfg)
     save = {"ok": ok, "message": msg}
     if not ok:

@@ -18840,3 +18840,61 @@ Remaining risk:
   acceptance.
 - UNVERIFIED: full suite and GitHub CI were not run in this session yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T02:01:55Z - Live Enable Config Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Close the operator-facing live-enable fail-open path where corrupt
+  `user.yaml` could be read as `{}` immediately before setting
+  `execution.live_enabled=true`.
+
+What was found:
+- SHOWN: `services/execution/live_enable.py::enable_live()` used non-strict
+  `load_user_yaml()` after checklist, preflight, and token verification, then
+  saved `execution.live_enabled=true` and wrote the persisted armed state.
+- SHOWN: `services/admin/live_enable_wizard.py::enable_live()` used non-strict
+  `load_user_yaml()` before saving `execution.live_enabled=true`, setting
+  `CBP_EXECUTION_ARMED=YES`, writing live-arm state, and moving the system guard
+  to RUNNING.
+- SHOWN: `services.admin.config_editor.load_user_yaml(strict=True)` already
+  raises `ConfigLoadError` on unreadable, malformed, or non-mapping existing
+  user config.
+
+What changed:
+- Token-based live enable now calls `load_user_yaml(strict=True)` before
+  constructing and saving the enabled config. `ConfigLoadError` returns
+  `{"ok": False, "reason": "config_load_failed", ...}` with no save and no
+  armed-state write.
+- Admin wizard live enable now calls `load_user_yaml(strict=True)`.
+  `ConfigLoadError` audits the failed ENABLE_LIVE attempt and returns
+  `config_load_failed` with no save, no env arm, no persisted arm-state write,
+  and no system-guard RUNNING transition.
+- Disable paths were not changed; tightening halt/disable behavior on corrupt
+  config is a separate policy decision because disable is the safer direction.
+
+Why this change was chosen:
+- Enabling live trading from an unreadable config is a fail-open operator-control
+  path. The smallest correct change is to make enable controls fail closed on
+  config load errors while preserving the existing token/preflight order and
+  avoiding accidental changes to disable/halt behavior.
+
+Expected outcome:
+- Corrupt `user.yaml` can no longer be silently treated as an empty config by
+  live-enable controls. A live-enable attempt under corrupt config refuses
+  before any persistent or process-level arming side effect.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_execution_live_enable.py tests/test_live_admin_controls.py`
+  - SHOWN: `16 passed in 0.26s`.
+- `./.venv/bin/python -m pytest -q tests/test_execution_live_enable.py tests/test_live_admin_controls.py tests/test_system_guard.py`
+  - SHOWN: `20 passed in 0.74s`.
+- `./.venv/bin/python -m py_compile services/execution/live_enable.py services/admin/live_enable_wizard.py tests/test_execution_live_enable.py tests/test_live_admin_controls.py tests/test_system_guard.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: live enable controls and fail-open behavior. This changes behavior under
+  corrupt config and requires independent review before acceptance.
+- UNVERIFIED: full suite and GitHub CI were not run in this session yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

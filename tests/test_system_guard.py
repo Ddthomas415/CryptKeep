@@ -48,7 +48,7 @@ def test_system_guard_shared_file_flow_across_modules(monkeypatch, tmp_path):
 
     monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
     monkeypatch.setattr(lew, "_log_audit", lambda *args, **kwargs: None)
-    monkeypatch.setattr(lew, "load_user_yaml", lambda: {"execution": {"live_enabled": False}})
+    monkeypatch.setattr(lew, "load_user_yaml", lambda **_kwargs: {"execution": {"live_enabled": False}})
     monkeypatch.setattr(lew, "save_user_yaml", lambda cfg: (True, "Saved"))
     monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (True, "env:CBP_EXECUTION_ARMED"))
     monkeypatch.setattr(
