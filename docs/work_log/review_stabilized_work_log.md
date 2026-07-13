@@ -18953,3 +18953,57 @@ Remaining risk:
 - UNVERIFIED: broader live execution neighborhood, full suite, and GitHub CI
   were not run in this session yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T02:58:05Z - Live Executor Risk-Gate Config Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Close the live executor PHASE82 risk-gate config fail-open path where corrupt
+  runtime config could be read permissively before live gates were built.
+
+What was found:
+- SHOWN: `services/execution/_executor_submit.py::submit_pending_live()` loaded
+  PHASE82 live risk-gate config with non-strict
+  `load_runtime_trading_config()` immediately before
+  `LiveRiskLimits.from_dict()`.
+- SHOWN: that load happened after hard-off/system-guard/safety/freshness checks
+  but before `LiveGateDB`, `ExecutionStore`, and `ExchangeClient`
+  construction.
+- SHOWN: existing strict config loader raises `ConfigLoadError` for corrupt or
+  unreadable runtime/user config.
+
+What changed:
+- `_executor_submit.py` imports `ConfigLoadError` and calls
+  `load_runtime_trading_config(strict=True)` for the PHASE82 live-gate config.
+- `ConfigLoadError` returns a blocked submit result:
+  `LIVE blocked: config_load_failed:ConfigLoadError`, `submitted=0`,
+  `safety_blocked=1`, with no gate DB/store/client construction.
+- Added a regression in `tests/test_live_executor_latency_safety_integration.py`
+  that opens the preceding submit gates, injects `ConfigLoadError`, and asserts
+  the executor blocks before live side-effect surfaces are constructed.
+
+Why this change was chosen:
+- PHASE82 live gates are order-gating authority. If their config source is
+  unreadable, the safe behavior is a blocked submit tick, not building gates
+  from permissively defaulted config.
+
+Expected outcome:
+- Corrupt runtime/user config can no longer be silently treated as usable by the
+  live executor while constructing PHASE82 risk gates.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: `16 passed in 0.69s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_executor_cfg_requirements.py tests/test_live_router_safety_contract.py tests/test_execution_safety_fail_closed.py`
+  - SHOWN: `33 passed in 1.12s`.
+- `./.venv/bin/python -m py_compile services/execution/_executor_submit.py tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: live executor risk-gate / fail-open behavior. This changes behavior
+  under corrupt config and requires independent review before acceptance.
+- UNVERIFIED: full suite and GitHub CI were not run in this session yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

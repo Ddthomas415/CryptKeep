@@ -834,6 +834,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    sees them. Non-strict `live_risk_cfg()` default behavior is preserved for
    non-critical callers. Remaining sweep: live executor/reconciler config reads
    and daily-loss gross-vs-net policy.
+   2026-07-13 live executor risk-gate config slice is proof-ready for
+   independent review: `services/execution/_executor_submit.py` now loads
+   PHASE82 live risk-gate config with `load_runtime_trading_config(strict=True)`.
+   `ConfigLoadError` returns a blocked submit result
+   (`LIVE blocked: config_load_failed:ConfigLoadError`, `submitted=0`,
+   `safety_blocked=1`) before `LiveGateDB`, `ExecutionStore`, or
+   `ExchangeClient` are constructed, so corrupt runtime config cannot fall back
+   to defaults while building live gates. Remaining sweep: reconciler/compat
+   sandbox config reads and daily-loss gross-vs-net policy.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.

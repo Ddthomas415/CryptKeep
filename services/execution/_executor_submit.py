@@ -15,7 +15,7 @@ from typing import Any, Dict, Optional
 
 import yaml
 
-from services.config_loader import load_runtime_trading_config
+from services.config_loader import ConfigLoadError, load_runtime_trading_config
 from services.admin.system_guard import get_state as get_system_guard_state
 from services.execution.live_arming import live_armed_signal
 from services.execution.client_order_id import make_client_order_id
@@ -315,7 +315,18 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
     latency_tracker = _latency_tracker(safety_cfg)
 
     # PHASE82_LIVE_GATES init
-    _cfg_cached = load_runtime_trading_config()
+    try:
+        _cfg_cached = load_runtime_trading_config(strict=True)
+    except ConfigLoadError as exc:
+        return {
+            "ok": False,
+            "note": f"LIVE blocked: config_load_failed:{type(exc).__name__}",
+            "submitted": 0,
+            "errors": 0,
+            "preflight_blocked": 0,
+            "safety_blocked": 1,
+            "latency_breaches": 0,
+        }
     limits = LiveRiskLimits.from_dict(_cfg_cached)
     gate_db = LiveGateDB(exec_db=cfg.exec_db)
     gates = LiveRiskGates(limits=limits, db=gate_db) if limits else None
