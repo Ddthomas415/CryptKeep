@@ -750,6 +750,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    block. Remaining substrate #1 work: full Decimal migration across qty,
    price, fee, and PnL math, plus per-venue step-size/lot-size/min-notional
    golden tests before any capped-live exposure.
+   2026-07-13 market-rule Decimal validation slice is proof-ready for
+   independent review: `services/markets/math_utils.py` now exposes finite
+   Decimal parsing/product/step helpers, and `services/markets/rules.py`
+   validates min-notional, min-qty, and qty-step with Decimal values instead
+   of float comparison/tolerance math. Poisoned non-finite venue rules now
+   fail closed with `INVALID_MARKET_RULES` instead of flowing into live order
+   validation. New venue-style golden tests pin Coinbase-style
+   `0.00000001` quantity steps, Binance-style `0.001` quantity steps,
+   min-notional boundaries, and non-finite cached rule rejection. Remaining
+   substrate #1 work: full Decimal migration across order qty/price, fee, and
+   PnL math, plus broader per-venue golden fixtures before capped-live
+   exposure.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
