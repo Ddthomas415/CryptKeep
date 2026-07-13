@@ -843,6 +843,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `ExchangeClient` are constructed, so corrupt runtime config cannot fall back
    to defaults while building live gates. Remaining sweep: reconciler/compat
    sandbox config reads and daily-loss gross-vs-net policy.
+   2026-07-13 reconciler/consumer sandbox config slice is proof-ready for
+   independent review: `services/execution/live_reconciler.py`,
+   `services/execution/live_intent_consumer.py`, and compat
+   `services/execution/intent_consumer.py` now load sandbox-mode runtime config
+   with `load_runtime_trading_config(strict=True)` before constructing live
+   adapters. Corrupt runtime config writes an operator-visible
+   `config_load_failed` blocked status and creates no adapter; the canonical
+   live consumer now reads sandbox config before `claim_next_queued()`, so
+   corrupt config cannot mutate queued intents to `submitting`. Stale
+   submitting recovery leaves rows untouched on config-load failure. Remaining
+   sweep: daily-loss gross-vs-net policy.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.

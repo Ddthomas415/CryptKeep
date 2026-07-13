@@ -9,7 +9,7 @@ import os
 import time
 from datetime import datetime, timezone
 from services.admin.config_editor import ConfigLoadError
-from services.config_loader import load_runtime_trading_config
+from services.config_loader import ConfigLoadError as RuntimeConfigLoadError, load_runtime_trading_config
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
@@ -100,7 +100,7 @@ def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tup
 
 def _live_sandbox_enabled() -> bool:
     try:
-        return is_live_sandbox(load_runtime_trading_config())
+        return is_live_sandbox(load_runtime_trading_config(strict=True))
     except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return True
 
@@ -160,7 +160,12 @@ def _recover_stale_submitting(qdb: LiveIntentQueueSQLite, ldb: LiveTradingSQLite
         aged.append(it)
     if not aged:
         return out
-    sandbox = _live_sandbox_enabled()
+    try:
+        sandbox = _live_sandbox_enabled()
+    except RuntimeConfigLoadError:
+        out["left_untouched"] += len(aged)
+        out["config_load_failed"] = len(aged)
+        return out
     adapters: dict[str, LiveExchangeAdapter] = {}
     try:
         for it in aged:
@@ -274,12 +279,24 @@ def run_forever() -> None:
                 _write_status({"ok": True, "status": "blocked", "reason": f"staleness:{stale_reason}", "ts": _now(), "loops": loops})
                 time.sleep(1.0)
                 continue
+            try:
+                sandbox = _live_sandbox_enabled()
+            except RuntimeConfigLoadError as exc:
+                _write_status({
+                    "ok": True,
+                    "status": "blocked",
+                    "reason": "config_load_failed",
+                    "error": f"config_load_failed:{type(exc).__name__}",
+                    "ts": _now(),
+                    "loops": loops,
+                })
+                time.sleep(1.0)
+                continue
             batch = qdb.claim_next_queued(limit=10)
             if not batch:
                 _write_status({"ok": True, "status": "running", "ts": _now(), "loops": loops, "queue": 0, "submitted": submitted, "rejected": rejected, "expired": expired})
                 time.sleep(0.6)
                 continue
-            sandbox = _live_sandbox_enabled()
             for it in batch:
                 ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="live_intent_consumer")
                 ttl = check_intent_age(it.get("created_ts"))
