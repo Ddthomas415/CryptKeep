@@ -18619,3 +18619,61 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
+
+## 2026-07-13T00:14:40Z - Master Read-Only Config Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Close the fail-open master read-only halt-authority read where corrupt
+  runtime config was treated the same as absent config.
+
+What was found:
+- SHOWN: `services/admin/master_read_only.py` used non-strict
+  `load_user_config()`, which returns `{}` for corrupt config and missing
+  config.
+- SHOWN: the code then defaulted `safety.read_only_mode` to `False`, so a
+  corrupt `user.yaml` silently disabled the read-only brake.
+- SHOWN: consumers are `services/execution/paper_engine.py` and
+  `services/live_router/router.py`; both refuse when `is_master_read_only()`
+  returns true.
+
+What changed:
+- `services/admin/master_read_only.py` now calls
+  `load_user_config(strict=True)`.
+- Missing config still returns not-read-only, preserving the fresh-install
+  contract.
+- `ConfigLoadError` and unexpected config-read exceptions now fail closed:
+  `read_only_mode=true`, `reason=config_unreadable`, and the error is surfaced
+  in details.
+- Valid config still follows explicit `safety.read_only_mode`; true reports
+  `reason=config`, false reports `reason=not_read_only`.
+- Added `tests/test_master_read_only_fail_closed.py` for absent, explicit true,
+  explicit false, missing safety block, corrupt config, unexpected exception,
+  strict-mode use, and `details()` propagation.
+
+Why this change was chosen:
+- Master read-only is a halt authority. If the operator safety declaration
+  cannot be read, trading must not assume permission. Missing config remains
+  distinct from corrupt config so first-run behavior is unchanged.
+
+Expected outcome:
+- A corrupt or unreadable runtime config now blocks paper-engine/live-router
+  order paths through the existing `master_read_only` refusal instead of
+  silently proceeding.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_master_read_only_fail_closed.py tests/test_runtime_trading_config.py tests/test_paper_engine_integration.py tests/test_live_router_safety_contract.py`
+  - SHOWN: `34 passed in 0.68s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_router_safety_contract.py tests/test_master_read_only_fail_closed.py tests/test_paper_engine_honesty.py tests/test_paper_engine_integration.py tests/test_paper_engine_limit_and_status.py tests/test_paper_reconciler_recovery.py tests/test_paper_strategy_journal_flow.py`
+  - SHOWN: `38 passed in 1.27s`.
+- `./.venv/bin/python -m py_compile services/admin/master_read_only.py tests/test_master_read_only_fail_closed.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: halt authority / fail-open behavior. This changes behavior under
+  corrupt runtime config and must receive independent review before acceptance.
+- UNVERIFIED: full suite and GitHub CI were not run in this session yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
