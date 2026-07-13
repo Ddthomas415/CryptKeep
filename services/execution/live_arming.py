@@ -276,8 +276,8 @@ def live_enabled_and_armed() -> tuple[bool, str]:
     return live_armed_signal()
 
 
-def live_risk_cfg() -> dict[str, float | int]:
-    cfg = load_user_yaml()
+def live_risk_cfg(*, strict: bool = False) -> dict[str, float | int]:
+    cfg = load_user_yaml(strict=True) if strict else load_user_yaml()
     risk = cfg.get("risk") if isinstance(cfg.get("risk"), dict) else {}
     live = risk.get("live") if isinstance(risk.get("live"), dict) else {}
     return {

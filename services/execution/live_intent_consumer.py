@@ -8,6 +8,7 @@ import math
 import os
 import time
 from datetime import datetime, timezone
+from services.admin.config_editor import ConfigLoadError
 from services.config_loader import load_runtime_trading_config
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.risk.market_quality_guard import check as mq_check
@@ -83,7 +84,10 @@ def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
         db.reset_risk_state_for_day(today)
 
 def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
-    cfg = live_risk_cfg()
+    try:
+        cfg = live_risk_cfg(strict=True)
+    except ConfigLoadError:
+        return False, "risk:config_load_failed"
     _risk_reset_if_needed(db)
     if cfg["min_order_notional_quote"] > 0 and notional_est < cfg["min_order_notional_quote"]:
         return False, "risk:min_order_notional_quote"

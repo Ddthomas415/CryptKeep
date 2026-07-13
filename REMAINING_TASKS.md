@@ -823,6 +823,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    strict config load. Disable paths remain intentionally outside this slice so
    operator halt behavior is not tightened accidentally. Remaining sweep: live
    executor/consumer/reconciler config reads and daily-loss gross-vs-net policy.
+   2026-07-13 live risk-claim config slice is proof-ready for independent
+   review: `live_risk_cfg(strict=True)` is now available, and both
+   `services/execution/live_intent_consumer.py::_risk_check_and_claim()` and
+   compat `services/execution/intent_consumer.py::_risk_check_and_claim()` use
+   it before reading or resetting risk counters. `ConfigLoadError` returns
+   `risk:config_load_failed` with no risk-state read/reset and no
+   `atomic_risk_claim()` call, so corrupt `user.yaml` can no longer turn
+   configured live caps into default/no-cap values before the enforcement layer
+   sees them. Non-strict `live_risk_cfg()` default behavior is preserved for
+   non-critical callers. Remaining sweep: live executor/reconciler config reads
+   and daily-loss gross-vs-net policy.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
