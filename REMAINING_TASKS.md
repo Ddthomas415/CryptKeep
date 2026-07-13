@@ -789,10 +789,10 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    realized_pnl - fees`), but `RiskDailyDB.realized_today_usd()` returns
    the gross field and `_executor_submit.py` feeds that value into the
    PHASE82 live risk gates. Before capped-live, choose and implement the
-   intended daily-loss policy (gross vs net). Current code permits true
-   net loss to exceed a configured loss cap by fees paid on a losing day;
-   this branch documents and pins the behavior, but does not change live
-   gate semantics.
+   intended daily-loss policy (gross vs net). At the audited revision, gross
+   daily-loss evaluation permitted true net loss to exceed a configured loss
+   cap by fees paid on a losing day; the audit branch documented and pinned
+   that behavior but did not change live gate semantics.
    2026-07-13 halt-authority slice is proof-ready for independent review:
    `services/admin/master_read_only.py` now uses strict runtime config loading
    and fails closed on unreadable/corrupt config. Missing config remains
@@ -854,6 +854,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    corrupt config cannot mutate queued intents to `submitting`. Stale
    submitting recovery leaves rows untouched on config-load failure. Remaining
    sweep: daily-loss gross-vs-net policy.
+   2026-07-13 daily-loss policy slice is proof-ready for independent review:
+   the chosen policy is fee-inclusive net PnL for capped-live daily loss.
+   `RiskDailyDB.realized_today_usd()` now returns the snapshot `pnl` field
+   (`realized_pnl - fees`) instead of gross `realized_pnl`, and the live
+   executor's existing PHASE82 gate path continues to consume
+   `realized_today_usd()`. Tests pin that a `-100.0` gross day with `5.0` fees
+   evaluates as `-105.0` for daily-loss purposes. Substrate #2 config
+   fail-closed sweep is now code-complete pending independent review/CI for
+   this high-risk live-risk policy change.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
