@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from services.config_loader import ConfigLoadError
 from services.execution import live_executor as le
 from services.execution.safety_gates import SafetyConfig
 
@@ -65,6 +66,40 @@ def test_submit_pending_live_blocks_when_system_guard_halted(monkeypatch):
     assert out["safety_blocked"] == 1
     assert "SYSTEM_GUARD_HALTED" in str(out["note"])
     assert out["system_guard"]["state"] == "HALTED"
+
+
+def test_submit_pending_live_fails_closed_on_runtime_config_load_error(monkeypatch):
+    import services.execution._executor_submit as submit_mod
+
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=":memory:", symbol="BTC/USD")
+    load_kwargs: list[dict] = []
+
+    _guard_running(monkeypatch)
+    monkeypatch.setattr(le, "_execution_safety_pause_open", lambda **_: (True, "OK", {}))
+    monkeypatch.setattr(
+        le,
+        "_load_execution_safety_cfg",
+        lambda *_, **__: SafetyConfig(enabled=True, require_ws_fresh_for_live=True, max_ws_recv_age_ms=1000),
+    )
+    monkeypatch.setattr(le, "_check_market_freshness_for_live", lambda *_args, **_kwargs: (True, "OK", {}))
+
+    def _load_runtime_trading_config(**kwargs):
+        load_kwargs.append(dict(kwargs))
+        raise ConfigLoadError("config_load_failed:/tmp/user.yaml:ScannerError:bad")
+
+    monkeypatch.setattr(submit_mod, "load_runtime_trading_config", _load_runtime_trading_config)
+    monkeypatch.setattr(le, "LiveGateDB", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("gate DB should not open")))
+    monkeypatch.setattr(le, "ExecutionStore", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("store should not open")))
+    monkeypatch.setattr(le, "ExchangeClient", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("client should not open")))
+
+    out = le.submit_pending_live(cfg)
+
+    assert out["ok"] is False
+    assert out["submitted"] == 0
+    assert out["safety_blocked"] == 1
+    assert out["note"] == "LIVE blocked: config_load_failed:ConfigLoadError"
+    assert load_kwargs == [{"strict": True}]
 
 
 def test_submit_pending_live_uses_risk_daily_for_gate_one_loss_block(monkeypatch, tmp_path):
