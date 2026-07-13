@@ -812,6 +812,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    receives strict safety-gate loading through the shared function. Remaining
    sweep: live executor/consumer/reconciler config reads, admin live controls,
    and daily-loss gross-vs-net policy.
+   2026-07-13 live-enable controls slice is proof-ready for independent review:
+   both token-based `services/execution/live_enable.py::enable_live()` and
+   admin wizard `services/admin/live_enable_wizard.py::enable_live()` now load
+   `user.yaml` with `strict=True` before writing `execution.live_enabled=true`.
+   Unreadable/corrupt config returns `config_load_failed` and performs no save,
+   no `CBP_EXECUTION_ARMED` mutation, no persisted live-arm state write, and no
+   system-guard RUNNING transition. Token ceremony ordering is otherwise
+   preserved: checklist/preflight/token verification still happen before the
+   strict config load. Disable paths remain intentionally outside this slice so
+   operator halt behavior is not tightened accidentally. Remaining sweep: live
+   executor/consumer/reconciler config reads and daily-loss gross-vs-net policy.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.

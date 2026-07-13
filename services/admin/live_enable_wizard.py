@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os
 from datetime import datetime, timezone
-from services.admin.config_editor import load_user_yaml, save_user_yaml
+from services.admin.config_editor import ConfigLoadError, load_user_yaml, save_user_yaml
 from services.admin.system_guard import set_state as set_system_guard_state
 from services.execution.live_arming import (
     live_enabled_and_armed,
@@ -21,7 +21,13 @@ def _log_audit(action: str, success: bool, reason: str = "") -> None:
         f.write(line)
 
 def enable_live() -> dict:
-    cfg = set_live_enabled(load_user_yaml(), True)
+    try:
+        raw_cfg = load_user_yaml(strict=True)
+    except ConfigLoadError as exc:
+        msg = str(exc)
+        _log_audit("ENABLE_LIVE", False, msg)
+        return {"ok": False, "reason": "config_load_failed", "msg": msg}
+    cfg = set_live_enabled(raw_cfg, True)
     ok, msg = save_user_yaml(cfg)
     save = {"ok": ok, "message": msg}
     if not ok:

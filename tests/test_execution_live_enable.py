@@ -25,7 +25,7 @@ def test_enable_live_uses_normalized_live_contract(monkeypatch):
 
     monkeypatch.setattr(le, "run_preflight", lambda: SimpleNamespace(ok=True, checks=[{"name": "ok", "ok": True}]))
     monkeypatch.setattr(le, "verify_and_consume", lambda token: {"ok": True, "token": token})
-    monkeypatch.setattr(le, "load_user_yaml", lambda: {"risk": {"live": {"max_trades_per_day": 3}}})
+    monkeypatch.setattr(le, "load_user_yaml", lambda **_kwargs: {"risk": {"live": {"max_trades_per_day": 3}}})
     monkeypatch.setattr(le, "save_user_yaml", _save)
     monkeypatch.setattr(
         le,
@@ -78,3 +78,33 @@ def test_enable_live_returns_token_failed_when_verification_fails(monkeypatch):
     assert out["reason"] == "token_failed"
     assert out["token"]["reason"] == "token_mismatch"
     assert out["preflight"]["ok"] is True
+
+
+def test_enable_live_fails_closed_on_unreadable_config(monkeypatch):
+    save_calls: list[dict] = []
+    arm_calls: list[tuple[bool, str, str]] = []
+    load_kwargs: list[dict] = []
+
+    def _load_user_yaml(**kwargs):
+        load_kwargs.append(dict(kwargs))
+        raise le.ConfigLoadError("config_load_failed:/tmp/user.yaml:ScannerError:bad")
+
+    monkeypatch.setattr(le, "run_preflight", lambda: SimpleNamespace(ok=True, checks=[{"name": "ok", "ok": True}]))
+    monkeypatch.setattr(le, "verify_and_consume", lambda token: {"ok": True, "token": token})
+    monkeypatch.setattr(le, "load_user_yaml", _load_user_yaml)
+    monkeypatch.setattr(le, "save_user_yaml", lambda cfg: save_calls.append(cfg) or (True, "Saved"))
+    monkeypatch.setattr(
+        le,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
+
+    out = le.enable_live(token="abc123", checklist=CHECKLIST)
+
+    assert out["ok"] is False
+    assert out["reason"] == "config_load_failed"
+    assert "config_load_failed" in out["error"]
+    assert out["preflight"]["ok"] is True
+    assert load_kwargs == [{"strict": True}]
+    assert save_calls == []
+    assert arm_calls == []

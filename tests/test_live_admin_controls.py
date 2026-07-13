@@ -31,7 +31,7 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
 
     monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
     monkeypatch.setattr(lew, "_log_audit", lambda *args, **kwargs: None)
-    monkeypatch.setattr(lew, "load_user_yaml", lambda: {"risk": {"live": {"max_trades_per_day": 5}}})
+    monkeypatch.setattr(lew, "load_user_yaml", lambda **_kwargs: {"risk": {"live": {"max_trades_per_day": 5}}})
     monkeypatch.setattr(lew, "save_user_yaml", _save)
     monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (True, "env:CBP_EXECUTION_ARMED"))
     monkeypatch.setattr(
@@ -121,6 +121,46 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     assert events[0][3]["post"]["system_guard"]["state"] == "HALTED"
 
 
+def test_live_enable_wizard_fails_closed_on_unreadable_config(monkeypatch):
+    saves: list[dict] = []
+    guard_calls: list[tuple[str, str, str]] = []
+    arm_calls: list[tuple[bool, str, str]] = []
+    audit_calls: list[tuple[str, bool, str]] = []
+    load_kwargs: list[dict] = []
+
+    def _load_user_yaml(**kwargs):
+        load_kwargs.append(dict(kwargs))
+        raise lew.ConfigLoadError("config_load_failed:/tmp/user.yaml:ScannerError:bad")
+
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
+    monkeypatch.setattr(lew, "_log_audit", lambda action, success, reason="": audit_calls.append((action, bool(success), reason)))
+    monkeypatch.setattr(lew, "load_user_yaml", _load_user_yaml)
+    monkeypatch.setattr(lew, "save_user_yaml", lambda cfg: saves.append(cfg) or (True, "Saved"))
+    monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (_ for _ in ()).throw(AssertionError("should not inspect armed state")))
+    monkeypatch.setattr(
+        lew,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        lew,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
+    )
+
+    out = lew.enable_live()
+
+    assert out["ok"] is False
+    assert out["reason"] == "config_load_failed"
+    assert "config_load_failed" in out["msg"]
+    assert load_kwargs == [{"strict": True}]
+    assert os.environ.get("CBP_EXECUTION_ARMED") is None
+    assert saves == []
+    assert arm_calls == []
+    assert guard_calls == []
+    assert audit_calls == [("ENABLE_LIVE", False, out["msg"])]
+
+
 def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
     saved: dict[str, object] = {}
     guard_calls: list[tuple[str, str, str]] = []
@@ -132,7 +172,7 @@ def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
 
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     monkeypatch.setattr(lew, "_log_audit", lambda *args, **kwargs: None)
-    monkeypatch.setattr(lew, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
+    monkeypatch.setattr(lew, "load_user_yaml", lambda **_kwargs: {"execution": {"live_enabled": True}})
     monkeypatch.setattr(lew, "save_user_yaml", _save)
     monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (False, "live_disabled"))
     monkeypatch.setattr(
