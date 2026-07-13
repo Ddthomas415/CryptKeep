@@ -18735,3 +18735,56 @@ Remaining risk:
   independent review before acceptance.
 - UNVERIFIED: full suite and GitHub CI were not run in this session yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T01:05:00Z - Position Truth Resolution Authority Decision Record (Capped-Live Stage Gate)
+
+Active role: ENGINEER
+
+Objective:
+- Record the open position-truth resolution authority decision and pin its
+  current decision-window facts without changing runtime behavior.
+
+What was found:
+- SHOWN: order truth and position truth are separate invariants. The order
+  reconciler answers what happened to an order; it does not fetch balances or
+  positions.
+- SHOWN: `services/reconciliation/exchange_reconciler.py` computes venue
+  balance/position drift and carries scheduling-shaped config, but has zero
+  production importers on the verified boundary.
+- SHOWN: `CRITICAL` drift currently reaches no halt authority; it is a report
+  value, not a control.
+- SHOWN: the accepted `submit_unknown` policy provides the in-repo hysteresis
+  precedent: repeated observations plus minimum age, with lookup exceptions not
+  counted as observations.
+
+What changed:
+- Added `docs/decisions/position_truth_resolution_authority.md`.
+- Added `tests/test_position_truth_authority.py` to pin the decision-window
+  facts while the policy remains open.
+- Updated `REMAINING_TASKS.md` under the capped-live substrate/state-store area
+  with the stage-gate requirement.
+
+Why this change was chosen:
+- This is a prospective capped-live capability gap, not a current runtime bug.
+  The correct next step is a decision record and fact pins, not wiring a
+  magnitude-only drift signal into a halt authority without a trust policy.
+
+Expected outcome:
+- Capped-live cannot treat order reconciliation proof as position reconciliation
+  proof. Before capped-live, the project must choose who wins on position drift,
+  when venue observations are trustworthy, and which named halt authority
+  `CRITICAL` reaches.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_position_truth_authority.py`
+  - SHOWN: `5 passed in 0.24s`.
+- `./.venv/bin/python -m py_compile tests/test_position_truth_authority.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW today: docs/test decision-window guard only; no runtime behavior changed
+  and live lane remains gated off.
+- HIGH when implemented: scheduled position reconciliation feeding a halt
+  authority is financial/live-risk behavior and requires independent review.
+- UNVERIFIED: no full suite or GitHub CI yet on this branch.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -958,6 +958,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    capped-live work: caller/migration audit for unwired stores, crash-consistency
    tests, backup/restore drill, and either transactional migration proof or an
    explicit accepted split-store risk decision.
+   2026-07-13: position-truth resolution authority decision record is written
+   in `docs/decisions/position_truth_resolution_authority.md`. It separates
+   order truth (`_executor_reconcile`: what happened to an order) from
+   position truth (what the venue says we actually hold), pins that
+   `services/reconciliation/exchange_reconciler.py` is currently dormant with
+   zero production importers, and records the capped-live stage gate:
+   scheduled position reconciliation must exist, with a defined resolution
+   authority, trust policy/hysteresis, and `CRITICAL` drift bound to a named
+   halt authority before capped-live exposure.
 8. Add a full-state backup/restore drill to the launch evidence packet. Script
    backup of all state DBs and record one executed restore-and-resume rehearsal.
    Blocks live. 2026-07-04: drill policy is documented in
