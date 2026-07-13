@@ -17755,6 +17755,64 @@ Remaining risk:
 - Acceptance state: `ACCEPTED` by operator on 2026-07-11 after independent
   review.
 
+## 2026-07-12T15:55:42Z - Promotion Authority and Canonical Expectancy Decisions
+
+Active role: ENGINEER
+
+Objective:
+- Implement both accepted authority-boundary decisions in the narrowest scope:
+  gate-enforced documented promotion entrypoint and canonical paper-history
+  expectancy for paper promotion.
+
+What was found:
+- SHOWN: `scripts/show_control_kernel_status.py --promote` previously called
+  `deployment_stage.promote()` directly without consuming the promotion-gate
+  verdict.
+- SHOWN: `scripts/check_promotion_gates.py::_paper_gate_trade_metrics()` used
+  `_check_expectancy(fills)` as the JSONL fallback when paper-history
+  qualification was unavailable, allowing a per-fill PnL average to act as
+  paper-promotion expectancy.
+
+What changed:
+- Added `docs/decisions/promotion_stage_authority_decision.md`.
+- Added `docs/decisions/canonical_expectancy_decision.md`.
+- `scripts/show_control_kernel_status.py --promote` now checks
+  `check_promotion_gates.run_check()` for the strategy's current stage and
+  blocks promotion unless the gate result is ready. Strategies without a
+  supported gate are blocked by the entrypoint.
+- `scripts/check_promotion_gates.py::_paper_gate_trade_metrics()` now reports
+  JSONL fallback expectancy as unknown instead of computing an authoritative
+  per-fill average for paper promotion.
+- Added `tests/test_promotion_authority_entrypoint.py`.
+- Added a targeted paper-gate test proving JSONL fallback expectancy is not
+  authoritative for paper promotion.
+- Updated `README.md` and `scripts/SCRIPTS.md` to state that promotion commands
+  are gate-enforced.
+
+Why this change was chosen:
+- It closes the documented operator path and paper-promotion expectancy fallback
+  without changing the low-level stage-machine API or taking broader retirement
+  semantics in the same patch.
+
+Expected outcome:
+- Operator promotion commands fail closed until the gate is ready, and paper
+  promotion no longer treats JSONL per-fill expectancy as equivalent to
+  provenance-qualified paper-history expectancy.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_promotion_authority_entrypoint.py`
+  - SHOWN: `51 passed in 1.05s`.
+- `./.venv/bin/python -m pytest -q tests/test_deployment_stage.py tests/test_control_kernel.py`
+  - SHOWN: `56 passed in 0.42s`.
+- `./.venv/bin/python -m py_compile scripts/show_control_kernel_status.py scripts/check_promotion_gates.py tests/test_promotion_authority_entrypoint.py tests/test_check_promotion_gates.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: changes promotion-stage authority and paper-promotion gate semantics.
+- UNVERIFIED: full suite, GitHub CI, and operator-host gate output were not run
+  in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-12T15:31:47Z - Strategy-Selection Authority Boundary Option A
 
 Active role: ENGINEER

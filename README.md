@@ -62,7 +62,8 @@ make check-gates        # see pass/fail per promotion gate
 make check-gates-json   # machine-readable output
 make paper-logs         # tail all running campaign logs
 
-# When all gates pass:
+# When all gates pass, the promote command re-checks the gate and fails closed
+# if the supported promotion gate is not ready:
 make promote-strategy STRATEGY_ID=es_daily_trend_v1
 ```
 

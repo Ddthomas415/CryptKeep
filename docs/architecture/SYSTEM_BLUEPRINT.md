@@ -49,6 +49,12 @@ with a +10 exit each yield a gate expectancy of **5.0**, not 10.0
 - Direction is **conservative** (understates expectancy → harder to pass), so this is not
   a capital-loss bug. It is a *measurement-validity* bug.
 
+**Resolution note (2026-07-12):** paper-promotion authority now requires the
+paper-history qualification path for expectancy. The JSONL fallback reports
+expectancy as unknown instead of using this per-fill helper as an authoritative
+paper-promotion metric. `_check_expectancy()` remains present for legacy and
+non-paper contexts.
+
 **Competing path exists and is correct:**
 `paper_evidence_qualification` computes `expectancy_per_closed_trade = net_realized /
 closed_count` — a true per-trade figure. The gate's *history* path (line 1018) uses this
@@ -191,7 +197,7 @@ the paper surface and explicitly disclaims the backtest one.*
 
 | Risk | Why it exists | Detection | Mitigation |
 |---|---|---|---|
-| Gate expectancy compared to a per-trade baseline | CLAIM-01 fork | `test_gate_expectancy_is_per_fill…` | Decide the intended denominator **before** populating `backtest_expectations` (backlog #2) |
+| Gate expectancy compared to a per-trade baseline | CLAIM-01 fork | `test_gate_expectancy_is_per_fill…` plus paper fallback test | Paper-promotion fallback now fails closed; paper-history qualification is authoritative |
 | Sweep optimizes against costs never validated | independent sourcing | `test_backtest_costs_not_sourced_from_user_yaml` | Validate the backtest surface separately |
 | Legacy runner evidence enters analysis | 1.0/0.0 costs | `test_legacy_runner_models_near_free_execution` | Keep non-canonical; never treat as evidence |
 | A sixth cost surface appears | census drift | `test_no_new_fee_surface_appeared` | Census invariant |

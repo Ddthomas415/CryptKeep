@@ -141,6 +141,25 @@ class TestGateOutput:
         assert passed is False
         assert value == pytest.approx(-0.2)
 
+    def test_jsonl_expectancy_fallback_is_not_authoritative_for_paper_promotion(self):
+        from scripts.check_promotion_gates import _paper_gate_trade_metrics
+
+        fills = [
+            {"side": "buy", "pnl_usd": None, "pnl_usd_semantics": "net_of_fees"}
+            for _ in range(10)
+        ] + [
+            {"side": "sell", "pnl_usd": 10.0, "pnl_usd_semantics": "net_of_fees"}
+            for _ in range(10)
+        ]
+
+        metrics = _paper_gate_trade_metrics(fills, paper_history=None)
+
+        assert metrics["source"] == "jsonl_evidence"
+        assert metrics["expectancy_ok"] is None
+        assert metrics["expectancy_value"] is None
+        assert "paper-history qualification is required" in metrics["expectancy_detail"]
+        assert "do not use JSONL per-fill" in metrics["expectancy_hint"]
+
     def test_json_output_surfaces_blocking_backtest_comparison(self, tmp_path):
         from scripts.check_promotion_gates import run_check
 
