@@ -394,6 +394,31 @@ def _parse_order_price(price: Any | None, *, order_type: str) -> float | None:
     return out
 
 
+def _normalize_order_precision(
+    ex: Any,
+    *,
+    symbol: str,
+    amount: Any,
+    price: Any | None,
+    order_type: str,
+) -> tuple[float, float | None]:
+    """Return the exact amount/price that will be submitted to the venue."""
+    amount_n = _parse_order_amount(amount)
+    price_n = _parse_order_price(price, order_type=order_type)
+    try:
+        if hasattr(ex, "amount_to_precision"):
+            amount_n = float(ex.amount_to_precision(symbol, amount_n))
+        if hasattr(ex, "price_to_precision") and price_n is not None:
+            price_n = float(ex.price_to_precision(symbol, price_n))
+    except Exception as exc:
+        raise RuntimeError(
+            f"CBP_ORDER_BLOCKED:precision_normalization_failed:{type(exc).__name__}:{exc}"
+        ) from exc
+    amount_n = _parse_order_amount(amount_n)
+    price_n = _parse_order_price(price_n, order_type=order_type)
+    return amount_n, price_n
+
+
 def _boolish(v: Any) -> bool:
     if isinstance(v, bool):
         return v
@@ -520,7 +545,7 @@ def _enforce_fail_closed(
     price: Any | None,
     params: Dict[str, Any],
     order_type: str,
-) -> Tuple[str, float | None]:
+) -> Tuple[str, float | None, float, float | None]:
     # 0) Risk sink health — fail closed before evaluating stale limits.
     _check_risk_sink_flag()
     _enforce_system_health()
@@ -554,6 +579,14 @@ def _enforce_fail_closed(
     allow_market = _truthy(os.environ.get("CBP_ALLOW_MARKET_ORDERS"))
     if price_f is None and not allow_market:
         raise RuntimeError("CBP_ORDER_BLOCKED:market_orders_disabled (set CBP_ALLOW_MARKET_ORDERS=1 to allow)")
+
+    amount_f, price_f = _normalize_order_precision(
+        ex,
+        symbol=symbol,
+        amount=amount_f,
+        price=price_f,
+        order_type=order_type,
+    )
 
     notional = None
     if price_f is not None:
@@ -616,27 +649,22 @@ def _enforce_fail_closed(
     except Exception as e:
         raise RuntimeError(f"CBP_ORDER_BLOCKED:market_rules_invalid:{type(e).__name__}:{e}")
 
-    return exec_db, notional
+    return exec_db, notional, amount_f, price_f
 
 def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
-    exec_db, notional = _enforce_fail_closed(ex, symbol=symbol, side=side, amount=amount, price=price, params=params, order_type=otype)
+    exec_db, notional, amount_n, price_n = _enforce_fail_closed(
+        ex,
+        symbol=symbol,
+        side=side,
+        amount=amount,
+        price=price,
+        params=params,
+        order_type=otype,
+    )
 
     enforce_coinbase_quote_account_available(ex, symbol)
-    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount, price=price, order_type=otype)
-
-    # Normalize amount/price to the exchange's accepted precision.
-    amount_n = _parse_order_amount(amount)
-    price_n = _parse_order_price(price, order_type=otype)
-    try:
-        if hasattr(ex, "amount_to_precision") and amount_n is not None:
-            amount_n = float(ex.amount_to_precision(symbol, amount_n))
-        if hasattr(ex, "price_to_precision") and price_n is not None:
-            price_n = float(ex.price_to_precision(symbol, price_n))
-    except Exception as exc:
-        raise RuntimeError(
-            f"CBP_ORDER_BLOCKED:precision_normalization_failed:{type(exc).__name__}:{exc}"
-        ) from exc
+    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)
 
     with _ORDER_SEMAPHORE:
         o = ex.create_order(symbol, otype, side, amount_n, price_n, params)
@@ -653,11 +681,19 @@ def place_order(ex: Any, *args: Any, **kwargs: Any) -> Any:
 
 async def place_order_async(ex: Any, *args: Any, **kwargs: Any) -> Any:
     symbol, side, amount, price, params, otype = _extract_create_order_args(args, kwargs)
-    exec_db, notional = _enforce_fail_closed(ex, symbol=symbol, side=side, amount=amount, price=price, params=params, order_type=otype)
+    exec_db, notional, amount_n, price_n = _enforce_fail_closed(
+        ex,
+        symbol=symbol,
+        side=side,
+        amount=amount,
+        price=price,
+        params=params,
+        order_type=otype,
+    )
     enforce_coinbase_quote_account_available(ex, symbol)
-    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount, price=price, order_type=otype)
+    _enforce_funding_gate(ex, symbol=symbol, side=side, amount=amount_n, price=price_n, order_type=otype)
     async with _ASYNC_ORDER_SEMAPHORE:
-        o = await ex.create_order(*args, **kwargs)
+        o = await ex.create_order(symbol, otype, side, amount_n, price_n, params)
 
     try:
         from services.risk import risk_daily as rd  # type: ignore

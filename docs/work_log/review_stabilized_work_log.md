@@ -19118,3 +19118,69 @@ Remaining risk:
   independent review before acceptance.
 - UNVERIFIED: full suite and GitHub CI were not run in this session yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T15:47:19Z - Order-Boundary Quantized Validation Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Start substrate backlog #1 at the order-construction boundary by making local
+  validation operate on the exact amount/price values submitted to the venue.
+
+What was found:
+- SHOWN: `services/execution/place_order.py::place_order()` ran
+  `_enforce_fail_closed()` before applying `amount_to_precision()` and
+  `price_to_precision()`.
+- SHOWN: `_enforce_fail_closed()` computes max-order notional, max-daily
+  notional, funding checks, and market-rule validation from amount/price.
+- SHOWN: after those checks, `place_order()` could submit precision-normalized
+  amount/price values that differed from the values validated locally.
+- SHOWN: `place_order_async()` did not apply the precision-normalized values to
+  the async `create_order()` call at all.
+
+What changed:
+- Added `_normalize_order_precision()` as the single order-boundary helper that
+  parses amount/price, applies existing exchange precision helpers, and
+  revalidates the normalized values are finite and positive.
+- `_enforce_fail_closed()` now preserves the existing early guard order
+  (risk-sink health, system health, basic parse, kill switch, arming, ops gate,
+  config/env gates), then normalizes precision before notional, daily-risk,
+  funding, and market-rule validation.
+- Sync and async `place_order` paths now submit the same normalized
+  amount/price values that passed local validation.
+- Added regression tests proving normalized values are the ones validated,
+  submitted, and recorded; precision-to-zero blocks before submit; and kill
+  switch blocks before precision normalization runs.
+- CI follow-up: existing `tests/test_order_manager_cancel_replace.py`
+  monkeypatched the private `_enforce_fail_closed()` helper with its old
+  two-value return shape. Updated the fixture to the new private helper
+  contract `(exec_db, notional, normalized_amount, normalized_price)`, proving
+  `OrderManager.cancel_and_replace()` still routes replacement submits through
+  the async normalized order boundary.
+
+Why this change was chosen:
+- The smallest production-hardening slice for Decimal/quantization is to close
+  the authority gap at the live order boundary: local risk and market-rule
+  checks must evaluate the exact order values sent to ccxt. A full Decimal
+  migration remains larger and should not be bundled with this behavior change.
+
+Expected outcome:
+- Venue precision normalization can no longer make local validation and the
+  submitted order disagree on amount, price, or notional.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_place_order_fail_closed.py`
+  - SHOWN: `29 passed in 0.17s`.
+- `./.venv/bin/python -m pytest -q tests/test_order_manager_cancel_replace.py tests/test_place_order_fail_closed.py`
+  - SHOWN: `31 passed in 0.25s`.
+- `./.venv/bin/python -m pytest -q tests/test_place_order_fail_closed.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_intent_consumer_order_store_gating.py tests/test_intent_ttl_expiry.py`
+  - SHOWN: `87 passed in 2.93s`.
+- `./.venv/bin/python -m pytest -q tests/test_order_manager_cancel_replace.py tests/test_place_order_fail_closed.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_intent_consumer_order_store_gating.py tests/test_intent_ttl_expiry.py`
+  - SHOWN: `89 passed in 2.97s`.
+
+Remaining risk:
+- HIGH: live order-construction/risk-validation semantics changed. This
+  requires independent review before acceptance.
+- UNVERIFIED: full Decimal migration, per-venue golden tests, full suite, and
+  GitHub CI were not run in this session.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

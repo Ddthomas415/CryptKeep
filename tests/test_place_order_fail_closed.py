@@ -24,6 +24,19 @@ class DummyExchange:
         return {"id": "oid-1"}
 
 
+class PrecisionExchange(DummyExchange):
+    id = "kraken"
+
+    def amount_to_precision(self, symbol, amount):
+        return "1.0"
+
+    def price_to_precision(self, symbol, price):
+        return "10.01"
+
+    def fetch_balance(self):
+        return {"free": {"USD": 1000.0}, "total": {"USD": 1000.0}, "info": {}}
+
+
 class FundingExchange(DummyExchange):
     def __init__(
         self,
@@ -55,6 +68,12 @@ class AsyncFundingExchange(FundingExchange):
     async def create_order(self, *args, **kwargs):
         self.calls.append((args, kwargs))
         return {"id": "oid-async-1"}
+
+
+class AsyncPrecisionExchange(PrecisionExchange):
+    async def create_order(self, *args, **kwargs):
+        self.calls.append((args, kwargs))
+        return {"id": "oid-async-precision"}
 
 
 def _set_limit_env(monkeypatch, **overrides) -> None:
@@ -438,6 +457,100 @@ def test_place_order_blocks_before_exchange_create_order_on_invalid_amount(monke
         po.place_order(ex, "BTC/USD", "limit", "buy", "bad-qty", 100.0, {})
 
     assert ex.calls == []
+
+
+def test_place_order_validates_market_rules_with_normalized_order_values(monkeypatch):
+    _set_limit_env(monkeypatch, CBP_MAX_ORDER_NOTIONAL="10.02")
+    _install_boundary_success_deps(monkeypatch)
+    seen: dict[str, object] = {}
+
+    fake_risk_daily = SimpleNamespace(
+        snapshot=lambda exec_db: {"trades": 0, "pnl": 0, "notional": 0},
+        record_order_attempt=lambda **kwargs: seen.setdefault("record_order_attempt", dict(kwargs)),
+    )
+    monkeypatch.setitem(sys.modules, "services.risk.risk_daily", fake_risk_daily)
+    monkeypatch.setattr(risk_pkg, "risk_daily", fake_risk_daily, raising=False)
+
+    fake_rules = SimpleNamespace(
+        validate=lambda *args, **kwargs: (
+            seen.setdefault("market_rules_args", args),
+            seen.setdefault("market_rules_kwargs", dict(kwargs)),
+            SimpleNamespace(ok=True, code="OK", message="ok"),
+        )[-1]
+    )
+    monkeypatch.setitem(sys.modules, "services.markets.rules", fake_rules)
+    monkeypatch.setattr(markets_pkg, "rules", fake_rules, raising=False)
+
+    ex = PrecisionExchange()
+    out = po.place_order(ex, "BTC/USD", "limit", "buy", 1.009, 10.019, {})
+
+    assert out["id"] == "oid-1"
+    assert ex.calls == [(("BTC/USD", "limit", "buy", 1.0, 10.01, {}), {})]
+    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0}
+    assert seen["record_order_attempt"] == {"notional_usd": pytest.approx(10.01), "exec_db": "/tmp/execution.sqlite"}
+
+
+def test_place_order_blocks_when_precision_normalizes_amount_to_zero(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(monkeypatch)
+
+    class ZeroPrecisionExchange(DummyExchange):
+        def amount_to_precision(self, symbol, amount):
+            return "0"
+
+    ex = ZeroPrecisionExchange()
+
+    with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:invalid_amount:non_positive"):
+        po.place_order(ex, "BTC/USD", "limit", "buy", 0.0004, 100.0, {})
+
+    assert ex.calls == []
+
+
+def test_place_order_kill_switch_blocks_before_precision_normalization(monkeypatch):
+    monkeypatch.setattr(po, "_check_risk_sink_flag", lambda: None)
+    monkeypatch.setattr(po, "_enforce_system_health", lambda: None)
+    monkeypatch.setattr(po, "_killswitch_state", lambda: (True, "test_kill"))
+
+    class RaisingPrecisionExchange(DummyExchange):
+        def amount_to_precision(self, symbol, amount):
+            raise AssertionError("precision normalization should not run before kill switch")
+
+    ex = RaisingPrecisionExchange()
+
+    with pytest.raises(RuntimeError, match="CBP_ORDER_BLOCKED:kill_switch_on"):
+        po.place_order(ex, "BTC/USD", "limit", "buy", 1.0, 100.0, {})
+
+    assert ex.calls == []
+
+
+def test_place_order_async_uses_normalized_values(monkeypatch):
+    _set_limit_env(monkeypatch, CBP_MAX_ORDER_NOTIONAL="10.02")
+    _install_boundary_success_deps(monkeypatch)
+    seen: dict[str, object] = {}
+
+    fake_risk_daily = SimpleNamespace(
+        snapshot=lambda exec_db: {"trades": 0, "pnl": 0, "notional": 0},
+        record_order_attempt=lambda **kwargs: seen.setdefault("record_order_attempt", dict(kwargs)),
+    )
+    monkeypatch.setitem(sys.modules, "services.risk.risk_daily", fake_risk_daily)
+    monkeypatch.setattr(risk_pkg, "risk_daily", fake_risk_daily, raising=False)
+
+    fake_rules = SimpleNamespace(
+        validate=lambda *args, **kwargs: (
+            seen.setdefault("market_rules_kwargs", dict(kwargs)),
+            SimpleNamespace(ok=True, code="OK", message="ok"),
+        )[-1]
+    )
+    monkeypatch.setitem(sys.modules, "services.markets.rules", fake_rules)
+    monkeypatch.setattr(markets_pkg, "rules", fake_rules, raising=False)
+
+    ex = AsyncPrecisionExchange()
+    out = asyncio.run(po.place_order_async(ex, "BTC/USD", "limit", "buy", 1.009, 10.019, {}))
+
+    assert out["id"] == "oid-async-precision"
+    assert ex.calls == [(("BTC/USD", "limit", "buy", 1.0, 10.01, {}), {})]
+    assert seen["market_rules_kwargs"] == {"qty": 1.0, "notional": pytest.approx(10.01), "ttl_s": 21600.0}
+    assert seen["record_order_attempt"] == {"notional_usd": pytest.approx(10.01), "exec_db": "/tmp/execution.sqlite"}
 
 
 def test_place_order_blocks_when_spendable_balance_is_insufficient(monkeypatch):
