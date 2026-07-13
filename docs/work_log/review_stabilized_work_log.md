@@ -18898,3 +18898,58 @@ Remaining risk:
   corrupt config and requires independent review before acceptance.
 - UNVERIFIED: full suite and GitHub CI were not run in this session yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T02:22:14Z - Live Risk-Claim Config Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Close the live consumer risk-cap config fail-open path where corrupt
+  `user.yaml` could be read as `{}` before enforcing configured live risk caps.
+
+What was found:
+- SHOWN: `services/execution/live_arming.py::live_risk_cfg()` used non-strict
+  `load_user_yaml()`, so unreadable existing config could become default caps.
+- SHOWN: `services/execution/live_intent_consumer.py::_risk_check_and_claim()`
+  called `live_risk_cfg()` before `_risk_reset_if_needed()` and
+  `atomic_risk_claim()`.
+- SHOWN: compat `services/execution/intent_consumer.py::_risk_check_and_claim()`
+  used the same pattern.
+- SHOWN: `atomic_risk_claim()` already rejects non-finite caps, bad estimates,
+  and corrupt accumulators, but it cannot distinguish intended no-cap defaults
+  from caps lost by a permissive config read upstream.
+
+What changed:
+- Added `live_risk_cfg(strict: bool = False)`. The non-strict default remains
+  unchanged for existing non-critical callers.
+- Current and compat live consumers now call `live_risk_cfg(strict=True)`.
+- `ConfigLoadError` at that boundary returns `(False, "risk:config_load_failed")`
+  before risk-state read/reset and before `atomic_risk_claim()`.
+- Added tests proving both consumers pass `strict=True`, preserve the normal
+  atomic-claim path, and perform no DB mutation when config cannot be trusted.
+
+Why this change was chosen:
+- The risk-claim boundary is the first point where live risk-cap config becomes
+  enforcement authority. If the config is unreadable there, the safe outcome is
+  a rejected claim, not default/no-cap enforcement.
+
+Expected outcome:
+- Corrupt `user.yaml` can no longer silently erase configured live risk caps in
+  the current or compat live consumer before `atomic_risk_claim()` runs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_consumer_risk_claim.py tests/test_live_arming_contract.py`
+  - SHOWN: `11 passed in 0.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_consumer_risk_claim.py tests/test_live_arming_contract.py tests/test_config_fail_closed_sweep.py`
+  - SHOWN: `22 passed in 0.67s`.
+- `rg -l "services\\.execution\\.(live_intent_consumer|intent_consumer|live_arming)|from services\\.execution import (live_intent_consumer|intent_consumer|live_arming)|import services\\.execution\\.(live_intent_consumer|intent_consumer|live_arming)" tests | xargs ./.venv/bin/python -m pytest -q`
+  - SHOWN: `179 passed, 7 warnings in 4.67s`.
+- `./.venv/bin/python -m py_compile services/execution/live_arming.py services/execution/live_intent_consumer.py services/execution/intent_consumer.py tests/test_live_consumer_risk_claim.py tests/test_live_arming_contract.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: live risk-cap enforcement / fail-open behavior. This changes behavior
+  under corrupt config and requires independent review before acceptance.
+- UNVERIFIED: broader live execution neighborhood, full suite, and GitHub CI
+  were not run in this session yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

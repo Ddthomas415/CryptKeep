@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sqlite3
+from services.admin.config_editor import ConfigLoadError
 from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
 import json
 import os
@@ -81,7 +82,10 @@ def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
 
 
 def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
-    cfg = live_risk_cfg()
+    try:
+        cfg = live_risk_cfg(strict=True)
+    except ConfigLoadError:
+        return False, "risk:config_load_failed"
     _risk_reset_if_needed(db)
     if cfg["min_order_notional_quote"] > 0 and notional_est < cfg["min_order_notional_quote"]:
         return False, "risk:min_order_notional_quote"
