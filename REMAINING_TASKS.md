@@ -880,6 +880,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    converges with exactly-once accounting and an honest cursor (no replay
    past the overlap window). Genuinely unaccounted closed-with-zero-trades
    anomalies still defer, unchanged.
+   2026-07-13 temporal-authority closure proof is ready for independent
+   review: `ExecutionStore.set_intent_status()` now enforces legal
+   predecessor status inside the SQLite `UPDATE` and returns `True` only
+   when the transition applies. This closes the read-check-write race where
+   submit and reconcile writers could both validate against a stale status
+   and the loser could overwrite a terminal state/reason. Added real-sqlite
+   thread tests for exactly-one-winner, terminal resurrection refusal,
+   reason preservation for refused writers, and same-status reason rewrites.
+   Added a state-machine contract pin so downstream tests deriving from
+   `EXECUTION_STORE_STATUS_TRANSITIONS` cannot silently follow a changed
+   terminal map.
 5. Ship server deployment units or retire the stale deployment story. Provide
    systemd units for collector, trader, reconciler, and dashboard, and either
    make Docker compose runnable from this repo or move it behind a documented

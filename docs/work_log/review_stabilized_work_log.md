@@ -18677,3 +18677,61 @@ Remaining risk:
   corrupt runtime config and must receive independent review before acceptance.
 - UNVERIFIED: full suite and GitHub CI were not run in this session yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T00:45:12Z - Atomic Execution-Store Status Transitions (Substrate Backlog #4)
+
+Active role: ENGINEER
+
+Objective:
+- Close the temporal-authority race in `ExecutionStore.set_intent_status()`
+  where transition legality was checked in Python before an unconditional SQL
+  update.
+
+What was found:
+- SHOWN: `storage/execution_store_sqlite.py` read the current status with
+  `SELECT`, checked `execution_store_transition_allowed(...)` in Python, then
+  executed `UPDATE intents SET status=?, reason=? WHERE intent_id=?`.
+- SHOWN: `_executor_submit` and `_executor_reconcile` both write through this
+  method, so two writers could validate against the same stale predecessor.
+- SHOWN: tests deriving from `EXECUTION_STORE_STATUS_TRANSITIONS` protect
+  equivalence with the map, but not the map's intended content.
+
+What changed:
+- `ExecutionStore.set_intent_status()` now derives legal predecessors from
+  `EXECUTION_STORE_STATUS_TRANSITIONS` and enforces them inside the SQL
+  `UPDATE` predicate.
+- The method now returns `True` only when a row was updated and `False` for a
+  missing intent, illegal transition, or lost race.
+- Added `tests/test_execution_store_atomic_transitions.py` using real sqlite
+  files and real threads to prove exactly-one-winner semantics, terminal-state
+  immutability, refused-writer reason preservation, same-status reason rewrites,
+  and full pairwise behavior parity with the lifecycle map.
+- Added `tests/test_intent_state_machine_contract.py` to pin the execution
+  store state-machine content and terminal set independently of tests that
+  derive from the map.
+
+Why this change was chosen:
+- Moving the legality check into the update makes the store the arbiter of
+  temporal authority. Deriving the SQL predicate from the lifecycle map avoids
+  a second hand-maintained transition table, while the contract test prevents
+  silent map-content drift.
+
+Expected outcome:
+- Racing submit/reconcile writers cannot overwrite a terminal execution-store
+  state or clobber its reason based on a stale read. Any future change to the
+  execution-store terminal set must be deliberate and reviewed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_execution_store_atomic_transitions.py tests/test_intent_state_machine_contract.py tests/test_execution_store_integrity.py`
+  - SHOWN: `72 passed in 0.47s`.
+- `./.venv/bin/python -m pytest -q tests/test_execution_store_atomic_transitions.py tests/test_execution_store_integrity.py tests/test_intent_state_machine_contract.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_lifecycle_script_sandbox.py tests/test_crash_consistency_fault_injection.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_reconciler_cursor_safety.py tests/test_stale_submitting_recovery.py tests/test_submit_unknown_not_found_policy.py`
+  - SHOWN: `123 passed, 7 warnings in 2.21s`.
+- `./.venv/bin/python -m py_compile storage/execution_store_sqlite.py tests/test_execution_store_atomic_transitions.py tests/test_intent_state_machine_contract.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: concurrency correctness in live execution-store state. Live lane remains
+  gated off, but this changes store arbitration semantics and requires
+  independent review before acceptance.
+- UNVERIFIED: full suite and GitHub CI were not run in this session yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

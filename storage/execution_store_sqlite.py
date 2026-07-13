@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional, List
 
 from services.execution.intent_lifecycle import (
-    execution_store_transition_allowed,
+    EXECUTION_STORE_STATUS_TRANSITIONS,
     normalize_execution_store_status,
 )
 from services.os.app_paths import data_dir, ensure_dirs
@@ -142,23 +142,34 @@ class ExecutionStore:
             out.append(d)
         return out
 
-    def set_intent_status(self, *, intent_id: str, status: str, reason: Optional[str] = None) -> None:
+    def set_intent_status(self, *, intent_id: str, status: str, reason: Optional[str] = None) -> bool:
+        """Transition an intent status atomically.
+
+        The legal predecessor set is derived from the shared lifecycle map and
+        enforced inside the UPDATE, so racing writers cannot both pass a stale
+        Python-side check and overwrite each other's terminal status.
+        """
+        nxt = normalize_execution_store_status(status)
+        allowed_from = {
+            cur
+            for cur, successors in EXECUTION_STORE_STATUS_TRANSITIONS.items()
+            if nxt in successors
+        }
+        allowed_from.add(nxt)  # same-status writes are idempotent.
+        placeholders = ",".join("?" for _ in allowed_from)
+
         with _conn(self.path) as c:
-            row = c.execute(
-                "SELECT status FROM intents WHERE intent_id=?",
-                (str(intent_id),),
-            ).fetchone()
-            if row is None:
-                return
-            current = normalize_execution_store_status(row["status"])
-            nxt = normalize_execution_store_status(status)
-            if not execution_store_transition_allowed(current, nxt):
-                return
-            c.execute(
-                "UPDATE intents SET status=?, reason=? WHERE intent_id=?",
-                (str(nxt), reason, str(intent_id)),
+            cur = c.execute(
+                f"""
+                UPDATE intents
+                   SET status=?, reason=?
+                 WHERE intent_id=?
+                   AND LOWER(TRIM(status)) IN ({placeholders})
+                """,
+                (str(nxt), reason, str(intent_id), *sorted(allowed_from)),
             )
             c.commit()
+            return cur.rowcount > 0
 
     def add_fill(self, *, intent_id: str, ts_ms: int, price: float, qty: float, fee: float, fee_ccy: str, meta: Optional[Dict[str, Any]] = None) -> None:
         trade_id = _trade_id_from_meta(meta)
