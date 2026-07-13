@@ -7,7 +7,7 @@ import os
 import sqlite3
 import time
 from datetime import datetime, timezone
-from services.config_loader import load_runtime_trading_config
+from services.config_loader import ConfigLoadError, load_runtime_trading_config
 from services.admin.system_guard import get_state as get_system_guard_state, set_state as set_system_guard_state
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.execution._executor_shared import _default_exec_db_path, _on_fill
@@ -98,7 +98,7 @@ def request_stop() -> dict:
 
 def _live_sandbox_enabled() -> bool:
     try:
-        return is_live_sandbox(load_runtime_trading_config())
+        return is_live_sandbox(load_runtime_trading_config(strict=True))
     except (sqlite3.OperationalError, sqlite3.DatabaseError):
         return True
 
@@ -451,7 +451,21 @@ def run_forever() -> None:
                     continue
             submitted = qdb.list_intents(limit=60, status="submitted") + qdb.list_intents(limit=60, status="submit_unknown")
             adapters: dict[str, LiveExchangeAdapter] = {}
-            sandbox = _live_sandbox_enabled()
+            try:
+                sandbox = _live_sandbox_enabled()
+            except ConfigLoadError as exc:
+                _write_status({
+                    "ok": True,
+                    "status": "blocked",
+                    "reason": "config_load_failed",
+                    "error": f"config_load_failed:{type(exc).__name__}",
+                    "ts": _now(),
+                    "loops": loops,
+                    "reconcile_mode": reconcile_mode,
+                    "system_guard": guard_meta,
+                })
+                time.sleep(1.5)
+                continue
             try:
                 for it in submitted:
                     venue = normalize_venue(it["venue"])

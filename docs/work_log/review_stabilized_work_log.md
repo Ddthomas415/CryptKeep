@@ -19007,3 +19007,67 @@ Remaining risk:
   under corrupt config and requires independent review before acceptance.
 - UNVERIFIED: full suite and GitHub CI were not run in this session yet.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T03:14:40Z - Reconciler/Consumer Sandbox Config Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining reconciler/current-consumer/compat-consumer sandbox
+  config read slice from substrate backlog #2 without changing daily-loss
+  gross-vs-net policy.
+
+What was found:
+- SHOWN: `services/execution/live_reconciler.py::_live_sandbox_enabled()`,
+  `services/execution/live_intent_consumer.py::_live_sandbox_enabled()`, and
+  compat `services/execution/intent_consumer.py::_live_sandbox_enabled()` read
+  sandbox mode via permissive `load_runtime_trading_config()`.
+- SHOWN: those reads determine the `LiveExchangeAdapter(..., sandbox=...)`
+  environment for reconciliation, stale-submitting recovery, and submission.
+- SHOWN: `live_intent_consumer.run_forever()` previously called
+  `claim_next_queued()` before reading sandbox config. Since
+  `claim_next_queued()` mutates `queued -> submitting`, a corrupt sandbox config
+  discovered afterward could strand rows before any adapter was created.
+- SHOWN: `load_runtime_trading_config(strict=True)` raises
+  `services.config_loader.ConfigLoadError`, which is distinct from the admin
+  `ConfigLoadError` used by `live_risk_cfg(strict=True)`.
+
+What changed:
+- The three sandbox-mode helpers now call
+  `load_runtime_trading_config(strict=True)`.
+- `live_reconciler.run_forever()` catches runtime `ConfigLoadError`, writes a
+  blocked `config_load_failed` status, sleeps, and constructs no adapter.
+- `live_intent_consumer._recover_stale_submitting()` catches runtime
+  `ConfigLoadError`, records `config_load_failed`, and leaves aged
+  `submitting` rows untouched without adapter construction.
+- `live_intent_consumer.run_forever()` now reads sandbox config before
+  `claim_next_queued()`. Runtime `ConfigLoadError` writes blocked
+  `config_load_failed`, sleeps, and does not mutate queued intents.
+- Compat `intent_consumer.run_forever()` catches runtime `ConfigLoadError`
+  before adapter construction and writes blocked `config_load_failed`.
+- Added `tests/test_live_sandbox_config_fail_closed.py` covering all three
+  loops plus stale-submitting recovery.
+
+Why this change was chosen:
+- Sandbox mode selects the external venue environment. If runtime config is
+  unreadable, the safe behavior is no adapter construction and no queue-state
+  mutation, not silently treating corrupt config as default sandbox mode.
+
+Expected outcome:
+- Corrupt runtime/user config can no longer silently choose sandbox mode for
+  live reconciliation/submission surfaces or strand queued intents before the
+  canonical consumer validates the environment decision.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_sandbox_config_fail_closed.py`
+  - SHOWN: `4 passed in 0.47s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_sandbox_config_fail_closed.py tests/test_live_consumer_risk_claim.py tests/test_live_reconciler.py tests/test_live_reconciler_order_store_gating.py tests/test_live_intent_consumer_order_store_gating.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_stale_submitting_recovery.py tests/test_crash_consistency_fault_injection.py tests/test_intent_ttl_expiry.py tests/test_live_execution_wiring.py tests/test_clock_sanity.py`
+  - SHOWN: `86 passed, 7 warnings in 3.31s`.
+
+Remaining risk:
+- HIGH: live reconciler/consumer config and adapter-environment behavior. This
+  changes behavior under corrupt config and requires independent review before
+  acceptance.
+- UNVERIFIED: full suite and GitHub CI were not run in this session yet.
+- Remaining substrate #2 decision: daily-loss gross-vs-net policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
