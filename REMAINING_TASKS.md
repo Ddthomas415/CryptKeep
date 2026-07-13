@@ -793,6 +793,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    net loss to exceed a configured loss cap by fees paid on a losing day;
    this branch documents and pins the behavior, but does not change live
    gate semantics.
+   2026-07-13 halt-authority slice is proof-ready for independent review:
+   `services/admin/master_read_only.py` now uses strict runtime config loading
+   and fails closed on unreadable/corrupt config. Missing config remains
+   not-read-only (fresh-install contract unchanged); explicit
+   `safety.read_only_mode=true` remains read-only; corrupt or otherwise
+   unreadable config returns read-only with `reason=config_unreadable`. This
+   changes paper-engine/live-router behavior under corrupt `user.yaml` from
+   proceed to refuse with `master_read_only`. Remaining sweep: live executor,
+   consumer/reconciler config reads, admin live controls, and daily-loss
+   gross-vs-net policy.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
