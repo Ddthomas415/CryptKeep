@@ -182,11 +182,12 @@ class RiskDailyDB:
             c.close()
 
     def realized_today_usd(self) -> float:
+        """Return today's fee-inclusive realized PnL for live daily-loss gates."""
         snap = snapshot(self.exec_db)
         if bool(snap.get("risk_daily_corrupt")):
             fields = ",".join(str(x) for x in (snap.get("risk_daily_corrupt_fields") or []))
             raise ValueError(f"risk_daily_corrupt:{fields}")
-        return float(snap.get("realized_pnl", 0.0))
+        return float(snap.get("pnl", 0.0))
 
     def trades_today(self) -> int:
         return int(self.get(_utc_day_key()).get("trades", 0))

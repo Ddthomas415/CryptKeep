@@ -269,18 +269,17 @@ def test_live_position_store_realized_pnl_is_gross_of_fees():
 
 
 # ---------------------------------------------------------------------------
-# FORK 5 (capital-relevant): the live daily-loss gate reads GROSS realized PnL
-# even though risk_daily computes a NET figure in the same snapshot.
+# FORK 5 (capital-relevant): the live daily-loss gate reads NET realized PnL
+# including fees.
 #
 #   risk_daily.snapshot():  "realized_pnl": realized      <- GROSS
 #                           "fees":         fees
 #                           "pnl": (realized - fees)      <- NET, computed here
-#   risk_daily.realized_today_usd():  returns snap["realized_pnl"]   <- GROSS
+#   risk_daily.realized_today_usd():  returns snap["pnl"]            <- NET
 #   _executor_submit.py:382:          rpnl = realized_today_usd()    -> live gates
 #
-# Consequence: the daily-loss limit is evaluated pre-fee, so the true NET loss on
-# a losing day can exceed the configured cap by the total fees paid. Direction is
-# UNSAFE (permits more loss than configured), unlike the expectancy dilution.
+# Consequence: the daily-loss limit is fee-inclusive, so fees cannot cause actual
+# loss to exceed the configured cap unnoticed.
 # ---------------------------------------------------------------------------
 
 def test_risk_daily_snapshot_exposes_both_gross_and_net():
@@ -289,22 +288,21 @@ def test_risk_daily_snapshot_exposes_both_gross_and_net():
     assert '"pnl": (realized - fees)' in src, "net field no longer computed"
 
 
-def test_realized_today_usd_returns_gross_not_net(tmp_path):
-    """TRACED FACT (not an opinion): realized_today_usd() returns the GROSS
-    field. The live risk gate at _executor_submit.py consumes it.
+def test_realized_today_usd_returns_net_including_fees(tmp_path):
+    """POLICY: realized_today_usd() returns NET PnL including fees.
 
-    If this starts returning the net 'pnl' field, the daily-loss cap became
-    fee-inclusive — a behavior change that must be reviewed, and the blueprint's
-    risk entry updated.
+    The live risk gate at _executor_submit.py consumes this value, so changing
+    this function back to gross PnL changes daily-loss cap semantics and must be
+    reviewed before capped-live use.
     """
     src = (REPO / "services/risk/risk_daily.py").read_text(encoding="utf-8")
     fn = src[src.index("def realized_today_usd("):]
     fn = fn[: fn.index("\n    def ")] if "\n    def " in fn else fn
-    assert 'snap.get("realized_pnl"' in fn, (
-        "realized_today_usd no longer returns the gross realized_pnl field — the "
+    assert 'snap.get("pnl"' in fn, (
+        "realized_today_usd no longer returns the net pnl field — the "
         "daily-loss cap's fee treatment changed; re-verify the blueprint risk entry."
     )
-    assert 'snap.get("pnl"' not in fn
+    assert 'snap.get("realized_pnl"' not in fn
 
     from services.risk.risk_daily import RiskDailyDB, snapshot
 
@@ -314,7 +312,7 @@ def test_realized_today_usd_returns_gross_not_net(tmp_path):
     snap = snapshot(str(db_path))
     assert snap["realized_pnl"] == pytest.approx(-100.0)
     assert snap["pnl"] == pytest.approx(-105.0)
-    assert rdb.realized_today_usd() == pytest.approx(-100.0)
+    assert rdb.realized_today_usd() == pytest.approx(-105.0)
 
 
 def test_live_risk_gate_consumes_realized_today_usd():

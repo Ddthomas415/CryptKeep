@@ -66,6 +66,13 @@ def test_risk_daily_increment_helpers_are_additive(tmp_path):
     assert row["notional_usd"] == 25.0
 
 
+def test_realized_today_usd_is_net_of_fees_for_daily_loss(tmp_path):
+    db = RiskDailyDB(str(tmp_path / "execution.sqlite"))
+    db.add_pnl(realized_pnl_usd=-100.0, fee_usd=5.0)
+
+    assert db.realized_today_usd() == -105.0
+
+
 def test_snapshot_marks_corrupt_numeric_fields_and_realized_today_fails_closed(tmp_path):
     from services.risk.risk_daily import snapshot
 

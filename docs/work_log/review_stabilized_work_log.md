@@ -19071,3 +19071,50 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run in this session yet.
 - Remaining substrate #2 decision: daily-loss gross-vs-net policy.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T12:58:31Z - Daily-Loss Net-PnL Policy Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted daily-loss policy decision: capped-live daily-loss
+  gates use fee-inclusive net PnL, not gross realized PnL.
+
+What was found:
+- SHOWN: `services/risk/risk_daily.py::snapshot()` exposes both
+  `realized_pnl` (gross) and `pnl` (`realized_pnl - fees`, net).
+- SHOWN: `RiskDailyDB.realized_today_usd()` returned snapshot
+  `realized_pnl`, excluding fees.
+- SHOWN: `services/execution/_executor_submit.py::submit_pending_live()` feeds
+  `RiskDailyDB(cfg.exec_db).realized_today_usd()` into PHASE82 live risk gates,
+  so the daily-loss cap previously evaluated gross PnL.
+
+What changed:
+- `RiskDailyDB.realized_today_usd()` now returns snapshot `pnl`, preserving the
+  existing corrupt-snapshot fail-closed guard.
+- Updated blueprint invariants to define and pin the fee-inclusive daily-loss
+  policy.
+- Added a direct unit test proving `-100.0` gross realized PnL plus `5.0` fees
+  evaluates as `-105.0` for daily-loss purposes.
+- Updated `REMAINING_TASKS.md` to mark substrate #2 code-complete pending
+  independent review/CI for this final high-risk live-risk policy slice.
+
+Why this change was chosen:
+- A daily-loss cap should bound actual money lost. On a losing day, gross PnL
+  can understate true loss by total fees paid; net PnL makes the cap
+  fee-inclusive.
+
+Expected outcome:
+- PHASE82 live gates now receive fee-inclusive daily PnL through the existing
+  `realized_today_usd()` call path, so fees cannot cause actual loss to exceed
+  the configured daily-loss cap unnoticed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_risk_daily_atomic.py tests/test_blueprint_invariants.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_risk_gates.py tests/test_show_live_gate_inputs.py`
+  - SHOWN: `62 passed in 1.39s`.
+
+Remaining risk:
+- HIGH: live risk-cap semantics changed from gross to net PnL. This requires
+  independent review before acceptance.
+- UNVERIFIED: full suite and GitHub CI were not run in this session yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
