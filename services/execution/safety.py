@@ -18,7 +18,7 @@ class SafetyGates:
     # canonical realized pnl comes from data/pnl.sqliten
     prefer_journal_pnl: bool = False
 def load_gates() -> SafetyGates:
-    cfg = load_user_config()
+    cfg = load_user_config(strict=True)
     s = cfg.get("safety") if isinstance(cfg.get("safety"), dict) else {}
     return SafetyGates(
         min_order_notional=float(s.get("min_order_notional", 0.0) or 0.0),

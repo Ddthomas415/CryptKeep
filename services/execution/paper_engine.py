@@ -180,8 +180,8 @@ class PaperEngine:
                 gates,
                 store,
             )
-        except Exception:
-            ok_s, why_s = True, "safety_check_error_ignored"
+        except Exception as exc:
+            ok_s, why_s = False, f"safety_check_error_fail_closed:{type(exc).__name__}"
         if not ok_s:
             return False, f"safety:{why_s}"
 

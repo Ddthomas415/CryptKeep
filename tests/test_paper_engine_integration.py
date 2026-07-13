@@ -598,6 +598,49 @@ def test_paper_engine_submit_blocks_on_deterministic_safety_gate(monkeypatch, tm
     assert eng.db.get_order_by_client_id("paper-gate-safety") is None
 
 
+def test_paper_engine_submit_fails_closed_on_safety_gate_error(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    _, paper_engine = _reload_paper_modules()
+
+    monkeypatch.setattr(
+        paper_engine,
+        "load_user_yaml",
+        lambda: {
+            "paper_trading": {
+                "starting_cash_quote": 1000.0,
+                "fee_bps": 0.0,
+                "slippage_bps": 0.0,
+                "use_ccxt_fallback": False,
+            }
+        },
+    )
+    monkeypatch.setattr(paper_engine, "is_snapshot_fresh", lambda: (True, None))
+    monkeypatch.setattr(paper_engine, "is_master_read_only", lambda: (False, {}))
+    monkeypatch.setattr(
+        paper_engine,
+        "check_market_quality",
+        lambda venue, symbol: {"ok": True, "reason": "ok", "price_used": 50.0},
+    )
+    monkeypatch.setattr(
+        paper_engine,
+        "load_gates",
+        lambda: (_ for _ in ()).throw(RuntimeError("config_load_failed")),
+    )
+
+    eng = paper_engine.PaperEngine()
+    out = eng.submit_order(
+        client_order_id="paper-gate-config-error",
+        venue="coinbase",
+        symbol="BTC/USD",
+        side="buy",
+        order_type="market",
+        qty=1.0,
+    )
+
+    assert out == {"ok": False, "reason": "safety:safety_check_error_fail_closed:RuntimeError"}
+    assert eng.db.get_order_by_client_id("paper-gate-config-error") is None
+
+
 def test_paper_engine_evidence_logging_prefers_strategy_preset(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     _, paper_engine = _reload_paper_modules()
