@@ -18788,3 +18788,55 @@ Remaining risk:
   authority is financial/live-risk behavior and requires independent review.
 - UNVERIFIED: no full suite or GitHub CI yet on this branch.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T01:25:42Z - Safety Gate Config Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Close the safety-gate config fail-open path where corrupt runtime config
+  became `{}` and disabled safety caps, and where paper pre-submit ignored
+  safety-gate exceptions.
+
+What was found:
+- SHOWN: `services/execution/safety.py::load_gates()` used non-strict
+  `load_user_config()`, so corrupt config was treated like missing config and
+  safety caps defaulted to zero.
+- SHOWN: `services/execution/paper_engine.py` caught safety-gate exceptions and
+  set `ok_s=True`, `why_s="safety_check_error_ignored"`, allowing submission to
+  continue.
+- SHOWN: `services/live_router/router.py` already fails closed on safety-gate
+  exceptions; sharing strict `load_gates()` extends that path to corrupt config.
+
+What changed:
+- `load_gates()` now calls `load_user_config(strict=True)`.
+- Paper-engine pre-submit now treats safety-gate exceptions as blocking:
+  `safety:safety_check_error_fail_closed:<ExceptionType>`.
+- Added `tests/test_execution_safety_fail_closed.py` and extended
+  `tests/test_paper_engine_integration.py` to pin strict loading, corrupt-config
+  propagation, unchanged normal parsing, and paper order refusal before
+  persistence.
+
+Why this change was chosen:
+- Safety caps are order-gating authority. If runtime config is unreadable, the
+  correct behavior is to stop the order path, not silently disable min-notional,
+  max-trades, or max-loss limits.
+
+Expected outcome:
+- Corrupt `user.yaml` no longer disables safety caps for paper-engine/live-router
+  order paths. Paper orders now fail closed if safety gate evaluation fails.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_execution_safety_fail_closed.py tests/test_paper_engine_integration.py tests/test_live_router_safety_contract.py`
+  - SHOWN: `23 passed in 0.59s`.
+- `./.venv/bin/python -m pytest -q tests/test_execution_safety_fail_closed.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_router_safety_contract.py tests/test_live_runner_guard_accounting.py tests/test_paper_engine_honesty.py tests/test_paper_engine_integration.py tests/test_paper_engine_limit_and_status.py tests/test_paper_reconciler_recovery.py tests/test_paper_strategy_journal_flow.py`
+  - SHOWN: `56 passed in 1.98s`.
+- `./.venv/bin/python -m py_compile services/execution/safety.py services/execution/paper_engine.py tests/test_execution_safety_fail_closed.py tests/test_paper_engine_integration.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- HIGH: order-gating / fail-open behavior. This changes behavior under corrupt
+  config and safety-gate exceptions and requires independent review before
+  acceptance.
+- UNVERIFIED: full suite and GitHub CI were not run in this session yet.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

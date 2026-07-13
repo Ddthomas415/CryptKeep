@@ -803,6 +803,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    proceed to refuse with `master_read_only`. Remaining sweep: live executor,
    consumer/reconciler config reads, admin live controls, and daily-loss
    gross-vs-net policy.
+   2026-07-13 safety-gate slice is proof-ready for independent review:
+   `services/execution/safety.py::load_gates()` now uses strict runtime
+   config loading instead of treating corrupt config as `{}`. Paper-engine
+   pre-submit now fails closed with `safety:safety_check_error_fail_closed:*`
+   instead of proceeding with `safety_check_error_ignored` when safety gates
+   raise. Live router already had the fail-closed exception path and now
+   receives strict safety-gate loading through the shared function. Remaining
+   sweep: live executor/consumer/reconciler config reads, admin live controls,
+   and daily-loss gross-vs-net policy.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.
