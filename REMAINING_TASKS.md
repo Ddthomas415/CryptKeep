@@ -738,6 +738,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    lot size, and min-notional quantization. Start with the order-construction
    boundary quantizer before a full end-to-end migration, and write venue
    golden tests before changing behavior. Blocks capped live.
+   2026-07-13 order-boundary quantized-validation slice is proof-ready for
+   independent review: `services/execution/place_order.py` now applies the
+   existing exchange precision helpers before local notional, funding, and
+   market-rule validation, then submits those same normalized amount/price
+   values to `create_order()`. This preserves the existing guard order: risk
+   sink/system health/basic parse/kill switch/arming/config gates still run
+   before precision normalization. Tests prove sync and async order paths
+   validate and record the normalized notional, block if precision normalizes
+   amount to zero, and do not run precision normalization before a kill-switch
+   block. Remaining substrate #1 work: full Decimal migration across qty,
+   price, fee, and PnL math, plus per-venue step-size/lot-size/min-notional
+   golden tests before any capped-live exposure.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

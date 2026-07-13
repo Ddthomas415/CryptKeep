@@ -51,7 +51,7 @@ def test_cancel_and_replace_runs(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "1")
     # Patch enforce to avoid messing with risk_daily
     dummy_db = tmp_path / "dummy.db"
-    with patch("services.execution.place_order._enforce_fail_closed", return_value=(str(dummy_db), 0.0)):
+    with patch("services.execution.place_order._enforce_fail_closed", return_value=(str(dummy_db), 0.0, 0.5, 21000.0)):
         async def run():
             mgr = OrderManager()
             exchange = DummyExchange()
@@ -92,7 +92,7 @@ def test_cancel_and_replace_routes_cancel_through_lifecycle_boundary(monkeypatch
         seen["source"] = source
         return {"status": "canceled"}
 
-    with patch("services.execution.place_order._enforce_fail_closed", return_value=(str(dummy_db), 0.0)):
+    with patch("services.execution.place_order._enforce_fail_closed", return_value=(str(dummy_db), 0.0, 0.5, 21000.0)):
         with patch("services.execution.order_manager.cancel_order_async_via_boundary", _fake_cancel):
             async def run():
                 mgr = OrderManager()
