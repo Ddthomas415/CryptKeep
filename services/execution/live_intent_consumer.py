@@ -10,6 +10,7 @@ import time
 from datetime import datetime, timezone
 from services.admin.config_editor import ConfigLoadError
 from services.config_loader import ConfigLoadError as RuntimeConfigLoadError, load_runtime_trading_config
+from services.markets.math_utils import decimal_product, decimal_value
 from services.os.app_paths import runtime_dir, ensure_dirs
 from services.risk.market_quality_guard import check as mq_check
 from services.market_data.symbol_router import normalize_venue, normalize_symbol
@@ -83,18 +84,28 @@ def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
     if cur != today:
         db.reset_risk_state_for_day(today)
 
-def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: float) -> tuple[bool, str | None]:
+def _intent_notional_estimate(intent: dict, market_quality: dict) -> object:
+    price = intent.get("limit_price") or (market_quality.get("last") or 0.0)
+    return decimal_product(intent["qty"], price)
+
+
+def _risk_check_and_claim(db: LiveIntentQueueSQLite, notional_est: object) -> tuple[bool, str | None]:
     try:
         cfg = live_risk_cfg(strict=True)
     except ConfigLoadError:
         return False, "risk:config_load_failed"
     _risk_reset_if_needed(db)
-    if cfg["min_order_notional_quote"] > 0 and notional_est < cfg["min_order_notional_quote"]:
+    notional_est_d = decimal_value(notional_est, name="notional_est")
+    min_order_notional_d = decimal_value(
+        cfg["min_order_notional_quote"],
+        name="min_order_notional_quote",
+    )
+    if min_order_notional_d > 0 and notional_est_d < min_order_notional_d:
         return False, "risk:min_order_notional_quote"
     return db.atomic_risk_claim(
         max_trades=int(cfg["max_trades_per_day"]),
-        max_notional=float(cfg["max_daily_notional_quote"]),
-        notional_est=float(notional_est),
+        max_notional=cfg["max_daily_notional_quote"],
+        notional_est=notional_est_d,
     )
 
 
@@ -343,7 +354,7 @@ def run_forever() -> None:
                         if not escalated:
                             _LOG.error("live_intent_consumer.clock_submit_unknown_write_failed intent_id=%s reason=%s", it.get("intent_id"), clock_reason)
                     continue
-                notional_est = float(it["qty"]) * float(it.get("limit_price") or (mq.get("last") or 0.0) or 0.0)
+                notional_est = _intent_notional_estimate(it, mq)
                 ok, rreason = _risk_check_and_claim(qdb, notional_est)
                 if not ok:
                     wrote = update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=rreason)

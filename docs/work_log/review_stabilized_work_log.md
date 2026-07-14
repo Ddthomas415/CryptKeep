@@ -19625,3 +19625,60 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T05:23:54Z - Decimal Live Intent Consumer Notional Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by replacing live intent consumer notional
+  estimation and min-order-notional checks with Decimal-backed math before the
+  atomic risk claim.
+
+What was found:
+- SHOWN: both `services/execution/live_intent_consumer.py` and the compat
+  `services/execution/intent_consumer.py` computed intent `notional_est` as
+  `float(qty) * float(limit_price_or_last)`.
+- SHOWN: both consumers compared that float estimate against
+  `min_order_notional_quote` before calling the atomic risk claim.
+- SHOWN: `0.1 * 0.7` can become `0.06999999999999999` in binary float, which
+  can reject an exact `0.07` min-order boundary before the Decimal-backed queue
+  claim can run.
+
+What changed:
+- Added `_intent_notional_estimate()` to both consumer modules using
+  `decimal_product()`.
+- `_risk_check_and_claim()` in both consumers now parses the estimate and
+  min-order threshold through `decimal_value()` before comparison.
+- Both consumers now pass the Decimal estimate into `atomic_risk_claim()`
+  instead of forcing it back to float.
+- Added a parametrized regression covering both modules: intent qty `0.1` and
+  limit price `0.7` passes a `0.07` min-order threshold and forwards
+  `notional_est=0.07`.
+
+Why this change was chosen:
+- It closes the next narrow live-money Decimal boundary before the atomic queue
+  risk claim without changing queue schema, submit behavior, status transitions,
+  or risk policy.
+
+Expected outcome:
+- Live intent consumers no longer reject exact min-order-notional boundaries
+  due to binary float under-estimation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_consumer_risk_claim.py`
+  - SHOWN: `6 passed in 0.11s`.
+- `./.venv/bin/python -m py_compile services/execution/intent_consumer.py services/execution/live_intent_consumer.py tests/test_live_consumer_risk_claim.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_consumer_risk_claim.py tests/test_live_intent_queue_integrity.py tests/test_config_fail_closed_sweep.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_consumer_state_risk_reset.py tests/test_live_intent_consumer_order_store_gating.py tests/test_intent_ttl_expiry.py tests/test_submit_unknown_not_found_policy.py tests/test_stale_submitting_recovery.py tests/test_crash_consistency_fault_injection.py`
+  - SHOWN: `77 passed, 7 warnings in 3.35s` (warnings are existing
+    `datetime.utcnow()` deprecations from canonical execdb tests).
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches live intent consumer risk-check paths before submit. This
+  requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
