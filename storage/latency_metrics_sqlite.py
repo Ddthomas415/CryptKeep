@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List
 
+from services.markets.math_utils import decimal_value
 from services.os.app_paths import data_dir, ensure_dirs
 
 ensure_dirs()
@@ -47,17 +49,47 @@ def _p95(values: List[float]) -> float | None:
     return float(s[idx])
 
 
+def _required_ts_ms(value: Any) -> int:
+    try:
+        out = int(value)
+    except Exception as exc:
+        raise ValueError("invalid_latency_metric_numeric:ts_ms") from exc
+    if out <= 0:
+        raise ValueError("invalid_latency_metric_numeric:ts_ms")
+    return out
+
+
+def _required_value_ms(value: Any) -> float:
+    try:
+        out = float(decimal_value(value, name="value_ms"))
+    except (OverflowError, ValueError) as exc:
+        raise ValueError("invalid_latency_metric_numeric:value_ms") from exc
+    if not math.isfinite(out) or out < 0.0:
+        raise ValueError("invalid_latency_metric_numeric:value_ms")
+    return out
+
+
 class LatencyMetricsSQLite:
     def __init__(self, path: Path | str | None = None) -> None:
         self.path = Path(path) if path else DB_PATH
         _connect(self.path).close()
 
-    def log_latency(self, *, ts_ms: int, category: str, name: str, value_ms: float, meta: Dict[str, Any] | None = None) -> None:
+    def log_latency(
+        self,
+        *,
+        ts_ms: int,
+        category: str,
+        name: str,
+        value_ms: float,
+        meta: Dict[str, Any] | None = None,
+    ) -> None:
+        ts = _required_ts_ms(ts_ms)
+        value = _required_value_ms(value_ms)
         con = _connect(self.path)
         try:
             con.execute(
                 "INSERT INTO latency_metrics(ts_ms, category, name, value_ms, meta_json) VALUES(?,?,?,?,?)",
-                (int(ts_ms), str(category), str(name), float(value_ms), json.dumps(meta or {}, default=str)),
+                (ts, str(category), str(name), value, json.dumps(meta or {}, default=str)),
             )
         finally:
             con.close()

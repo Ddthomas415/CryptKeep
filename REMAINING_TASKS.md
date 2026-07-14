@@ -1495,7 +1495,14 @@ substrate work, but they are concrete enough to keep visible.
    `recv_ts_ms` and non-finite or negative `lag_ms` before writing current or
    event rows, while preserving valid zero-lag status records. This protects
    freshness/ops telemetry from poisoned lag values without making websocket
-   data canonical for trading.
+   data canonical for trading. 2026-07-14: latency metric-store ingestion
+   proof is ready for independent review. `LatencyMetricsSQLite.log_latency()`
+   and `SQLiteMarketWsStore.log_latency()` now reject invalid/non-positive
+   timestamps and non-finite or negative latency values before mutation, while
+   preserving zero-latency measurements. The slice also fixes
+   `SQLiteMarketWsStore` persistence by using autocommit like the other SQLite
+   telemetry stores, after the regression test showed valid rows were rolling
+   back on close.
 5. Add a backtest-to-paper fill parity property test around the shared fill
    model so paper evidence transferability is tested directly. 2026-07-04:
    parity guard added for paper market buy/sell fills: paper engine fill price
