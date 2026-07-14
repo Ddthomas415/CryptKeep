@@ -790,6 +790,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `MAX_DAILY_LOSS_EXCEEDED` policy. Remaining substrate #1 work: full Decimal
    migration across fee/PnL/storage paths and broader end-to-end Decimal value
    transport.
+   2026-07-14 live-risk-limit config finite-validation slice is proof-ready
+   for independent review: `LiveRiskLimits.from_dict()` now parses
+   `max_daily_loss_usd`, `max_notional_per_trade_usd`, and
+   `max_position_notional_usd` through finite Decimal validation, and rejects
+   fractional/non-finite `max_trades_per_day`. This prevents `NaN`/`inf` live
+   risk limits from being accepted as configured caps before the gate runs.
+   Remaining substrate #1 work: full Decimal migration across fee/PnL/storage
+   paths and broader end-to-end Decimal value transport.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
