@@ -762,6 +762,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    substrate #1 work: full Decimal migration across order qty/price, fee, and
    PnL math, plus broader per-venue golden fixtures before capped-live
    exposure.
+   2026-07-14 order-notional Decimal slice is proof-ready for independent
+   review: `services/execution/place_order.py` now estimates normalized order
+   notional with Decimal multiplication before max-order and max-daily-notional
+   comparisons, while preserving the existing float `notional` value passed to
+   downstream recording APIs. Tests pin exact boundary cases that binary float
+   math can misclassify (`0.1 * 0.2 == 0.02`; `0.1 + 0.2 == 0.3`) and prove a
+   non-finite daily-notional snapshot blocks with
+   `CBP_ORDER_BLOCKED:invalid_notional_input:daily_notional`. Remaining
+   substrate #1 work: full Decimal migration across fee and PnL math plus
+   broader end-to-end Decimal value transport before capped-live exposure.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

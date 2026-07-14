@@ -5,11 +5,13 @@ import logging
 import math
 import json
 import os
+from decimal import Decimal
 from services.execution.coinbase_portfolio_guard import enforce_coinbase_quote_account_available
 from services.security.binance_guard import require_binance_allowed
 import time
 import threading
 from typing import Any, Dict, Optional, Tuple
+from services.markets.math_utils import decimal_product, decimal_value
 from services.os.app_paths import data_dir, ensure_dirs
 
 # The ONLY file allowed to call `.create_order(` directly.
@@ -394,6 +396,20 @@ def _parse_order_price(price: Any | None, *, order_type: str) -> float | None:
     return out
 
 
+def _estimate_order_notional(amount: Any, price: Any) -> Decimal:
+    try:
+        return decimal_product(amount, price)
+    except ValueError as exc:
+        raise RuntimeError(f"CBP_ORDER_BLOCKED:invalid_notional:{exc}") from exc
+
+
+def _decimal_order_value(value: Any, *, name: str) -> Decimal:
+    try:
+        return decimal_value(value, name=name)
+    except ValueError as exc:
+        raise RuntimeError(f"CBP_ORDER_BLOCKED:invalid_notional_input:{name}:{exc}") from exc
+
+
 def _normalize_order_precision(
     ex: Any,
     *,
@@ -588,11 +604,16 @@ def _enforce_fail_closed(
         order_type=order_type,
     )
 
+    notional_d: Decimal | None = None
     notional = None
     if price_f is not None:
-        notional = amount_f * price_f
+        notional_d = _estimate_order_notional(amount_f, price_f)
+        notional = float(notional_d)
 
-    if notional is not None and notional > float(max_order_notional):
+    if notional_d is not None and notional_d > _decimal_order_value(
+        max_order_notional,
+        name="max_order_notional",
+    ):
         raise RuntimeError(f"CBP_ORDER_BLOCKED:order_notional_exceeds_limit notional={notional} max={max_order_notional}")
 
     # 6) Deterministic daily state (risk_daily)
@@ -615,6 +636,7 @@ def _enforce_fail_closed(
     trades_today = float(snap.get("trades", 0) or 0)
     pnl_today = float(snap.get("pnl", 0) or 0)
     daily_notional = float(snap.get("notional", 0) or 0)
+    daily_notional_d = _decimal_order_value(daily_notional, name="daily_notional")
 
     if trades_today >= float(max_trades_per_day):
         raise RuntimeError(f"CBP_ORDER_BLOCKED:max_trades_per_day trades={trades_today} max={max_trades_per_day}")
@@ -622,7 +644,9 @@ def _enforce_fail_closed(
     if pnl_today <= float(max_daily_loss):
         raise RuntimeError(f"CBP_ORDER_BLOCKED:max_daily_loss pnl={pnl_today} limit={max_daily_loss}")
 
-    if notional is not None and (daily_notional + notional) > float(max_daily_notional):
+    if notional_d is not None and (
+        daily_notional_d + notional_d
+    ) > _decimal_order_value(max_daily_notional, name="max_daily_notional"):
         raise RuntimeError(f"CBP_ORDER_BLOCKED:max_daily_notional daily={daily_notional} add={notional} max={max_daily_notional}")
 
     # 7) Market rules prereq + validate (fail closed)
