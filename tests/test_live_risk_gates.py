@@ -61,6 +61,30 @@ class TestDailyLossHalt:
         ok, reason, _ = gate.check_live(it=_intent(), realized_pnl_usd=50.0)
         assert ok is True
 
+    def test_nonfinite_realized_pnl_blocks_instead_of_bypassing_loss_cap(self, tmp_path):
+        gate = _make_gate(tmp_path, max_daily_loss_usd=100.0)
+
+        ok, reason, meta = gate.check_live(
+            it=_intent(),
+            realized_pnl_usd=float("nan"),
+        )
+
+        assert ok is False
+        assert reason == "CANNOT_ESTIMATE_REALIZED_PNL_USD"
+        assert meta == {}
+
+    def test_numeric_string_realized_pnl_preserves_loss_cap_policy(self, tmp_path):
+        gate = _make_gate(tmp_path, max_daily_loss_usd=100.0)
+
+        ok, reason, meta = gate.check_live(
+            it=_intent(),
+            realized_pnl_usd="-100.0",
+        )
+
+        assert ok is False
+        assert reason == "MAX_DAILY_LOSS_EXCEEDED"
+        assert meta == {"realized_pnl_usd": -100.0}
+
 
 class TestNotionalCap:
     def test_below_notional_cap_allows_trade(self, tmp_path):

@@ -143,7 +143,13 @@ class LiveRiskGates:
                 return None
         return None
 
-    def check_live(self, *, it: dict, realized_pnl_usd: float) -> Tuple[bool, str, Dict[str, Any]]:
+    def _realized_pnl_usd(self, value: Any) -> Optional[float]:
+        try:
+            return float(decimal_value(value, name="realized_pnl_usd"))
+        except ValueError:
+            return None
+
+    def check_live(self, *, it: dict, realized_pnl_usd: Any) -> Tuple[bool, str, Dict[str, Any]]:
         # KILL_SWITCH_FILE_SUPPORT
         if self.db.killswitch_on() or _killswitch_file_on(self.limits.kill_switch_file):
             return False, "KILL_SWITCH_ON", {}
@@ -159,8 +165,12 @@ class LiveRiskGates:
         if int(row.get("trades", 0)) >= self.limits.max_trades_per_day:
             return False, "MAX_TRADES_PER_DAY_EXCEEDED", dict(row)
 
-        if float(realized_pnl_usd) <= -abs(self.limits.max_daily_loss_usd):
-            return False, "MAX_DAILY_LOSS_EXCEEDED", {"realized_pnl_usd": float(realized_pnl_usd)}
+        realized_pnl = self._realized_pnl_usd(realized_pnl_usd)
+        if realized_pnl is None:
+            return False, "CANNOT_ESTIMATE_REALIZED_PNL_USD", {}
+
+        if realized_pnl <= -abs(self.limits.max_daily_loss_usd):
+            return False, "MAX_DAILY_LOSS_EXCEEDED", {"realized_pnl_usd": realized_pnl}
 
         return True, "OK", {"notional_usd": n, "daily": row}
 
