@@ -64,6 +64,18 @@ def _connect() -> sqlite3.Connection:
             con.execute(s)
     return con
 
+
+def _finite_real_input(value: Any, *, name: str, required: bool = True) -> float | None:
+    if value is None:
+        if required:
+            raise ValueError(f"invalid_live_intent_numeric:{name}:missing")
+        return None
+    try:
+        return float(decimal_value(value, name=name))
+    except ValueError as exc:
+        raise ValueError(f"invalid_live_intent_numeric:{name}:{exc}") from exc
+
+
 class LiveIntentQueueSQLite:
     def __init__(self) -> None:
         _connect().close()
@@ -72,6 +84,8 @@ class LiveIntentQueueSQLite:
         intent_id = str(row["intent_id"])
         meta_json = json.dumps(row.get("meta")) if row.get("meta") is not None else None
         now = _now()
+        qty = _finite_real_input(row["qty"], name="qty")
+        limit_price = _finite_real_input(row.get("limit_price"), name="limit_price", required=False)
 
         con = _connect()
         try:
@@ -88,8 +102,8 @@ class LiveIntentQueueSQLite:
                     str(row["symbol"]),
                     str(row["side"]),
                     str(row["order_type"]),
-                    float(row["qty"]),
-                    row.get("limit_price"),
+                    qty,
+                    limit_price,
                     str(row["status"]),
                     row.get("last_error"),
                     row.get("client_order_id"),

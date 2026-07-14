@@ -835,6 +835,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    instead of being rejected by binary float under-estimation. Remaining
    substrate #1 work: broader Decimal storage transport and position/PnL
    accounting semantics.
+   2026-07-14 live-intent queue finite-ingestion slice is proof-ready for
+   independent review: `storage/live_intent_queue_sqlite.py::upsert_intent`
+   now validates `qty` and optional `limit_price` through finite Decimal
+   parsing before writing the live intent row. Non-finite queue numeric inputs
+   such as `qty=NaN` or `limit_price=inf` raise before mutation, while existing
+   insert-only queue semantics and `REAL` storage are preserved. Remaining
+   substrate #1 work: broader Decimal storage transport and position/PnL
+   accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
