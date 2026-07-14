@@ -18,10 +18,13 @@ Safety rules:
 
 from __future__ import annotations
 
+import math
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from services.markets.math_utils import decimal_value
 
 
 class LivePositionAccountingError(RuntimeError):
@@ -30,6 +33,16 @@ class LivePositionAccountingError(RuntimeError):
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _finite_real_input(value: Any, *, name: str) -> float:
+    try:
+        out = float(decimal_value(value, name=name))
+    except (OverflowError, ValueError) as exc:
+        raise LivePositionAccountingError(f"invalid_live_position_numeric:{name}:{exc}") from exc
+    if not math.isfinite(out):
+        raise LivePositionAccountingError(f"invalid_live_position_numeric:{name}:non_finite_float")
+    return out
 
 
 def _connect(path: str) -> sqlite3.Connection:
@@ -114,17 +127,42 @@ class LivePositionStore:
         """
         pos = self.get_position(venue, symbol)
         local_qty = float(pos["qty"])
-        exchange_qty_f = float(exchange_qty)
+        try:
+            exchange_qty_f = _finite_real_input(exchange_qty, name="exchange_qty")
+            tolerance_f = _finite_real_input(tolerance, name="tolerance")
+        except LivePositionAccountingError as exc:
+            return {
+                "ok": False,
+                "venue": str(venue),
+                "symbol": str(symbol),
+                "local_qty": local_qty,
+                "exchange_qty": None,
+                "drift": None,
+                "tolerance": None,
+                "reason": str(exc),
+            }
+        if tolerance_f < 0.0:
+            return {
+                "ok": False,
+                "venue": str(venue),
+                "symbol": str(symbol),
+                "local_qty": local_qty,
+                "exchange_qty": exchange_qty_f,
+                "drift": None,
+                "tolerance": tolerance_f,
+                "reason": "invalid_live_position_numeric:tolerance:negative",
+            }
         drift = exchange_qty_f - local_qty
 
         return {
-            "ok": abs(drift) <= float(tolerance),
+            "ok": abs(drift) <= tolerance_f,
             "venue": str(venue),
             "symbol": str(symbol),
             "local_qty": local_qty,
             "exchange_qty": exchange_qty_f,
             "drift": drift,
-            "tolerance": float(tolerance),
+            "tolerance": tolerance_f,
+            "reason": None,
         }
 
     def apply_fill(
@@ -157,8 +195,8 @@ class LivePositionStore:
         symbol_s = str(symbol)
         fill_id_s = str(fill_id)
         side_s = str(side).strip().lower()
-        qty_f = float(qty)
-        price_f = float(price)
+        qty_f = _finite_real_input(qty, name="qty")
+        price_f = _finite_real_input(price, name="price")
 
         if not venue_s or not symbol_s or not fill_id_s:
             raise LivePositionAccountingError("missing_required_identity")

@@ -859,6 +859,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `filled=-inf` raise before mutation, while missing snapshot numeric fields
    retain the existing zero-default behavior. Remaining substrate #1 work:
    broader Decimal storage transport and position/PnL accounting semantics.
+   2026-07-14 live-position store finite-ingestion slice is proof-ready for
+   independent review: `storage/live_position_store_sqlite.py` now validates
+   fill `qty`/`price` through finite Decimal parsing before live position or
+   fill rows can be mutated, and read-only reconciliation rejects non-finite
+   `exchange_qty`/`tolerance` inputs with an explicit failed result instead
+   of computing `NaN` drift. The existing weighted-average accounting and
+   gross realized-PnL semantics are unchanged. Remaining substrate #1 work:
+   broader Decimal storage transport and position/PnL accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

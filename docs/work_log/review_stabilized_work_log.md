@@ -19839,3 +19839,62 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T15:24:14Z - Finite Live Position Store Ingestion Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by validating live position-store numeric
+  inputs before mutating position/fill rows, without changing PnL semantics.
+
+What was found:
+- SHOWN: `storage/live_position_store_sqlite.py::apply_fill()` parsed live
+  fill `qty` and `price` with raw `float()` before validating positivity.
+- SHOWN: `reconcile_to_exchange()` parsed `exchange_qty` and `tolerance` with
+  raw `float()` before computing drift.
+- SHOWN: the live position store schema remains `REAL`, and live realized PnL
+  is intentionally left as the existing gross calculation in this slice.
+
+What changed:
+- Added `_finite_real_input()` using `decimal_value()` plus a post-conversion
+  `math.isfinite()` check for live position-store numeric inputs.
+- `apply_fill()` now rejects non-finite `qty`/`price` with
+  `LivePositionAccountingError("invalid_live_position_numeric:...")` before
+  opening the DB transaction or mutating rows.
+- `reconcile_to_exchange()` now returns an explicit failed diagnostic result
+  for non-finite `exchange_qty`/`tolerance`, and rejects negative tolerance
+  without computing a drift value.
+- Preserved existing weighted-average cost basis, duplicate-fill idempotency,
+  sell-without-position/oversell fail-closed behavior, and gross realized-PnL
+  semantics.
+- Added tests proving non-finite fill numerics reject before any position or
+  fill row is written and reconcile invalid inputs fail without raising.
+
+Why this change was chosen:
+- It blocks poisoned live position numeric values at the storage boundary while
+  avoiding the larger Decimal storage-schema migration and the separate
+  gross-vs-net PnL policy surface.
+
+Expected outcome:
+- Non-finite live position fill numerics cannot enter `live_positions` or
+  `live_position_fills` through the store's normal write API, and reconciliation
+  cannot silently report `NaN` drift as valid diagnostic data.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_position_store_sqlite.py`
+  - SHOWN: `10 passed in 0.13s`.
+- `./.venv/bin/python -m py_compile storage/live_position_store_sqlite.py tests/test_live_position_store_sqlite.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_position_store_sqlite.py tests/test_fill_sink_live_position_integration.py tests/test_fill_sink_logging.py tests/test_risk_daily_atomic.py tests/test_live_reconciler_fill_attribution.py tests/test_live_execution_wiring.py tests/test_crash_consistency_fault_injection.py`
+  - SHOWN: `50 passed, 14 warnings in 1.47s` (warnings are existing
+    `datetime.utcnow()` deprecations from canonical execdb tests).
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches live position accounting storage used by the fill sink/risk
+  daily path. This requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

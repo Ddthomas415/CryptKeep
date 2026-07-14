@@ -1,3 +1,5 @@
+import math
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -6,6 +8,14 @@ from storage.live_position_store_sqlite import (
     LivePositionAccountingError,
     LivePositionStore,
 )
+
+
+def _row_count(db: str, table: str) -> int:
+    con = sqlite3.connect(db)
+    try:
+        return int(con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+    finally:
+        con.close()
 
 
 def test_live_position_store_computes_realized_pnl(tmp_path):
@@ -161,3 +171,52 @@ def test_live_position_store_reconcile_hook_reports_drift(tmp_path):
     assert ok["ok"] is True
     assert drift["ok"] is False
     assert drift["drift"] == pytest.approx(0.01)
+
+
+@pytest.mark.parametrize(
+    ("field", "qty", "price"),
+    [
+        ("qty", float("nan"), 60000.0),
+        ("price", 0.01, float("inf")),
+    ],
+)
+def test_live_position_store_rejects_nonfinite_fill_numerics_before_mutation(tmp_path, field, qty, price):
+    db = str(tmp_path / "execution.sqlite")
+    s = LivePositionStore(db)
+
+    with pytest.raises(LivePositionAccountingError, match=rf"invalid_live_position_numeric:{field}:"):
+        s.apply_fill(
+            venue="coinbase",
+            symbol="BTC/USD",
+            fill_id="bad-fill",
+            side="buy",
+            qty=qty,
+            price=price,
+        )
+
+    assert s.get_position("coinbase", "BTC/USD") == {"qty": 0.0, "avg_price": 0.0}
+    assert _row_count(db, "live_positions") == 0
+    assert _row_count(db, "live_position_fills") == 0
+
+
+@pytest.mark.parametrize(
+    ("field", "exchange_qty", "tolerance"),
+    [
+        ("exchange_qty", math.nan, 1e-9),
+        ("tolerance", 0.01, float("inf")),
+    ],
+)
+def test_live_position_reconcile_rejects_nonfinite_inputs_without_raising(tmp_path, field, exchange_qty, tolerance):
+    db = str(tmp_path / "execution.sqlite")
+    s = LivePositionStore(db)
+
+    out = s.reconcile_to_exchange(
+        venue="coinbase",
+        symbol="BTC/USD",
+        exchange_qty=exchange_qty,
+        tolerance=tolerance,
+    )
+
+    assert out["ok"] is False
+    assert out["reason"].startswith(f"invalid_live_position_numeric:{field}:")
+    assert out["drift"] is None
