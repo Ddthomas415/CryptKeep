@@ -19462,3 +19462,55 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, and full Decimal migration across
   fee/PnL/storage paths.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T04:33:10Z - Finite Risk-Daily Write Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by validating live daily ledger write inputs
+  before mutating `risk_daily` PnL, fee, or notional counters.
+
+What was found:
+- SHOWN: `services/risk/risk_daily.py::_apply_pnl_conn()` wrote
+  `float(realized_pnl_usd)` and `float(fee_usd)` directly into the live daily
+  ledger.
+- SHOWN: `record_order_attempt()` wrote `float(notional_usd or 0.0)` into the
+  same ledger.
+- SHOWN: snapshot/read paths already mark non-finite stored values corrupt, but
+  write paths could still introduce those corrupt values before the next read.
+
+What changed:
+- Added `_finite_float_input()` using `services.markets.math_utils.decimal_value()`
+  for finite Decimal parsing at the `risk_daily` write boundary.
+- `_apply_pnl_conn()` validates PnL and fee before mutation. `add_pnl()` now
+  raises `ValueError` before mutation on invalid/non-finite inputs.
+- `apply_fill_once()` retains its existing exception-to-`False` behavior, and
+  invalid PnL/fee rolls back the fill-dedupe insert together with the ledger
+  update.
+- `record_order_attempt()` preserves its best-effort never-raise contract, but
+  non-finite notional now exits before trades/notional are incremented.
+
+Why this change was chosen:
+- It prevents known-bad values from entering the live daily risk ledger while
+  preserving existing caller contracts. This is narrower than a full Decimal
+  storage/PnL migration.
+
+Expected outcome:
+- Non-finite PnL, fee, or submit notional cannot corrupt `risk_daily` through
+  normal write APIs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_risk_daily_atomic.py`
+  - SHOWN: `8 passed in 0.12s`.
+- `./.venv/bin/python -m py_compile services/risk/risk_daily.py tests/test_risk_daily_atomic.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_risk_daily_atomic.py tests/test_place_order_fail_closed.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_blueprint_invariants.py tests/test_ops_signal_adapter_service.py tests/test_ops_risk_gate_engine.py`
+  - SHOWN: `88 passed in 1.18s`.
+
+Remaining risk:
+- HIGH: live daily-ledger write semantics changed for invalid/non-finite inputs.
+  This requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, full Decimal storage transport, and broader
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
