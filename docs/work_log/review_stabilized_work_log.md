@@ -19954,3 +19954,62 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, full suite, host-side exchange behavior, and broader
   Decimal storage/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T22:21:50Z - Crypto Edge Store Numeric Ingestion Slice (Active Backlog #9)
+
+Active role: ENGINEER
+
+Objective:
+- Harden read-only crypto-edge evidence ingestion so funding/basis/quote
+  snapshots cannot persist non-finite or invalid numeric values.
+
+What was found:
+- SHOWN: `storage/crypto_edge_store_sqlite.py::append_funding_rows()` parsed
+  `funding_rate` and `interval_hours` through `_fnum()`, which returns
+  `float(value)` and therefore allows `NaN`/`inf` to flow into persisted
+  snapshot payloads.
+- SHOWN: `append_basis_rows()` defaulted missing/invalid `spot_px` and
+  `perp_px` to `0.0` and stored `days_to_expiry` raw.
+- SHOWN: `append_quote_rows()` stored optional `bid`/`ask` raw.
+- SHOWN: open-interest and order-book append paths already used
+  `_required_float()` plus domain checks, so they were left unchanged.
+
+What changed:
+- `_required_float()` now uses `decimal_value()` for finite numeric parsing.
+- Added `_optional_float()` for optional numeric columns.
+- `append_funding_rows()` now requires finite `funding_rate`, defaults missing
+  `interval_hours` from the function argument, and rejects non-positive
+  intervals.
+- `append_basis_rows()` now requires positive finite `spot_px` and `perp_px`,
+  and rejects negative/non-finite `days_to_expiry` when present.
+- `append_quote_rows()` now allows missing `bid`/`ask` but rejects non-finite
+  or non-positive values when present.
+- Added tests proving invalid funding, basis, and quote rows roll back the
+  whole snapshot rather than leaving partial evidence.
+
+Why this change was chosen:
+- Funding/OI/basis context is the critical input path for the `funding_extreme`
+  research/paper track. Rejecting malformed edge rows at ingestion prevents
+  poisoned evidence from looking like valid live-public context without
+  touching live execution, order routing, or paper campaign behavior.
+
+Expected outcome:
+- Crypto-edge reports and context providers can rely on persisted
+  funding/basis/quote snapshot numerics being finite and domain-valid.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_store_sqlite.py`
+  - SHOWN: `11 passed in 0.14s`.
+- `./.venv/bin/python -m py_compile storage/crypto_edge_store_sqlite.py tests/test_crypto_edge_store_sqlite.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_store_sqlite.py tests/test_crypto_edge_context.py tests/test_short_context_readiness.py tests/test_check_short_context_readiness_script.py tests/test_collect_live_crypto_edge_snapshot.py tests/test_record_crypto_edge_snapshot.py tests/test_load_sample_crypto_edge_data.py tests/test_crypto_edge_collector.py tests/test_crypto_edge_collector_service.py tests/test_crypto_edge_analytics.py`
+  - SHOWN: `42 passed in 0.84s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: read-only research/evidence store semantics changed for malformed
+  funding/basis/quote rows; this should be reviewed before relying on new
+  crypto-edge context evidence.
+- UNVERIFIED: full suite, GitHub CI, and operator-host collector inputs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
