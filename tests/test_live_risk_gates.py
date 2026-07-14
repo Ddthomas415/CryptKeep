@@ -224,6 +224,38 @@ class TestLimitsConstruction:
         lim = LiveRiskLimits.from_dict(cfg)
         assert lim is None
 
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("max_daily_loss_usd", float("nan")),
+            ("max_daily_loss_usd", float("inf")),
+            ("max_notional_per_trade_usd", float("nan")),
+            ("max_notional_per_trade_usd", float("inf")),
+            ("max_position_notional_usd", float("nan")),
+            ("max_position_notional_usd", float("inf")),
+        ],
+    )
+    def test_from_dict_nonfinite_numeric_limits_return_none(self, field, value):
+        cfg = {"risk": {"live": {
+            "max_daily_loss_usd": 25.0,
+            "max_notional_per_trade_usd": 25.0,
+            "max_trades_per_day": 10,
+            "max_position_notional_usd": 100.0,
+        }}}
+        cfg["risk"]["live"][field] = value
+
+        assert LiveRiskLimits.from_dict(cfg) is None
+
+    def test_from_dict_fractional_trade_limit_returns_none(self):
+        cfg = {"risk": {"live": {
+            "max_daily_loss_usd": 25.0,
+            "max_notional_per_trade_usd": 25.0,
+            "max_trades_per_day": "1.5",
+            "max_position_notional_usd": 100.0,
+        }}}
+
+        assert LiveRiskLimits.from_dict(cfg) is None
+
     def test_from_trading_yaml_uses_runtime_config_loader(self, monkeypatch):
         import services.config_loader as config_loader
 

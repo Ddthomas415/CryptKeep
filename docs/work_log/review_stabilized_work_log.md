@@ -19410,3 +19410,55 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, and full Decimal migration across
   fee/PnL/storage paths.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T04:19:40Z - Finite Live-Risk-Limit Config Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by making live risk limit construction reject
+  non-finite numeric limits and fractional trade-count limits before live risk
+  gates are created.
+
+What was found:
+- SHOWN: `services/risk/live_risk_gates.py::LiveRiskLimits.from_dict()` parsed
+  live risk caps with bare `float()`/`int()`.
+- SHOWN: `float("inf") > 0` is true, so an infinite cap could be accepted as a
+  configured positive limit.
+- SHOWN: `float("nan") > 0` is false, but this behavior was implicit rather
+  than a finite-validation contract, and `int()` truncation would accept some
+  integer-like values without an explicit integral check.
+
+What changed:
+- `LiveRiskLimits.from_dict()` now parses
+  `max_daily_loss_usd`, `max_notional_per_trade_usd`, and
+  `max_position_notional_usd` through
+  `services.markets.math_utils.decimal_value()`.
+- `max_trades_per_day` now uses finite Decimal parsing plus an explicit
+  integral-value check before converting to int.
+- Added tests proving NaN/inf numeric limits and fractional trade limits return
+  `None` instead of constructing live risk limits.
+
+Why this change was chosen:
+- It closes a small live-risk config fail-open class discovered while auditing
+  Decimal migration surfaces, without changing fee/PnL storage semantics or
+  live gate policy.
+
+Expected outcome:
+- Corrupt non-finite live risk limits cannot be treated as valid positive caps
+  during live gate construction.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py`
+  - SHOWN: `29 passed in 0.16s`.
+- `./.venv/bin/python -m py_compile services/risk/live_risk_gates.py tests/test_live_risk_gates.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_show_live_gate_inputs.py tests/test_bot_start_manager.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_execution_safety_fail_closed.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py`
+  - SHOWN: `77 passed in 1.14s`.
+
+Remaining risk:
+- HIGH: live risk-limit config acceptance semantics changed. This requires
+  independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, and full Decimal migration across
+  fee/PnL/storage paths.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
