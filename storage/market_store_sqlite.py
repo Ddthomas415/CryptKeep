@@ -8,29 +8,39 @@ from typing import Any
 from services.markets.math_utils import decimal_value
 
 
-def _required_float(value: Any, *, name: str) -> float:
+def _required_float(
+    value: Any,
+    *,
+    name: str,
+    reason_prefix: str = "invalid_market_ohlcv_numeric",
+) -> float:
     try:
         out = float(decimal_value(value, name=name))
     except (OverflowError, ValueError) as exc:
-        raise ValueError(f"invalid_market_ohlcv_numeric:{name}") from exc
+        raise ValueError(f"{reason_prefix}:{name}") from exc
     if not math.isfinite(out):
-        raise ValueError(f"invalid_market_ohlcv_numeric:{name}")
+        raise ValueError(f"{reason_prefix}:{name}")
     return out
 
 
-def _optional_float(value: Any, *, name: str) -> float | None:
+def _optional_float(
+    value: Any,
+    *,
+    name: str,
+    reason_prefix: str = "invalid_market_ohlcv_numeric",
+) -> float | None:
     if value is None:
         return None
-    return _required_float(value, name=name)
+    return _required_float(value, name=name, reason_prefix=reason_prefix)
 
 
-def _required_ts_ms(value: Any) -> int:
+def _required_ts_ms(value: Any, *, reason_prefix: str = "invalid_market_ohlcv_numeric") -> int:
     try:
         out = int(value)
     except Exception as exc:
-        raise ValueError("invalid_market_ohlcv_numeric:ts_ms") from exc
+        raise ValueError(f"{reason_prefix}:ts_ms") from exc
     if out <= 0:
-        raise ValueError("invalid_market_ohlcv_numeric:ts_ms")
+        raise ValueError(f"{reason_prefix}:ts_ms")
     return out
 
 
@@ -97,11 +107,33 @@ class MarketStore:
         base_vol: float | None = None,
         quote_vol: float | None = None,
     ) -> None:
+        ts = _required_ts_ms(ts_ms, reason_prefix="invalid_market_ticker_numeric")
+        bid_f = _optional_float(bid, name="bid", reason_prefix="invalid_market_ticker_numeric")
+        ask_f = _optional_float(ask, name="ask", reason_prefix="invalid_market_ticker_numeric")
+        last_f = _optional_float(last, name="last", reason_prefix="invalid_market_ticker_numeric")
+        base_vol_f = _optional_float(
+            base_vol,
+            name="base_vol",
+            reason_prefix="invalid_market_ticker_numeric",
+        )
+        quote_vol_f = _optional_float(
+            quote_vol,
+            name="quote_vol",
+            reason_prefix="invalid_market_ticker_numeric",
+        )
+        for name, price in (("bid", bid_f), ("ask", ask_f), ("last", last_f)):
+            if price is not None and price <= 0.0:
+                raise ValueError(f"invalid_market_ticker_numeric:{name}_nonpositive")
+        for name, volume in (("base_vol", base_vol_f), ("quote_vol", quote_vol_f)):
+            if volume is not None and volume < 0.0:
+                raise ValueError(f"invalid_market_ticker_numeric:{name}_negative")
+        if bid_f is not None and ask_f is not None and bid_f > ask_f:
+            raise ValueError("invalid_market_ticker_numeric:crossed_bid_ask")
         con = self._connect()
         try:
             con.execute(
                 "INSERT OR REPLACE INTO market_tickers(ts_ms, exchange, symbol, bid, ask, last, base_vol, quote_vol) VALUES(?,?,?,?,?,?,?,?)",
-                (int(ts_ms), str(exchange), str(symbol), bid, ask, last, base_vol, quote_vol),
+                (ts, str(exchange), str(symbol), bid_f, ask_f, last_f, base_vol_f, quote_vol_f),
             )
         finally:
             con.close()

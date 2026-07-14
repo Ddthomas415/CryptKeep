@@ -257,7 +257,14 @@ deployment work still needs independent review.
    rejects non-positive or non-finite OHLCV timestamps/prices, invalid high/low
    envelopes, and non-finite/negative volume before writing `market_ohlcv`,
    while preserving missing-volume rows. This protects dataset hashes and
-   archive-backed walk-forward inputs from malformed bars.
+   archive-backed walk-forward inputs from malformed bars. 2026-07-14:
+   market ticker ingestion proof is ready for independent review.
+   `MarketStore.upsert_ticker()` now rejects non-positive or non-finite
+   present prices, crossed bid/ask pairs, non-finite or negative present
+   volumes, and invalid timestamps before writing `market_tickers`, while
+   preserving partial tickers with missing nullable quote fields. This protects
+   unified market views from malformed ticker rows without changing archive or
+   campaign behavior.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /

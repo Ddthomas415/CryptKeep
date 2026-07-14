@@ -117,6 +117,96 @@ def test_market_store_preserves_missing_ohlcv_volume(tmp_path):
     ]
 
 
+@pytest.mark.parametrize(
+    ("field", "value", "reason"),
+    [
+        ("bid", math.nan, "invalid_market_ticker_numeric:bid"),
+        ("ask", float("inf"), "invalid_market_ticker_numeric:ask"),
+        ("last", 0.0, "invalid_market_ticker_numeric:last_nonpositive"),
+        ("base_vol", -1.0, "invalid_market_ticker_numeric:base_vol_negative"),
+        ("quote_vol", float("nan"), "invalid_market_ticker_numeric:quote_vol"),
+    ],
+)
+def test_market_store_rejects_invalid_ticker_fields_before_mutation(tmp_path, field, value, reason):
+    store = MarketStore(tmp_path / "archive.sqlite")
+    row = {
+        "ts_ms": 1_700_000_000_000,
+        "exchange": "coinbase",
+        "symbol": "BTC/USD",
+        "bid": 100.0,
+        "ask": 101.0,
+        "last": 100.5,
+        "base_vol": 10.0,
+        "quote_vol": 1_005.0,
+    }
+    row[field] = value
+
+    with pytest.raises(ValueError, match=reason):
+        store.upsert_ticker(**row)
+
+    assert store.last_tickers(exchange="coinbase", symbol="BTC/USD", limit=10) == []
+
+
+def test_market_store_rejects_invalid_ticker_timestamp_before_mutation(tmp_path):
+    store = MarketStore(tmp_path / "archive.sqlite")
+
+    with pytest.raises(ValueError, match="invalid_market_ticker_numeric:ts_ms"):
+        store.upsert_ticker(
+            ts_ms=0,
+            exchange="coinbase",
+            symbol="BTC/USD",
+            bid=100.0,
+            ask=101.0,
+            last=100.5,
+        )
+
+    assert store.last_tickers(exchange="coinbase", symbol="BTC/USD", limit=10) == []
+
+
+def test_market_store_rejects_crossed_ticker_before_mutation(tmp_path):
+    store = MarketStore(tmp_path / "archive.sqlite")
+
+    with pytest.raises(ValueError, match="invalid_market_ticker_numeric:crossed_bid_ask"):
+        store.upsert_ticker(
+            ts_ms=1_700_000_000_000,
+            exchange="coinbase",
+            symbol="BTC/USD",
+            bid=102.0,
+            ask=101.0,
+            last=101.5,
+        )
+
+    assert store.last_tickers(exchange="coinbase", symbol="BTC/USD", limit=10) == []
+
+
+def test_market_store_preserves_partial_ticker_fields(tmp_path):
+    store = MarketStore(tmp_path / "archive.sqlite")
+
+    store.upsert_ticker(
+        ts_ms=1_700_000_000_000,
+        exchange="coinbase",
+        symbol="BTC/USD",
+        bid=None,
+        ask=None,
+        last=100.5,
+        base_vol=None,
+        quote_vol=None,
+    )
+
+    assert store.last_tickers(exchange="coinbase", symbol="BTC/USD", limit=10) == [
+        {
+            "ts_ms": 1_700_000_000_000,
+            "exchange": "coinbase",
+            "symbol": "BTC/USD",
+            "bid": None,
+            "ask": None,
+            "last": 100.5,
+            "base_vol": None,
+            "quote_vol": None,
+        }
+    ]
+
+
 def test_signal_replay_fetch_ohlcv_uses_archive_without_exchange(monkeypatch, tmp_path):
     db = tmp_path / "archive.sqlite"
     store = MarketStore(db)

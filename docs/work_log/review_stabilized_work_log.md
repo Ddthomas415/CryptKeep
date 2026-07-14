@@ -20066,3 +20066,61 @@ Remaining risk:
   before treating newly collected archive data as research ground truth.
 - UNVERIFIED: full suite, GitHub CI, and host-side archive backfill behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T23:02:24Z - Market Ticker Numeric Ingestion Slice (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Harden `MarketStore.upsert_ticker()` so malformed ticker rows cannot enter
+  `market_tickers` and poison unified market views or downstream diagnostics.
+
+What was found:
+- SHOWN: `storage/market_store_sqlite.py::upsert_ticker()` validated only
+  `int(ts_ms)` before writing raw bid/ask/last/base-volume/quote-volume values
+  into SQLite.
+- SHOWN: the adjacent OHLCV path now rejects non-finite archive bars, but the
+  ticker path still accepted `NaN`/`inf`, non-positive prices, negative
+  volumes, and crossed bid/ask pairs.
+- SHOWN: ticker schema fields are nullable, so preserving partial tickers is a
+  compatibility requirement.
+
+What changed:
+- Reused the store's Decimal-backed finite numeric helpers with per-surface
+  error prefixes.
+- `upsert_ticker()` now rejects invalid timestamps, non-finite present ticker
+  values, non-positive present bid/ask/last prices, negative present volumes,
+  and crossed bid/ask pairs before opening the DB write path.
+- Missing nullable ticker fields remain accepted and round-trip as `None`.
+- Added regression tests proving invalid ticker rows reject before mutation and
+  partial tickers remain valid.
+
+Why this change was chosen:
+- The ticker store is the remaining `MarketStore` ingestion path next to the
+  OHLCV archive. Blocking malformed ticker rows at the single write API keeps
+  the market-data substrate coherent without changing archive reads,
+  walk-forward research, campaigns, or live execution.
+
+Expected outcome:
+- `market_tickers` rows consumed by unified market views contain finite,
+  domain-valid values whenever quote fields are present.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py`
+  - SHOWN: `21 passed in 0.20s`.
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_remaining_compat_wrappers.py tests/test_run_trader_integration_minimal.py tests/test_placeholder_recovery_phase7.py`
+  - SHOWN: `33 passed in 2.16s`.
+- `./.venv/bin/python -m py_compile storage/market_store_sqlite.py tests/test_ohlcv_archive_backtest.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m ruff check storage/market_store_sqlite.py tests/test_ohlcv_archive_backtest.py`
+  - UNVERIFIED locally: venv lacks `ruff` (`No module named ruff`); GitHub CI
+    remains the lint gate.
+
+Remaining risk:
+- MEDIUM: market ticker ingestion semantics changed for malformed rows; review
+  before relying on new market ticker snapshots for diagnostics.
+- UNVERIFIED: full suite, GitHub CI, and host-side market ticker collector
+  inputs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
