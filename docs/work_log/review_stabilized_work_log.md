@@ -20124,3 +20124,63 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, and host-side market ticker collector
   inputs.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T23:19:51Z - WebSocket Status Numeric Ingestion Slice (Deferred Structure #4)
+
+Active role: ENGINEER
+
+Objective:
+- Harden `WSStatusSQLite.upsert_status()` so malformed websocket freshness and
+  lag rows cannot poison ops telemetry or risk-gate inputs.
+
+What was found:
+- SHOWN: `storage/ws_status_sqlite.py::upsert_status()` wrote `int(recv_ts_ms)`
+  and `float(lag_ms)` directly into both `ws_status` and `ws_status_events`.
+- SHOWN: downstream readers use `lag_ms` for ops telemetry and risk-gate
+  snapshots, so persisted `NaN`/`inf` lag would distort freshness/health
+  calculations.
+- SHOWN: websocket surfaces remain optional telemetry; this slice does not make
+  websocket data canonical for trading.
+
+What changed:
+- Added store-level validation for positive `recv_ts_ms` and finite
+  non-negative `lag_ms`.
+- Invalid timestamp/lag values now raise `invalid_ws_status_numeric:*` before
+  current-status or event rows are written.
+- Valid zero-lag rows remain accepted.
+- Added direct store regression tests for valid zero-lag preservation and
+  reject-before-mutation on invalid timestamps and lag values.
+
+Why this change was chosen:
+- The status store is the single persistence boundary for websocket freshness
+  telemetry. Validating there protects every writer without changing websocket
+  feed behavior, live execution, or canonical market-data authority.
+
+Expected outcome:
+- Websocket status rows consumed by telemetry/risk views contain positive
+  receive timestamps and finite non-negative lag values.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ws_status_sqlite.py tests/test_run_ws_ticker_feed.py tests/test_ws_ticker_feed.py tests/test_live_event_executor.py tests/test_ops_signal_adapter_service.py tests/test_ops_risk_gate_script.py`
+  - SHOWN: `25 passed in 1.10s`.
+- `./.venv/bin/python -m pytest -q tests/test_placeholder_recovery_phase6.py::test_ws_common_last_price_and_health_logger`
+  - SHOWN: `1 passed in 0.11s`.
+- `./.venv/bin/python -m pytest -q tests/test_placeholder_recovery_phase3.py::test_ws_status_and_staleness`
+  - SHOWN: `1 passed in 0.10s`.
+- `./.venv/bin/python -m py_compile storage/ws_status_sqlite.py tests/test_ws_status_sqlite.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m ruff check storage/ws_status_sqlite.py tests/test_ws_status_sqlite.py`
+  - UNVERIFIED locally: venv lacks `ruff` (`No module named ruff`); GitHub CI
+    remains the lint gate.
+- Broader attempted neighborhood included unrelated
+  `tests/test_placeholder_recovery_phase6.py::test_held_intents_and_intent_audit`
+  state contamination (`i1` row observed instead of `i-1`); the WS-specific
+  checks above passed and the unrelated failure was not changed in this slice.
+
+Remaining risk:
+- MEDIUM: websocket status-store ingestion semantics changed for malformed
+  telemetry rows; review before relying on new websocket lag/freshness evidence.
+- UNVERIFIED: full suite, GitHub CI, host-side websocket feed inputs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
