@@ -19787,3 +19787,55 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T06:20:17Z - Finite Order-Manager Store Ingestion Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by validating order-manager store numeric
+  inputs before writing idempotency and order-snapshot rows.
+
+What was found:
+- SHOWN: `storage/order_manager_store_sqlite.py::idem_set()` wrote
+  `float(qty)` and `float(price)` directly into idempotency `REAL` columns.
+- SHOWN: `upsert_order_snapshot()` wrote `float(snapshot.get(... ) or 0.0)`
+  for `qty`, `price`, `filled`, and `average`.
+- SHOWN: the order-manager store schema remains `REAL`, so this is a
+  finite-ingestion guard slice, not the broader Decimal storage migration.
+
+What changed:
+- Added `_finite_real_input()` using `decimal_value()` plus a post-conversion
+  `math.isfinite()` check for order-manager store `REAL` inputs.
+- `idem_set()` now validates required `qty` and `price` before mutation.
+- `upsert_order_snapshot()` now validates snapshot `qty`, `price`, `filled`,
+  and `average` before mutation while preserving the existing missing-field
+  default of `0.0`.
+- Preserved existing schema and read/list output shapes.
+- Added tests proving non-finite idempotency and snapshot numerics reject
+  before any row is written.
+
+Why this change was chosen:
+- It blocks poisoned order-manager numeric values at the store boundary while
+  avoiding the larger storage-schema and position/PnL accounting migration.
+
+Expected outcome:
+- Non-finite order-manager idempotency or order-snapshot numerics cannot enter
+  `order_manager.sqlite` through the store's normal write APIs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_order_manager_store_sqlite.py tests/test_order_manager_cancel_replace.py tests/test_execution_boundary_regression.py`
+  - SHOWN: `13 passed in 0.28s`.
+- `./.venv/bin/python -m py_compile storage/order_manager_store_sqlite.py tests/test_order_manager_store_sqlite.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_order_manager_store_sqlite.py tests/test_order_manager_cancel_replace.py tests/test_execution_boundary_regression.py tests/test_live_execution_wiring.py tests/test_market_rules_validation.py tests/test_place_order_fail_closed.py`
+  - SHOWN: `66 passed in 0.60s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches order-manager storage used by live order-management paths. This
+  requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -851,6 +851,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    raise before mutation, while existing schema and read/list shapes are
    preserved. Remaining substrate #1 work: broader Decimal storage transport
    and position/PnL accounting semantics.
+   2026-07-14 order-manager store finite-ingestion slice is proof-ready for
+   independent review: `storage/order_manager_store_sqlite.py` now validates
+   idempotency `qty`/`price` and order snapshot `qty`/`price`/`filled`/
+   `average` through finite Decimal parsing before writing `REAL` columns.
+   Non-finite numeric inputs such as `qty=NaN`, `price=inf`, or
+   `filled=-inf` raise before mutation, while missing snapshot numeric fields
+   retain the existing zero-default behavior. Remaining substrate #1 work:
+   broader Decimal storage transport and position/PnL accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
