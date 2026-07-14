@@ -10,6 +10,8 @@ import math
 import sqlite3
 from pathlib import Path
 
+from services.markets.math_utils import decimal_value
+
 def _utc_day_key(now: Optional[datetime.datetime] = None) -> str:
     n = now or datetime.datetime.now(datetime.timezone.utc)
     return n.strftime("%Y-%m-%d")
@@ -42,6 +44,15 @@ def _finite_nonnegative_int_field(row: Dict[str, Any], field: str) -> tuple[int,
     if not math.isfinite(out) or out < 0.0:
         return 0, field
     return int(out), None
+
+
+def _finite_float_input(value: Any, *, name: str, default: float | None = None) -> float:
+    if value is None and default is not None:
+        value = default
+    try:
+        return float(decimal_value(value, name=name))
+    except ValueError as exc:
+        raise ValueError(f"invalid_numeric:{name}") from exc
 
 class RiskDailyDB:
     """
@@ -118,6 +129,12 @@ class RiskDailyDB:
         realized_pnl_usd: float,
         fee_usd: float,
     ) -> None:
+        realized_pnl = _finite_float_input(
+            realized_pnl_usd,
+            name="realized_pnl_usd",
+            default=0.0,
+        )
+        fee = _finite_float_input(fee_usd, name="fee_usd", default=0.0)
         c.execute(
             """
             UPDATE risk_daily
@@ -126,7 +143,7 @@ class RiskDailyDB:
                 updated_at=?
             WHERE day=?
             """,
-            (float(realized_pnl_usd), float(fee_usd), _utc_iso(), str(day)),
+            (realized_pnl, fee, _utc_iso(), str(day)),
         )
 
     def get(self, day: Optional[str] = None) -> Dict[str, Any]:
@@ -166,8 +183,8 @@ class RiskDailyDB:
             self._apply_pnl_conn(
                 c,
                 day=d,
-                realized_pnl_usd=float(realized_pnl_usd or 0.0),
-                fee_usd=float(fee_usd or 0.0),
+                realized_pnl_usd=realized_pnl_usd,
+                fee_usd=fee_usd,
             )
             row = self._get_day_conn(c, d)
             c.execute("COMMIT")
@@ -226,8 +243,8 @@ class RiskDailyDB:
             self._apply_pnl_conn(
                 c,
                 day=d,
-                realized_pnl_usd=float(realized_pnl_usd or 0.0),
-                fee_usd=float(fee_usd or 0.0),
+                realized_pnl_usd=realized_pnl_usd,
+                fee_usd=fee_usd,
             )
             c.execute("COMMIT")
             return True
@@ -319,6 +336,7 @@ def record_order_attempt(notional_usd: float | None, exec_db: str | None = None)
     Best-effort; should never raise (avoids retry loops after submit).
     """
     try:
+        notional = _finite_float_input(notional_usd, name="notional_usd", default=0.0)
         db = exec_db or _default_exec_db()
         rdb = RiskDailyDB(db)
         day = _utc_day_key()
@@ -334,7 +352,7 @@ def record_order_attempt(notional_usd: float | None, exec_db: str | None = None)
                     updated_at=?
                 WHERE day=?
                 """,
-                (1, float(notional_usd or 0.0), _utc_iso(), day),
+                (1, notional, _utc_iso(), day),
             )
             c.execute("COMMIT")
         except Exception:

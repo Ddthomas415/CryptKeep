@@ -798,6 +798,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    risk limits from being accepted as configured caps before the gate runs.
    Remaining substrate #1 work: full Decimal migration across fee/PnL/storage
    paths and broader end-to-end Decimal value transport.
+   2026-07-14 risk-daily finite-write slice is proof-ready for independent
+   review: `services/risk/risk_daily.py` now validates live daily ledger write
+   inputs through finite Decimal parsing before mutating `realized_pnl_usd`,
+   `fees_usd`, or `notional_usd`. `add_pnl()` raises before mutation on
+   non-finite PnL/fee, `apply_fill_once()` rolls back the fill-dedupe insert
+   and returns `False`, and `record_order_attempt()` preserves its best-effort
+   never-raise contract while ignoring non-finite notional without incrementing
+   trades/notional. Remaining substrate #1 work: full Decimal transport through
+   storage schemas and position/PnL accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
