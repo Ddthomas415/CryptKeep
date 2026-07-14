@@ -835,6 +835,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    instead of being rejected by binary float under-estimation. Remaining
    substrate #1 work: broader Decimal storage transport and position/PnL
    accounting semantics.
+   2026-07-14 live-intent queue finite-ingestion slice is proof-ready for
+   independent review: `storage/live_intent_queue_sqlite.py::upsert_intent`
+   now validates `qty` and optional `limit_price` through finite Decimal
+   parsing before writing the live intent row. Non-finite queue numeric inputs
+   such as `qty=NaN` or `limit_price=inf` raise before mutation, while existing
+   insert-only queue semantics and `REAL` storage are preserved. Remaining
+   substrate #1 work: broader Decimal storage transport and position/PnL
+   accounting semantics.
    2026-07-14 live-trading store finite-ingestion slice is proof-ready for
    independent review: `storage/live_trading_sqlite.py` now validates live
    order `qty`/optional `limit_price` and live fill `qty`/`price`/optional

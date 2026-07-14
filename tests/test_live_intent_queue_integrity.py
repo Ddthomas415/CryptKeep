@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib
 import sqlite3
 
+import pytest
+
 from services.execution.intent_lifecycle import live_queue_transition_allowed
 
 
@@ -70,6 +72,40 @@ def test_live_intent_queue_upsert_is_insert_only_for_existing_intent(monkeypatch
     assert row["order_type"] == "market"
     assert row["qty"] == 0.5
     assert row["limit_price"] is None
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("qty", float("nan")),
+        ("limit_price", float("inf")),
+    ],
+)
+def test_live_intent_queue_upsert_rejects_nonfinite_numeric_inputs(monkeypatch, tmp_path, field, value):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+    row = {
+        "intent_id": f"intent-invalid-{field}",
+        "created_ts": "2026-04-02T12:00:00Z",
+        "ts": "2026-04-02T12:00:00Z",
+        "source": "strategy",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "order_type": "limit",
+        "qty": 0.5,
+        "limit_price": 100.0,
+        "status": "queued",
+        "last_error": None,
+        "client_order_id": None,
+        "exchange_order_id": None,
+    }
+    row[field] = value
+
+    with pytest.raises(ValueError, match=f"invalid_live_intent_numeric:{field}:"):
+        qdb.upsert_intent(row)
+
+    assert qdb.list_intents(limit=5) == []
 
 
 def test_live_intent_queue_update_status_still_updates_mutable_fields(monkeypatch, tmp_path):

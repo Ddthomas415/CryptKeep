@@ -19683,6 +19683,57 @@ Remaining risk:
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-14T05:41:07Z - Finite Live Intent Queue Ingestion Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by validating live intent queue numeric inputs
+  before inserting a queued live intent row.
+
+What was found:
+- SHOWN: `storage/live_intent_queue_sqlite.py::upsert_intent()` wrote
+  `float(row["qty"])` directly into the live queue `qty REAL` column.
+- SHOWN: the same insert passed `row.get("limit_price")` directly into the
+  `limit_price REAL` column without finite validation.
+- SHOWN: the queue schema remains `REAL`, so this is a finite-ingestion guard
+  slice, not the broader Decimal storage-format migration.
+
+What changed:
+- Added `_finite_real_input()` using `decimal_value()` to validate live intent
+  `qty` and optional `limit_price` before the insert path.
+- `upsert_intent()` now raises `ValueError("invalid_live_intent_numeric:...")`
+  before mutation on non-finite or invalid queue numeric input.
+- Preserved existing insert-only behavior, queue schema, and read/list shapes.
+- Added parametrized tests proving `qty=NaN` and `limit_price=inf` reject before
+  any intent row is inserted.
+
+Why this change was chosen:
+- It blocks poisoned live intent numeric values at ingestion while avoiding the
+  larger storage-schema and position/PnL accounting migration.
+
+Expected outcome:
+- Non-finite live intent `qty` or `limit_price` cannot enter the live queue via
+  `upsert_intent()`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_queue_integrity.py tests/test_config_fail_closed_sweep.py`
+  - SHOWN: `22 passed in 0.56s`.
+- `./.venv/bin/python -m py_compile storage/live_intent_queue_sqlite.py tests/test_live_intent_queue_integrity.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_queue_integrity.py tests/test_config_fail_closed_sweep.py tests/test_live_consumer_risk_claim.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_consumer_state_risk_reset.py tests/test_live_intent_consumer_order_store_gating.py tests/test_intent_ttl_expiry.py tests/test_submit_unknown_not_found_policy.py tests/test_stale_submitting_recovery.py tests/test_crash_consistency_fault_injection.py`
+  - SHOWN: `79 passed, 7 warnings in 3.33s` (warnings are existing
+    `datetime.utcnow()` deprecations from canonical execdb tests).
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches live intent queue ingestion before live submit processing. This
+  requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-14T05:54:02Z - Finite Live Trading Store Ingestion Slice (Substrate Backlog #1)
 
 Active role: ENGINEER
