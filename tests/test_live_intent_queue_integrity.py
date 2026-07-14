@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import sqlite3
 
 from services.execution.intent_lifecycle import live_queue_transition_allowed
 
@@ -300,3 +301,22 @@ def test_live_intent_queue_atomic_risk_claim_enforces_limits(monkeypatch, tmp_pa
     assert (ok2, reason2) == (False, "risk:max_trades_per_day")
     assert qdb.get_state("risk:trades") == "1"
     assert qdb.get_state("risk:notional") == "40.0"
+
+
+def test_live_intent_queue_atomic_risk_claim_uses_decimal_notional_boundary(monkeypatch, tmp_path):
+    queue_mod = _reload_queue(monkeypatch, tmp_path)
+    qdb = queue_mod.LiveIntentQueueSQLite()
+    con = sqlite3.connect(queue_mod.DB_PATH)
+    con.execute("INSERT OR REPLACE INTO live_consumer_state(k,v) VALUES('risk:notional','0.1')")
+    con.commit()
+    con.close()
+
+    ok, reason = qdb.atomic_risk_claim(
+        max_trades=0,
+        max_notional="0.3",
+        notional_est="0.2",
+    )
+
+    assert (ok, reason) == (True, None)
+    assert qdb.get_state("risk:trades") == "1"
+    assert qdb.get_state("risk:notional") == "0.3"

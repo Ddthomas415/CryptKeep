@@ -817,6 +817,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    invalid, non-finite, or negative values still fall back to `0.005`.
    Remaining substrate #1 work: full Decimal transport through storage schemas
    and position/PnL accounting semantics.
+   2026-07-14 live-intent atomic risk-claim Decimal slice is proof-ready for
+   independent review: `storage/live_intent_queue_sqlite.py::atomic_risk_claim`
+   now parses the max-notional cap, notional estimate, and stored
+   `risk:notional` accumulator through finite Decimal validation before the
+   atomic cap comparison and accumulator update. Exact boundaries such as
+   stored `0.1` plus estimate `0.2` against cap `0.3` now pass, while existing
+   `risk:invalid_cap`, `risk:invalid_notional_est`, and `risk:corrupt_state`
+   contracts are preserved. Remaining substrate #1 work: broader Decimal
+   storage transport and position/PnL accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
