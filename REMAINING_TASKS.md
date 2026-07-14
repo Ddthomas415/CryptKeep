@@ -781,6 +781,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `CANNOT_ESTIMATE_NOTIONAL_USD` instead of bypassing the cap through
    `NaN > cap == false`. Remaining substrate #1 work: full Decimal migration
    across fee/PnL/storage paths and broader end-to-end Decimal value transport.
+   2026-07-14 live-risk-gate daily-loss PnL Decimal slice is proof-ready for
+   independent review: `LiveRiskGates.check_live()` now parses
+   `realized_pnl_usd` through finite Decimal validation before the daily-loss
+   comparison. Poisoned `realized_pnl_usd=NaN` now blocks with
+   `CANNOT_ESTIMATE_REALIZED_PNL_USD` instead of bypassing the loss cap through
+   `NaN <= limit == false`, while numeric string PnL still follows the existing
+   `MAX_DAILY_LOSS_EXCEEDED` policy. Remaining substrate #1 work: full Decimal
+   migration across fee/PnL/storage paths and broader end-to-end Decimal value
+   transport.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

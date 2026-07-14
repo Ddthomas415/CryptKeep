@@ -19356,3 +19356,57 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, and full Decimal migration across
   fee/PnL/storage paths.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T04:01:29Z - Decimal Live-Risk-Gate Daily-Loss PnL Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by making `LiveRiskGates` parse daily-loss PnL
+  input through finite Decimal validation before enforcing the
+  `MAX_DAILY_LOSS` cap.
+
+What was found:
+- SHOWN: `services/risk/live_risk_gates.py::LiveRiskGates.check_live()` used
+  `float(realized_pnl_usd) <= -abs(max_daily_loss_usd)` for the daily-loss
+  gate.
+- SHOWN: `float("nan") <= limit` is false, so a poisoned non-finite PnL input
+  could bypass the daily-loss block and return `OK`.
+- SHOWN: this is the same fail-open comparison class as the live-risk-gate
+  notional slice, but on the loss-cap side of the gate.
+
+What changed:
+- Added `_realized_pnl_usd()` in `services/risk/live_risk_gates.py`, using
+  `services.markets.math_utils.decimal_value()` for finite PnL parsing.
+- `check_live()` now returns `CANNOT_ESTIMATE_REALIZED_PNL_USD` when daily PnL
+  is invalid or non-finite.
+- Numeric PnL values, including numeric strings, continue through the existing
+  `MAX_DAILY_LOSS_EXCEEDED` policy.
+- Added regressions proving `realized_pnl_usd=NaN` blocks instead of bypassing
+  the cap and `realized_pnl_usd="-100.0"` still blocks at a 100 USD loss
+  limit.
+
+Why this change was chosen:
+- It closes a small, concrete live-risk fail-open path without changing the
+  fee/PnL storage model or attempting a full Decimal accounting migration.
+
+Expected outcome:
+- Non-finite daily PnL cannot cause the live risk gate to permit a trade when
+  the daily-loss state is not trustworthy.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py`
+  - SHOWN: `22 passed in 0.14s`.
+- `./.venv/bin/python -m py_compile services/risk/live_risk_gates.py tests/test_live_risk_gates.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py tests/test_show_live_gate_inputs.py tests/test_risk_gates_fail_closed.py`
+  - SHOWN: failed before running tests because `tests/test_risk_gates_fail_closed.py` does not exist.
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py tests/test_show_live_gate_inputs.py`
+  - SHOWN: `60 passed in 0.98s`.
+
+Remaining risk:
+- HIGH: live daily-loss gate semantics changed for invalid/non-finite PnL
+  inputs. This requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, and full Decimal migration across
+  fee/PnL/storage paths.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
