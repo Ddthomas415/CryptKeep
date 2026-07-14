@@ -867,6 +867,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    of computing `NaN` drift. The existing weighted-average accounting and
    gross realized-PnL semantics are unchanged. Remaining substrate #1 work:
    broader Decimal storage transport and position/PnL accounting semantics.
+   2026-07-14 follow-up proof is ready for independent review:
+   `scripts/reconcile_positions.py` now treats invalid drift-threshold config
+   as a command error before exchange access and can write the halt flag for
+   invalid reconciliation results whose `drift` is `None` without crashing.
+   This preserves the read-only reconciliation contract while preventing a
+   poisoned exchange quantity or tolerance from bypassing the operator-visible
+   failure artifact.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent
