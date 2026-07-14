@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import math
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, List
+from services.markets.math_utils import decimal_value
 from services.os.app_paths import data_dir, ensure_dirs
 
 ensure_dirs()
@@ -47,6 +49,21 @@ CREATE INDEX IF NOT EXISTS idx_idem_updated ON idempotency(updated_ts);
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
+def _finite_real_input(value: Any, *, name: str, default: float | None = None) -> float:
+    if value is None:
+        if default is None:
+            raise ValueError(f"invalid_order_manager_numeric:{name}:missing")
+        return float(default)
+    try:
+        out = float(decimal_value(value, name=name))
+    except (OverflowError, ValueError) as exc:
+        raise ValueError(f"invalid_order_manager_numeric:{name}:{exc}") from exc
+    if not math.isfinite(out):
+        raise ValueError(f"invalid_order_manager_numeric:{name}:non_finite_float")
+    return out
+
+
 class OrderManagerStoreSQLite:
     def __init__(self, db_path: Path = DB_PATH) -> None:
         self.db = db_path
@@ -83,18 +100,24 @@ class OrderManagerStoreSQLite:
             con.close()
 
     def idem_set(self, idem_key: str, venue: str, symbol: str, side: str, qty: float, price: float, order_id: Optional[str]) -> None:
+        qty_f = _finite_real_input(qty, name="qty")
+        price_f = _finite_real_input(price, name="price")
         con = self._connect()
         try:
             con.execute(
                 "INSERT INTO idempotency(idem_key, venue, symbol, side, qty, price, order_id, created_ts, updated_ts) "
                 "VALUES(?,?,?,?,?,?,?,?,?) "
                 "ON CONFLICT(idem_key) DO UPDATE SET order_id=excluded.order_id, updated_ts=excluded.updated_ts",
-                (str(idem_key), str(venue), str(symbol), str(side), float(qty), float(price), order_id if order_id else None, _now(), _now())
+                (str(idem_key), str(venue), str(symbol), str(side), qty_f, price_f, order_id if order_id else None, _now(), _now())
             )
         finally:
             con.close()
 
     def upsert_order_snapshot(self, venue: str, symbol: str, order_id: str, snapshot: dict) -> None:
+        qty = _finite_real_input(snapshot.get("qty"), name="qty", default=0.0)
+        price = _finite_real_input(snapshot.get("price"), name="price", default=0.0)
+        filled = _finite_real_input(snapshot.get("filled"), name="filled", default=0.0)
+        average = _finite_real_input(snapshot.get("average"), name="average", default=0.0)
         con = self._connect()
         try:
             con.execute(
@@ -107,10 +130,10 @@ class OrderManagerStoreSQLite:
                     str(venue), str(symbol), str(order_id),
                     snapshot.get("status"),
                     snapshot.get("side"),
-                    float(snapshot.get("qty") or 0.0),
-                    float(snapshot.get("price") or 0.0),
-                    float(snapshot.get("filled") or 0.0),
-                    float(snapshot.get("average") or 0.0),
+                    qty,
+                    price,
+                    filled,
+                    average,
                     int(snapshot.get("timestamp") or 0) if snapshot.get("timestamp") else None,
                     _now(),
                 )
