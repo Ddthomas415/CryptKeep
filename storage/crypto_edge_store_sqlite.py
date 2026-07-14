@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from services.analytics.crypto_edges import build_crypto_edge_report
+from services.markets.math_utils import decimal_value
 from services.os.app_paths import data_dir, ensure_dirs
 
 DB_PATH = data_dir() / "crypto_edge_research.sqlite"
@@ -117,12 +118,18 @@ def _fnum(value: Any, default: float = 0.0) -> float:
 
 def _required_float(row: dict[str, Any], key: str) -> float:
     try:
-        parsed = float(row.get(key))
-    except Exception as exc:
+        parsed = float(decimal_value(row.get(key), name=key))
+    except (OverflowError, ValueError) as exc:
         raise ValueError(f"invalid_numeric:{key}") from exc
     if not math.isfinite(parsed):
         raise ValueError(f"invalid_numeric:{key}")
     return parsed
+
+
+def _optional_float(row: dict[str, Any], key: str) -> float | None:
+    if row.get(key) is None:
+        return None
+    return _required_float(row, key)
 
 
 def _s(value: Any) -> str:
@@ -174,9 +181,13 @@ class CryptoEdgeStoreSQLite:
                 payload = {
                     "symbol": _s(row.get("symbol")),
                     "venue": _s(row.get("venue")),
-                    "funding_rate": _fnum(row.get("funding_rate"), 0.0),
-                    "interval_hours": _fnum(row.get("interval_hours"), interval_hours),
+                    "funding_rate": _required_float(row, "funding_rate"),
+                    "interval_hours": _optional_float(row, "interval_hours"),
                 }
+                if payload["interval_hours"] is None:
+                    payload["interval_hours"] = _required_float({"interval_hours": interval_hours}, "interval_hours")
+                if payload["interval_hours"] <= 0.0:
+                    raise ValueError("invalid_numeric:interval_hours")
                 conn.execute(
                     """
                     INSERT INTO funding_snapshots(
@@ -213,10 +224,14 @@ class CryptoEdgeStoreSQLite:
                 payload = {
                     "symbol": _s(row.get("symbol")),
                     "venue": _s(row.get("venue")),
-                    "spot_px": _fnum(row.get("spot_px"), 0.0),
-                    "perp_px": _fnum(row.get("perp_px"), 0.0),
-                    "days_to_expiry": row.get("days_to_expiry"),
+                    "spot_px": _required_float(row, "spot_px"),
+                    "perp_px": _required_float(row, "perp_px"),
+                    "days_to_expiry": _optional_float(row, "days_to_expiry"),
                 }
+                if payload["spot_px"] <= 0.0 or payload["perp_px"] <= 0.0:
+                    raise ValueError("invalid_numeric:basis_price")
+                if payload["days_to_expiry"] is not None and payload["days_to_expiry"] < 0.0:
+                    raise ValueError("invalid_numeric:days_to_expiry")
                 conn.execute(
                     """
                     INSERT INTO basis_snapshots(
@@ -254,9 +269,13 @@ class CryptoEdgeStoreSQLite:
                 payload = {
                     "symbol": _s(row.get("symbol")),
                     "venue": _s(row.get("venue")),
-                    "bid": row.get("bid"),
-                    "ask": row.get("ask"),
+                    "bid": _optional_float(row, "bid"),
+                    "ask": _optional_float(row, "ask"),
                 }
+                if payload["bid"] is not None and payload["bid"] <= 0.0:
+                    raise ValueError("invalid_numeric:bid")
+                if payload["ask"] is not None and payload["ask"] <= 0.0:
+                    raise ValueError("invalid_numeric:ask")
                 conn.execute(
                     """
                     INSERT INTO quote_snapshots(
