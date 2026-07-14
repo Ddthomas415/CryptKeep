@@ -772,6 +772,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `CBP_ORDER_BLOCKED:invalid_notional_input:daily_notional`. Remaining
    substrate #1 work: full Decimal migration across fee and PnL math plus
    broader end-to-end Decimal value transport before capped-live exposure.
+   2026-07-14 live-risk-gate notional Decimal slice is proof-ready for
+   independent review: `services/risk/live_risk_gates.py` now estimates
+   `notional_usd` with finite Decimal parsing/multiplication before the
+   `MAX_NOTIONAL_PER_TRADE` comparison. Exact boundary cases such as
+   `0.1 * 0.2 == 0.02` now pass, explicit `notional_usd="0.02"` remains
+   accepted, and poisoned `notional_usd=NaN` now blocks with
+   `CANNOT_ESTIMATE_NOTIONAL_USD` instead of bypassing the cap through
+   `NaN > cap == false`. Remaining substrate #1 work: full Decimal migration
+   across fee/PnL/storage paths and broader end-to-end Decimal value transport.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

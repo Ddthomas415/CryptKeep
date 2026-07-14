@@ -9,6 +9,7 @@ import datetime
 import sqlite3
 from pathlib import Path
 
+from services.markets.math_utils import decimal_product, decimal_value
 from services.os.app_paths import data_dir, ensure_dirs
 
 def _utc_day_key() -> str:
@@ -130,15 +131,15 @@ class LiveRiskGates:
         v = it.get("notional_usd")
         if v is not None:
             try:
-                return abs(float(v))
-            except Exception as _err:
-                pass  # suppressed: see _LOG.debug below
+                return float(abs(decimal_value(v, name="notional_usd")))
+            except ValueError:
+                return None
         qty = it.get("qty")
         px = it.get("price")
         if qty is not None and px is not None:
             try:
-                return abs(float(qty) * float(px))
-            except Exception:
+                return float(abs(decimal_product(qty, px)))
+            except ValueError:
                 return None
         return None
 

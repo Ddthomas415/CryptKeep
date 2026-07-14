@@ -19302,3 +19302,57 @@ Remaining risk:
 - UNVERIFIED: broader order-boundary neighborhood, full suite, GitHub CI, and
   full Decimal migration across fee/PnL/storage paths.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T03:31:03Z - Decimal Live-Risk-Gate Notional Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by making `LiveRiskGates` estimate per-trade
+  notional with finite Decimal parsing/multiplication before enforcing the
+  `MAX_NOTIONAL_PER_TRADE` cap.
+
+What was found:
+- SHOWN: `services/risk/live_risk_gates.py::LiveRiskGates._estimate_notional_usd()`
+  returned `abs(float(notional_usd))` when an explicit notional was provided.
+- SHOWN: when explicit notional was absent, it returned
+  `abs(float(qty) * float(price))`.
+- SHOWN: `check_live()` compares the returned value with
+  `max_notional_per_trade_usd`; a non-finite `notional_usd` could return `nan`,
+  and `nan > cap` is false, so a poisoned explicit notional bypassed the cap.
+- SHOWN: binary-float artifacts can also falsely exceed exact cap boundaries
+  such as `0.1 * 0.2` versus `0.02`.
+
+What changed:
+- `LiveRiskGates._estimate_notional_usd()` now uses
+  `services.markets.math_utils.decimal_value()` for explicit `notional_usd`
+  and `decimal_product()` for qty*price estimation.
+- Invalid or non-finite values now return `None`, preserving the existing
+  fail-closed `CANNOT_ESTIMATE_NOTIONAL_USD` decision path.
+- Added regressions proving an exact Decimal boundary passes, explicit
+  `notional_usd="0.02"` remains accepted, and `notional_usd=NaN` blocks instead
+  of bypassing the cap.
+
+Why this change was chosen:
+- This is the matching live-risk-gate slice after the direct order-boundary
+  notional fix. It closes a fail-open non-finite notional path without changing
+  fee/PnL storage semantics or attempting a full Decimal migration.
+
+Expected outcome:
+- Live per-trade notional caps no longer depend on binary-float multiplication
+  artifacts and cannot be bypassed by non-finite explicit notional values.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py`
+  - SHOWN: `20 passed in 0.16s`.
+- `./.venv/bin/python -m py_compile services/risk/live_risk_gates.py tests/test_live_risk_gates.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_risk_gates.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py tests/test_show_live_gate_inputs.py`
+  - SHOWN: `58 passed in 1.01s`.
+
+Remaining risk:
+- HIGH: live risk-gate notional semantics changed. This requires independent
+  review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, and full Decimal migration across
+  fee/PnL/storage paths.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
