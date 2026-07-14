@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import math
+
+import pytest
+
 import services.backtest.signal_replay as signal_replay
 from services.backtest.ohlcv_archive import (
     load_archived_ohlcv,
@@ -40,6 +44,77 @@ def test_market_store_load_ohlcv_latest_and_since(tmp_path):
         since_ms=1_700_000_003_600,
     )
     assert [row[0] for row in since] == [1_700_000_003_600, 1_700_000_007_200]
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "reason"),
+    [
+        ("o", math.nan, "invalid_market_ohlcv_numeric:o"),
+        ("h", 99.0, "invalid_market_ohlcv_numeric:ohlcv_range"),
+        ("l", 102.0, "invalid_market_ohlcv_numeric:ohlcv_range"),
+        ("cl", 0.0, "invalid_market_ohlcv_numeric:price_nonpositive"),
+        ("v", float("inf"), "invalid_market_ohlcv_numeric:v"),
+        ("v", -1.0, "invalid_market_ohlcv_numeric:v_negative"),
+    ],
+)
+def test_market_store_rejects_invalid_ohlcv_before_mutation(tmp_path, field, value, reason):
+    store = MarketStore(tmp_path / "archive.sqlite")
+    row = {
+        "ts_ms": 1_700_000_000_000,
+        "exchange": "coinbase",
+        "symbol": "BTC/USD",
+        "timeframe": "1h",
+        "o": 100.0,
+        "h": 102.0,
+        "l": 99.0,
+        "cl": 101.0,
+        "v": 10.0,
+    }
+    row[field] = value
+
+    with pytest.raises(ValueError, match=reason):
+        store.upsert_ohlcv(**row)
+
+    assert store.load_ohlcv(exchange="coinbase", symbol="BTC/USD", timeframe="1h", limit=10) == []
+
+
+def test_market_store_rejects_invalid_ohlcv_timestamp_before_mutation(tmp_path):
+    store = MarketStore(tmp_path / "archive.sqlite")
+
+    with pytest.raises(ValueError, match="invalid_market_ohlcv_numeric:ts_ms"):
+        store.upsert_ohlcv(
+            ts_ms=0,
+            exchange="coinbase",
+            symbol="BTC/USD",
+            timeframe="1h",
+            o=100.0,
+            h=102.0,
+            l=99.0,
+            cl=101.0,
+            v=10.0,
+        )
+
+    assert store.load_ohlcv(exchange="coinbase", symbol="BTC/USD", timeframe="1h", limit=10) == []
+
+
+def test_market_store_preserves_missing_ohlcv_volume(tmp_path):
+    store = MarketStore(tmp_path / "archive.sqlite")
+
+    store.upsert_ohlcv(
+        ts_ms=1_700_000_000_000,
+        exchange="coinbase",
+        symbol="BTC/USD",
+        timeframe="1h",
+        o=100.0,
+        h=102.0,
+        l=99.0,
+        cl=101.0,
+        v=None,
+    )
+
+    assert store.load_ohlcv(exchange="coinbase", symbol="BTC/USD", timeframe="1h", limit=10) == [
+        [1_700_000_000_000, 100.0, 102.0, 99.0, 101.0, None]
+    ]
 
 
 def test_signal_replay_fetch_ohlcv_uses_archive_without_exchange(monkeypatch, tmp_path):
