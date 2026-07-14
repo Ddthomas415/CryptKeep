@@ -19184,3 +19184,62 @@ Remaining risk:
 - UNVERIFIED: full Decimal migration, per-venue golden tests, full suite, and
   GitHub CI were not run in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-13T16:40:42Z - Decimal Market-Rule Validation Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 with the smallest next Decimal slice after the
+  order-boundary quantized-validation change: make venue market-rule validation
+  use finite Decimal arithmetic and add venue-style golden tests for
+  min-notional/min-qty/qty-step boundaries.
+
+What was found:
+- SHOWN: `services/markets/quantize.py` already uses Decimal internally, but
+  `services/markets/rules.py::validate()` still used `float()` comparisons for
+  min-notional/min-qty and `services/markets/math_utils.py::step_ok()` used
+  float division/epsilon tolerance for quantity-step checks.
+- SHOWN: `services/execution/place_order.py::_enforce_fail_closed()` consumes
+  `services.markets.rules.validate()` on the live order path after exchange
+  precision normalization, so market-rule validation is part of the live
+  fail-closed boundary.
+
+What changed:
+- Added finite Decimal helpers in `services/markets/math_utils.py`:
+  `decimal_value()`, `decimal_product()`, and `decimal_step_ok()`. The existing
+  public `step_ok()` signature remains available and now delegates to Decimal
+  semantics, returning `False` on invalid/non-finite inputs.
+- Updated `services/markets/rules.py::validate()` so min-notional, min-qty, and
+  qty-step validation use Decimal values. Non-finite or invalid caller values
+  return `INVALID_NOTIONAL`/`INVALID_QTY`; poisoned venue rules return
+  `INVALID_MARKET_RULES` with the bad rule field named.
+- Added `tests/test_market_rules_decimal_validation.py` with Coinbase-style
+  `0.00000001` quantity-step fixtures, Binance-style `0.001` quantity-step
+  fixtures, min-notional boundaries, and non-finite cached rule rejection.
+
+Why this change was chosen:
+- It advances Decimal migration at the venue-rule boundary without attempting a
+  full qty/price/fee/PnL rewrite. The live order boundary now validates already
+  normalized order values against exact Decimal rule checks instead of float
+  tolerance math.
+
+Expected outcome:
+- Venue market-rule validation cannot pass or fail due to float tolerance drift
+  at step/minimum boundaries, and poisoned non-finite cached rule values fail
+  closed before order submission.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_market_rules_validation.py tests/test_market_rules_decimal_validation.py`
+  - SHOWN: `12 passed in 0.21s`.
+- `./.venv/bin/python -m py_compile services/markets/math_utils.py services/markets/rules.py tests/test_market_rules_decimal_validation.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_place_order_fail_closed.py tests/test_order_manager_cancel_replace.py tests/test_market_rules_validation.py tests/test_market_rules_decimal_validation.py`
+  - SHOWN: `43 passed in 0.50s`.
+
+Remaining risk:
+- HIGH: live market-rule validation semantics changed. This requires
+  independent review before acceptance.
+- UNVERIFIED: full Decimal migration across order qty/price, fee, and PnL math;
+  full suite; GitHub CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
