@@ -19570,3 +19570,58 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, full Decimal storage transport, and broader
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T05:07:11Z - Decimal Atomic Risk-Claim Notional Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by replacing the live intent queue's atomic
+  risk-claim notional cap comparison and accumulator update with Decimal-backed
+  math.
+
+What was found:
+- SHOWN: `storage/live_intent_queue_sqlite.py::atomic_risk_claim()` already
+  rejected non-finite caps, estimates, and stored accumulators.
+- SHOWN: after that finite check, the same function still compared
+  `notional + notional_est > max_notional` as floats and persisted the float
+  sum.
+- SHOWN: this is the atomic deny point used by `services/execution/intent_consumer.py`
+  before live intents can submit, so binary float over-estimation can reject an
+  exact cap-boundary claim.
+
+What changed:
+- Imported `decimal_value()` into `storage/live_intent_queue_sqlite.py`.
+- Parsed `max_notional`, `notional_est`, and stored `risk:notional` as finite
+  Decimals before the atomic cap comparison.
+- Persisted the Decimal accumulator sum instead of the float sum.
+- Preserved existing contracts and reason strings for non-finite/invalid caps,
+  invalid estimates, corrupt stored state, max trades, and max daily notional.
+- Added a regression proving stored `0.1` plus estimate `0.2` against cap `0.3`
+  is accepted and persists `risk:notional=0.3`.
+
+Why this change was chosen:
+- It closes the next narrow live-money Decimal boundary in the live intent
+  risk claim path without changing queue schema, state authority, or consumer
+  policy.
+
+Expected outcome:
+- Atomic live risk claims no longer reject exact notional cap boundaries due to
+  binary float over-estimation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_queue_integrity.py tests/test_config_fail_closed_sweep.py`
+  - SHOWN: `20 passed in 0.57s`.
+- `./.venv/bin/python -m py_compile storage/live_intent_queue_sqlite.py tests/test_live_intent_queue_integrity.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_queue_integrity.py tests/test_config_fail_closed_sweep.py tests/test_live_consumer_risk_claim.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_consumer_state_risk_reset.py tests/test_live_intent_consumer_order_store_gating.py tests/test_intent_ttl_expiry.py`
+  - SHOWN: `53 passed in 2.71s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches the atomic live intent risk-claim deny point. This requires
+  independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
