@@ -185,7 +185,13 @@ deployment work still needs independent review.
    for live routing or strategy promotion evidence. Remaining short/context
    proof is now data-readiness, not venue selection: keep replay fixture-only
    unless `make check-short-context-readiness` reports
-   `live_public_replay_ready=true`.
+   `live_public_replay_ready=true`. 2026-07-14: crypto-edge store numeric
+   ingestion proof is ready for independent review. `funding_rate`,
+   `interval_hours`, basis `spot_px`/`perp_px`/`days_to_expiry`, and optional
+   quote `bid`/`ask` are now validated before snapshot rows are persisted;
+   invalid rows roll back the whole snapshot instead of leaving partial
+   funding/basis/quote evidence. OI and order-book validation already existed
+   and was left unchanged.
 10. Make the strategy registry fail closed before new discovery wiring lands.
    Earlier audit found `strategy_registry.compute_signal()` fell back to
    `ema_cross` when `strategy.name` was unknown. That was a latent

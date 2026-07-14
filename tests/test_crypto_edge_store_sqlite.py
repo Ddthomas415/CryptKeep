@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import math
+
+import pytest
+
 from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
 
 
@@ -150,3 +154,89 @@ def test_crypto_edge_store_can_isolate_latest_report_for_live_public(tmp_path) -
     assert report["funding_meta"]["source"] == "live_public"
     assert report["basis_meta"]["source"] == "live_public"
     assert report["quote_meta"] is None
+
+
+def test_crypto_edge_store_rejects_invalid_funding_rows_without_partial_snapshot(tmp_path) -> None:
+    store = CryptoEdgeStoreSQLite(path=str(tmp_path / "crypto_edges.sqlite"))
+
+    with pytest.raises(ValueError, match="invalid_numeric:funding_rate"):
+        store.append_funding_rows(
+            [
+                {"symbol": "BTC-PERP", "venue": "binance", "funding_rate": 0.0001},
+                {"symbol": "ETH-PERP", "venue": "binance", "funding_rate": math.nan},
+            ],
+            source="test",
+            capture_ts="2026-03-18T10:00:00+00:00",
+        )
+
+    assert store.latest_funding_rows() == []
+
+
+def test_crypto_edge_store_rejects_invalid_funding_interval_without_partial_snapshot(tmp_path) -> None:
+    store = CryptoEdgeStoreSQLite(path=str(tmp_path / "crypto_edges.sqlite"))
+
+    with pytest.raises(ValueError, match="invalid_numeric:interval_hours"):
+        store.append_funding_rows(
+            [{"symbol": "BTC-PERP", "venue": "binance", "funding_rate": 0.0001, "interval_hours": 0}],
+            source="test",
+            capture_ts="2026-03-18T10:00:00+00:00",
+        )
+
+    assert store.latest_funding_rows() == []
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "reason"),
+    [
+        ("spot_px", float("inf"), "invalid_numeric:spot_px"),
+        ("perp_px", 0.0, "invalid_numeric:basis_price"),
+        ("days_to_expiry", -1.0, "invalid_numeric:days_to_expiry"),
+    ],
+)
+def test_crypto_edge_store_rejects_invalid_basis_rows_without_partial_snapshot(tmp_path, field, value, reason) -> None:
+    store = CryptoEdgeStoreSQLite(path=str(tmp_path / "crypto_edges.sqlite"))
+    row = {
+        "symbol": "BTC-PERP",
+        "venue": "binance",
+        "spot_px": 84000.0,
+        "perp_px": 84050.0,
+        "days_to_expiry": 7,
+    }
+    row[field] = value
+
+    with pytest.raises(ValueError, match=reason):
+        store.append_basis_rows(
+            [
+                {"symbol": "ETH-PERP", "venue": "binance", "spot_px": 3000.0, "perp_px": 3010.0},
+                row,
+            ],
+            source="test",
+            capture_ts="2026-03-18T10:00:00+00:00",
+        )
+
+    assert store.latest_basis_rows() == []
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("bid", math.nan),
+        ("ask", -1.0),
+    ],
+)
+def test_crypto_edge_store_rejects_invalid_quote_rows_without_partial_snapshot(tmp_path, field, value) -> None:
+    store = CryptoEdgeStoreSQLite(path=str(tmp_path / "crypto_edges.sqlite"))
+    row = {"symbol": "BTC/USD", "venue": "coinbase", "bid": 84010.0, "ask": 84015.0}
+    row[field] = value
+
+    with pytest.raises(ValueError, match=f"invalid_numeric:{field}"):
+        store.append_quote_rows(
+            [
+                {"symbol": "ETH/USD", "venue": "coinbase", "bid": 3000.0, "ask": 3001.0},
+                row,
+            ],
+            source="test",
+            capture_ts="2026-03-18T10:00:00+00:00",
+        )
+
+    assert store.latest_quote_rows() == []
