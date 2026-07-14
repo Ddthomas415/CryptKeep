@@ -19243,3 +19243,62 @@ Remaining risk:
 - UNVERIFIED: full Decimal migration across order qty/price, fee, and PnL math;
   full suite; GitHub CI.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T03:10:05Z - Decimal Order-Notional Boundary Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by replacing binary-float order-notional
+  multiplication at the live order boundary with Decimal multiplication for
+  max-order and max-daily-notional comparisons.
+
+What was found:
+- SHOWN: after the order-boundary quantized-validation slice,
+  `services/execution/place_order.py::_enforce_fail_closed()` validates already
+  normalized amount/price values before submit.
+- SHOWN: the same function still computed `notional = amount_f * price_f` with
+  binary floats and compared that value against max-order and max-daily-notional
+  limits.
+- SHOWN: binary-float artifacts can misclassify exact cap boundaries such as
+  `0.1 * 0.2` versus `0.02` or `0.1 + 0.2` versus `0.3`.
+
+What changed:
+- Added `_estimate_order_notional()` in `services/execution/place_order.py`,
+  using `services.markets.math_utils.decimal_product()` to compute normalized
+  order notional as Decimal.
+- Max-order and max-daily-notional comparisons now compare Decimal values.
+- The existing float `notional` value is preserved for downstream recording
+  APIs (`record_order_attempt`, market-rule validation), so this slice does not
+  attempt full Decimal transport through storage/reporting.
+- Added regressions proving exact max-order and max-daily-notional boundary
+  cases pass, and non-finite daily-notional snapshots fail closed with
+  `CBP_ORDER_BLOCKED:invalid_notional_input:daily_notional`.
+
+Why this change was chosen:
+- It is the smallest next live-path Decimal migration after market-rule
+  validation: cap comparisons should not depend on binary-float artifacts, but
+  fee/PnL Decimal migration is a larger storage/accounting change and remains
+  separate.
+
+Expected outcome:
+- Exact notional cap boundaries are evaluated by Decimal arithmetic at the
+  order boundary, preventing false blocks from float artifacts and fail-open
+  behavior from non-finite daily-notional values.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_place_order_fail_closed.py`
+  - SHOWN: `32 passed in 0.20s`.
+- `./.venv/bin/python -m py_compile services/execution/place_order.py tests/test_place_order_fail_closed.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_place_order_fail_closed.py tests/test_order_manager_cancel_replace.py tests/test_market_rules_validation.py tests/test_market_rules_decimal_validation.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_intent_consumer_order_store_gating.py tests/test_intent_ttl_expiry.py`
+  - SHOWN: `104 passed in 2.97s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: live order-boundary risk comparison semantics changed. This requires
+  independent review before acceptance.
+- UNVERIFIED: broader order-boundary neighborhood, full suite, GitHub CI, and
+  full Decimal migration across fee/PnL/storage paths.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

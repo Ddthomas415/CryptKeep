@@ -416,6 +416,69 @@ def test_enforce_fail_closed_blocks_max_daily_notional(monkeypatch):
         )
 
 
+def test_enforce_fail_closed_uses_decimal_notional_at_max_order_boundary(monkeypatch):
+    _set_limit_env(monkeypatch, CBP_MAX_ORDER_NOTIONAL="0.02")
+    _install_boundary_success_deps(monkeypatch)
+
+    _exec_db, notional, amount, price = po._enforce_fail_closed(
+        DummyExchange(),
+        symbol="BTC/USD",
+        side="buy",
+        amount=0.1,
+        price=0.2,
+        params={},
+        order_type="limit",
+    )
+
+    assert amount == 0.1
+    assert price == 0.2
+    assert notional == 0.02
+
+
+def test_enforce_fail_closed_uses_decimal_notional_at_daily_boundary(monkeypatch):
+    _set_limit_env(monkeypatch, CBP_MAX_DAILY_NOTIONAL="0.3")
+    _install_boundary_success_deps(
+        monkeypatch,
+        risk_snapshot={"trades": 1, "pnl": 0, "notional": 0.1},
+    )
+
+    _exec_db, notional, amount, price = po._enforce_fail_closed(
+        DummyExchange(),
+        symbol="BTC/USD",
+        side="buy",
+        amount=1,
+        price=0.2,
+        params={},
+        order_type="limit",
+    )
+
+    assert amount == 1.0
+    assert price == 0.2
+    assert notional == 0.2
+
+
+def test_enforce_fail_closed_blocks_nonfinite_daily_notional(monkeypatch):
+    _set_limit_env(monkeypatch)
+    _install_boundary_success_deps(
+        monkeypatch,
+        risk_snapshot={"trades": 1, "pnl": 0, "notional": float("nan")},
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="CBP_ORDER_BLOCKED:invalid_notional_input:daily_notional",
+    ):
+        po._enforce_fail_closed(
+            DummyExchange(),
+            symbol="BTC/USD",
+            side="buy",
+            amount=1,
+            price=10,
+            params={},
+            order_type="limit",
+        )
+
+
 def test_enforce_fail_closed_blocks_market_rules_prereq_failure(monkeypatch):
     _set_limit_env(monkeypatch)
     _install_boundary_success_deps(monkeypatch, prereq_ok=False)
