@@ -1,5 +1,7 @@
 import sqlite3
 
+import pytest
+
 import storage.live_trading_sqlite as mod
 
 
@@ -53,6 +55,24 @@ def test_live_fills_ignore_exact_same_venue_symbol_trade_id_duplicate(tmp_path, 
     fills = db.list_fills(limit=10)
     assert len(fills) == 1
     assert fills[0]["qty"] == 1.0
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("qty", float("nan")),
+        ("price", float("inf")),
+        ("fee", float("-inf")),
+    ],
+)
+def test_live_fills_reject_nonfinite_numeric_inputs_before_mutation(tmp_path, monkeypatch, field, value):
+    monkeypatch.setattr(mod, "DB_PATH", tmp_path / "live_trading.sqlite")
+    db = mod.LiveTradingSQLite()
+
+    with pytest.raises(ValueError, match=f"invalid_live_trading_numeric:{field}:"):
+        db.insert_fill(_fill(**{field: value}))
+
+    assert db.list_fills(limit=10) == []
 
 
 def test_live_fills_migrate_legacy_trade_id_primary_key_table(tmp_path, monkeypatch):
