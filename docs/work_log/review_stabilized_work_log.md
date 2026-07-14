@@ -19899,6 +19899,62 @@ Remaining risk:
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-14T22:09:51Z - Position Reconcile Invalid-Input Follow-Up (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Close the operational follow-up from the live-position finite-validation
+  slice: make `scripts/reconcile_positions.py` handle invalid reconciliation
+  inputs without crashing or losing the failure artifact.
+
+What was found:
+- SHOWN: `LivePositionStore.reconcile_to_exchange()` now returns an explicit
+  failed diagnostic result with `drift=None` for invalid/non-finite
+  reconciliation inputs.
+- SHOWN: `scripts/reconcile_positions.py` still assumed every failed
+  reconciliation had a numeric `drift` and called `float(result["drift"])`
+  before writing `risk_sink_failed.flag`.
+- SHOWN: `CBP_POSITION_DRIFT_THRESHOLD=nan` was accepted by raw `float()`,
+  leaving threshold validity to downstream comparison behavior.
+
+What changed:
+- Added `parse_position_drift_threshold()` to reject non-finite or negative
+  `CBP_POSITION_DRIFT_THRESHOLD` before exchange access.
+- Added `drift_for_flag()` and allowed `write_flag()` to serialize `drift=null`
+  for invalid-input failures where no numeric drift exists.
+- Failure reasons now include the reconcile result's explicit `reason`, so
+  invalid exchange quantity/tolerance is visible in the halt flag.
+- Added tests for threshold parsing, drift serialization, invalid-threshold
+  command exit, and a fake exchange/store end-to-end invalid-reconcile result.
+
+Why this change was chosen:
+- The prior store change correctly made invalid reconcile input explicit; the
+  operator script needed to preserve that explicit failure as an artifact
+  instead of crashing while trying to coerce a nonexistent drift value.
+
+Expected outcome:
+- Position reconciliation remains read-only, fails closed on invalid operator
+  threshold config, and records a usable `risk_sink_failed.flag` for invalid
+  exchange quantity/reconcile results.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_reconcile_positions.py`
+  - SHOWN: `4 passed in 0.13s`.
+- `./.venv/bin/python -m py_compile scripts/reconcile_positions.py tests/test_reconcile_positions.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_reconcile_positions.py tests/test_live_position_store_sqlite.py tests/test_reconcile_safe_steps.py tests/test_position_truth_authority.py`
+  - SHOWN: `23 passed in 0.54s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches an operational live-position reconciliation script and halt-flag
+  artifact path. This requires independent review before acceptance.
+- UNVERIFIED: GitHub CI, full suite, host-side exchange behavior, and broader
+  Decimal storage/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-14T22:21:50Z - Crypto Edge Store Numeric Ingestion Slice (Active Backlog #9)
 
 Active role: ENGINEER
