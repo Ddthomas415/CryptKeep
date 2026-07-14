@@ -843,6 +843,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    insert-only queue semantics and `REAL` storage are preserved. Remaining
    substrate #1 work: broader Decimal storage transport and position/PnL
    accounting semantics.
+   2026-07-14 live-trading store finite-ingestion slice is proof-ready for
+   independent review: `storage/live_trading_sqlite.py` now validates live
+   order `qty`/optional `limit_price` and live fill `qty`/`price`/optional
+   `fee` through finite Decimal parsing before writing `REAL` columns.
+   Non-finite numeric inputs such as `qty=NaN`, `price=inf`, or `fee=-inf`
+   raise before mutation, while existing schema and read/list shapes are
+   preserved. Remaining substrate #1 work: broader Decimal storage transport
+   and position/PnL accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

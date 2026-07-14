@@ -19733,3 +19733,57 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T05:54:02Z - Finite Live Trading Store Ingestion Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by validating live trading store numeric inputs
+  before writing live order and fill rows.
+
+What was found:
+- SHOWN: `storage/live_trading_sqlite.py::upsert_order()` wrote
+  `float(row["qty"])` and passed `row.get("limit_price")` into `REAL` columns.
+- SHOWN: `storage/live_trading_sqlite.py::insert_fill()` wrote
+  `float(row["qty"])`, `float(row["price"])`, and passed `row.get("fee")` into
+  `REAL` columns.
+- SHOWN: the live trading store schema remains `REAL`, so this is a
+  finite-ingestion guard slice, not the broader Decimal storage migration.
+
+What changed:
+- Added `_finite_real_input()` using `decimal_value()` plus a post-conversion
+  `math.isfinite()` check for live trading store `REAL` inputs.
+- `upsert_order()` now validates required `qty` and optional `limit_price`
+  before mutation.
+- `insert_fill()` now validates required `qty`/`price` and optional `fee`
+  before mutation.
+- Preserved existing schema and list/read output shapes.
+- Added tests proving non-finite order and fill numerics reject before any row
+  is written.
+
+Why this change was chosen:
+- It blocks poisoned live order/fill numeric values at the live trading store
+  boundary while avoiding the larger storage-schema and PnL-semantics migration.
+
+Expected outcome:
+- Non-finite live order or fill numerics cannot enter `live_trading.sqlite`
+  through the store's normal write APIs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_trading_order_identity.py tests/test_live_trading_fill_identity.py`
+  - SHOWN: `9 passed in 0.20s`.
+- `./.venv/bin/python -m py_compile storage/live_trading_sqlite.py tests/test_live_trading_order_identity.py tests/test_live_trading_fill_identity.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_live_trading_order_identity.py tests/test_live_trading_fill_identity.py tests/test_live_execution_wiring.py tests/test_live_reconciler.py tests/test_live_reconciler_order_store_gating.py tests/test_live_reconciler_fill_attribution.py tests/test_live_reconciler_submit_unknown_recovery.py tests/test_live_intent_consumer_order_store_gating.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_intent_ttl_expiry.py tests/test_stale_submitting_recovery.py tests/test_crash_consistency_fault_injection.py`
+  - SHOWN: `74 passed, 7 warnings in 3.29s` (warnings are existing
+    `datetime.utcnow()` deprecations from canonical execdb tests).
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches live order/fill store ingestion used by live consumer and
+  reconciler paths. This requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, broader Decimal storage transport, and
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

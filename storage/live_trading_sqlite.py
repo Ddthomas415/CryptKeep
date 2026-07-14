@@ -1,8 +1,10 @@
 from __future__ import annotations
 import json
+import math
 import sqlite3
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
+from services.markets.math_utils import decimal_value
 from services.os.app_paths import data_dir
 
 DB_PATH = data_dir() / "live_trading.sqlite"
@@ -123,11 +125,28 @@ def _connect() -> sqlite3.Connection:
         raise
     return con
 
+
+def _finite_real_input(value: Any, *, name: str, required: bool = True) -> float | None:
+    if value is None:
+        if required:
+            raise ValueError(f"invalid_live_trading_numeric:{name}:missing")
+        return None
+    try:
+        out = float(decimal_value(value, name=name))
+    except (OverflowError, ValueError) as exc:
+        raise ValueError(f"invalid_live_trading_numeric:{name}:{exc}") from exc
+    if not math.isfinite(out):
+        raise ValueError(f"invalid_live_trading_numeric:{name}:non_finite_float")
+    return out
+
+
 class LiveTradingSQLite:
     def __init__(self) -> None:
         _connect().close()
 
     def upsert_order(self, row: Dict[str, Any]) -> None:
+        qty = _finite_real_input(row["qty"], name="qty")
+        limit_price = _finite_real_input(row.get("limit_price"), name="limit_price", required=False)
         con = _connect()
         try:
             con.execute(
@@ -155,8 +174,8 @@ class LiveTradingSQLite:
                     str(row["symbol"]),
                     str(row["side"]),
                     str(row["order_type"]),
-                    float(row["qty"]),
-                    row.get("limit_price"),
+                    qty,
+                    limit_price,
                     row.get("exchange_order_id"),
                     str(row["status"]),
                     row.get("last_error"),
@@ -184,6 +203,9 @@ class LiveTradingSQLite:
             con.close()
 
     def insert_fill(self, row: Dict[str, Any]) -> None:
+        qty = _finite_real_input(row["qty"], name="qty")
+        price = _finite_real_input(row["price"], name="price")
+        fee = _finite_real_input(row.get("fee"), name="fee", required=False)
         con = _connect()
         try:
             con.execute(
@@ -196,9 +218,9 @@ class LiveTradingSQLite:
                     str(row["venue"]),
                     str(row["symbol"]),
                     str(row["side"]),
-                    float(row["qty"]),
-                    float(row["price"]),
-                    row.get("fee"),
+                    qty,
+                    price,
+                    fee,
                     row.get("fee_currency"),
                     row.get("client_order_id"),
                     row.get("exchange_order_id"),
