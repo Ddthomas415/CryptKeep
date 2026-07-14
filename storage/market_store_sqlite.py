@@ -1,8 +1,37 @@
 from __future__ import annotations
 
+import math
 import sqlite3
 from pathlib import Path
 from typing import Any
+
+from services.markets.math_utils import decimal_value
+
+
+def _required_float(value: Any, *, name: str) -> float:
+    try:
+        out = float(decimal_value(value, name=name))
+    except (OverflowError, ValueError) as exc:
+        raise ValueError(f"invalid_market_ohlcv_numeric:{name}") from exc
+    if not math.isfinite(out):
+        raise ValueError(f"invalid_market_ohlcv_numeric:{name}")
+    return out
+
+
+def _optional_float(value: Any, *, name: str) -> float | None:
+    if value is None:
+        return None
+    return _required_float(value, name=name)
+
+
+def _required_ts_ms(value: Any) -> int:
+    try:
+        out = int(value)
+    except Exception as exc:
+        raise ValueError("invalid_market_ohlcv_numeric:ts_ms") from exc
+    if out <= 0:
+        raise ValueError("invalid_market_ohlcv_numeric:ts_ms")
+    return out
 
 
 class MarketStore:
@@ -90,11 +119,23 @@ class MarketStore:
         cl: float,
         v: float | None = None,
     ) -> None:
+        ts = _required_ts_ms(ts_ms)
+        o_f = _required_float(o, name="o")
+        h_f = _required_float(h, name="h")
+        l_f = _required_float(l, name="l")
+        cl_f = _required_float(cl, name="cl")
+        v_f = _optional_float(v, name="v")
+        if min(o_f, h_f, l_f, cl_f) <= 0.0:
+            raise ValueError("invalid_market_ohlcv_numeric:price_nonpositive")
+        if h_f < max(o_f, l_f, cl_f) or l_f > min(o_f, h_f, cl_f):
+            raise ValueError("invalid_market_ohlcv_numeric:ohlcv_range")
+        if v_f is not None and v_f < 0.0:
+            raise ValueError("invalid_market_ohlcv_numeric:v_negative")
         con = self._connect()
         try:
             con.execute(
                 "INSERT OR REPLACE INTO market_ohlcv(ts_ms, exchange, symbol, timeframe, o, h, l, cl, v) VALUES(?,?,?,?,?,?,?,?,?)",
-                (int(ts_ms), str(exchange), str(symbol), str(timeframe), float(o), float(h), float(l), float(cl), v),
+                (ts, str(exchange), str(symbol), str(timeframe), o_f, h_f, l_f, cl_f, v_f),
             )
         finally:
             con.close()

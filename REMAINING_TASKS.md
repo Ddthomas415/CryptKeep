@@ -252,7 +252,12 @@ deployment work still needs independent review.
    writes the ranked JSON artifact from a base config plus grid file. Remaining
    item #11 work after acceptance is operational, not code plumbing: run real
    multi-year archive sweeps and require separate review before any strategy
-   config or campaign changes use the results.
+   config or campaign changes use the results. 2026-07-14: market OHLCV archive
+   numeric-ingestion proof is ready for independent review. `MarketStore` now
+   rejects non-positive or non-finite OHLCV timestamps/prices, invalid high/low
+   envelopes, and non-finite/negative volume before writing `market_ohlcv`,
+   while preserving missing-volume rows. This protects dataset hashes and
+   archive-backed walk-forward inputs from malformed bars.
 12. Wire crypto-edge context strategies into the research/paper execution path.
     `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` exist
     as context-signal modules, and `funding_extreme_default` /

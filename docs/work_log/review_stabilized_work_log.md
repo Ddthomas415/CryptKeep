@@ -20013,3 +20013,56 @@ Remaining risk:
   crypto-edge context evidence.
 - UNVERIFIED: full suite, GitHub CI, and operator-host collector inputs.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T22:37:40Z - Market OHLCV Archive Numeric Ingestion Slice (Active Backlog #11)
+
+Active role: ENGINEER
+
+Objective:
+- Harden archive OHLCV ingestion so malformed bars cannot enter `market_ohlcv`
+  and poison dataset hashes, backtests, or walk-forward research.
+
+What was found:
+- SHOWN: `storage/market_store_sqlite.py::upsert_ohlcv()` wrote `int(ts_ms)`
+  and raw `float(o/h/l/cl)` into the archive store.
+- SHOWN: `float()` accepts `NaN`/`inf`, so malformed OHLCV values could be
+  persisted into the archive table and later consumed by
+  `load_archived_ohlcv()` / archive-backed walk-forward.
+- SHOWN: the archive schema remains `REAL`; this is an ingestion-validation
+  slice, not a storage-format migration.
+
+What changed:
+- Added finite Decimal-backed numeric parsing helpers for required OHLCV values
+  and optional volume.
+- `upsert_ohlcv()` now rejects non-positive timestamps, non-finite or
+  non-positive OHLC prices, invalid high/low envelopes, and non-finite or
+  negative volume before opening the DB write path.
+- Missing volume remains accepted and round-trips as `None`.
+- Added tests proving invalid bars reject before mutation and missing volume is
+  preserved.
+
+Why this change was chosen:
+- Archive-backed strategy research only has value if the stored dataset is
+  numerically valid. This blocks malformed bars at the single archive write API
+  without changing archive reads, dataset hashing, walk-forward, or strategy
+  scoring behavior.
+
+Expected outcome:
+- `market_ohlcv` archive rows used by backtests and walk-forward research have
+  finite positive OHLC prices, valid high/low bounds, and valid optional volume.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py`
+  - SHOWN: `13 passed in 0.19s`.
+- `./.venv/bin/python -m py_compile storage/market_store_sqlite.py tests/test_ohlcv_archive_backtest.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backtest.py tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_marketdata_ohlcv_fetcher.py tests/test_run_trader_integration_minimal.py tests/test_remaining_compat_wrappers.py`
+  - SHOWN: `34 passed in 3.34s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: archive-ingestion semantics changed for malformed OHLCV bars; review
+  before treating newly collected archive data as research ground truth.
+- UNVERIFIED: full suite, GitHub CI, and host-side archive backfill behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
