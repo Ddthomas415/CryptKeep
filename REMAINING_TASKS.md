@@ -826,6 +826,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `risk:invalid_cap`, `risk:invalid_notional_est`, and `risk:corrupt_state`
    contracts are preserved. Remaining substrate #1 work: broader Decimal
    storage transport and position/PnL accounting semantics.
+   2026-07-14 live-intent consumer notional-estimate Decimal slice is
+   proof-ready for independent review: both
+   `services/execution/live_intent_consumer.py` and the compat
+   `services/execution/intent_consumer.py` now estimate intent notional with
+   Decimal before the min-order-notional check and atomic risk claim. Exact
+   boundaries such as `0.1 * 0.7 == 0.07` now pass the min-order threshold
+   instead of being rejected by binary float under-estimation. Remaining
+   substrate #1 work: broader Decimal storage transport and position/PnL
+   accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

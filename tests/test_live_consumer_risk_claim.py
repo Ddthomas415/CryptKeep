@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import importlib
+
+import pytest
 
 
 def test_live_intent_consumer_risk_check_and_claim_uses_atomic_claim(monkeypatch):
@@ -89,6 +92,52 @@ def test_intent_consumer_risk_check_and_claim_uses_atomic_claim(monkeypatch):
         "max_notional": 300.0,
         "notional_est": 35.0,
     }
+
+
+@pytest.mark.parametrize(
+    "module_name",
+    [
+        "services.execution.live_intent_consumer",
+        "services.execution.intent_consumer",
+    ],
+)
+def test_intent_consumers_use_decimal_notional_at_min_order_boundary(module_name, monkeypatch):
+    consumer = importlib.import_module(module_name)
+    seen: dict[str, object] = {}
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    class FakeQueue:
+        def get_state(self, key: str):
+            return today if key == "risk:day" else "0"
+
+        def reset_risk_state_for_day(self, day: str):
+            raise AssertionError("risk state should not reset for current day")
+
+        def atomic_risk_claim(self, **kwargs):
+            seen.update(kwargs)
+            return True, None
+
+    def _live_risk_cfg(**kwargs):
+        seen["live_risk_cfg_kwargs"] = dict(kwargs)
+        return {
+            "max_trades_per_day": 0,
+            "max_daily_notional_quote": "1.0",
+            "min_order_notional_quote": "0.07",
+        }
+
+    monkeypatch.setattr(consumer, "live_risk_cfg", _live_risk_cfg)
+
+    notional_est = consumer._intent_notional_estimate(
+        {"qty": "0.1", "limit_price": "0.7"},
+        {},
+    )
+    ok, reason = consumer._risk_check_and_claim(FakeQueue(), notional_est)
+
+    assert (ok, reason) == (True, None)
+    assert seen["live_risk_cfg_kwargs"] == {"strict": True}
+    assert seen["max_trades"] == 0
+    assert seen["max_notional"] == "1.0"
+    assert str(seen["notional_est"]) == "0.07"
 
 
 def test_live_intent_consumer_risk_check_fails_closed_on_config_load_error(monkeypatch):
