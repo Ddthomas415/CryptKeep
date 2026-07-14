@@ -19514,3 +19514,59 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, full Decimal storage transport, and broader
   position/PnL accounting migration.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T04:51:33Z - Decimal Funding-Gate Required-Balance Slice (Substrate Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Continue substrate backlog #1 by replacing the live order funding gate's
+  buy-side required-balance estimate with Decimal-backed multiplication.
+
+What was found:
+- SHOWN: `services/execution/place_order.py::_enforce_funding_gate()` estimated
+  buy-side required spendable balance as
+  `float(amount_f * price_f * (1.0 + _funding_fee_buffer_fraction()))`.
+- SHOWN: that path runs after order precision normalization and before
+  `create_order()`, so binary float over-estimation can block an order whose
+  exact Decimal required balance equals the available venue balance.
+- SHOWN: the existing funding buffer fallback contract treated blank, invalid,
+  non-finite, or negative `CBP_FUNDING_FEE_BUFFER_FRACTION` as the default
+  `0.005`.
+
+What changed:
+- Added `_funding_fee_buffer_decimal()` and `_estimate_funding_required()` in
+  `services/execution/place_order.py`.
+- Buy-side funding required balance now uses Decimal multiplication for
+  `amount * price * (1 + buffer)` before comparing against spendable balance.
+- Sell-side required amount and spendable comparison now also use finite Decimal
+  parsing at the comparison boundary.
+- Preserved `_funding_fee_buffer_fraction()` as a float-returning compatibility
+  wrapper and preserved the legacy invalid-buffer fallback policy.
+- Added a regression proving `0.1 * 0.2 * 1.1 == 0.022` passes when venue
+  spendable balance is exactly `0.022`.
+
+Why this change was chosen:
+- It closes the next narrow live-money Decimal boundary without changing order
+  routing, funding policy, balance-source precedence, or error vocabulary.
+
+Expected outcome:
+- The funding gate no longer rejects exact-boundary buy orders due to binary
+  float over-estimation of the required spendable balance.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_place_order_fail_closed.py`
+  - SHOWN: `33 passed in 0.18s`.
+- `./.venv/bin/python -m py_compile services/execution/place_order.py tests/test_place_order_fail_closed.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_place_order_fail_closed.py tests/test_order_manager_cancel_replace.py tests/test_market_rules_validation.py tests/test_market_rules_decimal_validation.py tests/test_live_execution_wiring.py tests/test_execution_boundary_regression.py tests/test_live_executor_latency_safety_integration.py tests/test_live_executor_shadow_and_trade_reconcile.py tests/test_live_intent_consumer_order_store_gating.py tests/test_intent_ttl_expiry.py`
+  - SHOWN: `105 passed in 3.06s`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches the live order funding gate before `create_order()`. This
+  requires independent review before acceptance.
+- UNVERIFIED: full suite, GitHub CI, full Decimal storage transport, and broader
+  position/PnL accounting migration.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
