@@ -21,6 +21,7 @@ from services.os.app_paths import data_dir, ensure_dirs
 # CBP_PHASE4_CHOKEPOINT_RISK_MARKET_V1
 
 _LOG = logging.getLogger(__name__)
+_DEFAULT_FUNDING_FEE_BUFFER_FRACTION = Decimal("0.005")
 
 # Limit concurrent exchange order calls to prevent API burst bans.
 # Override with CBP_ORDER_CONCURRENCY env var.
@@ -153,13 +154,26 @@ def _extract_spendable_balance(ex: Any, balance: dict[str, Any], asset: str) -> 
 
 
 def _funding_fee_buffer_fraction() -> float:
+    return float(_funding_fee_buffer_decimal())
+
+
+def _funding_fee_buffer_decimal() -> Decimal:
     raw = os.environ.get("CBP_FUNDING_FEE_BUFFER_FRACTION")
     if raw is None or str(raw).strip() == "":
-        return 0.005
-    out = _float_or_none(raw)
-    if out is None or out < 0:
-        return 0.005
-    return float(out)
+        return _DEFAULT_FUNDING_FEE_BUFFER_FRACTION
+    try:
+        out = decimal_value(raw, name="funding_fee_buffer_fraction")
+    except ValueError:
+        return _DEFAULT_FUNDING_FEE_BUFFER_FRACTION
+    if out < 0:
+        return _DEFAULT_FUNDING_FEE_BUFFER_FRACTION
+    return out
+
+
+def _estimate_funding_required(amount: Any, price: Any) -> Decimal:
+    return _estimate_order_notional(amount, price) * (
+        Decimal("1") + _funding_fee_buffer_decimal()
+    )
 
 
 def _enforce_funding_gate(ex: Any, *, symbol: str, side: str, amount: Any, price: Any | None, order_type: str) -> None:
@@ -172,9 +186,10 @@ def _enforce_funding_gate(ex: Any, *, symbol: str, side: str, amount: Any, price
     if side_n == "buy":
         if price_f is None:
             raise RuntimeError("CBP_ORDER_BLOCKED:funding_unknown_market_buy")
-        required = float(amount_f * price_f * (1.0 + _funding_fee_buffer_fraction()))
+        required_d = _estimate_funding_required(amount_f, price_f)
     else:
-        required = float(amount_f)
+        required_d = decimal_value(amount_f, name="funding_required")
+    required = float(required_d)
 
     try:
         balance = ex.fetch_balance()
@@ -194,7 +209,7 @@ def _enforce_funding_gate(ex: Any, *, symbol: str, side: str, amount: Any, price
         },
     )
 
-    if required > float(spendable):
+    if required_d > decimal_value(spendable, name="spendable"):
         raise RuntimeError(
             "CBP_ORDER_BLOCKED:insufficient_spendable_balance "
             f"asset={spend_asset} required={required} spendable={spendable} source={source}"

@@ -807,6 +807,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    never-raise contract while ignoring non-finite notional without incrementing
    trades/notional. Remaining substrate #1 work: full Decimal transport through
    storage schemas and position/PnL accounting semantics.
+   2026-07-14 funding-gate required-balance Decimal slice is proof-ready for
+   independent review: `services/execution/place_order.py` now estimates the
+   buy-side required spendable balance with Decimal multiplication, including
+   the funding fee buffer, before comparing against the venue balance. Exact
+   buffered boundary cases such as `0.1 * 0.2 * 1.1 == 0.022` now pass instead
+   of being blocked by binary float over-estimation. The legacy
+   `CBP_FUNDING_FEE_BUFFER_FRACTION` fallback contract is preserved: blank,
+   invalid, non-finite, or negative values still fall back to `0.005`.
+   Remaining substrate #1 work: full Decimal transport through storage schemas
+   and position/PnL accounting semantics.
 2. Make trading config fail closed. Unparseable or corrupt runtime trading
    config must halt with an alert instead of defaulting to `{}`. Sweep only
    trading-critical broad exception handlers first. Blocks live; paper-adjacent

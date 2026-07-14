@@ -627,6 +627,18 @@ def test_place_order_blocks_when_spendable_balance_is_insufficient(monkeypatch):
     assert ex.calls == []
 
 
+def test_place_order_funding_gate_uses_decimal_required_at_buffered_boundary(monkeypatch):
+    _set_limit_env(monkeypatch)
+    monkeypatch.setenv("CBP_FUNDING_FEE_BUFFER_FRACTION", "0.1")
+    _install_boundary_success_deps(monkeypatch)
+    ex = FundingExchange(exchange_id="kraken", free={"USD": 0.022})
+
+    out = po.place_order(ex, "BTC/USD", "limit", "buy", 0.1, 0.2, {})
+
+    assert out["id"] == "oid-1"
+    assert ex.calls == [(("BTC/USD", "limit", "buy", 0.1, 0.2, {}), {})]
+
+
 def test_place_order_coinbase_blocks_when_only_staked_balance_is_visible(monkeypatch):
     _set_limit_env(monkeypatch)
     _install_boundary_success_deps(monkeypatch)
