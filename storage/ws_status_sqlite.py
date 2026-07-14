@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
+from services.markets.math_utils import decimal_value
 from services.os.app_paths import data_dir, ensure_dirs
 
 ensure_dirs()
@@ -57,6 +59,26 @@ def _connect(path: Path = DB_PATH) -> sqlite3.Connection:
     return con
 
 
+def _required_ts_ms(value: Any) -> int:
+    try:
+        out = int(value)
+    except Exception as exc:
+        raise ValueError("invalid_ws_status_numeric:recv_ts_ms") from exc
+    if out <= 0:
+        raise ValueError("invalid_ws_status_numeric:recv_ts_ms")
+    return out
+
+
+def _required_lag_ms(value: Any) -> float:
+    try:
+        out = float(decimal_value(value, name="lag_ms"))
+    except (OverflowError, ValueError) as exc:
+        raise ValueError("invalid_ws_status_numeric:lag_ms") from exc
+    if not math.isfinite(out) or out < 0.0:
+        raise ValueError("invalid_ws_status_numeric:lag_ms")
+    return out
+
+
 class WSStatusSQLite:
     def __init__(self, path: Path | str | None = None) -> None:
         self.path = Path(path) if path else DB_PATH
@@ -73,12 +95,14 @@ class WSStatusSQLite:
         error: str | None = None,
         meta: Dict[str, Any] | None = None,
     ) -> None:
+        recv_ts = _required_ts_ms(recv_ts_ms)
+        lag = _required_lag_ms(lag_ms)
         row = (
             str(exchange).lower().strip(),
             str(symbol).strip(),
             str(status).lower().strip(),
-            int(recv_ts_ms),
-            float(lag_ms),
+            recv_ts,
+            lag,
             None if error is None else str(error),
             json.dumps(meta or {}, default=str),
             _now_iso(),

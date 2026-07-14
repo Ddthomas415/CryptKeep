@@ -1489,7 +1489,13 @@ substrate work, but they are concrete enough to keep visible.
    treating websocket data as canonical. 2026-07-04: stale
    `docs/WS_AUTO_DISABLE.md` references to retired `services/marketdata/*` and
    non-present `ws_microstructure_manager.py` were corrected to the current
-   `services/market_data/*` ticker-feed/blacklist surfaces.
+   `services/market_data/*` ticker-feed/blacklist surfaces. 2026-07-14:
+   WebSocket status-store numeric ingestion proof is ready for independent
+   review. `WSStatusSQLite.upsert_status()` now rejects invalid/non-positive
+   `recv_ts_ms` and non-finite or negative `lag_ms` before writing current or
+   event rows, while preserving valid zero-lag status records. This protects
+   freshness/ops telemetry from poisoned lag values without making websocket
+   data canonical for trading.
 5. Add a backtest-to-paper fill parity property test around the shared fill
    model so paper evidence transferability is tested directly. 2026-07-04:
    parity guard added for paper market buy/sell fills: paper engine fill price
