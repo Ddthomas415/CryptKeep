@@ -76,6 +76,42 @@ class TestNotionalCap:
         assert ok is False
         assert "MAX_NOTIONAL_PER_TRADE" in reason
 
+    def test_exact_decimal_notional_boundary_allows_trade(self, tmp_path):
+        gate = _make_gate(tmp_path, max_notional_per_trade_usd=0.02)
+
+        ok, reason, meta = gate.check_live(
+            it=_intent(qty=0.1, price=0.2),
+            realized_pnl_usd=0.0,
+        )
+
+        assert ok is True
+        assert reason == "OK"
+        assert meta["notional_usd"] == 0.02
+
+    def test_explicit_notional_uses_decimal_finite_parsing(self, tmp_path):
+        gate = _make_gate(tmp_path, max_notional_per_trade_usd=0.02)
+
+        ok, reason, meta = gate.check_live(
+            it={"notional_usd": "0.02", "qty": 999, "price": 999},
+            realized_pnl_usd=0.0,
+        )
+
+        assert ok is True
+        assert reason == "OK"
+        assert meta["notional_usd"] == 0.02
+
+    def test_nonfinite_notional_blocks_instead_of_bypassing_cap(self, tmp_path):
+        gate = _make_gate(tmp_path, max_notional_per_trade_usd=50.0)
+
+        ok, reason, meta = gate.check_live(
+            it={"notional_usd": float("nan"), "qty": 1.0, "price": 10.0},
+            realized_pnl_usd=0.0,
+        )
+
+        assert ok is False
+        assert reason == "CANNOT_ESTIMATE_NOTIONAL_USD"
+        assert meta == {}
+
 
 class TestMaxTradesPerDay:
     def test_below_trade_limit_allows(self, tmp_path):
