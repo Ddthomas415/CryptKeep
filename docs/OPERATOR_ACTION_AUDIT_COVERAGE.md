@@ -37,12 +37,13 @@ SHOWN/PARTIAL/MISSING with store pointers and runtime probes
 document so the matrix and policy cannot drift silently. 2026-07-15 update:
 `services.audit.operator_event_journal` provides the unified append-only JSONL
 substrate and `scripts/record_operator_event.py` can append manual drill
-events with required fields and secret-key redaction. Current honest verdict
-is still not green: the journal substrate exists, but material action families
-must be hooked to it before they count as SHOWN. The arm-to-halt replay drill,
-no-secret payload scan over real launch-packet events, and audit-write
-fail-closed behavior for critical live actions remain open under the backlog
-item.
+events with required fields and secret-key redaction. `scripts/check_operator_event_secrets.py`
+scans the journal for unredacted secret-like payload fields without printing
+the leaked values. Current honest verdict is still not green: the journal
+substrate exists, but material action families must be hooked to it before
+they count as SHOWN. The arm-to-halt replay drill, a host-side no-secret scan
+over real launch-packet events, and audit-write fail-closed behavior for
+critical live actions remain open under the backlog item.
 
 ## Actions That Must Be Auditable
 
@@ -68,7 +69,9 @@ The launch packet must include:
 - event-store location and retention policy;
 - coverage matrix for dashboard, CLI, system, and automation paths;
 - at least one replay of a live-arm-to-halt drill from audit records only;
-- proof that audit records do not contain secrets;
+- proof that audit records do not contain secrets (use
+  `scripts/check_operator_event_secrets.py --require-events --evidence-dest ...`
+  against the launch-packet journal);
 - failure behavior when audit writes fail on critical live actions.
 
 ## Policy
