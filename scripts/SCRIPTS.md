@@ -237,6 +237,8 @@ are not paper-campaign controls.
 - `generate_release_notes.py` — release-notes generator.
 - `install.py` — install/setup helper.
 - `audit_coverage_matrix.py` — operator/action audit coverage matrix (SHOWN/PARTIAL/MISSING per policy family; `--strict` capped-live posture; see `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md`).
+- `record_operator_event.py` — append one manual operator/action audit event to
+  the unified JSONL journal; redacts secret-like payload fields.
 - `check_dead_man.py` — dead-man liveness check over trading-loop heartbeats (exit 0/1/2; `--alert` dispatches via the alert stack; driven by `packaging/systemd/cbp-dead-man.timer`).
 - `check_edge_cadence.py` — read-only crypto-edge collector cadence/dead-man check over stored funding/OI/basis snapshot timestamps (exit 0/1/2; `--alert` best-effort; schedulable by `packaging/systemd/cbp-edge-cadence.timer`).
 - `check_supply_chain.py` — pin integrity + environment match + optional pip-audit lane; `--evidence-dest` writes launch-packet provenance JSON (see `docs/SUPPLY_CHAIN_RELEASE_POLICY.md`).
