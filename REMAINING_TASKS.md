@@ -653,6 +653,15 @@ deployment work still needs independent review.
     symbol-aware round-trip counting or explicit single-symbol gate policy,
     per-symbol provenance/risk proof, and correlation/non-independence
     acceptance.
+    2026-07-15: symbol-aware fallback counter proof is ready for independent
+    review. `scripts/check_promotion_gates.py::_count_round_trips()` no longer
+    uses `min(total_buys,total_sells)`; it sorts fills chronologically and
+    counts only same-symbol long cycles that return open quantity to zero.
+    Tests pin no bridge across symbols, sell-before-buy refusal, multi-symbol
+    chronological pairing, and legacy side-only rows. This does not widen the
+    canonical campaign; fresh gate output, per-symbol risk/provenance proof,
+    and correlation/non-independence acceptance remain required before any
+    paper-universe change.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

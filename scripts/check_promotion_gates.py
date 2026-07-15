@@ -72,10 +72,70 @@ def _load_all_evidence(ev_dir: Path) -> dict[str, list[dict]]:
 
 
 def _count_round_trips(fills: list[dict]) -> int:
-    """Count completed round trips (paired buy + sell fills)."""
-    buys  = sum(1 for f in fills if str(f.get("side", "")).lower() == "buy")
-    sells = sum(1 for f in fills if str(f.get("side", "")).lower() == "sell")
-    return min(buys, sells)
+    """Count completed long round trips without bridging symbols or time.
+
+    This is a fallback/diagnostic helper. The authoritative paper gate uses
+    paper-history qualification, but capped-live and legacy JSONL summaries
+    still need a conservative count. Count a trip only when chronological fills
+    for the same symbol close an open long cycle.
+    """
+    open_qty_by_symbol: dict[str, float] = {}
+    trips = 0
+    for fill in sorted(list(fills or []), key=_record_timestamp_sort_key):
+        side = str(fill.get("side") or "").strip().lower()
+        if side not in {"buy", "sell"}:
+            continue
+        qty = _fill_qty(fill)
+        if qty <= 0.0:
+            continue
+        symbol = _fill_symbol(fill)
+        open_qty = float(open_qty_by_symbol.get(symbol, 0.0))
+        if side == "buy":
+            open_qty_by_symbol[symbol] = open_qty + qty
+            continue
+        if open_qty <= 1e-12:
+            continue
+        remaining = max(0.0, open_qty - qty)
+        open_qty_by_symbol[symbol] = remaining
+        if remaining <= 1e-12:
+            trips += 1
+    return trips
+
+
+def _fill_symbol(fill: dict) -> str:
+    for key in ("symbol", "ohlcv_symbol", "market_symbol", "pair"):
+        value = str(fill.get(key) or "").strip().upper()
+        if value:
+            return value
+    return "__unknown_symbol__"
+
+
+def _fill_qty(fill: dict) -> float:
+    for key in ("size", "qty", "amount"):
+        if key not in fill:
+            continue
+        try:
+            return float(fill.get(key))
+        except Exception:
+            return 0.0
+    # Legacy JSONL evidence sometimes recorded side without quantity; preserve
+    # the old single-fill counting contract for those rows.
+    return 1.0
+
+
+def _record_timestamp_sort_key(fill: dict) -> tuple[int, str]:
+    for key in ("timestamp", "_logged_at", "fill_ts", "date"):
+        raw = str(fill.get(key) or "").strip()
+        if not raw:
+            continue
+        try:
+            parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        except Exception:
+            return (1, raw)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return (0, parsed.isoformat())
+    return (1, "")
 
 
 def _first_session_date(sessions: list[dict]) -> datetime | None:
