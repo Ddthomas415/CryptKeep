@@ -2,7 +2,34 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+import math
 from typing import Any, Dict, List
+
+from services.markets.math_utils import decimal_value
+
+
+def _finite_float(payload: Dict[str, Any], key: str, *, default: float = 0.0) -> float:
+    try:
+        value = float(decimal_value(payload.get(key, default), name=key))
+    except (OverflowError, ValueError) as exc:
+        raise ValueError(f"invalid_ops_signal_numeric:{key}") from exc
+    if not math.isfinite(value):
+        raise ValueError(f"invalid_ops_signal_numeric:{key}")
+    return value
+
+
+def _nonnegative_float(payload: Dict[str, Any], key: str, *, default: float = 0.0) -> float:
+    value = _finite_float(payload, key, default=default)
+    if value < 0.0:
+        raise ValueError(f"invalid_ops_signal_numeric:{key}")
+    return value
+
+
+def _stress_float(payload: Dict[str, Any], key: str, *, default: float = 0.0) -> float:
+    value = _nonnegative_float(payload, key, default=default)
+    if value > 1.0:
+        raise ValueError(f"invalid_ops_signal_numeric:{key}")
+    return value
 
 
 class RiskGateState(str, Enum):
@@ -34,14 +61,14 @@ class RawSignalSnapshot:
             ts=str(p.get("ts") or ""),
             source=str(p.get("source") or "bot"),
             exchange_api_ok=bool(p.get("exchange_api_ok", False)),
-            order_reject_rate=float(p.get("order_reject_rate", 0.0) or 0.0),
-            ws_lag_ms=float(p.get("ws_lag_ms", 0.0) or 0.0),
-            venue_latency_ms=float(p.get("venue_latency_ms", 0.0) or 0.0),
-            realized_volatility=float(p.get("realized_volatility", 0.0) or 0.0),
-            drawdown_pct=float(p.get("drawdown_pct", 0.0) or 0.0),
-            pnl_usd=float(p.get("pnl_usd", 0.0) or 0.0),
-            exposure_usd=float(p.get("exposure_usd", 0.0) or 0.0),
-            leverage=float(p.get("leverage", 0.0) or 0.0),
+            order_reject_rate=_nonnegative_float(p, "order_reject_rate"),
+            ws_lag_ms=_nonnegative_float(p, "ws_lag_ms"),
+            venue_latency_ms=_nonnegative_float(p, "venue_latency_ms"),
+            realized_volatility=_nonnegative_float(p, "realized_volatility"),
+            drawdown_pct=_finite_float(p, "drawdown_pct"),
+            pnl_usd=_finite_float(p, "pnl_usd"),
+            exposure_usd=_nonnegative_float(p, "exposure_usd"),
+            leverage=_nonnegative_float(p, "leverage"),
             extra=dict(p.get("extra") or {}),
         )
 
@@ -79,7 +106,7 @@ class RiskGateSignal:
         return RiskGateSignal(
             ts=str(p.get("ts") or ""),
             source=str(p.get("source") or "ops_intel"),
-            system_stress=float(p.get("system_stress", 0.0) or 0.0),
+            system_stress=_stress_float(p, "system_stress"),
             regime=str(p.get("regime") or "unknown"),
             zone=str(p.get("zone") or "unknown"),
             gate_state=RiskGateState(str(p.get("gate_state") or RiskGateState.ALLOW_TRADING.value)),
@@ -110,4 +137,3 @@ def evaluate_gate_for_order(gate_state: RiskGateState | str, *, reduce_only: boo
     ):
         return False, "reductions_only"
     return True, "ok"
-
