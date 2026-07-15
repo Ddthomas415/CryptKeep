@@ -101,12 +101,7 @@ jobs:
         env:
           CBP_SKIP_SLOW: "1"
         run: |
-          python -m pytest tests/ \
-            --ignore=tests/test_symbol_scanner.py \
-            --ignore=tests/test_dashboard_view_data.py \
-            --ignore=tests/test_dashboard_page_runtime.py \
-            --ignore=tests/test_dashboard_home_digest.py \
-            -q --tb=short
+          python -m pytest tests/ -q --tb=short
 
       - name: Paper runner dry-run
         if: steps.scope.outputs.docs_only != 'true'

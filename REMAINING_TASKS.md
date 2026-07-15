@@ -1741,6 +1741,14 @@ substrate work, but they are concrete enough to keep visible.
     `pull_request` or `push`, so required CI behavior remains unchanged.
     Remaining work: make the four ignored tests CI-safe, split them into
     smaller required regressions, or retire unsupported surfaces.
+    2026-07-15: closure proof is ready for independent review. The formerly
+    ignored slice now passes locally (`90 passed in 2.20s`), required GitHub CI
+    no longer passes `--ignore` for those files, and `make test-fast` /
+    `make test-full` run the full `tests/` tree without excluding dashboard or
+    symbol-scanner tests (`make test-fast`: `2859 passed, 64 skipped`).
+    `tests/test_ci_ignored_tests_policy.py` now guards against reintroducing
+    those ignores. The manual workflow/target remain only as a focused
+    diagnostic slice, not as substitute coverage.
 22. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging

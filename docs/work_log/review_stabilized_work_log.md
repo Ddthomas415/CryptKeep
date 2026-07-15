@@ -20566,3 +20566,59 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, live/capped-live evidence shapes beyond
   targeted fixtures.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T10:50:51Z - Restore Dashboard/Symbol Scanner Tests To Required CI (Backlog Hygiene #21)
+
+Active role: ENGINEER
+
+Objective:
+- Close the permanent ignored-test drift channel by returning dashboard and
+  symbol-scanner tests to required CI and local fast/full suites.
+
+What was found:
+- SHOWN: `.github/workflows/ci.yml`, `make test-fast`, and `make test-full`
+  still excluded `tests/test_symbol_scanner.py`,
+  `tests/test_dashboard_view_data.py`, `tests/test_dashboard_page_runtime.py`,
+  and `tests/test_dashboard_home_digest.py`.
+- SHOWN: the focused optional slice now passes locally:
+  `make test-ci-ignored` -> `90 passed in 2.20s`.
+- SHOWN: `tests/test_ci_ignored_tests_policy.py` still asserted that core CI
+  ignored those files, encoding the drift channel as expected behavior.
+
+What changed:
+- Removed the four permanent `--ignore` entries from the GitHub CI core pytest
+  job.
+- Removed the same permanent ignores from `make test-fast` and
+  `make test-full`.
+- Updated `docs/CI_IGNORED_TEST_POLICY.md` to record that the files are now
+  required in normal CI; the optional workflow/target remain only as focused
+  diagnostics.
+- Updated the policy regression so it fails if CI or Makefile reintroduce the
+  ignored entries.
+
+Why this change was chosen:
+- The tests are already CI-safe locally, so keeping them out of required CI
+  preserves an unnecessary drift channel for dashboard and symbol-scanner
+  behavior.
+- The optional diagnostic target remains available without being a substitute
+  for required coverage.
+
+Expected outcome:
+- Dashboard and symbol-scanner regressions covered by these files block normal
+  CI instead of only appearing in a manual optional workflow.
+
+Verification:
+- `make test-ci-ignored`
+  - SHOWN: `90 passed in 2.04s`.
+- `./.venv/bin/python -m pytest -q tests/test_ci_ignored_tests_policy.py`
+  - SHOWN: `2 passed in 0.08s`.
+- `make test-fast`
+  - SHOWN: `2859 passed, 64 skipped, 15 warnings in 373.13s (0:06:13)`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: changes required CI coverage; GitHub CI must confirm the broader core
+  pytest job remains stable in the hosted environment.
+- UNVERIFIED: GitHub CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
