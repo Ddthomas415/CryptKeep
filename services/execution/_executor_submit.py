@@ -354,8 +354,8 @@ def submit_pending_live(cfg: LiveCfg) -> Dict[str, Any]:
         try:
             mq_ok, mq_reason = check_market_quality(cfg.exchange_id, str(it.get("symbol") or ""))
         except Exception as exc:
-            _LOG.warning("market_quality_guard error symbol=%s: %s", it.get("symbol"), exc)
-            mq_ok, mq_reason = True, "guard_error_passthrough"
+            _LOG.error("market_quality_guard error symbol=%s: %s", it.get("symbol"), exc)
+            mq_ok, mq_reason = False, f"guard_error:{type(exc).__name__}"
 
         if not mq_ok:
             store.set_intent_status(

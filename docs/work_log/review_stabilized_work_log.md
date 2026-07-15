@@ -20348,3 +20348,55 @@ Remaining risk:
 - LOW: docs-only backlog state alignment; no code, runtime policy, gates, or
   operator commands changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-15T03:53:02Z - Live Executor Market-Quality Exception Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Continue the live-path fail-closed sweep by removing a market-quality guard
+  exception pass-through in live submission.
+
+What was found:
+- SHOWN: `services/execution/_executor_submit.py` caught any exception raised
+  by `check_market_quality()` and set `mq_ok=True` with reason
+  `guard_error_passthrough`.
+- SHOWN: that branch sits before live order submission, so an exception in the
+  market-quality guard could allow the submit path to continue.
+- SHOWN: normal market-quality block behavior already keeps the intent pending
+  with a `market_quality_block:*` reason.
+
+What changed:
+- `submit_pending_live()` now treats a market-quality guard exception as a
+  block: `mq_ok=False`, reason `guard_error:<ExceptionType>`.
+- The resulting intent status uses the existing block channel:
+  `market_quality_block:guard_error:<ExceptionType>`.
+- Added a live-executor regression test proving a raising guard keeps the
+  intent pending and never calls `submit_order`.
+
+Why this change was chosen:
+- The market-quality guard is a live pre-submit safety layer. Unknown guard
+  failure must not be interpreted as healthy market quality.
+- Reusing the existing market-quality block path keeps the behavior small and
+  diagnosable without changing healthy submissions or ordinary guard-deny
+  semantics.
+
+Expected outcome:
+- A broken market-quality guard cannot silently permit live submission.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: `17 passed in 0.68s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_latency_safety_integration.py tests/test_market_quality_guard.py tests/test_config_fail_closed_sweep.py`
+  - SHOWN: `35 passed in 0.74s`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m ruff check services/execution/_executor_submit.py tests/test_live_executor_latency_safety_integration.py`
+  - UNVERIFIED locally: venv lacks `ruff` (`No module named ruff`); GitHub CI
+    remains the lint gate.
+
+Remaining risk:
+- HIGH: touches live submit-path fail-closed behavior; requires independent
+  review and GitHub CI before acceptance.
+- UNVERIFIED: full suite, GitHub CI, host-side live executor inputs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

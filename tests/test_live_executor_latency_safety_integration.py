@@ -102,6 +102,83 @@ def test_submit_pending_live_fails_closed_on_runtime_config_load_error(monkeypat
     assert load_kwargs == [{"strict": True}]
 
 
+def test_submit_pending_live_fails_closed_when_market_quality_guard_raises(monkeypatch, tmp_path):
+    import services.execution._executor_submit as submit_mod
+
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+    exec_db = str(tmp_path / "execution.sqlite")
+    cfg = le.LiveCfg(enabled=True, exchange_id="coinbase", exec_db=exec_db, symbol="BTC/USD", max_submit_per_tick=1)
+
+    _guard_running(monkeypatch)
+    monkeypatch.setattr(
+        le,
+        "check_market_quality",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("mq boom")),
+    )
+    monkeypatch.setattr(le, "_execution_safety_pause_open", lambda **_: (True, "OK", {}))
+    monkeypatch.setattr(le, "_load_execution_safety_cfg", lambda *_, **__: SafetyConfig(enabled=True))
+    monkeypatch.setattr(le, "_check_market_freshness_for_live", lambda *_args, **_kwargs: (True, "OK", {}))
+    monkeypatch.setattr(le, "_latency_tracker", lambda *_args, **_kwargs: object())
+    monkeypatch.setattr(
+        submit_mod,
+        "load_runtime_trading_config",
+        lambda **_kwargs: {
+            "risk": {
+                "live": {
+                    "max_daily_loss_usd": 25.0,
+                    "max_notional_per_trade_usd": 250.0,
+                    "max_trades_per_day": 5,
+                    "max_position_notional_usd": 500.0,
+                }
+            }
+        },
+    )
+
+    class _FakeStore:
+        def __init__(self):
+            self.status_updates: list[tuple[str, str, str]] = []
+
+        def list_intents(self, *, mode: str, exchange: str, symbol: str, status: str, limit: int = 200):
+            if status != "pending":
+                return []
+            return [
+                {
+                    "intent_id": "intent-mq-error",
+                    "symbol": symbol,
+                    "side": "buy",
+                    "order_type": "limit",
+                    "qty": 0.25,
+                    "limit_price": 100.0,
+                    "reason": "",
+                }
+            ]
+
+        def set_intent_status(self, *, intent_id: str, status: str, reason: str = "") -> None:
+            self.status_updates.append((intent_id, status, reason))
+
+    class _NeverSubmitClient:
+        def submit_order(self, **_kwargs):
+            raise AssertionError("submit_order must not run when market-quality guard raises")
+
+    fake_store = _FakeStore()
+    monkeypatch.setattr(le, "ExecutionStore", lambda path: fake_store)
+    monkeypatch.setattr(le, "OrderDedupeStore", lambda exec_db: object())
+    monkeypatch.setattr(le, "ExchangeClient", lambda exchange_id, sandbox=False: _NeverSubmitClient())
+
+    out = le.submit_pending_live(cfg)
+
+    assert out["ok"] is True
+    assert out["submitted"] == 0
+    assert out["errors"] == 0
+    assert fake_store.status_updates == [
+        (
+            "intent-mq-error",
+            "pending",
+            "market_quality_block:guard_error:RuntimeError",
+        )
+    ]
+
+
 def test_submit_pending_live_uses_risk_daily_for_gate_one_loss_block(monkeypatch, tmp_path):
     monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
     exec_db = str(tmp_path / "execution.sqlite")
