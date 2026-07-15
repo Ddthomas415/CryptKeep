@@ -39,11 +39,13 @@ document so the matrix and policy cannot drift silently. 2026-07-15 update:
 substrate and `scripts/record_operator_event.py` can append manual drill
 events with required fields and secret-key redaction. `scripts/check_operator_event_secrets.py`
 scans the journal for unredacted secret-like payload fields without printing
-the leaked values. Current honest verdict is still not green: the journal
-substrate exists, but material action families must be hooked to it before
-they count as SHOWN. The arm-to-halt replay drill, a host-side no-secret scan
-over real launch-packet events, and audit-write fail-closed behavior for
-critical live actions remain open under the backlog item.
+the leaked values. `services.admin.live_disable_wizard.disable_live_now()` and
+`services.admin.live_enable_wizard.disable_live()` now append best-effort
+operator events for safety-increasing live-disable/halt transitions. Current
+honest verdict is still not green: enable/resume are not hooked, full
+arm-to-halt replay is not proven, a host-side no-secret scan over real
+launch-packet events remains unrun, and audit-write fail-closed behavior for
+critical live actions remains open under the backlog item.
 
 ## Actions That Must Be Auditable
 

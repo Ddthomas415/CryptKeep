@@ -1368,6 +1368,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     launch-packet journal after action hooks and the arm-to-halt drill produce
     events; hook critical action families; define fail-closed behavior for
     critical audit-write failures.
+    2026-07-15: live-disable/halt operator-event hook is ready for
+    independent review. `services.admin.live_disable_wizard.disable_live_now`
+    and `services.admin.live_enable_wizard.disable_live` append best-effort
+    `live_disable` events through the unified journal after safety-increasing
+    disable/kill-switch/system-guard mutations, and surface audit-write
+    failures in the returned payload without blocking the halt path. Remaining
+    capped-live proof: live-enable/resume hooks and policy, arm-to-halt replay
+    from real audit records, host-side no-secret scan, and fail-closed
+    audit-write policy for enabling/risk-increasing critical actions.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

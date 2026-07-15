@@ -9,6 +9,7 @@ from services.admin.config_editor import ConfigLoadError, load_user_yaml, save_u
 from services.execution.event_log import log_event
 from services.execution.live_arming import is_live_enabled, set_live_armed_state, set_live_enabled
 from services.run_context import run_id
+from services.admin.live_operator_audit import record_live_disable_event
 
 _LOG = logging.getLogger(__name__)
 
@@ -75,17 +76,34 @@ def disable_live_now(note: str = "wizard_disable_live") -> dict:
         )
     except Exception as e:
         _LOG.warning("live disable event log failed: %s: %s", type(e).__name__, e)
+    post = status()
+    out_reason = (
+        "config_load_failed_runtime_halted"
+        if config_error
+        else ("config_save_failed_runtime_halted" if not bool(save_out.get("ok")) else "ok")
+    )
+    operator_event = record_live_disable_event(
+        source="live_disable_wizard",
+        reason=str(note),
+        result=out_reason,
+        pre_state=prev,
+        post_state={
+            "status": post,
+            "armed_state": armed_state,
+            "kill_switch": ks2,
+            "system_guard": guard,
+            "save": save_out,
+        },
+        extra={"run_id": run_id()},
+    )
     return {
         "ok": True,
-        "reason": (
-            "config_load_failed_runtime_halted"
-            if config_error
-            else ("config_save_failed_runtime_halted" if not bool(save_out.get("ok")) else "ok")
-        ),
+        "reason": out_reason,
         "prev": prev,
-        "post": status(),
+        "post": post,
         "save": save_out,
         "armed_state": armed_state,
         "kill_switch": ks2,
         "system_guard": guard,
+        "operator_event": operator_event,
     }
