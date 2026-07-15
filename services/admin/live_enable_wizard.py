@@ -52,12 +52,21 @@ def enable_live() -> dict:
     }
 
 def disable_live() -> dict:
-    cfg = set_live_enabled(load_user_yaml(), False)
-    ok, msg = save_user_yaml(cfg)
-    save = {"ok": ok, "message": msg}
-    if not ok:
-        _log_audit("DISABLE_LIVE", False, msg)
-        return {"ok": False, "msg": msg, "save": save}
+    config_error = ""
+    try:
+        raw_cfg = load_user_yaml(strict=True)
+    except ConfigLoadError as exc:
+        config_error = str(exc)
+        save = {
+            "ok": False,
+            "message": config_error,
+            "reason": "config_load_failed",
+            "skipped": True,
+        }
+    else:
+        cfg = set_live_enabled(raw_cfg, False)
+        ok, msg = save_user_yaml(cfg)
+        save = {"ok": ok, "message": msg}
 
     os.environ.pop("CBP_EXECUTION_ARMED", None)
     os.environ.pop("CBP_LIVE_ENABLED", None)
@@ -65,11 +74,16 @@ def disable_live() -> dict:
     armed_state = set_live_armed_state(False, writer="live_enable_wizard", reason="disable_live")
     armed, reason = live_enabled_and_armed()
     guard = set_system_guard_state("HALTED", writer="live_enable_wizard", reason="disable_live")
-    _log_audit("DISABLE_LIVE", True, reason)
+    out_reason = (
+        "config_load_failed_runtime_halted"
+        if config_error
+        else ("config_save_failed_runtime_halted" if not bool(save.get("ok")) else reason)
+    )
+    _log_audit("DISABLE_LIVE", True, out_reason)
     return {
         "ok": True,
+        "reason": out_reason,
         "armed": armed,
-        "reason": reason,
         "msg": "Live disabled",
         "save": save,
         "armed_state": armed_state,

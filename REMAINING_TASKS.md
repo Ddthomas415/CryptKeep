@@ -1044,6 +1044,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    evaluates as `-105.0` for daily-loss purposes. Substrate #2 config
    fail-closed sweep is now code-complete pending independent review/CI for
    this high-risk live-risk policy change.
+   2026-07-15 admin live-disable runtime-halt follow-up is ready for
+   independent review: `services/admin/live_disable_wizard.py::disable_live_now()`
+   and `services/admin/live_enable_wizard.py::disable_live()` now treat disable
+   persistence as best-effort and runtime halt as mandatory. Disable config
+   reads use `strict=True`; corrupt config skips the config write instead of
+   overwriting `user.yaml` as `{}`, and config read/save failure no longer
+   returns before clearing execution env flags, disarming persisted live-arm
+   state, arming the kill switch / setting the system guard `HALTED`, and
+   returning an operator-visible `config_load_failed_runtime_halted` or
+   `config_save_failed_runtime_halted` reason.
 3. Replace string-match order retry classification with typed `ccxt` exception
    handling. Ambiguous submit timeouts must verify by `clientOrderId` before any
    retry. Add a kill-between-writes submit-path test. Blocks live.

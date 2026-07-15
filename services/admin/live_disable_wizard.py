@@ -5,7 +5,7 @@ import os
 from services.admin.kill_switch import get_state as get_kill, set_armed
 from services.admin.system_guard import get_state as get_system_guard_state
 from services.admin.system_guard import set_state as set_system_guard_state
-from services.admin.config_editor import load_user_yaml, save_user_yaml
+from services.admin.config_editor import ConfigLoadError, load_user_yaml, save_user_yaml
 from services.execution.event_log import log_event
 from services.execution.live_arming import is_live_enabled, set_live_armed_state, set_live_enabled
 from services.run_context import run_id
@@ -31,13 +31,22 @@ def status() -> dict:
     }
 
 def disable_live_now(note: str = "wizard_disable_live") -> dict:
-    cfg = load_user_yaml()
     prev = status()
-    new_cfg = set_live_enabled(cfg, False)
-    ok, msg = save_user_yaml(new_cfg, dry_run=False)
-    save_out = {"ok": ok, "message": msg}
-    if not ok:
-        return {"ok": False, "reason": "config_save_failed", "save": save_out, "prev": prev}
+    config_error = ""
+    try:
+        cfg = load_user_yaml(strict=True)
+    except ConfigLoadError as exc:
+        config_error = str(exc)
+        save_out = {
+            "ok": False,
+            "message": config_error,
+            "reason": "config_load_failed",
+            "skipped": True,
+        }
+    else:
+        new_cfg = set_live_enabled(cfg, False)
+        ok, msg = save_user_yaml(new_cfg, dry_run=False)
+        save_out = {"ok": ok, "message": msg}
     os.environ.pop("CBP_EXECUTION_ARMED", None)
     os.environ.pop("CBP_LIVE_ENABLED", None)
     os.environ.pop("CBP_EXECUTION_LIVE_ENABLED", None)
@@ -68,6 +77,11 @@ def disable_live_now(note: str = "wizard_disable_live") -> dict:
         _LOG.warning("live disable event log failed: %s: %s", type(e).__name__, e)
     return {
         "ok": True,
+        "reason": (
+            "config_load_failed_runtime_halted"
+            if config_error
+            else ("config_save_failed_runtime_halted" if not bool(save_out.get("ok")) else "ok")
+        ),
         "prev": prev,
         "post": status(),
         "save": save_out,

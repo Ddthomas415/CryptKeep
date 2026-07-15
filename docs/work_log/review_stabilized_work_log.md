@@ -20454,3 +20454,61 @@ Remaining risk:
   review and GitHub CI before acceptance.
 - UNVERIFIED: full suite, GitHub CI, host-side live consumer inputs.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T09:47:24Z - Admin Live Disable Runtime Halt Hardening (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Continue the admin live-control fail-closed sweep by making emergency live
+  disable/halt behavior independent of config persistence success.
+
+What was found:
+- SHOWN: `services/admin/live_disable_wizard.py::disable_live_now()` loaded
+  `user.yaml` non-strictly before writing `execution.live_enabled=false`;
+  corrupt config could be coerced to `{}` and then saved.
+- SHOWN: `disable_live_now()` returned immediately on config-save failure
+  before clearing execution env flags, disarming live-arm state, arming the
+  kill switch, or setting the system guard `HALTED`.
+- SHOWN: `services/admin/live_enable_wizard.py::disable_live()` had the same
+  save-before-runtime-halt shape: a config-save failure returned before env
+  clear, persisted arm disarm, and system-guard halt.
+
+What changed:
+- Disable persistence now uses `load_user_yaml(strict=True)`.
+- A config load failure skips the config write instead of saving an empty
+  fallback document.
+- Config load/save failure no longer prevents the runtime halt side effects:
+  execution env flags are cleared, persisted live-arm state is disarmed, and
+  the kill switch or system guard is moved to the halted state.
+- Operator-visible return reasons distinguish
+  `config_load_failed_runtime_halted` and
+  `config_save_failed_runtime_halted`.
+- `live_enable_wizard` disable audit logging now records the same runtime-halt
+  reason as the return payload when config persistence fails.
+- Added regressions for both admin disable entry points.
+
+Why this change was chosen:
+- Emergency halt authority must not depend on whether `user.yaml` can be read
+  or persisted. Config persistence is desirable; stopping live runtime state is
+  mandatory.
+- The smallest safe change preserves the disable write when config is readable
+  while failing closed on corrupt config and still halting runtime state.
+
+Expected outcome:
+- A corrupt config or failed config save cannot block an operator live-disable
+  action from clearing live runtime state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_admin_controls.py tests/test_execution_live_enable.py tests/test_resume_gate_ceremony_provenance.py tests/test_placeholder_recovery_phase2.py`
+  - SHOWN: `40 passed in 0.40s`.
+- `./.venv/bin/python -m py_compile services/admin/live_disable_wizard.py services/admin/live_enable_wizard.py tests/test_live_admin_controls.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches admin live halt/control behavior; requires independent review
+  and GitHub CI before acceptance.
+- UNVERIFIED: full suite, GitHub CI, dashboard/operator manual path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
