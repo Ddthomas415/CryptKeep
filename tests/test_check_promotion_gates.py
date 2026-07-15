@@ -80,6 +80,104 @@ class TestGateOutput:
         assert s["unknown"] == sum(1 for g in gates if g["passed"] is None)
         assert s["total"] == len(gates)
 
+
+class TestRoundTripCounter:
+    def test_round_trip_counter_does_not_bridge_symbols(self):
+        from scripts.check_promotion_gates import _count_round_trips
+
+        fills = [
+            {
+                "timestamp": "2026-07-01T00:00:00+00:00",
+                "symbol": "BTC/USDT",
+                "side": "buy",
+                "qty": 1.0,
+            },
+            {
+                "timestamp": "2026-07-01T01:00:00+00:00",
+                "symbol": "ETH/USDT",
+                "side": "sell",
+                "qty": 1.0,
+            },
+        ]
+
+        assert _count_round_trips(fills) == 0
+
+    def test_round_trip_counter_pairs_chronological_cycles_per_symbol(self):
+        from scripts.check_promotion_gates import _count_round_trips
+
+        fills = [
+            {
+                "timestamp": "2026-07-01T00:00:00+00:00",
+                "symbol": "BTC/USDT",
+                "side": "buy",
+                "qty": 1.0,
+            },
+            {
+                "timestamp": "2026-07-01T00:30:00+00:00",
+                "symbol": "ETH/USDT",
+                "side": "buy",
+                "qty": 2.0,
+            },
+            {
+                "timestamp": "2026-07-01T01:00:00+00:00",
+                "symbol": "BTC/USDT",
+                "side": "sell",
+                "qty": 1.0,
+            },
+            {
+                "timestamp": "2026-07-01T01:30:00+00:00",
+                "symbol": "ETH/USDT",
+                "side": "sell",
+                "qty": 1.0,
+            },
+            {
+                "timestamp": "2026-07-01T02:00:00+00:00",
+                "symbol": "ETH/USDT",
+                "side": "sell",
+                "qty": 1.0,
+            },
+        ]
+
+        assert _count_round_trips(fills) == 2
+
+    def test_round_trip_counter_ignores_sell_before_buy(self):
+        from scripts.check_promotion_gates import _count_round_trips
+
+        fills = [
+            {
+                "timestamp": "2026-07-01T00:00:00+00:00",
+                "symbol": "BTC/USDT",
+                "side": "sell",
+                "qty": 1.0,
+            },
+            {
+                "timestamp": "2026-07-01T01:00:00+00:00",
+                "symbol": "BTC/USDT",
+                "side": "buy",
+                "qty": 1.0,
+            },
+        ]
+
+        assert _count_round_trips(fills) == 0
+
+    def test_round_trip_counter_preserves_legacy_no_qty_rows(self):
+        from scripts.check_promotion_gates import _count_round_trips
+
+        fills = [
+            {
+                "timestamp": "2026-07-01T00:00:00+00:00",
+                "symbol": "BTC/USDT",
+                "side": "buy",
+            },
+            {
+                "timestamp": "2026-07-01T01:00:00+00:00",
+                "symbol": "BTC/USDT",
+                "side": "sell",
+            },
+        ]
+
+        assert _count_round_trips(fills) == 1
+
     def test_refusing_evidence_writer_blocks_machine_readiness(self, tmp_path):
         from services.strategies.evidence_logger import evidence_writer_status_file
         from scripts.check_promotion_gates import run_check

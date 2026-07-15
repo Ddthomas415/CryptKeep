@@ -20512,3 +20512,57 @@ Remaining risk:
   and GitHub CI before acceptance.
 - UNVERIFIED: full suite, GitHub CI, dashboard/operator manual path.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T10:21:33Z - Symbol-Aware Promotion Round-Trip Fallback Counter (Active Backlog #26)
+
+Active role: ENGINEER
+
+Objective:
+- Close the known paper-universe widening prerequisite where the promotion
+  gate fallback round-trip helper could bridge buys and sells across symbols.
+
+What was found:
+- SHOWN: `scripts/check_promotion_gates.py::_count_round_trips()` still used
+  `min(total_buys, total_sells)` with no symbol or chronology awareness.
+- SHOWN: the authoritative current paper path uses paper-history
+  qualification, but this helper still feeds JSONL fallback diagnostics and
+  capped-live round-trip summaries.
+- SHOWN: backlog item #26 explicitly requires symbol-aware round-trip counting
+  or an accepted single-symbol-only gate policy before any paper universe
+  widening.
+
+What changed:
+- `_count_round_trips()` now sorts fills chronologically and counts only
+  same-symbol long cycles whose open quantity returns to zero.
+- Sells before any open same-symbol buy are ignored instead of counted.
+- Legacy side-only JSONL rows with no quantity still count as one unit so the
+  old single-symbol fallback contract remains compatible.
+- Added tests for no bridging across symbols, same-symbol chronological
+  pairing, sell-before-buy refusal, and legacy no-quantity rows.
+
+Why this change was chosen:
+- The smallest safe improvement removes the known overcount class without
+  widening campaigns, changing accepted paper-history qualification, or
+  changing any strategy config.
+- It keeps item #26's remaining decisions intact: fresh gate output,
+  per-symbol provenance/risk proof, and correlation/non-independence
+  acceptance are still required before widening.
+
+Expected outcome:
+- Fallback promotion summaries cannot turn unrelated cross-symbol buy/sell
+  evidence into a completed round trip.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py`
+  - SHOWN: `52 passed in 0.76s`.
+- `./.venv/bin/python -m py_compile scripts/check_promotion_gates.py tests/test_check_promotion_gates.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches promotion gate counting logic; requires independent review and
+  GitHub CI before acceptance.
+- UNVERIFIED: full suite, GitHub CI, live/capped-live evidence shapes beyond
+  targeted fixtures.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
