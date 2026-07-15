@@ -20400,3 +20400,57 @@ Remaining risk:
   review and GitHub CI before acceptance.
 - UNVERIFIED: full suite, GitHub CI, host-side live executor inputs.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T04:43:35Z - Live Intent Consumer Market-Quality Exception Fail-Closed Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Continue the live-path fail-closed sweep by removing an unhandled
+  market-quality guard exception path after the live intent consumer claims an
+  intent.
+
+What was found:
+- SHOWN: `services/execution/live_intent_consumer.py` called `mq_check(venue,
+  symbol)` after `claim_next_queued()` without catching exceptions.
+- SHOWN: the ordinary `mq.get("ok") is false` path already rejects the intent
+  with `mq_blocked:<reason>` and escalates to `submit_unknown` if that rejection
+  write fails.
+- SHOWN: a guard exception before risk/router/adapter handling could interrupt
+  the loop after the intent was claimed instead of producing an operator-visible
+  rejected/unknown state.
+
+What changed:
+- `run_forever()` now catches market-quality guard exceptions and converts them
+  into `{"ok": False, "reason": "guard_error:<ExceptionType>"}`.
+- The converted result reuses the existing rejection/escalation path, producing
+  `mq_blocked:guard_error:<ExceptionType>` and preventing router decisions or
+  venue adapter submission.
+- Added an end-to-end one-cycle consumer regression proving a raising guard
+  rejects the intent and produces zero router decisions and zero submits.
+
+Why this change was chosen:
+- The market-quality guard is a live pre-submit safety layer. A guard failure
+  must not leave a claimed intent in an ambiguous loop-failure path.
+- Reusing the existing rejection/escalation path keeps the change narrow and
+  preserves the already-reviewed write-failure behavior.
+
+Expected outcome:
+- A broken market-quality guard cannot crash the live intent consumer after
+  claiming an intent and cannot allow downstream live submit work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_intent_ttl_expiry.py`
+  - SHOWN: `19 passed in 2.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_intent_ttl_expiry.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_execution_wiring.py tests/test_live_consumer_risk_claim.py tests/test_live_executor_latency_safety_integration.py tests/test_market_quality_guard.py`
+  - SHOWN: `64 passed in 3.09s`.
+- `./.venv/bin/python -m py_compile services/execution/live_intent_consumer.py tests/test_intent_ttl_expiry.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches live intent consumer fail-closed behavior; requires independent
+  review and GitHub CI before acceptance.
+- UNVERIFIED: full suite, GitHub CI, host-side live consumer inputs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

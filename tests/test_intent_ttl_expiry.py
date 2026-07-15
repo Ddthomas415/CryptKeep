@@ -207,7 +207,7 @@ def test_store_never_reclaims_expired(monkeypatch, tmp_path):
 # ---------------------------------------------------------------------------
 
 
-def _run_consumer_once(monkeypatch, tmp_path, intents):
+def _run_consumer_once(monkeypatch, tmp_path, intents, *, mq_check=None):
     """
     Drive one claim batch through live_intent_consumer.run_forever using the
     established fake-harness pattern; returns recorded activity.
@@ -291,7 +291,11 @@ def _run_consumer_once(monkeypatch, tmp_path, intents):
     monkeypatch.setattr(lic, "live_enabled_and_armed", lambda: (True, "armed"))
     monkeypatch.setattr(lic, "is_snapshot_fresh", lambda: (True, "fresh"))
     monkeypatch.setattr(lic, "_live_sandbox_enabled", lambda: True)
-    monkeypatch.setattr(lic, "mq_check", lambda venue, symbol: {"ok": True, "last": 100.0})
+    monkeypatch.setattr(
+        lic,
+        "mq_check",
+        mq_check or (lambda venue, symbol: {"ok": True, "last": 100.0}),
+    )
     monkeypatch.setattr(lic, "decide_order", fake_decide_order)
     monkeypatch.setattr(lic, "LiveIntentQueueSQLite", lambda: FakeQueue())
     monkeypatch.setattr(lic, "LiveTradingSQLite", lambda: FakeTrading())
@@ -342,6 +346,28 @@ def test_consumer_expires_missing_created_ts_with_zero_submits(monkeypatch, tmp_
     expiries = [w for w in activity["status_writes"] if w[0] == "no-ts-1" and w[1] == "expired"]
     assert len(expiries) == 1
     assert expiries[0][2] == "intent_ttl:missing_created_ts"
+    assert activity["decide_calls"] == []
+    assert activity["submit_calls"] == []
+
+
+def test_consumer_market_quality_guard_error_rejects_without_submit(monkeypatch, tmp_path):
+    monkeypatch.delenv(intent_ttl.INTENT_MAX_AGE_ENV, raising=False)
+
+    def mq_raises(_venue, _symbol):
+        raise RuntimeError("mq boom")
+
+    activity = _run_consumer_once(
+        monkeypatch,
+        tmp_path,
+        [_fake_intent("mq-error-1", _iso_utc(-2.0))],
+        mq_check=mq_raises,
+    )
+
+    rejections = [
+        w for w in activity["status_writes"]
+        if w[0] == "mq-error-1" and w[1] == "rejected"
+    ]
+    assert rejections == [("mq-error-1", "rejected", "mq_blocked:guard_error:RuntimeError")]
     assert activity["decide_calls"] == []
     assert activity["submit_calls"] == []
 

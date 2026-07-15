@@ -957,7 +957,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    exception now keeps the intent pending with
    `market_quality_block:guard_error:<ExceptionType>` and no exchange submit is
    attempted. Normal market-quality block behavior is unchanged. Remaining
-   sweep: consumer/reconciler config reads and admin live controls.
+   sweep: consumer/reconciler config reads and admin live controls. 2026-07-15
+   follow-up: live intent consumer market-quality exception fail-closed slice
+   is ready for independent review. `live_intent_consumer.run_forever()` now
+   catches `mq_check()` exceptions after an intent is claimed and routes them
+   into the existing rejection/escalation path as
+   `mq_blocked:guard_error:<ExceptionType>`, so no router decision or venue
+   adapter submit occurs when the guard fails. Remaining sweep:
+   reconciler config reads and admin live controls.
    2026-07-12 blueprint audit follow-up: `risk_daily.snapshot()` exposes
    both gross realized PnL (`realized_pnl`) and net PnL (`pnl =
    realized_pnl - fees`), but `RiskDailyDB.realized_today_usd()` returns
