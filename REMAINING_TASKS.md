@@ -1377,6 +1377,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     capped-live proof: live-enable/resume hooks and policy, arm-to-halt replay
     from real audit records, host-side no-secret scan, and fail-closed
     audit-write policy for enabling/risk-increasing critical actions.
+    2026-07-15: arm-to-halt replay tooling is ready for independent review.
+    `scripts/check_operator_arm_to_halt_replay.py` replays operator-event
+    journal records and passes only when a `live_enable`/`live_resume` event
+    for `live_trading` is followed by a `live_disable`/`live_halt` event with
+    halted/kill-switch evidence; it writes launch-packet JSON via
+    `--evidence-dest`. This does not close the proof by itself: current
+    enable/resume paths are not hooked to the journal, so a real host-side
+    replay will report `missing_live_arm_event` until the risk-increasing
+    action policy and hooks are implemented.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

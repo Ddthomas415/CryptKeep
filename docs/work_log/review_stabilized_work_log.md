@@ -20801,3 +20801,60 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, real arm-to-halt replay from audit events,
   and fail-closed policy for risk-increasing audit writes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T21:16:45Z - Operator Arm-To-Halt Replay Tooling (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Add read-only tooling to replay a live arm-to-halt drill from operator-event
+  journal records without hooking new live-control paths or changing runtime
+  behavior.
+
+What was found:
+- SHOWN: item #14 still requires at least one replay of a live-arm-to-halt drill
+  from audit records only.
+- SHOWN: live-disable/halt events now have a unified operator-event path, but
+  enable/resume events are deliberately not hooked yet because they are
+  risk-increasing actions and need a separate audit-write fail-closed policy.
+
+What changed:
+- Added `services.audit.operator_event_replay.replay_live_arm_to_halt`, which
+  scans operator-event journal rows for a `live_enable`/`live_resume` event for
+  `live_trading` followed by a `live_disable`/`live_halt` event with halted or
+  kill-switch evidence.
+- Added `scripts/check_operator_arm_to_halt_replay.py` with JSON output and
+  `--evidence-dest` launch-packet artifact support.
+- Added targeted tests for pass, missing-arm, missing-halt, missing-journal,
+  and CLI evidence output.
+- Updated operator-audit docs, script inventory, and backlog notes.
+
+Why this change was chosen:
+- It makes the replay proof executable while preserving the boundary that
+  enable/resume hooks and fail-closed audit-write policy are separate high-risk
+  decisions.
+- Current real journals are expected to fail with `missing_live_arm_event` until
+  those hooks exist; the tool reports that explicitly rather than pretending the
+  proof is closed.
+
+Expected outcome:
+- Launch packets can include a deterministic arm-to-halt replay artifact once
+  real arm/resume and halt/disable operator events exist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_replay.py tests/test_operator_event_journal.py tests/test_operator_event_secret_scan.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `21 passed in 0.58s`.
+- `./.venv/bin/python scripts/check_operator_arm_to_halt_replay.py --json`
+  - SHOWN: local read-only report returned exit 1 with
+    `reason: operator_event_journal_missing`, which is expected in this checkout
+    because no real operator-event journal exists.
+- `./.venv/bin/python -m py_compile services/audit/operator_event_replay.py scripts/check_operator_arm_to_halt_replay.py tests/test_operator_event_replay.py services/audit/operator_event_journal.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW/MEDIUM: read-only audit tooling; no live-control behavior changed.
+- UNVERIFIED: full suite, GitHub CI, real host-side replay, and enable/resume
+  audit hooks/policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
