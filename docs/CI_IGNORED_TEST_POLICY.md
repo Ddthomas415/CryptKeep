@@ -4,47 +4,44 @@ Date: 2026-07-03
 
 ## Current State
 
-The GitHub Actions core pytest job and `make test-fast` / `make test-full`
-currently ignore:
+As of 2026-07-15, the GitHub Actions core pytest job and `make test-fast` /
+`make test-full` no longer ignore the dashboard and symbol-scanner tests.
+These files are required in the normal suite:
 
 - `tests/test_symbol_scanner.py`
 - `tests/test_dashboard_view_data.py`
 - `tests/test_dashboard_page_runtime.py`
 - `tests/test_dashboard_home_digest.py`
 
-This policy records the state. It does not change required CI.
+This policy records the former drift channel and the guard against
+reintroducing it.
 
 An optional GitHub Actions workflow,
 `.github/workflows/ci-ignored-tests.yml`, can run the same slice manually via
-`workflow_dispatch`. It is intentionally not triggered on `pull_request` or
-`push`, so required CI behavior remains unchanged until the ignored tests are
-made CI-safe or split into smaller required regressions.
+`workflow_dispatch` for focused dashboard/symbol-scanner triage. It is
+intentionally not triggered on `pull_request` or `push`; required CI already
+runs the files through the normal core pytest job.
 
 ## Risk
 
-Ignored tests are a drift channel. Dashboard and symbol-scanner behavior can
-break without blocking CI.
+Ignored tests are a drift channel. Dashboard and symbol-scanner behavior must
+not be excluded from required CI without a new reviewed policy update.
 
 ## Policy
 
-Each ignored test file must eventually be one of:
-
-- made CI-safe and returned to the normal suite
-- moved to a named optional job with documented prerequisites
-- split into smaller CI-covered regression slices
-- retired if it no longer tests a supported surface
+The files listed above are back in the normal suite. Future dashboard or
+symbol-scanner tests should stay in required CI unless they are explicitly
+classified with a reviewed reason and a smaller required regression slice.
 
 ## Required Next Step
 
-Before changing dashboard runtime behavior or symbol-scanner behavior, either:
+Do not add permanent `--ignore` entries for the files listed above. The
+regression `tests/test_ci_ignored_tests_policy.py` checks that required CI and
+the local fast/full targets do not reintroduce those ignores.
 
-- run the relevant ignored test locally and record the result, or
-- add a smaller targeted CI-safe regression test for the behavior being changed.
+## Command For Focused Local Check
 
-## Command For Manual Local Check
-
-Do not run this automatically in Codex sessions if the user has asked to avoid
-long tests:
+The former ignored-test slice remains available as a focused diagnostic:
 
 ```bash
 make test-ci-ignored
@@ -63,5 +60,4 @@ The target expands to:
 ## Optional GitHub Check
 
 Run **Optional Ignored Tests** from the GitHub Actions UI when dashboard or
-symbol-scanner changes need a repository-hosted check but should not block the
-normal required CI suite.
+symbol-scanner changes need an additional repository-hosted focused check.

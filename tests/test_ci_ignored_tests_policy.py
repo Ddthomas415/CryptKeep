@@ -20,7 +20,7 @@ def test_optional_ignored_tests_workflow_is_manual_only() -> None:
     assert "make test-ci-ignored" in workflow
 
 
-def test_ignored_test_slice_documented_in_make_policy_and_ci() -> None:
+def test_previously_ignored_tests_are_required_in_core_ci() -> None:
     makefile = Path("Makefile").read_text(encoding="utf-8")
     policy = Path("docs/CI_IGNORED_TEST_POLICY.md").read_text(encoding="utf-8")
     ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
@@ -28,4 +28,5 @@ def test_ignored_test_slice_documented_in_make_policy_and_ci() -> None:
     for test_path in IGNORED_TESTS:
         assert test_path in makefile
         assert test_path in policy
-        assert f"--ignore={test_path}" in ci
+        assert f"--ignore={test_path}" not in ci
+        assert f"--ignore={test_path}" not in makefile
