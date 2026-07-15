@@ -20184,3 +20184,62 @@ Remaining risk:
   telemetry rows; review before relying on new websocket lag/freshness evidence.
 - UNVERIFIED: full suite, GitHub CI, host-side websocket feed inputs.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-14T23:36:47Z - Latency Metric Store Numeric Ingestion Slice (Deferred Structure #4)
+
+Active role: ENGINEER
+
+Objective:
+- Harden generic and market-websocket latency metric persistence so malformed
+  latency rows cannot poison ops telemetry, risk-gate snapshots, or execution
+  latency diagnostics.
+
+What was found:
+- SHOWN: `storage/latency_metrics_sqlite.py::log_latency()` wrote
+  `int(ts_ms)` and `float(value_ms)` directly into `latency_metrics`.
+- SHOWN: `storage/market_ws_store_sqlite.py::log_latency()` wrote
+  `int(ts_ms)` and `float(value_ms)` directly into `market_ws_latency`.
+- SHOWN by regression test: `SQLiteMarketWsStore` opened SQLite without
+  autocommit and never committed, so valid latency rows rolled back on close.
+- SHOWN: downstream execution safety and ops telemetry read these latency rows;
+  this slice remains telemetry-only and does not change order routing.
+
+What changed:
+- Added store-level validation for positive `ts_ms` and finite non-negative
+  `value_ms` in both latency stores.
+- Invalid timestamp/value inputs now raise `invalid_latency_metric_numeric:*`
+  or `invalid_market_ws_latency_numeric:*` before mutation.
+- Valid zero-latency measurements remain accepted.
+- `SQLiteMarketWsStore` now uses autocommit (`isolation_level=None`) like the
+  other SQLite telemetry stores so successful writes persist.
+- Added direct regression tests for valid zero-latency preservation,
+  reject-before-mutation on invalid timestamps/values, and market-WS persistence.
+
+Why this change was chosen:
+- These stores are the persistence boundary for execution and websocket latency
+  telemetry. Blocking malformed values at the write API protects all downstream
+  telemetry consumers without touching live execution decisions.
+
+Expected outcome:
+- Latency telemetry rows consumed by ops/risk views have positive timestamps,
+  finite non-negative values, and persist when writes succeed.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_latency_metric_stores.py tests/test_placeholder_recovery_phase3.py::test_latency_metrics_p95 tests/test_live_executor_latency_safety_integration.py::test_submit_pending_live_records_submit_and_ack_latency tests/test_live_executor_latency_safety_integration.py::test_reconcile_live_records_ack_to_fill_latency tests/test_live_executor_latency_safety_integration.py::test_reconcile_live_records_fetch_latency_measurements tests/test_live_executor_latency_safety_integration.py::test_reconcile_open_orders_records_fetch_latency_measurement tests/test_ops_signal_adapter_service.py tests/test_ops_risk_gate_script.py`
+  - SHOWN: `27 passed in 0.89s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_executor_latency_safety_integration.py`
+  - SHOWN: `16 passed in 0.53s`.
+- `./.venv/bin/python -m py_compile storage/latency_metrics_sqlite.py storage/market_ws_store_sqlite.py tests/test_latency_metric_stores.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m ruff check storage/latency_metrics_sqlite.py storage/market_ws_store_sqlite.py tests/test_latency_metric_stores.py`
+  - UNVERIFIED locally: venv lacks `ruff` (`No module named ruff`); GitHub CI
+    remains the lint gate.
+
+Remaining risk:
+- MEDIUM: latency telemetry ingestion semantics changed for malformed rows and
+  `SQLiteMarketWsStore` now persists successful writes that previously rolled
+  back; review before relying on new latency evidence.
+- UNVERIFIED: full suite, GitHub CI, host-side latency writer inputs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
