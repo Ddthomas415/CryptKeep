@@ -322,7 +322,14 @@ def run_forever() -> None:
                     continue
                 venue = normalize_venue(it["venue"])
                 symbol = normalize_symbol(it["symbol"])
-                mq = mq_check(venue, symbol)
+                try:
+                    mq = mq_check(venue, symbol)
+                except Exception as exc:
+                    _LOG.error(
+                        "live_intent_consumer.market_quality_guard_error intent_id=%s symbol=%s err=%s:%s",
+                        it.get("intent_id"), symbol, type(exc).__name__, exc,
+                    )
+                    mq = {"ok": False, "reason": f"guard_error:{type(exc).__name__}"}
                 if not mq.get("ok"):
                     mq_reason = f"mq_blocked:{mq.get('reason', 'unknown')}"
                     _write_status({"ok": True, "status": "running", "ts": _now(), "note": "market_quality_blocked", "blocked": mq, "intent": it.get("intent_id")})
