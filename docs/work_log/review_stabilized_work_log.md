@@ -20683,3 +20683,60 @@ Remaining risk:
   critical live actions or make the coverage matrix green.
 - UNVERIFIED: full suite and GitHub CI.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T20:34:20Z - Operator Event No-Secret Scan Tooling (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Add launch-packet tooling to scan operator-event journal payloads for
+  unredacted secret-like fields without hooking live controls or changing
+  runtime behavior.
+
+What was found:
+- SHOWN: item #14 still required proof that audit records do not contain
+  secrets after the operator-event journal substrate landed.
+- SHOWN: the journal writer redacts secret-like keys at write time, but there
+  was no reusable verification tool to scan a real journal artifact and produce
+  launch-packet evidence.
+
+What changed:
+- Added `services.audit.operator_event_secret_scan` to scan operator-event JSONL
+  records for sensitive-key payloads whose values are not safely redacted.
+- Added `scripts/check_operator_event_secrets.py` with `--require-events`,
+  `--json`, and `--evidence-dest` for launch-packet evidence generation.
+- The scanner reports only field path plus value type/length; it never includes
+  the leaked value in findings.
+- Updated operator-action audit docs, script inventory, backlog notes, and
+  targeted tests.
+
+Why this change was chosen:
+- It advances #14's no-secret proof path without touching live arming, order
+  routing, dashboard auth, or audit-write enforcement policy.
+- It keeps the remaining proof honest: real launch-packet events still need to
+  exist before the host-side scan can close that proof.
+
+Expected outcome:
+- Operators can run a deterministic no-secret scan over the event journal and
+  preserve the JSON artifact in the launch packet.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_secret_scan.py tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `16 passed in 0.39s`.
+- `./.venv/bin/python scripts/check_operator_event_secrets.py --json`
+  - SHOWN: read-only report returned `ok: true`, `event_count: 0`,
+    `finding_count: 0` for the local missing journal.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: coverage remains honest at `SHOWN 0`, `PARTIAL 4`,
+    `MISSING 7`.
+- `./.venv/bin/python -m py_compile services/audit/operator_event_secret_scan.py scripts/check_operator_event_secrets.py tests/test_operator_event_secret_scan.py services/audit/operator_event_journal.py scripts/record_operator_event.py scripts/audit_coverage_matrix.py tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW/MEDIUM: read-only audit tooling only; no live-control hooks or runtime
+  behavior changed.
+- UNVERIFIED: full suite, GitHub CI, and host-side scan against real launch
+  packet events.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

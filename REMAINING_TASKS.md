@@ -1359,6 +1359,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     remaining capped-live proof is still action hooks, arm-to-halt replay,
     no-secret scan over real events, and fail-closed audit-write policy for
     critical live actions.
+    2026-07-15: operator-event no-secret scan tooling is ready for independent
+    review. `scripts/check_operator_event_secrets.py` scans the operator event
+    JSONL journal for unredacted secret-like payload fields, reports only
+    field paths plus value type/length (never the leaked value), supports
+    `--require-events` for launch-packet posture, and writes evidence JSON via
+    `--evidence-dest`. Remaining capped-live proof: run it against the real
+    launch-packet journal after action hooks and the arm-to-halt drill produce
+    events; hook critical action families; define fail-closed behavior for
+    critical audit-write failures.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but
