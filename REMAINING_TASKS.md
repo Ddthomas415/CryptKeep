@@ -951,6 +951,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `process_latest_raw_signal()` converts already-persisted corrupt raw
    snapshots into a `FULL_STOP` gate with hazard `ops_raw_signal_invalid`
    instead of letting `NaN` bypass threshold comparisons or crash the service.
+   2026-07-15 follow-up: live executor market-quality exception fail-closed
+   slice is ready for independent review. `_executor_submit.submit_pending_live()`
+   no longer treats `market_quality_guard` exceptions as pass-through; a guard
+   exception now keeps the intent pending with
+   `market_quality_block:guard_error:<ExceptionType>` and no exchange submit is
+   attempted. Normal market-quality block behavior is unchanged. Remaining
+   sweep: consumer/reconciler config reads and admin live controls.
    2026-07-12 blueprint audit follow-up: `risk_daily.snapshot()` exposes
    both gross realized PnL (`realized_pnl`) and net PnL (`pnl =
    realized_pnl - fees`), but `RiskDailyDB.realized_today_usd()` returns
