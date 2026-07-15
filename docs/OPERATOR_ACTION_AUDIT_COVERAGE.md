@@ -42,12 +42,16 @@ scans the journal for unredacted secret-like payload fields without printing
 the leaked values. `services.admin.live_disable_wizard.disable_live_now()` and
 `services.admin.live_enable_wizard.disable_live()` now append best-effort
 operator events for safety-increasing live-disable/halt transitions.
+`services.execution.live_enable.enable_live()`,
+`services.admin.live_enable_wizard.enable_live()`, and
+`services.admin.resume_gate.resume_if_safe()` now append required
+risk-increasing live-enable/resume events and roll back fail-closed when those
+event writes fail.
 `scripts/check_operator_arm_to_halt_replay.py` replays a live arm/resume event
 followed by a halt/disable event from the journal and writes launch-packet
-evidence. Current honest verdict is still not green: enable/resume are not
-hooked, real host-side arm-to-halt replay and no-secret scans remain unrun, and
-audit-write fail-closed behavior for critical live actions remains open under
-the backlog item.
+evidence. Current honest verdict is still not green: real host-side
+arm-to-halt replay and no-secret scans remain unrun, and other material action
+families remain unhooked under the backlog item.
 
 ## Actions That Must Be Auditable
 

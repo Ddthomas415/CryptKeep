@@ -178,6 +178,11 @@ def _mock_mutations(monkeypatch, resume_gate, touched):
         "set_system_guard_state",
         lambda state, *, writer, reason="": touched.append(("system_guard", state)) or {"state": state, "writer": writer, "reason": reason},
     )
+    monkeypatch.setattr(
+        resume_gate,
+        "record_live_resume_event",
+        lambda **kwargs: touched.append(("operator_event", dict(kwargs))) or {"ok": True, "event_id": "evt-resume", "path": "test://operator_events"},
+    )
 
 
 def test_resume_refuses_without_ceremony_provenance(monkeypatch, tmp_path):
@@ -264,3 +269,7 @@ def test_resume_succeeds_after_ceremony_then_halt(monkeypatch, tmp_path):
     assert ("arm", True) in touched
     assert ("kill_switch", False) in touched
     assert ("system_guard", "RUNNING") in touched
+    operator_events = [item for item in touched if item[0] == "operator_event"]
+    assert operator_events
+    assert operator_events[0][1]["source"] == "resume_gate"
+    assert operator_events[0][1]["reason"] == "post_halt_resume"

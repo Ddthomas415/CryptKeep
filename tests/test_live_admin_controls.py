@@ -19,6 +19,7 @@ def operator_event_calls(monkeypatch):
 
     monkeypatch.setattr(ldw, "record_live_disable_event", _record)
     monkeypatch.setattr(lew, "record_live_disable_event", _record)
+    monkeypatch.setattr(lew, "record_live_enable_event", _record)
     return calls
 
 
@@ -35,7 +36,7 @@ def test_kill_switch_get_state_bootstraps_default_file(monkeypatch, tmp_path):
 
 
 
-def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
+def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch, operator_event_calls):
     saved: dict[str, object] = {}
     guard_calls: list[tuple[str, str, str]] = []
     arm_calls: list[tuple[bool, str, str]] = []
@@ -67,8 +68,66 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
     assert saved["cfg"]["execution"]["live_enabled"] is True
     assert out["armed_state"]["armed"] is True
     assert out["system_guard"]["state"] == "RUNNING"
+    assert out["operator_event"]["ok"] is True
     assert arm_calls == [(True, "live_enable_wizard", "enable_live")]
     assert guard_calls == [("RUNNING", "live_enable_wizard", "enable_live")]
+    assert operator_event_calls[0]["source"] == "live_enable_wizard"
+    assert operator_event_calls[0]["reason"] == "enable_live"
+    assert operator_event_calls[0]["pre_state"]["live_enabled_before"] is False
+    assert operator_event_calls[0]["post_state"]["system_guard"]["state"] == "RUNNING"
+
+
+def test_live_enable_wizard_rolls_back_when_operator_event_write_fails(monkeypatch):
+    save_calls: list[dict] = []
+    guard_calls: list[tuple[str, str, str]] = []
+    arm_calls: list[tuple[bool, str, str]] = []
+    audit_calls: list[tuple[str, bool, str]] = []
+    raw_cfg = {"execution": {"live_enabled": False}, "risk": {"live": {"max_trades_per_day": 5}}}
+
+    def _save(cfg):
+        save_calls.append(cfg)
+        return True, "Saved"
+
+    monkeypatch.delenv("CBP_EXECUTION_ARMED", raising=False)
+    monkeypatch.setattr(lew, "_log_audit", lambda action, success, reason="": audit_calls.append((action, bool(success), reason)))
+    monkeypatch.setattr(lew, "load_user_yaml", lambda **_kwargs: dict(raw_cfg))
+    monkeypatch.setattr(lew, "save_user_yaml", _save)
+    monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (True, "env:CBP_EXECUTION_ARMED"))
+    monkeypatch.setattr(
+        lew,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        lew,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        lew,
+        "record_live_enable_event",
+        lambda **_kwargs: {"ok": False, "reason": "operator_event_write_failed:PermissionError"},
+    )
+
+    out = lew.enable_live()
+
+    assert out["ok"] is False
+    assert out["reason"] == "operator_event_write_failed_live_enable_rolled_back"
+    assert os.environ.get("CBP_EXECUTION_ARMED") is None
+    assert save_calls[0]["execution"]["live_enabled"] is True
+    assert save_calls[1] == raw_cfg
+    assert arm_calls == [
+        (True, "live_enable_wizard", "enable_live"),
+        (False, "live_enable_wizard", "enable_live:rollback_operator_event_failed"),
+    ]
+    assert guard_calls == [
+        ("RUNNING", "live_enable_wizard", "enable_live"),
+        ("HALTED", "live_enable_wizard", "enable_live:rollback_operator_event_failed"),
+    ]
+    assert out["rollback"]["save"] == {"ok": True, "message": "Saved"}
+    assert out["rollback"]["armed_state"]["armed"] is False
+    assert out["rollback"]["system_guard"]["state"] == "HALTED"
+    assert audit_calls == [("ENABLE_LIVE", False, "operator_event_write_failed_live_enable_rolled_back")]
 
 
 

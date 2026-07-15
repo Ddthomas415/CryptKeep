@@ -32,6 +32,11 @@ def test_enable_live_uses_normalized_live_contract(monkeypatch):
         "set_live_armed_state",
         lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
     )
+    monkeypatch.setattr(
+        le,
+        "record_live_enable_event",
+        lambda **kwargs: {"ok": True, "event_id": "evt-enable", "path": "test://operator_events", "payload": kwargs},
+    )
 
     out = le.enable_live(token="abc123", checklist=CHECKLIST)
 
@@ -39,7 +44,48 @@ def test_enable_live_uses_normalized_live_contract(monkeypatch):
     assert out["preflight"]["ok"] is True
     assert saved["cfg"]["execution"]["live_enabled"] is True
     assert out["armed_state"]["armed"] is True
+    assert out["operator_event"]["ok"] is True
     assert arm_calls == [(True, "execution_live_enable", "token_enable_live")]
+
+
+def test_enable_live_rolls_back_when_operator_event_write_fails(monkeypatch):
+    save_calls: list[dict] = []
+    arm_calls: list[tuple[bool, str, str]] = []
+    raw_cfg = {"execution": {"live_enabled": False}, "risk": {"live": {"max_trades_per_day": 3}}}
+
+    def _save(cfg):
+        save_calls.append(cfg)
+        return True, "Saved"
+
+    monkeypatch.setattr(le, "run_preflight", lambda: SimpleNamespace(ok=True, checks=[{"name": "ok", "ok": True}]))
+    monkeypatch.setattr(le, "verify_and_consume", lambda token: {"ok": True, "token": token})
+    monkeypatch.setattr(le, "load_user_yaml", lambda **_kwargs: dict(raw_cfg))
+    monkeypatch.setattr(le, "save_user_yaml", _save)
+    monkeypatch.setattr(
+        le,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        le,
+        "record_live_enable_event",
+        lambda **_kwargs: {"ok": False, "reason": "operator_event_write_failed:PermissionError"},
+    )
+
+    out = le.enable_live(token="abc123", checklist=CHECKLIST)
+
+    assert out["ok"] is False
+    assert out["reason"] == "operator_event_write_failed_live_enable_rolled_back"
+    assert out["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    assert save_calls[0]["execution"]["live_enabled"] is True
+    assert save_calls[1] == raw_cfg
+    assert out["rollback"]["save"] == {"ok": True, "message": "Saved"}
+    assert out["rollback"]["armed_state"]["armed"] is False
+    assert arm_calls == [
+        (True, "execution_live_enable", "token_enable_live"),
+        (False, "execution_live_enable", "token_enable_live:rollback_operator_event_failed"),
+    ]
+
 
 def test_enable_live_rejects_incomplete_checklist(monkeypatch):
     from services.execution import live_enable as le

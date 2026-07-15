@@ -20858,3 +20858,72 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, real host-side replay, and enable/resume
   audit hooks/policy.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T21:39:57Z - Live Enable/Resume Operator-Event Fail-Closed Hooks (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Hook risk-increasing live-enable and live-resume paths into the unified
+  operator-event journal and make audit-write failure fail closed with rollback.
+
+What was found:
+- SHOWN: `services.execution.live_enable.enable_live`,
+  `services.admin.live_enable_wizard.enable_live`, and
+  `services.admin.resume_gate.resume_if_safe` could report successful
+  enable/resume without a durable unified operator-event record.
+- SHOWN: the existing live-disable hooks are intentionally best-effort because
+  they are safety-increasing halt paths; enable/resume are risk-increasing and
+  require the opposite policy.
+
+What changed:
+- Added `record_live_enable_event` and `record_live_resume_event` to
+  `services.admin.live_operator_audit`, both writing `live_enable`/`live_resume`
+  records for `target=live_trading` through the unified append-only journal.
+- `services.execution.live_enable.enable_live` now writes the operator event
+  after config save and arm-state mutation; if the write fails, it restores the
+  prior config, clears arm state, and returns
+  `operator_event_write_failed_live_enable_rolled_back`.
+- `services.admin.live_enable_wizard.enable_live` now writes the operator event
+  after config/env/arm/system-guard mutation; if the write fails, it clears the
+  env arm flag, restores prior config, clears arm state, halts the system guard,
+  and returns `operator_event_write_failed_live_enable_rolled_back`.
+- `services.admin.resume_gate.resume_if_safe` now writes the operator event
+  after arm/kill-switch/system-guard resume mutation; if the write fails, it
+  clears the env arm flag, clears arm state, re-arms the kill switch, halts the
+  system guard, and returns
+  `operator_event_write_failed_live_resume_rolled_back`.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- Item #14 requires fail-closed behavior for critical audit-write failures.
+  Enable/resume increase live-trading authority, so a missing durable event must
+  block the transition rather than be a warning.
+- Disable/halt remains best-effort because blocking a safety-increasing stop on
+  audit failure would be the wrong failure direction.
+
+Expected outcome:
+- A live arm/resume transition cannot complete silently without a unified
+  operator-event record, and the arm-to-halt replay tool has real arm-side
+  events to consume once host-side drills run.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_operator_audit.py tests/test_execution_live_enable.py tests/test_live_admin_controls.py tests/test_placeholder_recovery_phase2.py tests/test_resume_gate_ceremony_provenance.py tests/test_operator_event_replay.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `60 passed in 0.81s`.
+- `./.venv/bin/python -m pytest -q tests/test_execution_live_enable.py tests/test_live_admin_controls.py tests/test_live_arming_contract.py tests/test_live_arming_state_fallback.py tests/test_live_operator_audit.py tests/test_operator_audit_coverage.py tests/test_operator_event_replay.py tests/test_placeholder_recovery_phase2.py tests/test_resume_gate_ceremony_provenance.py tests/test_system_guard.py`
+  - SHOWN: `73 passed in 1.93s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: live arm/disable/halt/resume family remains `PARTIAL`; notes now
+    state live-enable/resume event hooks and fail-closed rollback are present,
+    while host-side arm-to-halt replay remains unproven.
+- `./.venv/bin/python -m py_compile services/admin/live_operator_audit.py services/execution/live_enable.py services/admin/live_enable_wizard.py services/admin/resume_gate.py tests/test_live_operator_audit.py tests/test_execution_live_enable.py tests/test_live_admin_controls.py tests/test_placeholder_recovery_phase2.py tests/test_resume_gate_ceremony_provenance.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches live-enable/resume authority and rollback behavior.
+- UNVERIFIED: full suite, GitHub CI, real host-side arm-to-halt replay from
+  journal records, no-secret scan over the launch-packet journal, and hooks for
+  other material operator-action families.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

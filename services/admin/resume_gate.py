@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 from services.admin.config_editor import load_user_yaml
 from services.admin.kill_switch import set_armed
+from services.admin.live_operator_audit import record_live_resume_event
 from services.admin.system_guard import set_state as set_system_guard_state
 from services.admin.live_guard import live_allowed
 from services.execution.live_arming import (
@@ -84,6 +85,45 @@ def resume_if_safe(*, note: str = "resume_if_safe") -> Dict[str, Any]:
             "details": dict(details or {}),
             "provenance": provenance,
         }
+    operator_event = record_live_resume_event(
+        source="resume_gate",
+        reason=str(note),
+        result="ok",
+        pre_state={
+            "details": dict(details or {}),
+            "provenance": provenance,
+        },
+        post_state={
+            "armed_state": armed_state,
+            "kill_switch": kill_switch,
+            "system_guard": system_guard,
+        },
+        extra={"details": dict(details or {})},
+    )
+    if not bool(operator_event.get("ok")):
+        os.environ.pop("CBP_EXECUTION_ARMED", None)
+        rollback_arm = set_live_armed_state(
+            False,
+            writer="resume_gate",
+            reason=f"{note}:rollback_operator_event_failed",
+        )
+        rollback_kill = set_armed(True, note=f"{note}:rollback_operator_event_failed")
+        rollback_guard = set_system_guard_state(
+            "HALTED",
+            writer="resume_gate",
+            reason=f"{note}:rollback_operator_event_failed",
+        )
+        return {
+            "ok": False,
+            "resumed": False,
+            "reason": "operator_event_write_failed_live_resume_rolled_back",
+            "operator_event": operator_event,
+            "armed_state": rollback_arm,
+            "kill_switch": rollback_kill,
+            "system_guard": rollback_guard,
+            "details": dict(details or {}),
+            "provenance": provenance,
+        }
     return {
         "ok": True,
         "resumed": True,
@@ -93,4 +133,5 @@ def resume_if_safe(*, note: str = "resume_if_safe") -> Dict[str, Any]:
         "system_guard": system_guard,
         "details": dict(details or {}),
         "provenance": provenance,
+        "operator_event": operator_event,
     }
