@@ -77,7 +77,7 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
         kill.update({"armed": bool(state), "note": str(note)})
         return dict(kill)
 
-    monkeypatch.setattr(ldw, "load_user_yaml", lambda: dict(cfg_state))
+    monkeypatch.setattr(ldw, "load_user_yaml", lambda **_kwargs: dict(cfg_state))
     monkeypatch.setattr(ldw, "save_user_yaml", _save)
     monkeypatch.setattr(ldw, "get_kill", lambda: dict(kill))
     monkeypatch.setattr(ldw, "set_armed", _set_armed)
@@ -198,6 +198,48 @@ def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
     assert guard_calls == [("HALTED", "live_enable_wizard", "disable_live")]
 
 
+def test_live_enable_wizard_disable_halts_runtime_when_config_save_fails(monkeypatch):
+    guard_calls: list[tuple[str, str, str]] = []
+    arm_calls: list[tuple[bool, str, str]] = []
+    audit_calls: list[tuple[str, bool, str]] = []
+
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+    monkeypatch.setattr(
+        lew,
+        "_log_audit",
+        lambda action, success, reason="": audit_calls.append((action, bool(success), reason)),
+    )
+    monkeypatch.setattr(lew, "load_user_yaml", lambda **_kwargs: {"execution": {"live_enabled": True}})
+    monkeypatch.setattr(lew, "save_user_yaml", lambda cfg: (False, "disk full"))
+    monkeypatch.setattr(lew, "live_enabled_and_armed", lambda: (False, "live_disabled"))
+    monkeypatch.setattr(
+        lew,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: (
+            arm_calls.append((bool(armed), writer, reason))
+            or {"armed": armed, "writer": writer, "reason": reason}
+        ),
+    )
+    monkeypatch.setattr(
+        lew,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": (
+            guard_calls.append((state, writer, reason))
+            or {"state": state, "writer": writer, "reason": reason}
+        ),
+    )
+
+    out = lew.disable_live()
+
+    assert out["ok"] is True
+    assert out["reason"] == "config_save_failed_runtime_halted"
+    assert out["save"] == {"ok": False, "message": "disk full"}
+    assert "CBP_EXECUTION_ARMED" not in os.environ
+    assert arm_calls == [(False, "live_enable_wizard", "disable_live")]
+    assert guard_calls == [("HALTED", "live_enable_wizard", "disable_live")]
+    assert audit_calls == [("DISABLE_LIVE", True, "config_save_failed_runtime_halted")]
+
+
 def test_live_disable_wizard_clears_persisted_arm_state(monkeypatch, tmp_path):
     from services.execution import live_arming
 
@@ -206,7 +248,7 @@ def test_live_disable_wizard_clears_persisted_arm_state(monkeypatch, tmp_path):
     guard_state = {"state": "RUNNING", "writer": "test", "reason": "before"}
     monkeypatch.setattr(live_arming, "STATE_PATH", tmp_path / "live_arming.json")
     live_arming.set_live_armed_state(True, writer="test", reason="pre")
-    monkeypatch.setattr(ldw, "load_user_yaml", lambda: dict(cfg_state))
+    monkeypatch.setattr(ldw, "load_user_yaml", lambda **_kwargs: dict(cfg_state))
     monkeypatch.setattr(ldw, "save_user_yaml", lambda cfg, dry_run=False: (True, "Saved"))
     monkeypatch.setattr(ldw, "get_kill", lambda: dict(kill))
     monkeypatch.setattr(ldw, "set_armed", lambda state, note="": {"armed": state, "note": note})
@@ -224,6 +266,63 @@ def test_live_disable_wizard_clears_persisted_arm_state(monkeypatch, tmp_path):
 
     assert out["ok"] is True
     assert live_arming.get_live_armed_state()["armed"] is False
+
+
+def test_live_disable_wizard_halts_runtime_when_config_unreadable(monkeypatch):
+    saves: list[dict] = []
+    kill = {"armed": False, "note": "before"}
+    guard_calls: list[tuple[str, str, str]] = []
+    arm_calls: list[tuple[bool, str, str]] = []
+    guard_state = {"state": "RUNNING", "writer": "test", "reason": "before"}
+
+    def _load_user_yaml(**kwargs):
+        if kwargs.get("strict"):
+            raise ldw.ConfigLoadError("config_load_failed:/tmp/user.yaml:ScannerError:bad")
+        return {}
+
+    def _set_armed(state: bool, note: str = "") -> dict:
+        kill.update({"armed": bool(state), "note": str(note)})
+        return dict(kill)
+
+    def _get_guard(**_kwargs):
+        return dict(guard_state)
+
+    def _set_guard(state, *, writer, reason=""):
+        guard_calls.append((state, writer, reason))
+        guard_state.update({"state": state, "writer": writer, "reason": reason})
+        return dict(guard_state)
+
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+    monkeypatch.setattr(ldw, "load_user_yaml", _load_user_yaml)
+    monkeypatch.setattr(ldw, "save_user_yaml", lambda cfg, dry_run=False: saves.append(cfg) or (True, "Saved"))
+    monkeypatch.setattr(ldw, "get_kill", lambda: dict(kill))
+    monkeypatch.setattr(ldw, "set_armed", _set_armed)
+    monkeypatch.setattr(
+        ldw,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: (
+            arm_calls.append((bool(armed), writer, reason))
+            or {"armed": armed, "writer": writer, "reason": reason}
+        ),
+    )
+    monkeypatch.setattr(ldw, "get_system_guard_state", _get_guard)
+    monkeypatch.setattr(ldw, "set_system_guard_state", _set_guard)
+    monkeypatch.setattr(ldw, "run_id", lambda: "run-123")
+    monkeypatch.setattr(ldw, "log_event", lambda *args, **kwargs: None)
+
+    out = ldw.disable_live_now(note="operator_stop")
+
+    assert out["ok"] is True
+    assert out["reason"] == "config_load_failed_runtime_halted"
+    assert out["save"]["reason"] == "config_load_failed"
+    assert out["save"]["skipped"] is True
+    assert saves == []
+    assert "CBP_EXECUTION_ARMED" not in os.environ
+    assert out["kill_switch"]["armed"] is True
+    assert out["system_guard"]["state"] == "HALTED"
+    assert arm_calls == [(False, "live_disable_wizard", "operator_stop")]
+    assert guard_calls == [("HALTED", "live_disable_wizard", "operator_stop")]
+
 
 def test_stop_service_from_pidfile_rejects_unsafe_name():
     from services.admin import service_controls as sc
