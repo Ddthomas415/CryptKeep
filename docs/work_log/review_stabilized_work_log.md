@@ -20927,3 +20927,61 @@ Remaining risk:
   journal records, no-secret scan over the launch-packet journal, and hooks for
   other material operator-action families.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T21:56:42Z - Manual Safe-Reconciliation Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for the manual reconciliation family by
+  hooking the non-destructive admin safe-reconciliation helper to the unified
+  operator-event journal.
+
+What was found:
+- SHOWN: `services.admin.reconcile_safe_steps.run_all_safe_steps` runs the
+  read-only journal-vs-exchange and position reconciliation helpers, records
+  wizard progress, and returns step outcomes.
+- SHOWN: the operator-audit matrix classified the manual reconciliation family
+  as PARTIAL because admin reconcile wizards had logs/snapshots but no unified
+  operator-event hook.
+
+What changed:
+- Added a best-effort `manual_reconcile` operator-event append inside
+  `run_all_safe_steps`, with pre-state for venue/symbols/mode/
+  `require_exchange_ok` and post-state containing the read-only reconciliation
+  step outcomes.
+- The returned payload now includes `operator_event`; audit-write failure is
+  surfaced as `operator_event_write_failed:*` but does not block the read-only
+  reconciliation result.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- This is the smallest safe hook for the manual reconciliation family because
+  it covers the admin helper that already centralizes the read-only safe steps.
+- Mutating override semantics are not inferred from read-only reconciliation,
+  so deeper one-off scripts and any future mutating override path remain
+  explicitly unclassified.
+
+Expected outcome:
+- Manual safe-reconciliation runs produce unified operator-event records without
+  changing reconciliation decisions or live execution behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_reconcile_safe_steps.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `16 passed in 0.46s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: manual reconciliation family remains `PARTIAL`; notes now state the
+    safe reconciliation helper emits best-effort `manual_reconcile` events,
+    while deeper one-off scripts and mutating override paths remain
+    unclassified.
+- `./.venv/bin/python -m py_compile services/admin/reconcile_safe_steps.py tests/test_reconcile_safe_steps.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW/MEDIUM: read-only admin audit hook; event failure is surfaced but does
+  not block read-only reconciliation.
+- UNVERIFIED: GitHub CI, deeper one-off reconcile scripts, and any future
+  mutating override path.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

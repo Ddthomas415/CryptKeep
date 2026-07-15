@@ -1399,6 +1399,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     arm-to-halt replay using the unified journal, no-secret scan over the
     launch-packet journal, and hooks/classification for the other material
     operator-action families.
+    2026-07-15: manual safe-reconciliation audit hook is ready for
+    independent review. `services.admin.reconcile_safe_steps.run_all_safe_steps`
+    now appends a best-effort `manual_reconcile` operator event containing the
+    requested venue/symbols/mode and read-only journal/position reconciliation
+    step outcomes. This narrows the manual-reconciliation family but does not
+    classify deeper one-off reconcile scripts or any future mutating override
+    path.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

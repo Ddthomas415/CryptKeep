@@ -47,6 +47,9 @@ operator events for safety-increasing live-disable/halt transitions.
 `services.admin.resume_gate.resume_if_safe()` now append required
 risk-increasing live-enable/resume events and roll back fail-closed when those
 event writes fail.
+`services.admin.reconcile_safe_steps.run_all_safe_steps()` now appends a
+best-effort `manual_reconcile` event with read-only reconciliation step
+outcomes.
 `scripts/check_operator_arm_to_halt_replay.py` replays a live arm/resume event
 followed by a halt/disable event from the journal and writes launch-packet
 evidence. Current honest verdict is still not green: real host-side

@@ -1,9 +1,23 @@
 from __future__ import annotations
 
+import pytest
+
 from services.admin import reconcile_safe_steps as rss
 
 
-def test_run_all_safe_steps_runs_non_destructive_chain(monkeypatch):
+@pytest.fixture(autouse=True)
+def operator_event_calls(monkeypatch):
+    calls: list[dict] = []
+
+    def _append(**kwargs):
+        calls.append(dict(kwargs))
+        return {"event_id": f"event-{len(calls)}", "path": "test://operator_events"}
+
+    monkeypatch.setattr(rss, "append_operator_event", _append)
+    return calls
+
+
+def test_run_all_safe_steps_runs_non_destructive_chain(monkeypatch, operator_event_calls):
     calls: dict[str, object] = {}
 
     def _journal(venue, symbol=None):
@@ -32,14 +46,26 @@ def test_run_all_safe_steps_runs_non_destructive_chain(monkeypatch):
     assert out["non_destructive"] is True
     assert out["steps"][0]["step"] == "journal_reconcile"
     assert out["steps"][1]["step"] == "position_reconcile"
+    assert out["operator_event"]["ok"] is True
     assert calls["journal"] == ("coinbase", "BTC/USD")
     assert calls["position"] == ("coinbase", ["BTC/USD"], "spot", False)
+    assert operator_event_calls[0]["action"] == "manual_reconcile"
+    assert operator_event_calls[0]["target"] == "reconcile_safe_steps"
+    assert operator_event_calls[0]["result"] == "ok"
+    assert operator_event_calls[0]["pre_state"] == {
+        "venue": "coinbase",
+        "symbols": ["BTC/USD"],
+        "mode": "spot",
+        "require_exchange_ok": False,
+    }
+    assert operator_event_calls[0]["post_state"]["steps"][0]["step"] == "journal_reconcile"
 
 
-def test_run_all_safe_steps_requires_venue():
+def test_run_all_safe_steps_requires_venue(operator_event_calls):
     out = rss.run_all_safe_steps(venue="", symbols=["BTC/USD"])
     assert out["ok"] is False
     assert out["reason"] == "missing_venue"
+    assert operator_event_calls == []
 
 def test_run_all_safe_steps_normalizes_multiple_symbols(monkeypatch):
     calls: dict[str, object] = {}
@@ -96,3 +122,27 @@ def test_run_all_safe_steps_handles_missing_symbols(monkeypatch):
     assert calls["journal"] == ("coinbase", None)
     assert calls["position"] == ("coinbase", None, "spot", False)
 
+
+def test_run_all_safe_steps_surfaces_operator_event_failure_without_blocking(monkeypatch):
+    monkeypatch.setattr(
+        rss,
+        "reconcile_journal_vs_exchange",
+        lambda venue, symbol=None: {"ok": True, "snapshot_path": "/tmp/journal.json", "counts": {}, "signals": {}},
+    )
+    monkeypatch.setattr(
+        rss,
+        "reconcile_positions",
+        lambda venue, symbols=None, mode="spot", require_exchange_ok=True: {"ok": True, "snapshot_path": "/tmp/position.json"},
+    )
+    monkeypatch.setattr(rss.wizard_state, "load", lambda: {"step": 1})
+    monkeypatch.setattr(rss.wizard_state, "save", lambda st: {"ok": True})
+
+    def _raise(**_kwargs):
+        raise PermissionError("denied")
+
+    monkeypatch.setattr(rss, "append_operator_event", _raise)
+
+    out = rss.run_all_safe_steps(venue="coinbase", symbols=["BTC/USD"], require_exchange_ok=False)
+
+    assert out["ok"] is True
+    assert out["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
