@@ -1386,6 +1386,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     enable/resume paths are not hooked to the journal, so a real host-side
     replay will report `missing_live_arm_event` until the risk-increasing
     action policy and hooks are implemented.
+    2026-07-15: live-enable/resume audit fail-closed slice is ready for
+    independent review. `services.execution.live_enable.enable_live`,
+    `services.admin.live_enable_wizard.enable_live`, and
+    `services.admin.resume_gate.resume_if_safe` now append required
+    `live_enable`/`live_resume` operator events for risk-increasing live
+    transitions. If the operator-event write fails, these paths roll back the
+    live-enabled config/armed state/system guard/kill-switch/env state they
+    mutated where applicable and return
+    `operator_event_write_failed_live_*_rolled_back` instead of reporting a
+    successful enable/resume. Remaining capped-live proof: real host-side
+    arm-to-halt replay using the unified journal, no-secret scan over the
+    launch-packet journal, and hooks/classification for the other material
+    operator-action families.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

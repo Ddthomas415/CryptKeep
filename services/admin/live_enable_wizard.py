@@ -8,7 +8,7 @@ from services.execution.live_arming import (
     set_live_armed_state,
     set_live_enabled,
 )
-from services.admin.live_operator_audit import record_live_disable_event
+from services.admin.live_operator_audit import record_live_disable_event, record_live_enable_event
 from services.os.app_paths import runtime_dir, ensure_dirs
 
 ensure_dirs()
@@ -35,12 +35,57 @@ def enable_live() -> dict:
         _log_audit("ENABLE_LIVE", False, msg)
         return {"ok": False, "msg": msg, "save": save}
 
+    pre_state = {
+        "live_enabled_before": bool((raw_cfg.get("execution") or {}).get("live_enabled")),
+        "env_execution_armed": os.environ.get("CBP_EXECUTION_ARMED"),
+    }
     os.environ["CBP_EXECUTION_ARMED"] = "YES"
     armed_state = set_live_armed_state(True, writer="live_enable_wizard", reason="enable_live")
     armed, reason = live_enabled_and_armed()
     guard = None
     if armed:
         guard = set_system_guard_state("RUNNING", writer="live_enable_wizard", reason="enable_live")
+    operator_event = record_live_enable_event(
+        source="live_enable_wizard",
+        reason="enable_live",
+        result=reason,
+        pre_state=pre_state,
+        post_state={
+            "armed": armed,
+            "reason": reason,
+            "armed_state": armed_state,
+            "system_guard": guard,
+            "save": save,
+            "env_execution_armed": os.environ.get("CBP_EXECUTION_ARMED"),
+        },
+    )
+    if not bool(operator_event.get("ok")):
+        os.environ.pop("CBP_EXECUTION_ARMED", None)
+        rollback_save_ok, rollback_save_msg = save_user_yaml(raw_cfg)
+        rollback_arm = set_live_armed_state(
+            False,
+            writer="live_enable_wizard",
+            reason="enable_live:rollback_operator_event_failed",
+        )
+        rollback_guard = set_system_guard_state(
+            "HALTED",
+            writer="live_enable_wizard",
+            reason="enable_live:rollback_operator_event_failed",
+        )
+        _log_audit("ENABLE_LIVE", False, "operator_event_write_failed_live_enable_rolled_back")
+        return {
+            "ok": False,
+            "reason": "operator_event_write_failed_live_enable_rolled_back",
+            "operator_event": operator_event,
+            "rollback": {
+                "save": {"ok": rollback_save_ok, "message": rollback_save_msg},
+                "armed_state": rollback_arm,
+                "system_guard": rollback_guard,
+            },
+            "save": save,
+            "armed_state": armed_state,
+            "system_guard": guard,
+        }
     _log_audit("ENABLE_LIVE", True, reason)
     return {
         "ok": True,
@@ -50,6 +95,7 @@ def enable_live() -> dict:
         "save": save,
         "armed_state": armed_state,
         "system_guard": guard,
+        "operator_event": operator_event,
     }
 
 def disable_live() -> dict:

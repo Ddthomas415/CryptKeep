@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 
 
 def test_resume_gate_blocks_when_not_safe(monkeypatch):
@@ -61,6 +62,11 @@ def test_resume_gate_disarms_when_safe(monkeypatch):
         "set_system_guard_state",
         lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
     )
+    monkeypatch.setattr(
+        resume_gate,
+        "record_live_resume_event",
+        lambda **kwargs: {"ok": True, "event_id": "evt-resume", "path": "test://operator_events", "payload": kwargs},
+    )
 
     out = resume_gate.resume_if_safe(note="safe")
     assert out["ok"] is True
@@ -69,10 +75,72 @@ def test_resume_gate_disarms_when_safe(monkeypatch):
     assert out["kill_switch"]["armed"] is False
     assert out["system_guard"]["state"] == "RUNNING"
     assert arm_calls == [(True, "resume_gate", "safe")]
+    assert out["operator_event"]["ok"] is True
     assert out["details"]["kwargs"] == {
         "allow_kill_switch_armed": True,
         "allow_system_guard_halted": True,
     }
+
+
+def test_resume_gate_rolls_back_when_operator_event_write_fails(monkeypatch):
+    import services.admin.resume_gate as resume_gate
+
+    importlib.reload(resume_gate)
+    monkeypatch.setenv("CBP_EXECUTION_ARMED", "YES")
+    monkeypatch.setattr(resume_gate, "load_user_yaml", lambda: {"execution": {"live_enabled": True}})
+    monkeypatch.setattr(
+        resume_gate,
+        "ceremony_resume_provenance",
+        lambda: {"ok": True, "reason": "ok"},
+    )
+    monkeypatch.setattr(
+        resume_gate,
+        "live_allowed",
+        lambda **kwargs: (True, "ok", {"live_enabled": True, "kwargs": kwargs}),
+    )
+    arm_calls: list[tuple[bool, str, str]] = []
+    kill_calls: list[tuple[bool, str]] = []
+    guard_calls: list[tuple[str, str, str]] = []
+    monkeypatch.setattr(
+        resume_gate,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: arm_calls.append((bool(armed), writer, reason)) or {"armed": armed, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        resume_gate,
+        "set_armed",
+        lambda state, note="": kill_calls.append((bool(state), str(note))) or {"armed": state, "note": note},
+    )
+    monkeypatch.setattr(
+        resume_gate,
+        "set_system_guard_state",
+        lambda state, *, writer, reason="": guard_calls.append((state, writer, reason)) or {"state": state, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        resume_gate,
+        "record_live_resume_event",
+        lambda **_kwargs: {"ok": False, "reason": "operator_event_write_failed:PermissionError"},
+    )
+
+    out = resume_gate.resume_if_safe(note="safe")
+
+    assert out["ok"] is False
+    assert out["resumed"] is False
+    assert out["reason"] == "operator_event_write_failed_live_resume_rolled_back"
+    assert os.environ.get("CBP_EXECUTION_ARMED") is None
+    assert out["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    assert arm_calls == [
+        (True, "resume_gate", "safe"),
+        (False, "resume_gate", "safe:rollback_operator_event_failed"),
+    ]
+    assert kill_calls == [
+        (False, "safe"),
+        (True, "safe:rollback_operator_event_failed"),
+    ]
+    assert guard_calls == [
+        ("RUNNING", "resume_gate", "safe"),
+        ("HALTED", "resume_gate", "safe:rollback_operator_event_failed"),
+    ]
 
 
 def test_resume_gate_rolls_back_kill_switch_when_system_guard_restore_fails(monkeypatch):
@@ -207,6 +275,11 @@ def test_resume_gate_restores_persisted_arm_signal_visible_to_live_arming(monkey
         resume_gate,
         "set_system_guard_state",
         lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(
+        resume_gate,
+        "record_live_resume_event",
+        lambda **kwargs: {"ok": True, "event_id": "evt-resume", "path": "test://operator_events", "payload": kwargs},
     )
     for name in ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED", "CBP_EXECUTION_LIVE_ENABLED", "ENABLE_LIVE_TRADING", "LIVE_TRADING", "CBP_LIVE_ARMED"):
         monkeypatch.delenv(name, raising=False)

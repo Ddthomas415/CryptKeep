@@ -99,8 +99,9 @@ FAMILIES = [
             "live_arming keeps a current-state JSON (writer, reason) with no "
             "append-only history; kill-switch and guard halt/resume transitions "
             "have status files. Live-disable paths now append unified operator "
-            "events best-effort; enable/resume and full arm-to-halt replay are "
-            "not yet hooked/proven."
+            "events best-effort; live-enable/resume paths append unified operator "
+            "events and roll back fail-closed if the required event write fails; "
+            "full host-side arm-to-halt replay remains unproven."
         ),
     },
     {

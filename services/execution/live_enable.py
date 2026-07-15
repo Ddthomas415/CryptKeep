@@ -1,5 +1,6 @@
 from __future__ import annotations
 from services.admin.config_editor import ConfigLoadError, load_user_yaml, save_user_yaml
+from services.admin.live_operator_audit import record_live_enable_event
 from services.execution.live_arming import set_live_armed_state, set_live_enabled, verify_and_consume
 from services.preflight.preflight import run_preflight
 
@@ -36,12 +37,45 @@ def enable_live(*, token: str, checklist: dict) -> dict:
             "token": tok,
             "preflight": preflight,
         }
+    pre_state = {
+        "live_enabled_before": bool((raw_cfg.get("execution") or {}).get("live_enabled")),
+        "token_consumed": bool(tok.get("ok")),
+    }
     cfg = set_live_enabled(raw_cfg, True)
     ok, msg = save_user_yaml(cfg)
     save = {"ok": ok, "message": msg}
     if not ok:
         return {"ok": False, "reason": "config_save_failed", "save": save, "preflight": preflight}
     armed_state = set_live_armed_state(True, writer="execution_live_enable", reason="token_enable_live")
+    operator_event = record_live_enable_event(
+        source="execution_live_enable",
+        reason="token_enable_live",
+        result="ok",
+        pre_state=pre_state,
+        post_state={
+            "changed": {"execution.live_enabled": True},
+            "armed_state": armed_state,
+            "save": save,
+        },
+        extra={"preflight": preflight},
+    )
+    if not bool(operator_event.get("ok")):
+        rollback_save_ok, rollback_save_msg = save_user_yaml(raw_cfg)
+        rollback_arm = set_live_armed_state(
+            False,
+            writer="execution_live_enable",
+            reason="token_enable_live:rollback_operator_event_failed",
+        )
+        return {
+            "ok": False,
+            "reason": "operator_event_write_failed_live_enable_rolled_back",
+            "operator_event": operator_event,
+            "rollback": {
+                "save": {"ok": rollback_save_ok, "message": rollback_save_msg},
+                "armed_state": rollback_arm,
+            },
+            "preflight": preflight,
+        }
     return {
         "ok": True,
         "changed": {
@@ -50,4 +84,5 @@ def enable_live(*, token: str, checklist: dict) -> dict:
         "armed_state": armed_state,
         "save": save,
         "preflight": preflight,
+        "operator_event": operator_event,
     }
