@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 from services.admin.journal_exchange_reconcile import reconcile_journal_vs_exchange
 from services.admin.position_reconcile import reconcile_positions
 from services.admin import wizard_state
+from services.audit.operator_event_journal import append_operator_event
 
 
 def _normalize_symbols(symbols: List[str] | None) -> List[str]:
@@ -17,6 +18,44 @@ def _normalize_symbols(symbols: List[str] | None) -> List[str]:
         if t:
             out.append(t)
     return out
+
+
+def _record_manual_reconcile_event(
+    *,
+    venue: str,
+    symbols: List[str],
+    mode: str,
+    require_exchange_ok: bool,
+    steps: List[Dict[str, Any]],
+    ok: bool,
+) -> Dict[str, Any]:
+    try:
+        event = append_operator_event(
+            actor="operator",
+            action="manual_reconcile",
+            target="reconcile_safe_steps",
+            result="ok" if ok else "failed",
+            reason="run_all_safe_steps",
+            pre_state={
+                "venue": venue,
+                "symbols": list(symbols),
+                "mode": mode,
+                "require_exchange_ok": bool(require_exchange_ok),
+            },
+            post_state={
+                "ok": bool(ok),
+                "steps": steps,
+            },
+            source="services.admin.reconcile_safe_steps",
+        )
+        return {
+            "ok": True,
+            "event_id": event.get("event_id"),
+            "path": event.get("path"),
+        }
+    except Exception as exc:
+        _LOG.warning("manual reconcile operator event journal failed: %s: %s", type(exc).__name__, exc)
+        return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
 
 
 def run_all_safe_steps(
@@ -78,6 +117,14 @@ def run_all_safe_steps(
         pass  # suppressed: see _LOG.debug below
 
     ok = all(bool(s.get("ok")) for s in steps)
+    operator_event = _record_manual_reconcile_event(
+        venue=v,
+        symbols=syms,
+        mode=str(mode or "spot"),
+        require_exchange_ok=bool(require_exchange_ok),
+        steps=steps,
+        ok=ok,
+    )
     return {
         "ok": ok,
         "non_destructive": True,
@@ -86,4 +133,5 @@ def run_all_safe_steps(
         "mode": str(mode or "spot"),
         "require_exchange_ok": bool(require_exchange_ok),
         "steps": steps,
+        "operator_event": operator_event,
     }

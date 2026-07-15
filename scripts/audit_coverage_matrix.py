@@ -144,7 +144,7 @@ FAMILIES = [
         "surfaces": ["CLI"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "admin reconcile wizards print step logs and write outcomes into stores, but are not yet hooked to the unified operator event journal.",
+        "notes": "admin safe reconciliation helper appends best-effort manual_reconcile operator events with step outcomes; deeper one-off reconcile scripts and any future mutating override path remain unclassified.",
     },
     {
         "family": "backup, restore, migration, rollback",
