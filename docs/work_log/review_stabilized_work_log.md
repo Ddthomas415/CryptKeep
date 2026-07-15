@@ -20985,3 +20985,64 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, deeper one-off reconcile scripts, and any future
   mutating override path.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T22:15:11Z - Dashboard Alert Settings Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for alert suppression/routing changes
+  by hooking dashboard notification-settings changes to the unified
+  operator-event journal with fail-closed behavior.
+
+What was found:
+- SHOWN: `dashboard.services.views.settings_view.update_settings_view` owns
+  dashboard Settings payload persistence for `dashboard_ui.settings`, including
+  the `notifications` section that controls email, desktop, webhook, and
+  notification category routing.
+- SHOWN: before this change, the operator-audit coverage matrix classified
+  `alert suppression or routing change` as MISSING because no unified
+  operator-event hook existed for the family.
+
+What changed:
+- Added a required `alert_routing_change` operator-event append when
+  `update_settings_view` persists an effective change to
+  `dashboard_ui.settings.notifications`.
+- The event records `pre_state`/`post_state` notification settings and is
+  written after the local config save but before API sync.
+- If the audit write fails, the local config save is rolled back with the
+  pre-change config, API sync is skipped, and the caller receives
+  `operator_event_write_failed_alert_routing_rolled_back`.
+- Non-notification Settings changes are not broadened into this audit
+  requirement.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- Alert suppression/routing changes can hide operational signals, so a failed
+  audit write must not let the dashboard report a successful routing change.
+- Limiting the hook to effective `notifications` changes keeps the scope tight
+  and leaves direct CLI/runtime config edits plus dispatcher/env channel
+  changes explicitly unclassified.
+
+Expected outcome:
+- Dashboard notification-routing changes produce replayable operator-event
+  records, and audit storage failure prevents a silent routing change.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_dashboard_view_data.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `67 passed in 0.50s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `alert suppression or routing change` now reports `PARTIAL` with
+    dashboard notification-settings fail-closed hooks named; counts are
+    `SHOWN=0`, `PARTIAL=5`, `MISSING=6`.
+- `./.venv/bin/python -m py_compile dashboard/services/views/settings_view.py tests/test_dashboard_view_data.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches runtime config save behavior and fail-closed handling for alert
+  routing changes.
+- UNVERIFIED: GitHub CI, direct CLI/runtime config edits, dispatcher/env
+  channel changes, and host-side launch-packet no-secret scan over real events.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

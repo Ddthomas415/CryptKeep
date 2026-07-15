@@ -1,7 +1,10 @@
 from __future__ import annotations
+import copy
+import logging
 from typing import Any
 
 from dashboard.role_guard import require_role
+from services.audit.operator_event_journal import append_operator_event
 from services.setup.config_manager import DEFAULT_CFG, deep_merge
 from services.admin.config_editor import CONFIG_PATH, load_user_yaml, save_user_yaml
 
@@ -16,10 +19,44 @@ from dashboard.services.views._shared import (  # noqa: F401
     _request_envelope,
 )
 
+_LOG = logging.getLogger(__name__)
+
+
 def _view_data():
     from dashboard.services import view_data
 
     return view_data
+
+
+def _notification_settings(cfg: dict[str, Any]) -> dict[str, Any]:
+    dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
+    settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+    notifications = settings_overlay.get("notifications") if isinstance(settings_overlay.get("notifications"), dict) else {}
+    return dict(notifications)
+
+
+def _record_alert_routing_event(
+    *,
+    pre_state: dict[str, Any],
+    post_state: dict[str, Any],
+) -> dict[str, Any]:
+    try:
+        event = append_operator_event(
+            actor="operator",
+            action="alert_routing_change",
+            target="dashboard_settings_notifications",
+            result="success",
+            reason="update_settings_view",
+            pre_state=pre_state,
+            post_state=post_state,
+            source="dashboard.services.views.settings_view",
+            extra={"surface": "dashboard_settings"},
+        )
+        return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
+    except Exception as exc:
+        _LOG.warning("alert routing operator event journal failed: %s: %s", type(exc).__name__, exc)
+        return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
+
 
 def get_settings_view() -> dict[str, Any]:
     vd = _view_data()
@@ -37,9 +74,12 @@ def get_settings_view() -> dict[str, Any]:
 def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER") -> dict[str, Any]:
     require_role(current_role, "OPERATOR")
     vd = _view_data()
-    cfg = deep_merge(DEFAULT_CFG, vd.load_user_yaml() or {})
+    loaded_cfg = vd.load_user_yaml() or {}
+    rollback_cfg = copy.deepcopy(loaded_cfg)
+    cfg = deep_merge(DEFAULT_CFG, copy.deepcopy(loaded_cfg))
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
     settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+    notifications_before = _notification_settings(cfg)
 
     for section in ("general", "notifications", "ai", "autopilot", "providers", "paper_trading", "security"):
         if isinstance(payload.get(section), dict):
@@ -76,24 +116,49 @@ def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER
     dashboard_ui["automation"] = automation_ui
     dashboard_ui["settings"] = settings_overlay
     cfg["dashboard_ui"] = dashboard_ui
+    notifications_after = _notification_settings(cfg)
+    notifications_payload_present = isinstance(payload.get("notifications"), dict)
+    notifications_changed = notifications_payload_present and notifications_before != notifications_after
 
     saved, local_message = vd.save_user_yaml(cfg, dry_run=False)
     if not saved:
         return {"ok": False, "message": str(local_message or "Local settings save failed.")}
 
+    operator_event: dict[str, Any] | None = None
+    if notifications_changed:
+        operator_event = _record_alert_routing_event(
+            pre_state={"notifications": notifications_before},
+            post_state={"notifications": notifications_after},
+        )
+        if not bool(operator_event.get("ok")):
+            rollback_saved, rollback_message = vd.save_user_yaml(rollback_cfg, dry_run=False)
+            return {
+                "ok": False,
+                "message": "Notification settings save rolled back because operator-event audit failed.",
+                "reason": "operator_event_write_failed_alert_routing_rolled_back",
+                "operator_event": operator_event,
+                "rollback": {"ok": bool(rollback_saved), "message": str(rollback_message or "")},
+            }
+
     envelope = vd._request_envelope("/api/v1/settings", method="PUT", payload=payload)
     if isinstance(envelope, dict) and envelope.get("status") == "success" and isinstance(envelope.get("data"), dict):
-        return {
+        out = {
             "ok": True,
             "data": dict(envelope["data"]),
             "message": "Settings saved locally and synced to the local API.",
         }
+        if operator_event is not None:
+            out["operator_event"] = operator_event
+        return out
 
     error = envelope.get("error") if isinstance(envelope, dict) else None
     message = "Settings saved locally; API sync skipped."
     if isinstance(error, dict) and str(error.get("message") or "").strip():
         message = f"Settings saved locally; API sync skipped: {str(error['message'])}"
-    return {"ok": True, "data": payload, "message": message}
+    out = {"ok": True, "data": payload, "message": message}
+    if operator_event is not None:
+        out["operator_event"] = operator_event
+    return out
 
 
 

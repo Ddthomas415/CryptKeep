@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from dashboard.services import view_data
+from dashboard.services.views import settings_view
 
 
 def test_dashboard_summary_uses_defaults_when_sources_unavailable(monkeypatch) -> None:
@@ -1998,6 +1999,115 @@ def test_update_settings_view_reports_success(monkeypatch) -> None:
     assert result["ok"] is True
     assert result["data"] == payload
     assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
+
+
+def test_update_settings_view_records_notification_operator_event(monkeypatch) -> None:
+    saved_cfgs: list[dict[str, object]] = []
+    operator_events: list[dict[str, object]] = []
+
+    loaded_cfg = {
+        "dashboard_ui": {
+            "settings": {
+                "notifications": {
+                    "email_enabled": False,
+                    "desktop_notifications": True,
+                }
+            }
+        }
+    }
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: loaded_cfg)
+    monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (saved_cfgs.append(cfg) or True, "Saved"))
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: {"status": "success", "data": payload}
+        if path == "/api/v1/settings" and method == "PUT"
+        else None,
+    )
+    monkeypatch.setattr(
+        settings_view,
+        "append_operator_event",
+        lambda **kwargs: operator_events.append(dict(kwargs)) or {"event_id": "evt-alert", "path": "test://operator_events"},
+    )
+
+    payload = {"notifications": {"email_enabled": True, "desktop_notifications": False}}
+    result = view_data.update_settings_view(payload, current_role="OPERATOR")
+
+    assert result["ok"] is True
+    assert result["operator_event"] == {"ok": True, "event_id": "evt-alert", "path": "test://operator_events"}
+    assert len(saved_cfgs) == 1
+    assert saved_cfgs[0]["dashboard_ui"]["settings"]["notifications"]["email_enabled"] is True
+    assert operator_events[0]["action"] == "alert_routing_change"
+    assert operator_events[0]["target"] == "dashboard_settings_notifications"
+    assert operator_events[0]["source"] == "dashboard.services.views.settings_view"
+    assert operator_events[0]["pre_state"]["notifications"]["email_enabled"] is False
+    assert operator_events[0]["post_state"]["notifications"]["email_enabled"] is True
+
+
+def test_update_settings_view_does_not_record_event_for_non_notification_settings(monkeypatch) -> None:
+    saved_cfg: dict[str, object] = {}
+
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        view_data,
+        "save_user_yaml",
+        lambda cfg, dry_run=False: (saved_cfg.update(cfg) or True, "Saved"),
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: {"status": "success", "data": payload},
+    )
+    monkeypatch.setattr(
+        settings_view,
+        "append_operator_event",
+        lambda **_kwargs: pytest.fail("non-notification settings must not require alert-routing audit events"),
+    )
+
+    result = view_data.update_settings_view({"general": {"timezone": "UTC"}}, current_role="OPERATOR")
+
+    assert result["ok"] is True
+    assert "operator_event" not in result
+    assert saved_cfg["dashboard_ui"]["settings"]["general"]["timezone"] == "UTC"
+
+
+def test_update_settings_view_rolls_back_notification_save_when_operator_event_fails(monkeypatch) -> None:
+    saved_cfgs: list[dict[str, object]] = []
+    api_calls: list[dict[str, object]] = []
+
+    loaded_cfg = {
+        "dashboard_ui": {
+            "settings": {
+                "notifications": {
+                    "email_enabled": False,
+                    "desktop_notifications": True,
+                }
+            }
+        }
+    }
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: loaded_cfg)
+    monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (saved_cfgs.append(cfg) or True, "Saved"))
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: api_calls.append({"path": path, "method": method, "payload": payload}) or None,
+    )
+
+    def _raise_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(settings_view, "append_operator_event", _raise_operator_event)
+
+    result = view_data.update_settings_view({"notifications": {"email_enabled": True}}, current_role="OPERATOR")
+
+    assert result["ok"] is False
+    assert result["reason"] == "operator_event_write_failed_alert_routing_rolled_back"
+    assert result["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    assert result["rollback"] == {"ok": True, "message": "Saved"}
+    assert len(saved_cfgs) == 2
+    assert saved_cfgs[0]["dashboard_ui"]["settings"]["notifications"]["email_enabled"] is True
+    assert saved_cfgs[1] == loaded_cfg
+    assert api_calls == []
 
 
 def test_update_settings_view_reports_api_failure(monkeypatch) -> None:
