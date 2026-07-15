@@ -20305,3 +20305,46 @@ Remaining risk:
   independent review and GitHub CI before acceptance.
 - UNVERIFIED: full suite, GitHub CI, and host-side ops signal adapter inputs.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T03:12:00Z - Backlog Proof-State Hygiene: Shadow Recorder And Archive Research
+
+Active role: ENGINEER
+
+Objective:
+- Reduce false open-work signals in `REMAINING_TASKS.md` without changing
+  runtime behavior.
+
+What was found:
+- SHOWN: `master` contains the shadow would-be-fill recorder in
+  `services/execution/_executor_submit.py`, plus executor and promotion-gate
+  tests that reference `shadow_would_be_fill`.
+- SHOWN: Active backlog #11 already records accepted archive-backed
+  walk-forward and bounded parameter-sweep tooling.
+- SHOWN: Deferred Structure #3 still asked for the archive walk-forward depth
+  proof as though the tooling were absent.
+
+What changed:
+- `REMAINING_TASKS.md` now distinguishes shadow-recorder code presence from
+  the remaining operational proof: run a shadow session that produces real
+  `shadow_would_be_fill` records and inspect gate/report artifacts.
+- Deferred Structure #3 is marked done/folded into Active #11, with the
+  remaining work stated as operational multi-year archive research execution
+  and separate review before strategy/campaign changes consume results.
+
+Why this change was chosen:
+- The backlog should point operator and agent attention at the next real
+  blocker, not at duplicate implementation work already present on `master`.
+
+Expected outcome:
+- Future batches should not rebuild the shadow recorder or archive
+  walk-forward/sweep tooling; they should focus on operational evidence runs
+  or reviewed consumers of those artifacts.
+
+Verification:
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs-only backlog state alignment; no code, runtime policy, gates, or
+  operator commands changed.
+- Acceptance state: `ACCEPTED`.
