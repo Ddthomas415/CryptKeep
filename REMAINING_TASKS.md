@@ -120,7 +120,12 @@ deployment work still needs independent review.
    for independent review: observe-only submit records one idempotent
    `shadow_would_be_fill` fill-evidence record per pending live intent, does
    not instantiate the exchange client, leaves the intent pending, and writes
-   zero execution-store fills.
+   zero execution-store fills. 2026-07-15 backlog hygiene: the recorder is
+   present on `master` in `services/execution/_executor_submit.py`, with
+   promotion-gate and executor regressions covering visibility and zero live
+   side effects. Remaining work is operational shadow-stage evidence: run a
+   shadow session that produces real `shadow_would_be_fill` records, then use
+   the gate/report artifacts for manual slippage and cost review.
 4. Prove private lifecycle runtime flow in one reachable supported
    sandbox/testnet venue, or record an explicit human exception decision. This
    proof can run before the paper gate clears because it is a no-capital
@@ -1474,9 +1479,17 @@ substrate work, but they are concrete enough to keep visible.
    governed client-order-id builder, `client_oid.py` remains legacy/compat,
    and `live_trader_multi` / `live_trader_fleet` are duplicate dry-run legacy
    stubs that should not receive new live-execution features.
-3. Extend archive-first backtesting proof to include one walk-forward run over
-   the archive producing enough out-of-sample windows to demonstrate research
-   depth, not only byte-identical reruns.
+3. [DONE - folded into Active #11] Extend archive-first backtesting proof to
+   include one walk-forward run over the archive producing enough
+   out-of-sample windows to demonstrate research depth, not only
+   byte-identical reruns. 2026-07-15 backlog hygiene: Active #11 now records
+   accepted archive-backed walk-forward and bounded parameter-sweep tooling:
+   `walk_forward.run_archive_backed_walk_forward()`,
+   `scripts/research/run_archive_walk_forward.py`,
+   `services.backtest.parameter_sweep`, and
+   `scripts/research/run_archive_parameter_sweep.py`. Remaining work is
+   operational research execution over real multi-year archives and separate
+   review before any strategy config or campaign changes use the results.
 4. Rename or document `ws_*` / `market_ws` surfaces before intraday work assumes
    streaming exists. Current accepted direction treats intraday as read-only
    until data cadence and streaming assumptions are proven. 2026-07-04:
