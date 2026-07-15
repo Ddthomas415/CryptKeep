@@ -20272,6 +20272,10 @@ What changed:
 - `process_latest_raw_signal()` catches invalid persisted raw telemetry and
   emits a `FULL_STOP` gate with hazard `ops_raw_signal_invalid` and the stable
   invalid-field reason.
+- CI correction: the invalid persisted-raw fallback now derives a sanitized
+  stable reason from `ValueError.args` instead of `str(exc)`, preserving the
+  known `invalid_ops_signal_numeric:<field>` reason without logging raw
+  exception text.
 - Added regression tests proving new invalid raw/gate inputs reject before
   mutation and already-persisted corrupt raw snapshots fail closed to
   `FULL_STOP`.

@@ -29,6 +29,13 @@ def _write_status(obj: Dict[str, Any]) -> None:
     STATUS_FILE.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _invalid_raw_signal_reason(exc: ValueError) -> str:
+    first = exc.args[0] if exc.args else ""
+    if isinstance(first, str) and first.startswith("invalid_ops_signal_numeric:"):
+        return first
+    return "invalid_ops_signal_numeric"
+
+
 @dataclass(frozen=True)
 class RiskGateServiceCfg:
     store_path: str = ""
@@ -58,7 +65,7 @@ def process_latest_raw_signal(
             zone="critical",
             gate_state=RiskGateState.FULL_STOP,
             hazards=["ops_raw_signal_invalid"],
-            reasons=[str(exc)],
+            reasons=[_invalid_raw_signal_reason(exc)],
         )
     new_gate = gate.to_dict()
     last_gate = db.latest_risk_gate()
