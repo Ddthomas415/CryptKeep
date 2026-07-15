@@ -937,7 +937,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    `RiskDailyDB.realized_today_usd()` raises on corrupt snapshots; and
    the ops telemetry/risk-gate path surfaces the marker and classifies it
    as `FULL_STOP`. Remaining sweep: live executor, consumer/reconciler
-   config reads, admin live controls.
+   config reads, admin live controls. 2026-07-15: ops raw-signal
+   fail-closed proof is ready for independent review. `RawSignalSnapshot`
+   now rejects non-finite or domain-invalid telemetry numerics before storage
+   (`order_reject_rate`, websocket lag, venue latency, realized volatility,
+   exposure, and leverage must be finite/non-negative; PnL and drawdown must
+   be finite), `RiskGateSignal` rejects invalid `system_stress`, and
+   `process_latest_raw_signal()` converts already-persisted corrupt raw
+   snapshots into a `FULL_STOP` gate with hazard `ops_raw_signal_invalid`
+   instead of letting `NaN` bypass threshold comparisons or crash the service.
    2026-07-12 blueprint audit follow-up: `risk_daily.snapshot()` exposes
    both gross realized PnL (`realized_pnl`) and net PnL (`pnl =
    realized_pnl - fees`), but `RiskDailyDB.realized_today_usd()` returns

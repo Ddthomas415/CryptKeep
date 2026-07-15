@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict
 
+from services.ops.risk_gate_contract import RiskGateSignal, RiskGateState
 from services.ops.risk_gate_engine import RiskGateThresholds, decide_gate
 from services.os.app_paths import ensure_dirs, runtime_dir
 from storage.ops_signal_store_sqlite import OpsSignalStoreSQLite
@@ -28,6 +29,13 @@ def _write_status(obj: Dict[str, Any]) -> None:
     STATUS_FILE.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _invalid_raw_signal_reason(exc: ValueError) -> str:
+    first = exc.args[0] if exc.args else ""
+    if isinstance(first, str) and first.startswith("invalid_ops_signal_numeric:"):
+        return first
+    return "invalid_ops_signal_numeric"
+
+
 @dataclass(frozen=True)
 class RiskGateServiceCfg:
     store_path: str = ""
@@ -46,7 +54,19 @@ def process_latest_raw_signal(
     if not snap:
         return {"ok": False, "reason": "no_raw_signal"}
 
-    gate = decide_gate(snap, th=thresholds)
+    try:
+        gate = decide_gate(snap, th=thresholds)
+    except ValueError as exc:
+        gate = RiskGateSignal(
+            ts=_now_iso(),
+            source="ops_intel",
+            system_stress=1.0,
+            regime="unknown",
+            zone="critical",
+            gate_state=RiskGateState.FULL_STOP,
+            hazards=["ops_raw_signal_invalid"],
+            reasons=[_invalid_raw_signal_reason(exc)],
+        )
     new_gate = gate.to_dict()
     last_gate = db.latest_risk_gate()
     if not write_if_unchanged and isinstance(last_gate, dict):

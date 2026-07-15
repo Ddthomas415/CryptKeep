@@ -20243,3 +20243,65 @@ Remaining risk:
   back; review before relying on new latency evidence.
 - UNVERIFIED: full suite, GitHub CI, host-side latency writer inputs.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T02:25:34Z - Ops Raw-Signal Fail-Closed Numeric Slice (Substrate Backlog #2)
+
+Active role: ENGINEER
+
+Objective:
+- Prevent malformed ops telemetry numerics from bypassing ops risk-gate
+  thresholds or crashing the risk-gate service.
+
+What was found:
+- SHOWN: `RawSignalSnapshot.from_dict()` parsed all numeric telemetry fields
+  with bare `float()`.
+- SHOWN: `NaN` survives `float()`, and threshold comparisons such as
+  `NaN >= ws_lag_block_ms` evaluate false, so a poisoned raw signal could look
+  less hazardous than it is.
+- SHOWN: `process_latest_raw_signal()` did not catch parse failures from
+  corrupt persisted raw snapshots.
+- SHOWN: this is an ops risk-gate surface, so the safe direction is fail-closed.
+
+What changed:
+- `RawSignalSnapshot.from_dict()` now rejects non-finite or domain-invalid
+  telemetry numerics: reject rate, websocket lag, venue latency, realized
+  volatility, exposure, and leverage must be finite/non-negative; PnL and
+  drawdown must be finite.
+- `RiskGateSignal.from_dict()` now rejects invalid `system_stress` outside
+  finite `[0, 1]`.
+- `process_latest_raw_signal()` catches invalid persisted raw telemetry and
+  emits a `FULL_STOP` gate with hazard `ops_raw_signal_invalid` and the stable
+  invalid-field reason.
+- CI correction: the invalid persisted-raw fallback now derives a sanitized
+  stable reason from `ValueError.args` instead of `str(exc)`, preserving the
+  known `invalid_ops_signal_numeric:<field>` reason without logging raw
+  exception text.
+- Added regression tests proving new invalid raw/gate inputs reject before
+  mutation and already-persisted corrupt raw snapshots fail closed to
+  `FULL_STOP`.
+
+Why this change was chosen:
+- The ops risk gate is designed to tighten behavior when telemetry is unsafe.
+  Rejecting bad new inputs and converting old corrupt inputs into `FULL_STOP`
+  preserves that safety invariant without changing normal healthy telemetry.
+
+Expected outcome:
+- Ops risk-gate decisions cannot silently treat `NaN` or `inf` telemetry as
+  below-threshold healthy state.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ops_signal_store_sqlite.py tests/test_ops_risk_gate_service.py tests/test_ops_risk_gate_engine.py tests/test_ops_risk_gate_script.py tests/test_ops_signal_adapter_service.py tests/test_ops_signal_adapter_script.py`
+  - SHOWN: `31 passed in 1.12s`.
+- `./.venv/bin/python -m py_compile services/ops/risk_gate_contract.py services/ops/risk_gate_service.py storage/ops_signal_store_sqlite.py tests/test_ops_signal_store_sqlite.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m ruff check services/ops/risk_gate_contract.py services/ops/risk_gate_service.py storage/ops_signal_store_sqlite.py tests/test_ops_signal_store_sqlite.py`
+  - UNVERIFIED locally: venv lacks `ruff` (`No module named ruff`); GitHub CI
+    remains the lint gate.
+
+Remaining risk:
+- HIGH: touches the ops risk-gate contract and fail-closed behavior; requires
+  independent review and GitHub CI before acceptance.
+- UNVERIFIED: full suite, GitHub CI, and host-side ops signal adapter inputs.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
