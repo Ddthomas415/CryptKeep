@@ -41,11 +41,13 @@ events with required fields and secret-key redaction. `scripts/check_operator_ev
 scans the journal for unredacted secret-like payload fields without printing
 the leaked values. `services.admin.live_disable_wizard.disable_live_now()` and
 `services.admin.live_enable_wizard.disable_live()` now append best-effort
-operator events for safety-increasing live-disable/halt transitions. Current
-honest verdict is still not green: enable/resume are not hooked, full
-arm-to-halt replay is not proven, a host-side no-secret scan over real
-launch-packet events remains unrun, and audit-write fail-closed behavior for
-critical live actions remains open under the backlog item.
+operator events for safety-increasing live-disable/halt transitions.
+`scripts/check_operator_arm_to_halt_replay.py` replays a live arm/resume event
+followed by a halt/disable event from the journal and writes launch-packet
+evidence. Current honest verdict is still not green: enable/resume are not
+hooked, real host-side arm-to-halt replay and no-secret scans remain unrun, and
+audit-write fail-closed behavior for critical live actions remains open under
+the backlog item.
 
 ## Actions That Must Be Auditable
 
@@ -70,7 +72,8 @@ The launch packet must include:
 
 - event-store location and retention policy;
 - coverage matrix for dashboard, CLI, system, and automation paths;
-- at least one replay of a live-arm-to-halt drill from audit records only;
+- at least one replay of a live-arm-to-halt drill from audit records only (use
+  `scripts/check_operator_arm_to_halt_replay.py --evidence-dest ...`);
 - proof that audit records do not contain secrets (use
   `scripts/check_operator_event_secrets.py --require-events --evidence-dest ...`
   against the launch-packet journal);

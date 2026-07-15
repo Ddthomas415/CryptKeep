@@ -239,6 +239,9 @@ are not paper-campaign controls.
 - `audit_coverage_matrix.py` — operator/action audit coverage matrix (SHOWN/PARTIAL/MISSING per policy family; `--strict` capped-live posture; see `docs/OPERATOR_ACTION_AUDIT_COVERAGE.md`).
 - `record_operator_event.py` — append one manual operator/action audit event to
   the unified JSONL journal; redacts secret-like payload fields.
+- `check_operator_arm_to_halt_replay.py` — replay a live arm/resume event
+  followed by halt/disable from operator-event journal records; writes
+  launch-packet evidence with `--evidence-dest`.
 - `check_operator_event_secrets.py` — scan operator event journal payloads for
   unredacted secret-like fields without printing leaked values; `--require-events`
   is the launch-packet posture.
