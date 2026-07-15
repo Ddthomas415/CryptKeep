@@ -98,8 +98,9 @@ FAMILIES = [
         "notes": (
             "live_arming keeps a current-state JSON (writer, reason) with no "
             "append-only history; kill-switch and guard halt/resume transitions "
-            "have status files but are not yet hooked to the unified operator "
-            "event journal."
+            "have status files. Live-disable paths now append unified operator "
+            "events best-effort; enable/resume and full arm-to-halt replay are "
+            "not yet hooked/proven."
         ),
     },
     {

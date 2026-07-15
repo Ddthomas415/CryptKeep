@@ -2,9 +2,24 @@ from __future__ import annotations
 
 import os
 
+import pytest
+
 from services.admin import kill_switch
 from services.admin import live_disable_wizard as ldw
 from services.admin import live_enable_wizard as lew
+
+
+@pytest.fixture(autouse=True)
+def operator_event_calls(monkeypatch):
+    calls: list[dict] = []
+
+    def _record(**kwargs):
+        calls.append(dict(kwargs))
+        return {"ok": True, "event_id": f"event-{len(calls)}", "path": "test://operator_events"}
+
+    monkeypatch.setattr(ldw, "record_live_disable_event", _record)
+    monkeypatch.setattr(lew, "record_live_disable_event", _record)
+    return calls
 
 
 
@@ -57,7 +72,7 @@ def test_live_enable_wizard_normalizes_flags_and_arms_env(monkeypatch):
 
 
 
-def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monkeypatch):
+def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monkeypatch, operator_event_calls):
     saved: dict[str, object] = {}
     events: list[tuple[str, str, str, dict | None]] = []
     kill = {"armed": False, "note": "before"}
@@ -119,6 +134,12 @@ def test_live_disable_wizard_disables_all_live_shapes_and_arms_kill_switch(monke
     assert events and events[0][2] == "live_disabled"
     assert events[0][3]["note"] == "operator_stop"
     assert events[0][3]["post"]["system_guard"]["state"] == "HALTED"
+    assert out["operator_event"]["ok"] is True
+    assert operator_event_calls[0]["source"] == "live_disable_wizard"
+    assert operator_event_calls[0]["reason"] == "operator_stop"
+    assert operator_event_calls[0]["result"] == "ok"
+    assert operator_event_calls[0]["pre_state"]["live_enabled"] is True
+    assert operator_event_calls[0]["post_state"]["status"]["system_guard"]["state"] == "HALTED"
 
 
 def test_live_enable_wizard_fails_closed_on_unreadable_config(monkeypatch):
@@ -161,7 +182,7 @@ def test_live_enable_wizard_fails_closed_on_unreadable_config(monkeypatch):
     assert audit_calls == [("ENABLE_LIVE", False, out["msg"])]
 
 
-def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
+def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch, operator_event_calls):
     saved: dict[str, object] = {}
     guard_calls: list[tuple[str, str, str]] = []
     arm_calls: list[tuple[bool, str, str]] = []
@@ -196,6 +217,12 @@ def test_live_enable_wizard_disable_sets_system_guard_halted(monkeypatch):
     assert arm_calls == [(False, "live_enable_wizard", "disable_live")]
     assert out["system_guard"]["state"] == "HALTED"
     assert guard_calls == [("HALTED", "live_enable_wizard", "disable_live")]
+    assert out["operator_event"]["ok"] is True
+    assert operator_event_calls[0]["source"] == "live_enable_wizard"
+    assert operator_event_calls[0]["reason"] == "disable_live"
+    assert operator_event_calls[0]["result"] == "live_disabled"
+    assert operator_event_calls[0]["pre_state"]["live_enabled_before"] is True
+    assert operator_event_calls[0]["post_state"]["system_guard"]["state"] == "HALTED"
 
 
 def test_live_enable_wizard_disable_halts_runtime_when_config_save_fails(monkeypatch):
@@ -254,10 +281,14 @@ def test_live_disable_wizard_clears_persisted_arm_state(monkeypatch, tmp_path):
     monkeypatch.setattr(ldw, "set_armed", lambda state, note="": {"armed": state, "note": note})
     monkeypatch.setattr(ldw, "set_live_armed_state", live_arming.set_live_armed_state)
     monkeypatch.setattr(ldw, "get_system_guard_state", lambda **_kwargs: dict(guard_state))
+    def _set_guard(state, *, writer, reason=""):
+        guard_state.update({"state": state, "writer": writer, "reason": reason})
+        return dict(guard_state)
+
     monkeypatch.setattr(
         ldw,
         "set_system_guard_state",
-        lambda state, *, writer, reason="": {"state": state, "writer": writer, "reason": reason},
+        _set_guard,
     )
     monkeypatch.setattr(ldw, "run_id", lambda: "run-123")
     monkeypatch.setattr(ldw, "log_event", lambda *args, **kwargs: None)
@@ -322,6 +353,45 @@ def test_live_disable_wizard_halts_runtime_when_config_unreadable(monkeypatch):
     assert out["system_guard"]["state"] == "HALTED"
     assert arm_calls == [(False, "live_disable_wizard", "operator_stop")]
     assert guard_calls == [("HALTED", "live_disable_wizard", "operator_stop")]
+
+
+def test_live_disable_wizard_surfaces_operator_event_failure_without_blocking(monkeypatch):
+    cfg_state = {"execution": {"live_enabled": True}}
+    kill = {"armed": False, "note": "before"}
+    guard_state = {"state": "RUNNING", "writer": "test", "reason": "before"}
+
+    monkeypatch.setattr(ldw, "load_user_yaml", lambda **_kwargs: dict(cfg_state))
+    monkeypatch.setattr(ldw, "save_user_yaml", lambda cfg, dry_run=False: (True, "Saved"))
+    monkeypatch.setattr(ldw, "get_kill", lambda: dict(kill))
+    monkeypatch.setattr(ldw, "set_armed", lambda state, note="": {"armed": state, "note": note})
+    monkeypatch.setattr(
+        ldw,
+        "set_live_armed_state",
+        lambda armed, *, writer, reason: {"armed": armed, "writer": writer, "reason": reason},
+    )
+    monkeypatch.setattr(ldw, "get_system_guard_state", lambda **_kwargs: dict(guard_state))
+    def _set_guard_failure_case(state, *, writer, reason=""):
+        guard_state.update({"state": state, "writer": writer, "reason": reason})
+        return dict(guard_state)
+
+    monkeypatch.setattr(
+        ldw,
+        "set_system_guard_state",
+        _set_guard_failure_case,
+    )
+    monkeypatch.setattr(ldw, "run_id", lambda: "run-123")
+    monkeypatch.setattr(ldw, "log_event", lambda *args, **kwargs: None)
+    monkeypatch.setattr(
+        ldw,
+        "record_live_disable_event",
+        lambda **_kwargs: {"ok": False, "reason": "operator_event_write_failed:PermissionError"},
+    )
+
+    out = ldw.disable_live_now(note="operator_stop")
+
+    assert out["ok"] is True
+    assert out["post"]["system_guard"]["state"] == "HALTED"
+    assert out["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
 
 
 def test_stop_service_from_pidfile_rejects_unsafe_name():

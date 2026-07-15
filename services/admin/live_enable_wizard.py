@@ -8,6 +8,7 @@ from services.execution.live_arming import (
     set_live_armed_state,
     set_live_enabled,
 )
+from services.admin.live_operator_audit import record_live_disable_event
 from services.os.app_paths import runtime_dir, ensure_dirs
 
 ensure_dirs()
@@ -53,6 +54,13 @@ def enable_live() -> dict:
 
 def disable_live() -> dict:
     config_error = ""
+    pre_state = {
+        "env_execution_armed": os.environ.get("CBP_EXECUTION_ARMED"),
+        "env_live_enabled": os.environ.get("CBP_LIVE_ENABLED"),
+        "env_execution_live_enabled": os.environ.get("CBP_EXECUTION_LIVE_ENABLED"),
+        "config_loaded": False,
+        "live_enabled_before": None,
+    }
     try:
         raw_cfg = load_user_yaml(strict=True)
     except ConfigLoadError as exc:
@@ -64,6 +72,8 @@ def disable_live() -> dict:
             "skipped": True,
         }
     else:
+        pre_state["config_loaded"] = True
+        pre_state["live_enabled_before"] = bool((raw_cfg.get("execution") or {}).get("live_enabled"))
         cfg = set_live_enabled(raw_cfg, False)
         ok, msg = save_user_yaml(cfg)
         save = {"ok": ok, "message": msg}
@@ -80,6 +90,21 @@ def disable_live() -> dict:
         else ("config_save_failed_runtime_halted" if not bool(save.get("ok")) else reason)
     )
     _log_audit("DISABLE_LIVE", True, out_reason)
+    operator_event = record_live_disable_event(
+        source="live_enable_wizard",
+        reason="disable_live",
+        result=out_reason,
+        pre_state=pre_state,
+        post_state={
+            "armed": armed,
+            "armed_state": armed_state,
+            "system_guard": guard,
+            "save": save,
+            "env_execution_armed": os.environ.get("CBP_EXECUTION_ARMED"),
+            "env_live_enabled": os.environ.get("CBP_LIVE_ENABLED"),
+            "env_execution_live_enabled": os.environ.get("CBP_EXECUTION_LIVE_ENABLED"),
+        },
+    )
     return {
         "ok": True,
         "reason": out_reason,
@@ -88,4 +113,5 @@ def disable_live() -> dict:
         "save": save,
         "armed_state": armed_state,
         "system_guard": guard,
+        "operator_event": operator_event,
     }

@@ -20740,3 +20740,64 @@ Remaining risk:
 - UNVERIFIED: full suite, GitHub CI, and host-side scan against real launch
   packet events.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T20:54:14Z - Live-Disable Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Hook safety-increasing live-disable/halt admin paths to the unified operator
+  event journal without changing enable/resume authority or blocking halt on
+  audit storage failures.
+
+What was found:
+- SHOWN: after the operator-event substrate landed, the live arm/disable/halt
+  coverage family still remained PARTIAL because material live-control paths
+  were not hooked to the journal.
+- SHOWN: `services.admin.live_disable_wizard.disable_live_now` already performs
+  config disable, kill-switch arm, persisted live-arm disarm, system-guard
+  HALTED, and lifecycle event logging.
+- SHOWN: `services.admin.live_enable_wizard.disable_live` is a second live
+  disable entry point that clears live env flags, disarms persisted live-arm
+  state, and sets the system guard HALTED.
+
+What changed:
+- Added `services.admin.live_operator_audit.record_live_disable_event`, a
+  best-effort adapter that writes a `live_disable` operator event through the
+  unified journal and reports write failure as structured data instead of
+  raising.
+- Wired `disable_live_now()` and `disable_live()` to append operator events
+  after safety-increasing disable/halt mutations.
+- Added returned `operator_event` payloads so callers can see whether the audit
+  append succeeded.
+- Updated tests, coverage-matrix notes, operator-audit docs, and backlog notes.
+
+Why this change was chosen:
+- Disable/halt must remain safety-first: an audit-write failure should be
+  visible but must not prevent de-risking.
+- Enable/resume are risk-increasing paths and require a separate fail-closed
+  audit-write policy decision, so they are deliberately left open.
+
+Expected outcome:
+- Live-disable/halt transitions now have a unified operator-event record path,
+  while the coverage matrix still honestly reports the family as PARTIAL until
+  enable/resume, arm-to-halt replay, and host evidence are proven.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_operator_audit.py tests/test_live_admin_controls.py tests/test_operator_event_journal.py tests/test_operator_event_secret_scan.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `33 passed in 0.56s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: live arm/disable/halt/resume family remains `PARTIAL`, with notes
+    that live-disable paths append best-effort operator events and enable/resume
+    plus arm-to-halt replay remain open.
+- `./.venv/bin/python -m py_compile services/admin/live_operator_audit.py services/admin/live_disable_wizard.py services/admin/live_enable_wizard.py tests/test_live_operator_audit.py tests/test_live_admin_controls.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches live admin disable/halt paths, even though the change is
+  audit-only and safety-increasing.
+- UNVERIFIED: full suite, GitHub CI, real arm-to-halt replay from audit events,
+  and fail-closed policy for risk-increasing audit writes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
