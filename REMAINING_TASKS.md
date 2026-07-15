@@ -1348,6 +1348,17 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     the matrix shows no dedicated unified append-only operator event journal
     yet, so replay drill, no-secret scan, and audit-write fail-closed behavior
     remain open.
+    2026-07-15: operator-event journal substrate is ready for independent
+    review. `services.audit.operator_event_journal` provides an append-only
+    JSONL store under `data/operator_events/operator_events.jsonl` with the
+    required who/what/when fields, explicit write failures, and redaction for
+    secret-like payload keys; `scripts/record_operator_event.py` can append
+    manual drill events; and `scripts/audit_coverage_matrix.py` now probes the
+    substrate as `substrate_available_unhooked`. The matrix remains not-green:
+    material action families are not hooked to this journal yet, so the
+    remaining capped-live proof is still action hooks, arm-to-halt replay,
+    no-secret scan over real events, and fail-closed audit-write policy for
+    critical live actions.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

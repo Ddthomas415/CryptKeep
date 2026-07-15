@@ -34,13 +34,15 @@ SHOWN/PARTIAL/MISSING with store pointers and runtime probes
 (`--json`, `--markdown`, `--evidence-dest` writes the packet artifact,
 `--strict` fails unless every family is SHOWN — the capped-live posture).
 `tests/test_operator_audit_coverage.py` parses the family list FROM this
-document so the matrix and policy cannot drift silently. Current honest
-verdict: SHOWN 0 · PARTIAL 4 · MISSING 7 — the arming state file and
-intent rows carry who/what/when pieces but lack append-only transition
-history; most families have no event writer at all. Closing those gaps
-(a unified operator event journal), the arm-to-halt replay drill, the
-no-secret payload scan, and audit-write fail-closed behavior remain open
-under the backlog item.
+document so the matrix and policy cannot drift silently. 2026-07-15 update:
+`services.audit.operator_event_journal` provides the unified append-only JSONL
+substrate and `scripts/record_operator_event.py` can append manual drill
+events with required fields and secret-key redaction. Current honest verdict
+is still not green: the journal substrate exists, but material action families
+must be hooked to it before they count as SHOWN. The arm-to-halt replay drill,
+no-secret payload scan over real launch-packet events, and audit-write
+fail-closed behavior for critical live actions remain open under the backlog
+item.
 
 ## Actions That Must Be Auditable
 
@@ -76,4 +78,3 @@ If a live-affecting action cannot be audited, it must either:
 - be blocked before capped live;
 - be moved behind a separately logged path; or
 - receive an explicit accepted-risk decision with expiry.
-

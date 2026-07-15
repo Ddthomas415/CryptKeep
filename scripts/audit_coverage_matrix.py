@@ -16,7 +16,10 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 
-REQUIRED_FIELDS = ("actor", "timestamp", "action", "target", "pre_state", "post_state", "result", "reason")
+from services.audit.operator_event_journal import (
+    REQUIRED_FIELDS,
+    operator_event_journal_path,
+)
 
 EXIT_OK = 0
 EXIT_FAIL = 1
@@ -68,6 +71,20 @@ def _probe_intent_lifecycle() -> dict:
         return {"probe_error": f"{type(exc).__name__}: {exc}"}
 
 
+def _probe_operator_event_journal() -> dict:
+    try:
+        path = operator_event_journal_path()
+        return {
+            "store": str(path),
+            "store_exists": path.exists(),
+            "format": "append_only_jsonl",
+            "required_fields": list(REQUIRED_FIELDS),
+            "status": "substrate_available_unhooked",
+        }
+    except Exception as exc:
+        return {"probe_error": f"{type(exc).__name__}: {exc}"}
+
+
 # Registry: policy family -> classification + evidence pointers.
 # Classifications are deliberately conservative; PARTIAL means a trail
 # exists but lacks required fields or append-only history; MISSING means no
@@ -81,8 +98,8 @@ FAMILIES = [
         "notes": (
             "live_arming keeps a current-state JSON (writer, reason) with no "
             "append-only history; kill-switch and guard halt/resume transitions "
-            "have status files but no dedicated who/what/when event writer was "
-            "discovered."
+            "have status files but are not yet hooked to the unified operator "
+            "event journal."
         ),
     },
     {
@@ -90,28 +107,28 @@ FAMILIES = [
         "surfaces": ["CLI", "automation"],
         "classification": "MISSING",
         "probe": None,
-        "notes": "no event writer discovered; promotion gate results are point-in-time reports (snapshot added by the alerting slice records gate booleans, not operator actions).",
+        "notes": "operator event journal substrate exists, but this action family is not yet hooked; promotion gate results are point-in-time reports (snapshot added by the alerting slice records gate booleans, not operator actions).",
     },
     {
         "family": "strategy or campaign manifest change",
         "surfaces": ["CLI"],
         "classification": "MISSING",
         "probe": None,
-        "notes": "manifest edits are git-visible for repo files but runtime config changes have no event trail.",
+        "notes": "operator event journal substrate exists, but this action family is not yet hooked; manifest edits are git-visible for repo files but runtime config changes have no event trail.",
     },
     {
         "family": "risk-limit change",
         "surfaces": ["CLI", "dashboard"],
         "classification": "MISSING",
         "probe": None,
-        "notes": "risk caps come from user config; no change-event writer discovered.",
+        "notes": "operator event journal substrate exists, but this action family is not yet hooked; risk caps come from user config.",
     },
     {
         "family": "API credential rotation",
         "surfaces": ["CLI", "system"],
         "classification": "MISSING",
         "probe": None,
-        "notes": "no rotation event trail discovered (see secrets-rotation backlog item).",
+        "notes": "operator event journal substrate exists, but this action family is not yet hooked; see secrets-rotation backlog item.",
     },
     {
         "family": "order intent creation/claim/submit/cancel/fill/reject/reconcile",
@@ -125,35 +142,35 @@ FAMILIES = [
         "surfaces": ["CLI"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "admin reconcile wizards print step logs and write outcomes into stores, but no unified who/what/when event record was discovered.",
+        "notes": "admin reconcile wizards print step logs and write outcomes into stores, but are not yet hooked to the unified operator event journal.",
     },
     {
         "family": "backup, restore, migration, rollback",
         "surfaces": ["CLI"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "backup_state.py emits verifiable manifests and JSON verdicts but does not persist an operator event journal; migrations are git/work-log visible.",
+        "notes": "backup_state.py emits verifiable manifests and JSON verdicts but is not yet hooked to the unified operator event journal; migrations are git/work-log visible.",
     },
     {
         "family": "alert suppression or routing change",
         "surfaces": ["CLI", "config"],
         "classification": "MISSING",
         "probe": None,
-        "notes": "alert config lives in runtime config; no change-event writer discovered.",
+        "notes": "operator event journal substrate exists, but this action family is not yet hooked; alert config lives in runtime config.",
     },
     {
         "family": "dashboard login/logout/MFA/role change",
         "surfaces": ["dashboard"],
         "classification": "MISSING",
         "probe": None,
-        "notes": "no auth event trail discovered in the dashboard service.",
+        "notes": "operator event journal substrate exists, but this action family is not yet hooked in the dashboard service.",
     },
     {
         "family": "AI copilot report generation (external providers)",
         "surfaces": ["automation"],
         "classification": "MISSING",
         "probe": None,
-        "notes": "no generation event trail discovered; providers currently disabled by default.",
+        "notes": "operator event journal substrate exists, but this action family is not yet hooked; providers currently disabled by default.",
     },
 ]
 
@@ -174,6 +191,7 @@ def build_matrix() -> dict:
     return {
         "created": _iso_now(),
         "required_fields": list(REQUIRED_FIELDS),
+        "operator_event_journal": _probe_operator_event_journal(),
         "families": rows,
         "counts": counts,
         "policy_doc": "docs/OPERATOR_ACTION_AUDIT_COVERAGE.md",

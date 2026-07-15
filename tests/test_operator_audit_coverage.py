@@ -41,6 +41,8 @@ def _policy_families() -> list[str]:
 def test_matrix_covers_every_policy_family():
     acm = _mod()
     matrix = acm.build_matrix()
+    assert matrix["operator_event_journal"]["format"] == "append_only_jsonl"
+    assert matrix["operator_event_journal"]["status"] == "substrate_available_unhooked"
     assert len(matrix["families"]) == len(_policy_families()) == 11
     for row in matrix["families"]:
         assert row["classification"] in ("SHOWN", "PARTIAL", "MISSING")
@@ -52,6 +54,9 @@ def test_matrix_covers_every_policy_family():
 
 def test_required_fields_match_policy():
     acm = _mod()
+    from services.audit.operator_event_journal import REQUIRED_FIELDS
+
+    assert acm.REQUIRED_FIELDS == REQUIRED_FIELDS
     assert set(acm.REQUIRED_FIELDS) == {
         "actor", "timestamp", "action", "target", "pre_state", "post_state", "result", "reason"
     }

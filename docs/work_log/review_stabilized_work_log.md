@@ -20622,3 +20622,64 @@ Remaining risk:
   pytest job remains stable in the hosted environment.
 - UNVERIFIED: GitHub CI.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-15T19:54:23Z - Operator Event Journal Substrate (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Add the smallest shared operator/action audit substrate: an append-only event
+  journal with required fields, redaction, a manual event CLI, and coverage
+  matrix visibility without claiming any action family is fully covered yet.
+
+What was found:
+- SHOWN: `scripts/audit_coverage_matrix.py` reported the operator/action audit
+  coverage posture as intentionally not green: no dedicated unified append-only
+  event journal and no SHOWN policy families.
+- SHOWN: existing arming, status, intent, backup, and reconcile artifacts carry
+  partial state or outcome evidence, but the matrix still classified the
+  material operator-action families as PARTIAL or MISSING.
+- SHOWN: without a shared event writer, future hooks would risk inventing
+  separate schemas and drifting from the policy's required fields.
+
+What changed:
+- Added `services.audit.operator_event_journal` with a shared required-field
+  schema, append-only JSONL persistence under the repo state data directory,
+  explicit `operator_event_write_failed:*` errors, and recursive redaction for
+  secret-like payload keys.
+- Added `scripts/record_operator_event.py` for manual drill/event recording.
+- Updated `scripts/audit_coverage_matrix.py` to probe the journal substrate and
+  report it as `substrate_available_unhooked` while preserving not-green family
+  classifications.
+- Updated operator-audit docs, script inventory, backlog notes, and targeted
+  tests.
+
+Why this change was chosen:
+- It closes the missing shared substrate without broadening into live-control
+  hooks or claiming launch-packet coverage before material action families are
+  wired.
+- It gives later high-risk hooks one schema and one redaction/write-failure
+  path instead of per-surface ad hoc event formats.
+
+Expected outcome:
+- Future operator-action hooks can append consistent who/what/when events, and
+  the coverage matrix can distinguish "journal exists" from "action family is
+  fully auditable."
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `11 passed in 0.84s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: reports `operator_event_journal.status =
+    substrate_available_unhooked` and keeps counts at `SHOWN 0`, `PARTIAL 4`,
+    `MISSING 7`.
+- `./.venv/bin/python -m py_compile services/audit/operator_event_journal.py scripts/record_operator_event.py scripts/audit_coverage_matrix.py tests/test_operator_event_journal.py tests/test_operator_audit_coverage.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: this is audit substrate and documentation, but it does not yet hook
+  critical live actions or make the coverage matrix green.
+- UNVERIFIED: full suite and GitHub CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
