@@ -1450,6 +1450,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     strategy/campaign manifest family from MISSING to PARTIAL. Remaining
     coverage: direct manifest file edits, CLI/runtime config edits, and
     campaign manifest changes.
+    2026-07-16: dashboard auth operator-event hook is ready for independent
+    review. `dashboard.auth_gate` now appends best-effort metadata-only
+    `dashboard_login`, `dashboard_logout`, `dashboard_mfa_change`, and
+    `dashboard_mfa_challenge` events for session and MFA transitions without
+    logging passwords, MFA codes, TOTP secrets, OTP URIs, or backup code
+    values. The coverage matrix moves the dashboard login/logout/MFA/role
+    family from MISSING to PARTIAL. Remaining coverage: user role management
+    changes.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,

@@ -163,9 +163,9 @@ FAMILIES = [
     {
         "family": "dashboard login/logout/MFA/role change",
         "surfaces": ["dashboard"],
-        "classification": "MISSING",
+        "classification": "PARTIAL",
         "probe": None,
-        "notes": "operator event journal substrate exists, but this action family is not yet hooked in the dashboard service.",
+        "notes": "dashboard.auth_gate appends best-effort metadata-only dashboard_login, dashboard_logout, dashboard_mfa_change, and dashboard_mfa_challenge events; passwords, MFA codes, TOTP secrets, OTP URIs, and backup code values are not logged. User role management changes remain unclassified.",
     },
     {
         "family": "AI copilot report generation (external providers)",

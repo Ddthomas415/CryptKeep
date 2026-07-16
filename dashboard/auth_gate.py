@@ -9,6 +9,7 @@ from typing import Any, Dict, Literal
 import streamlit as st
 from dashboard.styles.theme_enhanced import inject_enhanced_theme
 
+from services.audit.operator_event_journal import append_operator_event
 from services.security.auth_capabilities import auth_capabilities
 
 logger = logging.getLogger(__name__)
@@ -174,17 +175,82 @@ def _session_get() -> Dict[str, Any]:
     return cur
 
 
+def _auth_public_state(state: dict[str, Any] | None) -> dict[str, Any]:
+    src = state if isinstance(state, dict) else {}
+    return {
+        "ok": bool(src.get("ok")),
+        "username": str(src.get("username") or ""),
+        "role": str(src.get("role") or "VIEWER"),
+        "source": str(src.get("source") or ""),
+        "login_at": src.get("login_at"),
+        "last_activity_at": src.get("last_activity_at"),
+    }
+
+
+def _reason_code(value: Any) -> str:
+    text = str(value or "").strip()
+    return (text.split(":", 1)[0].strip() or "unknown")[:80]
+
+
+def _record_dashboard_auth_event(
+    *,
+    action: str,
+    username: str,
+    result: str,
+    reason: str,
+    pre_state: dict[str, Any] | None = None,
+    post_state: dict[str, Any] | None = None,
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    safe_username = str(username or "unknown")
+    try:
+        event = append_operator_event(
+            actor=safe_username,
+            action=action,
+            target=safe_username,
+            result=result,
+            reason=reason,
+            pre_state=pre_state or {},
+            post_state=post_state or {},
+            source="dashboard.auth_gate",
+            extra={
+                "surface": "dashboard_auth",
+                "secret_payload_logged": False,
+                **(extra or {}),
+            },
+        )
+        return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
+    except Exception as exc:
+        logger.warning(
+            "dashboard auth operator event journal failed action=%s error=%s: %s",
+            action,
+            type(exc).__name__,
+            exc,
+        )
+        return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
+
+
 def _clear_auth_session() -> None:
     st.session_state[SESSION_KEY] = _session_default()
 
 
 def logout() -> None:
+    pre_state = _auth_public_state(_session_get())
     _clear_auth_session()
     st.session_state[MFA_PENDING_KEY] = {}
     st.session_state.pop(MFA_ENROLLMENT_KEY, None)
+    _record_dashboard_auth_event(
+        action="dashboard_logout",
+        username=str(pre_state.get("username") or "unknown"),
+        result="success",
+        reason="logout",
+        pre_state={"session": pre_state},
+        post_state={"session": _auth_public_state(_session_get())},
+    )
 
 
 def _mark_login_success(username: str, role: str, source: str) -> None:
+    pre_state = _auth_public_state(_session_get())
     now = _now_ts()
     st.session_state[SESSION_KEY] = {
         "ok": True,
@@ -199,6 +265,15 @@ def _mark_login_success(username: str, role: str, source: str) -> None:
     _server_clear_failed_logins(str(username or ""))
     st.session_state[FAILED_LOGIN_COUNT_KEY] = 0
     st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = 0
+    _record_dashboard_auth_event(
+        action="dashboard_login",
+        username=str(username or ""),
+        result="success",
+        reason="login_success",
+        pre_state={"session": pre_state},
+        post_state={"session": _auth_public_state(st.session_state.get(SESSION_KEY))},
+        extra={"role": str(role or "VIEWER"), "source": str(source or "")},
+    )
 
 
 def _register_failed_login(username: str = "") -> None:
@@ -215,6 +290,17 @@ def _register_failed_login(username: str = "") -> None:
         locked_until = (_now_ts() + DEFAULT_LOCKOUT_SECONDS) if count >= DEFAULT_LOCKOUT_THRESHOLD else 0
     st.session_state[FAILED_LOGIN_COUNT_KEY] = count
     st.session_state[FAILED_LOGIN_LOCKOUT_UNTIL_KEY] = int(locked_until)
+    _record_dashboard_auth_event(
+        action="dashboard_login",
+        username=str(username or "unknown"),
+        result="failed",
+        reason="login_failed",
+        post_state={
+            "fail_count": count,
+            "locked": bool(locked_until),
+            "locked_until": int(locked_until),
+        },
+    )
 
 
 def _current_lockout_remaining(username: str = "") -> int:
@@ -313,6 +399,18 @@ def _render_signed_in_mfa_controls(username: str) -> None:
         st.success(f"MFA is enabled for `{username}` with {remaining} backup code(s) remaining.")
         if st.button("Disable MFA", key="auth_disable_mfa"):
             out = disable_mfa_for_user(username=str(username or ""))
+            _record_dashboard_auth_event(
+                action="dashboard_mfa_change",
+                username=str(username or ""),
+                result="success" if bool(out.get("ok")) else "failed",
+                reason="disable_mfa",
+                pre_state={"mfa_enabled": True, "backup_codes_remaining": remaining},
+                post_state={"mfa_enabled": False if bool(out.get("ok")) else True},
+                extra={
+                    "error_present": not bool(out.get("ok")),
+                    "error_code": _reason_code(out.get("reason")),
+                },
+            )
             if bool(out.get("ok")):
                 _clear_mfa_enrollment_if_user(str(username or ""))
                 st.rerun()
@@ -326,6 +424,24 @@ def _render_signed_in_mfa_controls(username: str) -> None:
     if not enrollment:
         if st.button("Prepare Built-in MFA", key="auth_prepare_mfa"):
             out = begin_mfa_enrollment(username=str(username or ""))
+            _record_dashboard_auth_event(
+                action="dashboard_mfa_change",
+                username=str(username or ""),
+                result="success" if bool(out.get("ok")) else "failed",
+                reason="begin_mfa_enrollment",
+                pre_state={"mfa_enabled": False, "enrollment_pending": False},
+                post_state={
+                    "mfa_enabled": False,
+                    "enrollment_pending": bool(out.get("ok")),
+                    "backup_code_count": (
+                        len(list(out.get("backup_codes") or [])) if bool(out.get("ok")) else 0
+                    ),
+                },
+                extra={
+                    "error_present": not bool(out.get("ok")),
+                    "error_code": _reason_code(out.get("reason")),
+                },
+            )
             if bool(out.get("ok")):
                 st.session_state[MFA_ENROLLMENT_KEY] = out
                 st.rerun()
@@ -342,13 +458,40 @@ def _render_signed_in_mfa_controls(username: str) -> None:
         submitted = st.form_submit_button("Enable MFA")
         if submitted:
             out = confirm_mfa_enrollment(username=str(username or ""), code=str(code or ""))
+            _record_dashboard_auth_event(
+                action="dashboard_mfa_change",
+                username=str(username or ""),
+                result="success" if bool(out.get("ok")) else "failed",
+                reason="confirm_mfa_enrollment",
+                pre_state={"mfa_enabled": False, "enrollment_pending": True},
+                post_state={
+                    "mfa_enabled": bool(out.get("ok")),
+                    "enrollment_pending": not bool(out.get("ok")),
+                },
+                extra={
+                    "error_present": not bool(out.get("ok")),
+                    "error_code": _reason_code(out.get("reason")),
+                },
+            )
             if bool(out.get("ok")):
                 st.session_state.pop(MFA_ENROLLMENT_KEY, None)
                 st.rerun()
             st.error(f"MFA confirmation failed: {out.get('reason') or 'unknown_error'}")
 
     if st.button("Cancel MFA setup", key="auth_cancel_mfa_setup"):
-        disable_mfa_for_user(username=str(username or ""))
+        out = disable_mfa_for_user(username=str(username or ""))
+        _record_dashboard_auth_event(
+            action="dashboard_mfa_change",
+            username=str(username or ""),
+            result="success" if bool(out.get("ok")) else "failed",
+            reason="cancel_mfa_setup",
+            pre_state={"mfa_enabled": False, "enrollment_pending": True},
+            post_state={"mfa_enabled": False, "enrollment_pending": False},
+            extra={
+                "error_present": not bool(out.get("ok")),
+                "error_code": _reason_code(out.get("reason")),
+            },
+        )
         st.session_state.pop(MFA_ENROLLMENT_KEY, None)
         st.rerun()
 
@@ -491,6 +634,15 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                             _clear_mfa_pending()
                             st.rerun()
                         else:
+                            _record_dashboard_auth_event(
+                                action="dashboard_mfa_challenge",
+                                username=str(pending_mfa.get("username") or "unknown"),
+                                result="failed",
+                                reason=_reason_code(out.get("reason") or "invalid_mfa_code"),
+                                pre_state={"mfa_pending": True},
+                                post_state={"mfa_pending": True},
+                                extra={"method": "unknown", "secret_payload_logged": False},
+                            )
                             state = _session_get()
                             state["error"] = str(out.get("reason") or "invalid_mfa_code")
                             st.session_state[SESSION_KEY] = state
@@ -507,6 +659,15 @@ def require_authenticated_role(required_role: Role = "VIEWER") -> Dict[str, Any]
                             out = verify_login(username=str(username), password=str(password))
                             if bool(out.get("ok")):
                                 if bool(out.get("mfa_required")):
+                                    _record_dashboard_auth_event(
+                                        action="dashboard_mfa_challenge",
+                                        username=str(out.get("username") or username or "unknown"),
+                                        result="success",
+                                        reason="mfa_required",
+                                        pre_state={"mfa_pending": False},
+                                        post_state={"mfa_pending": True},
+                                        extra={"role": str(out.get("role") or "VIEWER")},
+                                    )
                                     _set_mfa_pending(
                                         username=str(out.get("username") or ""),
                                         role=str(out.get("role") or "VIEWER"),
