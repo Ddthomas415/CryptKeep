@@ -98,9 +98,12 @@ and campaign manifest files remain unclassified.
 
 Current partial hook for order-intent lifecycle: `storage.live_intent_queue_sqlite`
 maintains current intent rows and an append-only `live_trade_intent_events`
-table for intent insert, queue claim, and successful status transitions. Events
-record intent ID, timestamp, actor, action, pre/post status, reason, source,
-last error, and order identifiers. Fills remain stored separately, and
+table for intent insert, queue claim, and successful status transitions after
+the live queue schema is initialized. The coverage matrix separately reports
+whether that table is present in the current runtime store, so an old/unmigrated
+SQLite file does not get credited with runtime history it does not yet contain.
+Events record intent ID, timestamp, actor, action, pre/post status, reason,
+source, last error, and order identifiers. Fills remain stored separately, and
 venue-reconciliation event unification beyond the queue store remains open.
 
 Current partial hook for backup/restore: `scripts/backup_state.py` appends

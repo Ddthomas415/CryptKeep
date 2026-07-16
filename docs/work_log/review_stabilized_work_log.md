@@ -21974,3 +21974,55 @@ Remaining risk:
   semantics, dashboard session event fail-closed policy, and any future
   user/role management surface that bypasses `user_auth_store`.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T17:19:58Z - Intent-History Runtime Probe Honesty (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Correct an audit matrix overclaim in the order-intent lifecycle probe.
+
+What was found:
+- SHOWN: `storage.live_intent_queue_sqlite.SCHEMA` declares
+  `live_trade_intent_events` support.
+- SHOWN: the local runtime store can exist without that table until a schema
+  initialization/migration path has run.
+- SHOWN: before this change, `_probe_intent_lifecycle()` listed
+  `history(per-transition)` in `fields_present` whenever source support was
+  declared, even if the current runtime SQLite store lacked the event table.
+
+What changed:
+- `scripts/audit_coverage_matrix.py` now separates source-declared event
+  history from runtime-present event history.
+- Runtime history is listed as present only when
+  `live_trade_intent_events` exists in the current store; old/unmigrated stores
+  report `history(runtime table absent in current store)` in
+  `fields_missing`.
+- Updated tests, the operator-audit coverage policy, backlog, and this work
+  log.
+
+Why this change was chosen:
+- The audit matrix is used as evidence. It must not credit a runtime store with
+  append-only history that is only source-declared but absent from the current
+  database file.
+
+Expected outcome:
+- Launch/operator audit evidence distinguishes implemented source capability
+  from the runtime schema actually present on the host.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py`
+  - SHOWN: `7 passed in 0.80s`.
+- `./.venv/bin/python -m py_compile scripts/audit_coverage_matrix.py tests/test_operator_audit_coverage.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: local runtime probe now reports `event_history_declared: true`,
+    `event_history_table_exists: false`, and
+    `history(runtime table absent in current store)` in `fields_missing`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: audit-reporting correction only; no runtime queue behavior changed.
+- UNVERIFIED: broader regression suite and GitHub CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
