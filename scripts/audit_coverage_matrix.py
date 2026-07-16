@@ -165,7 +165,7 @@ FAMILIES = [
         "surfaces": ["dashboard"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "dashboard.auth_gate appends best-effort metadata-only dashboard_login, dashboard_logout, dashboard_mfa_change, and dashboard_mfa_challenge events; passwords, MFA codes, TOTP secrets, OTP URIs, and backup code values are not logged. User role management changes remain unclassified.",
+        "notes": "dashboard.auth_gate appends best-effort metadata-only dashboard_login, dashboard_logout, dashboard_mfa_change, and dashboard_mfa_challenge events; services.security.user_auth_store appends best-effort dashboard_user_auth_store_change events for central user upsert/bootstrap, MFA enrollment/confirmation/disablement, backup-code consumption, and login-hash upgrades. Passwords, hashes, MFA codes, TOTP secrets, OTP URIs, and backup code values are not logged. Future user/role management surfaces that bypass user_auth_store remain unclassified.",
     },
     {
         "family": "AI copilot report generation (external providers)",
