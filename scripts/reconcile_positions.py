@@ -15,7 +15,39 @@ def default_exec_db() -> str:
     from services.risk.risk_daily import _default_exec_db
     return _default_exec_db()
 
-def write_flag(venue: str, symbol: str, drift: float | None, reason: str) -> None:
+def _record_position_drift_flag_event(
+    *,
+    venue: str,
+    symbol: str,
+    drift: float | None,
+    reason: str,
+    flag_path: Path,
+) -> dict[str, Any]:
+    try:
+        from services.audit.operator_event_journal import append_operator_event
+
+        event = append_operator_event(
+            actor="operator",
+            action="manual_reconcile",
+            target="position_drift_flag",
+            result="failed",
+            reason="position_drift_flag_written",
+            pre_state={"venue": venue, "symbol": symbol},
+            post_state={
+                "venue": venue,
+                "symbol": symbol,
+                "drift": drift,
+                "error": reason,
+                "flag_path": str(flag_path),
+            },
+            source="scripts.reconcile_positions",
+        )
+        return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
+    except Exception as exc:
+        return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
+
+
+def write_flag(venue: str, symbol: str, drift: float | None, reason: str) -> dict[str, Any]:
     flag = data_dir() / "risk_sink_failed.flag"
     flag.parent.mkdir(parents=True, exist_ok=True)
     tmp = flag.with_suffix(".tmp")
@@ -28,6 +60,17 @@ def write_flag(venue: str, symbol: str, drift: float | None, reason: str) -> Non
         "error": reason,
     }, sort_keys=True), encoding="utf-8")
     tmp.replace(flag)
+    return {
+        "ok": True,
+        "flag_path": str(flag),
+        "operator_event": _record_position_drift_flag_event(
+            venue=venue,
+            symbol=symbol,
+            drift=drift,
+            reason=reason,
+            flag_path=flag,
+        ),
+    }
 
 def exchange_qty_from_balance(balance: dict, symbol: str) -> float:
     base = symbol.split("/")[0].upper()
@@ -110,8 +153,14 @@ def main() -> None:
                 f"position_drift local={result['local_qty']} exchange={result['exchange_qty']} "
                 f"drift={result['drift']} threshold={threshold} reason={reconcile_reason}"
             )
-            write_flag(venue, symbol, drift_for_flag(result.get("drift")), reason)
+            flag_result = write_flag(venue, symbol, drift_for_flag(result.get("drift")), reason)
             print("DRIFT DETECTED: risk_sink_failed.flag written")
+            if not bool((flag_result.get("operator_event") or {}).get("ok")):
+                event_reason = (flag_result.get("operator_event") or {}).get("reason")
+                print(
+                    f"WARNING: operator event failed: {event_reason}",
+                    file=sys.stderr,
+                )
             raise SystemExit(1)
 
     print("All spot positions within tolerance")
