@@ -42,7 +42,7 @@ def test_matrix_covers_every_policy_family():
     acm = _mod()
     matrix = acm.build_matrix()
     assert matrix["operator_event_journal"]["format"] == "append_only_jsonl"
-    assert matrix["operator_event_journal"]["status"] == "substrate_available_unhooked"
+    assert matrix["operator_event_journal"]["status"] == "substrate_available_partial_hooks"
     assert len(matrix["families"]) == len(_policy_families()) == 11
     for row in matrix["families"]:
         assert row["classification"] in ("SHOWN", "PARTIAL", "MISSING")

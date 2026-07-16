@@ -22194,3 +22194,50 @@ Remaining risk:
 - UNVERIFIED: broader suite, GitHub CI, direct file edits, env live-risk caps,
   and non-user.yaml risk changes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T19:47:32Z - Operator Event Journal Status Honesty (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Correct stale operator-event journal substrate status in the audit coverage
+  matrix.
+
+What was found:
+- SHOWN: `scripts/audit_coverage_matrix.py` still reported
+  `operator_event_journal.status = substrate_available_unhooked`.
+- SHOWN: the same matrix now lists multiple material families with partial
+  operator-event hooks, including live enable/resume, config saves,
+  credential rotation, backup/restore, manual reconciliation, first-run setup,
+  strategy config, auth, and AI copilot report/provider calls.
+
+What changed:
+- `scripts/audit_coverage_matrix.py` now reports
+  `substrate_available_partial_hooks`.
+- Updated the matrix test and backlog note.
+
+Why this change was chosen:
+- The matrix is evidence. It should distinguish "shared journal exists but no
+  action hooks exist" from "shared journal exists and some action hooks exist,
+  but launch coverage is still partial."
+
+Expected outcome:
+- Operator-audit evidence no longer understates the current hook state while
+  preserving the not-green `PARTIAL` family classifications.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `17 passed in 0.43s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `operator_event_journal.status` now reports
+    `substrate_available_partial_hooks`; action-family counts remain
+    `SHOWN 0`, `PARTIAL 11`, `MISSING 0`.
+- `./.venv/bin/python -m py_compile scripts/audit_coverage_matrix.py tests/test_operator_audit_coverage.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: audit-reporting correction only; no runtime action behavior changed.
+- UNVERIFIED: broader suite and GitHub CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
