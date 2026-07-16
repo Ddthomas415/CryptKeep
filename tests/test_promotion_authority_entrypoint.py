@@ -72,6 +72,44 @@ def test_promote_entrypoint_allows_when_gate_ready(monkeypatch, tmp_path, capsys
     assert '"stage": "shadow"' in out
 
 
+def test_promote_entrypoint_returns_failure_when_promote_fails(monkeypatch, tmp_path, capsys):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+
+    from scripts import check_promotion_gates as gates
+    from scripts import show_control_kernel_status as status
+
+    monkeypatch.setattr(
+        gates,
+        "run_check",
+        lambda stage_override=None: {
+            "ready": True,
+            "stage": stage_override,
+            "current_stage": "paper",
+            "summary": {"fail": 0, "unknown": 0},
+            "manual_review_required": False,
+        },
+    )
+    monkeypatch.setattr(status, "stage_summary", lambda strategy_id: {"stage": "paper"})
+    monkeypatch.setattr(
+        status,
+        "promote",
+        lambda strategy_id, *, reason, actor: {
+            "ok": False,
+            "reason": "operator_event_write_failed_stage_promotion_rolled_back",
+            "stage": "paper",
+        },
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["show_control_kernel_status.py", "--promote", "es_daily_trend_v1", "--json"],
+    )
+
+    assert status.main() == 1
+    out = capsys.readouterr().out
+    assert "operator_event_write_failed_stage_promotion_rolled_back" in out
+
+
 def test_promote_entrypoint_blocks_unsupported_strategy(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
 

@@ -20,6 +20,7 @@ Utility function (scalarized):
 """
 from __future__ import annotations
 
+import copy
 import json
 import time
 from datetime import datetime, timezone
@@ -123,10 +124,32 @@ def promote(strategy_id: str, *, reason: str, actor: str = "system") -> dict[str
         return {"ok": False, "reason": "already_at_max_stage", "stage": current.value}
 
     next_stage = _PROMOTION_ORDER[idx + 1]
-    _transition(strategy_id, rec, from_stage=current, to_stage=next_stage, reason=reason, actor=actor)
+    transition = _transition(
+        strategy_id,
+        rec,
+        from_stage=current,
+        to_stage=next_stage,
+        reason=reason,
+        actor=actor,
+        require_operator_event=True,
+    )
+    if not bool(transition.get("ok")):
+        return {
+            "ok": False,
+            "reason": "operator_event_write_failed_stage_promotion_rolled_back",
+            "stage": current.value,
+            "attempted_stage": next_stage.value,
+            "operator_event": transition.get("operator_event"),
+            "rollback": transition.get("rollback"),
+        }
     _LOG.info("promote strategy=%s %s→%s reason=%s actor=%s",
               strategy_id, current.value, next_stage.value, reason, actor)
-    return {"ok": True, "stage": next_stage.value, "previous": current.value}
+    return {
+        "ok": True,
+        "stage": next_stage.value,
+        "previous": current.value,
+        "operator_event": transition.get("operator_event"),
+    }
 
 
 def demote(strategy_id: str, *, reason: str, actor: str = "system",
@@ -140,10 +163,16 @@ def demote(strategy_id: str, *, reason: str, actor: str = "system",
     if current == to:
         return {"ok": True, "stage": current.value, "reason": "already_at_target"}
 
-    _transition(strategy_id, rec, from_stage=current, to_stage=to, reason=reason, actor=actor)
+    transition = _transition(strategy_id, rec, from_stage=current, to_stage=to,
+                             reason=reason, actor=actor)
     _LOG.warning("demote strategy=%s %s→%s reason=%s actor=%s",
                  strategy_id, current.value, to.value, reason, actor)
-    return {"ok": True, "stage": to.value, "previous": current.value}
+    return {
+        "ok": True,
+        "stage": to.value,
+        "previous": current.value,
+        "operator_event": transition.get("operator_event"),
+    }
 
 
 def force_safe_degraded(strategy_id: str, *, reason: str, actor: str = "system") -> dict[str, Any]:
@@ -151,9 +180,18 @@ def force_safe_degraded(strategy_id: str, *, reason: str, actor: str = "system")
     return demote(strategy_id, reason=reason, actor=actor, target=Stage.SAFE_DEGRADED)
 
 
-def _transition(strategy_id: str, rec: dict, *, from_stage: Stage,
-                to_stage: Stage, reason: str, actor: str) -> None:
+def _transition(
+    strategy_id: str,
+    rec: dict,
+    *,
+    from_stage: Stage,
+    to_stage: Stage,
+    reason: str,
+    actor: str,
+    require_operator_event: bool = False,
+) -> dict[str, Any]:
     now = _now_iso()
+    original = copy.deepcopy(rec)
     history = list(rec.get("history") or [])
     history.append({
         "from": from_stage.value,
@@ -162,19 +200,40 @@ def _transition(strategy_id: str, rec: dict, *, from_stage: Stage,
         "actor": actor,
         "ts": now,
     })
-    rec["stage"] = to_stage.value
-    rec["since_ts"] = now
-    rec["history"] = history[-50:]   # keep last 50 transitions
-    _save_stage(strategy_id, rec)
-    _record_stage_transition_event(
+    next_rec = dict(rec)
+    next_rec["stage"] = to_stage.value
+    next_rec["since_ts"] = now
+    next_rec["history"] = history[-50:]   # keep last 50 transitions
+    _save_stage(strategy_id, next_rec)
+    operator_event = _record_stage_transition_event(
         strategy_id=strategy_id,
         actor=actor,
         from_stage=from_stage,
         to_stage=to_stage,
         reason=reason,
         timestamp=now,
-        history_len=len(rec["history"]),
+        history_len=len(next_rec["history"]),
     )
+    if require_operator_event and not bool(operator_event.get("ok")):
+        rollback = _rollback_stage_transition(strategy_id, original)
+        return {"ok": False, "operator_event": operator_event, "rollback": rollback}
+    rec.clear()
+    rec.update(next_rec)
+    return {"ok": True, "operator_event": operator_event}
+
+
+def _rollback_stage_transition(strategy_id: str, original: dict[str, Any]) -> dict[str, Any]:
+    try:
+        _save_stage(strategy_id, original)
+        return {"ok": True, "stage": str(original.get("stage", Stage.PAPER.value))}
+    except Exception as exc:
+        _LOG.error(
+            "stage promotion rollback failed strategy=%s error=%s: %s",
+            strategy_id,
+            type(exc).__name__,
+            exc,
+        )
+        return {"ok": False, "reason": f"rollback_failed:{type(exc).__name__}"}
 
 
 def _record_stage_transition_event(

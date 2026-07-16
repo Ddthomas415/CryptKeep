@@ -1501,6 +1501,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     reason, timestamp, and transition result. The coverage matrix moves
     strategy stage promotion/demotion from MISSING to PARTIAL. Remaining proof:
     promotion audit-write fail-closed policy and host-side promotion proof.
+    2026-07-16: promotion audit-write fail-closed slice is ready for
+    independent review. `deployment_stage.promote()` now treats
+    `strategy_stage_transition` audit persistence as required: if the operator
+    event write fails, the stage record is rolled back and the caller receives
+    `operator_event_write_failed_stage_promotion_rolled_back`; the
+    `show_control_kernel_status --promote` CLI returns nonzero for that
+    failure. Demotion and safe-degraded safety moves remain best-effort so
+    audit storage cannot block risk-reducing transitions. Remaining proof:
+    host-side promotion proof.
     2026-07-16: live intent transition-history hook is ready for independent
     review. `storage.live_intent_queue_sqlite` now creates append-only
     `live_trade_intent_events` rows for successful intent insert, queued-claim,

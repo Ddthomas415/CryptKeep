@@ -21675,3 +21675,61 @@ Remaining risk:
   reconciliation/fill event unification beyond the queue store, and any future
   lifecycle mutation path that bypasses `LiveIntentQueueSQLite`.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T13:37:47Z - Promotion Audit-Write Fail-Closed (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Close the open promotion audit-write fail-closed policy slice for strategy
+  stage transitions without blocking risk-reducing demotion paths.
+
+What was found:
+- SHOWN: `services.control.deployment_stage._transition` is the central writer
+  for `promote`, `demote`, and `force_safe_degraded` stage changes.
+- SHOWN: before this change, `_transition` saved the stage record and appended
+  `strategy_stage_transition` as best-effort; an audit-write failure logged a
+  warning but did not block risk-increasing `promote()`.
+- SHOWN: `scripts/show_control_kernel_status --promote` returned success after
+  calling `promote()` without checking whether the returned payload had
+  `ok: false`.
+
+What changed:
+- `promote()` now requires the `strategy_stage_transition` operator event. If
+  the write fails, the stage record is rolled back and the caller receives
+  `operator_event_write_failed_stage_promotion_rolled_back`.
+- `demote()` and `force_safe_degraded()` remain best-effort for operator-event
+  writes so audit storage cannot block safety/risk-reducing transitions.
+- `promote()`/`demote()` return additive `operator_event` metadata on successful
+  transition attempts.
+- `show_control_kernel_status --promote` now returns nonzero if `promote()`
+  reports `ok: false`.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- Promotion is risk-increasing and should not become authoritative unless its
+  operator/action record is persisted.
+- Demotion and safe-degraded transitions reduce risk and should remain
+  available even when the audit journal is down.
+
+Expected outcome:
+- A promotion cannot silently advance when the operator-event journal is
+  unwritable; the operator sees a failed promotion result and the stage remains
+  unchanged.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_deployment_stage.py tests/test_promotion_authority_entrypoint.py tests/test_control_kernel.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `75 passed in 0.71s`.
+- `./.venv/bin/python -m py_compile services/control/deployment_stage.py scripts/show_control_kernel_status.py tests/test_deployment_stage.py tests/test_promotion_authority_entrypoint.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: strategy stage row states that `promote()` fails closed and rolls
+    back when the required audit write fails; counts remain `MISSING: 0`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches central stage-transition authority for strategy promotion.
+- UNVERIFIED: GitHub CI and host-side promotion proof with real operator event
+  journal.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

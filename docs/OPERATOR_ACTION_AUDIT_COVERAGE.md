@@ -148,10 +148,12 @@ secrets, OTP URIs, or backup code values. Future user/role management surfaces
 that bypass `user_auth_store` remain unclassified.
 
 Current partial hook for strategy stage transitions:
-`services.control.deployment_stage` appends best-effort
-`strategy_stage_transition` events for central promote, demote, and
-safe-degraded transitions. Promotion audit-write fail-closed policy and
-host-side promotion proof remain open.
+`services.control.deployment_stage` appends `strategy_stage_transition` events
+for central promote, demote, and safe-degraded transitions. Risk-increasing
+`promote()` requires the audit write and rolls back the stage record if the
+write fails. Demotion and safe-degraded safety transitions remain best-effort
+so audit storage cannot block risk-reducing moves. Host-side promotion proof
+remains open.
 
 ## Evidence Requirements
 

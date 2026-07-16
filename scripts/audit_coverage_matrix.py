@@ -131,7 +131,12 @@ FAMILIES = [
         "surfaces": ["CLI", "automation"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "deployment_stage central transitions append best-effort strategy_stage_transition operator events for promote/demote/safe-degraded moves; promotion audit-write fail-closed policy and host-side promotion proof remain open.",
+        "notes": (
+            "deployment_stage central transitions append strategy_stage_transition "
+            "operator events; risk-increasing promote() fails closed and rolls "
+            "back when the required audit write fails, while demote/safe-degraded "
+            "safety moves remain best-effort. Host-side promotion proof remains open."
+        ),
     },
     {
         "family": "strategy or campaign manifest change",

@@ -119,7 +119,7 @@ def main() -> int:
         result = promote(args.promote, reason=args.reason, actor="operator_script")
         print(json.dumps(result, indent=2) if args.json else
               f"Promoted {args.promote}: {result}")
-        return 0
+        return 0 if bool(result.get("ok")) else 1
 
     if args.demote:
         result = force_safe_degraded(args.demote, reason=args.reason, actor="operator_script")
