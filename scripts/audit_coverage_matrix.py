@@ -143,14 +143,27 @@ FAMILIES = [
         "surfaces": ["dashboard", "CLI"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "dashboard Operations strategy parameter and preset saves append required strategy_config_change operator events and roll back on audit-write failure; central runtime user.yaml saves append best-effort metadata-only runtime_config_save events. Direct manifest file edits and campaign manifest changes remain unclassified.",
+        "notes": (
+            "dashboard Operations strategy parameter and preset saves append required "
+            "strategy_config_change operator events and roll back on audit-write "
+            "failure; central runtime user.yaml saves append required metadata-only "
+            "runtime_config_save events and roll back the config file on audit-write "
+            "failure. Direct manifest file edits and campaign manifest changes "
+            "remain unclassified."
+        ),
     },
     {
         "family": "risk-limit change",
         "surfaces": ["CLI", "dashboard"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "dashboard Settings paper-trading risk-limit changes append fail-closed risk_limit_change operator events; central runtime user.yaml saves append best-effort metadata-only runtime_config_save events. Direct file edits, env live-risk caps, and non-user.yaml risk changes remain unclassified.",
+        "notes": (
+            "dashboard Settings paper-trading risk-limit changes append fail-closed "
+            "risk_limit_change operator events; central runtime user.yaml saves "
+            "append required metadata-only runtime_config_save events and roll back "
+            "the config file on audit-write failure. Direct file edits, env "
+            "live-risk caps, and non-user.yaml risk changes remain unclassified."
+        ),
     },
     {
         "family": "API credential rotation",
@@ -191,7 +204,13 @@ FAMILIES = [
         "surfaces": ["dashboard", "CLI", "config"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "dashboard Settings notification changes append fail-closed alert_routing_change operator events; central runtime user.yaml saves append best-effort metadata-only runtime_config_save events. Direct file edits and dispatcher/env channel changes remain unclassified.",
+        "notes": (
+            "dashboard Settings notification changes append fail-closed "
+            "alert_routing_change operator events; central runtime user.yaml saves "
+            "append required metadata-only runtime_config_save events and roll back "
+            "the config file on audit-write failure. Direct file edits and "
+            "dispatcher/env channel changes remain unclassified."
+        ),
     },
     {
         "family": "dashboard login/logout/MFA/role change",

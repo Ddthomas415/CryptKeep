@@ -21733,3 +21733,58 @@ Remaining risk:
 - UNVERIFIED: GitHub CI and host-side promotion proof with real operator event
   journal.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T13:51:56Z - Runtime Config Save Audit-Write Fail-Closed (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Close the central runtime `user.yaml` config-save audit-write fail-closed
+  policy slice for code paths that use `services.admin.config_editor.save_user_yaml()`.
+
+What was found:
+- SHOWN: `save_user_yaml()` writes `user.yaml` through a central helper used by
+  dashboard, first-run, live-enable, live-disable, and strategy config paths.
+- SHOWN: before this change, `save_user_yaml()` appended a metadata-only
+  `runtime_config_save` operator event after writing the file, but ignored an
+  audit-write failure and still returned `(True, "Saved")`.
+- SHOWN: direct file edits, environment overrides, and campaign manifest files
+  do not pass through this helper and remain outside this code slice.
+
+What changed:
+- `save_user_yaml()` now treats the `runtime_config_save` operator event as
+  required for non-dry-run writes.
+- If the audit write fails, the helper restores the previous config file bytes
+  or removes the newly created config for first-write attempts, then returns
+  `(False, "operator_event_write_failed_runtime_config_rolled_back")`.
+- Dry-run behavior remains unchanged and emits no operator event.
+- Updated tests, the operator-action audit matrix, policy doc, backlog, and
+  this work log.
+
+Why this change was chosen:
+- Runtime config writes are operator-governance mutations. A config file should
+  not become authoritative without a corresponding operator/action record.
+- Centralizing rollback in `save_user_yaml()` covers existing callers without
+  requiring every UI/CLI surface to implement its own rollback policy.
+
+Expected outcome:
+- Code paths that use `save_user_yaml()` cannot silently mutate `user.yaml` when
+  the operator-event journal is unwritable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_config_editor_audit.py tests/test_config_editor_compat.py tests/test_dashboard_view_data.py tests/test_dashboard_page_runtime.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py tests/test_execution_live_enable.py tests/test_live_admin_controls.py tests/test_strategy_config_audit.py`
+  - SHOWN: `137 passed in 1.32s`.
+- `./.venv/bin/python -m py_compile services/admin/config_editor.py tests/test_config_editor_audit.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: strategy, risk-limit, and alert-routing rows now state that central
+    runtime `user.yaml` saves are required audit writes with file rollback on
+    audit-write failure; counts remain `MISSING: 0`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches central config persistence used by live/admin/operator paths.
+- UNVERIFIED: GitHub CI, host-side config-save proof with the real operator
+  event journal, and non-helper config mutation surfaces.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
