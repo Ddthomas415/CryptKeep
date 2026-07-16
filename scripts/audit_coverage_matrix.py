@@ -113,10 +113,10 @@ FAMILIES = [
     },
     {
         "family": "strategy or campaign manifest change",
-        "surfaces": ["CLI"],
-        "classification": "MISSING",
+        "surfaces": ["dashboard", "CLI"],
+        "classification": "PARTIAL",
         "probe": None,
-        "notes": "operator event journal substrate exists, but this action family is not yet hooked; manifest edits are git-visible for repo files but runtime config changes have no event trail.",
+        "notes": "dashboard Operations strategy parameter and preset saves append required strategy_config_change operator events and roll back on audit-write failure. Direct manifest file edits, CLI/runtime config edits, and campaign manifest changes remain unclassified.",
     },
     {
         "family": "risk-limit change",

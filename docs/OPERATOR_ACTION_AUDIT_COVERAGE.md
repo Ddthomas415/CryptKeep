@@ -101,6 +101,13 @@ do not log system prompts, user prompts, incident context, or report content.
 Local-only report writes, provider-governance policy, and any future provider
 path that bypasses `call_llm` remain unclassified.
 
+Current partial hook for strategy config changes: dashboard Operations strategy
+parameter saves and preset applies append required `strategy_config_change`
+events after the local `user.yaml` save. If the event write fails, the page
+attempts to roll back to the prior config and reports the failure. Direct
+manifest file edits, CLI/runtime config edits, and campaign manifest changes
+remain unclassified.
+
 Current partial hook for strategy stage transitions:
 `services.control.deployment_stage` appends best-effort
 `strategy_stage_transition` events for central promote, demote, and

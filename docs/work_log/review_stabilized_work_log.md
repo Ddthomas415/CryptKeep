@@ -21286,3 +21286,59 @@ Remaining risk:
   local-only report writes, provider-governance policy, and any future
   provider path that bypasses `call_llm`.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T03:58:32Z - Dashboard Strategy Config Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for strategy or campaign manifest
+  changes by hooking the dashboard Operations strategy-config save paths to the
+  unified operator-event journal.
+
+What was found:
+- SHOWN: dashboard Operations has two runtime strategy-config mutation paths:
+  `Save Strategy Params` and `Apply Preset (Save)`.
+- SHOWN: both paths wrote `user.yaml` through `save_user_yaml` without a
+  unified operator-event record.
+- SHOWN: the operator-audit coverage matrix classified `strategy or campaign
+  manifest change` as MISSING before this change.
+
+What changed:
+- Added `services.admin.strategy_config_audit` to record required
+  `strategy_config_change` operator events with pre/post strategy blocks.
+- Wired the two Operations-page strategy save paths to record the event after
+  the local config save.
+- If the event write fails, the page attempts to roll back to the prior config
+  and reports the audit failure instead of showing a successful save.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- The Operations page is the visible runtime strategy-config editor; hooking it
+  narrows the MISSING family without turning every `save_user_yaml` caller into
+  a broad global audit hook.
+- Required event writes plus rollback match the existing dashboard settings
+  pattern for material risk/config changes.
+
+Expected outcome:
+- Strategy parameter and preset saves from dashboard Operations produce
+  replayable operator-event records when the journal is writable, and audit
+  write failures do not report a successful config change.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_config_audit.py tests/test_operations_page_role_passthrough.py tests/test_dashboard_page_runtime.py tests/test_dashboard_pages_compile.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `39 passed in 0.99s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `strategy or campaign manifest change` now reports `PARTIAL`;
+    counts are `SHOWN=0`, `PARTIAL=9`, `MISSING=2`.
+- `./.venv/bin/python -m py_compile services/admin/strategy_config_audit.py dashboard/pages/60_Operations.py tests/test_strategy_config_audit.py tests/test_operations_page_role_passthrough.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM/HIGH: touches dashboard strategy-config mutation workflow and rollback
+  behavior after local config writes.
+- UNVERIFIED: GitHub CI, host-side dashboard exercise, direct manifest file
+  edits, CLI/runtime config edits, and campaign manifest changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
