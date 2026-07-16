@@ -86,6 +86,14 @@ risk-limit save is rolled back and API sync is skipped. Direct CLI/runtime
 config edits, environment live-risk caps, and non-dashboard risk changes remain
 unclassified.
 
+Current partial hook for runtime `user.yaml` saves:
+`services.admin.config_editor.save_user_yaml()` appends best-effort
+metadata-only `runtime_config_save` events after successful non-dry-run writes.
+Events record file existence, parse status, top-level section names/count, and
+result only; config payloads and values are not logged. Direct file edits,
+environment overrides, campaign manifest files, and fail-closed audit-write
+policy remain unclassified.
+
 Current partial hook for backup/restore: `scripts/backup_state.py` appends
 best-effort unified operator events for backup, verify, blocked restore, and
 successful restore command results. Restore audit-write fail-closed policy
