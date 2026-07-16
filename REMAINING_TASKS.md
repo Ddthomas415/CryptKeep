@@ -1406,6 +1406,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     step outcomes. This narrows the manual-reconciliation family but does not
     classify deeper one-off reconcile scripts or any future mutating override
     path.
+    2026-07-16: direct position-drift flag audit hook is ready for independent
+    review. `scripts/reconcile_positions.py` now appends a best-effort
+    `manual_reconcile` / `position_drift_flag` operator event after writing
+    `risk_sink_failed.flag`. Because the flag is safety-increasing, operator
+    event failure is surfaced to stderr but does not block the flag write.
+    This narrows the direct drift-reconcile script gap; deeper one-off
+    reconcile scripts and future mutating override paths remain unclassified.
     2026-07-15: dashboard alert-settings audit hook is ready for independent
     review. `dashboard.services.views.settings_view.update_settings_view` now
     treats `dashboard_ui.settings.notifications` changes as material alert

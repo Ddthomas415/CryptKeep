@@ -204,7 +204,14 @@ FAMILIES = [
         "surfaces": ["CLI"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "admin safe reconciliation helper appends best-effort manual_reconcile operator events with step outcomes; deeper one-off reconcile scripts and any future mutating override path remain unclassified.",
+        "notes": (
+            "admin safe reconciliation helper appends best-effort manual_reconcile "
+            "operator events with step outcomes; scripts/reconcile_positions.py "
+            "now appends a best-effort manual_reconcile/position_drift_flag event "
+            "after writing the safety flag and surfaces audit-write failure without "
+            "blocking the flag. Deeper one-off reconcile scripts and any future "
+            "mutating override path remain unclassified."
+        ),
     },
     {
         "family": "backup, restore, migration, rollback",

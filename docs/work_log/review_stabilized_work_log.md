@@ -22026,3 +22026,63 @@ Remaining risk:
 - LOW: audit-reporting correction only; no runtime queue behavior changed.
 - UNVERIFIED: broader regression suite and GitHub CI.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T18:56:36Z - Position-Drift Flag Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow the manual-reconciliation audit gap for the direct
+  `scripts/reconcile_positions.py` drift-flag path.
+
+What was found:
+- SHOWN: `scripts/reconcile_positions.py` writes `risk_sink_failed.flag` when
+  read-only position reconciliation reports drift or invalid numeric exchange
+  data.
+- SHOWN: before this change, that safety-increasing mutation produced no
+  unified operator-event record.
+- SHOWN: this is not the same surface as
+  `services.admin.reconcile_safe_steps.run_all_safe_steps`; the safe helper
+  was already audited separately, while the direct drift-flag script remained
+  unclassified in the manual-reconciliation family.
+
+What changed:
+- `scripts/reconcile_positions.py` now appends a best-effort
+  `manual_reconcile` / `position_drift_flag` operator event after writing
+  `risk_sink_failed.flag`.
+- Operator-event append failures are surfaced to stderr as
+  `WARNING: operator event failed: ...` but do not block the safety flag.
+- `tests/test_reconcile_positions.py` now pins both success and audit-failure
+  behavior.
+- Updated the audit coverage matrix, operator-audit policy doc, backlog, and
+  this work log.
+
+Why this change was chosen:
+- The drift flag is safety-increasing. Blocking it because the audit journal is
+  unavailable would weaken fail-closed behavior.
+- Best-effort event recording still gives the operator a unified trail when the
+  journal is healthy and an explicit warning when it is not.
+
+Expected outcome:
+- Direct position-drift halt artifacts are no longer silent with respect to the
+  unified operator-event journal.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_reconcile_positions.py tests/test_reconcile_safe_steps.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `22 passed in 0.52s`.
+- `./.venv/bin/python -m py_compile scripts/reconcile_positions.py scripts/audit_coverage_matrix.py tests/test_reconcile_positions.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: manual reconciliation row now names
+    `scripts/reconcile_positions.py` as best-effort audited for
+    `manual_reconcile` / `position_drift_flag`, while deeper scripts remain
+    unclassified.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: touches a live-position reconciliation safety script but preserves
+  the existing flag-writing behavior.
+- UNVERIFIED: broader regression suite, GitHub CI, deeper one-off reconcile
+  scripts, and future mutating override paths.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
