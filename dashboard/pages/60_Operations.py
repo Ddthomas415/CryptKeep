@@ -60,6 +60,7 @@ from dashboard.state.session import get_operator_result, set_operator_result
 from services.admin.repair_wizard import CONFIRM_TEXT as REPAIR_CONFIRM_TEXT
 from services.admin.repair_wizard import execute_reset, preflight_self_check, preview_reset
 from services.admin.config_editor import load_user_yaml, save_user_yaml
+from services.admin.strategy_config_audit import record_strategy_config_change
 from services.execution.idempotency_inspector import filter_rows as filter_idem_rows
 from services.execution.idempotency_inspector import list_recent as list_idem_recent
 from services.strategies.config_tools import (
@@ -658,7 +659,22 @@ with tab_strategy:
             else:
                 ok, msg = save_user_yaml(preview_cfg)
                 if ok:
-                    st.success(f"Saved strategy settings: {msg}")
+                    operator_event = record_strategy_config_change(
+                        pre_cfg=cfg_user,
+                        post_cfg=preview_cfg,
+                        change_source="operations_strategy_params",
+                        source="dashboard.pages.60_Operations",
+                    )
+                    if not bool(operator_event.get("ok")):
+                        rollback_ok, rollback_msg = save_user_yaml(cfg_user)
+                        st.error(
+                            "Strategy settings save rolled back because operator-event "
+                            f"audit failed: {operator_event.get('reason')}; "
+                            f"rollback_ok={bool(rollback_ok)} "
+                            f"rollback_msg={rollback_msg}"
+                        )
+                    else:
+                        st.success(f"Saved strategy settings: {msg}")
                 else:
                     st.error(f"Save failed: {msg}")
 
@@ -679,7 +695,22 @@ with tab_strategy:
                     else:
                         ok, msg = save_user_yaml(next_cfg)
                         if ok:
-                            st.success(f"Applied preset and saved: {preset_name}")
+                            operator_event = record_strategy_config_change(
+                                pre_cfg=cfg_user,
+                                post_cfg=next_cfg,
+                                change_source=f"operations_strategy_preset:{preset_name}",
+                                source="dashboard.pages.60_Operations",
+                            )
+                            if not bool(operator_event.get("ok")):
+                                rollback_ok, rollback_msg = save_user_yaml(cfg_user)
+                                st.error(
+                                    "Preset save rolled back because operator-event "
+                                    f"audit failed: {operator_event.get('reason')}; "
+                                    f"rollback_ok={bool(rollback_ok)} "
+                                    f"rollback_msg={rollback_msg}"
+                                )
+                            else:
+                                st.success(f"Applied preset and saved: {preset_name}")
                         else:
                             st.error(f"Save failed: {msg}")
                 except Exception as exc:

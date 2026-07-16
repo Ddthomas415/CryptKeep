@@ -1442,6 +1442,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     copilot external-provider family from MISSING to PARTIAL. Remaining
     coverage: local-only report writes, provider-governance policy, and any
     future provider path that bypasses `call_llm`.
+    2026-07-16: dashboard strategy-config audit hook is ready for independent
+    review. Operations-page strategy parameter saves and preset applies now
+    append required `strategy_config_change` operator events after the local
+    `user.yaml` save; if the audit write fails, the page attempts to roll back
+    to the prior config and reports the failure. The coverage matrix moves the
+    strategy/campaign manifest family from MISSING to PARTIAL. Remaining
+    coverage: direct manifest file edits, CLI/runtime config edits, and
+    campaign manifest changes.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,
