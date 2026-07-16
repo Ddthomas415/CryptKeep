@@ -90,10 +90,10 @@ config save and before API sync. If that audit write fails, the local
 risk-limit save is rolled back and API sync is skipped. Direct CLI/runtime
 config edits, environment live-risk caps, and non-dashboard risk changes remain
 unclassified.
-First-run guided setup risk-preset saves use the central audited `user.yaml`
-save path; if that save fails or rolls back, the first-run flow now returns
-`config_save_failed` before review/preflight and the app bridge preserves that
-failure instead of refreshing over it.
+First-run guided setup patch and risk-preset saves use the central audited
+`user.yaml` save path; if that save fails or rolls back, the first-run flow now
+returns `config_save_failed` before review/preflight and the app bridge
+preserves that failure instead of refreshing over it.
 
 Current partial hook for runtime `user.yaml` saves:
 `services.admin.config_editor.save_user_yaml()` appends required metadata-only

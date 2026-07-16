@@ -22143,3 +22143,54 @@ Remaining risk:
 - UNVERIFIED: broader regression suite, GitHub CI, direct file edits, env
   live-risk caps, and non-user.yaml risk changes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T19:33:36Z - First-Run Patch Save Failure Bridge Follow-Up (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Close the same-class failure path left in the patch-based first-run guided
+  setup bridge.
+
+What was found:
+- SHOWN: the prior slice made `guided_setup_apply()` return
+  `config_save_failed` when the audited `save_user_yaml()` call failed.
+- SHOWN: `guided_setup_apply_state()` still discarded that result and returned
+  refreshed guided setup state, re-hiding failed patch saves.
+- SHOWN: the app-level `wizard_guided_setup_apply_state()` delegates to
+  `guided_setup_apply_state()`, so preserving failure at the admin layer closes
+  the bridge path.
+
+What changed:
+- `services.admin.first_run_wizard.guided_setup_apply_state()` now preserves a
+  failed patch apply result instead of refreshing over it.
+- Added direct and rendered UI regression tests for patch-save failure.
+- Updated the audit coverage matrix, operator-audit policy doc, backlog, and
+  this work log to describe first-run patch and risk-preset saves together.
+
+Why this change was chosen:
+- Patch-based guided setup and risk-preset guided setup share the same audited
+  runtime-config save authority. Both paths must honor a failed save/rollback.
+
+Expected outcome:
+- First-run patch saves cannot silently appear successful when the audited
+  runtime-config save was refused and rolled back.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_first_run_wizard.py tests/test_preflight_wizard_bridges.py tests/test_config_editor_audit.py tests/test_config_editor_compat.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `68 passed in 0.68s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: risk-limit row now states first-run patch and risk-preset saves
+    return `config_save_failed` before review/preflight if the audited save
+    fails.
+- `./.venv/bin/python -m py_compile services/admin/first_run_wizard.py services/app/preflight_wizard.py scripts/audit_coverage_matrix.py tests/test_first_run_wizard.py tests/test_preflight_wizard_bridges.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: first-run patch-state bridge behavior changes from refresh-after-fail
+  to explicit failure propagation.
+- UNVERIFIED: broader suite, GitHub CI, direct file edits, env live-risk caps,
+  and non-user.yaml risk changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

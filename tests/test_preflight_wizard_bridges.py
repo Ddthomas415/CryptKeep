@@ -242,6 +242,27 @@ def test_render_guided_setup_panel_apply_patch_action(monkeypatch):
     assert ui["status"]["config_ok"] is False
 
 
+def test_render_guided_setup_panel_exposes_apply_patch_failure(monkeypatch):
+    ui = {"action": "apply_patch", "patch": {"symbols": ["ETH/USD"]}}
+
+    monkeypatch.setattr(
+        pw,
+        "wizard_guided_setup_apply_state",
+        lambda patch=None: {
+            "ok": False,
+            "reason": "config_save_failed",
+            "apply": {"patch": patch},
+        },
+    )
+
+    out = pw.render_guided_setup_panel(ui)
+
+    assert out["ok"] is False
+    assert out["reason"] == "config_save_failed"
+    assert ui["error"] == "config_save_failed"
+    assert ui["last_action"] == "apply_patch"
+
+
 def test_render_guided_setup_panel_refresh_action(monkeypatch):
     ui = {"action": "refresh"}
 

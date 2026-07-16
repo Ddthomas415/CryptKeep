@@ -528,6 +528,35 @@ def test_guided_setup_state_preserves_failing_preflight_and_status(monkeypatch):
     assert out["status"]["kill_switch_armed"] is True
 
 
+def test_guided_setup_apply_state_preserves_apply_failure(monkeypatch):
+    monkeypatch.setattr(
+        frw,
+        "guided_setup_apply",
+        lambda patch=None: {
+            "ok": False,
+            "reason": "config_save_failed",
+            "save": {"ok": False, "message": "operator_event_write_failed"},
+        },
+    )
+
+    def _state_should_not_run():
+        raise AssertionError("guided_setup_state should not run after failed patch save")
+
+    monkeypatch.setattr(frw, "guided_setup_state", _state_should_not_run)
+
+    out = frw.guided_setup_apply_state({"symbols": ["ETH/USD"]})
+
+    assert out == {
+        "ok": False,
+        "reason": "config_save_failed",
+        "apply": {
+            "ok": False,
+            "reason": "config_save_failed",
+            "save": {"ok": False, "message": "operator_event_write_failed"},
+        },
+    }
+
+
 def test_guided_setup_apply_state_returns_full_state_after_apply(monkeypatch):
     monkeypatch.setattr(frw, "guided_setup_apply", lambda patch=None: {"ok": True})
     monkeypatch.setattr(

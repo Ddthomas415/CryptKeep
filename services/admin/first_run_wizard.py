@@ -204,5 +204,7 @@ def guided_setup_state() -> dict:
     }
 
 def guided_setup_apply_state(patch: dict | None = None) -> dict:
-    guided_setup_apply(patch)
+    apply_result = guided_setup_apply(patch)
+    if isinstance(apply_result, dict) and apply_result.get("ok") is False:
+        return {"ok": False, "reason": apply_result.get("reason"), "apply": apply_result}
     return guided_setup_state()
