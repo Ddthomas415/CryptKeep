@@ -155,10 +155,10 @@ FAMILIES = [
     },
     {
         "family": "alert suppression or routing change",
-        "surfaces": ["CLI", "config"],
-        "classification": "MISSING",
+        "surfaces": ["dashboard", "CLI", "config"],
+        "classification": "PARTIAL",
         "probe": None,
-        "notes": "operator event journal substrate exists, but this action family is not yet hooked; alert config lives in runtime config.",
+        "notes": "dashboard Settings notification changes append fail-closed alert_routing_change operator events; CLI/runtime config edits and dispatcher/env channel changes remain unclassified.",
     },
     {
         "family": "dashboard login/logout/MFA/role change",

@@ -73,6 +73,12 @@ pre-state, post-state, result, and reason fields where applicable:
 - dashboard login, logout, MFA change, and role change;
 - AI copilot report generation when external providers are enabled.
 
+Current partial hook for alert routing: dashboard Settings notification changes
+write a required `alert_routing_change` event after local config save and
+before API sync. If that audit write fails, the local notification-settings
+save is rolled back and the API sync is skipped. CLI/runtime config edits and
+dispatcher or environment channel changes remain unclassified.
+
 ## Evidence Requirements
 
 The launch packet must include:

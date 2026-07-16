@@ -1406,6 +1406,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     step outcomes. This narrows the manual-reconciliation family but does not
     classify deeper one-off reconcile scripts or any future mutating override
     path.
+    2026-07-15: dashboard alert-settings audit hook is ready for independent
+    review. `dashboard.services.views.settings_view.update_settings_view` now
+    treats `dashboard_ui.settings.notifications` changes as material alert
+    routing changes: after the local config save and before API sync it appends
+    a required `alert_routing_change` operator event, and if that audit write
+    fails it rolls the local config save back and skips API sync with
+    `operator_event_write_failed_alert_routing_rolled_back`. The coverage
+    matrix moves this family from MISSING to PARTIAL; CLI/runtime config edits
+    and dispatcher/env channel changes remain unclassified.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but
