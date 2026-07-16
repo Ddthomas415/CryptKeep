@@ -1487,17 +1487,19 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     Missing allow-list preserves the current supported-provider set
     (`anthropic`, `openai`, `google`); `none` blocks all external-provider calls;
     unknown or malformed allow-list entries fail closed with an audited provider
-    failure. Remaining coverage: local-only report writes, host-side no-secret
-    scan over real provider events, and any future provider path that bypasses
-    `call_llm`.
+    failure. 2026-07-16 follow-up invariant is ready for independent review:
+    `tests/test_ai_copilot_provider_boundary.py` rejects future
+    `services/ai_copilot` Python modules that import external provider SDKs,
+    read provider API-key environment variables, or call provider APIs outside
+    `call_llm`. Remaining coverage: local-only report writes and host-side
+    no-secret scan over real provider events.
     2026-07-16: AI copilot local report-write audit hook is ready for
     independent review. Central `services.ai_copilot` report writers now append
     best-effort metadata-only `ai_copilot_report_write` operator events after
     persisted report artifacts are written, recording report type,
     status/severity, and artifact names/count without logging report payloads,
     stdout/stderr, prompts, recommendations, summaries, or artifact contents.
-    Remaining coverage: host-side no-secret scan over real report events and any
-    future provider path that bypasses `call_llm` or the central report writers.
+    Remaining coverage: host-side no-secret scan over real report events.
     2026-07-16: dashboard strategy-config audit hook is ready for independent
     review. Operations-page strategy parameter saves and preset applies now
     append required `strategy_config_change` operator events after the local
