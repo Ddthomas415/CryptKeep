@@ -21566,3 +21566,53 @@ Remaining risk:
   direct file edits, environment overrides, campaign manifest files, and
   fail-closed audit-write policy.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T11:09:11Z - Auth Store Mutation Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for dashboard user/role/MFA changes by
+  hooking the central auth store mutation surface to the unified
+  operator-event journal.
+
+What was found:
+- SHOWN: `dashboard.auth_gate` already emits metadata-only login, logout, MFA
+  change, and MFA challenge events.
+- SHOWN: `services.security.user_auth_store` is the central keyring-backed
+  mutation surface for user upsert/bootstrap, role/enabled state, MFA
+  enrollment/confirmation/disablement, backup-code consumption, and legacy
+  login-hash upgrades.
+- SHOWN: that store can hold password hashes, TOTP secrets, OTP URIs, backup
+  code hashes, and challenge codes, so events must remain shape-only.
+
+What changed:
+- Added best-effort `dashboard_user_auth_store_change` operator-event appends
+  after successful central auth-store mutations.
+- Events record target username and state shape only: role, enabled flag, MFA
+  booleans, enrollment-pending flag, and backup-code count.
+- Event payloads explicitly avoid passwords, hashes, MFA codes, TOTP secrets,
+  OTP URIs, backup code values, and stored backup-code hashes.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- Hooking the central store covers user/role/MFA mutations without changing
+  dashboard session behavior or adding duplicate UI-specific logic.
+- Best-effort event writes match the existing auth/session convention and
+  avoid locking operators out if the event journal is unavailable; fail-closed
+  audit-write policy remains an explicit open decision.
+
+Expected outcome:
+- Central auth-store mutations produce replayable metadata-only operator-event
+  records when the journal is writable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_user_auth_store.py tests/test_user_auth_store_login_enumeration.py tests/test_auth_gate.py`
+  - SHOWN: `27 passed in 1.44s`.
+
+Remaining risk:
+- HIGH: touches auth-store mutation paths.
+- UNVERIFIED: GitHub CI, host-side no-secret scan over real auth-store events,
+  future user/role management surfaces that bypass `user_auth_store`, and
+  fail-closed audit-write policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

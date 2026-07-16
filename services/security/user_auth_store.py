@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 import secrets
 import time
@@ -11,6 +12,8 @@ from urllib.parse import quote
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
+
+from services.audit.operator_event_journal import append_operator_event
 
 
 SERVICE_NAME = "crypto-bot-pro-auth"
@@ -33,6 +36,7 @@ _MFA_RECORD_KEYS = {
     "mfa_enrollment_started_ts",
     "mfa_enabled_ts",
 }
+_LOG = logging.getLogger(__name__)
 
 
 def _now_iso() -> str:
@@ -102,6 +106,77 @@ def _save_user_record(username: str, record: dict[str, Any]) -> None:
     payload["enabled"] = bool(payload.get("enabled", True))
     payload["updated_ts"] = str(payload.get("updated_ts") or _now_iso())
     _keyring_set(_account_name(name), json.dumps(payload, sort_keys=True))
+
+
+def _user_auth_state(row: dict[str, Any] | None) -> dict[str, Any]:
+    if not row:
+        return {
+            "present": False,
+            "role": None,
+            "enabled": False,
+            "mfa_enabled": False,
+            "mfa_configured": False,
+            "mfa_enrollment_pending": False,
+            "backup_code_count": 0,
+        }
+    backup_hashes = [
+        str(item)
+        for item in list(row.get("mfa_backup_code_hashes") or [])
+        if str(item).strip()
+    ]
+    configured = bool(str(row.get("mfa_secret_b32") or "").strip())
+    enabled = bool(row.get("mfa_enabled", False) and configured)
+    return {
+        "present": True,
+        "role": _norm_role(row.get("role")),
+        "enabled": bool(row.get("enabled", True)),
+        "mfa_enabled": enabled,
+        "mfa_configured": configured,
+        "mfa_enrollment_pending": configured and not enabled,
+        "backup_code_count": int(len(backup_hashes)),
+    }
+
+
+def _record_user_auth_store_change(
+    *,
+    username: str,
+    reason: str,
+    pre_state: dict[str, Any] | None,
+    post_state: dict[str, Any] | None,
+    actor: str = "operator",
+) -> dict[str, Any]:
+    """Append a metadata-only event for auth-store mutations.
+
+    The store can hold password hashes, TOTP secrets, OTP URIs, and backup code
+    hashes. Events intentionally record only shape/state metadata.
+    """
+    name = _norm_username(username)
+    try:
+        event = append_operator_event(
+            actor=str(actor or "operator"),
+            action="dashboard_user_auth_store_change",
+            target=f"dashboard_user:{name or 'unknown'}",
+            result="success",
+            reason=str(reason or "auth_store_change"),
+            pre_state=_user_auth_state(pre_state),
+            post_state=_user_auth_state(post_state),
+            source="services.security.user_auth_store",
+            extra={
+                "surface": "dashboard_auth_store",
+                "payload_values_logged": False,
+                "totp_material_logged": False,
+                "mfa_code_values_logged": False,
+                "backup_code_values_logged": False,
+            },
+        )
+        return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
+    except Exception as exc:
+        _LOG.warning(
+            "dashboard_user_auth_store_change operator event journal failed: %s: %s",
+            type(exc).__name__,
+            exc,
+        )
+        return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
 
 
 def _totp_secret_bytes(secret_b32: str) -> bytes:
@@ -260,7 +335,15 @@ def list_users() -> list[dict[str, Any]]:
     return out
 
 
-def upsert_user(*, username: str, password: str, role: str = "VIEWER", enabled: bool = True) -> dict[str, Any]:
+def upsert_user(
+    *,
+    username: str,
+    password: str,
+    role: str = "VIEWER",
+    enabled: bool = True,
+    _audit_actor: str = "operator",
+    _audit_reason: str = "upsert_user",
+) -> dict[str, Any]:
     name = _norm_username(username)
     if not name:
         return {"ok": False, "reason": "username_required"}
@@ -268,7 +351,8 @@ def upsert_user(*, username: str, password: str, role: str = "VIEWER", enabled: 
     if not pwd:
         return {"ok": False, "reason": "password_required"}
 
-    existing = get_user(name) or {}
+    existing_row = get_user(name)
+    existing = existing_row or {}
     record = {
         "username": name,
         "role": _norm_role(role),
@@ -284,6 +368,13 @@ def upsert_user(*, username: str, password: str, role: str = "VIEWER", enabled: 
     names = _load_users_index()
     names.append(name)
     _save_users_index(names)
+    _record_user_auth_store_change(
+        username=name,
+        reason=_audit_reason,
+        pre_state=existing_row,
+        post_state=record,
+        actor=_audit_actor,
+    )
     return {"ok": True, "username": name, "role": record["role"], "enabled": bool(record["enabled"])}
 
 
@@ -308,6 +399,7 @@ def begin_mfa_enrollment(*, username: str, issuer: str = MFA_ISSUER) -> dict[str
     row = get_user(username)
     if not row:
         return {"ok": False, "reason": "invalid_credentials"}
+    pre_state = dict(row)
     secret_b32 = _generate_totp_secret()
     backup_codes = _generate_backup_codes()
     row["mfa_enabled"] = False
@@ -318,6 +410,13 @@ def begin_mfa_enrollment(*, username: str, issuer: str = MFA_ISSUER) -> dict[str
     row.pop("mfa_enabled_ts", None)
     row["updated_ts"] = _now_iso()
     _save_user_record(str(row.get("username") or ""), row)
+    _record_user_auth_store_change(
+        username=str(row.get("username") or ""),
+        reason="begin_mfa_enrollment",
+        pre_state=pre_state,
+        post_state=row,
+        actor="operator",
+    )
     return {
         "ok": True,
         "username": str(row.get("username") or ""),
@@ -332,6 +431,7 @@ def confirm_mfa_enrollment(*, username: str, code: str) -> dict[str, Any]:
     row = get_user(username)
     if not row:
         return {"ok": False, "reason": "invalid_credentials"}
+    pre_state = dict(row)
     secret_b32 = str(row.get("mfa_secret_b32") or "").strip()
     if not secret_b32:
         return {"ok": False, "reason": "mfa_not_configured"}
@@ -341,6 +441,13 @@ def confirm_mfa_enrollment(*, username: str, code: str) -> dict[str, Any]:
     row["mfa_enabled_ts"] = _now_iso()
     row["updated_ts"] = _now_iso()
     _save_user_record(str(row.get("username") or ""), row)
+    _record_user_auth_store_change(
+        username=str(row.get("username") or ""),
+        reason="confirm_mfa_enrollment",
+        pre_state=pre_state,
+        post_state=row,
+        actor="operator",
+    )
     return {
         "ok": True,
         "username": str(row.get("username") or ""),
@@ -352,10 +459,18 @@ def disable_mfa_for_user(*, username: str) -> dict[str, Any]:
     row = get_user(username)
     if not row:
         return {"ok": False, "reason": "invalid_credentials"}
+    pre_state = dict(row)
     for key in _MFA_RECORD_KEYS:
         row.pop(key, None)
     row["updated_ts"] = _now_iso()
     _save_user_record(str(row.get("username") or ""), row)
+    _record_user_auth_store_change(
+        username=str(row.get("username") or ""),
+        reason="disable_mfa_for_user",
+        pre_state=pre_state,
+        post_state=row,
+        actor="operator",
+    )
     return {"ok": True, "username": str(row.get("username") or ""), "mfa_enabled": False}
 
 
@@ -372,10 +487,18 @@ def verify_mfa_code(*, username: str, code: str) -> dict[str, Any]:
     backup_hash = _backup_code_hash(code)
     hashes = [str(item) for item in list(row.get("mfa_backup_code_hashes") or []) if str(item).strip()]
     if backup_hash in hashes:
+        pre_state = dict(row)
         remaining = [item for item in hashes if item != backup_hash]
         row["mfa_backup_code_hashes"] = remaining
         row["updated_ts"] = _now_iso()
         _save_user_record(str(row.get("username") or ""), row)
+        _record_user_auth_store_change(
+            username=str(row.get("username") or ""),
+            reason="consume_mfa_backup_code",
+            pre_state=pre_state,
+            post_state=row,
+            actor="system",
+        )
         return {
             "ok": True,
             "method": "backup_code",
@@ -441,12 +564,20 @@ def verify_login(*, username: str, password: str) -> dict[str, Any]:
     if not verified:
         return {"ok": False, "reason": "invalid_credentials"}
     if needs_rehash:
+        pre_state = dict(row)
         row.update(_build_argon2_password_record(pwd))
         row.pop("iterations", None)
         row.pop("password_salt_b64", None)
         row.pop("password_hash_hex", None)
         row["updated_ts"] = _now_iso()
         _save_user_record(name, row)
+        _record_user_auth_store_change(
+            username=name,
+            reason="login_hash_upgrade",
+            pre_state=pre_state,
+            post_state=row,
+            actor="system",
+        )
     mfa_enabled = bool(row.get("mfa_enabled", False) and str(row.get("mfa_secret_b32") or "").strip())
     return {
         "ok": True,
@@ -478,7 +609,14 @@ def ensure_bootstrap_user_from_env() -> dict[str, Any]:
     if existing:
         return {"ok": True, "skipped": True, "reason": "bootstrap_user_exists", "username": user}
 
-    out = upsert_user(username=user, password=pwd, role=role, enabled=True)
+    out = upsert_user(
+        username=user,
+        password=pwd,
+        role=role,
+        enabled=True,
+        _audit_actor="system",
+        _audit_reason="bootstrap_user_from_env",
+    )
     out["bootstrapped"] = bool(out.get("ok"))
     return out
 

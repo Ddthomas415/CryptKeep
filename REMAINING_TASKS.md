@@ -1464,8 +1464,18 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `dashboard_mfa_challenge` events for session and MFA transitions without
     logging passwords, MFA codes, TOTP secrets, OTP URIs, or backup code
     values. The coverage matrix moves the dashboard login/logout/MFA/role
-    family from MISSING to PARTIAL. Remaining coverage: user role management
-    changes.
+    family from MISSING to PARTIAL; user/role mutation coverage is narrowed by
+    the central auth-store hook below.
+    2026-07-16: central auth-store mutation audit hook is ready for
+    independent review. `services.security.user_auth_store` now appends
+    best-effort metadata-only `dashboard_user_auth_store_change` events for
+    central user upsert/bootstrap, MFA enrollment/confirmation/disablement,
+    backup-code consumption, and login-hash upgrades. Events record only user
+    identity and state shape (role/enabled/MFA booleans and backup-code
+    counts), without logging passwords, hashes, MFA codes, TOTP secrets, OTP
+    URIs, or backup code values. Remaining coverage: any future user/role
+    management surface that bypasses `user_auth_store`, plus fail-closed
+    audit-write policy.
     2026-07-16: central runtime config-save operator-event hook is ready for
     independent review. `services.admin.config_editor.save_user_yaml()` now
     appends best-effort metadata-only `runtime_config_save` operator events

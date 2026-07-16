@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 import threading
+
+import pytest
 
 from services.security import user_auth_store as uas
 
@@ -14,6 +17,15 @@ class _FakeKeyring:
 
     def set_password(self, service: str, account: str, password: str):
         self._db[(str(service), str(account))] = str(password)
+
+
+@pytest.fixture(autouse=True)
+def _no_real_operator_event_writes(monkeypatch):
+    monkeypatch.setattr(
+        uas,
+        "append_operator_event",
+        lambda **_kwargs: {"event_id": "evt-test", "path": "/tmp/operator_events.jsonl"},
+    )
 
 
 def test_lockout_store_round_trip_does_not_deadlock(monkeypatch, tmp_path):
@@ -74,6 +86,73 @@ def test_upsert_and_verify_keychain_user(monkeypatch):
     assert bad["reason"] == "invalid_credentials"
 
 
+def test_user_auth_store_events_are_metadata_only(monkeypatch):
+    fake = _FakeKeyring()
+    monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+    monkeypatch.setattr(uas.time, "time", lambda: 1_700_000_000)
+    calls: list[dict[str, object]] = []
+
+    def _append_operator_event(**kwargs):
+        calls.append(kwargs)
+        return {"event_id": f"evt-{len(calls)}", "path": "/tmp/operator_events.jsonl"}
+
+    monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
+
+    password = "pw-placeholder-123"
+    upsert = uas.upsert_user(username="Admin", password=password, role="admin", enabled=True)
+    assert upsert["ok"] is True
+    enrollment = uas.begin_mfa_enrollment(username="admin")
+    assert enrollment["ok"] is True
+    secret = str(enrollment["secret_b32"])
+    backup = str(enrollment["backup_codes"][0])
+    code = uas._current_totp_code(secret, for_time=1_700_000_000)
+    assert uas.confirm_mfa_enrollment(username="admin", code=code)["ok"] is True
+    assert uas.verify_mfa_code(username="admin", code=backup)["ok"] is True
+    assert uas.disable_mfa_for_user(username="admin")["ok"] is True
+
+    reasons = [str(call["reason"]) for call in calls]
+    assert reasons == [
+        "upsert_user",
+        "begin_mfa_enrollment",
+        "confirm_mfa_enrollment",
+        "consume_mfa_backup_code",
+        "disable_mfa_for_user",
+    ]
+    assert all(call["action"] == "dashboard_user_auth_store_change" for call in calls)
+    assert all(call["target"] == "dashboard_user:admin" for call in calls)
+    assert calls[0]["pre_state"]["present"] is False
+    assert calls[0]["post_state"]["role"] == "ADMIN"
+    assert calls[1]["post_state"]["mfa_enrollment_pending"] is True
+    assert calls[2]["post_state"]["mfa_enabled"] is True
+    assert calls[3]["post_state"]["backup_code_count"] == len(enrollment["backup_codes"]) - 1
+    assert calls[4]["post_state"]["mfa_configured"] is False
+
+    serialized = json.dumps(calls, sort_keys=True)
+    assert password not in serialized
+    assert secret not in serialized
+    assert backup not in serialized
+    assert code not in serialized
+    assert "otpauth://" not in serialized
+    assert "password_hash" not in serialized
+    assert "password_salt" not in serialized
+    assert "mfa_secret_b32" not in serialized
+    assert "mfa_backup_code_hashes" not in serialized
+
+
+def test_user_auth_store_event_failure_is_best_effort(monkeypatch):
+    fake = _FakeKeyring()
+    monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+
+    def _append_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
+
+    out = uas.upsert_user(username="Admin", password="pw-123", role="admin", enabled=True)
+    assert out["ok"] is True
+    assert uas.verify_login(username="admin", password="pw-123")["ok"] is True
+
+
 def test_verify_login_upgrades_legacy_pbkdf2_user(monkeypatch):
     fake = _FakeKeyring()
     monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
@@ -89,6 +168,13 @@ def test_verify_login_upgrades_legacy_pbkdf2_user(monkeypatch):
     }
     uas._save_user_record("admin", legacy_record)
     uas._save_users_index(["admin"])
+    calls: list[dict[str, object]] = []
+    monkeypatch.setattr(
+        uas,
+        "append_operator_event",
+        lambda **kwargs: calls.append(kwargs)
+        or {"event_id": "evt-rehash", "path": "/tmp/operator_events.jsonl"},
+    )
 
     ok = uas.verify_login(username="admin", password="pw-123")
     assert ok["ok"] is True
@@ -99,11 +185,26 @@ def test_verify_login_upgrades_legacy_pbkdf2_user(monkeypatch):
     assert "password_hash_hex" not in row
     assert "password_salt_b64" not in row
     assert "iterations" not in row
+    assert calls[0]["actor"] == "system"
+    assert calls[0]["reason"] == "login_hash_upgrade"
+    assert calls[0]["pre_state"]["present"] is True
+    assert calls[0]["post_state"]["present"] is True
+    serialized = json.dumps(calls, sort_keys=True)
+    assert "pw-123" not in serialized
+    assert "password_hash" not in serialized
+    assert "password_salt" not in serialized
 
 
 def test_bootstrap_user_from_env(monkeypatch):
     fake = _FakeKeyring()
     monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+    calls: list[dict[str, object]] = []
+    monkeypatch.setattr(
+        uas,
+        "append_operator_event",
+        lambda **kwargs: calls.append(kwargs)
+        or {"event_id": "evt-bootstrap", "path": "/tmp/operator_events.jsonl"},
+    )
     monkeypatch.setenv("APP_ENV", "dev")
     monkeypatch.setenv("CBP_ALLOW_BOOTSTRAP_USER", "1")
     monkeypatch.setenv("CBP_AUTH_BOOTSTRAP_USER", "operator")
@@ -123,6 +224,9 @@ def test_bootstrap_user_from_env(monkeypatch):
     assert len(users) == 1
     assert users[0]["username"] == "operator"
     assert users[0]["role"] == "OPERATOR"
+    assert calls[0]["actor"] == "system"
+    assert calls[0]["reason"] == "bootstrap_user_from_env"
+    assert calls[0]["post_state"]["role"] == "OPERATOR"
 
 
 def test_verify_login_env_fallback_blocked_by_default(monkeypatch):
