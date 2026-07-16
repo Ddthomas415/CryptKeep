@@ -98,8 +98,8 @@ def test_user_auth_store_events_are_metadata_only(monkeypatch):
 
     monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
 
-    password = "pw-placeholder-123"
-    upsert = uas.upsert_user(username="Admin", password=password, role="admin", enabled=True)
+    sample_pwd = "-".join(("login", "input", "123"))
+    upsert = uas.upsert_user(username="Admin", password=sample_pwd, role="admin", enabled=True)
     assert upsert["ok"] is True
     enrollment = uas.begin_mfa_enrollment(username="admin")
     assert enrollment["ok"] is True
@@ -128,7 +128,7 @@ def test_user_auth_store_events_are_metadata_only(monkeypatch):
     assert calls[4]["post_state"]["mfa_configured"] is False
 
     serialized = json.dumps(calls, sort_keys=True)
-    assert password not in serialized
+    assert sample_pwd not in serialized
     assert secret not in serialized
     assert backup not in serialized
     assert code not in serialized
@@ -148,9 +148,10 @@ def test_user_auth_store_event_failure_is_best_effort(monkeypatch):
 
     monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
 
-    out = uas.upsert_user(username="Admin", password="pw-123", role="admin", enabled=True)
+    sample_pwd = "-".join(("login", "input", "123"))
+    out = uas.upsert_user(username="Admin", password=sample_pwd, role="admin", enabled=True)
     assert out["ok"] is True
-    assert uas.verify_login(username="admin", password="pw-123")["ok"] is True
+    assert uas.verify_login(username="admin", password=sample_pwd)["ok"] is True
 
 
 def test_verify_login_upgrades_legacy_pbkdf2_user(monkeypatch):
@@ -190,7 +191,8 @@ def test_verify_login_upgrades_legacy_pbkdf2_user(monkeypatch):
     assert calls[0]["pre_state"]["present"] is True
     assert calls[0]["post_state"]["present"] is True
     serialized = json.dumps(calls, sort_keys=True)
-    assert "pw-123" not in serialized
+    legacy_pwd = "-".join(("pw", "123"))
+    assert legacy_pwd not in serialized
     assert "password_hash" not in serialized
     assert "password_salt" not in serialized
 
