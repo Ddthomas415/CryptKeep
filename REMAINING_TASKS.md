@@ -1415,6 +1415,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     `operator_event_write_failed_alert_routing_rolled_back`. The coverage
     matrix moves this family from MISSING to PARTIAL; CLI/runtime config edits
     and dispatcher/env channel changes remain unclassified.
+    2026-07-15: dashboard risk-limit audit hook is ready for independent
+    review. `dashboard.services.views.settings_view.update_settings_view` now
+    treats dashboard Settings paper-trading risk-limit changes as material
+    `risk_limit_change` events: after local config save and before API sync it
+    appends a required operator event, and if that audit write fails it rolls
+    the local config save back and skips API sync with
+    `operator_event_write_failed_risk_limit_rolled_back`. The coverage matrix
+    moves the risk-limit family from MISSING to PARTIAL; direct CLI/runtime
+    config edits, environment live-risk caps, and non-dashboard risk changes
+    remain unclassified.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

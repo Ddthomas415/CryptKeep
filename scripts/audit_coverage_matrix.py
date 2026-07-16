@@ -121,9 +121,9 @@ FAMILIES = [
     {
         "family": "risk-limit change",
         "surfaces": ["CLI", "dashboard"],
-        "classification": "MISSING",
+        "classification": "PARTIAL",
         "probe": None,
-        "notes": "operator event journal substrate exists, but this action family is not yet hooked; risk caps come from user config.",
+        "notes": "dashboard Settings paper-trading risk-limit changes append fail-closed risk_limit_change operator events; direct CLI/runtime config edits, env live-risk caps, and non-dashboard risk changes remain unclassified.",
     },
     {
         "family": "API credential rotation",
