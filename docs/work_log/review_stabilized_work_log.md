@@ -21846,3 +21846,68 @@ Remaining risk:
   keyring/operator-event journal, direct keyring edits, environment-based
   credential changes, and server injection/rotation drills.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T14:26:29Z - Restore Audit-Write Fail-Closed (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Close the CLI restore audit-write fail-closed slice for
+  `scripts/backup_state.py restore`.
+
+What was found:
+- SHOWN: `restore_backup()` verifies the backup, checks live locks, requires
+  `--force` for a non-empty target, moves existing data aside, restores
+  manifest-listed files, and post-verifies hashes.
+- SHOWN: before this change, the CLI recorded the `state_restore` operator
+  event only after `restore_backup()` had already mutated the data directory,
+  so an operator-event write failure could not block restore.
+- SHOWN: the operator-event journal lives under the data directory that restore
+  may move aside, so the safe policy is a required pre-mutation authority event
+  plus a best-effort completion event after restore.
+
+What changed:
+- Split restore into preflight and apply phases.
+- Added `restore_backup_with_required_audit()` for the CLI restore path:
+  backup verification plus lock/force guards run first; then a required
+  `state_restore` event with result `started` is appended before any state
+  move/copy.
+- If that required audit write fails, restore returns
+  `operator_event_write_failed_state_restore_not_started` with `touched:
+  false` before moving or copying state.
+- Successful CLI restore still appends a best-effort completion event after
+  restore; when the pre-restore event is moved with the old data directory,
+  the JSON verdict reports `path_after_restore`.
+- Updated tests, the operator-audit coverage matrix, policy doc, backlog, and
+  this work log.
+
+Why this change was chosen:
+- Restore is a high-risk operator mutation. It should not replace durable state
+  unless the authority to begin restore is durably recorded first.
+- Keeping completion audit best-effort avoids trying to roll back a completed
+  restore solely because the restored data directory's journal is unwritable.
+
+Expected outcome:
+- `scripts/backup_state.py restore --force` cannot begin state replacement when
+  the required pre-restore operator event cannot be written.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py`
+  - SHOWN: `12 passed in 0.44s`.
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `23 passed in 0.73s`.
+- `./.venv/bin/python -m py_compile scripts/backup_state.py scripts/audit_coverage_matrix.py tests/test_state_backup_restore.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: backup/restore row now states required pre-mutation restore audit
+    and counts remain `MISSING: 0`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2959 passed, 33 skipped, 15 warnings in 376.44s`.
+
+Remaining risk:
+- HIGH: touches full-state restore tooling.
+- UNVERIFIED: GitHub CI, host-side restore drill with real services stopped,
+  and migrations/rollbacks outside `backup_state.py`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

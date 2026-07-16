@@ -266,9 +266,68 @@ def test_cli_end_to_end_exit_codes(monkeypatch, tmp_path):
     assert r.returncode == 0, r.stdout + r.stderr
     restore_payload = json.loads(r.stdout)
     assert restore_payload["operator_event"]["ok"] is True
+    assert restore_payload["pre_restore_operator_event"]["ok"] is True
+    pre_restore_event = json.loads(
+        Path(restore_payload["pre_restore_operator_event"]["path_after_restore"])
+        .read_text(encoding="utf-8")
+        .splitlines()[-1]
+    )
+    assert pre_restore_event["action"] == "state_restore"
+    assert pre_restore_event["result"] == "started"
     restore_event = json.loads(Path(restore_payload["operator_event"]["path"]).read_text(encoding="utf-8").splitlines()[-1])
     assert restore_event["action"] == "state_restore"
     assert restore_event["result"] == "success"
+
+
+def test_restore_required_audit_failure_refuses_before_touching_target(monkeypatch, tmp_path):
+    bs, _ap = _load(monkeypatch, tmp_path)
+    from services.os.app_paths import data_dir
+
+    db = _seed_store(data_dir(), "execution.sqlite", 5)
+    out = bs.create_backup(tmp_path / "backups")
+    backup_dir = Path(out["backup_dir"])
+    _seed_store(data_dir(), "execution.sqlite", 3)
+    before = db.read_bytes()
+
+    def _raise(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(bs, "append_operator_event", _raise)
+
+    res = bs.restore_backup_with_required_audit(backup_dir, force=True)
+
+    assert res["ok"] is False
+    assert res["reason"] == "operator_event_write_failed_state_restore_not_started"
+    assert res["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    assert res["touched"] is False
+    assert db.read_bytes() == before
+    assert not list(data_dir().parent.glob("data.pre-restore-*"))
+
+
+def test_restore_required_audit_success_records_started_then_success(monkeypatch, tmp_path):
+    bs, _ap = _load(monkeypatch, tmp_path)
+    from services.os.app_paths import data_dir
+
+    _seed_store(data_dir(), "execution.sqlite", 5)
+    out = bs.create_backup(tmp_path / "backups")
+    backup_dir = Path(out["backup_dir"])
+    _seed_store(data_dir(), "execution.sqlite", 3)
+    events = []
+
+    def _append_operator_event(**kwargs):
+        events.append(dict(kwargs))
+        return {"event_id": f"evt-{len(events)}", "path": str(tmp_path / "operator_events.jsonl")}
+
+    monkeypatch.setattr(bs, "append_operator_event", _append_operator_event)
+
+    res = bs.restore_backup_with_required_audit(backup_dir, force=True)
+
+    assert res["ok"] is True
+    assert res["pre_restore_operator_event"] == {"ok": True, "event_id": "evt-1", "path": str(tmp_path / "operator_events.jsonl")}
+    assert res["operator_event"] == {"ok": True, "event_id": "evt-2", "path": str(tmp_path / "operator_events.jsonl")}
+    assert [event["result"] for event in events] == ["started", "success"]
+    assert events[0]["post_state"]["reason"] == "restore_preflight_passed"
+    assert _count(data_dir() / "execution.sqlite") == 5
 
 
 def test_backup_operator_event_failure_is_explicit(monkeypatch, tmp_path):

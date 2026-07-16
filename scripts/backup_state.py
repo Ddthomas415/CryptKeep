@@ -188,17 +188,7 @@ def _live_locks(target_data: Path) -> list[str]:
     return sorted(locks)
 
 
-def restore_backup(backup_dir: Path, *, force: bool = False) -> dict:
-    """
-    Restore a verified backup into the CURRENT state dir's data directory.
-
-    Hard safety guards (fail closed, in order):
-    1. the backup must verify completely before anything is touched;
-    2. any *.lock file under the state dir blocks restore — a live process
-       writing during restore corrupts both worlds; stop services first;
-    3. a non-empty data dir requires --force, and even then the existing
-       data dir is moved aside to data.pre-restore-<stamp>, never deleted.
-    """
+def _restore_preflight(backup_dir: Path, *, force: bool = False) -> dict:
     verdict = verify_backup(backup_dir)
     if not verdict["ok"]:
         return {"ok": False, "reason": "backup_verify_failed", "problems": verdict.get("problems")}
@@ -209,9 +199,26 @@ def restore_backup(backup_dir: Path, *, force: bool = False) -> dict:
         return {"ok": False, "reason": "live_locks_present", "locks": locks}
 
     aside = None
-    if target.exists() and any(target.iterdir()):
-        if not force:
-            return {"ok": False, "reason": "target_not_empty_use_force", "target": str(target)}
+    target_had_existing_data = target.exists() and any(target.iterdir())
+    if target_had_existing_data and not force:
+        return {"ok": False, "reason": "target_not_empty_use_force", "target": str(target)}
+
+    manifest = json.loads((backup_dir / MANIFEST_NAME).read_text(encoding="utf-8"))
+    return {
+        "ok": True,
+        "reason": "restore_preflight_passed",
+        "backup_dir": str(backup_dir),
+        "target": str(target),
+        "force": bool(force),
+        "file_count": len(manifest.get("files") or []),
+        "target_had_existing_data": target_had_existing_data,
+    }
+
+
+def _apply_restore_after_preflight(backup_dir: Path, *, preflight: dict) -> dict:
+    target = data_dir()
+    aside = None
+    if bool(preflight.get("target_had_existing_data")) and target.exists():
         stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
         aside = target.parent / f"data.pre-restore-{stamp}"
         target.rename(aside)
@@ -246,24 +253,48 @@ def restore_backup(backup_dir: Path, *, force: bool = False) -> dict:
     return {"ok": True, "restored_files": len(manifest["files"]), "target": str(target), "moved_aside": str(aside) if aside else None}
 
 
+def restore_backup(backup_dir: Path, *, force: bool = False) -> dict:
+    """
+    Restore a verified backup into the CURRENT state dir's data directory.
+
+    Hard safety guards (fail closed, in order):
+    1. the backup must verify completely before anything is touched;
+    2. any *.lock file under the state dir blocks restore — a live process
+       writing during restore corrupts both worlds; stop services first;
+    3. a non-empty data dir requires --force, and even then the existing
+       data dir is moved aside to data.pre-restore-<stamp>, never deleted.
+    """
+    preflight = _restore_preflight(backup_dir, force=force)
+    if not preflight["ok"]:
+        return preflight
+    return _apply_restore_after_preflight(backup_dir, preflight=preflight)
+
+
 def _record_backup_operator_event(
     *,
     command: str,
     args: dict,
     outcome: dict,
+    result: str | None = None,
 ) -> dict:
     action = {
         "backup": "state_backup",
         "verify": "state_backup_verify",
         "restore": "state_restore",
     }.get(command, f"state_{command}")
-    result = "success" if bool(outcome.get("ok")) else "blocked" if outcome.get("reason") in ("live_locks_present", "target_not_empty_use_force") else "failed"
+    event_result = result or (
+        "success"
+        if bool(outcome.get("ok"))
+        else "blocked"
+        if outcome.get("reason") in ("live_locks_present", "target_not_empty_use_force")
+        else "failed"
+    )
     try:
         event = append_operator_event(
             actor="operator",
             action=action,
             target="state_dir",
-            result=result,
+            result=event_result,
             reason=str(outcome.get("reason") or command),
             pre_state={"command": command, "args": args, "data_dir": str(data_dir())},
             post_state=outcome,
@@ -273,6 +304,48 @@ def _record_backup_operator_event(
         return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
     except Exception as exc:
         return _operator_event_result(exc)
+
+
+def restore_backup_with_required_audit(backup_dir: Path, *, force: bool = False) -> dict:
+    """CLI restore wrapper: require an operator event before mutating state.
+
+    The operator journal currently lives under the data dir being replaced, so
+    the required pre-restore event is the authority proof. A completion event is
+    still appended after restore as a best-effort outcome record.
+    """
+    audit_args = {"backup_dir": str(backup_dir), "force": bool(force)}
+    preflight = _restore_preflight(backup_dir, force=force)
+    if not preflight["ok"]:
+        out = dict(preflight)
+        out["operator_event"] = _record_backup_operator_event(command="restore", args=audit_args, outcome=dict(out))
+        return out
+
+    pre_event = _record_backup_operator_event(
+        command="restore",
+        args=audit_args,
+        outcome=dict(preflight),
+        result="started",
+    )
+    if not pre_event.get("ok"):
+        return {
+            "ok": False,
+            "reason": "operator_event_write_failed_state_restore_not_started",
+            "operator_event": pre_event,
+            "backup_dir": str(backup_dir),
+            "target": str(data_dir()),
+            "touched": False,
+        }
+
+    out = _apply_restore_after_preflight(backup_dir, preflight=preflight)
+    if out.get("moved_aside") and pre_event.get("path"):
+        try:
+            rel = Path(str(pre_event["path"])).relative_to(data_dir())
+            pre_event = {**pre_event, "path_after_restore": str(Path(str(out["moved_aside"])) / rel)}
+        except Exception:
+            pass
+    out["pre_restore_operator_event"] = pre_event
+    out["operator_event"] = _record_backup_operator_event(command="restore", args=audit_args, outcome=dict(out))
+    return out
 
 
 def main() -> int:
@@ -294,10 +367,11 @@ def main() -> int:
         out = verify_backup(Path(args.backup_dir))
         audit_args = {"backup_dir": str(Path(args.backup_dir))}
     else:
-        out = restore_backup(Path(args.backup_dir), force=args.force)
-        audit_args = {"backup_dir": str(Path(args.backup_dir)), "force": bool(args.force)}
+        out = restore_backup_with_required_audit(Path(args.backup_dir), force=args.force)
+        audit_args = None
 
-    out["operator_event"] = _record_backup_operator_event(command=args.cmd, args=audit_args, outcome=dict(out))
+    if audit_args is not None:
+        out["operator_event"] = _record_backup_operator_event(command=args.cmd, args=audit_args, outcome=dict(out))
     print(json.dumps(out, indent=2))
     if out.get("ok"):
         return EXIT_OK
