@@ -1485,6 +1485,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     for strategy, risk, and alert-routing families. Remaining coverage: direct
     file edits, environment overrides, campaign manifest files, and
     fail-closed audit-write policy.
+    2026-07-16: central runtime config-save audit-write fail-closed slice is
+    ready for independent review. `save_user_yaml()` now treats
+    `runtime_config_save` audit persistence as required for non-dry-run writes:
+    if the operator-event write fails, it restores the previous file bytes (or
+    removes the newly created file for first-write attempts) and returns
+    `operator_event_write_failed_runtime_config_rolled_back`. Remaining
+    coverage: direct file edits, environment overrides, and campaign manifest
+    files.
     2026-07-16: API credential-rotation operator-event hook is ready for
     independent review. `services.security.credential_store` now appends
     best-effort metadata-only `api_credential_rotation` operator events after

@@ -82,18 +82,44 @@ def _record_runtime_config_save(*, pre_state: dict[str, Any], post_state: dict[s
         return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
 
 
+def _restore_config_bytes(previous: bytes | None) -> dict[str, Any]:
+    try:
+        if previous is None:
+            if CONFIG_PATH.exists():
+                CONFIG_PATH.unlink()
+            return {"ok": True, "exists": False}
+        CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        CONFIG_PATH.write_bytes(previous)
+        return {"ok": True, "exists": True}
+    except Exception as exc:
+        return {"ok": False, "reason": f"rollback_failed:{type(exc).__name__}"}
+
+
 def save_user_yaml(cfg: Dict[str, Any], dry_run: bool = False) -> Tuple[bool, str]:
     if not isinstance(cfg, dict):
         return False, "cfg must be dict"
     try:
         pre_state = _current_config_shape()
+        previous_bytes = CONFIG_PATH.read_bytes() if CONFIG_PATH.exists() else None
         if CONFIG_PATH.exists():
             BACKUP_PATH.write_bytes(CONFIG_PATH.read_bytes())
         if dry_run:
             return True, "Dry run OK"
         with CONFIG_PATH.open("w", encoding="utf-8") as f:
             yaml.safe_dump(cfg, f, sort_keys=False, allow_unicode=True)
-        _record_runtime_config_save(pre_state=pre_state, post_state={"exists": True, "parse_ok": True, **_config_shape(cfg)})
+        operator_event = _record_runtime_config_save(
+            pre_state=pre_state,
+            post_state={"exists": True, "parse_ok": True, **_config_shape(cfg)},
+        )
+        if not bool(operator_event.get("ok")):
+            rollback = _restore_config_bytes(previous_bytes)
+            if rollback.get("ok"):
+                return False, "operator_event_write_failed_runtime_config_rolled_back"
+            return (
+                False,
+                "operator_event_write_failed_runtime_config_rollback_failed:"
+                f"{rollback.get('reason')}",
+            )
         return True, "Saved"
     except Exception as e:
         return False, f"Save failed: {type(e).__name__}: {e}"

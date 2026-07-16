@@ -56,7 +56,7 @@ def test_save_user_yaml_dry_run_does_not_append_event(monkeypatch, tmp_path):
     assert not config_editor.CONFIG_PATH.exists()
 
 
-def test_save_user_yaml_event_failure_is_best_effort(monkeypatch, tmp_path):
+def test_save_user_yaml_event_failure_rolls_back_new_file(monkeypatch, tmp_path):
     config_editor, _load_events, _journal_path, _scan_journal = _fresh_config_editor(monkeypatch, tmp_path)
 
     def _raise_operator_event(**_kwargs):
@@ -66,5 +66,22 @@ def test_save_user_yaml_event_failure_is_best_effort(monkeypatch, tmp_path):
 
     ok, message = config_editor.save_user_yaml({"execution": {"live_enabled": False}})
 
+    assert (ok, message) == (False, "operator_event_write_failed_runtime_config_rolled_back")
+    assert not config_editor.CONFIG_PATH.exists()
+
+
+def test_save_user_yaml_event_failure_restores_previous_file(monkeypatch, tmp_path):
+    config_editor, _load_events, _journal_path, _scan_journal = _fresh_config_editor(monkeypatch, tmp_path)
+
+    ok, message = config_editor.save_user_yaml({"execution": {"live_enabled": False}})
     assert (ok, message) == (True, "Saved")
+
+    def _raise_operator_event(**_kwargs):
+        raise PermissionError("journal read-only")
+
+    monkeypatch.setattr(config_editor, "append_operator_event", _raise_operator_event)
+
+    ok, message = config_editor.save_user_yaml({"execution": {"live_enabled": True}})
+
+    assert (ok, message) == (False, "operator_event_write_failed_runtime_config_rolled_back")
     assert config_editor.load_user_yaml()["execution"]["live_enabled"] is False

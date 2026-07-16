@@ -87,12 +87,14 @@ config edits, environment live-risk caps, and non-dashboard risk changes remain
 unclassified.
 
 Current partial hook for runtime `user.yaml` saves:
-`services.admin.config_editor.save_user_yaml()` appends best-effort
-metadata-only `runtime_config_save` events after successful non-dry-run writes.
-Events record file existence, parse status, top-level section names/count, and
-result only; config payloads and values are not logged. Direct file edits,
-environment overrides, campaign manifest files, and fail-closed audit-write
-policy remain unclassified.
+`services.admin.config_editor.save_user_yaml()` appends required metadata-only
+`runtime_config_save` events after successful non-dry-run writes. If the audit
+write fails, the helper restores the previous config file bytes (or removes the
+new file for first-write attempts) and returns
+`operator_event_write_failed_runtime_config_rolled_back`. Events record file
+existence, parse status, top-level section names/count, and result only; config
+payloads and values are not logged. Direct file edits, environment overrides,
+and campaign manifest files remain unclassified.
 
 Current partial hook for order-intent lifecycle: `storage.live_intent_queue_sqlite`
 maintains current intent rows and an append-only `live_trade_intent_events`
