@@ -1425,6 +1425,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     moves the risk-limit family from MISSING to PARTIAL; direct CLI/runtime
     config edits, environment live-risk caps, and non-dashboard risk changes
     remain unclassified.
+    2026-07-16: backup/restore operator-event hook is ready for independent
+    review. `scripts/backup_state.py` now appends best-effort unified operator
+    events for `backup`, `verify`, blocked `restore`, and successful `restore`
+    command results while preserving its existing JSON verdicts and exit-code
+    contracts. This narrows the backup/restore family but does not close it:
+    restore audit-write fail-closed policy remains open because the unified
+    journal is stored under the data directory that restore replaces, and
+    migrations/rollbacks beyond git/work-log evidence remain unclassified.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

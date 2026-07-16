@@ -86,6 +86,13 @@ risk-limit save is rolled back and API sync is skipped. Direct CLI/runtime
 config edits, environment live-risk caps, and non-dashboard risk changes remain
 unclassified.
 
+Current partial hook for backup/restore: `scripts/backup_state.py` appends
+best-effort unified operator events for backup, verify, blocked restore, and
+successful restore command results. Restore audit-write fail-closed policy
+remains open because the unified journal is stored under the data directory
+that restore replaces; migrations and rollbacks beyond git/work-log evidence
+remain unclassified.
+
 ## Evidence Requirements
 
 The launch packet must include:

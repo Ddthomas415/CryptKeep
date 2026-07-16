@@ -21107,3 +21107,66 @@ Remaining risk:
   non-dashboard risk changes, and host-side launch-packet no-secret scan over
   real events.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T03:01:22Z - Backup/Restore Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for backup/restore actions by hooking
+  `scripts/backup_state.py` command results to the unified operator-event
+  journal.
+
+What was found:
+- SHOWN: `scripts/backup_state.py` already emits drill-grade JSON verdicts and
+  preserves exit-code distinctions for backup, verify, blocked restore, and
+  successful restore.
+- SHOWN: before this change, the operator-audit coverage matrix classified
+  backup/restore/migration/rollback as PARTIAL because the tooling existed but
+  was not hooked to the unified operator-event journal.
+- SHOWN: the unified operator-event journal lives under `data_dir`, which is
+  the target a restore replaces. A required pre-restore write to that journal
+  would mutate the restore target and can change restore guard outcomes.
+
+What changed:
+- Added best-effort operator-event appends for CLI `backup`, `verify`, and
+  `restore` command results.
+- Events use actions `state_backup`, `state_backup_verify`, and
+  `state_restore`, with result `success`, `blocked`, or `failed` derived from
+  the existing verdict.
+- The CLI JSON payload now includes `operator_event` while preserving existing
+  command exit-code contracts.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- It records backup/verify/restore command outcomes in the unified journal
+  without changing the core backup/restore safety guards.
+- Restore fail-closed audit policy is not forced into this slice because the
+  current journal location is inside the data directory being replaced.
+
+Expected outcome:
+- Backup/restore CLI runs produce replayable operator-event records when the
+  journal is writable, and audit-write failure is visible in the command JSON
+  without masking the underlying backup/restore verdict.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_state_backup_restore.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `21 passed in 0.78s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: backup/restore/migration/rollback remains `PARTIAL`; notes now
+    state `backup_state.py` emits best-effort unified operator events for
+    backup/verify/restore command results, while restore audit-write
+    fail-closed policy and migrations/rollbacks beyond git/work-log remain
+    open. Counts remain `SHOWN=0`, `PARTIAL=6`, `MISSING=5`.
+- `./.venv/bin/python -m py_compile scripts/backup_state.py tests/test_state_backup_restore.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM/HIGH: touches backup/restore CLI output and audit behavior around a
+  destructive restore command, though core restore guards are unchanged.
+- UNVERIFIED: GitHub CI, host-side launch-packet no-secret scan over real
+  events, restore audit-write fail-closed policy, and migrations/rollbacks
+  beyond git/work-log evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -229,22 +229,60 @@ def test_cli_end_to_end_exit_codes(monkeypatch, tmp_path):
         capture_output=True, text=True, timeout=60, env=env,
     )
     assert b.returncode == 0, b.stdout + b.stderr
-    backup_dir = json.loads(b.stdout)["backup_dir"]
+    backup_payload = json.loads(b.stdout)
+    backup_dir = backup_payload["backup_dir"]
+    assert backup_payload["operator_event"]["ok"] is True
+    backup_event_path = Path(backup_payload["operator_event"]["path"])
+    backup_event = json.loads(backup_event_path.read_text(encoding="utf-8").splitlines()[-1])
+    assert backup_event["action"] == "state_backup"
+    assert backup_event["result"] == "success"
 
     v = subprocess.run(
         [sys.executable, str(REPO / "scripts" / "backup_state.py"), "verify", backup_dir],
         capture_output=True, text=True, timeout=60, env=env,
     )
     assert v.returncode == 0, v.stdout + v.stderr
+    verify_payload = json.loads(v.stdout)
+    assert verify_payload["operator_event"]["ok"] is True
+    verify_event = json.loads(Path(verify_payload["operator_event"]["path"]).read_text(encoding="utf-8").splitlines()[-1])
+    assert verify_event["action"] == "state_backup_verify"
+    assert verify_event["result"] == "success"
 
     r_blocked = subprocess.run(
         [sys.executable, str(REPO / "scripts" / "backup_state.py"), "restore", backup_dir],
         capture_output=True, text=True, timeout=60, env=env,
     )
     assert r_blocked.returncode == 2  # non-empty target without --force
+    blocked_payload = json.loads(r_blocked.stdout)
+    assert blocked_payload["operator_event"]["ok"] is True
+    blocked_event = json.loads(Path(blocked_payload["operator_event"]["path"]).read_text(encoding="utf-8").splitlines()[-1])
+    assert blocked_event["action"] == "state_restore"
+    assert blocked_event["result"] == "blocked"
 
     r = subprocess.run(
         [sys.executable, str(REPO / "scripts" / "backup_state.py"), "restore", backup_dir, "--force"],
         capture_output=True, text=True, timeout=60, env=env,
     )
     assert r.returncode == 0, r.stdout + r.stderr
+    restore_payload = json.loads(r.stdout)
+    assert restore_payload["operator_event"]["ok"] is True
+    restore_event = json.loads(Path(restore_payload["operator_event"]["path"]).read_text(encoding="utf-8").splitlines()[-1])
+    assert restore_event["action"] == "state_restore"
+    assert restore_event["result"] == "success"
+
+
+def test_backup_operator_event_failure_is_explicit(monkeypatch, tmp_path):
+    bs, _ap = _load(monkeypatch, tmp_path)
+
+    def _raise(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(bs, "append_operator_event", _raise)
+
+    out = bs._record_backup_operator_event(
+        command="backup",
+        args={"dest": str(tmp_path / "backups")},
+        outcome={"ok": True, "backup_dir": str(tmp_path / "backups" / "b"), "file_count": 1},
+    )
+
+    assert out == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
