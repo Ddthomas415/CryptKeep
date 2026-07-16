@@ -79,6 +79,13 @@ before API sync. If that audit write fails, the local notification-settings
 save is rolled back and the API sync is skipped. CLI/runtime config edits and
 dispatcher or environment channel changes remain unclassified.
 
+Current partial hook for risk limits: dashboard Settings paper-trading
+risk-limit changes write a required `risk_limit_change` event after local
+config save and before API sync. If that audit write fails, the local
+risk-limit save is rolled back and API sync is skipped. Direct CLI/runtime
+config edits, environment live-risk caps, and non-dashboard risk changes remain
+unclassified.
+
 ## Evidence Requirements
 
 The launch packet must include:

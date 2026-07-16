@@ -21046,3 +21046,64 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, direct CLI/runtime config edits, dispatcher/env
   channel changes, and host-side launch-packet no-secret scan over real events.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T02:33:22Z - Dashboard Risk-Limit Settings Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for risk-limit changes by hooking
+  dashboard Settings paper-trading risk-limit changes to the unified
+  operator-event journal with fail-closed behavior.
+
+What was found:
+- SHOWN: `dashboard.services.views.settings_view.update_settings_view` maps
+  `paper_trading.max_position_size_usd` into
+  `risk.max_position_notional_per_symbol`, so dashboard Settings can mutate a
+  runtime risk-limit config value.
+- SHOWN: before this change, the operator-audit coverage matrix classified
+  `risk-limit change` as MISSING because no unified operator-event hook existed
+  for the family.
+
+What changed:
+- Added risk-limit state extraction for the dashboard Settings paper-trading
+  risk-limit fields and the mapped runtime risk cap.
+- Added a required `risk_limit_change` operator-event append when
+  `update_settings_view` persists an effective risk-limit change.
+- If the audit write fails, the local config save is rolled back with the
+  pre-change config, API sync is skipped, and the caller receives
+  `operator_event_write_failed_risk_limit_rolled_back`.
+- Fee/slippage-only paper settings do not trigger the risk-limit audit hook.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- Risk-limit changes are material operator actions before capped-live exposure;
+  a failed audit write must not let the dashboard report a successful risk cap
+  change.
+- The hook stays scoped to the dashboard settings path and leaves direct
+  CLI/runtime config edits, environment live-risk caps, and non-dashboard risk
+  changes explicitly unclassified.
+
+Expected outcome:
+- Dashboard risk-limit settings changes produce replayable operator-event
+  records, and audit storage failure prevents a silent risk-limit change.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_dashboard_view_data.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `70 passed in 0.51s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `risk-limit change` now reports `PARTIAL` with dashboard
+    Settings paper-trading risk-limit fail-closed hooks named; counts are
+    `SHOWN=0`, `PARTIAL=6`, `MISSING=5`.
+- `./.venv/bin/python -m py_compile dashboard/services/views/settings_view.py tests/test_dashboard_view_data.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches runtime risk-limit config save behavior and fail-closed
+  handling for risk-limit changes.
+- UNVERIFIED: GitHub CI, direct CLI/runtime config edits, env live-risk caps,
+  non-dashboard risk changes, and host-side launch-packet no-secret scan over
+  real events.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -2110,6 +2110,115 @@ def test_update_settings_view_rolls_back_notification_save_when_operator_event_f
     assert api_calls == []
 
 
+def test_update_settings_view_records_risk_limit_operator_event(monkeypatch) -> None:
+    saved_cfgs: list[dict[str, object]] = []
+    operator_events: list[dict[str, object]] = []
+
+    loaded_cfg = {
+        "risk": {"max_position_notional_per_symbol": 1000.0},
+        "dashboard_ui": {
+            "settings": {
+                "paper_trading": {
+                    "max_position_size_usd": 1000.0,
+                    "max_daily_loss_pct": 2.0,
+                }
+            }
+        },
+    }
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: loaded_cfg)
+    monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (saved_cfgs.append(cfg) or True, "Saved"))
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: {"status": "success", "data": payload},
+    )
+    monkeypatch.setattr(
+        settings_view,
+        "append_operator_event",
+        lambda **kwargs: operator_events.append(dict(kwargs)) or {"event_id": "evt-risk", "path": "test://operator_events"},
+    )
+
+    payload = {"paper_trading": {"max_position_size_usd": 2500.0, "max_daily_loss_pct": 1.5}}
+    result = view_data.update_settings_view(payload, current_role="OPERATOR")
+
+    assert result["ok"] is True
+    assert result["operator_event"] == {"ok": True, "event_id": "evt-risk", "path": "test://operator_events"}
+    assert saved_cfgs[0]["risk"]["max_position_notional_per_symbol"] == 2500.0
+    assert operator_events[0]["action"] == "risk_limit_change"
+    assert operator_events[0]["target"] == "dashboard_settings_risk_limits"
+    assert operator_events[0]["pre_state"]["risk_limits"]["risk"]["max_position_notional_per_symbol"] == 1000.0
+    assert operator_events[0]["post_state"]["risk_limits"]["risk"]["max_position_notional_per_symbol"] == 2500.0
+    assert operator_events[0]["post_state"]["risk_limits"]["paper_trading"]["max_daily_loss_pct"] == 1.5
+
+
+def test_update_settings_view_does_not_record_risk_limit_event_for_fee_settings(monkeypatch) -> None:
+    saved_cfg: dict[str, object] = {}
+    operator_events: list[dict[str, object]] = []
+
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: {})
+    monkeypatch.setattr(
+        view_data,
+        "save_user_yaml",
+        lambda cfg, dry_run=False: (saved_cfg.update(cfg) or True, "Saved"),
+    )
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: {"status": "success", "data": payload},
+    )
+    monkeypatch.setattr(
+        settings_view,
+        "append_operator_event",
+        lambda **kwargs: operator_events.append(dict(kwargs)) or {"event_id": "evt", "path": "test://operator_events"},
+    )
+
+    result = view_data.update_settings_view({"paper_trading": {"fee_bps": 8.0, "slippage_bps": 4.0}}, current_role="OPERATOR")
+
+    assert result["ok"] is True
+    assert operator_events == []
+    assert "operator_event" not in result
+    assert saved_cfg["execution"]["paper_fee_bps"] == 8.0
+
+
+def test_update_settings_view_rolls_back_risk_limit_save_when_operator_event_fails(monkeypatch) -> None:
+    saved_cfgs: list[dict[str, object]] = []
+    api_calls: list[dict[str, object]] = []
+
+    loaded_cfg = {
+        "risk": {"max_position_notional_per_symbol": 1000.0},
+        "dashboard_ui": {
+            "settings": {
+                "paper_trading": {
+                    "max_position_size_usd": 1000.0,
+                }
+            }
+        },
+    }
+    monkeypatch.setattr(view_data, "load_user_yaml", lambda: loaded_cfg)
+    monkeypatch.setattr(view_data, "save_user_yaml", lambda cfg, dry_run=False: (saved_cfgs.append(cfg) or True, "Saved"))
+    monkeypatch.setattr(
+        view_data,
+        "_request_envelope",
+        lambda path, method="GET", payload=None: api_calls.append({"path": path, "method": method, "payload": payload}) or None,
+    )
+
+    def _raise_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(settings_view, "append_operator_event", _raise_operator_event)
+
+    result = view_data.update_settings_view({"paper_trading": {"max_position_size_usd": 3000.0}}, current_role="OPERATOR")
+
+    assert result["ok"] is False
+    assert result["reason"] == "operator_event_write_failed_risk_limit_rolled_back"
+    assert result["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    assert result["rollback"] == {"ok": True, "message": "Saved"}
+    assert len(saved_cfgs) == 2
+    assert saved_cfgs[0]["risk"]["max_position_notional_per_symbol"] == 3000.0
+    assert saved_cfgs[1] == loaded_cfg
+    assert api_calls == []
+
+
 def test_update_settings_view_reports_api_failure(monkeypatch) -> None:
     saved_cfg: dict[str, object] = {}
 

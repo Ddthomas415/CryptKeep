@@ -21,6 +21,8 @@ from dashboard.services.views._shared import (  # noqa: F401
 
 _LOG = logging.getLogger(__name__)
 
+_RISK_LIMIT_SETTING_KEYS = ("max_daily_loss_pct", "max_position_size_usd")
+
 
 def _view_data():
     from dashboard.services import view_data
@@ -35,16 +37,31 @@ def _notification_settings(cfg: dict[str, Any]) -> dict[str, Any]:
     return dict(notifications)
 
 
-def _record_alert_routing_event(
+def _risk_limit_settings(cfg: dict[str, Any]) -> dict[str, Any]:
+    dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
+    settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
+    paper_trading = settings_overlay.get("paper_trading") if isinstance(settings_overlay.get("paper_trading"), dict) else {}
+    risk_cfg = cfg.get("risk") if isinstance(cfg.get("risk"), dict) else {}
+    return {
+        "paper_trading": {key: paper_trading.get(key) for key in _RISK_LIMIT_SETTING_KEYS},
+        "risk": {
+            "max_position_notional_per_symbol": risk_cfg.get("max_position_notional_per_symbol"),
+        },
+    }
+
+
+def _record_settings_operator_event(
     *,
+    action: str,
+    target: str,
     pre_state: dict[str, Any],
     post_state: dict[str, Any],
 ) -> dict[str, Any]:
     try:
         event = append_operator_event(
             actor="operator",
-            action="alert_routing_change",
-            target="dashboard_settings_notifications",
+            action=action,
+            target=target,
             result="success",
             reason="update_settings_view",
             pre_state=pre_state,
@@ -54,8 +71,26 @@ def _record_alert_routing_event(
         )
         return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
     except Exception as exc:
-        _LOG.warning("alert routing operator event journal failed: %s: %s", type(exc).__name__, exc)
+        _LOG.warning("%s operator event journal failed: %s: %s", action, type(exc).__name__, exc)
         return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
+
+
+def _record_alert_routing_event(*, pre_state: dict[str, Any], post_state: dict[str, Any]) -> dict[str, Any]:
+    return _record_settings_operator_event(
+        action="alert_routing_change",
+        target="dashboard_settings_notifications",
+        pre_state=pre_state,
+        post_state=post_state,
+    )
+
+
+def _record_risk_limit_event(*, pre_state: dict[str, Any], post_state: dict[str, Any]) -> dict[str, Any]:
+    return _record_settings_operator_event(
+        action="risk_limit_change",
+        target="dashboard_settings_risk_limits",
+        pre_state=pre_state,
+        post_state=post_state,
+    )
 
 
 def get_settings_view() -> dict[str, Any]:
@@ -80,6 +115,7 @@ def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER
     dashboard_ui = cfg.get("dashboard_ui") if isinstance(cfg.get("dashboard_ui"), dict) else {}
     settings_overlay = dashboard_ui.get("settings") if isinstance(dashboard_ui.get("settings"), dict) else {}
     notifications_before = _notification_settings(cfg)
+    risk_limits_before = _risk_limit_settings(cfg)
 
     for section in ("general", "notifications", "ai", "autopilot", "providers", "paper_trading", "security"):
         if isinstance(payload.get(section), dict):
@@ -119,23 +155,32 @@ def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER
     notifications_after = _notification_settings(cfg)
     notifications_payload_present = isinstance(payload.get("notifications"), dict)
     notifications_changed = notifications_payload_present and notifications_before != notifications_after
+    risk_limits_after = _risk_limit_settings(cfg)
+    risk_limit_payload_present = any(key in paper_payload for key in _RISK_LIMIT_SETTING_KEYS)
+    risk_limits_changed = risk_limit_payload_present and risk_limits_before != risk_limits_after
 
     saved, local_message = vd.save_user_yaml(cfg, dry_run=False)
     if not saved:
         return {"ok": False, "message": str(local_message or "Local settings save failed.")}
 
-    operator_event: dict[str, Any] | None = None
+    required_operator_events: list[tuple[str, dict[str, Any]]] = []
     if notifications_changed:
-        operator_event = _record_alert_routing_event(
+        required_operator_events.append(("alert_routing", _record_alert_routing_event(
             pre_state={"notifications": notifications_before},
             post_state={"notifications": notifications_after},
-        )
+        )))
+    if risk_limits_changed:
+        required_operator_events.append(("risk_limit", _record_risk_limit_event(
+            pre_state={"risk_limits": risk_limits_before},
+            post_state={"risk_limits": risk_limits_after},
+        )))
+    for failed_family, operator_event in required_operator_events:
         if not bool(operator_event.get("ok")):
             rollback_saved, rollback_message = vd.save_user_yaml(rollback_cfg, dry_run=False)
             return {
                 "ok": False,
-                "message": "Notification settings save rolled back because operator-event audit failed.",
-                "reason": "operator_event_write_failed_alert_routing_rolled_back",
+                "message": "Settings save rolled back because operator-event audit failed.",
+                "reason": f"operator_event_write_failed_{failed_family}_rolled_back",
                 "operator_event": operator_event,
                 "rollback": {"ok": bool(rollback_saved), "message": str(rollback_message or "")},
             }
@@ -147,8 +192,10 @@ def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER
             "data": dict(envelope["data"]),
             "message": "Settings saved locally and synced to the local API.",
         }
-        if operator_event is not None:
-            out["operator_event"] = operator_event
+        operator_events = [event for _family, event in required_operator_events]
+        if operator_events:
+            out["operator_event"] = operator_events[0]
+            out["operator_events"] = operator_events
         return out
 
     error = envelope.get("error") if isinstance(envelope, dict) else None
@@ -156,8 +203,10 @@ def update_settings_view(payload: dict[str, Any], *, current_role: str = "VIEWER
     if isinstance(error, dict) and str(error.get("message") or "").strip():
         message = f"Settings saved locally; API sync skipped: {str(error['message'])}"
     out = {"ok": True, "data": payload, "message": message}
-    if operator_event is not None:
-        out["operator_event"] = operator_event
+    operator_events = [event for _family, event in required_operator_events]
+    if operator_events:
+        out["operator_event"] = operator_events[0]
+        out["operator_events"] = operator_events
     return out
 
 
