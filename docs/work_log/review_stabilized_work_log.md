@@ -21342,3 +21342,59 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, host-side dashboard exercise, direct manifest file
   edits, CLI/runtime config edits, and campaign manifest changes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T09:14:10Z - Dashboard Auth Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for dashboard login, logout, and MFA
+  changes by hooking the central dashboard auth gate to the unified
+  operator-event journal.
+
+What was found:
+- SHOWN: `dashboard.auth_gate` owns dashboard session login success, failed
+  login lockout updates, logout, MFA enrollment preparation, MFA confirmation,
+  MFA disable, MFA setup cancellation, and MFA challenge transitions.
+- SHOWN: the operator-audit coverage matrix classified `dashboard
+  login/logout/MFA/role change` as MISSING before this change.
+- SHOWN: auth flows handle passwords, MFA codes, TOTP secrets, OTP URIs, and
+  backup codes, so event payloads must remain metadata-only.
+
+What changed:
+- Added best-effort `dashboard_login`, `dashboard_logout`,
+  `dashboard_mfa_change`, and `dashboard_mfa_challenge` operator-event appends
+  at central auth state transitions.
+- Events record username, role/source metadata, result, reason, lockout status,
+  MFA pending/enabled flags, and backup-code counts only.
+- Events explicitly avoid recording passwords, MFA codes, TOTP secrets, OTP
+  URIs, or backup code values.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- The central auth gate covers the dashboard session and MFA transitions
+  without modifying the user-auth-store secret handling or credential
+  verification code.
+- Best-effort event writes avoid locking the operator out if the audit journal
+  is unavailable, while still surfacing audit-write failures in logs.
+
+Expected outcome:
+- Dashboard login/logout/MFA transitions produce replayable metadata-only
+  operator-event records when the journal is writable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_auth_gate.py tests/test_auth_capabilities.py tests/test_user_auth_store.py tests/test_user_auth_store_login_enumeration.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `48 passed in 1.79s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `dashboard login/logout/MFA/role change` now reports `PARTIAL`;
+    counts are `SHOWN=0`, `PARTIAL=10`, `MISSING=1`.
+- `./.venv/bin/python -m py_compile dashboard/auth_gate.py tests/test_auth_gate.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches dashboard authentication and MFA transition code.
+- UNVERIFIED: GitHub CI, host-side dashboard exercise, no-secret scan over real
+  auth events, and user role management changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

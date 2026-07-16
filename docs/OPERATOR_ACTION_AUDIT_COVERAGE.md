@@ -108,6 +108,13 @@ attempts to roll back to the prior config and reports the failure. Direct
 manifest file edits, CLI/runtime config edits, and campaign manifest changes
 remain unclassified.
 
+Current partial hook for dashboard authentication: `dashboard.auth_gate`
+appends best-effort `dashboard_login`, `dashboard_logout`,
+`dashboard_mfa_change`, and `dashboard_mfa_challenge` events for session and
+MFA transitions. These events record usernames, roles, sources, result, and
+state metadata only; they do not log passwords, MFA codes, TOTP secrets, OTP
+URIs, or backup code values. User role management changes remain unclassified.
+
 Current partial hook for strategy stage transitions:
 `services.control.deployment_stage` appends best-effort
 `strategy_stage_transition` events for central promote, demote, and

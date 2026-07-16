@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from dashboard import auth_gate
@@ -138,6 +140,57 @@ def test_failed_logins_trigger_lockout_and_success_resets(monkeypatch) -> None:
     assert fake.session_state[auth_gate.FAILED_LOGIN_COUNT_KEY] == 0
     assert fake.session_state[auth_gate.FAILED_LOGIN_LOCKOUT_UNTIL_KEY] == 0
     assert fake.session_state[auth_gate.SESSION_KEY]["ok"] is True
+
+
+def test_auth_operator_events_are_metadata_only(monkeypatch) -> None:
+    calls: list[dict[str, object]] = []
+
+    def _append_operator_event(**kwargs):
+        calls.append(kwargs)
+        return {"event_id": "evt-auth", "path": "/tmp/operator_events.jsonl"}
+
+    monkeypatch.setattr(auth_gate, "append_operator_event", _append_operator_event)
+
+    result = auth_gate._record_dashboard_auth_event(
+        action="dashboard_mfa_change",
+        username="operator",
+        result="success",
+        reason="confirm_mfa_enrollment",
+        pre_state={"mfa_enabled": False, "enrollment_pending": True},
+        post_state={"mfa_enabled": True, "enrollment_pending": False},
+        extra={
+            "secret_payload_logged": False,
+            "backup_code_count": 4,
+        },
+    )
+
+    assert result == {"ok": True, "event_id": "evt-auth", "path": "/tmp/operator_events.jsonl"}
+    assert calls[0]["actor"] == "operator"
+    assert calls[0]["action"] == "dashboard_mfa_change"
+    assert calls[0]["target"] == "operator"
+    assert calls[0]["source"] == "dashboard.auth_gate"
+    assert calls[0]["extra"]["surface"] == "dashboard_auth"
+    assert calls[0]["extra"]["secret_payload_logged"] is False
+    serialized = json.dumps(calls[0], sort_keys=True)
+    assert "password" not in serialized.lower()
+    assert "totp-secret" not in serialized
+    assert "123456" not in serialized
+
+
+def test_auth_operator_event_failure_is_explicit(monkeypatch) -> None:
+    def _append_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(auth_gate, "append_operator_event", _append_operator_event)
+
+    result = auth_gate._record_dashboard_auth_event(
+        action="dashboard_login",
+        username="operator",
+        result="success",
+        reason="login_success",
+    )
+
+    assert result == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
 
 
 def test_require_authenticated_role_allows_dev_bypass(monkeypatch) -> None:
@@ -363,12 +416,21 @@ def test_bootstrap_user_fails_closed_when_auth_store_is_unavailable(monkeypatch)
 def test_logout_clears_session_state(monkeypatch):
     from dashboard import auth_gate
 
+    calls: list[dict[str, object]] = []
     fake_state = {"authenticated": True}
     monkeypatch.setattr(auth_gate.st, "session_state", fake_state, raising=False)
+    monkeypatch.setattr(
+        auth_gate,
+        "append_operator_event",
+        lambda **kwargs: calls.append(kwargs)
+        or {"event_id": "evt-logout", "path": "/tmp/operator_events.jsonl"},
+    )
 
     auth_gate.logout()
     assert fake_state["cbp_auth_session"]["ok"] is False
     assert "user" not in fake_state["cbp_auth_session"]
+    assert calls[0]["action"] == "dashboard_logout"
+    assert calls[0]["result"] == "success"
 
 def test_login_requires_mfa_when_user_has_mfa_enabled(monkeypatch):
     from dashboard import auth_gate
