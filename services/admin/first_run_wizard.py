@@ -169,8 +169,13 @@ def guided_setup_apply(patch: dict | None = None) -> dict:
     cfg = merge_defaults(cfg, {})
     if patch:
         cfg = merge_defaults(patch, cfg)
-    save_user_yaml(cfg)
+    ok, msg = save_user_yaml(cfg)
+    save = {"ok": bool(ok), "message": str(msg or "")}
+    if not save["ok"]:
+        return {"ok": False, "reason": "config_save_failed", "save": save}
     return {
+        "ok": True,
+        "save": save,
         "summary": guided_setup_review(),
         "preflight": run_preflight_now(),
     }
@@ -179,8 +184,14 @@ def guided_setup_apply_preset(preset: str) -> dict:
     cfg = load_user_yaml()
     cfg = merge_defaults(cfg, {})
     cfg = apply_risk_preset(cfg, preset)
-    save_user_yaml(cfg)
+    ok, msg = save_user_yaml(cfg)
+    save = {"ok": bool(ok), "message": str(msg or "")}
+    if not save["ok"]:
+        return {"ok": False, "reason": "config_save_failed", "save": save, "preset": str(preset)}
     return {
+        "ok": True,
+        "save": save,
+        "preset": str(preset),
         "summary": guided_setup_review(),
         "preflight": run_preflight_now(),
     }
@@ -195,4 +206,3 @@ def guided_setup_state() -> dict:
 def guided_setup_apply_state(patch: dict | None = None) -> dict:
     guided_setup_apply(patch)
     return guided_setup_state()
-

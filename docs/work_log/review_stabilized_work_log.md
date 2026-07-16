@@ -22086,3 +22086,60 @@ Remaining risk:
 - UNVERIFIED: broader regression suite, GitHub CI, deeper one-off reconcile
   scripts, and future mutating override paths.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T19:18:39Z - First-Run Risk-Preset Save Fail-Closed Reporting (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Prevent first-run guided setup from reporting progress after an audited
+  runtime-config save fails or rolls back.
+
+What was found:
+- SHOWN: `services.admin.first_run_wizard.guided_setup_apply()` and
+  `guided_setup_apply_preset()` call the central audited `save_user_yaml()`
+  helper.
+- SHOWN: before this change, both functions ignored the `(ok, message)` result
+  and continued to review/preflight, so an
+  `operator_event_write_failed_runtime_config_rolled_back` result could be
+  hidden by a successful-looking setup response.
+- SHOWN: `services.app.preflight_wizard.wizard_guided_setup_apply_preset_state()`
+  also discarded the delegated preset-apply result and refreshed state,
+  re-hiding the same failure one layer up.
+
+What changed:
+- `guided_setup_apply()` and `guided_setup_apply_preset()` now return
+  `{"ok": False, "reason": "config_save_failed", "save": ...}` before
+  review/preflight when the audited save reports failure.
+- Successful paths now include explicit `ok` and `save` metadata.
+- `wizard_guided_setup_apply_preset_state()` preserves failed preset-apply
+  results instead of refreshing over them.
+- `render_guided_setup_panel()` exposes a failed guided-setup reason as
+  `ui["error"]`.
+- Updated tests, the audit coverage matrix, operator-audit policy doc, backlog,
+  and this work log.
+
+Why this change was chosen:
+- The central config-save helper already owns audit persistence and rollback.
+  The first-run flow needed to honor that result instead of treating failed
+  audited saves as successful setup progress.
+
+Expected outcome:
+- First-run risk-preset changes cannot silently appear successful when the
+  audited runtime-config save was refused and rolled back.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_first_run_wizard.py tests/test_preflight_wizard_bridges.py tests/test_config_editor_audit.py tests/test_config_editor_compat.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `66 passed in 0.64s`.
+- `./.venv/bin/python -m py_compile services/admin/first_run_wizard.py services/app/preflight_wizard.py tests/test_first_run_wizard.py tests/test_preflight_wizard_bridges.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: changes first-run setup response shape on successful apply paths by
+  adding `ok`/`save` metadata and changes failed save paths to return explicit
+  failure instead of continuing.
+- UNVERIFIED: broader regression suite, GitHub CI, direct file edits, env
+  live-risk caps, and non-user.yaml risk changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

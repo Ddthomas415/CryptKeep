@@ -348,7 +348,7 @@ def test_guided_setup_apply_saves_patch_and_returns_review_and_preflight(monkeyp
     saved = {}
 
     monkeypatch.setattr(frw, "load_user_yaml", lambda: {"symbols": ["BTC/USD"], "execution": {"executor_mode": "paper", "live_enabled": False}})
-    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg))
+    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg) and (True, "Saved"))
     monkeypatch.setattr(frw, "guided_setup_review", lambda: {"exchange": "kraken", "symbol_count": 2})
     monkeypatch.setattr(frw, "run_preflight_now", lambda: {"ok": True, "ready": True})
 
@@ -361,24 +361,52 @@ def test_guided_setup_apply_saves_patch_and_returns_review_and_preflight(monkeyp
 
     assert saved["cfg"]["symbols"] == ["ETH/USD", "BTC/USD"]
     assert saved["cfg"]["pipeline"]["exchange_id"] == "kraken"
-    assert out == {
-        "summary": {"exchange": "kraken", "symbol_count": 2},
-        "preflight": {"ok": True, "ready": True},
-    }
+    assert out["ok"] is True
+    assert out["save"] == {"ok": True, "message": "Saved"}
+    assert out["summary"] == {"exchange": "kraken", "symbol_count": 2}
+    assert out["preflight"] == {"ok": True, "ready": True}
 
 
 def test_guided_setup_apply_without_patch_round_trips_existing_config(monkeypatch):
     saved = {}
     monkeypatch.setattr(frw, "load_user_yaml", lambda: {"symbols": ["BTC/USD"]})
-    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg))
+    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg) and (True, "Saved"))
     monkeypatch.setattr(frw, "guided_setup_review", lambda: {"exchange": "coinbase", "symbol_count": 1})
     monkeypatch.setattr(frw, "run_preflight_now", lambda: {"ok": False, "ready": False})
 
     out = frw.guided_setup_apply()
 
     assert saved["cfg"]["symbols"] == ["BTC/USD"]
+    assert out["ok"] is True
     assert out["summary"]["exchange"] == "coinbase"
     assert out["preflight"]["ok"] is False
+
+
+def test_guided_setup_apply_fails_closed_when_audited_save_fails(monkeypatch):
+    reviewed = {"called": False}
+    preflight = {"called": False}
+
+    monkeypatch.setattr(frw, "load_user_yaml", lambda: {"symbols": ["BTC/USD"]})
+    monkeypatch.setattr(
+        frw,
+        "save_user_yaml",
+        lambda cfg: (False, "operator_event_write_failed_runtime_config_rolled_back"),
+    )
+    monkeypatch.setattr(frw, "guided_setup_review", lambda: reviewed.update(called=True))
+    monkeypatch.setattr(frw, "run_preflight_now", lambda: preflight.update(called=True))
+
+    out = frw.guided_setup_apply({"symbols": ["ETH/USD"]})
+
+    assert out == {
+        "ok": False,
+        "reason": "config_save_failed",
+        "save": {
+            "ok": False,
+            "message": "operator_event_write_failed_runtime_config_rolled_back",
+        },
+    }
+    assert reviewed["called"] is False
+    assert preflight["called"] is False
 
 
 def test_guided_setup_apply_preset_saves_preset_result(monkeypatch):
@@ -394,7 +422,7 @@ def test_guided_setup_apply_preset_saves_preset_result(monkeypatch):
             "risk": {},
         },
     )
-    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg))
+    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg) and (True, "Saved"))
     monkeypatch.setattr(frw, "guided_setup_review", lambda: {"exchange": "kraken", "symbol_count": 1})
     monkeypatch.setattr(frw, "run_preflight_now", lambda: {"ok": True, "ready": True})
 
@@ -404,10 +432,11 @@ def test_guided_setup_apply_preset_saves_preset_result(monkeypatch):
     assert saved["cfg"]["execution"]["live_enabled"] is False
     assert saved["cfg"]["risk"]["exchange_allowlist"] == ["kraken"]
     assert saved["cfg"]["risk"]["symbol_allowlist"] == ["ETH/USD"]
-    assert out == {
-        "summary": {"exchange": "kraken", "symbol_count": 1},
-        "preflight": {"ok": True, "ready": True},
-    }
+    assert out["ok"] is True
+    assert out["save"] == {"ok": True, "message": "Saved"}
+    assert out["preset"] == "live_locked"
+    assert out["summary"] == {"exchange": "kraken", "symbol_count": 1}
+    assert out["preflight"] == {"ok": True, "ready": True}
 
 
 def test_guided_setup_apply_preset_keeps_review_flow_when_unknown(monkeypatch):
@@ -423,15 +452,53 @@ def test_guided_setup_apply_preset_keeps_review_flow_when_unknown(monkeypatch):
             "risk": {"max_notional": 77.0},
         },
     )
-    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg))
+    monkeypatch.setattr(frw, "save_user_yaml", lambda cfg: saved.setdefault("cfg", cfg) and (True, "Saved"))
     monkeypatch.setattr(frw, "guided_setup_review", lambda: {"exchange": "coinbase", "symbol_count": 1})
     monkeypatch.setattr(frw, "run_preflight_now", lambda: {"ok": False, "ready": False})
 
     out = frw.guided_setup_apply_preset("unknown_preset_name")
 
     assert saved["cfg"]["risk"]["max_notional"] == 77.0
+    assert out["ok"] is True
     assert out["summary"]["exchange"] == "coinbase"
     assert out["preflight"]["ok"] is False
+
+
+def test_guided_setup_apply_preset_fails_closed_when_audited_save_fails(monkeypatch):
+    reviewed = {"called": False}
+    preflight = {"called": False}
+
+    monkeypatch.setattr(
+        frw,
+        "load_user_yaml",
+        lambda: {
+            "symbols": ["ETH/USD"],
+            "pipeline": {"exchange_id": "kraken"},
+            "execution": {"executor_mode": "paper", "live_enabled": False},
+            "risk": {},
+        },
+    )
+    monkeypatch.setattr(
+        frw,
+        "save_user_yaml",
+        lambda cfg: (False, "operator_event_write_failed_runtime_config_rolled_back"),
+    )
+    monkeypatch.setattr(frw, "guided_setup_review", lambda: reviewed.update(called=True))
+    monkeypatch.setattr(frw, "run_preflight_now", lambda: preflight.update(called=True))
+
+    out = frw.guided_setup_apply_preset("live_locked")
+
+    assert out == {
+        "ok": False,
+        "reason": "config_save_failed",
+        "save": {
+            "ok": False,
+            "message": "operator_event_write_failed_runtime_config_rolled_back",
+        },
+        "preset": "live_locked",
+    }
+    assert reviewed["called"] is False
+    assert preflight["called"] is False
 
 
 def test_guided_setup_state_combines_summary_preflight_and_status(monkeypatch):
