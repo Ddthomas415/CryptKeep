@@ -68,7 +68,7 @@ class TestPromotion:
         assert event["post_state"]["stage"] == "shadow"
         assert event["source"] == "services.control.deployment_stage"
 
-    def test_operator_event_failure_does_not_block_stage_transition(self, monkeypatch):
+    def test_operator_event_failure_blocks_promotion_and_rolls_back(self, monkeypatch):
         from services.control import deployment_stage as ds
 
         def _raise(**_kwargs):
@@ -78,9 +78,13 @@ class TestPromotion:
 
         result = promote(SID, reason="audit_store_down", actor="operator_script")
 
-        assert result["ok"] is True
-        assert result["stage"] == Stage.SHADOW.value
-        assert get_current_stage(SID) == Stage.SHADOW
+        assert result["ok"] is False
+        assert result["reason"] == "operator_event_write_failed_stage_promotion_rolled_back"
+        assert result["stage"] == Stage.PAPER.value
+        assert result["attempted_stage"] == Stage.SHADOW.value
+        assert result["operator_event"]["reason"] == "operator_event_write_failed:PermissionError"
+        assert result["rollback"] == {"ok": True, "stage": Stage.PAPER.value}
+        assert get_current_stage(SID) == Stage.PAPER
 
     def test_promote_shadow_to_capped_live(self):
         promote(SID, reason="step1", actor="test")  # paper→shadow
@@ -149,6 +153,28 @@ class TestDemotion:
         assert event["reason"] == "operator_rollback"
         assert event["pre_state"] == {"stage": "shadow"}
         assert event["post_state"]["stage"] == "paper"
+
+    def test_operator_event_failure_does_not_block_demotion(self, monkeypatch):
+        from services.control import deployment_stage as ds
+
+        promote(SID, reason="up", actor="test")
+
+        def _raise(**_kwargs):
+            raise PermissionError("journal denied")
+
+        monkeypatch.setattr(ds, "append_operator_event", _raise)
+
+        result = demote(
+            SID,
+            reason="audit_store_down",
+            actor="operator_script",
+            target=Stage.PAPER,
+        )
+
+        assert result["ok"] is True
+        assert result["stage"] == Stage.PAPER.value
+        assert result["operator_event"]["reason"] == "operator_event_write_failed:PermissionError"
+        assert get_current_stage(SID) == Stage.PAPER
 
     def test_demote_shadow_to_paper_with_explicit_target(self):
         """demote() with target=Stage.PAPER goes to paper."""
