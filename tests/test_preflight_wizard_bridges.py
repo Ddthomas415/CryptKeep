@@ -89,6 +89,38 @@ def test_wizard_guided_setup_apply_preset_state_delegates(monkeypatch):
         "status": {"config_ok": True},
     }
 
+
+def test_wizard_guided_setup_apply_preset_state_preserves_apply_failure(monkeypatch):
+    monkeypatch.setattr(
+        pw,
+        "guided_setup_apply_preset",
+        lambda preset: {
+            "ok": False,
+            "reason": "config_save_failed",
+            "preset": preset,
+            "save": {"ok": False, "message": "operator_event_write_failed"},
+        },
+    )
+
+    def _state_should_not_run():
+        raise AssertionError("guided_setup_state should not run after failed preset save")
+
+    monkeypatch.setattr(pw, "guided_setup_state", _state_should_not_run)
+
+    out = pw.wizard_guided_setup_apply_preset_state("safe_paper")
+
+    assert out == {
+        "ok": False,
+        "reason": "config_save_failed",
+        "apply": {
+            "ok": False,
+            "reason": "config_save_failed",
+            "preset": "safe_paper",
+            "save": {"ok": False, "message": "operator_event_write_failed"},
+        },
+    }
+
+
 def test_wizard_guided_setup_page_data_splits_state(monkeypatch):
     monkeypatch.setattr(
         pw,
@@ -155,6 +187,27 @@ def test_render_guided_setup_panel_apply_preset_action(monkeypatch):
     assert out["summary"]["exchange"] == "kraken"
     assert ui["last_action"] == "apply_preset"
     assert ui["preflight"]["ok"] is True
+
+
+def test_render_guided_setup_panel_exposes_apply_preset_failure(monkeypatch):
+    ui = {"action": "apply_preset", "preset": "safe_paper"}
+
+    monkeypatch.setattr(
+        pw,
+        "wizard_guided_setup_apply_preset_state",
+        lambda preset: {
+            "ok": False,
+            "reason": "config_save_failed",
+            "apply": {"preset": preset},
+        },
+    )
+
+    out = pw.render_guided_setup_panel(ui)
+
+    assert out["ok"] is False
+    assert out["reason"] == "config_save_failed"
+    assert ui["error"] == "config_save_failed"
+    assert ui["last_action"] == "apply_preset"
 
 
 def test_render_guided_setup_panel_apply_patch_action(monkeypatch):
@@ -230,4 +283,3 @@ def test_render_guided_setup_panel_default_load_action(monkeypatch):
     assert ui["preflight"]["ok"] is True
     assert ui["status"]["config_ok"] is True
     assert ui["last_action"] == "load"
-

@@ -217,7 +217,9 @@ def wizard_guided_setup_apply_preset(preset: str) -> dict:
     return guided_setup_apply_preset(preset)
 
 def wizard_guided_setup_apply_preset_state(preset: str) -> dict:
-    guided_setup_apply_preset(preset)
+    apply_result = guided_setup_apply_preset(preset)
+    if isinstance(apply_result, dict) and apply_result.get("ok") is False:
+        return {"ok": False, "reason": apply_result.get("reason"), "apply": apply_result}
     return guided_setup_state()
 
 def wizard_guided_setup_page_data() -> dict:
@@ -246,6 +248,8 @@ def render_guided_setup_panel(ui) -> dict:
     ui["summary"] = summary
     ui["preflight"] = preflight
     ui["status"] = status
+    if isinstance(state, dict) and state.get("ok") is False:
+        ui["error"] = state.get("reason") or "guided_setup_failed"
     ui["last_action"] = action or "load"
 
     return state
