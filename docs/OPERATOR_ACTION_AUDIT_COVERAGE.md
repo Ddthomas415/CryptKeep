@@ -132,9 +132,13 @@ remain unclassified.
 Current partial hook for dashboard authentication: `dashboard.auth_gate`
 appends best-effort `dashboard_login`, `dashboard_logout`,
 `dashboard_mfa_change`, and `dashboard_mfa_challenge` events for session and
-MFA transitions. These events record usernames, roles, sources, result, and
-state metadata only; they do not log passwords, MFA codes, TOTP secrets, OTP
-URIs, or backup code values. User role management changes remain unclassified.
+MFA transitions. `services.security.user_auth_store` appends best-effort
+`dashboard_user_auth_store_change` events for central user upsert/bootstrap,
+MFA enrollment/confirmation/disablement, backup-code consumption, and
+login-hash upgrades. These events record usernames, roles, sources, result,
+and state metadata only; they do not log passwords, hashes, MFA codes, TOTP
+secrets, OTP URIs, or backup code values. Future user/role management surfaces
+that bypass `user_auth_store` remain unclassified.
 
 Current partial hook for strategy stage transitions:
 `services.control.deployment_stage` appends best-effort
