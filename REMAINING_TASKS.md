@@ -1433,6 +1433,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     restore audit-write fail-closed policy remains open because the unified
     journal is stored under the data directory that restore replaces, and
     migrations/rollbacks beyond git/work-log evidence remain unclassified.
+    2026-07-16: audit matrix intent-history runtime honesty slice is ready for
+    independent review. `scripts/audit_coverage_matrix.py` now separates
+    source-declared `live_trade_intent_events` support from the current runtime
+    SQLite store actually having that table. An old/unmigrated
+    `live_intent_queue.sqlite` no longer gets `history(per-transition runtime
+    table)` in `fields_present`; it reports
+    `history(runtime table absent in current store)` until the schema is
+    initialized/migrated. This is an audit-reporting correction, not a runtime
+    queue behavior change.
     2026-07-16: CLI restore audit-write fail-closed slice is ready for
     independent review. `scripts/backup_state.py restore` now runs backup
     verification plus lock/force guards first, then requires a pre-mutation

@@ -65,6 +65,7 @@ def _probe_intent_lifecycle() -> dict:
             finally:
                 con.close()
         event_history_declared = "live_trade_intent_events" in str(getattr(q, "SCHEMA", ""))
+        event_history_table_exists = bool(event_cols)
         fields_present = [
             "timestamp(created_ts/updated_ts)",
             "actor(source)",
@@ -72,22 +73,27 @@ def _probe_intent_lifecycle() -> dict:
             "target(venue/symbol)",
             "result(status/last_error)",
         ]
-        if event_history_declared:
-            fields_present.append("history(per-transition)")
+        fields_missing = []
+        if event_history_table_exists:
+            fields_present.append("history(per-transition runtime table)")
+        elif event_history_declared:
+            fields_missing.append("history(runtime table absent in current store)")
+        else:
+            fields_missing += [
+                "pre_state",
+                "post_state",
+                "reason",
+                "history(per-transition)",
+            ]
         return {
             "store": str(db),
             "store_exists": db.exists(),
             "columns": cols,
             "event_columns": event_cols,
             "event_history_declared": event_history_declared,
-            "event_history_table_exists": bool(event_cols),
+            "event_history_table_exists": event_history_table_exists,
             "fields_present": fields_present,
-            "fields_missing": [] if event_history_declared else [
-                "pre_state",
-                "post_state",
-                "reason",
-                "history(per-transition)",
-            ],
+            "fields_missing": fields_missing,
         }
     except Exception as exc:
         return {"probe_error": f"{type(exc).__name__}: {exc}"}
@@ -187,9 +193,10 @@ FAMILIES = [
         "notes": (
             "intent rows carry current state, and live_trade_intent_events records "
             "append-only per-transition history for insert, claim, and successful "
-            "status updates with pre/post status, reason, actor, source, and order "
-            "identifiers. Fills remain stored separately, and venue reconciliation/"
-            "event unification beyond the queue store remains open."
+            "status updates after the live queue schema has been initialized. The "
+            "runtime probe reports whether the current store actually has that event "
+            "table. Fills remain stored separately, and venue reconciliation/event "
+            "unification beyond the queue store remains open."
         ),
     },
     {

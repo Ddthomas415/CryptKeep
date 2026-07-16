@@ -98,8 +98,38 @@ def test_intent_probe_reads_real_schema(monkeypatch, tmp_path):
     for col in ("created_ts", "updated_ts", "source", "status", "last_error"):
         assert col in probe["columns"]
     assert probe["event_history_declared"] is True
-    assert "history(per-transition)" in probe["fields_present"]
+    assert "history(per-transition runtime table)" in probe["fields_present"]
     assert not probe["fields_missing"]
+
+
+def test_intent_probe_does_not_overclaim_history_for_unmigrated_store(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    import services.os.app_paths as app_paths
+
+    importlib.reload(app_paths)
+    from services.os.app_paths import data_dir
+
+    data_dir().mkdir(parents=True, exist_ok=True)
+    db = data_dir() / "live_intent_queue.sqlite"
+    con = sqlite3.connect(db)
+    try:
+        con.execute("CREATE TABLE live_trade_intents (intent_id TEXT PRIMARY KEY, created_ts TEXT, updated_ts TEXT, source TEXT, status TEXT, last_error TEXT)")
+        con.commit()
+    finally:
+        con.close()
+
+    import storage.live_intent_queue_sqlite as q
+
+    importlib.reload(q)
+    acm = _mod()
+
+    probe = acm._probe_intent_lifecycle()
+
+    assert probe["store_exists"] is True
+    assert probe["event_history_declared"] is True
+    assert probe["event_history_table_exists"] is False
+    assert not any("history(per-transition runtime table)" == item for item in probe["fields_present"])
+    assert "history(runtime table absent in current store)" in probe["fields_missing"]
 
 
 def test_cli_evidence_and_strict_posture(tmp_path):
