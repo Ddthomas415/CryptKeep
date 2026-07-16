@@ -46,26 +46,48 @@ def _probe_arming_state() -> dict:
 
 
 def _probe_intent_lifecycle() -> dict:
-    """order intent creation/claim/submit/...: sqlite rows carry
-    created_ts/ts/updated_ts/source/status/last_error but only the CURRENT
-    row -- transitions overwrite, no per-transition history."""
+    """order intent creation/claim/submit/...: sqlite rows carry current state;
+    event table support is reported without mutating the operator DB."""
     try:
         import storage.live_intent_queue_sqlite as q  # read-only
 
         cols: list[str] = []
+        event_cols: list[str] = []
         db = Path(q.DB_PATH)
         if db.exists():
             con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
             try:
                 cols = [r[1] for r in con.execute("PRAGMA table_info(live_trade_intents)")]
+                event_cols = [
+                    r[1]
+                    for r in con.execute("PRAGMA table_info(live_trade_intent_events)")
+                ]
             finally:
                 con.close()
+        event_history_declared = "live_trade_intent_events" in str(getattr(q, "SCHEMA", ""))
+        fields_present = [
+            "timestamp(created_ts/updated_ts)",
+            "actor(source)",
+            "action(status)",
+            "target(venue/symbol)",
+            "result(status/last_error)",
+        ]
+        if event_history_declared:
+            fields_present.append("history(per-transition)")
         return {
             "store": str(db),
             "store_exists": db.exists(),
             "columns": cols,
-            "fields_present": ["timestamp(created_ts/updated_ts)", "actor(source)", "action(status)", "target(venue/symbol)", "result(status/last_error)"],
-            "fields_missing": ["pre_state", "post_state", "reason", "history(per-transition)"],
+            "event_columns": event_cols,
+            "event_history_declared": event_history_declared,
+            "event_history_table_exists": bool(event_cols),
+            "fields_present": fields_present,
+            "fields_missing": [] if event_history_declared else [
+                "pre_state",
+                "post_state",
+                "reason",
+                "history(per-transition)",
+            ],
         }
     except Exception as exc:
         return {"probe_error": f"{type(exc).__name__}: {exc}"}
@@ -137,7 +159,13 @@ FAMILIES = [
         "surfaces": ["system", "automation"],
         "classification": "PARTIAL",
         "probe": _probe_intent_lifecycle,
-        "notes": "intent rows carry timestamps/source/status/last_error but transitions overwrite in place; fills are stored separately; no per-transition history.",
+        "notes": (
+            "intent rows carry current state, and live_trade_intent_events records "
+            "append-only per-transition history for insert, claim, and successful "
+            "status updates with pre/post status, reason, actor, source, and order "
+            "identifiers. Fills remain stored separately, and venue reconciliation/"
+            "event unification beyond the queue store remains open."
+        ),
     },
     {
         "family": "manual reconciliation override",

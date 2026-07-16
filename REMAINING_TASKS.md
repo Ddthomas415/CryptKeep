@@ -1501,6 +1501,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     reason, timestamp, and transition result. The coverage matrix moves
     strategy stage promotion/demotion from MISSING to PARTIAL. Remaining proof:
     promotion audit-write fail-closed policy and host-side promotion proof.
+    2026-07-16: live intent transition-history hook is ready for independent
+    review. `storage.live_intent_queue_sqlite` now creates append-only
+    `live_trade_intent_events` rows for successful intent insert, queued-claim,
+    and status-transition mutations, recording intent id, timestamp, actor,
+    action, pre/post status, reason, source, last error, and order identifiers.
+    Duplicate insert attempts, invalid backward transitions, and terminal
+    overwrite attempts do not create history rows. This narrows the order
+    intent lifecycle family; remaining coverage is venue reconciliation/fill
+    event unification beyond the queue store and any future lifecycle mutation
+    path that bypasses `LiveIntentQueueSQLite`.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but
