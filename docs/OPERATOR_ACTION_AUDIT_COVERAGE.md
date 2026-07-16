@@ -94,6 +94,13 @@ result only; config payloads and values are not logged. Direct file edits,
 environment overrides, campaign manifest files, and fail-closed audit-write
 policy remain unclassified.
 
+Current partial hook for order-intent lifecycle: `storage.live_intent_queue_sqlite`
+maintains current intent rows and an append-only `live_trade_intent_events`
+table for intent insert, queue claim, and successful status transitions. Events
+record intent ID, timestamp, actor, action, pre/post status, reason, source,
+last error, and order identifiers. Fills remain stored separately, and
+venue-reconciliation event unification beyond the queue store remains open.
+
 Current partial hook for backup/restore: `scripts/backup_state.py` appends
 best-effort unified operator events for backup, verify, blocked restore, and
 successful restore command results. Restore audit-write fail-closed policy

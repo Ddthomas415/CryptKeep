@@ -21616,3 +21616,62 @@ Remaining risk:
   future user/role management surfaces that bypass `user_auth_store`, and
   fail-closed audit-write policy.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T11:42:21Z - Live Intent Transition History (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for order intent lifecycle transitions
+  by adding append-only per-transition history to the live intent queue store.
+
+What was found:
+- SHOWN: `live_trade_intents` carries current intent state with
+  `created_ts`, `updated_ts`, `source`, `status`, and `last_error`.
+- SHOWN: successful lifecycle transitions currently overwrite the current row,
+  so the store cannot answer which actor moved an intent from one status to
+  another after the fact.
+- SHOWN: the three central mutation seams are `upsert_intent`,
+  `claim_next_queued`, and `update_status`.
+
+What changed:
+- Added `live_trade_intent_events`, an append-only SQLite table with
+  `event_id`, intent id, timestamp, actor, action, pre/post status, reason,
+  last error, client/exchange order ids, source, and metadata.
+- `upsert_intent` records an `insert` event only when the insert actually
+  creates a new row.
+- `claim_next_queued` records `queued -> submitting` events inside the same
+  transaction as the claim update.
+- `update_status` records successful status transitions inside the same
+  transaction as the current-row update.
+- Added `list_intent_events()` as a read-only evidence/reporting helper.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- A separate event table gives replayable lifecycle evidence without changing
+  the canonical current-row query contract.
+- Events are inserted only after successful mutations, so duplicate inserts,
+  invalid backward transitions, and terminal overwrite attempts do not create
+  false transition history.
+
+Expected outcome:
+- Live intent lifecycle state changes have append-only transition history for
+  queue-store insert, claim, and status-update mutations.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_transition_history.py tests/test_live_intent_queue_integrity.py tests/test_intent_queue_integrity.py tests/test_live_intent_queue_claim_race.py tests/test_live_submit_unknown_lifecycle.py tests/test_submit_unknown_not_found_policy.py tests/test_intent_ttl_expiry.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `57 passed in 3.49s`.
+- `./.venv/bin/python -m py_compile storage/live_intent_queue_sqlite.py tests/test_live_intent_transition_history.py scripts/audit_coverage_matrix.py tests/test_operator_audit_coverage.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: order-intent family reports `event_history_declared: true`,
+    `history(per-transition)` present, and `MISSING: 0`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches the live intent queue store used by submit/reconcile paths.
+- UNVERIFIED: GitHub CI, host-side migration on the real state DB, venue
+  reconciliation/fill event unification beyond the queue store, and any future
+  lifecycle mutation path that bypasses `LiveIntentQueueSQLite`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

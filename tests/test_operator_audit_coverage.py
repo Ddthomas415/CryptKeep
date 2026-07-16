@@ -97,7 +97,9 @@ def test_intent_probe_reads_real_schema(monkeypatch, tmp_path):
     assert probe["store_exists"] is True
     for col in ("created_ts", "updated_ts", "source", "status", "last_error"):
         assert col in probe["columns"]
-    assert any("per-transition" in f for f in probe["fields_missing"])  # the gap is named
+    assert probe["event_history_declared"] is True
+    assert "history(per-transition)" in probe["fields_present"]
+    assert not probe["fields_missing"]
 
 
 def test_cli_evidence_and_strict_posture(tmp_path):

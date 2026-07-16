@@ -39,6 +39,23 @@ CREATE TABLE IF NOT EXISTS live_consumer_state (
   k TEXT PRIMARY KEY,
   v TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS live_trade_intent_events (
+  event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  intent_id TEXT NOT NULL,
+  event_ts TEXT NOT NULL,
+  actor TEXT NOT NULL,
+  action TEXT NOT NULL,
+  pre_status TEXT,
+  post_status TEXT NOT NULL,
+  reason TEXT,
+  last_error TEXT,
+  client_order_id TEXT,
+  exchange_order_id TEXT,
+  source TEXT,
+  meta TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_ltie_intent_event ON live_trade_intent_events(intent_id, event_id);
+CREATE INDEX IF NOT EXISTS idx_ltie_event_ts ON live_trade_intent_events(event_ts);
 """
 
 def _now() -> str:
@@ -76,6 +93,53 @@ def _finite_real_input(value: Any, *, name: str, required: bool = True) -> float
         raise ValueError(f"invalid_live_intent_numeric:{name}:{exc}") from exc
 
 
+def _event_meta_json(meta: dict[str, Any] | None) -> str | None:
+    if meta is None:
+        return None
+    return json.dumps(dict(meta), sort_keys=True)
+
+
+def _insert_intent_event(
+    con: sqlite3.Connection,
+    *,
+    intent_id: str,
+    actor: str,
+    action: str,
+    pre_status: str | None,
+    post_status: str,
+    reason: str | None = None,
+    last_error: str | None = None,
+    client_order_id: str | None = None,
+    exchange_order_id: str | None = None,
+    source: str | None = None,
+    event_ts: str | None = None,
+    meta: dict[str, Any] | None = None,
+) -> None:
+    con.execute(
+        """
+        INSERT INTO live_trade_intent_events(
+          intent_id, event_ts, actor, action, pre_status, post_status, reason,
+          last_error, client_order_id, exchange_order_id, source, meta
+        )
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+        """,
+        (
+            str(intent_id),
+            str(event_ts or _now()),
+            str(actor or "system"),
+            str(action or "status_transition"),
+            pre_status,
+            str(post_status),
+            reason,
+            last_error,
+            client_order_id,
+            exchange_order_id,
+            source,
+            _event_meta_json(meta),
+        ),
+    )
+
+
 class LiveIntentQueueSQLite:
     def __init__(self) -> None:
         _connect().close()
@@ -89,7 +153,8 @@ class LiveIntentQueueSQLite:
 
         con = _connect()
         try:
-            con.execute(
+            con.execute("BEGIN IMMEDIATE")
+            cur = con.execute(
                 "INSERT OR IGNORE INTO live_trade_intents(intent_id, created_ts, ts, source, strategy_id, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, exchange_order_id, meta, updated_ts) "
                 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
@@ -112,6 +177,34 @@ class LiveIntentQueueSQLite:
                     now,
                 ),
             )
+            if cur.rowcount == 1:
+                _insert_intent_event(
+                    con,
+                    intent_id=intent_id,
+                    actor=str(row.get("source") or "system"),
+                    action="insert",
+                    pre_status=None,
+                    post_status=str(row["status"]),
+                    reason="upsert_intent_insert",
+                    last_error=row.get("last_error"),
+                    client_order_id=row.get("client_order_id"),
+                    exchange_order_id=row.get("exchange_order_id"),
+                    source=str(row.get("source") or ""),
+                    event_ts=now,
+                    meta={
+                        "insert_only": True,
+                        "venue": str(row["venue"]),
+                        "symbol": str(row["symbol"]),
+                        "strategy_id": row.get("strategy_id"),
+                    },
+                )
+            con.execute("COMMIT")
+        except Exception:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
         finally:
             con.close()
 
@@ -133,6 +226,47 @@ class LiveIntentQueueSQLite:
                     "side": r[7], "order_type": r[8], "qty": r[9], "limit_price": r[10], "status": r[11],
                     "last_error": r[12], "client_order_id": r[13], "exchange_order_id": r[14],
                     "meta": json.loads(r[15]) if r[15] else None, "updated_ts": r[16],
+                }
+                for r in rows
+            ]
+        finally:
+            con.close()
+
+    def list_intent_events(
+        self,
+        *,
+        intent_id: str | None = None,
+        limit: int = 500,
+    ) -> List[Dict[str, Any]]:
+        con = _connect()
+        try:
+            q = (
+                "SELECT event_id, intent_id, event_ts, actor, action, pre_status, "
+                "post_status, reason, last_error, client_order_id, exchange_order_id, "
+                "source, meta FROM live_trade_intent_events"
+            )
+            args: list[Any] = []
+            if intent_id:
+                q += " WHERE intent_id=?"
+                args.append(str(intent_id))
+            q += " ORDER BY event_id ASC LIMIT ?"
+            args.append(int(limit))
+            rows = con.execute(q, tuple(args)).fetchall()
+            return [
+                {
+                    "event_id": r[0],
+                    "intent_id": r[1],
+                    "event_ts": r[2],
+                    "actor": r[3],
+                    "action": r[4],
+                    "pre_status": r[5],
+                    "post_status": r[6],
+                    "reason": r[7],
+                    "last_error": r[8],
+                    "client_order_id": r[9],
+                    "exchange_order_id": r[10],
+                    "source": r[11],
+                    "meta": json.loads(r[12]) if r[12] else None,
                 }
                 for r in rows
             ]
@@ -185,6 +319,21 @@ class LiveIntentQueueSQLite:
                 )
                 if cur.rowcount != 1:
                     continue
+                _insert_intent_event(
+                    con,
+                    intent_id=intent_id,
+                    actor="intent_consumer",
+                    action="claim_next_queued",
+                    pre_status="queued",
+                    post_status="submitting",
+                    reason="claim_next_queued",
+                    last_error=r[12],
+                    client_order_id=client_order_id,
+                    exchange_order_id=r[14],
+                    source=r[3],
+                    event_ts=now,
+                    meta={"limit": int(limit)},
+                )
                 claimed.append((
                     r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7],
                     r[8], r[9], r[10], "submitting", r[12], client_order_id,
@@ -210,11 +359,28 @@ class LiveIntentQueueSQLite:
         finally:
             con.close()
 
-    def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, client_order_id: str | None = None, exchange_order_id: str | None = None) -> bool:
+    def update_status(
+        self,
+        intent_id: str,
+        status: str,
+        *,
+        last_error: str | None = None,
+        client_order_id: str | None = None,
+        exchange_order_id: str | None = None,
+    ) -> bool:
         con = _connect()
         try:
             nxt = normalize_live_queue_status(status)
-
+            now = _now()
+            con.execute("BEGIN IMMEDIATE")
+            current = con.execute(
+                """
+                SELECT status, last_error, client_order_id, exchange_order_id, source
+                  FROM live_trade_intents
+                 WHERE intent_id=?
+                """,
+                (str(intent_id),),
+            ).fetchone()
             cur = con.execute(
                 """
                 UPDATE live_trade_intents
@@ -235,7 +401,7 @@ class LiveIntentQueueSQLite:
                     last_error,
                     client_order_id,
                     exchange_order_id,
-                    _now(),
+                    now,
                     str(intent_id),
                     str(nxt),
                     str(nxt),
@@ -245,8 +411,33 @@ class LiveIntentQueueSQLite:
                     str(nxt),
                 ),
             )
-            con.commit()
-            return cur.rowcount == 1
+            if cur.rowcount != 1:
+                con.execute("COMMIT")
+                return False
+            _insert_intent_event(
+                con,
+                intent_id=str(intent_id),
+                actor="queue_status_writer",
+                action="update_status",
+                pre_status=str(current[0]) if current else None,
+                post_status=str(nxt),
+                reason="update_status",
+                last_error=last_error,
+                client_order_id=client_order_id
+                or (str(current[2]) if current and current[2] else None),
+                exchange_order_id=exchange_order_id
+                or (str(current[3]) if current and current[3] else None),
+                source=str(current[4]) if current and current[4] else None,
+                event_ts=now,
+            )
+            con.execute("COMMIT")
+            return True
+        except Exception:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
         finally:
             con.close()
 
