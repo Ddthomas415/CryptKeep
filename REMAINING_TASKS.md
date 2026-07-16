@@ -1433,6 +1433,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     restore audit-write fail-closed policy remains open because the unified
     journal is stored under the data directory that restore replaces, and
     migrations/rollbacks beyond git/work-log evidence remain unclassified.
+    2026-07-16: strategy stage-transition operator-event hook is ready for
+    independent review. `services.control.deployment_stage` now appends
+    best-effort `strategy_stage_transition` events for central promote, demote,
+    and safe-degraded transitions, carrying actor, strategy id, from/to stage,
+    reason, timestamp, and transition result. The coverage matrix moves
+    strategy stage promotion/demotion from MISSING to PARTIAL. Remaining proof:
+    promotion audit-write fail-closed policy and host-side promotion proof.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

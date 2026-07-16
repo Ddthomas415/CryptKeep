@@ -21170,3 +21170,60 @@ Remaining risk:
   events, restore audit-write fail-closed policy, and migrations/rollbacks
   beyond git/work-log evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T03:19:37Z - Strategy Stage-Transition Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for strategy stage promotion/demotion
+  by hooking central deployment-stage transitions to the unified
+  operator-event journal.
+
+What was found:
+- SHOWN: `services.control.deployment_stage._transition` is the central writer
+  for `promote`, `demote`, and `force_safe_degraded` transitions and already
+  persists per-strategy stage history.
+- SHOWN: `scripts.show_control_kernel_status --promote` reaches
+  `deployment_stage.promote()` after its promotion-gate authorization check.
+- SHOWN: before this change, the operator-audit coverage matrix classified
+  `strategy stage promotion/demotion` as MISSING because no unified
+  operator-event hook existed for the family.
+
+What changed:
+- Added a best-effort `strategy_stage_transition` operator-event append after
+  the central stage record is saved.
+- Events carry actor, strategy id, from/to stage, reason, transition timestamp,
+  and result (`promoted` or `demoted`).
+- Operator-event write failure logs a warning but does not block or roll back
+  the stage transition.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- The central stage writer covers CLI and automation callers without relying on
+  individual script surfaces.
+- Best-effort event writes avoid blocking safety demotions; promotion
+  audit-write fail-closed policy remains a separate explicit decision.
+
+Expected outcome:
+- Stage transitions produce replayable operator-event records when the journal
+  is writable while preserving existing stage-machine behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_deployment_stage.py tests/test_promotion_authority_entrypoint.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `36 passed in 0.52s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `strategy stage promotion/demotion` now reports `PARTIAL` with
+    central deployment-stage best-effort hooks named; counts are `SHOWN=0`,
+    `PARTIAL=7`, `MISSING=4`.
+- `./.venv/bin/python -m py_compile services/control/deployment_stage.py tests/test_deployment_stage.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches central strategy stage-transition code, though transition
+  semantics and return contracts are unchanged.
+- UNVERIFIED: GitHub CI, host-side promotion proof, promotion audit-write
+  fail-closed policy, and launch-packet no-secret scan over real events.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

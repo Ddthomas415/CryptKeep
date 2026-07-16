@@ -107,9 +107,9 @@ FAMILIES = [
     {
         "family": "strategy stage promotion/demotion",
         "surfaces": ["CLI", "automation"],
-        "classification": "MISSING",
+        "classification": "PARTIAL",
         "probe": None,
-        "notes": "operator event journal substrate exists, but this action family is not yet hooked; promotion gate results are point-in-time reports (snapshot added by the alerting slice records gate booleans, not operator actions).",
+        "notes": "deployment_stage central transitions append best-effort strategy_stage_transition operator events for promote/demote/safe-degraded moves; promotion audit-write fail-closed policy and host-side promotion proof remain open.",
     },
     {
         "family": "strategy or campaign manifest change",
