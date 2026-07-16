@@ -8,6 +8,7 @@ from typing import Any
 
 from dashboard.services import view_data as dashboard_view_data
 from services.ai_copilot.policy import report_root
+from services.ai_copilot.report_audit import record_ai_copilot_report_write
 from services.os.app_paths import code_root
 
 
@@ -307,4 +308,13 @@ def write_drift_report(report: dict[str, Any], *, stem: str | None = None) -> di
     markdown_path = root / f"{safe_stem}.md"
     json_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     markdown_path.write_text(render_drift_markdown(report), encoding="utf-8")
-    return {"json_path": str(json_path), "markdown_path": str(markdown_path)}
+    paths = {"json_path": str(json_path), "markdown_path": str(markdown_path)}
+    return {
+        **paths,
+        "operator_event": record_ai_copilot_report_write(
+            report_type="drift_audit",
+            report=report,
+            paths=paths,
+            source="services.ai_copilot.drift_auditor",
+        ),
+    }

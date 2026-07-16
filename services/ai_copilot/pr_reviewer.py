@@ -12,6 +12,7 @@ from services.ai_copilot.policy import (
     requires_human_approval,
 )
 from services.ai_copilot.providers import call_llm
+from services.ai_copilot.report_audit import record_ai_copilot_report_write
 
 _LLM_SYSTEM_PROMPT = """You are the CryptKeep Repo Copilot reviewer.
 
@@ -168,4 +169,13 @@ def write_review_report(packet: dict[str, Any], *, stem: str | None = None) -> d
     md_path = root / f"{safe_stem}.md"
     json_path.write_text(json.dumps(packet, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     md_path.write_text(render_review_markdown(packet), encoding="utf-8")
-    return {"json_path": str(json_path), "markdown_path": str(md_path)}
+    paths = {"json_path": str(json_path), "markdown_path": str(md_path)}
+    return {
+        **paths,
+        "operator_event": record_ai_copilot_report_write(
+            report_type="repo_review",
+            report=packet,
+            paths=paths,
+            source="services.ai_copilot.pr_reviewer",
+        ),
+    }

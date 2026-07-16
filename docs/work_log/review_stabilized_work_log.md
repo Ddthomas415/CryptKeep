@@ -21453,3 +21453,60 @@ Remaining risk:
   edits, environment-based credential changes, server injection/rotation
   procedures, and fail-closed audit-write policy.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T09:46:34Z - AI Copilot Report Write Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for AI copilot local report generation
+  by hooking central report artifact writers to the unified operator-event
+  journal.
+
+What was found:
+- SHOWN: external provider attempts already append
+  `ai_copilot_external_provider_call` events through `call_llm`.
+- SHOWN: six central AI copilot report writers persist local JSON/Markdown
+  artifacts under `report_root()` without corresponding operator events:
+  repo review, simulation run, strategy lab, drift audit, safety audit, and
+  operator oversight.
+- SHOWN: these reports can include prompts, stdout/stderr, summaries,
+  recommendations, and machine context, so report-write events must remain
+  metadata-only.
+
+What changed:
+- Added `services.ai_copilot.report_audit.record_ai_copilot_report_write()`.
+- Wired six central report writers to append best-effort
+  `ai_copilot_report_write` events after artifact persistence.
+- Events record report type, status/severity, artifact keys/count, and artifact
+  file names only; report payloads and artifact contents are not logged.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- A shared helper keeps the metadata-only contract consistent across local AI
+  copilot report writers without changing report content or provider behavior.
+- Best-effort event writes avoid failing read-only diagnostic/report commands
+  if the operator-event journal is unavailable.
+
+Expected outcome:
+- Local AI copilot report artifact writes produce replayable metadata-only
+  operator-event records when the journal is writable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_report_write_audit.py tests/test_ai_copilot_provider_audit.py tests/test_ai_copilot_pr_reviewer.py tests/test_ai_copilot_sim_runner.py tests/test_ai_copilot_strategy_lab.py tests/test_ai_copilot_drift_auditor.py tests/test_ai_copilot_safety_auditor.py tests/test_ai_copilot_operator_oversight.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `38 passed in 0.98s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `AI copilot report generation (external providers)` remains
+    `PARTIAL`; counts are `SHOWN=0`, `PARTIAL=11`, `MISSING=0`.
+- `./.venv/bin/python -m py_compile services/ai_copilot/report_audit.py services/ai_copilot/pr_reviewer.py services/ai_copilot/sim_runner.py services/ai_copilot/strategy_lab.py services/ai_copilot/drift_auditor.py services/ai_copilot/safety_auditor.py services/ai_copilot/operator_oversight.py tests/test_ai_copilot_report_write_audit.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: touches local AI copilot report artifact writers, but not trading,
+  provider calls, prompts, or report content.
+- UNVERIFIED: GitHub CI, host-side no-secret scan over real AI report-write
+  events, provider-governance policy, and future provider/report paths outside
+  the central writers.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

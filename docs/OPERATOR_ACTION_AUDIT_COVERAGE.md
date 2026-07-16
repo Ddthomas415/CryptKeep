@@ -107,8 +107,12 @@ Current partial hook for AI copilot external providers:
 `ai_copilot_external_provider_call` events for provider attempts. These events
 record provider/model, prompt character counts, result, and error metadata; they
 do not log system prompts, user prompts, incident context, or report content.
-Local-only report writes, provider-governance policy, and any future provider
-path that bypasses `call_llm` remain unclassified.
+Central AI copilot report writers append best-effort metadata-only
+`ai_copilot_report_write` events for persisted report artifacts. These events
+record report type, status/severity, and artifact names/count only; report
+payloads and artifact contents are not logged. Provider-governance policy and
+any future provider path that bypasses `call_llm` or the central report writers
+remain unclassified.
 
 Current partial hook for strategy config changes: dashboard Operations strategy
 parameter saves and preset applies append required `strategy_config_change`

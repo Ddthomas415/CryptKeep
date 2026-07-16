@@ -8,6 +8,7 @@ from typing import Any
 from services.analytics.paper_loss_replay import build_loss_replay
 from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_evidence_runtime_status
 from services.ai_copilot.policy import report_root
+from services.ai_copilot.report_audit import record_ai_copilot_report_write
 from services.backtest.evidence_cycle import evidence_dir
 
 RESEARCH_ACCEPTANCE_MIN_PAPER_CLOSED_TRADES = 30
@@ -625,4 +626,13 @@ def write_strategy_lab_report(report: dict[str, Any], *, stem: str | None = None
     markdown_path = root / f"{safe_stem}.md"
     json_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     markdown_path.write_text(render_strategy_lab_markdown(report), encoding="utf-8")
-    return {"json_path": str(json_path), "markdown_path": str(markdown_path)}
+    paths = {"json_path": str(json_path), "markdown_path": str(markdown_path)}
+    return {
+        **paths,
+        "operator_event": record_ai_copilot_report_write(
+            report_type="strategy_lab",
+            report=report,
+            paths=paths,
+            source="services.ai_copilot.strategy_lab",
+        ),
+    }
