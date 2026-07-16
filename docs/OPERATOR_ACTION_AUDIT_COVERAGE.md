@@ -93,6 +93,12 @@ remains open because the unified journal is stored under the data directory
 that restore replaces; migrations and rollbacks beyond git/work-log evidence
 remain unclassified.
 
+Current partial hook for strategy stage transitions:
+`services.control.deployment_stage` appends best-effort
+`strategy_stage_transition` events for central promote, demote, and
+safe-degraded transitions. Promotion audit-write fail-closed policy and
+host-side promotion proof remain open.
+
 ## Evidence Requirements
 
 The launch packet must include:

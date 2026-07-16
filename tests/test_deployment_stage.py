@@ -44,6 +44,44 @@ class TestPromotion:
         assert result["stage"] == Stage.SHADOW.value
         assert get_current_stage(SID) == Stage.SHADOW
 
+    def test_promote_appends_operator_event(self, monkeypatch):
+        from services.control import deployment_stage as ds
+
+        calls: list[dict] = []
+        monkeypatch.setattr(
+            ds,
+            "append_operator_event",
+            lambda **kwargs: calls.append(dict(kwargs)) or {"event_id": "evt-stage", "path": "test://operator_events"},
+        )
+
+        result = promote(SID, reason="operator_reviewed", actor="operator_script")
+
+        assert result["ok"] is True
+        assert calls
+        event = calls[0]
+        assert event["actor"] == "operator_script"
+        assert event["action"] == "strategy_stage_transition"
+        assert event["target"] == SID
+        assert event["result"] == "promoted"
+        assert event["reason"] == "operator_reviewed"
+        assert event["pre_state"] == {"stage": "paper"}
+        assert event["post_state"]["stage"] == "shadow"
+        assert event["source"] == "services.control.deployment_stage"
+
+    def test_operator_event_failure_does_not_block_stage_transition(self, monkeypatch):
+        from services.control import deployment_stage as ds
+
+        def _raise(**_kwargs):
+            raise PermissionError("journal denied")
+
+        monkeypatch.setattr(ds, "append_operator_event", _raise)
+
+        result = promote(SID, reason="audit_store_down", actor="operator_script")
+
+        assert result["ok"] is True
+        assert result["stage"] == Stage.SHADOW.value
+        assert get_current_stage(SID) == Stage.SHADOW
+
     def test_promote_shadow_to_capped_live(self):
         promote(SID, reason="step1", actor="test")  # paper→shadow
         result = promote(SID, reason="step2", actor="test")
@@ -86,6 +124,31 @@ class TestDemotion:
         result = demote(SID, reason="going back", actor="test")
         assert result["ok"] is True
         assert get_current_stage(SID) == Stage.SAFE_DEGRADED
+
+    def test_demote_appends_operator_event(self, monkeypatch):
+        from services.control import deployment_stage as ds
+
+        calls: list[dict] = []
+        monkeypatch.setattr(
+            ds,
+            "append_operator_event",
+            lambda **kwargs: calls.append(dict(kwargs)) or {"event_id": "evt-stage", "path": "test://operator_events"},
+        )
+
+        promote(SID, reason="up", actor="test")
+        calls.clear()
+        result = demote(SID, reason="operator_rollback", actor="operator_script", target=Stage.PAPER)
+
+        assert result["ok"] is True
+        assert calls
+        event = calls[0]
+        assert event["actor"] == "operator_script"
+        assert event["action"] == "strategy_stage_transition"
+        assert event["target"] == SID
+        assert event["result"] == "demoted"
+        assert event["reason"] == "operator_rollback"
+        assert event["pre_state"] == {"stage": "shadow"}
+        assert event["post_state"]["stage"] == "paper"
 
     def test_demote_shadow_to_paper_with_explicit_target(self):
         """demote() with target=Stage.PAPER goes to paper."""

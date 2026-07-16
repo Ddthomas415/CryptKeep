@@ -27,6 +27,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from services.audit.operator_event_journal import append_operator_event
 from services.os.app_paths import data_dir
 from services.os.file_utils import atomic_write
 from services.logging.app_logger import get_logger
@@ -165,6 +166,60 @@ def _transition(strategy_id: str, rec: dict, *, from_stage: Stage,
     rec["since_ts"] = now
     rec["history"] = history[-50:]   # keep last 50 transitions
     _save_stage(strategy_id, rec)
+    _record_stage_transition_event(
+        strategy_id=strategy_id,
+        actor=actor,
+        from_stage=from_stage,
+        to_stage=to_stage,
+        reason=reason,
+        timestamp=now,
+        history_len=len(rec["history"]),
+    )
+
+
+def _record_stage_transition_event(
+    *,
+    strategy_id: str,
+    actor: str,
+    from_stage: Stage,
+    to_stage: Stage,
+    reason: str,
+    timestamp: str,
+    history_len: int,
+) -> dict[str, Any]:
+    result = (
+        "promoted"
+        if (
+            to_stage in _PROMOTION_ORDER
+            and from_stage in _PROMOTION_ORDER
+            and _PROMOTION_ORDER.index(to_stage) > _PROMOTION_ORDER.index(from_stage)
+        )
+        else "demoted"
+    )
+    try:
+        event = append_operator_event(
+            actor=actor,
+            action="strategy_stage_transition",
+            target=strategy_id,
+            result=result,
+            reason=reason,
+            pre_state={"stage": from_stage.value},
+            post_state={
+                "stage": to_stage.value,
+                "transition_ts": timestamp,
+                "history_len": history_len,
+            },
+            source="services.control.deployment_stage",
+            extra={"strategy_id": strategy_id},
+        )
+        return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
+    except Exception as exc:
+        _LOG.warning(
+            "stage transition operator event journal failed: %s: %s",
+            type(exc).__name__,
+            exc,
+        )
+        return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
 
 
 # ---------------------------------------------------------------------------
