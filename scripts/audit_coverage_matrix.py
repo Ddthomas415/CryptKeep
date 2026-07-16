@@ -151,7 +151,7 @@ FAMILIES = [
         "surfaces": ["CLI"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "backup_state.py emits verifiable manifests and JSON verdicts but is not yet hooked to the unified operator event journal; migrations are git/work-log visible.",
+        "notes": "backup_state.py emits best-effort unified operator events for backup/verify/restore command results plus verifiable manifests and JSON verdicts; restore audit-write fail-closed policy and migrations/rollbacks beyond git/work-log remain open.",
     },
     {
         "family": "alert suppression or routing change",

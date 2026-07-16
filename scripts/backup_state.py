@@ -19,6 +19,7 @@ import sqlite3
 import time
 from datetime import datetime, timezone
 
+from services.audit.operator_event_journal import append_operator_event
 from services.os.app_paths import data_dir, runtime_dir
 
 MANIFEST_NAME = "backup_manifest.json"
@@ -28,6 +29,10 @@ ARCHIVE_SUBDIR = "state"  # archive-internal namespace (not the repo data dir)
 EXIT_OK = 0
 EXIT_FAIL = 1
 EXIT_BLOCKED = 2
+
+
+def _operator_event_result(exc: Exception) -> dict:
+    return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
 
 
 def _iso_now() -> str:
@@ -241,6 +246,35 @@ def restore_backup(backup_dir: Path, *, force: bool = False) -> dict:
     return {"ok": True, "restored_files": len(manifest["files"]), "target": str(target), "moved_aside": str(aside) if aside else None}
 
 
+def _record_backup_operator_event(
+    *,
+    command: str,
+    args: dict,
+    outcome: dict,
+) -> dict:
+    action = {
+        "backup": "state_backup",
+        "verify": "state_backup_verify",
+        "restore": "state_restore",
+    }.get(command, f"state_{command}")
+    result = "success" if bool(outcome.get("ok")) else "blocked" if outcome.get("reason") in ("live_locks_present", "target_not_empty_use_force") else "failed"
+    try:
+        event = append_operator_event(
+            actor="operator",
+            action=action,
+            target="state_dir",
+            result=result,
+            reason=str(outcome.get("reason") or command),
+            pre_state={"command": command, "args": args, "data_dir": str(data_dir())},
+            post_state=outcome,
+            source="scripts.backup_state",
+            extra={"manifest_name": MANIFEST_NAME, "manifest_version": MANIFEST_VERSION},
+        )
+        return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
+    except Exception as exc:
+        return _operator_event_result(exc)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="CryptKeep full-state backup/restore (sqlite-API-consistent).")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -255,11 +289,15 @@ def main() -> int:
 
     if args.cmd == "backup":
         out = create_backup(Path(args.dest))
+        audit_args = {"dest": str(Path(args.dest))}
     elif args.cmd == "verify":
         out = verify_backup(Path(args.backup_dir))
+        audit_args = {"backup_dir": str(Path(args.backup_dir))}
     else:
         out = restore_backup(Path(args.backup_dir), force=args.force)
+        audit_args = {"backup_dir": str(Path(args.backup_dir)), "force": bool(args.force)}
 
+    out["operator_event"] = _record_backup_operator_event(command=args.cmd, args=audit_args, outcome=dict(out))
     print(json.dumps(out, indent=2))
     if out.get("ok"):
         return EXIT_OK
