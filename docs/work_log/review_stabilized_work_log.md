@@ -21398,3 +21398,58 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, host-side dashboard exercise, no-secret scan over real
   auth events, and user role management changes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T09:31:55Z - API Credential Rotation Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for API credential rotation by hooking
+  the central keyring-backed credential store to the unified operator-event
+  journal.
+
+What was found:
+- SHOWN: `services.security.credential_store` owns central
+  `set_exchange_credentials()` and `delete_exchange_credentials()` mutations.
+- SHOWN: the operator-audit coverage matrix classified `API credential
+  rotation` as MISSING before this change.
+- SHOWN: credential mutations handle API keys, API secrets, and optional
+  passphrases, so event payloads must remain metadata-only.
+
+What changed:
+- Added best-effort `api_credential_rotation` operator-event appends after
+  successful central keyring set/delete calls.
+- Events record exchange, operation, result, reason, and stored field names
+  only.
+- Events explicitly avoid recording API key values, API secret values, or
+  passphrase values.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- The credential store is the narrowest central Python API for keyring-backed
+  credential rotation.
+- Event writes are best-effort so an audit journal outage does not block
+  emergency credential rotation; fail-closed audit-write policy remains an
+  explicit open decision.
+
+Expected outcome:
+- Credential rotations through the central store produce replayable
+  metadata-only operator-event records when the journal is writable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_credential_store_audit.py tests/test_credentials_loader.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `21 passed in 0.60s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `API credential rotation` now reports `PARTIAL`; counts are
+    `SHOWN=0`, `PARTIAL=11`, `MISSING=0`.
+- `./.venv/bin/python -m py_compile services/security/credential_store.py tests/test_credential_store_audit.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches credential-handling code.
+- UNVERIFIED: GitHub CI, host-side credential rotation drill, direct keyring
+  edits, environment-based credential changes, server injection/rotation
+  procedures, and fail-closed audit-write policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

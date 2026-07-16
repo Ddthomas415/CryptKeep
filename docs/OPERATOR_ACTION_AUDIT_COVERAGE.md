@@ -93,6 +93,15 @@ remains open because the unified journal is stored under the data directory
 that restore replaces; migrations and rollbacks beyond git/work-log evidence
 remain unclassified.
 
+Current partial hook for API credential rotation:
+`services.security.credential_store.set_exchange_credentials()` and
+`delete_exchange_credentials()` append best-effort metadata-only
+`api_credential_rotation` events after central keyring mutations. Events record
+exchange, operation, result, and stored field names only; API keys, API secrets,
+and passphrases are not logged. Direct keyring edits, environment-based
+credential changes, server injection/rotation drills, and fail-closed
+audit-write policy remain unclassified.
+
 Current partial hook for AI copilot external providers:
 `services.ai_copilot.providers.call_llm` appends best-effort
 `ai_copilot_external_provider_call` events for provider attempts. These events
