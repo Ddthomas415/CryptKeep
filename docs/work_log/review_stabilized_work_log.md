@@ -21227,3 +21227,62 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, host-side promotion proof, promotion audit-write
   fail-closed policy, and launch-packet no-secret scan over real events.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T03:36:54Z - AI Copilot External Provider Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for AI copilot external-provider report
+  generation by hooking the central provider-call seam to the unified
+  operator-event journal.
+
+What was found:
+- SHOWN: `services.ai_copilot.providers.call_llm` is the central provider-call
+  seam used by the incident analyst, PR reviewer, and operator oversight paths.
+- SHOWN: the operator-audit coverage matrix classified `AI copilot report
+  generation (external providers)` as MISSING before this change.
+- SHOWN: prompts and incident context can contain sensitive operational
+  content, so the event payload must stay metadata-only.
+
+What changed:
+- Added best-effort `ai_copilot_external_provider_call` operator-event appends
+  around every `call_llm` return path, including unsupported provider, missing
+  SDK, missing key, and successful provider responses.
+- Events record provider/model, prompt character counts, result, and error
+  metadata while explicitly not recording system prompts, user prompts,
+  incident context, or report text.
+- Returned payloads include an additive `operator_event` result indicating
+  whether the audit write succeeded or failed.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- Hooking the provider layer covers existing external-provider report paths
+  without touching report generation logic or provider request payloads.
+- Best-effort event writes avoid changing provider behavior while still making
+  audit gaps visible to callers.
+
+Expected outcome:
+- AI copilot external-provider attempts produce replayable metadata-only
+  operator-event records when the journal is writable, and no prompt/report
+  content is written into the operator journal by this hook.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_context_collector.py tests/test_ai_copilot_drift_auditor.py tests/test_ai_copilot_incident_analyst.py tests/test_ai_copilot_operator_oversight.py tests/test_ai_copilot_policy.py tests/test_ai_copilot_pr_reviewer.py tests/test_ai_copilot_provider_audit.py tests/test_ai_copilot_safety_auditor.py tests/test_ai_copilot_sim_runner.py tests/test_ai_copilot_strategy_lab.py tests/test_run_ai_operator_oversight.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py`
+  - SHOWN: `44 passed in 1.30s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: `AI copilot report generation (external providers)` now reports
+    `PARTIAL`; counts are `SHOWN=0`, `PARTIAL=8`, `MISSING=3`.
+- `./.venv/bin/python -m py_compile services/ai_copilot/providers.py tests/test_ai_copilot_provider_audit.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM/HIGH: touches AI copilot provider-call returns and operator-event
+  metadata around external-provider usage, though provider request behavior is
+  unchanged and prompt payloads are not logged.
+- UNVERIFIED: GitHub CI, host-side no-secret scan over real events,
+  local-only report writes, provider-governance policy, and any future
+  provider path that bypasses `call_llm`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

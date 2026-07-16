@@ -170,9 +170,9 @@ FAMILIES = [
     {
         "family": "AI copilot report generation (external providers)",
         "surfaces": ["automation"],
-        "classification": "MISSING",
+        "classification": "PARTIAL",
         "probe": None,
-        "notes": "operator event journal substrate exists, but this action family is not yet hooked; providers currently disabled by default.",
+        "notes": "services.ai_copilot.providers.call_llm appends best-effort metadata-only ai_copilot_external_provider_call events for provider attempts; prompt/context payloads are not logged. Local-only report writes, provider-governance policy, and any future non-call_llm provider path remain unclassified.",
     },
 ]
 
