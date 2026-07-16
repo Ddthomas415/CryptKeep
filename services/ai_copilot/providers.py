@@ -5,7 +5,13 @@ import os
 from typing import Any
 
 from services.audit.operator_event_journal import append_operator_event
-from services.ai_copilot.policy import DEFAULT_MODEL, DEFAULT_PROVIDER, MAX_TOKENS
+from services.ai_copilot.policy import (
+    DEFAULT_MODEL,
+    DEFAULT_PROVIDER,
+    EXTERNAL_PROVIDER_ALLOWLIST_ENV,
+    MAX_TOKENS,
+    external_provider_policy,
+)
 
 _LOG = logging.getLogger(__name__)
 
@@ -69,6 +75,24 @@ def _with_operator_event(
 def call_llm(*, system: str, user: str) -> dict[str, Any]:
     provider = os.environ.get("CBP_COPILOT_PROVIDER", DEFAULT_PROVIDER).strip().lower()
     model = os.environ.get("CBP_COPILOT_MODEL", DEFAULT_MODEL).strip()
+    provider_policy = external_provider_policy(
+        provider,
+        allowlist_raw=os.environ.get(EXTERNAL_PROVIDER_ALLOWLIST_ENV),
+    )
+    if not bool(provider_policy.get("ok")):
+        return _with_operator_event(
+            provider=provider,
+            model=model,
+            system=system,
+            user=user,
+            outcome={
+                "ok": False,
+                "error": str(provider_policy.get("reason") or "provider_policy_blocked"),
+                "provider": provider,
+                "model": model,
+                "provider_policy": provider_policy,
+            },
+        )
 
     if provider == "anthropic":
         try:

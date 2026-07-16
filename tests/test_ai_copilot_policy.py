@@ -23,3 +23,51 @@ def test_policy_defaults_and_path_guards(tmp_path, monkeypatch):
     assert config_path.name == "ai_copilot.yaml"
     assert config_path.parent.name == "config"
     assert config_path.parent.parent.name == "runtime"
+
+
+def test_external_provider_allowlist_defaults_to_supported_providers():
+    out = policy.parse_external_provider_allowlist(None)
+
+    assert out == {
+        "ok": True,
+        "providers": ["anthropic", "openai", "google"],
+        "source": "default_supported",
+    }
+    assert policy.external_provider_policy("OpenAI")["ok"] is True
+
+
+def test_external_provider_allowlist_can_disable_or_narrow():
+    disabled = policy.parse_external_provider_allowlist("none")
+    assert disabled == {"ok": True, "providers": [], "source": "env_disabled"}
+    assert policy.external_provider_policy("openai", allowlist_raw="none") == {
+        "ok": False,
+        "provider": "openai",
+        "reason": "provider_not_allowed:openai",
+        "allowed_providers": [],
+        "policy_source": "env_disabled",
+    }
+
+    narrowed = policy.external_provider_policy("openai", allowlist_raw="anthropic, google")
+    assert narrowed == {
+        "ok": False,
+        "provider": "openai",
+        "reason": "provider_not_allowed:openai",
+        "allowed_providers": ["anthropic", "google"],
+        "policy_source": "env",
+    }
+
+
+def test_external_provider_allowlist_fails_closed_on_garbage():
+    assert policy.parse_external_provider_allowlist("anthropic,,openai") == {
+        "ok": False,
+        "providers": [],
+        "source": "env",
+        "reason": "blank_provider",
+    }
+    assert policy.external_provider_policy("anthropic", allowlist_raw="anthropic,unknown") == {
+        "ok": False,
+        "provider": "anthropic",
+        "reason": "invalid_provider_allowlist:unsupported_provider_in_allowlist:unknown",
+        "allowed_providers": [],
+        "policy_source": "env",
+    }
