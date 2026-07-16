@@ -167,8 +167,8 @@ FAMILIES = [
             "dashboard Settings paper-trading risk-limit changes append fail-closed "
             "risk_limit_change operator events; central runtime user.yaml saves "
             "append required metadata-only runtime_config_save events and roll back "
-            "the config file on audit-write failure; first-run guided setup risk "
-            "preset saves now return config_save_failed and stop before review/"
+            "the config file on audit-write failure; first-run guided setup patch "
+            "and risk-preset saves now return config_save_failed and stop before review/"
             "preflight if the audited save fails. Direct file edits, env live-risk "
             "caps, and non-user.yaml risk changes remain unclassified."
         ),

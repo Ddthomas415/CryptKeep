@@ -1413,12 +1413,13 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     event failure is surfaced to stderr but does not block the flag write.
     This narrows the direct drift-reconcile script gap; deeper one-off
     reconcile scripts and future mutating override paths remain unclassified.
-    2026-07-16: first-run guided setup risk-preset save fail-closed slice is
+    2026-07-16: first-run guided setup patch/risk-preset save fail-closed slice is
     ready for independent review. `services.admin.first_run_wizard`
     `guided_setup_apply()` and `guided_setup_apply_preset()` now inspect the
     central audited `save_user_yaml()` result and return `config_save_failed`
     before review/preflight if the save fails or rolls back. The
-    `services.app.preflight_wizard` preset-state bridge preserves that failure
+    `services.admin.first_run_wizard.guided_setup_apply_state()` and
+    `services.app.preflight_wizard` bridges preserve that failure
     instead of refreshing over it. Direct file edits, env live-risk caps, and
     non-user.yaml risk changes remain unclassified.
     2026-07-15: dashboard alert-settings audit hook is ready for independent
