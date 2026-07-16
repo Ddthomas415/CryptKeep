@@ -7,6 +7,7 @@ from typing import Any
 
 from services.ai_copilot.policy import report_root
 from services.ai_copilot.providers import call_llm
+from services.ai_copilot.report_audit import record_ai_copilot_report_write
 from services.analytics.paper_sim_monitor import load_runtime_status as load_paper_sim_monitor_status
 from services.os.app_paths import code_root
 from services.os.file_utils import atomic_write
@@ -394,9 +395,18 @@ def write_operator_oversight_report(report: dict[str, Any]) -> dict[str, str]:
         (dated_md, markdown_text),
     ):
         atomic_write(Path(path), text)
-    return {
+    paths = {
         "latest_json": str(latest_json),
         "dated_json": str(dated_json),
         "latest_markdown": str(latest_md),
         "dated_markdown": str(dated_md),
+    }
+    return {
+        **paths,
+        "operator_event": record_ai_copilot_report_write(
+            report_type=REPORT_TYPE,
+            report=report,
+            paths=paths,
+            source="services.ai_copilot.operator_oversight",
+        ),
     }

@@ -172,7 +172,7 @@ FAMILIES = [
         "surfaces": ["automation"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "services.ai_copilot.providers.call_llm appends best-effort metadata-only ai_copilot_external_provider_call events for provider attempts; prompt/context payloads are not logged. Local-only report writes, provider-governance policy, and any future non-call_llm provider path remain unclassified.",
+        "notes": "services.ai_copilot.providers.call_llm appends best-effort metadata-only ai_copilot_external_provider_call events for provider attempts, and central ai_copilot report writers append best-effort metadata-only ai_copilot_report_write events for persisted artifacts. Prompt/context/report payloads and artifact contents are not logged. Provider-governance policy and any future non-call_llm/non-report-writer provider path remain unclassified.",
     },
 ]
 

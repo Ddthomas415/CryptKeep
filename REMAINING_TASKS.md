@@ -1442,6 +1442,14 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     copilot external-provider family from MISSING to PARTIAL. Remaining
     coverage: local-only report writes, provider-governance policy, and any
     future provider path that bypasses `call_llm`.
+    2026-07-16: AI copilot local report-write audit hook is ready for
+    independent review. Central `services.ai_copilot` report writers now append
+    best-effort metadata-only `ai_copilot_report_write` operator events after
+    persisted report artifacts are written, recording report type,
+    status/severity, and artifact names/count without logging report payloads,
+    stdout/stderr, prompts, recommendations, summaries, or artifact contents.
+    Remaining coverage: provider-governance policy and any future provider path
+    that bypasses `call_llm` or the central report writers.
     2026-07-16: dashboard strategy-config audit hook is ready for independent
     review. Operations-page strategy parameter saves and preset applies now
     append required `strategy_config_change` operator events after the local
