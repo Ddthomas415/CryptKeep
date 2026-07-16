@@ -112,12 +112,15 @@ remain unclassified.
 
 Current partial hook for API credential rotation:
 `services.security.credential_store.set_exchange_credentials()` and
-`delete_exchange_credentials()` append best-effort metadata-only
-`api_credential_rotation` events after central keyring mutations. Events record
-exchange, operation, result, and stored field names only; API keys, API secrets,
-and passphrases are not logged. Direct keyring edits, environment-based
-credential changes, server injection/rotation drills, and fail-closed
-audit-write policy remain unclassified.
+`delete_exchange_credentials()` append required metadata-only
+`api_credential_rotation` events after central keyring mutations. If the audit
+write fails, the helper restores the previous keyring entry or removes a newly
+created entry and returns
+`operator_event_write_failed_api_credential_rotation_rolled_back`. Events
+record exchange, operation, result, and stored field names only; API keys, API
+secrets, and passphrases are not logged. Direct keyring edits,
+environment-based credential changes, and server injection/rotation drills
+remain unclassified.
 
 Current partial hook for AI copilot external providers:
 `services.ai_copilot.providers.call_llm` appends best-effort

@@ -1502,6 +1502,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     MISSING to PARTIAL. Remaining coverage: direct keyring edits,
     environment-based credential changes, server injection/rotation drills,
     and fail-closed audit-write policy.
+    2026-07-16: API credential-rotation audit-write fail-closed slice is ready
+    for independent review. Central `set_exchange_credentials()` and
+    `delete_exchange_credentials()` now treat `api_credential_rotation` audit
+    persistence as required: if the operator-event write fails, the helper
+    restores the previous keyring JSON or removes a newly created entry and
+    returns `operator_event_write_failed_api_credential_rotation_rolled_back`.
+    If the previous credential cannot be read, the mutation is refused before
+    writing. Remaining coverage: direct keyring edits, environment-based
+    credential changes, and server injection/rotation drills.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,

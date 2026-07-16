@@ -21788,3 +21788,61 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, host-side config-save proof with the real operator
   event journal, and non-helper config mutation surfaces.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T14:07:54Z - Credential Rotation Audit-Write Fail-Closed (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Close the central API credential-rotation audit-write fail-closed policy
+  slice for keyring mutations made through `services.security.credential_store`.
+
+What was found:
+- SHOWN: `set_exchange_credentials()` and `delete_exchange_credentials()` are
+  central keyring mutation helpers used by repo credential-loading surfaces.
+- SHOWN: before this change, both helpers mutated keyring state and appended a
+  metadata-only `api_credential_rotation` operator event best-effort; audit
+  failure was returned in `operator_event` but did not block the mutation.
+- SHOWN: previous keyring raw JSON is readable before set/delete, so central
+  mutations can be rolled back without logging credential values.
+
+What changed:
+- `set_exchange_credentials()` and `delete_exchange_credentials()` now treat
+  `api_credential_rotation` operator-event persistence as required.
+- If the audit write fails, the helper restores the previous keyring JSON or
+  removes a newly created entry, then returns
+  `operator_event_write_failed_api_credential_rotation_rolled_back`.
+- If the previous credential cannot be read, the mutation is refused before
+  writing with `credential_pre_read_failed:<ExceptionType>`.
+- Audit payloads remain metadata-only: exchange, operation, result, and stored
+  field names; API keys, secrets, and passphrases are not logged.
+- Updated tests, the operator-audit coverage matrix, policy doc, backlog, and
+  this work log.
+
+Why this change was chosen:
+- Credential rotation is a high-risk operator mutation. A keyring write should
+  not become authoritative without a corresponding operator/action record.
+- Restoring the exact previous keyring JSON preserves existing credential state
+  without exposing secret material.
+
+Expected outcome:
+- Central credential set/delete calls cannot silently mutate keyring state when
+  the operator-event journal is unwritable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_credential_store_audit.py tests/test_credentials_loader.py tests/test_operator_audit_coverage.py tests/test_operator_event_journal.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `24 passed in 0.57s`.
+- `./.venv/bin/python -m py_compile services/security/credential_store.py tests/test_credential_store_audit.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: API credential rotation row now states required audit writes with
+    keyring rollback on audit-write failure; counts remain `MISSING: 0`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches central credential mutation helpers.
+- UNVERIFIED: GitHub CI, host-side credential-rotation proof with the real
+  keyring/operator-event journal, direct keyring edits, environment-based
+  credential changes, and server injection/rotation drills.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
