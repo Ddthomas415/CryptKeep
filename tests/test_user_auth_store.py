@@ -98,7 +98,7 @@ def test_user_auth_store_events_are_metadata_only(monkeypatch):
 
     monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
 
-    password = "pw-SUPER-SECRET-123"
+    password = "pw-placeholder-123"
     upsert = uas.upsert_user(username="Admin", password=password, role="admin", enabled=True)
     assert upsert["ok"] is True
     enrollment = uas.begin_mfa_enrollment(username="admin")
