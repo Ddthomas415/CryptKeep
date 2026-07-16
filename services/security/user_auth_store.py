@@ -59,6 +59,18 @@ def _keyring_set(account: str, value: str) -> None:
     kr.set_password(SERVICE_NAME, str(account), str(value))
 
 
+def _keyring_clear(account: str) -> None:
+    kr = _get_keyring_module()
+    delete = getattr(kr, "delete_password", None)
+    if callable(delete):
+        try:
+            delete(SERVICE_NAME, str(account))
+            return
+        except Exception:
+            pass
+    _keyring_set(str(account), "")
+
+
 def _account_name(username: str) -> str:
     return f"user:{_norm_username(username)}"
 
@@ -106,6 +118,61 @@ def _save_user_record(username: str, record: dict[str, Any]) -> None:
     payload["enabled"] = bool(payload.get("enabled", True))
     payload["updated_ts"] = str(payload.get("updated_ts") or _now_iso())
     _keyring_set(_account_name(name), json.dumps(payload, sort_keys=True))
+
+
+def _raw_auth_state(username: str) -> dict[str, Any]:
+    name = _norm_username(username)
+    return {
+        "username": name,
+        "user_account": _account_name(name),
+        "user_raw": _keyring_get(_account_name(name)),
+        "index_raw": _keyring_get(INDEX_ACCOUNT),
+    }
+
+
+def _restore_raw_auth_state(state: dict[str, Any]) -> dict[str, Any]:
+    try:
+        user_raw = state.get("user_raw")
+        if user_raw is None:
+            _keyring_clear(str(state.get("user_account") or _account_name(str(state.get("username") or ""))))
+        else:
+            _keyring_set(str(state.get("user_account") or _account_name(str(state.get("username") or ""))), str(user_raw))
+        index_raw = state.get("index_raw")
+        if index_raw is None:
+            _keyring_clear(INDEX_ACCOUNT)
+        else:
+            _keyring_set(INDEX_ACCOUNT, str(index_raw))
+        return {"ok": True}
+    except Exception as exc:
+        return {"ok": False, "reason": f"auth_store_rollback_failed:{type(exc).__name__}"}
+
+
+def _rollback_on_required_auth_audit_failure(
+    *,
+    audit: dict[str, Any],
+    rollback_state: dict[str, Any],
+) -> dict[str, Any]:
+    rollback = _restore_raw_auth_state(rollback_state)
+    if rollback.get("ok"):
+        return {
+            "ok": False,
+            "reason": "operator_event_write_failed_user_auth_store_rolled_back",
+            "operator_event": audit,
+            "rollback": rollback,
+        }
+    return {
+        "ok": False,
+        "reason": "operator_event_write_failed_user_auth_store_rollback_failed",
+        "operator_event": audit,
+        "rollback": rollback,
+    }
+
+
+def _capture_raw_auth_state(username: str) -> dict[str, Any]:
+    try:
+        return {"ok": True, "state": _raw_auth_state(username)}
+    except Exception as exc:
+        return {"ok": False, "reason": f"auth_store_pre_read_failed:{type(exc).__name__}"}
 
 
 def _user_auth_state(row: dict[str, Any] | None) -> dict[str, Any]:
@@ -353,6 +420,9 @@ def upsert_user(
 
     existing_row = get_user(name)
     existing = existing_row or {}
+    rollback_state = _capture_raw_auth_state(name)
+    if not rollback_state.get("ok"):
+        return {"ok": False, "reason": rollback_state.get("reason")}
     record = {
         "username": name,
         "role": _norm_role(role),
@@ -368,13 +438,15 @@ def upsert_user(
     names = _load_users_index()
     names.append(name)
     _save_users_index(names)
-    _record_user_auth_store_change(
+    audit = _record_user_auth_store_change(
         username=name,
         reason=_audit_reason,
         pre_state=existing_row,
         post_state=record,
         actor=_audit_actor,
     )
+    if not audit.get("ok"):
+        return _rollback_on_required_auth_audit_failure(audit=audit, rollback_state=dict(rollback_state["state"]))
     return {"ok": True, "username": name, "role": record["role"], "enabled": bool(record["enabled"])}
 
 
@@ -400,6 +472,9 @@ def begin_mfa_enrollment(*, username: str, issuer: str = MFA_ISSUER) -> dict[str
     if not row:
         return {"ok": False, "reason": "invalid_credentials"}
     pre_state = dict(row)
+    rollback_state = _capture_raw_auth_state(str(row.get("username") or ""))
+    if not rollback_state.get("ok"):
+        return {"ok": False, "reason": rollback_state.get("reason")}
     secret_b32 = _generate_totp_secret()
     backup_codes = _generate_backup_codes()
     row["mfa_enabled"] = False
@@ -410,13 +485,15 @@ def begin_mfa_enrollment(*, username: str, issuer: str = MFA_ISSUER) -> dict[str
     row.pop("mfa_enabled_ts", None)
     row["updated_ts"] = _now_iso()
     _save_user_record(str(row.get("username") or ""), row)
-    _record_user_auth_store_change(
+    audit = _record_user_auth_store_change(
         username=str(row.get("username") or ""),
         reason="begin_mfa_enrollment",
         pre_state=pre_state,
         post_state=row,
         actor="operator",
     )
+    if not audit.get("ok"):
+        return _rollback_on_required_auth_audit_failure(audit=audit, rollback_state=dict(rollback_state["state"]))
     return {
         "ok": True,
         "username": str(row.get("username") or ""),
@@ -437,17 +514,22 @@ def confirm_mfa_enrollment(*, username: str, code: str) -> dict[str, Any]:
         return {"ok": False, "reason": "mfa_not_configured"}
     if not _verify_totp_code(secret_b32, code):
         return {"ok": False, "reason": "invalid_mfa_code"}
+    rollback_state = _capture_raw_auth_state(str(row.get("username") or ""))
+    if not rollback_state.get("ok"):
+        return {"ok": False, "reason": rollback_state.get("reason")}
     row["mfa_enabled"] = True
     row["mfa_enabled_ts"] = _now_iso()
     row["updated_ts"] = _now_iso()
     _save_user_record(str(row.get("username") or ""), row)
-    _record_user_auth_store_change(
+    audit = _record_user_auth_store_change(
         username=str(row.get("username") or ""),
         reason="confirm_mfa_enrollment",
         pre_state=pre_state,
         post_state=row,
         actor="operator",
     )
+    if not audit.get("ok"):
+        return _rollback_on_required_auth_audit_failure(audit=audit, rollback_state=dict(rollback_state["state"]))
     return {
         "ok": True,
         "username": str(row.get("username") or ""),
@@ -460,17 +542,22 @@ def disable_mfa_for_user(*, username: str) -> dict[str, Any]:
     if not row:
         return {"ok": False, "reason": "invalid_credentials"}
     pre_state = dict(row)
+    rollback_state = _capture_raw_auth_state(str(row.get("username") or ""))
+    if not rollback_state.get("ok"):
+        return {"ok": False, "reason": rollback_state.get("reason")}
     for key in _MFA_RECORD_KEYS:
         row.pop(key, None)
     row["updated_ts"] = _now_iso()
     _save_user_record(str(row.get("username") or ""), row)
-    _record_user_auth_store_change(
+    audit = _record_user_auth_store_change(
         username=str(row.get("username") or ""),
         reason="disable_mfa_for_user",
         pre_state=pre_state,
         post_state=row,
         actor="operator",
     )
+    if not audit.get("ok"):
+        return _rollback_on_required_auth_audit_failure(audit=audit, rollback_state=dict(rollback_state["state"]))
     return {"ok": True, "username": str(row.get("username") or ""), "mfa_enabled": False}
 
 
@@ -488,17 +575,22 @@ def verify_mfa_code(*, username: str, code: str) -> dict[str, Any]:
     hashes = [str(item) for item in list(row.get("mfa_backup_code_hashes") or []) if str(item).strip()]
     if backup_hash in hashes:
         pre_state = dict(row)
+        rollback_state = _capture_raw_auth_state(str(row.get("username") or ""))
+        if not rollback_state.get("ok"):
+            return {"ok": False, "reason": rollback_state.get("reason")}
         remaining = [item for item in hashes if item != backup_hash]
         row["mfa_backup_code_hashes"] = remaining
         row["updated_ts"] = _now_iso()
         _save_user_record(str(row.get("username") or ""), row)
-        _record_user_auth_store_change(
+        audit = _record_user_auth_store_change(
             username=str(row.get("username") or ""),
             reason="consume_mfa_backup_code",
             pre_state=pre_state,
             post_state=row,
             actor="system",
         )
+        if not audit.get("ok"):
+            return _rollback_on_required_auth_audit_failure(audit=audit, rollback_state=dict(rollback_state["state"]))
         return {
             "ok": True,
             "method": "backup_code",
@@ -565,19 +657,24 @@ def verify_login(*, username: str, password: str) -> dict[str, Any]:
         return {"ok": False, "reason": "invalid_credentials"}
     if needs_rehash:
         pre_state = dict(row)
+        rollback_state = _capture_raw_auth_state(name)
+        if not rollback_state.get("ok"):
+            return {"ok": False, "reason": rollback_state.get("reason")}
         row.update(_build_argon2_password_record(pwd))
         row.pop("iterations", None)
         row.pop("password_salt_b64", None)
         row.pop("password_hash_hex", None)
         row["updated_ts"] = _now_iso()
         _save_user_record(name, row)
-        _record_user_auth_store_change(
+        audit = _record_user_auth_store_change(
             username=name,
             reason="login_hash_upgrade",
             pre_state=pre_state,
             post_state=row,
             actor="system",
         )
+        if not audit.get("ok"):
+            _restore_raw_auth_state(dict(rollback_state["state"]))
     mfa_enabled = bool(row.get("mfa_enabled", False) and str(row.get("mfa_secret_b32") or "").strip())
     return {
         "ok": True,

@@ -74,7 +74,7 @@ def test_user_auth_store_events_are_metadata_only(monkeypatch):
     assert "otpauth://" not in serialized
 
 
-def test_user_auth_store_event_failure_is_best_effort(monkeypatch):
+def test_user_auth_store_event_failure_rolls_back_upsert(monkeypatch):
     fake = _FakeKeyring()
     monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
 
@@ -85,8 +85,95 @@ def test_user_auth_store_event_failure_is_best_effort(monkeypatch):
 
     sample_pwd = "-".join(("login", "input", "123"))
     out = uas.upsert_user(**_auth_kwargs("Admin", sample_pwd, role="admin", enabled=True))
+    assert out["ok"] is False
+    assert out["reason"] == "operator_event_write_failed_user_auth_store_rolled_back"
+    assert out["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    assert uas.verify_login(**_auth_kwargs("admin", sample_pwd))["ok"] is False
+    assert uas.list_users() == []
+
+
+def test_user_auth_store_event_failure_rolls_back_mfa_enrollment(monkeypatch):
+    fake = _FakeKeyring()
+    monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+    calls = _record_calls(monkeypatch)
+
+    sample_pwd = "-".join(("login", "input", "123"))
+    assert uas.upsert_user(**_auth_kwargs("Admin", sample_pwd, role="admin", enabled=True))["ok"] is True
+    assert len(calls) == 1
+
+    def _append_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
+
+    out = uas.begin_mfa_enrollment(username="admin")
+
+    assert out["ok"] is False
+    assert out["reason"] == "operator_event_write_failed_user_auth_store_rolled_back"
+    serialized = json.dumps(out, sort_keys=True)
+    assert "secret_b32" not in serialized
+    assert "otpauth://" not in serialized
+    status = uas.get_user_mfa_status("admin")
+    assert status["ok"] is True
+    assert status["configured"] is False
+    assert status["backup_codes_remaining"] == 0
+
+
+def test_user_auth_store_event_failure_rolls_back_backup_code_consumption(monkeypatch):
+    fake = _FakeKeyring()
+    monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+    monkeypatch.setattr(uas.time, "time", lambda: 1_700_000_000)
+    _record_calls(monkeypatch)
+
+    sample_pwd = "-".join(("login", "input", "123"))
+    assert uas.upsert_user(**_auth_kwargs("Admin", sample_pwd, role="admin", enabled=True))["ok"] is True
+    enrollment = uas.begin_mfa_enrollment(username="admin")
+    challenge = uas._current_totp_code(str(enrollment["secret_b32"]), for_time=1_700_000_000)
+    assert uas.confirm_mfa_enrollment(username="admin", code=challenge)["ok"] is True
+    backup_value = str(enrollment["backup_codes"][0])
+    before = uas.get_user_mfa_status("admin")["backup_codes_remaining"]
+
+    def _append_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
+
+    out = uas.verify_mfa_code(username="admin", code=backup_value)
+
+    assert out["ok"] is False
+    assert out["reason"] == "operator_event_write_failed_user_auth_store_rolled_back"
+    assert uas.get_user_mfa_status("admin")["backup_codes_remaining"] == before
+
+
+def test_login_hash_upgrade_event_failure_rolls_back_but_login_succeeds(monkeypatch):
+    fake = _FakeKeyring()
+    monkeypatch.setattr(uas, "_get_keyring_module", lambda: fake)
+
+    legacy_pwd = "-".join(("legacy", "input", "123"))
+    legacy = uas._build_pbkdf2_password_record(legacy_pwd)
+    legacy_record = {
+        "username": "admin",
+        "role": "ADMIN",
+        "enabled": True,
+        "created_ts": "2026-01-01T00:00:00+00:00",
+        "updated_ts": "2026-01-01T00:00:00+00:00",
+        **legacy,
+    }
+    uas._save_user_record("admin", legacy_record)
+    uas._save_users_index(["admin"])
+
+    def _append_operator_event(**_kwargs):
+        raise PermissionError("journal denied")
+
+    monkeypatch.setattr(uas, "append_operator_event", _append_operator_event)
+
+    out = uas.verify_login(**_auth_kwargs("admin", legacy_pwd))
+
     assert out["ok"] is True
-    assert uas.verify_login(**_auth_kwargs("admin", sample_pwd))["ok"] is True
+    row = uas.get_user("admin")
+    assert row is not None
+    assert row["password_algo"] == uas.PASSWORD_ALGO_PBKDF2
+    assert "password_hash_hex" in row
 
 
 def test_login_hash_upgrade_and_bootstrap_events_are_metadata_only(monkeypatch):

@@ -1486,6 +1486,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     URIs, or backup code values. Remaining coverage: any future user/role
     management surface that bypasses `user_auth_store`, plus fail-closed
     audit-write policy.
+    2026-07-16: central auth-store mutation audit-write fail-closed slice is
+    ready for independent review. `services.security.user_auth_store` now
+    captures raw keyring user/index records before central user upsert/bootstrap,
+    MFA enrollment/confirmation/disablement, and backup-code consumption. If the
+    required metadata-only `dashboard_user_auth_store_change` event cannot be
+    written after mutation, the helper restores those raw records and returns
+    `operator_event_write_failed_user_auth_store_rolled_back`. Login-hash
+    upgrades roll back the unaudited rehash but allow the already-verified login
+    to proceed. Remaining coverage: dashboard session event fail-closed policy
+    and any future user/role management surface that bypasses `user_auth_store`.
     2026-07-16: central runtime config-save operator-event hook is ready for
     independent review. `services.admin.config_editor.save_user_yaml()` now
     appends best-effort metadata-only `runtime_config_save` operator events

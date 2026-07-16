@@ -21911,3 +21911,66 @@ Remaining risk:
 - UNVERIFIED: GitHub CI, host-side restore drill with real services stopped,
   and migrations/rollbacks outside `backup_state.py`.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T15:09:46Z - Auth-Store Mutation Audit-Write Fail-Closed (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Close the central dashboard auth-store mutation audit-write fail-closed slice
+  for `services.security.user_auth_store`.
+
+What was found:
+- SHOWN: `user_auth_store` is the central helper for dashboard user
+  upsert/bootstrap, MFA enrollment/confirmation/disablement, backup-code
+  consumption, and login-hash upgrades.
+- SHOWN: before this change, those helpers mutated keyring user/index state and
+  appended metadata-only `dashboard_user_auth_store_change` events best-effort;
+  audit failure was logged but did not block or roll back the mutation.
+- SHOWN: raw user and index keyring records can be captured before mutation and
+  restored without logging passwords, hashes, TOTP secrets, MFA codes, OTP
+  URIs, backup code values, or backup-code hashes.
+
+What changed:
+- Added raw auth-store snapshot/restore helpers for the affected user account
+  and `__users_index__`.
+- Central user upsert/bootstrap, MFA enrollment/confirmation/disablement, and
+  backup-code consumption now require the metadata-only
+  `dashboard_user_auth_store_change` event after mutation.
+- If that audit write fails, the helper restores raw keyring state and returns
+  `operator_event_write_failed_user_auth_store_rolled_back`.
+- Login-hash upgrades roll back the unaudited rehash on audit-write failure
+  while allowing the already-verified login to proceed.
+- Updated tests, the operator-audit coverage matrix, policy doc, backlog, and
+  this work log.
+
+Why this change was chosen:
+- Auth-store mutations are security-sensitive operator/system state changes.
+  They should not become authoritative without an operator-event record.
+- Login-hash upgrade is a transparent hardening mutation; rolling back the
+  unaudited mutation while allowing a valid login avoids denying access solely
+  because audit storage is unavailable.
+
+Expected outcome:
+- Central dashboard auth-store mutations cannot silently change user/MFA state
+  when the operator-event journal is unwritable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_user_auth_store_audit.py tests/test_user_auth_store.py tests/test_auth_gate.py tests/test_auth_capabilities.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `48 passed in 2.99s`.
+- `./.venv/bin/python -m py_compile services/security/user_auth_store.py tests/test_user_auth_store_audit.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: dashboard auth row now states required central auth-store audit
+    writes with raw keyring rollback; counts remain `MISSING: 0`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest tests -q`
+  - SHOWN: `2962 passed, 33 skipped, 15 warnings in 374.81s`.
+
+Remaining risk:
+- HIGH: touches authentication/MFA state mutation helpers.
+- UNVERIFIED: GitHub CI, real keyring behavior on hosts with native delete
+  semantics, dashboard session event fail-closed policy, and any future
+  user/role management surface that bypasses `user_auth_store`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
