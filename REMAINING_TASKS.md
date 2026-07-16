@@ -1466,6 +1466,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     values. The coverage matrix moves the dashboard login/logout/MFA/role
     family from MISSING to PARTIAL. Remaining coverage: user role management
     changes.
+    2026-07-16: central runtime config-save operator-event hook is ready for
+    independent review. `services.admin.config_editor.save_user_yaml()` now
+    appends best-effort metadata-only `runtime_config_save` operator events
+    after successful non-dry-run `user.yaml` writes, recording file existence,
+    parse status, top-level section names/count, and result without logging
+    config payloads or values. This narrows direct CLI/runtime config coverage
+    for strategy, risk, and alert-routing families. Remaining coverage: direct
+    file edits, environment overrides, campaign manifest files, and
+    fail-closed audit-write policy.
     2026-07-16: API credential-rotation operator-event hook is ready for
     independent review. `services.security.credential_store` now appends
     best-effort metadata-only `api_credential_rotation` operator events after

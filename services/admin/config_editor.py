@@ -1,12 +1,15 @@
 from __future__ import annotations
+import logging
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Tuple, List
+from services.audit.operator_event_journal import append_operator_event
 from services.os.app_paths import config_dir, ensure_dirs
 
 ensure_dirs()
 CONFIG_PATH = config_dir() / "user.yaml"
 BACKUP_PATH = config_dir() / "user.yaml.bak"
+_LOG = logging.getLogger(__name__)
 
 class ConfigLoadError(RuntimeError):
     """Raised when an existing user config cannot be trusted."""
@@ -35,16 +38,62 @@ def load_user_yaml(*, strict: bool = False) -> Dict[str, Any]:
         print(f"Error loading config: {type(e).__name__}: {e}")
         return {}
 
+
+def _config_shape(cfg: Any) -> dict[str, Any]:
+    if not isinstance(cfg, dict):
+        return {"mapping": False, "section_count": 0, "section_names": []}
+    return {
+        "mapping": True,
+        "section_count": len(cfg),
+        "section_names": sorted(str(k) for k in cfg.keys()),
+    }
+
+
+def _current_config_shape() -> dict[str, Any]:
+    if not CONFIG_PATH.exists():
+        return {"exists": False, "parse_ok": True, **_config_shape({})}
+    try:
+        data = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {"exists": True, "parse_ok": False, **_config_shape({})}
+    return {"exists": True, "parse_ok": True, **_config_shape(data)}
+
+
+def _record_runtime_config_save(*, pre_state: dict[str, Any], post_state: dict[str, Any]) -> dict[str, Any]:
+    try:
+        event = append_operator_event(
+            actor="operator",
+            action="runtime_config_save",
+            target="user.yaml",
+            result="success",
+            reason="save_user_yaml",
+            pre_state=pre_state,
+            post_state=post_state,
+            source="services.admin.config_editor",
+            extra={"config_payload_logged": False},
+        )
+        return {"ok": True, "event_id": event.get("event_id"), "path": event.get("path")}
+    except Exception as exc:
+        _LOG.warning(
+            "runtime_config_save operator event journal failed: %s: %s",
+            type(exc).__name__,
+            exc,
+        )
+        return {"ok": False, "reason": f"operator_event_write_failed:{type(exc).__name__}"}
+
+
 def save_user_yaml(cfg: Dict[str, Any], dry_run: bool = False) -> Tuple[bool, str]:
     if not isinstance(cfg, dict):
         return False, "cfg must be dict"
     try:
+        pre_state = _current_config_shape()
         if CONFIG_PATH.exists():
             BACKUP_PATH.write_bytes(CONFIG_PATH.read_bytes())
         if dry_run:
             return True, "Dry run OK"
         with CONFIG_PATH.open("w", encoding="utf-8") as f:
             yaml.safe_dump(cfg, f, sort_keys=False, allow_unicode=True)
+        _record_runtime_config_save(pre_state=pre_state, post_state={"exists": True, "parse_ok": True, **_config_shape(cfg)})
         return True, "Saved"
     except Exception as e:
         return False, f"Save failed: {type(e).__name__}: {e}"

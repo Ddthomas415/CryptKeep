@@ -21510,3 +21510,59 @@ Remaining risk:
   events, provider-governance policy, and future provider/report paths outside
   the central writers.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T10:51:55Z - Runtime Config Save Operator Event Hook (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow operator/action audit coverage for direct runtime `user.yaml` config
+  writes through the central config editor.
+
+What was found:
+- SHOWN: `services.admin.config_editor.save_user_yaml()` is the central helper
+  for runtime `user.yaml` writes across dashboard settings, first-run/live
+  wizards, and several admin flows.
+- SHOWN: the operator-audit coverage matrix still named CLI/runtime config
+  edits as unclassified under strategy/campaign manifest, risk-limit, and
+  alert-routing families.
+- SHOWN: runtime config can include sensitive or operationally material values,
+  so events must not log config payloads.
+
+What changed:
+- Added best-effort `runtime_config_save` operator-event appends after
+  successful non-dry-run `save_user_yaml()` writes.
+- Events record file existence, parse status, top-level section names/count,
+  result, and source only.
+- Events explicitly avoid recording config payloads or values.
+- Updated the operator-audit coverage matrix, policy doc, and backlog note.
+
+Why this change was chosen:
+- The central save helper covers runtime config writes without changing
+  dashboard-specific fail-closed audit hooks or introducing per-flow duplicate
+  logic.
+- Best-effort event writes preserve existing save semantics; fail-closed
+  audit-write policy remains an explicit open decision.
+
+Expected outcome:
+- Runtime `user.yaml` writes through the central helper produce replayable
+  metadata-only operator-event records when the journal is writable.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_config_editor_audit.py tests/test_config_editor_compat.py tests/test_dashboard_view_data.py tests/test_dashboard_page_runtime.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `111 passed in 1.04s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: strategy/campaign manifest, risk-limit, and alert-routing rows now
+    include central runtime `user.yaml` save coverage; counts remain
+    `SHOWN=0`, `PARTIAL=11`, `MISSING=0`.
+- `./.venv/bin/python -m py_compile services/admin/config_editor.py tests/test_config_editor_audit.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: touches central runtime config write path.
+- UNVERIFIED: GitHub CI, host-side no-secret scan over real config-save events,
+  direct file edits, environment overrides, campaign manifest files, and
+  fail-closed audit-write policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
