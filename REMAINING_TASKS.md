@@ -1433,6 +1433,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     restore audit-write fail-closed policy remains open because the unified
     journal is stored under the data directory that restore replaces, and
     migrations/rollbacks beyond git/work-log evidence remain unclassified.
+    2026-07-16: AI copilot external-provider audit hook is ready for
+    independent review. `services.ai_copilot.providers.call_llm` now appends
+    best-effort `ai_copilot_external_provider_call` operator events for
+    provider attempts, recording provider/model, prompt character counts,
+    result, and error metadata without logging system prompts, user prompts,
+    incident context, or report content. The coverage matrix moves the AI
+    copilot external-provider family from MISSING to PARTIAL. Remaining
+    coverage: local-only report writes, provider-governance policy, and any
+    future provider path that bypasses `call_llm`.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,

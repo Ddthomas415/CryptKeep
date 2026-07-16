@@ -93,6 +93,14 @@ remains open because the unified journal is stored under the data directory
 that restore replaces; migrations and rollbacks beyond git/work-log evidence
 remain unclassified.
 
+Current partial hook for AI copilot external providers:
+`services.ai_copilot.providers.call_llm` appends best-effort
+`ai_copilot_external_provider_call` events for provider attempts. These events
+record provider/model, prompt character counts, result, and error metadata; they
+do not log system prompts, user prompts, incident context, or report content.
+Local-only report writes, provider-governance policy, and any future provider
+path that bypasses `call_llm` remain unclassified.
+
 Current partial hook for strategy stage transitions:
 `services.control.deployment_stage` appends best-effort
 `strategy_stage_transition` events for central promote, demote, and
