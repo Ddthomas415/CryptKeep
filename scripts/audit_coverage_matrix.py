@@ -128,9 +128,9 @@ FAMILIES = [
     {
         "family": "API credential rotation",
         "surfaces": ["CLI", "system"],
-        "classification": "MISSING",
+        "classification": "PARTIAL",
         "probe": None,
-        "notes": "operator event journal substrate exists, but this action family is not yet hooked; see secrets-rotation backlog item.",
+        "notes": "services.security.credential_store set/delete APIs append best-effort metadata-only api_credential_rotation operator events without logging API keys, secrets, or passphrases. Direct keyring edits, environment-based credential changes, server injection/rotation drills, and fail-closed audit-write policy remain unclassified.",
     },
     {
         "family": "order intent creation/claim/submit/cancel/fill/reject/reconcile",

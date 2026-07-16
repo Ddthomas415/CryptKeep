@@ -1458,6 +1458,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     values. The coverage matrix moves the dashboard login/logout/MFA/role
     family from MISSING to PARTIAL. Remaining coverage: user role management
     changes.
+    2026-07-16: API credential-rotation operator-event hook is ready for
+    independent review. `services.security.credential_store` now appends
+    best-effort metadata-only `api_credential_rotation` operator events after
+    central keyring set/delete calls, recording exchange, operation, result,
+    and stored field names without logging API keys, API secrets, or
+    passphrases. The coverage matrix moves API credential rotation from
+    MISSING to PARTIAL. Remaining coverage: direct keyring edits,
+    environment-based credential changes, server injection/rotation drills,
+    and fail-closed audit-write policy.
     2026-07-16: strategy stage-transition operator-event hook is ready for
     independent review. `services.control.deployment_stage` now appends
     best-effort `strategy_stage_transition` events for central promote, demote,
