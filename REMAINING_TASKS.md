@@ -1433,6 +1433,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     restore audit-write fail-closed policy remains open because the unified
     journal is stored under the data directory that restore replaces, and
     migrations/rollbacks beyond git/work-log evidence remain unclassified.
+    2026-07-16: CLI restore audit-write fail-closed slice is ready for
+    independent review. `scripts/backup_state.py restore` now runs backup
+    verification plus lock/force guards first, then requires a pre-mutation
+    `state_restore` operator event with result `started`; if that audit write
+    fails, restore returns `operator_event_write_failed_state_restore_not_started`
+    with `touched: false` before moving or copying state. Successful restores
+    still record a best-effort completion event after restore, and the JSON
+    verdict reports `path_after_restore` for the pre-restore event when the old
+    data directory is moved aside. Remaining proof: host-side restore drill and
+    migrations/rollbacks beyond this script.
     2026-07-16: AI copilot external-provider audit hook is ready for
     independent review. `services.ai_copilot.providers.call_llm` now appends
     best-effort `ai_copilot_external_provider_call` operator events for

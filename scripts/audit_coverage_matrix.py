@@ -204,7 +204,7 @@ FAMILIES = [
         "surfaces": ["CLI"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "backup_state.py emits best-effort unified operator events for backup/verify/restore command results plus verifiable manifests and JSON verdicts; restore audit-write fail-closed policy and migrations/rollbacks beyond git/work-log remain open.",
+        "notes": "backup_state.py emits best-effort unified operator events for backup/verify command results plus verifiable manifests and JSON verdicts; CLI restore now requires a pre-mutation state_restore operator event and refuses before touching state if that audit write fails, then records completion best-effort. Migrations/rollbacks beyond git/work-log and host restore-drill proof remain open.",
     },
     {
         "family": "alert suppression or routing change",

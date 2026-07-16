@@ -104,11 +104,13 @@ last error, and order identifiers. Fills remain stored separately, and
 venue-reconciliation event unification beyond the queue store remains open.
 
 Current partial hook for backup/restore: `scripts/backup_state.py` appends
-best-effort unified operator events for backup, verify, blocked restore, and
-successful restore command results. Restore audit-write fail-closed policy
-remains open because the unified journal is stored under the data directory
-that restore replaces; migrations and rollbacks beyond git/work-log evidence
-remain unclassified.
+best-effort unified operator events for backup and verify command results. CLI
+restore requires a pre-mutation `state_restore` operator event after backup
+verification and lock/force guards pass; if that required audit write fails,
+restore refuses before moving or copying state. Restore still records completion
+best-effort after the data directory is restored, and reports the moved-aside
+path for the pre-restore event when the old data directory is renamed.
+Migrations and rollbacks beyond git/work-log evidence remain unclassified.
 
 Current partial hook for API credential rotation:
 `services.security.credential_store.set_exchange_credentials()` and
