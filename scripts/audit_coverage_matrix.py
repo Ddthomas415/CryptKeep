@@ -170,7 +170,14 @@ FAMILIES = [
         "surfaces": ["CLI", "system"],
         "classification": "PARTIAL",
         "probe": None,
-        "notes": "services.security.credential_store set/delete APIs append best-effort metadata-only api_credential_rotation operator events without logging API keys, secrets, or passphrases. Direct keyring edits, environment-based credential changes, server injection/rotation drills, and fail-closed audit-write policy remain unclassified.",
+        "notes": (
+            "services.security.credential_store set/delete APIs append required "
+            "metadata-only api_credential_rotation operator events without logging "
+            "API keys, secrets, or passphrases; audit-write failure rolls back to "
+            "the previous keyring entry or removes a newly created entry. Direct "
+            "keyring edits, environment-based credential changes, and server "
+            "injection/rotation drills remain unclassified."
+        ),
     },
     {
         "family": "order intent creation/claim/submit/cancel/fill/reject/reconcile",

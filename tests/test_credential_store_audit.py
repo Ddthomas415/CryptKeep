@@ -89,7 +89,28 @@ def test_delete_exchange_credentials_appends_rotation_event_with_pre_state(monke
     assert "old-secret" not in json.dumps(delete_event)
 
 
-def test_credential_rotation_journal_failure_is_best_effort(monkeypatch, tmp_path):
+def test_set_exchange_credentials_journal_failure_rolls_back(monkeypatch, tmp_path):
+    store, _journal, _secret_scan = _fresh_modules(monkeypatch, tmp_path)
+    fake = FakeKeyring()
+    monkeypatch.setattr(store, "_require_keyring", lambda: fake)
+    store.set_exchange_credentials("coinbase", "old-api-key", "old-secret")
+
+    def _raise_operator_event(**_kwargs):
+        raise PermissionError("audit path read-only")
+
+    monkeypatch.setattr(store, "append_operator_event", _raise_operator_event)
+
+    result = store.set_exchange_credentials("coinbase", "new-api-key", "new-secret")
+
+    assert result["ok"] is False
+    assert result["reason"] == "operator_event_write_failed_api_credential_rotation_rolled_back"
+    assert result["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    stored = json.loads(fake.store[(store.SERVICE_NAME, "coinbase")])
+    assert stored == {"apiKey": "old-api-key", "secret": "old-secret"}
+    assert result["rollback"] == {"ok": True, "present": True}
+
+
+def test_set_exchange_credentials_journal_failure_removes_new_entry(monkeypatch, tmp_path):
     store, _journal, _secret_scan = _fresh_modules(monkeypatch, tmp_path)
     fake = FakeKeyring()
     monkeypatch.setattr(store, "_require_keyring", lambda: fake)
@@ -99,9 +120,50 @@ def test_credential_rotation_journal_failure_is_best_effort(monkeypatch, tmp_pat
 
     monkeypatch.setattr(store, "append_operator_event", _raise_operator_event)
 
-    result = store.set_exchange_credentials("coinbase", "api-key", "api-secret")
+    result = store.set_exchange_credentials("coinbase", "new-api-key", "new-secret")
 
-    assert result["ok"] is True
-    assert result["operator_event"] == {"ok": False, "reason": "operator_event_write_failed:PermissionError"}
+    assert result["ok"] is False
+    assert result["reason"] == "operator_event_write_failed_api_credential_rotation_rolled_back"
+    assert (store.SERVICE_NAME, "coinbase") not in fake.store
+    assert result["rollback"] == {"ok": True, "present": False}
+
+
+def test_delete_exchange_credentials_journal_failure_restores_previous_entry(monkeypatch, tmp_path):
+    store, _journal, _secret_scan = _fresh_modules(monkeypatch, tmp_path)
+    fake = FakeKeyring()
+    monkeypatch.setattr(store, "_require_keyring", lambda: fake)
+    store.set_exchange_credentials("coinbase", "old-api-key", "old-secret")
+
+    def _raise_operator_event(**_kwargs):
+        raise PermissionError("audit path read-only")
+
+    monkeypatch.setattr(store, "append_operator_event", _raise_operator_event)
+
+    result = store.delete_exchange_credentials("coinbase")
+
+    assert result["ok"] is False
+    assert result["reason"] == "operator_event_write_failed_api_credential_rotation_rolled_back"
+    assert result["deleted"] is True
     stored = json.loads(fake.store[(store.SERVICE_NAME, "coinbase")])
-    assert stored == {"apiKey": "api-key", "secret": "api-secret"}
+    assert stored == {"apiKey": "old-api-key", "secret": "old-secret"}
+    assert result["rollback"] == {"ok": True, "present": True}
+
+
+def test_credential_rotation_pre_read_failure_refuses_without_mutation(monkeypatch, tmp_path):
+    store, _journal, _secret_scan = _fresh_modules(monkeypatch, tmp_path)
+
+    class BrokenReadKeyring(FakeKeyring):
+        def get_password(self, service: str, username: str) -> str | None:
+            raise PermissionError("keyring read denied")
+
+    fake = BrokenReadKeyring()
+    monkeypatch.setattr(store, "_require_keyring", lambda: fake)
+
+    result = store.set_exchange_credentials("coinbase", "new-api-key", "new-secret")
+
+    assert result == {
+        "ok": False,
+        "exchange": "coinbase",
+        "reason": "credential_pre_read_failed:PermissionError",
+    }
+    assert fake.store == {}
