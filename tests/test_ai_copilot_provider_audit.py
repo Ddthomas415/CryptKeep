@@ -66,6 +66,59 @@ def test_call_llm_operator_event_failure_is_explicit(monkeypatch):
     }
 
 
+def test_call_llm_provider_allowlist_blocks_before_sdk_path(monkeypatch):
+    calls: list[dict[str, Any]] = []
+
+    def _append_operator_event(**kwargs):
+        calls.append(kwargs)
+        return {"event_id": "evt-ai-policy-1", "path": "/tmp/operator_events.jsonl"}
+
+    monkeypatch.setenv("CBP_COPILOT_PROVIDER", "openai")
+    monkeypatch.setenv("CBP_COPILOT_MODEL", "gpt-test")
+    monkeypatch.setenv("CBP_COPILOT_ALLOWED_PROVIDERS", "anthropic")
+    monkeypatch.delenv("CBP_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setattr(providers, "append_operator_event", _append_operator_event)
+
+    result = providers.call_llm(system="system prompt", user="user prompt")
+
+    assert result["ok"] is False
+    assert result["error"] == "provider_not_allowed:openai"
+    assert result["provider_policy"] == {
+        "ok": False,
+        "provider": "openai",
+        "reason": "provider_not_allowed:openai",
+        "allowed_providers": ["anthropic"],
+        "policy_source": "env",
+    }
+    assert result["operator_event"]["ok"] is True
+    event = calls[0]
+    assert event["action"] == "ai_copilot_external_provider_call"
+    assert event["target"] == "openai"
+    assert event["result"] == "failed"
+    assert event["post_state"]["error_type"] == "provider_not_allowed"
+
+
+def test_call_llm_corrupt_provider_allowlist_blocks(monkeypatch):
+    calls: list[dict[str, Any]] = []
+
+    def _append_operator_event(**kwargs):
+        calls.append(kwargs)
+        return {"event_id": "evt-ai-policy-2", "path": "/tmp/operator_events.jsonl"}
+
+    monkeypatch.setenv("CBP_COPILOT_PROVIDER", "anthropic")
+    monkeypatch.setenv("CBP_COPILOT_MODEL", "claude-test")
+    monkeypatch.setenv("CBP_COPILOT_ALLOWED_PROVIDERS", "anthropic,unknown")
+    monkeypatch.setattr(providers, "append_operator_event", _append_operator_event)
+
+    result = providers.call_llm(system="system prompt", user="user prompt")
+
+    assert result["ok"] is False
+    assert result["error"] == "invalid_provider_allowlist:unsupported_provider_in_allowlist:unknown"
+    assert result["operator_event"]["ok"] is True
+    assert calls[0]["post_state"]["error_type"] == "invalid_provider_allowlist"
+
+
 def test_provider_operator_event_success_metadata(monkeypatch):
     calls: list[dict[str, Any]] = []
 

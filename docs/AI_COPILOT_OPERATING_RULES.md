@@ -180,6 +180,18 @@ External LLM providers may be used only when an operator explicitly enables an
 AI-backed summary, for example through a `use_ai=true` option or an accepted
 environment/provider setting.
 
+Provider governance is enforced at the central provider boundary:
+
+- `CBP_COPILOT_PROVIDER` selects the requested provider.
+- Missing `CBP_COPILOT_ALLOWED_PROVIDERS` preserves the current supported
+  provider set: `anthropic`, `openai`, `google`.
+- Set `CBP_COPILOT_ALLOWED_PROVIDERS` to a comma-separated subset such as
+  `anthropic,openai` to narrow external-provider access.
+- Set `CBP_COPILOT_ALLOWED_PROVIDERS=none` to block all external-provider
+  calls.
+- Unknown or malformed allow-list entries fail closed before SDK import or
+  API-key lookup.
+
 Allowed provider payload fields:
 
 - high-level campaign health and status summaries

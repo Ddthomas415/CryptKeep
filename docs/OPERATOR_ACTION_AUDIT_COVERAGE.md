@@ -137,16 +137,18 @@ environment-based credential changes, and server injection/rotation drills
 remain unclassified.
 
 Current partial hook for AI copilot external providers:
-`services.ai_copilot.providers.call_llm` appends best-effort
-`ai_copilot_external_provider_call` events for provider attempts. These events
-record provider/model, prompt character counts, result, and error metadata; they
-do not log system prompts, user prompts, incident context, or report content.
+`services.ai_copilot.providers.call_llm` enforces the configured external
+provider allow-list before SDK import or API-key lookup, then appends
+best-effort `ai_copilot_external_provider_call` events for provider attempts.
+These events record provider/model, prompt character counts, result, and error
+metadata; they do not log system prompts, user prompts, incident context, or
+report content.
 Central AI copilot report writers append best-effort metadata-only
 `ai_copilot_report_write` events for persisted report artifacts. These events
 record report type, status/severity, and artifact names/count only; report
-payloads and artifact contents are not logged. Provider-governance policy and
-any future provider path that bypasses `call_llm` or the central report writers
-remain unclassified.
+payloads and artifact contents are not logged. Future provider paths that bypass
+`call_llm` or the central report writers and host-side no-secret scans over real
+provider/report events remain unclassified.
 
 Current partial hook for strategy config changes: dashboard Operations strategy
 parameter saves and preset applies append required `strategy_config_change`

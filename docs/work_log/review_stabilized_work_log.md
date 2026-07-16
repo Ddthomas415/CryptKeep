@@ -22241,3 +22241,64 @@ Remaining risk:
 - LOW: audit-reporting correction only; no runtime action behavior changed.
 - UNVERIFIED: broader suite and GitHub CI.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T20:03:00Z - AI Copilot Provider Governance Allow-List (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow the operator-audit AI copilot external-provider gap by enforcing an
+  explicit provider-governance policy at the central `call_llm()` boundary.
+
+What was found:
+- SHOWN: `services.ai_copilot.providers.call_llm()` is the central external LLM
+  provider boundary for active copilot provider calls.
+- SHOWN: provider attempts already append metadata-only
+  `ai_copilot_external_provider_call` operator events, but no explicit
+  allow-list policy was checked before SDK import or API-key lookup.
+- SHOWN: docs already state external provider use must be explicitly enabled
+  and advisory-only, but the provider allow/deny set was not executable.
+
+What changed:
+- Added `SUPPORTED_EXTERNAL_PROVIDERS`, `CBP_COPILOT_ALLOWED_PROVIDERS`,
+  `parse_external_provider_allowlist()`, and `external_provider_policy()` in
+  `services.ai_copilot.policy`.
+- `call_llm()` now checks the provider policy before provider SDK import or API
+  key lookup. Missing allow-list preserves the current supported set
+  (`anthropic`, `openai`, `google`); `none` blocks all external providers;
+  unknown/malformed allow-list values fail closed and still record a
+  metadata-only provider-failure operator event.
+- Updated operator-audit coverage, AI copilot operating rules, backlog, and
+  tests.
+
+Why this change was chosen:
+- It closes the central provider-governance gap without changing report payload
+  content, adding new providers, or touching trading/execution paths.
+
+Expected outcome:
+- Operators can restrict or disable external AI provider access with one
+  explicit environment policy, and corrupt policy cannot silently widen
+  external disclosure.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_policy.py tests/test_ai_copilot_provider_audit.py`
+  - SHOWN: `9 passed in 0.19s`.
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_context_collector.py tests/test_ai_copilot_drift_auditor.py tests/test_ai_copilot_incident_analyst.py tests/test_ai_copilot_operator_oversight.py tests/test_ai_copilot_policy.py tests/test_ai_copilot_pr_reviewer.py tests/test_ai_copilot_provider_audit.py tests/test_ai_copilot_report_write_audit.py tests/test_ai_copilot_safety_auditor.py tests/test_ai_copilot_sim_runner.py tests/test_ai_copilot_strategy_lab.py tests/test_run_ai_operator_oversight.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `53 passed in 1.35s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: AI copilot external-provider row now states `call_llm` enforces the
+    configured external-provider allow-list before SDK/key access; counts remain
+    `SHOWN 0`, `PARTIAL 11`, `MISSING 0`.
+- `./.venv/bin/python -m py_compile services/ai_copilot/policy.py services/ai_copilot/providers.py scripts/audit_coverage_matrix.py tests/test_ai_copilot_policy.py tests/test_ai_copilot_provider_audit.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: changes the AI external-provider call boundary. It intentionally
+  preserves default supported providers but blocks disallowed/corrupt configured
+  provider policies before SDK/key access.
+- UNVERIFIED: broader AI copilot suite, operator-audit matrix output, GitHub CI,
+  host-side no-secret scan over real provider/report events, and any future
+  provider path that bypasses `call_llm()`.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
