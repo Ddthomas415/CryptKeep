@@ -107,7 +107,7 @@ def _probe_operator_event_journal() -> dict:
             "store_exists": path.exists(),
             "format": "append_only_jsonl",
             "required_fields": list(REQUIRED_FIELDS),
-            "status": "substrate_available_unhooked",
+            "status": "substrate_available_partial_hooks",
         }
     except Exception as exc:
         return {"probe_error": f"{type(exc).__name__}: {exc}"}

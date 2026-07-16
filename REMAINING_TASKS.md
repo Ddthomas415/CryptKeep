@@ -1359,6 +1359,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     remaining capped-live proof is still action hooks, arm-to-halt replay,
     no-secret scan over real events, and fail-closed audit-write policy for
     critical live actions.
+    2026-07-16: audit-matrix journal-status honesty correction is ready for
+    independent review. The shared operator-event journal is no longer
+    unhooked; multiple material families now have partial hooks. The matrix
+    now reports the substrate status as `substrate_available_partial_hooks`
+    while keeping all action-family rows `PARTIAL` until host proofs and
+    remaining hooks close.
     2026-07-15: operator-event no-secret scan tooling is ready for independent
     review. `scripts/check_operator_event_secrets.py` scans the operator event
     JSONL journal for unredacted secret-like payload fields, reports only
