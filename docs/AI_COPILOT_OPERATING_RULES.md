@@ -191,6 +191,10 @@ Provider governance is enforced at the central provider boundary:
   calls.
 - Unknown or malformed allow-list entries fail closed before SDK import or
   API-key lookup.
+- `services/ai_copilot/providers.py` is the only `services/ai_copilot` module
+  allowed to import provider SDKs, read provider API-key environment variables,
+  or call provider APIs directly; other copilot modules must go through
+  `call_llm()`.
 
 Allowed provider payload fields:
 

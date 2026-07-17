@@ -22302,3 +22302,58 @@ Remaining risk:
   host-side no-secret scan over real provider/report events, and any future
   provider path that bypasses `call_llm()`.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-16T20:22:59Z - AI Copilot Provider Boundary Invariant (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Convert the remaining future-provider-bypass concern into an executable
+  repository invariant.
+
+What was found:
+- SHOWN: current external SDK imports, provider client construction, provider API
+  calls, and provider API-key environment reads inside `services/ai_copilot`
+  are centralized in `services/ai_copilot/providers.py`.
+- SHOWN: active AI copilot modules that need external LLMs call
+  `services.ai_copilot.providers.call_llm()`.
+- SHOWN: the previous provider-governance patch enforced the provider
+  allow-list at `call_llm()`, but future bypass paths were only documented as a
+  remaining risk.
+
+What changed:
+- Added `tests/test_ai_copilot_provider_boundary.py`.
+- The new invariant rejects future `services/ai_copilot` Python modules that:
+  import external provider SDKs, call provider APIs directly, or read provider
+  API-key environment variables outside `providers.py`.
+- The invariant also pins current active provider callers to import and use the
+  `call_llm()` boundary.
+- Updated operator-audit coverage docs, AI copilot operating rules, backlog, and
+  matrix notes.
+
+Why this change was chosen:
+- A test is the smallest reliable way to keep provider governance centralized
+  without adding new runtime behavior or touching trading/execution paths.
+
+Expected outcome:
+- Future AI copilot provider expansions fail visibly unless they preserve the
+  central `call_llm()` governance and audit boundary.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_provider_boundary.py tests/test_ai_copilot_policy.py tests/test_ai_copilot_provider_audit.py`
+  - SHOWN: `12 passed in 0.30s`.
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_context_collector.py tests/test_ai_copilot_drift_auditor.py tests/test_ai_copilot_incident_analyst.py tests/test_ai_copilot_operator_oversight.py tests/test_ai_copilot_policy.py tests/test_ai_copilot_pr_reviewer.py tests/test_ai_copilot_provider_audit.py tests/test_ai_copilot_provider_boundary.py tests/test_ai_copilot_report_write_audit.py tests/test_ai_copilot_safety_auditor.py tests/test_ai_copilot_sim_runner.py tests/test_ai_copilot_strategy_lab.py tests/test_run_ai_operator_oversight.py tests/test_operator_audit_coverage.py tests/test_operator_event_secret_scan.py`
+  - SHOWN: `56 passed in 1.55s`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: AI copilot row now states the provider-boundary invariant test rejects
+    future `services/ai_copilot` SDK/API-key bypass paths; counts remain
+    `SHOWN 0`, `PARTIAL 11`, `MISSING 0`.
+- `./.venv/bin/python -m py_compile tests/test_ai_copilot_provider_boundary.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: test/docs/matrix invariant only; no runtime behavior changed.
+- UNVERIFIED: GitHub CI, host-side no-secret scan over real provider/report
+  events, and non-`services/ai_copilot` provider surfaces such as legacy
+  companion copilot code.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
