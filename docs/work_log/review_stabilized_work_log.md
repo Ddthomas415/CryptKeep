@@ -7587,6 +7587,68 @@ Remaining risk:
   were not checked in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-17T04:19:11Z - Paper-Campaign Manifest Audit CLI (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Narrow the operator-action audit gap for campaign manifest changes without
+  pretending direct hand edits can be audited automatically.
+
+What was found:
+- SHOWN: paper campaign manifests are schema-v1 JSON loaded by
+  `services.analytics.paper_campaign_recovery.load_campaign_specs()`.
+- SHOWN: the audit coverage matrix still classified campaign manifest changes
+  as unclassified under the strategy/campaign manifest family.
+- SHOWN: direct hand edits to files cannot produce who/what/when trail records
+  unless operators use a governed write path or an external file-monitoring
+  system.
+
+What changed:
+- Added `services.admin.campaign_manifest_audit.update_campaign_enabled()`.
+- Added `scripts/update_paper_campaign_manifest.py` as a narrow governed CLI
+  for schema-v1 paper-campaign manifest enable/disable updates.
+- The update path validates the post-change manifest with the runtime campaign
+  loader before writing.
+- The update path records a required metadata-only
+  `campaign_manifest_change` operator event before writing and refuses with
+  `operator_event_write_failed_campaign_manifest_not_changed` if that event
+  cannot be persisted.
+- The manifest write is atomic; a completion operator event is best-effort.
+- Updated the operator action audit policy, coverage matrix notes, script
+  index, and backlog to name the governed path while keeping direct hand edits
+  explicitly unclassified.
+
+Why this change was chosen:
+- A narrow audited CLI creates a usable operator path and measurable audit
+  coverage without trying to intercept arbitrary filesystem edits.
+
+Expected outcome:
+- Operators have a safe command path for paper-campaign enable/disable changes,
+  and audit coverage no longer treats all campaign manifest updates as
+  unclassified.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_campaign_manifest_audit.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_campaign_manifest_audit.py tests/test_operator_audit_coverage.py`
+  - SHOWN: `12 passed`.
+- `./.venv/bin/python -m py_compile services/admin/campaign_manifest_audit.py scripts/update_paper_campaign_manifest.py tests/test_campaign_manifest_audit.py scripts/audit_coverage_matrix.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: strategy/campaign manifest row remains `PARTIAL` and names the
+    governed `update_paper_campaign_manifest.py` CLI while keeping direct
+    manifest file edits unclassified.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: this creates a new manifest write command, although it is paper
+  campaign only and fail-closed on required audit-event persistence.
+- UNVERIFIED: full suite, GitHub CI, and direct hand-edited manifest detection.
+  Direct hand edits remain unclassified by design.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-06-19T18:44:46Z - Audit Short Context Data Feasibility
 
 Active role: ENGINEER

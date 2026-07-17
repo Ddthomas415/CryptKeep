@@ -154,8 +154,10 @@ FAMILIES = [
             "strategy_config_change operator events and roll back on audit-write "
             "failure; central runtime user.yaml saves append required metadata-only "
             "runtime_config_save events and roll back the config file on audit-write "
-            "failure. Direct manifest file edits and campaign manifest changes "
-            "remain unclassified."
+            "failure. update_paper_campaign_manifest.py provides a governed CLI "
+            "path for paper-campaign enable/disable manifest changes and refuses "
+            "to write if the required campaign_manifest_change operator event "
+            "cannot be recorded. Direct manifest file edits remain unclassified."
         ),
     },
     {
