@@ -51,6 +51,7 @@ listed below.
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
 | `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
+| `update_paper_campaign_manifest.py` | — | Audited schema-v1 paper-campaign manifest enable/disable update; requires a `campaign_manifest_change` operator event before writing |
 | `run_preflight.py` | — | Preflight entrypoint |
 | `run_signal_quality_report.py` | — | Read-only signal-quality report for scoring whether qualified public-OHLCV signals were early enough; `--allow-unqualified-evidence` is research-only |
 | `run_system_diagnostics.py` | `make system-diagnostics` | System diagnostics wrapper |
@@ -64,7 +65,7 @@ compatibility delegate only and must not define separate collector behavior.
 
 ## Specialized Script Inventory
 
-Root `scripts/` currently contains 122 Python entrypoints. The scripts below are
+Root `scripts/` currently contains 127 Python entrypoints. The scripts below are
 classified so operators do not have to infer which commands are daily-safe.
 
 ### Bootstrap And Internal Helpers

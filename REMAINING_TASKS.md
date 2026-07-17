@@ -1606,6 +1606,16 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     targets: `make live-intent-history-schema` and
     `make live-intent-history-schema-init`. This does not close host proof by
     itself; run it on the operator host and preserve the JSON evidence.
+    2026-07-17: paper-campaign manifest change audit slice is ready for
+    independent review. `scripts/update_paper_campaign_manifest.py` provides a
+    governed CLI path for schema-v1 paper-campaign manifest enable/disable
+    changes: it validates the post-change manifest with the runtime campaign
+    loader, records a required metadata-only `campaign_manifest_change`
+    operator event before writing, refuses with
+    `operator_event_write_failed_campaign_manifest_not_changed` if that event
+    cannot be persisted, writes the manifest atomically, and records a
+    best-effort completion event. The coverage matrix now names this governed
+    path while keeping direct hand edits to manifest files unclassified.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

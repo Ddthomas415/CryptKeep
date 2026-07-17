@@ -161,8 +161,16 @@ Current partial hook for strategy config changes: dashboard Operations strategy
 parameter saves and preset applies append required `strategy_config_change`
 events after the local `user.yaml` save. If the event write fails, the page
 attempts to roll back to the prior config and reports the failure. Direct
-manifest file edits, CLI/runtime config edits, and campaign manifest changes
-remain unclassified.
+manifest file edits and CLI/runtime config edits remain unclassified.
+
+Current partial hook for paper-campaign manifest changes:
+`scripts/update_paper_campaign_manifest.py` provides a governed CLI path for
+schema-v1 paper-campaign manifest enable/disable changes. It validates the
+post-change manifest with the runtime campaign loader, records a required
+metadata-only `campaign_manifest_change` operator event before writing, refuses
+with `operator_event_write_failed_campaign_manifest_not_changed` if that event
+cannot be persisted, writes the manifest atomically, and records a best-effort
+completion event. Direct hand edits to manifest files remain unclassified.
 
 Current partial hook for dashboard authentication: `dashboard.auth_gate`
 appends best-effort `dashboard_login`, `dashboard_logout`,
