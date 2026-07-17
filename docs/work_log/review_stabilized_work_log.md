@@ -22357,3 +22357,68 @@ Remaining risk:
   events, and non-`services/ai_copilot` provider surfaces such as legacy
   companion copilot code.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-17T03:44:34Z - Live Intent History Schema Preflight (Substrate Backlog #14)
+
+Active role: ENGINEER
+
+Objective:
+- Make the audit matrix's live-intent runtime-history gap operator-actionable
+  without hiding schema mutation inside the matrix itself.
+
+What was found:
+- SHOWN: `storage.live_intent_queue_sqlite.SCHEMA` declares the append-only
+  `live_trade_intent_events` table.
+- SHOWN: `LiveIntentQueueSQLite()` initializes that schema, but
+  `scripts/audit_coverage_matrix.py` intentionally only probes the current
+  runtime DB and does not mutate it.
+- SHOWN: current local runtime state reports `db_exists: true`,
+  `event_history_declared: true`, and `event_history_table_exists: false`.
+- SHOWN: an artificially ancient `live_trade_intents` table missing indexed
+  columns can make the existing initializer raise `sqlite3.OperationalError`;
+  the new preflight reports initialization failure instead of tracebacking.
+
+What changed:
+- Added `scripts/check_live_intent_history_schema.py`.
+- Default mode is read-only and exits nonzero if the live intent DB is missing
+  or the `live_trade_intent_events` table is absent/incomplete.
+- `--init` explicitly runs the existing `LiveIntentQueueSQLite()` initializer
+  before checking, so host schema initialization is deliberate and auditable.
+- Added Makefile targets:
+  - `make live-intent-history-schema`
+  - `make live-intent-history-schema-init`
+- Updated the script index, operator-audit policy doc, backlog, and tests.
+
+Why this change was chosen:
+- The audit matrix should stay read-only evidence. A separate preflight gives
+  the operator a clear command to prove or initialize runtime schema state.
+
+Expected outcome:
+- Host launch evidence can show whether the current runtime queue actually has
+  transition-history storage, and initialization requires an explicit command.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_history_schema_preflight.py`
+  - SHOWN: `3 passed in 0.36s`.
+- `./.venv/bin/python -m pytest -q tests/test_live_intent_history_schema_preflight.py tests/test_operator_audit_coverage.py tests/test_live_intent_upsert_insert_only.py tests/test_execution_claim_race.py tests/test_clock_sanity.py`
+  - SHOWN: `30 passed, 1 warning in 0.91s`.
+- `./.venv/bin/python -m py_compile scripts/check_live_intent_history_schema.py tests/test_live_intent_history_schema_preflight.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/check_live_intent_history_schema.py --json`
+  - SHOWN: current local runtime DB exists but lacks
+    `live_trade_intent_events`; command exits `1` in read-only mode with
+    `reason: live_trade_intent_events_missing`.
+- `./.venv/bin/python scripts/audit_coverage_matrix.py --json`
+  - SHOWN: order-intent probe remains honest: `event_history_declared: true`,
+    `event_history_table_exists: false`, and
+    `history(runtime table absent in current store)` remains in
+    `fields_missing`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: `--init` mutates the runtime queue schema by invoking existing store
+  initialization. Default mode remains read-only.
+- UNVERIFIED: broader operator-audit suite, GitHub CI, and host-side execution
+  of the check/init command with preserved evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

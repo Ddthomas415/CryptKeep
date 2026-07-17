@@ -47,6 +47,7 @@ listed below.
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
 | `install_systemd_units.py` | — | Verify and install systemd units from `packaging/systemd/` (dry-run by default; never arms live trading) |
+| `check_live_intent_history_schema.py` | `make live-intent-history-schema` / `make live-intent-history-schema-init` | Check whether the current runtime live-intent queue has `live_trade_intent_events`; read-only by default, `--init` explicitly initializes/migrates the existing queue schema |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
 | `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |
 | `run_paper_strategy_evidence_collector.py` | `make collect-paper-strategy-evidence` / `make status-paper-strategy-evidence` / `make stop-paper-strategy-evidence` | Managed paper evidence collector; use `--daily-loop --detach` for a persistent daily process and `--max-daily-attempts` to bound retryable failures |
