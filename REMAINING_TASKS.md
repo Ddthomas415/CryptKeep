@@ -1597,6 +1597,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     intent lifecycle family; remaining coverage is venue reconciliation/fill
     event unification beyond the queue store and any future lifecycle mutation
     path that bypasses `LiveIntentQueueSQLite`.
+    2026-07-17: live-intent history schema preflight is ready for independent
+    review. `scripts/check_live_intent_history_schema.py` reports whether the
+    current runtime `live_intent_queue.sqlite` has the declared
+    `live_trade_intent_events` table. It is read-only by default and exits
+    nonzero when the table is missing; `--init` explicitly runs the existing
+    `LiveIntentQueueSQLite()` initializer to create/migrate the schema. Makefile
+    targets: `make live-intent-history-schema` and
+    `make live-intent-history-schema-init`. This does not close host proof by
+    itself; run it on the operator host and preserve the JSON evidence.
 15. Add execution-cost research for maker-vs-taker, fee tiers, and venue cost
     stack. This is deferred and research/shadow-only until expectancy is
     proven. Current evidence shows the paper engine supports limit orders, but

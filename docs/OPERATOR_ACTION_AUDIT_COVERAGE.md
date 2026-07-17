@@ -114,6 +114,11 @@ SQLite file does not get credited with runtime history it does not yet contain.
 Events record intent ID, timestamp, actor, action, pre/post status, reason,
 source, last error, and order identifiers. Fills remain stored separately, and
 venue-reconciliation event unification beyond the queue store remains open.
+Use `make live-intent-history-schema` for a read-only runtime check of whether
+the current queue DB has the transition-history table. Use
+`make live-intent-history-schema-init` only when deliberately initializing or
+migrating the runtime queue schema; the audit coverage matrix intentionally does
+not perform that mutation.
 
 Current partial hook for backup/restore: `scripts/backup_state.py` appends
 best-effort unified operator events for backup and verify command results. CLI

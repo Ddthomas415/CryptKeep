@@ -209,7 +209,7 @@ governance-smoke:
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
 .PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify check-short-context-readiness
-.PHONY: script-index paper-run-short paper-stop-now
+.PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
 # Use this in CI or when you don't want to wait for loop tests
@@ -345,6 +345,12 @@ funding-stage0-verify:
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
 
+live-intent-history-schema:
+	$(PYTHON) scripts/check_live_intent_history_schema.py
+
+live-intent-history-schema-init:
+	$(PYTHON) scripts/check_live_intent_history_schema.py --init
+
 # Script index
 script-index:
 	@echo "=== Operational Scripts ==="
@@ -358,6 +364,7 @@ script-index:
 	@echo "  make candidate-summary  — summarize candidate-attributed paper outcomes"
 	@echo "  make candidate-outcomes — write candidate outcome report artifact"
 	@echo "  make ai-operator-oversight — write read-only AI operator oversight report"
+	@echo "  make live-intent-history-schema — check live intent transition-history schema"
 	@echo "  make check-short-context-readiness — check short/context data readiness"
 	@echo "  make check-paper-campaign-ownership — check laptop/Hetzner campaign ownership"
 	@echo "  make pullback-stage0-readiness — check pullback Stage 0 readiness"
