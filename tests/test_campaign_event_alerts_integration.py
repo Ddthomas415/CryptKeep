@@ -48,6 +48,24 @@ def test_write_status_fires_alert_on_stop_transition(monkeypatch, tmp_path):
     assert written["status"] == "stopped"
 
 
+def test_write_status_fires_alert_once_on_blocked_transition(monkeypatch, tmp_path):
+    svc = _reload(monkeypatch, tmp_path)
+    sent: list[tuple[str, str, dict | None]] = []
+    import services.alerts.campaign_events as ce
+    monkeypatch.setattr(ce, "_send", lambda level, message, payload: sent.append((level, message, payload)))
+
+    svc._write_status({"status": "running", "symbol": "BTC/USD"})
+    svc._write_status({"status": "blocked", "reason": "ohlcv_source_unreachable", "symbol": "BTC/USD"})
+    svc._write_status({"status": "blocked", "reason": "ohlcv_source_unreachable", "symbol": "BTC/USD"})
+
+    assert len(sent) == 1
+    level, message, payload = sent[0]
+    assert level == "warning"
+    assert message == "campaign:blocked"
+    assert payload["reason"] == "ohlcv_source_unreachable"
+    assert payload["symbol"] == "BTC/USD"
+
+
 def test_raising_channel_does_not_block_status_write(monkeypatch, tmp_path):
     svc = _reload(monkeypatch, tmp_path)
     import services.alerts.campaign_events as ce

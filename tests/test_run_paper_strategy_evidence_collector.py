@@ -418,6 +418,11 @@ def test_run_daily_loop_retries_failed_campaign_once_then_waits(monkeypatch, tmp
     monkeypatch.setattr(script, "_has_session_day", lambda strategy_id, day: False)
     monkeypatch.setattr(script, "_failed_session_attempts", lambda strategy_id, day: len(run_calls))
     monkeypatch.setattr(script.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(
+        script,
+        "check_ohlcv_reachable",
+        lambda **kwargs: {"ok": True, "status": "ok", "reason": "public_ohlcv_reachable"},
+    )
 
     def _run_one_campaign(cfg, *, max_strategies=None, session_strategy_id=""):
         run_calls.append(len(run_calls) + 1)
@@ -448,5 +453,125 @@ def test_run_daily_loop_retries_failed_campaign_once_then_waits(monkeypatch, tmp
     assert retry_rows[0]["retry_pending"] is True
     assert retry_rows[-1]["retry_pending"] is False
     assert retry_rows[-1]["daily_attempts"] == 2
+    assert out["status"] == "stopped"
+    assert out["reason"] == "max_loops"
+
+
+def test_run_daily_loop_blocks_unreachable_ohlcv_without_consuming_daily_attempt(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    status_writes: list[dict[str, object]] = []
+    run_calls: list[int] = []
+    stop_path = tmp_path / "paper_strategy_evidence.stop"
+
+    monkeypatch.setattr(script, "load_runtime_status", lambda: {"ok": True, "pid_alive": False, "pid": None})
+    monkeypatch.setattr(script, "_write_status", lambda obj: status_writes.append(dict(obj)))
+    monkeypatch.setattr(script, "_write_pid_state", lambda obj: None)
+    monkeypatch.setattr(script, "_clear_pid_state", lambda: None)
+    monkeypatch.setattr(script, "stop_file", lambda: stop_path)
+    monkeypatch.setattr(script, "_today_utc", lambda: "2026-07-18")
+    monkeypatch.setattr(script, "_has_session_day", lambda strategy_id, day: False)
+    monkeypatch.setattr(script, "_failed_session_attempts", lambda strategy_id, day: len(run_calls))
+    monkeypatch.setattr(script.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(
+        script,
+        "check_ohlcv_reachable",
+        lambda **kwargs: {
+            "ok": False,
+            "status": "ohlcv_source_unreachable",
+            "reason": "public ohlcv fetch failed",
+            "error": "ConnectionError: dns failure",
+            "venue": kwargs["venue"],
+            "symbol": kwargs["symbol"],
+            "signal_source": kwargs["signal_source"],
+        },
+    )
+
+    def _run_one_campaign(cfg, *, max_strategies=None, session_strategy_id=""):
+        run_calls.append(1)
+        return {"ok": True, "status": "completed"}
+
+    monkeypatch.setattr(script, "_run_one_campaign", _run_one_campaign)
+
+    out = script._run_daily_loop(
+        script.PaperStrategyEvidenceServiceCfg(
+            strategies=("sma_200_trend",),
+            per_strategy_runtime_sec=1.0,
+            signal_source="public_ohlcv_1d",
+            symbol="BTC/USD",
+            venue="coinbase",
+        ),
+        max_strategies=None,
+        session_strategy_id="es_daily_trend_v1",
+        poll_interval_sec=1.0,
+        max_daily_attempts=2,
+        max_loops=1,
+    )
+
+    blocked = status_writes[-1]
+    assert run_calls == []
+    assert out["status"] == "blocked"
+    assert out["reason"] == "ohlcv_source_unreachable"
+    assert blocked["retry_budget_consumed"] is False
+    assert blocked["daily_attempts"] == 0
+    assert blocked["max_daily_attempts"] == 2
+    assert blocked["ohlcv_preflight"]["error"] == "ConnectionError: dns failure"
+
+
+def test_run_daily_loop_recovers_when_ohlcv_preflight_succeeds_later(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    status_writes: list[dict[str, object]] = []
+    run_calls: list[int] = []
+    stop_path = tmp_path / "paper_strategy_evidence.stop"
+    preflights = iter(
+        [
+            {"ok": False, "status": "ohlcv_source_unreachable", "reason": "dns"},
+            {"ok": True, "status": "ok", "reason": "public_ohlcv_reachable"},
+        ]
+    )
+
+    monkeypatch.setattr(script, "load_runtime_status", lambda: {"ok": True, "pid_alive": False, "pid": None})
+    monkeypatch.setattr(script, "_write_status", lambda obj: status_writes.append(dict(obj)))
+    monkeypatch.setattr(script, "_write_pid_state", lambda obj: None)
+    monkeypatch.setattr(script, "_clear_pid_state", lambda: None)
+    monkeypatch.setattr(script, "stop_file", lambda: stop_path)
+    monkeypatch.setattr(script, "_today_utc", lambda: "2026-07-18")
+    monkeypatch.setattr(script, "_has_session_day", lambda strategy_id, day: False)
+    monkeypatch.setattr(script, "_failed_session_attempts", lambda strategy_id, day: len(run_calls))
+    monkeypatch.setattr(script.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(script, "check_ohlcv_reachable", lambda **kwargs: next(preflights))
+
+    def _run_one_campaign(cfg, *, max_strategies=None, session_strategy_id=""):
+        run_calls.append(1)
+        return {
+            "ok": True,
+            "status": "completed",
+            "reason": "completed",
+            "completed_strategies": 1,
+        }
+
+    monkeypatch.setattr(script, "_run_one_campaign", _run_one_campaign)
+
+    out = script._run_daily_loop(
+        script.PaperStrategyEvidenceServiceCfg(
+            strategies=("sma_200_trend",),
+            per_strategy_runtime_sec=1.0,
+            signal_source="public_ohlcv_1d",
+            symbol="BTC/USD",
+            venue="coinbase",
+        ),
+        max_strategies=None,
+        session_strategy_id="es_daily_trend_v1",
+        poll_interval_sec=1.0,
+        max_daily_attempts=2,
+        max_loops=2,
+    )
+
+    assert run_calls == [1]
+    assert any(row.get("status") == "blocked" for row in status_writes)
+    assert any(row.get("status") == "idle" for row in status_writes)
     assert out["status"] == "stopped"
     assert out["reason"] == "max_loops"

@@ -115,6 +115,16 @@ deployment work still needs independent review.
    collector in that state. The default guard probes 400 rows to match managed
    `strategy_runner` fallback lookback; plain `--restore` behavior is
    preserved.
+   2026-07-18 implementation proof is ready for independent review for the
+   public-OHLCV outage reliability slice. The daily paper evidence collector
+   now runs the existing read-only OHLCV preflight before consuming a daily
+   campaign attempt for `public_ohlcv_*` sources. If the configured source is
+   unreachable, it writes `status=blocked`,
+   `reason=ohlcv_source_unreachable`, preserves the full preflight payload,
+   and marks `retry_budget_consumed=false` without starting the campaign or
+   logging a failed session attempt. A later successful preflight allows the
+   loop to proceed normally. Campaign alerts now include transition-deduped
+   warning-level `blocked` notifications.
 2. After the paper gate reaches 10 qualified round trips, write the manual
    strategy performance decision against the accepted baseline. Before relying
    on the expectancy/manual-review gate, populate or explicitly waive the
