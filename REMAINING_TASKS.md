@@ -500,6 +500,17 @@ deployment work still needs independent review.
     arming tokens, and mirror the existing dead-man hardening pattern. Remaining
     proof is host-side: install/enable the timer, verify the collector's actual
     schedule, and show recent OKX snapshot timestamps.
+    2026-07-18 read-only Hetzner check recorded in
+    `docs/checkpoints/hetzner_crypto_edge_runtime_gap_2026_07_18.md`:
+    paper campaign status is healthy, but repo-local crypto-edge collection is
+    not started or scheduled on the host, the host checkout is stale
+    (`b86105b` on `review-stabilized` while local master is `65d3ce125`), the
+    accepted cost/cadence checker tooling is absent there, and the remote live
+    collector plan is still Binance-based rather than the accepted OKX source
+    decision. Do not start the host crypto-edge collector from the stale
+    checkout; first perform a reviewed host sync/deploy step to the accepted
+    master boundary and OKX plan, then run the cadence checker and enable the
+    read-only timer.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
