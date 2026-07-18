@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable
 
 from services.os.app_paths import code_root
+from services.execution.ohlcv_preflight import check_ohlcv_reachable
 
 DEFAULT_CONFIG_PATH = code_root() / "configs" / "paper_evidence_campaigns.json"
 COLLECTOR_SCRIPT = code_root() / "scripts" / "run_paper_strategy_evidence_collector.py"
@@ -32,6 +33,7 @@ class PaperCampaignSpec:
 
 
 RunCommand = Callable[..., subprocess.CompletedProcess[str]]
+OhlcvPreflight = Callable[..., dict[str, Any]]
 
 
 def _required_text(row: dict[str, Any], field: str) -> str:
@@ -221,10 +223,34 @@ def restore_campaign(
     spec: PaperCampaignSpec,
     *,
     run_command: RunCommand = subprocess.run,
+    preflight_ohlcv: bool = False,
+    preflight_check: OhlcvPreflight = check_ohlcv_reachable,
+    preflight_probe_limit: int = 400,
+    preflight_attempts: int = 1,
+    preflight_attempt_delay_sec: float = 0.0,
 ) -> dict[str, Any]:
     before = campaign_status(spec, run_command=run_command)
     if before["running"]:
         return {**before, "action": "already_running", "before": before}
+
+    if preflight_ohlcv:
+        preflight = preflight_check(
+            venue=spec.venue,
+            symbol=spec.symbol,
+            signal_source=spec.signal_source,
+            probe_limit=preflight_probe_limit,
+            attempts=preflight_attempts,
+            attempt_delay_sec=preflight_attempt_delay_sec,
+        )
+        if not bool(preflight.get("ok")):
+            return {
+                **before,
+                "ok": False,
+                "action": "preflight_blocked",
+                "reason": str(preflight.get("status") or preflight.get("reason") or "ohlcv_preflight_failed"),
+                "before": before,
+                "ohlcv_preflight": preflight,
+            }
 
     launch = _invoke(spec, restore=True, run_command=run_command)
     after = campaign_status(spec, run_command=run_command)
@@ -243,6 +269,11 @@ def manage_campaigns(
     restore: bool,
     selected_names: Iterable[str] = (),
     run_command: RunCommand = subprocess.run,
+    preflight_ohlcv: bool = False,
+    preflight_check: OhlcvPreflight = check_ohlcv_reachable,
+    preflight_probe_limit: int = 400,
+    preflight_attempts: int = 1,
+    preflight_attempt_delay_sec: float = 0.0,
 ) -> dict[str, Any]:
     spec_list = tuple(specs)
     selected = {str(name).strip() for name in selected_names if str(name).strip()}
@@ -260,7 +291,15 @@ def manage_campaigns(
 
     chosen = [spec for spec in spec_list if not selected or spec.name in selected]
     rows = [
-        restore_campaign(spec, run_command=run_command)
+        restore_campaign(
+            spec,
+            run_command=run_command,
+            preflight_ohlcv=preflight_ohlcv,
+            preflight_check=preflight_check,
+            preflight_probe_limit=preflight_probe_limit,
+            preflight_attempts=preflight_attempts,
+            preflight_attempt_delay_sec=preflight_attempt_delay_sec,
+        )
         if restore
         else campaign_status(spec, run_command=run_command)
         for spec in chosen

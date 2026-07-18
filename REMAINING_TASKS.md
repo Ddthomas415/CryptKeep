@@ -75,7 +75,13 @@ documents. Keep implementation scoped; high-risk runtime, launch, strategy, or
 deployment work still needs independent review.
 
 1. Continue canonical paper evidence collection until `es_daily_trend_v1`
-   reaches 10 provenance-qualified round trips.
+   reaches 10 provenance-qualified round trips. 2026-07-18: guarded paper
+   campaign restore is ready for independent review. `restore_paper_campaigns.py
+   --restore --preflight-ohlcv` uses the existing public-OHLCV preflight before
+   starting a dead collector, reports `preflight_blocked` on unreachable
+   campaign data, and does not launch the collector in that state. The default
+   guard probes 400 rows to match managed `strategy_runner` fallback lookback;
+   plain `--restore` behavior is preserved.
 2. After the paper gate reaches 10 qualified round trips, write the manual
    strategy performance decision against the accepted baseline. Before relying
    on the expectancy/manual-review gate, populate or explicitly waive the

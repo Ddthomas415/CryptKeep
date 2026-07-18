@@ -35,6 +35,29 @@ def main(argv: list[str] | None = None) -> int:
         help="Limit the operation to a configured campaign name; may be repeated",
     )
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH, help="Paper campaign manifest path")
+    ap.add_argument(
+        "--preflight-ohlcv",
+        action="store_true",
+        help="Before --restore starts a dead collector, verify its configured public-OHLCV source is reachable",
+    )
+    ap.add_argument(
+        "--ohlcv-preflight-probe-limit",
+        type=int,
+        default=400,
+        help="Rows to request for --preflight-ohlcv checks; default matches strategy_runner max_bars fallback",
+    )
+    ap.add_argument(
+        "--ohlcv-preflight-attempts",
+        type=int,
+        default=1,
+        help="Attempts for --preflight-ohlcv reachability checks",
+    )
+    ap.add_argument(
+        "--ohlcv-preflight-attempt-delay-sec",
+        type=float,
+        default=0.0,
+        help="Delay between --preflight-ohlcv attempts",
+    )
     args = ap.parse_args(argv)
 
     try:
@@ -43,6 +66,10 @@ def main(argv: list[str] | None = None) -> int:
             specs,
             restore=bool(args.restore),
             selected_names=args.campaign,
+            preflight_ohlcv=bool(args.restore and args.preflight_ohlcv),
+            preflight_probe_limit=args.ohlcv_preflight_probe_limit,
+            preflight_attempts=args.ohlcv_preflight_attempts,
+            preflight_attempt_delay_sec=args.ohlcv_preflight_attempt_delay_sec,
         )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         payload = {

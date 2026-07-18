@@ -22484,3 +22484,64 @@ Remaining risk:
 - UNVERIFIED: broader operator-audit suite, GitHub CI, and host-side execution
   of the check/init command with preserved evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T04:47:00Z - Paper Campaign Restore OHLCV Preflight Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent known public-OHLCV outages from consuming paper-campaign restore
+  attempts when recovering parked collectors.
+
+What was found:
+- SHOWN: both laptop paper campaigns were alive but parked after exhausting
+  daily attempts on `no_public_ohlcv`.
+- SHOWN: runner logs repeatedly showed Coinbase public-OHLCV metadata failures
+  (`GET https://api.coinbase.com/v2/currencies`) for both `1d` and `5m`.
+- SHOWN: a 250-row preflight could pass while the ES runner still failed; a
+  400-row preflight reproduced the same Coinbase metadata failure. The managed
+  strategy runner falls back to `max_bars=400`.
+- SHOWN: `scripts/check_ohlcv_preflight.py` already mirrors the runner fetch
+  path, but `scripts/restore_paper_campaigns.py --restore` did not use it before
+  starting dead collectors.
+
+What changed:
+- Added an opt-in restore guard:
+  `restore_paper_campaigns.py --restore --preflight-ohlcv`.
+- The guard checks each dead collector's configured
+  `venue`/`symbol`/`signal_source` through the existing
+  `check_ohlcv_reachable()` service before launch.
+- The default probe limit is 400 rows, matching the managed strategy runner's
+  `max_bars` fallback; today's ES failure reproduced with a 400-row preflight
+  while a 250-row probe could pass.
+- If preflight fails, restore returns `action=preflight_blocked`, includes the
+  `ohlcv_preflight` payload, and does not start the collector.
+- Plain `--restore` and read-only `--status` behavior are preserved.
+- Updated `docs/PAPER_CAMPAIGN_RECOVERY.md`, `scripts/SCRIPTS.md`, and
+  `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The campaign failure was operationally real today, and the repo already had a
+  tested reachability checker. Wiring it as an opt-in restore guard is smaller
+  and safer than changing the collector retry policy.
+
+Expected outcome:
+- Operators can avoid burning bounded daily restore attempts during a known
+  exchange-data outage while preserving existing automation defaults.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py tests/test_ohlcv_preflight.py tests/test_report_supervised_soak_status.py`
+  - SHOWN: `39 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/analytics/paper_campaign_recovery.py scripts/restore_paper_campaigns.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: passed.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state ./.venv/bin/python scripts/check_ohlcv_preflight.py --venue coinbase --symbol BTC/USDT --signal-source public_ohlcv_1d --probe-limit 400 --attempts 3 --attempt-delay-sec 2 --json`
+  - SHOWN: exit `2`, `status=ohlcv_source_unreachable`, same Coinbase
+    `/v2/currencies` network error as the managed ES runner.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: opt-in operator restore guard only; no live execution, strategy logic, or
+  default restore behavior changed.
+- UNVERIFIED: full suite and GitHub CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
