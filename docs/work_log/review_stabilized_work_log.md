@@ -18255,7 +18255,11 @@ Remaining risk:
 - UNVERIFIED: full suite and GitHub CI were not run in this session.
 - UNVERIFIED: no live execution/order/risk file was changed, but independent
   review should verify the diff boundary before merge.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+- 2026-07-18 acceptance alignment: independently reviewed and accepted by the
+  operator after merge. Targeted recheck:
+  `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py::TestGateLogic::test_crypto_edge_context_round_trip_counts_with_fresh_matching_provenance tests/test_check_promotion_gates.py::TestGateLogic::test_crypto_edge_context_round_trip_rejects_stale_or_mismatched_context`
+  - SHOWN: `2 passed in 0.11s`.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
 
 ## 2026-07-11T21:45:00Z - Funding Extreme Stage 0 Readiness And Proof Helpers (Active Backlog #12)
 
