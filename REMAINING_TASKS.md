@@ -510,7 +510,15 @@ deployment work still needs independent review.
     decision. Do not start the host crypto-edge collector from the stale
     checkout; first perform a reviewed host sync/deploy step to the accepted
     master boundary and OKX plan, then run the cadence checker and enable the
-    read-only timer.
+    read-only timer. 2026-07-18 follow-up: a read-only remote runtime status
+    wrapper is ready for independent review. `make status-hetzner-edge-runtime`
+    runs a bounded Tailscale SSH probe and fails closed unless the remote
+    checkout is on the expected branch/commit, required cost/cadence/collector
+    tooling is present, the derivatives plan uses the accepted OKX source, the
+    collector loop is running, and collector/cadence schedules are visible. It
+    does not deploy, start, stop, or mutate collectors; remaining proof is still
+    operational: reviewed host sync/deploy, then enabling the accepted read-only
+    collector/cadence schedule and showing recent OKX snapshot timestamps.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

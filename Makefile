@@ -7,11 +7,14 @@ HETZNER_SSH_TARGET ?= cryptkeep@100.86.128.9
 HETZNER_APP_DIR ?= /srv/cryptkeep/app
 HETZNER_PAPER_CAMPAIGN_CONFIG ?= configs/paper_evidence_campaigns.hetzner.example.json
 HETZNER_STATUS_TIMEOUT_SEC ?= 15
+HETZNER_EDGE_EXPECTED_COMMIT ?=
+HETZNER_EDGE_EXPECTED_BRANCH ?= master
+HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE ?= okx
 STRATEGY_REVIEW_STRATEGY_ID ?= sma_200_trend
 STRATEGY_REVIEW_SYMBOL ?= BTC/USD
 STRATEGY_REVIEW_LOSS_LIMIT ?= 10
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -120,6 +123,9 @@ status-paper-gate-qualification-json:
 
 status-paper-hetzner:
 	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
+
+status-hetzner-edge-runtime:
+	$(PYTHON) scripts/report_hetzner_crypto_edge_runtime_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --expected-branch $(HETZNER_EDGE_EXPECTED_BRANCH) --expected-derivatives-venue $(HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC) $(if $(HETZNER_EDGE_EXPECTED_COMMIT),--expected-commit $(HETZNER_EDGE_EXPECTED_COMMIT),)
 
 status-paper-all:
 	@status=0; \
