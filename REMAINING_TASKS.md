@@ -558,6 +558,16 @@ deployment work still needs independent review.
     with `missing: open_interest`. A persistence fix is ready for independent
     review; after merge/sync, restart the read-only collector and rerun
     `check_edge_cadence.py --json` to show fresh funding/open-interest/basis.
+    2026-07-18 final host proof recorded in
+    `docs/checkpoints/hetzner_crypto_edge_runtime_ready_2026_07_18.md`: PR
+    #346 was merged and synced to Hetzner at `370c8122d`, only the read-only
+    crypto-edge collector was restarted, `make status-hetzner-edge-runtime`
+    reports `ok=True` with zero blockers, and `check_edge_cadence.py --json`
+    under `CBP_STATE_DIR=/var/lib/cbp` reports fresh OKX funding,
+    open-interest, and basis snapshots with `missing=[]`, `stale=[]`, exit
+    code 0. The paper campaign remains healthy. This closes the host-side
+    crypto-edge schedule/cadence proof; it does not authorize live routing,
+    live trading, derivatives execution, or crypto-edge paper qualification.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

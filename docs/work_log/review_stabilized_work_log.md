@@ -23238,3 +23238,63 @@ Remaining risk:
   crypto-edge collector, and show cadence green with fresh OKX
   funding/open-interest/basis timestamps.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T21:20:00Z - Hetzner Crypto-Edge Runtime Proof Recorded
+
+Active role: ENGINEER
+
+Objective:
+- Record the completed host proof after the read-only crypto-edge collector
+  deployment and persistence fix.
+
+What was found:
+- SHOWN: PR #346 merged into `master` as
+  `370c8122deff6c33bf8d846d7937c98fc66c0c59`.
+- SHOWN: Hetzner `/srv/cryptkeep/app` was fast-forwarded to that commit.
+- SHOWN: only `cbp-crypto-edge-collector.service` was restarted after PR #346;
+  no live trading unit was enabled, restarted, or armed.
+- SHOWN: `make status-hetzner-edge-runtime
+  HETZNER_EDGE_EXPECTED_COMMIT=370c8122d` reports
+  `hetzner_crypto_edge_runtime_ready`, `ok=True`, and `blocking_checks=0`.
+- SHOWN: `CBP_STATE_DIR=/var/lib/cbp
+  ./.venv/bin/python scripts/data/run_crypto_edge_collector_loop.py --status`
+  reports `status=running`, `pid_alive=true`, `writes=1`, `errors=0`, and
+  `last_reason=collected`.
+- SHOWN: the collector stored fresh `live_public` OKX funding, open-interest,
+  and basis snapshots at `2026-07-18T21:16:48+00:00`.
+- SHOWN: `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python
+  scripts/check_edge_cadence.py --json` reports `ok=true`, `missing=[]`,
+  `stale=[]`, and exit code 0.
+- SHOWN: `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30` still
+  reports `ema_cross_default` running/idle and waiting for the next UTC day.
+
+What changed:
+- Added `docs/checkpoints/hetzner_crypto_edge_runtime_ready_2026_07_18.md` as
+  the durable host proof.
+- Updated the original gap checkpoint to point to the resolved proof.
+- Updated `REMAINING_TASKS.md` to mark the host-side crypto-edge
+  schedule/cadence proof closed with boundaries.
+
+Why this change:
+- The previous records correctly stopped at `READY_FOR_INDEPENDENT_REVIEW` and
+  named post-merge host proof as unverified. The proof now exists and should be
+  durable in the repo rather than buried in terminal output.
+
+Expected outcome:
+- Future backlog reads show that the read-only Hetzner crypto-edge collector is
+  scheduled, running, and cadence-green, while live trading and crypto-edge
+  promotion remain explicitly out of scope.
+
+Verification:
+- `make status-hetzner-edge-runtime HETZNER_STATUS_TIMEOUT_SEC=20 HETZNER_EDGE_EXPECTED_COMMIT=370c8122d`
+  - SHOWN: `ok=True`, `blocking_checks=0`.
+- `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`, exit code 0.
+- `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30`
+  - SHOWN: `ema_cross_default` running/idle, paper campaign healthy.
+
+Remaining risk:
+- This proof is limited to read-only crypto-edge collection and cadence.
+- It does not authorize live trading, live routing, derivatives execution, or
+  crypto-edge paper qualification.
+- Acceptance state: `ACCEPTED_WITH_RISK`.

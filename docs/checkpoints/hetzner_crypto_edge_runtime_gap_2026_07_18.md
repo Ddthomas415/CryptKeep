@@ -2,6 +2,11 @@
 
 Active role: AUDITOR
 
+Status update: resolved by
+`docs/checkpoints/hetzner_crypto_edge_runtime_ready_2026_07_18.md` after PR
+#345, PR #346, reviewed host bootstrap, read-only collector restart, and green
+cadence proof. This file is retained as the original gap evidence.
+
 Objective: verify whether the Hetzner host is already accruing read-only
 crypto-edge history and whether the accepted cost/cadence proof tooling can run
 there.
