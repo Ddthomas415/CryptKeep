@@ -22986,3 +22986,68 @@ Remaining risk:
 - Host deployment and background scheduler changes remain high-risk operational
   work requiring explicit reviewed steps.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T11:44:20Z - Crypto-Edge Collector Systemd Runtime Packaging
+
+Active role: ENGINEER
+
+Objective:
+- Close the repo-side scheduler artifact gap blocking a reviewed Hetzner
+  crypto-edge collector start.
+
+What was found:
+- SHOWN: `packaging/systemd/cbp-edge-cadence.service` and `.timer` schedule the
+  read-only cadence checker, but no systemd unit existed for
+  `scripts/data/run_crypto_edge_collector_loop.py`.
+- SHOWN: `scripts/install_systemd_units.py` verified/installed only the older
+  four long-running services and ignored the accepted dead-man and
+  edge-cadence timer units.
+- SHOWN: `scripts/report_hetzner_crypto_edge_runtime_status.py` checked only
+  user-level `systemctl --user` timers, while `docs/DEPLOYMENT.md` documents
+  system-level unit installation with `sudo systemctl`.
+
+What changed:
+- Added `packaging/systemd/cbp-crypto-edge-collector.service`, a read-only
+  `live_public` collector loop over
+  `sample_data/crypto_edges/live_collector_plan.json`.
+- Updated `scripts/install_systemd_units.py` to verify/install all shipped
+  long-running service units, oneshot service units, and timer units.
+- Updated `scripts/report_hetzner_crypto_edge_runtime_status.py` to recognize
+  system-level collector service and cadence timer evidence as well as
+  user-level timer/crontab evidence.
+- Updated `docs/DEPLOYMENT.md`, `REMAINING_TASKS.md`, and systemd/readiness
+  tests.
+
+Why this change:
+- The prior readiness wrapper correctly identified missing collector/cadence
+  schedules, but the repo did not ship a complete installable schedule set for
+  the crypto-edge collector itself. Installing or detecting only the cadence
+  checker would not collect funding/open-interest history.
+
+Expected outcome:
+- After a reviewed host sync/deploy, the operator has a verified systemd unit
+  for the read-only crypto-edge collector and the readiness wrapper can detect
+  either system-level or user-level scheduling evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_systemd_units.py tests/test_edge_cadence.py tests/test_dead_man.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: `38 passed in 1.13s`.
+- `./.venv/bin/python -m py_compile scripts/install_systemd_units.py scripts/report_hetzner_crypto_edge_runtime_status.py tests/test_systemd_units.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/install_systemd_units.py`
+  - SHOWN: static verify ok for all nine shipped units; dry-run only; no install
+    performed.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: deployment/background-job artifacts. This patch does not install,
+  enable, start, or stop any host unit.
+- UNVERIFIED: host-level `systemctl enable --now
+  cbp-crypto-edge-collector cbp-edge-cadence.timer` and recent OKX snapshot
+  timestamps remain operational proof steps after reviewed host sync.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

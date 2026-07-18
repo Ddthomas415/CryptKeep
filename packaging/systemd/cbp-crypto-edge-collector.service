@@ -1,0 +1,28 @@
+# CryptKeep read-only crypto-edge collector loop.
+# Research data collection only: no live arming tokens, no private credentials,
+# and no execution/routing authority.
+[Unit]
+Description=CryptKeep read-only crypto-edge collector
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=exec
+User=cbp
+Group=cbp
+WorkingDirectory=/opt/crypto-bot-pro
+EnvironmentFile=/etc/cbp/cbp.env
+Environment=CBP_STATE_DIR=/var/lib/cbp
+ExecStart=/opt/crypto-bot-pro/.venv/bin/python scripts/data/run_crypto_edge_collector_loop.py --plan-file sample_data/crypto_edges/live_collector_plan.json --interval-sec 300 --source live_public
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/cbp
+
+[Install]
+WantedBy=multi-user.target

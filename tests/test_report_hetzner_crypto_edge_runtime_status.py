@@ -76,6 +76,35 @@ def test_build_report_passes_only_when_checkout_plan_runtime_and_schedules_are_r
     assert report["deploy_invoked"] is False
 
 
+def test_build_report_accepts_systemd_system_collector_and_cadence_units() -> None:
+    scheduler = {
+        "systemd_edge_cadence_enabled": _cmd("disabled\n", returncode=1),
+        "systemd_edge_cadence_active": _cmd("inactive\n", returncode=3),
+        "systemd_system_edge_cadence_enabled": _cmd("enabled\n"),
+        "systemd_system_edge_cadence_active": _cmd("active\n"),
+        "systemd_crypto_edge_collector_enabled": _cmd("enabled\n"),
+        "systemd_crypto_edge_collector_active": _cmd("active\n"),
+        "systemd_user_timers": _cmd(""),
+        "systemd_system_timers": _cmd("cbp-edge-cadence.timer\n"),
+        "crontab": _cmd(""),
+    }
+
+    report = script.build_report(
+        remote_payload=_remote_payload(scheduler=scheduler),
+        expected_branch="master",
+        expected_commit="e8224057f",
+        expected_derivatives_venue="okx",
+    )
+
+    assert report["ok"] is True
+    collector_check = next(row for row in report["checks"] if row["name"] == "collector_schedule")
+    cadence_check = next(row for row in report["checks"] if row["name"] == "cadence_checker_schedule")
+    assert collector_check["details"]["collector_service_enabled"] == "enabled"
+    assert collector_check["details"]["collector_service_active"] == "active"
+    assert cadence_check["details"]["system_timer_enabled"] == "enabled"
+    assert cadence_check["details"]["system_timer_active"] == "active"
+
+
 def test_build_report_blocks_stale_binance_unscheduled_remote_state() -> None:
     files = {
         "scripts/check_cost_assumptions.py": False,
@@ -174,6 +203,7 @@ def test_fetch_remote_runtime_status_builds_read_only_tailscale_command(monkeypa
     assert remote_command.startswith("cd /srv/cryptkeep/app && python3 -c ")
     assert "run_crypto_edge_collector_loop.py" in remote_command
     assert "scripts/check_edge_cadence.py" in remote_command
+    assert "cbp-crypto-edge-collector.service" in remote_command
     assert seen["capture_output"] is True
     assert seen["check"] is False
     assert seen["text"] is True

@@ -134,7 +134,12 @@ def _remote_probe_program(*, plan_path: str) -> str:
         scheduler = {{
             "systemd_edge_cadence_enabled": run(["systemctl", "--user", "is-enabled", "cbp-edge-cadence.timer"]),
             "systemd_edge_cadence_active": run(["systemctl", "--user", "is-active", "cbp-edge-cadence.timer"]),
+            "systemd_system_edge_cadence_enabled": run(["systemctl", "is-enabled", "cbp-edge-cadence.timer"]),
+            "systemd_system_edge_cadence_active": run(["systemctl", "is-active", "cbp-edge-cadence.timer"]),
+            "systemd_crypto_edge_collector_enabled": run(["systemctl", "is-enabled", "cbp-crypto-edge-collector.service"]),
+            "systemd_crypto_edge_collector_active": run(["systemctl", "is-active", "cbp-crypto-edge-collector.service"]),
             "systemd_user_timers": run(["systemctl", "--user", "list-timers", "--all", "--no-pager"], timeout=12),
+            "systemd_system_timers": run(["systemctl", "list-timers", "--all", "--no-pager"], timeout=12),
             "crontab": run(["crontab", "-l"]),
         }}
 
@@ -253,16 +258,31 @@ def build_report(
     }
 
     timers_stdout = _cmd_stdout(dict(scheduler.get("systemd_user_timers") or {})).lower()
+    system_timers_stdout = _cmd_stdout(dict(scheduler.get("systemd_system_timers") or {})).lower()
     crontab_stdout = _cmd_stdout(dict(scheduler.get("crontab") or {})).lower()
     cadence_timer_active = _cmd_stdout(dict(scheduler.get("systemd_edge_cadence_active") or {})) == "active"
     cadence_timer_enabled = _cmd_stdout(dict(scheduler.get("systemd_edge_cadence_enabled") or {})) == "enabled"
+    system_cadence_timer_active = _cmd_stdout(dict(scheduler.get("systemd_system_edge_cadence_active") or {})) == "active"
+    system_cadence_timer_enabled = _cmd_stdout(dict(scheduler.get("systemd_system_edge_cadence_enabled") or {})) == "enabled"
+    collector_service_active = _cmd_stdout(dict(scheduler.get("systemd_crypto_edge_collector_active") or {})) == "active"
+    collector_service_enabled = _cmd_stdout(dict(scheduler.get("systemd_crypto_edge_collector_enabled") or {})) == "enabled"
     collector_schedule_present = (
         "run_crypto_edge_collector_loop.py" in timers_stdout
+        or "run_crypto_edge_collector_loop.py" in system_timers_stdout
         or "run_crypto_edge_collector_loop.py" in crontab_stdout
         or "collect-live-crypto-edges-loop" in timers_stdout
+        or "collect-live-crypto-edges-loop" in system_timers_stdout
         or "collect-live-crypto-edges-loop" in crontab_stdout
+        or collector_service_active
+        or collector_service_enabled
     )
-    cadence_schedule_present = cadence_timer_active or cadence_timer_enabled or "check_edge_cadence.py" in crontab_stdout
+    cadence_schedule_present = (
+        cadence_timer_active
+        or cadence_timer_enabled
+        or system_cadence_timer_active
+        or system_cadence_timer_enabled
+        or "check_edge_cadence.py" in crontab_stdout
+    )
 
     checks = [
         _check(
@@ -312,7 +332,10 @@ def build_report(
             collector_schedule_present,
             "present" if collector_schedule_present else "missing",
             {
+                "collector_service_enabled": _cmd_stdout(dict(scheduler.get("systemd_crypto_edge_collector_enabled") or {})),
+                "collector_service_active": _cmd_stdout(dict(scheduler.get("systemd_crypto_edge_collector_active") or {})),
                 "systemd_user_timers_preview": timers_stdout[:500],
+                "systemd_system_timers_preview": system_timers_stdout[:500],
                 "crontab_preview": crontab_stdout[:500],
             },
         ),
@@ -321,8 +344,10 @@ def build_report(
             cadence_schedule_present,
             "present" if cadence_schedule_present else "missing",
             {
-                "timer_enabled": _cmd_stdout(dict(scheduler.get("systemd_edge_cadence_enabled") or {})),
-                "timer_active": _cmd_stdout(dict(scheduler.get("systemd_edge_cadence_active") or {})),
+                "user_timer_enabled": _cmd_stdout(dict(scheduler.get("systemd_edge_cadence_enabled") or {})),
+                "user_timer_active": _cmd_stdout(dict(scheduler.get("systemd_edge_cadence_active") or {})),
+                "system_timer_enabled": _cmd_stdout(dict(scheduler.get("systemd_system_edge_cadence_enabled") or {})),
+                "system_timer_active": _cmd_stdout(dict(scheduler.get("systemd_system_edge_cadence_active") or {})),
                 "crontab_preview": crontab_stdout[:500],
             },
         ),
