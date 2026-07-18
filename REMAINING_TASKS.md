@@ -454,6 +454,13 @@ deployment work still needs independent review.
     expectancy, no campaign start, and no promotion evidence. Remaining
     `funding_extreme` research blocker: build or run a separately reviewed
     price-joined context walk-forward before any persistent campaign decision.
+    2026-07-18 host proof recorded in
+    `docs/checkpoints/funding_context_replay_host_proof_2026_07_18.md`:
+    Hetzner replay over stored OKX `live_public` funding snapshots returned
+    `ok=true`, `row_count=16`, dataset hash
+    `84eda056e7db868e01b44fcc7bc05322cfa37675ae14d1035212f588b6f54b9c`,
+    `action_counts={"hold": 16}`, and `reason_counts={"funding_neutral": 16}`.
+    This confirms deterministic signal replay over host data, not profitability.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
