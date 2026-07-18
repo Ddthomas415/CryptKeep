@@ -22925,3 +22925,64 @@ Remaining risk:
 - LOW: docs/checkpoint only. No runtime, host, scheduler, or campaign state was
   changed by this branch.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T07:42:36Z - Hetzner Crypto-Edge Runtime Readiness Wrapper
+
+Active role: ENGINEER
+
+Objective:
+- Convert the manual Hetzner crypto-edge runtime gap inspection into a
+  repeatable read-only status/preflight command before any remote collector
+  start or scheduler change.
+
+What was found:
+- SHOWN: `docs/checkpoints/hetzner_crypto_edge_runtime_gap_2026_07_18.md`
+  already recorded that the paper campaign was healthy, but the remote
+  crypto-edge collector was not started/scheduled, the remote checkout was
+  stale, accepted checker tooling was absent, and the remote plan was still
+  Binance-oriented.
+- SHOWN: the repo had `make status-paper-hetzner` for paper status and
+  host-local `check_edge_cadence.py`, but no bounded remote command that
+  classified crypto-edge checkout/tooling/plan/runtime/schedule readiness.
+
+What changed:
+- Added `scripts/report_hetzner_crypto_edge_runtime_status.py`.
+- Added `make status-hetzner-edge-runtime`.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+- Added `tests/test_report_hetzner_crypto_edge_runtime_status.py`.
+
+Why this change:
+- Starting the remote crypto-edge collector from stale code or a stale plan
+  would burn unrecoverable funding/open-interest history in the wrong substrate.
+  The smallest safe forward step is a read-only readiness wrapper that refuses
+  to call the host ready until the accepted checkout/tooling, OKX derivatives
+  plan, collector runtime, and scheduler facts are all visible.
+
+Expected outcome:
+- Operators can run `make status-hetzner-edge-runtime` before host sync/start
+  work and get stable blockers instead of re-running ad hoc SSH inspections.
+- The command never deploys, starts, stops, or mutates collectors.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_crypto_edge_runtime_status.py tests/test_report_hetzner_paper_campaign_status.py`
+  - SHOWN: `13 passed in 0.20s`.
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_crypto_edge_runtime_status.py tests/test_report_hetzner_crypto_edge_runtime_status.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/report_hetzner_crypto_edge_runtime_status.py --json --ssh-target cryptkeep@100.86.128.9 --app-dir /srv/cryptkeep/app --expected-branch master --expected-derivatives-venue okx --timeout-sec 20 --expected-commit e8224057f`
+  - SHOWN: read-only live probe returned `ok=false` with blockers:
+    `remote_checkout_branch`, `remote_checkout_commit`, `required_tooling`,
+    `collector_plan_derivatives_source`, `collector_runtime_status`,
+    `collector_schedule`, and `cadence_checker_schedule`.
+
+Remaining risk:
+- This does not perform the reviewed host sync/deploy, install systemd units,
+  start the collector, or prove recent OKX snapshot timestamps.
+- Host deployment and background scheduler changes remain high-risk operational
+  work requiring explicit reviewed steps.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

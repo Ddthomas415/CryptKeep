@@ -41,6 +41,7 @@ listed below.
 | `preflight_check.py` | — | Runtime/config preflight check |
 | `report_paper_run_diagnostics.py` | — | Paper-run diagnostic report |
 | `report_hetzner_paper_campaign_status.py` | `make status-paper-hetzner` | Read-only Tailscale SSH wrapper for Hetzner campaign status with timeout-aware failure reporting |
+| `report_hetzner_crypto_edge_runtime_status.py` | `make status-hetzner-edge-runtime` | Read-only Tailscale SSH wrapper for Hetzner crypto-edge runtime readiness; checks accepted checkout/tooling, OKX collector plan, collector status, and collector/cadence scheduling without deploying or starting collectors |
 | `report_paper_campaign_status.py` | — | Read-only campaign-health formatter for configured campaign status payloads without promotion-gate coupling |
 | `report_paper_gate_qualification.py` | `make status-paper-gate-qualification` / `make status-paper-gate-qualification-json` | Read-only fill-level explanation for which paper fills count toward the provenance-qualified gate and why rejected/incomplete fills do not count |
 | `report_supervised_soak_status.py` | `make status-paper-soak` / `make status-paper-soak-json` | Read-only supervised paper-soak summary across configured campaigns and paper promotion gate status |
