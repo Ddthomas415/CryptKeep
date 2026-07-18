@@ -534,6 +534,18 @@ deployment work still needs independent review.
     supports `--repo-dir` and renders `WorkingDirectory=`/`ExecStart=` into a
     temporary unit set before dry-run/install, so Hetzner can verify/install
     units for `/srv/cryptkeep/app` without editing templates. No host unit was
+    installed, enabled, started, or stopped by this patch. 2026-07-18
+    post-sync host check: Hetzner is clean at `3a7b4cbba` on `master`, the
+    paper campaign remains healthy, and
+    `install_systemd_units.py --repo-dir /srv/cryptkeep/app` dry-run verifies
+    all nine units on-host. Remaining blockers are operational bootstrap plus
+    one repo integration fix: the host has no `cbp` user, no `/etc/cbp/cbp.env`,
+    no installed `cbp-*` units/timers, and the readiness wrapper still probes
+    collector status without the packaged service `CBP_STATE_DIR`. Follow-up is
+    ready for independent review: add a `--remote-state-dir` probe option
+    defaulting to `/var/lib/cbp`, pass it into the remote collector status
+    command as `CBP_STATE_DIR`, and align `cbp.env.example`/deployment docs
+    with the packaged units' `/var/lib/cbp` state root. No host unit was
     installed, enabled, started, or stopped by this patch.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk

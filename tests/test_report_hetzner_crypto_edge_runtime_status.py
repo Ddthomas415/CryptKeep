@@ -55,6 +55,7 @@ def _remote_payload(
             "status": _cmd(f"## {branch}...origin/{branch}\n"),
         },
         "files": files,
+        "state": {"path": "/var/lib/cbp", "exists": True},
         "plan": plan,
         "collector_status": collector,
         "scheduler": scheduler,
@@ -72,6 +73,8 @@ def test_build_report_passes_only_when_checkout_plan_runtime_and_schedules_are_r
     assert report["ok"] is True
     assert report["status"] == "hetzner_crypto_edge_runtime_ready"
     assert report["blockers"] == []
+    assert report["remote"]["state_dir"] == "/var/lib/cbp"
+    assert report["remote"]["state_dir_exists"] is True
     assert report["collector_start_invoked"] is False
     assert report["deploy_invoked"] is False
 
@@ -201,6 +204,8 @@ def test_fetch_remote_runtime_status_builds_read_only_tailscale_command(monkeypa
     assert seen["cmd"][0:3] == ["tailscale", "ssh", "cryptkeep@100.86.128.9"]
     remote_command = seen["cmd"][3]
     assert remote_command.startswith("cd /srv/cryptkeep/app && python3 -c ")
+    assert "CBP_STATE_DIR" in remote_command
+    assert "/var/lib/cbp" in remote_command
     assert "run_crypto_edge_collector_loop.py" in remote_command
     assert "scripts/check_edge_cadence.py" in remote_command
     assert "cbp-crypto-edge-collector.service" in remote_command
@@ -208,6 +213,26 @@ def test_fetch_remote_runtime_status_builds_read_only_tailscale_command(monkeypa
     assert seen["check"] is False
     assert seen["text"] is True
     assert seen["timeout"] == 3.0
+
+
+def test_fetch_remote_runtime_status_honors_custom_remote_state_dir(monkeypatch) -> None:
+    seen: dict[str, object] = {}
+
+    def _run(cmd, *, capture_output, check, text, timeout):
+        seen["cmd"] = cmd
+        return subprocess.CompletedProcess(cmd, 0, stdout=json.dumps(_remote_payload()), stderr="")
+
+    monkeypatch.setattr(script.subprocess, "run", _run)
+
+    script.fetch_remote_runtime_status(
+        app_dir="/srv/cryptkeep/app",
+        remote_state_dir="/srv/cryptkeep/app/.cbp_state",
+        timeout_sec=3.0,
+    )
+
+    remote_command = seen["cmd"][3]
+    assert "CBP_STATE_DIR" in remote_command
+    assert "/srv/cryptkeep/app/.cbp_state" in remote_command
 
 
 def test_fetch_remote_runtime_status_classifies_tailscale_auth_prompt(monkeypatch) -> None:

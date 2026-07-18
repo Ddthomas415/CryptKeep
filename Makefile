@@ -10,6 +10,7 @@ HETZNER_STATUS_TIMEOUT_SEC ?= 15
 HETZNER_EDGE_EXPECTED_COMMIT ?=
 HETZNER_EDGE_EXPECTED_BRANCH ?= master
 HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE ?= okx
+HETZNER_EDGE_REMOTE_STATE_DIR ?= /var/lib/cbp
 STRATEGY_REVIEW_STRATEGY_ID ?= sma_200_trend
 STRATEGY_REVIEW_SYMBOL ?= BTC/USD
 STRATEGY_REVIEW_LOSS_LIMIT ?= 10
@@ -125,7 +126,7 @@ status-paper-hetzner:
 	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
 
 status-hetzner-edge-runtime:
-	$(PYTHON) scripts/report_hetzner_crypto_edge_runtime_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --expected-branch $(HETZNER_EDGE_EXPECTED_BRANCH) --expected-derivatives-venue $(HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC) $(if $(HETZNER_EDGE_EXPECTED_COMMIT),--expected-commit $(HETZNER_EDGE_EXPECTED_COMMIT),)
+	$(PYTHON) scripts/report_hetzner_crypto_edge_runtime_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --remote-state-dir $(HETZNER_EDGE_REMOTE_STATE_DIR) --expected-branch $(HETZNER_EDGE_EXPECTED_BRANCH) --expected-derivatives-venue $(HETZNER_EDGE_EXPECTED_DERIVATIVES_VENUE) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC) $(if $(HETZNER_EDGE_EXPECTED_COMMIT),--expected-commit $(HETZNER_EDGE_EXPECTED_COMMIT),)
 
 status-paper-all:
 	@status=0; \
