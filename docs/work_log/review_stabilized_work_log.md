@@ -23408,3 +23408,112 @@ Remaining risk:
 - This is still signal-distribution evidence only, not PnL, expectancy,
   promotion, or campaign-start evidence.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-07-18T22:05:00Z - Funding Extreme Context Price-Join Research Report (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Add the smallest research-only report that joins stored `funding_extreme`
+  context snapshots to archived OHLCV rows and computes modeled forward
+  returns without modifying the existing parity backtest or promotion gates.
+
+What was found:
+- SHOWN: stored funding context can already replay deterministic
+  `funding_extreme` signals.
+- SHOWN: existing archive-backed walk-forward/parameter-sweep tooling is
+  OHLCV-only and does not pass per-bar crypto-edge context into the strategy
+  registry, so it cannot honestly evaluate `funding_extreme`.
+- SHOWN: `load_archived_ohlcv()` already provides normalized OHLCV rows and
+  dataset hashes, and `services.execution.fill_model.apply_fee_slippage()` is
+  the existing fee/slippage convention for backtest-style modeled fills.
+
+What changed:
+- Added `services/analytics/funding_context_price_join.py`, a read-only
+  forward-return report joining stored funding snapshots to archived OHLCV.
+- Added `scripts/research/run_funding_context_price_join.py` and
+  `make funding-context-price-join`.
+- Added tests covering buy/sell forward returns, modeled costs, archive
+  refusal, unsupported-strategy refusal, CLI artifact writing, and
+  `--fail-if-not-ok`.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change:
+- This is the next honest research step after context replay: it connects
+  funding signals to a price path without claiming full portfolio PnL,
+  expectancy, or promotion readiness.
+
+Expected outcome:
+- Operators can run a dataset-hashed host artifact once enough funding history
+  and a complete accepted OHLCV archive exist, then review whether actionable
+  funding-extreme signals have favorable forward returns after modeled costs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_context_price_join.py`
+  - SHOWN: `6 passed in 0.18s`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_strategy_registry.py tests/test_ohlcv_archive_backtest.py`
+  - SHOWN: `46 passed in 0.53s`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_context_price_join.py scripts/research/run_funding_context_price_join.py tests/test_funding_context_price_join.py`
+  - SHOWN: passed with no output.
+- `make funding-context-price-join FUNDING_CONTEXT_PRICE_JOIN_ARGS="--edge-db /tmp/cbp-empty-edge-price-join.sqlite --archive-db /tmp/cbp-missing-archive-price-join.sqlite --funding-limit 5 --ohlcv-limit 5"`
+  - SHOWN: command exits 0 and reports `ok=false`, `reason=archive_missing`
+    on missing archive input without crashing.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- MEDIUM: research analytics only; no live execution, risk, paper gate,
+  campaign, or routing behavior changes.
+- This is forward-return analysis, not portfolio PnL or expectancy. It does
+  not replace a separately reviewed context-aware walk-forward/backtest if one
+  is later required for promotion.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T22:17:42Z - Funding Context Price Join CI Stabilization
+
+Active role: ENGINEER
+
+Objective:
+- Fix the two PR #351 CI failures without broadening the research-only scope.
+
+What was found:
+- SHOWN: `test_no_new_fee_surface_appeared` failed because
+  `services/analytics/funding_context_price_join.py` adds a declared
+  `fee_bps: float = 10.0` research-cost surface that was not in the blueprint
+  census.
+- SHOWN: the full suite can leave an invalid user config active, causing
+  `load_user_yaml()` diagnostics from called code to print before the CLI JSON
+  output. The CLI artifact test then parsed polluted stdout.
+
+What changed:
+- Added the funding context price-join module to the executable cost-surface
+  census as a research-only forward-return report.
+- Updated `docs/architecture/SYSTEM_BLUEPRINT.md` from five to six traced
+  cost surfaces plus the seven-module backtest family.
+- Wrapped the report execution in the CLI with stdout redirection to stderr so
+  stdout remains machine-readable JSON even when dependencies emit diagnostics.
+- Added a regression test proving dependency stdout is redirected and the CLI
+  stdout remains parseable JSON.
+
+Why this change:
+- The fee-surface invariant was correct to fail; this is a new surface that
+  must be named, not ignored.
+- Research CLIs should keep stdout JSON-only for CI, scripts, and operator
+  tooling.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared tests/test_funding_context_price_join.py::test_funding_context_price_join_cli_writes_artifact tests/test_funding_context_price_join.py::test_funding_context_price_join_cli_keeps_stdout_json_only`
+  - SHOWN: `3 passed in 0.19s`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_context_price_join.py scripts/research/run_funding_context_price_join.py tests/test_funding_context_price_join.py tests/test_blueprint_invariants.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_strategy_registry.py tests/test_ohlcv_archive_backtest.py tests/test_blueprint_invariants.py`
+  - SHOWN: `66 passed in 0.66s`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: no live execution, risk gate, promotion gate, or campaign
+  behavior changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

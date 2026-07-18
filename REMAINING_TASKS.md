@@ -461,6 +461,15 @@ deployment work still needs independent review.
     `84eda056e7db868e01b44fcc7bc05322cfa37675ae14d1035212f588b6f54b9c`,
     `action_counts={"hold": 16}`, and `reason_counts={"funding_neutral": 16}`.
     This confirms deterministic signal replay over host data, not profitability.
+    2026-07-18: research-only funding/price join is ready for independent
+    review. `services.analytics.funding_context_price_join` and
+    `scripts/research/run_funding_context_price_join.py` join stored funding
+    snapshots to archived OHLCV rows and compute unit-size modeled forward
+    returns after configured fee/slippage. This remains research-only:
+    forward-return rows are not portfolio PnL, not expectancy, not campaign
+    state, and not promotion evidence. Before a persistent `funding_extreme`
+    campaign decision, run this against sufficient host funding history plus a
+    complete accepted OHLCV archive and review the resulting artifact.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

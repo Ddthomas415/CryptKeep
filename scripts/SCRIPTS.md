@@ -209,6 +209,11 @@ decision makes them authoritative.
   signal-distribution replay over stored crypto-edge funding snapshots; writes
   dataset-hashed JSON artifacts only and does not compute PnL, expectancy, or
   promotion evidence. Use `make funding-context-replay`.
+- `research/run_funding_context_price_join.py` — read-only
+  `funding_extreme` forward-return report joining stored funding snapshots to
+  archived OHLCV rows; computes unit-size modeled forward returns only and
+  does not simulate portfolio PnL, expectancy, campaign state, or promotion
+  eligibility. Use `make funding-context-price-join`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
