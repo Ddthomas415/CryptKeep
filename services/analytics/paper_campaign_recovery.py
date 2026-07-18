@@ -129,10 +129,16 @@ def load_campaign_specs(
     return tuple(specs)
 
 
-def _command(spec: PaperCampaignSpec, *, restore: bool) -> list[str]:
+def _command(
+    spec: PaperCampaignSpec,
+    *,
+    restore: bool,
+    max_daily_attempts: int | None = None,
+) -> list[str]:
     command = [sys.executable, str(COLLECTOR_SCRIPT)]
     if not restore:
         return [*command, "--status"]
+    attempt_limit = int(max_daily_attempts or spec.max_daily_attempts)
     command.extend(
         [
             "--strategies",
@@ -152,7 +158,7 @@ def _command(spec: PaperCampaignSpec, *, restore: bool) -> list[str]:
             "--poll-interval-sec",
             str(spec.poll_interval_sec),
             "--max-daily-attempts",
-            str(spec.max_daily_attempts),
+            str(attempt_limit),
             "--daily-loop",
             "--detach",
         ]
@@ -167,8 +173,13 @@ def _invoke(
     *,
     restore: bool,
     run_command: RunCommand = subprocess.run,
+    max_daily_attempts: int | None = None,
 ) -> dict[str, Any]:
-    return _invoke_command(spec, command=_command(spec, restore=restore), run_command=run_command)
+    return _invoke_command(
+        spec,
+        command=_command(spec, restore=restore, max_daily_attempts=max_daily_attempts),
+        run_command=run_command,
+    )
 
 
 def _invoke_command(
@@ -259,6 +270,48 @@ def _preflight_before_launch(
         attempts=preflight_attempts,
         attempt_delay_sec=preflight_attempt_delay_sec,
     )
+
+
+def _collector_status(payload: dict[str, Any]) -> dict[str, Any]:
+    collector = payload.get("collector")
+    return collector if isinstance(collector, dict) else payload
+
+
+def _daily_attempts(payload: dict[str, Any]) -> int:
+    status = _collector_status(payload)
+    try:
+        return max(0, int(status.get("daily_attempts") or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _reason(payload: dict[str, Any]) -> str:
+    status = _collector_status(payload)
+    return str(status.get("reason") or payload.get("reason") or "").strip()
+
+
+def _recovery_attempt_limit(
+    spec: PaperCampaignSpec,
+    before: dict[str, Any],
+) -> tuple[int | None, dict[str, Any] | None]:
+    """Permit one fresh same-day attempt after a successful source preflight."""
+    attempts = _daily_attempts(before)
+    reason = _reason(before)
+    if attempts < int(spec.max_daily_attempts):
+        return None, None
+    if reason not in {
+        "daily_retry_limit_exhausted",
+        "no_public_ohlcv",
+        "ohlcv_source_unreachable",
+    }:
+        return None, None
+    launch_limit = max(int(spec.max_daily_attempts), attempts + 1)
+    return launch_limit, {
+        "reason": "same_day_recovery_after_ohlcv_preflight",
+        "previous_daily_attempts": attempts,
+        "configured_max_daily_attempts": int(spec.max_daily_attempts),
+        "launch_max_daily_attempts": launch_limit,
+    }
 
 
 def _wait_not_running(
@@ -374,6 +427,7 @@ def restore_campaign(
     preflight_attempt_delay_sec: float = 0.0,
 ) -> dict[str, Any]:
     before = campaign_status(spec, run_command=run_command)
+    recovery_before = before
     if before["running"]:
         if bool(before.get("ok")) or not restart_unhealthy:
             return {**before, "action": "already_running", "before": before}
@@ -433,6 +487,8 @@ def restore_campaign(
     else:
         launch_preflight = None
 
+    recovery_attempt_limit = None
+    recovery_attempt_override = None
     if preflight_ohlcv:
         preflight = launch_preflight or _preflight_before_launch(
             spec,
@@ -450,8 +506,17 @@ def restore_campaign(
                 "before": before,
                 "ohlcv_preflight": preflight,
             }
+        recovery_attempt_limit, recovery_attempt_override = _recovery_attempt_limit(
+            spec,
+            recovery_before,
+        )
 
-    launch = _invoke(spec, restore=True, run_command=run_command)
+    launch = _invoke(
+        spec,
+        restore=True,
+        run_command=run_command,
+        max_daily_attempts=recovery_attempt_limit,
+    )
     after = campaign_status(spec, run_command=run_command)
     payload = {
         **after,
@@ -462,6 +527,10 @@ def restore_campaign(
     }
     if launch_preflight is not None:
         payload["ohlcv_preflight"] = launch_preflight
+    elif preflight_ohlcv:
+        payload["ohlcv_preflight"] = preflight
+    if recovery_attempt_override is not None:
+        payload["recovery_attempt_override"] = recovery_attempt_override
     return payload
 
 

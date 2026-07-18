@@ -133,6 +133,14 @@ deployment work still needs independent review.
    enabled, and preflight failure blocks before any stop/start action. Added
    `make recover-paper-campaigns` as the guarded operator shortcut for
    pre-merge or manually started parents parked after `no_public_ohlcv`.
+   2026-07-18 follow-up: live laptop recovery showed preflight could pass and
+   replacement collectors could still park immediately at
+   `daily_retry_limit_exhausted` because the retry count is derived from
+   persisted same-day session evidence. Recovery now preserves that evidence
+   but, after a successful OHLCV preflight for a same-day OHLCV/daily-limit
+   failure, launches with a one-attempt override
+   (`launch_max_daily_attempts = previous_daily_attempts + 1`) and reports the
+   override in `recovery_attempt_override`.
 2. After the paper gate reaches 10 qualified round trips, write the manual
    strategy performance decision against the accepted baseline. Before relying
    on the expectancy/manual-review gate, populate or explicitly waive the
