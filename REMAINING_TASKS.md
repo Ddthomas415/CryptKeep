@@ -445,6 +445,15 @@ deployment work still needs independent review.
     wiring proof accepted, but no persistent campaign or promotion treatment
     until archive-backed research and the high-risk crypto-edge qualification
     extension are separately reviewed.
+    2026-07-18: research-only funding context replay is ready for independent
+    review. `services.analytics.funding_context_replay` and
+    `scripts/research/run_funding_context_replay.py` replay stored
+    `funding_extreme` signals from crypto-edge funding snapshots, stamp a
+    deterministic dataset hash, and report action/reason counts. This is
+    signal-distribution evidence only: no price-path join, no PnL, no
+    expectancy, no campaign start, and no promotion evidence. Remaining
+    `funding_extreme` research blocker: build or run a separately reviewed
+    price-joined context walk-forward before any persistent campaign decision.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
