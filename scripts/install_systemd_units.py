@@ -15,6 +15,7 @@ import argparse
 import shlex
 import shutil
 import subprocess
+import tempfile
 
 LONG_RUNNING_SERVICE_UNITS = (
     "cbp-collector.service",
@@ -33,10 +34,26 @@ TIMER_UNITS = (
 )
 UNITS = LONG_RUNNING_SERVICE_UNITS + ONESHOT_SERVICE_UNITS + TIMER_UNITS
 FORBIDDEN_TOKENS = ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED")
+DEFAULT_REPO_DIR = Path("/opt/crypto-bot-pro")
 
 
 def _unit_dir() -> Path:
     return _REPO / "packaging" / "systemd"
+
+
+def _render_unit_text(name: str, *, repo_dir: Path = DEFAULT_REPO_DIR) -> str:
+    text = (_unit_dir() / name).read_text(encoding="utf-8")
+    return text.replace(str(DEFAULT_REPO_DIR), str(repo_dir))
+
+
+def _write_rendered_units(dest: Path, *, repo_dir: Path = DEFAULT_REPO_DIR) -> list[Path]:
+    dest.mkdir(parents=True, exist_ok=True)
+    out: list[Path] = []
+    for name in UNITS:
+        path = dest / name
+        path.write_text(_render_unit_text(name, repo_dir=repo_dir), encoding="utf-8")
+        out.append(path)
+    return out
 
 
 def _parse_unit(text: str) -> dict[str, list[str]]:
@@ -73,12 +90,17 @@ def _verify_forbidden_tokens(name: str, text: str) -> list[str]:
     return problems
 
 
-def _verify_service_unit(name: str, *, long_running: bool) -> list[str]:
+def _verify_service_unit(
+    name: str,
+    *,
+    long_running: bool,
+    repo_dir: Path = DEFAULT_REPO_DIR,
+) -> list[str]:
     problems: list[str] = []
     path = _unit_dir() / name
     if not path.exists():
         return [f"missing unit: {name}"]
-    text = path.read_text(encoding="utf-8")
+    text = _render_unit_text(name, repo_dir=repo_dir)
     parsed = _parse_unit(text)
     problems.extend(_verify_forbidden_tokens(name, text))
     if "EnvironmentFile" not in parsed:
@@ -115,12 +137,16 @@ def _verify_service_unit(name: str, *, long_running: bool) -> list[str]:
     return problems
 
 
-def _verify_timer_unit(name: str) -> list[str]:
+def _verify_timer_unit(
+    name: str,
+    *,
+    repo_dir: Path = DEFAULT_REPO_DIR,
+) -> list[str]:
     problems: list[str] = []
     path = _unit_dir() / name
     if not path.exists():
         return [f"missing unit: {name}"]
-    text = path.read_text(encoding="utf-8")
+    text = _render_unit_text(name, repo_dir=repo_dir)
     parsed = _parse_unit(text)
     problems.extend(_verify_forbidden_tokens(name, text))
     if "OnUnitActiveSec" not in parsed:
@@ -130,15 +156,15 @@ def _verify_timer_unit(name: str) -> list[str]:
     return problems
 
 
-def _verify_units() -> list[str]:
+def _verify_units(*, repo_dir: Path = DEFAULT_REPO_DIR) -> list[str]:
     """Static checks; returns a list of problems (empty = ok)."""
     problems: list[str] = []
     for name in LONG_RUNNING_SERVICE_UNITS:
-        problems.extend(_verify_service_unit(name, long_running=True))
+        problems.extend(_verify_service_unit(name, long_running=True, repo_dir=repo_dir))
     for name in ONESHOT_SERVICE_UNITS:
-        problems.extend(_verify_service_unit(name, long_running=False))
+        problems.extend(_verify_service_unit(name, long_running=False, repo_dir=repo_dir))
     for name in TIMER_UNITS:
-        problems.extend(_verify_timer_unit(name))
+        problems.extend(_verify_timer_unit(name, repo_dir=repo_dir))
     env_example = _unit_dir() / "cbp.env.example"
     if not env_example.exists():
         problems.append("missing cbp.env.example")
@@ -151,7 +177,7 @@ def _verify_units() -> list[str]:
     return problems
 
 
-def _systemd_analyze(paths: list[Path]) -> int:
+def _systemd_analyze(paths: list[Path], *, expected_python: Path) -> int:
     """Run systemd-analyze verify; missing-executable complaints are
     expected when verifying off-host (the venv lives on the deploy host)
     and are reported as notes, while any other finding fails."""
@@ -167,7 +193,10 @@ def _systemd_analyze(paths: list[Path]) -> int:
         line = line.strip()
         if not line:
             continue
-        if "is not executable: No such file or directory" in line:
+        if (
+            "is not executable: No such file or directory" in line
+            and not expected_python.exists()
+        ):
             print(f"note (off-host path, verified on deploy host): {line}")
             continue
         real_findings.append(line)
@@ -180,30 +209,43 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Verify and (optionally) install CryptKeep systemd units.")
     ap.add_argument("--apply", action="store_true", help="copy units into --dest (default: dry run)")
     ap.add_argument("--dest", default="/etc/systemd/system", help="unit install destination")
+    ap.add_argument(
+        "--repo-dir",
+        type=Path,
+        default=DEFAULT_REPO_DIR,
+        help="absolute repo checkout path to render into WorkingDirectory and ExecStart",
+    )
     args = ap.parse_args()
+    repo_dir = Path(args.repo_dir).expanduser()
 
-    problems = _verify_units()
+    problems = _verify_units(repo_dir=repo_dir)
     if problems:
         for p in problems:
             print(f"FAIL: {p}")
         return 1
     print(f"static verify ok: {', '.join(UNITS)}")
 
-    rc = _systemd_analyze([_unit_dir() / n for n in UNITS])
-    if rc != 0:
-        print("FAIL: systemd-analyze verify reported problems")
-        return 1
+    with tempfile.TemporaryDirectory(prefix="cbp-systemd-units-") as tmp:
+        rendered_paths = _write_rendered_units(Path(tmp), repo_dir=repo_dir)
+        rc = _systemd_analyze(
+            rendered_paths,
+            expected_python=repo_dir / ".venv" / "bin" / "python",
+        )
+        if rc != 0:
+            print("FAIL: systemd-analyze verify reported problems")
+            return 1
 
-    if not args.apply:
-        print(f"dry run: would copy units to {args.dest}; rerun with --apply")
-        print("NOTE: installing units never arms live trading; arming flows only through the ceremony.")
-        return 0
+        if not args.apply:
+            print(f"dry run: would copy rendered units to {args.dest}; rerun with --apply")
+            print(f"repo-dir: {repo_dir}")
+            print("NOTE: installing units never arms live trading; arming flows only through the ceremony.")
+            return 0
 
-    dest = Path(args.dest)
-    dest.mkdir(parents=True, exist_ok=True)
-    for name in UNITS:
-        shutil.copy2(_unit_dir() / name, dest / name)
-        print(f"installed {dest / name}")
+        dest = Path(args.dest)
+        dest.mkdir(parents=True, exist_ok=True)
+        for path in rendered_paths:
+            shutil.copy2(path, dest / path.name)
+            print(f"installed {dest / path.name}")
     print("run: systemctl daemon-reload && systemctl enable --now <unit> (operator decision per unit)")
     return 0
 

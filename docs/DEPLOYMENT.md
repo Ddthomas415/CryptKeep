@@ -52,6 +52,17 @@ sudo systemctl enable --now cbp-crypto-edge-collector cbp-edge-cadence.timer
 # cbp-intent-consumer: enable deliberately, per the run policy above
 ```
 
+If the checkout is not at the default `/opt/crypto-bot-pro`, render the units
+for the actual host path during both dry-run and install:
+
+```
+python scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app
+sudo python scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app --apply
+```
+
+The helper renders `WorkingDirectory=` and `ExecStart=` into a temporary unit
+set before verification/install. It does not rewrite source unit templates.
+
 ## Operations
 
 - Logs: `journalctl -u cbp-reconciler -f` (stdout is unbuffered via
