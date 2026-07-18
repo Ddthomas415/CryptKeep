@@ -12,6 +12,11 @@ from services.control.paper_evidence_qualification import (
     _record_ts,
     qualify_paper_history,
 )
+from services.control.paper_promotion_policy import (
+    before_policy_cohort,
+    record_timestamp,
+    resolve_paper_promotion_policy,
+)
 from services.control.promotion_thresholds import (
     ES_DAILY_TREND_STRATEGY_ID,
     ES_DAILY_TREND_TARGET_STRATEGY,
@@ -35,7 +40,15 @@ def _config_symbol(config: dict[str, Any]) -> str:
     return str(strategy.get("symbol") or "").strip()
 
 
-def _fill_status(*, reasons: list[str], order_id: str, counted_order_ids: set[str]) -> str:
+def _fill_status(
+    *,
+    reasons: list[str],
+    order_id: str,
+    counted_order_ids: set[str],
+    excluded_before_cohort: bool = False,
+) -> str:
+    if excluded_before_cohort:
+        return "excluded_before_cohort"
     if reasons:
         return "rejected"
     if order_id and order_id in counted_order_ids:
@@ -49,8 +62,15 @@ def _fill_row(
     index: int,
     expected: dict[str, str],
     counted_order_ids: set[str],
+    policy: Any,
 ) -> dict[str, Any]:
-    reasons = _fill_rejection_reasons(fill, expected)
+    excluded_before_cohort = before_policy_cohort(fill, policy)
+    if excluded_before_cohort:
+        reasons = []
+    elif policy.cohort_start_dt is not None and record_timestamp(fill) is None:
+        reasons = ["invalid_timestamp_for_cohort"]
+    else:
+        reasons = _fill_rejection_reasons(fill, expected)
     order_id = str(fill.get("order_id") or "").strip()
     return {
         "index": int(index),
@@ -61,8 +81,10 @@ def _fill_row(
             reasons=reasons,
             order_id=order_id,
             counted_order_ids=counted_order_ids,
+            excluded_before_cohort=excluded_before_cohort,
         ),
         "rejection_reasons": reasons,
+        "excluded_before_cohort": excluded_before_cohort,
         "size": fill.get("size", fill.get("qty")),
         "market_data_source": fill.get("market_data_source"),
         "ohlcv_sample_mode": fill.get("ohlcv_sample_mode"),
@@ -77,6 +99,9 @@ def _status_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
         "counted": sum(1 for row in rows if row.get("status") == "counted"),
         "incomplete": sum(1 for row in rows if row.get("status") == "incomplete"),
         "rejected": sum(1 for row in rows if row.get("status") == "rejected"),
+        "excluded_before_cohort": sum(
+            1 for row in rows if row.get("status") == "excluded_before_cohort"
+        ),
         "total": len(rows),
     }
 
@@ -99,6 +124,7 @@ def build_paper_gate_qualification_report(
     """Build a read-only fill-level paper gate qualification report."""
 
     config = _load_config(config_path)
+    policy = resolve_paper_promotion_policy(config)
     evidence_dir = data_dir() / "evidence" / str(strategy_id or ES_DAILY_TREND_STRATEGY_ID)
     evidence = load_all_evidence(evidence_dir)
     evidence_fills = [
@@ -125,6 +151,7 @@ def build_paper_gate_qualification_report(
             index=idx,
             expected=expected,
             counted_order_ids=counted_order_ids,
+            policy=policy,
         )
         for idx, fill in enumerate(
             sorted(evidence_fills, key=_record_ts),
@@ -151,6 +178,7 @@ def build_paper_gate_qualification_report(
         "evidence_dir": str(evidence_dir),
         "journal_path": str(ledger.get("journal_path") or ""),
         "expected_contract": expected,
+        "policy": policy.to_dict(),
         "summary": {
             "qualified_round_trips": int(qualified.get("closed_trades") or 0),
             "all_history_round_trips": int(all_history.get("closed_trades") or 0),
@@ -161,6 +189,8 @@ def build_paper_gate_qualification_report(
             "counted_evidence_fills": counts["counted"],
             "incomplete_evidence_fills": counts["incomplete"],
             "rejected_evidence_fills": counts["rejected"],
+            "excluded_before_cohort_evidence_fills": counts["excluded_before_cohort"],
+            "cohort_start": policy.cohort_start,
             "unqualified_reason_counts": dict(
                 qualification.get("unqualified_reason_counts") or {}
             ),
