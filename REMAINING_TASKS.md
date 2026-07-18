@@ -527,7 +527,14 @@ deployment work still needs independent review.
     `report_hetzner_crypto_edge_runtime_status.py` accepts either system-level
     or user-level systemd evidence for collector/cadence schedules. No host
     unit was installed, enabled, started, or stopped by this patch; host-side
-    operational proof remains open.
+    operational proof remains open. 2026-07-18 path-rendering follow-up is
+    ready for independent review: remote dry-run after the host sync exposed
+    that the shipped unit templates point at `/opt/crypto-bot-pro` while the
+    Hetzner checkout is `/srv/cryptkeep/app`. `install_systemd_units.py` now
+    supports `--repo-dir` and renders `WorkingDirectory=`/`ExecStart=` into a
+    temporary unit set before dry-run/install, so Hetzner can verify/install
+    units for `/srv/cryptkeep/app` without editing templates. No host unit was
+    installed, enabled, started, or stopped by this patch.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

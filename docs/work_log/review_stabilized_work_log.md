@@ -23051,3 +23051,57 @@ Remaining risk:
   cbp-crypto-edge-collector cbp-edge-cadence.timer` and recent OKX snapshot
   timestamps remain operational proof steps after reviewed host sync.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T12:03:51Z - Systemd Unit Repo-Dir Rendering for Hetzner
+
+Active role: ENGINEER
+
+Objective:
+- Prevent the accepted crypto-edge systemd unit set from installing broken
+  hardcoded `/opt/crypto-bot-pro` paths on the Hetzner host, whose checkout is
+  `/srv/cryptkeep/app`.
+
+What was found:
+- SHOWN: after the approved Hetzner fast-forward sync to `16711400e`, the
+  read-only systemd installer dry-run still printed missing-executable notes
+  for `/opt/crypto-bot-pro/.venv/bin/python`.
+- SHOWN: the remote app path used by every Hetzner status command is
+  `/srv/cryptkeep/app`.
+- SHOWN: `install_systemd_units.py` did not accept a repo-path override and
+  copied templates verbatim.
+
+What changed:
+- Added `--repo-dir` to `scripts/install_systemd_units.py`.
+- The installer now renders `WorkingDirectory=` and `ExecStart=` paths into a
+  temporary unit set before `systemd-analyze verify`, dry-run reporting, or
+  `--apply`.
+- `--apply --dest <tmp> --repo-dir /srv/cryptkeep/app` is covered by a
+  regression test proving rendered units no longer contain `/opt/crypto-bot-pro`.
+- Updated `docs/DEPLOYMENT.md`, `scripts/SCRIPTS.md`, and `REMAINING_TASKS.md`.
+
+Why this change:
+- Installing the new crypto-edge collector unit with the template default path
+  on Hetzner would create a scheduler that cannot execute the collector.
+  Rendering the checkout path in the installer keeps source templates stable
+  while making host-specific installs explicit and testable.
+
+Expected outcome:
+- After this patch lands and the host is synced again, Hetzner can run:
+  `./.venv/bin/python scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app`
+  and verify the actual deployment path before any unit is installed or
+  enabled.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_systemd_units.py`
+  - SHOWN: `11 passed in 0.21s`.
+- `./.venv/bin/python scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app`
+  - SHOWN: static verify ok; dry-run only; no install performed.
+- `./.venv/bin/python -m py_compile scripts/install_systemd_units.py tests/test_systemd_units.py`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: deployment/background-job install tooling. No host unit was installed,
+  enabled, started, or stopped by this patch.
+- UNVERIFIED: Hetzner cannot run `--repo-dir` until this patch is merged and
+  the host is synced to the new accepted commit.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -47,7 +47,7 @@ listed below.
 | `report_supervised_soak_status.py` | `make status-paper-soak` / `make status-paper-soak-json` | Read-only supervised paper-soak summary across configured campaigns and paper promotion gate status |
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` / `make recover-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive; `--restore --preflight-ohlcv` blocks launches when the configured public-OHLCV source is unreachable; `--restart-unhealthy` is opt-in and preflight-required for alive unhealthy collectors |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
-| `install_systemd_units.py` | — | Verify and install systemd units from `packaging/systemd/` (dry-run by default; never arms live trading) |
+| `install_systemd_units.py` | — | Verify and install rendered systemd units from `packaging/systemd/` (dry-run by default; `--repo-dir` targets non-default checkout paths; never arms live trading) |
 | `check_live_intent_history_schema.py` | `make live-intent-history-schema` / `make live-intent-history-schema-init` | Check whether the current runtime live-intent queue has `live_trade_intent_events`; read-only by default, `--init` explicitly initializes/migrates the existing queue schema |
 | `run_paper_sim_monitor.py` | — | Read-only paper simulation monitor, watch management, and local watch-trigger notifications |
 | `backup_state.py` | — | Full-state backup/verify/restore (sqlite-API-consistent; restore refuses over live locks; see `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`) |

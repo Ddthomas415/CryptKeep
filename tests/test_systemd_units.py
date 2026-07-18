@@ -138,6 +138,32 @@ def test_install_helper_static_verify_passes_dry_run():
     assert "dry run" in proc.stdout
 
 
+def test_install_helper_renders_units_for_explicit_repo_dir(tmp_path):
+    dest = tmp_path / "units"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(REPO / "scripts" / "install_systemd_units.py"),
+            "--apply",
+            "--dest",
+            str(dest),
+            "--repo-dir",
+            "/srv/cryptkeep/app",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    rendered = (dest / "cbp-crypto-edge-collector.service").read_text(encoding="utf-8")
+    assert "WorkingDirectory=/srv/cryptkeep/app" in rendered
+    assert "ExecStart=/srv/cryptkeep/app/.venv/bin/python" in rendered
+    assert "/opt/crypto-bot-pro" not in rendered
+    assert "CBP_EXECUTION_ARMED" not in "\n".join(
+        line for line in rendered.splitlines() if not line.strip().startswith("#")
+    )
+
+
 def test_install_helper_fails_on_arming_token(tmp_path, monkeypatch):
     """The verifier must reject a unit that smuggles an arming variable."""
     import importlib
