@@ -22484,3 +22484,64 @@ Remaining risk:
 - UNVERIFIED: broader operator-audit suite, GitHub CI, and host-side execution
   of the check/init command with preserved evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T05:53:07Z - Public-OHLCV Outage Blocked State for Paper Campaigns
+
+Active role: ENGINEER
+
+Objective:
+- Prevent recurring configured public-OHLCV outages from consuming paper
+  campaign daily retry budget or masquerading as strategy validation failures.
+
+What was found:
+- SHOWN: `services/execution/ohlcv_preflight.py` already provides a read-only
+  public-OHLCV reachability probe and distinguishes
+  `ohlcv_source_unreachable` from empty/config classes.
+- SHOWN: `scripts/run_paper_strategy_evidence_collector.py::_run_daily_loop()`
+  counts failed session end records against `max_daily_attempts`.
+- SHOWN: a `no_public_ohlcv` campaign result was treated as an ordinary failed
+  campaign attempt, so repeated upstream fetch failures could exhaust the daily
+  retry budget without producing strategy evidence.
+
+What changed:
+- The daily collector loop now runs the existing read-only OHLCV preflight
+  before starting a campaign for configured `public_ohlcv_*` sources.
+- If the configured source is unreachable, the collector writes
+  `status=blocked`, `reason=ohlcv_source_unreachable`, preserves the preflight
+  payload under `ohlcv_preflight`, and marks `retry_budget_consumed=false`.
+- The blocked path does not call `_run_one_campaign()` and does not create a
+  failed session attempt.
+- A later successful preflight lets the same loop proceed into the normal
+  campaign path.
+- Campaign status alerting now treats transitions into `blocked` as
+  warning-level operator-action alerts, still transition-deduped and
+  notification-only.
+
+Why this change was chosen:
+- The retry budget is for strategy/campaign attempts, not known upstream
+  source outages.
+- Reusing the existing preflight avoids a second fetch classifier and mirrors
+  the runner's public-OHLCV path.
+- Writing a non-terminal `blocked` state makes the outage visible while
+  preserving automatic recovery when the source comes back.
+
+Expected outcome:
+- A flaky public-OHLCV provider no longer burns the day's campaign attempts.
+- Operator status clearly distinguishes source outage from strategy failure.
+- Existing transition alerting wakes the operator once per transition into the
+  blocked state, not on repeated blocked writes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_run_paper_strategy_evidence_collector.py tests/test_campaign_event_alerts_integration.py tests/test_ohlcv_preflight.py`
+  - SHOWN: `35 passed in 2.64s`.
+- `./.venv/bin/python -m pytest -q tests/test_run_paper_strategy_evidence_collector.py tests/test_campaign_event_alerts_integration.py tests/test_ohlcv_preflight.py tests/test_campaign_event_alerts.py`
+  - SHOWN: `45 passed in 2.21s`.
+- `./.venv/bin/python -m py_compile scripts/run_paper_strategy_evidence_collector.py services/alerts/campaign_events.py`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: paper campaign runtime behavior changes, but no live execution,
+  order-routing, risk-cap, or promotion-gate logic changes.
+- UNVERIFIED: GitHub CI and host-side evidence that a real unreachable provider
+  writes `blocked` and later recovers after preflight success.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

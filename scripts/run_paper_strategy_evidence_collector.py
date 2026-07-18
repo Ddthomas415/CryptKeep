@@ -32,6 +32,7 @@ from services.analytics.paper_strategy_evidence_service import (  # noqa: E402
 )
 from services.admin.kill_switch import get_state as get_kill_switch_state  # noqa: E402
 from services.control.deployment_stage import get_current_stage  # noqa: E402
+from services.execution.ohlcv_preflight import check_ohlcv_reachable  # noqa: E402
 from services.os.app_paths import data_dir, runtime_dir  # noqa: E402
 from services.strategies.evidence_logger import EvidenceLogger  # noqa: E402
 
@@ -274,6 +275,71 @@ def _write_retry_status(
     return out
 
 
+def _public_ohlcv_unreachable(cfg: PaperStrategyEvidenceServiceCfg) -> dict[str, object] | None:
+    """Return preflight payload when configured public OHLCV is unreachable.
+
+    This helper is deliberately narrow: only the upstream/network unreachable
+    class is converted into a non-attempt blocked state. Other preflight
+    failures remain visible to the normal campaign path.
+    """
+    signal_source = str(cfg.signal_source or "").strip()
+    if not signal_source.lower().startswith("public_ohlcv_"):
+        return None
+    result = check_ohlcv_reachable(
+        venue=str(cfg.venue or "coinbase"),
+        symbol=str(cfg.symbol or "BTC/USD"),
+        signal_source=signal_source,
+        probe_limit=5,
+        attempts=1,
+        attempt_delay_sec=0.0,
+    )
+    if str(result.get("status") or "") == "ohlcv_source_unreachable":
+        return dict(result)
+    return None
+
+
+def _write_ohlcv_blocked_status(
+    *,
+    pid: int,
+    cfg: PaperStrategyEvidenceServiceCfg,
+    strategies: tuple[str, ...],
+    session_strategy_id: str,
+    preflight: dict[str, object],
+    attempts: int,
+    max_daily_attempts: int,
+) -> dict[str, object]:
+    out: dict[str, object] = {
+        "ok": False,
+        "has_status": True,
+        "status": "blocked",
+        "reason": "ohlcv_source_unreachable",
+        "ts": _now_iso(),
+        "pid": int(pid),
+        "strategies": list(strategies),
+        "completed_strategies": 0,
+        "total_strategies": len(strategies),
+        "symbol": str(cfg.symbol or "BTC/USD"),
+        "venue": str(cfg.venue or "coinbase"),
+        "signal_source": str(cfg.signal_source or ""),
+        "per_strategy_runtime_sec": float(cfg.per_strategy_runtime_sec),
+        "session_strategy_id": str(session_strategy_id),
+        "daily_loop": True,
+        "last_blocked_day": _today_utc(),
+        "daily_attempts": int(attempts),
+        "max_daily_attempts": int(max_daily_attempts),
+        "retry_budget_consumed": False,
+        "retry_pending": False,
+        "ohlcv_preflight": dict(preflight),
+        "summary_text": (
+            "Paper evidence collector is blocked because the configured public OHLCV "
+            "source is unreachable; daily retry budget was not consumed. The loop "
+            "will recover automatically after the same source preflight succeeds."
+        ),
+    }
+    _write_status(out)
+    return out
+
+
 def _run_daily_loop(
     cfg: PaperStrategyEvidenceServiceCfg,
     *,
@@ -349,6 +415,24 @@ def _run_daily_loop(
             has_completed_session = _has_session_day(session_strategy_id, today)
             failed_attempts = _failed_session_attempts(session_strategy_id, today)
             if not has_completed_session and failed_attempts < int(max_daily_attempts):
+                ohlcv_block = _public_ohlcv_unreachable(cfg)
+                if ohlcv_block is not None:
+                    last_result = _write_ohlcv_blocked_status(
+                        pid=current_pid,
+                        cfg=cfg,
+                        strategies=strategies,
+                        session_strategy_id=session_strategy_id,
+                        preflight=ohlcv_block,
+                        attempts=failed_attempts,
+                        max_daily_attempts=max_daily_attempts,
+                    )
+                    if max_loops is not None and loops >= int(max_loops):
+                        out = dict(last_result)
+                        out["loops"] = loops
+                        _write_status(out)
+                        return out
+                    time.sleep(max(1.0, float(poll_interval_sec)))
+                    continue
                 last_result = _run_one_campaign(
                     cfg,
                     max_strategies=max_strategies,

@@ -8,18 +8,20 @@ alert channel must not block a campaign status write. Channel selection lives
 in the existing alert dispatcher; with no channels configured the proven local
 JSONL fallback still records the event.
 
-Fires once per TRANSITION into a stop/failure terminal state (not once per
-status write), with the first observation establishing a silent baseline.
+Fires once per TRANSITION into an operator-actionable blocked/stop/failure
+state (not once per status write), with the first observation establishing a
+silent baseline.
 """
 from __future__ import annotations
 
 from typing import Any
 
-# Terminal campaign states that warrant an operator wake-up, mapped to level.
-# "failed"/"error"/"aborted" are abnormal ends (critical); "stopped" is an
-# operator-requested stop (warning, expected but worth confirming); normal
+# Campaign states that warrant an operator wake-up, mapped to level.
+# "blocked"/"stopped" are warning-level operator-action states;
+# "failed"/"error"/"aborted" are abnormal ends (critical). Normal
 # "completed" is intentionally NOT alerted (a clean finish is not an incident).
 _STOP_FAILURE_LEVELS: dict[str, str] = {
+    "blocked": "warning",
     "failed": "critical",
     "error": "critical",
     "aborted": "critical",
@@ -53,7 +55,7 @@ def alert_campaign_status_transition(
     Rules (matching the paper_gate_events contract):
     - first observation (no prior status) is a silent baseline -> no alert
     - only a genuine change of status can alert (prev == new -> no alert)
-    - only transitions into a stop/failure terminal state alert; transitions
+    - only transitions into a blocked/stop/failure state alert; transitions
       into running/completed/other states do not
     - never raises; returns True iff an alert was dispatched
 
