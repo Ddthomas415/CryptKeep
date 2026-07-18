@@ -9,6 +9,11 @@ from typing import Any
 
 from services.analytics.journal_analytics import fifo_pnl_from_fills
 from services.os.app_paths import data_dir
+from services.control.paper_promotion_policy import (
+    before_policy_cohort,
+    record_timestamp,
+    resolve_paper_promotion_policy,
+)
 from services.strategies.crypto_edge_context import (
     DEFAULT_CONTEXT_SOURCE,
     DEFAULT_FUNDING_MAX_AGE_SEC,
@@ -409,16 +414,31 @@ def qualify_paper_history(
 ) -> dict[str, Any]:
     """Return promotion metrics using only fills with explicit matching provenance."""
     expected = _expected_contract(config)
+    policy = resolve_paper_promotion_policy(config)
     annotated_fills: list[dict[str, Any]] = []
     qualified_fill_timestamps: list[str] = []
     provenance_qualified_fill_count = 0
     rejection_counts: Counter[str] = Counter()
     unqualified_date_counts: Counter[str] = Counter()
+    excluded_before_cohort_date_counts: Counter[str] = Counter()
     unqualified_fills = 0
+    excluded_before_cohort_fills = 0
 
     for raw_fill in list(evidence_fills or []):
         fill = dict(raw_fill)
-        reasons = _fill_rejection_reasons(fill, expected)
+        if policy.cohort_start_dt is not None:
+            ts = record_timestamp(fill)
+            if ts is None:
+                reasons = ["invalid_timestamp_for_cohort"]
+            elif before_policy_cohort(fill, policy):
+                excluded_before_cohort_fills += 1
+                if date := _record_date(fill):
+                    excluded_before_cohort_date_counts[date] += 1
+                continue
+            else:
+                reasons = _fill_rejection_reasons(fill, expected)
+        else:
+            reasons = _fill_rejection_reasons(fill, expected)
         fill["_promotion_rejection_reasons"] = reasons
         annotated_fills.append(fill)
         if reasons:
@@ -461,7 +481,13 @@ def qualify_paper_history(
         **metrics,
         "qualification": {
             "expected": expected,
+            "policy": policy.to_dict(),
             "evidence_fills": len(evidence_fills or []),
+            "cohort_evidence_fills": len(annotated_fills),
+            "excluded_before_cohort_evidence_fills": excluded_before_cohort_fills,
+            "excluded_before_cohort_date_counts": dict(
+                sorted(excluded_before_cohort_date_counts.items())
+            ),
             "provenance_qualified_evidence_fills": provenance_qualified_fill_count,
             "qualified_evidence_fills": len(qualified_order_ids),
             "completed_evidence_round_trips": completed_evidence_round_trips,

@@ -87,6 +87,26 @@ The restore command:
    `run_paper_strategy_evidence_collector.py --daily-loop --detach`;
 4. checks status again and reports the replacement PID.
 
+When recovering from a known or suspected exchange-data outage, add the
+read-only OHLCV guard:
+
+```bash
+./.venv/bin/python scripts/restore_paper_campaigns.py \
+  --restore \
+  --preflight-ohlcv \
+  --ohlcv-preflight-probe-limit 400 \
+  --ohlcv-preflight-attempts 3 \
+  --ohlcv-preflight-attempt-delay-sec 2
+```
+
+With this flag, restore checks each dead collector's configured
+`venue`/`symbol`/`signal_source` before launching it. If the public-OHLCV
+source is unreachable, the campaign is reported as `preflight_blocked` and the
+collector is not started, preserving daily attempts for a valid data window.
+The default probe limit is 400 rows because managed strategy-runner children
+fall back to `max_bars=400` unless explicitly configured otherwise. This flag
+is optional; plain `--restore` keeps the existing behavior.
+
 To operate on one campaign:
 
 ```bash
@@ -125,6 +145,10 @@ attempt and one retry. Status can therefore report `running=true` for the
 collector process while `ok=false` for campaign health. Process liveness is
 not evidence validity. Restore does not replace an alive unhealthy collector;
 the existing parent owns the bounded retry.
+
+If the parent has already parked after exhausting attempts, stop it first, then
+use guarded restore (`--restore --preflight-ohlcv`) so an exchange outage does
+not immediately consume the next manual recovery attempt.
 
 ## Current Campaigns
 

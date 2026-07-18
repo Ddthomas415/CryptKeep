@@ -22485,6 +22485,189 @@ Remaining risk:
   of the check/init command with preserved evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-18T04:47:00Z - Paper Campaign Restore OHLCV Preflight Guard
+
+Active role: ENGINEER
+
+Objective:
+- Prevent known public-OHLCV outages from consuming paper-campaign restore
+  attempts when recovering parked collectors.
+
+What was found:
+- SHOWN: both laptop paper campaigns were alive but parked after exhausting
+  daily attempts on `no_public_ohlcv`.
+- SHOWN: runner logs repeatedly showed Coinbase public-OHLCV metadata failures
+  (`GET https://api.coinbase.com/v2/currencies`) for both `1d` and `5m`.
+- SHOWN: a 250-row preflight could pass while the ES runner still failed; a
+  400-row preflight reproduced the same Coinbase metadata failure. The managed
+  strategy runner falls back to `max_bars=400`.
+- SHOWN: `scripts/check_ohlcv_preflight.py` already mirrors the runner fetch
+  path, but `scripts/restore_paper_campaigns.py --restore` did not use it before
+  starting dead collectors.
+
+What changed:
+- Added an opt-in restore guard:
+  `restore_paper_campaigns.py --restore --preflight-ohlcv`.
+- The guard checks each dead collector's configured
+  `venue`/`symbol`/`signal_source` through the existing
+  `check_ohlcv_reachable()` service before launch.
+- The default probe limit is 400 rows, matching the managed strategy runner's
+  `max_bars` fallback; today's ES failure reproduced with a 400-row preflight
+  while a 250-row probe could pass.
+- If preflight fails, restore returns `action=preflight_blocked`, includes the
+  `ohlcv_preflight` payload, and does not start the collector.
+- Plain `--restore` and read-only `--status` behavior are preserved.
+- Updated `docs/PAPER_CAMPAIGN_RECOVERY.md`, `scripts/SCRIPTS.md`, and
+  `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The campaign failure was operationally real today, and the repo already had a
+  tested reachability checker. Wiring it as an opt-in restore guard is smaller
+  and safer than changing the collector retry policy.
+
+Expected outcome:
+- Operators can avoid burning bounded daily restore attempts during a known
+  exchange-data outage while preserving existing automation defaults.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py tests/test_ohlcv_preflight.py tests/test_report_supervised_soak_status.py`
+  - SHOWN: `39 passed in 0.46s`.
+- `./.venv/bin/python -m py_compile services/analytics/paper_campaign_recovery.py scripts/restore_paper_campaigns.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: passed.
+- `CBP_STATE_DIR=/Users/baitus/Downloads/crypto-bot-pro/.cbp_state ./.venv/bin/python scripts/check_ohlcv_preflight.py --venue coinbase --symbol BTC/USDT --signal-source public_ohlcv_1d --probe-limit 400 --attempts 3 --attempt-delay-sec 2 --json`
+  - SHOWN: exit `2`, `status=ohlcv_source_unreachable`, same Coinbase
+    `/v2/currencies` network error as the managed ES runner.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: opt-in operator restore guard only; no live execution, strategy logic, or
+  default restore behavior changed.
+- UNVERIFIED: full suite and GitHub CI.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T05:08:32Z - Paper Promotion Gate Policy RFC
+
+Active role: DIRECTOR
+
+Objective:
+- Prepare a design-review proposal for configurable paper promotion gate
+  policies before any implementation changes.
+- Open a separate reliability work item for recurring public-OHLCV source
+  outages so gate policy changes do not hide infrastructure failures.
+
+What was found:
+- SHOWN: current promotion thresholds are global constants:
+  `PAPER_MIN_DAYS = 30` and `PAPER_MIN_ROUND_TRIPS = 10`.
+- SHOWN: `es_daily_trend_v1` has 10 all-history closed round trips, but only 3
+  provenance-qualified round trips; earlier fills remain diagnostic-only because
+  they lack required source/timeframe/venue/symbol/sample-mode fields.
+- SHOWN: local signal evidence contains 45 qualified public daily signal dates
+  from 2026-05-26 through 2026-07-11.
+- SHOWN: existing and challenger strategy configs use the same 10-round-trip
+  paper threshold despite different horizons.
+- SHOWN: recent laptop campaign state includes `no_public_ohlcv` failures; that
+  is a reliability issue distinct from gate policy.
+
+What changed:
+- Added `docs/decisions/paper_promotion_gate_policy_rfc_2026-07-18.md`.
+- Updated `REMAINING_TASKS.md` with the RFC status and a distinct OHLCV source
+  outage blocked-state work item.
+- No runtime code, strategy config, or current gate behavior changed.
+
+Why this change was chosen:
+- The current gate mixes operational validation with statistical validation.
+  The RFC separates paper-path validation from archive/walk-forward edge proof
+  before any threshold change is authorized.
+
+Expected outcome:
+- Reviewers can decide whether to approve strategy-class gate policies,
+  `promotion.cohort_start`, and qualified-bar counting before implementation.
+- OHLCV source failures remain visible as reliability blockers instead of being
+  hidden by promotion-threshold changes.
+
+Verification:
+- Docs-only change; no tests run.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: design affects future promotion-gate policy but does not change
+  runtime behavior in this branch.
+- Implementation remains unauthorized until the RFC is reviewed and accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T05:28:41Z - Configurable Paper Promotion Gate Policies
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted paper-promotion-gate RFC as a legacy-compatible gate
+  policy layer.
+- Preserve the current `es_daily_trend_v1` default behavior unless a strategy
+  explicitly opts into a non-legacy policy.
+
+What was found:
+- SHOWN: `services/control/paper_promotion_progress.py` and
+  `scripts/check_promotion_gates.py` still used the global 30-day/10-round-trip
+  thresholds directly.
+- SHOWN: `qualify_paper_history()` counted all evidence fills against the same
+  provenance window; there was no read-time `cohort_start` exclusion.
+- SHOWN: no existing gate counted unique source bars separately from loop
+  iterations.
+
+What changed:
+- Added `services/control/paper_promotion_policy.py`.
+- Added policy resolution for `legacy_round_trip_v1`,
+  `slow_daily_single_symbol_v1`, `intraday_single_symbol_v1`, and
+  `context_edge_v1`.
+- The default policy remains `legacy_round_trip_v1` and preserves the existing
+  30-day/10-round-trip thresholds and exact legacy `paper_progress` shape.
+- Explicit strategy-class policies cannot lower thresholds below their class
+  floors; invalid policies surface as blocking gate/policy state.
+- Added read-time `cohort_start` filtering to qualification. Older evidence
+  remains preserved and reportable, but cannot count toward the new cohort.
+- Added unique provenance-qualified source-bar counting for explicit policies
+  that require bars. Slow daily policies may derive one source bar per UTC
+  signal date when legacy daily signal records lack an explicit bar timestamp;
+  intraday policies require explicit bar timestamps.
+- Updated qualification reporting to show `excluded_before_cohort` rows instead
+  of hiding them.
+
+Why this change was chosen:
+- The accepted RFC separates paper operational validation from statistical
+  archive/walk-forward proof while avoiding a one-off ES exception.
+- Read-time cohort filtering keeps historical evidence auditable without
+  letting pre-policy records contaminate the new cohort.
+- Counting unique source bars closes the runner-loop gaming path.
+
+Expected outcome:
+- Current campaigns continue under the legacy gate until a reviewed config
+  change selects another policy.
+- Future slow daily or context-edge strategies can use policy-class thresholds
+  with explicit cohort and bar evidence instead of a universal 10-round-trip
+  gate.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_promotion_policy.py`
+  - SHOWN: `6 passed in 0.11s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_paper_gate_qualification_report.py tests/test_check_promotion_gates.py tests/test_report_supervised_soak_status.py`
+  - SHOWN: `65 passed in 1.18s`.
+- `./.venv/bin/python -m py_compile services/control/paper_promotion_policy.py services/control/paper_evidence_qualification.py services/control/paper_promotion_progress.py services/control/paper_gate_qualification_report.py scripts/check_promotion_gates.py tests/test_paper_promotion_policy.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m ruff check ...`
+  - SHOWN: not run; local venv has no `ruff` module.
+
+Remaining risk:
+- HIGH: promotion-gate policy affects financial promotion logic. This branch
+  must receive independent review before merge or operational use.
+- UNVERIFIED: GitHub CI and host-side gate output after merge.
+- No current strategy config changed; adopting a non-legacy policy remains a
+  separate reviewed change.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-18T05:53:07Z - Public-OHLCV Outage Blocked State for Paper Campaigns
 
 Active role: ENGINEER

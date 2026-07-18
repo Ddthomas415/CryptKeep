@@ -257,6 +257,78 @@ def test_restore_campaign_starts_dead_collector_and_verifies_status(tmp_path: Pa
     assert launch_kwargs["env"]["CBP_STATE_DIR"] == str(spec.state_dir)
 
 
+def test_restore_campaign_preflight_blocks_unreachable_source(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def _run(command, **kwargs):
+        calls.append(list(command))
+        return _completed({"ok": True, "status": "idle", "pid": 10, "pid_alive": False})
+
+    out = recovery.restore_campaign(
+        _spec(tmp_path),
+        run_command=_run,
+        preflight_ohlcv=True,
+        preflight_check=lambda **kwargs: {
+            "ok": False,
+            "status": "ohlcv_source_unreachable",
+            "reason": "fetch_failed",
+            "venue": kwargs["venue"],
+            "symbol": kwargs["symbol"],
+            "signal_source": kwargs["signal_source"],
+        },
+    )
+
+    assert out["ok"] is False
+    assert out["action"] == "preflight_blocked"
+    assert out["reason"] == "ohlcv_source_unreachable"
+    assert out["ohlcv_preflight"]["venue"] == "coinbase"
+    assert len(calls) == 1
+    assert calls[0][-1] == "--status"
+
+
+def test_restore_campaign_preflight_pass_allows_launch(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+    results = iter(
+        [
+            _completed({"ok": True, "status": "idle", "pid": 10, "pid_alive": False}),
+            _completed({"ok": True, "status": "idle", "reason": "detached_started", "pid": 20}),
+            _completed({"ok": True, "status": "running", "pid": 20, "pid_alive": True}),
+        ]
+    )
+
+    def _run(command, **kwargs):
+        calls.append(list(command))
+        return next(results)
+
+    seen: dict[str, object] = {}
+
+    def _preflight(**kwargs):
+        seen.update(kwargs)
+        return {"ok": True, "status": "ok", "row_count": 250}
+
+    out = recovery.restore_campaign(
+        _spec(tmp_path),
+        run_command=_run,
+        preflight_ohlcv=True,
+        preflight_check=_preflight,
+        preflight_probe_limit=400,
+        preflight_attempts=3,
+        preflight_attempt_delay_sec=2.0,
+    )
+
+    assert out["ok"] is True
+    assert out["action"] == "started"
+    assert len(calls) == 3
+    assert seen == {
+        "venue": "coinbase",
+        "symbol": "BTC/USDT",
+        "signal_source": "public_ohlcv_5m",
+        "probe_limit": 400,
+        "attempts": 3,
+        "attempt_delay_sec": 2.0,
+    }
+
+
 def test_manage_campaigns_rejects_unknown_selection(tmp_path: Path) -> None:
     out = recovery.manage_campaigns(
         [_spec(tmp_path, name="known")],
