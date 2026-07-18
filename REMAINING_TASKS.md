@@ -546,7 +546,18 @@ deployment work still needs independent review.
     defaulting to `/var/lib/cbp`, pass it into the remote collector status
     command as `CBP_STATE_DIR`, and align `cbp.env.example`/deployment docs
     with the packaged units' `/var/lib/cbp` state root. No host unit was
-    installed, enabled, started, or stopped by this patch.
+    installed, enabled, started, or stopped by this patch. 2026-07-18 host
+    bootstrap was approved and executed: `/var/lib/cbp`, `/etc/cbp/cbp.env`,
+    the `cbp` service identity, rendered units, and only the read-only
+    `cbp-crypto-edge-collector.service` plus `cbp-edge-cadence.timer` were
+    installed/enabled. Runtime readiness is green at `5a798801b`, and the
+    paper campaign remains healthy. Follow-up finding: the collector fetched
+    OKX open interest successfully, but `collect_once()` persisted only
+    funding/basis/quotes and ignored `open_interest_rows` and
+    `order_book_rows`; the cadence checker therefore remained correctly red
+    with `missing: open_interest`. A persistence fix is ready for independent
+    review; after merge/sync, restart the read-only collector and rerun
+    `check_edge_cadence.py --json` to show fresh funding/open-interest/basis.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

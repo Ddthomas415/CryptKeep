@@ -23173,3 +23173,68 @@ Remaining risk:
   directory, install units, enable/start only the read-only crypto-edge
   collector and cadence timer, then show recent OKX snapshot timestamps.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T20:28:08Z - Crypto-Edge Collector Family Persistence Fix
+
+Active role: ENGINEER
+
+Objective:
+- Close the live Hetzner cadence gap exposed after the approved read-only
+  crypto-edge systemd service start.
+
+What was found:
+- SHOWN: after PR #345 merged, Hetzner was synced to
+  `5a798801bfd340551456c735b8cda301b10de8a8`.
+- SHOWN: the approved host bootstrap created the `cbp` service identity,
+  `/var/lib/cbp`, `/etc/cbp/cbp.env`, installed rendered systemd units, and
+  enabled/started only `cbp-crypto-edge-collector.service` and
+  `cbp-edge-cadence.timer`.
+- SHOWN: `make status-hetzner-edge-runtime
+  HETZNER_EDGE_EXPECTED_COMMIT=5a798801b` reports
+  `hetzner_crypto_edge_runtime_ready` with zero blockers.
+- SHOWN: `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30` still
+  reports the `ema_cross_default` paper campaign healthy and idle for the
+  current UTC day.
+- SHOWN: `CBP_STATE_DIR=/var/lib/cbp
+  scripts/data/run_crypto_edge_collector_loop.py --status` reports one
+  successful collector loop with fresh OKX funding and basis snapshots.
+- SHOWN: `scripts/check_edge_cadence.py --json` remains red with
+  `missing: open_interest`.
+- SHOWN: direct OKX `fetch_open_interest("BTC/USDT:USDT")` returns an
+  extractable `openInterestAmount`, but
+  `services/analytics/crypto_edge_collector_service.py::collect_once` reads
+  only `funding_rows`, `basis_rows`, and `quote_rows`; it ignores
+  `open_interest_rows` and `order_book_rows`.
+
+What changed:
+- `collect_once()` now includes open-interest and order-book rows in its
+  collected-row counts, no-live-rows decision, persistence path, and snapshot
+  ID output.
+- Added regression coverage proving fetched open-interest and order-book rows
+  are present in the stored report metadata after `collect_once()`.
+
+Why this change:
+- The live collector could successfully fetch a required cadence family while
+  never persisting it, making the cadence checker permanently fail for open
+  interest. The checker was correct; the service persistence layer was
+  incomplete.
+
+Expected outcome:
+- After merge, host sync, and read-only collector restart, the next collector
+  loop should persist OKX funding, open-interest, and basis snapshots so
+  `check_edge_cadence.py --json` can pass.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_collector_service.py tests/test_crypto_edge_collector.py tests/test_edge_cadence.py tests/test_crypto_edge_analytics.py tests/test_record_crypto_edge_snapshot.py tests/test_collect_live_crypto_edge_snapshot.py tests/test_load_sample_crypto_edge_data.py`
+  - SHOWN: `33 passed in 0.67s`.
+- `./.venv/bin/python -m py_compile services/analytics/crypto_edge_collector_service.py tests/test_crypto_edge_collector_service.py`
+  - SHOWN: passed.
+
+Remaining risk:
+- HIGH: background-job runtime data collection. This patch changes only the
+  read-only crypto-edge collector persistence path and does not affect trading,
+  routing, arming, or paper campaign behavior.
+- UNVERIFIED: post-merge host proof remains: sync, restart only the read-only
+  crypto-edge collector, and show cadence green with fresh OKX
+  funding/open-interest/basis timestamps.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

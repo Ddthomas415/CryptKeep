@@ -149,8 +149,10 @@ def collect_once(cfg: CryptoEdgeCollectorServiceCfg) -> Dict[str, Any]:
     plan = _load_plan(str(cfg.plan_file))
     collected = collect_live_crypto_edge_snapshot(plan)
     funding_rows = list(collected.get("funding_rows") or [])
+    open_interest_rows = list(collected.get("open_interest_rows") or [])
     basis_rows = list(collected.get("basis_rows") or [])
     quote_rows = list(collected.get("quote_rows") or [])
+    order_book_rows = list(collected.get("order_book_rows") or [])
     checks = list(collected.get("checks") or [])
 
     out: Dict[str, Any] = {
@@ -160,21 +162,27 @@ def collect_once(cfg: CryptoEdgeCollectorServiceCfg) -> Dict[str, Any]:
         "execution_enabled": False,
         "checks": checks,
         "funding_count": int(len(funding_rows)),
+        "open_interest_count": int(len(open_interest_rows)),
         "basis_count": int(len(basis_rows)),
         "quote_count": int(len(quote_rows)),
+        "order_book_count": int(len(order_book_rows)),
         "source": str(cfg.source or "live_public"),
     }
-    if not (funding_rows or basis_rows or quote_rows):
+    if not (funding_rows or open_interest_rows or basis_rows or quote_rows or order_book_rows):
         return out
 
     store = CryptoEdgeStoreSQLite(path=str(cfg.db_path or ""))
     out["store_path"] = "redacted"
     if funding_rows:
         out["funding_snapshot_id"] = store.append_funding_rows(funding_rows, source=out["source"])
+    if open_interest_rows:
+        out["open_interest_snapshot_id"] = store.append_open_interest_rows(open_interest_rows, source=out["source"])
     if basis_rows:
         out["basis_snapshot_id"] = store.append_basis_rows(basis_rows, source=out["source"])
     if quote_rows:
         out["quote_snapshot_id"] = store.append_quote_rows(quote_rows, source=out["source"])
+    if order_book_rows:
+        out["order_book_snapshot_id"] = store.append_order_book_rows(order_book_rows, source=out["source"])
     out["report"] = store.latest_report_for_source(source=out["source"]) or store.latest_report()
     out["ok"] = True
     out["reason"] = "collected"
