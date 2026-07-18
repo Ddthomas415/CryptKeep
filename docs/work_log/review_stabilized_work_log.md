@@ -23361,3 +23361,50 @@ Remaining risk:
   separately reviewed context walk-forward is required before any persistent
   `funding_extreme` campaign decision.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T21:50:00Z - Funding Context Replay Host Proof Recorded
+
+Active role: ENGINEER
+
+Objective:
+- Record the Hetzner host proof for the read-only `funding_extreme` context
+  replay after PR #349 merged.
+
+What was found:
+- SHOWN: PR #349 merged into `master` as
+  `5bfece3267987fab35f669958204793beac84300`.
+- SHOWN: Hetzner `/srv/cryptkeep/app` was fast-forwarded to that commit.
+- SHOWN: running the replay as `cryptkeep` failed before replay logic because
+  imports tried to open `/var/lib/cbp/runtime/logs/app.log`; rerunning as the
+  `cbp` service user that owns the runtime state succeeded.
+
+What changed:
+- Added `docs/checkpoints/funding_context_replay_host_proof_2026_07_18.md`.
+- Updated `REMAINING_TASKS.md` to link the proof from item #12.
+
+Why this change:
+- The replay output is an operational research artifact and should be durable
+  in the repository rather than buried in terminal output.
+
+Expected outcome:
+- Future `funding_extreme` decisions can distinguish what has been shown
+  (stored funding context drives deterministic neutral/hold signal replay)
+  from what remains unshown (price-joined PnL/expectancy).
+
+Verification:
+- `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/research/run_funding_context_replay.py --limit 50 --min-rows 1 --output /var/lib/cbp/data/funding_context_replay/funding_context_replay.latest.json`
+  - SHOWN on Hetzner as `cbp`: `ok=true`, `row_count=16`,
+    `action_counts={"hold": 16}`, `reason_counts={"funding_neutral": 16}`,
+    dataset hash
+    `84eda056e7db868e01b44fcc7bc05322cfa37675ae14d1035212f588b6f54b9c`.
+- `make status-hetzner-edge-runtime HETZNER_STATUS_TIMEOUT_SEC=20 HETZNER_EDGE_EXPECTED_COMMIT=5bfece326`
+  - SHOWN: `ok=True`, `blocking_checks=0`.
+- `CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json`
+  - SHOWN: `ok=true`, `missing=[]`, `stale=[]`.
+- `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30`
+  - SHOWN: `ema_cross_default` running/idle and waiting for the next UTC day.
+
+Remaining risk:
+- This is still signal-distribution evidence only, not PnL, expectancy,
+  promotion, or campaign-start evidence.
+- Acceptance state: `ACCEPTED_WITH_RISK`.
