@@ -22728,3 +22728,70 @@ Remaining risk:
 - UNVERIFIED: GitHub CI and host-side evidence that a real unreachable provider
   writes `blocked` and later recovers after preflight success.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T06:48:00Z - Guarded Recovery for Alive Unhealthy Paper Collectors
+
+Active role: ENGINEER
+
+Objective:
+- Close the operator recovery gap where `restore_paper_campaigns.py --restore`
+  skips alive collectors even when they are parked in an unhealthy
+  `no_public_ohlcv` state from a pre-merge or manually started parent.
+
+What was found:
+- SHOWN: local laptop status reported both configured collectors as
+  `running=true` but `ok=false`, `status=failed`, `reason=no_public_ohlcv`,
+  with exhausted daily retry budgets.
+- SHOWN: current read-only OHLCV preflight for canonical
+  `coinbase BTC/USDT public_ohlcv_1d` returned `ok=true`, `row_count=300`
+  with a 400-row probe.
+- SHOWN: existing restore logic deliberately left any live collector unchanged,
+  so it could not recover an alive unhealthy parent without manual stop/PID
+  handling.
+
+What changed:
+- Added opt-in `--restart-unhealthy` to `scripts/restore_paper_campaigns.py`.
+- The flag is refused unless paired with `--restore --preflight-ohlcv`.
+- For alive unhealthy collectors, recovery preflights the configured
+  venue/symbol/source before stop/start; preflight failure returns
+  `preflight_blocked` before any stop action.
+- If preflight passes, recovery requests the state-dir-specific collector stop,
+  then sends SIGTERM only to the exact recorded collector PID if the graceful
+  stop does not clear promptly.
+- Plain `--restore` remains unchanged and still leaves live collectors alone.
+- Added `make recover-paper-campaigns` as the guarded operator shortcut.
+- Updated `docs/PAPER_CAMPAIGN_RECOVERY.md`, `scripts/SCRIPTS.md`,
+  `REMAINING_TASKS.md`, and Makefile script-index help.
+
+Why this change was chosen:
+- It fixes the current operational failure mode without broad `pkill` patterns
+  or manual PID archaeology.
+- It keeps the data-source guard ahead of process replacement, so known OHLCV
+  outages cannot consume a manual recovery attempt.
+
+Expected outcome:
+- Operators can replace pre-merge alive-failed paper collectors with current
+  blocked-state-aware parents when the configured OHLCV source is reachable.
+- Healthy live collectors remain untouched.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `25 passed in 0.22s`.
+- `./.venv/bin/python -m py_compile services/analytics/paper_campaign_recovery.py scripts/restore_paper_campaigns.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py tests/test_ohlcv_preflight.py tests/test_report_supervised_soak_status.py tests/test_script_path_references_exist.py tests/test_makefile_wiring.py`
+  - SHOWN: `46 passed in 0.50s`.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: paper campaign process recovery can stop and restart paper-only
+  background collectors when explicitly requested. No live execution,
+  order-routing, risk-cap, or promotion-gate logic changes.
+- UNVERIFIED: GitHub CI and real host-side guarded recovery against the
+  currently parked laptop collectors.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

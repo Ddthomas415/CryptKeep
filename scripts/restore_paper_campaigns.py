@@ -41,6 +41,17 @@ def main(argv: list[str] | None = None) -> int:
         help="Before --restore starts a dead collector, verify its configured public-OHLCV source is reachable",
     )
     ap.add_argument(
+        "--restart-unhealthy",
+        action="store_true",
+        help="With --restore --preflight-ohlcv, stop and replace alive unhealthy collectors after preflight passes",
+    )
+    ap.add_argument(
+        "--restart-wait-sec",
+        type=float,
+        default=5.0,
+        help="Seconds to wait after requesting an unhealthy collector stop before sending SIGTERM",
+    )
+    ap.add_argument(
         "--ohlcv-preflight-probe-limit",
         type=int,
         default=400,
@@ -59,6 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         help="Delay between --preflight-ohlcv attempts",
     )
     args = ap.parse_args(argv)
+    if args.restart_unhealthy and (not args.restore or not args.preflight_ohlcv):
+        ap.error("--restart-unhealthy requires --restore --preflight-ohlcv")
 
     try:
         specs = load_campaign_specs(args.config, repo_root=ROOT)
@@ -66,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
             specs,
             restore=bool(args.restore),
             selected_names=args.campaign,
+            restart_unhealthy=bool(args.restart_unhealthy),
+            restart_wait_sec=float(args.restart_wait_sec),
             preflight_ohlcv=bool(args.restore and args.preflight_ohlcv),
             preflight_probe_limit=args.ohlcv_preflight_probe_limit,
             preflight_attempts=args.ohlcv_preflight_attempts,

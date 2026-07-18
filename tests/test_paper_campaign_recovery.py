@@ -219,6 +219,64 @@ def test_restore_campaign_does_not_duplicate_running_collector(tmp_path: Path) -
     assert calls[0][-1] == "--status"
 
 
+def test_restore_campaign_refuses_unhealthy_restart_without_preflight(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def _run(command, **kwargs):
+        calls.append(list(command))
+        return _completed(
+            {
+                "ok": False,
+                "status": "failed",
+                "reason": "no_public_ohlcv",
+                "pid": 123,
+                "pid_alive": True,
+            }
+        )
+
+    out = recovery.restore_campaign(_spec(tmp_path), run_command=_run, restart_unhealthy=True)
+
+    assert out["ok"] is False
+    assert out["action"] == "restart_blocked"
+    assert out["reason"] == "restart_unhealthy_requires_ohlcv_preflight"
+    assert len(calls) == 1
+    assert calls[0][-1] == "--status"
+
+
+def test_restore_campaign_preflight_blocks_unhealthy_restart_before_stop(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def _run(command, **kwargs):
+        calls.append(list(command))
+        return _completed(
+            {
+                "ok": False,
+                "status": "failed",
+                "reason": "no_public_ohlcv",
+                "pid": 123,
+                "pid_alive": True,
+            }
+        )
+
+    out = recovery.restore_campaign(
+        _spec(tmp_path),
+        run_command=_run,
+        restart_unhealthy=True,
+        preflight_ohlcv=True,
+        preflight_check=lambda **kwargs: {
+            "ok": False,
+            "status": "ohlcv_source_unreachable",
+            "reason": "fetch_failed",
+        },
+    )
+
+    assert out["ok"] is False
+    assert out["action"] == "preflight_blocked"
+    assert out["reason"] == "ohlcv_source_unreachable"
+    assert len(calls) == 1
+    assert calls[0][-1] == "--status"
+
+
 def test_restore_campaign_starts_dead_collector_and_verifies_status(tmp_path: Path) -> None:
     calls: list[tuple[list[str], dict]] = []
     results = iter(
@@ -327,6 +385,54 @@ def test_restore_campaign_preflight_pass_allows_launch(tmp_path: Path) -> None:
         "attempts": 3,
         "attempt_delay_sec": 2.0,
     }
+
+
+def test_restore_campaign_preflight_can_restart_alive_unhealthy_collector(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+    killed: list[tuple[int, int]] = []
+    results = iter(
+        [
+            _completed(
+                {
+                    "ok": False,
+                    "status": "failed",
+                    "reason": "no_public_ohlcv",
+                    "pid": 123,
+                    "pid_alive": True,
+                }
+            ),
+            _completed({"ok": True, "status": "stopping", "pid": 123, "pid_alive": True}),
+            _completed({"ok": False, "status": "failed", "pid": 123, "pid_alive": True}),
+            _completed({"ok": True, "status": "idle", "pid": 123, "pid_alive": False}),
+            _completed({"ok": True, "status": "idle", "pid": 123, "pid_alive": False}),
+            _completed({"ok": True, "status": "starting", "reason": "detached_started", "pid": 456}),
+            _completed({"ok": True, "status": "idle", "pid": 456, "pid_alive": True}),
+        ]
+    )
+
+    def _run(command, **kwargs):
+        calls.append(list(command))
+        return next(results)
+
+    out = recovery.restore_campaign(
+        _spec(tmp_path),
+        run_command=_run,
+        restart_unhealthy=True,
+        restart_wait_sec=0.0,
+        kill_pid=lambda pid, sig: killed.append((pid, sig)),
+        preflight_ohlcv=True,
+        preflight_check=lambda **kwargs: {"ok": True, "status": "ok", "row_count": 400},
+    )
+
+    assert out["ok"] is True
+    assert out["action"] == "started"
+    assert out["pid"] == 456
+    assert out["ohlcv_preflight"]["status"] == "ok"
+    assert killed == [(123, recovery.signal.SIGTERM)]
+    assert calls[0][-1] == "--status"
+    assert calls[1][-1] == "--stop"
+    assert "--daily-loop" in calls[-2]
+    assert "--detach" in calls[-2]
 
 
 def test_manage_campaigns_rejects_unknown_selection(tmp_path: Path) -> None:

@@ -125,6 +125,14 @@ deployment work still needs independent review.
    logging a failed session attempt. A later successful preflight allows the
    loop to proceed normally. Campaign alerts now include transition-deduped
    warning-level `blocked` notifications.
+   2026-07-18 follow-up implementation proof is ready for independent review:
+   `restore_paper_campaigns.py --restore --preflight-ohlcv --restart-unhealthy`
+   can replace alive unhealthy paper collectors only after their configured
+   OHLCV source preflight passes. Plain `--restore` still leaves live
+   collectors unchanged, `--restart-unhealthy` is refused unless preflight is
+   enabled, and preflight failure blocks before any stop/start action. Added
+   `make recover-paper-campaigns` as the guarded operator shortcut for
+   pre-merge or manually started parents parked after `no_public_ohlcv`.
 2. After the paper gate reaches 10 qualified round trips, write the manual
    strategy performance decision against the accepted baseline. Before relying
    on the expectancy/manual-review gate, populate or explicitly waive the
