@@ -23302,3 +23302,62 @@ Remaining risk:
 - It does not authorize live trading, live routing, derivatives execution, or
   crypto-edge paper qualification.
 - Acceptance state: `ACCEPTED_WITH_RISK`.
+
+## 2026-07-18T22:10:00Z - Funding Extreme Context Signal Replay (Active Backlog #12)
+
+Active role: ENGINEER
+
+Objective:
+- Add the smallest research-only artifact path that turns stored OKX funding
+  snapshots into deterministic `funding_extreme` signal evidence, without
+  pretending to measure PnL or expectancy.
+
+What was found:
+- SHOWN: `funding_extreme` Stage 0 wiring proof is accepted and crypto-edge
+  paper qualification is accepted with risk.
+- SHOWN: Hetzner crypto-edge collection/cadence is running and green after the
+  OKX persistence fix.
+- SHOWN: existing archive-backed walk-forward and parameter-sweep tooling is
+  OHLCV-only; it calls the parity backtest path without per-bar crypto-edge
+  context, so it cannot honestly compute `funding_extreme` expectancy.
+
+What changed:
+- Added `services/analytics/funding_context_replay.py`, a read-only
+  signal-distribution replay over stored `funding_snapshots`.
+- Added `scripts/research/run_funding_context_replay.py` and
+  `make funding-context-replay` for operator/host runs.
+- Added tests proving deterministic dataset hashes, action/reason counts,
+  insufficient-history handling, unsupported-strategy refusal, CLI artifact
+  writing, and `--fail-if-not-ok` exit behavior.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change:
+- It advances `funding_extreme` from "wired and collecting data" to
+  "stored context can produce reproducible signal artifacts" while preserving
+  the key boundary: this is not PnL, expectancy, campaign, or promotion
+  evidence.
+
+Expected outcome:
+- Operators can run the replay against the host crypto-edge store to see
+  whether collected funding history is producing actionable funding-extreme
+  signals before investing in a price-joined context walk-forward.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_context_replay.py`
+  - SHOWN: `5 passed in 0.13s`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_context_replay.py tests/test_strategy_registry.py tests/test_crypto_edge_context.py tests/test_crypto_edge_collector_service.py tests/test_collect_live_crypto_edge_snapshot.py`
+  - SHOWN: `29 passed in 0.47s`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_context_replay.py scripts/research/run_funding_context_replay.py tests/test_funding_context_replay.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `make funding-context-replay FUNDING_CONTEXT_REPLAY_ARGS="--edge-db /tmp/cbp-empty-funding-replay.sqlite --limit 5"`
+  - SHOWN: command exits 0 and reports `ok=false`,
+    `reason=insufficient_funding_rows` on an empty store without crashing.
+
+Remaining risk:
+- MEDIUM: research analytics only, no live execution/risk/gate behavior.
+- Remaining research blocker: no price-path join and no PnL/expectancy; a
+  separately reviewed context walk-forward is required before any persistent
+  `funding_extreme` campaign decision.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

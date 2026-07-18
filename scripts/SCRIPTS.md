@@ -205,6 +205,10 @@ decision makes them authoritative.
   metrics, requires stored subsequent price path before fill-probability
   conclusions, and never changes routing, order type, or paper campaign
   behavior.
+- `research/run_funding_context_replay.py` — read-only `funding_extreme`
+  signal-distribution replay over stored crypto-edge funding snapshots; writes
+  dataset-hashed JSON artifacts only and does not compute PnL, expectancy, or
+  promotion evidence. Use `make funding-context-replay`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

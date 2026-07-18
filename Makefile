@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -351,6 +351,10 @@ funding-stage0-baseline:
 funding-stage0-verify:
 	$(PYTHON) scripts/verify_funding_stage0_proof.py $(FUNDING_STAGE0_ARGS)
 
+FUNDING_CONTEXT_REPLAY_ARGS ?=
+funding-context-replay:
+	$(PYTHON) scripts/research/run_funding_context_replay.py $(FUNDING_CONTEXT_REPLAY_ARGS)
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -384,6 +388,7 @@ script-index:
 	@echo "  make funding-stage0-readiness  — check funding_extreme Stage 0 readiness"
 	@echo "  make funding-stage0-baseline   — record baseline before funding_extreme Stage 0"
 	@echo "  make funding-stage0-verify     — verify funding_extreme Stage 0 after proof"
+	@echo "  make funding-context-replay    — replay stored funding_extreme context signals"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
