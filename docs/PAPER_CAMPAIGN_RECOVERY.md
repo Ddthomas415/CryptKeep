@@ -165,6 +165,11 @@ evidence validity.
 If a pre-merge or manually started parent has already parked after exhausting
 attempts, use guarded recovery (`make recover-paper-campaigns`) so it is
 replaced only after the configured OHLCV source is reachable.
+When that recovery preflight passes, the replacement launch preserves same-day
+failure history but grants exactly one fresh same-day recovery attempt by
+raising the launch attempt limit to `previous_daily_attempts + 1`. The command
+reports this under `recovery_attempt_override`; it does not erase or rewrite
+historical session evidence.
 
 ## Current Campaigns
 

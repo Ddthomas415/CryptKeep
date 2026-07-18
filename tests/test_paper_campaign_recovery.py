@@ -387,6 +387,90 @@ def test_restore_campaign_preflight_pass_allows_launch(tmp_path: Path) -> None:
     }
 
 
+def test_restore_campaign_preflight_grants_one_recovery_attempt_after_exhaustion(
+    tmp_path: Path,
+) -> None:
+    calls: list[list[str]] = []
+    results = iter(
+        [
+            _completed(
+                {
+                    "ok": False,
+                    "status": "failed",
+                    "reason": "daily_retry_limit_exhausted",
+                    "daily_attempts": 5,
+                    "max_daily_attempts": 2,
+                    "pid": 10,
+                    "pid_alive": False,
+                }
+            ),
+            _completed({"ok": True, "status": "idle", "reason": "detached_started", "pid": 20}),
+            _completed({"ok": True, "status": "running", "pid": 20, "pid_alive": True}),
+        ]
+    )
+
+    def _run(command, **kwargs):
+        calls.append(list(command))
+        return next(results)
+
+    out = recovery.restore_campaign(
+        _spec(tmp_path),
+        run_command=_run,
+        preflight_ohlcv=True,
+        preflight_check=lambda **kwargs: {"ok": True, "status": "ok", "row_count": 300},
+    )
+
+    assert out["ok"] is True
+    assert out["action"] == "started"
+    assert out["recovery_attempt_override"] == {
+        "reason": "same_day_recovery_after_ohlcv_preflight",
+        "previous_daily_attempts": 5,
+        "configured_max_daily_attempts": 2,
+        "launch_max_daily_attempts": 6,
+    }
+    launch = calls[1]
+    assert launch[launch.index("--max-daily-attempts") + 1] == "6"
+
+
+def test_restore_campaign_preflight_does_not_override_non_ohlcv_failure(
+    tmp_path: Path,
+) -> None:
+    calls: list[list[str]] = []
+    results = iter(
+        [
+            _completed(
+                {
+                    "ok": False,
+                    "status": "failed",
+                    "reason": "strategy_error",
+                    "daily_attempts": 5,
+                    "max_daily_attempts": 2,
+                    "pid": 10,
+                    "pid_alive": False,
+                }
+            ),
+            _completed({"ok": True, "status": "idle", "reason": "detached_started", "pid": 20}),
+            _completed({"ok": True, "status": "running", "pid": 20, "pid_alive": True}),
+        ]
+    )
+
+    def _run(command, **kwargs):
+        calls.append(list(command))
+        return next(results)
+
+    out = recovery.restore_campaign(
+        _spec(tmp_path),
+        run_command=_run,
+        preflight_ohlcv=True,
+        preflight_check=lambda **kwargs: {"ok": True, "status": "ok", "row_count": 300},
+    )
+
+    assert out["ok"] is True
+    assert "recovery_attempt_override" not in out
+    launch = calls[1]
+    assert launch[launch.index("--max-daily-attempts") + 1] == "2"
+
+
 def test_restore_campaign_preflight_can_restart_alive_unhealthy_collector(tmp_path: Path) -> None:
     calls: list[list[str]] = []
     killed: list[tuple[int, int]] = []

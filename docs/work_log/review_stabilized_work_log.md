@@ -22795,3 +22795,74 @@ Remaining risk:
 - UNVERIFIED: GitHub CI and real host-side guarded recovery against the
   currently parked laptop collectors.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T07:03:29Z - Same-Day Attempt Override for Guarded Paper Recovery
+
+Active role: ENGINEER
+
+Objective:
+- Fix the follow-up recovery failure found by running accepted guarded recovery
+  against the live laptop state: OHLCV preflight passed outside the sandbox, old
+  unhealthy collector PIDs were replaced, but the replacements immediately
+  parked at `daily_retry_limit_exhausted`.
+
+What was found:
+- SHOWN: sandboxed recovery preflight failed closed before stop/start with
+  `ohlcv_source_unreachable` for both laptop campaigns.
+- SHOWN: escalated recovery reached Coinbase, preflight passed for both
+  configured sources (`public_ohlcv_1d` row_count=300,
+  `public_ohlcv_5m` row_count=266), stopped/replaced the old paper-only
+  collectors, then both replacement collectors immediately reported
+  `reason=daily_retry_limit_exhausted`.
+- SHOWN: `run_paper_strategy_evidence_collector.py::_run_daily_loop()` derives
+  `failed_attempts` from persisted same-day session evidence, not just the
+  current process status. Restarting a collector after a prior `no_public_ohlcv`
+  day therefore preserves the exhausted count and can park before a fresh
+  attempt.
+
+What changed:
+- `restore_campaign()` now computes a bounded same-day recovery override after
+  successful OHLCV preflight when the prior status is an OHLCV/daily-limit
+  failure and persisted attempts are already at or above the configured daily
+  limit.
+- The recovery launch preserves historical evidence but starts the replacement
+  collector with `--max-daily-attempts previous_daily_attempts + 1`, allowing
+  exactly one fresh same-day attempt for the explicit recovery run.
+- The restore payload reports the decision under `recovery_attempt_override`.
+- Non-OHLCV failures do not receive the override.
+- Updated `REMAINING_TASKS.md` and `docs/PAPER_CAMPAIGN_RECOVERY.md` with the
+  operator-visible behavior.
+
+Why this change was chosen:
+- Deleting or rewriting same-day evidence would hide real history.
+- Leaving the retry limit unchanged makes guarded recovery ineffective after
+  exactly the outage it is meant to recover from.
+- Raising the launch limit by one is bounded, explicit, and visible in the
+  recovery artifact.
+
+Expected outcome:
+- After a verified-reachable OHLCV source, `make recover-paper-campaigns` can
+  replace stale failed parents and give the new collector one fresh attempt
+  without masking prior failed evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `27 passed in 0.21s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py tests/test_ohlcv_preflight.py tests/test_report_supervised_soak_status.py tests/test_script_path_references_exist.py tests/test_makefile_wiring.py`
+  - SHOWN: `48 passed in 0.49s`.
+- `./.venv/bin/python -m py_compile services/analytics/paper_campaign_recovery.py scripts/restore_paper_campaigns.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: paper campaign process recovery can stop and restart paper-only
+  background collectors when explicitly requested. No live execution,
+  order-routing, risk-cap, or promotion-gate logic changes.
+- UNVERIFIED: GitHub CI and live laptop rerun of `make recover-paper-campaigns`
+  after this follow-up lands.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
