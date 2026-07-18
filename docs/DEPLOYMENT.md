@@ -20,7 +20,10 @@ env template.
 
 | Unit | Entry point | Run policy |
 | --- | --- | --- |
-| `cbp-collector.service` | `scripts/collect_market_data_multi.py` (loop mode) | enable on data hosts |
+| `cbp-collector.service` | `scripts/collect_market_data_multi.py` (loop mode) | enable on market-data hosts |
+| `cbp-crypto-edge-collector.service` | `scripts/data/run_crypto_edge_collector_loop.py` | enable only after the accepted OKX collector plan and checkout are verified |
+| `cbp-edge-cadence.timer` | `scripts/check_edge_cadence.py --alert` | enable after crypto-edge collection is scheduled; alert-only cadence dead-man |
+| `cbp-dead-man.timer` | `scripts/check_dead_man.py --alert` | enable on hosts with required trading loops; alert-only heartbeat dead-man |
 | `cbp-reconciler.service` | `scripts/run_live_reconciler_safe.py` | safe to enable always; recovery must run even when trading is halted |
 | `cbp-intent-consumer.service` | `scripts/run_intent_consumer_safe.py` | enable only on the trading host; it still submits nothing unless armed via the ceremony |
 | `cbp-dashboard.service` | `scripts/run_dashboard.py` | operator visibility; bind per host policy |
@@ -44,6 +47,8 @@ python scripts/install_systemd_units.py            # static + systemd-analyze ve
 sudo python scripts/install_systemd_units.py --apply
 sudo systemctl daemon-reload
 sudo systemctl enable --now cbp-collector cbp-reconciler cbp-dashboard
+# read-only research plane, only after accepted plan/checkout preflight:
+sudo systemctl enable --now cbp-crypto-edge-collector cbp-edge-cadence.timer
 # cbp-intent-consumer: enable deliberately, per the run policy above
 ```
 
@@ -63,8 +68,8 @@ sudo systemctl enable --now cbp-collector cbp-reconciler cbp-dashboard
 
 ## Known boundaries
 
-- No watchdog/dead-man integration yet — that is the separate
-  "trading-loop heartbeat metrics and dead-man alerting" substrate item;
-  these units restart crashes but do not detect silent hangs.
+- Dead-man and crypto-edge cadence timers are alert-only. They page through the
+  alert stack but do not auto-stop trading loops, change deployment stage, or
+  start collectors.
 - The dashboard unit does not manage TLS/reverse proxy; front it per host
   policy.

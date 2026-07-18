@@ -519,6 +519,15 @@ deployment work still needs independent review.
     does not deploy, start, stop, or mutate collectors; remaining proof is still
     operational: reviewed host sync/deploy, then enabling the accepted read-only
     collector/cadence schedule and showing recent OKX snapshot timestamps.
+    2026-07-18 repo-side scheduler follow-up is ready for independent review:
+    `packaging/systemd/cbp-crypto-edge-collector.service` adds the missing
+    read-only collector loop service for the accepted OKX plan,
+    `scripts/install_systemd_units.py` now verifies/installs all shipped
+    long-running, oneshot, and timer units, and
+    `report_hetzner_crypto_edge_runtime_status.py` accepts either system-level
+    or user-level systemd evidence for collector/cadence schedules. No host
+    unit was installed, enabled, started, or stopped by this patch; host-side
+    operational proof remains open.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.

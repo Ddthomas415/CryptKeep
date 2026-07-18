@@ -15,12 +15,22 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 UNIT_DIR = REPO / "packaging" / "systemd"
-UNITS = (
+LONG_RUNNING_SERVICE_UNITS = (
     "cbp-collector.service",
+    "cbp-crypto-edge-collector.service",
     "cbp-intent-consumer.service",
     "cbp-reconciler.service",
     "cbp-dashboard.service",
 )
+ONESHOT_SERVICE_UNITS = (
+    "cbp-dead-man.service",
+    "cbp-edge-cadence.service",
+)
+TIMER_UNITS = (
+    "cbp-dead-man.timer",
+    "cbp-edge-cadence.timer",
+)
+UNITS = LONG_RUNNING_SERVICE_UNITS + ONESHOT_SERVICE_UNITS + TIMER_UNITS
 FORBIDDEN = ("CBP_EXECUTION_ARMED", "CBP_LIVE_ENABLED")
 
 
@@ -36,7 +46,7 @@ def _parse_unit(text: str) -> dict[str, list[str]]:
     return out
 
 
-def test_all_four_units_exist():
+def test_all_shipped_units_exist():
     for name in UNITS:
         assert (UNIT_DIR / name).exists(), name
 
@@ -65,7 +75,7 @@ def test_env_example_exists_and_carries_no_arming_assignment():
 
 
 def test_units_supervision_and_hardening_directives():
-    for name in UNITS:
+    for name in LONG_RUNNING_SERVICE_UNITS:
         parsed = _parse_unit((UNIT_DIR / name).read_text(encoding="utf-8"))
         assert parsed.get("Restart") == ["on-failure"], name
         assert parsed.get("RestartSec") == ["5"], name
@@ -80,8 +90,35 @@ def test_units_supervision_and_hardening_directives():
         assert parsed.get("After") == ["network-online.target"], name
 
 
+def test_oneshot_units_are_hardened_and_timer_driven():
+    for name in ONESHOT_SERVICE_UNITS:
+        parsed = _parse_unit((UNIT_DIR / name).read_text(encoding="utf-8"))
+        assert parsed.get("Type") == ["oneshot"], name
+        assert parsed.get("User") == ["cbp"], name
+        assert parsed.get("Group") == ["cbp"], name
+        assert parsed.get("NoNewPrivileges") == ["true"], name
+        assert parsed.get("ProtectSystem") == ["strict"], name
+        assert parsed.get("ReadWritePaths") == ["/var/lib/cbp"], name
+        assert "EnvironmentFile" in parsed, name
+
+    for name in TIMER_UNITS:
+        parsed = _parse_unit((UNIT_DIR / name).read_text(encoding="utf-8"))
+        assert "OnUnitActiveSec" in parsed, name
+        assert parsed.get("WantedBy") == ["timers.target"], name
+
+
+def test_crypto_edge_collector_unit_is_read_only_research_path():
+    text = (UNIT_DIR / "cbp-crypto-edge-collector.service").read_text(encoding="utf-8")
+    assert "run_crypto_edge_collector_loop.py" in text
+    assert "sample_data/crypto_edges/live_collector_plan.json" in text
+    assert "--source live_public" in text
+    assert "CBP_EXECUTION_ARMED" not in "\n".join(
+        line for line in text.splitlines() if not line.strip().startswith("#")
+    )
+
+
 def test_exec_start_scripts_exist_in_repo():
-    for name in UNITS:
+    for name in LONG_RUNNING_SERVICE_UNITS + ONESHOT_SERVICE_UNITS:
         parsed = _parse_unit((UNIT_DIR / name).read_text(encoding="utf-8"))
         execs = parsed.get("ExecStart") or []
         assert len(execs) == 1, name
@@ -111,7 +148,7 @@ def test_install_helper_fails_on_arming_token(tmp_path, monkeypatch):
         importlib.reload(mod)
         bad_dir = tmp_path / "systemd"
         bad_dir.mkdir()
-        for name in UNITS:
+        for name in LONG_RUNNING_SERVICE_UNITS:
             text = (UNIT_DIR / name).read_text(encoding="utf-8")
             if name == "cbp-intent-consumer.service":
                 text = text.replace(
@@ -119,6 +156,11 @@ def test_install_helper_fails_on_arming_token(tmp_path, monkeypatch):
                     "EnvironmentFile=/etc/cbp/cbp.env\nEnvironment=CBP_EXECUTION_ARMED=1",
                 )
             (bad_dir / name).write_text(text, encoding="utf-8")
+        for name in ONESHOT_SERVICE_UNITS + TIMER_UNITS:
+            (bad_dir / name).write_text(
+                (UNIT_DIR / name).read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
         (bad_dir / "cbp.env.example").write_text(
             (UNIT_DIR / "cbp.env.example").read_text(encoding="utf-8"), encoding="utf-8"
         )
