@@ -22535,3 +22535,74 @@ Remaining risk:
   runtime behavior in this branch.
 - Implementation remains unauthorized until the RFC is reviewed and accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T05:28:41Z - Configurable Paper Promotion Gate Policies
+
+Active role: ENGINEER
+
+Objective:
+- Implement the accepted paper-promotion-gate RFC as a legacy-compatible gate
+  policy layer.
+- Preserve the current `es_daily_trend_v1` default behavior unless a strategy
+  explicitly opts into a non-legacy policy.
+
+What was found:
+- SHOWN: `services/control/paper_promotion_progress.py` and
+  `scripts/check_promotion_gates.py` still used the global 30-day/10-round-trip
+  thresholds directly.
+- SHOWN: `qualify_paper_history()` counted all evidence fills against the same
+  provenance window; there was no read-time `cohort_start` exclusion.
+- SHOWN: no existing gate counted unique source bars separately from loop
+  iterations.
+
+What changed:
+- Added `services/control/paper_promotion_policy.py`.
+- Added policy resolution for `legacy_round_trip_v1`,
+  `slow_daily_single_symbol_v1`, `intraday_single_symbol_v1`, and
+  `context_edge_v1`.
+- The default policy remains `legacy_round_trip_v1` and preserves the existing
+  30-day/10-round-trip thresholds and exact legacy `paper_progress` shape.
+- Explicit strategy-class policies cannot lower thresholds below their class
+  floors; invalid policies surface as blocking gate/policy state.
+- Added read-time `cohort_start` filtering to qualification. Older evidence
+  remains preserved and reportable, but cannot count toward the new cohort.
+- Added unique provenance-qualified source-bar counting for explicit policies
+  that require bars. Slow daily policies may derive one source bar per UTC
+  signal date when legacy daily signal records lack an explicit bar timestamp;
+  intraday policies require explicit bar timestamps.
+- Updated qualification reporting to show `excluded_before_cohort` rows instead
+  of hiding them.
+
+Why this change was chosen:
+- The accepted RFC separates paper operational validation from statistical
+  archive/walk-forward proof while avoiding a one-off ES exception.
+- Read-time cohort filtering keeps historical evidence auditable without
+  letting pre-policy records contaminate the new cohort.
+- Counting unique source bars closes the runner-loop gaming path.
+
+Expected outcome:
+- Current campaigns continue under the legacy gate until a reviewed config
+  change selects another policy.
+- Future slow daily or context-edge strategies can use policy-class thresholds
+  with explicit cohort and bar evidence instead of a universal 10-round-trip
+  gate.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_promotion_policy.py`
+  - SHOWN: `6 passed in 0.11s`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_paper_gate_qualification_report.py tests/test_check_promotion_gates.py tests/test_report_supervised_soak_status.py`
+  - SHOWN: `65 passed in 1.18s`.
+- `./.venv/bin/python -m py_compile services/control/paper_promotion_policy.py services/control/paper_evidence_qualification.py services/control/paper_promotion_progress.py services/control/paper_gate_qualification_report.py scripts/check_promotion_gates.py tests/test_paper_promotion_policy.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python -m ruff check ...`
+  - SHOWN: not run; local venv has no `ruff` module.
+
+Remaining risk:
+- HIGH: promotion-gate policy affects financial promotion logic. This branch
+  must receive independent review before merge or operational use.
+- UNVERIFIED: GitHub CI and host-side gate output after merge.
+- No current strategy config changed; adopting a non-legacy policy remains a
+  separate reviewed change.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

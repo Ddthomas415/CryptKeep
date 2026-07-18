@@ -86,6 +86,19 @@ deployment work still needs independent review.
    statistical edge proof. Current rule remains: do not weaken provenance, do
    not count legacy fills, and continue using the existing gate until the RFC is
    reviewed, approved, implemented, and validated.
+   2026-07-18 implementation proof is ready for independent review:
+   configurable paper promotion policies now resolve from
+   `promotion.paper.policy` with `legacy_round_trip_v1` as the default. The
+   default legacy gate preserves the existing 30-day/10-round-trip behavior and
+   exact `paper_progress` compatibility. Explicit strategy-class policies
+   cannot lower thresholds below their class floors; `cohort_start` is enforced
+   as read-time filtering so older evidence stays audit-visible but cannot
+   count toward the new cohort; and qualified-bar counting records unique
+   provenance-qualified source bars, not runner loop iterations. The first
+   implemented classes are `slow_daily_single_symbol_v1`,
+   `intraday_single_symbol_v1`, and `context_edge_v1`. No current strategy
+   config is changed in this patch; adopting a non-legacy policy still requires
+   a reviewed config change and fresh gate output.
    SEPARATE WORK ITEM - OHLCV source outage blocked-state and retry-budget
    protection: campaign validation must not depend on repeatedly exhausting
    daily attempts when the configured upstream market-data source is

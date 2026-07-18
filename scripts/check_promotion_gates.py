@@ -24,6 +24,7 @@ import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -31,6 +32,10 @@ import yaml
 
 from services.control.cognitive_budget import budget_summary
 from services.control.deployment_stage import Stage, get_current_stage, stage_summary
+from services.control.paper_promotion_policy import (
+    count_qualified_signal_bars,
+    resolve_paper_promotion_policy,
+)
 from services.control.promotion_thresholds import (
     ES_DAILY_TREND_STRATEGY_ID,
     PAPER_MIN_DAYS,
@@ -402,6 +407,9 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
             incomplete_fills = int(
                 qualification.get("incomplete_qualified_evidence_fills") or 0
             )
+            excluded_before_cohort = int(
+                qualification.get("excluded_before_cohort_evidence_fills") or 0
+            )
             clauses: list[str] = []
             excluded_trips = max(0, all_history_trips - trips)
             if excluded_trips:
@@ -420,6 +428,11 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
                 clauses.append(
                     f"{incomplete_fills} qualified JSONL {noun} not part of a "
                     "complete qualified round trip"
+                )
+            if excluded_before_cohort:
+                noun = "fill" if excluded_before_cohort == 1 else "fills"
+                clauses.append(
+                    f"{excluded_before_cohort} evidence {noun} excluded before cohort_start"
                 )
             first_qualified_ts = str(
                 qualification.get("first_provenance_qualified_fill_ts") or ""
@@ -484,18 +497,61 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
     }
 
 
-def _paper_progress_summary(paper_history: dict | None) -> dict:
+def _paper_progress_summary(
+    paper_history: dict | None,
+    *,
+    policy: Any | None = None,
+    bar_summary: dict | None = None,
+) -> dict:
     """Machine-readable paper threshold progress for alerts and dashboards."""
     history = dict(paper_history or {})
+    resolved_policy = policy or resolve_paper_promotion_policy({})
+    bars = dict(bar_summary or {})
     round_trips = int(history.get("closed_trades") or 0)
-    return {
+    out = {
         "source": str(history.get("source") or "paper_history"),
         "round_trips_recorded": round_trips,
-        "round_trips_required": PAPER_MIN_ROUND_TRIPS,
-        "round_trips_remaining": max(0, PAPER_MIN_ROUND_TRIPS - round_trips),
-        "round_trips_ready": round_trips >= PAPER_MIN_ROUND_TRIPS,
+        "round_trips_required": int(getattr(resolved_policy, "min_qualified_round_trips", PAPER_MIN_ROUND_TRIPS)),
+        "round_trips_remaining": max(
+            0,
+            int(getattr(resolved_policy, "min_qualified_round_trips", PAPER_MIN_ROUND_TRIPS))
+            - round_trips,
+        ),
+        "round_trips_ready": round_trips
+        >= int(getattr(resolved_policy, "min_qualified_round_trips", PAPER_MIN_ROUND_TRIPS)),
         "all_history_round_trips": int(history.get("all_history_closed_trades") or 0),
     }
+    policy_id = str(getattr(resolved_policy, "policy_id", ""))
+    should_extend = (
+        policy_id != "legacy_round_trip_v1"
+        or not bool(getattr(resolved_policy, "valid", True))
+        or bool(getattr(resolved_policy, "cohort_start", None))
+        or bool(bars.get("enabled"))
+    )
+    if should_extend:
+        out.update(
+            {
+                "policy_id": policy_id,
+                "policy_valid": bool(getattr(resolved_policy, "valid", True)),
+                "policy_invalid_reasons": list(
+                    getattr(resolved_policy, "invalid_reasons", ())
+                ),
+                "cohort_start": getattr(resolved_policy, "cohort_start", None),
+                "qualified_bars_recorded": int(
+                    bars.get("qualified_bars_recorded") or 0
+                ),
+                "qualified_bars_required": int(
+                    bars.get("qualified_bars_required") or 0
+                ),
+                "qualified_bars_remaining": int(
+                    bars.get("qualified_bars_remaining") or 0
+                ),
+                "qualified_bars_ready": bool(bars.get("qualified_bars_ready", True)),
+                "qualified_bars_enabled": bool(bars.get("enabled")),
+                "bar_count_source": str(bars.get("bar_count_source") or "none"),
+            }
+        )
+    return out
 
 
 def _weeks_at_stage(stage: Stage) -> float | None:
@@ -876,27 +932,51 @@ def _gate(label: str, passed: bool | None, detail: str = "", hint: str = "") -> 
     }
 
 
-def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
-                         fills: list, paper_history: dict | None = None) -> list[dict]:
+def evaluate_paper_gates(
+    evidence: dict,
+    sessions: list,
+    signals: list,
+    fills: list,
+    paper_history: dict | None = None,
+    cfg: dict | None = None,
+) -> list[dict]:
+    resolved_cfg = cfg
+    if resolved_cfg is None:
+        resolved_cfg = yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
+    policy = resolve_paper_promotion_policy(resolved_cfg or {})
+    bar_summary = count_qualified_signal_bars(
+        [dict(row) for row in list(signals or []) if isinstance(row, dict)],
+        config=resolved_cfg or {},
+    )
+    min_days = int(policy.min_calendar_days)
+    min_trips = int(policy.min_qualified_round_trips)
     days  = _days_of_operation(sessions)
     trade_metrics = _paper_gate_trade_metrics(fills, paper_history)
     trips = int(trade_metrics["round_trips"])
-    days_remaining = max(0, PAPER_MIN_DAYS - days)
-    trips_remaining = max(0, PAPER_MIN_ROUND_TRIPS - trips)
+    days_remaining = max(0, min_days - days)
+    trips_remaining = max(0, min_trips - trips)
     provenance = _promotion_provenance_summary(evidence)
     session_health = _latest_session_health(sessions)
-    kill_switch = _kill_switch_test_status(sessions, yaml.safe_load(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {})
+    kill_switch = _kill_switch_test_status(sessions, resolved_cfg or {})
     evidence_logs = _latest_evidence_log_presence(evidence)
 
-    gates = [
-        _gate("30 calendar days of operation",
-              days >= PAPER_MIN_DAYS if days > 0 else None,
-              f"{days}/{PAPER_MIN_DAYS} days recorded ({days_remaining} remaining)",
-              "run the paper runner daily" if days < PAPER_MIN_DAYS else ""),
-        _gate(f"{PAPER_MIN_ROUND_TRIPS}+ completed round trips",
-              trips >= PAPER_MIN_ROUND_TRIPS if trips > 0 else None,
-              f"{trade_metrics['round_trip_detail']} ({trips}/{PAPER_MIN_ROUND_TRIPS}, {trips_remaining} remaining)",
-              "continue running" if trips < PAPER_MIN_ROUND_TRIPS else ""),
+    gates = []
+    if policy.policy_id != "legacy_round_trip_v1" or not policy.valid:
+        gates.append(
+            _gate("Paper promotion policy valid",
+                  policy.valid,
+                  f"{policy.policy_id}: {', '.join(policy.invalid_reasons) if policy.invalid_reasons else 'valid'}",
+                  "fix promotion.paper.policy before promotion" if not policy.valid else "")
+        )
+    gates.extend([
+        _gate(f"{min_days} calendar days of operation",
+              days >= min_days if days > 0 else None,
+              f"{days}/{min_days} days recorded ({days_remaining} remaining)",
+              "run the paper runner daily" if days < min_days else ""),
+        _gate(f"{min_trips}+ completed round trips",
+              trips >= min_trips if trips > 0 else None,
+              f"{trade_metrics['round_trip_detail']} ({trips}/{min_trips}, {trips_remaining} remaining)",
+              "continue running" if trips < min_trips else ""),
         _gate("Expectancy within tolerable range of backtest",
               trade_metrics["expectancy_ok"],
               str(trade_metrics["expectancy_detail"]),
@@ -917,6 +997,24 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               provenance["ok"],
               _provenance_gate_detail(provenance),
               "collect fresh public-market evidence with provenance before promotion"),
+        *(
+            [
+                _gate(
+                    f"{int(bar_summary.get('qualified_bars_required') or 0)}+ qualified source bars",
+                    bool(bar_summary.get("qualified_bars_ready")),
+                    (
+                        f"{int(bar_summary.get('qualified_bars_recorded') or 0)}/"
+                        f"{int(bar_summary.get('qualified_bars_required') or 0)} "
+                        f"qualified source bars "
+                        f"({int(bar_summary.get('qualified_bars_remaining') or 0)} remaining; "
+                        f"source={bar_summary.get('bar_count_source')})"
+                    ),
+                    "continue collecting provenance-qualified source bars",
+                )
+            ]
+            if bool(bar_summary.get("enabled"))
+            else []
+        ),
         _gate("Daily loss halt tested in simulation",
               _halt_tested(sessions) if sessions else None,
               "halt test found" if _halt_tested(sessions) else "not found in session logs",
@@ -925,7 +1023,7 @@ def evaluate_paper_gates(evidence: dict, sessions: list, signals: list,
               _any_regime_block(signals) if signals else None,
               "regime block found in signal logs" if _any_regime_block(signals) else "no chop/high_vol block recorded",
               "wait for a chop/high-vol period, or simulate one"),
-    ]
+    ])
     return gates
 
 
@@ -1285,6 +1383,8 @@ def run_check(stage_override: str | None = None) -> dict:
     signals  = evidence["signal"]
     fills    = evidence["fill"]
     paper_history = _paper_history_gate_summary(cfg, fills)
+    paper_policy = resolve_paper_promotion_policy(cfg)
+    paper_bar_summary = count_qualified_signal_bars(signals, config=cfg)
     gate_evidence = evidence
     gate_sessions = sessions
     gate_fills = fills
@@ -1292,7 +1392,7 @@ def run_check(stage_override: str | None = None) -> dict:
 
     # Gate evaluation for current stage
     if stage == Stage.PAPER:
-        gates = evaluate_paper_gates(evidence, sessions, signals, fills, paper_history)
+        gates = evaluate_paper_gates(evidence, sessions, signals, fills, paper_history, cfg)
         evidence_scope = {
             "stage": stage.value,
             "current_stage": current_stage.value,
@@ -1390,7 +1490,11 @@ def run_check(stage_override: str | None = None) -> dict:
         "evidence_writer": evidence_writer,
         "paper_history": paper_history,
         "paper_progress": (
-            _paper_progress_summary(paper_history)
+            _paper_progress_summary(
+                paper_history,
+                policy=paper_policy,
+                bar_summary=paper_bar_summary,
+            )
             if stage == Stage.PAPER
             else None
         ),
