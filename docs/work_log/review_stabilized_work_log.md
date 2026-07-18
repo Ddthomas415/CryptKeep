@@ -22866,3 +22866,62 @@ Remaining risk:
 - UNVERIFIED: GitHub CI and live laptop rerun of `make recover-paper-campaigns`
   after this follow-up lands.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T07:28:45Z - Hetzner Crypto-Edge Runtime Gap Checkpoint
+
+Active role: AUDITOR
+
+Objective:
+- Verify whether the Hetzner host is already collecting crypto-edge history and
+  whether the accepted host-side cost/cadence proof tooling is available there.
+
+What was found:
+- SHOWN: after Tailscale SSH browser authentication, `make status-paper-hetzner`
+  reported `ema_cross_default` healthy: `1/1` running, `idle`,
+  `waiting_for_next_day`, `fills=8`, `closed=4`, `pnl=-2.2667`, latest fill
+  `2026-07-14T00:05:03.287310+00:00`, and session evidence recorded for
+  `2026-07-18`.
+- SHOWN: remote app checkout is stale relative to local master:
+  `HEAD=b86105b`, branch `review-stabilized...origin/review-stabilized`;
+  local master was `65d3ce125`.
+- SHOWN: remote app does not contain
+  `scripts/check_cost_assumptions.py`; attempting to run it returned
+  `can't open file '/srv/cryptkeep/app/scripts/check_cost_assumptions.py'`.
+- SHOWN: remote `scripts/data/run_crypto_edge_collector_loop.py --status`
+  reported `status=not_started`, `reason=status_missing`, `pid_alive=false`,
+  and `has_pid_file=false`.
+- SHOWN: a read-only scan of remote user systemd timers and crontab entries
+  found no matching scheduled `edge`/`crypto`/`collector`/`cbp` job.
+- SHOWN: remote `sample_data/crypto_edges/live_collector_plan.json` is still
+  Binance-based for funding/open-interest/basis, not the accepted OKX source
+  plan.
+
+What changed:
+- Added `docs/checkpoints/hetzner_crypto_edge_runtime_gap_2026_07_18.md`.
+- Linked that checkpoint from Active Backlog item 14.
+
+Why this change was chosen:
+- Starting the remote crypto-edge collector from the current host checkout
+  would use a stale Binance-oriented plan and stale tooling.
+- The safe forward path is a reviewed host sync/deploy to the accepted master
+  boundary and OKX plan, then the read-only cadence checker/timer proof.
+
+Expected outcome:
+- The host evidence gap is preserved as repo evidence instead of chat-only
+  output.
+- Operators do not accidentally start stale Binance collection while intending
+  to follow the accepted OKX source decision.
+
+Verification:
+- Read-only host commands above produced the SHOWN evidence.
+- `git diff --check`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/validate_script_paths.py`
+  - SHOWN: `OK: script paths validated`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+Remaining risk:
+- LOW: docs/checkpoint only. No runtime, host, scheduler, or campaign state was
+  changed by this branch.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
