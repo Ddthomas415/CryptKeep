@@ -87,6 +87,18 @@ The restore command:
    `run_paper_strategy_evidence_collector.py --daily-loop --detach`;
 4. checks status again and reports the replacement PID.
 
+If a collector is alive but unhealthy, for example parked after an older
+`no_public_ohlcv` failure, use guarded recovery instead:
+
+```bash
+make recover-paper-campaigns
+```
+
+This command is intentionally stricter than plain restore. It runs the
+public-OHLCV preflight first, then stops and replaces alive unhealthy
+collectors only if their configured data source is reachable. Healthy live
+collectors are still left unchanged.
+
 When recovering from a known or suspected exchange-data outage, add the
 read-only OHLCV guard:
 
@@ -94,6 +106,7 @@ read-only OHLCV guard:
 ./.venv/bin/python scripts/restore_paper_campaigns.py \
   --restore \
   --preflight-ohlcv \
+  --restart-unhealthy \
   --ohlcv-preflight-probe-limit 400 \
   --ohlcv-preflight-attempts 3 \
   --ohlcv-preflight-attempt-delay-sec 2
@@ -103,6 +116,9 @@ With this flag, restore checks each dead collector's configured
 `venue`/`symbol`/`signal_source` before launching it. If the public-OHLCV
 source is unreachable, the campaign is reported as `preflight_blocked` and the
 collector is not started, preserving daily attempts for a valid data window.
+With `--restart-unhealthy`, the same preflight must pass before an alive
+unhealthy collector is stopped and replaced. The default restore path does not
+replace live processes.
 The default probe limit is 400 rows because managed strategy-runner children
 fall back to `max_bars=400` unless explicitly configured otherwise. This flag
 is optional; plain `--restore` keeps the existing behavior.
@@ -127,28 +143,28 @@ PAPER_CAMPAIGN_CONFIG=configs/paper_evidence_campaigns.json \
 
 ## Market-Data Failure Behavior
 
-Public-OHLCV campaigns fail closed when the strategy runner observes no market
-data for the full strategy window:
+Public-OHLCV campaigns fail closed when the configured market-data source is
+unreachable:
 
-- campaign status is `failed`, not `completed`;
-- the session end record sets `critical_error=true` and records
-  `campaign_reason=no_public_ohlcv`;
-- no leaderboard evidence cycle or decision record is generated for the
-  failed window;
-- the detached collector stays alive and retries once after its configured
-  poll interval;
-- after `max_daily_attempts` is exhausted, status remains failed until the next
-  UTC day.
+- current collectors preflight the configured public-OHLCV source before
+  consuming a daily campaign attempt;
+- if the source is unreachable, status is `blocked` with
+  `reason=ohlcv_source_unreachable`;
+- the blocked record preserves the preflight payload and marks
+  `retry_budget_consumed=false`;
+- no campaign attempt starts while the source remains unreachable;
+- a later successful preflight lets the next loop continue into the normal
+  campaign path.
 
 The canonical manifest sets `max_daily_attempts` to `2`, meaning one initial
-attempt and one retry. Status can therefore report `running=true` for the
-collector process while `ok=false` for campaign health. Process liveness is
-not evidence validity. Restore does not replace an alive unhealthy collector;
-the existing parent owns the bounded retry.
+attempt and one retry for strategy/campaign failures. Known source outages do
+not consume that budget under current code. Status can still report
+`running=true` while `ok=false` for campaign health. Process liveness is not
+evidence validity.
 
-If the parent has already parked after exhausting attempts, stop it first, then
-use guarded restore (`--restore --preflight-ohlcv`) so an exchange outage does
-not immediately consume the next manual recovery attempt.
+If a pre-merge or manually started parent has already parked after exhausting
+attempts, use guarded recovery (`make recover-paper-campaigns`) so it is
+replaced only after the configured OHLCV source is reachable.
 
 ## Current Campaigns
 

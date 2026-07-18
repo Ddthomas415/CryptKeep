@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import math
 import os
+import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -34,6 +36,7 @@ class PaperCampaignSpec:
 
 RunCommand = Callable[..., subprocess.CompletedProcess[str]]
 OhlcvPreflight = Callable[..., dict[str, Any]]
+KillPid = Callable[[int, int], None]
 
 
 def _required_text(row: dict[str, Any], field: str) -> str:
@@ -165,11 +168,20 @@ def _invoke(
     restore: bool,
     run_command: RunCommand = subprocess.run,
 ) -> dict[str, Any]:
+    return _invoke_command(spec, command=_command(spec, restore=restore), run_command=run_command)
+
+
+def _invoke_command(
+    spec: PaperCampaignSpec,
+    *,
+    command: list[str],
+    run_command: RunCommand = subprocess.run,
+) -> dict[str, Any]:
     env = dict(os.environ)
     env["CBP_STATE_DIR"] = str(spec.state_dir)
     try:
         completed = run_command(
-            _command(spec, restore=restore),
+            command,
             cwd=str(code_root()),
             env=env,
             text=True,
@@ -197,6 +209,18 @@ def _invoke(
     return payload
 
 
+def _invoke_stop(
+    spec: PaperCampaignSpec,
+    *,
+    run_command: RunCommand = subprocess.run,
+) -> dict[str, Any]:
+    return _invoke_command(
+        spec,
+        command=[sys.executable, str(COLLECTOR_SCRIPT), "--stop"],
+        run_command=run_command,
+    )
+
+
 def campaign_status(
     spec: PaperCampaignSpec,
     *,
@@ -219,10 +243,130 @@ def campaign_status(
     }
 
 
+def _preflight_before_launch(
+    spec: PaperCampaignSpec,
+    *,
+    preflight_check: OhlcvPreflight = check_ohlcv_reachable,
+    preflight_probe_limit: int = 400,
+    preflight_attempts: int = 1,
+    preflight_attempt_delay_sec: float = 0.0,
+) -> dict[str, Any]:
+    return preflight_check(
+        venue=spec.venue,
+        symbol=spec.symbol,
+        signal_source=spec.signal_source,
+        probe_limit=preflight_probe_limit,
+        attempts=preflight_attempts,
+        attempt_delay_sec=preflight_attempt_delay_sec,
+    )
+
+
+def _wait_not_running(
+    spec: PaperCampaignSpec,
+    *,
+    run_command: RunCommand,
+    timeout_sec: float,
+    poll_sec: float = 0.2,
+) -> dict[str, Any]:
+    deadline = time.monotonic() + max(0.0, float(timeout_sec))
+    while True:
+        current = campaign_status(spec, run_command=run_command)
+        if not bool(current.get("running")):
+            return current
+        if time.monotonic() >= deadline:
+            return current
+        time.sleep(max(0.05, float(poll_sec)))
+
+
+def _stop_unhealthy_campaign(
+    spec: PaperCampaignSpec,
+    before: dict[str, Any],
+    *,
+    run_command: RunCommand,
+    kill_pid: KillPid,
+    wait_timeout_sec: float,
+) -> dict[str, Any]:
+    stop = _invoke_stop(spec, run_command=run_command)
+    after_stop = _wait_not_running(
+        spec,
+        run_command=run_command,
+        timeout_sec=wait_timeout_sec,
+    )
+    if not bool(after_stop.get("running")):
+        return {
+            "ok": True,
+            "action": "stopped_unhealthy",
+            "before": before,
+            "stop": stop,
+            "after_stop": after_stop,
+        }
+
+    pid = int(before.get("pid") or 0)
+    if pid <= 0:
+        return {
+            "ok": False,
+            "action": "restart_blocked",
+            "reason": "unhealthy_collector_pid_missing",
+            "before": before,
+            "stop": stop,
+            "after_stop": after_stop,
+        }
+
+    try:
+        kill_pid(pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    except PermissionError:
+        return {
+            "ok": False,
+            "action": "restart_blocked",
+            "reason": "unhealthy_collector_stop_permission_denied",
+            "before": before,
+            "stop": stop,
+            "after_stop": after_stop,
+        }
+    except OSError as exc:
+        return {
+            "ok": False,
+            "action": "restart_blocked",
+            "reason": f"unhealthy_collector_stop_failed:{type(exc).__name__}",
+            "before": before,
+            "stop": stop,
+            "after_stop": after_stop,
+        }
+
+    after_term = _wait_not_running(
+        spec,
+        run_command=run_command,
+        timeout_sec=wait_timeout_sec,
+    )
+    if bool(after_term.get("running")):
+        return {
+            "ok": False,
+            "action": "restart_blocked",
+            "reason": "unhealthy_collector_still_alive_after_sigterm",
+            "before": before,
+            "stop": stop,
+            "after_stop": after_stop,
+            "after_sigterm": after_term,
+        }
+    return {
+        "ok": True,
+        "action": "stopped_unhealthy",
+        "before": before,
+        "stop": stop,
+        "after_stop": after_stop,
+        "after_sigterm": after_term,
+    }
+
+
 def restore_campaign(
     spec: PaperCampaignSpec,
     *,
     run_command: RunCommand = subprocess.run,
+    restart_unhealthy: bool = False,
+    kill_pid: KillPid = os.kill,
+    restart_wait_sec: float = 5.0,
     preflight_ohlcv: bool = False,
     preflight_check: OhlcvPreflight = check_ohlcv_reachable,
     preflight_probe_limit: int = 400,
@@ -231,16 +375,71 @@ def restore_campaign(
 ) -> dict[str, Any]:
     before = campaign_status(spec, run_command=run_command)
     if before["running"]:
-        return {**before, "action": "already_running", "before": before}
+        if bool(before.get("ok")) or not restart_unhealthy:
+            return {**before, "action": "already_running", "before": before}
+        if not preflight_ohlcv:
+            return {
+                **before,
+                "ok": False,
+                "action": "restart_blocked",
+                "reason": "restart_unhealthy_requires_ohlcv_preflight",
+                "before": before,
+            }
+        preflight = _preflight_before_launch(
+            spec,
+            preflight_check=preflight_check,
+            preflight_probe_limit=preflight_probe_limit,
+            preflight_attempts=preflight_attempts,
+            preflight_attempt_delay_sec=preflight_attempt_delay_sec,
+        )
+        if not bool(preflight.get("ok")):
+            return {
+                **before,
+                "ok": False,
+                "action": "preflight_blocked",
+                "reason": str(preflight.get("status") or preflight.get("reason") or "ohlcv_preflight_failed"),
+                "before": before,
+                "ohlcv_preflight": preflight,
+            }
+        stopped = _stop_unhealthy_campaign(
+            spec,
+            before,
+            run_command=run_command,
+            kill_pid=kill_pid,
+            wait_timeout_sec=restart_wait_sec,
+        )
+        if not bool(stopped.get("ok")):
+            return {
+                **before,
+                "ok": False,
+                "action": str(stopped.get("action") or "restart_blocked"),
+                "reason": str(stopped.get("reason") or "unhealthy_collector_stop_failed"),
+                "before": before,
+                "ohlcv_preflight": preflight,
+                "stop_result": stopped,
+            }
+        before = campaign_status(spec, run_command=run_command)
+        if before["running"]:
+            return {
+                **before,
+                "ok": False,
+                "action": "restart_blocked",
+                "reason": "unhealthy_collector_still_running",
+                "before": stopped.get("before"),
+                "ohlcv_preflight": preflight,
+                "stop_result": stopped,
+            }
+        launch_preflight = preflight
+    else:
+        launch_preflight = None
 
     if preflight_ohlcv:
-        preflight = preflight_check(
-            venue=spec.venue,
-            symbol=spec.symbol,
-            signal_source=spec.signal_source,
-            probe_limit=preflight_probe_limit,
-            attempts=preflight_attempts,
-            attempt_delay_sec=preflight_attempt_delay_sec,
+        preflight = launch_preflight or _preflight_before_launch(
+            spec,
+            preflight_check=preflight_check,
+            preflight_probe_limit=preflight_probe_limit,
+            preflight_attempts=preflight_attempts,
+            preflight_attempt_delay_sec=preflight_attempt_delay_sec,
         )
         if not bool(preflight.get("ok")):
             return {
@@ -254,13 +453,16 @@ def restore_campaign(
 
     launch = _invoke(spec, restore=True, run_command=run_command)
     after = campaign_status(spec, run_command=run_command)
-    return {
+    payload = {
         **after,
         "ok": bool(launch.get("ok")) and bool(after.get("ok")) and bool(after.get("running")),
         "action": "started" if after.get("running") else "start_failed",
         "before": before,
         "launch": launch,
     }
+    if launch_preflight is not None:
+        payload["ohlcv_preflight"] = launch_preflight
+    return payload
 
 
 def manage_campaigns(
@@ -269,6 +471,9 @@ def manage_campaigns(
     restore: bool,
     selected_names: Iterable[str] = (),
     run_command: RunCommand = subprocess.run,
+    restart_unhealthy: bool = False,
+    kill_pid: KillPid = os.kill,
+    restart_wait_sec: float = 5.0,
     preflight_ohlcv: bool = False,
     preflight_check: OhlcvPreflight = check_ohlcv_reachable,
     preflight_probe_limit: int = 400,
@@ -294,6 +499,9 @@ def manage_campaigns(
         restore_campaign(
             spec,
             run_command=run_command,
+            restart_unhealthy=restart_unhealthy,
+            kill_pid=kill_pid,
+            restart_wait_sec=restart_wait_sec,
             preflight_ohlcv=preflight_ohlcv,
             preflight_check=preflight_check,
             preflight_probe_limit=preflight_probe_limit,

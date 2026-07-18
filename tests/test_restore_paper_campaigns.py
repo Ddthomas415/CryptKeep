@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from scripts import restore_paper_campaigns as script
 
 
@@ -74,6 +76,35 @@ def test_restore_paper_campaigns_forwards_ohlcv_preflight_options(monkeypatch, c
     assert seen["preflight_probe_limit"] == 300
     assert seen["preflight_attempts"] == 3
     assert seen["preflight_attempt_delay_sec"] == 2.0
+
+
+def test_restore_paper_campaigns_requires_preflight_for_unhealthy_restart() -> None:
+    with pytest.raises(SystemExit):
+        script.main(["--restore", "--restart-unhealthy"])
+
+
+def test_restore_paper_campaigns_forwards_unhealthy_restart_options(monkeypatch, capsys) -> None:
+    seen: dict[str, object] = {}
+    monkeypatch.setattr(script, "load_campaign_specs", lambda *args, **kwargs: ("spec",))
+
+    def _manage(specs, **kwargs):
+        seen["specs"] = specs
+        seen.update(kwargs)
+        return {"ok": True, "action": "restore", "all_running": True, "campaigns": []}
+
+    monkeypatch.setattr(script, "manage_campaigns", _manage)
+
+    assert script.main([
+        "--restore",
+        "--preflight-ohlcv",
+        "--restart-unhealthy",
+        "--restart-wait-sec",
+        "0.5",
+    ]) == 0
+    json.loads(capsys.readouterr().out)
+    assert seen["restart_unhealthy"] is True
+    assert seen["restart_wait_sec"] == 0.5
+    assert seen["preflight_ohlcv"] is True
 
 
 def test_restore_paper_campaigns_fails_closed_on_invalid_config(monkeypatch, capsys) -> None:
