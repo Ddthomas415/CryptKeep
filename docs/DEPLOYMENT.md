@@ -34,10 +34,11 @@ The units ship with placeholder host assumptions — review every one:
 
 1. System user/group `cbp` (no shell, no sudo): `useradd --system --home /var/lib/cbp cbp`
 2. Repo checkout at `/opt/crypto-bot-pro` with a venv at `.venv/` owned by `cbp`
-3. State directory `/var/lib/cbp/state` owned `cbp:cbp` (matches
+3. State directory `/var/lib/cbp` owned `cbp:cbp` (matches
    `CBP_STATE_DIR` and the units' `ReadWritePaths=/var/lib/cbp`; systemd does
    not expand env vars in `ReadWritePaths`, so if you relocate state, edit
-   both places)
+   both places and pass the same value to the Hetzner readiness wrapper's
+   `--remote-state-dir`)
 4. Env file: `install -o root -g cbp -m 640 packaging/systemd/cbp.env.example /etc/cbp/cbp.env`, then review every value
 
 ## Install

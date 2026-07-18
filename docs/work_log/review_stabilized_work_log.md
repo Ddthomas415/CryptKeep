@@ -23105,3 +23105,71 @@ Remaining risk:
 - UNVERIFIED: Hetzner cannot run `--repo-dir` until this patch is merged and
   the host is synced to the new accepted commit.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T12:34:11Z - Hetzner Runtime State-Dir Probe Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Prevent the accepted Hetzner crypto-edge systemd runtime from being installed
+  into a state directory the readiness wrapper does not inspect.
+
+What was found:
+- SHOWN: local and remote `master` are at `3a7b4cbba` after the reviewed host
+  sync; remote checkout is clean.
+- SHOWN: `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30` reports the
+  `ema_cross_default` paper campaign still running and idle for the current UTC
+  day.
+- SHOWN: `make status-hetzner-edge-runtime
+  HETZNER_EDGE_EXPECTED_COMMIT=3a7b4cbba` fails only three runtime/schedule
+  checks: `collector_runtime_status`, `collector_schedule`, and
+  `cadence_checker_schedule`.
+- SHOWN: remote host prerequisites are not present yet: no `cbp` user, no
+  `/etc/cbp/cbp.env`, no `/var/lib/cbp`, and no installed `cbp-*` units/timers.
+- SHOWN: packaged crypto-edge/cadence units set `CBP_STATE_DIR=/var/lib/cbp`,
+  but `report_hetzner_crypto_edge_runtime_status.py` checked collector status
+  with no `CBP_STATE_DIR`, so it would read repo-default `.cbp_state` instead
+  of the deployed service state.
+- SHOWN: `packaging/systemd/cbp.env.example` still said
+  `CBP_STATE_DIR=/var/lib/cbp/state`, which conflicted with the shipped unit
+  files.
+
+What changed:
+- Added `DEFAULT_REMOTE_STATE_DIR=/var/lib/cbp` and `--remote-state-dir` to
+  `scripts/report_hetzner_crypto_edge_runtime_status.py`.
+- The remote status probe now runs
+  `scripts/data/run_crypto_edge_collector_loop.py --status` with
+  `CBP_STATE_DIR=<remote-state-dir>`, matching the packaged collector service.
+- `make status-hetzner-edge-runtime` passes
+  `HETZNER_EDGE_REMOTE_STATE_DIR` through to the wrapper.
+- Aligned `packaging/systemd/cbp.env.example` and `docs/DEPLOYMENT.md` with the
+  packaged `/var/lib/cbp` state root.
+- Added tests pinning the state-dir propagation and env/unit contract.
+
+Why this change:
+- Starting the read-only collector under systemd before this fix would still
+  leave the readiness wrapper looking in the wrong state directory. The host
+  start step should not proceed until deployment evidence and runtime evidence
+  point at the same state root.
+
+Expected outcome:
+- After merge and host sync, installing/enabling the reviewed read-only
+  collector and cadence timer can produce a readiness payload from the same
+  state directory that the service writes.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_report_hetzner_crypto_edge_runtime_status.py tests/test_systemd_units.py tests/test_edge_cadence.py tests/test_dead_man.py`
+  - SHOWN: `40 passed in 0.94s`.
+- `./.venv/bin/python -m py_compile scripts/report_hetzner_crypto_edge_runtime_status.py scripts/install_systemd_units.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/install_systemd_units.py --repo-dir /srv/cryptkeep/app`
+  - SHOWN: static verify ok for all nine shipped units; dry-run only; no install
+    performed.
+
+Remaining risk:
+- HIGH: deployment/background-job runtime plumbing. This patch does not install,
+  enable, start, or stop any host unit.
+- UNVERIFIED: host bootstrap remains open: create/review `cbp` user/env/state
+  directory, install units, enable/start only the read-only crypto-edge
+  collector and cadence timer, then show recent OKX snapshot timestamps.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

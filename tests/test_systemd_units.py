@@ -66,12 +66,14 @@ def test_units_never_carry_arming_tokens():
 def test_env_example_exists_and_carries_no_arming_assignment():
     env = UNIT_DIR / "cbp.env.example"
     assert env.exists()
+    text = env.read_text(encoding="utf-8")
     for line in env.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         for token in FORBIDDEN:
             assert not stripped.startswith(token), f"env example must not assign {token}"
     # the deliberate absence must be documented in the template itself
-    assert "DELIBERATELY ABSENT" in env.read_text(encoding="utf-8")
+    assert "DELIBERATELY ABSENT" in text
+    assert "CBP_STATE_DIR=/var/lib/cbp" in text
 
 
 def test_units_supervision_and_hardening_directives():
@@ -112,6 +114,7 @@ def test_crypto_edge_collector_unit_is_read_only_research_path():
     assert "run_crypto_edge_collector_loop.py" in text
     assert "sample_data/crypto_edges/live_collector_plan.json" in text
     assert "--source live_public" in text
+    assert "Environment=CBP_STATE_DIR=/var/lib/cbp" in text
     assert "CBP_EXECUTION_ARMED" not in "\n".join(
         line for line in text.splitlines() if not line.strip().startswith("#")
     )

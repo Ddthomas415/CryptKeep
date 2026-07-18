@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shlex
 import subprocess
 import textwrap
@@ -22,6 +23,7 @@ DEFAULT_TIMEOUT_SEC = 45.0
 DEFAULT_EXPECTED_BRANCH = "master"
 DEFAULT_EXPECTED_DERIVATIVES_VENUE = "okx"
 DEFAULT_PLAN_PATH = "sample_data/crypto_edges/live_collector_plan.json"
+DEFAULT_REMOTE_STATE_DIR = "/var/lib/cbp"
 
 REQUIRED_REMOTE_FILES = (
     "scripts/check_cost_assumptions.py",
@@ -64,17 +66,23 @@ def _failure_payload(
     }
 
 
-def _remote_probe_program(*, plan_path: str) -> str:
+def _remote_probe_program(*, plan_path: str, state_dir: str) -> str:
     return textwrap.dedent(
         f"""
         import json
+        import os
         import pathlib
         import subprocess
 
         PLAN_PATH = {plan_path!r}
+        STATE_DIR = {state_dir!r}
         REQUIRED_FILES = {list(REQUIRED_REMOTE_FILES)!r}
 
-        def run(cmd, timeout=8):
+        def run(cmd, timeout=8, env=None):
+            run_env = None
+            if env:
+                run_env = os.environ.copy()
+                run_env.update(env)
             try:
                 cp = subprocess.run(
                     cmd,
@@ -82,6 +90,7 @@ def _remote_probe_program(*, plan_path: str) -> str:
                     check=False,
                     text=True,
                     timeout=timeout,
+                    env=run_env,
                 )
             except FileNotFoundError as exc:
                 return {{"returncode": None, "stdout": "", "stderr": f"FileNotFoundError:{{exc}}"}}
@@ -102,6 +111,10 @@ def _remote_probe_program(*, plan_path: str) -> str:
         root = pathlib.Path.cwd()
         files = {{path: (root / path).exists() for path in REQUIRED_FILES}}
         files["venv_python"] = (root / ".venv" / "bin" / "python").exists()
+        state = {{
+            "path": STATE_DIR,
+            "exists": pathlib.Path(STATE_DIR).exists() if STATE_DIR else False,
+        }}
         repo = {{
             "head": run(["git", "rev-parse", "HEAD"]),
             "branch": run(["git", "rev-parse", "--abbrev-ref", "HEAD"]),
@@ -118,7 +131,10 @@ def _remote_probe_program(*, plan_path: str) -> str:
         collector_status = {{"attempted": False, "ok": False, "payload": None, "error": ""}}
         if files.get("scripts/data/run_crypto_edge_collector_loop.py") and files.get("venv_python"):
             collector_status["attempted"] = True
-            raw = run(["./.venv/bin/python", "scripts/data/run_crypto_edge_collector_loop.py", "--status"])
+            raw = run(
+                ["./.venv/bin/python", "scripts/data/run_crypto_edge_collector_loop.py", "--status"],
+                env=({{"CBP_STATE_DIR": STATE_DIR}} if STATE_DIR else None),
+            )
             collector_status["raw"] = raw
             if raw.get("returncode") == 0:
                 try:
@@ -146,6 +162,7 @@ def _remote_probe_program(*, plan_path: str) -> str:
         print(json.dumps({{
             "repo": repo,
             "files": files,
+            "state": state,
             "plan": plan,
             "collector_status": collector_status,
             "scheduler": scheduler,
@@ -154,9 +171,9 @@ def _remote_probe_program(*, plan_path: str) -> str:
     ).strip()
 
 
-def _remote_status_command(*, app_dir: str, plan_path: str) -> str:
+def _remote_status_command(*, app_dir: str, plan_path: str, state_dir: str) -> str:
     quoted_app_dir = shlex.quote(app_dir)
-    quoted_program = shlex.quote(_remote_probe_program(plan_path=plan_path))
+    quoted_program = shlex.quote(_remote_probe_program(plan_path=plan_path, state_dir=state_dir))
     return f"cd {quoted_app_dir} && python3 -c {quoted_program}"
 
 
@@ -221,6 +238,7 @@ def build_report(
 ) -> dict[str, Any]:
     repo = dict(remote_payload.get("repo") or {})
     files = dict(remote_payload.get("files") or {})
+    state = dict(remote_payload.get("state") or {})
     plan = dict(remote_payload.get("plan") or {})
     collector_status = dict(remote_payload.get("collector_status") or {})
     scheduler = dict(remote_payload.get("scheduler") or {})
@@ -368,6 +386,8 @@ def build_report(
             "head": head,
             "branch": branch,
             "status_branch": status_branch,
+            "state_dir": str(state.get("path") or ""),
+            "state_dir_exists": bool(state.get("exists")),
         },
         "checks": checks,
         "blockers": blockers,
@@ -411,12 +431,17 @@ def fetch_remote_runtime_status(
     ssh_target: str = DEFAULT_SSH_TARGET,
     app_dir: str = DEFAULT_APP_DIR,
     plan_path: str = DEFAULT_PLAN_PATH,
+    remote_state_dir: str = DEFAULT_REMOTE_STATE_DIR,
     expected_branch: str = DEFAULT_EXPECTED_BRANCH,
     expected_commit: str = "",
     expected_derivatives_venue: str = DEFAULT_EXPECTED_DERIVATIVES_VENUE,
     timeout_sec: float = DEFAULT_TIMEOUT_SEC,
 ) -> dict[str, Any]:
-    remote_command = _remote_status_command(app_dir=app_dir, plan_path=plan_path)
+    remote_command = _remote_status_command(
+        app_dir=app_dir,
+        plan_path=plan_path,
+        state_dir=remote_state_dir,
+    )
     cmd = ["tailscale", "ssh", ssh_target, remote_command]
 
     try:
@@ -504,6 +529,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--ssh-target", default=DEFAULT_SSH_TARGET, help="Tailscale SSH target")
     parser.add_argument("--app-dir", default=DEFAULT_APP_DIR, help="Remote repo directory")
     parser.add_argument("--plan-path", default=DEFAULT_PLAN_PATH, help="Remote crypto-edge collector plan path")
+    parser.add_argument(
+        "--remote-state-dir",
+        default=DEFAULT_REMOTE_STATE_DIR,
+        help="Remote CBP_STATE_DIR used by the packaged crypto-edge collector service",
+    )
     parser.add_argument("--expected-branch", default=DEFAULT_EXPECTED_BRANCH, help="Expected remote Git branch")
     parser.add_argument("--expected-commit", default="", help="Optional accepted commit SHA/prefix required on the remote")
     parser.add_argument(
@@ -521,6 +551,7 @@ def main(argv: list[str] | None = None) -> int:
         ssh_target=str(args.ssh_target),
         app_dir=str(args.app_dir),
         plan_path=str(args.plan_path),
+        remote_state_dir=str(args.remote_state_dir),
         expected_branch=str(args.expected_branch),
         expected_commit=str(args.expected_commit),
         expected_derivatives_venue=str(args.expected_derivatives_venue),
