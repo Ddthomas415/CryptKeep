@@ -10,7 +10,10 @@ from services.analytics import crypto_edge_collector_service as svc
 def test_collect_once_writes_live_public_report(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
     plan_path = tmp_path / "plan.json"
-    plan_path.write_text(json.dumps({"funding": [], "basis": [], "quotes": []}), encoding="utf-8")
+    plan_path.write_text(
+        json.dumps({"funding": [], "open_interest": [], "basis": [], "quotes": [], "order_books": []}),
+        encoding="utf-8",
+    )
     monkeypatch.setattr(
         svc,
         "collect_live_crypto_edge_snapshot",
@@ -19,8 +22,24 @@ def test_collect_once_writes_live_public_report(tmp_path, monkeypatch) -> None:
             "research_only": True,
             "execution_enabled": False,
             "funding_rows": [{"symbol": "BTC/USDT:USDT", "venue": "binance", "funding_rate": 0.0002, "interval_hours": 8.0}],
+            "open_interest_rows": [
+                {"symbol": "BTC/USDT:USDT", "venue": "binance", "open_interest": 123456.0, "price_change_pct": 1.2}
+            ],
             "basis_rows": [{"symbol": "BTC/USDT:USDT", "venue": "binance", "spot_px": 84000.0, "perp_px": 84020.0, "days_to_expiry": 7}],
             "quote_rows": [{"symbol": "BTC/USD", "venue": "coinbase", "bid": 84010.0, "ask": 84015.0}],
+            "order_book_rows": [
+                {
+                    "symbol": "BTC/USD",
+                    "venue": "coinbase",
+                    "depth": 5,
+                    "best_bid": 84010.0,
+                    "best_ask": 84015.0,
+                    "spread_bps": 0.6,
+                    "bid_notional": 1000.0,
+                    "ask_notional": 900.0,
+                    "imbalance": 0.0526315789,
+                }
+            ],
             "checks": [{"kind": "quotes", "venue": "coinbase", "symbol": "BTC/USD", "ok": True}],
         },
     )
@@ -33,6 +52,10 @@ def test_collect_once_writes_live_public_report(tmp_path, monkeypatch) -> None:
     assert out["reason"] == "collected"
     assert out["source"] == "live_public"
     assert out["report"]["has_any_data"] is True
+    assert out["open_interest_count"] == 1
+    assert out["order_book_count"] == 1
+    assert out["report"]["open_interest_meta"]["row_count"] == 1
+    assert out["report"]["order_book_meta"]["row_count"] == 1
 
 
 @pytest.mark.slow
