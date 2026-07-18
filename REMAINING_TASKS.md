@@ -76,6 +76,25 @@ deployment work still needs independent review.
 
 1. Continue canonical paper evidence collection until `es_daily_trend_v1`
    reaches 10 provenance-qualified round trips.
+   2026-07-18 design review: configurable paper promotion gate policy RFC is
+   drafted in
+   `docs/decisions/paper_promotion_gate_policy_rfc_2026-07-18.md`. The RFC
+   does not authorize implementation and does not change the current
+   `es_daily_trend_v1` gate. It proposes strategy-class policies so slow daily
+   systems can be evaluated by qualified live-data bars plus a smaller minimum
+   number of full qualified cycles, while archive/walk-forward remains the
+   statistical edge proof. Current rule remains: do not weaken provenance, do
+   not count legacy fills, and continue using the existing gate until the RFC is
+   reviewed, approved, implemented, and validated.
+   SEPARATE WORK ITEM - OHLCV source outage blocked-state and retry-budget
+   protection: campaign validation must not depend on repeatedly exhausting
+   daily attempts when the configured upstream market-data source is
+   unavailable. Add a reliability path that classifies configured public-OHLCV
+   fetch failures as `blocked:ohlcv_source_unreachable`, preserves the error
+   payload, avoids consuming daily strategy retry budget for known source
+   outages, alerts only on state transitions, and automatically recovers when
+   the same configured source preflight succeeds. This item is independent of
+   promotion-gate policy; gate redesign must not mask infrastructure failures.
 2. After the paper gate reaches 10 qualified round trips, write the manual
    strategy performance decision against the accepted baseline. Before relying
    on the expectancy/manual-review gate, populate or explicitly waive the

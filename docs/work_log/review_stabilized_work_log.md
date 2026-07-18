@@ -22484,3 +22484,54 @@ Remaining risk:
 - UNVERIFIED: broader operator-audit suite, GitHub CI, and host-side execution
   of the check/init command with preserved evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-18T05:08:32Z - Paper Promotion Gate Policy RFC
+
+Active role: DIRECTOR
+
+Objective:
+- Prepare a design-review proposal for configurable paper promotion gate
+  policies before any implementation changes.
+- Open a separate reliability work item for recurring public-OHLCV source
+  outages so gate policy changes do not hide infrastructure failures.
+
+What was found:
+- SHOWN: current promotion thresholds are global constants:
+  `PAPER_MIN_DAYS = 30` and `PAPER_MIN_ROUND_TRIPS = 10`.
+- SHOWN: `es_daily_trend_v1` has 10 all-history closed round trips, but only 3
+  provenance-qualified round trips; earlier fills remain diagnostic-only because
+  they lack required source/timeframe/venue/symbol/sample-mode fields.
+- SHOWN: local signal evidence contains 45 qualified public daily signal dates
+  from 2026-05-26 through 2026-07-11.
+- SHOWN: existing and challenger strategy configs use the same 10-round-trip
+  paper threshold despite different horizons.
+- SHOWN: recent laptop campaign state includes `no_public_ohlcv` failures; that
+  is a reliability issue distinct from gate policy.
+
+What changed:
+- Added `docs/decisions/paper_promotion_gate_policy_rfc_2026-07-18.md`.
+- Updated `REMAINING_TASKS.md` with the RFC status and a distinct OHLCV source
+  outage blocked-state work item.
+- No runtime code, strategy config, or current gate behavior changed.
+
+Why this change was chosen:
+- The current gate mixes operational validation with statistical validation.
+  The RFC separates paper-path validation from archive/walk-forward edge proof
+  before any threshold change is authorized.
+
+Expected outcome:
+- Reviewers can decide whether to approve strategy-class gate policies,
+  `promotion.cohort_start`, and qualified-bar counting before implementation.
+- OHLCV source failures remain visible as reliability blockers instead of being
+  hidden by promotion-threshold changes.
+
+Verification:
+- Docs-only change; no tests run.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: design affects future promotion-gate policy but does not change
+  runtime behavior in this branch.
+- Implementation remains unauthorized until the RFC is reviewed and accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
