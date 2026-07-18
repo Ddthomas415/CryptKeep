@@ -461,7 +461,11 @@ deployment work still needs independent review.
     stale or mismatched context is rejected with stable reasons while existing
     OHLCV-only gate fixtures remain unchanged. Diff boundary is limited to
     paper qualification tests/docs; no live execution or risk-gate files are
-    touched. Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+    touched.
+    2026-07-18: independently reviewed and accepted by the operator with the
+    high-risk boundary preserved. Recheck proof: the fresh matching
+    `funding_extreme` context round trip counts, and stale/mismatched context
+    rejects (`2 passed`). Acceptance state: `ACCEPTED_WITH_RISK`.
 14. Start scheduled read-only crypto-edge collection from the accepted OKX
     source decision. Funding and open-interest history mostly accrue in real
     time, and Binance derivatives remain unavailable from the current network.
