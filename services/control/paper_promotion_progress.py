@@ -10,10 +10,12 @@ from services.analytics.strategy_feedback import load_strategy_feedback_ledger
 from services.control.promotion_thresholds import (
     ES_DAILY_TREND_STRATEGY_ID,
     ES_DAILY_TREND_TARGET_STRATEGY,
-    PAPER_MIN_DAYS,
-    PAPER_MIN_ROUND_TRIPS,
 )
 from services.control.paper_evidence_qualification import qualify_paper_history
+from services.control.paper_promotion_policy import (
+    count_qualified_signal_bars,
+    resolve_paper_promotion_policy,
+)
 from services.control.retirement_checker import load_all_evidence
 from services.os.app_paths import data_dir
 
@@ -182,9 +184,22 @@ def load_paper_promotion_progress(
     ev_dir = data_dir() / "evidence" / resolved_strategy_id
     evidence = load_all_evidence(ev_dir)
     sessions = [dict(row) for row in list(evidence.get("session") or []) if isinstance(row, dict)]
+    signals = [dict(row) for row in list(evidence.get("signal") or []) if isinstance(row, dict)]
+    config = (
+        yaml.safe_load(DEFAULT_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+        if DEFAULT_CONFIG_PATH.exists()
+        else {}
+    )
+    policy = resolve_paper_promotion_policy(config)
+    days_required = int(policy.min_calendar_days)
+    round_trips_required = int(policy.min_qualified_round_trips)
+    bar_summary = count_qualified_signal_bars(
+        signals,
+        config=config,
+    )
     days_recorded = _days_of_operation(sessions)
-    days_remaining = max(0, PAPER_MIN_DAYS - days_recorded)
-    days_state = _threshold_state(observed=days_recorded, required=PAPER_MIN_DAYS)
+    days_remaining = max(0, days_required - days_recorded)
+    days_state = _threshold_state(observed=days_recorded, required=days_required)
 
     ledger = load_strategy_feedback_ledger(symbol=symbol_filter)
     row = _feedback_row(ledger=dict(ledger or {}), target_strategy=resolved_target_strategy)
@@ -194,18 +209,14 @@ def load_paper_promotion_progress(
             for item in list(evidence.get("fill") or [])
             if isinstance(item, dict)
         ],
-        config=(
-            yaml.safe_load(DEFAULT_CONFIG_PATH.read_text(encoding="utf-8")) or {}
-            if DEFAULT_CONFIG_PATH.exists()
-            else {}
-        ),
+        config=config,
         journal_path=str(ledger.get("journal_path") or ""),
     )
     round_trips_recorded = int(qualified.get("closed_trades") or 0)
-    round_trips_remaining = max(0, PAPER_MIN_ROUND_TRIPS - round_trips_recorded)
+    round_trips_remaining = max(0, round_trips_required - round_trips_recorded)
     round_trips_state = _threshold_state(
         observed=round_trips_recorded,
-        required=PAPER_MIN_ROUND_TRIPS,
+        required=round_trips_required,
     )
     qualification = dict(qualified.get("qualification") or {})
     all_history_fills = int(row.get("fills") or 0)
@@ -217,12 +228,23 @@ def load_paper_promotion_progress(
     )
 
     blockers: list[dict[str, Any]] = []
+    if not policy.valid:
+        blockers.append(
+            {
+                "label": "Paper promotion policy valid",
+                "state": "fail",
+                "observed": 0,
+                "required": 1,
+                "remaining": 1,
+                "invalid_reasons": list(policy.invalid_reasons),
+            }
+        )
     if days_state != "pass":
         blockers.append(
             _blocker(
-                label="30 calendar days of operation",
+                label=f"{days_required} calendar days of operation",
                 observed=days_recorded,
-                required=PAPER_MIN_DAYS,
+                required=days_required,
                 remaining=days_remaining,
                 state=days_state,
             )
@@ -230,22 +252,38 @@ def load_paper_promotion_progress(
     if round_trips_state != "pass":
         blockers.append(
             _blocker(
-                label=f"{PAPER_MIN_ROUND_TRIPS}+ completed round trips",
+                label=f"{round_trips_required}+ completed round trips",
                 observed=round_trips_recorded,
-                required=PAPER_MIN_ROUND_TRIPS,
+                required=round_trips_required,
                 remaining=round_trips_remaining,
                 state=round_trips_state,
+            )
+        )
+    if bool(bar_summary.get("enabled")) and not bool(bar_summary.get("qualified_bars_ready")):
+        blockers.append(
+            _blocker(
+                label=f"{int(bar_summary.get('qualified_bars_required') or 0)}+ qualified source bars",
+                observed=int(bar_summary.get("qualified_bars_recorded") or 0),
+                required=int(bar_summary.get("qualified_bars_required") or 0),
+                remaining=int(bar_summary.get("qualified_bars_remaining") or 0),
+                state="fail",
             )
         )
 
     summary_text = (
         "Promotion threshold progress: "
-        f"{days_recorded}/{PAPER_MIN_DAYS} days recorded ({days_remaining} remaining), "
-        f"{round_trips_recorded}/{PAPER_MIN_ROUND_TRIPS} qualified round trips recorded "
+        f"{days_recorded}/{days_required} days recorded ({days_remaining} remaining), "
+        f"{round_trips_recorded}/{round_trips_required} qualified round trips recorded "
         f"({round_trips_remaining} remaining)."
     )
+    if bool(bar_summary.get("enabled")):
+        summary_text = (
+            f"{summary_text} {int(bar_summary.get('qualified_bars_recorded') or 0)}/"
+            f"{int(bar_summary.get('qualified_bars_required') or 0)} qualified source bars "
+            f"recorded ({int(bar_summary.get('qualified_bars_remaining') or 0)} remaining)."
+        )
     if not blockers:
-        summary_text = "Promotion threshold progress: paper-stage day and round-trip thresholds are met."
+        summary_text = "Promotion threshold progress: configured paper-stage thresholds are met."
     if (
         qualification_explanation["has_excluded_history"]
         or qualification_explanation["unqualified_evidence_fills"]
@@ -261,14 +299,26 @@ def load_paper_promotion_progress(
         "target_strategy": resolved_target_strategy,
         "symbol_filter": symbol_filter or None,
         "evidence_dir": str(ev_dir),
+        "policy": policy.to_dict(),
+        "policy_id": policy.policy_id,
+        "policy_valid": policy.valid,
+        "policy_invalid_reasons": list(policy.invalid_reasons),
+        "cohort_start": policy.cohort_start,
         "days_recorded": days_recorded,
-        "days_required": PAPER_MIN_DAYS,
+        "days_required": days_required,
         "days_remaining": days_remaining,
         "days_state": days_state,
         "round_trips_recorded": round_trips_recorded,
-        "round_trips_required": PAPER_MIN_ROUND_TRIPS,
+        "round_trips_required": round_trips_required,
         "round_trips_remaining": round_trips_remaining,
         "round_trips_state": round_trips_state,
+        "qualified_bars_recorded": int(bar_summary.get("qualified_bars_recorded") or 0),
+        "qualified_bars_required": int(bar_summary.get("qualified_bars_required") or 0),
+        "qualified_bars_remaining": int(bar_summary.get("qualified_bars_remaining") or 0),
+        "qualified_bars_ready": bool(bar_summary.get("qualified_bars_ready")),
+        "qualified_bars_enabled": bool(bar_summary.get("enabled")),
+        "bar_count_source": str(bar_summary.get("bar_count_source") or "none"),
+        "qualified_bar_summary": bar_summary,
         "thresholds_ready": not blockers,
         "blocking_thresholds": blockers,
         "fills": int(qualified.get("fills") or 0),
