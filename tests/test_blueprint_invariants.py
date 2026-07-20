@@ -129,6 +129,7 @@ _FEE_SURFACES = {
     "services/paper_exec.py": (10.0, 5.0, "compat paper executor (services/paper_trader/main.py)"),
     "services/paper_trader/paper_execution_venue.py": (1.0, 0.0, "legacy runner venue (trading_runner/run_trader.py)"),
     "services/execution/paper_fees.py": (0.0, None, "dormant: no production callers"),
+    "services/analytics/funding_context_price_join.py": (10.0, 5.0, "research-only funding context forward-return report"),
 }
 
 
