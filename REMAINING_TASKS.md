@@ -448,6 +448,14 @@ deployment work still needs independent review.
     wiring proof accepted, but no persistent campaign or promotion treatment
     until archive-backed research and the high-risk crypto-edge qualification
     extension are separately reviewed.
+    2026-07-21 follow-up proof-workflow fix: the readiness helper and paper
+    evidence collector now carry an explicit
+    `CBP_CRYPTO_EDGE_DB_PATH` / `--strategy-context-db-path` override. This
+    keeps the proof run's `CBP_STATE_DIR` isolated while letting
+    `funding_extreme` read the same crypto-edge store that readiness validated,
+    replacing the prior manual copy/seeding workaround. No live routing,
+    persistent campaign, strategy promotion, or canonical paper-campaign
+    behavior is authorized by this wiring.
     2026-07-18: research-only funding context replay is ready for independent
     review. `services.analytics.funding_context_replay` and
     `scripts/research/run_funding_context_replay.py` replay stored

@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import math
+import os
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from services.market_data.symbol_router import normalize_symbol, normalize_venue
 from storage.crypto_edge_store_sqlite import CryptoEdgeStoreSQLite
 
 
+EDGE_STORE_DB_PATH_ENV = "CBP_CRYPTO_EDGE_DB_PATH"
 DEFAULT_CONTEXT_SOURCE = "live_public"
 DEFAULT_FUNDING_MAX_AGE_SEC = 36 * 60 * 60
 
@@ -49,6 +52,7 @@ def funding_context_from_crypto_edge_store(
     venue: str,
     source: str = DEFAULT_CONTEXT_SOURCE,
     max_age_sec: float = DEFAULT_FUNDING_MAX_AGE_SEC,
+    store_path: str | Path | None = None,
     store: CryptoEdgeStoreSQLite | None = None,
     now: datetime | None = None,
 ) -> dict[str, Any]:
@@ -69,7 +73,21 @@ def funding_context_from_crypto_edge_store(
             "venue": clean_venue,
         }
 
-    edge_store = store or CryptoEdgeStoreSQLite()
+    edge_store_path = str(store_path or os.environ.get(EDGE_STORE_DB_PATH_ENV) or "").strip()
+    if store is None and edge_store_path:
+        resolved = Path(edge_store_path).expanduser().resolve()
+        if not resolved.exists():
+            return {
+                "ok": False,
+                "reason": "funding_context_store_missing",
+                "source": clean_source,
+                "symbol": clean_symbol,
+                "venue": clean_venue,
+                "store_path": str(resolved),
+            }
+        edge_store = CryptoEdgeStoreSQLite(path=str(resolved))
+    else:
+        edge_store = store or CryptoEdgeStoreSQLite()
     try:
         rows = edge_store.recent_funding_rows_for_source(source=clean_source, limit=500)
     except Exception as exc:

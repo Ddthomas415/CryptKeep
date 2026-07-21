@@ -184,6 +184,9 @@ decision makes them authoritative.
   the collector. Use `FUNDING_STAGE0_ARGS="--venue okx"` when Coinbase
   public-OHLCV reachability is the blocker and OKX public OHLCV is the intended
   proof source.
+  The generated proof command keeps the paper run's `CBP_STATE_DIR` isolated
+  while passing `CBP_CRYPTO_EDGE_DB_PATH` / `--strategy-context-db-path` so the
+  strategy can read the same crypto-edge store the readiness check validated.
 - `check_short_context_readiness.py` — read-only short/context data readiness
   check over stored crypto-edge evidence; use
   `make check-short-context-readiness`. It does not contact exchanges or enable
@@ -241,7 +244,9 @@ decision makes them authoritative.
   public-OHLCV provenance, fresh funding-context consumption, post-baseline
   completion, expected commit, and canonical fill-count isolation. Pass the
   same `FUNDING_STAGE0_ARGS` to baseline and verify if the proof uses a
-  non-default OHLCV venue/symbol.
+  non-default OHLCV venue/symbol. If the proof uses an isolated state dir plus
+  a shared crypto-edge store, preserve the readiness-generated
+  `CBP_CRYPTO_EDGE_DB_PATH` / `--strategy-context-db-path` values.
 
 ### Validation, Alignment, Release, And Maintenance
 

@@ -643,6 +643,11 @@ def main() -> int:
         help="Optional context venue override for context-backed strategies, e.g. okx.",
     )
     ap.add_argument(
+        "--strategy-context-db-path",
+        default="",
+        help="Optional crypto-edge sqlite path for context-backed strategies.",
+    )
+    ap.add_argument(
         "--allow-first-signal-trade",
         action="store_true",
         help="Allow the first actionable signal after warmup to enqueue immediately during managed evidence runs.",
@@ -700,6 +705,7 @@ def main() -> int:
         signal_source=signal_source,
         strategy_context_symbol=str(args.strategy_context_symbol or ""),
         strategy_context_venue=str(args.strategy_context_venue or ""),
+        strategy_context_db_path=str(args.strategy_context_db_path or ""),
         allow_first_signal_trade=bool(args.allow_first_signal_trade),
         evidence_symbol=str(args.evidence_symbol or ""),
         paper_history_path=str(args.paper_history_path or ""),

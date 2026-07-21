@@ -23939,3 +23939,66 @@ Verification:
 Remaining risk:
 - LOW: documentation-only evidence refresh. No runtime behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T21:25:00Z - Funding Stage 0 Edge-Store Override
+
+Active role: ENGINEER
+
+Objective:
+- Remove the manual crypto-edge DB copy/seeding workaround from isolated
+  `funding_extreme_default` Stage 0 paper proofs by carrying an explicit
+  read-only crypto-edge DB path into the paper child process.
+
+What was found:
+- SHOWN: local `make funding-stage0-readiness FUNDING_STAGE0_ARGS="--venue okx"`
+  was blocked by local OKX public-OHLCV reachability and stale local
+  open-interest state.
+- SHOWN: host-side readiness run as the `cbp` service user under
+  `CBP_STATE_DIR=/var/lib/cbp` returned `ready=true`,
+  `blocking_checks=[]`, OKX public OHLCV reachable, fresh OKX
+  funding/open-interest/basis cadence, and fresh OKX funding context.
+- SHOWN: the generated proof command changed `CBP_STATE_DIR` to the isolated
+  challenger directory, while `CryptoEdgeStoreSQLite()` defaults to
+  `data_dir()/crypto_edge_research.sqlite`; without an explicit override, the
+  isolated paper proof can lose access to the canonical host crypto-edge store.
+- SHOWN: the 2026-07-12 accepted Stage 0 proof previously required manually
+  seeding the challenger `crypto_edge_research.sqlite` from canonical
+  crypto-edge evidence.
+
+What changed:
+- Added `CBP_CRYPTO_EDGE_DB_PATH` support to
+  `funding_context_from_crypto_edge_store()`, fail-closed when the explicit
+  path is missing instead of creating an empty override DB.
+- Threaded `strategy_context_db_path` through `strategy_runner`,
+  `PaperStrategyEvidenceServiceCfg`, and
+  `scripts/run_paper_strategy_evidence_collector.py`.
+- Updated `funding_stage0_readiness` so cadence/context checks validate the
+  same crypto-edge DB path that the generated proof command passes to the
+  child process.
+- Updated `scripts/SCRIPTS.md`,
+  `docs/strategies/funding_extreme_stage0_decision_2026-07-11.md`, and
+  `REMAINING_TASKS.md`.
+
+Why this change:
+- Copying the edge DB into an isolated paper state dir is fragile and can make
+  proof validity depend on a stale manual snapshot. An explicit DB-path
+  override keeps paper state isolated while preserving a single read-only
+  crypto-edge evidence source.
+
+Expected outcome:
+- Future `funding_extreme_default` Stage 0 proofs can run from an isolated
+  paper state dir while consuming the host's canonical crypto-edge store
+  validated by readiness.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_context.py tests/test_funding_stage0_readiness.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
+  - SHOWN: `77 passed`.
+- `./.venv/bin/python -m py_compile services/strategies/crypto_edge_context.py services/execution/strategy_runner.py services/analytics/paper_strategy_evidence_service.py services/analytics/funding_stage0_readiness.py scripts/run_paper_strategy_evidence_collector.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM/HIGH: this touches strategy context wiring used by a financial signal
+  path, although it does not enable live trading, start a campaign, change
+  promotion gates, or alter canonical paper campaigns. GitHub CI and
+  independent review are required before treating it as accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

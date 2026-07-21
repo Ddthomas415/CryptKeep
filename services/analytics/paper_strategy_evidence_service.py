@@ -570,6 +570,8 @@ def _component_env(cfg: "PaperStrategyEvidenceServiceCfg", *, strategy_name: str
         env["CBP_STRATEGY_CONTEXT_SYMBOL"] = str(cfg.strategy_context_symbol).strip()
     if str(cfg.strategy_context_venue or "").strip():
         env["CBP_STRATEGY_CONTEXT_VENUE"] = str(cfg.strategy_context_venue).strip()
+    if str(cfg.strategy_context_db_path or "").strip():
+        env["CBP_CRYPTO_EDGE_DB_PATH"] = str(cfg.strategy_context_db_path).strip()
     if bool(cfg.allow_first_signal_trade):
         env["CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE"] = "1"
     if strategy_name:
@@ -916,6 +918,7 @@ class PaperStrategyEvidenceServiceCfg:
     signal_source: str = ""
     strategy_context_symbol: str = ""
     strategy_context_venue: str = ""
+    strategy_context_db_path: str = ""
     allow_first_signal_trade: bool = False
     evidence_symbol: str = ""
     initial_cash: float = 10_000.0
