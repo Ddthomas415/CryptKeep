@@ -218,6 +218,12 @@ decision makes them authoritative.
   archived OHLCV rows; computes unit-size modeled forward returns only and
   does not simulate portfolio PnL, expectancy, campaign state, or promotion
   eligibility. Use `make funding-context-price-join`.
+- `research/run_funding_threshold_sensitivity.py` — read-only
+  `funding_extreme` threshold sensitivity report over an existing
+  funding-context price-join JSON artifact; recomputes hypothetical
+  action counts and unit-size modeled forward returns for explicit threshold
+  grids, does not change strategy config, fetch data, start campaigns, or
+  produce promotion evidence. Use `make funding-threshold-sensitivity`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

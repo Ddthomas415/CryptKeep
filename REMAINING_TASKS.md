@@ -494,6 +494,14 @@ deployment work still needs independent review.
     blocker is closed for this bounded host window, but the stored funding
     sample produced zero actionable `funding_extreme` rows under current
     thresholds; this is not profitability evidence.
+    2026-07-21: research-only funding-threshold sensitivity tooling is ready
+    for independent review. `services.analytics.funding_threshold_sensitivity`
+    and `scripts/research/run_funding_threshold_sensitivity.py` consume an
+    existing `funding_context_price_join_v1` artifact and recompute
+    hypothetical action counts plus unit-size modeled forward returns for
+    explicit `long_threshold_pct` / `short_threshold_pct` grids. This is a
+    report consumer only: it does not fetch data, change strategy config,
+    start campaigns, compute portfolio PnL, or produce promotion evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

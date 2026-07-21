@@ -23639,3 +23639,53 @@ Remaining risk:
   backfill, but no campaign, gate, live execution, risk, routing, or strategy
   evidence state was changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T19:28:00Z - Funding Threshold Sensitivity Report Consumer
+
+Active role: ENGINEER
+
+Objective:
+- Add a research-only way to analyze whether the zero-action
+  `funding_extreme` host result is threshold-driven without changing strategy
+  configuration or starting a campaign.
+
+What was found:
+- SHOWN: the accepted funding context price-join artifact already contains the
+  fields needed for threshold sensitivity: `funding_rate_pct`, `entry_close`,
+  `exit_close`, `fee_bps`, and `slippage_bps`.
+- SHOWN: current `funding_extreme` defaults remain `sell >= 0.05%` and
+  `buy <= -0.01%`; this batch does not change those thresholds.
+
+What changed:
+- Added `services.analytics.funding_threshold_sensitivity`.
+- Added `scripts/research/run_funding_threshold_sensitivity.py`.
+- Added `make funding-threshold-sensitivity`.
+- Documented the script and recorded the backlog note.
+
+Why this change:
+- The host report showed zero actionable rows, but changing thresholds from a
+  short quiet sample would be overfitting. A report-only sensitivity consumer
+  makes the threshold/action relationship explicit while preserving the current
+  governed strategy config.
+
+Expected outcome:
+- Operators can run threshold-grid analysis over existing price-join artifacts
+  and use the output as research context, not strategy evidence or promotion
+  evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `7 passed in 0.13s`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_threshold_sensitivity.py scripts/research/run_funding_threshold_sensitivity.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_sensitivity.py tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_ohlcv_archive_backfill_runner.py tests/test_makefile_wiring.py`
+  - SHOWN: `23 passed in 0.51s`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: research-only analytics over existing artifacts; no campaign,
+  gate, live execution, risk, routing, or strategy evidence state changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
