@@ -2264,6 +2264,12 @@ substrate work, but they are concrete enough to keep visible.
     ritual, and the remaining action is operator cadence: run and file dated
     review artifacts; conclusions remain advisory until a separate governed
     config/code change is accepted.
+    2026-07-21: weekly review artifact is recorded in
+    `docs/checkpoints/strategy_review_2026_07_21.md`. The run exposed a
+    workflow-default mismatch: `make strategy-review` replayed losses for
+    `BTC/USD` while the canonical ES journal uses `BTC/USDT`, producing zero
+    replay rows. The default `STRATEGY_REVIEW_SYMBOL` is corrected to
+    `BTC/USDT`; override variables still support other strategies/symbols.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
