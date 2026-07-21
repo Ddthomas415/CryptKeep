@@ -23517,3 +23517,61 @@ Remaining risk:
 - LOW/MEDIUM: no live execution, risk gate, promotion gate, or campaign
   behavior changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T00:39:42Z - OHLCV Archive Backfill CLI For Funding Price Join
+
+Active role: ENGINEER
+
+Objective:
+- Close the immediate research-data ingestion gap blocking the accepted
+  funding context price-join report on Hetzner.
+
+What was found:
+- SHOWN: Hetzner is synced to accepted master `49d3014ab`.
+- SHOWN: `/var/lib/cbp/data/crypto_edge_research.sqlite` exists and the
+  funding/price join sees stored funding rows.
+- SHOWN: no market/OHLCV archive DB was found under `/var/lib/cbp`, and the
+  price-join report returns `ok=false`, `reason=archive_missing` with
+  `funding_row_count=50`.
+- SHOWN: `services.backtest.ohlcv_archive.backfill_archive()` already provides
+  reusable idempotent archive backfill and dataset hashing, but there was no
+  operator CLI to run it on the host.
+
+What changed:
+- Added `scripts/research/run_ohlcv_archive_backfill.py`, a narrow
+  research-data ingestion CLI over `backfill_archive()`.
+- The CLI fetches public OHLCV directly with `make_exchange()` and
+  `map_symbol()` instead of using archive replay helpers, so it cannot read
+  from the archive it is populating.
+- Added `make ohlcv-archive-backfill`.
+- Documented the script in `scripts/SCRIPTS.md` and recorded the host blocker
+  in `REMAINING_TASKS.md`.
+- Added tests for direct exchange fetch/close behavior, JSON artifact output,
+  wiring into `backfill_archive()`, and `--fail-if-not-ok`.
+
+Why this change:
+- Funding context replay and price-join now have stored funding rows, but
+  price research cannot proceed until the accepted OHLCV archive exists.
+- This keeps ingestion separate from strategy evidence and promotion gates.
+
+Expected outcome:
+- Operators can populate `/var/lib/cbp/data/market_raw.sqlite` from public
+  OKX OHLCV, then rerun the funding/price join against a complete archive.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backfill_runner.py`
+  - SHOWN: `3 passed in 0.14s`.
+- `./.venv/bin/python -m pytest -q tests/test_ohlcv_archive_backfill_runner.py tests/test_ohlcv_archive_pagination.py tests/test_funding_context_price_join.py`
+  - SHOWN: `15 passed in 0.49s`.
+- `./.venv/bin/python -m py_compile scripts/research/run_ohlcv_archive_backfill.py tests/test_ohlcv_archive_backfill_runner.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: this adds a host-run data-ingestion tool that writes the research
+  market archive DB when invoked, but it does not touch campaigns, gates, live
+  execution, risk, routing, or strategy evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -209,6 +209,10 @@ decision makes them authoritative.
   signal-distribution replay over stored crypto-edge funding snapshots; writes
   dataset-hashed JSON artifacts only and does not compute PnL, expectancy, or
   promotion evidence. Use `make funding-context-replay`.
+- `research/run_ohlcv_archive_backfill.py` — research-data ingestion tool that
+  backfills the local market OHLCV archive from public exchange OHLCV and
+  writes a dataset-hashed JSON summary; it does not affect campaigns, gates,
+  or trading. Use `make ohlcv-archive-backfill`.
 - `research/run_funding_context_price_join.py` — read-only
   `funding_extreme` forward-return report joining stored funding snapshots to
   archived OHLCV rows; computes unit-size modeled forward returns only and

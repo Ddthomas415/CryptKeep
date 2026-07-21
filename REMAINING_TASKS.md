@@ -470,6 +470,17 @@ deployment work still needs independent review.
     state, and not promotion evidence. Before a persistent `funding_extreme`
     campaign decision, run this against sufficient host funding history plus a
     complete accepted OHLCV archive and review the resulting artifact.
+    2026-07-20/21: host check after PR #351 confirmed the next blocker:
+    Hetzner has stored funding data (`funding_row_count=50` in the
+    price-join path) but no `/var/lib/cbp/data/market_raw.sqlite`, so the
+    report returns `ok=false`, `reason=archive_missing`. A research-data
+    ingestion CLI is ready for independent review:
+    `scripts/research/run_ohlcv_archive_backfill.py` / `make
+    ohlcv-archive-backfill` wraps the accepted `backfill_archive()` primitive,
+    fetches public OHLCV directly from the exchange factory so it cannot read
+    from the archive it is populating, and writes only the market archive plus
+    a dataset-hashed JSON summary. It does not change campaigns, gates, live
+    execution, routing, or strategy evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
