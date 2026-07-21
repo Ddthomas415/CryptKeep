@@ -23828,3 +23828,62 @@ Remaining risk:
   checks and no campaign, gate, strategy config, trading, host, or
   live-execution code changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:44:57Z - Strategy Review Artifact And Default Symbol Fix
+
+Active role: ENGINEER
+
+Objective:
+- Run the weekly strategy-review ritual and fix the default symbol mismatch
+  that prevented the loss replay from inspecting the canonical ES paper
+  campaign by default.
+
+What was found:
+- SHOWN: `make strategy-review` inside the sandbox reached laptop status but
+  failed on the Hetzner wrapper with `tailscale_cli_preferences_unavailable`.
+- SHOWN: the same read-only command completed out of the sandbox: laptop
+  campaigns were `2/2 running`, Hetzner `ema_cross_default` was `1/1 running`,
+  and `es_daily_trend_v1` remained `3/10` qualified round trips.
+- SHOWN: the Makefile default used
+  `STRATEGY_REVIEW_SYMBOL=BTC/USD`, while the canonical ES paper campaign and
+  journal use `BTC/USDT`; the default loss replay returned zero fills.
+- SHOWN: rerunning loss replay with `--symbol BTC/USDT` returned `20` fills,
+  `10` closed trades, `9` net-of-fees losing replay rows, and net realized PnL
+  `31.4368625683357`.
+
+What changed:
+- Changed the Makefile default strategy-review symbol from `BTC/USD` to
+  `BTC/USDT`.
+- Updated `docs/STRATEGY_REVIEW_RITUAL.md` with the default review target.
+- Added `docs/checkpoints/strategy_review_2026_07_21.md` with the dated
+  advisory review artifact and gross-vs-net interpretation note.
+- Updated `REMAINING_TASKS.md` item 23 to point at the artifact and the default
+  symbol correction.
+
+Why this change:
+- The review ritual existed, but the default replay path missed the active ES
+  journal rows. The smallest fix is to align the default with the canonical
+  campaign while preserving override variables for other strategies.
+
+Expected outcome:
+- `make strategy-review` now inspects the current ES paper campaign losses by
+  default instead of producing a misleading zero-fill replay.
+
+Verification:
+- `make strategy-review`
+  - SHOWN: sandbox run failed only on Hetzner Tailscale preferences; rerun with
+    normal host environment completed successfully.
+- `./.venv/bin/python scripts/dev/replay_paper_losses.py --strategy-id sma_200_trend --symbol BTC/USDT --limit 10`
+  - SHOWN: `fills_count=20`, `closed_trade_count=10`,
+    `losing_trade_count=9`, `net_realized_pnl=31.4368625683357`.
+- `make -n strategy-review`
+  - SHOWN: default replay command now expands to `--symbol BTC/USDT`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: operator review/reporting default and documentation only. No campaign,
+  gate, strategy config, trading, host, or live-execution behavior changed.
+- Acceptance state: `ACCEPTED`.
