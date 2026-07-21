@@ -494,6 +494,19 @@ deployment work still needs independent review.
     blocker is closed for this bounded host window, but the stored funding
     sample produced zero actionable `funding_extreme` rows under current
     thresholds; this is not profitability evidence.
+    2026-07-21 supplemental host refresh: the research archive was refreshed
+    to `1096` OKX `BTC/USDT` 5m rows with dataset hash
+    `2a6640a4fe35b939d87e3fffe57f88c5a280d825b1b4560d139268bbb63d1563`,
+    then the funding/price join was rerun over the available host funding
+    store (`funding_row_count=788`). The refreshed report returned
+    `ok=true`, `joined_rows=787`, dataset hash
+    `3f244fbe0af5a515b2aa7c1495e643578e6c36f04337f68af7a502641f6a4542`,
+    `action_counts={"hold":787}`, and
+    `reason_counts={"funding_neutral":787}`. SHOWN: stored funding percent
+    ranged from `-0.00447723%` to `0.00846561%`, so zero rows crossed the
+    active `funding_extreme` defaults (`sell >= 0.05%`, `buy <= -0.01%`).
+    Interpretation: the zero-action result is a quiet-sample/threshold result,
+    not a join wiring failure, and remains non-profitability evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing

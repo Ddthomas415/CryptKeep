@@ -23639,3 +23639,60 @@ Remaining risk:
   backfill, but no campaign, gate, live execution, risk, routing, or strategy
   evidence state was changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T19:18:00Z - Funding Price Join Supplemental Full-Store Host Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Determine whether the zero-actionable `funding_extreme` price-join result was
+  caused by the prior `funding-limit=500` sample window, incomplete archive
+  coverage, or a genuine no-threshold-crossing funding sample.
+
+What was found:
+- SHOWN: the host crypto-edge store contained `788` OKX `BTC/USDT:USDT`
+  `live_public` funding rows from `2026-07-18T20:25:49+00:00` to
+  `2026-07-21T19:10:50+00:00`.
+- SHOWN: those stored funding rows ranged from `-0.00447723%` to
+  `0.00846561%`.
+- SHOWN: the active `funding_extreme` defaults are percent thresholds:
+  `sell >= 0.05%` and `buy <= -0.01%`.
+- SHOWN: no stored funding row crossed either active threshold.
+
+What changed:
+- Updated `docs/checkpoints/funding_price_join_host_proof_2026_07_21.md`
+  with a supplemental full-store refresh section.
+- Updated `REMAINING_TASKS.md` with the refreshed artifact hashes and
+  interpretation.
+
+Why this change:
+- The original host proof proved the archive and join path worked, but only over
+  the most recent `500` funding rows. The supplemental refresh verifies the
+  zero-action result against all stored host funding rows available at the time.
+
+Expected outcome:
+- `funding_extreme` remains research-only; there is no basis to start a
+  persistent campaign or alter thresholds from this quiet sample.
+- Next useful research step is a sensitivity/distribution report or longer
+  history accumulation, not promotion-gate work.
+
+Verification:
+- Host edge-store summary query:
+  - SHOWN: `rows=788`, `min_pct=-0.0044772316875499995`,
+    `p50_pct=0.00139570845653`, `p95_pct=0.00778673794423`,
+    `max_pct=0.008465613466180001`, `count_ge_0_05=0`,
+    `count_le_neg_0_01=0`.
+- Host archive refresh:
+  - SHOWN: `ok=true`, `rows_written=1096`,
+    `dataset_hash=2a6640a4fe35b939d87e3fffe57f88c5a280d825b1b4560d139268bbb63d1563`.
+- Host full-store funding/price join:
+  - SHOWN: `ok=true`, `joined_rows=787`,
+    `dataset_hash=3f244fbe0af5a515b2aa7c1495e643578e6c36f04337f68af7a502641f6a4542`,
+    `action_counts={"hold":787}`, `reason_counts={"funding_neutral":787}`,
+    `actionable_rows=0`.
+
+Remaining risk:
+- LOW/MEDIUM: docs-only recording of approved research-data host operations;
+  the host archive DB was mutated by the research-only refresh, but no campaign,
+  gate, live execution, risk, routing, or strategy evidence state was changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
