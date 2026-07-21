@@ -23778,3 +23778,53 @@ Remaining risk:
 - LOW: backlog/work-log documentation only; no runtime behavior, campaign,
   gate, trading, host, or live-execution code changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:18:00Z - Refresh Local Paper Gate Count In Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Update the backlog current-state summary from stale paper-gate counts to the
+  current local read-only gate and soak outputs.
+
+What was found:
+- SHOWN: `make status-paper-gate-qualification` reported
+  `es_daily_trend_v1` at `qualified=3`, `all_history=10`, `counted=6`,
+  `incomplete=1`, and `rejected=9`.
+- SHOWN: rejected fills are still legacy provenance failures
+  (`missing_market_data_source`, `missing_ohlcv_sample_mode`,
+  `missing_ohlcv_symbol`, `missing_ohlcv_timeframe`, and
+  `missing_ohlcv_venue`).
+- SHOWN: `make status-paper-soak` reported laptop campaigns `2/2 running`;
+  `es_daily_trend_v1` is `idle`, `waiting_for_next_day`, with `fills=20`,
+  `closed=10`, and gate status `ready=False`.
+
+What changed:
+- Updated the `REMAINING_TASKS.md` current-state summary from `2/10` with
+  `8` remaining to `3/10` with `7` remaining, and recorded the command outputs
+  supporting the refresh.
+
+Why this change:
+- The backlog is a lightweight index; its current-state counts should not lag
+  behind the operator-visible gate output when the evidence is available.
+
+Expected outcome:
+- Operators looking at the backlog see current local gate progress and do not
+  reason from stale June counts.
+
+Verification:
+- `make status-paper-gate-qualification`
+  - SHOWN: `qualified=3`, `all_history=10`, `counted=6`,
+    `incomplete=1`, `rejected=9`.
+- `make status-paper-soak`
+  - SHOWN: laptop campaigns `2/2 running`; gate `ready=False`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only; the commands were read-only status
+  checks and no campaign, gate, strategy config, trading, host, or
+  live-execution code changed.
+- Acceptance state: `ACCEPTED`.

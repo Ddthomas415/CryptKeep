@@ -24,8 +24,11 @@ SHOWN:
 - Codex sandboxed Tailscale may report
   `tailscale_cli_preferences_unavailable`; use a normal operator terminal or
   approved out-of-sandbox status check when Hetzner status must be verified.
-- Canonical `es_daily_trend_v1` paper promotion remains blocked at `2/10`
-  provenance-qualified round trips, with `8` remaining.
+- Canonical `es_daily_trend_v1` paper promotion remains blocked at `3/10`
+  provenance-qualified round trips, with `7` remaining. 2026-07-21 local
+  `make status-paper-gate-qualification` reports `qualified=3`,
+  `all_history=10`, `counted=6`, `incomplete=1`, and `rejected=9`; local
+  `make status-paper-soak` reports laptop campaigns `2/2 running`.
 - `make status-paper-gate-qualification` now explains which fills count,
   remain incomplete, or are rejected by provenance checks.
 - `make status-paper-soak` and `make status-paper-all` now surface compact
