@@ -23887,3 +23887,55 @@ Remaining risk:
 - LOW: operator review/reporting default and documentation only. No campaign,
   gate, strategy config, trading, host, or live-execution behavior changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T21:15:15Z - Runtime Evidence Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh current paper-campaign, ES gate, and Hetzner crypto-edge runtime
+  evidence without changing any campaign, service, gate, strategy config, host
+  state, or trading behavior.
+
+What was found:
+- SHOWN: local `master` and `origin/master` were both at `ae4ce1046`.
+- SHOWN: `make status-paper-all` reported laptop paper campaigns `2/2`
+  running and Hetzner `ema_cross_default` `1/1` running.
+- SHOWN: `make status-paper-gate-qualification-json` reported
+  `qualified_round_trips=3`, `min_qualified_round_trips=10`, and
+  `7` remaining for `es_daily_trend_v1`.
+- SHOWN: `make status-hetzner-edge-runtime` reported
+  `hetzner_crypto_edge_runtime_ready`, `ok=True`, and `blocking_checks=0`.
+- SHOWN: host-side `check_edge_cadence.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp` reported `ok=true`, `missing=[]`, `stale=[]`,
+  and fresh OKX funding/open-interest/basis snapshots captured at
+  `2026-07-21T21:10:42+00:00`.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_07_21.md`.
+- Updated `REMAINING_TASKS.md` item 14 with a dated read-only runtime refresh
+  pointer.
+
+Why this change:
+- The July 18 crypto-edge host proof was still the latest durable checkpoint.
+  Recording the July 21 read-only output preserves the current operator
+  evidence and confirms the collector freshness without restarting or mutating
+  host services.
+
+Expected outcome:
+- Operators can distinguish current campaign/edge health from stale backlog
+  text while the ES paper gate continues waiting on qualified round trips.
+
+Verification:
+- `make status-paper-all`
+  - SHOWN: laptop `2/2` running; Hetzner `1/1` running.
+- `make status-paper-gate-qualification-json`
+  - SHOWN: `qualified_round_trips=3`; `7` remaining.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `ok=True`; `blocking_checks=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`; OKX funding/open-interest/basis fresh.
+
+Remaining risk:
+- LOW: documentation-only evidence refresh. No runtime behavior changed.
+- Acceptance state: `ACCEPTED`.
