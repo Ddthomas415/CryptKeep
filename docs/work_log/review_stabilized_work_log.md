@@ -23639,3 +23639,192 @@ Remaining risk:
   backfill, but no campaign, gate, live execution, risk, routing, or strategy
   evidence state was changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T20:08:46Z - Refresh Backlog Execution Lanes
+
+Active role: ENGINEER
+
+Objective:
+- Convert the current large backlog into an accurate same-lane batching map so
+  future coding passes do not rebuild items already present on current
+  `master`.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` still recommended several July 4
+  code targets that current `REMAINING_TASKS.md` now records as implemented,
+  accepted, or proof-ready, including promotion policy, OHLCV blocked-state
+  recovery, registry fail-closed behavior, archive tooling, alerting, shadow
+  would-be-fill recording, execution-cost reporting, live resume governance,
+  intent TTL, typed retry policy, backup/restore tooling, dead-man alerting,
+  config-fail-closed slices, and AI/proba fail-closed quarantine.
+- SHOWN: many remaining item notes are operational proof or host/runtime
+  evidence requirements, not local coding work.
+
+What changed:
+- Refreshed `docs/BACKLOG_EXECUTION_LANES.md` with a 2026-07-21 status note,
+  updated passive/operator evidence, low-risk docs/tests, medium-risk
+  read-only runtime, and high-risk gate/execution/deploy lanes, and replaced
+  stale next-code recommendations with a current safe batching order.
+- Updated `REMAINING_TASKS.md` item 18 to point at the refreshed lane map.
+
+Why this change:
+- The user asked to get the remaining work done after the backlog list became
+  too large. The safest immediate fix was to remove stale batching guidance so
+  subsequent engineering starts from the actual current boundary.
+
+Expected outcome:
+- Future batches should be selected from current operator-proof,
+  read-only-research, docs/test, or single-high-risk lanes without mixing risk
+  classes or duplicating already accepted implementation work.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: documentation/workflow control only; no runtime behavior, campaign,
+  gate, trading, host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:12:04Z - Clarify Public Repo Identity Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining public-doc gap for backlog item 19 so the repository
+  entry point states CryptKeep's current operating identity before users reach
+  deeper operator docs.
+
+What was found:
+- SHOWN: `docs/PROJECT_IDENTITY_AND_SCOPE.md`, `docs/GOLDEN_PATH.md`, and
+  `docs/OBJECTIVE.md` already describe CryptKeep as a profit-measurement and
+  evidence-generation lab until live expectancy is proven.
+- SHOWN: `README.md` described the platform and hardening surface, but did not
+  directly state that CryptKeep is not a proven profitable trading bot or link
+  the project identity scope document from the introduction.
+
+What changed:
+- Added the identity boundary and scope-document link to the public README
+  introduction.
+- Updated `REMAINING_TASKS.md` item 19 with the 2026-07-21 README closure note.
+
+Why this change:
+- The public entry point should carry the same evidence-first identity warning
+  as the operator docs, so product/trading claims do not outrun proven live
+  expectancy.
+
+Expected outcome:
+- New readers see the current profit-measurement/evidence-generation boundary
+  before interpreting CryptKeep as a profitable trading bot.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: documentation-only; no runtime behavior, campaign, gate, trading,
+  host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:16:00Z - Reclassify Active Tail Items As Future Governance Or Operator Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Reduce stale backlog noise in active items 20 through 23 by separating
+  completed local implementation from remaining future-governance and
+  operator-evidence work.
+
+What was found:
+- SHOWN: item 20 records accepted AI-copilot read-only SQLite context access
+  and provider-data boundary work; the remaining scope is future provider or
+  review-authority expansion.
+- SHOWN: `docs/CI_IGNORED_TEST_POLICY.md`,
+  `.github/workflows/ci-ignored-tests.yml`, `Makefile`, and
+  `tests/test_ci_ignored_tests_policy.py` record that the former permanently
+  ignored CI files are now normal-suite guarded, with the old slice available
+  only as a manual diagnostic.
+- SHOWN: `docs/RETENTION_POLICY.md` defines paper/research retention policy and
+  links Hetzner host thresholds; the remaining proof is launch-packet operator
+  evidence.
+- SHOWN: `Makefile` exposes `make strategy-review`, and
+  `docs/STRATEGY_REVIEW_RITUAL.md` documents the operator-run review ritual.
+
+What changed:
+- Added 2026-07-21 notes to backlog items 20 through 23 clarifying that current
+  local implementation gaps are closed and naming the remaining future
+  governance or operator-evidence action.
+
+Why this change:
+- The user asked to batch remaining work safely. Clearing stale active-item
+  wording prevents rebuilding accepted implementation and keeps attention on
+  real remaining proof or decision work.
+
+Expected outcome:
+- Backlog readers can distinguish local coding gaps from future accepted-design
+  gates and operator-run proof requirements.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only; no runtime behavior, campaign,
+  gate, trading, host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:18:00Z - Refresh Local Paper Gate Count In Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Update the backlog current-state summary from stale paper-gate counts to the
+  current local read-only gate and soak outputs.
+
+What was found:
+- SHOWN: `make status-paper-gate-qualification` reported
+  `es_daily_trend_v1` at `qualified=3`, `all_history=10`, `counted=6`,
+  `incomplete=1`, and `rejected=9`.
+- SHOWN: rejected fills are still legacy provenance failures
+  (`missing_market_data_source`, `missing_ohlcv_sample_mode`,
+  `missing_ohlcv_symbol`, `missing_ohlcv_timeframe`, and
+  `missing_ohlcv_venue`).
+- SHOWN: `make status-paper-soak` reported laptop campaigns `2/2 running`;
+  `es_daily_trend_v1` is `idle`, `waiting_for_next_day`, with `fills=20`,
+  `closed=10`, and gate status `ready=False`.
+
+What changed:
+- Updated the `REMAINING_TASKS.md` current-state summary from `2/10` with
+  `8` remaining to `3/10` with `7` remaining, and recorded the command outputs
+  supporting the refresh.
+
+Why this change:
+- The backlog is a lightweight index; its current-state counts should not lag
+  behind the operator-visible gate output when the evidence is available.
+
+Expected outcome:
+- Operators looking at the backlog see current local gate progress and do not
+  reason from stale June counts.
+
+Verification:
+- `make status-paper-gate-qualification`
+  - SHOWN: `qualified=3`, `all_history=10`, `counted=6`,
+    `incomplete=1`, `rejected=9`.
+- `make status-paper-soak`
+  - SHOWN: laptop campaigns `2/2 running`; gate `ready=False`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only; the commands were read-only status
+  checks and no campaign, gate, strategy config, trading, host, or
+  live-execution code changed.
+- Acceptance state: `ACCEPTED`.
