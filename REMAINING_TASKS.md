@@ -2149,6 +2149,11 @@ substrate work, but they are concrete enough to keep visible.
     read-only runtime work, and high-risk gate/execution/deploy work so
     same-lane batching is explicit and high-risk work is not mixed into
     cleanup passes.
+    2026-07-21: `docs/BACKLOG_EXECUTION_LANES.md` is refreshed against current
+    `master` after many prior coding candidates landed. It now distinguishes
+    completed/proof-ready implementation text from remaining operator evidence,
+    read-only research/reporting, and the small set of genuinely high-risk
+    capped-live coding objectives.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

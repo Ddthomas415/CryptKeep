@@ -23639,3 +23639,51 @@ Remaining risk:
   backfill, but no campaign, gate, live execution, risk, routing, or strategy
   evidence state was changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T20:08:46Z - Refresh Backlog Execution Lanes
+
+Active role: ENGINEER
+
+Objective:
+- Convert the current large backlog into an accurate same-lane batching map so
+  future coding passes do not rebuild items already present on current
+  `master`.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` still recommended several July 4
+  code targets that current `REMAINING_TASKS.md` now records as implemented,
+  accepted, or proof-ready, including promotion policy, OHLCV blocked-state
+  recovery, registry fail-closed behavior, archive tooling, alerting, shadow
+  would-be-fill recording, execution-cost reporting, live resume governance,
+  intent TTL, typed retry policy, backup/restore tooling, dead-man alerting,
+  config-fail-closed slices, and AI/proba fail-closed quarantine.
+- SHOWN: many remaining item notes are operational proof or host/runtime
+  evidence requirements, not local coding work.
+
+What changed:
+- Refreshed `docs/BACKLOG_EXECUTION_LANES.md` with a 2026-07-21 status note,
+  updated passive/operator evidence, low-risk docs/tests, medium-risk
+  read-only runtime, and high-risk gate/execution/deploy lanes, and replaced
+  stale next-code recommendations with a current safe batching order.
+- Updated `REMAINING_TASKS.md` item 18 to point at the refreshed lane map.
+
+Why this change:
+- The user asked to get the remaining work done after the backlog list became
+  too large. The safest immediate fix was to remove stale batching guidance so
+  subsequent engineering starts from the actual current boundary.
+
+Expected outcome:
+- Future batches should be selected from current operator-proof,
+  read-only-research, docs/test, or single-high-risk lanes without mixing risk
+  classes or duplicating already accepted implementation work.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: documentation/workflow control only; no runtime behavior, campaign,
+  gate, trading, host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
