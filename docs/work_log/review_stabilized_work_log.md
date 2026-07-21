@@ -23575,3 +23575,67 @@ Remaining risk:
   market archive DB when invoked, but it does not touch campaigns, gates, live
   execution, risk, routing, or strategy evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T13:06:36Z - Hetzner Funding Price Join Host Proof
+
+Active role: ENGINEER
+
+Objective:
+- Execute the accepted OHLCV archive backfill and funding context price-join
+  proof on Hetzner after explicit operator approval.
+
+What was found:
+- SHOWN: Hetzner app checkout fast-forwarded to accepted master `5eb36cbb5`
+  with no service restart.
+- SHOWN: OKX `BTC/USDT` 5m public-OHLCV archive backfill succeeded and wrote
+  `1021` rows to `/var/lib/cbp/data/market_raw.sqlite`.
+- SHOWN: funding context price join succeeded over the stored edge data and
+  archived prices with `joined_rows=498`.
+- SHOWN: every joined row resolved to `hold/funding_neutral`, so there were
+  zero actionable forward-return rows under current `funding_extreme`
+  thresholds.
+
+What changed:
+- Added `docs/checkpoints/funding_price_join_host_proof_2026_07_21.md`.
+- Updated `REMAINING_TASKS.md` with the host artifact hashes and interpretation.
+
+Why this change:
+- The prior blocker was a missing OHLCV archive on the host. The archive now
+  exists for the bounded OKX `BTC/USDT` 5m window, and the price-join report
+  can run against it.
+- Recording the result prevents a successful research plumbing proof from
+  being mistaken for profitability evidence.
+
+Expected outcome:
+- Future funding research can build from the stored archive and replay/join
+  artifacts, but current stored funding data does not yet show actionable
+  `funding_extreme` entries.
+
+Verification:
+- `scripts/research/run_ohlcv_archive_backfill.py ... --venue okx --symbol BTC/USDT --timeframe 5m --since 2026-07-18T00:00:00Z ... --fail-if-not-ok`
+  - SHOWN: `ok=true`, `rows_written=1021`,
+    `dataset_hash=d2a661e606423760075844b4e1df88bd0dca3161d89292e1187f3e13207e243b`.
+- `scripts/research/run_funding_context_price_join.py ... --funding-limit 500 --ohlcv-limit 1000 --fail-if-not-ok`
+  - SHOWN: `ok=true`, `joined_rows=498`,
+    `dataset_hash=f01778c070ab4feaf6aa7f5271e5fd2ed95544a774e6ae0fa9f972e83986b51b`,
+    `action_counts={"hold":498}`,
+    `reason_counts={"funding_neutral":498}`,
+    `actionable_rows=0`.
+- `make status-hetzner-edge-runtime HETZNER_STATUS_TIMEOUT_SEC=60 HETZNER_EDGE_EXPECTED_COMMIT=5eb36cbb5`
+  - SHOWN: `ok=True`, `blocking_checks=0`.
+- `make status-paper-hetzner HETZNER_STATUS_TIMEOUT_SEC=30`
+  - SHOWN: `ema_cross_default` running/idle, fills `9`, closed `4`,
+    PnL `-2.3157`.
+- Host `scripts/check_edge_cadence.py --json`
+  - SHOWN: `ok=true`; funding/open_interest/basis fresh at
+    `2026-07-21T13:00:48+00:00`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: host market archive DB was mutated by the approved research-data
+  backfill, but no campaign, gate, live execution, risk, routing, or strategy
+  evidence state was changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
