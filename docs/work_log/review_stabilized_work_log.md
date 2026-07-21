@@ -23639,3 +23639,49 @@ Remaining risk:
   backfill, but no campaign, gate, live execution, risk, routing, or strategy
   evidence state was changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T20:05:00Z - Price-Action Context Feature Pack Backlog Scope
+
+Active role: DIRECTOR
+
+Objective:
+- Convert the operator's price-action research ideas into a scoped backlog/RFC
+  item without starting strategy implementation.
+
+What was found:
+- SHOWN: the repo already has `docs/research/pattern_strategy_backlog.md`, so
+  adding a duplicate backlog document would create drift.
+- SHOWN: `REMAINING_TASKS.md` item 13 already tracks pattern/candlestick
+  research behind archive and paper-evidence gates.
+- SHOWN: current strategy registry does not expose first-class modules for
+  fair-value gaps, engulfing candles, swing failures, break/retest, rejection
+  wicks, volume profile, opening range, or Databento ingestion.
+
+What changed:
+- Expanded `docs/research/pattern_strategy_backlog.md` with a research-only
+  price-action context feature pack.
+- Updated `REMAINING_TASKS.md` item 13 with the operator-requested concepts and
+  sequencing boundary.
+- Updated `docs/research/strategy_expansion_roadmap.md` to place price-action
+  labels before Databento-backed microstructure work.
+
+Why this change:
+- These concepts are useful as labels/filters, but starting many standalone
+  strategy families would increase false discovery risk. A single
+  dataset-hashed context-feature pack lets the repo test whether the concepts
+  improve forward-return distributions before any campaign or promotion use.
+
+Expected outcome:
+- Future implementation can target a read-only feature extractor over archived
+  OHLCV first, with Databento deferred to a separate data-source RFC.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: docs/backlog scope only; no source, campaign, gate, live execution, risk,
+  routing, or strategy config changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
