@@ -481,6 +481,19 @@ deployment work still needs independent review.
     from the archive it is populating, and writes only the market archive plus
     a dataset-hashed JSON summary. It does not change campaigns, gates, live
     execution, routing, or strategy evidence.
+    2026-07-21: host proof recorded in
+    `docs/checkpoints/funding_price_join_host_proof_2026_07_21.md`.
+    Hetzner was synced to `5eb36cbb5` with no service restart. OKX `BTC/USDT`
+    5m archive backfill wrote `1021` rows to
+    `/var/lib/cbp/data/market_raw.sqlite` with dataset hash
+    `d2a661e606423760075844b4e1df88bd0dca3161d89292e1187f3e13207e243b`.
+    The funding/price join then returned `ok=true`, `joined_rows=498`,
+    `dataset_hash=f01778c070ab4feaf6aa7f5271e5fd2ed95544a774e6ae0fa9f972e83986b51b`,
+    `action_counts={"hold":498}`, and
+    `reason_counts={"funding_neutral":498}`. Interpretation: the archive
+    blocker is closed for this bounded host window, but the stored funding
+    sample produced zero actionable `funding_extreme` rows under current
+    thresholds; this is not profitability evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
