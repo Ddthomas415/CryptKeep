@@ -2161,6 +2161,9 @@ substrate work, but they are concrete enough to keep visible.
     of dashboard/product polish. 2026-07-03: `docs/PROJECT_IDENTITY_AND_SCOPE.md`
     defines the current identity, and `docs/GOLDEN_PATH.md` /
     `docs/OBJECTIVE.md` now link that scope.
+    2026-07-21: public `README.md` now states the same boundary directly and
+    links `docs/PROJECT_IDENTITY_AND_SCOPE.md`, so the repository entry point
+    no longer relies on operator docs alone for this identity warning.
 20. Harden AI-copilot context access and provider-data governance before
     enabling external LLM summaries as a normal operator path.
     `services/ai_copilot/context_collector.py::_safe_sqlite_query` currently

@@ -23687,3 +23687,45 @@ Remaining risk:
 - LOW: documentation/workflow control only; no runtime behavior, campaign,
   gate, trading, host, or live-execution code changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:12:04Z - Clarify Public Repo Identity Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining public-doc gap for backlog item 19 so the repository
+  entry point states CryptKeep's current operating identity before users reach
+  deeper operator docs.
+
+What was found:
+- SHOWN: `docs/PROJECT_IDENTITY_AND_SCOPE.md`, `docs/GOLDEN_PATH.md`, and
+  `docs/OBJECTIVE.md` already describe CryptKeep as a profit-measurement and
+  evidence-generation lab until live expectancy is proven.
+- SHOWN: `README.md` described the platform and hardening surface, but did not
+  directly state that CryptKeep is not a proven profitable trading bot or link
+  the project identity scope document from the introduction.
+
+What changed:
+- Added the identity boundary and scope-document link to the public README
+  introduction.
+- Updated `REMAINING_TASKS.md` item 19 with the 2026-07-21 README closure note.
+
+Why this change:
+- The public entry point should carry the same evidence-first identity warning
+  as the operator docs, so product/trading claims do not outrun proven live
+  expectancy.
+
+Expected outcome:
+- New readers see the current profit-measurement/evidence-generation boundary
+  before interpreting CryptKeep as a profitable trading bot.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: documentation-only; no runtime behavior, campaign, gate, trading,
+  host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
