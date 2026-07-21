@@ -624,6 +624,13 @@ deployment work still needs independent review.
     code 0. The paper campaign remains healthy. This closes the host-side
     crypto-edge schedule/cadence proof; it does not authorize live routing,
     live trading, derivatives execution, or crypto-edge paper qualification.
+    2026-07-21 read-only refresh recorded in
+    `docs/checkpoints/runtime_check_2026_07_21.md`: local paper campaigns
+    remain `2/2` running, Hetzner `ema_cross_default` remains `1/1` running,
+    `es_daily_trend_v1` remains at `3/10` qualified round trips, and
+    host-side `check_edge_cadence.py --json` under `CBP_STATE_DIR=/var/lib/cbp`
+    reports OKX funding/open-interest/basis all fresh at
+    `2026-07-21T21:10:42+00:00` with `missing=[]` and `stale=[]`.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
