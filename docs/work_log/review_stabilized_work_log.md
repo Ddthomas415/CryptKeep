@@ -23729,3 +23729,52 @@ Remaining risk:
 - LOW: documentation-only; no runtime behavior, campaign, gate, trading,
   host, or live-execution code changed.
 - Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:16:00Z - Reclassify Active Tail Items As Future Governance Or Operator Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Reduce stale backlog noise in active items 20 through 23 by separating
+  completed local implementation from remaining future-governance and
+  operator-evidence work.
+
+What was found:
+- SHOWN: item 20 records accepted AI-copilot read-only SQLite context access
+  and provider-data boundary work; the remaining scope is future provider or
+  review-authority expansion.
+- SHOWN: `docs/CI_IGNORED_TEST_POLICY.md`,
+  `.github/workflows/ci-ignored-tests.yml`, `Makefile`, and
+  `tests/test_ci_ignored_tests_policy.py` record that the former permanently
+  ignored CI files are now normal-suite guarded, with the old slice available
+  only as a manual diagnostic.
+- SHOWN: `docs/RETENTION_POLICY.md` defines paper/research retention policy and
+  links Hetzner host thresholds; the remaining proof is launch-packet operator
+  evidence.
+- SHOWN: `Makefile` exposes `make strategy-review`, and
+  `docs/STRATEGY_REVIEW_RITUAL.md` documents the operator-run review ritual.
+
+What changed:
+- Added 2026-07-21 notes to backlog items 20 through 23 clarifying that current
+  local implementation gaps are closed and naming the remaining future
+  governance or operator-evidence action.
+
+Why this change:
+- The user asked to batch remaining work safely. Clearing stale active-item
+  wording prevents rebuilding accepted implementation and keeps attention on
+  real remaining proof or decision work.
+
+Expected outcome:
+- Backlog readers can distinguish local coding gaps from future accepted-design
+  gates and operator-run proof requirements.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only; no runtime behavior, campaign,
+  gate, trading, host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.

@@ -2183,6 +2183,10 @@ substrate work, but they are concrete enough to keep visible.
     include a regression proving rejected write SQL does not mutate the source
     DB. Remaining work: any future provider expansion must stay within the
     documented payload boundary.
+    2026-07-21: current local implementation gap is closed. Remaining scope is
+    future-change governance only: new external providers, provider payload
+    fields, or prompt-injection-resistant review authority need separate
+    accepted design before becoming normal operator paths.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
@@ -2211,6 +2215,12 @@ substrate work, but they are concrete enough to keep visible.
     `tests/test_ci_ignored_tests_policy.py` now guards against reintroducing
     those ignores. The manual workflow/target remain only as a focused
     diagnostic slice, not as substitute coverage.
+    2026-07-21: current source confirms the closure state: required CI,
+    `make test-fast`, and `make test-full` no longer carry permanent ignores
+    for the four files; `.github/workflows/ci-ignored-tests.yml` remains manual
+    `workflow_dispatch` only; `tests/test_ci_ignored_tests_policy.py` is the
+    regression guard. Remaining work is future hygiene only: do not reintroduce
+    hidden permanent ignores without a reviewed policy update.
 22. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging
@@ -2226,6 +2236,11 @@ substrate work, but they are concrete enough to keep visible.
     10,000 free inodes, backup age, UTC/NTP sync, and restore-test status.
     Remaining proof: fresh backup/restore drill evidence for any future
     canonical server/capped-live launch packet.
+    2026-07-21: current local policy gap is closed. `docs/RETENTION_POLICY.md`
+    defines default keep/rotate/must-not-keep families and links Hetzner paper
+    host thresholds. Remaining work is operator evidence for future launch
+    packets: fresh backup/restore drill, backup-artifact secrets scan, and
+    host-specific storage proof.
 23. Turn paper diagnostics and loss replay into a scheduled strategy-review
     ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
     `scripts/dev/replay_paper_losses.py`, and the AI copilot
@@ -2241,6 +2256,11 @@ substrate work, but they are concrete enough to keep visible.
     strategy-review` is added as an operator-run target that executes
     `status-paper-all`, paper diagnostics, and loss replay with overridable
     strategy/symbol/limit variables. No automatic scheduler was added.
+    2026-07-21: current local implementation gap is closed. `Makefile` exposes
+    `make strategy-review`, `docs/STRATEGY_REVIEW_RITUAL.md` documents the
+    ritual, and the remaining action is operator cadence: run and file dated
+    review artifacts; conclusions remain advisory until a separate governed
+    config/code change is accepted.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
