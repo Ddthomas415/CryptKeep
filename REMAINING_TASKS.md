@@ -24,8 +24,11 @@ SHOWN:
 - Codex sandboxed Tailscale may report
   `tailscale_cli_preferences_unavailable`; use a normal operator terminal or
   approved out-of-sandbox status check when Hetzner status must be verified.
-- Canonical `es_daily_trend_v1` paper promotion remains blocked at `2/10`
-  provenance-qualified round trips, with `8` remaining.
+- Canonical `es_daily_trend_v1` paper promotion remains blocked at `3/10`
+  provenance-qualified round trips, with `7` remaining. 2026-07-21 local
+  `make status-paper-gate-qualification` reports `qualified=3`,
+  `all_history=10`, `counted=6`, `incomplete=1`, and `rejected=9`; local
+  `make status-paper-soak` reports laptop campaigns `2/2 running`.
 - `make status-paper-gate-qualification` now explains which fills count,
   remain incomplete, or are rejected by provenance checks.
 - `make status-paper-soak` and `make status-paper-all` now surface compact
@@ -621,6 +624,13 @@ deployment work still needs independent review.
     code 0. The paper campaign remains healthy. This closes the host-side
     crypto-edge schedule/cadence proof; it does not authorize live routing,
     live trading, derivatives execution, or crypto-edge paper qualification.
+    2026-07-21 read-only refresh recorded in
+    `docs/checkpoints/runtime_check_2026_07_21.md`: local paper campaigns
+    remain `2/2` running, Hetzner `ema_cross_default` remains `1/1` running,
+    `es_daily_trend_v1` remains at `3/10` qualified round trips, and
+    host-side `check_edge_cadence.py --json` under `CBP_STATE_DIR=/var/lib/cbp`
+    reports OKX funding/open-interest/basis all fresh at
+    `2026-07-21T21:10:42+00:00` with `missing=[]` and `stale=[]`.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
@@ -2160,6 +2170,11 @@ substrate work, but they are concrete enough to keep visible.
     read-only runtime work, and high-risk gate/execution/deploy work so
     same-lane batching is explicit and high-risk work is not mixed into
     cleanup passes.
+    2026-07-21: `docs/BACKLOG_EXECUTION_LANES.md` is refreshed against current
+    `master` after many prior coding candidates landed. It now distinguishes
+    completed/proof-ready implementation text from remaining operator evidence,
+    read-only research/reporting, and the small set of genuinely high-risk
+    capped-live coding objectives.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
@@ -2167,6 +2182,9 @@ substrate work, but they are concrete enough to keep visible.
     of dashboard/product polish. 2026-07-03: `docs/PROJECT_IDENTITY_AND_SCOPE.md`
     defines the current identity, and `docs/GOLDEN_PATH.md` /
     `docs/OBJECTIVE.md` now link that scope.
+    2026-07-21: public `README.md` now states the same boundary directly and
+    links `docs/PROJECT_IDENTITY_AND_SCOPE.md`, so the repository entry point
+    no longer relies on operator docs alone for this identity warning.
 20. Harden AI-copilot context access and provider-data governance before
     enabling external LLM summaries as a normal operator path.
     `services/ai_copilot/context_collector.py::_safe_sqlite_query` currently
@@ -2186,6 +2204,10 @@ substrate work, but they are concrete enough to keep visible.
     include a regression proving rejected write SQL does not mutate the source
     DB. Remaining work: any future provider expansion must stay within the
     documented payload boundary.
+    2026-07-21: current local implementation gap is closed. Remaining scope is
+    future-change governance only: new external providers, provider payload
+    fields, or prompt-injection-resistant review authority need separate
+    accepted design before becoming normal operator paths.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,
@@ -2214,6 +2236,12 @@ substrate work, but they are concrete enough to keep visible.
     `tests/test_ci_ignored_tests_policy.py` now guards against reintroducing
     those ignores. The manual workflow/target remain only as a focused
     diagnostic slice, not as substitute coverage.
+    2026-07-21: current source confirms the closure state: required CI,
+    `make test-fast`, and `make test-full` no longer carry permanent ignores
+    for the four files; `.github/workflows/ci-ignored-tests.yml` remains manual
+    `workflow_dispatch` only; `tests/test_ci_ignored_tests_policy.py` is the
+    regression guard. Remaining work is future hygiene only: do not reintroduce
+    hidden permanent ignores without a reviewed policy update.
 22. Decide retention policy for evidence, snapshot, status, and runtime stores
     before server operation accumulates unbounded state. Prior audits found
     pruning/DELETE behavior only in narrow strategy-state and desktop logging
@@ -2229,6 +2257,11 @@ substrate work, but they are concrete enough to keep visible.
     10,000 free inodes, backup age, UTC/NTP sync, and restore-test status.
     Remaining proof: fresh backup/restore drill evidence for any future
     canonical server/capped-live launch packet.
+    2026-07-21: current local policy gap is closed. `docs/RETENTION_POLICY.md`
+    defines default keep/rotate/must-not-keep families and links Hetzner paper
+    host thresholds. Remaining work is operator evidence for future launch
+    packets: fresh backup/restore drill, backup-artifact secrets scan, and
+    host-specific storage proof.
 23. Turn paper diagnostics and loss replay into a scheduled strategy-review
     ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
     `scripts/dev/replay_paper_losses.py`, and the AI copilot
@@ -2244,6 +2277,17 @@ substrate work, but they are concrete enough to keep visible.
     strategy-review` is added as an operator-run target that executes
     `status-paper-all`, paper diagnostics, and loss replay with overridable
     strategy/symbol/limit variables. No automatic scheduler was added.
+    2026-07-21: current local implementation gap is closed. `Makefile` exposes
+    `make strategy-review`, `docs/STRATEGY_REVIEW_RITUAL.md` documents the
+    ritual, and the remaining action is operator cadence: run and file dated
+    review artifacts; conclusions remain advisory until a separate governed
+    config/code change is accepted.
+    2026-07-21: weekly review artifact is recorded in
+    `docs/checkpoints/strategy_review_2026_07_21.md`. The run exposed a
+    workflow-default mismatch: `make strategy-review` replayed losses for
+    `BTC/USD` while the canonical ES journal uses `BTC/USDT`, producing zero
+    replay rows. The default `STRATEGY_REVIEW_SYMBOL` is corrected to
+    `BTC/USDT`; override variables still support other strategies/symbols.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:

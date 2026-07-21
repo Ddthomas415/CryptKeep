@@ -48,6 +48,11 @@ make status-paper-all
 ./.venv/bin/python scripts/dev/replay_paper_losses.py
 ```
 
+The default review target follows the canonical ES paper campaign:
+`STRATEGY_REVIEW_STRATEGY_ID=sma_200_trend`,
+`STRATEGY_REVIEW_SYMBOL=BTC/USDT`, and
+`STRATEGY_REVIEW_LOSS_LIMIT=10`.
+
 Override the defaults when reviewing a different strategy or symbol:
 
 ```bash
