@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join funding-threshold-sensitivity crypto-edge-strategy-readiness crypto-edge-research-pipeline price-action-context-labels price-action-forward-returns price-action-stability check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity crypto-edge-strategy-readiness crypto-edge-research-pipeline price-action-context-labels price-action-forward-returns price-action-stability check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -359,6 +359,14 @@ OHLCV_ARCHIVE_BACKFILL_ARGS ?=
 ohlcv-archive-backfill:
 	$(PYTHON) scripts/research/run_ohlcv_archive_backfill.py $(OHLCV_ARCHIVE_BACKFILL_ARGS)
 
+ARCHIVE_WALK_FORWARD_ARGS ?=
+archive-walk-forward:
+	$(PYTHON) scripts/research/run_archive_walk_forward.py $(ARCHIVE_WALK_FORWARD_ARGS)
+
+ARCHIVE_PARAMETER_SWEEP_ARGS ?=
+archive-parameter-sweep:
+	$(PYTHON) scripts/research/run_archive_parameter_sweep.py $(ARCHIVE_PARAMETER_SWEEP_ARGS)
+
 FUNDING_CONTEXT_PRICE_JOIN_ARGS ?=
 funding-context-price-join:
 	$(PYTHON) scripts/research/run_funding_context_price_join.py $(FUNDING_CONTEXT_PRICE_JOIN_ARGS)
@@ -426,6 +434,8 @@ script-index:
 	@echo "  make funding-stage0-verify     — verify funding_extreme Stage 0 after proof"
 	@echo "  make funding-context-replay    — replay stored funding_extreme context signals"
 	@echo "  make ohlcv-archive-backfill    — backfill archived OHLCV for research"
+	@echo "  make archive-walk-forward      — run one archive-backed walk-forward"
+	@echo "  make archive-parameter-sweep   — run archive-backed parameter sweep"
 	@echo "  make funding-context-price-join — join funding context to archived OHLCV"
 	@echo "  make funding-threshold-sensitivity — run funding threshold sensitivity"
 	@echo "  make crypto-edge-strategy-readiness — report crypto-edge strategy wiring status"
@@ -438,7 +448,8 @@ script-index:
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
 	@echo ""
-	@echo "Full script list: ls scripts/*.py"
+	@echo "Daily path: docs/GOLDEN_PATH.md"
+	@echo "Full script map: scripts/SCRIPTS.md"
 
 # Short paper run for development/testing (60s instead of 3600s)
 paper-run-short:

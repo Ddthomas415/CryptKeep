@@ -766,6 +766,15 @@ deployment work still needs independent review.
     commands from server commands.
 17. Keep `scripts/SCRIPTS.md`, `docs/GOLDEN_PATH.md`, and this file aligned
     whenever operator commands or workflow change.
+    2026-07-22: LOW-risk alignment guard accepted for the script/operator map.
+    `make archive-walk-forward` and `make archive-parameter-sweep` now wrap the
+    existing research-only archive runners, `scripts/SCRIPTS.md` lists both
+    wrappers and points to `tests/test_script_index_alignment_guard.py`, and the
+    Makefile `script-index` target points operators to `docs/GOLDEN_PATH.md`
+    plus `scripts/SCRIPTS.md` instead of the stale `ls scripts/*.py` hint. The
+    new guard pins the daily-path/full-map boundary, item #17 backlog link,
+    root paper-collector authority, accepted research wrapper links, and key
+    canonical paper commands.
 18. Maintain the retired-family regression guard. `services/paper`,
     `services/marketdata`, `services/strategy`, `services/strategy_runner`, and
     `services/storage` are retired. Do not reintroduce those packages without a

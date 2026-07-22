@@ -26078,3 +26078,48 @@ Remaining risk:
 - LOW: docs/test only. It does not decide any backlog item, authorize
   implementation, or change runtime behavior.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T18:23:58Z - Script Index Alignment Guard
+
+Active role: ENGINEER
+
+Objective:
+- Keep the operator script index, Golden Path, backlog item #17, and Makefile
+  script-index output aligned when operator/research command wrappers change.
+
+What was found:
+- `scripts/research/run_archive_walk_forward.py` and
+  `scripts/research/run_archive_parameter_sweep.py` existed as accepted
+  research-only entrypoints, but there were no Makefile wrappers and no
+  `scripts/SCRIPTS.md` entries for them.
+- The Makefile `script-index` target still pointed operators to
+  `ls scripts/*.py` instead of the maintained `scripts/SCRIPTS.md` map and
+  `docs/GOLDEN_PATH.md` daily path.
+
+What changed:
+- Added `make archive-walk-forward` and `make archive-parameter-sweep` wrappers
+  with overridable argument variables for the existing research-only scripts.
+- Added both archive research wrappers to `scripts/SCRIPTS.md` with explicit
+  research-only, no-promotion/no-mutation boundaries.
+- Updated `make script-index` to point to `docs/GOLDEN_PATH.md` and
+  `scripts/SCRIPTS.md`.
+- Added `tests/test_script_index_alignment_guard.py` to pin the daily-path
+  boundary, item #17 link, root paper-collector authority, key canonical paper
+  commands, and accepted research wrapper links.
+
+Why this change was chosen:
+- It closes a same-surface alignment gap without changing trading, campaign,
+  gate, or research computation behavior.
+
+Expected outcome:
+- Future command-wrapper or script-index drift breaks a targeted docs test
+  instead of becoming an operator-facing mismatch.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py`
+  - SHOWN: `6 passed`.
+
+Remaining risk:
+- LOW: Makefile/docs/test only. It does not fetch data, start campaigns, change
+  gates, or change live/shadow/paper execution behavior.
+- Acceptance state: ACCEPTED.

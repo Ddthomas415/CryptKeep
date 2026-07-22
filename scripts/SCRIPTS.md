@@ -16,6 +16,13 @@ Rules:
 - Keep this file aligned with root `scripts/*.py` when adding or removing root
   script entrypoints.
 
+Executable guard:
+- `tests/test_script_index_alignment_guard.py` pins the alignment boundary
+  among this file, `docs/GOLDEN_PATH.md`, `REMAINING_TASKS.md`, and the
+  Makefile `script-index` target. Update that guard in the same change when a
+  command is promoted into the daily operator path, moved out of it, or given a
+  new Makefile wrapper.
+
 ## Canonical Operator
 
 These are the safe daily/operator-facing commands for the current paper evidence
@@ -216,6 +223,14 @@ decision makes them authoritative.
   backfills the local market OHLCV archive from public exchange OHLCV and
   writes a dataset-hashed JSON summary; it does not affect campaigns, gates,
   or trading. Use `make ohlcv-archive-backfill`.
+- `research/run_archive_walk_forward.py` — research-only archive-backed
+  anchored walk-forward runner for one strategy config; writes a dataset-hashed
+  JSON artifact, does not sweep or rank parameters, and does not create
+  promotion evidence. Use `make archive-walk-forward`.
+- `research/run_archive_parameter_sweep.py` — research-only archive-backed
+  parameter sweep over an explicit grid; ranks descriptive walk-forward
+  artifacts only and does not promote, mutate, or select strategy configs. Use
+  `make archive-parameter-sweep`.
 - `research/run_funding_context_price_join.py` — read-only
   `funding_extreme` forward-return report joining stored funding snapshots to
   archived OHLCV rows; computes unit-size modeled forward returns only and
