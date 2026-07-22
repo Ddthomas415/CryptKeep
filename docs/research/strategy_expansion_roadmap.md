@@ -45,7 +45,7 @@ What that means:
 
 ### 1. Walk-forward strategy validation
 
-Do this first.
+Status: research tooling exists; use it before strategy expansion decisions.
 
 Purpose:
 
@@ -54,12 +54,14 @@ Purpose:
 
 Implementation target:
 
-- add anchored walk-forward runs on top of `<your-repo-path>/services/backtest/parity_engine.py`
-- write summary artifacts beside the existing evidence-cycle outputs
-- surface walk-forward pass/fail in:
-  - strategy evidence rows
-  - strategy lab report
-  - decision record output
+- use the accepted archive-backed walk-forward and bounded parameter-sweep
+  tooling:
+  - `<your-repo-path>/scripts/research/run_archive_walk_forward.py`
+  - `<your-repo-path>/scripts/research/run_archive_parameter_sweep.py`
+- require complete archived OHLCV windows, dataset hashes, config hashes, and
+  explicit fee/slippage assumptions
+- treat outputs as review inputs for strategy research, not automatic runtime
+  decisions
 
 Explicit non-goal:
 
@@ -67,7 +69,7 @@ Explicit non-goal:
 
 ### 2. Strategy feedback ledger
 
-Do this second.
+Status: research ledger exists; use it as conservative research weighting only.
 
 Purpose:
 
@@ -76,25 +78,21 @@ Purpose:
 
 Implementation target:
 
-- create a rolling strategy-outcome ledger keyed by:
-  - `strategy_id`
-  - `symbol`
-  - `venue`
-  - `regime`
-- compute:
-  - realized expectancy
-  - win rate
-  - drawdown
-  - sample size
-  - paper/live drift where available
-- feed that back as a penalty/boost into:
-  - leaderboard research weighting
+- use the persisted-paper-fill feedback ledger:
+  - `<your-repo-path>/services/analytics/strategy_feedback.py`
+  - `<your-repo-path>/docs/research/strategy_feedback_ledger.md`
+- compute closed-trade feedback, net realized PnL, expectancy per closed trade,
+  win rate, drawdown, sample size, venue coverage, and recent performance
+- feed that back as conservative penalty/boost metadata for:
+  - research leaderboard weighting
   - strategy lab recommendations
 
 Explicit non-goals:
 
 - no auto-live enablement
 - no self-optimizing capital allocator
+- no promotion, strategy-config, position-sizing, campaign, live-routing, or
+  execution authority from feedback weighting
 
 ### 3. Funding and basis feature scoring
 
@@ -260,6 +258,8 @@ Avoid these near-term mistakes:
 - do not let webhooks bypass the governed intent/risk path
 - do not confuse research-only funding/basis summaries with execution-ready alpha
 - do not treat orderbook diagnostics as proven microstructure signals
+- do not treat this roadmap as an implementation approval; every runtime use
+  still needs the existing reviewed config, campaign, gate, or execution change
 
 ## External references
 
