@@ -24495,3 +24495,61 @@ Remaining risk:
   interpretation can still overfit. Use only after accepted archive artifacts,
   sufficient label counts, and out-of-sample review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T14:56:07Z - Price-Action Window Stability Report (Batch 2 Research Tooling)
+
+Active role: ENGINEER
+
+Objective:
+- Add a research-only stability layer over price-action forward-return
+  artifacts, so label effects can be checked across chronological windows
+  before any strategy/filter proposal.
+
+What was found:
+- SHOWN: price-action labels and forward-return joins now exist as
+  research-only artifacts, but no window-stability consumer existed.
+- SHOWN: `docs/research/pattern_strategy_backlog.md` requires out-of-sample
+  stability review before any price-action label is used as a context or
+  confirmation feature.
+
+What changed:
+- Added `services/analytics/price_action_stability_report.py`, which consumes
+  a saved `price_action_forward_return_join_v1` artifact, splits rows into
+  chronological windows, and reports per-label persistence of deltas versus
+  each window's unconditioned baseline.
+- Added `scripts/research/run_price_action_stability_report.py` and
+  `make price-action-stability`.
+- Added `tests/test_price_action_stability_report.py`, covering stable label
+  observations, unsupported/failed artifact handling, CLI artifact writing, and
+  non-ok exit behavior.
+- Updated `docs/research/pattern_strategy_backlog.md`,
+  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- Label-conditioned average returns can be a single-window artifact. Window
+  stability is the next mechanical research check, but it must remain
+  descriptive and non-authoritative until separately reviewed out of sample.
+
+Expected outcome:
+- Operators can produce a reproducible stability artifact showing whether
+  price-action label deltas persist across windows, without selecting
+  strategies or changing runtime behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_stability_report.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_return_join.py tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `53 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_stability_report.py scripts/research/run_price_action_stability_report.py tests/test_price_action_stability_report.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, repo doctor rc=0, guard tests `23 passed`.
+- `make price-action-stability PRICE_ACTION_STABILITY_ARGS="--forward-returns /tmp/cbp-price-action-forward.json --window-size-rows 4 --min-windows 3 --min-label-count 1 --output /tmp/cbp-price-action-stability.json"`
+  - SHOWN: output artifact `price_action_stability_report_v1`, `ok=True`,
+    `window_count=3`, synthetic `swing_failure:bullish` stable observation.
+
+Remaining risk:
+- MEDIUM: research-only and no runtime execution changes, but stability
+  thresholds are analytical assumptions. Any strategy/filter use still requires
+  accepted archive artifacts, sufficient samples, and separate review.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -2197,6 +2197,14 @@ substrate work, but they are concrete enough to keep visible.
     configs, start campaigns, or produce promotion evidence. Remaining before
     strategy use: run on accepted archive artifacts, require sufficient
     label counts, and review out-of-sample stability.
+    2026-07-22: price-action stability report slice is ready for independent
+    review. `services.analytics.price_action_stability_report` and
+    `scripts/research/run_price_action_stability_report.py` consume a saved
+    `price_action_forward_return_join_v1` artifact, split rows into
+    chronological windows, and report whether label-conditioned deltas persist
+    across windows. This remains descriptive research evidence only: it does
+    not select strategies, authorize confirmation filters, change configs,
+    start campaigns, or create promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

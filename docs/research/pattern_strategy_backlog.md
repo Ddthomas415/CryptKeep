@@ -65,6 +65,11 @@ Tooling:
   fee/slippage assumptions. The report computes both long and short forward
   returns for every label instead of treating label names as trade signals.
   Use `make price-action-forward-returns` with an explicit `--labels` path.
+- `services.analytics.price_action_stability_report` and
+  `scripts/research/run_price_action_stability_report.py` consume a saved
+  forward-return artifact and split it into chronological windows to report
+  whether label deltas persist across windows. This is descriptive stability
+  evidence only, not a strategy-selection or confirmation-filter authority.
 
 Candidate labels requiring stronger data:
 
