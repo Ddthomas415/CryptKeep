@@ -24121,3 +24121,73 @@ Remaining risk:
   promotion gates, or alter canonical paper campaigns. GitHub CI and
   independent review are required before treating it as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:02:52Z - Price-Action Context Labels, Research-Only OHLCV Slice
+
+Active role: ENGINEER
+
+Objective:
+- Implement the first research-only price-action context label extractor from
+  the operator-requested pattern/candlestick backlog, without wiring any
+  strategy, campaign, promotion gate, execution path, or Databento data source.
+
+What was found:
+- SHOWN: `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` scoped fair-value gaps, engulfing candles, swing
+  failures, break/retest, rejection wicks, opening-range state,
+  acceptance/rejection, displacement, manipulation-candidate descriptions, and
+  later volume-profile/Databento work as research-only context labels.
+- SHOWN: no existing implementation for fair-value gap, engulfing,
+  rejection-wick, swing-failure, break/retest, opening-range, or Databento
+  labels existed outside the docs/RFC text.
+- SHOWN: archive-first tooling exists in `services.backtest.ohlcv_archive`, so
+  the label extractor can consume stored OHLCV with dataset hashes instead of
+  adding a live-fetch path.
+
+What changed:
+- Added `services/backtest/price_action_context.py`, a deterministic
+  archive-compatible OHLCV label extractor that emits per-bar labels for
+  engulfing candles, rejection wicks, swing failures, break/retest,
+  fair-value gaps, displacement bars, opening-range state,
+  acceptance/rejection context, and manipulation-candidate descriptions.
+- Added `scripts/research/run_price_action_context_labels.py`, a read-only CLI
+  that reads the existing OHLCV archive, writes/prints a JSON artifact, and
+  returns exit code 2 with `--fail-if-not-ok` when the archive is unavailable.
+- Added `make price-action-context-labels` and the script-index entry.
+- Updated the pattern research backlog and `REMAINING_TASKS.md` to record the
+  first slice and keep forward-return joins, strategy/campaign use,
+  volume-profile work, and Databento deferred.
+- Added `tests/test_price_action_context_labels.py`.
+
+Why this change was chosen:
+- It advances the research-only strategy tooling lane without touching
+  trading authority. The extractor produces reproducible labels and explicit
+  limitation flags, which allows later forward-return analysis without
+  converting discretionary terms into unreviewed strategy logic.
+
+Expected outcome:
+- Operators can generate a dataset-hashed price-action context artifact from
+  archived OHLCV and inspect label frequency before any forward-return,
+  campaign, or strategy-filter decision.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py`
+  - SHOWN: `47 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research-only analytics can influence future operator decisions if
+  misread. The artifact explicitly carries `research_only`,
+  `not_strategy_config`, `not_campaign_evidence`, `not_promotion_evidence`,
+  and `not_profitability_evidence`; no execution/gate/campaign code is changed.
+- Forward-return joins after modeled costs remain future work.
+- Volume-profile labels and Databento are deferred to stronger data and a
+  separate data-source RFC.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
