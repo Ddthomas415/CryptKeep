@@ -484,6 +484,13 @@ deployment work still needs independent review.
     replacing the prior manual copy/seeding workaround. No live routing,
     persistent campaign, strategy promotion, or canonical paper-campaign
     behavior is authorized by this wiring.
+    2026-07-22: executable funding Stage 0 decision guard is ready for
+    independent review. `tests/test_funding_stage0_decision_guard.py` pins
+    the non-promotion status, proof contract, confirmed/unconfirmed boundaries,
+    next conditions, backlog link, and required Stage 0 tooling presence. This
+    is docs/test only and does not change context plumbing, research reports,
+    promotion qualification, campaign manifests, paper gates, or execution
+    behavior.
     2026-07-18: research-only funding context replay is ready for independent
     review. `services.analytics.funding_context_replay` and
     `scripts/research/run_funding_context_replay.py` replay stored

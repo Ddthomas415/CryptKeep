@@ -72,3 +72,11 @@ Before any persistent campaign or promotion-gate integration:
 - Decide whether challenger edge-store seeding should remain an operator step
   for isolated proofs or become explicit tooling before future context-backed
   Stage 0 runs.
+
+## Executable Guard
+
+`tests/test_funding_stage0_decision_guard.py` pins the non-promotion status,
+proof contract, confirmed/unconfirmed boundaries, next conditions, backlog link,
+and required Stage 0 tooling presence so `funding_extreme_default` cannot
+silently become a persistent campaign, promotion-evidence source, or gate
+qualification authority from the Stage 0 proof alone.
