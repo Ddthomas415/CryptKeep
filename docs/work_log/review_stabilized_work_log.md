@@ -24191,3 +24191,67 @@ Remaining risk:
 - Volume-profile labels and Databento are deferred to stronger data and a
   separate data-source RFC.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:11:20Z - Price-Action Forward-Return Report, Research-Only Slice
+
+Active role: ENGINEER
+
+Objective:
+- Add the next research-only price-action tooling slice by joining archived
+  OHLCV labels to forward returns after modeled costs, without turning labels
+  into strategy, campaign, gate, execution, or promotion authority.
+
+What was found:
+- SHOWN: the accepted price-action context backlog requires labels to be joined
+  to forward returns after costs before any confirmation-filter review.
+- SHOWN: `services/execution/fill_model.py::apply_fee_slippage` is the existing
+  deterministic backtest/paper-style cost model for fee/slippage assumptions.
+- SHOWN: the first price-action label extractor is archive-backed and carries a
+  dataset hash, so the forward-return report can remain reproducible and
+  research-only.
+
+What changed:
+- Added `services/analytics/price_action_forward_returns.py`, a research-only
+  label-conditioned forward-return report that computes unit-size long/short
+  returns after explicit fee/slippage assumptions.
+- Added `scripts/research/run_price_action_forward_returns.py`, a read-only CLI
+  that writes/prints the report and returns exit code 2 with
+  `--fail-if-not-ok` when archived data is unavailable or insufficient.
+- Added `make price-action-forward-returns` and updated the script index.
+- Updated `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` to record the second slice while preserving the boundary:
+  no strategy config, campaign evidence, promotion evidence, gate, execution,
+  or Databento path changed.
+- Added `tests/test_price_action_forward_returns.py`.
+
+Why this change was chosen:
+- It converts the operator's price-action research request from raw labels into
+  measurable label-conditioned forward-return artifacts, while keeping the
+  results descriptive and separate from any trading authority.
+
+Expected outcome:
+- Operators can compare each label bucket against unconditioned long/short
+  forward returns after modeled costs before deciding whether any label merits
+  separate review as a confirmation filter.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `65 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: this report can influence future research decisions if misread. It
+  remains explicitly marked `research_only`, `not_strategy_config`,
+  `not_campaign_evidence`, `not_promotion_evidence`, and
+  `not_profitability_evidence`.
+- It does not test out-of-sample stability across multiple windows by itself;
+  real archive reports and separate review are still required before strategy
+  use.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
