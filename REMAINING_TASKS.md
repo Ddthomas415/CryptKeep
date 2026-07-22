@@ -2315,6 +2315,12 @@ substrate work, but they are concrete enough to keep visible.
     2026-07-21: public `README.md` now states the same boundary directly and
     links `docs/PROJECT_IDENTITY_AND_SCOPE.md`, so the repository entry point
     no longer relies on operator docs alone for this identity warning.
+    2026-07-22: executable project-identity scope guard is ready for
+    independent review. `tests/test_project_identity_scope.py` pins the
+    evidence-lab identity, unproven-capability list, near-term priorities,
+    public description, and cross-links from README, GOLDEN_PATH, OBJECTIVE,
+    and product-surface triage docs. This is docs/test only and does not
+    change runtime behavior.
 20. Harden AI-copilot context access and provider-data governance before
     enabling external LLM summaries as a normal operator path.
     `services/ai_copilot/context_collector.py::_safe_sqlite_query` currently
