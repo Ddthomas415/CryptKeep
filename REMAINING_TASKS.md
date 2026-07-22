@@ -326,6 +326,17 @@ deployment work still needs independent review.
    item #11 work after acceptance is operational, not code plumbing: run real
    multi-year archive sweeps and require separate review before any strategy
    config or campaign changes use the results. 2026-07-14: market OHLCV archive
+   2026-07-22: archive parameter-sweep triage is ready for independent review.
+   `services.analytics.archive_parameter_sweep_triage` and
+   `scripts/research/run_archive_parameter_sweep_triage.py` consume an existing
+   `archive_backed_parameter_sweep_v1` artifact and rank variants for manual
+   review using explicit window/trade/non-negative-window/return/drawdown
+   thresholds. It does not rerun backtests, change strategy config, start
+   campaigns, or produce campaign/promotion/profitability evidence; it consumes
+   the source sweep metrics as-is and does not verify the sweep's cost
+   assumptions. Remaining item #11 work is still operational: run real
+   multi-year archive sweeps and require separate review before any strategy
+   config or campaign changes use the results. 2026-07-14: market OHLCV archive
    numeric-ingestion proof is ready for independent review. `MarketStore` now
    rejects non-positive or non-finite OHLCV timestamps/prices, invalid high/low
    envelopes, and non-finite/negative volume before writing `market_ohlcv`,
@@ -513,6 +524,15 @@ deployment work still needs independent review.
     explicit `long_threshold_pct` / `short_threshold_pct` grids. This is a
     report consumer only: it does not fetch data, change strategy config,
     start campaigns, compute portfolio PnL, or produce promotion evidence.
+    2026-07-22: research-only funding-threshold window stability is ready for
+    independent review. `services.analytics.funding_threshold_window_stability`
+    and `scripts/research/run_funding_threshold_window_stability.py` consume
+    an existing `funding_context_price_join_v1` artifact, split its rows into
+    fixed complete windows, and summarize threshold-pair behavior across
+    windows using the source artifact's cost assumptions. It fails closed if
+    the source artifact lacks fee/slippage assumptions and remains
+    research-only: no data fetch, strategy config change, campaign, gate,
+    portfolio PnL, or promotion evidence.
     2026-07-22: research-only funding-threshold candidate triage is ready for
     independent review. `services.analytics.funding_threshold_candidate_triage`
     and `scripts/research/run_funding_threshold_candidate_triage.py` consume
@@ -522,6 +542,15 @@ deployment work still needs independent review.
     thresholds. This is still triage only: it does not fetch data, change
     strategy config, start campaigns, compute portfolio PnL, or produce
     campaign/promotion/profitability evidence.
+    2026-07-22: research-only funding-threshold stability triage is ready for
+    independent review. `services.analytics.funding_threshold_stability_triage`
+    and `scripts/research/run_funding_threshold_stability_triage.py` consume
+    an existing `funding_threshold_window_stability_v1` artifact and rank
+    threshold pairs for manual review using window count, actionable-window
+    ratio, positive-window ratio, average modeled forward return, and worst
+    window average return thresholds. This remains a report consumer only and
+    is not strategy config, campaign evidence, promotion evidence, profitability
+    evidence, or an activation decision.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
