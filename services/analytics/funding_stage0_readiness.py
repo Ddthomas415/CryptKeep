@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.analytics.edge_cadence import check_edge_cadence
+from services.analytics.edge_cadence import META_KEYS, check_edge_cadence
 from services.analytics.paper_campaign_recovery import load_campaign_specs
 from services.execution.ohlcv_preflight import check_ohlcv_reachable
 from services.os.app_paths import code_root, data_dir
@@ -97,6 +97,35 @@ def _proof_argv(
 
 def _default_context_db_path() -> Path:
     return (data_dir() / CONTEXT_DB_FILENAME).resolve()
+
+
+def _missing_context_db_cadence(context_db: Path) -> dict[str, Any]:
+    return {
+        "ok": False,
+        "checked": [],
+        "stale": [],
+        "missing": list(META_KEYS.keys()),
+        "families": [],
+        "store_path": str(context_db),
+        "store_error": f"context_db_missing:{context_db}",
+    }
+
+
+def _missing_context_db_funding_context(
+    *,
+    context_db: Path,
+    symbol: str,
+    venue: str,
+    source: str,
+) -> dict[str, Any]:
+    return {
+        "ok": False,
+        "reason": "funding_context_store_missing",
+        "source": source,
+        "symbol": symbol,
+        "venue": venue,
+        "store_path": str(context_db),
+    }
 
 
 def _shell(argv: list[str], *, context_db_path: str) -> str:
@@ -247,13 +276,25 @@ def build_funding_stage0_readiness(
         if run_ohlcv_preflight
         else {"ok": True, "status": "skipped", "reason": "run_ohlcv_preflight=false"}
     )
-    edge_cadence = check_edge_cadence(store_path=str(context_db))
-    funding_context = funding_context_from_crypto_edge_store(
-        symbol=context_symbol,
-        venue=context_venue,
-        source=context_source,
-        store_path=str(context_db),
-    )
+    context_db_exists = context_db.exists() and context_db.is_file()
+    if context_db_exists:
+        edge_cadence = check_edge_cadence(store_path=str(context_db))
+        funding_context = funding_context_from_crypto_edge_store(
+            symbol=context_symbol,
+            venue=context_venue,
+            source=context_source,
+            store_path=str(context_db),
+        )
+    else:
+        # Read-only readiness must not instantiate CryptoEdgeStoreSQLite for a
+        # missing explicit path: the store constructor creates sqlite files.
+        edge_cadence = _missing_context_db_cadence(context_db)
+        funding_context = _missing_context_db_funding_context(
+            context_db=context_db,
+            symbol=context_symbol,
+            venue=context_venue,
+            source=context_source,
+        )
 
     checks = [
         _check(
@@ -291,6 +332,11 @@ def build_funding_stage0_readiness(
         _check("campaign_manifests_loaded", not manifest_errors, json.dumps(manifest_errors, sort_keys=True)),
         _check("campaign_manifests_do_not_own_stage0", not conflicts, json.dumps(conflicts, sort_keys=True)),
         _check("public_ohlcv_reachable", bool(ohlcv.get("ok")), json.dumps(ohlcv, sort_keys=True)),
+        _check(
+            "strategy_context_db_exists",
+            context_db_exists,
+            str(context_db),
+        ),
         _check("edge_cadence_ready", bool(edge_cadence.get("ok")), json.dumps(edge_cadence, sort_keys=True)),
         _check(
             "funding_context_ready",
@@ -346,6 +392,7 @@ def build_funding_stage0_readiness(
             "collector_invoked": False,
             "manifest_files_written": False,
             "state_dirs_created": False,
+            "context_db_created": False,
             "orders_routed": False,
             "live_trading_enabled": False,
         },

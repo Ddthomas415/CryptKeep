@@ -23964,6 +23964,11 @@ What was found:
 - SHOWN: the 2026-07-12 accepted Stage 0 proof previously required manually
   seeding the challenger `crypto_edge_research.sqlite` from canonical
   crypto-edge evidence.
+- SHOWN by independent review: `funding_stage0_readiness` passed the explicit
+  context DB path into `check_edge_cadence()`, whose store constructor creates
+  the sqlite file if missing. That contradicted the report's read-only claim
+  and could mask a wrong explicit DB path by creating an empty store before the
+  funding-context path returned `funding_context_store_missing`.
 
 What changed:
 - Added `CBP_CRYPTO_EDGE_DB_PATH` support to
@@ -23975,6 +23980,11 @@ What changed:
 - Updated `funding_stage0_readiness` so cadence/context checks validate the
   same crypto-edge DB path that the generated proof command passes to the
   child process.
+- Independent-review fix: `funding_stage0_readiness` now checks
+  `strategy_context_db_path` exists and is a file before any cadence/context
+  store construction. Missing/non-file context DB paths report
+  `strategy_context_db_exists=false`, `context_db_missing:*`,
+  `funding_context_store_missing`, and `context_db_created=false`.
 - Updated `scripts/SCRIPTS.md`,
   `docs/strategies/funding_extreme_stage0_decision_2026-07-11.md`, and
   `REMAINING_TASKS.md`.
@@ -23994,6 +24004,17 @@ Verification:
 - `./.venv/bin/python -m pytest -q tests/test_crypto_edge_context.py tests/test_funding_stage0_readiness.py tests/test_strategy_runtime_runner.py tests/test_paper_strategy_evidence_service.py`
   - SHOWN: `77 passed`.
 - `./.venv/bin/python -m py_compile services/strategies/crypto_edge_context.py services/execution/strategy_runner.py services/analytics/paper_strategy_evidence_service.py services/analytics/funding_stage0_readiness.py scripts/run_paper_strategy_evidence_collector.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_funding_stage0_readiness.py tests/test_crypto_edge_context.py tests/test_paper_strategy_evidence_service.py tests/test_strategy_runtime_runner.py tests/test_edge_cadence.py`
+  - SHOWN: `88 passed`; includes the missing-context-DB regression proving the
+    readiness path does not instantiate the missing edge store and does not
+    create the sqlite file.
+- Dependent grep slice over funding readiness, crypto-edge DB override,
+  strategy-context path, funding context, and cadence tests:
+  - SHOWN: `96 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
   - SHOWN: passed with no output.
 
 Remaining risk:
