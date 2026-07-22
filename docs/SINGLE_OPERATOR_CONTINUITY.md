@@ -101,3 +101,10 @@ This runbook is not a completed drill. Future proof should include:
 - a stopped-campaign recovery rehearsal
 - a dead-man alert delivery test
 - evidence that a non-live emergency stop is usable without chat history
+
+## Executable Guard
+
+`tests/test_operator_runbook_policy_guards.py` pins the absence horizons,
+fail-toward-no-new-risk rule, emergency delegate permissions/forbidden actions,
+and open-drill proof list so continuity planning cannot silently depend on chat
+history or live-risk authority.
