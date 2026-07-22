@@ -2178,6 +2178,17 @@ substrate work, but they are concrete enough to keep visible.
     Databento claim is made. Remaining: run the reports on real multi-window
     archives across relevant symbols/timeframes and require separate review
     before any label influences a strategy confirmation filter.
+    2026-07-22: fourth research-only slice is ready for review.
+    `services/analytics/price_action_candidate_triage.py` and
+    `scripts/research/run_price_action_candidate_triage.py` consume the
+    multi-window stability artifact and apply explicit thresholds for windows,
+    sample size, average delta, outperform ratio, and underperform ratio. The
+    output ranks label/side pairs as `candidate_for_manual_review` or
+    `not_candidate`, carries false-positive proxy metadata, and keeps the hard
+    boundary: no activation, profitability, campaign, promotion, gate,
+    execution, strategy config, or Databento claim is made. Remaining: run real
+    archive triage across relevant symbols/timeframes and review thresholds
+    separately before any label becomes a confirmation-filter candidate.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

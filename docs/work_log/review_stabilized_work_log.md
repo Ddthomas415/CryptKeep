@@ -24179,6 +24179,10 @@ Verification:
   - SHOWN: `47 passed`.
 - `./.venv/bin/python scripts/check_repo_alignment.py --json`
   - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `make -n price-action-candidate-triage`
+  - SHOWN: invokes `scripts/research/run_price_action_candidate_triage.py`.
+- `make -n script-index`
+  - SHOWN: includes `make price-action-candidate-triage`.
 - `git diff --check`
   - SHOWN: clean.
 
@@ -24417,4 +24421,72 @@ Remaining risk:
 - LOW/MEDIUM: no strategy config, campaign, gate, execution, or promotion
   authority changes were made; this is a research-only census/documentation
   correction.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:36:09Z - Price-Action Candidate Triage Report, Research-Only Slice
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by converting the multi-window
+  price-action stability report into explicit manual-review candidate triage,
+  without turning labels into strategy authority.
+
+What was found:
+- SHOWN: the price-action feature-pack backlog requires review of
+  label-conditioned returns, stability, sample size, and underperformance before
+  any label can be considered as a confirmation filter.
+- SHOWN: the existing window-stability artifact already exposes per-label
+  window counts, sample sizes, average delta versus unconditioned baseline, and
+  outperform/underperform window ratios.
+
+What changed:
+- Added `services/analytics/price_action_candidate_triage.py`, a read-only
+  report builder that consumes the stability artifact and applies explicit
+  thresholds for minimum windows, sample size, average delta, outperform ratio,
+  and underperform ratio.
+- Added `scripts/research/run_price_action_candidate_triage.py`, a read-only CLI
+  that prints/writes the triage artifact and returns exit code 2 with
+  `--fail-if-not-ok` only when the underlying archive/stability path is not ok.
+- Added `make price-action-candidate-triage` and script-index output.
+- Updated `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` to record the fourth price-action research slice.
+- Added `tests/test_price_action_candidate_triage.py`.
+
+Why this change was chosen:
+- It removes a manual interpretation step from Batch 2: label candidates are now
+  produced by declared thresholds, with false-positive proxy metadata, while
+  preserving the hard boundary that candidates require separate manual review
+  before any strategy/config/gate use.
+
+Expected outcome:
+- Operators can run a deterministic report that ranks label/side pairs as
+  `candidate_for_manual_review` or `not_candidate` from archived OHLCV research
+  artifacts, without changing campaigns, gates, execution, promotion evidence,
+  or strategy config.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_candidate_triage.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `19 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_candidate_triage.py scripts/research/run_price_action_candidate_triage.py tests/test_price_action_candidate_triage.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py tests/test_makefile_wiring.py`
+  - SHOWN: `74 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage can influence future operator decisions if treated as
+  activation proof. The artifact is explicitly `research_only`,
+  `triage_only`, `not_strategy_config`, `not_campaign_evidence`,
+  `not_promotion_evidence`, `not_profitability_evidence`, and
+  `not_activation_decision`.
+- Real archive runs across relevant symbols/timeframes remain required before
+  drawing strategy conclusions.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
