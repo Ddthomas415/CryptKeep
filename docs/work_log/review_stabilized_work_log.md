@@ -25,6 +25,52 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:42:00Z - Supply-Chain Release Policy Guard (Substrate #13)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the documented supply-chain/release policy without
+  changing CI, dependency installation, release workflows, or branch protection.
+
+What was found:
+- `docs/SUPPLY_CHAIN_RELEASE_POLICY.md` documents the paper/research boundary,
+  capped-live packet requirements, waiver path, and future gate options.
+- The policy is linked from launch and CI docs.
+- The decision boundaries were not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_supply_chain_release_policy_guard.py`.
+- The test pins current boundary claims, capped-live launch-packet fields,
+  waiver requirements, incremental future gate options, and launch/CI/backlog
+  links.
+- Added executable-guard notes to the supply-chain policy doc, backlog, and
+  work log.
+
+Why this change was chosen:
+- It preserves capped-live supply-chain evidence requirements while preventing a
+  docs/test-only batch from changing fast PR gates or release behavior.
+
+Expected outcome:
+- Future edits that weaken capped-live supply-chain proof or silently broaden
+  PR/release gates fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_supply_chain_release_policy_guard.py tests/test_supply_chain_check.py tests/test_config_authority_decision_guard.py`
+  - SHOWN: `19 passed`.
+- `./.venv/bin/python -m py_compile tests/test_supply_chain_release_policy_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change CI, dependency installation,
+  release workflows, branch protection, deployment, campaign/gate logic, or
+  execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:35:00Z - Config Authority Decision Guard (Substrate #10)
 
 Active role: ENGINEER

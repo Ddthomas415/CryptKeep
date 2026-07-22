@@ -88,3 +88,9 @@ Do not add all four at once. Add the smallest gate that answers the current
 risk question, record expected runtime cost, and keep docs-only PR fast paths
 unchanged unless the branch-protection policy is deliberately updated.
 
+## Executable Guard
+
+`tests/test_supply_chain_release_policy_guard.py` pins the current paper/research
+boundary, capped-live launch-packet requirements, waiver fields, future gate
+options, and launch/CI policy links so supply-chain hardening cannot silently
+expand fast PR gates or weaken capped-live evidence requirements.

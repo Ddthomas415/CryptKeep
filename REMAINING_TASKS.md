@@ -1599,6 +1599,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     Git SHA, dirty flag, requirement-file hashes, and verdicts. The policy doc
     is updated; hash-locked installs, SBOMs, and CI-gate decisions remain
     operator decisions.
+    2026-07-22: executable supply-chain release-policy guard is ready for
+    independent review. `tests/test_supply_chain_release_policy_guard.py` pins
+    the current paper/research boundary, capped-live launch-packet
+    requirements, accepted waiver fields, future gate options, and launch/CI
+    policy links. This is docs/test only and does not change CI, dependency
+    installation, release workflows, or branch protection.
 14. Audit operator/action event coverage. Event stores, journals, and fill
     logs exist, but it is not yet shown that every material operator action
     and state transition has a who/what/when trail sufficient for live
