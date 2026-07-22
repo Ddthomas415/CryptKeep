@@ -94,6 +94,7 @@ Data-source boundary:
   for high-quality historical/live market data schemas such as MBO, MBP, TBBO,
   trades, and OHLCV, but adopting it adds API-key, cost, dataset/schema,
   symbology, and non-crypto/futures/equities data-governance decisions.
+  The starting RFC is `docs/research/databento_data_source_rfc.md`.
 
 Required artifact shape:
 

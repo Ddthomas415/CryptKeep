@@ -2344,6 +2344,13 @@ substrate work, but they are concrete enough to keep visible.
     docs/test only and does not change label generation, forward-return joins,
     stability reports, strategy configs, campaigns, promotion gates, or
     execution behavior.
+    2026-07-22: Databento read-only data-source RFC is ready for independent
+    review in `docs/research/databento_data_source_rfc.md`.
+    `tests/test_databento_data_source_rfc.py` pins the no-implementation
+    authorization, research-only scope, required decisions, hard boundaries,
+    acceptance criteria, and pattern/backlog links. This is docs/test only and
+    does not add credentials, dependencies, data fetches, campaign inputs,
+    promotion evidence, or execution behavior.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
