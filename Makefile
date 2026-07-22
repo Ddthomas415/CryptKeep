@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join price-action-context-labels price-action-forward-returns check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join price-action-context-labels price-action-forward-returns price-action-window-stability check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -375,6 +375,10 @@ PRICE_ACTION_FORWARD_RETURNS_ARGS ?=
 price-action-forward-returns:
 	$(PYTHON) scripts/research/run_price_action_forward_returns.py $(PRICE_ACTION_FORWARD_RETURNS_ARGS)
 
+PRICE_ACTION_WINDOW_STABILITY_ARGS ?=
+price-action-window-stability:
+	$(PYTHON) scripts/research/run_price_action_window_stability.py $(PRICE_ACTION_WINDOW_STABILITY_ARGS)
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -413,6 +417,7 @@ script-index:
 	@echo "  make funding-context-price-join — join funding context to archived OHLCV"
 	@echo "  make price-action-context-labels — label archived OHLCV price-action context"
 	@echo "  make price-action-forward-returns — join price-action labels to forward returns"
+	@echo "  make price-action-window-stability — compare price-action labels across windows"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
