@@ -1,5 +1,13 @@
 # Process Control
 
+`docs/CURRENT_RUNTIME_TRUTH.md` is the authoritative operator-facing runtime
+truth for startup, stop, and status behavior. This file summarizes process
+control surfaces and must stay aligned with that document.
+
+Executable guard: `tests/test_process_control_runtime_truth_guard.py` pins the
+canonical control plane, status surfaces, compatibility-only legacy surface,
+and dashboard Process Control boundary documented here.
+
 ## Canonical control plane
 - `python scripts/start_bot.py [--with_reconcile]`
 - `python scripts/stop_bot.py [--all|--pipeline|--executor|--intent_consumer|--ops_signal_adapter|--ops_risk_gate|--reconciler]`
