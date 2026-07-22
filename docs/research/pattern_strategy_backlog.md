@@ -19,7 +19,7 @@ and provenance-qualified paper paths.
 
 ## Price-Action Context Feature Pack
 
-Status: deferred research-only RFC item.
+Status: research-only label tooling added; strategy use remains deferred.
 
 Purpose:
 
@@ -44,6 +44,21 @@ Candidate OHLCV-derived labels:
 - `displacement_bar`: range/body expansion relative to recent bars.
 - `opening_range_state`: first-session range, break, retest, acceptance, and
   rejection labels for intraday data.
+
+Tooling:
+
+- `services.analytics.price_action_context_labels` and
+  `scripts/research/run_price_action_context_labels.py` build dataset-hashed
+  OHLCV-only context label artifacts from the accepted market archive.
+- The artifact is explicitly `research_only`, `not_strategy_config`,
+  `not_campaign_evidence`, `not_promotion_evidence`, and
+  `not_profitability_evidence`.
+- Current labels cover `engulfing_candle`, `rejection_wick`, `swing_failure`,
+  `break_and_retest`, `fair_value_gap`, `displacement_bar`,
+  `manipulation_candidate`, and `opening_range_state`.
+- Use `make price-action-context-labels` with explicit archive parameters.
+  This command does not fetch from external sources; the archive must already
+  contain the requested OHLCV rows.
 
 Candidate labels requiring stronger data:
 

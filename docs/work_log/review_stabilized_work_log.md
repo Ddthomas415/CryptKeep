@@ -24369,3 +24369,70 @@ Remaining risk:
 - LOW/MEDIUM: research/reporting-only and no runtime execution changes, but it
   documents strategy readiness status that operators may use for planning.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T14:43:31Z - Price-Action Context Label Artifacts (Batch 2 Research Tooling)
+
+Active role: ENGINEER
+
+Objective:
+- Implement the first safe price-action context feature pack as read-only
+  OHLCV archive labels, without creating strategies, changing campaigns, or
+  touching promotion/live execution surfaces.
+
+What was found:
+- SHOWN: `docs/research/pattern_strategy_backlog.md` already scoped
+  fair-value gaps, engulfing candles, swing failures, break/retest, rejection
+  wicks, opening-range state, acceptance/rejection, displacement versus
+  manipulation-candidate labels, and later volume-profile labels as
+  research-only context features.
+- SHOWN: no `price_action` / fair-value-gap / engulfing / swing-failure label
+  extractor existed in `services/`, `scripts/`, or `tests`.
+- SHOWN: the accepted OHLCV archive path is
+  `services.backtest.ohlcv_archive.load_archived_ohlcv`, which provides
+  normalized rows and dataset hashes.
+
+What changed:
+- Added `services/analytics/price_action_context_labels.py`, a deterministic
+  OHLCV-only label builder for:
+  `engulfing_candle`, `rejection_wick`, `swing_failure`,
+  `break_and_retest`, `fair_value_gap`, `displacement_bar`,
+  `manipulation_candidate`, and `opening_range_state`.
+- Added `scripts/research/run_price_action_context_labels.py` and
+  `make price-action-context-labels`.
+- Added `tests/test_price_action_context_labels.py`, covering core label
+  detection, insufficient archive data, archive loading/dataset hash
+  preservation, CLI artifact writing, and missing-archive exit code.
+- Updated `docs/research/pattern_strategy_backlog.md`,
+  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The operator-requested price-action concepts are useful only if converted
+  into reproducible labels over archived data first. This batch creates the
+  label artifact surface while explicitly preventing label output from becoming
+  strategy authority or promotion evidence.
+
+Expected outcome:
+- Price-action research can now produce dataset-hashed label artifacts that can
+  later be joined to forward returns and reviewed out-of-sample before any
+  confirmation-filter or strategy-config proposal.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `39 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_context_labels.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `make price-action-context-labels PRICE_ACTION_CONTEXT_LABELS_ARGS="--archive-db /tmp/cbp-missing-price-action.sqlite --limit 3"`
+  - SHOWN: target is wired and reports `archive_missing` with
+    `research_only=true`, `not_strategy_config=true`,
+    `not_campaign_evidence=true`, `not_promotion_evidence=true`, and
+    `not_profitability_evidence=true`.
+
+Remaining risk:
+- MEDIUM: research-only and no runtime execution changes, but label definitions
+  are analytical assumptions. They must be validated against forward returns
+  before any strategy, campaign, or gate use.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

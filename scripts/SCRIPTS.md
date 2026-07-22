@@ -233,6 +233,12 @@ decision makes them authoritative.
   Stage 0 wired, config-only, or unregistered without fetching data, starting
   campaigns, or changing promotion gates. Use
   `make crypto-edge-strategy-readiness`.
+- `research/run_price_action_context_labels.py` — research-only OHLCV
+  price-action context label artifact builder over the market archive;
+  emits fair-value gap, engulfing, swing-failure, break/retest,
+  rejection-wick, displacement, manipulation-candidate, and opening-range
+  labels with dataset/artifact hashes. It does not change strategy configs,
+  campaigns, gates, or live execution. Use `make price-action-context-labels`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
