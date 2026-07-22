@@ -24241,3 +24241,65 @@ Remaining risk:
 - MEDIUM: touches promotion-gate reporting fields, but not pass/fail logic,
   thresholds, live execution, order routing, or strategy behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T13:44:07Z - Strategy Discovery Hygiene Contract (Batch 5)
+
+Active role: ENGINEER
+
+Objective:
+- Complete the safe strategy registry / discovery hygiene slice without
+  enabling new strategy execution or changing campaigns.
+
+What was found:
+- SHOWN: registry fail-closed behavior, challenger governance configs,
+  candidate-advisor classification, and retired-family guards already exist.
+- SHOWN: `services/strategies/config_tools.py` and
+  `services/strategies/validation.py` allowed `open_interest_shift`, while
+  `services/strategies/strategy_registry.py::SUPPORTED` does not expose it as
+  executable.
+- SHOWN: `open_interest_shift_default` existed as a preset without an explicit
+  `trade_enabled=false` marker.
+- SHOWN: `docs/research/signal_discovery_classification.md` classified
+  discovery/ranker modules as research/advisory, but no executable test proved
+  that classification still matched the source tree or stayed out of
+  execution/control/gate code.
+
+What changed:
+- Added `CONFIG_ONLY_STRATEGIES` to config tooling and exposed
+  `executable_strategies()` / `config_only_strategies()`.
+- `build_strategy_block()` now refuses to create a trade-enabled
+  `open_interest_shift` block while it remains config-only.
+- `validate_strategy_config()` now requires config-only strategies to carry
+  `trade_enabled=false`.
+- `open_interest_shift_default` now explicitly sets `trade_enabled=false`.
+- Added `tests/test_strategy_discovery_hygiene_contract.py`, covering supported
+  set alignment, config-only enforcement, preset disabled state, discovery
+  classification docs, blocked direct imports into execution/control/governance,
+  and the explicit `CBP_USE_CANDIDATE_ADVISOR` runtime bridge.
+- Updated `REMAINING_TASKS.md` and the signal discovery classification doc.
+
+Why this change was chosen:
+- A config tool that can mint a trade-enabled block for a non-registry strategy
+  creates an executable-looking config that the runtime will later reject. The
+  smaller fix is to preserve the research placeholder while making its
+  non-executable status explicit and tested.
+
+Expected outcome:
+- Future discovery/config work cannot silently blur research-only strategy
+  modules into governed execution paths.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_discovery_hygiene_contract.py tests/test_strategy_config_tools.py tests/test_strategy_registry.py tests/test_candidate_advisor_classification.py`
+  - SHOWN: `31 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_run_paper_strategy_evidence_collector.py tests/test_funding_stage0_readiness.py tests/test_pullback_stage0_readiness.py`
+  - SHOWN: `65 passed`.
+- `./.venv/bin/python -m py_compile services/strategies/config_tools.py services/strategies/validation.py tests/test_strategy_discovery_hygiene_contract.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+
+Remaining risk:
+- MEDIUM: changes strategy config validation/tooling semantics for
+  `open_interest_shift`, but does not register it, enable it, change campaign
+  manifests, alter strategy execution, or touch live/order/gate behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

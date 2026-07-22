@@ -323,6 +323,7 @@ PRESETS: Dict[str, Dict[str, Any]] = {
         },
         "strategy": {
             "name": "open_interest_shift",
+            "trade_enabled": False,
             "oi_rise_threshold_pct": 5.0,
             "oi_drop_threshold_pct": -5.0,
         },

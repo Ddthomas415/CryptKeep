@@ -2106,7 +2106,13 @@ substrate work, but they are concrete enough to keep visible.
    walk-forward proof and net-fee metrics first. 2026-07-03: classification is
    documented in `docs/research/signal_discovery_classification.md`; discovery
    and ranker surfaces remain research/advisory only unless separately proven
-   through archive-backed, net-fee, governed activation.
+   through archive-backed, net-fee, governed activation. 2026-07-22:
+   executable hygiene proof is ready for independent review: the classification
+   table is guarded against source-tree drift, discovery/ranker modules are
+   blocked from direct execution/control/governance imports, the only
+   candidate-advisor runtime bridge remains explicitly env-gated, and
+   `open_interest_shift` is enforced as config-only/trade-disabled until it is
+   registry-executable.
 10. Classify storage orphan modules before more reconciliation work.
     Prior audits flagged unused SQLite stores such as fill reconciler,
     idempotency, and order-tracker variants. Confirm whether each is truly
