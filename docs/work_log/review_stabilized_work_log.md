@@ -26328,3 +26328,46 @@ Remaining risk:
 - LOW: docs/test only. It does not execute halt/resume commands, change live
   controls, mutate config, or alter runtime behavior.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T19:34:00Z - Golden Path Operator Flow Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard `docs/GOLDEN_PATH.md` as the narrow daily operator flow.
+
+What was found:
+- The Golden Path documents the daily paper runtime, status/recovery commands,
+  read-only AI oversight and campaign planning, canonical evidence surfaces,
+  promotion criteria, and shadow-readiness query. It did not have a direct
+  guard pinning that operator flow.
+
+What changed:
+- Added an executable-guard note to `docs/GOLDEN_PATH.md`.
+- Added `tests/test_golden_path_operator_flow_guard.py` to pin the narrow
+  runtime commands, managed collector path, restart/status commands, read-only
+  advisory/planning boundaries, OHLCV provenance wording, canonical-vs-legacy
+  evidence roles, promotion-gate criteria, shadow-readiness semantics, and
+  Makefile target presence for documented commands.
+
+Why this change was chosen:
+- The Golden Path is the fastest operator reference. Guarding it prevents future
+  command or evidence-role drift without touching Makefile behavior, campaign
+  code, evidence writers, or gate logic.
+
+Expected outcome:
+- Future edits that remove the safe daily command path, blur read-only advisory
+  boundaries, or misstate evidence authority fail a targeted docs test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_golden_path_operator_flow_guard.py tests/test_script_index_alignment_guard.py tests/test_makefile_wiring.py`
+  - SHOWN: `16 passed`.
+- `./.venv/bin/python -m py_compile tests/test_golden_path_operator_flow_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not start campaigns, query gates, mutate
+  manifests, or change runtime behavior.
+- Acceptance state: ACCEPTED.
