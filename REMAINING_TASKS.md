@@ -2294,6 +2294,11 @@ substrate work, but they are concrete enough to keep visible.
     `docs/REPO_LAYOUT.md` now link the paper execution, safety, storage,
     websocket, and signal-discovery classification records so the quarantine
     policy points at concrete disposition docs.
+    2026-07-22: executable operational-core scope guard is ready for
+    independent review. `tests/test_operational_core_scope.py` pins the core
+    surface list, quarantine states, priority rule, and classification-record
+    links from `docs/CORE.md`. This is docs/test only and does not change
+    runtime behavior.
 18. Protect operator attention as a managed resource. Add a decision record or
     runbook rule that caps open audit loops, limits low-value review churn, and
     forces each proactive task to tie back to one of: evidence velocity,

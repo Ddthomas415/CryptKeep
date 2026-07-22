@@ -73,3 +73,9 @@ consolidating modules by name:
   discovery and ranker surfaces.
 - `docs/BACKLOG_EXECUTION_LANES.md` - remaining-work batching lanes and
   high-risk split rule.
+
+## Executable Guard
+
+`tests/test_operational_core_scope.py` pins the current core surface list,
+quarantine states, priority rule, and classification-record links so broad
+product/runtime surfaces cannot silently re-enter the core without review.
