@@ -24168,3 +24168,48 @@ Remaining risk:
 - LOW: test/work-log only. It does not change docs content, runtime behavior,
   campaigns, gates, or release tooling.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:18:00Z - Operator Doc Make Target Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard copied `make <target>` commands in operator-facing docs against
+  Makefile drift.
+
+What was found:
+- README, the script index, Golden Path, recovery runbook, incident runbooks,
+  launch checklist, and release checklist contain Makefile commands operators
+  may copy during routine status checks, recovery, validation, or release work.
+- Existing tests cover selected command wiring, but there was no generic guard
+  that every documented `make <target>` in those operator docs exists in
+  `Makefile`.
+
+What changed:
+- Added `tests/test_operator_doc_make_targets.py`.
+- The test scans the main operator docs for `make <target>` references and
+  fails if a referenced target is missing from `Makefile`.
+- The test also pins that core status, recovery, gate, paper-run, validation,
+  and pre-release targets remain documented somewhere in the operator surface.
+
+Why this change was chosen:
+- Broken copied commands waste operator time during check-in or recovery. A
+  generic target guard catches stale command names without changing docs,
+  Makefile behavior, or runtime code.
+
+Expected outcome:
+- Future docs edits or Makefile target renames that leave stale copied
+  operator commands fail a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_doc_make_targets.py tests/test_makefile_wiring.py tests/test_pre_release_sanity_doc_wiring.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m py_compile tests/test_operator_doc_make_targets.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: test/work-log only. It does not change Makefile targets, scripts,
+  runtime behavior, campaigns, gates, or release tooling.
+- Acceptance state: ACCEPTED.
