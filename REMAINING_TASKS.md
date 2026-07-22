@@ -531,6 +531,15 @@ deployment work still needs independent review.
     thresholds. This is still triage only: it does not fetch data, change
     strategy config, start campaigns, compute portfolio PnL, or produce
     campaign/promotion/profitability evidence.
+    2026-07-22: research-only funding-threshold stability triage is ready for
+    independent review. `services.analytics.funding_threshold_stability_triage`
+    and `scripts/research/run_funding_threshold_stability_triage.py` consume
+    an existing `funding_threshold_window_stability_v1` artifact and rank
+    threshold pairs for manual review using window count, actionable-window
+    ratio, positive-window ratio, average modeled forward return, and worst
+    window average return thresholds. This remains a report consumer only and
+    is not strategy config, campaign evidence, promotion evidence, profitability
+    evidence, or an activation decision.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
