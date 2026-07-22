@@ -25,6 +25,54 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T18:43:00Z - Funding Stage 0 Decision Guard (Active #12)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the funding Stage 0 decision record without
+  changing context plumbing, research reports, promotion qualification,
+  campaign manifests, paper gates, or execution behavior.
+
+What was found:
+- `docs/strategies/funding_extreme_stage0_decision_2026-07-11.md` records an
+  accepted isolated Stage 0 wiring proof, but explicitly does not promote
+  `funding_extreme_default` to a persistent campaign or promotion-evidence
+  source.
+- The decision record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_funding_stage0_decision_guard.py`.
+- The test pins non-promotion status, proof contract, confirmed/unconfirmed
+  boundaries, next conditions, backlog link, and required Stage 0 tooling
+  presence.
+- Added executable-guard notes to the decision record, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted Stage 0 result without broadening it into campaign,
+  promotion, or gate-qualification authority.
+
+Expected outcome:
+- Future edits that quietly treat the Stage 0 proof as persistent campaign
+  approval, promotion evidence, or crypto-edge qualification authority fail
+  visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_stage0_decision_guard.py tests/test_funding_stage0_readiness.py tests/test_funding_stage0_proof_verifier.py tests/test_funding_context_replay.py tests/test_funding_context_price_join.py`
+  - SHOWN: `27 passed in 0.67s`.
+- `./.venv/bin/python -m py_compile tests/test_funding_stage0_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.63s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change context plumbing, research reports,
+  promotion qualification, campaign manifests, paper gates, deployment, or
+  execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T18:34:00Z - Pullback Stage 0 Decision Guard (Active #7)
 
 Active role: ENGINEER
