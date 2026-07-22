@@ -165,3 +165,23 @@ def test_crypto_edge_research_pipeline_cli_returns_2_when_requested_and_not_ok(t
     payload = json.loads(capsys.readouterr().out)
     assert rc == 2
     assert payload["ok"] is False
+
+
+def test_crypto_edge_research_pipeline_cli_keeps_stdout_json(monkeypatch, tmp_path, capsys) -> None:
+    from scripts.research import run_crypto_edge_research_pipeline as cli
+
+    def fake_pipeline(**kwargs):
+        print("dependency diagnostic that must not pollute stdout")
+        return {"artifact_type": "crypto_edge_research_pipeline_v1", "ok": True}
+
+    monkeypatch.setattr(cli, "run_crypto_edge_research_pipeline", fake_pipeline)
+
+    rc = cli.main(["--output-dir", str(tmp_path / "artifacts")])
+
+    captured = capsys.readouterr()
+    assert rc == 0
+    assert json.loads(captured.out) == {
+        "artifact_type": "crypto_edge_research_pipeline_v1",
+        "ok": True,
+    }
+    assert "dependency diagnostic" in captured.err
