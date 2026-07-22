@@ -25,6 +25,52 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:48:00Z - Clock/Venue-Time Policy Guard (Substrate #11)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the clock/venue-time sanity policy without
+  changing clock checks, live gates, status output, or runtime behavior.
+
+What was found:
+- `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md` documents timestamp-sensitive
+  evidence scope, shadow cost-evidence checks, and capped-live launch-packet
+  checks.
+- `docs/LAUNCH_CHECKLIST.md` links the policy as the 2.13 clock/venue-time
+  launch packet requirement.
+- The policy record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_clock_venue_time_policy_guard.py`.
+- The test pins timestamp-sensitive evidence scope, required shadow
+  cost-evidence checks, capped-live launch-packet checks, launch-checklist link,
+  and backlog link.
+- Added executable-guard notes to the clock policy doc, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted clock-proof requirements while avoiding any runtime
+  clock, status, or live-gating behavior changes in this low-risk batch.
+
+Expected outcome:
+- Future edits that drop clock/venue-time proof from shadow/capped-live
+  readiness fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_clock_venue_time_policy_guard.py tests/test_clock_sanity.py tests/test_supply_chain_release_policy_guard.py`
+  - SHOWN: `27 passed`.
+- `./.venv/bin/python -m py_compile tests/test_clock_venue_time_policy_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change clock checking, live gating, status
+  output, campaign/gate logic, deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:42:00Z - Supply-Chain Release Policy Guard (Substrate #13)
 
 Active role: ENGINEER

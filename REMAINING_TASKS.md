@@ -1573,6 +1573,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     per-venue skew, verdict; exit codes 0/1/2) as the launch-evidence
     artifact tool. Host-side NTP enforcement remains an operator/server
     task per `docs/CLOCK_VENUE_TIME_SANITY_POLICY.md`.
+    2026-07-22: executable clock/venue-time policy guard is ready for
+    independent review. `tests/test_clock_venue_time_policy_guard.py` pins
+    timestamp-sensitive evidence scope, required shadow cost-evidence checks,
+    capped-live launch-packet checks, and launch-checklist linkage. This is
+    docs/test only and does not change clock checking, live gating, status
+    output, or runtime behavior.
 12. Define the server secrets and rotation model before capped live. Current
     keyring/env handling is adequate for desktop/paper, but server operation
     needs a documented injection path, rotation procedure, and proof that

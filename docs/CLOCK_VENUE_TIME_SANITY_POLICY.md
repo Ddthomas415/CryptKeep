@@ -55,3 +55,9 @@ Before capped-live approval, add a launch-packet proof showing:
 Until that proof exists, timestamp-sensitive live/shadow evidence remains
 incomplete.
 
+## Executable Guard
+
+`tests/test_clock_venue_time_policy_guard.py` pins timestamp-sensitive evidence
+scope, required shadow cost-evidence checks, capped-live launch-packet checks,
+and launch-checklist linkage so clock/venue-time proof cannot silently disappear
+from shadow or capped-live readiness.
