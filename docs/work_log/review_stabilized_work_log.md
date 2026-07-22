@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T18:10:00Z - Promotion-Stage Authority Decision Guard (Active #2)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the promotion-stage authority decision record
+  without changing promotion gates, stage mutation logic, strategy support,
+  deployment, or execution behavior.
+
+What was found:
+- `docs/decisions/promotion_stage_authority_decision.md` records that the
+  documented operator promotion path must consume the promotion-gate verdict
+  before mutating deployment stage.
+- The decision record was not yet pinned by a direct regression test, even
+  though the operator entrypoint has runtime coverage elsewhere.
+
+What changed:
+- Added `tests/test_promotion_stage_authority_decision_guard.py`.
+- The test pins the gate-enforced operator entrypoint, implemented boundary,
+  strategy scope boundary, authority rationale, and backlog link.
+- Added executable-guard notes to the decision record, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted gate-enforced promotion authority model while
+  avoiding any behavior change in this low-risk batch.
+
+Expected outcome:
+- Future edits that quietly reframe the documented promotion path as a
+  gate-bypassing stage mutation fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_promotion_stage_authority_decision_guard.py tests/test_promotion_authority_entrypoint.py tests/test_promotion_ladder.py`
+  - SHOWN: `13 passed in 0.29s`.
+- `./.venv/bin/python -m py_compile tests/test_promotion_stage_authority_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.78s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change promotion gates, stage mutation logic,
+  strategy support, campaign logic, deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T18:03:00Z - Canonical Expectancy Decision Guard (Active #2)
 
 Active role: ENGINEER
