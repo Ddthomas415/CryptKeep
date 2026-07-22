@@ -24436,3 +24436,70 @@ Remaining risk:
   are analytical assumptions. They must be validated against forward returns
   before any strategy, campaign, or gate use.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T14:48:54Z - Price-Action Forward-Return Join (Batch 2 Research Tooling)
+
+Active role: ENGINEER
+
+Objective:
+- Add the measurement half of the price-action research path by joining saved
+  label artifacts to modeled forward returns after explicit fee/slippage
+  assumptions, without selecting strategies or changing runtime behavior.
+
+What was found:
+- SHOWN: the prior label artifact builder emits dataset/artifact hashes and
+  explicit non-authority flags, but label output alone does not answer whether
+  any label improves forward-return distribution.
+- SHOWN: existing research joins, such as funding context price join, compute
+  modeled unit-size forward returns after fee/slippage assumptions and keep
+  those reports outside campaign/gate evidence.
+- SHOWN from CI: `test_no_new_fee_surface_appeared` correctly failed until this
+  new `fee_bps: float = 10.0` research-cost surface was added to the blueprint
+  census.
+
+What changed:
+- Added `services/analytics/price_action_forward_return_join.py`, a
+  research-only consumer for saved `price_action_context_labels_v1` artifacts.
+- Added `scripts/research/run_price_action_forward_return_join.py` and
+  `make price-action-forward-returns`.
+- Added `tests/test_price_action_forward_return_join.py`, covering baseline
+  and label-conditioned summaries, cost application, failed/unsupported label
+  artifact handling, CLI artifact writing, and non-ok exit behavior.
+- Added `services/analytics/price_action_forward_return_join.py` to the
+  executable fee-surface census and `docs/architecture/SYSTEM_BLUEPRINT.md` as
+  a research-only, non-campaign/promotion evidence cost surface.
+- Updated `docs/research/pattern_strategy_backlog.md`,
+  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- Price-action labels should be measured before they influence strategy
+  behavior. The joiner computes both long and short forward returns for every
+  label, instead of treating label names as trade signals, and compares each
+  label distribution against an unconditioned baseline.
+
+Expected outcome:
+- Operators can produce reproducible label-conditioned forward-return reports
+  and decide whether any price-action feature deserves separate out-of-sample
+  review before becoming a confirmation filter.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: passed as part of `6 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_return_join.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `44 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_forward_return_join.py scripts/research/run_price_action_forward_return_join.py tests/test_price_action_forward_return_join.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `make price-action-forward-returns PRICE_ACTION_FORWARD_RETURNS_ARGS="--labels /tmp/cbp-price-action-labels.json --min-label-count 1"`
+  - SHOWN: target is wired and emits `price_action_forward_return_join_v1`
+    with `ok=true`, `joined_rows=4`, baseline returns, label summaries, and
+    non-authority flags.
+
+Remaining risk:
+- MEDIUM: research-only and no runtime execution changes, but report
+  interpretation can still overfit. Use only after accepted archive artifacts,
+  sufficient label counts, and out-of-sample review.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
