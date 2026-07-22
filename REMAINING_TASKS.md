@@ -2175,6 +2175,18 @@ substrate work, but they are concrete enough to keep visible.
     campaign, or promotion-gate use. Databento is explicitly deferred to a
     separate read-only data-source RFC because it adds API-key, metered-cost,
     dataset/schema, symbology, and futures/equities-style governance decisions.
+    2026-07-22: first research-only label tooling slice is ready for
+    independent review. `services.analytics.price_action_context_labels` and
+    `scripts/research/run_price_action_context_labels.py` build
+    dataset-hashed OHLCV-only price-action context artifacts from the accepted
+    market archive. Current labels cover engulfing candles, rejection wicks,
+    swing failures, break/retest, fair-value gaps, displacement bars,
+    manipulation-candidate labels, and opening-range state. The artifact is
+    explicitly `research_only`, `not_strategy_config`, `not_campaign_evidence`,
+    `not_promotion_evidence`, and `not_profitability_evidence`; volume profile
+    and Databento-backed labels remain deferred. Remaining before strategy use:
+    join labels to forward returns after costs, compare against an
+    unconditioned baseline, and review out-of-sample stability separately.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
