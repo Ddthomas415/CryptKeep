@@ -24490,3 +24490,64 @@ Remaining risk:
 - Real archive runs across relevant symbols/timeframes remain required before
   drawing strategy conclusions.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T06:27:03Z - Funding Threshold Candidate Triage Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by turning funding-threshold
+  sensitivity output into a deterministic manual-review triage artifact.
+
+What was found:
+- SHOWN: `services.analytics.funding_threshold_sensitivity` already consumes a
+  `funding_context_price_join_v1` artifact and emits per-threshold-pair action
+  counts, action share, positive actionable ratio, and average modeled forward
+  return.
+- SHOWN: the existing sensitivity artifact remains research-only and does not
+  fetch data, change strategy config, start campaigns, compute portfolio PnL,
+  or produce promotion evidence.
+
+What changed:
+- Added `services/analytics/funding_threshold_candidate_triage.py`, a
+  read-only report builder that consumes `funding_threshold_sensitivity_v1`
+  artifacts and classifies threshold pairs as `candidate_for_manual_review` or
+  `not_candidate` using explicit input/actionable/positive-return thresholds.
+- Added `scripts/research/run_funding_threshold_candidate_triage.py`.
+- Added `make funding-threshold-candidate-triage` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  and `REMAINING_TASKS.md` with the research-only scope.
+- Added `tests/test_funding_threshold_candidate_triage.py`.
+
+Why this change was chosen:
+- It removes another manual interpretation step from the funding research path
+  while preserving the boundary that threshold candidates are not strategy
+  config, campaign evidence, promotion evidence, profitability evidence, or an
+  activation decision.
+
+Expected outcome:
+- Operators can rank funding threshold pairs for manual review from an existing
+  sensitivity artifact without changing campaigns, gates, execution, promotion
+  evidence, or strategy configuration.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_candidate_triage.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_threshold_candidate_triage.py scripts/research/run_funding_threshold_candidate_triage.py tests/test_funding_threshold_candidate_triage.py`
+  - SHOWN: passed with no output.
+- `make -n funding-threshold-candidate-triage`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_funding_threshold_candidate_triage.py`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_ohlcv_archive_backfill_runner.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `49 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage can influence future operator decisions if treated as
+  activation proof. The artifact is explicitly research-only and requires
+  separate review before any strategy/config/gate use.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
