@@ -363,6 +363,10 @@ FUNDING_CONTEXT_PRICE_JOIN_ARGS ?=
 funding-context-price-join:
 	$(PYTHON) scripts/research/run_funding_context_price_join.py $(FUNDING_CONTEXT_PRICE_JOIN_ARGS)
 
+FUNDING_THRESHOLD_SENSITIVITY_ARGS ?=
+funding-threshold-sensitivity:
+	$(PYTHON) scripts/research/run_funding_threshold_sensitivity.py $(FUNDING_THRESHOLD_SENSITIVITY_ARGS)
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
