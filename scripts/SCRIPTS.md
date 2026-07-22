@@ -216,6 +216,11 @@ decision makes them authoritative.
   backfills the local market OHLCV archive from public exchange OHLCV and
   writes a dataset-hashed JSON summary; it does not affect campaigns, gates,
   or trading. Use `make ohlcv-archive-backfill`.
+- `research/run_archive_parameter_sweep_triage.py` — read-only triage report
+  over an existing `archive_backed_parameter_sweep_v1` JSON artifact; ranks
+  sweep variants for manual review only and does not rerun backtests, change
+  strategy config, start campaigns, or produce promotion evidence. Use
+  `make archive-parameter-sweep-triage`.
 - `research/run_funding_context_price_join.py` — read-only
   `funding_extreme` forward-return report joining stored funding snapshots to
   archived OHLCV rows; computes unit-size modeled forward returns only and
@@ -227,6 +232,24 @@ decision makes them authoritative.
   action counts and unit-size modeled forward returns for explicit threshold
   grids, does not change strategy config, fetch data, start campaigns, or
   produce promotion evidence. Use `make funding-threshold-sensitivity`.
+- `research/run_funding_threshold_window_stability.py` — read-only
+  funding-threshold window-stability report over an existing
+  funding-context price-join JSON artifact; compares threshold-pair behavior
+  across fixed row windows and does not change strategy config, campaigns,
+  gates, execution, or promotion evidence. Use
+  `make funding-threshold-window-stability`.
+- `research/run_funding_threshold_candidate_triage.py` — read-only
+  funding-threshold candidate triage report over an existing
+  `funding_threshold_sensitivity_v1` JSON artifact; ranks threshold pairs for
+  manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-candidate-triage`.
+- `research/run_funding_threshold_stability_triage.py` — read-only
+  stability-aware funding-threshold triage report over an existing
+  `funding_threshold_window_stability_v1` JSON artifact; ranks threshold pairs
+  for manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-stability-triage`.
 - `research/run_price_action_context_labels.py` — read-only OHLCV
   price-action context label artifact over the existing market archive;
   labels fair-value gaps, engulfing candles, swing failures, break/retest,
@@ -244,6 +267,10 @@ decision makes them authoritative.
   forward returns against unconditioned baselines across windows and does not
   change strategy config, campaigns, gates, execution, or promotion evidence.
   Use `make price-action-window-stability`.
+- `research/run_price_action_candidate_triage.py` — read-only price-action
+  candidate triage report over archived OHLCV; ranks label/side pairs for
+  manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use `make price-action-candidate-triage`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
