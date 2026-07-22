@@ -96,3 +96,10 @@ Current accepted minimums:
 These thresholds are paper/server-operation minimums, not capped-live launch
 proof. Capped-live still requires a fresh backup/restore drill and accepted
 launch packet.
+
+## Executable Guard
+
+`tests/test_retention_policy_scope.py` pins the keep/rotate/must-not-keep
+families, pruning safety requirements, server threshold baseline, and
+capped-live caveat so retention cleanup cannot silently delete canonical
+evidence or retain forbidden sensitive material.
