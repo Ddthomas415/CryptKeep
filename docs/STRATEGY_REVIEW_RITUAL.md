@@ -63,3 +63,10 @@ make strategy-review STRATEGY_REVIEW_STRATEGY_ID=ema_cross STRATEGY_REVIEW_SYMBO
 
 The weekly review is advisory. Any config, strategy, gate, or promotion change
 that follows must be a separate governed change.
+
+## Executable Guard
+
+`tests/test_strategy_review_ritual_guard.py` pins the weekly cadence,
+input/output fields, Makefile target/defaults, advisory-only boundary, and
+dated artifact link so the review ritual cannot silently become an automatic
+strategy, gate, or promotion authority.

@@ -25,6 +25,54 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:12:00Z - Strategy Review Ritual Guard (Active #23)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the accepted weekly strategy-review ritual and
+  its advisory-only boundary.
+
+What was found:
+- `docs/STRATEGY_REVIEW_RITUAL.md` documents cadence, inputs, outputs, Makefile
+  usage, canonical ES defaults, and advisory-only rule.
+- `Makefile` exposes `make strategy-review`, and
+  `docs/checkpoints/strategy_review_2026_07_21.md` records a dated advisory
+  artifact.
+- The relationship between the doc, target, defaults, and advisory boundary was
+  not pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_strategy_review_ritual_guard.py`.
+- The test pins cadence, input/output fields, Makefile target/defaults,
+  diagnostic/loss-replay commands, advisory-only language, RUNBOOKS link, and
+  existing dated artifact.
+- Added executable-guard notes to the ritual doc, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the strategy-review habit as operator-run evidence review, not
+  automatic strategy/gate/promotion authority.
+
+Expected outcome:
+- Future edits that break the canonical review target or turn review conclusions
+  into direct runtime authority fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_review_ritual_guard.py tests/test_retention_policy_scope.py tests/test_operator_runbook_policy_guards.py tests/test_operational_core_scope.py`
+  - SHOWN: `16 passed`.
+- `./.venv/bin/python -m py_compile tests/test_strategy_review_ritual_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not run the review, schedule it, update
+  hypotheses, change configs, change gates, or affect campaign/execution
+  behavior. Future review cadence remains an operator action.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:05:00Z - Retention Policy Scope Guard (Deferred Structure #22)
 
 Active role: ENGINEER
