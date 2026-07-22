@@ -1,5 +1,11 @@
 # CryptKeep — Incident Severity Matrix & Operator Runbooks
 
+Executable guard: `tests/test_incident_runbooks_guard.py` pins the severity
+matrix, escalation rules, halt-first/resume-later boundaries, degraded paper
+response, duplicate-order and config-change runbooks, and post-incident
+summary fields in this document. If the incident response contract changes,
+update that test and this runbook together.
+
 ---
 
 ## Related operator runbooks and policies

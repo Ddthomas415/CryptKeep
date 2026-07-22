@@ -3,6 +3,13 @@
 Script:
 - `python scripts/release_checklist.py [options]`
 
+Executable guard:
+- `tests/test_release_checklist_guard.py` pins this document's release
+  automation contract: the root compatibility entrypoint, non-destructive
+  dry-run, patch/requires sync, optional packaging steps, manifest outputs, and
+  opt-in fail-closed signing/notarization inputs. Update that guard in the same
+  change whenever the release checklist command surface changes.
+
 Common runs:
 
 ## Non-destructive release manifest (no changes)
@@ -52,4 +59,3 @@ Example (Windows):
 - `set SIGN_PFX_PATH=C:\path\cert.pfx`
 - `set SIGN_PFX_PASSWORD=...`
 - `python scripts/release_checklist.py --pyinstaller`
-
