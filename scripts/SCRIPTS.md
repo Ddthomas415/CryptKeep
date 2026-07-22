@@ -227,6 +227,12 @@ decision makes them authoritative.
   action counts and unit-size modeled forward returns for explicit threshold
   grids, does not change strategy config, fetch data, start campaigns, or
   produce promotion evidence. Use `make funding-threshold-sensitivity`.
+- `research/run_crypto_edge_strategy_readiness.py` — read-only crypto-edge
+  strategy readiness matrix over current source-tree wiring; classifies
+  `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` as
+  Stage 0 wired, config-only, or unregistered without fetching data, starting
+  campaigns, or changing promotion gates. Use
+  `make crypto-edge-strategy-readiness`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

@@ -24303,3 +24303,69 @@ Remaining risk:
   `open_interest_shift`, but does not register it, enable it, change campaign
   manifests, alter strategy execution, or touch live/order/gate behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T14:31:03Z - Crypto-Edge Strategy Readiness Matrix (Batch 6)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only crypto-edge research-path report that classifies context
+  strategy wiring without starting campaigns, fetching data, or touching
+  promotion/live execution surfaces.
+
+What was found:
+- SHOWN: `funding_extreme` is registered in
+  `services/strategies/strategy_registry.py`, has
+  `funding_extreme_default`, and Stage 0 proof is documented as accepted, but
+  persistent campaign and crypto-edge promotion treatment remain blocked on
+  reviewed research/gate work.
+- SHOWN: `open_interest_shift.py` exists and has
+  `open_interest_shift_default`, but the current source-tree contract marks it
+  config-only and trade-disabled until a previous-OI history/context contract
+  exists.
+- SHOWN: `order_book_imbalance.py` exists, but it is not registry-executable,
+  not config-tool supported, and has no preset; backlog text defers it until a
+  proof-quality depth cadence/streaming path exists.
+
+What changed:
+- Added `services/analytics/crypto_edge_strategy_readiness.py`, which derives a
+  deterministic source-tree readiness matrix for `funding_extreme`,
+  `open_interest_shift`, and `order_book_imbalance`.
+- Added `scripts/research/run_crypto_edge_strategy_readiness.py` and
+  `make crypto-edge-strategy-readiness`.
+- Added `tests/test_crypto_edge_strategy_readiness.py`, covering status
+  classification, derived counts, and CLI JSON/artifact behavior.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- Batch 6 needs crypto-edge progress that does not blur research readiness into
+  campaign authorization. A read-only source-tree matrix gives operators a
+  current wiring answer while keeping qualification gates, live execution, and
+  campaign manifests unchanged.
+
+Expected outcome:
+- Future funding/OI/depth research can start from one executable report of what
+  is wired, config-only, or unregistered, reducing stale manual interpretation
+  of the crypto-edge backlog.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_strategy_readiness.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_discovery_hygiene_contract.py tests/test_strategy_runtime_runner.py tests/test_crypto_edge_context.py tests/test_funding_context_replay.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `70 passed`.
+- `./.venv/bin/python scripts/research/run_crypto_edge_strategy_readiness.py`
+  - SHOWN: report `ok=true`, `row_count=3`, status counts
+    `stage0_wired_research_only=1`,
+    `config_only_research_placeholder=1`,
+    `signal_module_unregistered=1`.
+- `make crypto-edge-strategy-readiness`
+  - SHOWN: target runs and prints the same JSON report with `ok=true`.
+- `./.venv/bin/python -m py_compile services/analytics/crypto_edge_strategy_readiness.py scripts/research/run_crypto_edge_strategy_readiness.py tests/test_crypto_edge_strategy_readiness.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+
+Remaining risk:
+- LOW/MEDIUM: research/reporting-only and no runtime execution changes, but it
+  documents strategy readiness status that operators may use for planning.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
