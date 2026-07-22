@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T19:22:00Z - Walk-Forward Research Doc Guard (Active #11)
+
+Active role: ENGINEER
+
+Objective:
+- Refresh and guard the walk-forward research documentation without changing
+  backtest math, sweep ranking, promotion gates, strategy configs, campaigns, or
+  execution behavior.
+
+What was found:
+- `docs/research/walk_forward_validation.md` still described only the original
+  anchored walk-forward utility and said no automatic parameter search.
+- The repo now has accepted explicit bounded archive parameter-sweep tooling.
+
+What changed:
+- Rewrote `docs/research/walk_forward_validation.md` to reflect current
+  archive-backed walk-forward and bounded parameter-sweep tooling.
+- Added `tests/test_walk_forward_research_doc_guard.py`.
+- Added backlog and work-log notes.
+
+Why this change was chosen:
+- It updates stale research documentation while preserving the boundary that
+  walk-forward and sweep outputs are review inputs, not promotion,
+  strategy-selection, or execution authority.
+
+Expected outcome:
+- Future edits that quietly make walk-forward or sweep output authoritative for
+  promotion, strategy selection, or runtime execution fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_walk_forward_research_doc_guard.py tests/test_backtest_walk_forward.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py`
+  - SHOWN: `15 passed in 0.73s`.
+- `./.venv/bin/python -m py_compile tests/test_walk_forward_research_doc_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.58s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change backtest math, sweep ranking,
+  promotion gates, strategy configs, campaigns, deployment, or execution
+  behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T19:12:00Z - Databento Data-Source RFC (Hygiene #13)
 
 Active role: ENGINEER
