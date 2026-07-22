@@ -250,6 +250,11 @@ decision makes them authoritative.
   windows and reports whether label-conditioned deltas persist across windows.
   It does not select strategies, authorize filters, change configs, start
   campaigns, or create promotion evidence. Use `make price-action-stability`.
+- `research/run_price_action_research_pipeline.py` — research-only orchestration
+  wrapper that runs archive labels, forward-return join, and window stability
+  together, writing all artifacts under an explicit output directory. It does
+  not select strategies, authorize filters, change configs, start campaigns, or
+  create promotion evidence. Use `make price-action-pipeline`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

@@ -7587,6 +7587,60 @@ Remaining risk:
   were not checked in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-22T15:04:52Z - Price-Action Research Pipeline Wrapper (Batch 2 Research Tooling)
+
+Active role: ENGINEER
+
+Objective:
+- Add a single research-only command that runs the accepted price-action label,
+  forward-return, and stability artifact steps together from archived OHLCV.
+
+What was found:
+- SHOWN: the three component builders already existed and carried explicit
+  non-authority flags.
+- SHOWN: running the three commands manually creates avoidable operator
+  friction and creates room for mismatched input artifacts between steps.
+
+What changed:
+- Added `services/analytics/price_action_research_pipeline.py`, a thin
+  orchestration wrapper that runs archive labels, forward returns, and window
+  stability, then records component status and hashes in a pipeline summary.
+- Added `scripts/research/run_price_action_research_pipeline.py` and
+  `make price-action-pipeline`.
+- Added `tests/test_price_action_research_pipeline.py`, covering successful
+  artifact writing, archive failure propagation, CLI output, and non-ok exit
+  behavior.
+- Updated `docs/research/pattern_strategy_backlog.md`,
+  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The pipeline reduces manual glue without creating new strategy authority.
+  Component reports remain descriptive research artifacts and still require
+  separate review before any confirmation-filter or strategy use.
+
+Expected outcome:
+- Operators can generate a complete price-action research artifact set with one
+  command while preserving hashes and stage-level pass/fail reasons.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_research_pipeline.py scripts/research/run_price_action_research_pipeline.py tests/test_price_action_research_pipeline.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py tests/test_price_action_stability_report.py tests/test_price_action_forward_return_join.py tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `57 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, repo doctor rc=0, guard tests `23 passed`.
+- `make price-action-pipeline PRICE_ACTION_PIPELINE_ARGS="--archive-db /tmp/cbp-price-action-pipeline-market.sqlite --venue coinbase --symbol BTC/USD --timeframe 1m --limit 12 --output-dir /tmp/cbp-price-action-pipeline-out --swing-lookback 2 --range-lookback 2 --horizon-bars 1 --fee-bps 0 --slippage-bps 0 --forward-min-label-count 1 --window-size-rows 4 --stability-min-windows 3 --stability-min-label-count 1 --fail-if-not-ok"`
+  - SHOWN: output artifact `price_action_research_pipeline_v1`, `ok=True`;
+    labels, forward-return, and stability stages all `ok=True`.
+
+Remaining risk:
+- MEDIUM: research-only and no runtime execution changes, but it coordinates
+  multiple artifact steps. Any strategy/filter use still requires accepted
+  archive artifacts, sufficient samples, and separate review.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-17T04:19:11Z - Paper-Campaign Manifest Audit CLI (Substrate Backlog #14)
 
 Active role: ENGINEER

@@ -383,6 +383,10 @@ PRICE_ACTION_STABILITY_ARGS ?=
 price-action-stability:
 	$(PYTHON) scripts/research/run_price_action_stability_report.py $(PRICE_ACTION_STABILITY_ARGS)
 
+PRICE_ACTION_PIPELINE_ARGS ?=
+price-action-pipeline:
+	$(PYTHON) scripts/research/run_price_action_research_pipeline.py $(PRICE_ACTION_PIPELINE_ARGS)
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -424,6 +428,7 @@ script-index:
 	@echo "  make price-action-context-labels — build research-only OHLCV price-action labels"
 	@echo "  make price-action-forward-returns — join price-action labels to forward returns"
 	@echo "  make price-action-stability — check price-action label stability by window"
+	@echo "  make price-action-pipeline — run labels, forward returns, and stability together"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"

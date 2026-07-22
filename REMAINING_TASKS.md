@@ -2205,6 +2205,13 @@ substrate work, but they are concrete enough to keep visible.
     across windows. This remains descriptive research evidence only: it does
     not select strategies, authorize confirmation filters, change configs,
     start campaigns, or create promotion evidence.
+    2026-07-22: price-action research pipeline slice is ready for independent
+    review. `services.analytics.price_action_research_pipeline` and
+    `scripts/research/run_price_action_research_pipeline.py` orchestrate the
+    existing archive-label, forward-return, and stability report steps into one
+    read-only artifact set under an explicit output directory. This adds no new
+    analytics authority: it does not select strategies, authorize confirmation
+    filters, change configs, start campaigns, or create promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
