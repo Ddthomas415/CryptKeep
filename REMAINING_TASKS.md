@@ -2200,6 +2200,14 @@ substrate work, but they are concrete enough to keep visible.
    candidate-advisor runtime bridge remains explicitly env-gated, and
    `open_interest_shift` is enforced as config-only/trade-disabled until it is
    registry-executable.
+   2026-07-22: executable strategy-selection authority decision guard is ready
+   for independent review.
+   `tests/test_strategy_selection_authority_decision_guard.py` pins configured
+   strategy identity as the only execution authority, advisory selector
+   boundaries, synthetic evidence-label boundaries, invariants, and the backlog
+   link to `docs/decisions/strategy_selection_authority_decision.md`. This is
+   docs/test only and does not change strategy selection, registry behavior,
+   campaign logic, or execution behavior.
 10. Classify storage orphan modules before more reconciliation work.
     Prior audits flagged unused SQLite stores such as fill reconciler,
     idempotency, and order-tracker variants. Confirm whether each is truly

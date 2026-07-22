@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T18:18:00Z - Strategy-Selection Authority Decision Guard (Hygiene #9)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the strategy-selection authority decision record
+  without changing strategy selection, registry behavior, campaign logic, or
+  execution behavior.
+
+What was found:
+- `docs/decisions/strategy_selection_authority_decision.md` records that
+  configured strategy identity is the only execution authority and selector or
+  advisor output remains advisory only.
+- The decision record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_strategy_selection_authority_decision_guard.py`.
+- The test pins configured strategy identity as the only execution authority,
+  advisory selector boundaries, synthetic evidence-label boundaries,
+  invariants, and backlog linkage.
+- Added executable-guard notes to the decision record, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted Option A authority boundary without changing
+  runtime strategy selection or registry behavior in this low-risk batch.
+
+Expected outcome:
+- Future edits that quietly allow selector/advisor output to regain execution
+  authority fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_selection_authority_decision_guard.py tests/test_strategy_discovery_hygiene_contract.py tests/test_candidate_advisor_classification.py tests/test_strategy_runtime_runner.py`
+  - SHOWN: `53 passed in 1.15s`.
+- `./.venv/bin/python -m py_compile tests/test_strategy_selection_authority_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.77s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change strategy selection, registry
+  behavior, campaign logic, deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T18:10:00Z - Promotion-Stage Authority Decision Guard (Active #2)
 
 Active role: ENGINEER
