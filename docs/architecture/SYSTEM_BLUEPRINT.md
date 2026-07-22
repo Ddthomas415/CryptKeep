@@ -5,9 +5,9 @@ marked authoritative unless competing paths were checked. Claims are `SHOWN`,
 `REFUTED`, `PARTIALLY SHOWN`, or `UNKNOWN`.
 
 **Traced:** 2026-07-12 against `master` (`a84f82583`, after PR #261).
-**Census updated:** 2026-07-18 to include the research-only funding context
-price-join cost surface added for forward-return analysis.
-**Regression protection:** `tests/test_blueprint_invariants.py` (18 executable tests). Each
+**Census updated:** 2026-07-22 to include the research-only funding context,
+price-action forward-return, and price-action window-stability cost surfaces.
+**Regression protection:** `tests/test_blueprint_invariants.py` (21 executable tests). Each
 encoded fact fails a test if it changes. A failure there means *the blueprint is stale*,
 not necessarily that a bug was introduced.
 
@@ -84,10 +84,11 @@ The backtest family reads **no** user config (grep: zero `load_user_yaml` /
 
 ### CLAIM-04 — SHOWN
 
-**Claim:** "There are three cost surfaces." → **REFUTED: there are six, plus a
+**Claim:** "There are three cost surfaces." → **REFUTED: there are eight, plus a
 seven-module backtest family.** My own earlier census was wrong; the census invariant
-caught it. The sixth surface is a 2026-07-18 research-only funding context
-forward-return report and is not promotion or campaign evidence.
+caught it. The newest surfaces are research-only funding context, price-action
+forward-return, and price-action window-stability reports; none is promotion or
+campaign evidence.
 
 
 ### CLAIM-05 — REFUTED (capital-relevant)
@@ -162,6 +163,8 @@ decision. The blueprint records only what the code does.
 | `paper_trader/paper_execution_venue.py` | dataclass default | **1.0** | **0.0** | legacy runner (`trading_runner/run_trader.py:125`) | non-canonical |
 | `execution/paper_fees.py` | `user.yaml execution.paper_fee_bps` | **0.0** | — | **dormant — no production callers** | NO |
 | `analytics/funding_context_price_join.py` | CLI/report parameter default | **10.0** | 5.0 | research-only funding context forward-return report | NO — not campaign/promotion evidence |
+| `analytics/price_action_forward_returns.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action forward-return report | NO — not campaign/promotion evidence |
+| `analytics/price_action_window_stability.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action window-stability report | NO — not campaign/promotion evidence |
 
 **Assumption fork (highest impact):** the legacy runner models **1.0 bps fee, 0.0
 slippage** — near-free execution. Any evidence from that path is not comparable to
@@ -204,7 +207,7 @@ the paper surface and explicitly disclaims the backtest one.*
 | Gate expectancy compared to a per-trade baseline | CLAIM-01 fork | `test_gate_expectancy_is_per_fill…` plus paper fallback test | Paper-promotion fallback now fails closed; paper-history qualification is authoritative |
 | Sweep optimizes against costs never validated | independent sourcing | `test_backtest_costs_not_sourced_from_user_yaml` | Validate the backtest surface separately |
 | Legacy runner evidence enters analysis | 1.0/0.0 costs | `test_legacy_runner_models_near_free_execution` | Keep non-canonical; never treat as evidence |
-| A seventh cost surface appears | census drift | `test_no_new_fee_surface_appeared` | Census invariant |
+| An uncensused cost surface appears | census drift | `test_no_new_fee_surface_appeared` | Census invariant |
 | **Live daily-loss cap permits more loss than configured** | CLAIM-06: gate reads gross PnL; fees excluded | `test_realized_today_usd_returns_gross_not_net` | **Decide gross-vs-net cap policy before capped-live**; the net figure already exists in `snapshot()["pnl"]` |
 | Paper (net) vs live/journal (gross) PnL compared | CLAIM-05: same field name, different math | `test_live_position_store_realized_pnl_is_gross_of_fees` | Never compare across the boundary without normalizing |
 | Backtest family diverges internally | 7 modules, 7 defaults | `test_backtest_fee_family_is_internally_consistent` | Family-consistency invariant |

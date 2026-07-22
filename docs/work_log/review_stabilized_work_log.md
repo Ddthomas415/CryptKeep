@@ -24318,3 +24318,103 @@ Remaining risk:
 - Real archive runs across relevant symbols/timeframes are still required
   before drawing strategy conclusions.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:24:31Z - Price-Action Forward-Return CI Census Correction
+
+Active role: ENGINEER
+
+Objective:
+- Fix the failing CI invariant on PR #362 without weakening the blueprint cost
+  surface guard.
+
+What was found:
+- SHOWN: GitHub CI failed in
+  `tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`.
+- SHOWN: the new `services/analytics/price_action_forward_returns.py` file
+  intentionally declares `fee_bps: float = 10.0` and
+  `slippage_bps: float = 5.0` for a research-only forward-return report.
+- SHOWN: the invariant exists to force every new cost surface into the blueprint
+  census instead of allowing uncensused cost assumptions.
+
+What changed:
+- Added `services/analytics/price_action_forward_returns.py` to the executable
+  fee-surface census as a research-only, non-campaign, non-promotion surface.
+- Updated `docs/architecture/SYSTEM_BLUEPRINT.md` from six to seven cost
+  surfaces and added the price-action forward-return report to the configuration
+  map.
+
+Why this change was chosen:
+- The CI failure was correct: the new report is a cost-assumption surface. The
+  right fix is to classify it explicitly, not to relax the invariant.
+
+Expected outcome:
+- CI's full-suite blueprint invariant no longer fails on the new research
+  report, while future uncensused fee surfaces still fail loudly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py`
+  - SHOWN: `20 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `65 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py tests/test_blueprint_invariants.py`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW/MEDIUM: research-only analytics can influence future operator decisions
+  if misread, but no strategy config, campaign, gate, execution, or promotion
+  authority changes were made.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:24:31Z - Price-Action Window-Stability CI Census Correction
+
+Active role: ENGINEER
+
+Objective:
+- Carry the PR #362 cost-surface census fix into stacked PR #363 and classify
+  the additional window-stability research cost surface before CI trips over it.
+
+What was found:
+- SHOWN: PR #363 adds `services/analytics/price_action_window_stability.py`,
+  which intentionally declares `fee_bps: float = 10.0` and
+  `slippage_bps: float = 5.0` for a research-only multi-window report.
+- SHOWN: `test_no_new_fee_surface_appeared` scans all `services/**.py` files
+  and fails on any uncensused `fee_bps: float =` declaration.
+
+What changed:
+- Added `services/analytics/price_action_window_stability.py` to the executable
+  fee-surface census as a research-only, non-campaign, non-promotion surface.
+- Updated `docs/architecture/SYSTEM_BLUEPRINT.md` from seven to eight cost
+  surfaces and added the window-stability report to the configuration map.
+
+Why this change was chosen:
+- This keeps the invariant strict while acknowledging the new report's explicit
+  cost assumptions.
+
+Expected outcome:
+- PR #363 does not repeat PR #362's uncensused-cost-surface CI failure.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared tests/test_blueprint_invariants.py::test_fee_surface_defaults_unchanged`
+  - SHOWN: `9 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py`
+  - SHOWN: `21 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `69 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_window_stability.py scripts/research/run_price_action_window_stability.py tests/test_price_action_window_stability.py services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py tests/test_blueprint_invariants.py`
+  - SHOWN: passed.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- LOW/MEDIUM: no strategy config, campaign, gate, execution, or promotion
+  authority changes were made; this is a research-only census/documentation
+  correction.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
