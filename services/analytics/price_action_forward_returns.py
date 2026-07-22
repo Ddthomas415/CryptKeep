@@ -135,57 +135,20 @@ def _label_summary(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     }
 
 
-def run_price_action_forward_returns(
+def build_price_action_forward_return_report(
     *,
+    label_artifact: dict[str, Any],
     venue: str,
     symbol: str,
-    timeframe: str = "1h",
-    limit: int = 500,
-    since_ms: int | None = None,
-    db_path: str | None = None,
+    timeframe: str,
     horizon_bars: int = 1,
     min_labeled_rows: int = 1,
     fee_bps: float = 10.0,
     slippage_bps: float = 5.0,
-    label_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """
-    Research-only label-conditioned forward-return report.
-
-    This evaluates unit-size long/short forward returns after modeled
-    fee/slippage. It does not simulate portfolio state, choose trades, alter
-    strategy config, or provide promotion evidence.
-    """
+    """Build a forward-return report from an already computed label artifact."""
     horizon = max(1, int(horizon_bars))
-    loaded = run_archive_price_action_context(
-        venue=str(venue),
-        symbol=str(symbol),
-        timeframe=str(timeframe),
-        limit=int(limit),
-        since_ms=since_ms,
-        db_path=db_path,
-        label_config=label_config,
-    )
-    if not bool(loaded.get("ok")):
-        return {
-            "ok": False,
-            "reason": str(loaded.get("reason") or "label_archive_unavailable"),
-            "artifact_type": ARTIFACT_TYPE,
-            **LIMITATION_FLAGS,
-            "limitation_flags": dict(LIMITATION_FLAGS),
-            "venue": normalize_venue(venue),
-            "symbol": normalize_symbol(symbol),
-            "timeframe": str(timeframe),
-            "horizon_bars": int(horizon),
-            "fee_bps": float(fee_bps),
-            "slippage_bps": float(slippage_bps),
-            "label_artifact_type": LABEL_ARTIFACT_TYPE,
-            "dataset": dict(loaded.get("dataset") or {}),
-            "rows": [],
-            "label_summaries": {},
-        }
-
-    labels = list(loaded.get("labels") or [])
+    labels = list(label_artifact.get("labels") or [])
     rows: list[dict[str, Any]] = []
     for idx, row in enumerate(labels):
         exit_idx = idx + horizon
@@ -242,11 +205,13 @@ def run_price_action_forward_returns(
     dataset_hash = _sha(
         {
             "artifact_type": ARTIFACT_TYPE,
-            "label_dataset_hash": ((loaded.get("dataset") or {}).get("dataset_hash")),
+            "label_dataset_hash": (
+                (label_artifact.get("dataset") or {}).get("dataset_hash")
+            ),
             "horizon_bars": int(horizon),
             "fee_bps": float(fee_bps),
             "slippage_bps": float(slippage_bps),
-            "label_config": dict(loaded.get("label_config") or {}),
+            "label_config": dict(label_artifact.get("label_config") or {}),
             "rows": rows,
         }
     )
@@ -264,10 +229,10 @@ def run_price_action_forward_returns(
         "fee_bps": float(fee_bps),
         "slippage_bps": float(slippage_bps),
         "label_artifact_type": LABEL_ARTIFACT_TYPE,
-        "dataset": dict(loaded.get("dataset") or {}),
+        "dataset": dict(label_artifact.get("dataset") or {}),
         "dataset_hash": dataset_hash,
-        "source_label_counts": dict(loaded.get("label_counts") or {}),
-        "label_config": dict(loaded.get("label_config") or {}),
+        "source_label_counts": dict(label_artifact.get("label_counts") or {}),
+        "label_config": dict(label_artifact.get("label_config") or {}),
         "row_count": int(len(rows)),
         "labeled_row_count": int(len(labeled_rows)),
         "summary": {
@@ -288,3 +253,65 @@ def run_price_action_forward_returns(
             "not_profitability_evidence",
         ],
     }
+
+
+def run_price_action_forward_returns(
+    *,
+    venue: str,
+    symbol: str,
+    timeframe: str = "1h",
+    limit: int = 500,
+    since_ms: int | None = None,
+    db_path: str | None = None,
+    horizon_bars: int = 1,
+    min_labeled_rows: int = 1,
+    fee_bps: float = 10.0,
+    slippage_bps: float = 5.0,
+    label_config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Research-only label-conditioned forward-return report.
+
+    This evaluates unit-size long/short forward returns after modeled
+    fee/slippage. It does not simulate portfolio state, choose trades, alter
+    strategy config, or provide promotion evidence.
+    """
+    horizon = max(1, int(horizon_bars))
+    loaded = run_archive_price_action_context(
+        venue=str(venue),
+        symbol=str(symbol),
+        timeframe=str(timeframe),
+        limit=int(limit),
+        since_ms=since_ms,
+        db_path=db_path,
+        label_config=label_config,
+    )
+    if not bool(loaded.get("ok")):
+        return {
+            "ok": False,
+            "reason": str(loaded.get("reason") or "label_archive_unavailable"),
+            "artifact_type": ARTIFACT_TYPE,
+            **LIMITATION_FLAGS,
+            "limitation_flags": dict(LIMITATION_FLAGS),
+            "venue": normalize_venue(venue),
+            "symbol": normalize_symbol(symbol),
+            "timeframe": str(timeframe),
+            "horizon_bars": int(horizon),
+            "fee_bps": float(fee_bps),
+            "slippage_bps": float(slippage_bps),
+            "label_artifact_type": LABEL_ARTIFACT_TYPE,
+            "dataset": dict(loaded.get("dataset") or {}),
+            "rows": [],
+            "label_summaries": {},
+        }
+
+    return build_price_action_forward_return_report(
+        label_artifact=loaded,
+        venue=venue,
+        symbol=symbol,
+        timeframe=timeframe,
+        horizon_bars=horizon,
+        min_labeled_rows=min_labeled_rows,
+        fee_bps=fee_bps,
+        slippage_bps=slippage_bps,
+    )
