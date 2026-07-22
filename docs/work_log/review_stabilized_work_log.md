@@ -25,6 +25,55 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T16:35:00Z - Operator Runbook Policy Guards (Active #24/#25/#27)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable docs/test coverage for the accepted operator policy/runbook
+  boundaries that remain proof-gated rather than runtime-gated.
+
+What was found:
+- `docs/STRATEGY_STOP_AND_RETIREMENT_POLICY.md`,
+  `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`, and
+  `docs/SINGLE_OPERATOR_CONTINUITY.md` already document the accepted boundaries.
+- The docs were not pinned by direct regression tests, and the proof items
+  remain future operator drills or per-strategy decisions.
+
+What changed:
+- Added `tests/test_operator_runbook_policy_guards.py`.
+- The test pins strategy decision outcomes, retirement triggers, project thesis
+  gate, first-hour paper-to-shadow preconditions/safety checks/abort
+  conditions, single-operator absence rules, delegate forbidden actions, open
+  proof lists, and RUNBOOKS.md links.
+- Added executable-guard notes to the three docs and backlog notes for items
+  #24, #25, and #27.
+
+Why this change was chosen:
+- These three docs share one low-risk operator-policy surface. Grouping them
+  reduces PR churn while preserving the boundary that no rehearsal, promotion,
+  or live-routing proof is created by documentation alone.
+
+Expected outcome:
+- Future edits that weaken stop/retirement criteria, paper-to-shadow safety
+  checks, or single-operator fail-safe rules fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_runbook_policy_guards.py tests/test_operational_core_scope.py tests/test_operator_governance_lanes.py tests/test_project_identity_scope.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m py_compile tests/test_operator_runbook_policy_guards.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change strategy, campaign, gate, dashboard,
+  deployment, or execution behavior. Shadow rehearsal, backup restore,
+  dead-man delivery, and stopped-campaign recovery proofs remain open.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T16:25:00Z - Operational Core Scope Guard (Deferred Structure #17)
 
 Active role: ENGINEER
