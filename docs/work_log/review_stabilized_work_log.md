@@ -24621,6 +24621,57 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-22T15:37:00Z - Companion Repo Compose Profile (Deferred Structure #15)
+
+Active role: ENGINEER
+
+Objective:
+- Make the archived `phase1_research_copilot` companion optional in Docker
+  startup instead of a default root-compose dependency.
+
+What was found:
+- `docs/COMPANION_REPO_DEPENDENCY.md` already classifies
+  `phase1_research_copilot/` as a sidecar/archived companion, not required root
+  runtime.
+- SHOWN: `docker/docker-compose.yml` still started `backend` from
+  `/app/phase1_research_copilot` by default, and `dashboard` hard-depended on
+  that backend.
+
+What changed:
+- Added `profiles: [phase1-companion]` to the Compose `backend` service.
+- Removed the dashboard's hard `depends_on: backend` link so default Docker
+  startup does not require the missing/archived sidecar.
+- Documented explicit opt-in through `COMPOSE_PROFILES=phase1-companion`.
+- Added `tests/test_companion_repo_dependency.py` to pin the Compose/default
+  policy.
+
+Why this change was chosen:
+- It matches the accepted companion-repo decision without vendoring or deleting
+  the sidecar and keeps root Docker startup aligned with the root install path.
+
+Expected outcome:
+- `make docker-up-auto-ports` / default `docker compose up` no longer requires
+  the archived companion backend unless the operator opts into the profile.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_companion_repo_dependency.py tests/test_repo_layout_scope_doc.py`
+  - SHOWN: `11 passed`.
+- `docker compose config` from `docker/`
+  - SHOWN: rc=0; default rendered stack contains `dashboard` only.
+- `COMPOSE_PROFILES=phase1-companion docker compose config` from `docker/`
+  - SHOWN: rc=0; opt-in rendered stack contains `backend` and `dashboard`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `./.venv/bin/python -m py_compile tests/test_companion_repo_dependency.py`
+  - SHOWN: rc=0.
+- `git diff --check`
+  - SHOWN: rc=0.
+
+Remaining risk:
+- HIGH: deploy/runtime behavior changed. Dashboard startup is now decoupled from
+  the optional backend health check; independent review and CI are required.
+- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
 ## 2026-07-22T15:31:00Z - Storage Quarantine Hygiene Guard (Deferred Structure #10)
 
 Active role: ENGINEER

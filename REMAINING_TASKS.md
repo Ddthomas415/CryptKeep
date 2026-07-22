@@ -2244,6 +2244,13 @@ substrate work, but they are concrete enough to keep visible.
     sidecar/archived companion, not a required root runtime dependency; future
     active use must vendor it or document it as an explicit external
     prerequisite.
+    2026-07-22: Compose-side companion dependency hardening is ready for
+    independent review. `docker/docker-compose.yml` now gates the
+    `phase1_research_copilot` backend behind the explicit
+    `phase1-companion` profile and removes the dashboard's hard dependency on
+    that backend. `tests/test_companion_repo_dependency.py` pins the default
+    root Docker startup as sidecar-optional. This touches Docker startup
+    behavior, so review as deploy/runtime scope.
 16. Add risk-tiered governance lanes to the operator workflow. Keep full
     ceremony for high-risk changes touching gates, dispatch, execution,
     secrets, deployment, and live-risk surfaces. Allow a lighter documented
