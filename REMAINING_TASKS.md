@@ -374,6 +374,17 @@ deployment work still needs independent review.
    `tests/test_walk_forward_research_doc_guard.py` pins those boundaries. This
    is docs/test only and does not change backtest math, sweep ranking,
    promotion gates, strategy configs, campaigns, or execution behavior.
+   2026-07-22: executable strategy-feedback ledger doc guard is ready for
+   review. `docs/research/strategy_feedback_ledger.md` now names the ledger as
+   descriptive persisted-paper-fill metadata that may only adjust research
+   leaderboard scores; it is not promotion, strategy-config, position-sizing,
+   campaign, live-routing, or execution authority. Any use beyond research
+   ranking requires a separate reviewed config, campaign, gate, or execution
+   change with its own proof.
+   `tests/test_strategy_feedback_ledger_doc_guard.py` pins those boundaries
+   and the strategy-expansion roadmap link. This is docs/test only and does not
+   change feedback math, leaderboard ranking, strategy configs, campaigns,
+   promotion gates, or execution behavior.
    2026-07-14:
    market ticker ingestion proof is ready for independent review.
    `MarketStore.upsert_ticker()` now rejects non-positive or non-finite

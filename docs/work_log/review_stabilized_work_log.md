@@ -25917,3 +25917,44 @@ Remaining risk:
 - MEDIUM: research metrics are still forward-return/unit-size summaries only;
   they are not campaign, promotion, or profitability evidence.
 - Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+
+## 2026-07-22T18:04:07Z - Strategy Feedback Ledger Research Boundary Guard
+
+Active role: ENGINEER
+
+Objective:
+- Pin the strategy feedback ledger as research-only persisted-paper-fill
+  metadata, not promotion, strategy-config, sizing, campaign, live-routing, or
+  execution authority.
+
+What was found:
+- `docs/research/strategy_feedback_ledger.md` documented the ledger and its
+  non-goals, while runtime tests covered ledger math. The research-only
+  authority boundary was prose-only and had no executable guard.
+
+What changed:
+- Expanded `docs/research/strategy_feedback_ledger.md` with an explicit
+  boundary: feedback weighting may adjust research leaderboard scores only.
+- Added `tests/test_strategy_feedback_ledger_doc_guard.py` to pin the ledger
+  source/scope, non-authority boundary, profitability caveat, and link to the
+  strategy-expansion roadmap.
+- Recorded the guarded boundary in `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It converts a low-risk research-boundary statement into an executable docs
+  invariant without touching feedback math, leaderboard ranking, campaigns,
+  gates, or execution.
+
+Expected outcome:
+- Future changes that try to promote persisted paper feedback from research
+  metadata into runtime authority must update the documentation and tests in a
+  deliberate reviewed change.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_feedback_ledger_doc_guard.py tests/test_strategy_feedback.py tests/test_backtest_evidence_cycle.py tests/test_ai_copilot_strategy_lab.py`
+  - SHOWN: `27 passed`.
+
+Remaining risk:
+- LOW: docs/test only. It does not decide whether or when feedback weighting
+  should influence runtime strategy configuration.
+- Acceptance state: ACCEPTED.
