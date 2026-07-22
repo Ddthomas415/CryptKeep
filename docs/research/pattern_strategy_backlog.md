@@ -59,6 +59,12 @@ Tooling:
 - Use `make price-action-context-labels` with explicit archive parameters.
   This command does not fetch from external sources; the archive must already
   contain the requested OHLCV rows.
+- `services.analytics.price_action_forward_return_join` and
+  `scripts/research/run_price_action_forward_return_join.py` consume a saved
+  label artifact and compute label-conditioned forward returns after explicit
+  fee/slippage assumptions. The report computes both long and short forward
+  returns for every label instead of treating label names as trade signals.
+  Use `make price-action-forward-returns` with an explicit `--labels` path.
 
 Candidate labels requiring stronger data:
 
