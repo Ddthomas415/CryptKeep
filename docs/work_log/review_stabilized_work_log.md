@@ -24621,6 +24621,47 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-22T16:00:00Z - Product Surface Triage Guard (Deferred Structure #12)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the product-surface triage decision so broad
+  product ambitions do not silently displace the current paper/research path.
+
+What was found:
+- `docs/PRODUCT_SURFACE_TRIAGE.md` documents lab-mode concentration and
+  retain/defer lists, but the policy was not yet pinned by tests.
+
+What changed:
+- Added `tests/test_product_surface_triage.py`.
+- The test pins the lab-mode stance, retain/defer lists, decision-rule terms,
+  project identity link, and README root-boundary summary.
+- Added an executable-guard note to the product triage document and backlog.
+
+Why this change was chosen:
+- It is the smallest docs/test guard for the accepted product concentration
+  decision; it avoids touching desktop, dashboard, packaging, or runtime code.
+
+Expected outcome:
+- Future product-surface changes that weaken the current lab-mode boundary
+  become visible in CI instead of drifting through docs silently.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_product_surface_triage.py tests/test_repo_layout_scope_doc.py tests/test_root_dependency_contract.py`
+  - SHOWN: `19 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `./.venv/bin/python -m py_compile tests/test_product_surface_triage.py`
+  - SHOWN: rc=0.
+- `git diff --check`
+  - SHOWN: rc=0.
+
+Remaining risk:
+- LOW: docs/test only. It does not remove product surfaces or change runtime
+  behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T15:54:00Z - Dashboard Data-Page Triage Guard (Deferred Structure #14)
 
 Active role: ENGINEER

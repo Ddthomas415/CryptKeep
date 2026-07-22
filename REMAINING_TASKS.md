@@ -2181,6 +2181,11 @@ substrate work, but they are concrete enough to keep visible.
     `docs/PRODUCT_SURFACE_TRIAGE.md`; broader product expansion remains deferred
     until expectancy is proven or a task supports the retained evidence/safety
     path.
+    2026-07-22: executable product-surface triage guard is ready for
+    independent review. `tests/test_product_surface_triage.py` pins the
+    lab-mode concentration stance, retain/defer lists, decision-rule terms,
+    project identity link, and README root-boundary summary. This is docs/test
+    only and does not change product/runtime behavior.
 13. Keep pattern/candlestick strategy research visible but behind the archive
     and paper-evidence gates. Existing code covers pullbacks, gap fills,
     volatility reversals, order-book imbalance, funding, and open interest.
