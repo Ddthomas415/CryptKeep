@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join funding-threshold-sensitivity crypto-edge-strategy-readiness check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -367,6 +367,10 @@ FUNDING_THRESHOLD_SENSITIVITY_ARGS ?=
 funding-threshold-sensitivity:
 	$(PYTHON) scripts/research/run_funding_threshold_sensitivity.py $(FUNDING_THRESHOLD_SENSITIVITY_ARGS)
 
+CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
+crypto-edge-strategy-readiness:
+	$(PYTHON) scripts/research/run_crypto_edge_strategy_readiness.py $(CRYPTO_EDGE_STRATEGY_READINESS_ARGS)
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -403,6 +407,8 @@ script-index:
 	@echo "  make funding-context-replay    — replay stored funding_extreme context signals"
 	@echo "  make ohlcv-archive-backfill    — backfill archived OHLCV for research"
 	@echo "  make funding-context-price-join — join funding context to archived OHLCV"
+	@echo "  make funding-threshold-sensitivity — run funding threshold sensitivity"
+	@echo "  make crypto-edge-strategy-readiness — report crypto-edge strategy wiring status"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"

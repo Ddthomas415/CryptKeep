@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 
 
 SUPPORTED = {"ema_cross", "mean_reversion_rsi", "breakout_donchian", "momentum", "pullback_recovery", "volatility_reversal", "gap_fill", "breakout_volume", "funding_extreme", "open_interest_shift"}
+CONFIG_ONLY_STRATEGIES = {"open_interest_shift"}
 
 
 def _num(v: Any) -> bool:
@@ -25,6 +26,8 @@ def validate_strategy_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
         errors.append(f"unsupported_strategy:{name}")
     if "trade_enabled" in st and not isinstance(st.get("trade_enabled"), bool):
         errors.append("strategy.trade_enabled must be bool")
+    if name in CONFIG_ONLY_STRATEGIES and st.get("trade_enabled") is not False:
+        errors.append(f"config_only_strategy_requires_trade_disabled:{name}")
 
     if name == "ema_cross":
         for k in ("ema_fast", "ema_slow", "filter_window", "min_volatility_pct", "min_volume_ratio", "min_trend_efficiency", "min_cross_gap_pct"):

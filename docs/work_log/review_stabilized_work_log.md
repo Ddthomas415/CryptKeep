@@ -24181,3 +24181,191 @@ Remaining risk:
   strategy behavior, but it should receive independent review before being
   treated as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T12:57:03Z - Paper Measurement Contract Batch (Batch 3)
+
+Active role: ENGINEER
+
+Objective:
+- Complete the remaining safe Batch 3 paper evidence / analytics correctness
+  slice on top of the existing paper-backtest sequence parity branch.
+
+What was found:
+- SHOWN: `PaperTradingSQLite.apply_fill` already emits
+  `pnl_usd_semantics=net_of_fees`, and
+  `tests/test_paper_trading_sqlite_invariants.py` already covers flat
+  round-trip fees and mixed buy/sell ledger reconciliation.
+- SHOWN: `origin/codex/paper-backtest-sequence-parity` already adds the
+  sequence-level backtest-to-paper replay proof.
+- SHOWN: paper promotion no longer uses JSONL per-fill PnL as authoritative
+  expectancy when qualified paper history is unavailable, but the gate output
+  did not name the authoritative expectancy unit/denominator.
+- SHOWN: paper execution surface classification existed in
+  `docs/architecture/paper_execution_surfaces.md`, but there was no executable
+  guard proving the documented core/compatibility/retired surfaces still
+  matched the tracked source tree.
+
+What changed:
+- Added additive paper gate metric fields:
+  `expectancy_unit`, `expectancy_denominator`, and
+  `expectancy_authoritative_for_paper_promotion`.
+- Added `tests/test_paper_measurement_contract.py`, proving:
+  qualified paper-history expectancy is labeled as closed-trade based;
+  JSONL per-fill PnL fallback remains non-authoritative for paper promotion;
+  qualified paper-history expectancy is net of fees per closed trade; and
+  paper execution surface classification matches the source tree.
+- Updated `REMAINING_TASKS.md` to record the Batch 3 follow-up proof.
+
+Why this change was chosen:
+- The remaining Batch 3 value was not another runtime rewrite. Existing code
+  already fixed the high-value paper ledger and parity issues. The durable gap
+  was contract clarity: machine output should name the unit it is reporting,
+  and paper surface classification should fail loudly if the source tree drifts.
+
+Expected outcome:
+- Reviewers and operator tooling can distinguish authoritative
+  provenance-qualified, closed-trade paper expectancy from legacy JSONL
+  diagnostic PnL fields without changing campaign behavior or thresholds.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_measurement_contract.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_gate_pnl_semantics_visibility.py tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_paper_trading_sqlite_invariants.py tests/test_backtest_parity_engine.py`
+  - SHOWN: `76 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py tests/test_deprecation_deadline.py`
+  - SHOWN: `21 passed, 1 skipped` (deadline skip before 2026-08-01).
+- `./.venv/bin/python -m py_compile scripts/check_promotion_gates.py tests/test_paper_measurement_contract.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: touches promotion-gate reporting fields, but not pass/fail logic,
+  thresholds, live execution, order routing, or strategy behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T13:44:07Z - Strategy Discovery Hygiene Contract (Batch 5)
+
+Active role: ENGINEER
+
+Objective:
+- Complete the safe strategy registry / discovery hygiene slice without
+  enabling new strategy execution or changing campaigns.
+
+What was found:
+- SHOWN: registry fail-closed behavior, challenger governance configs,
+  candidate-advisor classification, and retired-family guards already exist.
+- SHOWN: `services/strategies/config_tools.py` and
+  `services/strategies/validation.py` allowed `open_interest_shift`, while
+  `services/strategies/strategy_registry.py::SUPPORTED` does not expose it as
+  executable.
+- SHOWN: `open_interest_shift_default` existed as a preset without an explicit
+  `trade_enabled=false` marker.
+- SHOWN: `docs/research/signal_discovery_classification.md` classified
+  discovery/ranker modules as research/advisory, but no executable test proved
+  that classification still matched the source tree or stayed out of
+  execution/control/gate code.
+
+What changed:
+- Added `CONFIG_ONLY_STRATEGIES` to config tooling and exposed
+  `executable_strategies()` / `config_only_strategies()`.
+- `build_strategy_block()` now refuses to create a trade-enabled
+  `open_interest_shift` block while it remains config-only.
+- `validate_strategy_config()` now requires config-only strategies to carry
+  `trade_enabled=false`.
+- `open_interest_shift_default` now explicitly sets `trade_enabled=false`.
+- Added `tests/test_strategy_discovery_hygiene_contract.py`, covering supported
+  set alignment, config-only enforcement, preset disabled state, discovery
+  classification docs, blocked direct imports into execution/control/governance,
+  and the explicit `CBP_USE_CANDIDATE_ADVISOR` runtime bridge.
+- Updated `REMAINING_TASKS.md` and the signal discovery classification doc.
+
+Why this change was chosen:
+- A config tool that can mint a trade-enabled block for a non-registry strategy
+  creates an executable-looking config that the runtime will later reject. The
+  smaller fix is to preserve the research placeholder while making its
+  non-executable status explicit and tested.
+
+Expected outcome:
+- Future discovery/config work cannot silently blur research-only strategy
+  modules into governed execution paths.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_discovery_hygiene_contract.py tests/test_strategy_config_tools.py tests/test_strategy_registry.py tests/test_candidate_advisor_classification.py`
+  - SHOWN: `31 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_runtime_runner.py tests/test_run_paper_strategy_evidence_collector.py tests/test_funding_stage0_readiness.py tests/test_pullback_stage0_readiness.py`
+  - SHOWN: `65 passed`.
+- `./.venv/bin/python -m py_compile services/strategies/config_tools.py services/strategies/validation.py tests/test_strategy_discovery_hygiene_contract.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+
+Remaining risk:
+- MEDIUM: changes strategy config validation/tooling semantics for
+  `open_interest_shift`, but does not register it, enable it, change campaign
+  manifests, alter strategy execution, or touch live/order/gate behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T14:31:03Z - Crypto-Edge Strategy Readiness Matrix (Batch 6)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only crypto-edge research-path report that classifies context
+  strategy wiring without starting campaigns, fetching data, or touching
+  promotion/live execution surfaces.
+
+What was found:
+- SHOWN: `funding_extreme` is registered in
+  `services/strategies/strategy_registry.py`, has
+  `funding_extreme_default`, and Stage 0 proof is documented as accepted, but
+  persistent campaign and crypto-edge promotion treatment remain blocked on
+  reviewed research/gate work.
+- SHOWN: `open_interest_shift.py` exists and has
+  `open_interest_shift_default`, but the current source-tree contract marks it
+  config-only and trade-disabled until a previous-OI history/context contract
+  exists.
+- SHOWN: `order_book_imbalance.py` exists, but it is not registry-executable,
+  not config-tool supported, and has no preset; backlog text defers it until a
+  proof-quality depth cadence/streaming path exists.
+
+What changed:
+- Added `services/analytics/crypto_edge_strategy_readiness.py`, which derives a
+  deterministic source-tree readiness matrix for `funding_extreme`,
+  `open_interest_shift`, and `order_book_imbalance`.
+- Added `scripts/research/run_crypto_edge_strategy_readiness.py` and
+  `make crypto-edge-strategy-readiness`.
+- Added `tests/test_crypto_edge_strategy_readiness.py`, covering status
+  classification, derived counts, and CLI JSON/artifact behavior.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- Batch 6 needs crypto-edge progress that does not blur research readiness into
+  campaign authorization. A read-only source-tree matrix gives operators a
+  current wiring answer while keeping qualification gates, live execution, and
+  campaign manifests unchanged.
+
+Expected outcome:
+- Future funding/OI/depth research can start from one executable report of what
+  is wired, config-only, or unregistered, reducing stale manual interpretation
+  of the crypto-edge backlog.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_strategy_readiness.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_strategy_discovery_hygiene_contract.py tests/test_strategy_runtime_runner.py tests/test_crypto_edge_context.py tests/test_funding_context_replay.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `70 passed`.
+- `./.venv/bin/python scripts/research/run_crypto_edge_strategy_readiness.py`
+  - SHOWN: report `ok=true`, `row_count=3`, status counts
+    `stage0_wired_research_only=1`,
+    `config_only_research_placeholder=1`,
+    `signal_module_unregistered=1`.
+- `make crypto-edge-strategy-readiness`
+  - SHOWN: target runs and prints the same JSON report with `ok=true`.
+- `./.venv/bin/python -m py_compile services/analytics/crypto_edge_strategy_readiness.py scripts/research/run_crypto_edge_strategy_readiness.py tests/test_crypto_edge_strategy_readiness.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+
+Remaining risk:
+- LOW/MEDIUM: research/reporting-only and no runtime execution changes, but it
+  documents strategy readiness status that operators may use for planning.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
