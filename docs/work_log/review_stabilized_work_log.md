@@ -26200,3 +26200,45 @@ Remaining risk:
 - LOW: docs/test only. It does not build packages, sign artifacts, notarize,
   publish releases, or mutate release automation.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T18:58:00Z - Evidence Model Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard `docs/EVIDENCE_MODEL.md` so the promotion-evidence authority
+  boundaries remain explicit and testable.
+
+What was found:
+- The evidence model already defines three separate surfaces: JSONL per-record
+  evidence, persisted paper fill history, and the legacy leaderboard artifact.
+  The document did not have a direct guard pinning those roles.
+
+What changed:
+- Added an executable-guard note to `docs/EVIDENCE_MODEL.md`.
+- Added `tests/test_evidence_model_guard.py` to pin JSONL schema/provenance/log
+  authority, qualified paper-history trade metrics, diagnostic-only
+  unqualified history, unlabeled-OHLCV exclusion, and legacy leaderboard
+  compatibility semantics.
+
+Why this change was chosen:
+- The evidence model is a promotion-gate interpretation contract. Guarding the
+  document prevents future docs edits from silently turning diagnostic or legacy
+  surfaces into promotion authority.
+
+Expected outcome:
+- Future drift in evidence authority wording breaks a targeted docs test before
+  operators or dashboards can misread stale artifacts as gate truth.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_evidence_model_guard.py tests/test_check_promotion_gates.py tests/test_paper_promotion_progress.py`
+  - SHOWN: `62 passed`.
+- `./.venv/bin/python -m py_compile tests/test_evidence_model_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not change evidence writers, gate logic, paper
+  execution, or campaign behavior.
+- Acceptance state: ACCEPTED.
