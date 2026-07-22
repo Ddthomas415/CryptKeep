@@ -29,3 +29,10 @@ A fallback is an authority transition. Switching from per-closed-trade
 paper-history expectancy to JSONL per-fill expectancy changes denominator and
 evidence source. The fail-closed behavior is to require qualified paper-history
 metrics before using expectancy as a paper-promotion gate.
+
+## Executable Guard
+
+`tests/test_canonical_expectancy_decision_guard.py` pins the authoritative
+paper-history source, JSONL fallback boundary, legacy helper boundary, authority
+rationale, and backlog link so paper-promotion expectancy cannot silently drift
+back to a per-fill fallback contract.

@@ -184,6 +184,12 @@ deployment work still needs independent review.
    provenance-qualified paper history, keeps JSONL per-fill PnL out of
    paper-promotion expectancy, and computes qualified expectancy net of fees
    per closed trade.
+   2026-07-22: executable canonical-expectancy decision guard is ready for
+   independent review. `tests/test_canonical_expectancy_decision_guard.py`
+   pins the authoritative paper-history source, JSONL fallback boundary,
+   legacy helper boundary, authority rationale, and backlog link. This is
+   docs/test only and does not change promotion gates, metric calculations,
+   paper history, or fallback behavior.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not

@@ -25,6 +25,50 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T18:03:00Z - Canonical Expectancy Decision Guard (Active #2)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the canonical expectancy decision record without
+  changing promotion gates, metric calculations, paper history, or fallback
+  behavior.
+
+What was found:
+- `docs/decisions/canonical_expectancy_decision.md` records that primary
+  paper-history expectancy is authoritative for paper promotion.
+- The decision record was not yet pinned by a direct regression test, even
+  though runtime behavior is covered elsewhere.
+
+What changed:
+- Added `tests/test_canonical_expectancy_decision_guard.py`.
+- The test pins the authoritative paper-history source, JSONL fallback
+  boundary, legacy helper boundary, authority rationale, and backlog link.
+- Added executable-guard notes to the decision record, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted per-closed-trade paper-promotion expectancy
+  authority without changing gate behavior in this low-risk batch.
+
+Expected outcome:
+- Future edits that quietly reframe JSONL per-fill fallback expectancy as
+  authoritative for paper promotion fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_canonical_expectancy_decision_guard.py tests/test_paper_measurement_contract.py tests/test_check_promotion_gates.py`
+  - SHOWN: `60 passed in 0.90s`.
+- `./.venv/bin/python -m py_compile tests/test_canonical_expectancy_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.46s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change promotion gates, metric calculations,
+  paper history, fallback behavior, campaign logic, deployment, or execution.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:55:00Z - State-Store Consolidation Decision Guard (Substrate #7)
 
 Active role: ENGINEER
