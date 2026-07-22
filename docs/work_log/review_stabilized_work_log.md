@@ -26002,3 +26002,41 @@ Remaining risk:
 - LOW: docs/test only. It does not approve any strategy expansion, config
   change, campaign, promotion-gate change, or execution behavior.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T18:10:37Z - Full-State Restore Drill Contract Guard
+
+Active role: ENGINEER
+
+Objective:
+- Pin the full-state backup/restore drill proof contract without claiming a
+  host drill has been run.
+
+What was found:
+- `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` correctly separates proof-ready
+  `scripts/backup_state.py` tooling from unverified host-side restore-and-
+  resume evidence, but the drill contract itself was not directly guarded.
+
+What changed:
+- Added an executable guard section to
+  `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md`.
+- Added `tests/test_full_state_restore_drill_contract.py` to pin the boundary,
+  state-family coverage, tooling guarantees, deliberately excluded drill-time
+  steps, pass criteria, capped-live gate, and launch-checklist link.
+- Recorded the guard under the existing full-state backup/restore backlog item.
+
+Why this change was chosen:
+- It prevents the launch-packet proof contract from silently shrinking while
+  keeping the actual host drill as an explicit operator evidence task.
+
+Expected outcome:
+- Future edits cannot remove state families, pass criteria, or the capped-live
+  drill requirement without breaking a targeted docs test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_full_state_restore_drill_contract.py tests/test_state_backup_restore.py tests/test_retention_policy_scope.py tests/test_supply_chain_release_policy_guard.py tests/test_operator_runbook_policy_guards.py`
+  - SHOWN: `30 passed`.
+
+Remaining risk:
+- LOW: docs/test only. It does not execute backup/restore, mutate state, scan a
+  real backup artifact, or prove host restore-and-resume behavior.
+- Acceptance state: ACCEPTED.
