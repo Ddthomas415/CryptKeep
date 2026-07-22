@@ -513,6 +513,15 @@ deployment work still needs independent review.
     explicit `long_threshold_pct` / `short_threshold_pct` grids. This is a
     report consumer only: it does not fetch data, change strategy config,
     start campaigns, compute portfolio PnL, or produce promotion evidence.
+    2026-07-22: research-only funding-threshold window stability is ready for
+    independent review. `services.analytics.funding_threshold_window_stability`
+    and `scripts/research/run_funding_threshold_window_stability.py` consume
+    an existing `funding_context_price_join_v1` artifact, split its rows into
+    fixed complete windows, and summarize threshold-pair behavior across
+    windows using the source artifact's cost assumptions. It fails closed if
+    the source artifact lacks fee/slippage assumptions and remains
+    research-only: no data fetch, strategy config change, campaign, gate,
+    portfolio PnL, or promotion evidence.
     2026-07-22: research-only funding-threshold candidate triage is ready for
     independent review. `services.analytics.funding_threshold_candidate_triage`
     and `scripts/research/run_funding_threshold_candidate_triage.py` consume

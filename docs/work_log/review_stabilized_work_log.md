@@ -24551,3 +24551,64 @@ Remaining risk:
   activation proof. The artifact is explicitly research-only and requires
   separate review before any strategy/config/gate use.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T06:35:00Z - Funding Threshold Window-Stability Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by adding a funding-threshold
+  window-stability report before threshold pairs are treated as manual-review
+  candidates.
+
+What was found:
+- SHOWN: `funding_threshold_sensitivity_v1` scores threshold pairs over one
+  full input artifact, but does not show whether the same threshold pair is
+  consistent across smaller windows.
+- SHOWN: `funding_context_price_join_v1` rows already contain the funding rate,
+  entry/exit closes, and source cost assumptions needed to recompute threshold
+  behavior per window without fetching data or touching campaign state.
+
+What changed:
+- Added `services/analytics/funding_threshold_window_stability.py`, a
+  read-only report builder that consumes `funding_context_price_join_v1`,
+  splits complete fixed row windows, and summarizes threshold-pair consistency
+  across windows.
+- Added `scripts/research/run_funding_threshold_window_stability.py`.
+- Added `make funding-threshold-window-stability` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  and `REMAINING_TASKS.md`.
+- Added `tests/test_funding_threshold_window_stability.py`.
+
+Why this change was chosen:
+- It prevents a single full-sample sensitivity artifact from being overread as
+  stable evidence. The report uses the source artifact's cost assumptions and
+  fails closed if they are absent, so it does not create a new independent
+  cost surface.
+
+Expected outcome:
+- Operators can inspect whether funding threshold pairs behave consistently
+  across fixed windows before using threshold sensitivity as manual-review
+  context.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_window_stability.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_threshold_window_stability.py scripts/research/run_funding_threshold_window_stability.py tests/test_funding_threshold_window_stability.py`
+  - SHOWN: passed with no output.
+- `make -n funding-threshold-window-stability`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_funding_threshold_window_stability.py`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_ohlcv_archive_backfill_runner.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `55 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research stability output can influence future operator decisions if
+  treated as activation proof. The artifact is explicitly research-only and
+  not strategy/campaign/gate/promotion/profitability evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
