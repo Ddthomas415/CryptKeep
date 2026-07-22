@@ -521,6 +521,16 @@ deployment work still needs independent review.
     explicit `long_threshold_pct` / `short_threshold_pct` grids. This is a
     report consumer only: it does not fetch data, change strategy config,
     start campaigns, compute portfolio PnL, or produce promotion evidence.
+    2026-07-22: research-only crypto-edge strategy readiness matrix is ready
+    for independent review. `services.analytics.crypto_edge_strategy_readiness`
+    and `scripts/research/run_crypto_edge_strategy_readiness.py` classify the
+    current context-strategy wiring without fetching data, starting campaigns,
+    or changing gates. SHOWN by the report: `funding_extreme` is
+    `stage0_wired_research_only`; `open_interest_shift` is
+    `config_only_research_placeholder` with `trade_enabled=false`; and
+    `order_book_imbalance` is `signal_module_unregistered`. This is source-tree
+    readiness evidence only, not campaign, promotion, or profitability
+    evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -2106,7 +2116,13 @@ substrate work, but they are concrete enough to keep visible.
    walk-forward proof and net-fee metrics first. 2026-07-03: classification is
    documented in `docs/research/signal_discovery_classification.md`; discovery
    and ranker surfaces remain research/advisory only unless separately proven
-   through archive-backed, net-fee, governed activation.
+   through archive-backed, net-fee, governed activation. 2026-07-22:
+   executable hygiene proof is ready for independent review: the classification
+   table is guarded against source-tree drift, discovery/ranker modules are
+   blocked from direct execution/control/governance imports, the only
+   candidate-advisor runtime bridge remains explicitly env-gated, and
+   `open_interest_shift` is enforced as config-only/trade-disabled until it is
+   registry-executable.
 10. Classify storage orphan modules before more reconciliation work.
     Prior audits flagged unused SQLite stores such as fill reconciler,
     idempotency, and order-tracker variants. Confirm whether each is truly
