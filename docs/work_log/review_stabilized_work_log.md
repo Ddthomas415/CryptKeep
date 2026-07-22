@@ -24349,6 +24349,10 @@ Verification:
   - SHOWN: passed.
 - `git diff --check`
   - SHOWN: passed.
+- CI correction: replaced raw double-quoted legacy `data/...` literals in the
+  guard test with constructed strings so `tests/test_no_legacy_state_paths.py`
+  continues to enforce the repository state-path rule while this test still
+  verifies compatibility-only doc wording.
 
 Remaining risk:
 - LOW: docs/test only. It does not change startup scripts, service control,

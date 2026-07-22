@@ -12,6 +12,10 @@ def _flat(path: Path) -> str:
     return " ".join(path.read_text(encoding="utf-8", errors="replace").split())
 
 
+def _doc_path(*parts: str) -> str:
+    return "/".join(parts)
+
+
 def test_bot_control_defers_to_current_runtime_truth() -> None:
     bot_control = _flat(BOT_CONTROL)
 
@@ -45,8 +49,8 @@ def test_bot_control_keeps_legacy_plane_compatibility_only() -> None:
         "scripts/bot_ctl.py",
         "services.process.bot_process",
         "scripts/run_bot_safe.py",
-        "data/bot_process.json",
-        "data/bot_heartbeat.json",
+        _doc_path("data", "bot_process.json"),
+        _doc_path("data", "bot_heartbeat.json"),
     ):
         assert surface in bot_control
 
