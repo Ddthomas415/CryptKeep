@@ -24612,3 +24612,123 @@ Remaining risk:
   treated as activation proof. The artifact is explicitly research-only and
   not strategy/campaign/gate/promotion/profitability evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T06:43:00Z - Funding Threshold Stability-Triage Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by ranking funding threshold pairs for
+  manual review from window-stability artifacts instead of only full-sample
+  sensitivity artifacts.
+
+What was found:
+- SHOWN: `funding_threshold_window_stability_v1` exposes per-threshold-pair
+  window count, actionable-window ratio, positive actionable-window ratio,
+  average modeled forward return across actionable windows, and worst-window
+  average return.
+- SHOWN: those fields are enough to classify threshold pairs for manual review
+  without fetching data, changing strategy config, starting campaigns, touching
+  gates, or producing promotion evidence.
+
+What changed:
+- Added `services/analytics/funding_threshold_stability_triage.py`, a
+  read-only report builder that consumes `funding_threshold_window_stability_v1`
+  artifacts and classifies threshold pairs as `candidate_for_manual_review` or
+  `not_candidate` using explicit stability thresholds.
+- Added `scripts/research/run_funding_threshold_stability_triage.py`.
+- Added `make funding-threshold-stability-triage` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  and `REMAINING_TASKS.md`.
+- Added `tests/test_funding_threshold_stability_triage.py`.
+
+Why this change was chosen:
+- It keeps manual-review candidates tied to window consistency rather than
+  letting one full-sample threshold result stand in for stability. The artifact
+  has no cost assumptions of its own and consumes only the stability report.
+
+Expected outcome:
+- Operators can rank stability-tested funding threshold pairs for manual review
+  without changing campaigns, gates, execution, promotion evidence, or strategy
+  configuration.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_stability_triage.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_threshold_stability_triage.py scripts/research/run_funding_threshold_stability_triage.py tests/test_funding_threshold_stability_triage.py`
+  - SHOWN: passed with no output.
+- `make -n funding-threshold-stability-triage`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_funding_threshold_stability_triage.py`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_stability_triage.py tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_ohlcv_archive_backfill_runner.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `62 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage output can influence future operator decisions if
+  treated as activation proof. The artifact is explicitly research-only and not
+  strategy/campaign/gate/promotion/profitability evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T12:36:38Z - Archive Parameter-Sweep Triage Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by adding a manual-review triage layer
+  over existing archive-backed parameter-sweep artifacts.
+
+What was found:
+- SHOWN: `archive_backed_parameter_sweep_v1` already ranks variants using
+  archive-backed walk-forward output, including window count, closed trades,
+  non-negative test-window ratio, average test return, drawdown, config hashes,
+  and dataset hashes.
+- SHOWN: the sweep artifact is descriptive research output and not a promotion
+  decision.
+
+What changed:
+- Added `services/analytics/archive_parameter_sweep_triage.py`, a read-only
+  consumer of `archive_backed_parameter_sweep_v1` artifacts that classifies
+  variants as `candidate_for_manual_review` or `not_candidate` using explicit
+  window/trade/non-negative-window/return/drawdown thresholds.
+- Added `scripts/research/run_archive_parameter_sweep_triage.py`.
+- Added `make archive-parameter-sweep-triage` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/walk_forward_validation.md`,
+  and `REMAINING_TASKS.md`.
+- Added `tests/test_archive_parameter_sweep_triage.py`.
+
+Why this change was chosen:
+- It removes a manual interpretation step from archive sweeps without rerunning
+  backtests or changing strategy configuration. The triage report consumes
+  source sweep metrics as-is and explicitly states it does not verify the
+  sweep's fee/slippage assumptions.
+
+Expected outcome:
+- Operators can rank archive-backed sweep variants for manual review without
+  changing campaigns, gates, execution, promotion evidence, or strategy config.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_archive_parameter_sweep_triage.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/archive_parameter_sweep_triage.py scripts/research/run_archive_parameter_sweep_triage.py tests/test_archive_parameter_sweep_triage.py`
+  - SHOWN: passed with no output.
+- `make -n archive-parameter-sweep-triage`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_archive_parameter_sweep_triage.py`.
+- `./.venv/bin/python -m pytest -q tests/test_archive_parameter_sweep_triage.py tests/test_archive_parameter_sweep.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py tests/test_cost_assumptions.py tests/test_funding_threshold_stability_triage.py tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `102 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage output can influence future operator decisions if
+  treated as activation proof. The artifact is explicitly research-only and not
+  strategy/campaign/gate/promotion/profitability evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

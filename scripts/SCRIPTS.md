@@ -216,6 +216,11 @@ decision makes them authoritative.
   backfills the local market OHLCV archive from public exchange OHLCV and
   writes a dataset-hashed JSON summary; it does not affect campaigns, gates,
   or trading. Use `make ohlcv-archive-backfill`.
+- `research/run_archive_parameter_sweep_triage.py` — read-only triage report
+  over an existing `archive_backed_parameter_sweep_v1` JSON artifact; ranks
+  sweep variants for manual review only and does not rerun backtests, change
+  strategy config, start campaigns, or produce promotion evidence. Use
+  `make archive-parameter-sweep-triage`.
 - `research/run_funding_context_price_join.py` — read-only
   `funding_extreme` forward-return report joining stored funding snapshots to
   archived OHLCV rows; computes unit-size modeled forward returns only and
@@ -239,6 +244,12 @@ decision makes them authoritative.
   manual review only and does not change strategy config, campaigns, gates,
   execution, or promotion evidence. Use
   `make funding-threshold-candidate-triage`.
+- `research/run_funding_threshold_stability_triage.py` — read-only
+  stability-aware funding-threshold triage report over an existing
+  `funding_threshold_window_stability_v1` JSON artifact; ranks threshold pairs
+  for manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-stability-triage`.
 - `research/run_price_action_context_labels.py` — read-only OHLCV
   price-action context label artifact over the existing market archive;
   labels fair-value gaps, engulfing candles, swing failures, break/retest,
