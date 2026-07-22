@@ -1,6 +1,6 @@
 # Backlog Execution Lanes
 
-Date: 2026-07-04
+Date: 2026-07-21
 
 ## Purpose
 
@@ -22,23 +22,46 @@ This is a planning/control artifact only. It does not close runtime proof.
 
 ## Current Backlog Lane Map
 
+Refresh note, 2026-07-21:
+
+Several items that were good July 4 coding candidates have since landed or
+reached proof-ready state on `master`: configurable paper promotion policy,
+OHLCV blocked-state recovery, registry fail-closed behavior, archive-first
+walk-forward and parameter sweep tooling, crypto-edge Stage 0 tooling, paper
+fee/PnL semantics, market-quality strict template, runner stale-lock hardening,
+sample-mode provenance, paper/gate alerts, shadow would-be-fill recording,
+execution-cost report consumption, live resume governance, intent TTL, typed
+retry policy, backup/restore tooling, systemd units, dead-man alerting,
+config-fail-closed slices, AI/proba fail-closed quarantine, and strategy
+decision/campaign event alerts.
+
+Do not rebuild those items unless the current source code lacks them. Treat
+their remaining text in `REMAINING_TASKS.md` as either operational proof,
+review/merge follow-through, or deferred capped-live work according to the
+specific item note.
+
 ### Passive / Operator Evidence
 
 These tasks cannot be completed by local code changes alone:
 
-- Canonical `es_daily_trend_v1` qualified round-trip collection.
-- Manual strategy performance decision after fresh gate output.
-- Private sandbox/testnet lifecycle proof or explicit exception.
+- Canonical `es_daily_trend_v1` qualified round-trip collection and fresh
+  paper-gate output.
+- Manual strategy performance decision after the paper gate reaches the
+  configured threshold.
+- Private sandbox/testnet lifecycle proof or explicit accepted exception.
 - Launch evidence packet: restart, recovery, kill-switch, reconcile, rollback.
-- Pullback Stage 0 long proof.
+- Pullback Stage 0 long proof if it is not already captured by the latest
+  operator artifact.
 - Composite/hybrid paper advancement decision after evidence changes.
-- Short/context live-public data readiness after the accepted OKX read-only
-  source decision.
-- Scheduled crypto-edge collection host cadence, snapshot, and cadence-gap
-  proof after the accepted OKX read-only source decision.
+- Real multi-year archive sweeps and separate review before any strategy config
+  or campaign uses sweep results.
+- `funding_extreme` persistent-campaign decision after reviewed price-joined
+  research shows an actionable basis.
+- Accepted shadow-stage run producing real `shadow_would_be_fill` records.
+- Accepted shadow-derived execution-cost report using those records.
 - Hetzner canonical `.cbp_state` migration follow-through.
 - Paper-to-shadow first-hour rehearsal.
-- Backup/restore drill evidence.
+- Backup/restore drill evidence and backup-artifact secrets scan.
 - Server secrets injection/rotation drill.
 - Supply-chain audit/waiver evidence.
 
@@ -52,6 +75,9 @@ verification is enough:
 - Read-only checklist refinements.
 - Regression tests that lock existing behavior without changing runtime code.
 - Work-log/backlog synchronization.
+- Backlog lane-map refreshes that prevent rebuilding already accepted work.
+- Explicit single-symbol or multi-symbol policy documentation when no gate code
+  is changed.
 
 Recent examples:
 
@@ -60,6 +86,7 @@ Recent examples:
 - Backtest-to-paper fill parity guard.
 - Fixed-size default guard for dormant risk sizing.
 - Crypto-edge OKX source-decision docs and backlog-status cleanup.
+- Pattern/candlestick strategy research scoping and Databento deferral docs.
 
 ### Medium-Risk Runtime / Read-Only
 
@@ -69,29 +96,28 @@ These should be scoped to one objective per PR and need targeted proof:
 - Read-only startup/host/gate diagnostics.
 - Optional operator-run reports.
 - Data archive/read-only research tooling before it gates strategy decisions.
+- Research-only market-data backfill tooling.
+- Research-only funding replay, price-join, and threshold-sensitivity reports.
+- Read-only host status wrappers.
 
 ### High-Risk Gate / Execution / Deploy
 
 These must not be grouped with low-risk cleanup. They require independent
 review under `AGENTS.md`:
 
-- Shadow would-be-fill recorder and shadow gate visibility.
-- Promotion-gate qualification changes.
-- Archive-first backtesting once it influences baselines or leaderboard
-  decisions.
-- Crypto-edge context strategy execution and provenance qualification.
-- Paper fee/PnL semantics and expectancy gate consumption.
-- Market-quality fail-closed defaults.
-- Strategy-runner lock/concurrency changes.
-- Sample-mode provenance derivation.
-- Paper/gate event alerting and loop dead-man alerting.
-- Config fail-closed sweeps for trading-critical readers.
-- Decimal/quantization migration.
-- Typed order retry classification and submit fault-injection.
-- Live resume governance.
-- Intent TTL.
-- Live deployment units, systemd, watchdog, and server operation.
-- AI live-router hook quarantine.
+- Decimal/quantization migration for order qty/price/fee/PnL.
+- Remaining trading-critical config authority consolidation and corrupt-config
+  fail-closed readers.
+- Remaining daily-loss gross-vs-net policy or any future change to capped-live
+  loss semantics.
+- Position-truth reconciliation authority, hysteresis, and halt binding.
+- Any promotion-gate qualification extension or policy change that affects what
+  evidence can promote a strategy.
+- Any code path that allows archive/sweep results to influence campaigns,
+  strategy config, sizing, or promotion.
+- Any live/shadow execution, order routing, risk-gate, config/secrets,
+  background-job, systemd, watchdog, or fail-open behavior change not already
+  accepted.
 
 ## Batching Rule
 
@@ -106,19 +132,28 @@ high-risk surface, split the work:
 
 ## Current Practical Next Steps
 
-SHOWN from the current backlog:
+SHOWN from the current backlog as of 2026-07-21:
 
-- Many high-risk items already have implementation proof marked ready or
-  accepted with remaining operational proof.
-- The locally safe backlog work is now mostly classification, runbook, and
-  targeted test hardening.
-- The next production-hardening code items are high-risk and should be handled
-  one objective at a time, not as a large batch.
+- Much of the formerly safe code queue is already implemented or proof-ready.
+- The current bottleneck is mostly operator evidence: gate output, campaign
+  runtime, host drills, shadow records, and research artifacts.
+- Local code work should avoid redoing completed items and should not stack a
+  large mixed-risk branch on top of pending PRs.
 
-Recommended next code lane after this docs batch:
+Safe batching order:
 
-- Pick exactly one high-risk item with the clearest proof boundary:
-  `intent TTL`, `runner stale-lock recovery`, or `live resume governance`.
-- Implement the smallest patch.
-- Run targeted tests only.
-- Stop at `READY_FOR_INDEPENDENT_REVIEW`.
+1. Low-risk docs/tests only: lane-map cleanup, stale backlog wording,
+   classification assertions, and regression tests for already-accepted
+   behavior.
+2. Medium-risk read-only research/reporting only: archive, funding replay,
+   price-join, threshold sensitivity, host status wrappers, and diagnostics that
+   do not mutate campaigns or gates.
+3. One high-risk objective at a time: Decimal migration, config authority,
+   position reconciliation, daily-loss policy, or promotion qualification.
+
+Recommended next action:
+
+- If coding locally: pick one low-risk docs/tests cleanup or one read-only
+  research report, then verify narrowly.
+- If advancing production readiness: run the operator proofs instead of opening
+  another code batch.

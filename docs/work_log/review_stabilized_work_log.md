@@ -23682,6 +23682,7 @@ Verification:
   - SHOWN: `23 passed in 0.51s`.
 - `./.venv/bin/python scripts/check_repo_alignment.py --json`
   - SHOWN: `ok=true`.
+
 - `git diff --check`
   - SHOWN: passed with no output.
 
@@ -23689,3 +23690,350 @@ Remaining risk:
 - LOW/MEDIUM: research-only analytics over existing artifacts; no campaign,
   gate, live execution, risk, routing, or strategy evidence state changes.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T20:05:00Z - Price-Action Context Feature Pack Backlog Scope
+
+Active role: DIRECTOR
+
+Objective:
+- Convert the operator's price-action research ideas into a scoped backlog/RFC
+  item without starting strategy implementation.
+
+What was found:
+- SHOWN: the repo already has `docs/research/pattern_strategy_backlog.md`, so
+  adding a duplicate backlog document would create drift.
+- SHOWN: `REMAINING_TASKS.md` item 13 already tracks pattern/candlestick
+  research behind archive and paper-evidence gates.
+- SHOWN: current strategy registry does not expose first-class modules for
+  fair-value gaps, engulfing candles, swing failures, break/retest, rejection
+  wicks, volume profile, opening range, or Databento ingestion.
+
+What changed:
+- Expanded `docs/research/pattern_strategy_backlog.md` with a research-only
+  price-action context feature pack.
+- Updated `REMAINING_TASKS.md` item 13 with the operator-requested concepts and
+  sequencing boundary.
+- Updated `docs/research/strategy_expansion_roadmap.md` to place price-action
+  labels before Databento-backed microstructure work.
+
+Why this change:
+- These concepts are useful as labels/filters, but starting many standalone
+  strategy families would increase false discovery risk. A single
+  dataset-hashed context-feature pack lets the repo test whether the concepts
+  improve forward-return distributions before any campaign or promotion use.
+
+Expected outcome:
+- Future implementation can target a read-only feature extractor over archived
+  OHLCV first, with Databento deferred to a separate data-source RFC.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`.
+
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: docs/backlog scope only; no source, campaign, gate, live execution, risk,
+  routing, or strategy config changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-21T20:08:46Z - Refresh Backlog Execution Lanes
+
+Active role: ENGINEER
+
+Objective:
+- Convert the current large backlog into an accurate same-lane batching map so
+  future coding passes do not rebuild items already present on current
+  `master`.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` still recommended several July 4
+  code targets that current `REMAINING_TASKS.md` now records as implemented,
+  accepted, or proof-ready, including promotion policy, OHLCV blocked-state
+  recovery, registry fail-closed behavior, archive tooling, alerting, shadow
+  would-be-fill recording, execution-cost reporting, live resume governance,
+  intent TTL, typed retry policy, backup/restore tooling, dead-man alerting,
+  config-fail-closed slices, and AI/proba fail-closed quarantine.
+- SHOWN: many remaining item notes are operational proof or host/runtime
+  evidence requirements, not local coding work.
+
+What changed:
+- Refreshed `docs/BACKLOG_EXECUTION_LANES.md` with a 2026-07-21 status note,
+  updated passive/operator evidence, low-risk docs/tests, medium-risk
+  read-only runtime, and high-risk gate/execution/deploy lanes, and replaced
+  stale next-code recommendations with a current safe batching order.
+- Updated `REMAINING_TASKS.md` item 18 to point at the refreshed lane map.
+
+Why this change:
+- The user asked to get the remaining work done after the backlog list became
+  too large. The safest immediate fix was to remove stale batching guidance so
+  subsequent engineering starts from the actual current boundary.
+
+Expected outcome:
+- Future batches should be selected from current operator-proof,
+  read-only-research, docs/test, or single-high-risk lanes without mixing risk
+  classes or duplicating already accepted implementation work.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: documentation/workflow control only; no runtime behavior, campaign,
+  gate, trading, host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:12:04Z - Clarify Public Repo Identity Boundary
+
+Active role: ENGINEER
+
+Objective:
+- Close the remaining public-doc gap for backlog item 19 so the repository
+  entry point states CryptKeep's current operating identity before users reach
+  deeper operator docs.
+
+What was found:
+- SHOWN: `docs/PROJECT_IDENTITY_AND_SCOPE.md`, `docs/GOLDEN_PATH.md`, and
+  `docs/OBJECTIVE.md` already describe CryptKeep as a profit-measurement and
+  evidence-generation lab until live expectancy is proven.
+- SHOWN: `README.md` described the platform and hardening surface, but did not
+  directly state that CryptKeep is not a proven profitable trading bot or link
+  the project identity scope document from the introduction.
+
+What changed:
+- Added the identity boundary and scope-document link to the public README
+  introduction.
+- Updated `REMAINING_TASKS.md` item 19 with the 2026-07-21 README closure note.
+
+Why this change:
+- The public entry point should carry the same evidence-first identity warning
+  as the operator docs, so product/trading claims do not outrun proven live
+  expectancy.
+
+Expected outcome:
+- New readers see the current profit-measurement/evidence-generation boundary
+  before interpreting CryptKeep as a profitable trading bot.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: documentation-only; no runtime behavior, campaign, gate, trading,
+  host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:16:00Z - Reclassify Active Tail Items As Future Governance Or Operator Evidence
+
+Active role: ENGINEER
+
+Objective:
+- Reduce stale backlog noise in active items 20 through 23 by separating
+  completed local implementation from remaining future-governance and
+  operator-evidence work.
+
+What was found:
+- SHOWN: item 20 records accepted AI-copilot read-only SQLite context access
+  and provider-data boundary work; the remaining scope is future provider or
+  review-authority expansion.
+- SHOWN: `docs/CI_IGNORED_TEST_POLICY.md`,
+  `.github/workflows/ci-ignored-tests.yml`, `Makefile`, and
+  `tests/test_ci_ignored_tests_policy.py` record that the former permanently
+  ignored CI files are now normal-suite guarded, with the old slice available
+  only as a manual diagnostic.
+- SHOWN: `docs/RETENTION_POLICY.md` defines paper/research retention policy and
+  links Hetzner host thresholds; the remaining proof is launch-packet operator
+  evidence.
+- SHOWN: `Makefile` exposes `make strategy-review`, and
+  `docs/STRATEGY_REVIEW_RITUAL.md` documents the operator-run review ritual.
+
+What changed:
+- Added 2026-07-21 notes to backlog items 20 through 23 clarifying that current
+  local implementation gaps are closed and naming the remaining future
+  governance or operator-evidence action.
+
+Why this change:
+- The user asked to batch remaining work safely. Clearing stale active-item
+  wording prevents rebuilding accepted implementation and keeps attention on
+  real remaining proof or decision work.
+
+Expected outcome:
+- Backlog readers can distinguish local coding gaps from future accepted-design
+  gates and operator-run proof requirements.
+
+Verification:
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only; no runtime behavior, campaign,
+  gate, trading, host, or live-execution code changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:18:00Z - Refresh Local Paper Gate Count In Backlog
+
+Active role: ENGINEER
+
+Objective:
+- Update the backlog current-state summary from stale paper-gate counts to the
+  current local read-only gate and soak outputs.
+
+What was found:
+- SHOWN: `make status-paper-gate-qualification` reported
+  `es_daily_trend_v1` at `qualified=3`, `all_history=10`, `counted=6`,
+  `incomplete=1`, and `rejected=9`.
+- SHOWN: rejected fills are still legacy provenance failures
+  (`missing_market_data_source`, `missing_ohlcv_sample_mode`,
+  `missing_ohlcv_symbol`, `missing_ohlcv_timeframe`, and
+  `missing_ohlcv_venue`).
+- SHOWN: `make status-paper-soak` reported laptop campaigns `2/2 running`;
+  `es_daily_trend_v1` is `idle`, `waiting_for_next_day`, with `fills=20`,
+  `closed=10`, and gate status `ready=False`.
+
+What changed:
+- Updated the `REMAINING_TASKS.md` current-state summary from `2/10` with
+  `8` remaining to `3/10` with `7` remaining, and recorded the command outputs
+  supporting the refresh.
+
+Why this change:
+- The backlog is a lightweight index; its current-state counts should not lag
+  behind the operator-visible gate output when the evidence is available.
+
+Expected outcome:
+- Operators looking at the backlog see current local gate progress and do not
+  reason from stale June counts.
+
+Verification:
+- `make status-paper-gate-qualification`
+  - SHOWN: `qualified=3`, `all_history=10`, `counted=6`,
+    `incomplete=1`, `rejected=9`.
+- `make status-paper-soak`
+  - SHOWN: laptop campaigns `2/2 running`; gate `ready=False`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: backlog/work-log documentation only; the commands were read-only status
+  checks and no campaign, gate, strategy config, trading, host, or
+  live-execution code changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T20:44:57Z - Strategy Review Artifact And Default Symbol Fix
+
+Active role: ENGINEER
+
+Objective:
+- Run the weekly strategy-review ritual and fix the default symbol mismatch
+  that prevented the loss replay from inspecting the canonical ES paper
+  campaign by default.
+
+What was found:
+- SHOWN: `make strategy-review` inside the sandbox reached laptop status but
+  failed on the Hetzner wrapper with `tailscale_cli_preferences_unavailable`.
+- SHOWN: the same read-only command completed out of the sandbox: laptop
+  campaigns were `2/2 running`, Hetzner `ema_cross_default` was `1/1 running`,
+  and `es_daily_trend_v1` remained `3/10` qualified round trips.
+- SHOWN: the Makefile default used
+  `STRATEGY_REVIEW_SYMBOL=BTC/USD`, while the canonical ES paper campaign and
+  journal use `BTC/USDT`; the default loss replay returned zero fills.
+- SHOWN: rerunning loss replay with `--symbol BTC/USDT` returned `20` fills,
+  `10` closed trades, `9` net-of-fees losing replay rows, and net realized PnL
+  `31.4368625683357`.
+
+What changed:
+- Changed the Makefile default strategy-review symbol from `BTC/USD` to
+  `BTC/USDT`.
+- Updated `docs/STRATEGY_REVIEW_RITUAL.md` with the default review target.
+- Added `docs/checkpoints/strategy_review_2026_07_21.md` with the dated
+  advisory review artifact and gross-vs-net interpretation note.
+- Updated `REMAINING_TASKS.md` item 23 to point at the artifact and the default
+  symbol correction.
+
+Why this change:
+- The review ritual existed, but the default replay path missed the active ES
+  journal rows. The smallest fix is to align the default with the canonical
+  campaign while preserving override variables for other strategies.
+
+Expected outcome:
+- `make strategy-review` now inspects the current ES paper campaign losses by
+  default instead of producing a misleading zero-fill replay.
+
+Verification:
+- `make strategy-review`
+  - SHOWN: sandbox run failed only on Hetzner Tailscale preferences; rerun with
+    normal host environment completed successfully.
+- `./.venv/bin/python scripts/dev/replay_paper_losses.py --strategy-id sma_200_trend --symbol BTC/USDT --limit 10`
+  - SHOWN: `fills_count=20`, `closed_trade_count=10`,
+    `losing_trade_count=9`, `net_realized_pnl=31.4368625683357`.
+- `make -n strategy-review`
+  - SHOWN: default replay command now expands to `--symbol BTC/USDT`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc `0`; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: operator review/reporting default and documentation only. No campaign,
+  gate, strategy config, trading, host, or live-execution behavior changed.
+- Acceptance state: `ACCEPTED`.
+
+## 2026-07-21T21:15:15Z - Runtime Evidence Refresh
+
+Active role: ENGINEER
+
+Objective:
+- Refresh current paper-campaign, ES gate, and Hetzner crypto-edge runtime
+  evidence without changing any campaign, service, gate, strategy config, host
+  state, or trading behavior.
+
+What was found:
+- SHOWN: local `master` and `origin/master` were both at `ae4ce1046`.
+- SHOWN: `make status-paper-all` reported laptop paper campaigns `2/2`
+  running and Hetzner `ema_cross_default` `1/1` running.
+- SHOWN: `make status-paper-gate-qualification-json` reported
+  `qualified_round_trips=3`, `min_qualified_round_trips=10`, and
+  `7` remaining for `es_daily_trend_v1`.
+- SHOWN: `make status-hetzner-edge-runtime` reported
+  `hetzner_crypto_edge_runtime_ready`, `ok=True`, and `blocking_checks=0`.
+- SHOWN: host-side `check_edge_cadence.py --json` under
+  `CBP_STATE_DIR=/var/lib/cbp` reported `ok=true`, `missing=[]`, `stale=[]`,
+  and fresh OKX funding/open-interest/basis snapshots captured at
+  `2026-07-21T21:10:42+00:00`.
+
+What changed:
+- Added `docs/checkpoints/runtime_check_2026_07_21.md`.
+- Updated `REMAINING_TASKS.md` item 14 with a dated read-only runtime refresh
+  pointer.
+
+Why this change:
+- The July 18 crypto-edge host proof was still the latest durable checkpoint.
+  Recording the July 21 read-only output preserves the current operator
+  evidence and confirms the collector freshness without restarting or mutating
+  host services.
+
+Expected outcome:
+- Operators can distinguish current campaign/edge health from stale backlog
+  text while the ES paper gate continues waiting on qualified round trips.
+
+Verification:
+- `make status-paper-all`
+  - SHOWN: laptop `2/2` running; Hetzner `1/1` running.
+- `make status-paper-gate-qualification-json`
+  - SHOWN: `qualified_round_trips=3`; `7` remaining.
+- `make status-hetzner-edge-runtime`
+  - SHOWN: `ok=True`; `blocking_checks=0`.
+- `tailscale ssh cryptkeep@100.86.128.9 'cd /srv/cryptkeep/app && CBP_STATE_DIR=/var/lib/cbp ./.venv/bin/python scripts/check_edge_cadence.py --json'`
+  - SHOWN: `ok=true`; OKX funding/open-interest/basis fresh.
+
+Remaining risk:
+- LOW: documentation-only evidence refresh. No runtime behavior changed.
+- Acceptance state: `ACCEPTED`.
