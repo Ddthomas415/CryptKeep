@@ -24717,6 +24717,12 @@ Verification:
   - SHOWN: rc=0, `ok=true`, all three stages ok.
 - `./.venv/bin/python -m ruff check ...`
   - NOT RUN: local venv has no `ruff` module.
+- 2026-07-22 CI correction: GitHub full-suite CI found that a dependency
+  config diagnostic could print before the CLI JSON after prior tests changed
+  config state. `scripts/research/run_crypto_edge_research_pipeline.py` now
+  redirects dependency stdout to stderr, matching the funding price-join CLI
+  pattern, and `test_crypto_edge_research_pipeline_cli_keeps_stdout_json`
+  pins stdout as machine-readable JSON.
 
 Remaining risk:
 - MEDIUM: research metrics are still forward-return/unit-size summaries only;
