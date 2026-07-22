@@ -12,6 +12,10 @@ def _flat(path: Path) -> str:
     return " ".join(path.read_text(encoding="utf-8", errors="replace").split())
 
 
+def _doc_path(*parts: str) -> str:
+    return "/".join(parts)
+
+
 def test_process_control_defers_to_current_runtime_truth() -> None:
     process_control = _flat(PROCESS_CONTROL)
 
@@ -38,8 +42,8 @@ def test_process_control_pins_status_surfaces_and_services() -> None:
     process_control = _flat(PROCESS_CONTROL)
 
     assert "Canonical status surfaces" in process_control
-    assert "runtime/flags/*.status.json" in process_control
-    assert "runtime/health/*.json" in process_control
+    assert _doc_path("runtime", "flags", "*.status.json") in process_control
+    assert _doc_path("runtime", "health", "*.json") in process_control
     assert "process-supervisor service state" in process_control
     for service in (
         "pipeline",
@@ -59,9 +63,9 @@ def test_process_control_keeps_legacy_surface_compatibility_only() -> None:
     assert "Compatibility-only legacy surface" in process_control
     for surface in (
         "python scripts/bot_ctl.py ...",
-        "data/bot_process.json",
-        "data/bot_heartbeat.json",
-        "data/logs/bot.log",
+        _doc_path("data", "bot_process.json"),
+        _doc_path("data", "bot_heartbeat.json"),
+        _doc_path("data", "logs", "bot.log"),
         "scripts/run_bot_safe.py",
     ):
         assert surface in process_control
