@@ -26285,3 +26285,46 @@ Remaining risk:
 - LOW: docs/test only. It does not start, stop, recover, or mutate any
   campaign.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T19:22:00Z - Incident Runbooks Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard `docs/RUNBOOKS.md` as the operator-facing incident severity and
+  response contract.
+
+What was found:
+- `docs/RUNBOOKS.md` documents severity levels, escalation rules, live halt and
+  resume runbooks, degraded paper response, duplicate-order response,
+  config-change rollback response, and the post-incident template. It did not
+  have a direct guard pinning those incident-response boundaries.
+
+What changed:
+- Added an executable-guard note to `docs/RUNBOOKS.md`.
+- Added `tests/test_incident_runbooks_guard.py` to pin the severity matrix,
+  halt-first rule, resume-after-checklist rule, degraded paper response,
+  duplicate-order and config-change runbooks, and required post-incident
+  fields.
+
+Why this change was chosen:
+- Incident runbooks are operator safety documentation. Guarding them prevents
+  future docs drift without touching live controls, resume logic, config
+  tooling, or service management.
+
+Expected outcome:
+- Future edits that weaken halt-first or resume-after-checklist guidance fail a
+  targeted docs test before the runbook can mislead an operator.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_incident_runbooks_guard.py tests/test_operator_runbook_policy_guards.py`
+  - SHOWN: `13 passed`.
+- `./.venv/bin/python -m py_compile tests/test_incident_runbooks_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not execute halt/resume commands, change live
+  controls, mutate config, or alter runtime behavior.
+- Acceptance state: ACCEPTED.
