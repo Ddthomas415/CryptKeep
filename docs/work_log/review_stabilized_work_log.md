@@ -26040,3 +26040,41 @@ Remaining risk:
 - LOW: docs/test only. It does not execute backup/restore, mutate state, scan a
   real backup artifact, or prove host restore-and-resume behavior.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T18:13:01Z - Backlog Execution Lanes Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard the backlog execution-lane map that separates passive/operator
+  evidence, low-risk docs/tests, medium-risk read-only runtime work, and
+  high-risk gate/execution/deploy work.
+
+What was found:
+- `docs/BACKLOG_EXECUTION_LANES.md` already documented same-lane batching and
+  warned against rebuilding accepted work, but the lane map itself had no
+  targeted guard.
+
+What changed:
+- Added an executable guard section to `docs/BACKLOG_EXECUTION_LANES.md`.
+- Added `tests/test_backlog_execution_lanes_guard.py` to pin the backlog source
+  of truth, lane definitions, completed-item warning, high-risk boundaries,
+  same-lane batching rule, practical next order, and non-authority status.
+- Recorded the guard under the operator-attention backlog item.
+
+Why this change was chosen:
+- The lane map directly controls safe batching. Guarding it reduces mixed-risk
+  churn without changing any runtime behavior.
+
+Expected outcome:
+- Future edits cannot silently classify high-risk live/gate/deploy work as
+  low-risk cleanup or treat the lane map as implementation approval.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_execution_lanes_guard.py tests/test_operational_core_scope.py tests/test_operator_runbook_policy_guards.py tests/test_governance_required_files.py tests/test_repo_layout_scope_doc.py`
+  - SHOWN: `26 passed`.
+
+Remaining risk:
+- LOW: docs/test only. It does not decide any backlog item, authorize
+  implementation, or change runtime behavior.
+- Acceptance state: ACCEPTED.
