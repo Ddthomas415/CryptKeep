@@ -326,6 +326,17 @@ deployment work still needs independent review.
    item #11 work after acceptance is operational, not code plumbing: run real
    multi-year archive sweeps and require separate review before any strategy
    config or campaign changes use the results. 2026-07-14: market OHLCV archive
+   2026-07-22: archive parameter-sweep triage is ready for independent review.
+   `services.analytics.archive_parameter_sweep_triage` and
+   `scripts/research/run_archive_parameter_sweep_triage.py` consume an existing
+   `archive_backed_parameter_sweep_v1` artifact and rank variants for manual
+   review using explicit window/trade/non-negative-window/return/drawdown
+   thresholds. It does not rerun backtests, change strategy config, start
+   campaigns, or produce campaign/promotion/profitability evidence; it consumes
+   the source sweep metrics as-is and does not verify the sweep's cost
+   assumptions. Remaining item #11 work is still operational: run real
+   multi-year archive sweeps and require separate review before any strategy
+   config or campaign changes use the results. 2026-07-14: market OHLCV archive
    numeric-ingestion proof is ready for independent review. `MarketStore` now
    rejects non-positive or non-finite OHLCV timestamps/prices, invalid high/low
    envelopes, and non-finite/negative volume before writing `market_ohlcv`,
