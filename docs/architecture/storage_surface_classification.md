@@ -25,6 +25,9 @@ It is a documentation pass only; no store is deleted or rewired here.
   first deciding whether it should replace, delegate to, or remain separate
   from the core stores.
 - Prefer one canonical store for each live-money concept before capped live.
+- `tests/test_storage_surface_classification.py` guards this policy by failing
+  if services or scripts import the quarantined retained schemas as production
+  callers.
 
 ## 2026-07-04 Caller Audit
 
@@ -63,3 +66,15 @@ Implementation consequence:
   core stores or include a separate reviewed migration decision;
 - these retained schemas are not production authorities and must not be treated
   as evidence that the corresponding runtime path is active.
+
+## 2026-07-22 Executable Guard
+
+Added an executable hygiene guard for the three quarantined retained schemas:
+
+- `storage/fill_reconciler_store_sqlite.py`
+- `storage/order_idempotency_sqlite.py`
+- `storage/order_tracker_store_sqlite.py`
+
+The guard does not delete or migrate schemas. It only prevents silent drift: a
+future service/script import must either fail the test or arrive with a reviewed
+storage-consolidation decision that changes this classification.
