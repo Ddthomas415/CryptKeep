@@ -2041,7 +2041,15 @@ substrate work, but they are concrete enough to keep visible.
    model so paper evidence transferability is tested directly. 2026-07-04:
    parity guard added for paper market buy/sell fills: paper engine fill price
    and fee must match `services.execution.fill_model.apply_fee_slippage()` for
-   the same mid price, side, qty, fee bps, and slippage bps.
+   the same mid price, side, qty, fee bps, and slippage bps. 2026-07-22:
+   sequence-level parity proof is ready for independent review: a deterministic
+   backtest buy/sell round trip is replayed through `PaperTradingSQLite`, and
+   cash, closed-trade net PnL, final equity, position quantity, and
+   `pnl_usd_semantics=net_of_fees` must match. The proof exposed a paper-only
+   float residue mismatch: backtest allowed all-in buys within `1e-9`, while
+   paper storage rejected the same fill as insufficient cash. Paper storage now
+   uses the same sub-nanodollar affordability tolerance and clamps only that
+   residue to zero.
 6. Investigate the `synthetic_mid_ohlcv` branch in
    `services/execution/strategy_runner.py`. During the unknown-strategy runner
    proof, the public-OHLCV branch was shown to call `compute_signal()`, while

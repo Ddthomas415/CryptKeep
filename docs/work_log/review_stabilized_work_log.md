@@ -24121,3 +24121,63 @@ Remaining risk:
   promotion gates, or alter canonical paper campaigns. GitHub CI and
   independent review are required before treating it as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T02:55:00Z - Paper/Backtest Sequence Parity Guard (Batch 3)
+
+Active role: ENGINEER
+
+Objective:
+- Advance the paper evidence / analytics correctness batch by extending
+  backtest-to-paper parity from individual fill price/fee checks to a full
+  closed round-trip accounting check.
+
+What was found:
+- SHOWN: item 28 paper net-of-fees PnL and item 7 direct paper-ledger invariant
+  tests were already implemented and recorded in `REMAINING_TASKS.md`.
+- SHOWN: the existing parity guard covered paper market fill price and fee
+  versus `services.execution.fill_model.apply_fee_slippage()` for individual
+  buy/sell fills, but did not replay a closed backtest trade through
+  `PaperTradingSQLite`.
+- SHOWN by the new failing test before the fix: `run_parity_backtest()` permits
+  an all-in buy when total cost is within `1e-9` of cash, while
+  `PaperTradingSQLite.apply_fill()` rejected the same calculated fill as
+  `insufficient_cash` because of strict float comparison.
+
+What changed:
+- Added a deterministic sequence-level parity test in
+  `tests/test_backtest_parity_engine.py`: fake signals buy on bar 1 and sell
+  on bar 2, then the resulting backtest fills are replayed through
+  `PaperTradingSQLite`.
+- The test asserts paper cash, realized net PnL, final equity, flat position,
+  and `pnl_usd_semantics=net_of_fees` match the backtest round trip.
+- Updated `PaperTradingSQLite.apply_fill()` to use the same sub-nanodollar
+  `1e-9` cash-affordability tolerance for paper buy fills and clamp only that
+  floating residue to zero.
+- Updated `REMAINING_TASKS.md` item 5 with the 2026-07-22 proof note.
+
+Why this change:
+- Evidence transferability depends on more than price/fee parity. A backtest
+  round trip and a paper-storage round trip must agree on net PnL and cash, or
+  archive research and paper evidence can disagree for accounting rather than
+  strategy reasons.
+
+Expected outcome:
+- Future changes to paper storage or the backtest parity engine that drift
+  closed-trade accounting will fail a targeted regression before affecting
+  paper evidence interpretation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py::test_parity_backtest_round_trip_matches_paper_storage_net_pnl`
+  - SHOWN: failed before the fix on `buy["ok"] is True`; passed after the
+    paper cash-tolerance fix.
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_paper_trading_sqlite_invariants.py tests/test_paper_engine_honesty.py tests/test_paper_engine_integration.py tests/test_check_promotion_gates.py tests/test_gate_pnl_semantics_visibility.py`
+  - SHOWN: `84 passed`.
+- `./.venv/bin/python -m py_compile storage/paper_trading_sqlite.py tests/test_backtest_parity_engine.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM/HIGH: this is paper financial-accounting logic. It is paper-only and
+  does not touch live trading, order routing, promotion gate thresholds, or
+  strategy behavior, but it should receive independent review before being
+  treated as accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
