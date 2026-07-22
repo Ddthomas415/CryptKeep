@@ -24621,6 +24621,55 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-22T15:31:00Z - Storage Quarantine Hygiene Guard (Deferred Structure #10)
+
+Active role: ENGINEER
+
+Objective:
+- Add an executable guard for the documented quarantined retained storage
+  schemas so they cannot silently become runtime authorities before a reviewed
+  storage-consolidation decision.
+
+What was found:
+- `docs/architecture/storage_surface_classification.md` already classifies
+  `fill_reconciler_store_sqlite.py`, `order_idempotency_sqlite.py`, and
+  `order_tracker_store_sqlite.py` as `quarantined_retained_schema`.
+- The classification was documented but not yet enforced by a source-tree
+  drift test.
+
+What changed:
+- Added `tests/test_storage_surface_classification.py`.
+- The test verifies the classification doc covers all three retained schemas
+  and fails if services or scripts import those stores/classes as production
+  callers.
+- Updated storage classification docs and backlog text.
+
+Why this change was chosen:
+- It is the smallest safe implementation for the open storage-classification
+  follow-up: no deletion, migration, runtime wiring, or live behavior change.
+
+Expected outcome:
+- Future reconciliation/idempotency/order-tracking work must either use current
+  core stores or deliberately update the classification with a reviewed
+  migration decision.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_storage_surface_classification.py`
+  - SHOWN: `2 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_storage_surface_classification.py tests/test_strategy_discovery_hygiene_contract.py tests/test_paper_measurement_contract.py::test_paper_execution_surface_classification_matches_source_tree`
+  - SHOWN: `10 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `./.venv/bin/python -m py_compile tests/test_storage_surface_classification.py`
+  - SHOWN: rc=0.
+- `git diff --check`
+  - SHOWN: rc=0.
+
+Remaining risk:
+- LOW: test/docs only. It does not decide whether the retained schemas should
+  eventually be deleted or migrated.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T15:24:00Z - Crypto-Edge Research Pipeline Wrapper (Batch 6 Research Tooling)
 
 Active role: ENGINEER
