@@ -2,6 +2,12 @@
 
 One page. What runs, in what order, where evidence goes, what is optional.
 
+Executable guard: `tests/test_golden_path_operator_flow_guard.py` pins the
+narrow daily operator path, campaign recovery/status commands, canonical
+evidence surfaces, promotion-gate criteria, and shadow-readiness boundary in
+this document. If the daily path changes, update that test and this document
+together.
+
 ## The product
 
 CryptKeep is currently a safety-first profit-measurement and
