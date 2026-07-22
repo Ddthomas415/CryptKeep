@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join funding-threshold-sensitivity funding-threshold-candidate-triage price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -367,6 +367,10 @@ FUNDING_THRESHOLD_SENSITIVITY_ARGS ?=
 funding-threshold-sensitivity:
 	$(PYTHON) scripts/research/run_funding_threshold_sensitivity.py $(FUNDING_THRESHOLD_SENSITIVITY_ARGS)
 
+FUNDING_THRESHOLD_WINDOW_STABILITY_ARGS ?=
+funding-threshold-window-stability:
+	$(PYTHON) scripts/research/run_funding_threshold_window_stability.py $(FUNDING_THRESHOLD_WINDOW_STABILITY_ARGS)
+
 FUNDING_THRESHOLD_CANDIDATE_TRIAGE_ARGS ?=
 funding-threshold-candidate-triage:
 	$(PYTHON) scripts/research/run_funding_threshold_candidate_triage.py $(FUNDING_THRESHOLD_CANDIDATE_TRIAGE_ARGS)
@@ -424,6 +428,7 @@ script-index:
 	@echo "  make ohlcv-archive-backfill    — backfill archived OHLCV for research"
 	@echo "  make funding-context-price-join — join funding context to archived OHLCV"
 	@echo "  make funding-threshold-sensitivity — test funding_extreme threshold grids"
+	@echo "  make funding-threshold-window-stability — compare funding threshold pairs across row windows"
 	@echo "  make funding-threshold-candidate-triage — rank funding threshold pairs for manual review"
 	@echo "  make price-action-context-labels — label archived OHLCV price-action context"
 	@echo "  make price-action-forward-returns — join price-action labels to forward returns"

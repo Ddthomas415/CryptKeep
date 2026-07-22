@@ -227,6 +227,12 @@ decision makes them authoritative.
   action counts and unit-size modeled forward returns for explicit threshold
   grids, does not change strategy config, fetch data, start campaigns, or
   produce promotion evidence. Use `make funding-threshold-sensitivity`.
+- `research/run_funding_threshold_window_stability.py` — read-only
+  funding-threshold window-stability report over an existing
+  funding-context price-join JSON artifact; compares threshold-pair behavior
+  across fixed row windows and does not change strategy config, campaigns,
+  gates, execution, or promotion evidence. Use
+  `make funding-threshold-window-stability`.
 - `research/run_funding_threshold_candidate_triage.py` — read-only
   funding-threshold candidate triage report over an existing
   `funding_threshold_sensitivity_v1` JSON artifact; ranks threshold pairs for
