@@ -19,8 +19,9 @@ and provenance-qualified paper paths.
 
 ## Price-Action Context Feature Pack
 
-Status: first OHLCV-only research label extractor and label-conditioned
-forward-return report implemented; strategy/campaign use remains deferred.
+Status: first OHLCV-only research label extractor, label-conditioned
+forward-return report, and multi-window stability report implemented;
+strategy/campaign use remains deferred.
 
 Purpose:
 
@@ -80,10 +81,13 @@ Implemented first slice:
 
 - `services/backtest/price_action_context.py`
 - `services/analytics/price_action_forward_returns.py`
+- `services/analytics/price_action_window_stability.py`
 - `scripts/research/run_price_action_context_labels.py`
 - `scripts/research/run_price_action_forward_returns.py`
+- `scripts/research/run_price_action_window_stability.py`
 - `make price-action-context-labels`
 - `make price-action-forward-returns`
+- `make price-action-window-stability`
 
 The first slice reads only the existing OHLCV archive and refuses unavailable
 archive data rather than fetching live data. It emits deterministic per-bar
@@ -98,11 +102,16 @@ explicit fee/slippage assumptions and emits per-label bucket summaries. It is
 still descriptive research output only: no position state, portfolio PnL,
 campaign evidence, promotion evidence, or strategy config change is produced.
 
+The third slice repeats that comparison across fixed archive windows and
+summarizes each label bucket's average delta versus the unconditioned baseline,
+including outperformance and underperformance window ratios. It is stability
+triage only; it does not make an activation or profitability claim.
+
 Research acceptance before use:
 
-- Compare label-conditioned returns against unconditioned baseline.
-- Show out-of-sample stability across multiple windows.
-- Show false-positive rate and sample size.
+- Run real archive reports over multiple symbols/timeframes.
+- Review label-conditioned returns against unconditioned baseline.
+- Review out-of-sample stability, sample size, and underperformance rate.
 - Review separately before using any label as a confirmation filter for
   `pullback_recovery`, `funding_extreme`, or another strategy.
 

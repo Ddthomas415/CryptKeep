@@ -239,6 +239,11 @@ decision makes them authoritative.
   for price-action label buckets and does not change strategy config,
   campaigns, gates, execution, or promotion evidence. Use
   `make price-action-forward-returns`.
+- `research/run_price_action_window_stability.py` — read-only multi-window
+  price-action stability report over archived OHLCV; compares label-conditioned
+  forward returns against unconditioned baselines across windows and does not
+  change strategy config, campaigns, gates, execution, or promotion evidence.
+  Use `make price-action-window-stability`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

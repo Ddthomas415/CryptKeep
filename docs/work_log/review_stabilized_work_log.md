@@ -24636,4 +24636,66 @@ Remaining risk:
 - LOW/MEDIUM: research-only analytics can influence future operator decisions
   if misread, but no strategy config, campaign, gate, execution, or promotion
   authority changes were made.
+
+## 2026-07-22T03:18:05Z - Price-Action Window Stability Report, Research-Only Slice
+
+Active role: ENGINEER
+
+Objective:
+- Add the multi-window stability layer for price-action research so label
+  buckets can be compared against unconditioned forward-return baselines across
+  fixed archive windows, without turning labels into strategy authority.
+
+What was found:
+- SHOWN: the price-action research backlog requires comparison against
+  unconditioned baselines and out-of-sample stability review before any label
+  becomes a confirmation filter.
+- SHOWN: the label extractor and forward-return report are archive-backed and
+  research-only, giving this slice reusable deterministic inputs.
+
+What changed:
+- Added `services/analytics/price_action_window_stability.py`, a research-only
+  multi-window report that reuses the price-action label artifact and
+  forward-return report per window.
+- Added `scripts/research/run_price_action_window_stability.py`, a read-only
+  CLI that writes/prints the stability artifact and returns exit code 2 with
+  `--fail-if-not-ok` when the report cannot satisfy its minimum window count.
+- Added `make price-action-window-stability` and updated the script index.
+- Updated `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` to record the stability slice while preserving the
+  boundary: no strategy config, campaign evidence, promotion evidence, gate,
+  execution, or Databento path changed.
+- Added `tests/test_price_action_window_stability.py`.
+- Refactored `services/analytics/price_action_forward_returns.py` to expose a
+  reusable `build_price_action_forward_return_report(...)` helper so the
+  stability report does not duplicate cost/return math.
+
+Why this change was chosen:
+- It closes the next research-method gap after label extraction and
+  forward-return joins: whether a label's return behavior is stable across
+  windows rather than a single-window artifact.
+
+Expected outcome:
+- Operators can inspect each label bucket's average delta versus unconditioned
+  long/short baselines, along with outperform/underperform window ratios,
+  before any separate activation review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_window_stability.py scripts/research/run_price_action_window_stability.py tests/test_price_action_window_stability.py services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `69 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: this is research analytics that may affect future operator
+  decisions. The artifact is explicitly marked research-only and not campaign,
+  promotion, strategy-config, profitability, or execution evidence.
+- Real archive runs across relevant symbols/timeframes are still required
+  before drawing strategy conclusions.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
