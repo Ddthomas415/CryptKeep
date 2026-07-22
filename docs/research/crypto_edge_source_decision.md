@@ -76,6 +76,8 @@ The current funding research path is read-only and artifact-based:
   across fixed row windows over an existing price-join artifact.
 - `make funding-threshold-candidate-triage` ranks threshold pairs for manual
   review over an existing sensitivity artifact.
+- `make funding-threshold-stability-triage` ranks threshold pairs for manual
+  review over an existing window-stability artifact.
 
 These reports do not change strategy config, start campaigns, modify gates,
 route orders, compute portfolio PnL, or produce promotion evidence.

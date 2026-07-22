@@ -239,6 +239,12 @@ decision makes them authoritative.
   manual review only and does not change strategy config, campaigns, gates,
   execution, or promotion evidence. Use
   `make funding-threshold-candidate-triage`.
+- `research/run_funding_threshold_stability_triage.py` — read-only
+  stability-aware funding-threshold triage report over an existing
+  `funding_threshold_window_stability_v1` JSON artifact; ranks threshold pairs
+  for manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-stability-triage`.
 - `research/run_price_action_context_labels.py` — read-only OHLCV
   price-action context label artifact over the existing market archive;
   labels fair-value gaps, engulfing candles, swing failures, break/retest,
