@@ -1,5 +1,7 @@
 services:
   backend:
+    profiles:
+      - phase1-companion
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -50,7 +52,4 @@ services:
       - ../build:/app/build
     ports:
       - "${DASHBOARD_HOST_PORT:-18501}:8501"
-    depends_on:
-      backend:
-        condition: service_healthy
     command: ["python", "-m", "streamlit", "run", "dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
