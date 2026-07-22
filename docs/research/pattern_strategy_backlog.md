@@ -20,8 +20,8 @@ and provenance-qualified paper paths.
 ## Price-Action Context Feature Pack
 
 Status: first OHLCV-only research label extractor, label-conditioned
-forward-return report, and multi-window stability report implemented;
-strategy/campaign use remains deferred.
+forward-return report, multi-window stability report, and manual-review
+candidate triage report implemented; strategy/campaign use remains deferred.
 
 Purpose:
 
@@ -82,12 +82,15 @@ Implemented first slice:
 - `services/backtest/price_action_context.py`
 - `services/analytics/price_action_forward_returns.py`
 - `services/analytics/price_action_window_stability.py`
+- `services/analytics/price_action_candidate_triage.py`
 - `scripts/research/run_price_action_context_labels.py`
 - `scripts/research/run_price_action_forward_returns.py`
 - `scripts/research/run_price_action_window_stability.py`
+- `scripts/research/run_price_action_candidate_triage.py`
 - `make price-action-context-labels`
 - `make price-action-forward-returns`
 - `make price-action-window-stability`
+- `make price-action-candidate-triage`
 
 The first slice reads only the existing OHLCV archive and refuses unavailable
 archive data rather than fetching live data. It emits deterministic per-bar
@@ -107,11 +110,18 @@ summarizes each label bucket's average delta versus the unconditioned baseline,
 including outperformance and underperformance window ratios. It is stability
 triage only; it does not make an activation or profitability claim.
 
+The fourth slice applies explicit review thresholds to the stability artifact
+and emits candidate label/side pairs for manual review. It is still triage only:
+a candidate is not strategy config, campaign evidence, promotion evidence, a
+profitability claim, or an activation decision.
+
 Research acceptance before use:
 
 - Run real archive reports over multiple symbols/timeframes.
 - Review label-conditioned returns against unconditioned baseline.
 - Review out-of-sample stability, sample size, and underperformance rate.
+- Review candidate-triage thresholds separately before accepting any label as a
+  confirmation-filter candidate.
 - Review separately before using any label as a confirmation filter for
   `pullback_recovery`, `funding_extreme`, or another strategy.
 
