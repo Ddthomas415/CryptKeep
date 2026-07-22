@@ -11,6 +11,10 @@ def _flat() -> str:
     return " ".join(RUNTIME_TRUTH.read_text(encoding="utf-8", errors="replace").split())
 
 
+def _doc_path(*parts: str) -> str:
+    return "/".join(parts)
+
+
 def test_runtime_truth_declares_executable_guard() -> None:
     truth = _flat()
 
@@ -38,9 +42,9 @@ def test_runtime_truth_pins_canonical_truth_sources() -> None:
 
     assert "Canonical runtime truth sources" in truth
     assert "services.runtime.process_supervisor.status(...)" in truth
-    assert "runtime/flags/*.status.json" in truth
-    assert "runtime/health/*.json" in truth
-    assert "runtime/flags/bot_runner.status.json" in truth
+    assert _doc_path("runtime", "flags", "*.status.json") in truth
+    assert _doc_path("runtime", "health", "*.json") in truth
+    assert _doc_path("runtime", "flags", "bot_runner.status.json") in truth
     assert "services/process/bot_runtime_truth.py" in truth
 
 
@@ -66,7 +70,7 @@ def test_runtime_truth_pins_source_shown_startup_behavior() -> None:
     assert "not a wrapper around `bot_ctl.py`" in truth
     assert "runtime_trading_config_available()" in truth
     assert "IDLE / SAFE-IDLE" in truth
-    assert "runtime/flags/bot_runner.status.json" in truth
+    assert _doc_path("runtime", "flags", "bot_runner.status.json") in truth
     assert "CBP_ALLOW_LEGACY_BOT_RUNTIME_FALLBACK=YES" in truth
 
 
@@ -81,8 +85,8 @@ def test_runtime_truth_pins_compatibility_only_legacy_surfaces() -> None:
         "services.bot.start_manager.start(...)",
         "services.bot.start_manager.stop()",
         "services.bot.process_manager",
-        "data/bot_process.json",
-        "data/bot_heartbeat.json",
+        _doc_path("data", "bot_process.json"),
+        _doc_path("data", "bot_heartbeat.json"),
     ):
         assert surface in truth
     assert "not the canonical operator startup or runtime truth path" in truth
@@ -92,7 +96,7 @@ def test_runtime_truth_pins_startup_reconciliation_boundary() -> None:
     truth = _flat()
 
     assert "Startup reconciliation status" in truth
-    assert "data/startup_status.json" in truth
+    assert _doc_path("data", "startup_status.json") in truth
     assert "services/execution/startup_status.py" in truth
     assert "services/execution/startup_reconcile.py" in truth
     assert "No current in-repo caller was shown enforcing startup-status freshness" in truth
