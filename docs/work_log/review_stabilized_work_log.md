@@ -24121,3 +24121,50 @@ Remaining risk:
   promotion gates, or alter canonical paper campaigns. GitHub CI and
   independent review are required before treating it as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T19:18:00Z - Operator Doc Reference Path Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard operator-facing docs against stale references to repo docs, scripts, and
+  campaign config files.
+
+What was found:
+- The Golden Path, incident runbooks, paper campaign recovery runbook, evidence
+  model, launch checklist, and release checklist contain explicit repo-path
+  references that operators may copy or follow during recovery, launch, release,
+  or gate checks.
+- Existing guards pin selected command and policy content, but there was no
+  single guard checking that these operator docs do not point at missing repo
+  files.
+
+What changed:
+- Added `tests/test_operator_doc_reference_paths.py`.
+- The test scans the main operator docs for `docs/*.md`, `scripts/*.py`, and
+  `configs/*.{json,yaml,example.json}` references and fails if any referenced
+  file is missing.
+- The test also pins that the operator docs still reference the core promotion
+  gate, paper collector, recovery, runbook, and release-checklist surfaces.
+
+Why this change was chosen:
+- Broken operator-doc paths waste recovery/review time and can send the
+  operator to stale commands. A generic path guard catches that drift without
+  touching runtime behavior.
+
+Expected outcome:
+- Future docs edits that rename or remove operator-facing referenced files fail
+  a targeted test before the stale instructions merge.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_doc_reference_paths.py tests/test_script_path_references_exist.py tests/test_makefile_wiring.py tests/test_pre_release_sanity_doc_wiring.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m py_compile tests/test_operator_doc_reference_paths.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: test/work-log only. It does not change docs content, runtime behavior,
+  campaigns, gates, or release tooling.
+- Acceptance state: ACCEPTED.
