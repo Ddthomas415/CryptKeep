@@ -60,3 +60,10 @@ The default read-only collector plan should stop depending on the externally
 blocked Binance derivatives path and should begin accumulating the funding,
 open-interest, and basis history needed for future `funding_extreme` and
 `open_interest_shift` research.
+
+## Executable Guard
+
+`tests/test_crypto_edge_source_decision_guard.py` pins the read-only research
+scope, evidence basis, unresolved host/data unknowns, hard boundaries, default
+collector-plan venues, and backlog/structural-doc links so the OKX source
+decision cannot silently become live-routing or promotion-evidence authority.
