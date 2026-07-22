@@ -113,6 +113,9 @@ Implementation target:
   - entry filtering
   - strategy ranking confidence
 - compare “price-only” vs “price + structural edge features” offline
+- use `make crypto-edge-research-pipeline` to create research-only funding
+  replay, price-join, threshold-sensitivity, and pipeline summary artifacts
+  from stored crypto-edge and archived OHLCV rows
 
 Explicit non-goals:
 

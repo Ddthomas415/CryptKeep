@@ -24621,3 +24621,61 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-22T15:24:00Z - Crypto-Edge Research Pipeline Wrapper (Batch 6 Research Tooling)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only crypto-edge research wrapper that runs the existing funding
+  replay, archived OHLCV price join, and threshold-sensitivity reports together
+  without touching campaigns, gates, strategy configuration, or execution.
+
+What was found:
+- The crypto-edge research lane already had separate stored-data tools for
+  replay, price joining, threshold sensitivity, and wiring readiness, but no
+  single artifact tying those results together for a quick offline pass.
+
+What changed:
+- Added `services.analytics.crypto_edge_research_pipeline` and
+  `scripts/research/run_crypto_edge_research_pipeline.py`.
+- Added `make crypto-edge-research-pipeline` and script-index documentation.
+- Added blueprint fee-surface classification for the new research-only
+  10.0/5.0 bps cost passthrough.
+- Recorded the tool under the crypto-edge research backlog and strategy
+  expansion roadmap.
+
+Why this change was chosen:
+- It advances the crypto-edge research path by composing existing read-only
+  artifacts instead of adding campaign behavior or gate authority.
+
+Expected outcome:
+- Operators can generate funding replay, funding/price join, threshold
+  sensitivity, and a pipeline summary from stored crypto-edge plus archived
+  OHLCV rows with one command.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_research_pipeline.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_research_pipeline.py tests/test_funding_context_replay.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py tests/test_crypto_edge_strategy_readiness.py tests/test_crypto_edge_context.py`
+  - SHOWN: `30 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `./.venv/bin/python -m py_compile services/analytics/crypto_edge_research_pipeline.py scripts/research/run_crypto_edge_research_pipeline.py tests/test_crypto_edge_research_pipeline.py tests/test_blueprint_invariants.py`
+  - SHOWN: rc=0.
+- `make crypto-edge-research-pipeline CRYPTO_EDGE_RESEARCH_PIPELINE_ARGS="--edge-db /tmp/cbp-crypto-edge-pipeline-edge.sqlite --archive-db /tmp/cbp-crypto-edge-pipeline-market.sqlite --output-dir /tmp/cbp-crypto-edge-pipeline-out --funding-limit 5 --ohlcv-limit 5 --min-rows 2 --min-joined-rows 2 --fee-bps 0 --slippage-bps 0 --long-thresholds-pct 0.05 --short-thresholds-pct -0.01 --fail-if-not-ok"`
+  - SHOWN: rc=0, `ok=true`, all three stages ok.
+- `./.venv/bin/python -m ruff check ...`
+  - NOT RUN: local venv has no `ruff` module.
+- 2026-07-22 CI correction: GitHub full-suite CI found that a dependency
+  config diagnostic could print before the CLI JSON after prior tests changed
+  config state. `scripts/research/run_crypto_edge_research_pipeline.py` now
+  redirects dependency stdout to stderr, matching the funding price-join CLI
+  pattern, and `test_crypto_edge_research_pipeline_cli_keeps_stdout_json`
+  pins stdout as machine-readable JSON.
+
+Remaining risk:
+- MEDIUM: research metrics are still forward-return/unit-size summaries only;
+  they are not campaign, promotion, or profitability evidence.
+- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
