@@ -307,3 +307,11 @@ Phase 3 - future strategies:
   unchanged.
 - Reviewer agrees OHLCV reliability is handled separately from gate policy.
 - Reviewer chooses or rejects the slow-daily thresholds before implementation.
+
+## Executable Guard
+
+`tests/test_paper_promotion_gate_policy_rfc_guard.py` pins the RFC scope,
+policy classes/defaults, qualified-bar definition, cohort/migration boundaries,
+OHLCV reliability separation, and backlog link so configurable gate-policy work
+cannot silently become a provenance waiver, ES one-off exception, or replacement
+for archive/walk-forward statistical validation.

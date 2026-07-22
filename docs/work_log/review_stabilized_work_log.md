@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T18:52:00Z - Paper Promotion Gate Policy RFC Guard (Active #1)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the configurable paper-promotion gate policy RFC
+  without changing promotion policy loading, current ES config, gate thresholds,
+  campaign evidence, OHLCV retry behavior, or execution behavior.
+
+What was found:
+- `docs/decisions/paper_promotion_gate_policy_rfc_2026-07-18.md` records the
+  strategy-class gate policy model, qualified-bar definition, cohort semantics,
+  migration plan, and OHLCV reliability separation.
+- The RFC was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_paper_promotion_gate_policy_rfc_guard.py`.
+- The test pins RFC scope, policy classes/defaults, qualified-bar definition,
+  cohort/migration boundaries, OHLCV reliability separation, and backlog link.
+- Added executable-guard notes to the RFC, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted gate-redesign boundary without changing the active
+  campaign gate or using policy work to mask OHLCV reliability failures.
+
+Expected outcome:
+- Future edits that quietly turn configurable gate policies into a provenance
+  waiver, ES one-off exception, or archive/walk-forward replacement fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_promotion_gate_policy_rfc_guard.py tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py`
+  - SHOWN: `13 passed in 0.32s`.
+- `./.venv/bin/python -m py_compile tests/test_paper_promotion_gate_policy_rfc_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.61s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change promotion policy loading, current ES
+  config, gate thresholds, campaign evidence, OHLCV retry behavior, deployment,
+  or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T18:43:00Z - Funding Stage 0 Decision Guard (Active #12)
 
 Active role: ENGINEER
