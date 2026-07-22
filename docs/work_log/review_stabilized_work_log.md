@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:55:00Z - State-Store Consolidation Decision Guard (Substrate #7)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the state-store consolidation decision without
+  changing storage schemas, migrations, runtime stores, or execution behavior.
+
+What was found:
+- `docs/architecture/state_store_consolidation_decision.md` documents the
+  no-migration boundary, current authorities, long-term transactional target,
+  implementation consequences, capped-live accepted-risk boundary, and follow-up
+  requirements.
+- The decision record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_state_store_consolidation_decision_guard.py`.
+- The test pins the no-migration boundary, current authorities, long-term
+  accounting target, implementation consequences, capped-live accepted-risk
+  boundary, follow-up requirements, and backlog link.
+- Added executable-guard notes to the decision record, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted paper/research split-store boundary while avoiding
+  any runtime migration or storage behavior change.
+
+Expected outcome:
+- Future edits that silently turn the decision record into a runtime migration
+  or weaken capped-live storage proof requirements fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_state_store_consolidation_decision_guard.py tests/test_storage_surface_classification.py tests/test_clock_venue_time_policy_guard.py`
+  - SHOWN: `12 passed in 0.41s`.
+- `./.venv/bin/python -m py_compile tests/test_state_store_consolidation_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.46s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change storage schemas, migrations, runtime
+  stores, campaign/gate logic, deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:48:00Z - Clock/Venue-Time Policy Guard (Substrate #11)
 
 Active role: ENGINEER

@@ -94,3 +94,10 @@ It is not accepted for capped-live without one of these outcomes:
 3. Add backup/restore drill evidence before capped-live exposure.
 4. Revisit this decision after the paper gate clears and before any shadow to
    capped-live transition.
+
+## Executable Guard
+
+`tests/test_state_store_consolidation_decision_guard.py` pins the no-migration
+boundary, current store authorities, long-term transactional target,
+implementation consequences, capped-live accepted-risk boundary, and follow-up
+requirements so storage consolidation cannot silently become a runtime migration.

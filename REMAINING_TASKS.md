@@ -1479,6 +1479,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    capped-live work: caller/migration audit for unwired stores, crash-consistency
    tests, backup/restore drill, and either transactional migration proof or an
    explicit accepted split-store risk decision.
+   2026-07-22: executable state-store consolidation decision guard is ready
+   for independent review. `tests/test_state_store_consolidation_decision_guard.py`
+   pins the no-migration boundary, current store authorities, long-term
+   transactional target, implementation consequences, capped-live accepted-risk
+   boundary, and follow-up requirements. This is docs/test only and does not
+   change storage schemas, migrations, runtime stores, or execution behavior.
    2026-07-13: position-truth resolution authority decision record is written
    in `docs/decisions/position_truth_resolution_authority.md`. It separates
    order truth (`_executor_reconcile`: what happened to an order) from
