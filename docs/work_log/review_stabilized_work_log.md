@@ -24181,3 +24181,63 @@ Remaining risk:
   strategy behavior, but it should receive independent review before being
   treated as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T12:57:03Z - Paper Measurement Contract Batch (Batch 3)
+
+Active role: ENGINEER
+
+Objective:
+- Complete the remaining safe Batch 3 paper evidence / analytics correctness
+  slice on top of the existing paper-backtest sequence parity branch.
+
+What was found:
+- SHOWN: `PaperTradingSQLite.apply_fill` already emits
+  `pnl_usd_semantics=net_of_fees`, and
+  `tests/test_paper_trading_sqlite_invariants.py` already covers flat
+  round-trip fees and mixed buy/sell ledger reconciliation.
+- SHOWN: `origin/codex/paper-backtest-sequence-parity` already adds the
+  sequence-level backtest-to-paper replay proof.
+- SHOWN: paper promotion no longer uses JSONL per-fill PnL as authoritative
+  expectancy when qualified paper history is unavailable, but the gate output
+  did not name the authoritative expectancy unit/denominator.
+- SHOWN: paper execution surface classification existed in
+  `docs/architecture/paper_execution_surfaces.md`, but there was no executable
+  guard proving the documented core/compatibility/retired surfaces still
+  matched the tracked source tree.
+
+What changed:
+- Added additive paper gate metric fields:
+  `expectancy_unit`, `expectancy_denominator`, and
+  `expectancy_authoritative_for_paper_promotion`.
+- Added `tests/test_paper_measurement_contract.py`, proving:
+  qualified paper-history expectancy is labeled as closed-trade based;
+  JSONL per-fill PnL fallback remains non-authoritative for paper promotion;
+  qualified paper-history expectancy is net of fees per closed trade; and
+  paper execution surface classification matches the source tree.
+- Updated `REMAINING_TASKS.md` to record the Batch 3 follow-up proof.
+
+Why this change was chosen:
+- The remaining Batch 3 value was not another runtime rewrite. Existing code
+  already fixed the high-value paper ledger and parity issues. The durable gap
+  was contract clarity: machine output should name the unit it is reporting,
+  and paper surface classification should fail loudly if the source tree drifts.
+
+Expected outcome:
+- Reviewers and operator tooling can distinguish authoritative
+  provenance-qualified, closed-trade paper expectancy from legacy JSONL
+  diagnostic PnL fields without changing campaign behavior or thresholds.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_measurement_contract.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_check_promotion_gates.py tests/test_gate_pnl_semantics_visibility.py tests/test_paper_promotion_policy.py tests/test_paper_promotion_progress.py tests/test_paper_trading_sqlite_invariants.py tests/test_backtest_parity_engine.py`
+  - SHOWN: `76 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py tests/test_deprecation_deadline.py`
+  - SHOWN: `21 passed, 1 skipped` (deadline skip before 2026-08-01).
+- `./.venv/bin/python -m py_compile scripts/check_promotion_gates.py tests/test_paper_measurement_contract.py`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- MEDIUM: touches promotion-gate reporting fields, but not pass/fail logic,
+  thresholds, live execution, order routing, or strategy behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

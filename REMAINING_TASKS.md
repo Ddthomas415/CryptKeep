@@ -176,6 +176,14 @@ deployment work still needs independent review.
    `docs/decisions/promotion_stage_authority_decision.md` and
    `docs/decisions/canonical_expectancy_decision.md`. Remaining before real
    promotion: GitHub CI/review, plus operator-host gate output as ground truth.
+   2026-07-22 follow-up implementation proof is ready for independent review:
+   paper gate metric output now labels authoritative expectancy as
+   `expectancy_unit=closed_trade` / `expectancy_denominator=closed_trades` and
+   marks JSONL fallback metrics as non-authoritative for paper promotion.
+   New measurement-contract tests prove the paper path uses
+   provenance-qualified paper history, keeps JSONL per-fill PnL out of
+   paper-promotion expectancy, and computes qualified expectancy net of fees
+   per closed trade.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not
@@ -2080,7 +2088,9 @@ substrate work, but they are concrete enough to keep visible.
    `services/trading_runner/run_trader.py` is closed by classifying it as a
    legacy compatibility runner: paper-only local EMA smoke coverage, not a
    canonical promotion-evidence path and not a surface for new paper execution
-   features.
+   features. 2026-07-22: an executable classification invariant is ready for
+   independent review, proving the documented core/compatibility/retired paper
+   execution surfaces still match the tracked source tree.
 9. Classify dormant or partially wired signal-discovery modules.
    `signal_library`, `market_ranker`, `candidate_engine`,
    `candidate_strategy_mapper`, `trade_type_classifier`, and

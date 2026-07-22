@@ -469,6 +469,11 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
             "round_trip_detail": f"{trips} round trips recorded from {source}{mismatch}",
             "expectancy_ok": (exp_val > 0.0) if exp_val is not None else None,
             "expectancy_value": exp_val,
+            "expectancy_unit": "closed_trade" if exp_val is not None else None,
+            "expectancy_denominator": "closed_trades" if exp_val is not None else None,
+            "expectancy_authoritative_for_paper_promotion": (
+                bool(history.get("qualification") is not None) and exp_val is not None
+            ),
             "expectancy_pnl_semantics": semantics["counts"],
             "expectancy_mixed_semantics": semantics["mixed"],
             "expectancy_semantics_warning": semantics["warning"],
@@ -486,6 +491,9 @@ def _paper_gate_trade_metrics(fills: list[dict], paper_history: dict | None = No
         "round_trip_detail": f"{jsonl_trips} round trips recorded",
         "expectancy_ok": None,
         "expectancy_value": None,
+        "expectancy_unit": None,
+        "expectancy_denominator": None,
+        "expectancy_authoritative_for_paper_promotion": False,
         "expectancy_pnl_semantics": semantics["counts"],
         "expectancy_mixed_semantics": semantics["mixed"],
         "expectancy_semantics_warning": semantics["warning"],
