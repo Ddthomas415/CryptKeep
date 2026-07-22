@@ -104,3 +104,9 @@ Use the risk class in PR title or body:
 
 This label does not override AGENTS.md. If AGENTS.md marks the work high-risk,
 the work is high-risk.
+
+## Executable Guard
+
+`tests/test_operator_governance_lanes.py` pins the lane boundaries, high-risk
+examples, operator attention cap, PR label convention, and AGENTS.md override
+so low-risk process relief cannot silently weaken high-risk review rules.
