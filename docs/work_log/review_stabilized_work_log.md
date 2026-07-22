@@ -24453,6 +24453,9 @@ What was found:
 - SHOWN: existing research joins, such as funding context price join, compute
   modeled unit-size forward returns after fee/slippage assumptions and keep
   those reports outside campaign/gate evidence.
+- SHOWN from CI: `test_no_new_fee_surface_appeared` correctly failed until this
+  new `fee_bps: float = 10.0` research-cost surface was added to the blueprint
+  census.
 
 What changed:
 - Added `services/analytics/price_action_forward_return_join.py`, a
@@ -24462,6 +24465,9 @@ What changed:
 - Added `tests/test_price_action_forward_return_join.py`, covering baseline
   and label-conditioned summaries, cost application, failed/unsupported label
   artifact handling, CLI artifact writing, and non-ok exit behavior.
+- Added `services/analytics/price_action_forward_return_join.py` to the
+  executable fee-surface census and `docs/architecture/SYSTEM_BLUEPRINT.md` as
+  a research-only, non-campaign/promotion evidence cost surface.
 - Updated `docs/research/pattern_strategy_backlog.md`,
   `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
 
@@ -24477,6 +24483,8 @@ Expected outcome:
   review before becoming a confirmation filter.
 
 Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: passed as part of `6 passed`.
 - `./.venv/bin/python -m pytest -q tests/test_price_action_forward_return_join.py`
   - SHOWN: `5 passed`.
 - `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
