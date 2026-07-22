@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+import shlex
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from services.analytics.edge_cadence import check_edge_cadence
+from services.analytics.edge_cadence import META_KEYS, check_edge_cadence
 from services.analytics.paper_campaign_recovery import load_campaign_specs
 from services.execution.ohlcv_preflight import check_ohlcv_reachable
 from services.os.app_paths import code_root, data_dir
@@ -24,6 +25,7 @@ SIGNAL_SOURCE = "public_ohlcv_5m"
 CONTEXT_SYMBOL = "BTC/USDT:USDT"
 CONTEXT_VENUE = "okx"
 CONTEXT_SOURCE = "live_public"
+CONTEXT_DB_FILENAME = "crypto_edge_research.sqlite"
 RUNTIME_SEC = 900
 STRATEGY_DRAIN_SEC = 2
 STATE_DIR_REL = ".cbp_state_challengers/funding_extreme_default"
@@ -63,6 +65,7 @@ def _proof_argv(
     signal_source: str = SIGNAL_SOURCE,
     context_symbol: str = CONTEXT_SYMBOL,
     context_venue: str = CONTEXT_VENUE,
+    context_db_path: str = "",
 ) -> list[str]:
     argv = ["./.venv/bin/python", "scripts/run_paper_strategy_evidence_collector.py"]
     if status:
@@ -83,6 +86,8 @@ def _proof_argv(
         context_symbol,
         "--strategy-context-venue",
         context_venue,
+        "--strategy-context-db-path",
+        context_db_path,
         "--runtime-sec",
         str(RUNTIME_SEC),
         "--strategy-drain-sec",
@@ -90,8 +95,46 @@ def _proof_argv(
     ]
 
 
-def _shell(argv: list[str]) -> str:
-    return f'CBP_STATE_DIR="$PWD/{STATE_DIR_REL}" ' + " ".join(argv)
+def _default_context_db_path() -> Path:
+    return (data_dir() / CONTEXT_DB_FILENAME).resolve()
+
+
+def _missing_context_db_cadence(context_db: Path) -> dict[str, Any]:
+    return {
+        "ok": False,
+        "checked": [],
+        "stale": [],
+        "missing": list(META_KEYS.keys()),
+        "families": [],
+        "store_path": str(context_db),
+        "store_error": f"context_db_missing:{context_db}",
+    }
+
+
+def _missing_context_db_funding_context(
+    *,
+    context_db: Path,
+    symbol: str,
+    venue: str,
+    source: str,
+) -> dict[str, Any]:
+    return {
+        "ok": False,
+        "reason": "funding_context_store_missing",
+        "source": source,
+        "symbol": symbol,
+        "venue": venue,
+        "store_path": str(context_db),
+    }
+
+
+def _shell(argv: list[str], *, context_db_path: str) -> str:
+    env_parts = [
+        f'CBP_STATE_DIR="$PWD/{STATE_DIR_REL}"',
+    ]
+    if str(context_db_path or "").strip():
+        env_parts.append(f"CBP_CRYPTO_EDGE_DB_PATH={shlex.quote(str(context_db_path).strip())}")
+    return " ".join([*env_parts, *[shlex.quote(str(arg)) for arg in argv]])
 
 
 def _manifest_rows(*, root: Path, manifests: dict[str, Path]) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
@@ -189,6 +232,7 @@ def build_funding_stage0_readiness(
     context_symbol: str = CONTEXT_SYMBOL,
     context_venue: str = CONTEXT_VENUE,
     context_source: str = CONTEXT_SOURCE,
+    context_db_path: str | Path | None = None,
 ) -> dict[str, Any]:
     root = (repo_root or code_root()).resolve()
     symbol = str(symbol or SYMBOL).strip() or SYMBOL
@@ -197,6 +241,11 @@ def build_funding_stage0_readiness(
     context_symbol = str(context_symbol or CONTEXT_SYMBOL).strip() or CONTEXT_SYMBOL
     context_venue = str(context_venue or CONTEXT_VENUE).strip() or CONTEXT_VENUE
     context_source = str(context_source or CONTEXT_SOURCE).strip() or CONTEXT_SOURCE
+    context_db = (
+        Path(context_db_path).expanduser().resolve()
+        if context_db_path
+        else _default_context_db_path()
+    )
     state_dir = (root / STATE_DIR_REL).resolve()
     canonical_state_dir = (root / ".cbp_state").resolve()
     manifests = {
@@ -213,6 +262,7 @@ def build_funding_stage0_readiness(
         signal_source=signal_source,
         context_symbol=context_symbol,
         context_venue=context_venue,
+        context_db_path=str(context_db),
     )
     status_argv = _proof_argv(status=True)
     ohlcv = (
@@ -226,12 +276,25 @@ def build_funding_stage0_readiness(
         if run_ohlcv_preflight
         else {"ok": True, "status": "skipped", "reason": "run_ohlcv_preflight=false"}
     )
-    edge_cadence = check_edge_cadence()
-    funding_context = funding_context_from_crypto_edge_store(
-        symbol=context_symbol,
-        venue=context_venue,
-        source=context_source,
-    )
+    context_db_exists = context_db.exists() and context_db.is_file()
+    if context_db_exists:
+        edge_cadence = check_edge_cadence(store_path=str(context_db))
+        funding_context = funding_context_from_crypto_edge_store(
+            symbol=context_symbol,
+            venue=context_venue,
+            source=context_source,
+            store_path=str(context_db),
+        )
+    else:
+        # Read-only readiness must not instantiate CryptoEdgeStoreSQLite for a
+        # missing explicit path: the store constructor creates sqlite files.
+        edge_cadence = _missing_context_db_cadence(context_db)
+        funding_context = _missing_context_db_funding_context(
+            context_db=context_db,
+            symbol=context_symbol,
+            venue=context_venue,
+            source=context_source,
+        )
 
     checks = [
         _check(
@@ -269,6 +332,11 @@ def build_funding_stage0_readiness(
         _check("campaign_manifests_loaded", not manifest_errors, json.dumps(manifest_errors, sort_keys=True)),
         _check("campaign_manifests_do_not_own_stage0", not conflicts, json.dumps(conflicts, sort_keys=True)),
         _check("public_ohlcv_reachable", bool(ohlcv.get("ok")), json.dumps(ohlcv, sort_keys=True)),
+        _check(
+            "strategy_context_db_exists",
+            context_db_exists,
+            str(context_db),
+        ),
         _check("edge_cadence_ready", bool(edge_cadence.get("ok")), json.dumps(edge_cadence, sort_keys=True)),
         _check(
             "funding_context_ready",
@@ -291,6 +359,7 @@ def build_funding_stage0_readiness(
         "strategy_context_symbol": context_symbol,
         "strategy_context_venue": context_venue,
         "strategy_context_source": context_source,
+        "strategy_context_db_path": str(context_db),
         "runtime_sec": RUNTIME_SEC,
         "strategy_drain_sec": STRATEGY_DRAIN_SEC,
         "state_dir": STATE_DIR_REL,
@@ -299,14 +368,17 @@ def build_funding_stage0_readiness(
         "edge_cadence": edge_cadence,
         "funding_context": funding_context,
         "proof_command": {
-            "environment": {"CBP_STATE_DIR": f"$PWD/{STATE_DIR_REL}"},
+            "environment": {
+                "CBP_STATE_DIR": f"$PWD/{STATE_DIR_REL}",
+                "CBP_CRYPTO_EDGE_DB_PATH": str(context_db),
+            },
             "argv": proof_argv,
-            "shell": _shell(proof_argv),
+            "shell": _shell(proof_argv, context_db_path=str(context_db)),
         },
         "status_command": {
             "environment": {"CBP_STATE_DIR": f"$PWD/{STATE_DIR_REL}"},
             "argv": status_argv,
-            "shell": _shell(status_argv),
+            "shell": _shell(status_argv, context_db_path=""),
         },
         "checks": checks,
         "blocking_checks": blocking,
@@ -320,6 +392,7 @@ def build_funding_stage0_readiness(
             "collector_invoked": False,
             "manifest_files_written": False,
             "state_dirs_created": False,
+            "context_db_created": False,
             "orders_routed": False,
             "live_trading_enabled": False,
         },
@@ -343,6 +416,7 @@ def _markdown(report: dict[str, Any]) -> str:
             f"- Strategy: `{report.get('strategy')}`",
             f"- Evidence strategy ID: `{report.get('session_strategy_id')}`",
             f"- State dir: `{report.get('state_dir')}`",
+            f"- Strategy context DB: `{report.get('strategy_context_db_path')}`",
             "",
             "## Checks",
             "",

@@ -336,11 +336,13 @@ def test_component_env_passes_strategy_context_overrides(monkeypatch) -> None:
     monkeypatch.setenv("CBP_VENUE", "should_not_leak")
     monkeypatch.delenv("CBP_STRATEGY_CONTEXT_SYMBOL", raising=False)
     monkeypatch.delenv("CBP_STRATEGY_CONTEXT_VENUE", raising=False)
+    monkeypatch.delenv("CBP_CRYPTO_EDGE_DB_PATH", raising=False)
     cfg = svc.PaperStrategyEvidenceServiceCfg(
         symbol="BTC/USDT",
         venue="okx",
         strategy_context_symbol="BTC/USDT:USDT",
         strategy_context_venue="okx",
+        strategy_context_db_path="/var/lib/cbp/data/crypto_edge_research.sqlite",
     )
 
     out = svc._component_env(cfg, strategy_name="funding_extreme")
@@ -351,6 +353,7 @@ def test_component_env_passes_strategy_context_overrides(monkeypatch) -> None:
     assert out["CBP_COMPONENT_VENUE"] == "okx"
     assert out["CBP_STRATEGY_CONTEXT_SYMBOL"] == "BTC/USDT:USDT"
     assert out["CBP_STRATEGY_CONTEXT_VENUE"] == "okx"
+    assert out["CBP_CRYPTO_EDGE_DB_PATH"] == "/var/lib/cbp/data/crypto_edge_research.sqlite"
     assert out["CBP_STRATEGY_NAME"] == "funding_extreme"
 
 
