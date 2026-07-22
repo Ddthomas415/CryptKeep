@@ -24213,3 +24213,47 @@ Remaining risk:
 - LOW: test/work-log only. It does not change Makefile targets, scripts,
   runtime behavior, campaigns, gates, or release tooling.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:26:00Z - README Runtime Truth Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Align README's operator startup wording with `docs/CURRENT_RUNTIME_TRUTH.md`.
+
+What was found:
+- README still labeled `scripts/bot_ctl.py -> scripts/run_bot_safe.py` as the
+  canonical operator path.
+- `docs/CURRENT_RUNTIME_TRUTH.md` states the current canonical operator control
+  plane is `scripts/start_bot.py`, `scripts/stop_bot.py`, and
+  `scripts/bot_status.py`, while `bot_ctl.py` and `run_bot_safe.py` are
+  compatibility-only legacy surfaces.
+
+What changed:
+- Updated README to name the current canonical operator control plane and mark
+  `bot_ctl.py` / `run_bot_safe.py` as compatibility-only surfaces.
+- Added `tests/test_readme_runtime_truth_alignment.py` to pin README alignment
+  with `docs/CURRENT_RUNTIME_TRUTH.md` and prevent the compatibility path from
+  being relabeled canonical.
+
+Why this change was chosen:
+- README is the first operator-facing entry point. A stale canonical startup
+  path can send operators into compatibility surfaces instead of the current
+  supervised control plane.
+
+Expected outcome:
+- Future README drift back toward the legacy canonical path fails a targeted
+  test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py tests/test_operator_doc_make_targets.py tests/test_root_dependency_contract.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m py_compile tests/test_readme_runtime_truth_alignment.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
+- Acceptance state: ACCEPTED.

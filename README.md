@@ -4,9 +4,10 @@
 
 See [docs/CURRENT_RUNTIME_TRUTH.md](docs/CURRENT_RUNTIME_TRUTH.md) for the authoritative answer.
 
-**Canonical operator path:**
-`scripts/bot_ctl.py` → `scripts/run_bot_safe.py` → `services/strategy_runner/ema_crossover_runner.py`
-
+**Canonical operator control plane:**
+`scripts/start_bot.py` / `scripts/stop_bot.py` / `scripts/bot_status.py`.
+`scripts/bot_ctl.py` and `scripts/run_bot_safe.py` are compatibility-only
+surfaces; see [docs/CURRENT_RUNTIME_TRUTH.md](docs/CURRENT_RUNTIME_TRUTH.md).
 
 Crypto Bot Pro is a crypto-first operator platform for market-data collection, paper trading, guarded live execution, reconciliation, and dashboard-based operations. Until live expectancy is proven, operate CryptKeep as a profit-measurement and evidence-generation lab, not as a proven profitable trading bot. The current repo includes both research/evaluation workflows and execution surfaces, so it should be treated as a safety-aware trading system under active hardening, not as a read-only market-data bundle. See [docs/PROJECT_IDENTITY_AND_SCOPE.md](docs/PROJECT_IDENTITY_AND_SCOPE.md) for the current scope boundary.
 
