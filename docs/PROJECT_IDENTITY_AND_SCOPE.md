@@ -66,3 +66,10 @@ Use this wording until profitability evidence exists:
 > CryptKeep is an evidence-first crypto trading research and operations system
 > for collecting paper/shadow evidence, testing strategy hypotheses, and
 > enforcing staged promotion controls before any live-capital decision.
+
+## Executable Guard
+
+`tests/test_project_identity_scope.py` pins the current identity boundary,
+unproven-capability list, near-term priorities, public description, and links
+from the main entry docs so the repo does not silently drift into claiming
+profitability before evidence exists.

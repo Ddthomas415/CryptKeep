@@ -24621,6 +24621,50 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T16:13:00Z - Project Identity Scope Guard (Deferred Structure #19)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the current project identity boundary so public
+  docs do not drift into profitability/product claims before evidence exists.
+
+What was found:
+- `docs/PROJECT_IDENTITY_AND_SCOPE.md`, README, GOLDEN_PATH, OBJECTIVE, and
+  product-surface triage docs already describe CryptKeep as an evidence-first
+  profit-measurement lab.
+- The exact boundary was not pinned by a direct test.
+
+What changed:
+- Added `tests/test_project_identity_scope.py`.
+- The test pins the evidence-lab identity, unproven-capability list, near-term
+  priorities, public description, and links from entry docs.
+- Added executable-guard notes to the scope doc, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted public/operator framing with a docs/test-only
+  guard and avoids touching runtime or product surfaces.
+
+Expected outcome:
+- Future edits that imply proven profitability or drop the current scope link
+  become visible in CI.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_project_identity_scope.py tests/test_product_surface_triage.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m py_compile tests/test_project_identity_scope.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change strategy, campaign, gate, dashboard,
+  or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T16:00:00Z - Product Surface Triage Guard (Deferred Structure #12)
 
 Active role: ENGINEER
