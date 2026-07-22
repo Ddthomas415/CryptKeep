@@ -26123,3 +26123,39 @@ Remaining risk:
 - LOW: Makefile/docs/test only. It does not fetch data, start campaigns, change
   gates, or change live/shadow/paper execution behavior.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T18:32:00Z - Launch Checklist Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard `docs/LAUNCH_CHECKLIST.md` as the capped-live launch evidence checklist
+  without changing any launch, trading, or deployment behavior.
+
+What was found:
+- The launch checklist links several accepted proof packets and drills, but it
+  did not have one targeted guard pinning its pass/fail launch-gate boundary.
+
+What changed:
+- Added an executable-guard note to `docs/LAUNCH_CHECKLIST.md`.
+- Added `tests/test_launch_checklist_guard.py` to pin the pass/fail live-gate
+  wording, required sections, configuration proof packets, drill set and pass
+  criteria, paper-gate evidence checks, first-live caps, and sign-off fields.
+
+Why this change was chosen:
+- The checklist is the operator-facing launch gate. Guarding it prevents future
+  docs edits from silently dropping a proof packet or drill while keeping all
+  actual proof execution as operator evidence.
+
+Expected outcome:
+- Future launch-checklist drift breaks a targeted docs test before capped-live
+  proof requirements disappear from the checklist.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_launch_checklist_guard.py`
+  - SHOWN: `7 passed`.
+
+Remaining risk:
+- LOW: docs/test only. It does not run drills, arm live, mutate config, or
+  satisfy any launch-checklist item.
+- Acceptance state: ACCEPTED.
