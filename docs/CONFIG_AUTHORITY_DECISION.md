@@ -71,3 +71,9 @@ Before capped-live approval, record:
 - a list of any remaining compatibility shims with accepted rationale and
   retirement conditions.
 
+## Executable Guard
+
+`tests/test_config_authority_decision_guard.py` pins the canonical live-enable
+rules, strategy/campaign config rules, compatibility policy, capped-live proof
+requirements, and launch-checklist link so config compatibility cannot silently
+become a new live authority.

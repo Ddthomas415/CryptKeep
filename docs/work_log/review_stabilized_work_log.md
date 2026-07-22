@@ -25,6 +25,54 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:35:00Z - Config Authority Decision Guard (Substrate #10)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the documented config-authority decision without
+  changing config readers or runtime behavior.
+
+What was found:
+- `docs/CONFIG_AUTHORITY_DECISION.md` documents canonical live-enable rules,
+  strategy/campaign config rules, compatibility policy, and capped-live proof
+  requirements.
+- `docs/LAUNCH_CHECKLIST.md` links the decision as the 2.12 config-authority
+  launch packet requirement.
+- The decision record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_config_authority_decision_guard.py`.
+- The test pins canonical live-enable rules, strategy/campaign config rules,
+  compatibility policy, capped-live proof requirements, launch-checklist link,
+  and backlog link.
+- Added executable-guard notes to the config-authority decision, backlog, and
+  work log.
+
+Why this change was chosen:
+- It preserves the documented config-authority boundary while avoiding any
+  runtime/config-reader behavior change in this low-risk batch.
+
+Expected outcome:
+- Future edits that turn compatibility aliases into new live authorities or
+  drop capped-live proof requirements fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_config_authority_decision_guard.py tests/test_ai_copilot_operating_rules_guard.py tests/test_paper_universe_widening_decision.py tests/test_governance_required_files.py`
+  - SHOWN: `16 passed`.
+- `./.venv/bin/python -m py_compile tests/test_config_authority_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change config parsing, config files,
+  startup, live arming, risk gates, dashboard behavior, campaign/gate logic, or
+  execution. Runtime config consolidation remains separate high-risk work.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:28:00Z - AI Copilot Operating Rules Guard (Deferred Structure #20)
 
 Active role: ENGINEER

@@ -1542,6 +1542,12 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
     fail-closed tests for trading-critical readers, one startup from the
     documented config bundle, and accepted rationale for any remaining
     compatibility shims.
+    2026-07-22: executable config-authority decision guard is ready for
+    independent review. `tests/test_config_authority_decision_guard.py` pins
+    canonical live-enable rules, strategy/campaign config rules, compatibility
+    policy, capped-live proof requirements, and launch-checklist link. This is
+    docs/test only and does not change config parsing, config files, startup,
+    or runtime behavior.
 11. Add clock/venue-time sanity checks before capped live. Funding age,
     candle boundaries, order timestamps, and reconciliation windows assume UTC
     clock correctness. Add a host/venue skew check and operator-visible status
