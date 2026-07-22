@@ -25,6 +25,54 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T19:02:00Z - Price-Action Research Boundary Guard (Hygiene #13)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the price-action research boundary without
+  changing label generation, forward-return joins, stability reports, strategy
+  configs, campaigns, promotion gates, or execution behavior.
+
+What was found:
+- `docs/research/pattern_strategy_backlog.md` records price-action labels as
+  research-only context features with explicit non-authority flags.
+- It also defers volume-profile and Databento-backed labels until stronger data
+  or a separate read-only data-source RFC exists.
+- The research boundary was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_price_action_research_boundary_guard.py`.
+- The test pins research-only status, core OHLCV label scope, non-authority
+  artifact flags, data-source deferrals, acceptance-before-use requirements,
+  and backlog linkage.
+- Added executable-guard notes to the research backlog, active backlog, and work
+  log.
+
+Why this change was chosen:
+- It preserves price-action work as research context instead of allowing labels
+  to drift into strategy, campaign, promotion, or execution authority.
+
+Expected outcome:
+- Future edits that quietly turn price-action labels into strategy starts,
+  campaign evidence, promotion evidence, or execution authority fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_boundary_guard.py tests/test_price_action_context_labels.py tests/test_price_action_forward_return_join.py tests/test_price_action_stability_report.py tests/test_price_action_research_pipeline.py`
+  - SHOWN: `23 passed in 0.51s`.
+- `./.venv/bin/python -m py_compile tests/test_price_action_research_boundary_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.50s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change label generation, forward-return
+  joins, stability reports, strategy configs, campaigns, promotion gates,
+  deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T18:52:00Z - Paper Promotion Gate Policy RFC Guard (Active #1)
 
 Active role: ENGINEER
