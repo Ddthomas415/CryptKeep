@@ -13,9 +13,16 @@ canonical crypto-edge store:
 ```bash
 make funding-stage0-readiness FUNDING_STAGE0_ARGS="--venue okx"
 make funding-stage0-baseline FUNDING_STAGE0_ARGS="--venue okx"
-CBP_STATE_DIR="$PWD/.cbp_state_challengers/funding_extreme_default" ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --strategies funding_extreme --session-strategy-id funding_extreme_default --symbol BTC/USDT --venue okx --signal-source public_ohlcv_5m --strategy-context-symbol BTC/USDT:USDT --strategy-context-venue okx --runtime-sec 900 --strategy-drain-sec 2
+CBP_STATE_DIR="$PWD/.cbp_state_challengers/funding_extreme_default" CBP_CRYPTO_EDGE_DB_PATH="$PWD/.cbp_state/data/crypto_edge_research.sqlite" ./.venv/bin/python scripts/run_paper_strategy_evidence_collector.py --strategies funding_extreme --session-strategy-id funding_extreme_default --symbol BTC/USDT --venue okx --signal-source public_ohlcv_5m --strategy-context-symbol BTC/USDT:USDT --strategy-context-venue okx --strategy-context-db-path "$PWD/.cbp_state/data/crypto_edge_research.sqlite" --runtime-sec 900 --strategy-drain-sec 2
 make funding-stage0-verify FUNDING_STAGE0_ARGS="--venue okx"
 ```
+
+2026-07-21 note: newer readiness output generates the
+`CBP_CRYPTO_EDGE_DB_PATH` / `--strategy-context-db-path` override explicitly so
+the isolated challenger state can consume the same read-only crypto-edge store
+validated by readiness. The original proof required manually seeding the
+challenger edge DB from canonical evidence; that manual copy is no longer the
+preferred workflow.
 
 Verifier result:
 

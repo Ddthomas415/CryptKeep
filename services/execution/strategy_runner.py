@@ -375,6 +375,11 @@ def _cfg() -> dict:
             or s.get("strategy_context_venue")
             or venue
         ).strip() or venue,
+        "strategy_context_db_path": str(
+            os.environ.get("CBP_CRYPTO_EDGE_DB_PATH")
+            or s.get("strategy_context_db_path")
+            or ""
+        ).strip(),
         "strategy_context_max_age_sec": _safe_positive_float(
             os.environ.get("CBP_STRATEGY_CONTEXT_MAX_AGE_SEC")
             or s.get("strategy_context_max_age_sec")
@@ -606,6 +611,7 @@ def _registry_signal_with_context(
             venue=str(cfg.get("strategy_context_venue") or venue),
             source=str(cfg.get("strategy_context_source") or DEFAULT_CONTEXT_SOURCE),
             max_age_sec=float(cfg.get("strategy_context_max_age_sec") or DEFAULT_FUNDING_MAX_AGE_SEC),
+            store_path=str(cfg.get("strategy_context_db_path") or ""),
         )
         context_meta = _context_meta_from_result(context_result)
         if bool(context_result.get("ok")):
