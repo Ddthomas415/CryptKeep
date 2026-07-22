@@ -3,6 +3,11 @@
 Three evidence surfaces exist in this repo. This document defines which one is
 authoritative for each promotion question.
 
+Executable guard: `tests/test_evidence_model_guard.py` pins the authority
+boundaries in this document. If a future change moves promotion authority,
+paper-history qualification, or leaderboard semantics, update that test and this
+document together.
+
 ## Canonical: JSONL per-record evidence
 
 **Location:** `.cbp_state/data/evidence/<strategy_id>/`
