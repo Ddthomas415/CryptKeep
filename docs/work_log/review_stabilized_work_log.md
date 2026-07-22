@@ -24311,6 +24311,50 @@ Remaining risk:
   live order routing, or collector internals.
 - Acceptance state: ACCEPTED.
 
+## 2026-07-22T21:42:00Z - Bot Control Runtime Truth Guard
+
+Active role: ENGINEER
+
+Objective:
+- Keep `docs/BOT_CONTROL.md` aligned with `docs/CURRENT_RUNTIME_TRUTH.md` and
+  prevent legacy bot-control surfaces from being relabeled canonical.
+
+What was found:
+- `docs/BOT_CONTROL.md` correctly described `scripts/start_bot.py`,
+  `scripts/stop_bot.py`, and `scripts/bot_status.py` as the canonical operator
+  control plane, but it did not explicitly defer authority to
+  `docs/CURRENT_RUNTIME_TRUTH.md` and had no focused guard.
+
+What changed:
+- Added an authority/alignment note and executable-guard note to
+  `docs/BOT_CONTROL.md`.
+- Added `tests/test_bot_control_runtime_truth_guard.py`, covering canonical
+  control commands, runtime-truth alignment, compatibility-only legacy
+  surfaces, decision-only compatibility boundary, and live-confirmation
+  requirements.
+
+Why this change was chosen:
+- `BOT_CONTROL.md` is an operator-facing topology summary. If it drifts from
+  the current runtime truth document, operators can follow stale startup/stop
+  authority even when README is correct.
+
+Expected outcome:
+- Future edits that blur the canonical startup/status path or promote legacy
+  compatibility controls fail a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_bot_control_runtime_truth_guard.py tests/test_current_runtime_truth_guard.py tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py`
+  - SHOWN: `19 passed`.
+- `./.venv/bin/python -m py_compile tests/test_bot_control_runtime_truth_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T21:34:00Z - Current Runtime Truth Guard
 
 Active role: ENGINEER
