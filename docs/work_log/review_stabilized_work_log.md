@@ -26159,3 +26159,44 @@ Remaining risk:
 - LOW: docs/test only. It does not run drills, arm live, mutate config, or
   satisfy any launch-checklist item.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T18:43:00Z - Release Checklist Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard the release-checklist command surface and signing/notarization
+  boundaries without changing release automation behavior.
+
+What was found:
+- `docs/RELEASE_CHECKLIST.md` documented the root release checklist wrapper,
+  common release commands, manifest outputs, and opt-in signing inputs, but had
+  no direct guard protecting those operator-facing instructions.
+
+What changed:
+- Added an executable-guard note to `docs/RELEASE_CHECKLIST.md`.
+- Added `tests/test_release_checklist_guard.py` to pin the root compatibility
+  entrypoint, dry-run command, patch/requires sync command, optional PyInstaller
+  and Briefcase commands, manifest outputs, fail-closed signing boundary, and
+  required signing/notarization environment variable names.
+
+Why this change was chosen:
+- The release checklist is operator-facing packaging/release guidance. Guarding
+  it prevents command-surface drift without touching packaging code.
+
+Expected outcome:
+- Future edits that remove the safe dry-run, root wrapper, manifest output
+  contract, or opt-in signing prerequisites break a targeted docs test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_release_checklist_guard.py tests/test_remaining_compat_wrappers.py::test_release_checklist_root_wrapper_dry_run tests/test_pre_release_sanity_doc_wiring.py tests/test_makefile_wiring.py`
+  - SHOWN: `8 passed`.
+- `./.venv/bin/python -m py_compile tests/test_release_checklist_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not build packages, sign artifacts, notarize,
+  publish releases, or mutate release automation.
+- Acceptance state: ACCEPTED.
