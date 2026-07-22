@@ -24257,3 +24257,55 @@ Remaining risk:
 - LOW: docs/test only. It does not change startup scripts, service control,
   runtime behavior, campaigns, gates, or live execution.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:58:00Z - Dashboard Crypto Edge Collector Script Path
+
+Active role: ENGINEER
+
+Objective:
+- Fix the dashboard crypto-edge collector start/stop path so it points at the
+  existing collector script and update the operator doc.
+
+What was found:
+- SHOWN: `dashboard.services.operator.start_crypto_edge_collector_loop(...)`
+  and `stop_crypto_edge_collector_loop(...)` referenced
+  `scripts/run_crypto_edge_collector_loop.py`.
+- SHOWN: this checkout has `scripts/data/run_crypto_edge_collector_loop.py`,
+  not the root `scripts/run_crypto_edge_collector_loop.py`.
+- Impact: dashboard collector start/stop could fail closed with
+  `missing_script:scripts/run_crypto_edge_collector_loop.py` even though the
+  real collector CLI exists.
+
+What changed:
+- Added `CRYPTO_EDGE_COLLECTOR_SCRIPT =
+  "scripts/data/run_crypto_edge_collector_loop.py"` to
+  `dashboard/services/operator.py`.
+- Routed dashboard crypto-edge collector start/stop and allowlist checks
+  through that constant.
+- Updated `docs/COLLECTOR_CONTROL.md` to document the current dashboard
+  control path, read-only research boundary, and OPERATOR-role requirement.
+- Added regression tests proving the configured script exists, is allowlisted,
+  and is the path documented for collector control.
+
+Why this change was chosen:
+- The smallest runtime fix is path alignment to the existing script. It keeps
+  role guards and missing-script fail-closed behavior intact while restoring
+  the intended dashboard operator action.
+
+Expected outcome:
+- Dashboard crypto-edge collector start/stop no longer points at a missing
+  script; future path drift fails a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_collector_control_doc.py tests/test_dashboard_operator_service.py tests/test_dashboard_operator_role_guard.py tests/test_dashboard_operator_remaining_role_guard.py tests/test_run_crypto_edge_collector_loop.py tests/test_no_legacy_state_paths.py`
+  - SHOWN: `31 passed`.
+- `./.venv/bin/python -m py_compile dashboard/services/operator.py tests/test_collector_control_doc.py tests/test_dashboard_operator_role_guard.py tests/test_dashboard_operator_service.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: touches dashboard operator background-job script routing for a
+  read-only research collector. It does not change trading execution, gates,
+  live order routing, or collector internals.
+- Acceptance state: ACCEPTED.
