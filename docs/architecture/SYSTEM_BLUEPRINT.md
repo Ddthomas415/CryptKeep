@@ -163,6 +163,7 @@ decision. The blueprint records only what the code does.
 | `execution/paper_fees.py` | `user.yaml execution.paper_fee_bps` | **0.0** | — | **dormant — no production callers** | NO |
 | `analytics/funding_context_price_join.py` | CLI/report parameter default | **10.0** | 5.0 | research-only funding context forward-return report | NO — not campaign/promotion evidence |
 | `analytics/price_action_forward_return_join.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action label forward-return report | NO — not campaign/promotion evidence |
+| `analytics/price_action_research_pipeline.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action pipeline cost passthrough | NO — not campaign/promotion evidence |
 
 **Assumption fork (highest impact):** the legacy runner models **1.0 bps fee, 0.0
 slippage** — near-free execution. Any evidence from that path is not comparable to

@@ -7600,6 +7600,9 @@ What was found:
   non-authority flags.
 - SHOWN: running the three commands manually creates avoidable operator
   friction and creates room for mismatched input artifacts between steps.
+- SHOWN: the pipeline wrapper declares fee/slippage defaults that are forwarded
+  to the forward-return joiner, so the blueprint fee-surface census must name
+  it as a research-only cost passthrough.
 
 What changed:
 - Added `services/analytics/price_action_research_pipeline.py`, a thin
@@ -7610,6 +7613,9 @@ What changed:
 - Added `tests/test_price_action_research_pipeline.py`, covering successful
   artifact writing, archive failure propagation, CLI output, and non-ok exit
   behavior.
+- Added `services/analytics/price_action_research_pipeline.py` to the
+  executable fee-surface census and `docs/architecture/SYSTEM_BLUEPRINT.md` as
+  a research-only, non-campaign/promotion evidence cost passthrough.
 - Updated `docs/research/pattern_strategy_backlog.md`,
   `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
 
