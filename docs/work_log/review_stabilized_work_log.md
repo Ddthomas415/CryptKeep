@@ -24621,6 +24621,56 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-22T15:45:00Z - Websocket Surface Classification Guard (Deferred Structure #4)
+
+Active role: ENGINEER
+
+Objective:
+- Convert the documented websocket surface classification into an executable
+  drift guard without changing websocket runtime behavior.
+
+What was found:
+- `docs/architecture/websocket_surface_classification.md` documented the main
+  websocket/user-stream surfaces, but `services/ws/last_price_provider.py` was
+  not classified there.
+- SHOWN: `services/ws/last_price_provider.py` does not open a websocket; it
+  reads current tick-store quotes via `services.market_data.tick_reader`.
+
+What changed:
+- Added `tests/test_websocket_surface_classification.py`.
+- Classified `services/ws/last_price_provider.py` as a last-price reader over
+  tick-store quotes, not a websocket transport.
+- Added guards that helper/status modules do not silently grow direct
+  `ccxt.pro` / `watch_*` transport calls and that retired websocket paths are
+  not reintroduced.
+
+Why this change was chosen:
+- It preserves the existing rule that websocket data is optional/non-canonical
+  until venue support, supervision, freshness, and evidence authority are
+  separately proven.
+
+Expected outcome:
+- Future intraday/shadow work cannot rely on websocket-named modules as
+  implied streaming authority without updating the classification and tests.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_websocket_surface_classification.py tests/test_ws_ticker_feed.py tests/test_user_stream_ws.py tests/test_run_ws_ticker_feed.py tests/test_run_ws_ticker_feed_safe.py`
+  - SHOWN: `16 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `./.venv/bin/python -m py_compile tests/test_websocket_surface_classification.py`
+  - SHOWN: rc=0.
+- `git diff --check`
+  - SHOWN: rc=0.
+- The first draft incorrectly asserted `services/marketdata/` did not exist;
+  local proof refuted that because generated cache directories are present.
+  The final guard checks for source-file/path reintroduction instead.
+
+Remaining risk:
+- LOW: test/docs only. Host-level websocket supervision and venue behavior
+  remain unverified, as already documented.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T15:37:00Z - Companion Repo Compose Profile (Deferred Structure #15)
 
 Active role: ENGINEER

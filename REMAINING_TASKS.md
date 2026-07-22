@@ -2064,6 +2064,15 @@ substrate work, but they are concrete enough to keep visible.
    `SQLiteMarketWsStore` persistence by using autocommit like the other SQLite
    telemetry stores, after the regression test showed valid rows were rolling
    back on close.
+   2026-07-22: executable websocket-surface classification guard is ready for
+   independent review. `tests/test_websocket_surface_classification.py` now
+   verifies the documented WS/user-stream surfaces, classifies
+   `services/ws/last_price_provider.py` as a tick-store quote reader rather
+   than a websocket transport, blocks helper/status modules from quietly adding
+   direct `ccxt.pro` / `watch_*` calls, and guards against reintroducing
+   retired `services/marketdata/*` or `ws_microstructure_manager.py` paths.
+   This is test/docs only; websocket data remains non-canonical until a
+   separate venue/supervision/freshness proof is accepted.
 5. Add a backtest-to-paper fill parity property test around the shared fill
    model so paper evidence transferability is tested directly. 2026-07-04:
    parity guard added for paper market buy/sell fills: paper engine fill price
