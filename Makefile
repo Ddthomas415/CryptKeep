@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join funding-threshold-sensitivity crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-stability check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill funding-context-price-join funding-threshold-sensitivity crypto-edge-strategy-readiness crypto-edge-research-pipeline price-action-context-labels price-action-forward-returns price-action-stability check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -371,6 +371,10 @@ CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
 crypto-edge-strategy-readiness:
 	$(PYTHON) scripts/research/run_crypto_edge_strategy_readiness.py $(CRYPTO_EDGE_STRATEGY_READINESS_ARGS)
 
+CRYPTO_EDGE_RESEARCH_PIPELINE_ARGS ?=
+crypto-edge-research-pipeline:
+	$(PYTHON) scripts/research/run_crypto_edge_research_pipeline.py $(CRYPTO_EDGE_RESEARCH_PIPELINE_ARGS)
+
 PRICE_ACTION_CONTEXT_LABELS_ARGS ?=
 price-action-context-labels:
 	$(PYTHON) scripts/research/run_price_action_context_labels.py $(PRICE_ACTION_CONTEXT_LABELS_ARGS)
@@ -382,6 +386,10 @@ price-action-forward-returns:
 PRICE_ACTION_STABILITY_ARGS ?=
 price-action-stability:
 	$(PYTHON) scripts/research/run_price_action_stability_report.py $(PRICE_ACTION_STABILITY_ARGS)
+
+PRICE_ACTION_PIPELINE_ARGS ?=
+price-action-pipeline:
+	$(PYTHON) scripts/research/run_price_action_research_pipeline.py $(PRICE_ACTION_PIPELINE_ARGS)
 
 # Live reconciliation (shadow/live stages)
 live-reconcile:
@@ -421,9 +429,11 @@ script-index:
 	@echo "  make funding-context-price-join — join funding context to archived OHLCV"
 	@echo "  make funding-threshold-sensitivity — run funding threshold sensitivity"
 	@echo "  make crypto-edge-strategy-readiness — report crypto-edge strategy wiring status"
+	@echo "  make crypto-edge-research-pipeline — run crypto-edge replay, price join, and sensitivity"
 	@echo "  make price-action-context-labels — build research-only OHLCV price-action labels"
 	@echo "  make price-action-forward-returns — join price-action labels to forward returns"
 	@echo "  make price-action-stability — check price-action label stability by window"
+	@echo "  make price-action-pipeline — run labels, forward returns, and stability together"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"

@@ -7587,6 +7587,66 @@ Remaining risk:
   were not checked in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-22T15:04:52Z - Price-Action Research Pipeline Wrapper (Batch 2 Research Tooling)
+
+Active role: ENGINEER
+
+Objective:
+- Add a single research-only command that runs the accepted price-action label,
+  forward-return, and stability artifact steps together from archived OHLCV.
+
+What was found:
+- SHOWN: the three component builders already existed and carried explicit
+  non-authority flags.
+- SHOWN: running the three commands manually creates avoidable operator
+  friction and creates room for mismatched input artifacts between steps.
+- SHOWN: the pipeline wrapper declares fee/slippage defaults that are forwarded
+  to the forward-return joiner, so the blueprint fee-surface census must name
+  it as a research-only cost passthrough.
+
+What changed:
+- Added `services/analytics/price_action_research_pipeline.py`, a thin
+  orchestration wrapper that runs archive labels, forward returns, and window
+  stability, then records component status and hashes in a pipeline summary.
+- Added `scripts/research/run_price_action_research_pipeline.py` and
+  `make price-action-pipeline`.
+- Added `tests/test_price_action_research_pipeline.py`, covering successful
+  artifact writing, archive failure propagation, CLI output, and non-ok exit
+  behavior.
+- Added `services/analytics/price_action_research_pipeline.py` to the
+  executable fee-surface census and `docs/architecture/SYSTEM_BLUEPRINT.md` as
+  a research-only, non-campaign/promotion evidence cost passthrough.
+- Updated `docs/research/pattern_strategy_backlog.md`,
+  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The pipeline reduces manual glue without creating new strategy authority.
+  Component reports remain descriptive research artifacts and still require
+  separate review before any confirmation-filter or strategy use.
+
+Expected outcome:
+- Operators can generate a complete price-action research artifact set with one
+  command while preserving hashes and stage-level pass/fail reasons.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_research_pipeline.py scripts/research/run_price_action_research_pipeline.py tests/test_price_action_research_pipeline.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py tests/test_price_action_stability_report.py tests/test_price_action_forward_return_join.py tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+  - SHOWN: `57 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`, repo doctor rc=0, guard tests `23 passed`.
+- `make price-action-pipeline PRICE_ACTION_PIPELINE_ARGS="--archive-db /tmp/cbp-price-action-pipeline-market.sqlite --venue coinbase --symbol BTC/USD --timeframe 1m --limit 12 --output-dir /tmp/cbp-price-action-pipeline-out --swing-lookback 2 --range-lookback 2 --horizon-bars 1 --fee-bps 0 --slippage-bps 0 --forward-min-label-count 1 --window-size-rows 4 --stability-min-windows 3 --stability-min-label-count 1 --fail-if-not-ok"`
+  - SHOWN: output artifact `price_action_research_pipeline_v1`, `ok=True`;
+    labels, forward-return, and stability stages all `ok=True`.
+
+Remaining risk:
+- MEDIUM: research-only and no runtime execution changes, but it coordinates
+  multiple artifact steps. Any strategy/filter use still requires accepted
+  archive artifacts, sufficient samples, and separate review.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-17T04:19:11Z - Paper-Campaign Manifest Audit CLI (Substrate Backlog #14)
 
 Active role: ENGINEER
@@ -24561,3 +24621,61 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-22T15:24:00Z - Crypto-Edge Research Pipeline Wrapper (Batch 6 Research Tooling)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only crypto-edge research wrapper that runs the existing funding
+  replay, archived OHLCV price join, and threshold-sensitivity reports together
+  without touching campaigns, gates, strategy configuration, or execution.
+
+What was found:
+- The crypto-edge research lane already had separate stored-data tools for
+  replay, price joining, threshold sensitivity, and wiring readiness, but no
+  single artifact tying those results together for a quick offline pass.
+
+What changed:
+- Added `services.analytics.crypto_edge_research_pipeline` and
+  `scripts/research/run_crypto_edge_research_pipeline.py`.
+- Added `make crypto-edge-research-pipeline` and script-index documentation.
+- Added blueprint fee-surface classification for the new research-only
+  10.0/5.0 bps cost passthrough.
+- Recorded the tool under the crypto-edge research backlog and strategy
+  expansion roadmap.
+
+Why this change was chosen:
+- It advances the crypto-edge research path by composing existing read-only
+  artifacts instead of adding campaign behavior or gate authority.
+
+Expected outcome:
+- Operators can generate funding replay, funding/price join, threshold
+  sensitivity, and a pipeline summary from stored crypto-edge plus archived
+  OHLCV rows with one command.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_research_pipeline.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_research_pipeline.py tests/test_funding_context_replay.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py tests/test_crypto_edge_strategy_readiness.py tests/test_crypto_edge_context.py`
+  - SHOWN: `30 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `./.venv/bin/python -m py_compile services/analytics/crypto_edge_research_pipeline.py scripts/research/run_crypto_edge_research_pipeline.py tests/test_crypto_edge_research_pipeline.py tests/test_blueprint_invariants.py`
+  - SHOWN: rc=0.
+- `make crypto-edge-research-pipeline CRYPTO_EDGE_RESEARCH_PIPELINE_ARGS="--edge-db /tmp/cbp-crypto-edge-pipeline-edge.sqlite --archive-db /tmp/cbp-crypto-edge-pipeline-market.sqlite --output-dir /tmp/cbp-crypto-edge-pipeline-out --funding-limit 5 --ohlcv-limit 5 --min-rows 2 --min-joined-rows 2 --fee-bps 0 --slippage-bps 0 --long-thresholds-pct 0.05 --short-thresholds-pct -0.01 --fail-if-not-ok"`
+  - SHOWN: rc=0, `ok=true`, all three stages ok.
+- `./.venv/bin/python -m ruff check ...`
+  - NOT RUN: local venv has no `ruff` module.
+- 2026-07-22 CI correction: GitHub full-suite CI found that a dependency
+  config diagnostic could print before the CLI JSON after prior tests changed
+  config state. `scripts/research/run_crypto_edge_research_pipeline.py` now
+  redirects dependency stdout to stderr, matching the funding price-join CLI
+  pattern, and `test_crypto_edge_research_pipeline_cli_keeps_stdout_json`
+  pins stdout as machine-readable JSON.
+
+Remaining risk:
+- MEDIUM: research metrics are still forward-return/unit-size summaries only;
+  they are not campaign, promotion, or profitability evidence.
+- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.

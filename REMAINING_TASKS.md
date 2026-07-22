@@ -531,6 +531,15 @@ deployment work still needs independent review.
     `order_book_imbalance` is `signal_module_unregistered`. This is source-tree
     readiness evidence only, not campaign, promotion, or profitability
     evidence.
+    2026-07-22: research-only crypto-edge pipeline wrapper is ready for
+    independent review. `services.analytics.crypto_edge_research_pipeline` and
+    `scripts/research/run_crypto_edge_research_pipeline.py` orchestrate the
+    existing stored-data reports in one reproducible lane: funding-context
+    replay, archived OHLCV price join, and threshold sensitivity. It writes
+    artifacts under an explicit output directory, carries component hashes, and
+    remains report-only: no live fetches, strategy-config changes, campaign
+    starts, gate changes, portfolio PnL, promotion evidence, or profitability
+    claim.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -2205,6 +2214,13 @@ substrate work, but they are concrete enough to keep visible.
     across windows. This remains descriptive research evidence only: it does
     not select strategies, authorize confirmation filters, change configs,
     start campaigns, or create promotion evidence.
+    2026-07-22: price-action research pipeline slice is ready for independent
+    review. `services.analytics.price_action_research_pipeline` and
+    `scripts/research/run_price_action_research_pipeline.py` orchestrate the
+    existing archive-label, forward-return, and stability report steps into one
+    read-only artifact set under an explicit output directory. This adds no new
+    analytics authority: it does not select strategies, authorize confirmation
+    filters, change configs, start campaigns, or create promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

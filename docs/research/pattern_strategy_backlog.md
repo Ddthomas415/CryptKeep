@@ -70,6 +70,12 @@ Tooling:
   forward-return artifact and split it into chronological windows to report
   whether label deltas persist across windows. This is descriptive stability
   evidence only, not a strategy-selection or confirmation-filter authority.
+- `services.analytics.price_action_research_pipeline` and
+  `scripts/research/run_price_action_research_pipeline.py` run the three
+  research steps together from archived OHLCV and write labels, forward-return,
+  stability, and pipeline summary artifacts to an explicit output directory.
+  This is orchestration only; the component artifacts retain the same
+  non-authority flags and review requirements.
 
 Candidate labels requiring stronger data:
 
