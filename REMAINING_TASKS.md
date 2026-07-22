@@ -912,6 +912,11 @@ deployment work still needs independent review.
     canonical campaign; fresh gate output, per-symbol risk/provenance proof,
     and correlation/non-independence acceptance remain required before any
     paper-universe change.
+    2026-07-22: executable paper-universe widening decision guard is ready for
+    independent review. `tests/test_paper_universe_widening_decision.py` pins
+    the do-not-widen status, reconsideration requirements, packet fields, and
+    no-runtime-change outcome. This is docs/test only and does not change
+    campaign, manifest, strategy config, gate threshold, or runtime behavior.
 27. Write a single-operator continuity and absence runbook before shadow or
     server migration becomes the primary operating mode. The system currently
     depends on one operator knowing which checks, hosts, branches, campaigns,

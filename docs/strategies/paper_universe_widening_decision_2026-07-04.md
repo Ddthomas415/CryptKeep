@@ -57,3 +57,9 @@ Before approving any widened paper universe, prepare a packet with:
 
 No campaign, manifest, strategy config, gate threshold, or runtime process is
 changed by this decision.
+
+## Executable Guard
+
+`tests/test_paper_universe_widening_decision.py` pins the do-not-widen status,
+reconsideration requirements, packet fields, and no-runtime-change outcome so
+evidence velocity cannot silently weaken the canonical paper-gate contract.
