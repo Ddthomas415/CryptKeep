@@ -2425,6 +2425,12 @@ substrate work, but they are concrete enough to keep visible.
     host thresholds. Remaining work is operator evidence for future launch
     packets: fresh backup/restore drill, backup-artifact secrets scan, and
     host-specific storage proof.
+    2026-07-22: executable retention-policy scope guard is ready for
+    independent review. `tests/test_retention_policy_scope.py` pins the
+    keep/rotate/must-not-keep families, pruning safety requirements, server
+    threshold baseline, and capped-live caveat. This is docs/test only and
+    does not change runtime behavior; future launch-packet host evidence
+    remains open.
 23. Turn paper diagnostics and loss replay into a scheduled strategy-review
     ritual. Tooling exists through `scripts/report_paper_run_diagnostics.py`,
     `scripts/dev/replay_paper_losses.py`, and the AI copilot
