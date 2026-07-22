@@ -233,6 +233,12 @@ decision makes them authoritative.
   Stage 0 wired, config-only, or unregistered without fetching data, starting
   campaigns, or changing promotion gates. Use
   `make crypto-edge-strategy-readiness`.
+- `research/run_crypto_edge_research_pipeline.py` — research-only crypto-edge
+  pipeline wrapper that runs funding context replay, funding/price join, and
+  threshold sensitivity together from stored crypto-edge and archived OHLCV
+  rows. It writes explicit artifacts under `--output-dir` and does not fetch
+  live data, change strategy configs, start campaigns, or create promotion
+  evidence. Use `make crypto-edge-research-pipeline`.
 - `research/run_price_action_context_labels.py` — research-only OHLCV
   price-action context label artifact builder over the market archive;
   emits fair-value gap, engulfing, swing-failure, break/retest,

@@ -531,6 +531,15 @@ deployment work still needs independent review.
     `order_book_imbalance` is `signal_module_unregistered`. This is source-tree
     readiness evidence only, not campaign, promotion, or profitability
     evidence.
+    2026-07-22: research-only crypto-edge pipeline wrapper is ready for
+    independent review. `services.analytics.crypto_edge_research_pipeline` and
+    `scripts/research/run_crypto_edge_research_pipeline.py` orchestrate the
+    existing stored-data reports in one reproducible lane: funding-context
+    replay, archived OHLCV price join, and threshold sensitivity. It writes
+    artifacts under an explicit output directory, carries component hashes, and
+    remains report-only: no live fetches, strategy-config changes, campaign
+    starts, gate changes, portfolio PnL, promotion evidence, or profitability
+    claim.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
