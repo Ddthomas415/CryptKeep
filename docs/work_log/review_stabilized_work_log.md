@@ -26242,3 +26242,46 @@ Remaining risk:
 - LOW: docs/test only. It does not change evidence writers, gate logic, paper
   execution, or campaign behavior.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T19:10:00Z - Paper Campaign Recovery Runbook Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard `docs/PAPER_CAMPAIGN_RECOVERY.md` as the operator-facing paper campaign
+  restart/recovery contract.
+
+What was found:
+- The runbook documents the laptop/Hetzner ownership split, local and remote
+  status commands, explicit restore/recover commands, OHLCV blocked-state
+  behavior, and no-automatic-login-start safety boundary. It did not have a
+  focused docs guard pinning those operator-facing rules.
+
+What changed:
+- Added an executable-guard note to `docs/PAPER_CAMPAIGN_RECOVERY.md`.
+- Added `tests/test_paper_campaign_recovery_runbook_guard.py` to pin status
+  commands, ownership split, restore/recover semantics, OHLCV blocked-state
+  attempt-budget behavior, recovery attempt override auditability, current
+  campaigns, and the explicit operator-action safety boundary.
+
+Why this change was chosen:
+- Campaign recovery has become an active operator workflow after laptop and
+  host restarts. Guarding the runbook prevents future docs drift without
+  touching process management, collector launch, or market-data recovery code.
+
+Expected outcome:
+- Future edits that remove guarded recovery, blocked-source semantics, or the
+  explicit operator-action boundary fail a targeted docs test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_campaign_recovery_runbook_guard.py tests/test_paper_campaign_recovery.py tests/test_restore_paper_campaigns.py`
+  - SHOWN: `34 passed`.
+- `./.venv/bin/python -m py_compile tests/test_paper_campaign_recovery_runbook_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not start, stop, recover, or mutate any
+  campaign.
+- Acceptance state: ACCEPTED.
