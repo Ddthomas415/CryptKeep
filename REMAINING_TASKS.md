@@ -102,6 +102,13 @@ deployment work still needs independent review.
    `intraday_single_symbol_v1`, and `context_edge_v1`. No current strategy
    config is changed in this patch; adopting a non-legacy policy still requires
    a reviewed config change and fresh gate output.
+   2026-07-22: executable paper-promotion gate policy RFC guard is ready for
+   independent review. `tests/test_paper_promotion_gate_policy_rfc_guard.py`
+   pins the RFC scope, policy classes/defaults, qualified-bar definition,
+   cohort/migration boundaries, OHLCV reliability separation, and backlog link.
+   This is docs/test only and does not change promotion policy loading, current
+   ES config, gate thresholds, campaign evidence, OHLCV retry behavior, or
+   execution behavior.
    SEPARATE WORK ITEM - OHLCV source outage blocked-state and retry-budget
    protection: campaign validation must not depend on repeatedly exhausting
    daily attempts when the configured upstream market-data source is
