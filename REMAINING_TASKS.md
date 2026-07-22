@@ -513,6 +513,15 @@ deployment work still needs independent review.
     explicit `long_threshold_pct` / `short_threshold_pct` grids. This is a
     report consumer only: it does not fetch data, change strategy config,
     start campaigns, compute portfolio PnL, or produce promotion evidence.
+    2026-07-22: research-only funding-threshold candidate triage is ready for
+    independent review. `services.analytics.funding_threshold_candidate_triage`
+    and `scripts/research/run_funding_threshold_candidate_triage.py` consume
+    an existing `funding_threshold_sensitivity_v1` artifact and rank threshold
+    pairs for manual review using explicit minimum input rows, actionable rows,
+    actionable share, positive ratio, and average net forward-return
+    thresholds. This is still triage only: it does not fetch data, change
+    strategy config, start campaigns, compute portfolio PnL, or produce
+    campaign/promotion/profitability evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
