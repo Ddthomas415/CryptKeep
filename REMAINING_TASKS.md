@@ -365,7 +365,16 @@ deployment work still needs independent review.
    rejects non-positive or non-finite OHLCV timestamps/prices, invalid high/low
    envelopes, and non-finite/negative volume before writing `market_ohlcv`,
    while preserving missing-volume rows. This protects dataset hashes and
-   archive-backed walk-forward inputs from malformed bars. 2026-07-14:
+   archive-backed walk-forward inputs from malformed bars. 2026-07-22:
+   executable walk-forward research doc guard is ready for independent review.
+   `docs/research/walk_forward_validation.md` now reflects the accepted
+   archive-backed walk-forward and bounded parameter-sweep tooling while
+   preserving research-only, fail-closed archive, hash-stamped artifact,
+   non-authority, and review-before-use boundaries.
+   `tests/test_walk_forward_research_doc_guard.py` pins those boundaries. This
+   is docs/test only and does not change backtest math, sweep ranking,
+   promotion gates, strategy configs, campaigns, or execution behavior.
+   2026-07-14:
    market ticker ingestion proof is ready for independent review.
    `MarketStore.upsert_ticker()` now rejects non-positive or non-finite
    present prices, crossed bid/ask pairs, non-finite or negative present
