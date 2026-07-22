@@ -210,6 +210,30 @@ against existing strategy outcomes
 Explicit non-goals:
 
 - no premature live microstructure execution logic
+- no Databento-backed execution path before a separate read-only data-source
+  RFC, cost preflight, dataset/schema whitelist, and provenance mapping
+
+### 7a. Price-action context labels
+
+Keep this as research context, not a strategy launch.
+
+Purpose:
+
+- convert discretionary concepts such as fair-value gaps, engulfing candles,
+  swing failures, break/retest, rejection wicks, acceptance/rejection,
+  displacement, and opening range into reproducible labels
+- test whether those labels improve forward-return distributions or reduce
+  false positives for existing strategy families
+- support swing-trading research without bypassing the existing archive,
+  walk-forward, and paper-provenance gates
+
+Implementation target:
+
+- start with OHLCV-derived labels from the existing archive
+- emit dataset-hashed artifacts only
+- join labels to forward-return reports after costs
+- defer volume profile until trade/tick or stronger intraday volume data exists
+- defer Databento to a separate data-source RFC
 
 ### 8. DCA as a separate research family
 

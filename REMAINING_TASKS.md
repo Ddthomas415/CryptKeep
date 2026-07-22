@@ -2122,6 +2122,17 @@ substrate work, but they are concrete enough to keep visible.
     as research filters or candidate strategies only after archive-first
     backtesting and provenance-qualified paper paths are in place. 2026-07-03:
     visible backlog is documented in `docs/research/pattern_strategy_backlog.md`.
+    2026-07-21: operator-requested price-action concepts are now scoped as a
+    single research-only context feature pack, not separate strategy starts:
+    fair-value gaps, engulfing candles, swing failures, break/retest,
+    rejection wicks, opening-range state, acceptance/rejection, displacement
+    versus manipulation-candidate labels, swing-trading context, and later
+    volume-profile labels. Required boundary: labels must be emitted as
+    dataset-hashed artifacts over archived data, joined to forward returns, and
+    reviewed as context/confirmation evidence before any strategy config,
+    campaign, or promotion-gate use. Databento is explicitly deferred to a
+    separate read-only data-source RFC because it adds API-key, metered-cost,
+    dataset/schema, symbology, and futures/equities-style governance decisions.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
