@@ -5,6 +5,12 @@
 This document is the current operator-facing runtime truth for startup, stop, and status behavior.
 Historical checkpoint records under `docs/checkpoints/` may preserve earlier launch paths and are not canonical unless reaffirmed here.
 
+Executable guard: `tests/test_current_runtime_truth_guard.py` pins the
+canonical operator control plane, runtime truth sources, managed service set,
+compatibility-only legacy surfaces, and startup reconciliation boundary in this
+document. If startup/status authority changes, update that test and this
+document together.
+
 ## Canonical operator control plane
 
 - `python scripts/start_bot.py [--with_reconcile]`

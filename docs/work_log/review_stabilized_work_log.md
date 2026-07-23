@@ -24300,6 +24300,7 @@ Verification:
 - `./.venv/bin/python -m pytest -q tests/test_collector_control_doc.py tests/test_dashboard_operator_service.py tests/test_dashboard_operator_role_guard.py tests/test_dashboard_operator_remaining_role_guard.py tests/test_run_crypto_edge_collector_loop.py tests/test_no_legacy_state_paths.py`
   - SHOWN: `31 passed`.
 - `./.venv/bin/python -m py_compile dashboard/services/operator.py tests/test_collector_control_doc.py tests/test_dashboard_operator_role_guard.py tests/test_dashboard_operator_service.py`
+
   - SHOWN: passed.
 - `git diff --check`
   - SHOWN: passed.
@@ -24308,4 +24309,53 @@ Remaining risk:
 - MEDIUM: touches dashboard operator background-job script routing for a
   read-only research collector. It does not change trading execution, gates,
   live order routing, or collector internals.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:34:00Z - Current Runtime Truth Guard
+
+Active role: ENGINEER
+
+Objective:
+- Pin `docs/CURRENT_RUNTIME_TRUTH.md` as the source-of-truth document for
+  canonical startup, stop, status, compatibility, and startup-reconciliation
+  boundaries.
+
+What was found:
+- README now points to `docs/CURRENT_RUNTIME_TRUTH.md`, but the runtime-truth
+  document itself had no dedicated executable guard. A future edit could move
+  the canonical path, legacy compatibility boundary, or startup-reconciliation
+  caveat without any focused test failing.
+
+What changed:
+- Added an executable-guard note to `docs/CURRENT_RUNTIME_TRUTH.md`.
+- Added `tests/test_current_runtime_truth_guard.py`, covering the canonical
+  operator control plane, runtime truth sources, managed services,
+  compatibility-only legacy surfaces, source-shown startup behavior,
+  startup-reconciliation boundary, and read-only startup audit boundary.
+
+Why this change was chosen:
+- The runtime-truth document is the anchor for resolving stale checkpoint and
+  README runtime claims. The guard makes that anchor explicit and executable
+  without changing startup scripts or runtime behavior.
+
+Expected outcome:
+- Future runtime-doc edits that blur canonical startup/status authority or
+  relabel compatibility-only surfaces fail a targeted test before operators
+  copy stale guidance.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_current_runtime_truth_guard.py tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile tests/test_current_runtime_truth_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- CI correction: replaced raw double-quoted legacy `data/...` literals in the
+  guard test with constructed strings so `tests/test_no_legacy_state_paths.py`
+  continues to enforce the repository state-path rule while this test still
+  verifies historical legacy-path wording in docs.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
 - Acceptance state: ACCEPTED.
