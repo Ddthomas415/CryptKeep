@@ -2168,6 +2168,16 @@ substrate work, but they are concrete enough to keep visible.
     multiple windows, compare label-conditioned returns against unconditioned
     baselines for stability/sample size/false-positive rate, and require
     separate review before any label becomes a confirmation filter.
+    2026-07-22: third research-only slice is ready for review.
+    `services/analytics/price_action_window_stability.py` and
+    `scripts/research/run_price_action_window_stability.py` compare
+    label-conditioned forward returns against unconditioned baselines across
+    fixed archive windows and summarize each label bucket's average delta plus
+    outperform/underperform window ratios. This remains stability triage only:
+    no activation, profitability, campaign, promotion, gate, execution, or
+    Databento claim is made. Remaining: run the reports on real multi-window
+    archives across relevant symbols/timeframes and require separate review
+    before any label influences a strategy confirmation filter.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
