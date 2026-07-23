@@ -24311,6 +24311,52 @@ Remaining risk:
   live order routing, or collector internals.
 - Acceptance state: ACCEPTED.
 
+## 2026-07-22T21:49:00Z - Process Control Runtime Truth Guard
+
+Active role: ENGINEER
+
+Objective:
+- Keep `docs/PROCESS_CONTROL.md` aligned with the canonical runtime truth and
+  pin its compatibility boundary for operator-facing process control.
+
+What was found:
+- `docs/PROCESS_CONTROL.md` correctly listed the current supervised startup,
+  stop, status, status-file, and compatibility surfaces, but did not explicitly
+  defer authority to `docs/CURRENT_RUNTIME_TRUTH.md` and had no focused guard.
+
+What changed:
+- Added an authority/alignment note and executable-guard note to
+  `docs/PROCESS_CONTROL.md`.
+- Added `tests/test_process_control_runtime_truth_guard.py`, covering the
+  canonical control plane, status surfaces, managed service names,
+  compatibility-only legacy surface, and dashboard Process Control boundary.
+
+Why this change was chosen:
+- Process Control is an operator-facing runtime surface. Guarding the doc
+  prevents stale startup/status paths from re-entering the dashboard/process
+  operator workflow by documentation drift.
+
+Expected outcome:
+- Future docs edits that move PROCESS_CONTROL away from the canonical runtime
+  truth or promote legacy bot-control paths fail a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_process_control_runtime_truth_guard.py tests/test_bot_control_runtime_truth_guard.py tests/test_current_runtime_truth_guard.py tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py`
+  - SHOWN: `24 passed`.
+- `./.venv/bin/python -m py_compile tests/test_process_control_runtime_truth_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- CI correction: replaced raw double-quoted legacy `data/...` and
+  `runtime/...` literals in the guard test with constructed strings so
+  `tests/test_no_legacy_state_paths.py` continues to enforce the repository
+  state-path rule while this test still verifies operator-doc wording.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T21:42:00Z - Bot Control Runtime Truth Guard
 
 Active role: ENGINEER
