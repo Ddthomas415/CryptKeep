@@ -19,7 +19,7 @@ and provenance-qualified paper paths.
 
 ## Price-Action Context Feature Pack
 
-Status: deferred research-only RFC item.
+Status: initial research-only label extractor implemented.
 
 Purpose:
 
@@ -29,6 +29,16 @@ Purpose:
   authorities.
 - Avoid adding another persistent campaign until a label improves measured
   forward-return distribution out of sample.
+
+Implemented surfaces:
+
+- `services/backtest/price_action_context.py` builds deterministic labels from
+  OHLCV rows and returns a hashed research artifact.
+- `scripts/research/run_price_action_context_labels.py` loads rows from the
+  OHLCV archive and writes an optional JSON artifact without mutating
+  campaigns, strategy configs, gates, or execution state.
+- `make price-action-context-labels` runs the read-only archive-backed label
+  report with overridable venue, symbol, timeframe, limit, and output path.
 
 Candidate OHLCV-derived labels:
 
@@ -44,6 +54,9 @@ Candidate OHLCV-derived labels:
 - `displacement_bar`: range/body expansion relative to recent bars.
 - `opening_range_state`: first-session range, break, retest, acceptance, and
   rejection labels for intraday data.
+- `acceptance_rejection`: close or wick interaction with the recent range.
+- `manipulation_candidate`: descriptive liquidity-sweep/reversal heuristic when
+  a swing failure coincides with displacement. This is not a claim of intent.
 
 Candidate labels requiring stronger data:
 
@@ -68,6 +81,7 @@ Required artifact shape:
 - dataset hash and source archive hash
 - symbol, venue, timeframe, session calendar policy
 - per-bar labels with no trade decisions
+- artifact hash
 - explicit limitation flags:
   - `research_only`
   - `not_strategy_config`
@@ -110,3 +124,6 @@ Do not promote a new pattern strategy from idea to campaign without:
 Do not promote a price-action label directly to execution authority. The first
 eligible use is as a research-only context feature, then as a separately
 reviewed confirmation filter if evidence supports it.
+
+The current extractor is not a strategy, signal, or gate input. It is a label
+producer for later forward-return joins and walk-forward research.

@@ -24258,6 +24258,65 @@ Remaining risk:
   runtime behavior, campaigns, gates, or live execution.
 - Acceptance state: ACCEPTED.
 
+## 2026-07-22T22:25:00Z - Price-Action Context Label Research Tooling
+
+Active role: ENGINEER
+
+Objective:
+- Implement the next safe research-only batch: turn the operator-requested
+  price-action concepts into deterministic archived-OHLCV labels without
+  changing strategies, campaigns, gates, or execution.
+
+What was found:
+- SHOWN: `docs/research/pattern_strategy_backlog.md` scoped fair-value gaps,
+  engulfing candles, swing failures, break/retest, rejection wicks,
+  acceptance/rejection, displacement, opening range, volume profile, and
+  Databento as research-only work.
+- SHOWN: source files for the price-action label extractor and CLI were absent
+  on this branch; only stale `__pycache__` artifacts existed for similarly
+  named modules.
+
+What changed:
+- Added `services/backtest/price_action_context.py`, a pure OHLCV label
+  extractor that emits per-bar labels and a dataset/artifact-hashed
+  research-only payload.
+- Added `scripts/research/run_price_action_context_labels.py`, a read-only
+  archive-backed CLI that refuses missing/incomplete archive rows and writes an
+  optional JSON artifact.
+- Added `make price-action-context-labels` with overridable venue, symbol,
+  timeframe, limit, and output path.
+- Updated `docs/research/pattern_strategy_backlog.md` and `REMAINING_TASKS.md`
+  to record the implemented research-only slice while keeping volume profile
+  and Databento deferred.
+- Added regression tests for label detection, artifact boundaries, archive
+  CLI behavior, missing-archive failure, docs, and Makefile wiring.
+
+Why this change was chosen:
+- This keeps discretionary price-action ideas in the research pipeline as
+  reproducible context labels. It avoids premature strategy registration while
+  producing artifacts that can later be joined to forward returns or
+  walk-forward outputs.
+
+Expected outcome:
+- Operators can generate deterministic price-action context artifacts from the
+  OHLCV archive. Any future use as confirmation, strategy config, campaign
+  evidence, or promotion evidence remains a separate governed change.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_validation_lane_docs.py tests/test_no_legacy_state_paths.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: research-only tooling and docs/tests. It does not register a strategy,
+  alter campaigns, change gates, or touch live/paper execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T21:58:00Z - Dashboard Crypto Edge Collector Script Path
 
 Active role: ENGINEER
