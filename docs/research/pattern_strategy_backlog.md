@@ -19,8 +19,8 @@ and provenance-qualified paper paths.
 
 ## Price-Action Context Feature Pack
 
-Status: first OHLCV-only research label extractor implemented; forward-return
-joins and strategy/campaign use remain deferred.
+Status: first OHLCV-only research label extractor and label-conditioned
+forward-return report implemented; strategy/campaign use remains deferred.
 
 Purpose:
 
@@ -79,8 +79,11 @@ Required artifact shape:
 Implemented first slice:
 
 - `services/backtest/price_action_context.py`
+- `services/analytics/price_action_forward_returns.py`
 - `scripts/research/run_price_action_context_labels.py`
+- `scripts/research/run_price_action_forward_returns.py`
 - `make price-action-context-labels`
+- `make price-action-forward-returns`
 
 The first slice reads only the existing OHLCV archive and refuses unavailable
 archive data rather than fetching live data. It emits deterministic per-bar
@@ -90,9 +93,13 @@ acceptance/rejection context, and manipulation-candidate descriptions. These
 labels are descriptive research context only and do not imply intent,
 profitability, or promotion eligibility.
 
+The second slice joins the labels to unit-size long/short forward returns after
+explicit fee/slippage assumptions and emits per-label bucket summaries. It is
+still descriptive research output only: no position state, portfolio PnL,
+campaign evidence, promotion evidence, or strategy config change is produced.
+
 Research acceptance before use:
 
-- Join labels to forward returns after fees/slippage.
 - Compare label-conditioned returns against unconditioned baseline.
 - Show out-of-sample stability across multiple windows.
 - Show false-positive rate and sample size.

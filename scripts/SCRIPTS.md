@@ -233,6 +233,12 @@ decision makes them authoritative.
   rejection wicks, displacement bars, opening-range state, and
   acceptance/rejection context without changing strategy config, campaigns,
   gates, or promotion evidence. Use `make price-action-context-labels`.
+- `research/run_price_action_forward_returns.py` — read-only
+  label-conditioned forward-return report over archived OHLCV; computes
+  unit-size long/short modeled returns after explicit fee/slippage assumptions
+  for price-action label buckets and does not change strategy config,
+  campaigns, gates, execution, or promotion evidence. Use
+  `make price-action-forward-returns`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

@@ -2156,6 +2156,18 @@ substrate work, but they are concrete enough to keep visible.
     join labels to forward returns after modeled costs, measure stability
     against unconditioned baselines, and require separate review before any
     label becomes a confirmation filter.
+    2026-07-22: second research-only slice is ready for review.
+    `services/analytics/price_action_forward_returns.py` and
+    `scripts/research/run_price_action_forward_returns.py` join the archived
+    OHLCV labels to unit-size long/short forward returns after explicit
+    fee/slippage assumptions, produce unconditioned and per-label bucket
+    summaries, and include the cost assumptions in the artifact hash. This is
+    descriptive research output only: no position state, portfolio PnL,
+    strategy config, campaign evidence, promotion evidence, gate, execution, or
+    Databento path is changed. Remaining: run real archive reports across
+    multiple windows, compare label-conditioned returns against unconditioned
+    baselines for stability/sample size/false-positive rate, and require
+    separate review before any label becomes a confirmation filter.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
