@@ -2169,6 +2169,13 @@ substrate work, but they are concrete enough to keep visible.
    both TODO-only placeholder modules after source import scan found no active
    importers; disposition is documented in
    `docs/architecture/runtime_stub_disposition.md`.
+   2026-07-25: executable runtime-stub disposition guard is ready for
+   independent review. `tests/test_runtime_stub_disposition_guard.py` pins that
+   `services/runtime/run_mode.py` and `services/runtime/bot_process.py` remain
+   absent, that production source under `services/` and `scripts/` does not
+   import those deleted module names, and that `services/runtime/README.md`
+   points future work at the disposition record instead of stale placeholders.
+   This is docs/test only; no runtime/process behavior changed.
 2. Reduce duplicate/twin modules that obscure which code guards money:
    `live_trader_fleet` versus `live_trader_multi`,
    `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
