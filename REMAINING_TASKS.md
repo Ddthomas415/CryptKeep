@@ -190,6 +190,13 @@ deployment work still needs independent review.
    legacy helper boundary, authority rationale, and backlog link. This is
    docs/test only and does not change promotion gates, metric calculations,
    paper history, or fallback behavior.
+   2026-07-22: executable promotion-stage authority decision guard is ready
+   for independent review.
+   `tests/test_promotion_stage_authority_decision_guard.py` pins the
+   gate-enforced operator entrypoint, implemented boundary, strategy scope
+   boundary, authority rationale, and backlog link. This is docs/test only
+   and does not change promotion gates, stage mutation logic, strategy support,
+   deployment, or execution behavior.
 3. Build the shadow would-be-fill recorder before treating shadow slippage
    gates as actionable. The shadow gate asks for fill/slippage evidence, but
    observe-only shadow submit currently blocks real submissions and does not
