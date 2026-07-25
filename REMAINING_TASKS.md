@@ -2457,6 +2457,12 @@ substrate work, but they are concrete enough to keep visible.
     `BTC/USD` while the canonical ES journal uses `BTC/USDT`, producing zero
     replay rows. The default `STRATEGY_REVIEW_SYMBOL` is corrected to
     `BTC/USDT`; override variables still support other strategies/symbols.
+    2026-07-22: executable strategy-review ritual guard is ready for
+    independent review. `tests/test_strategy_review_ritual_guard.py` pins the
+    weekly cadence, input/output fields, Makefile target/defaults,
+    advisory-only boundary, RUNBOOKS link, and existing dated artifact. This
+    is docs/test only and does not change runtime behavior; future review
+    cadence remains an operator action.
 
 ## Recently completed
 - Pullback Stage 0 readiness report is accepted:
