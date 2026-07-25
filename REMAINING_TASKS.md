@@ -2464,6 +2464,15 @@ substrate work, but they are concrete enough to keep visible.
     acceptance criteria, and pattern/backlog links. This is docs/test only and
     does not add credentials, dependencies, data fetches, campaign inputs,
     promotion evidence, or execution behavior.
+    2026-07-25: read-only price-action research pipeline wrapper is ready for
+    independent review. `scripts/research/run_price_action_research_pipeline.py`
+    runs the accepted labels, forward-returns, window-stability, and
+    candidate-triage reports in sequence, writes each report plus a summary
+    manifest, and stops fail-closed when any step cannot produce an `ok=true`
+    artifact. `make price-action-research-pipeline` and `scripts/SCRIPTS.md`
+    expose the wrapper. This is research orchestration only; it does not change
+    labels, scoring, strategy config, campaigns, gates, data ingestion, live
+    routing, execution, or promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

@@ -292,6 +292,11 @@ decision makes them authoritative.
   candidate triage report over archived OHLCV; ranks label/side pairs for
   manual review only and does not change strategy config, campaigns, gates,
   execution, or promotion evidence. Use `make price-action-candidate-triage`.
+- `research/run_price_action_research_pipeline.py` — read-only pipeline wrapper
+  that runs the accepted price-action labels, forward-returns, window-stability,
+  and candidate-triage reports in sequence and writes a summary manifest. It
+  does not change strategy config, campaigns, gates, ingestion, execution, or
+  promotion evidence. Use `make price-action-research-pipeline`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

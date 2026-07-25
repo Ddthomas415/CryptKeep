@@ -89,10 +89,12 @@ Implemented first slice:
 - `scripts/research/run_price_action_forward_returns.py`
 - `scripts/research/run_price_action_window_stability.py`
 - `scripts/research/run_price_action_candidate_triage.py`
+- `scripts/research/run_price_action_research_pipeline.py`
 - `make price-action-context-labels`
 - `make price-action-forward-returns`
 - `make price-action-window-stability`
 - `make price-action-candidate-triage`
+- `make price-action-research-pipeline`
 
 The first slice reads only the existing OHLCV archive and refuses unavailable
 archive data rather than fetching live data. It emits deterministic per-bar
@@ -117,6 +119,11 @@ The fourth slice applies explicit review thresholds to the stability artifact
 and emits candidate label/side pairs for manual review. It is still triage only:
 a candidate is not strategy config, campaign evidence, promotion evidence, a
 profitability claim, or an activation decision.
+
+The read-only pipeline wrapper runs those four accepted reports in sequence,
+writes each artifact plus a summary manifest, and stops fail-closed when a
+step cannot produce an `ok=true` artifact. The wrapper is operator convenience,
+not strategy config, campaign evidence, promotion evidence, or execution.
 
 Research acceptance before use:
 
