@@ -36,3 +36,9 @@ discovery, cost measurement, safety, recovery, or operator wake-up quality, it
 should be deferred until a strategy has proven expectancy after costs.
 
 Related scope policy: `docs/PROJECT_IDENTITY_AND_SCOPE.md`.
+
+## Executable Guard
+
+`tests/test_product_surface_triage.py` pins the current lab-mode decision, the
+retain/defer lists, the decision-rule terms, and the README root-boundary
+summary so product-surface drift is visible during CI.

@@ -24,6 +24,7 @@ This is a documentation-only disposition. It does not change runtime behavior.
 | `services/market_data/ws_common.py` | Normalization helper | SHOWN: normalizes symbols/ticker messages and timestamps. | Shared helper only. |
 | `services/market_data/ws_feature_blacklist.py` | Feature disable/blacklist state | SHOWN: persists per-venue/symbol/feature disable state in `ws_feature_blacklist.json`; used by ticker feed. | Shared guard for optional WS features. |
 | `services/monitoring/ws_health_logger.py` | Persisted websocket health logger | SHOWN: writes status to `WSStatusSQLite`; used by successful ticker feed events. | Health telemetry only; not a transport. |
+| `services/ws/last_price_provider.py` | Last-price reader over tick-store quotes, not a websocket transport | SHOWN: reads `services.market_data.tick_reader.get_best_bid_ask_last()` / `mid_price()` and opens no socket or ccxt.pro stream. | Treat as a quote accessor over the current tick store, not as proof that websocket data is canonical. |
 
 ## Implementation Consequence
 
@@ -46,3 +47,14 @@ coverage just because a `ws_*` module exists.
   checked in this documentation pass.
 - UNVERIFIED: external venue behavior is not proven by local unit tests.
 - SHOWN: local modules and tests support the classifications above.
+
+## 2026-07-22 Executable Guard
+
+`tests/test_websocket_surface_classification.py` pins the current classification
+surface:
+
+- documented websocket/user-stream surfaces must stay covered by this file;
+- helper/status modules with `ws` names must not grow direct `ccxt.pro` /
+  `watch_*` transport calls without a classification update;
+- retired `services/marketdata/*` and non-present
+  `ws_microstructure_manager.py` paths must not be reintroduced silently.

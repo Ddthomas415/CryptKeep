@@ -81,3 +81,10 @@ The current funding research path is read-only and artifact-based:
 
 These reports do not change strategy config, start campaigns, modify gates,
 route orders, compute portfolio PnL, or produce promotion evidence.
+
+## Executable Guard
+
+`tests/test_crypto_edge_source_decision_guard.py` pins the read-only research
+scope, evidence basis, unresolved host/data unknowns, hard boundaries, default
+collector-plan venues, and backlog/structural-doc links so the OKX source
+decision cannot silently become live-routing or promotion-evidence authority.

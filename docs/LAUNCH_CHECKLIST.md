@@ -6,6 +6,13 @@ with real capital. It is a pass/fail gate, not a judgment call.
 Complete each section in order. Do not skip sections. Record the result
 (PASS / FAIL / N/A) and the date for each item.
 
+Executable guard:
+- `tests/test_launch_checklist_guard.py` pins this checklist as a pass/fail
+  launch gate, including required proof packets, drills, paper-gate evidence
+  checks, first-live notional caps, and sign-off fields. Update that guard in
+  the same change whenever a launch requirement is added, removed, renamed, or
+  moved.
+
 ---
 
 ## Section 1 — Environment

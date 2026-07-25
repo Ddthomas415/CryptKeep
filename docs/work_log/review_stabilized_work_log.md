@@ -25053,6 +25053,71 @@ Remaining risk:
   strategy/campaign/gate/promotion/profitability evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-25T20:58:14Z - Consolidated Governance And Research Guard Stack
+
+Active role: ENGINEER
+
+Objective:
+- Rebase the accumulated docs/test governance guard stack onto the current
+  research branch (`codex/funding-threshold-candidate-triage`) as one coherent
+  batch, avoiding obsolete branch-tail conflicts and aligning guards with the
+  accepted current research command names.
+
+What was found:
+- SHOWN: the incoming stack was docs/test heavy and overlapped mostly in
+  `REMAINING_TASKS.md`, `scripts/SCRIPTS.md`, `Makefile`, and research docs.
+- SHOWN: older script-index expectations referenced obsolete
+  `price-action-pipeline` / `run_price_action_research_pipeline.py` names,
+  while the current accepted path uses the four-step price-action tooling:
+  context labels, forward returns, window stability, and candidate triage.
+- SHOWN: non-backlog conflict files had no remaining conflict markers after
+  applying the current-content resolution; backlog conflicts needed additive
+  reconciliation.
+
+What changed:
+- Added executable docs/test guards for operator governance, operational core,
+  product surface, WebSocket classification, dashboard triage, project identity,
+  runbook/retention/release/launch/golden-path/evidence policy, supply-chain
+  release policy, paper campaign recovery, stage/strategy/expectancy decisions,
+  crypto-edge source, funding/pullback Stage 0 decisions, paper-promotion RFC,
+  walk-forward research scope, strategy expansion/review/feedback boundaries,
+  state-store consolidation, config authority, and backlog execution lanes.
+- Added the read-only Databento data-source RFC and guard.
+- Updated `tests/test_script_index_alignment_guard.py` to guard the current
+  accepted research tools rather than resurrecting the obsolete price-action
+  pipeline target.
+- Reconciled `REMAINING_TASKS.md`, `scripts/SCRIPTS.md`, `Makefile`, and the
+  research docs by keeping current accepted tooling names and adding the
+  incoming guard notes.
+
+Why this change was chosen:
+- This is the smallest coherent way to land the safe governance guard stack
+  without mixing in live execution or risk-gate behavior. The batch preserves
+  the accepted research tool chain and converts policy/docs boundaries into
+  executable drift checks.
+
+Expected outcome:
+- Future edits that silently broaden docs/policy authority, promote research
+  artifacts into strategy/gate authority, or desynchronize the script index
+  should fail targeted guard tests before review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_boundary_guard.py tests/test_script_index_alignment_guard.py tests/test_databento_data_source_rfc.py tests/test_walk_forward_research_doc_guard.py tests/test_crypto_edge_source_decision_guard.py`
+  - SHOWN: `25 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_operating_rules_guard.py tests/test_backlog_execution_lanes_guard.py tests/test_canonical_expectancy_decision_guard.py tests/test_clock_venue_time_policy_guard.py tests/test_config_authority_decision_guard.py tests/test_dashboard_data_page_backlog.py tests/test_evidence_model_guard.py tests/test_full_state_restore_drill_contract.py tests/test_funding_stage0_decision_guard.py tests/test_golden_path_operator_flow_guard.py tests/test_incident_runbooks_guard.py tests/test_launch_checklist_guard.py tests/test_operational_core_scope.py tests/test_operator_governance_lanes.py tests/test_operator_runbook_policy_guards.py tests/test_paper_campaign_recovery_runbook_guard.py tests/test_paper_promotion_gate_policy_rfc_guard.py tests/test_paper_universe_widening_decision.py tests/test_product_surface_triage.py tests/test_project_identity_scope.py tests/test_promotion_stage_authority_decision_guard.py tests/test_pullback_stage0_decision_guard.py tests/test_release_checklist_guard.py tests/test_retention_policy_scope.py tests/test_state_store_consolidation_decision_guard.py tests/test_strategy_expansion_roadmap_guard.py tests/test_strategy_feedback_ledger_doc_guard.py tests/test_strategy_review_ritual_guard.py tests/test_strategy_selection_authority_decision_guard.py tests/test_supply_chain_release_policy_guard.py tests/test_websocket_surface_classification.py`
+  - SHOWN: `147 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; guard tests `23 passed`; repo doctor rc 0.
+- `./.venv/bin/python -m py_compile tests/test_script_index_alignment_guard.py tests/test_price_action_research_boundary_guard.py tests/test_databento_data_source_rfc.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: broad docs/test stack with many policy assertions; review should
+  confirm the guards reflect accepted decisions and not new policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-22T12:36:38Z - Archive Parameter-Sweep Triage Report
 
 Active role: ENGINEER
