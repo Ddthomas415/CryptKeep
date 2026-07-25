@@ -99,6 +99,7 @@ def test_key_daily_operator_commands_stay_in_canonical_index():
         "check_promotion_gates.py",
         "check_ohlcv_preflight.py",
         "report_paper_gate_qualification.py",
+        "report_paper_gate_velocity.py",
         "report_supervised_soak_status.py",
         "restore_paper_campaigns.py",
         "run_paper_strategy_evidence_collector.py",
@@ -108,4 +109,5 @@ def test_key_daily_operator_commands_stay_in_canonical_index():
     canonical = scripts.split("## Canonical Operator", 1)[1].split("## Specialized Script Inventory", 1)[0]
     assert "make status-paper-all" in canonical
     assert "make status-paper-gate-qualification" in canonical
+    assert "make status-paper-gate-velocity" in canonical
     assert "make restore-paper-campaigns" in canonical

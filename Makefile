@@ -122,6 +122,13 @@ status-paper-gate-qualification:
 status-paper-gate-qualification-json:
 	@$(PYTHON) scripts/report_paper_gate_qualification.py --json
 
+.PHONY: status-paper-gate-velocity status-paper-gate-velocity-json
+status-paper-gate-velocity:
+	$(PYTHON) scripts/report_paper_gate_velocity.py
+
+status-paper-gate-velocity-json:
+	@$(PYTHON) scripts/report_paper_gate_velocity.py --json
+
 status-paper-hetzner:
 	$(PYTHON) scripts/report_hetzner_paper_campaign_status.py --strict --ssh-target $(HETZNER_SSH_TARGET) --app-dir $(HETZNER_APP_DIR) --config $(HETZNER_PAPER_CAMPAIGN_CONFIG) --timeout-sec $(HETZNER_STATUS_TIMEOUT_SEC)
 
@@ -437,6 +444,7 @@ script-index:
 	@echo "=== Operational Scripts ==="
 	@echo "  make status-paper-all   — daily paper campaign check-in"
 	@echo "  make recover-paper-campaigns — guarded paper campaign recovery"
+	@echo "  make status-paper-gate-velocity — estimate paper gate completion velocity"
 	@echo "  make paper-run          — run paper campaign"
 	@echo "  make check-gates        — promotion gate status"
 	@echo "  make kill-switch-on/off — arm/disarm kill switch"

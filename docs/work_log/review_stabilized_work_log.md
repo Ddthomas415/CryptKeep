@@ -25712,6 +25712,63 @@ Remaining risk:
   routing, execution, or promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-25T23:11:55Z - Paper Gate Velocity Report (Active Backlog #1)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only operator report that explains paper-gate velocity and
+  projected completion time for the current provenance-qualified round-trip
+  gate, without changing gate policy or campaign behavior.
+
+What was found:
+- SHOWN: `services/control/paper_promotion_progress.py` already reports
+  threshold progress and blocker reasons.
+- SHOWN: `services/control/paper_evidence_qualification.py` computed completed
+  qualified close timestamps internally but did not expose the timestamp list,
+  so downstream tooling could not estimate cadence without reimplementing
+  qualification logic.
+
+What changed:
+- Added `services/control/paper_gate_velocity.py`.
+- Added `scripts/report_paper_gate_velocity.py`.
+- Added `tests/test_paper_gate_velocity_report.py`.
+- Exposed `completed_round_trip_close_timestamps` additively in the paper
+  evidence qualification payload.
+- Added `make status-paper-gate-velocity` and
+  `make status-paper-gate-velocity-json`.
+- Updated `scripts/SCRIPTS.md`, `tests/test_script_index_alignment_guard.py`,
+  and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It turns the slow-gate question into a mechanical read-only report:
+  qualified round trips observed, legacy/all-history exclusions, measured
+  qualified close cadence, and estimated days remaining when enough qualified
+  closes exist.
+
+Expected outcome:
+- Operators can distinguish "gate is slow by strategy cadence" from
+  "projection unavailable" without weakening provenance requirements, counting
+  legacy fills, or changing campaign/gate behavior.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py tests/test_paper_promotion_progress.py tests/test_paper_gate_qualification_report.py tests/test_check_promotion_gates.py`
+  - SHOWN: `59 passed`.
+- `./.venv/bin/python -m py_compile services/control/paper_gate_velocity.py scripts/report_paper_gate_velocity.py tests/test_paper_gate_velocity_report.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- GitHub CI for PR #428:
+  - SHOWN: Build macOS/windows, CI sanity, CI validate, GitGuardian,
+    Governance smoke, and script-path-integrity all passed before merge.
+
+Remaining risk:
+- LOW/MEDIUM: diagnostic/reporting only. It reads existing evidence and progress
+  artifacts and writes no campaign, evidence, gate, execution, or config state.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-25T23:30:20Z - Research Pipeline Status Report (Active #12 / #13)
 
 Active role: ENGINEER
