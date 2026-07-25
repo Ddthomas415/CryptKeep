@@ -2169,6 +2169,13 @@ substrate work, but they are concrete enough to keep visible.
    both TODO-only placeholder modules after source import scan found no active
    importers; disposition is documented in
    `docs/architecture/runtime_stub_disposition.md`.
+   2026-07-25: executable runtime-stub disposition guard is ready for
+   independent review. `tests/test_runtime_stub_disposition_guard.py` pins that
+   `services/runtime/run_mode.py` and `services/runtime/bot_process.py` remain
+   absent, that production source under `services/` and `scripts/` does not
+   import those deleted module names, and that `services/runtime/README.md`
+   points future work at the disposition record instead of stale placeholders.
+   This is docs/test only; no runtime/process behavior changed.
 2. Reduce duplicate/twin modules that obscure which code guards money:
    `live_trader_fleet` versus `live_trader_multi`,
    `client_oid.py` versus `client_order_id.py`, and duplicate kill-switch /
@@ -2189,6 +2196,15 @@ substrate work, but they are concrete enough to keep visible.
    governed client-order-id builder, `client_oid.py` remains legacy/compat,
    and `live_trader_multi` / `live_trader_fleet` are duplicate dry-run legacy
    stubs that should not receive new live-execution features.
+   2026-07-25: executable safety-surface classification guard is ready for
+   independent review. `tests/test_safety_surface_classification_guard.py`
+   pins the backlog-linked classification doc, canonical client-order-id use
+   on governed live paths, legacy-only `client_oid.py` import boundaries,
+   dry-run/no-real-routing constraints for `live_trader_multi` and
+   `live_trader_fleet`, and the separate authority roles for operator
+   kill-switch, live-order safety probe, strategy cooldown, and canonical live
+   risk gates. This is docs/test only; no live, order, gate, strategy, or
+   runtime behavior changed.
 3. [DONE - folded into Active #11] Extend archive-first backtesting proof to
    include one walk-forward run over the archive producing enough
    out-of-sample windows to demonstrate research depth, not only

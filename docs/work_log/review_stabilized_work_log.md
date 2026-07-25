@@ -25470,3 +25470,95 @@ Remaining risk:
 - LOW/MEDIUM: research/reporting-only and no runtime execution changes, but it
   documents strategy readiness status that operators may use for planning.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T18:02:30-04:00 - Safety Surface Classification Guard (Deferred Structure #2)
+
+Active role: ENGINEER
+
+Objective:
+- Convert the existing duplicate/twin safety-surface classification into an
+  executable source-tree guard without changing runtime behavior.
+
+What was found:
+- SHOWN: `docs/architecture/safety_surface_classification.md` already classifies
+  the operator kill switch, live-order safety probe, strategy cooldown logic,
+  canonical live risk gate, canonical client-order-id builder, legacy
+  `client_oid.py`, and the duplicate live-trader stubs.
+- SHOWN: no existing test pinned that classification, so future edits could
+  route governed live paths through compatibility helpers or add real routing
+  imports to the legacy stubs without tripping a focused guard.
+
+What changed:
+- Added a backlog link and executable-guard section to
+  `docs/architecture/safety_surface_classification.md`.
+- Added `tests/test_safety_surface_classification_guard.py`, which verifies:
+  governed live paths use `services.execution.client_order_id`, legacy
+  `client_oid.py` stays limited to compatibility executors, live-trader multi
+  and fleet remain dry-run/simulated stubs without real routing imports, and
+  kill-switch/risk-gate authority roles remain separate.
+
+Why this change was chosen:
+- Deferred Structure #2 asks for duplicate/twin module reduction discipline.
+  A docs/test guard is the smallest safe step: it prevents accidental widening
+  of legacy surfaces without deleting, rewiring, or changing live behavior.
+
+Expected outcome:
+- Future live/execution work fails fast if it tries to build on the wrong
+  safety or identity surface.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_safety_surface_classification_guard.py`
+  - SHOWN: `5 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_client_oid_compat.py tests/test_client_order_id.py tests/test_killswitch_script.py tests/test_live_risk_gates.py`
+  - SHOWN: `39 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+
+Remaining risk:
+- LOW: docs/test-only classification guard. It does not change runtime,
+  execution, order routing, strategy behavior, gates, or deployment.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T18:08:30-04:00 - Runtime Stub Disposition Guard (Deferred Structure #1)
+
+Active role: ENGINEER
+
+Objective:
+- Convert the deleted runtime-placeholder disposition into an executable guard
+  and remove stale wording from `services/runtime/README.md`.
+
+What was found:
+- SHOWN: `docs/architecture/runtime_stub_disposition.md` records deletion of
+  `services/runtime/run_mode.py` and `services/runtime/bot_process.py`.
+- SHOWN: `services/runtime/README.md` still said `bot_process.py` overlaps with
+  `services/process/bot_process.py`, which made the deleted stub look present.
+- SHOWN: no focused test pinned the deleted module names as retired.
+
+What changed:
+- Updated `services/runtime/README.md` to name the supported runtime helpers and
+  deleted placeholder modules.
+- Added an executable-guard section to
+  `docs/architecture/runtime_stub_disposition.md`.
+- Added `tests/test_runtime_stub_disposition_guard.py`, proving the deleted
+  stubs stay absent, production source does not import their module names, and
+  the runtime README points future work at the decision record.
+
+Why this change was chosen:
+- Deferred Structure #1 was already implemented by deletion and documentation.
+  A docs/test guard closes the drift path without recreating the placeholders
+  or changing process-control behavior.
+
+Expected outcome:
+- Future runtime/process work fails fast if it reintroduces the retired names as
+  empty authority-looking stubs or imports them from production source.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_runtime_stub_disposition_guard.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_safety_surface_classification_guard.py`
+  - SHOWN: `5 passed`.
+
+Remaining risk:
+- LOW: docs/test-only disposition guard. It does not change runtime,
+  process-control, deployment, execution, gates, or strategy behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
