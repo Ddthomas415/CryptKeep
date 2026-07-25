@@ -24699,3 +24699,45 @@ Remaining risk:
 - Real archive runs across relevant symbols/timeframes are still required
   before drawing strategy conclusions.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T20:34:00Z - Price-Action Window Stability Fee-Surface Census Repair
+
+Active role: ENGINEER
+
+Objective:
+- Repair the failing CI blueprint census after retargeting the price-action
+  window-stability research PR onto `master`.
+
+What was found:
+- SHOWN: GitHub CI failed `test_no_new_fee_surface_appeared` because
+  `services/analytics/price_action_window_stability.py` declares
+  `fee_bps: float = 10.0` / `slippage_bps: float = 5.0` and was not listed in
+  the executable fee-surface census.
+
+What changed:
+- Added `services/analytics/price_action_window_stability.py` to the
+  research-only fee-surface census in `tests/test_blueprint_invariants.py`.
+- Added the same research-only classification to
+  `docs/architecture/SYSTEM_BLUEPRINT.md`.
+
+Why this change was chosen:
+- The window-stability report is a research artifact that models forward
+  returns after declared costs. It is not campaign, promotion, or execution
+  evidence, but the cost assumptions must still be explicitly censused.
+
+Expected outcome:
+- The blueprint invariant continues to fail for uncensused fee surfaces while
+  accepting the reviewed window-stability research surface.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared tests/test_blueprint_invariants.py::test_fee_surface_defaults_unchanged`
+  - SHOWN: `9 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `15 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- LOW/MEDIUM: research-only classification affects interpretation, not trading
+  authority.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
