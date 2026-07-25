@@ -303,6 +303,13 @@ decision makes them authoritative.
   and candidate-triage reports in sequence and writes a summary manifest. It
   does not change strategy config, campaigns, gates, ingestion, execution, or
   promotion evidence. Use `make price-action-research-pipeline`.
+- `research/report_research_pipeline_status.py` — read-only status report over
+  accepted research pipeline wiring and latest summary artifacts. It checks
+  script/Makefile/SCRIPTS registration and reports whether the latest
+  funding-threshold and price-action `pipeline_summary.json` artifacts are
+  present and `ok=true`; it does not run pipelines, fetch data, or mutate
+  research, strategy, campaign, gate, or execution state. Use
+  `make research-pipeline-status`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
