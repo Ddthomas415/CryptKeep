@@ -25,6 +25,47 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T16:25:00Z - Operational Core Scope Guard (Deferred Structure #17)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the operational core and quarantine policy.
+
+What was found:
+- `docs/CORE.md` documents the current core surfaces, quarantine states,
+  priority rule, and classification-record links.
+- The policy was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_operational_core_scope.py`.
+- The test pins the current core surface list, quarantine states, priority rule,
+  and classification-record links, and verifies linked records exist.
+- Added executable-guard notes to the core doc, backlog, and work log.
+
+Why this change was chosen:
+- It protects the accepted lab/core boundary with docs/test-only coverage and
+  avoids moving or deleting broad directories.
+
+Expected outcome:
+- Future edits that silently broaden the operational core or drop quarantine
+  classifications fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operational_core_scope.py tests/test_operator_governance_lanes.py tests/test_storage_surface_classification.py tests/test_strategy_discovery_hygiene_contract.py tests/test_websocket_surface_classification.py`
+  - SHOWN: `19 passed`.
+- `./.venv/bin/python -m py_compile tests/test_operational_core_scope.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change strategy, campaign, gate, dashboard,
+  deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T16:20:00Z - Governance Lane Scope Guard (Deferred Structure #16)
 
 Active role: ENGINEER
