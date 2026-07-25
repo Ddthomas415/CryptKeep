@@ -1587,6 +1587,15 @@ must be resolved or explicitly accepted before any capped-live capital exposure.
    families outside `data_dir()`, the secrets scan, and
    resume/idempotence proofs stay drill-time operator steps by design.
    Remaining: execute the drill on the host and file the evidence.
+   2026-07-22: executable full-state restore-drill contract guard is ready for
+   review. `tests/test_full_state_restore_drill_contract.py` pins that
+   `docs/FULL_STATE_BACKUP_RESTORE_DRILL.md` does not claim an executed host
+   drill, preserves required state-family coverage, documents
+   `backup_state.py` tooling guarantees, keeps secrets scan and
+   resume/idempotence as drill-time steps, preserves pass criteria, and links
+   the capped-live gate to `docs/LAUNCH_CHECKLIST.md`. This is docs/test only
+   and does not run backup/restore, mutate state, change tooling, or close the
+   required host drill evidence.
 9. Surface evidence-write failures in session status. If signal/fill evidence
    writes fail repeatedly while a campaign keeps running, operators should see a
    failure counter and the session should refuse after a bounded threshold
