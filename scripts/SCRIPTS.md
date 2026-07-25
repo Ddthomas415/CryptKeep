@@ -16,6 +16,13 @@ Rules:
 - Keep this file aligned with root `scripts/*.py` when adding or removing root
   script entrypoints.
 
+Executable guard:
+- `tests/test_script_index_alignment_guard.py` pins the alignment boundary
+  among this file, `docs/GOLDEN_PATH.md`, `REMAINING_TASKS.md`, and the
+  Makefile `script-index` target. Update that guard in the same change when a
+  command is promoted into the daily operator path, moved out of it, or given a
+  new Makefile wrapper.
+
 ## Canonical Operator
 
 These are the safe daily/operator-facing commands for the current paper evidence
@@ -44,6 +51,7 @@ listed below.
 | `report_hetzner_crypto_edge_runtime_status.py` | `make status-hetzner-edge-runtime` | Read-only Tailscale SSH wrapper for Hetzner crypto-edge runtime readiness; checks accepted checkout/tooling, OKX collector plan, collector status under the deployed `CBP_STATE_DIR`, and collector/cadence scheduling without deploying or starting collectors |
 | `report_paper_campaign_status.py` | — | Read-only campaign-health formatter for configured campaign status payloads without promotion-gate coupling |
 | `report_paper_gate_qualification.py` | `make status-paper-gate-qualification` / `make status-paper-gate-qualification-json` | Read-only fill-level explanation for which paper fills count toward the provenance-qualified gate and why rejected/incomplete fills do not count |
+| `report_paper_gate_velocity.py` | `make status-paper-gate-velocity` / `make status-paper-gate-velocity-json` | Read-only paper-gate velocity report; estimates completion from completed provenance-qualified round-trip close cadence and keeps legacy/all-history fills diagnostic only |
 | `report_supervised_soak_status.py` | `make status-paper-soak` / `make status-paper-soak-json` | Read-only supervised paper-soak summary across configured campaigns and paper promotion gate status |
 | `restore_paper_campaigns.py` | `make status-paper-campaigns` / `make restore-paper-campaigns` / `make recover-paper-campaigns` | Read-only status by default; explicitly restores only configured paper collectors that are not alive; `--restore --preflight-ohlcv` blocks launches when the configured public-OHLCV source is unreachable; `--restart-unhealthy` is opt-in and preflight-required for alive unhealthy collectors |
 | `run_dashboard.py` | `make dashboard` | Dashboard entrypoint |
@@ -216,6 +224,19 @@ decision makes them authoritative.
   backfills the local market OHLCV archive from public exchange OHLCV and
   writes a dataset-hashed JSON summary; it does not affect campaigns, gates,
   or trading. Use `make ohlcv-archive-backfill`.
+- `research/run_archive_walk_forward.py` — research-only archive-backed
+  anchored walk-forward runner for one strategy config; writes a dataset-hashed
+  JSON artifact, does not sweep or rank parameters, and does not create
+  promotion evidence. Use `make archive-walk-forward`.
+- `research/run_archive_parameter_sweep.py` — research-only archive-backed
+  parameter sweep over an explicit grid; ranks descriptive walk-forward
+  artifacts only and does not promote, mutate, or select strategy configs. Use
+  `make archive-parameter-sweep`.
+- `research/run_archive_parameter_sweep_triage.py` — read-only triage report
+  over an existing `archive_backed_parameter_sweep_v1` JSON artifact; ranks
+  sweep variants for manual review only and does not rerun backtests, change
+  strategy config, start campaigns, or produce promotion evidence. Use
+  `make archive-parameter-sweep-triage`.
 - `research/run_funding_context_price_join.py` — read-only
   `funding_extreme` forward-return report joining stored funding snapshots to
   archived OHLCV rows; computes unit-size modeled forward returns only and
@@ -227,40 +248,62 @@ decision makes them authoritative.
   action counts and unit-size modeled forward returns for explicit threshold
   grids, does not change strategy config, fetch data, start campaigns, or
   produce promotion evidence. Use `make funding-threshold-sensitivity`.
+- `research/run_funding_threshold_window_stability.py` — read-only
+  funding-threshold window-stability report over an existing
+  funding-context price-join JSON artifact; compares threshold-pair behavior
+  across fixed row windows and does not change strategy config, campaigns,
+  gates, execution, or promotion evidence. Use
+  `make funding-threshold-window-stability`.
+- `research/run_funding_threshold_candidate_triage.py` — read-only
+  funding-threshold candidate triage report over an existing
+  `funding_threshold_sensitivity_v1` JSON artifact; ranks threshold pairs for
+  manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-candidate-triage`.
+- `research/run_funding_threshold_stability_triage.py` — read-only
+  stability-aware funding-threshold triage report over an existing
+  `funding_threshold_window_stability_v1` JSON artifact; ranks threshold pairs
+  for manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use
+  `make funding-threshold-stability-triage`.
+- `research/run_funding_threshold_research_pipeline.py` — read-only pipeline
+  wrapper that runs the accepted funding context price-join, sensitivity,
+  direct triage, window-stability, and stability-triage reports in sequence
+  and writes a summary manifest. It does not change collectors, strategy
+  config, campaigns, gates, ingestion, execution, or promotion evidence. Use
+  `make funding-threshold-research-pipeline`.
 - `research/run_crypto_edge_strategy_readiness.py` — read-only crypto-edge
   strategy readiness matrix over current source-tree wiring; classifies
   `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` as
   Stage 0 wired, config-only, or unregistered without fetching data, starting
   campaigns, or changing promotion gates. Use
   `make crypto-edge-strategy-readiness`.
-- `research/run_crypto_edge_research_pipeline.py` — research-only crypto-edge
-  pipeline wrapper that runs funding context replay, funding/price join, and
-  threshold sensitivity together from stored crypto-edge and archived OHLCV
-  rows. It writes explicit artifacts under `--output-dir` and does not fetch
-  live data, change strategy configs, start campaigns, or create promotion
-  evidence. Use `make crypto-edge-research-pipeline`.
-- `research/run_price_action_context_labels.py` — research-only OHLCV
-  price-action context label artifact builder over the market archive;
-  emits fair-value gap, engulfing, swing-failure, break/retest,
-  rejection-wick, displacement, manipulation-candidate, and opening-range
-  labels with dataset/artifact hashes. It does not change strategy configs,
-  campaigns, gates, or live execution. Use `make price-action-context-labels`.
-- `research/run_price_action_forward_return_join.py` — research-only consumer
-  of a saved price-action label artifact; computes label-conditioned long and
-  short forward returns after explicit fee/slippage assumptions and compares
-  them to the unconditioned baseline. It does not select strategies, change
-  configs, start campaigns, or create promotion evidence. Use
+- `research/run_price_action_context_labels.py` — read-only OHLCV
+  price-action context label artifact over the existing market archive;
+  labels fair-value gaps, engulfing candles, swing failures, break/retest,
+  rejection wicks, displacement bars, opening-range state, and
+  acceptance/rejection context without changing strategy config, campaigns,
+  gates, or promotion evidence. Use `make price-action-context-labels`.
+- `research/run_price_action_forward_returns.py` — read-only
+  label-conditioned forward-return report over archived OHLCV; computes
+  unit-size long/short modeled returns after explicit fee/slippage assumptions
+  for price-action label buckets and does not change strategy config,
+  campaigns, gates, execution, or promotion evidence. Use
   `make price-action-forward-returns`.
-- `research/run_price_action_stability_report.py` — research-only consumer of
-  a saved price-action forward-return artifact; splits rows into chronological
-  windows and reports whether label-conditioned deltas persist across windows.
-  It does not select strategies, authorize filters, change configs, start
-  campaigns, or create promotion evidence. Use `make price-action-stability`.
-- `research/run_price_action_research_pipeline.py` — research-only orchestration
-  wrapper that runs archive labels, forward-return join, and window stability
-  together, writing all artifacts under an explicit output directory. It does
-  not select strategies, authorize filters, change configs, start campaigns, or
-  create promotion evidence. Use `make price-action-pipeline`.
+- `research/run_price_action_window_stability.py` — read-only multi-window
+  price-action stability report over archived OHLCV; compares label-conditioned
+  forward returns against unconditioned baselines across windows and does not
+  change strategy config, campaigns, gates, execution, or promotion evidence.
+  Use `make price-action-window-stability`.
+- `research/run_price_action_candidate_triage.py` — read-only price-action
+  candidate triage report over archived OHLCV; ranks label/side pairs for
+  manual review only and does not change strategy config, campaigns, gates,
+  execution, or promotion evidence. Use `make price-action-candidate-triage`.
+- `research/run_price_action_research_pipeline.py` — read-only pipeline wrapper
+  that runs the accepted price-action labels, forward-returns, window-stability,
+  and candidate-triage reports in sequence and writes a summary manifest. It
+  does not change strategy config, campaigns, gates, ingestion, execution, or
+  promotion evidence. Use `make price-action-research-pipeline`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
