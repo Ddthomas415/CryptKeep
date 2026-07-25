@@ -24741,3 +24741,59 @@ Remaining risk:
 - LOW/MEDIUM: research-only classification affects interpretation, not trading
   authority.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T20:43:00Z - Intent Runtime Ruff CI Unblock
+
+Active role: ENGINEER
+
+Objective:
+- Unblock the active research PR stack after GitHub CI began failing its
+  intent-runtime ruff slice on existing execution files.
+
+What was found:
+- SHOWN: PR #363 GitHub `CI validate` failed in the ruff step, not in the
+  price-action research tests. The ruff target list was
+  `services/execution/intent_writer.py`,
+  `services/execution/intent_consumer.py`,
+  `services/execution/live_intent_consumer.py`, and
+  `services/execution/held_intents.py`.
+- SHOWN: failures were lint-only classes: import ordering, legacy
+  `typing.Dict`/`List`, `datetime.timezone.utc`, unused `noqa`, broad catches
+  at intentional submit/lookup ambiguity boundaries, silent cleanup `pass`, and
+  one loop-variable lambda binding.
+
+What changed:
+- Updated imports/type annotations and `datetime.UTC` usage.
+- Narrowed local parse/unlink cleanup exceptions where behavior is unchanged.
+- Added debug logging for best-effort cleanup failures instead of silent pass.
+- Preserved intentional submit/venue-lookup catch-all behavior with targeted
+  `noqa: BLE001` comments, because those paths convert ambiguous venue failures
+  into recorded intent states rather than letting the loop die.
+- Bound the sandbox loop variable in the clock-sanity adapter factory lambda.
+
+Why this change was chosen:
+- The blocker is a CI lint baseline issue in intent-runtime files. The smallest
+  safe repair is lint-only cleanup that preserves the existing fail-closed and
+  ambiguity-recording behavior.
+
+Expected outcome:
+- The GitHub ruff step should stop blocking unrelated research PRs while the
+  execution behavior remains unchanged.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/held_intents.py services/execution/intent_consumer.py services/execution/intent_writer.py services/execution/live_intent_consumer.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_consumer_locking_and_paths.py tests/test_live_lock_stale_pid_cleanup.py tests/test_intent_writer_execution_bridge.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_consumer_risk_claim.py tests/test_live_sandbox_config_fail_closed.py tests/test_live_intent_consumer_order_store_gating.py tests/test_stale_submitting_recovery.py`
+  - SHOWN: `42 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `16 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+- Local `ruff` was not run because the repo venv does not currently have
+  `ruff` installed; GitHub CI is the ruff proof.
+
+Remaining risk:
+- HIGH by file surface: this touches live intent-runtime files, although the
+  intended change is lint-only. GitHub CI and human/operator review remain the
+  merge proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
