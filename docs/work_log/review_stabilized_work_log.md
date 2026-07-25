@@ -25,6 +25,52 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:05:00Z - Retention Policy Scope Guard (Deferred Structure #22)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the accepted paper/research retention policy.
+
+What was found:
+- `docs/RETENTION_POLICY.md` documents default keep/rotate/must-not-keep
+  families, pruning safety requirements, Hetzner paper-host thresholds, and a
+  capped-live launch caveat.
+- The policy was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_retention_policy_scope.py`.
+- The test pins keep/rotate/must-not-keep families, secret incident handling,
+  pruning safety requirements, server thresholds, Hetzner link existence, and
+  capped-live caveat.
+- Added executable-guard notes to the retention policy doc, backlog, and work
+  log.
+
+Why this change was chosen:
+- It preserves the accepted retention boundary with docs/test-only coverage and
+  does not add pruning/deletion behavior.
+
+Expected outcome:
+- Future edits that silently allow deletion of canonical evidence, retention of
+  forbidden sensitive material, or treating paper-host thresholds as capped-live
+  proof fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_retention_policy_scope.py tests/test_operator_runbook_policy_guards.py tests/test_operational_core_scope.py tests/test_ci_ignored_tests_policy.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile tests/test_retention_policy_scope.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change storage, pruning, backup, deployment,
+  campaign, gate, dashboard, or execution behavior. Future launch-packet host
+  evidence remains open.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T16:35:00Z - Operator Runbook Policy Guards (Active #24/#25/#27)
 
 Active role: ENGINEER
