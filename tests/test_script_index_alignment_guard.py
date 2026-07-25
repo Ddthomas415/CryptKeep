@@ -47,6 +47,7 @@ def test_make_script_index_points_to_maintained_docs():
     assert "make price-action-window-stability" in target
     assert "make price-action-candidate-triage" in target
     assert "make price-action-research-pipeline" in target
+    assert "make research-pipeline-status" in target
     assert "docs/GOLDEN_PATH.md" in target
     assert "scripts/SCRIPTS.md" in target
     assert "ls scripts/*.py" not in target
@@ -81,6 +82,7 @@ def test_accepted_research_tools_have_script_index_and_makefile_links():
         "research/run_price_action_window_stability.py": "make price-action-window-stability",
         "research/run_price_action_candidate_triage.py": "make price-action-candidate-triage",
         "research/run_price_action_research_pipeline.py": "make price-action-research-pipeline",
+        "research/report_research_pipeline_status.py": "make research-pipeline-status",
         "report_execution_cost_stack.py": None,
     }
     for script, target in expected.items():
