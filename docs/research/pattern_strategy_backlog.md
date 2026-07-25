@@ -19,9 +19,10 @@ and provenance-qualified paper paths.
 
 ## Price-Action Context Feature Pack
 
-Status: first OHLCV-only research label extractor, label-conditioned
-forward-return report, multi-window stability report, and manual-review
-candidate triage report implemented; strategy/campaign use remains deferred.
+Status: research-only label tooling added; strategy use remains deferred.
+The implemented slices include an OHLCV-only research label extractor,
+label-conditioned forward-return report, multi-window stability report, and
+manual-review candidate triage report; strategy/campaign use remains deferred.
 
 Purpose:
 
@@ -64,6 +65,7 @@ Data-source boundary:
   for high-quality historical/live market data schemas such as MBO, MBP, TBBO,
   trades, and OHLCV, but adopting it adds API-key, cost, dataset/schema,
   symbology, and non-crypto/futures/equities data-governance decisions.
+  The starting RFC is `docs/research/databento_data_source_rfc.md`.
 
 Required artifact shape:
 
@@ -107,8 +109,9 @@ campaign evidence, promotion evidence, or strategy config change is produced.
 
 The third slice repeats that comparison across fixed archive windows and
 summarizes each label bucket's average delta versus the unconditioned baseline,
-including outperformance and underperformance window ratios. It is stability
-triage only; it does not make an activation or profitability claim.
+including outperformance and underperformance window ratios. It is descriptive
+stability evidence only, not a strategy-selection or confirmation-filter
+authority. It does not make an activation or profitability claim.
 
 The fourth slice applies explicit review thresholds to the stability artifact
 and emits candidate label/side pairs for manual review. It is still triage only:
@@ -117,6 +120,9 @@ profitability claim, or an activation decision.
 
 Research acceptance before use:
 
+- Join labels to forward returns after fees/slippage.
+- Compare label-conditioned returns against unconditioned baseline.
+- Show out-of-sample stability across multiple windows.
 - Run real archive reports over multiple symbols/timeframes.
 - Review label-conditioned returns against unconditioned baseline.
 - Review out-of-sample stability, sample size, and underperformance rate.
@@ -151,3 +157,11 @@ Do not promote a new pattern strategy from idea to campaign without:
 Do not promote a price-action label directly to execution authority. The first
 eligible use is as a research-only context feature, then as a separately
 reviewed confirmation filter if evidence supports it.
+
+## Executable Guard
+
+`tests/test_price_action_research_boundary_guard.py` pins the research-only
+status, core OHLCV label scope, non-authority artifact flags, data-source
+deferrals, acceptance-before-use requirements, and backlog link so price-action
+labels cannot silently become strategy, campaign, promotion, or execution
+authority.

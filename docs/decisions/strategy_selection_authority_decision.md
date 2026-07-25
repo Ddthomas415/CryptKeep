@@ -40,3 +40,10 @@ same no-substitution rule applies there as well.
 - Missing strategy name continues to use the existing `ema_cross` default.
 - Synthetic execution continues to use the strategy block, not the reporting
   label.
+
+## Executable Guard
+
+`tests/test_strategy_selection_authority_decision_guard.py` pins configured
+strategy identity as the only execution authority, advisory selector boundaries,
+synthetic evidence-label boundaries, invariants, and backlog linkage so
+selection/advisor output cannot silently regain execution authority.
