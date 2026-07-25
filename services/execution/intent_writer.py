@@ -4,7 +4,7 @@ import json
 import sqlite3
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +12,7 @@ from storage.intent_queue_sqlite import IntentQueueSQLite
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass(frozen=True)
@@ -111,7 +111,7 @@ class IntentWriter:
                         "linked_order_id": None,
                     }
                 )
-            except Exception as _mirror_err:  # noqa: BLE001 - propagate storage-layer failure
+            except Exception as _mirror_err:
                 # Mirror failure is not suppressed: an intent in pipeline_intents
                 # with no queue entry will never be executed. Re-raise so callers
                 # can observe the partial write and handle or retry.
@@ -132,7 +132,7 @@ class IntentWriter:
             return None
         try:
             meta = json.loads(row["meta_json"] or "{}")
-        except Exception:
+        except (TypeError, json.JSONDecodeError):
             meta = {}
         return {
             "intent_id": str(row["intent_id"]),
@@ -165,7 +165,7 @@ class IntentWriter:
         for row in rows:
             try:
                 meta = json.loads(row["meta_json"] or "{}")
-            except Exception:
+            except (TypeError, json.JSONDecodeError):
                 meta = {}
             out.append(
                 {
@@ -192,7 +192,7 @@ class IntentWriter:
             )
         try:
             IntentQueueSQLite().update_status(str(intent_id), str(status), last_error=last_error)
-        except Exception as _mirror_err:  # noqa: BLE001 - propagate storage-layer failure
+        except Exception as _mirror_err:
             # Status divergence between pipeline_intents and queue is not suppressed.
             # Re-raise so callers observe the incomplete update.
             raise RuntimeError(

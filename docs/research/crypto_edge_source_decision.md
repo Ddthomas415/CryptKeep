@@ -60,3 +60,37 @@ The default read-only collector plan should stop depending on the externally
 blocked Binance derivatives path and should begin accumulating the funding,
 open-interest, and basis history needed for future `funding_extreme` and
 `open_interest_shift` research.
+
+## Research Artifact Chain
+
+The current funding research path is read-only and artifact-based:
+
+- `make funding-context-replay` replays stored crypto-edge rows into
+  deterministic `funding_extreme` signal context.
+- `make funding-context-price-join` joins stored funding snapshots to archived
+  OHLCV forward-return rows.
+- `make funding-threshold-sensitivity` recomputes hypothetical action counts
+  and unit-size modeled forward returns for explicit threshold grids over an
+  existing price-join artifact.
+- `make funding-threshold-window-stability` compares those threshold pairs
+  across fixed row windows over an existing price-join artifact.
+- `make funding-threshold-candidate-triage` ranks threshold pairs for manual
+  review over an existing sensitivity artifact.
+- `make funding-threshold-stability-triage` ranks threshold pairs for manual
+  review over an existing window-stability artifact.
+- `make funding-threshold-research-pipeline` is a read-only funding-threshold
+  research pipeline wrapper that runs the accepted
+  price-join, sensitivity, direct-triage, window-stability, and
+  stability-triage reports in sequence and writes a summary manifest.
+
+These reports do not change strategy config, start campaigns, modify gates,
+route orders, compute portfolio PnL, or produce promotion evidence. The
+pipeline wrapper does not change collectors, strategy config, campaigns, gates,
+ingestion, execution, or promotion evidence.
+
+## Executable Guard
+
+`tests/test_crypto_edge_source_decision_guard.py` pins the read-only research
+scope, evidence basis, unresolved host/data unknowns, hard boundaries, default
+collector-plan venues, and backlog/structural-doc links so the OKX source
+decision cannot silently become live-routing or promotion-evidence authority.

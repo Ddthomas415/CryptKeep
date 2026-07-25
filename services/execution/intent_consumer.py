@@ -1,33 +1,41 @@
 from __future__ import annotations
-import sqlite3
-from services.admin.config_editor import ConfigLoadError
-from services.execution.state_authority import LiveStateContext, update_live_queue_status_as_intent_consumer
+
 import json
+import logging
 import os
+import sqlite3
 import time
-from datetime import datetime, timezone
-from services.config_loader import ConfigLoadError as RuntimeConfigLoadError, load_runtime_trading_config
-from services.markets.math_utils import decimal_product, decimal_value
-from services.os.app_paths import runtime_dir, ensure_dirs
-from services.risk.market_quality_guard import check as mq_check
-from services.market_data.symbol_router import normalize_venue, normalize_symbol
+from datetime import UTC, datetime
+
+from services.admin.config_editor import ConfigLoadError
+from services.config_loader import ConfigLoadError as RuntimeConfigLoadError
+from services.config_loader import load_runtime_trading_config
+from services.control.managed_component import clean_stale_lock_file
 from services.execution.live_arming import is_live_sandbox, live_enabled_and_armed, live_risk_cfg
 from services.execution.live_exchange_adapter import LiveExchangeAdapter
+from services.execution.state_authority import (
+    LiveStateContext,
+    update_live_queue_status_as_intent_consumer,
+)
+from services.market_data.symbol_router import normalize_symbol, normalize_venue
+from services.markets.math_utils import decimal_product, decimal_value
+from services.os.app_paths import ensure_dirs, runtime_dir
+from services.os.file_utils import atomic_write
+from services.risk.market_quality_guard import check as mq_check
+from services.risk.staleness_guard import is_snapshot_fresh
 from storage.live_intent_queue_sqlite import LiveIntentQueueSQLite
 from storage.live_trading_sqlite import LiveTradingSQLite
-from services.risk.staleness_guard import is_snapshot_fresh
-from services.os.file_utils import atomic_write
-from services.control.managed_component import clean_stale_lock_file
 
 FLAGS = runtime_dir() / "flags"
 LOCKS = runtime_dir() / "locks"
 STOP_FILE = FLAGS / "intent_consumer.stop"
 LOCK_FILE = LOCKS / "intent_consumer.lock"
 STATUS_FILE = FLAGS / "intent_consumer.status.json"
+_LOG = logging.getLogger(__name__)
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _write_status(obj: dict) -> None:
@@ -50,12 +58,12 @@ def _acquire_lock() -> bool:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(payload)
-    except Exception:
+    except OSError:
         try:
             if LOCK_FILE.exists():
                 LOCK_FILE.unlink()
-        except Exception:
-            pass
+        except OSError as exc:
+            _LOG.debug("intent_consumer.lock_cleanup_failed err=%s:%s", type(exc).__name__, exc)
         raise
     return True
 
@@ -64,8 +72,8 @@ def _release_lock() -> None:
     try:
         if LOCK_FILE.exists():
             LOCK_FILE.unlink()
-    except Exception as _err:
-        pass  # suppressed: intent_consumer.py
+    except OSError as exc:
+        _LOG.debug("intent_consumer.lock_release_failed err=%s:%s", type(exc).__name__, exc)
 
 
 def request_stop() -> dict:
@@ -76,7 +84,7 @@ def request_stop() -> dict:
 
 
 def _risk_reset_if_needed(db: LiveIntentQueueSQLite) -> None:
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     cur = db.get_state("risk:day") or ""
     if cur != today:
         db.reset_risk_state_for_day(today)
@@ -119,8 +127,8 @@ def run_forever() -> None:
     try:
         if STOP_FILE.exists():
             STOP_FILE.unlink()
-    except Exception as _err:
-        pass  # suppressed: intent_consumer.py
+    except OSError as exc:
+        _LOG.debug("intent_consumer.stop_file_cleanup_failed err=%s:%s", type(exc).__name__, exc)
 
     if not _acquire_lock():
         _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})
@@ -255,7 +263,7 @@ def run_forever() -> None:
                     })
                     submitted += 1
 
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - submit-path ambiguity must be captured and recorded
                     if not update_live_queue_status_as_intent_consumer(qdb, it, "rejected", ctx=ctx, last_error=f"{type(e).__name__}:{e}", client_order_id=client_order_id):
                         continue
                     ldb.upsert_order({
