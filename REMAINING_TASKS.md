@@ -2462,6 +2462,13 @@ substrate work, but they are concrete enough to keep visible.
     completed/proof-ready implementation text from remaining operator evidence,
     read-only research/reporting, and the small set of genuinely high-risk
     capped-live coding objectives.
+    2026-07-22: executable backlog execution-lanes guard is ready for review.
+    `tests/test_backlog_execution_lanes_guard.py` pins
+    `REMAINING_TASKS.md` as the backlog source of truth, the four lane
+    definitions, the warning not to rebuild completed/proof-ready work,
+    high-risk no-mixed-batch boundaries, the same-lane batching rule, and the
+    current practical order. This is docs/test only and does not decide any
+    backlog item, authorize implementation, or change runtime behavior.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
