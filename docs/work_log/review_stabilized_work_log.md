@@ -7587,66 +7587,6 @@ Remaining risk:
   were not checked in this session.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
-## 2026-07-22T15:04:52Z - Price-Action Research Pipeline Wrapper (Batch 2 Research Tooling)
-
-Active role: ENGINEER
-
-Objective:
-- Add a single research-only command that runs the accepted price-action label,
-  forward-return, and stability artifact steps together from archived OHLCV.
-
-What was found:
-- SHOWN: the three component builders already existed and carried explicit
-  non-authority flags.
-- SHOWN: running the three commands manually creates avoidable operator
-  friction and creates room for mismatched input artifacts between steps.
-- SHOWN: the pipeline wrapper declares fee/slippage defaults that are forwarded
-  to the forward-return joiner, so the blueprint fee-surface census must name
-  it as a research-only cost passthrough.
-
-What changed:
-- Added `services/analytics/price_action_research_pipeline.py`, a thin
-  orchestration wrapper that runs archive labels, forward returns, and window
-  stability, then records component status and hashes in a pipeline summary.
-- Added `scripts/research/run_price_action_research_pipeline.py` and
-  `make price-action-pipeline`.
-- Added `tests/test_price_action_research_pipeline.py`, covering successful
-  artifact writing, archive failure propagation, CLI output, and non-ok exit
-  behavior.
-- Added `services/analytics/price_action_research_pipeline.py` to the
-  executable fee-surface census and `docs/architecture/SYSTEM_BLUEPRINT.md` as
-  a research-only, non-campaign/promotion evidence cost passthrough.
-- Updated `docs/research/pattern_strategy_backlog.md`,
-  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
-
-Why this change was chosen:
-- The pipeline reduces manual glue without creating new strategy authority.
-  Component reports remain descriptive research artifacts and still require
-  separate review before any confirmation-filter or strategy use.
-
-Expected outcome:
-- Operators can generate a complete price-action research artifact set with one
-  command while preserving hashes and stage-level pass/fail reasons.
-
-Verification:
-- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py`
-  - SHOWN: `4 passed`.
-- `./.venv/bin/python -m py_compile services/analytics/price_action_research_pipeline.py scripts/research/run_price_action_research_pipeline.py tests/test_price_action_research_pipeline.py`
-  - SHOWN: passed with no output.
-- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py tests/test_price_action_stability_report.py tests/test_price_action_forward_return_join.py tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
-  - SHOWN: `57 passed`.
-- `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`, repo doctor rc=0, guard tests `23 passed`.
-- `make price-action-pipeline PRICE_ACTION_PIPELINE_ARGS="--archive-db /tmp/cbp-price-action-pipeline-market.sqlite --venue coinbase --symbol BTC/USD --timeframe 1m --limit 12 --output-dir /tmp/cbp-price-action-pipeline-out --swing-lookback 2 --range-lookback 2 --horizon-bars 1 --fee-bps 0 --slippage-bps 0 --forward-min-label-count 1 --window-size-rows 4 --stability-min-windows 3 --stability-min-label-count 1 --fail-if-not-ok"`
-  - SHOWN: output artifact `price_action_research_pipeline_v1`, `ok=True`;
-    labels, forward-return, and stability stages all `ok=True`.
-
-Remaining risk:
-- MEDIUM: research-only and no runtime execution changes, but it coordinates
-  multiple artifact steps. Any strategy/filter use still requires accepted
-  archive artifacts, sufficient samples, and separate review.
-- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
-
 ## 2026-07-17T04:19:11Z - Paper-Campaign Manifest Audit CLI (Substrate Backlog #14)
 
 Active role: ENGINEER
@@ -24182,64 +24122,1165 @@ Remaining risk:
   independent review are required before treating it as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
-## 2026-07-22T02:55:00Z - Paper/Backtest Sequence Parity Guard (Batch 3)
+## 2026-07-22T19:18:00Z - Operator Doc Reference Path Guard
 
 Active role: ENGINEER
 
 Objective:
-- Advance the paper evidence / analytics correctness batch by extending
-  backtest-to-paper parity from individual fill price/fee checks to a full
-  closed round-trip accounting check.
+- Guard operator-facing docs against stale references to repo docs, scripts, and
+  campaign config files.
 
 What was found:
-- SHOWN: item 28 paper net-of-fees PnL and item 7 direct paper-ledger invariant
-  tests were already implemented and recorded in `REMAINING_TASKS.md`.
-- SHOWN: the existing parity guard covered paper market fill price and fee
-  versus `services.execution.fill_model.apply_fee_slippage()` for individual
-  buy/sell fills, but did not replay a closed backtest trade through
-  `PaperTradingSQLite`.
-- SHOWN by the new failing test before the fix: `run_parity_backtest()` permits
-  an all-in buy when total cost is within `1e-9` of cash, while
-  `PaperTradingSQLite.apply_fill()` rejected the same calculated fill as
-  `insufficient_cash` because of strict float comparison.
+- The Golden Path, incident runbooks, paper campaign recovery runbook, evidence
+  model, launch checklist, and release checklist contain explicit repo-path
+  references that operators may copy or follow during recovery, launch, release,
+  or gate checks.
+- Existing guards pin selected command and policy content, but there was no
+  single guard checking that these operator docs do not point at missing repo
+  files.
 
 What changed:
-- Added a deterministic sequence-level parity test in
-  `tests/test_backtest_parity_engine.py`: fake signals buy on bar 1 and sell
-  on bar 2, then the resulting backtest fills are replayed through
-  `PaperTradingSQLite`.
-- The test asserts paper cash, realized net PnL, final equity, flat position,
-  and `pnl_usd_semantics=net_of_fees` match the backtest round trip.
-- Updated `PaperTradingSQLite.apply_fill()` to use the same sub-nanodollar
-  `1e-9` cash-affordability tolerance for paper buy fills and clamp only that
-  floating residue to zero.
-- Updated `REMAINING_TASKS.md` item 5 with the 2026-07-22 proof note.
+- Added `tests/test_operator_doc_reference_paths.py`.
+- The test scans the main operator docs for `docs/*.md`, `scripts/*.py`, and
+  `configs/*.{json,yaml,example.json}` references and fails if any referenced
+  file is missing.
+- The test also pins that the operator docs still reference the core promotion
+  gate, paper collector, recovery, runbook, and release-checklist surfaces.
 
-Why this change:
-- Evidence transferability depends on more than price/fee parity. A backtest
-  round trip and a paper-storage round trip must agree on net PnL and cash, or
-  archive research and paper evidence can disagree for accounting rather than
-  strategy reasons.
+Why this change was chosen:
+- Broken operator-doc paths waste recovery/review time and can send the
+  operator to stale commands. A generic path guard catches that drift without
+  touching runtime behavior.
 
 Expected outcome:
-- Future changes to paper storage or the backtest parity engine that drift
-  closed-trade accounting will fail a targeted regression before affecting
-  paper evidence interpretation.
+- Future docs edits that rename or remove operator-facing referenced files fail
+  a targeted test before the stale instructions merge.
 
 Verification:
-- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py::test_parity_backtest_round_trip_matches_paper_storage_net_pnl`
-  - SHOWN: failed before the fix on `buy["ok"] is True`; passed after the
-    paper cash-tolerance fix.
-- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_paper_trading_sqlite_invariants.py tests/test_paper_engine_honesty.py tests/test_paper_engine_integration.py tests/test_check_promotion_gates.py tests/test_gate_pnl_semantics_visibility.py`
-  - SHOWN: `84 passed`.
-- `./.venv/bin/python -m py_compile storage/paper_trading_sqlite.py tests/test_backtest_parity_engine.py`
-  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_operator_doc_reference_paths.py tests/test_script_path_references_exist.py tests/test_makefile_wiring.py tests/test_pre_release_sanity_doc_wiring.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m py_compile tests/test_operator_doc_reference_paths.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
 
 Remaining risk:
-- MEDIUM/HIGH: this is paper financial-accounting logic. It is paper-only and
-  does not touch live trading, order routing, promotion gate thresholds, or
-  strategy behavior, but it should receive independent review before being
-  treated as accepted.
+- LOW: test/work-log only. It does not change docs content, runtime behavior,
+  campaigns, gates, or release tooling.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:18:00Z - Operator Doc Make Target Guard
+
+Active role: ENGINEER
+
+Objective:
+- Guard copied `make <target>` commands in operator-facing docs against
+  Makefile drift.
+
+What was found:
+- README, the script index, Golden Path, recovery runbook, incident runbooks,
+  launch checklist, and release checklist contain Makefile commands operators
+  may copy during routine status checks, recovery, validation, or release work.
+- Existing tests cover selected command wiring, but there was no generic guard
+  that every documented `make <target>` in those operator docs exists in
+  `Makefile`.
+
+What changed:
+- Added `tests/test_operator_doc_make_targets.py`.
+- The test scans the main operator docs for `make <target>` references and
+  fails if a referenced target is missing from `Makefile`.
+- The test also pins that core status, recovery, gate, paper-run, validation,
+  and pre-release targets remain documented somewhere in the operator surface.
+
+Why this change was chosen:
+- Broken copied commands waste operator time during check-in or recovery. A
+  generic target guard catches stale command names without changing docs,
+  Makefile behavior, or runtime code.
+
+Expected outcome:
+- Future docs edits or Makefile target renames that leave stale copied
+  operator commands fail a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_doc_make_targets.py tests/test_makefile_wiring.py tests/test_pre_release_sanity_doc_wiring.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m py_compile tests/test_operator_doc_make_targets.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: test/work-log only. It does not change Makefile targets, scripts,
+  runtime behavior, campaigns, gates, or release tooling.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:26:00Z - README Runtime Truth Alignment
+
+Active role: ENGINEER
+
+Objective:
+- Align README's operator startup wording with `docs/CURRENT_RUNTIME_TRUTH.md`.
+
+What was found:
+- README still labeled `scripts/bot_ctl.py -> scripts/run_bot_safe.py` as the
+  canonical operator path.
+- `docs/CURRENT_RUNTIME_TRUTH.md` states the current canonical operator control
+  plane is `scripts/start_bot.py`, `scripts/stop_bot.py`, and
+  `scripts/bot_status.py`, while `bot_ctl.py` and `run_bot_safe.py` are
+  compatibility-only legacy surfaces.
+
+What changed:
+- Updated README to name the current canonical operator control plane and mark
+  `bot_ctl.py` / `run_bot_safe.py` as compatibility-only surfaces.
+- Added `tests/test_readme_runtime_truth_alignment.py` to pin README alignment
+  with `docs/CURRENT_RUNTIME_TRUTH.md` and prevent the compatibility path from
+  being relabeled canonical.
+
+Why this change was chosen:
+- README is the first operator-facing entry point. A stale canonical startup
+  path can send operators into compatibility surfaces instead of the current
+  supervised control plane.
+
+Expected outcome:
+- Future README drift back toward the legacy canonical path fails a targeted
+  test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py tests/test_operator_doc_make_targets.py tests/test_root_dependency_contract.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m py_compile tests/test_readme_runtime_truth_alignment.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:58:00Z - Dashboard Crypto Edge Collector Script Path
+
+Active role: ENGINEER
+
+Objective:
+- Fix the dashboard crypto-edge collector start/stop path so it points at the
+  existing collector script and update the operator doc.
+
+What was found:
+- SHOWN: `dashboard.services.operator.start_crypto_edge_collector_loop(...)`
+  and `stop_crypto_edge_collector_loop(...)` referenced
+  `scripts/run_crypto_edge_collector_loop.py`.
+- SHOWN: this checkout has `scripts/data/run_crypto_edge_collector_loop.py`,
+  not the root `scripts/run_crypto_edge_collector_loop.py`.
+- Impact: dashboard collector start/stop could fail closed with
+  `missing_script:scripts/run_crypto_edge_collector_loop.py` even though the
+  real collector CLI exists.
+
+What changed:
+- Added `CRYPTO_EDGE_COLLECTOR_SCRIPT =
+  "scripts/data/run_crypto_edge_collector_loop.py"` to
+  `dashboard/services/operator.py`.
+- Routed dashboard crypto-edge collector start/stop and allowlist checks
+  through that constant.
+- Updated `docs/COLLECTOR_CONTROL.md` to document the current dashboard
+  control path, read-only research boundary, and OPERATOR-role requirement.
+- Added regression tests proving the configured script exists, is allowlisted,
+  and is the path documented for collector control.
+
+Why this change was chosen:
+- The smallest runtime fix is path alignment to the existing script. It keeps
+  role guards and missing-script fail-closed behavior intact while restoring
+  the intended dashboard operator action.
+
+Expected outcome:
+- Dashboard crypto-edge collector start/stop no longer points at a missing
+  script; future path drift fails a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_collector_control_doc.py tests/test_dashboard_operator_service.py tests/test_dashboard_operator_role_guard.py tests/test_dashboard_operator_remaining_role_guard.py tests/test_run_crypto_edge_collector_loop.py tests/test_no_legacy_state_paths.py`
+  - SHOWN: `31 passed`.
+- `./.venv/bin/python -m py_compile dashboard/services/operator.py tests/test_collector_control_doc.py tests/test_dashboard_operator_role_guard.py tests/test_dashboard_operator_service.py`
+
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+
+Remaining risk:
+- MEDIUM: touches dashboard operator background-job script routing for a
+  read-only research collector. It does not change trading execution, gates,
+  live order routing, or collector internals.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:49:00Z - Process Control Runtime Truth Guard
+
+Active role: ENGINEER
+
+Objective:
+- Keep `docs/PROCESS_CONTROL.md` aligned with the canonical runtime truth and
+  pin its compatibility boundary for operator-facing process control.
+
+What was found:
+- `docs/PROCESS_CONTROL.md` correctly listed the current supervised startup,
+  stop, status, status-file, and compatibility surfaces, but did not explicitly
+  defer authority to `docs/CURRENT_RUNTIME_TRUTH.md` and had no focused guard.
+
+What changed:
+- Added an authority/alignment note and executable-guard note to
+  `docs/PROCESS_CONTROL.md`.
+- Added `tests/test_process_control_runtime_truth_guard.py`, covering the
+  canonical control plane, status surfaces, managed service names,
+  compatibility-only legacy surface, and dashboard Process Control boundary.
+
+Why this change was chosen:
+- Process Control is an operator-facing runtime surface. Guarding the doc
+  prevents stale startup/status paths from re-entering the dashboard/process
+  operator workflow by documentation drift.
+
+Expected outcome:
+- Future docs edits that move PROCESS_CONTROL away from the canonical runtime
+  truth or promote legacy bot-control paths fail a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_process_control_runtime_truth_guard.py tests/test_bot_control_runtime_truth_guard.py tests/test_current_runtime_truth_guard.py tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py`
+  - SHOWN: `24 passed`.
+- `./.venv/bin/python -m py_compile tests/test_process_control_runtime_truth_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- CI correction: replaced raw double-quoted legacy `data/...` and
+  `runtime/...` literals in the guard test with constructed strings so
+  `tests/test_no_legacy_state_paths.py` continues to enforce the repository
+  state-path rule while this test still verifies operator-doc wording.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:42:00Z - Bot Control Runtime Truth Guard
+
+Active role: ENGINEER
+
+Objective:
+- Keep `docs/BOT_CONTROL.md` aligned with `docs/CURRENT_RUNTIME_TRUTH.md` and
+  prevent legacy bot-control surfaces from being relabeled canonical.
+
+What was found:
+- `docs/BOT_CONTROL.md` correctly described `scripts/start_bot.py`,
+  `scripts/stop_bot.py`, and `scripts/bot_status.py` as the canonical operator
+  control plane, but it did not explicitly defer authority to
+  `docs/CURRENT_RUNTIME_TRUTH.md` and had no focused guard.
+
+What changed:
+- Added an authority/alignment note and executable-guard note to
+  `docs/BOT_CONTROL.md`.
+- Added `tests/test_bot_control_runtime_truth_guard.py`, covering canonical
+  control commands, runtime-truth alignment, compatibility-only legacy
+  surfaces, decision-only compatibility boundary, and live-confirmation
+  requirements.
+
+Why this change was chosen:
+- `BOT_CONTROL.md` is an operator-facing topology summary. If it drifts from
+  the current runtime truth document, operators can follow stale startup/stop
+  authority even when README is correct.
+
+Expected outcome:
+- Future edits that blur the canonical startup/status path or promote legacy
+  compatibility controls fail a targeted test.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_bot_control_runtime_truth_guard.py tests/test_current_runtime_truth_guard.py tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py`
+  - SHOWN: `19 passed`.
+- `./.venv/bin/python -m py_compile tests/test_bot_control_runtime_truth_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- CI correction: replaced raw double-quoted legacy `data/...` literals in the
+  guard test with constructed strings so `tests/test_no_legacy_state_paths.py`
+  continues to enforce the repository state-path rule while this test still
+  verifies compatibility-only doc wording.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T21:34:00Z - Current Runtime Truth Guard
+
+Active role: ENGINEER
+
+Objective:
+- Pin `docs/CURRENT_RUNTIME_TRUTH.md` as the source-of-truth document for
+  canonical startup, stop, status, compatibility, and startup-reconciliation
+  boundaries.
+
+What was found:
+- README now points to `docs/CURRENT_RUNTIME_TRUTH.md`, but the runtime-truth
+  document itself had no dedicated executable guard. A future edit could move
+  the canonical path, legacy compatibility boundary, or startup-reconciliation
+  caveat without any focused test failing.
+
+What changed:
+- Added an executable-guard note to `docs/CURRENT_RUNTIME_TRUTH.md`.
+- Added `tests/test_current_runtime_truth_guard.py`, covering the canonical
+  operator control plane, runtime truth sources, managed services,
+  compatibility-only legacy surfaces, source-shown startup behavior,
+  startup-reconciliation boundary, and read-only startup audit boundary.
+
+Why this change was chosen:
+- The runtime-truth document is the anchor for resolving stale checkpoint and
+  README runtime claims. The guard makes that anchor explicit and executable
+  without changing startup scripts or runtime behavior.
+
+Expected outcome:
+- Future runtime-doc edits that blur canonical startup/status authority or
+  relabel compatibility-only surfaces fail a targeted test before operators
+  copy stale guidance.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_current_runtime_truth_guard.py tests/test_readme_runtime_truth_alignment.py tests/test_operator_doc_reference_paths.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile tests/test_current_runtime_truth_guard.py`
+  - SHOWN: passed.
+- `git diff --check`
+  - SHOWN: passed.
+- CI correction: replaced raw double-quoted legacy `data/...` literals in the
+  guard test with constructed strings so `tests/test_no_legacy_state_paths.py`
+  continues to enforce the repository state-path rule while this test still
+  verifies historical legacy-path wording in docs.
+
+Remaining risk:
+- LOW: docs/test only. It does not change startup scripts, service control,
+  runtime behavior, campaigns, gates, or live execution.
+- Acceptance state: ACCEPTED.
+
+## 2026-07-22T03:02:52Z - Price-Action Context Labels, Research-Only OHLCV Slice
+
+Active role: ENGINEER
+
+Objective:
+- Implement the first research-only price-action context label extractor from
+  the operator-requested pattern/candlestick backlog, without wiring any
+  strategy, campaign, promotion gate, execution path, or Databento data source.
+
+What was found:
+- SHOWN: `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` scoped fair-value gaps, engulfing candles, swing
+  failures, break/retest, rejection wicks, opening-range state,
+  acceptance/rejection, displacement, manipulation-candidate descriptions, and
+  later volume-profile/Databento work as research-only context labels.
+- SHOWN: no existing implementation for fair-value gap, engulfing,
+  rejection-wick, swing-failure, break/retest, opening-range, or Databento
+  labels existed outside the docs/RFC text.
+- SHOWN: archive-first tooling exists in `services.backtest.ohlcv_archive`, so
+  the label extractor can consume stored OHLCV with dataset hashes instead of
+  adding a live-fetch path.
+
+What changed:
+- Added `services/backtest/price_action_context.py`, a deterministic
+  archive-compatible OHLCV label extractor that emits per-bar labels for
+  engulfing candles, rejection wicks, swing failures, break/retest,
+  fair-value gaps, displacement bars, opening-range state,
+  acceptance/rejection context, and manipulation-candidate descriptions.
+- Added `scripts/research/run_price_action_context_labels.py`, a read-only CLI
+  that reads the existing OHLCV archive, writes/prints a JSON artifact, and
+  returns exit code 2 with `--fail-if-not-ok` when the archive is unavailable.
+- Added `make price-action-context-labels` and the script-index entry.
+- Updated the pattern research backlog and `REMAINING_TASKS.md` to record the
+  first slice and keep forward-return joins, strategy/campaign use,
+  volume-profile work, and Databento deferred.
+- Added `tests/test_price_action_context_labels.py`.
+
+Why this change was chosen:
+- It advances the research-only strategy tooling lane without touching
+  trading authority. The extractor produces reproducible labels and explicit
+  limitation flags, which allows later forward-return analysis without
+  converting discretionary terms into unreviewed strategy logic.
+
+Expected outcome:
+- Operators can generate a dataset-hashed price-action context artifact from
+  archived OHLCV and inspect label frequency before any forward-return,
+  campaign, or strategy-filter decision.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py`
+  - SHOWN: `47 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `make -n price-action-candidate-triage`
+  - SHOWN: invokes `scripts/research/run_price_action_candidate_triage.py`.
+- `make -n script-index`
+  - SHOWN: includes `make price-action-candidate-triage`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research-only analytics can influence future operator decisions if
+  misread. The artifact explicitly carries `research_only`,
+  `not_strategy_config`, `not_campaign_evidence`, `not_promotion_evidence`,
+  and `not_profitability_evidence`; no execution/gate/campaign code is changed.
+- Forward-return joins after modeled costs remain future work.
+- Volume-profile labels and Databento are deferred to stronger data and a
+  separate data-source RFC.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:11:20Z - Price-Action Forward-Return Report, Research-Only Slice
+
+Active role: ENGINEER
+
+Objective:
+- Add the next research-only price-action tooling slice by joining archived
+  OHLCV labels to forward returns after modeled costs, without turning labels
+  into strategy, campaign, gate, execution, or promotion authority.
+
+What was found:
+- SHOWN: the accepted price-action context backlog requires labels to be joined
+  to forward returns after costs before any confirmation-filter review.
+- SHOWN: `services/execution/fill_model.py::apply_fee_slippage` is the existing
+  deterministic backtest/paper-style cost model for fee/slippage assumptions.
+- SHOWN: the first price-action label extractor is archive-backed and carries a
+  dataset hash, so the forward-return report can remain reproducible and
+  research-only.
+
+What changed:
+- Added `services/analytics/price_action_forward_returns.py`, a research-only
+  label-conditioned forward-return report that computes unit-size long/short
+  returns after explicit fee/slippage assumptions.
+- Added `scripts/research/run_price_action_forward_returns.py`, a read-only CLI
+  that writes/prints the report and returns exit code 2 with
+  `--fail-if-not-ok` when archived data is unavailable or insufficient.
+- Added `make price-action-forward-returns` and updated the script index.
+- Updated `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` to record the second slice while preserving the boundary:
+  no strategy config, campaign evidence, promotion evidence, gate, execution,
+  or Databento path changed.
+- Added `tests/test_price_action_forward_returns.py`.
+
+Why this change was chosen:
+- It converts the operator's price-action research request from raw labels into
+  measurable label-conditioned forward-return artifacts, while keeping the
+  results descriptive and separate from any trading authority.
+
+Expected outcome:
+- Operators can compare each label bucket against unconditioned long/short
+  forward returns after modeled costs before deciding whether any label merits
+  separate review as a confirmation filter.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `65 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: this report can influence future research decisions if misread. It
+  remains explicitly marked `research_only`, `not_strategy_config`,
+  `not_campaign_evidence`, `not_promotion_evidence`, and
+  `not_profitability_evidence`.
+- It does not test out-of-sample stability across multiple windows by itself;
+  real archive reports and separate review are still required before strategy
+  use.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:24:31Z - Price-Action Forward-Return CI Census Correction
+
+Active role: ENGINEER
+
+Objective:
+- Fix the failing CI invariant on PR #362 without weakening the blueprint cost
+  surface guard.
+
+What was found:
+- SHOWN: GitHub CI failed in
+  `tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`.
+- SHOWN: the new `services/analytics/price_action_forward_returns.py` file
+  intentionally declares `fee_bps: float = 10.0` and
+  `slippage_bps: float = 5.0` for a research-only forward-return report.
+- SHOWN: the invariant exists to force every new cost surface into the blueprint
+  census instead of allowing uncensused cost assumptions.
+
+What changed:
+- Added `services/analytics/price_action_forward_returns.py` to the executable
+  fee-surface census as a research-only, non-campaign, non-promotion surface.
+- Updated `docs/architecture/SYSTEM_BLUEPRINT.md` from six to seven cost
+  surfaces and added the price-action forward-return report to the configuration
+  map.
+
+Why this change was chosen:
+- The CI failure was correct: the new report is a cost-assumption surface. The
+  right fix is to classify it explicitly, not to relax the invariant.
+
+Expected outcome:
+- CI's full-suite blueprint invariant no longer fails on the new research
+  report, while future uncensused fee surfaces still fail loudly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py`
+  - SHOWN: `20 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `65 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py tests/test_blueprint_invariants.py`
+  - SHOWN: passed.
+
+Remaining risk:
+- LOW/MEDIUM: research-only analytics can influence future operator decisions
+  if misread, but no strategy config, campaign, gate, execution, or promotion
+  authority changes were made.
+
+## 2026-07-22T03:18:05Z - Price-Action Window Stability Report, Research-Only Slice
+
+Active role: ENGINEER
+
+Objective:
+- Add the multi-window stability layer for price-action research so label
+  buckets can be compared against unconditioned forward-return baselines across
+  fixed archive windows, without turning labels into strategy authority.
+
+What was found:
+- SHOWN: the price-action research backlog requires comparison against
+  unconditioned baselines and out-of-sample stability review before any label
+  becomes a confirmation filter.
+- SHOWN: the label extractor and forward-return report are archive-backed and
+  research-only, giving this slice reusable deterministic inputs.
+
+What changed:
+- Added `services/analytics/price_action_window_stability.py`, a research-only
+  multi-window report that reuses the price-action label artifact and
+  forward-return report per window.
+- Added `scripts/research/run_price_action_window_stability.py`, a read-only
+  CLI that writes/prints the stability artifact and returns exit code 2 with
+  `--fail-if-not-ok` when the report cannot satisfy its minimum window count.
+- Added `make price-action-window-stability` and updated the script index.
+- Updated `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` to record the stability slice while preserving the
+  boundary: no strategy config, campaign evidence, promotion evidence, gate,
+  execution, or Databento path changed.
+- Added `tests/test_price_action_window_stability.py`.
+- Refactored `services/analytics/price_action_forward_returns.py` to expose a
+  reusable `build_price_action_forward_return_report(...)` helper so the
+  stability report does not duplicate cost/return math.
+
+Why this change was chosen:
+- It closes the next research-method gap after label extraction and
+  forward-return joins: whether a label's return behavior is stable across
+  windows rather than a single-window artifact.
+
+Expected outcome:
+- Operators can inspect each label bucket's average delta versus unconditioned
+  long/short baselines, along with outperform/underperform window ratios,
+  before any separate activation review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_window_stability.py scripts/research/run_price_action_window_stability.py tests/test_price_action_window_stability.py services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `69 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: this is research analytics that may affect future operator
+  decisions. The artifact is explicitly marked research-only and not campaign,
+  promotion, strategy-config, profitability, or execution evidence.
+- Real archive runs across relevant symbols/timeframes are still required
+  before drawing strategy conclusions.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T20:34:00Z - Price-Action Window Stability Fee-Surface Census Repair
+
+Active role: ENGINEER
+
+Objective:
+- Repair the failing CI blueprint census after retargeting the price-action
+  window-stability research PR onto `master`.
+
+What was found:
+- SHOWN: GitHub CI failed `test_no_new_fee_surface_appeared` because
+  `services/analytics/price_action_window_stability.py` declares
+  `fee_bps: float = 10.0` / `slippage_bps: float = 5.0` and was not listed in
+  the executable fee-surface census.
+
+What changed:
+- Added `services/analytics/price_action_window_stability.py` to the
+  research-only fee-surface census in `tests/test_blueprint_invariants.py`.
+- Added the same research-only classification to
+  `docs/architecture/SYSTEM_BLUEPRINT.md`.
+
+Why this change was chosen:
+- The window-stability report is a research artifact that models forward
+  returns after declared costs. It is not campaign, promotion, or execution
+  evidence, but the cost assumptions must still be explicitly censused.
+
+Expected outcome:
+- The blueprint invariant continues to fail for uncensused fee surfaces while
+  accepting the reviewed window-stability research surface.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared tests/test_blueprint_invariants.py::test_fee_surface_defaults_unchanged`
+  - SHOWN: `9 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `15 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- LOW/MEDIUM: research-only classification affects interpretation, not trading
+  authority.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T20:43:00Z - Intent Runtime Ruff CI Unblock
+
+Active role: ENGINEER
+
+Objective:
+- Unblock the active research PR stack after GitHub CI began failing its
+  intent-runtime ruff slice on existing execution files.
+
+What was found:
+- SHOWN: PR #363 GitHub `CI validate` failed in the ruff step, not in the
+  price-action research tests. The ruff target list was
+  `services/execution/intent_writer.py`,
+  `services/execution/intent_consumer.py`,
+  `services/execution/live_intent_consumer.py`, and
+  `services/execution/held_intents.py`.
+- SHOWN: failures were lint-only classes: import ordering, legacy
+  `typing.Dict`/`List`, `datetime.timezone.utc`, unused `noqa`, broad catches
+  at intentional submit/lookup ambiguity boundaries, silent cleanup `pass`, and
+  one loop-variable lambda binding.
+
+What changed:
+- Updated imports/type annotations and `datetime.UTC` usage.
+- Narrowed local parse/unlink cleanup exceptions where behavior is unchanged.
+- Added debug logging for best-effort cleanup failures instead of silent pass.
+- Preserved intentional submit/venue-lookup catch-all behavior with targeted
+  `noqa: BLE001` comments, because those paths convert ambiguous venue failures
+  into recorded intent states rather than letting the loop die.
+- Bound the sandbox loop variable in the clock-sanity adapter factory lambda.
+
+Why this change was chosen:
+- The blocker is a CI lint baseline issue in intent-runtime files. The smallest
+  safe repair is lint-only cleanup that preserves the existing fail-closed and
+  ambiguity-recording behavior.
+
+Expected outcome:
+- The GitHub ruff step should stop blocking unrelated research PRs while the
+  execution behavior remains unchanged.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/held_intents.py services/execution/intent_consumer.py services/execution/intent_writer.py services/execution/live_intent_consumer.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_consumer_locking_and_paths.py tests/test_live_lock_stale_pid_cleanup.py tests/test_intent_writer_execution_bridge.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_consumer_risk_claim.py tests/test_live_sandbox_config_fail_closed.py tests/test_live_intent_consumer_order_store_gating.py tests/test_stale_submitting_recovery.py`
+  - SHOWN: `42 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `16 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+- Local `ruff` was not run because the repo venv does not currently have
+  `ruff` installed; GitHub CI is the ruff proof.
+
+Remaining risk:
+- HIGH by file surface: this touches live intent-runtime files, although the
+  intended change is lint-only. GitHub CI and human/operator review remain the
+  merge proof.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T03:36:09Z - Price-Action Candidate Triage Report, Research-Only Slice
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by converting the multi-window
+  price-action stability report into explicit manual-review candidate triage,
+  without turning labels into strategy authority.
+
+What was found:
+- SHOWN: the price-action feature-pack backlog requires review of
+  label-conditioned returns, stability, sample size, and underperformance before
+  any label can be considered as a confirmation filter.
+- SHOWN: the existing window-stability artifact already exposes per-label
+  window counts, sample sizes, average delta versus unconditioned baseline, and
+  outperform/underperform window ratios.
+
+What changed:
+- Added `services/analytics/price_action_candidate_triage.py`, a read-only
+  report builder that consumes the stability artifact and applies explicit
+  thresholds for minimum windows, sample size, average delta, outperform ratio,
+  and underperform ratio.
+- Added `scripts/research/run_price_action_candidate_triage.py`, a read-only CLI
+  that prints/writes the triage artifact and returns exit code 2 with
+  `--fail-if-not-ok` only when the underlying archive/stability path is not ok.
+- Added `make price-action-candidate-triage` and script-index output.
+- Updated `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` to record the fourth price-action research slice.
+- Added `tests/test_price_action_candidate_triage.py`.
+
+Why this change was chosen:
+- It removes a manual interpretation step from Batch 2: label candidates are now
+  produced by declared thresholds, with false-positive proxy metadata, while
+  preserving the hard boundary that candidates require separate manual review
+  before any strategy/config/gate use.
+
+Expected outcome:
+- Operators can run a deterministic report that ranks label/side pairs as
+  `candidate_for_manual_review` or `not_candidate` from archived OHLCV research
+  artifacts, without changing campaigns, gates, execution, promotion evidence,
+  or strategy config.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_candidate_triage.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `19 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_candidate_triage.py scripts/research/run_price_action_candidate_triage.py tests/test_price_action_candidate_triage.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py tests/test_makefile_wiring.py`
+  - SHOWN: `74 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage can influence future operator decisions if treated as
+  activation proof. The artifact is explicitly `research_only`,
+  `triage_only`, `not_strategy_config`, `not_campaign_evidence`,
+  `not_promotion_evidence`, `not_profitability_evidence`, and
+  `not_activation_decision`.
+- Real archive runs across relevant symbols/timeframes remain required before
+  drawing strategy conclusions.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T06:27:03Z - Funding Threshold Candidate Triage Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by turning funding-threshold
+  sensitivity output into a deterministic manual-review triage artifact.
+
+What was found:
+- SHOWN: `services.analytics.funding_threshold_sensitivity` already consumes a
+  `funding_context_price_join_v1` artifact and emits per-threshold-pair action
+  counts, action share, positive actionable ratio, and average modeled forward
+  return.
+- SHOWN: the existing sensitivity artifact remains research-only and does not
+  fetch data, change strategy config, start campaigns, compute portfolio PnL,
+  or produce promotion evidence.
+
+What changed:
+- Added `services/analytics/funding_threshold_candidate_triage.py`, a
+  read-only report builder that consumes `funding_threshold_sensitivity_v1`
+  artifacts and classifies threshold pairs as `candidate_for_manual_review` or
+  `not_candidate` using explicit input/actionable/positive-return thresholds.
+- Added `scripts/research/run_funding_threshold_candidate_triage.py`.
+- Added `make funding-threshold-candidate-triage` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  and `REMAINING_TASKS.md` with the research-only scope.
+- Added `tests/test_funding_threshold_candidate_triage.py`.
+
+Why this change was chosen:
+- It removes another manual interpretation step from the funding research path
+  while preserving the boundary that threshold candidates are not strategy
+  config, campaign evidence, promotion evidence, profitability evidence, or an
+  activation decision.
+
+Expected outcome:
+- Operators can rank funding threshold pairs for manual review from an existing
+  sensitivity artifact without changing campaigns, gates, execution, promotion
+  evidence, or strategy configuration.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_candidate_triage.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_threshold_candidate_triage.py scripts/research/run_funding_threshold_candidate_triage.py tests/test_funding_threshold_candidate_triage.py`
+  - SHOWN: passed with no output.
+- `make -n funding-threshold-candidate-triage`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_funding_threshold_candidate_triage.py`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_ohlcv_archive_backfill_runner.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `49 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage can influence future operator decisions if treated as
+  activation proof. The artifact is explicitly research-only and requires
+  separate review before any strategy/config/gate use.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T06:35:00Z - Funding Threshold Window-Stability Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by adding a funding-threshold
+  window-stability report before threshold pairs are treated as manual-review
+  candidates.
+
+What was found:
+- SHOWN: `funding_threshold_sensitivity_v1` scores threshold pairs over one
+  full input artifact, but does not show whether the same threshold pair is
+  consistent across smaller windows.
+- SHOWN: `funding_context_price_join_v1` rows already contain the funding rate,
+  entry/exit closes, and source cost assumptions needed to recompute threshold
+  behavior per window without fetching data or touching campaign state.
+
+What changed:
+- Added `services/analytics/funding_threshold_window_stability.py`, a
+  read-only report builder that consumes `funding_context_price_join_v1`,
+  splits complete fixed row windows, and summarizes threshold-pair consistency
+  across windows.
+- Added `scripts/research/run_funding_threshold_window_stability.py`.
+- Added `make funding-threshold-window-stability` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  and `REMAINING_TASKS.md`.
+- Added `tests/test_funding_threshold_window_stability.py`.
+
+Why this change was chosen:
+- It prevents a single full-sample sensitivity artifact from being overread as
+  stable evidence. The report uses the source artifact's cost assumptions and
+  fails closed if they are absent, so it does not create a new independent
+  cost surface.
+
+Expected outcome:
+- Operators can inspect whether funding threshold pairs behave consistently
+  across fixed windows before using threshold sensitivity as manual-review
+  context.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_window_stability.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_threshold_window_stability.py scripts/research/run_funding_threshold_window_stability.py tests/test_funding_threshold_window_stability.py`
+  - SHOWN: passed with no output.
+- `make -n funding-threshold-window-stability`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_funding_threshold_window_stability.py`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_ohlcv_archive_backfill_runner.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `55 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research stability output can influence future operator decisions if
+  treated as activation proof. The artifact is explicitly research-only and
+  not strategy/campaign/gate/promotion/profitability evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T06:43:00Z - Funding Threshold Stability-Triage Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by ranking funding threshold pairs for
+  manual review from window-stability artifacts instead of only full-sample
+  sensitivity artifacts.
+
+What was found:
+- SHOWN: `funding_threshold_window_stability_v1` exposes per-threshold-pair
+  window count, actionable-window ratio, positive actionable-window ratio,
+  average modeled forward return across actionable windows, and worst-window
+  average return.
+- SHOWN: those fields are enough to classify threshold pairs for manual review
+  without fetching data, changing strategy config, starting campaigns, touching
+  gates, or producing promotion evidence.
+
+What changed:
+- Added `services/analytics/funding_threshold_stability_triage.py`, a
+  read-only report builder that consumes `funding_threshold_window_stability_v1`
+  artifacts and classifies threshold pairs as `candidate_for_manual_review` or
+  `not_candidate` using explicit stability thresholds.
+- Added `scripts/research/run_funding_threshold_stability_triage.py`.
+- Added `make funding-threshold-stability-triage` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  and `REMAINING_TASKS.md`.
+- Added `tests/test_funding_threshold_stability_triage.py`.
+
+Why this change was chosen:
+- It keeps manual-review candidates tied to window consistency rather than
+  letting one full-sample threshold result stand in for stability. The artifact
+  has no cost assumptions of its own and consumes only the stability report.
+
+Expected outcome:
+- Operators can rank stability-tested funding threshold pairs for manual review
+  without changing campaigns, gates, execution, promotion evidence, or strategy
+  configuration.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_stability_triage.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/funding_threshold_stability_triage.py scripts/research/run_funding_threshold_stability_triage.py tests/test_funding_threshold_stability_triage.py`
+  - SHOWN: passed with no output.
+- `make -n funding-threshold-stability-triage`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_funding_threshold_stability_triage.py`.
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_stability_triage.py tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_funding_context_price_join.py tests/test_funding_context_replay.py tests/test_ohlcv_archive_backfill_runner.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `62 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage output can influence future operator decisions if
+  treated as activation proof. The artifact is explicitly research-only and not
+  strategy/campaign/gate/promotion/profitability evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T21:09:06Z - Consolidated Paper Evidence Analytics Correctness Stack
+
+Active role: ENGINEER
+
+Objective:
+- Rebuild the old dirty/unstable paper evidence analytics stack on top of the
+  current guard stack, consolidating paper/backtest parity, paper measurement
+  contract tests, strategy-discovery hygiene, and crypto-edge strategy-readiness
+  reporting into one reviewable branch.
+
+What was found:
+- SHOWN: the old PR chain contained useful paper/research work but also stale
+  branch-tail conflicts and merge commits.
+- SHOWN: the current script index and research stack already use the accepted
+  funding/archive/price-action tool names, so conflict resolution must take the
+  union rather than replace current tooling with older subsets.
+
+What changed:
+- Added sequence-level backtest-to-paper storage parity coverage and aligned
+  the paper buy cash-affordability tolerance with the parity backtest's
+  sub-nanodollar tolerance.
+- Added paper measurement contract tests around qualified paper expectancy,
+  JSONL fallback boundaries, and net-of-fees semantics.
+- Added strategy-discovery hygiene tests and documented discovery/ranker
+  advisory boundaries.
+- Added a read-only crypto-edge strategy readiness matrix CLI/Make target and
+  script-index entry.
+
+Why this change was chosen:
+- The batch directly improves evidence interpretation and research readiness
+  without touching live execution, order routing, live risk gates, or campaign
+  activation.
+
+Expected outcome:
+- Paper/backtest accounting drift, paper metric boundary drift, and discovery
+  advisory-boundary drift should fail targeted tests before review. Operators
+  can inspect crypto-edge strategy readiness from source-tree wiring without
+  treating it as campaign or promotion evidence.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backtest_parity_engine.py tests/test_paper_measurement_contract.py tests/test_strategy_discovery_hygiene_contract.py tests/test_crypto_edge_strategy_readiness.py tests/test_check_promotion_gates.py tests/test_makefile_wiring.py`
+  - SHOWN: `75 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_archive_parameter_sweep_triage.py tests/test_funding_threshold_stability_triage.py tests/test_funding_threshold_window_stability.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_funding_threshold_sensitivity.py tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared tests/test_script_index_alignment_guard.py`
+  - SHOWN: `53 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; guard tests `23 passed`; repo doctor rc 0.
+- `./.venv/bin/python -m py_compile storage/paper_trading_sqlite.py scripts/check_promotion_gates.py services/strategies/config_tools.py services/strategies/presets.py services/strategies/validation.py services/analytics/crypto_edge_strategy_readiness.py scripts/research/run_crypto_edge_strategy_readiness.py tests/test_backtest_parity_engine.py tests/test_paper_measurement_contract.py tests/test_strategy_discovery_hygiene_contract.py tests/test_crypto_edge_strategy_readiness.py`
+  - SHOWN: passed with no output.
+- `git diff --cached --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM/HIGH: paper financial-accounting and promotion metric boundary tests
+  affect evidence interpretation. This remains paper/research-only and does
+  not change live execution or order routing, but it should be reviewed before
+  being treated as accepted.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T21:12:15Z - Consolidated Storage Quarantine And Companion Compose Hygiene
+
+Active role: ENGINEER
+
+Objective:
+- Consolidate the storage quarantine guard and companion compose optionality
+  work onto the current stacked branch without carrying stale work-log tails.
+
+What was found:
+- SHOWN: `docs/architecture/storage_surface_classification.md` classifies
+  retained legacy storage schemas as quarantined, but needed an executable
+  drift guard.
+- SHOWN: the companion backend remains a non-canonical dependency and should be
+  optional in compose/docs unless explicitly installed.
+
+What changed:
+- Added `tests/test_storage_surface_classification.py` to pin quarantined
+  storage-schema status and block production imports without a reviewed storage
+  decision.
+- Made the companion backend compose service optional behind a profile and
+  updated companion/install docs.
+- Added `tests/test_companion_repo_dependency.py` to pin the optional companion
+  boundary.
+- Updated `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- This closes two low-risk hygiene items without changing trading runtime,
+  strategy dispatch, promotion gates, or live execution.
+
+Expected outcome:
+- Legacy storage schemas and the companion backend cannot silently re-enter the
+  default runtime path through documentation or compose drift.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_storage_surface_classification.py tests/test_companion_repo_dependency.py tests/test_strategy_discovery_hygiene_contract.py tests/test_paper_measurement_contract.py::test_paper_execution_surface_classification_matches_source_tree tests/test_makefile_wiring.py`
+  - SHOWN: `13 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; guard tests `23 passed`; repo doctor rc 0.
+- `./.venv/bin/python -m py_compile tests/test_storage_surface_classification.py tests/test_companion_repo_dependency.py`
+  - SHOWN: passed with no output.
+- `git diff --cached --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- LOW/MEDIUM: Docker compose behavior changes by making companion startup
+  explicit/optional; no trading runtime or live execution behavior changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T20:58:14Z - Consolidated Governance And Research Guard Stack
+
+Active role: ENGINEER
+
+Objective:
+- Rebase the accumulated docs/test governance guard stack onto the current
+  research branch (`codex/funding-threshold-candidate-triage`) as one coherent
+  batch, avoiding obsolete branch-tail conflicts and aligning guards with the
+  accepted current research command names.
+
+What was found:
+- SHOWN: the incoming stack was docs/test heavy and overlapped mostly in
+  `REMAINING_TASKS.md`, `scripts/SCRIPTS.md`, `Makefile`, and research docs.
+- SHOWN: older script-index expectations referenced obsolete
+  `price-action-pipeline` / `run_price_action_research_pipeline.py` names,
+  while the current accepted path uses the four-step price-action tooling:
+  context labels, forward returns, window stability, and candidate triage.
+- SHOWN: non-backlog conflict files had no remaining conflict markers after
+  applying the current-content resolution; backlog conflicts needed additive
+  reconciliation.
+
+What changed:
+- Added executable docs/test guards for operator governance, operational core,
+  product surface, WebSocket classification, dashboard triage, project identity,
+  runbook/retention/release/launch/golden-path/evidence policy, supply-chain
+  release policy, paper campaign recovery, stage/strategy/expectancy decisions,
+  crypto-edge source, funding/pullback Stage 0 decisions, paper-promotion RFC,
+  walk-forward research scope, strategy expansion/review/feedback boundaries,
+  state-store consolidation, config authority, and backlog execution lanes.
+- Added the read-only Databento data-source RFC and guard.
+- Updated `tests/test_script_index_alignment_guard.py` to guard the current
+  accepted research tools rather than resurrecting the obsolete price-action
+  pipeline target.
+- Reconciled `REMAINING_TASKS.md`, `scripts/SCRIPTS.md`, `Makefile`, and the
+  research docs by keeping current accepted tooling names and adding the
+  incoming guard notes.
+
+Why this change was chosen:
+- This is the smallest coherent way to land the safe governance guard stack
+  without mixing in live execution or risk-gate behavior. The batch preserves
+  the accepted research tool chain and converts policy/docs boundaries into
+  executable drift checks.
+
+Expected outcome:
+- Future edits that silently broaden docs/policy authority, promote research
+  artifacts into strategy/gate authority, or desynchronize the script index
+  should fail targeted guard tests before review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_boundary_guard.py tests/test_script_index_alignment_guard.py tests/test_databento_data_source_rfc.py tests/test_walk_forward_research_doc_guard.py tests/test_crypto_edge_source_decision_guard.py`
+  - SHOWN: `25 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_operating_rules_guard.py tests/test_backlog_execution_lanes_guard.py tests/test_canonical_expectancy_decision_guard.py tests/test_clock_venue_time_policy_guard.py tests/test_config_authority_decision_guard.py tests/test_dashboard_data_page_backlog.py tests/test_evidence_model_guard.py tests/test_full_state_restore_drill_contract.py tests/test_funding_stage0_decision_guard.py tests/test_golden_path_operator_flow_guard.py tests/test_incident_runbooks_guard.py tests/test_launch_checklist_guard.py tests/test_operational_core_scope.py tests/test_operator_governance_lanes.py tests/test_operator_runbook_policy_guards.py tests/test_paper_campaign_recovery_runbook_guard.py tests/test_paper_promotion_gate_policy_rfc_guard.py tests/test_paper_universe_widening_decision.py tests/test_product_surface_triage.py tests/test_project_identity_scope.py tests/test_promotion_stage_authority_decision_guard.py tests/test_pullback_stage0_decision_guard.py tests/test_release_checklist_guard.py tests/test_retention_policy_scope.py tests/test_state_store_consolidation_decision_guard.py tests/test_strategy_expansion_roadmap_guard.py tests/test_strategy_feedback_ledger_doc_guard.py tests/test_strategy_review_ritual_guard.py tests/test_strategy_selection_authority_decision_guard.py tests/test_supply_chain_release_policy_guard.py tests/test_websocket_surface_classification.py`
+  - SHOWN: `147 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; guard tests `23 passed`; repo doctor rc 0.
+- `./.venv/bin/python -m py_compile tests/test_script_index_alignment_guard.py tests/test_price_action_research_boundary_guard.py tests/test_databento_data_source_rfc.py`
+  - SHOWN: passed with no output.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: broad docs/test stack with many policy assertions; review should
+  confirm the guards reflect accepted decisions and not new policy.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-22T12:36:38Z - Archive Parameter-Sweep Triage Report
+
+Active role: ENGINEER
+
+Objective:
+- Continue Batch 2 research-only tooling by adding a manual-review triage layer
+  over existing archive-backed parameter-sweep artifacts.
+
+What was found:
+- SHOWN: `archive_backed_parameter_sweep_v1` already ranks variants using
+  archive-backed walk-forward output, including window count, closed trades,
+  non-negative test-window ratio, average test return, drawdown, config hashes,
+  and dataset hashes.
+- SHOWN: the sweep artifact is descriptive research output and not a promotion
+  decision.
+
+What changed:
+- Added `services/analytics/archive_parameter_sweep_triage.py`, a read-only
+  consumer of `archive_backed_parameter_sweep_v1` artifacts that classifies
+  variants as `candidate_for_manual_review` or `not_candidate` using explicit
+  window/trade/non-negative-window/return/drawdown thresholds.
+- Added `scripts/research/run_archive_parameter_sweep_triage.py`.
+- Added `make archive-parameter-sweep-triage` and script-index output.
+- Updated `scripts/SCRIPTS.md`, `docs/research/walk_forward_validation.md`,
+  and `REMAINING_TASKS.md`.
+- Added `tests/test_archive_parameter_sweep_triage.py`.
+
+Why this change was chosen:
+- It removes a manual interpretation step from archive sweeps without rerunning
+  backtests or changing strategy configuration. The triage report consumes
+  source sweep metrics as-is and explicitly states it does not verify the
+  sweep's fee/slippage assumptions.
+
+Expected outcome:
+- Operators can rank archive-backed sweep variants for manual review without
+  changing campaigns, gates, execution, promotion evidence, or strategy config.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_archive_parameter_sweep_triage.py`
+  - SHOWN: `7 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/archive_parameter_sweep_triage.py scripts/research/run_archive_parameter_sweep_triage.py tests/test_archive_parameter_sweep_triage.py`
+  - SHOWN: passed with no output.
+- `make -n archive-parameter-sweep-triage`
+  - SHOWN: expands to `./.venv/bin/python scripts/research/run_archive_parameter_sweep_triage.py`.
+- `./.venv/bin/python -m pytest -q tests/test_archive_parameter_sweep_triage.py tests/test_archive_parameter_sweep.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py tests/test_cost_assumptions.py tests/test_funding_threshold_stability_triage.py tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_sensitivity.py tests/test_price_action_candidate_triage.py tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_makefile_wiring.py`
+  - SHOWN: `102 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `1 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: research triage output can influence future operator decisions if
+  treated as activation proof. The artifact is explicitly research-only and not
+  strategy/campaign/gate/promotion/profitability evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
 ## 2026-07-22T12:57:03Z - Paper Measurement Contract Batch (Batch 3)
@@ -24430,531 +25471,336 @@ Remaining risk:
   documents strategy readiness status that operators may use for planning.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
-## 2026-07-22T14:43:31Z - Price-Action Context Label Artifacts (Batch 2 Research Tooling)
+## 2026-07-25T18:02:30-04:00 - Safety Surface Classification Guard (Deferred Structure #2)
 
 Active role: ENGINEER
 
 Objective:
-- Implement the first safe price-action context feature pack as read-only
-  OHLCV archive labels, without creating strategies, changing campaigns, or
-  touching promotion/live execution surfaces.
+- Convert the existing duplicate/twin safety-surface classification into an
+  executable source-tree guard without changing runtime behavior.
 
 What was found:
-- SHOWN: `docs/research/pattern_strategy_backlog.md` already scoped
-  fair-value gaps, engulfing candles, swing failures, break/retest, rejection
-  wicks, opening-range state, acceptance/rejection, displacement versus
-  manipulation-candidate labels, and later volume-profile labels as
-  research-only context features.
-- SHOWN: no `price_action` / fair-value-gap / engulfing / swing-failure label
-  extractor existed in `services/`, `scripts/`, or `tests`.
-- SHOWN: the accepted OHLCV archive path is
-  `services.backtest.ohlcv_archive.load_archived_ohlcv`, which provides
-  normalized rows and dataset hashes.
+- SHOWN: `docs/architecture/safety_surface_classification.md` already classifies
+  the operator kill switch, live-order safety probe, strategy cooldown logic,
+  canonical live risk gate, canonical client-order-id builder, legacy
+  `client_oid.py`, and the duplicate live-trader stubs.
+- SHOWN: no existing test pinned that classification, so future edits could
+  route governed live paths through compatibility helpers or add real routing
+  imports to the legacy stubs without tripping a focused guard.
 
 What changed:
-- Added `services/analytics/price_action_context_labels.py`, a deterministic
-  OHLCV-only label builder for:
-  `engulfing_candle`, `rejection_wick`, `swing_failure`,
-  `break_and_retest`, `fair_value_gap`, `displacement_bar`,
-  `manipulation_candidate`, and `opening_range_state`.
-- Added `scripts/research/run_price_action_context_labels.py` and
-  `make price-action-context-labels`.
-- Added `tests/test_price_action_context_labels.py`, covering core label
-  detection, insufficient archive data, archive loading/dataset hash
-  preservation, CLI artifact writing, and missing-archive exit code.
-- Updated `docs/research/pattern_strategy_backlog.md`,
-  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+- Added a backlog link and executable-guard section to
+  `docs/architecture/safety_surface_classification.md`.
+- Added `tests/test_safety_surface_classification_guard.py`, which verifies:
+  governed live paths use `services.execution.client_order_id`, legacy
+  `client_oid.py` stays limited to compatibility executors, live-trader multi
+  and fleet remain dry-run/simulated stubs without real routing imports, and
+  kill-switch/risk-gate authority roles remain separate.
 
 Why this change was chosen:
-- The operator-requested price-action concepts are useful only if converted
-  into reproducible labels over archived data first. This batch creates the
-  label artifact surface while explicitly preventing label output from becoming
-  strategy authority or promotion evidence.
+- Deferred Structure #2 asks for duplicate/twin module reduction discipline.
+  A docs/test guard is the smallest safe step: it prevents accidental widening
+  of legacy surfaces without deleting, rewiring, or changing live behavior.
 
 Expected outcome:
-- Price-action research can now produce dataset-hashed label artifacts that can
-  later be joined to forward returns and reviewed out-of-sample before any
-  confirmation-filter or strategy-config proposal.
+- Future live/execution work fails fast if it tries to build on the wrong
+  safety or identity surface.
 
 Verification:
-- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py`
+- `./.venv/bin/python -m pytest -q tests/test_safety_surface_classification_guard.py`
   - SHOWN: `5 passed`.
-- `./.venv/bin/python -m pytest -q tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
+- `./.venv/bin/python -m pytest -q tests/test_client_oid_compat.py tests/test_client_order_id.py tests/test_killswitch_script.py tests/test_live_risk_gates.py`
   - SHOWN: `39 passed`.
-- `./.venv/bin/python -m py_compile services/analytics/price_action_context_labels.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
-  - SHOWN: passed with no output.
 - `./.venv/bin/python scripts/check_repo_alignment.py --json`
   - SHOWN: `ok=true`, guard tests `23 passed`.
-- `make price-action-context-labels PRICE_ACTION_CONTEXT_LABELS_ARGS="--archive-db /tmp/cbp-missing-price-action.sqlite --limit 3"`
-  - SHOWN: target is wired and reports `archive_missing` with
-    `research_only=true`, `not_strategy_config=true`,
-    `not_campaign_evidence=true`, `not_promotion_evidence=true`, and
-    `not_profitability_evidence=true`.
 
 Remaining risk:
-- MEDIUM: research-only and no runtime execution changes, but label definitions
-  are analytical assumptions. They must be validated against forward returns
-  before any strategy, campaign, or gate use.
+- LOW: docs/test-only classification guard. It does not change runtime,
+  execution, order routing, strategy behavior, gates, or deployment.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
-## 2026-07-22T14:48:54Z - Price-Action Forward-Return Join (Batch 2 Research Tooling)
+## 2026-07-25T18:08:30-04:00 - Runtime Stub Disposition Guard (Deferred Structure #1)
 
 Active role: ENGINEER
 
 Objective:
-- Add the measurement half of the price-action research path by joining saved
-  label artifacts to modeled forward returns after explicit fee/slippage
-  assumptions, without selecting strategies or changing runtime behavior.
+- Convert the deleted runtime-placeholder disposition into an executable guard
+  and remove stale wording from `services/runtime/README.md`.
 
 What was found:
-- SHOWN: the prior label artifact builder emits dataset/artifact hashes and
-  explicit non-authority flags, but label output alone does not answer whether
-  any label improves forward-return distribution.
-- SHOWN: existing research joins, such as funding context price join, compute
-  modeled unit-size forward returns after fee/slippage assumptions and keep
-  those reports outside campaign/gate evidence.
-- SHOWN from CI: `test_no_new_fee_surface_appeared` correctly failed until this
-  new `fee_bps: float = 10.0` research-cost surface was added to the blueprint
-  census.
+- SHOWN: `docs/architecture/runtime_stub_disposition.md` records deletion of
+  `services/runtime/run_mode.py` and `services/runtime/bot_process.py`.
+- SHOWN: `services/runtime/README.md` still said `bot_process.py` overlaps with
+  `services/process/bot_process.py`, which made the deleted stub look present.
+- SHOWN: no focused test pinned the deleted module names as retired.
 
 What changed:
-- Added `services/analytics/price_action_forward_return_join.py`, a
-  research-only consumer for saved `price_action_context_labels_v1` artifacts.
-- Added `scripts/research/run_price_action_forward_return_join.py` and
-  `make price-action-forward-returns`.
-- Added `tests/test_price_action_forward_return_join.py`, covering baseline
-  and label-conditioned summaries, cost application, failed/unsupported label
-  artifact handling, CLI artifact writing, and non-ok exit behavior.
-- Added `services/analytics/price_action_forward_return_join.py` to the
-  executable fee-surface census and `docs/architecture/SYSTEM_BLUEPRINT.md` as
-  a research-only, non-campaign/promotion evidence cost surface.
-- Updated `docs/research/pattern_strategy_backlog.md`,
-  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+- Updated `services/runtime/README.md` to name the supported runtime helpers and
+  deleted placeholder modules.
+- Added an executable-guard section to
+  `docs/architecture/runtime_stub_disposition.md`.
+- Added `tests/test_runtime_stub_disposition_guard.py`, proving the deleted
+  stubs stay absent, production source does not import their module names, and
+  the runtime README points future work at the decision record.
 
 Why this change was chosen:
-- Price-action labels should be measured before they influence strategy
-  behavior. The joiner computes both long and short forward returns for every
-  label, instead of treating label names as trade signals, and compares each
-  label distribution against an unconditioned baseline.
+- Deferred Structure #1 was already implemented by deletion and documentation.
+  A docs/test guard closes the drift path without recreating the placeholders
+  or changing process-control behavior.
 
 Expected outcome:
-- Operators can produce reproducible label-conditioned forward-return reports
-  and decide whether any price-action feature deserves separate out-of-sample
-  review before becoming a confirmation filter.
+- Future runtime/process work fails fast if it reintroduces the retired names as
+  empty authority-looking stubs or imports them from production source.
 
 Verification:
-- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
-  - SHOWN: passed as part of `6 passed`.
-- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_return_join.py`
+- `./.venv/bin/python -m pytest -q tests/test_runtime_stub_disposition_guard.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_safety_surface_classification_guard.py`
   - SHOWN: `5 passed`.
-- `./.venv/bin/python -m pytest -q tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
-  - SHOWN: `44 passed`.
-- `./.venv/bin/python -m py_compile services/analytics/price_action_forward_return_join.py scripts/research/run_price_action_forward_return_join.py tests/test_price_action_forward_return_join.py`
+
+Remaining risk:
+- LOW: docs/test-only disposition guard. It does not change runtime,
+  process-control, deployment, execution, gates, or strategy behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T18:46:42-04:00 - Derivatives/Intraday Roadmap Guard (Active #15)
+
+Active role: ENGINEER
+
+Objective:
+- Add a docs/test-only boundary guard for the derivatives/intraday roadmap.
+
+What was found:
+- SHOWN: Active #15 existed in `REMAINING_TASKS.md` as a one-sentence boundary:
+  derivatives/intraday work remains read-only/replay until compliance, margin,
+  liquidation, reduce-only, and risk controls are proven.
+- SHOWN: crypto-edge source, price-action, Databento, and websocket docs each
+  carried pieces of that boundary, but no dedicated roadmap doc or focused
+  guard linked them together.
+
+What changed:
+- Added `docs/research/derivatives_intraday_roadmap.md`.
+- Added `tests/test_derivatives_intraday_roadmap_guard.py`.
+- Updated `REMAINING_TASKS.md` item #15 with the ready-for-review note.
+
+Why this change was chosen:
+- It closes a roadmap ambiguity without touching collectors, campaigns, gates,
+  data ingestion, live routing, or execution behavior.
+
+Expected outcome:
+- Future derivatives/intraday work must pass through explicit controls before
+  it can become execution, promotion, campaign, or Databento-ingestion
+  authority.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_derivatives_intraday_roadmap_guard.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+
+Remaining risk:
+- LOW: docs/test-only roadmap guard. It does not change runtime, collectors,
+  strategies, campaigns, gates, ingestion, live routing, or execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T18:46:42-04:00 - Price-Action Research Pipeline Wrapper (Deferred Research #13)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only operator wrapper that runs the accepted price-action research
+  reports in sequence without changing strategy, campaign, gate, ingestion, or
+  execution behavior.
+
+What was found:
+- SHOWN: `scripts/research/run_price_action_context_labels.py`,
+  `scripts/research/run_price_action_forward_returns.py`,
+  `scripts/research/run_price_action_window_stability.py`, and
+  `scripts/research/run_price_action_candidate_triage.py` already exist as
+  separate read-only research commands.
+- SHOWN: `Makefile`, `scripts/SCRIPTS.md`, and
+  `docs/research/pattern_strategy_backlog.md` listed the individual commands,
+  but there was no single wrapper to produce a four-step research summary
+  artifact.
+
+What changed:
+- Added `scripts/research/run_price_action_research_pipeline.py`.
+- Added `tests/test_price_action_research_pipeline.py`.
+- Added `make price-action-research-pipeline`.
+- Updated `scripts/SCRIPTS.md`, `docs/research/pattern_strategy_backlog.md`,
+  `tests/test_script_index_alignment_guard.py`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It reduces operator friction for the accepted research workflow while keeping
+  the output advisory and fail-closed. A failed or non-`ok=true` step stops the
+  pipeline and marks the summary `ok=false`.
+
+Expected outcome:
+- Operators can run one read-only command to generate labels, forward-return,
+  window-stability, and candidate-triage artifacts plus a summary manifest.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py tests/test_derivatives_intraday_roadmap_guard.py tests/test_price_action_research_boundary_guard.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile scripts/research/run_price_action_research_pipeline.py tests/test_price_action_research_pipeline.py`
   - SHOWN: passed with no output.
 - `./.venv/bin/python scripts/check_repo_alignment.py --json`
   - SHOWN: `ok=true`, guard tests `23 passed`.
-- `make price-action-forward-returns PRICE_ACTION_FORWARD_RETURNS_ARGS="--labels /tmp/cbp-price-action-labels.json --min-label-count 1"`
-  - SHOWN: target is wired and emits `price_action_forward_return_join_v1`
-    with `ok=true`, `joined_rows=4`, baseline returns, label summaries, and
-    non-authority flags.
+- `git diff --check`
+  - SHOWN: passed with no output.
 
 Remaining risk:
-- MEDIUM: research-only and no runtime execution changes, but report
-  interpretation can still overfit. Use only after accepted archive artifacts,
-  sufficient label counts, and out-of-sample review.
+- LOW/MEDIUM: research orchestration only. It executes existing read-only
+  report scripts and writes artifacts, but does not change labels, scoring,
+  strategy config, campaigns, gates, ingestion, live routing, execution, or
+  promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
-## 2026-07-22T14:56:07Z - Price-Action Window Stability Report (Batch 2 Research Tooling)
+## 2026-07-25T19:02:34-04:00 - Funding-Threshold Research Pipeline Wrapper (Active #12)
 
 Active role: ENGINEER
 
 Objective:
-- Add a research-only stability layer over price-action forward-return
-  artifacts, so label effects can be checked across chronological windows
-  before any strategy/filter proposal.
+- Add a read-only operator wrapper that runs the accepted funding-threshold
+  research reports in sequence without changing collectors, strategy config,
+  campaigns, gates, ingestion, live routing, or execution behavior.
 
 What was found:
-- SHOWN: price-action labels and forward-return joins now exist as
-  research-only artifacts, but no window-stability consumer existed.
-- SHOWN: `docs/research/pattern_strategy_backlog.md` requires out-of-sample
-  stability review before any price-action label is used as a context or
-  confirmation feature.
+- SHOWN: the funding/price join, threshold sensitivity, direct candidate
+  triage, window-stability, and stability-triage report scripts already exist
+  as separate read-only commands.
+- SHOWN: `Makefile`, `scripts/SCRIPTS.md`, and
+  `docs/research/crypto_edge_source_decision.md` listed the individual
+  funding-threshold commands, but there was no single wrapper to produce a
+  sequential summary artifact.
 
 What changed:
-- Added `services/analytics/price_action_stability_report.py`, which consumes
-  a saved `price_action_forward_return_join_v1` artifact, splits rows into
-  chronological windows, and reports per-label persistence of deltas versus
-  each window's unconditioned baseline.
-- Added `scripts/research/run_price_action_stability_report.py` and
-  `make price-action-stability`.
-- Added `tests/test_price_action_stability_report.py`, covering stable label
-  observations, unsupported/failed artifact handling, CLI artifact writing, and
-  non-ok exit behavior.
-- Updated `docs/research/pattern_strategy_backlog.md`,
-  `scripts/SCRIPTS.md`, `Makefile`, and `REMAINING_TASKS.md`.
+- Added `scripts/research/run_funding_threshold_research_pipeline.py`.
+- Added `tests/test_funding_threshold_research_pipeline.py`.
+- Added `make funding-threshold-research-pipeline`.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  `tests/test_script_index_alignment_guard.py`, and `REMAINING_TASKS.md`.
 
 Why this change was chosen:
-- Label-conditioned average returns can be a single-window artifact. Window
-  stability is the next mechanical research check, but it must remain
-  descriptive and non-authoritative until separately reviewed out of sample.
+- It reduces operator friction for the accepted funding research workflow while
+  keeping outputs advisory and fail-closed. A failed or non-`ok=true` step
+  stops the pipeline and marks the summary `ok=false`.
 
 Expected outcome:
-- Operators can produce a reproducible stability artifact showing whether
-  price-action label deltas persist across windows, without selecting
-  strategies or changing runtime behavior.
+- Operators can run one read-only command to generate funding/price join,
+  sensitivity, candidate-triage, window-stability, and stability-triage
+  artifacts plus a summary manifest.
 
 Verification:
-- `./.venv/bin/python -m pytest -q tests/test_price_action_stability_report.py`
-  - SHOWN: `4 passed`.
-- `./.venv/bin/python -m pytest -q tests/test_price_action_forward_return_join.py tests/test_price_action_context_labels.py tests/test_archive_walk_forward_runner.py tests/test_archive_parameter_sweep.py tests/test_funding_context_price_join.py tests/test_ohlcv_archive_backtest.py tests/test_ohlcv_archive_pagination.py`
-  - SHOWN: `53 passed`.
-- `./.venv/bin/python -m py_compile services/analytics/price_action_stability_report.py scripts/research/run_price_action_stability_report.py tests/test_price_action_stability_report.py`
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_research_pipeline.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py tests/test_funding_threshold_sensitivity.py tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_stability_triage.py tests/test_funding_context_price_join.py`
+  - SHOWN: `40 passed`.
+- `./.venv/bin/python -m py_compile scripts/research/run_funding_threshold_research_pipeline.py tests/test_funding_threshold_research_pipeline.py`
   - SHOWN: passed with no output.
 - `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`, repo doctor rc=0, guard tests `23 passed`.
-- `make price-action-stability PRICE_ACTION_STABILITY_ARGS="--forward-returns /tmp/cbp-price-action-forward.json --window-size-rows 4 --min-windows 3 --min-label-count 1 --output /tmp/cbp-price-action-stability.json"`
-  - SHOWN: output artifact `price_action_stability_report_v1`, `ok=True`,
-    `window_count=3`, synthetic `swing_failure:bullish` stable observation.
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
 
 Remaining risk:
-- MEDIUM: research-only and no runtime execution changes, but stability
-  thresholds are analytical assumptions. Any strategy/filter use still requires
-  accepted archive artifacts, sufficient samples, and separate review.
+- LOW/MEDIUM: research orchestration only. It executes existing read-only
+  report scripts and writes artifacts, but does not change collectors,
+  thresholds, scoring logic, strategy config, campaigns, gates, ingestion, live
+  routing, execution, or promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
-## 2026-07-22T16:13:00Z - Project Identity Scope Guard (Deferred Structure #19)
+## 2026-07-25T23:11:55Z - Paper Gate Velocity Report (Active Backlog #1)
 
 Active role: ENGINEER
 
 Objective:
-- Add executable coverage for the current project identity boundary so public
-  docs do not drift into profitability/product claims before evidence exists.
+- Add a read-only operator report that explains paper-gate velocity and
+  projected completion time for the current provenance-qualified round-trip
+  gate, without changing gate policy or campaign behavior.
 
 What was found:
-- `docs/PROJECT_IDENTITY_AND_SCOPE.md`, README, GOLDEN_PATH, OBJECTIVE, and
-  product-surface triage docs already describe CryptKeep as an evidence-first
-  profit-measurement lab.
-- The exact boundary was not pinned by a direct test.
+- SHOWN: `services/control/paper_promotion_progress.py` already reports
+  threshold progress and blocker reasons.
+- SHOWN: `services/control/paper_evidence_qualification.py` computed completed
+  qualified close timestamps internally but did not expose the timestamp list,
+  so downstream tooling could not estimate cadence without reimplementing
+  qualification logic.
 
 What changed:
-- Added `tests/test_project_identity_scope.py`.
-- The test pins the evidence-lab identity, unproven-capability list, near-term
-  priorities, public description, and links from entry docs.
-- Added executable-guard notes to the scope doc, backlog, and work log.
+- Added `services/control/paper_gate_velocity.py`.
+- Added `scripts/report_paper_gate_velocity.py`.
+- Added `tests/test_paper_gate_velocity_report.py`.
+- Exposed `completed_round_trip_close_timestamps` additively in the paper
+  evidence qualification payload.
+- Added `make status-paper-gate-velocity` and
+  `make status-paper-gate-velocity-json`.
+- Updated `scripts/SCRIPTS.md`, `tests/test_script_index_alignment_guard.py`,
+  and `REMAINING_TASKS.md`.
 
 Why this change was chosen:
-- It preserves the accepted public/operator framing with a docs/test-only
-  guard and avoids touching runtime or product surfaces.
+- It turns the slow-gate question into a mechanical read-only report:
+  qualified round trips observed, legacy/all-history exclusions, measured
+  qualified close cadence, and estimated days remaining when enough qualified
+  closes exist.
 
 Expected outcome:
-- Future edits that imply proven profitability or drop the current scope link
-  become visible in CI.
+- Operators can distinguish "gate is slow by strategy cadence" from
+  "projection unavailable" without weakening provenance requirements, counting
+  legacy fills, or changing campaign/gate behavior.
 
 Verification:
-- `./.venv/bin/python -m pytest -q tests/test_project_identity_scope.py tests/test_product_surface_triage.py`
-  - SHOWN: `6 passed`.
-- `./.venv/bin/python -m py_compile tests/test_project_identity_scope.py`
-  - SHOWN: exit 0.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py tests/test_paper_promotion_progress.py tests/test_paper_evidence_qualification.py tests/test_check_promotion_gates.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile services/control/paper_gate_velocity.py scripts/report_paper_gate_velocity.py tests/test_paper_gate_velocity_report.py`
+  - SHOWN: passed with no output.
 - `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`.
-- `git diff --check`
-  - SHOWN: exit 0.
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- GitHub CI for PR #428:
+  - SHOWN: Build macOS/windows, CI sanity, CI validate, GitGuardian,
+    Governance smoke, and script-path-integrity all passed before merge.
 
 Remaining risk:
-- LOW: docs/test only. It does not change strategy, campaign, gate, dashboard,
-  or execution behavior.
-- Acceptance state: ACCEPTED.
+- LOW/MEDIUM: diagnostic/reporting only. It reads existing evidence and progress
+  artifacts and writes no campaign, evidence, gate, execution, or config state.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
-## 2026-07-22T16:00:00Z - Product Surface Triage Guard (Deferred Structure #12)
+## 2026-07-25T23:30:00Z - Product and Project Identity Guard Branch Refresh (PR #381)
 
 Active role: ENGINEER
 
 Objective:
-- Add executable coverage for the product-surface triage decision so broad
-  product ambitions do not silently displace the current paper/research path.
+- Refresh the product-surface triage and project-identity guard branch onto
+  current master so CI runs against the accepted execution/runtime base.
 
 What was found:
-- `docs/PRODUCT_SURFACE_TRIAGE.md` documents lab-mode concentration and
-  retain/defer lists, but the policy was not yet pinned by tests.
+- SHOWN: PR #381 only adds docs/test guard coverage for product-surface triage
+  and project identity scope.
+- SHOWN: prior CI failure on this stale branch was in
+  `services/execution/live_intent_consumer.py`, outside the PR diff and already
+  fixed on current master.
 
 What changed:
-- Added `tests/test_product_surface_triage.py`.
-- The test pins the lab-mode stance, retain/defer lists, decision-rule terms,
-  project identity link, and README root-boundary summary.
-- Added an executable-guard note to the product triage document and backlog.
+- Merged `origin/master` into `codex/product-surface-triage-guard`.
+- Resolved unrelated stale conflicts by keeping current master content.
+- Preserved the product-surface and project-identity guard docs/tests and
+  backlog notes.
 
 Why this change was chosen:
-- It is the smallest docs/test guard for the accepted product concentration
-  decision; it avoids touching desktop, dashboard, packaging, or runtime code.
+- Updating the stale docs/test branch is lower risk than editing execution code
+  for a failure already corrected on master.
 
 Expected outcome:
-- Future product-surface changes that weaken the current lab-mode boundary
-  become visible in CI instead of drifting through docs silently.
+- PR #381 reruns CI against the current base while remaining docs/test only.
 
 Verification:
-- `./.venv/bin/python -m pytest -q tests/test_product_surface_triage.py tests/test_repo_layout_scope_doc.py tests/test_root_dependency_contract.py`
-  - SHOWN: `19 passed`.
-- `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`.
-- `./.venv/bin/python -m py_compile tests/test_product_surface_triage.py`
-  - SHOWN: rc=0.
-- `git diff --check`
-  - SHOWN: rc=0.
+- Pending on this refreshed branch after conflict resolution.
 
 Remaining risk:
-- LOW: docs/test only. It does not remove product surfaces or change runtime
-  behavior.
-- Acceptance state: ACCEPTED.
-
-## 2026-07-22T15:54:00Z - Dashboard Data-Page Triage Guard (Deferred Structure #14)
-
-Active role: ENGINEER
-
-Objective:
-- Make the dashboard data-page triage policy executable by mapping
-  operator-critical categories to current repo paths.
-
-What was found:
-- `docs/dashboard/DATA_PAGE_BACKLOG.md` already prioritized gate status, paper
-  reconciliation, campaign health, market movers/candidate context, copilot
-  reports, and kill-switch/halted-state visibility.
-- The document did not yet pin those categories to concrete page/service paths.
-
-What changed:
-- Added page/service path bullets under each operator-critical dashboard
-  category.
-- Added `tests/test_dashboard_data_page_backlog.py` to verify those paths exist
-  and that the state-mutation boundary remains documented.
-- Updated backlog and work-log records.
-
-Why this change was chosen:
-- It keeps dashboard work as product backlog unless it supports named
-  operator-critical evidence/safety surfaces, without touching dashboard
-  runtime code.
-
-Expected outcome:
-- Future dashboard/data-page work has a concrete priority map and a small guard
-  against silently dropping the high-risk mutation boundary.
-
-Verification:
-- `./.venv/bin/python -m pytest -q tests/test_dashboard_data_page_backlog.py tests/test_dashboard_operator_remaining_role_guard.py tests/test_dashboard_operator_run_op_allowlist.py`
-  - SHOWN: `8 passed`.
-- `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`.
-- `./.venv/bin/python -m py_compile tests/test_dashboard_data_page_backlog.py`
-  - SHOWN: rc=0.
-- `git diff --check`
-  - SHOWN: rc=0.
-
-Remaining risk:
-- LOW: docs/test only. It does not add data plumbing or role guards to any page.
-- Acceptance state: ACCEPTED.
-
-## 2026-07-22T15:45:00Z - Websocket Surface Classification Guard (Deferred Structure #4)
-
-Active role: ENGINEER
-
-Objective:
-- Convert the documented websocket surface classification into an executable
-  drift guard without changing websocket runtime behavior.
-
-What was found:
-- `docs/architecture/websocket_surface_classification.md` documented the main
-  websocket/user-stream surfaces, but `services/ws/last_price_provider.py` was
-  not classified there.
-- SHOWN: `services/ws/last_price_provider.py` does not open a websocket; it
-  reads current tick-store quotes via `services.market_data.tick_reader`.
-
-What changed:
-- Added `tests/test_websocket_surface_classification.py`.
-- Classified `services/ws/last_price_provider.py` as a last-price reader over
-  tick-store quotes, not a websocket transport.
-- Added guards that helper/status modules do not silently grow direct
-  `ccxt.pro` / `watch_*` transport calls and that retired websocket paths are
-  not reintroduced.
-
-Why this change was chosen:
-- It preserves the existing rule that websocket data is optional/non-canonical
-  until venue support, supervision, freshness, and evidence authority are
-  separately proven.
-
-Expected outcome:
-- Future intraday/shadow work cannot rely on websocket-named modules as
-  implied streaming authority without updating the classification and tests.
-
-Verification:
-- `./.venv/bin/python -m pytest -q tests/test_websocket_surface_classification.py tests/test_ws_ticker_feed.py tests/test_user_stream_ws.py tests/test_run_ws_ticker_feed.py tests/test_run_ws_ticker_feed_safe.py`
-  - SHOWN: `16 passed`.
-- `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`.
-- `./.venv/bin/python -m py_compile tests/test_websocket_surface_classification.py`
-  - SHOWN: rc=0.
-- `git diff --check`
-  - SHOWN: rc=0.
-- The first draft incorrectly asserted `services/marketdata/` did not exist;
-  local proof refuted that because generated cache directories are present.
-  The final guard checks for source-file/path reintroduction instead.
-
-Remaining risk:
-- LOW: test/docs only. Host-level websocket supervision and venue behavior
-  remain unverified, as already documented.
-- Acceptance state: ACCEPTED.
-
-## 2026-07-22T15:37:00Z - Companion Repo Compose Profile (Deferred Structure #15)
-
-Active role: ENGINEER
-
-Objective:
-- Make the archived `phase1_research_copilot` companion optional in Docker
-  startup instead of a default root-compose dependency.
-
-What was found:
-- `docs/COMPANION_REPO_DEPENDENCY.md` already classifies
-  `phase1_research_copilot/` as a sidecar/archived companion, not required root
-  runtime.
-- SHOWN: `docker/docker-compose.yml` still started `backend` from
-  `/app/phase1_research_copilot` by default, and `dashboard` hard-depended on
-  that backend.
-
-What changed:
-- Added `profiles: [phase1-companion]` to the Compose `backend` service.
-- Removed the dashboard's hard `depends_on: backend` link so default Docker
-  startup does not require the missing/archived sidecar.
-- Documented explicit opt-in through `COMPOSE_PROFILES=phase1-companion`.
-- Added `tests/test_companion_repo_dependency.py` to pin the Compose/default
-  policy.
-
-Why this change was chosen:
-- It matches the accepted companion-repo decision without vendoring or deleting
-  the sidecar and keeps root Docker startup aligned with the root install path.
-
-Expected outcome:
-- `make docker-up-auto-ports` / default `docker compose up` no longer requires
-  the archived companion backend unless the operator opts into the profile.
-
-Verification:
-- `./.venv/bin/python -m pytest -q tests/test_companion_repo_dependency.py tests/test_repo_layout_scope_doc.py`
-  - SHOWN: `11 passed`.
-- `docker compose config` from `docker/`
-  - SHOWN: rc=0; default rendered stack contains `dashboard` only.
-- `COMPOSE_PROFILES=phase1-companion docker compose config` from `docker/`
-  - SHOWN: rc=0; opt-in rendered stack contains `backend` and `dashboard`.
-- `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`.
-- `./.venv/bin/python -m py_compile tests/test_companion_repo_dependency.py`
-  - SHOWN: rc=0.
-- `git diff --check`
-  - SHOWN: rc=0.
-
-Remaining risk:
-- HIGH: deploy/runtime behavior changed. Dashboard startup is now decoupled from
-  the optional backend health check; independent review and CI are required.
-- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
-
-## 2026-07-22T15:31:00Z - Storage Quarantine Hygiene Guard (Deferred Structure #10)
-
-Active role: ENGINEER
-
-Objective:
-- Add an executable guard for the documented quarantined retained storage
-  schemas so they cannot silently become runtime authorities before a reviewed
-  storage-consolidation decision.
-
-What was found:
-- `docs/architecture/storage_surface_classification.md` already classifies
-  `fill_reconciler_store_sqlite.py`, `order_idempotency_sqlite.py`, and
-  `order_tracker_store_sqlite.py` as `quarantined_retained_schema`.
-- The classification was documented but not yet enforced by a source-tree
-  drift test.
-
-What changed:
-- Added `tests/test_storage_surface_classification.py`.
-- The test verifies the classification doc covers all three retained schemas
-  and fails if services or scripts import those stores/classes as production
-  callers.
-- Updated storage classification docs and backlog text.
-
-Why this change was chosen:
-- It is the smallest safe implementation for the open storage-classification
-  follow-up: no deletion, migration, runtime wiring, or live behavior change.
-
-Expected outcome:
-- Future reconciliation/idempotency/order-tracking work must either use current
-  core stores or deliberately update the classification with a reviewed
-  migration decision.
-
-Verification:
-- `./.venv/bin/python -m pytest -q tests/test_storage_surface_classification.py`
-  - SHOWN: `2 passed`.
-- `./.venv/bin/python -m pytest -q tests/test_storage_surface_classification.py tests/test_strategy_discovery_hygiene_contract.py tests/test_paper_measurement_contract.py::test_paper_execution_surface_classification_matches_source_tree`
-  - SHOWN: `10 passed`.
-- `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`.
-- `./.venv/bin/python -m py_compile tests/test_storage_surface_classification.py`
-  - SHOWN: rc=0.
-- `git diff --check`
-  - SHOWN: rc=0.
-
-Remaining risk:
-- LOW: test/docs only. It does not decide whether the retained schemas should
-  eventually be deleted or migrated.
-- Acceptance state: ACCEPTED.
-
-## 2026-07-22T15:24:00Z - Crypto-Edge Research Pipeline Wrapper (Batch 6 Research Tooling)
-
-Active role: ENGINEER
-
-Objective:
-- Add a read-only crypto-edge research wrapper that runs the existing funding
-  replay, archived OHLCV price join, and threshold-sensitivity reports together
-  without touching campaigns, gates, strategy configuration, or execution.
-
-What was found:
-- The crypto-edge research lane already had separate stored-data tools for
-  replay, price joining, threshold sensitivity, and wiring readiness, but no
-  single artifact tying those results together for a quick offline pass.
-
-What changed:
-- Added `services.analytics.crypto_edge_research_pipeline` and
-  `scripts/research/run_crypto_edge_research_pipeline.py`.
-- Added `make crypto-edge-research-pipeline` and script-index documentation.
-- Added blueprint fee-surface classification for the new research-only
-  10.0/5.0 bps cost passthrough.
-- Recorded the tool under the crypto-edge research backlog and strategy
-  expansion roadmap.
-
-Why this change was chosen:
-- It advances the crypto-edge research path by composing existing read-only
-  artifacts instead of adding campaign behavior or gate authority.
-
-Expected outcome:
-- Operators can generate funding replay, funding/price join, threshold
-  sensitivity, and a pipeline summary from stored crypto-edge plus archived
-  OHLCV rows with one command.
-
-Verification:
-- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_research_pipeline.py`
-  - SHOWN: `4 passed`.
-- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_research_pipeline.py tests/test_funding_context_replay.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py tests/test_crypto_edge_strategy_readiness.py tests/test_crypto_edge_context.py`
-  - SHOWN: `30 passed`.
-- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
-  - SHOWN: `1 passed`.
-- `./.venv/bin/python scripts/check_repo_alignment.py --json`
-  - SHOWN: `"ok": true`.
-- `./.venv/bin/python -m py_compile services/analytics/crypto_edge_research_pipeline.py scripts/research/run_crypto_edge_research_pipeline.py tests/test_crypto_edge_research_pipeline.py tests/test_blueprint_invariants.py`
-  - SHOWN: rc=0.
-- `make crypto-edge-research-pipeline CRYPTO_EDGE_RESEARCH_PIPELINE_ARGS="--edge-db /tmp/cbp-crypto-edge-pipeline-edge.sqlite --archive-db /tmp/cbp-crypto-edge-pipeline-market.sqlite --output-dir /tmp/cbp-crypto-edge-pipeline-out --funding-limit 5 --ohlcv-limit 5 --min-rows 2 --min-joined-rows 2 --fee-bps 0 --slippage-bps 0 --long-thresholds-pct 0.05 --short-thresholds-pct -0.01 --fail-if-not-ok"`
-  - SHOWN: rc=0, `ok=true`, all three stages ok.
-- `./.venv/bin/python -m ruff check ...`
-  - NOT RUN: local venv has no `ruff` module.
-- 2026-07-22 CI correction: GitHub full-suite CI found that a dependency
-  config diagnostic could print before the CLI JSON after prior tests changed
-  config state. `scripts/research/run_crypto_edge_research_pipeline.py` now
-  redirects dependency stdout to stderr, matching the funding price-join CLI
-  pattern, and `test_crypto_edge_research_pipeline_cli_keeps_stdout_json`
-  pins stdout as machine-readable JSON.
-
-Remaining risk:
-- MEDIUM: research metrics are still forward-return/unit-size summaries only;
-  they are not campaign, promotion, or profitability evidence.
-- Acceptance state: READY_FOR_INDEPENDENT_REVIEW.
+- LOW: docs/test guard branch refresh only; no runtime behavior is changed by
+  the branch-specific work.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

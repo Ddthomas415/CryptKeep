@@ -48,3 +48,14 @@ Future work that needs a unified run mode or process authority must start from
 the documented managed-component/control surfaces and include a fresh
 architecture decision. The deleted module names should not be reintroduced as
 empty compatibility placeholders.
+
+## Executable Guard
+
+`tests/test_runtime_stub_disposition_guard.py` pins the disposition:
+
+- `services/runtime/run_mode.py` and `services/runtime/bot_process.py` remain
+  absent from the source tree;
+- source files under `services/` and `scripts/` do not import the deleted
+  module names;
+- `services/runtime/README.md` points future work at this decision record
+  rather than the retired placeholders.

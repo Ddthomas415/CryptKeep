@@ -234,3 +234,10 @@ separate accepted data-disclosure decision before sending it to a provider.
 
 These should remain read-only, paper-only, or draft-only until explicitly
 approved to broaden their scope.
+
+## Executable Guard
+
+`tests/test_ai_copilot_operating_rules_guard.py` pins deterministic-core
+authority, provider allow-list governance, allowed/forbidden provider payload
+families, advisory-only provider summaries, and the accepted data-disclosure
+decision requirement for any broader provider payload.

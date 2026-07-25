@@ -10,6 +10,9 @@ surface.
 
 This is a documentation-only disposition. It does not change runtime behavior.
 
+Backlog link: `REMAINING_TASKS.md` Deferred Structure And Research Hygiene item
+2, "Reduce duplicate/twin modules that obscure which code guards money."
+
 ## Classification
 
 | Surface | Status | Evidence | Rule |
@@ -49,3 +52,14 @@ The safest near-term policy is:
   wrappers.
 - SHOWN: visible source references support this classification at the time of
   writing.
+
+## Executable Guard
+
+`tests/test_safety_surface_classification_guard.py` pins the visible source-tree
+boundaries for this classification:
+
+- governed live execution paths use `services/execution/client_order_id.py`, not
+  the legacy `client_oid.py` helper;
+- `live_trader_multi` and `live_trader_fleet` remain legacy simulated/dry-run
+  stubs and do not gain venue client or governed executor imports;
+- kill-switch/risk-gate families keep separate documented authority roles.

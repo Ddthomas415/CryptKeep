@@ -1,176 +1,119 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
+from types import SimpleNamespace
 
-from services.analytics.price_action_research_pipeline import run_price_action_research_pipeline
-from storage.market_store_sqlite import MarketStore
-
-
-BASE_TS = 1_700_000_000_000
+from scripts.research import run_price_action_research_pipeline as pipeline
 
 
-def _row(idx: int, close: float) -> list[float]:
-    return [BASE_TS + idx * 60_000, close - 0.2, close + 0.5, close - 0.5, close, 10.0]
+ROOT = Path(__file__).resolve().parents[1]
 
 
-def _stable_rows() -> list[list[float]]:
-    closes = [
-        100.0,
-        99.0,
-        101.0,
-        102.0,
-        102.0,
-        101.0,
-        103.0,
-        104.0,
-        104.0,
-        103.0,
-        105.0,
-        106.0,
-    ]
-    rows = [_row(idx, close) for idx, close in enumerate(closes)]
-    rows[2] = [BASE_TS + 2 * 60_000, 98.5, 102.0, 98.0, 101.0, 10.0]
-    rows[6] = [BASE_TS + 6 * 60_000, 100.5, 104.0, 100.0, 103.0, 10.0]
-    rows[10] = [BASE_TS + 10 * 60_000, 102.5, 106.0, 102.0, 105.0, 10.0]
-    return rows
+def _text(rel: str) -> str:
+    return (ROOT / rel).read_text(encoding="utf-8")
 
 
-def _seed_archive(db_path) -> None:
-    store = MarketStore(db_path)
-    for row in _stable_rows():
-        store.upsert_ohlcv(
-            ts_ms=int(row[0]),
-            exchange="coinbase",
-            symbol="BTC/USD",
-            timeframe="1m",
-            o=float(row[1]),
-            h=float(row[2]),
-            l=float(row[3]),
-            cl=float(row[4]),
-            v=float(row[5]),
-        )
+def _fake_completed(returncode: int, payload: dict) -> SimpleNamespace:
+    return SimpleNamespace(returncode=returncode, stdout=json.dumps(payload), stderr="")
 
 
-def test_price_action_research_pipeline_writes_all_artifacts(tmp_path) -> None:
-    db = tmp_path / "market_raw.sqlite"
-    out_dir = tmp_path / "artifacts"
-    _seed_archive(db)
+def test_price_action_pipeline_runs_accepted_reports_in_order(monkeypatch, tmp_path, capsys):
+    calls: list[list[str]] = []
 
-    report = run_price_action_research_pipeline(
-        venue="coinbase",
-        symbol="BTC/USD",
-        timeframe="1m",
-        limit=len(_stable_rows()),
-        db_path=db,
-        output_dir=out_dir,
-        swing_lookback=2,
-        range_lookback=2,
-        horizon_bars=1,
-        fee_bps=0.0,
-        slippage_bps=0.0,
-        forward_min_label_count=1,
-        window_size_rows=4,
-        stability_min_windows=3,
-        stability_min_label_count=1,
-    )
+    def fake_run(cmd: list[str]):
+        calls.append(cmd)
+        output = Path(cmd[cmd.index("--output") + 1])
+        payload = {"ok": True, "report_type": output.stem}
+        output.write_text(json.dumps(payload), encoding="utf-8")
+        return _fake_completed(0, payload)
 
-    assert report["artifact_type"] == "price_action_research_pipeline_v1"
-    assert report["ok"] is True
-    assert report["research_only"] is True
-    assert report["not_strategy_config"] is True
-    assert report["not_campaign_evidence"] is True
-    assert report["not_promotion_evidence"] is True
-    assert report["not_profitability_evidence"] is True
-    assert report["stages"]["labels"]["ok"] is True
-    assert report["stages"]["forward_returns"]["ok"] is True
-    assert report["stages"]["stability"]["ok"] is True
-    assert report["stages"]["stability"]["stable_label_count"] >= 1
-    for key in ("labels", "forward_returns", "stability", "pipeline"):
-        path = out_dir / f"price_action_{key}.json"
-        if key == "forward_returns":
-            path = out_dir / "price_action_forward_returns.json"
-        assert path.exists(), key
+    monkeypatch.setattr(pipeline, "_run_command", fake_run)
 
-
-def test_price_action_research_pipeline_reports_archive_failure(tmp_path) -> None:
-    report = run_price_action_research_pipeline(
-        venue="coinbase",
-        symbol="BTC/USD",
-        timeframe="1m",
-        limit=10,
-        db_path=tmp_path / "missing.sqlite",
-        output_dir=tmp_path / "out",
-    )
-
-    assert report["ok"] is False
-    assert report["stages"]["labels"]["ok"] is False
-    assert report["stages"]["labels"]["reason"] == "archive_missing"
-    assert report["stages"]["forward_returns"]["ok"] is False
-    assert report["stages"]["stability"]["ok"] is False
-
-
-def test_price_action_research_pipeline_cli_writes_summary(tmp_path, capsys) -> None:
-    from scripts.research import run_price_action_research_pipeline as cli
-
-    db = tmp_path / "market_raw.sqlite"
-    out_dir = tmp_path / "artifacts"
-    _seed_archive(db)
-
-    rc = cli.main(
+    rc = pipeline.main(
         [
-            "--archive-db",
-            str(db),
             "--venue",
             "coinbase",
             "--symbol",
-            "BTC/USD",
+            "BTC/USDT",
             "--timeframe",
-            "1m",
+            "1h",
             "--limit",
-            str(len(_stable_rows())),
+            "240",
             "--output-dir",
-            str(out_dir),
-            "--swing-lookback",
-            "2",
-            "--range-lookback",
-            "2",
-            "--horizon-bars",
-            "1",
+            str(tmp_path),
             "--fee-bps",
-            "0",
+            "12.5",
             "--slippage-bps",
-            "0",
-            "--forward-min-label-count",
-            "1",
-            "--window-size-rows",
-            "4",
-            "--stability-min-windows",
-            "3",
-            "--stability-min-label-count",
-            "1",
-            "--fail-if-not-ok",
+            "4.0",
         ]
     )
 
-    printed = json.loads(capsys.readouterr().out)
     assert rc == 0
-    assert printed["ok"] is True
-    assert json.loads((out_dir / "price_action_pipeline.json").read_text(encoding="utf-8"))["ok"] is True
+    summary = json.loads(capsys.readouterr().out)
+    assert summary["ok"] is True
+    assert summary["read_only"] is True
+    assert summary["not_strategy_config"] is True
+    assert summary["not_campaign_evidence"] is True
+    assert summary["not_promotion_evidence"] is True
+    assert summary["not_execution_input"] is True
+    assert [step["name"] for step in summary["steps"]] == [
+        "context_labels",
+        "forward_returns",
+        "window_stability",
+        "candidate_triage",
+    ]
+    assert [Path(cmd[1]).name for cmd in calls] == [
+        "run_price_action_context_labels.py",
+        "run_price_action_forward_returns.py",
+        "run_price_action_window_stability.py",
+        "run_price_action_candidate_triage.py",
+    ]
+    assert all("--fail-if-not-ok" in cmd for cmd in calls)
+    assert "--fee-bps" not in calls[0]
+    assert calls[1][calls[1].index("--fee-bps") + 1] == "12.5"
+    assert calls[3][calls[3].index("--slippage-bps") + 1] == "4.0"
+    assert Path(summary["summary_path"]).is_file()
 
 
-def test_price_action_research_pipeline_cli_returns_2_when_requested_and_not_ok(tmp_path, capsys) -> None:
-    from scripts.research import run_price_action_research_pipeline as cli
+def test_price_action_pipeline_stops_fail_closed_on_first_failed_report(
+    monkeypatch,
+    tmp_path,
+    capsys,
+):
+    calls: list[list[str]] = []
 
-    rc = cli.main(
-        [
-            "--archive-db",
-            str(tmp_path / "missing.sqlite"),
-            "--output-dir",
-            str(tmp_path / "artifacts"),
-            "--fail-if-not-ok",
-        ]
-    )
+    def fake_run(cmd: list[str]):
+        calls.append(cmd)
+        output = Path(cmd[cmd.index("--output") + 1])
+        payload = {"ok": False, "reason": "archive_missing"}
+        output.write_text(json.dumps(payload), encoding="utf-8")
+        return _fake_completed(2, payload)
 
-    payload = json.loads(capsys.readouterr().out)
+    monkeypatch.setattr(pipeline, "_run_command", fake_run)
+
+    rc = pipeline.main(["--output-dir", str(tmp_path)])
+
     assert rc == 2
-    assert payload["ok"] is False
+    assert len(calls) == 1
+    summary = json.loads(capsys.readouterr().out)
+    assert summary["ok"] is False
+    assert summary["steps"][0]["name"] == "context_labels"
+    assert summary["steps"][0]["returncode"] == 2
+    assert summary["steps"][0]["ok"] is False
+
+
+def test_price_action_pipeline_is_registered_as_research_only() -> None:
+    makefile = _text("Makefile")
+    scripts = _text("scripts/SCRIPTS.md")
+    backlog = _text("docs/research/pattern_strategy_backlog.md")
+    remaining = _text("REMAINING_TASKS.md")
+
+    assert "PRICE_ACTION_RESEARCH_PIPELINE_ARGS ?=" in makefile
+    assert "price-action-research-pipeline:" in makefile
+    assert "scripts/research/run_price_action_research_pipeline.py" in makefile
+    assert "research/run_price_action_research_pipeline.py" in scripts
+    assert "make price-action-research-pipeline" in scripts
+    assert "read-only pipeline wrapper" in backlog
+    assert "not strategy config, campaign evidence, promotion evidence, or execution" in backlog
+    assert "run_price_action_research_pipeline.py" in remaining

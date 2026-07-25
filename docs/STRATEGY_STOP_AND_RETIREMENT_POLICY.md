@@ -88,3 +88,9 @@ Before a strategy advances beyond paper, write a dated decision record under
 - Do not treat 10 round trips as profitability proof.
 - Do not override negative expectancy because the strategy "looks close."
 - Do not change thresholds after a drawdown without recording the reason first.
+
+## Executable Guard
+
+`tests/test_operator_runbook_policy_guards.py` pins the decision table,
+retirement triggers, project thesis gate, and non-negotiable rules so strategy
+promotion decisions cannot silently drop the accepted stop/retirement boundary.
