@@ -2376,6 +2376,12 @@ substrate work, but they are concrete enough to keep visible.
     future-change governance only: new external providers, provider payload
     fields, or prompt-injection-resistant review authority need separate
     accepted design before becoming normal operator paths.
+    2026-07-22: executable AI-copilot operating-rules guard is ready for
+    independent review. `tests/test_ai_copilot_operating_rules_guard.py` pins
+    deterministic-core authority, provider allow-list governance,
+    allowed/forbidden provider payload families, advisory-only provider
+    summaries, and the accepted data-disclosure decision requirement. This is
+    docs/test only and does not change AI provider behavior or runtime access.
 21. Bring permanently ignored CI tests back under an explicit policy. Current
     CI invokes pytest with four `--ignore` entries:
     `tests/test_symbol_scanner.py`, `tests/test_dashboard_view_data.py`,

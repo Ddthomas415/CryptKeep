@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:28:00Z - AI Copilot Operating Rules Guard (Deferred Structure #20)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the accepted AI-copilot operating and provider
+  data-governance boundary.
+
+What was found:
+- `docs/AI_COPILOT_OPERATING_RULES.md` documents deterministic-core authority,
+  advisory-only copilot jobs, provider allow-list controls, allowed/forbidden
+  provider payload families, and the data-disclosure decision requirement.
+- The policy was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_ai_copilot_operating_rules_guard.py`.
+- The test pins deterministic-core authority, provider governance controls,
+  provider SDK boundary, payload allow/deny lists, advisory-only provider
+  summaries, data-disclosure decision requirement, and backlog link.
+- Added executable-guard notes to the operating-rules doc, backlog, and work
+  log.
+
+Why this change was chosen:
+- It preserves AI/copilot as advisory/provider-governed without touching SQL
+  access, providers, prompts, runtime state, or dashboard behavior.
+
+Expected outcome:
+- Future edits that broaden external provider payloads or provider-backed
+  authority without a reviewed decision fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_ai_copilot_operating_rules_guard.py tests/test_ai_copilot_policy.py tests/test_ai_copilot_pr_reviewer.py tests/test_paper_universe_widening_decision.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m py_compile tests/test_ai_copilot_operating_rules_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change AI provider behavior, SQL access,
+  prompts, runtime state, dashboard behavior, campaign/gate logic, or execution.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:20:00Z - Paper Universe Widening Decision Guard (Active #26)
 
 Active role: ENGINEER
