@@ -19,7 +19,8 @@ and provenance-qualified paper paths.
 
 ## Price-Action Context Feature Pack
 
-Status: deferred research-only RFC item.
+Status: first OHLCV-only research label extractor implemented; forward-return
+joins and strategy/campaign use remain deferred.
 
 Purpose:
 
@@ -74,6 +75,20 @@ Required artifact shape:
   - `not_campaign_evidence`
   - `not_promotion_evidence`
   - `not_profitability_evidence`
+
+Implemented first slice:
+
+- `services/backtest/price_action_context.py`
+- `scripts/research/run_price_action_context_labels.py`
+- `make price-action-context-labels`
+
+The first slice reads only the existing OHLCV archive and refuses unavailable
+archive data rather than fetching live data. It emits deterministic per-bar
+labels for engulfing candles, rejection wicks, swing failures,
+break-and-retest, fair-value gaps, displacement bars, opening-range state,
+acceptance/rejection context, and manipulation-candidate descriptions. These
+labels are descriptive research context only and do not imply intent,
+profitability, or promotion eligibility.
 
 Research acceptance before use:
 

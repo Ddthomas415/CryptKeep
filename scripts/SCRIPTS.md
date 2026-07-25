@@ -227,6 +227,12 @@ decision makes them authoritative.
   action counts and unit-size modeled forward returns for explicit threshold
   grids, does not change strategy config, fetch data, start campaigns, or
   produce promotion evidence. Use `make funding-threshold-sensitivity`.
+- `research/run_price_action_context_labels.py` — read-only OHLCV
+  price-action context label artifact over the existing market archive;
+  labels fair-value gaps, engulfing candles, swing failures, break/retest,
+  rejection wicks, displacement bars, opening-range state, and
+  acceptance/rejection context without changing strategy config, campaigns,
+  gates, or promotion evidence. Use `make price-action-context-labels`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
