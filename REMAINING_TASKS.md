@@ -262,6 +262,13 @@ deployment work still needs independent review.
    persistent paper campaign until archive-backed baseline expectations,
    positive net-fee research evidence, no-trade filter review, and a separately
    reviewed campaign manifest exist.
+   2026-07-22: executable pullback Stage 0 decision guard is ready for
+   independent review. `tests/test_pullback_stage0_decision_guard.py` pins
+   the isolated research candidate decision, Stage 0 evidence boundary,
+   required-before-promotion list, allowed/not-allowed uses, and disabled
+   governance config. This is docs/test only and does not change strategy
+   config values, campaign manifests, paper gates, promotion status, or
+   execution behavior.
 8. Keep composite/hybrid paper advancement blocked. The long-window variant
    proof is accepted and now shows three realized synthetic windows, but the
    candidate still has synthetic-only, low-confidence evidence and no persisted

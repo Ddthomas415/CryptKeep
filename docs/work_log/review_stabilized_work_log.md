@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T18:34:00Z - Pullback Stage 0 Decision Guard (Active #7)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the pullback Stage 0 decision record without
+  changing strategy config values, campaign manifests, paper gates, promotion
+  status, or execution behavior.
+
+What was found:
+- `docs/strategies/pullback_recovery_stage0_decision_2026-07-11.md` records
+  `pullback_recovery_default` as an isolated research candidate, not a
+  persistent paper campaign or promotion candidate.
+- The decision record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_pullback_stage0_decision_guard.py`.
+- The test pins the isolated research candidate decision, Stage 0 evidence
+  boundary, required-before-promotion list, allowed/not-allowed uses, and
+  disabled governance config.
+- Added executable-guard notes to the decision record, backlog, and work log.
+
+Why this change was chosen:
+- It preserves the accepted pullback Stage 0 boundary without changing runtime
+  campaign or promotion behavior.
+
+Expected outcome:
+- Future edits that quietly turn `pullback_recovery_default` into a persistent
+  campaign, promotion candidate, or execution-eligible strategy fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_pullback_stage0_decision_guard.py tests/test_pullback_stage0_proof_verifier.py tests/test_pullback_stage0_readiness.py tests/test_check_pullback_stage0_readiness_script.py tests/test_strategy_config_tools.py`
+  - SHOWN: `22 passed in 0.60s`.
+- `./.venv/bin/python -m py_compile tests/test_pullback_stage0_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.69s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change strategy config values, campaign
+  manifests, paper gates, promotion status, deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T18:25:00Z - Crypto-Edge Source Decision Guard (Active #14)
 
 Active role: ENGINEER
