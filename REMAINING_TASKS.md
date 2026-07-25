@@ -2187,6 +2187,16 @@ substrate work, but they are concrete enough to keep visible.
     and Databento-backed labels remain deferred. Remaining before strategy use:
     join labels to forward returns after costs, compare against an
     unconditioned baseline, and review out-of-sample stability separately.
+    2026-07-22: price-action forward-return join slice is ready for
+    independent review. `services.analytics.price_action_forward_return_join`
+    and `scripts/research/run_price_action_forward_return_join.py` consume a
+    saved price-action label artifact and compute label-conditioned long and
+    short forward returns after explicit fee/slippage assumptions, compared
+    against the unconditioned baseline. This remains research-only: it does
+    not infer trade direction from labels, select/rank strategies, change
+    configs, start campaigns, or produce promotion evidence. Remaining before
+    strategy use: run on accepted archive artifacts, require sufficient
+    label counts, and review out-of-sample stability.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

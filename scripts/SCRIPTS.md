@@ -239,6 +239,12 @@ decision makes them authoritative.
   rejection-wick, displacement, manipulation-candidate, and opening-range
   labels with dataset/artifact hashes. It does not change strategy configs,
   campaigns, gates, or live execution. Use `make price-action-context-labels`.
+- `research/run_price_action_forward_return_join.py` — research-only consumer
+  of a saved price-action label artifact; computes label-conditioned long and
+  short forward returns after explicit fee/slippage assumptions and compares
+  them to the unconditioned baseline. It does not select strategies, change
+  configs, start campaigns, or create promotion evidence. Use
+  `make price-action-forward-returns`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
