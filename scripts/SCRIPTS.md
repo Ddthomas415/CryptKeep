@@ -233,6 +233,12 @@ decision makes them authoritative.
   Stage 0 wired, config-only, or unregistered without fetching data, starting
   campaigns, or changing promotion gates. Use
   `make crypto-edge-strategy-readiness`.
+- `research/run_crypto_edge_research_pipeline.py` — research-only crypto-edge
+  pipeline wrapper that runs funding context replay, funding/price join, and
+  threshold sensitivity together from stored crypto-edge and archived OHLCV
+  rows. It writes explicit artifacts under `--output-dir` and does not fetch
+  live data, change strategy configs, start campaigns, or create promotion
+  evidence. Use `make crypto-edge-research-pipeline`.
 - `research/run_price_action_context_labels.py` — research-only OHLCV
   price-action context label artifact builder over the market archive;
   emits fair-value gap, engulfing, swing-failure, break/retest,
@@ -250,6 +256,11 @@ decision makes them authoritative.
   windows and reports whether label-conditioned deltas persist across windows.
   It does not select strategies, authorize filters, change configs, start
   campaigns, or create promotion evidence. Use `make price-action-stability`.
+- `research/run_price_action_research_pipeline.py` — research-only orchestration
+  wrapper that runs archive labels, forward-return join, and window stability
+  together, writing all artifacts under an explicit output directory. It does
+  not select strategies, authorize filters, change configs, start campaigns, or
+  create promotion evidence. Use `make price-action-pipeline`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
