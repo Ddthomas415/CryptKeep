@@ -2148,6 +2148,13 @@ substrate work, but they are concrete enough to keep visible.
     the three schemas as quarantined retained schemas during paper/research,
     do not wire new callers, and defer deletion/migration until the state-store
     consolidation migration packet decides whether any schema/data is needed.
+    2026-07-22: executable storage-quarantine hygiene proof is ready for
+    independent review. `tests/test_storage_surface_classification.py` now
+    verifies the classification doc covers the three retained schemas and that
+    no service/script imports `fill_reconciler_store_sqlite`,
+    `order_idempotency_sqlite`, or `order_tracker_store_sqlite` as production
+    callers. This is test/docs only: no schema deletion, migration, wiring, or
+    runtime behavior change.
 11. Extract promotion-gate logic into a library after the current paper gate is
     stable. `scripts/check_promotion_gates.py` is the canonical operator
     command today and should not be churned mid-campaign, but the money-adjacent
