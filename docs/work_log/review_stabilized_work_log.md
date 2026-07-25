@@ -25602,3 +25602,58 @@ Remaining risk:
 - LOW: docs/test-only roadmap guard. It does not change runtime, collectors,
   strategies, campaigns, gates, ingestion, live routing, or execution.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T18:46:42-04:00 - Price-Action Research Pipeline Wrapper (Deferred Research #13)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only operator wrapper that runs the accepted price-action research
+  reports in sequence without changing strategy, campaign, gate, ingestion, or
+  execution behavior.
+
+What was found:
+- SHOWN: `scripts/research/run_price_action_context_labels.py`,
+  `scripts/research/run_price_action_forward_returns.py`,
+  `scripts/research/run_price_action_window_stability.py`, and
+  `scripts/research/run_price_action_candidate_triage.py` already exist as
+  separate read-only research commands.
+- SHOWN: `Makefile`, `scripts/SCRIPTS.md`, and
+  `docs/research/pattern_strategy_backlog.md` listed the individual commands,
+  but there was no single wrapper to produce a four-step research summary
+  artifact.
+
+What changed:
+- Added `scripts/research/run_price_action_research_pipeline.py`.
+- Added `tests/test_price_action_research_pipeline.py`.
+- Added `make price-action-research-pipeline`.
+- Updated `scripts/SCRIPTS.md`, `docs/research/pattern_strategy_backlog.md`,
+  `tests/test_script_index_alignment_guard.py`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It reduces operator friction for the accepted research workflow while keeping
+  the output advisory and fail-closed. A failed or non-`ok=true` step stops the
+  pipeline and marks the summary `ok=false`.
+
+Expected outcome:
+- Operators can run one read-only command to generate labels, forward-return,
+  window-stability, and candidate-triage artifacts plus a summary manifest.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_research_pipeline.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py tests/test_derivatives_intraday_roadmap_guard.py tests/test_price_action_research_boundary_guard.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile scripts/research/run_price_action_research_pipeline.py tests/test_price_action_research_pipeline.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: research orchestration only. It executes existing read-only
+  report scripts and writes artifacts, but does not change labels, scoring,
+  strategy config, campaigns, gates, ingestion, live routing, execution, or
+  promotion evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

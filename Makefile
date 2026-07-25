@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -407,6 +407,10 @@ PRICE_ACTION_CANDIDATE_TRIAGE_ARGS ?=
 price-action-candidate-triage:
 	$(PYTHON) scripts/research/run_price_action_candidate_triage.py $(PRICE_ACTION_CANDIDATE_TRIAGE_ARGS)
 
+PRICE_ACTION_RESEARCH_PIPELINE_ARGS ?=
+price-action-research-pipeline:
+	$(PYTHON) scripts/research/run_price_action_research_pipeline.py $(PRICE_ACTION_RESEARCH_PIPELINE_ARGS)
+
 CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
 crypto-edge-strategy-readiness:
 	$(PYTHON) scripts/research/run_crypto_edge_strategy_readiness.py $(CRYPTO_EDGE_STRATEGY_READINESS_ARGS)
@@ -459,6 +463,7 @@ script-index:
 	@echo "  make price-action-forward-returns — join price-action labels to forward returns"
 	@echo "  make price-action-window-stability — compare price-action labels across windows"
 	@echo "  make price-action-candidate-triage — rank price-action labels for manual review"
+	@echo "  make price-action-research-pipeline — run the price-action research report sequence"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
