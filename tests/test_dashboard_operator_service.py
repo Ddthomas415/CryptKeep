@@ -94,6 +94,13 @@ def test_start_repo_script_background_returns_missing_script_when_path_absent(mo
     assert out == "missing_script:scripts/missing.py"
 
 
+def test_crypto_edge_collector_dashboard_script_exists_and_is_allowlisted():
+    script = operator_service.CRYPTO_EDGE_COLLECTOR_SCRIPT
+
+    assert script in operator_service.ALLOWED_OPERATOR_SCRIPTS
+    assert (operator_service.REPO_ROOT / script).is_file()
+
+
 def test_start_crypto_edge_collector_loop_returns_already_running(monkeypatch):
     monkeypatch.setattr(
         "services.analytics.crypto_edge_collector_service.load_runtime_status",
@@ -124,7 +131,7 @@ def test_start_crypto_edge_collector_loop_uses_background_runner(monkeypatch):
     rc, out = operator_service.start_crypto_edge_collector_loop(interval_sec=900.0, current_role="OPERATOR")
 
     assert rc == 0
-    assert "scripts/run_crypto_edge_collector_loop.py" in out
+    assert operator_service.CRYPTO_EDGE_COLLECTOR_SCRIPT in out
     assert "--interval-sec 900" in out
     assert "OPERATOR" in out
 

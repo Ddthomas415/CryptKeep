@@ -506,6 +506,7 @@ def qualify_paper_history(
             "latest_completed_qualified_round_trip_close_ts": (
                 max(completed_close_timestamps) if completed_close_timestamps else None
             ),
+            "completed_round_trip_close_timestamps": list(completed_close_timestamps),
             "unqualified_evidence_fills": unqualified_fills,
             "unqualified_reason_counts": dict(sorted(rejection_counts.items())),
             "unqualified_date_counts": dict(sorted(unqualified_date_counts.items())),

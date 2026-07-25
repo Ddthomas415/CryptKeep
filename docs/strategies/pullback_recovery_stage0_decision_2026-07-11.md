@@ -75,3 +75,11 @@ Not allowed without a new reviewed decision:
 - promotion candidate status
 - live, shadow, or capped-live use
 - changes to canonical paper gate qualification
+
+## Executable Guard
+
+`tests/test_pullback_stage0_decision_guard.py` pins the isolated research
+candidate decision, Stage 0 evidence boundary, required-before-promotion list,
+allowed/not-allowed uses, and disabled governance config so
+`pullback_recovery_default` cannot silently become a persistent campaign or
+promotion candidate.
