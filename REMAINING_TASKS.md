@@ -2280,6 +2280,11 @@ substrate work, but they are concrete enough to keep visible.
     delays low-risk cleanup. 2026-07-03: baseline lane policy is written in
     `docs/OPERATOR_GOVERNANCE_LANES.md`; future work should apply the lane
     label in PRs without weakening AGENTS.md high-risk review rules.
+    2026-07-22: executable governance-lane scope guard is ready for
+    independent review. `tests/test_operator_governance_lanes.py` pins the
+    low/medium/high lane boundaries, high-risk examples, operator attention
+    cap, PR label convention, and AGENTS.md override. This is docs/test only
+    and does not change runtime behavior.
 17. Define the operational core and quarantine policy. Add a `CORE.md` or
     equivalent decision record that names the modules required for the current
     paper/research/shadow path, plus a quarantine/attic policy for surfaces not

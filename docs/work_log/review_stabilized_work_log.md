@@ -25,6 +25,49 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T16:20:00Z - Governance Lane Scope Guard (Deferred Structure #16)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the accepted risk-tiered governance lane policy.
+
+What was found:
+- `docs/OPERATOR_GOVERNANCE_LANES.md` documents low/medium/high lanes, the
+  operator attention cap, and the AGENTS.md high-risk override.
+- The policy was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_operator_governance_lanes.py`.
+- The test pins low-risk and high-risk examples, lane headers,
+  `READY_FOR_INDEPENDENT_REVIEW` high-risk closure, operator attention cap,
+  PR label convention, and AGENTS.md override.
+- Added executable-guard notes to the governance lane doc, backlog, and work
+  log.
+
+Why this change was chosen:
+- It preserves lighter handling for docs/tests/reporting while making high-risk
+  review rules executable and visible in CI.
+
+Expected outcome:
+- Future edits that turn low-risk process relief into high-risk review bypass
+  fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_governance_lanes.py tests/test_project_identity_scope.py tests/test_validation_lane_docs.py tests/test_governance_required_files.py`
+  - SHOWN: `10 passed`.
+- `./.venv/bin/python -m py_compile tests/test_operator_governance_lanes.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change strategy, campaign, gate, dashboard,
+  deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## Retrospective Scope
 
 SHOWN:
