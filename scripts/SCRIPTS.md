@@ -265,6 +265,12 @@ decision makes them authoritative.
   for manual review only and does not change strategy config, campaigns, gates,
   execution, or promotion evidence. Use
   `make funding-threshold-stability-triage`.
+- `research/run_crypto_edge_strategy_readiness.py` — read-only crypto-edge
+  strategy readiness matrix over current source-tree wiring; classifies
+  `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` as
+  Stage 0 wired, config-only, or unregistered without fetching data, starting
+  campaigns, or changing promotion gates. Use
+  `make crypto-edge-strategy-readiness`.
 - `research/run_price_action_context_labels.py` — read-only OHLCV
   price-action context label artifact over the existing market archive;
   labels fair-value gaps, engulfing candles, swing failures, break/retest,

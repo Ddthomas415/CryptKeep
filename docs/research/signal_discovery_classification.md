@@ -41,3 +41,16 @@ true:
 
 Use these layers to propose candidates and research hypotheses. Do not allow
 them to mutate canonical campaign manifests automatically.
+
+## Executable Guards
+
+- `tests/test_strategy_discovery_hygiene_contract.py` proves the classification
+  table still matches the tracked source tree.
+- The same guard blocks direct imports of discovery/ranker modules from
+  execution, control, governance, and the governed paper evidence collector.
+- `services/strategies/strategy_selector.py` is the only documented runtime
+  bridge to `candidate_advisor`, and it remains gated by
+  `CBP_USE_CANDIDATE_ADVISOR`.
+- `open_interest_shift` is a config-only research placeholder until it is
+  registered in `strategy_registry.compute_signal`; config tooling and the
+  default preset must keep it `trade_enabled=false`.

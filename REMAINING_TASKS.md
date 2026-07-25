@@ -622,6 +622,16 @@ deployment work still needs independent review.
     window average return thresholds. This remains a report consumer only and
     is not strategy config, campaign evidence, promotion evidence, profitability
     evidence, or an activation decision.
+    2026-07-22: research-only crypto-edge strategy readiness matrix is ready
+    for independent review. `services.analytics.crypto_edge_strategy_readiness`
+    and `scripts/research/run_crypto_edge_strategy_readiness.py` classify the
+    current context-strategy wiring without fetching data, starting campaigns,
+    or changing gates. SHOWN by the report: `funding_extreme` is
+    `stage0_wired_research_only`; `open_interest_shift` is
+    `config_only_research_placeholder` with `trade_enabled=false`; and
+    `order_book_imbalance` is `signal_module_unregistered`. This is source-tree
+    readiness evidence only, not campaign, promotion, or profitability
+    evidence.
 13. Treat any paper-qualification extension for crypto-edge provenance as
     high-risk gate work. The proof must show an edge-compliant fill is accepted
     and a deliberately stale/mismatched edge fixture is rejected, while existing
@@ -2229,7 +2239,15 @@ substrate work, but they are concrete enough to keep visible.
    model so paper evidence transferability is tested directly. 2026-07-04:
    parity guard added for paper market buy/sell fills: paper engine fill price
    and fee must match `services.execution.fill_model.apply_fee_slippage()` for
-   the same mid price, side, qty, fee bps, and slippage bps.
+   the same mid price, side, qty, fee bps, and slippage bps. 2026-07-22:
+   sequence-level parity proof is ready for independent review: a deterministic
+   backtest buy/sell round trip is replayed through `PaperTradingSQLite`, and
+   cash, closed-trade net PnL, final equity, position quantity, and
+   `pnl_usd_semantics=net_of_fees` must match. The proof exposed a paper-only
+   float residue mismatch: backtest allowed all-in buys within `1e-9`, while
+   paper storage rejected the same fill as insufficient cash. Paper storage now
+   uses the same sub-nanodollar affordability tolerance and clamps only that
+   residue to zero.
 6. Investigate the `synthetic_mid_ohlcv` branch in
    `services/execution/strategy_runner.py`. During the unknown-strategy runner
    proof, the public-OHLCV branch was shown to call `compute_signal()`, while
@@ -2260,7 +2278,9 @@ substrate work, but they are concrete enough to keep visible.
    `services/trading_runner/run_trader.py` is closed by classifying it as a
    legacy compatibility runner: paper-only local EMA smoke coverage, not a
    canonical promotion-evidence path and not a surface for new paper execution
-   features.
+   features. 2026-07-22: an executable classification invariant is ready for
+   independent review, proving the documented core/compatibility/retired paper
+   execution surfaces still match the tracked source tree.
 9. Classify dormant or partially wired signal-discovery modules.
    `signal_library`, `market_ranker`, `candidate_engine`,
    `candidate_strategy_mapper`, `trade_type_classifier`, and

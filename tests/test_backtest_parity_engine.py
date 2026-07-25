@@ -3,7 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
+from services.backtest import parity_engine
 from services.backtest.parity_engine import run_backtest, run_parity_backtest
+from storage.paper_trading_sqlite import PaperTradingSQLite
 
 
 def _candles(closes: list[float]) -> list[list[float]]:
@@ -19,6 +23,90 @@ def _candles(closes: list[float]) -> list[list[float]]:
         rows.append([i * 60_000, o, h, l, c, 1.0])
         prev = c
     return rows
+
+
+def _paper_order(order_id: str, *, side: str, qty: float) -> dict:
+    return {
+        "order_id": order_id,
+        "client_order_id": f"client-{order_id}",
+        "ts": "2026-07-22T00:00:00Z",
+        "venue": "paper",
+        "symbol": "BTC/USD",
+        "side": side,
+        "order_type": "market",
+        "qty": qty,
+        "limit_price": None,
+        "status": "new",
+        "reject_reason": None,
+        "strategy_id": "ema_cross",
+        "meta": None,
+    }
+
+
+def test_parity_backtest_round_trip_matches_paper_storage_net_pnl(monkeypatch, tmp_path):
+    def fake_signal(*, cfg, symbol, ohlcv):
+        action = "buy" if len(ohlcv) == 1 else "sell" if len(ohlcv) == 2 else "hold"
+        return {"ok": True, "action": action, "strategy": "ema_cross", "symbol": symbol, "reason": f"test:{action}"}
+
+    monkeypatch.setattr(parity_engine, "compute_signal", fake_signal)
+
+    initial_cash = 1_000.0
+    out = run_parity_backtest(
+        cfg={"strategy": {"name": "ema_cross"}},
+        symbol="BTC/USD",
+        candles=_candles([100.0, 103.0]),
+        warmup_bars=1,
+        initial_cash=initial_cash,
+        fee_bps=10.0,
+        slippage_bps=5.0,
+    )
+
+    assert out["buy_count"] == 1
+    assert out["sell_count"] == 1
+    assert out["metrics"]["closed_trades"] == 1
+    buy_trade, sell_trade = out["trades"]
+
+    import storage.paper_trading_sqlite as paper_store
+
+    monkeypatch.setattr(paper_store, "DB_PATH", tmp_path / "paper_trading.sqlite")
+    db = PaperTradingSQLite()
+    db.set_state("cash_quote", str(initial_cash))
+    db.set_state("realized_pnl", "0.0")
+
+    buy_order = _paper_order("parity-buy", side="buy", qty=float(buy_trade["qty"]))
+    db.insert_order(buy_order)
+    buy = db.apply_fill(
+        order=buy_order,
+        ts="2026-07-22T00:00:01Z",
+        price=float(buy_trade["exec_px"]),
+        qty=float(buy_trade["qty"]),
+        fee=float(buy_trade["fee"]),
+        fee_currency="USD",
+    )
+    assert buy["ok"] is True
+
+    sell_order = _paper_order("parity-sell", side="sell", qty=float(sell_trade["qty"]))
+    db.insert_order(sell_order)
+    sell = db.apply_fill(
+        order=sell_order,
+        ts="2026-07-22T00:00:02Z",
+        price=float(sell_trade["exec_px"]),
+        qty=float(sell_trade["qty"]),
+        fee=float(sell_trade["fee"]),
+        fee_currency="USD",
+    )
+
+    assert sell["ok"] is True
+    assert sell["pnl_usd_semantics"] == "net_of_fees"
+    assert sell["realized_pnl_usd"] == pytest.approx(float(sell_trade["realized_pnl"]))
+    assert float(db.get_state("realized_pnl") or "nan") == pytest.approx(out["metrics"]["realized_pnl"])
+    assert float(db.get_state("cash_quote") or "nan") == pytest.approx(float(sell_trade["cash_after"]))
+
+    pos = db.get_position("BTC/USD")
+    assert pos is not None
+    assert pos["qty"] == pytest.approx(0.0)
+    assert pos["realized_pnl"] == pytest.approx(out["metrics"]["realized_pnl"])
+    assert out["metrics"]["final_equity"] == pytest.approx(float(db.get_state("cash_quote") or "nan"))
 
 
 def test_run_parity_backtest_ema_cross_outputs_metrics_and_trades():

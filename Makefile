@@ -218,7 +218,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage archive-parameter-sweep-triage price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -407,6 +407,10 @@ PRICE_ACTION_CANDIDATE_TRIAGE_ARGS ?=
 price-action-candidate-triage:
 	$(PYTHON) scripts/research/run_price_action_candidate_triage.py $(PRICE_ACTION_CANDIDATE_TRIAGE_ARGS)
 
+CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
+crypto-edge-strategy-readiness:
+	$(PYTHON) scripts/research/run_crypto_edge_strategy_readiness.py $(CRYPTO_EDGE_STRATEGY_READINESS_ARGS)
+
 # Live reconciliation (shadow/live stages)
 live-reconcile:
 	$(PYTHON) scripts/dev/live_reconcile.py
@@ -450,6 +454,7 @@ script-index:
 	@echo "  make funding-threshold-candidate-triage — rank funding threshold pairs for manual review"
 	@echo "  make funding-threshold-stability-triage — rank stability-tested funding threshold pairs"
 	@echo "  make archive-parameter-sweep-triage — rank sweep variants for manual review"
+	@echo "  make crypto-edge-strategy-readiness — report crypto-edge strategy wiring status"
 	@echo "  make price-action-context-labels — label archived OHLCV price-action context"
 	@echo "  make price-action-forward-returns — join price-action labels to forward returns"
 	@echo "  make price-action-window-stability — compare price-action labels across windows"

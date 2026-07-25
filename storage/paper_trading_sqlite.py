@@ -7,6 +7,7 @@ from typing import Optional, List, Dict, Any
 from services.os.app_paths import data_dir
 
 DB_PATH = data_dir() / "paper_trading.sqlite"
+FLOAT_CASH_EPSILON = 1e-9
 
 SCHEMA = """
 PRAGMA journal_mode=WAL;
@@ -335,7 +336,7 @@ class PaperTradingSQLite:
 
             if side == "buy":
                 cost = float(price) * float(qty) + float(fee)
-                if cash < cost:
+                if cash + FLOAT_CASH_EPSILON < cost:
                     self._update_order_status_conn(con, order_id, "rejected", "insufficient_cash")
                     con.execute("COMMIT")
                     return {"ok": False, "reason": "insufficient_cash"}
@@ -343,6 +344,8 @@ class PaperTradingSQLite:
                 # Store fee-inclusive cost basis so later sell PnL is net of both legs.
                 new_avg = ((avg * pos_qty) + (float(price) * float(qty)) + float(fee)) / new_qty if new_qty > 0 else 0.0
                 new_cash = cash - cost
+                if new_cash < 0.0 and abs(new_cash) <= FLOAT_CASH_EPSILON:
+                    new_cash = 0.0
                 new_realized_total = realized_total
                 new_pos_realized = realized_pos
             else:
