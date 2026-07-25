@@ -25958,3 +25958,47 @@ Remaining risk:
 - LOW: docs/test only. It does not decide whether or when feedback weighting
   should influence runtime strategy configuration.
 - Acceptance state: ACCEPTED.
+
+## 2026-07-22T18:06:24Z - Strategy Expansion Roadmap Guard
+
+Active role: ENGINEER
+
+Objective:
+- Refresh and guard the strategy-expansion roadmap so it reflects accepted
+  research tooling while remaining sequencing guidance, not implementation
+  authority.
+
+What was found:
+- `docs/research/strategy_expansion_roadmap.md` still described walk-forward
+  validation and the strategy feedback ledger as future creation work even
+  though archive-backed walk-forward, bounded parameter sweep, and persisted
+  strategy feedback tooling now exist.
+
+What changed:
+- Updated the roadmap to name existing walk-forward/sweep scripts and the
+  persisted strategy-feedback ledger as research tooling.
+- Preserved explicit non-goals: no auto-promotion, no direct execution from
+  funding/basis, no hyperopt-driven promotion, no direct webhook execution, no
+  premature microstructure execution, and no Databento execution path.
+- Added `tests/test_strategy_expansion_roadmap_guard.py` to pin conservative
+  principles, current tooling status, non-authority boundaries, and the rule
+  that the roadmap is not implementation approval.
+- Recorded the guard in `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- The roadmap is used to choose what gets built next. Keeping it stale creates
+  review churn and risks re-building accepted tooling; guarding it is a
+  low-risk way to preserve sequencing without changing runtime behavior.
+
+Expected outcome:
+- Future strategy-expansion edits must keep the roadmap aligned with accepted
+  tooling and cannot silently turn research guidance into runtime authority.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_strategy_expansion_roadmap_guard.py tests/test_strategy_feedback_ledger_doc_guard.py tests/test_walk_forward_research_doc_guard.py tests/test_price_action_research_boundary_guard.py`
+  - SHOWN: `16 passed`.
+
+Remaining risk:
+- LOW: docs/test only. It does not approve any strategy expansion, config
+  change, campaign, promotion-gate change, or execution behavior.
+- Acceptance state: ACCEPTED.

@@ -385,6 +385,15 @@ deployment work still needs independent review.
    and the strategy-expansion roadmap link. This is docs/test only and does not
    change feedback math, leaderboard ranking, strategy configs, campaigns,
    promotion gates, or execution behavior.
+   2026-07-22: executable strategy-expansion roadmap guard is ready for
+   review. `docs/research/strategy_expansion_roadmap.md` now reflects the
+   accepted archive-backed walk-forward, bounded parameter-sweep, and
+   strategy-feedback ledger tooling while preserving the roadmap as sequencing
+   guidance only. `tests/test_strategy_expansion_roadmap_guard.py` pins the
+   conservative build order, research-only status, non-authority boundaries,
+   and no-implementation-approval rule. This is docs/test only and does not
+   change research tooling, leaderboard logic, strategy configs, campaigns,
+   promotion gates, or execution behavior.
    2026-07-14:
    market ticker ingestion proof is ready for independent review.
    `MarketStore.upsert_ticker()` now rejects non-positive or non-finite
