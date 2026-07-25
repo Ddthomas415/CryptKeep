@@ -864,6 +864,11 @@ deployment work still needs independent review.
     pressure. 2026-07-03: baseline policy is written in
     `docs/STRATEGY_STOP_AND_RETIREMENT_POLICY.md`; future strategy promotion
     still requires a dated per-strategy decision record using fresh gate output.
+    2026-07-22: executable stop/retirement policy guard is ready for
+    independent review as part of the operator runbook guard batch.
+    `tests/test_operator_runbook_policy_guards.py` pins the decision table,
+    retirement triggers, project thesis gate, and non-negotiable rules. This
+    is docs/test only and does not change runtime behavior.
 25. Write and rehearse the first-hour paper-to-shadow runbook before the paper
     gate turns green. The runbook should start from fresh gate output, confirm
     baseline/manual-review status, confirm `observe_only` and no live routing,
@@ -875,6 +880,12 @@ deployment work still needs independent review.
     `docs/PAPER_TO_SHADOW_FIRST_HOUR_RUNBOOK.md`; rehearsal remains open until
     a future checkpoint records command output, stage before/after, shadow
     evidence, and zero venue orders.
+    2026-07-22: executable first-hour runbook guard is ready for independent
+    review as part of the operator runbook guard batch.
+    `tests/test_operator_runbook_policy_guards.py` pins preconditions,
+    first-hour safety checks, abort conditions, rollback proof, and
+    not-rehearsed status. This is docs/test only and does not change runtime
+    behavior; rehearsal evidence remains open.
 26. Decide whether to widen the paper universe to accelerate qualified evidence.
     The current canonical paper gate is slow because daily strategies on a
     narrow symbol set produce few qualified round trips. Before changing the
@@ -913,6 +924,12 @@ deployment work still needs independent review.
     baseline runbook is written in `docs/SINGLE_OPERATOR_CONTINUITY.md`;
     backup restore, dead-man alert, and stopped-campaign recovery drills remain
     open proof.
+    2026-07-22: executable continuity/absence runbook guard is ready for
+    independent review as part of the operator runbook guard batch.
+    `tests/test_operator_runbook_policy_guards.py` pins absence horizons,
+    fail-toward-no-new-risk behavior, emergency delegate permissions/forbidden
+    actions, and open-drill proof list. This is docs/test only and does not
+    change runtime behavior; host drills remain open.
 28. Correct paper fee/PnL semantics before treating expectancy gates as
     profitability evidence. `storage/paper_trading_sqlite.py::apply_fill()`
     currently subtracts buy fees from cash and sell fees from proceeds, but the
