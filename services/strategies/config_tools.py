@@ -4,22 +4,17 @@ from copy import deepcopy
 from typing import Any, Dict, Tuple
 
 from services.strategies.presets import apply_preset
+from services.strategies.strategy_registry import SUPPORTED as EXECUTABLE_SUPPORTED
 from services.strategies.validation import validate_strategy_config
 
 
-_SUPPORTED = {
-    "ema_cross",
-    "mean_reversion_rsi",
-    "breakout_donchian",
-    "momentum",
-    "pullback_recovery",
-    "volatility_reversal",
-    "gap_fill",
-    "breakout_volume",
-    "funding_extreme",
-    "open_interest_shift",
-    "sma_200_trend",
+CONFIG_ONLY_STRATEGIES = {
+    "open_interest_shift": (
+        "research/config placeholder; not executable through "
+        "strategy_registry.compute_signal yet"
+    ),
 }
+_SUPPORTED = set(EXECUTABLE_SUPPORTED) | set(CONFIG_ONLY_STRATEGIES)
 
 _INT_FIELDS = {
     "ema_cross": ("ema_fast", "ema_slow", "filter_window"),
@@ -62,6 +57,14 @@ def supported_strategies() -> list[str]:
     return sorted(_SUPPORTED)
 
 
+def executable_strategies() -> list[str]:
+    return sorted(EXECUTABLE_SUPPORTED)
+
+
+def config_only_strategies() -> dict[str, str]:
+    return dict(sorted(CONFIG_ONLY_STRATEGIES.items()))
+
+
 def build_strategy_block(
     *,
     name: str,
@@ -71,6 +74,8 @@ def build_strategy_block(
     n = _name(name)
     if n not in _SUPPORTED:
         raise ValueError(f"unsupported_strategy:{n}")
+    if n in CONFIG_ONLY_STRATEGIES and bool(trade_enabled):
+        raise ValueError(f"config_only_strategy_requires_trade_disabled:{n}")
     p = dict(params or {})
     out: Dict[str, Any] = {"name": n, "trade_enabled": bool(trade_enabled)}
 
