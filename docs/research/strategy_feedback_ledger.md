@@ -15,6 +15,17 @@ Current scope:
 - derives conservative research-only leaderboard adjustments
 - surfaces those summaries in evidence-cycle and strategy-lab reporting
 
+Boundary:
+
+- strategy feedback is descriptive metadata derived from persisted paper fills
+- feedback weighting may adjust research leaderboard scores only
+- feedback weighting is not promotion authority
+- feedback weighting is not strategy configuration authority
+- feedback weighting is not position-sizing authority
+- feedback weighting is not campaign, live-routing, or execution authority
+- any use beyond research ranking requires a separate reviewed config, campaign,
+  gate, or execution change with its own proof
+
 Current non-goals:
 
 - no live position-sizing changes
