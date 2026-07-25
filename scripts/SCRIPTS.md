@@ -265,6 +265,12 @@ decision makes them authoritative.
   for manual review only and does not change strategy config, campaigns, gates,
   execution, or promotion evidence. Use
   `make funding-threshold-stability-triage`.
+- `research/run_funding_threshold_research_pipeline.py` — read-only pipeline
+  wrapper that runs the accepted funding context price-join, sensitivity,
+  direct triage, window-stability, and stability-triage reports in sequence
+  and writes a summary manifest. It does not change collectors, strategy
+  config, campaigns, gates, ingestion, execution, or promotion evidence. Use
+  `make funding-threshold-research-pipeline`.
 - `research/run_crypto_edge_strategy_readiness.py` — read-only crypto-edge
   strategy readiness matrix over current source-tree wiring; classifies
   `funding_extreme`, `open_interest_shift`, and `order_book_imbalance` as
