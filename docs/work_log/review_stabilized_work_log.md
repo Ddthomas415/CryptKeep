@@ -25658,6 +25658,60 @@ Remaining risk:
   promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-25T19:02:34-04:00 - Funding-Threshold Research Pipeline Wrapper (Active #12)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only operator wrapper that runs the accepted funding-threshold
+  research reports in sequence without changing collectors, strategy config,
+  campaigns, gates, ingestion, live routing, or execution behavior.
+
+What was found:
+- SHOWN: the funding/price join, threshold sensitivity, direct candidate
+  triage, window-stability, and stability-triage report scripts already exist
+  as separate read-only commands.
+- SHOWN: `Makefile`, `scripts/SCRIPTS.md`, and
+  `docs/research/crypto_edge_source_decision.md` listed the individual
+  funding-threshold commands, but there was no single wrapper to produce a
+  sequential summary artifact.
+
+What changed:
+- Added `scripts/research/run_funding_threshold_research_pipeline.py`.
+- Added `tests/test_funding_threshold_research_pipeline.py`.
+- Added `make funding-threshold-research-pipeline`.
+- Updated `scripts/SCRIPTS.md`, `docs/research/crypto_edge_source_decision.md`,
+  `tests/test_script_index_alignment_guard.py`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It reduces operator friction for the accepted funding research workflow while
+  keeping outputs advisory and fail-closed. A failed or non-`ok=true` step
+  stops the pipeline and marks the summary `ok=false`.
+
+Expected outcome:
+- Operators can run one read-only command to generate funding/price join,
+  sensitivity, candidate-triage, window-stability, and stability-triage
+  artifacts plus a summary manifest.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_research_pipeline.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py tests/test_funding_threshold_sensitivity.py tests/test_funding_threshold_window_stability.py tests/test_funding_threshold_candidate_triage.py tests/test_funding_threshold_stability_triage.py tests/test_funding_context_price_join.py`
+  - SHOWN: `40 passed`.
+- `./.venv/bin/python -m py_compile scripts/research/run_funding_threshold_research_pipeline.py tests/test_funding_threshold_research_pipeline.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: research orchestration only. It executes existing read-only
+  report scripts and writes artifacts, but does not change collectors,
+  thresholds, scoring logic, strategy config, campaigns, gates, ingestion, live
+  routing, execution, or promotion evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-25T23:11:55Z - Paper Gate Velocity Report (Active Backlog #1)
 
 Active role: ENGINEER
@@ -25698,7 +25752,17 @@ Expected outcome:
   legacy fills, or changing campaign/gate behavior.
 
 Verification:
-- Pending in this branch.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_paper_gate_velocity_report.py tests/test_paper_promotion_progress.py tests/test_paper_evidence_qualification.py tests/test_check_promotion_gates.py`
+  - SHOWN: `14 passed`.
+- `./.venv/bin/python -m py_compile services/control/paper_gate_velocity.py scripts/report_paper_gate_velocity.py tests/test_paper_gate_velocity_report.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- GitHub CI for PR #428:
+  - SHOWN: Build macOS/windows, CI sanity, CI validate, GitGuardian,
+    Governance smoke, and script-path-integrity all passed before merge.
 
 Remaining risk:
 - LOW/MEDIUM: diagnostic/reporting only. It reads existing evidence and progress

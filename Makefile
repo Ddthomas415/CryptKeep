@@ -225,7 +225,7 @@ governance-smoke:
 .PHONY: check-gates check-gates-json promote-strategy paper-logs dev-setup
 .PHONY: kill-switch-on kill-switch-off kill-switch-status gate-inputs
 .PHONY: inject-test-fill candidate-scan candidate-summary candidate-outcomes ai-operator-oversight live-reconcile
-.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline check-short-context-readiness
+.PHONY: pullback-stage0-readiness pullback-stage0-baseline pullback-stage0-verify funding-stage0-readiness funding-stage0-baseline funding-stage0-verify funding-context-replay ohlcv-archive-backfill archive-walk-forward archive-parameter-sweep funding-context-price-join funding-threshold-sensitivity funding-threshold-window-stability funding-threshold-candidate-triage funding-threshold-stability-triage funding-threshold-research-pipeline archive-parameter-sweep-triage crypto-edge-strategy-readiness price-action-context-labels price-action-forward-returns price-action-window-stability price-action-candidate-triage price-action-research-pipeline check-short-context-readiness
 .PHONY: script-index paper-run-short paper-stop-now live-intent-history-schema live-intent-history-schema-init
 
 # Fast test suite — skips blocking service-loop tests
@@ -394,6 +394,10 @@ FUNDING_THRESHOLD_STABILITY_TRIAGE_ARGS ?=
 funding-threshold-stability-triage:
 	$(PYTHON) scripts/research/run_funding_threshold_stability_triage.py $(FUNDING_THRESHOLD_STABILITY_TRIAGE_ARGS)
 
+FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS ?=
+funding-threshold-research-pipeline:
+	$(PYTHON) scripts/research/run_funding_threshold_research_pipeline.py $(FUNDING_THRESHOLD_RESEARCH_PIPELINE_ARGS)
+
 ARCHIVE_PARAMETER_SWEEP_TRIAGE_ARGS ?=
 archive-parameter-sweep-triage:
 	$(PYTHON) scripts/research/run_archive_parameter_sweep_triage.py $(ARCHIVE_PARAMETER_SWEEP_TRIAGE_ARGS)
@@ -465,6 +469,7 @@ script-index:
 	@echo "  make funding-threshold-window-stability — compare funding threshold pairs across row windows"
 	@echo "  make funding-threshold-candidate-triage — rank funding threshold pairs for manual review"
 	@echo "  make funding-threshold-stability-triage — rank stability-tested funding threshold pairs"
+	@echo "  make funding-threshold-research-pipeline — run the funding threshold research report sequence"
 	@echo "  make archive-parameter-sweep-triage — rank sweep variants for manual review"
 	@echo "  make crypto-edge-strategy-readiness — report crypto-edge strategy wiring status"
 	@echo "  make price-action-context-labels — label archived OHLCV price-action context"
