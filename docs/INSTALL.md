@@ -26,5 +26,8 @@ Sidecar workspaces such as `crypto-trading-ai/`, `src-tauri/`, and packaging/rel
   - `.\run_dashboard.ps1`
 - Docker helper:
   - `make docker-up-auto-ports`
+  - The archived `phase1_research_copilot/` backend sidecar is not part of the
+    default root Docker startup. To opt into that sidecar explicitly, run with
+    `COMPOSE_PROFILES=phase1-companion`.
 - Live trading requires credentials via environment variables (never in code).
 - Supported venues (via CCXT): binance, coinbase, gateio.

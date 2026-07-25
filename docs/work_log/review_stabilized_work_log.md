@@ -25111,6 +25111,54 @@ Remaining risk:
   being treated as accepted.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-25T21:12:15Z - Consolidated Storage Quarantine And Companion Compose Hygiene
+
+Active role: ENGINEER
+
+Objective:
+- Consolidate the storage quarantine guard and companion compose optionality
+  work onto the current stacked branch without carrying stale work-log tails.
+
+What was found:
+- SHOWN: `docs/architecture/storage_surface_classification.md` classifies
+  retained legacy storage schemas as quarantined, but needed an executable
+  drift guard.
+- SHOWN: the companion backend remains a non-canonical dependency and should be
+  optional in compose/docs unless explicitly installed.
+
+What changed:
+- Added `tests/test_storage_surface_classification.py` to pin quarantined
+  storage-schema status and block production imports without a reviewed storage
+  decision.
+- Made the companion backend compose service optional behind a profile and
+  updated companion/install docs.
+- Added `tests/test_companion_repo_dependency.py` to pin the optional companion
+  boundary.
+- Updated `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- This closes two low-risk hygiene items without changing trading runtime,
+  strategy dispatch, promotion gates, or live execution.
+
+Expected outcome:
+- Legacy storage schemas and the companion backend cannot silently re-enter the
+  default runtime path through documentation or compose drift.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_storage_surface_classification.py tests/test_companion_repo_dependency.py tests/test_strategy_discovery_hygiene_contract.py tests/test_paper_measurement_contract.py::test_paper_execution_surface_classification_matches_source_tree tests/test_makefile_wiring.py`
+  - SHOWN: `13 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; guard tests `23 passed`; repo doctor rc 0.
+- `./.venv/bin/python -m py_compile tests/test_storage_surface_classification.py tests/test_companion_repo_dependency.py`
+  - SHOWN: passed with no output.
+- `git diff --cached --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- LOW/MEDIUM: Docker compose behavior changes by making companion startup
+  explicit/optional; no trading runtime or live execution behavior changes.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-25T20:58:14Z - Consolidated Governance And Research Guard Stack
 
 Active role: ENGINEER
