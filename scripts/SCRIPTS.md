@@ -245,6 +245,11 @@ decision makes them authoritative.
   them to the unconditioned baseline. It does not select strategies, change
   configs, start campaigns, or create promotion evidence. Use
   `make price-action-forward-returns`.
+- `research/run_price_action_stability_report.py` — research-only consumer of
+  a saved price-action forward-return artifact; splits rows into chronological
+  windows and reports whether label-conditioned deltas persist across windows.
+  It does not select strategies, authorize filters, change configs, start
+  campaigns, or create promotion evidence. Use `make price-action-stability`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.
