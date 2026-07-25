@@ -775,6 +775,16 @@ deployment work still needs independent review.
 15. Continue the derivatives/intraday roadmap as read-only data collection and
    replay only until compliance, margin, liquidation, reduce-only, and risk
    controls are proven.
+   2026-07-25: executable derivatives/intraday roadmap guard is ready for
+   independent review. `docs/research/derivatives_intraday_roadmap.md`
+   records the read-only/replay boundary, blocked execution surfaces, required
+   proof packet, and links to crypto-edge source, price-action, Databento, and
+   websocket boundary docs. `tests/test_derivatives_intraday_roadmap_guard.py`
+   pins that no derivatives execution, shorting, margin/leverage, live
+   intraday routing, strategy promotion, Databento ingestion, or campaign/gate
+   behavior is authorized by the roadmap. This is docs/test only and does not
+   change collectors, campaigns, gates, data ingestion, live routing, or
+   execution behavior.
 16. Complete Hetzner host follow-through before any canonical `.cbp_state`
     migration: reviewed Hetzner canonical campaign manifest, reviewed
     stop-copy-verify-start procedure, fresh current-host runtime payload

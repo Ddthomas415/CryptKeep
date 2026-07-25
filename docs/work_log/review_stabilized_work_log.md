@@ -25562,3 +25562,43 @@ Remaining risk:
 - LOW: docs/test-only disposition guard. It does not change runtime,
   process-control, deployment, execution, gates, or strategy behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T18:46:42-04:00 - Derivatives/Intraday Roadmap Guard (Active #15)
+
+Active role: ENGINEER
+
+Objective:
+- Add a docs/test-only boundary guard for the derivatives/intraday roadmap.
+
+What was found:
+- SHOWN: Active #15 existed in `REMAINING_TASKS.md` as a one-sentence boundary:
+  derivatives/intraday work remains read-only/replay until compliance, margin,
+  liquidation, reduce-only, and risk controls are proven.
+- SHOWN: crypto-edge source, price-action, Databento, and websocket docs each
+  carried pieces of that boundary, but no dedicated roadmap doc or focused
+  guard linked them together.
+
+What changed:
+- Added `docs/research/derivatives_intraday_roadmap.md`.
+- Added `tests/test_derivatives_intraday_roadmap_guard.py`.
+- Updated `REMAINING_TASKS.md` item #15 with the ready-for-review note.
+
+Why this change was chosen:
+- It closes a roadmap ambiguity without touching collectors, campaigns, gates,
+  data ingestion, live routing, or execution behavior.
+
+Expected outcome:
+- Future derivatives/intraday work must pass through explicit controls before
+  it can become execution, promotion, campaign, or Databento-ingestion
+  authority.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_derivatives_intraday_roadmap_guard.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+
+Remaining risk:
+- LOW: docs/test-only roadmap guard. It does not change runtime, collectors,
+  strategies, campaigns, gates, ingestion, live routing, or execution.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
