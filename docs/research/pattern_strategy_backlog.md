@@ -142,3 +142,11 @@ Do not promote a new pattern strategy from idea to campaign without:
 Do not promote a price-action label directly to execution authority. The first
 eligible use is as a research-only context feature, then as a separately
 reviewed confirmation filter if evidence supports it.
+
+## Executable Guard
+
+`tests/test_price_action_research_boundary_guard.py` pins the research-only
+status, core OHLCV label scope, non-authority artifact flags, data-source
+deferrals, acceptance-before-use requirements, and backlog link so price-action
+labels cannot silently become strategy, campaign, promotion, or execution
+authority.

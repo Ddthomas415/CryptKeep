@@ -2336,6 +2336,14 @@ substrate work, but they are concrete enough to keep visible.
     read-only artifact set under an explicit output directory. This adds no new
     analytics authority: it does not select strategies, authorize confirmation
     filters, change configs, start campaigns, or create promotion evidence.
+    2026-07-22: executable price-action research-boundary guard is ready for
+    independent review. `tests/test_price_action_research_boundary_guard.py`
+    pins research-only status, core OHLCV label scope, non-authority artifact
+    flags, data-source deferrals, acceptance-before-use requirements, and the
+    backlog link to `docs/research/pattern_strategy_backlog.md`. This is
+    docs/test only and does not change label generation, forward-return joins,
+    stability reports, strategy configs, campaigns, promotion gates, or
+    execution behavior.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
