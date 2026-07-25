@@ -2244,6 +2244,12 @@ substrate work, but they are concrete enough to keep visible.
     2026-07-03: priority policy is documented in
     `docs/dashboard/DATA_PAGE_BACKLOG.md`; state-mutating pages still require
     role guards and cannot bypass accepted ceremonies.
+    2026-07-22: executable dashboard data-page triage guard is ready for
+    independent review. `docs/dashboard/DATA_PAGE_BACKLOG.md` now maps each
+    operator-critical category to concrete page/service paths, and
+    `tests/test_dashboard_data_page_backlog.py` pins both the path map and the
+    mutation-boundary rule. This is docs/test only and does not change
+    dashboard behavior.
 15. Vendor, explicitly integrate, or excise the companion-repo dependency.
     `phase1_research_copilot` has appeared in compose/docs/skip-test context
     during audits. Split-brain repos rot deployment stories. Decide whether the

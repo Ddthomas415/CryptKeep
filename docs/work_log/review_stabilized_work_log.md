@@ -24621,6 +24621,50 @@ Remaining risk:
   thresholds are analytical assumptions. Any strategy/filter use still requires
   accepted archive artifacts, sufficient samples, and separate review.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+## 2026-07-22T15:54:00Z - Dashboard Data-Page Triage Guard (Deferred Structure #14)
+
+Active role: ENGINEER
+
+Objective:
+- Make the dashboard data-page triage policy executable by mapping
+  operator-critical categories to current repo paths.
+
+What was found:
+- `docs/dashboard/DATA_PAGE_BACKLOG.md` already prioritized gate status, paper
+  reconciliation, campaign health, market movers/candidate context, copilot
+  reports, and kill-switch/halted-state visibility.
+- The document did not yet pin those categories to concrete page/service paths.
+
+What changed:
+- Added page/service path bullets under each operator-critical dashboard
+  category.
+- Added `tests/test_dashboard_data_page_backlog.py` to verify those paths exist
+  and that the state-mutation boundary remains documented.
+- Updated backlog and work-log records.
+
+Why this change was chosen:
+- It keeps dashboard work as product backlog unless it supports named
+  operator-critical evidence/safety surfaces, without touching dashboard
+  runtime code.
+
+Expected outcome:
+- Future dashboard/data-page work has a concrete priority map and a small guard
+  against silently dropping the high-risk mutation boundary.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_dashboard_data_page_backlog.py tests/test_dashboard_operator_remaining_role_guard.py tests/test_dashboard_operator_run_op_allowlist.py`
+  - SHOWN: `8 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `./.venv/bin/python -m py_compile tests/test_dashboard_data_page_backlog.py`
+  - SHOWN: rc=0.
+- `git diff --check`
+  - SHOWN: rc=0.
+
+Remaining risk:
+- LOW: docs/test only. It does not add data plumbing or role guards to any page.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T15:45:00Z - Websocket Surface Classification Guard (Deferred Structure #4)
 
 Active role: ENGINEER
