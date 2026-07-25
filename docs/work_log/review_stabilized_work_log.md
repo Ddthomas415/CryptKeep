@@ -25,6 +25,52 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T19:12:00Z - Databento Data-Source RFC (Hygiene #13)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only Databento data-source RFC without adding credentials,
+  dependencies, data fetches, campaign inputs, promotion evidence, or execution
+  behavior.
+
+What was found:
+- `docs/research/pattern_strategy_backlog.md` deferred Databento to a separate
+  read-only data-source RFC because it introduces API-key, metered-cost,
+  dataset/schema, symbology, and non-crypto/futures/equities governance
+  questions.
+- That RFC did not yet exist.
+
+What changed:
+- Added `docs/research/databento_data_source_rfc.md`.
+- Added `tests/test_databento_data_source_rfc.py`.
+- Linked the RFC from the pattern backlog and active backlog.
+
+Why this change was chosen:
+- It records the Databento boundary before any implementation, so future work
+  starts from explicit read-only, cost, credential, symbology, provenance, and
+  promotion-evidence constraints.
+
+Expected outcome:
+- Databento cannot quietly enter the repo as a dependency, credential path, data
+  fetch, campaign input, promotion-evidence source, or execution input without a
+  reviewed implementation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_databento_data_source_rfc.py tests/test_price_action_research_boundary_guard.py tests/test_price_action_research_pipeline.py`
+  - SHOWN: `14 passed in 0.32s`.
+- `./.venv/bin/python -m py_compile tests/test_databento_data_source_rfc.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.48s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not add credentials, dependencies, data fetches,
+  campaign inputs, promotion evidence, deployment, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T19:02:00Z - Price-Action Research Boundary Guard (Hygiene #13)
 
 Active role: ENGINEER
