@@ -2564,6 +2564,13 @@ substrate work, but they are concrete enough to keep visible.
     high-risk no-mixed-batch boundaries, the same-lane batching rule, and the
     current practical order. This is docs/test only and does not decide any
     backlog item, authorize implementation, or change runtime behavior.
+    2026-07-25: read-only backlog lane status report is ready for independent
+    review. `services.analytics.backlog_lane_status` and
+    `scripts/report_backlog_lane_status.py` summarize the lane counts from
+    `docs/BACKLOG_EXECUTION_LANES.md`, include source/backlog hashes, and
+    expose `make backlog-lane-status`. The report is planning/status only: it
+    does not decide backlog items, authorize implementation, or change runtime
+    behavior.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

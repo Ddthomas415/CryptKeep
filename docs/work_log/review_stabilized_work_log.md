@@ -25711,3 +25711,57 @@ Remaining risk:
   thresholds, scoring logic, strategy config, campaigns, gates, ingestion, live
   routing, execution, or promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T23:35:26Z - Backlog Lane Status Report (Operator Attention Cap)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only operator report that summarizes the existing backlog
+  execution-lane map without deciding backlog items or changing runtime state.
+
+What was found:
+- SHOWN: `docs/BACKLOG_EXECUTION_LANES.md` already classifies remaining work
+  into passive/operator evidence, low-risk docs/tests, medium-risk read-only,
+  and high-risk gate/execution/deploy lanes.
+- SHOWN: `REMAINING_TASKS.md` links the lane map, but there was no executable
+  status report showing lane counts and source hashes for quick operator
+  check-ins.
+
+What changed:
+- Added `services.analytics.backlog_lane_status`.
+- Added `scripts/report_backlog_lane_status.py`.
+- Added `tests/test_backlog_lane_status.py`.
+- Added `make backlog-lane-status`.
+- Updated `scripts/SCRIPTS.md`, `tests/test_script_index_alignment_guard.py`,
+  and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It reduces operator review friction using the existing lane document as the
+  source. The report is planning/status only and cannot authorize
+  implementation or mutate backlog/runtime state.
+
+Expected outcome:
+- Operators can quickly see the remaining-work shape by lane and verify which
+  source documents produced the count.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_backlog_lane_status.py`
+  - SHOWN: `4 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_backlog_execution_lanes_guard.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `12 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/backlog_lane_status.py scripts/report_backlog_lane_status.py tests/test_backlog_lane_status.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/report_backlog_lane_status.py`
+  - SHOWN: `ok=True`, `lanes=4`, `items=42`; summary
+    `passive=15`, `low=13`, `medium=7`, `high=7`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: read-only planning/status report and docs/tests/Makefile wiring only.
+  It does not decide backlog items, authorize implementation, or change
+  runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
