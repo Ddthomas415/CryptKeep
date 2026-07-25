@@ -41,6 +41,7 @@ def test_make_script_index_points_to_maintained_docs():
     assert "make funding-stage0-readiness" in target
     assert "make funding-threshold-candidate-triage" in target
     assert "make funding-threshold-stability-triage" in target
+    assert "make funding-threshold-research-pipeline" in target
     assert "make price-action-context-labels" in target
     assert "make price-action-forward-returns" in target
     assert "make price-action-window-stability" in target
@@ -74,6 +75,7 @@ def test_accepted_research_tools_have_script_index_and_makefile_links():
         "research/run_funding_threshold_window_stability.py": "make funding-threshold-window-stability",
         "research/run_funding_threshold_candidate_triage.py": "make funding-threshold-candidate-triage",
         "research/run_funding_threshold_stability_triage.py": "make funding-threshold-stability-triage",
+        "research/run_funding_threshold_research_pipeline.py": "make funding-threshold-research-pipeline",
         "research/run_price_action_context_labels.py": "make price-action-context-labels",
         "research/run_price_action_forward_returns.py": "make price-action-forward-returns",
         "research/run_price_action_window_stability.py": "make price-action-window-stability",

@@ -622,6 +622,17 @@ deployment work still needs independent review.
     window average return thresholds. This remains a report consumer only and
     is not strategy config, campaign evidence, promotion evidence, profitability
     evidence, or an activation decision.
+    2026-07-25: read-only funding-threshold research pipeline wrapper is ready
+    for independent review.
+    `scripts/research/run_funding_threshold_research_pipeline.py` runs the
+    accepted funding/price join, threshold sensitivity, direct candidate
+    triage, window-stability, and stability-triage reports in sequence, writes
+    each report plus a summary manifest, and stops fail-closed when any step
+    cannot produce an `ok=true` artifact. `make
+    funding-threshold-research-pipeline` and `scripts/SCRIPTS.md` expose the
+    wrapper. This is research orchestration only; it does not change
+    collectors, thresholds, scoring logic, strategy config, campaigns, gates,
+    data ingestion, live routing, execution, or promotion evidence.
     2026-07-22: research-only crypto-edge strategy readiness matrix is ready
     for independent review. `services.analytics.crypto_edge_strategy_readiness`
     and `scripts/research/run_crypto_edge_strategy_readiness.py` classify the

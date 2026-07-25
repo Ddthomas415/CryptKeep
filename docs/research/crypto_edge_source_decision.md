@@ -78,9 +78,15 @@ The current funding research path is read-only and artifact-based:
   review over an existing sensitivity artifact.
 - `make funding-threshold-stability-triage` ranks threshold pairs for manual
   review over an existing window-stability artifact.
+- `make funding-threshold-research-pipeline` is a read-only funding-threshold
+  research pipeline wrapper that runs the accepted
+  price-join, sensitivity, direct-triage, window-stability, and
+  stability-triage reports in sequence and writes a summary manifest.
 
 These reports do not change strategy config, start campaigns, modify gates,
-route orders, compute portfolio PnL, or produce promotion evidence.
+route orders, compute portfolio PnL, or produce promotion evidence. The
+pipeline wrapper does not change collectors, strategy config, campaigns, gates,
+ingestion, execution, or promotion evidence.
 
 ## Executable Guard
 
