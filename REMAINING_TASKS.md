@@ -2490,6 +2490,16 @@ substrate work, but they are concrete enough to keep visible.
     expose the wrapper. This is research orchestration only; it does not change
     labels, scoring, strategy config, campaigns, gates, data ingestion, live
     routing, execution, or promotion evidence.
+    2026-07-25: read-only research pipeline status report is ready for
+    independent review. `services.analytics.research_pipeline_status` and
+    `scripts/research/report_research_pipeline_status.py` inventory the
+    accepted funding-threshold and price-action pipeline wrappers, verify
+    script/Makefile/SCRIPTS wiring, and report latest `pipeline_summary.json`
+    status/hash when present. Missing latest artifacts are reported as
+    `not_run`, not as failures. This is status/observability only; it does not
+    run pipelines, fetch data, or change research artifacts, strategy config,
+    campaigns, gates, data ingestion, live routing, execution, or promotion
+    evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

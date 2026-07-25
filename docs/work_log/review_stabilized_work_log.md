@@ -25769,6 +25769,61 @@ Remaining risk:
   artifacts and writes no campaign, evidence, gate, execution, or config state.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-25T23:30:20Z - Research Pipeline Status Report (Active #12 / #13)
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only operator status report over the accepted research pipeline
+  wrappers and their latest summary artifacts without running the pipelines or
+  changing research/campaign/gate/execution state.
+
+What was found:
+- SHOWN: the funding-threshold and price-action research pipeline wrappers
+  exist with Makefile and script-index wiring.
+- SHOWN: there was no single command that inventories those accepted wrappers,
+  verifies their operator wiring, and reports whether latest
+  `pipeline_summary.json` artifacts exist and are `ok=true`.
+
+What changed:
+- Added `services.analytics.research_pipeline_status`.
+- Added `scripts/research/report_research_pipeline_status.py`.
+- Added `tests/test_research_pipeline_status.py`.
+- Added `make research-pipeline-status`.
+- Updated `scripts/SCRIPTS.md`, `tests/test_script_index_alignment_guard.py`,
+  and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It gives the operator one read-only status surface for research-pipeline
+  readiness/artifacts while keeping missing artifacts as `not_run` and avoiding
+  any data fetch, pipeline execution, artifact generation, scoring, campaign,
+  gate, live routing, or execution changes.
+
+Expected outcome:
+- Operators can quickly distinguish wired-but-not-run research pipelines from
+  wiring drift and non-ok latest summary artifacts.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_pipeline_status.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py`
+  - SHOWN: `6 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/research_pipeline_status.py scripts/research/report_research_pipeline_status.py tests/test_research_pipeline_status.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/research/report_research_pipeline_status.py`
+  - SHOWN: `ok=True`, `pipelines=2`, `wired=2`, `not_run=2`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: status/reporting only. The report may influence operator
+  planning, but it does not run research jobs or mutate source, artifacts,
+  strategies, campaigns, gates, ingestion, live routing, execution, or
+  promotion evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-25T23:35:26Z - Backlog Lane Status Report (Operator Attention Cap)
 
 Active role: ENGINEER
