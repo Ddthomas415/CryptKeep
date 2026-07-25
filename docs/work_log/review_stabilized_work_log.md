@@ -24636,4 +24636,164 @@ Remaining risk:
 - LOW/MEDIUM: research-only analytics can influence future operator decisions
   if misread, but no strategy config, campaign, gate, execution, or promotion
   authority changes were made.
+
+## 2026-07-22T03:18:05Z - Price-Action Window Stability Report, Research-Only Slice
+
+Active role: ENGINEER
+
+Objective:
+- Add the multi-window stability layer for price-action research so label
+  buckets can be compared against unconditioned forward-return baselines across
+  fixed archive windows, without turning labels into strategy authority.
+
+What was found:
+- SHOWN: the price-action research backlog requires comparison against
+  unconditioned baselines and out-of-sample stability review before any label
+  becomes a confirmation filter.
+- SHOWN: the label extractor and forward-return report are archive-backed and
+  research-only, giving this slice reusable deterministic inputs.
+
+What changed:
+- Added `services/analytics/price_action_window_stability.py`, a research-only
+  multi-window report that reuses the price-action label artifact and
+  forward-return report per window.
+- Added `scripts/research/run_price_action_window_stability.py`, a read-only
+  CLI that writes/prints the stability artifact and returns exit code 2 with
+  `--fail-if-not-ok` when the report cannot satisfy its minimum window count.
+- Added `make price-action-window-stability` and updated the script index.
+- Updated `docs/research/pattern_strategy_backlog.md` and
+  `REMAINING_TASKS.md` to record the stability slice while preserving the
+  boundary: no strategy config, campaign evidence, promotion evidence, gate,
+  execution, or Databento path changed.
+- Added `tests/test_price_action_window_stability.py`.
+- Refactored `services/analytics/price_action_forward_returns.py` to expose a
+  reusable `build_price_action_forward_return_report(...)` helper so the
+  stability report does not duplicate cost/return math.
+
+Why this change was chosen:
+- It closes the next research-method gap after label extraction and
+  forward-return joins: whether a label's return behavior is stable across
+  windows rather than a single-window artifact.
+
+Expected outcome:
+- Operators can inspect each label bucket's average delta versus unconditioned
+  long/short baselines, along with outperform/underperform window ratios,
+  before any separate activation review.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `15 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/price_action_window_stability.py scripts/research/run_price_action_window_stability.py tests/test_price_action_window_stability.py services/analytics/price_action_forward_returns.py scripts/research/run_price_action_forward_returns.py tests/test_price_action_forward_returns.py services/backtest/price_action_context.py scripts/research/run_price_action_context_labels.py tests/test_price_action_context_labels.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_ohlcv_archive_pagination.py tests/test_ohlcv_archive_backtest.py tests/test_archive_walk_forward_runner.py tests/test_backtest_walk_forward.py tests/test_archive_parameter_sweep.py tests/test_ohlcv_archive_backfill_runner.py tests/test_funding_context_price_join.py tests/test_funding_threshold_sensitivity.py`
+  - SHOWN: `69 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`; repo doctor rc 0; guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- MEDIUM: this is research analytics that may affect future operator
+  decisions. The artifact is explicitly marked research-only and not campaign,
+  promotion, strategy-config, profitability, or execution evidence.
+- Real archive runs across relevant symbols/timeframes are still required
+  before drawing strategy conclusions.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T20:34:00Z - Price-Action Window Stability Fee-Surface Census Repair
+
+Active role: ENGINEER
+
+Objective:
+- Repair the failing CI blueprint census after retargeting the price-action
+  window-stability research PR onto `master`.
+
+What was found:
+- SHOWN: GitHub CI failed `test_no_new_fee_surface_appeared` because
+  `services/analytics/price_action_window_stability.py` declares
+  `fee_bps: float = 10.0` / `slippage_bps: float = 5.0` and was not listed in
+  the executable fee-surface census.
+
+What changed:
+- Added `services/analytics/price_action_window_stability.py` to the
+  research-only fee-surface census in `tests/test_blueprint_invariants.py`.
+- Added the same research-only classification to
+  `docs/architecture/SYSTEM_BLUEPRINT.md`.
+
+Why this change was chosen:
+- The window-stability report is a research artifact that models forward
+  returns after declared costs. It is not campaign, promotion, or execution
+  evidence, but the cost assumptions must still be explicitly censused.
+
+Expected outcome:
+- The blueprint invariant continues to fail for uncensused fee surfaces while
+  accepting the reviewed window-stability research surface.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared tests/test_blueprint_invariants.py::test_fee_surface_defaults_unchanged`
+  - SHOWN: `9 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py`
+  - SHOWN: `15 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+
+Remaining risk:
+- LOW/MEDIUM: research-only classification affects interpretation, not trading
+  authority.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-25T20:43:00Z - Intent Runtime Ruff CI Unblock
+
+Active role: ENGINEER
+
+Objective:
+- Unblock the active research PR stack after GitHub CI began failing its
+  intent-runtime ruff slice on existing execution files.
+
+What was found:
+- SHOWN: PR #363 GitHub `CI validate` failed in the ruff step, not in the
+  price-action research tests. The ruff target list was
+  `services/execution/intent_writer.py`,
+  `services/execution/intent_consumer.py`,
+  `services/execution/live_intent_consumer.py`, and
+  `services/execution/held_intents.py`.
+- SHOWN: failures were lint-only classes: import ordering, legacy
+  `typing.Dict`/`List`, `datetime.timezone.utc`, unused `noqa`, broad catches
+  at intentional submit/lookup ambiguity boundaries, silent cleanup `pass`, and
+  one loop-variable lambda binding.
+
+What changed:
+- Updated imports/type annotations and `datetime.UTC` usage.
+- Narrowed local parse/unlink cleanup exceptions where behavior is unchanged.
+- Added debug logging for best-effort cleanup failures instead of silent pass.
+- Preserved intentional submit/venue-lookup catch-all behavior with targeted
+  `noqa: BLE001` comments, because those paths convert ambiguous venue failures
+  into recorded intent states rather than letting the loop die.
+- Bound the sandbox loop variable in the clock-sanity adapter factory lambda.
+
+Why this change was chosen:
+- The blocker is a CI lint baseline issue in intent-runtime files. The smallest
+  safe repair is lint-only cleanup that preserves the existing fail-closed and
+  ambiguity-recording behavior.
+
+Expected outcome:
+- The GitHub ruff step should stop blocking unrelated research PRs while the
+  execution behavior remains unchanged.
+
+Verification:
+- `./.venv/bin/python -m py_compile services/execution/held_intents.py services/execution/intent_consumer.py services/execution/intent_writer.py services/execution/live_intent_consumer.py`
+  - SHOWN: passed.
+- `./.venv/bin/python -m pytest -q tests/test_consumer_locking_and_paths.py tests/test_live_lock_stale_pid_cleanup.py tests/test_intent_writer_execution_bridge.py tests/test_live_intent_consumer_duplicate_prevention.py tests/test_live_intent_consumer_orphan_fix.py tests/test_live_consumer_risk_claim.py tests/test_live_sandbox_config_fail_closed.py tests/test_live_intent_consumer_order_store_gating.py tests/test_stale_submitting_recovery.py`
+  - SHOWN: `42 passed`.
+- `./.venv/bin/python -m pytest -q tests/test_price_action_window_stability.py tests/test_price_action_forward_returns.py tests/test_price_action_context_labels.py tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`
+  - SHOWN: `16 passed`.
+- `git diff --check`
+  - SHOWN: clean.
+- Local `ruff` was not run because the repo venv does not currently have
+  `ruff` installed; GitHub CI is the ruff proof.
+
+Remaining risk:
+- HIGH by file surface: this touches live intent-runtime files, although the
+  intended change is lint-only. GitHub CI and human/operator review remain the
+  merge proof.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -131,6 +131,7 @@ _FEE_SURFACES = {
     "services/execution/paper_fees.py": (0.0, None, "dormant: no production callers"),
     "services/analytics/funding_context_price_join.py": (10.0, 5.0, "research-only funding context forward-return report"),
     "services/analytics/price_action_forward_returns.py": (10.0, 5.0, "research-only price-action forward-return report"),
+    "services/analytics/price_action_window_stability.py": (10.0, 5.0, "research-only price-action window-stability report"),
 }
 
 
