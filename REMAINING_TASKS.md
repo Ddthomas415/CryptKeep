@@ -118,6 +118,12 @@ deployment work still needs independent review.
    outages, alerts only on state transitions, and automatically recovers when
    the same configured source preflight succeeds. This item is independent of
    promotion-gate policy; gate redesign must not mask infrastructure failures.
+   2026-07-25: read-only paper-gate velocity report is ready for independent
+   review. `scripts/report_paper_gate_velocity.py` / `make
+   status-paper-gate-velocity` now estimates completion from completed
+   provenance-qualified round-trip close timestamps, refuses projections with
+   fewer than two closes, surfaces legacy/all-history exclusions as diagnostic
+   only, and leaves gate policy/evidence unchanged.
    2026-07-18: guarded paper campaign restore is ready for independent review.
    `restore_paper_campaigns.py --restore --preflight-ohlcv` uses the existing
    public-OHLCV preflight before starting a dead collector, reports
