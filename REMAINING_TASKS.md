@@ -612,6 +612,12 @@ deployment work still needs independent review.
     arming tokens, and mirror the existing dead-man hardening pattern. Remaining
     proof is host-side: install/enable the timer, verify the collector's actual
     schedule, and show recent OKX snapshot timestamps.
+    2026-07-22: executable OKX source-decision guard is ready for independent
+    review. `tests/test_crypto_edge_source_decision_guard.py` pins the
+    read-only research scope, evidence basis, unresolved host/data unknowns,
+    hard boundaries, default collector-plan venues, and backlog/structural-doc
+    links. This is docs/test only and does not change collectors, strategy
+    context, promotion qualification, live routing, or execution behavior.
     2026-07-18 read-only Hetzner check recorded in
     `docs/checkpoints/hetzner_crypto_edge_runtime_gap_2026_07_18.md`:
     paper campaign status is healthy, but repo-local crypto-edge collection is

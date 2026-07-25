@@ -25,6 +25,52 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T18:25:00Z - Crypto-Edge Source Decision Guard (Active #14)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the crypto-edge source decision record without
+  changing collectors, strategy context, promotion qualification, live routing,
+  or execution behavior.
+
+What was found:
+- `docs/research/crypto_edge_source_decision.md` records OKX as the default
+  read-only derivatives context source for funding, open-interest, and basis
+  rows.
+- The decision record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_crypto_edge_source_decision_guard.py`.
+- The test pins the read-only research scope, evidence basis, unresolved
+  host/data unknowns, hard boundaries, default collector-plan venues, and
+  backlog/structural-doc links.
+- Added an executable-guard note to the source decision, backlog, and work log.
+
+Why this change was chosen:
+- It preserves OKX as read-only research context without letting the source
+  decision become live-routing or promotion-evidence authority.
+
+Expected outcome:
+- Future edits that silently broaden the OKX source decision into execution,
+  routing, or promotion authority fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_crypto_edge_source_decision_guard.py tests/test_crypto_edge_collector.py tests/test_edge_cadence.py tests/test_short_context_readiness.py`
+  - SHOWN: `25 passed in 0.43s`.
+- `./.venv/bin/python -m py_compile tests/test_crypto_edge_source_decision_guard.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`; guard slice `23 passed in 2.65s`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change collectors, strategy context,
+  promotion qualification, campaign logic, deployment, live routing, or
+  execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T18:18:00Z - Strategy-Selection Authority Decision Guard (Hygiene #9)
 
 Active role: ENGINEER
