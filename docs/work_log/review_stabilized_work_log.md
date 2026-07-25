@@ -25,6 +25,51 @@ Minimum entry fields:
 High-risk work must end at `READY_FOR_INDEPENDENT_REVIEW` in this log until a
 separate reviewer or human accepts it.
 
+## 2026-07-22T17:20:00Z - Paper Universe Widening Decision Guard (Active #26)
+
+Active role: ENGINEER
+
+Objective:
+- Add executable coverage for the accepted decision not to widen the canonical
+  paper universe yet.
+
+What was found:
+- `docs/strategies/paper_universe_widening_decision_2026-07-04.md` documents
+  the do-not-widen status, reconsideration requirements, future packet fields,
+  and no-runtime-change outcome.
+- The decision record was not yet pinned by a direct regression test.
+
+What changed:
+- Added `tests/test_paper_universe_widening_decision.py`.
+- The test pins the do-not-widen status, required symbol-aware/provenance/risk
+  prerequisites, future reconsideration packet fields, no-runtime-change
+  outcome, and backlog link.
+- Added executable-guard notes to the decision record, backlog, and work log.
+
+Why this change was chosen:
+- It preserves evidence velocity as a future design choice without letting it
+  silently weaken provenance, symbol-aware counting, risk, or correlation
+  requirements.
+
+Expected outcome:
+- Future edits that imply the canonical campaign can widen without the accepted
+  evidence-design packet fail visibly.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_paper_universe_widening_decision.py tests/test_strategy_review_ritual_guard.py tests/test_operator_runbook_policy_guards.py`
+  - SHOWN: `13 passed`.
+- `./.venv/bin/python -m py_compile tests/test_paper_universe_widening_decision.py`
+  - SHOWN: exit 0.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: docs/test only. It does not change campaigns, manifests, strategy
+  configs, gate thresholds, runtime processes, or execution behavior.
+- Acceptance state: ACCEPTED.
+
 ## 2026-07-22T17:12:00Z - Strategy Review Ritual Guard (Active #23)
 
 Active role: ENGINEER
