@@ -5,8 +5,8 @@ marked authoritative unless competing paths were checked. Claims are `SHOWN`,
 `REFUTED`, `PARTIALLY SHOWN`, or `UNKNOWN`.
 
 **Traced:** 2026-07-12 against `master` (`a84f82583`, after PR #261).
-**Census updated:** 2026-07-22 to include the research-only funding context and
-price-action forward-return cost surfaces.
+**Census updated:** 2026-07-25 to include the research-only funding context,
+crypto-edge pipeline, and price-action forward-return/pipeline cost surfaces.
 **Regression protection:** `tests/test_blueprint_invariants.py` (20 executable tests). Each
 encoded fact fails a test if it changes. A failure there means *the blueprint is stale*,
 not necessarily that a bug was introduced.
@@ -162,7 +162,10 @@ decision. The blueprint records only what the code does.
 | `paper_trader/paper_execution_venue.py` | dataclass default | **1.0** | **0.0** | legacy runner (`trading_runner/run_trader.py:125`) | non-canonical |
 | `execution/paper_fees.py` | `user.yaml execution.paper_fee_bps` | **0.0** | — | **dormant — no production callers** | NO |
 | `analytics/funding_context_price_join.py` | CLI/report parameter default | **10.0** | 5.0 | research-only funding context forward-return report | NO — not campaign/promotion evidence |
+| `analytics/crypto_edge_research_pipeline.py` | CLI/report parameter default | **10.0** | 5.0 | research-only crypto-edge pipeline cost passthrough | NO — not campaign/promotion evidence |
+| `analytics/price_action_forward_return_join.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action forward-return join report | NO — not campaign/promotion evidence |
 | `analytics/price_action_forward_returns.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action forward-return report | NO — not campaign/promotion evidence |
+| `analytics/price_action_research_pipeline.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action pipeline cost passthrough | NO — not campaign/promotion evidence |
 | `analytics/price_action_window_stability.py` | CLI/report parameter default | **10.0** | 5.0 | research-only price-action window-stability report | NO — not campaign/promotion evidence |
 
 **Assumption fork (highest impact):** the legacy runner models **1.0 bps fee, 0.0
