@@ -25823,3 +25823,41 @@ Remaining risk:
   strategies, campaigns, gates, ingestion, live routing, execution, or
   promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-26T00:25:00Z - Paper Backtest Sequence Parity Branch Refresh (PR #360)
+
+Active role: ENGINEER
+
+Objective:
+- Refresh the paper/backtest sequence parity branch onto current master and
+  preserve its unique paper-accounting parity proof.
+
+What was found:
+- SHOWN: PR #360 still carries unique code: `PaperTradingSQLite.apply_fill()`
+  gains the same sub-nanodollar cash-affordability tolerance used by the
+  parity backtest, and `tests/test_backtest_parity_engine.py` replays a
+  deterministic buy/sell backtest round trip through paper storage.
+- SHOWN: the merge conflict was limited to
+  `docs/work_log/review_stabilized_work_log.md`.
+
+What changed:
+- Merged `origin/master` into `codex/paper-backtest-sequence-parity`.
+- Resolved the work-log conflict by keeping current master and appending this
+  branch-specific refresh/proof entry.
+
+Why this change was chosen:
+- The branch contains a targeted paper evidence/accounting correctness proof,
+  so updating it is more useful than abandoning it as stale.
+
+Expected outcome:
+- PR #360 reruns CI against current master and remains focused on paper
+  storage/backtest parity.
+
+Verification:
+- Pending after this refresh.
+
+Remaining risk:
+- MEDIUM/HIGH: paper financial-accounting behavior changes. This is paper-only
+  and does not touch live trading, order routing, or promotion thresholds, but
+  it requires independent review before acceptance.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
