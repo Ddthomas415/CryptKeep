@@ -10,8 +10,9 @@ from services.admin.config_editor import load_user_yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SERVICES = ("tick_publisher", "reconciler", "intent_consumer")
+CRYPTO_EDGE_COLLECTOR_SCRIPT = "scripts/data/run_crypto_edge_collector_loop.py"
 ALLOWED_OPERATOR_SCRIPTS = {
-    "scripts/run_crypto_edge_collector_loop.py",
+    CRYPTO_EDGE_COLLECTOR_SCRIPT,
     "scripts/run_paper_strategy_evidence_collector.py",
 }
 ALLOWED_OP_ARGS = {
@@ -112,7 +113,7 @@ def start_crypto_edge_collector_loop(
         return 0, f"already running pid={pid} status={status}"
 
     return start_repo_script_background(
-        "scripts/run_crypto_edge_collector_loop.py",
+        CRYPTO_EDGE_COLLECTOR_SCRIPT,
         args=[
             "--plan-file",
             str(plan_file),
@@ -125,7 +126,7 @@ def start_crypto_edge_collector_loop(
 
 def stop_crypto_edge_collector_loop(*, current_role: str = "VIEWER") -> tuple[int, str]:
     require_role(current_role, "OPERATOR")
-    return run_repo_script("scripts/run_crypto_edge_collector_loop.py", args=["--stop"], current_role=current_role)
+    return run_repo_script(CRYPTO_EDGE_COLLECTOR_SCRIPT, args=["--stop"], current_role=current_role)
 
 
 def start_paper_strategy_evidence_collection(

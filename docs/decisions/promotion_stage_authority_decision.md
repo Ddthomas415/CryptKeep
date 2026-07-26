@@ -27,3 +27,10 @@ depend on it.
 
 This decision closes the documented operator path while preserving the low-level
 stage-machine API for unit tests and internal state-machine use.
+
+## Executable Guard
+
+`tests/test_promotion_stage_authority_decision_guard.py` pins the
+gate-enforced operator entrypoint, implemented boundary, strategy scope
+boundary, authority rationale, and backlog link so promotion-stage authority
+cannot silently drift back to a gate-bypassing operator path.

@@ -20,6 +20,10 @@ required root runtime dependency.
 ## Policy
 
 - Root paper/research/shadow operation must not require the sidecar tree.
+- Root Docker startup must not require the sidecar. The Compose `backend`
+  service that points at `phase1_research_copilot/` is opt-in through
+  `COMPOSE_PROFILES=phase1-companion`; the default dashboard service must not
+  hard-depend on it.
 - Tests that require the sidecar must skip cleanly when it is absent.
 - Smoke scripts may report "not installed" instead of failing the root runtime.
 - Do not add new required root commands that depend on the sidecar unless it is
