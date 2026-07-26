@@ -130,7 +130,10 @@ _FEE_SURFACES = {
     "services/paper_trader/paper_execution_venue.py": (1.0, 0.0, "legacy runner venue (trading_runner/run_trader.py)"),
     "services/execution/paper_fees.py": (0.0, None, "dormant: no production callers"),
     "services/analytics/funding_context_price_join.py": (10.0, 5.0, "research-only funding context forward-return report"),
+    "services/analytics/crypto_edge_research_pipeline.py": (10.0, 5.0, "research-only crypto-edge pipeline cost passthrough"),
+    "services/analytics/price_action_forward_return_join.py": (10.0, 5.0, "research-only price-action forward-return join report"),
     "services/analytics/price_action_forward_returns.py": (10.0, 5.0, "research-only price-action forward-return report"),
+    "services/analytics/price_action_research_pipeline.py": (10.0, 5.0, "research-only price-action pipeline cost passthrough"),
     "services/analytics/price_action_window_stability.py": (10.0, 5.0, "research-only price-action window-stability report"),
 }
 

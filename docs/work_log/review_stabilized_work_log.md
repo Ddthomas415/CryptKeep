@@ -25804,3 +25804,40 @@ Remaining risk:
 - LOW: docs/test guard branch refresh only; no runtime behavior is changed by
   the branch-specific work.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-26T00:04:00Z - Fee-Surface Blueprint Census Repair (PR #381)
+
+Active role: ENGINEER
+
+Objective:
+- Fix the #381 CI failure caused by a stale blueprint fee-surface census on the
+  stacked branch.
+
+What was found:
+- SHOWN: GitHub CI for PR #381 failed
+  `tests/test_blueprint_invariants.py::test_no_new_fee_surface_appeared`.
+- SHOWN: the branch contains three uncensused research-only fee surfaces:
+  `services/analytics/crypto_edge_research_pipeline.py`,
+  `services/analytics/price_action_forward_return_join.py`, and
+  `services/analytics/price_action_research_pipeline.py`.
+
+What changed:
+- Added those three modules to `_FEE_SURFACES` in
+  `tests/test_blueprint_invariants.py`.
+- Added matching research-only cost-passthrough rows to
+  `docs/architecture/SYSTEM_BLUEPRINT.md`.
+
+Why this change was chosen:
+- The failing invariant explicitly means the blueprint census is stale. The
+  correct fix is to update the census and blueprint, not loosen the guard.
+
+Expected outcome:
+- PR #381 CI should no longer fail on the fee-surface census invariant.
+
+Verification:
+- Pending after this repair.
+
+Remaining risk:
+- LOW/MEDIUM: docs/test census repair only. It does not change research,
+  campaign, gate, evidence, or execution behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
