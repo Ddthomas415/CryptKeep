@@ -122,9 +122,21 @@ def build_operator_proof_status(
     *,
     repo_root: str | Path | None = None,
     category: str | None = None,
+    line: int | str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     category_filter = str(category or "").strip()
+    line_filter: int | None = None
+    line_filter_raw = str(line or "").strip()
+    valid_line_filter = True
+    if line_filter_raw:
+        try:
+            line_filter = int(line_filter_raw)
+        except Exception:
+            valid_line_filter = False
+        else:
+            if line_filter <= 0:
+                valid_line_filter = False
     lane_doc = root / "docs" / "BACKLOG_EXECUTION_LANES.md"
     backlog = root / "REMAINING_TASKS.md"
     lane_text = _read_text(lane_doc)
@@ -135,13 +147,15 @@ def build_operator_proof_status(
     proof_markers = all_proof_markers
     if category_filter:
         proof_markers = tuple(marker for marker in all_proof_markers if marker.category == category_filter)
+    if valid_line_filter and line_filter is not None:
+        proof_markers = tuple(marker for marker in proof_markers if marker.line == line_filter)
     category_counts = _category_counts(proof_markers)
     remaining_marker_count = sum(
         count
         for category, count in category_counts.items()
         if category.startswith("remaining_")
     )
-    ok = bool(lane_text and backlog_text and passive_items)
+    ok = bool(lane_text and backlog_text and passive_items and valid_line_filter)
 
     return {
         "schema_version": 1,
@@ -156,6 +170,7 @@ def build_operator_proof_status(
         "does_not_mutate_state": True,
         "repo_root": str(root),
         "category_filter": category_filter or None,
+        "line_filter": line_filter if valid_line_filter else None,
         "lane_doc": str(lane_doc),
         "lane_doc_sha256": _sha256(lane_doc),
         "backlog": str(backlog),
@@ -191,4 +206,5 @@ def build_operator_proof_status(
             "category_counts": category_counts,
             "source_category_counts": source_category_counts,
         },
+        "reason": None if valid_line_filter else "invalid_line",
     }

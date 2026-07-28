@@ -185,6 +185,27 @@ def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
     assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
 
 
+def test_operator_status_bundle_forwards_proof_line(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_proof",
+        operator_proof_line=3,
+    )
+
+    report = out["reports"]["operator_proof_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "operator_proof"
+    assert out["operator_proof_line_filter"] == 3
+    assert report["line_filter"] == 3
+    assert out["shown_sections"] == ["operator_proof"]
+    assert all(row["line"] == 3 for row in report["proof_markers"])
+    assert all(row["line"] == 3 for row in out["actions"]["operator_proofs"])
+
+
 def test_operator_status_bundle_rejects_unknown_section(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -215,6 +236,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "research_command_lane_filter": filters.get("research_command_lane"),
             "research_command_input_class_filter": filters.get("research_command_input_class"),
             "operator_proof_category_filter": filters.get("operator_proof_category"),
+            "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
             "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_proof"],
             "summary": {
                 "passive_operator_items": 15,
@@ -264,12 +286,15 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
             "operator_proof",
             "--operator-proof-category",
             "host_side_reference",
+            "--operator-proof-line",
+            "7",
         ]
     ) == 0
     out = capsys.readouterr().out
     assert "Operator Status Bundle" in out
     assert "section_filter=operator_proof" in out
     assert "operator_proof_category_filter=host_side_reference" in out
+    assert "operator_proof_line_filter=7" in out
     assert "passive=15" in out
     assert "wired=2" in out
     assert "actions_required=1" in out

@@ -29,6 +29,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "operator_proof_category_filter",
+        "operator_proof_line_filter",
     )
     print("=== Operator Status Bundle ===")
     print(f"ok={bool(payload.get('ok'))}")
@@ -125,6 +126,11 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Forward a category filter to operator proof status",
     )
+    parser.add_argument(
+        "--operator-proof-line",
+        default=None,
+        help="Forward a REMAINING_TASKS.md line filter to operator proof status",
+    )
     args = parser.parse_args(argv)
 
     payload = build_operator_status_bundle(
@@ -135,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         operator_proof_category=args.operator_proof_category,
+        operator_proof_line=args.operator_proof_line,
     )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
