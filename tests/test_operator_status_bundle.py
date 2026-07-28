@@ -98,6 +98,72 @@ def test_operator_status_bundle_filters_by_section(tmp_path: Path) -> None:
     assert out["shown_action_count"] == len(out["actions"]["research_pipelines"])
 
 
+def test_operator_status_bundle_forwards_backlog_filter(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="backlog",
+        backlog_lane="low_risk_docs_tests",
+    )
+
+    assert out["ok"] is True
+    assert out["section_filter"] == "backlog"
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["reports"]["backlog_lane_status"]["lane_filter"] == "low_risk_docs_tests"
+    assert out["summary"]["low_risk_docs_tests"] == 1
+    assert out["summary"]["high_risk_gate_execution_deploy"] == 0
+    assert out["shown_sections"] == ["backlog"]
+
+
+def test_operator_status_bundle_forwards_research_command_filters(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="research_command",
+        research_command_lane="funding",
+        research_command_input_class="artifact_input",
+    )
+
+    report = out["reports"]["research_command_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "research_command"
+    assert out["research_command_lane_filter"] == "funding"
+    assert out["research_command_input_class_filter"] == "artifact_input"
+    assert report["lane_filter"] == "funding"
+    assert report["input_class_filter"] == "artifact_input"
+    assert out["summary"]["research_commands_wired"] == report["command_count"]
+    assert out["shown_sections"] == ["research_command"]
+    assert all(row["lane"] == "funding" for row in report["commands"])
+    assert all(row["input_class"] == "artifact_input" for row in report["commands"])
+
+
+def test_operator_status_bundle_forwards_proof_category(tmp_path: Path) -> None:
+    from services.analytics.operator_status_bundle import build_operator_status_bundle
+
+    _write_minimal_repo(tmp_path)
+
+    out = build_operator_status_bundle(
+        repo_root=tmp_path,
+        section="operator_proof",
+        operator_proof_category="host_side_reference",
+    )
+
+    report = out["reports"]["operator_proof_status"]
+    assert out["ok"] is True
+    assert out["section_filter"] == "operator_proof"
+    assert out["operator_proof_category_filter"] == "host_side_reference"
+    assert report["category_filter"] == "host_side_reference"
+    assert out["shown_sections"] == ["operator_proof"]
+    assert all(row["category"] == "host_side_reference" for row in report["proof_markers"])
+    assert all(row["category"] == "host_side_reference" for row in out["actions"]["operator_proofs"])
+
+
 def test_operator_status_bundle_rejects_unknown_section(tmp_path: Path) -> None:
     from services.analytics.operator_status_bundle import build_operator_status_bundle
 
@@ -120,9 +186,13 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,
         "build_operator_status_bundle",
-        lambda repo_root=None, section=None: {
+        lambda repo_root=None, section=None, **filters: {
             "ok": True,
             "section_filter": section,
+            "backlog_lane_filter": filters.get("backlog_lane"),
+            "research_command_lane_filter": filters.get("research_command_lane"),
+            "research_command_input_class_filter": filters.get("research_command_input_class"),
+            "operator_proof_category_filter": filters.get("operator_proof_category"),
             "shown_sections": [section] if section else ["backlog", "research_pipeline", "operator_proof"],
             "summary": {
                 "passive_operator_items": 15,
@@ -166,10 +236,18 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main(["--section", "operator_proof"]) == 0
+    assert script.main(
+        [
+            "--section",
+            "operator_proof",
+            "--operator-proof-category",
+            "host_side_reference",
+        ]
+    ) == 0
     out = capsys.readouterr().out
     assert "Operator Status Bundle" in out
     assert "section_filter=operator_proof" in out
+    assert "operator_proof_category_filter=host_side_reference" in out
     assert "passive=15" in out
     assert "wired=2" in out
     assert "actions_required=1" in out

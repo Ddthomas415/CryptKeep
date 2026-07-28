@@ -26458,6 +26458,58 @@ Remaining risk:
   or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
 
+## 2026-07-28T18:53:02Z - Operator Status Underlying Filter Pass-Through
+
+Active role: ENGINEER
+
+Objective:
+- Let the read-only operator status bundle forward accepted filters to its
+  underlying reports.
+
+What was found:
+- SHOWN: section filtering can focus the bundle on one report family, and the
+  underlying backlog lane, research command, and operator proof reports now
+  expose their own filters. The bundle did not yet pass those filters through.
+
+What changed:
+- `build_operator_status_bundle()` accepts `backlog_lane`,
+  `research_command_lane`, `research_command_input_class`, and
+  `operator_proof_category`.
+- The CLI exposes `--backlog-lane`, `--research-command-lane`,
+  `--research-command-input-class`, and `--operator-proof-category`.
+- `Makefile` exposes matching `OPERATOR_STATUS_*` variables for text and JSON
+  targets.
+- Text/JSON output surfaces the active forwarded filters.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and regression tests.
+
+Why this change was chosen:
+- It reuses accepted read-only filter surfaces instead of adding a new
+  classifier. It does not run research pipelines, campaigns, market-data
+  fetches, proof closure, authorization changes, or runtime mutation.
+
+Expected outcome:
+- Operators can run focused bundle checks such as
+  `make operator-status OPERATOR_STATUS_SECTION=operator_proof OPERATOR_STATUS_OPERATOR_PROOF_CATEGORY=host_side_reference`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `14 passed in 0.23s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_status_bundle.py`
+  - SHOWN: exit 0.
+- `make operator-status OPERATOR_STATUS_SECTION=operator_proof OPERATOR_STATUS_OPERATOR_PROOF_CATEGORY=host_side_reference`
+  - SHOWN: `ok=True`, `section_filter=operator_proof`,
+    `operator_proof_category_filter=host_side_reference`.
+- `make operator-status-json OPERATOR_STATUS_SECTION=research_command OPERATOR_STATUS_RESEARCH_COMMAND_LANE=funding OPERATOR_STATUS_RESEARCH_COMMAND_INPUT_CLASS=artifact_input`
+  - SHOWN: JSON reports `research_command_lane_filter=funding`,
+    `research_command_input_class_filter=artifact_input`, and
+    `research_commands_wired=4`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
 ## 2026-07-28T18:16:09Z - Operator Status Section Filter
 
 Active role: ENGINEER
