@@ -450,11 +450,12 @@ PRICE_ACTION_RESEARCH_PIPELINE_ARGS ?=
 price-action-research-pipeline:
 	$(PYTHON) scripts/research/run_price_action_research_pipeline.py $(PRICE_ACTION_RESEARCH_PIPELINE_ARGS)
 
+RESEARCH_PIPELINE_STATUS_PIPELINE ?=
 research-pipeline-status:
-	$(PYTHON) scripts/research/report_research_pipeline_status.py
+	$(PYTHON) scripts/research/report_research_pipeline_status.py $(if $(RESEARCH_PIPELINE_STATUS_PIPELINE),--pipeline $(RESEARCH_PIPELINE_STATUS_PIPELINE),)
 
 research-pipeline-status-json:
-	@$(PYTHON) scripts/research/report_research_pipeline_status.py --json
+	@$(PYTHON) scripts/research/report_research_pipeline_status.py --json $(if $(RESEARCH_PIPELINE_STATUS_PIPELINE),--pipeline $(RESEARCH_PIPELINE_STATUS_PIPELINE),)
 
 research-command-status:
 	$(PYTHON) scripts/research/report_research_command_status.py

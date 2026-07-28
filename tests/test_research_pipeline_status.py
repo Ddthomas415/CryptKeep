@@ -89,6 +89,39 @@ def test_research_pipeline_status_reads_latest_summary(tmp_path) -> None:
     assert rows["funding_threshold"]["blocking_reason"] == "latest_summary_missing"
 
 
+def test_research_pipeline_status_filters_by_pipeline(tmp_path) -> None:
+    from services.analytics.research_pipeline_status import build_research_pipeline_status
+
+    (tmp_path / "scripts" / "research").mkdir(parents=True)
+    (tmp_path / "scripts" / "SCRIPTS.md").write_text(
+        "\n".join(
+            [
+                "research/run_price_action_research_pipeline.py make price-action-research-pipeline",
+                "research/run_funding_threshold_research_pipeline.py make funding-threshold-research-pipeline",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    for name in (
+        "run_price_action_research_pipeline.py",
+        "run_funding_threshold_research_pipeline.py",
+    ):
+        (tmp_path / "scripts" / "research" / name).write_text("", encoding="utf-8")
+    (tmp_path / "Makefile").write_text(
+        "price-action-research-pipeline:\n\ttrue\nfunding-threshold-research-pipeline:\n\ttrue\n",
+        encoding="utf-8",
+    )
+
+    out = build_research_pipeline_status(repo_root=tmp_path, pipeline="funding_threshold")
+
+    assert out["pipeline_filter"] == "funding_threshold"
+    assert out["pipeline_count"] == 1
+    assert out["source_pipeline_count"] == 2
+    assert out["summary"]["not_run"] == 1
+    assert out["summary"]["source_wired"] == 2
+    assert [row["pipeline_id"] for row in out["pipelines"]] == ["funding_threshold"]
+
+
 def test_research_pipeline_status_fails_on_wiring_drift(tmp_path) -> None:
     from services.analytics.research_pipeline_status import build_research_pipeline_status
 
@@ -111,8 +144,9 @@ def test_report_research_pipeline_status_cli_prints_next_action(monkeypatch, cap
     monkeypatch.setattr(
         script,
         "build_research_pipeline_status",
-        lambda repo_root=None: {
+        lambda repo_root=None, pipeline=None: {
             "ok": True,
+            "pipeline_filter": pipeline,
             "pipeline_count": 1,
             "summary": {"wired": 1, "latest_ok": 0, "not_run": 1, "latest_not_ok": 0},
             "pipelines": [
@@ -130,8 +164,9 @@ def test_report_research_pipeline_status_cli_prints_next_action(monkeypatch, cap
         },
     )
 
-    assert script.main([]) == 0
+    assert script.main(["--pipeline", "price_action"]) == 0
     out = capsys.readouterr().out
     assert "Research Pipeline Status" in out
+    assert "pipeline_filter=price_action" in out
     assert "reasons=latest_summary_missing" in out
     assert "next_action=run make price-action-research-pipeline" in out

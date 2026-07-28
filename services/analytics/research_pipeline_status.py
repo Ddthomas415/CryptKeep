@@ -195,11 +195,13 @@ def _pipeline_status(
 def build_research_pipeline_status(
     *,
     repo_root: str | Path | None = None,
+    pipeline: str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
+    pipeline_filter = str(pipeline or "").strip()
     makefile_text = _read_text(root / "Makefile")
     scripts_text = _read_text(root / "scripts" / "SCRIPTS.md")
-    pipelines = [
+    all_pipelines = [
         _pipeline_status(
             repo_root=root,
             spec=spec,
@@ -208,6 +210,9 @@ def build_research_pipeline_status(
         )
         for spec in PIPELINES
     ]
+    pipelines = all_pipelines
+    if pipeline_filter:
+        pipelines = [row for row in all_pipelines if row.get("pipeline_id") == pipeline_filter]
     wiring_ok = all(bool(item.get("wiring_ok")) for item in pipelines)
     return {
         "schema_version": 1,
@@ -220,12 +225,16 @@ def build_research_pipeline_status(
         "not_promotion_evidence": True,
         "not_execution_input": True,
         "repo_root": str(root),
+        "pipeline_filter": pipeline_filter or None,
         "pipeline_count": len(pipelines),
+        "source_pipeline_count": len(all_pipelines),
         "pipelines": pipelines,
         "summary": {
             "wired": sum(1 for item in pipelines if bool(item.get("wiring_ok"))),
             "latest_ok": sum(1 for item in pipelines if item.get("latest_status") == "latest_ok"),
             "not_run": sum(1 for item in pipelines if item.get("latest_status") == "not_run"),
             "latest_not_ok": sum(1 for item in pipelines if item.get("latest_status") == "latest_not_ok"),
+            "source_wired": sum(1 for item in all_pipelines if bool(item.get("wiring_ok"))),
+            "source_latest_ok": sum(1 for item in all_pipelines if item.get("latest_status") == "latest_ok"),
         },
     }
