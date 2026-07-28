@@ -33,8 +33,20 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research: "
         f"wired={summary.get('research_pipelines_wired', 0)} "
         f"latest_ok={summary.get('research_pipelines_latest_ok', 0)} "
-        f"not_run={summary.get('research_pipelines_not_run', 0)}"
+        f"not_run={summary.get('research_pipelines_not_run', 0)} "
+        f"actions_required={summary.get('research_pipeline_actions_required', 0)}"
     )
+    actions = list(dict(payload.get("actions") or {}).get("research_pipelines") or [])
+    for row in actions:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "research_action: "
+            f"{row.get('pipeline_id')} "
+            f"status={row.get('latest_status')} "
+            f"reason={row.get('blocking_reason')} "
+            f"action={row.get('next_action')}"
+        )
     print(
         "research_commands: "
         f"wired={summary.get('research_commands_wired', 0)} "

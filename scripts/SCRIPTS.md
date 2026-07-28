@@ -51,7 +51,7 @@ listed below.
 | `report_hetzner_crypto_edge_runtime_status.py` | `make status-hetzner-edge-runtime` | Read-only Tailscale SSH wrapper for Hetzner crypto-edge runtime readiness; checks accepted checkout/tooling, OKX collector plan, collector status under the deployed `CBP_STATE_DIR`, and collector/cadence scheduling without deploying or starting collectors |
 | `report_backlog_lane_status.py` | `make backlog-lane-status` / `make backlog-lane-status-json` | Read-only planning report over `docs/BACKLOG_EXECUTION_LANES.md`; summarizes backlog lane counts and source hashes without deciding backlog items or changing runtime state |
 | `report_operator_proof_status.py` | `make operator-proof-status` / `make operator-proof-status-json` | Read-only report over passive/operator-evidence lane items and proof/coverage markers in `REMAINING_TASKS.md`; does not run campaigns, fetch market data, close proof, or mutate state |
-| `report_operator_status_bundle.py` | `make operator-status` / `make operator-status-json` | Read-only bundle of backlog lane, research pipeline, and operator proof status reports for check-ins; does not run pipelines/campaigns, fetch market data, close proof, or mutate state |
+| `report_operator_status_bundle.py` | `make operator-status` / `make operator-status-json` | Read-only bundle of backlog lane, research pipeline, and operator proof status reports for check-ins; surfaces research pipeline next actions without running pipelines/campaigns, fetching market data, closing proof, or mutating state |
 | `report_paper_campaign_status.py` | — | Read-only campaign-health formatter for configured campaign status payloads without promotion-gate coupling |
 | `report_paper_gate_qualification.py` | `make status-paper-gate-qualification` / `make status-paper-gate-qualification-json` | Read-only fill-level explanation for which paper fills count toward the provenance-qualified gate and why rejected/incomplete fills do not count |
 | `report_paper_gate_velocity.py` | `make status-paper-gate-velocity` / `make status-paper-gate-velocity-json` | Read-only paper-gate velocity report; estimates completion from completed provenance-qualified round-trip close cadence and keeps legacy/all-history fills diagnostic only |
@@ -311,7 +311,8 @@ decision makes them authoritative.
   accepted research pipeline wiring and latest summary artifacts. It checks
   script/Makefile/SCRIPTS registration and reports whether the latest
   funding-threshold and price-action `pipeline_summary.json` artifacts are
-  present and `ok=true`; it does not run pipelines, fetch data, or mutate
+  present and `ok=true`, with `blocking_reason`/`next_action` fields for
+  missing artifacts or wiring drift; it does not run pipelines, fetch data, or mutate
   research, strategy, campaign, gate, or execution state. Use
   `make research-pipeline-status` or `make research-pipeline-status-json`.
 - `research/report_research_command_status.py` — read-only status report over
