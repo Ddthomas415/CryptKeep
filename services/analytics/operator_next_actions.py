@@ -45,15 +45,23 @@ def build_operator_next_actions(
     *,
     repo_root: str | Path | None = None,
     max_actions: int = 20,
+    lane: str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     limit = max(1, int(max_actions))
+    lane_filter = str(lane or "").strip()
     bundle = build_operator_status_bundle(repo_root=root)
     summary = dict(bundle.get("summary") or {})
     actions = [*_research_actions(bundle), *_proof_actions(bundle)]
+    if lane_filter:
+        actions = [row for row in actions if row.get("lane") == lane_filter]
     required_total = int(summary.get("research_pipeline_actions_required") or 0) + int(
         summary.get("operator_proof_actions_required") or 0
     )
+    if lane_filter == "research_pipeline":
+        required_total = int(summary.get("research_pipeline_actions_required") or 0)
+    elif lane_filter == "operator_proof":
+        required_total = int(summary.get("operator_proof_actions_required") or 0)
     if required_total <= 0:
         required_total = len(actions)
 
@@ -69,6 +77,7 @@ def build_operator_next_actions(
         "does_not_fetch_market_data": True,
         "does_not_mutate_state": True,
         "repo_root": str(root),
+        "lane_filter": lane_filter or None,
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
         "action_count_total": required_total,

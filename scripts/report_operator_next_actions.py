@@ -43,9 +43,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
     parser.add_argument("--max-actions", type=int, default=20, help="Maximum actions to print or return")
+    parser.add_argument(
+        "--lane",
+        choices=("research_pipeline", "operator_proof"),
+        default=None,
+        help="Limit output to one action lane",
+    )
     args = parser.parse_args(argv)
 
-    payload = build_operator_next_actions(repo_root=ROOT, max_actions=args.max_actions)
+    payload = build_operator_next_actions(repo_root=ROOT, max_actions=args.max_actions, lane=args.lane)
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

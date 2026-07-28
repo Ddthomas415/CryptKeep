@@ -26353,3 +26353,54 @@ Remaining risk:
   research execution, market-data fetch, proof closure, gate, ingestion, live
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T12:19:03Z - Operator Next-Actions Lane Filtering
+
+Active role: ENGINEER
+
+Objective:
+- Let the compact operator next-actions report focus on either research
+  pipeline actions or operator proof actions without changing its sources.
+
+What was found:
+- SHOWN: `make operator-next-actions` returns both research and proof actions.
+  Operators may need only one lane during a focused check-in.
+
+What changed:
+- `services.analytics.operator_next_actions.build_operator_next_actions()`
+  accepts an optional `lane` filter.
+- `scripts/report_operator_next_actions.py` exposes
+  `--lane research_pipeline|operator_proof`.
+- `Makefile` exposes `OPERATOR_NEXT_ACTIONS_MAX` and
+  `OPERATOR_NEXT_ACTIONS_LANE` for both text and JSON targets.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests.
+
+Why this change was chosen:
+- It is a small same-surface follow-up to the compact action report. It changes
+  presentation/filtering only and does not run or mutate anything.
+
+Expected outcome:
+- Operators can run focused checks such as
+  `make operator-next-actions OPERATOR_NEXT_ACTIONS_LANE=research_pipeline`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: passed with no output.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_LANE=research_pipeline OPERATOR_NEXT_ACTIONS_MAX=1`
+  - SHOWN: `ok=True actions=2 shown=1`; output includes only the
+    `research_pipeline` lane.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_proof OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: valid JSON with `lane_filter=operator_proof`,
+    `action_count_total=69`, and `action_count_returned=2`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
