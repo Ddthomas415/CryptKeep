@@ -26134,3 +26134,53 @@ Remaining risk:
   jobs, fetch data, generate artifacts, decide strategy changes, change
   campaigns, gates, ingestion, live routing, execution, or promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T06:50:12Z - Read-Only Status JSON Make Targets
+
+Active role: ENGINEER
+
+Objective:
+- Add JSON Make targets for existing read-only operator and research status
+  reports so automation can consume them without remembering script flags.
+
+What was found:
+- SHOWN: the report scripts already support `--json`.
+- SHOWN: Make exposed text targets for backlog lane, operator proof, operator
+  status, research pipeline, and research command status reports, but not the
+  matching JSON forms.
+
+What changed:
+- Added `backlog-lane-status-json`, `operator-proof-status-json`,
+  `operator-status-json`, `research-pipeline-status-json`, and
+  `research-command-status-json`.
+- Updated `script-index` output, `scripts/SCRIPTS.md`,
+  `tests/test_script_index_alignment_guard.py`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- This is same-surface CLI wiring for existing read-only status reports. It
+  improves operator automation without touching report semantics, campaigns,
+  gates, ingestion, market data, execution, or state mutation.
+
+Expected outcome:
+- Operators and scripts can use consistent Make targets for both human-readable
+  and machine-readable status reports.
+
+Verification:
+- `make backlog-lane-status-json >/tmp/cbp_backlog_lane_status.json && ./.venv/bin/python -m json.tool /tmp/cbp_backlog_lane_status.json >/dev/null && make operator-proof-status-json >/tmp/cbp_operator_proof_status.json && ./.venv/bin/python -m json.tool /tmp/cbp_operator_proof_status.json >/dev/null && make operator-status-json >/tmp/cbp_operator_status.json && ./.venv/bin/python -m json.tool /tmp/cbp_operator_status.json >/dev/null`
+  - SHOWN: passed with no output.
+- `make research-pipeline-status-json >/tmp/cbp_research_pipeline_status.json && ./.venv/bin/python -m json.tool /tmp/cbp_research_pipeline_status.json >/dev/null && make research-command-status-json >/tmp/cbp_research_command_status.json && ./.venv/bin/python -m json.tool /tmp/cbp_research_command_status.json >/dev/null`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py tests/test_backlog_lane_status.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_research_pipeline_status.py tests/test_research_command_status.py`
+  - SHOWN: `22 passed`.
+- `./.venv/bin/python -m py_compile tests/test_script_index_alignment_guard.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: Make/docs/test wiring for existing read-only status scripts. No report
+  semantics, campaign, market-data, gate, ingestion, live routing, execution,
+  proof closure, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

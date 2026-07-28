@@ -2616,6 +2616,13 @@ substrate work, but they are concrete enough to keep visible.
     `make operator-status`. The bundle is check-in/status only: it does not
     run pipelines or campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-28: JSON Make targets for read-only operator/status reports are
+    ready for independent review: `backlog-lane-status-json`,
+    `operator-proof-status-json`, `operator-status-json`,
+    `research-pipeline-status-json`, and `research-command-status-json`. These
+    are CLI wiring only and preserve the same no-campaign, no-market-fetch,
+    no-proof-closure, and no-runtime-mutation boundaries as the underlying
+    scripts.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

@@ -15,7 +15,7 @@ STRATEGY_REVIEW_STRATEGY_ID ?= sma_200_trend
 STRATEGY_REVIEW_SYMBOL ?= BTC/USDT
 STRATEGY_REVIEW_LOSS_LIMIT ?= 10
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status operator-proof-status operator-status phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-command-status
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-status operator-status-json phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -70,11 +70,20 @@ remaining-tasks:
 backlog-lane-status:
 	$(PYTHON) scripts/report_backlog_lane_status.py
 
+backlog-lane-status-json:
+	@$(PYTHON) scripts/report_backlog_lane_status.py --json
+
 operator-proof-status:
 	$(PYTHON) scripts/report_operator_proof_status.py
 
+operator-proof-status-json:
+	@$(PYTHON) scripts/report_operator_proof_status.py --json
+
 operator-status:
 	$(PYTHON) scripts/report_operator_status_bundle.py
+
+operator-status-json:
+	@$(PYTHON) scripts/report_operator_status_bundle.py --json
 
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
@@ -434,8 +443,14 @@ price-action-research-pipeline:
 research-pipeline-status:
 	$(PYTHON) scripts/research/report_research_pipeline_status.py
 
+research-pipeline-status-json:
+	@$(PYTHON) scripts/research/report_research_pipeline_status.py --json
+
 research-command-status:
 	$(PYTHON) scripts/research/report_research_command_status.py
+
+research-command-status-json:
+	@$(PYTHON) scripts/research/report_research_command_status.py --json
 
 CRYPTO_EDGE_STRATEGY_READINESS_ARGS ?=
 crypto-edge-strategy-readiness:
@@ -459,7 +474,7 @@ script-index:
 	@echo "  make status-paper-gate-velocity — estimate paper gate completion velocity"
 	@echo "  make paper-run          — run paper campaign"
 	@echo "  make check-gates        — promotion gate status"
-	@echo "  make backlog-lane-status — report backlog execution-lane counts"
+	@echo "  make backlog-lane-status[-json] — report backlog execution-lane counts"
 	@echo "  make kill-switch-on/off — arm/disarm kill switch"
 	@echo "  make gate-inputs        — show live gate current values"
 	@echo "  make inject-test-fill   — inject a test fill (paper only)"
@@ -493,10 +508,10 @@ script-index:
 	@echo "  make price-action-window-stability — compare price-action labels across windows"
 	@echo "  make price-action-candidate-triage — rank price-action labels for manual review"
 	@echo "  make price-action-research-pipeline — run the price-action research report sequence"
-	@echo "  make research-pipeline-status — report accepted research pipeline wiring/artifacts"
-	@echo "  make research-command-status — report accepted research command wiring/input classes"
-	@echo "  make operator-proof-status — report operator-side proof/evidence backlog markers"
-	@echo "  make operator-status — bundle backlog lane, research pipeline, and proof status"
+	@echo "  make research-pipeline-status[-json] — report accepted research pipeline wiring/artifacts"
+	@echo "  make research-command-status[-json] — report accepted research command wiring/input classes"
+	@echo "  make operator-proof-status[-json] — report operator-side proof/evidence backlog markers"
+	@echo "  make operator-status[-json] — bundle backlog lane, research pipeline, and proof status"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
