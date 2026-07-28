@@ -319,6 +319,7 @@ decision makes them authoritative.
   Makefile target, and SCRIPTS registration for archive, funding, price-action,
   and status research commands; it does not run research jobs, fetch data,
   generate artifacts, or mutate strategy, campaign, gate, or execution state.
+  Use `make research-command-status`.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

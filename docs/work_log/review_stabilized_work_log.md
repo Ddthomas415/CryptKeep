@@ -26081,3 +26081,56 @@ Remaining risk:
   generate artifacts, decide strategy changes, change campaigns, gates,
   ingestion, live routing, execution, or promotion evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T05:27:46Z - Research Command Status Wiring
+
+Active role: ENGINEER
+
+Objective:
+- Wire the accepted research command status report into the normal operator
+  status surfaces without changing research execution behavior.
+
+What was found:
+- SHOWN: `scripts/research/report_research_command_status.py` exists and
+  reports 19 accepted research commands as wired.
+- SHOWN: the report was indexed in `scripts/SCRIPTS.md`, but it did not yet
+  have a Make target and `make operator-status` did not include its summary.
+
+What changed:
+- Added `make research-command-status`.
+- Updated `services.analytics.research_command_status` so the command's own
+  Make target is part of its wiring contract.
+- Updated `services.analytics.operator_status_bundle` and
+  `scripts/report_operator_status_bundle.py` to include research-command
+  wiring counts.
+- Updated tests, `scripts/SCRIPTS.md`, and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- It completes the status/reporting integration for the accepted research
+  command inventory while staying read-only and out of campaign, gate,
+  ingestion, market-data, and execution paths.
+
+Expected outcome:
+- Operators can run `make research-command-status` directly, or see the same
+  command-wiring health summarized in `make operator-status`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_command_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py tests/test_research_pipeline_status.py tests/test_operator_proof_status.py tests/test_backlog_lane_status.py`
+  - SHOWN: `21 passed`.
+- `make research-command-status`
+  - SHOWN: `ok=True`, `commands=19`, `wired=19`, `not_wired=0`.
+- `make operator-status`
+  - SHOWN: `ok=True`; includes `research_commands: wired=19 not_wired=0`.
+- `./.venv/bin/python -m py_compile services/analytics/research_command_status.py services/analytics/operator_status_bundle.py scripts/research/report_research_command_status.py scripts/report_operator_status_bundle.py tests/test_research_command_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: read-only status/reporting and Make/script-index wiring only.
+  The report may influence operator planning, but it does not run research
+  jobs, fetch data, generate artifacts, decide strategy changes, change
+  campaigns, gates, ingestion, live routing, execution, or promotion evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

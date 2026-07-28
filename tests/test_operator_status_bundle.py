@@ -4,21 +4,23 @@ from pathlib import Path
 
 
 def _write_minimal_repo(root: Path) -> None:
+    from services.analytics.research_command_status import RESEARCH_COMMANDS
+
     (root / "docs").mkdir()
     (root / "scripts" / "research").mkdir(parents=True)
     (root / "scripts" / "SCRIPTS.md").write_text(
         "\n".join(
-            [
-                "research/run_price_action_research_pipeline.py make price-action-research-pipeline",
-                "research/run_funding_threshold_research_pipeline.py make funding-threshold-research-pipeline",
-            ]
+            f"{spec.script.removeprefix('scripts/')} make {spec.make_target or '-'}"
+            for spec in RESEARCH_COMMANDS
         ),
         encoding="utf-8",
     )
-    (root / "scripts" / "research" / "run_price_action_research_pipeline.py").write_text("", encoding="utf-8")
-    (root / "scripts" / "research" / "run_funding_threshold_research_pipeline.py").write_text("", encoding="utf-8")
+    for spec in RESEARCH_COMMANDS:
+        path = root / spec.script
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("", encoding="utf-8")
     (root / "Makefile").write_text(
-        "price-action-research-pipeline:\n\ttrue\nfunding-threshold-research-pipeline:\n\ttrue\n",
+        "\n".join(f"{spec.make_target}:\n\ttrue" for spec in RESEARCH_COMMANDS if spec.make_target),
         encoding="utf-8",
     )
     lanes = (
@@ -53,11 +55,14 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert set(out["reports"]) == {
         "backlog_lane_status",
         "research_pipeline_status",
+        "research_command_status",
         "operator_proof_status",
     }
     assert out["summary"]["passive_operator_items"] == 1
     assert out["summary"]["research_pipelines_wired"] == 2
     assert out["summary"]["research_pipelines_not_run"] == 2
+    assert out["summary"]["research_commands_wired"] >= 19
+    assert out["summary"]["research_commands_not_wired"] == 0
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
     assert out["summary"]["host_side_markers"] == 1
 
@@ -78,6 +83,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "research_pipelines_wired": 2,
                 "research_pipelines_latest_ok": 0,
                 "research_pipelines_not_run": 2,
+                "research_commands_wired": 19,
+                "research_commands_not_wired": 0,
                 "remaining_proof_or_coverage_markers": 27,
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
@@ -90,4 +97,5 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "Operator Status Bundle" in out
     assert "passive=15" in out
     assert "wired=2" in out
+    assert "research_commands: wired=19" in out
     assert "remaining=27" in out
