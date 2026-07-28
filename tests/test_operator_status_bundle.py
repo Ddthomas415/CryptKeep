@@ -61,6 +61,9 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["passive_operator_items"] == 1
     assert out["summary"]["research_pipelines_wired"] == 2
     assert out["summary"]["research_pipelines_not_run"] == 2
+    assert out["summary"]["research_pipeline_actions_required"] == 2
+    assert len(out["actions"]["research_pipelines"]) == 2
+    assert all(row["blocking_reason"] == "latest_summary_missing" for row in out["actions"]["research_pipelines"])
     assert out["summary"]["research_commands_wired"] >= 19
     assert out["summary"]["research_commands_not_wired"] == 0
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
@@ -83,11 +86,22 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "research_pipelines_wired": 2,
                 "research_pipelines_latest_ok": 0,
                 "research_pipelines_not_run": 2,
+                "research_pipeline_actions_required": 1,
                 "research_commands_wired": 19,
                 "research_commands_not_wired": 0,
                 "remaining_proof_or_coverage_markers": 27,
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
+            },
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "latest_status": "not_run",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run make price-action-research-pipeline with the required research inputs",
+                    }
+                ]
             },
         },
     )
@@ -97,5 +111,8 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "Operator Status Bundle" in out
     assert "passive=15" in out
     assert "wired=2" in out
+    assert "actions_required=1" in out
+    assert "research_action: price_action" in out
+    assert "latest_summary_missing" in out
     assert "research_commands: wired=19" in out
     assert "remaining=27" in out

@@ -26184,3 +26184,61 @@ Remaining risk:
   semantics, campaign, market-data, gate, ingestion, live routing, execution,
   proof closure, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T11:48:13Z - Research Pipeline Status Action Hints
+
+Active role: ENGINEER
+
+Objective:
+- Make the accepted read-only research/operator status reports actionable when
+  research pipelines have not produced latest artifacts yet.
+
+What was found:
+- SHOWN: `make research-command-status` reports all 19 accepted research
+  commands wired.
+- SHOWN: `make operator-status` reports research pipelines as wired but
+  `latest_ok=0 not_run=2`, without naming the next operator action.
+
+What changed:
+- `services.analytics.research_pipeline_status` now emits
+  `action_required`, `blocking_reason`, and `next_action` for each pipeline.
+  The derived actions distinguish wiring drift from missing/latest-not-ok
+  artifacts and name the Make target to run or repair.
+- `services.analytics.operator_status_bundle` carries unresolved research
+  pipeline actions into the bundle JSON.
+- `scripts/report_operator_status_bundle.py` prints the unresolved research
+  actions in the text check-in output.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and targeted tests.
+
+Why this change was chosen:
+- It keeps the next safe batch inside the same read-only research/status lane:
+  the reports interpret existing files and wiring only. They do not run
+  pipelines, fetch market data, generate artifacts, change campaign/gate state,
+  or touch execution.
+
+Expected outcome:
+- Operator check-ins can move from aggregate counts (`not_run=2`) to concrete
+  next actions without manual inspection of JSON payloads or backlog text.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_pipeline_status.py tests/test_operator_status_bundle.py tests/test_research_command_status.py tests/test_script_index_alignment_guard.py tests/test_backlog_lane_status.py tests/test_operator_proof_status.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/research_pipeline_status.py services/analytics/operator_status_bundle.py scripts/research/report_research_pipeline_status.py scripts/report_operator_status_bundle.py tests/test_research_pipeline_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: passed with no output.
+- `make research-pipeline-status`
+  - SHOWN: `ok=True pipelines=2`; both `price_action` and
+    `funding_threshold` show `latest_summary_missing` and a concrete
+    `next_action`.
+- `make operator-status`
+  - SHOWN: `ok=True`; `research: wired=2 latest_ok=0 not_run=2
+    actions_required=2` plus both research actions.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: read-only analytics/reporting presentation and JSON fields only. The
+  report may influence operator planning but cannot execute research,
+  campaign, market-data, gate, ingestion, live-routing, or proof-closing paths.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -20,6 +20,17 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
     research_summary = dict(research.get("summary") or {})
     research_command_summary = dict(research_commands.get("summary") or {})
     proof_summary = dict(proofs.get("summary") or {})
+    research_actions = [
+        {
+            "pipeline_id": str(row.get("pipeline_id") or ""),
+            "latest_status": str(row.get("latest_status") or ""),
+            "make_target": str(row.get("make_target") or ""),
+            "blocking_reason": row.get("blocking_reason"),
+            "next_action": str(row.get("next_action") or ""),
+        }
+        for row in list(research.get("pipelines") or [])
+        if isinstance(row, dict) and bool(row.get("action_required"))
+    ]
 
     return {
         "schema_version": 1,
@@ -44,6 +55,9 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
             "research_command_status": research_commands,
             "operator_proof_status": proofs,
         },
+        "actions": {
+            "research_pipelines": research_actions,
+        },
         "summary": {
             "passive_operator_items": int(backlog_summary.get("passive_operator_evidence") or 0),
             "low_risk_docs_tests": int(backlog_summary.get("low_risk_docs_tests") or 0),
@@ -52,6 +66,7 @@ def build_operator_status_bundle(*, repo_root: str | Path | None = None) -> dict
             "research_pipelines_wired": int(research_summary.get("wired") or 0),
             "research_pipelines_not_run": int(research_summary.get("not_run") or 0),
             "research_pipelines_latest_ok": int(research_summary.get("latest_ok") or 0),
+            "research_pipeline_actions_required": len(research_actions),
             "research_commands_wired": int(research_command_summary.get("wired") or 0),
             "research_commands_not_wired": int(research_command_summary.get("not_wired") or 0),
             "remaining_proof_or_coverage_markers": int(

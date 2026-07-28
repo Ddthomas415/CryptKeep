@@ -2500,6 +2500,14 @@ substrate work, but they are concrete enough to keep visible.
     run pipelines, fetch data, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-28: research pipeline status action hints are ready for independent
+    review. Each pipeline row now includes `action_required`,
+    `blocking_reason`, and `next_action`, distinguishing wiring drift from
+    missing/latest-not-ok artifacts and naming the Make target to run or repair.
+    The report remains read-only and still does not run pipelines, fetch data,
+    generate artifacts, or change research artifacts, strategy config,
+    campaigns, gates, data ingestion, live routing, execution, or promotion
+    evidence.
     2026-07-28: read-only research command status report is ready for
     independent review. `services.analytics.research_command_status` and
     `scripts/research/report_research_command_status.py` inventory accepted
@@ -2616,6 +2624,12 @@ substrate work, but they are concrete enough to keep visible.
     `make operator-status`. The bundle is check-in/status only: it does not
     run pipelines or campaigns, fetch market data, close proof, authorize
     implementation, or mutate runtime state.
+    2026-07-28: operator status now surfaces unresolved research pipeline
+    actions from the underlying research pipeline report, including the
+    `blocking_reason` and `next_action` per pipeline. This is presentation and
+    JSON-status wiring only; it does not run pipelines or campaigns, fetch
+    market data, close proof, authorize implementation, or mutate runtime
+    state.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,

@@ -110,6 +110,33 @@ def _summary_status(
     return "latest_not_ok", reasons
 
 
+def _pipeline_action(
+    *,
+    spec: ResearchPipelineSpec,
+    status: str,
+    reasons: list[str],
+    wiring_ok: bool,
+) -> tuple[str | None, str]:
+    if not wiring_ok:
+        return (
+            "wiring_drift",
+            f"repair script/Makefile/SCRIPTS registration for make {spec.make_target}",
+        )
+    if status == "not_run":
+        return (
+            "latest_summary_missing",
+            f"run make {spec.make_target} with the required research inputs",
+        )
+    if status == "latest_not_ok":
+        reason = reasons[0] if reasons else "latest_summary_not_ok"
+        return (
+            reason,
+            f"inspect the latest {spec.pipeline_id} pipeline artifact, "
+            f"fix the reported reason, then rerun make {spec.make_target}",
+        )
+    return None, "none"
+
+
 def _pipeline_status(
     *,
     repo_root: Path,
@@ -135,6 +162,13 @@ def _pipeline_status(
         if not script_index_exists:
             reasons.append("script_index_missing")
 
+    blocking_reason, next_action = _pipeline_action(
+        spec=spec,
+        status=status,
+        reasons=reasons,
+        wiring_ok=wiring_ok,
+    )
+
     return {
         "pipeline_id": spec.pipeline_id,
         "script": spec.script,
@@ -152,6 +186,9 @@ def _pipeline_status(
         "latest_step_count": len(_step_names(payload or {})),
         "expected_steps": list(spec.expected_steps),
         "reasons": reasons,
+        "blocking_reason": blocking_reason,
+        "next_action": next_action,
+        "action_required": blocking_reason is not None,
     }
 
 

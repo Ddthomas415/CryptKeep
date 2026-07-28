@@ -29,6 +29,9 @@ def test_research_pipeline_status_reports_wiring_and_missing_artifacts(tmp_path)
     assert out["summary"]["wired"] == 2
     assert out["summary"]["not_run"] == 2
     assert all(row["latest_status"] == "not_run" for row in out["pipelines"])
+    assert all(row["action_required"] is True for row in out["pipelines"])
+    assert {row["blocking_reason"] for row in out["pipelines"]} == {"latest_summary_missing"}
+    assert all(f"make {row['make_target']}" in row["next_action"] for row in out["pipelines"])
 
 
 def test_research_pipeline_status_reads_latest_summary(tmp_path) -> None:
@@ -78,7 +81,12 @@ def test_research_pipeline_status_reads_latest_summary(tmp_path) -> None:
 
     assert rows["price_action"]["latest_status"] == "latest_ok"
     assert rows["price_action"]["latest_summary_sha256"]
+    assert rows["price_action"]["action_required"] is False
+    assert rows["price_action"]["blocking_reason"] is None
+    assert rows["price_action"]["next_action"] == "none"
     assert rows["funding_threshold"]["latest_status"] == "not_run"
+    assert rows["funding_threshold"]["action_required"] is True
+    assert rows["funding_threshold"]["blocking_reason"] == "latest_summary_missing"
 
 
 def test_research_pipeline_status_fails_on_wiring_drift(tmp_path) -> None:
@@ -93,3 +101,37 @@ def test_research_pipeline_status_fails_on_wiring_drift(tmp_path) -> None:
     assert out["ok"] is False
     assert out["summary"]["wired"] == 0
     assert any("script_missing" in row["reasons"] for row in out["pipelines"])
+    assert all(row["action_required"] is True for row in out["pipelines"])
+    assert {row["blocking_reason"] for row in out["pipelines"]} == {"wiring_drift"}
+
+
+def test_report_research_pipeline_status_cli_prints_next_action(monkeypatch, capsys) -> None:
+    from scripts.research import report_research_pipeline_status as script
+
+    monkeypatch.setattr(
+        script,
+        "build_research_pipeline_status",
+        lambda repo_root=None: {
+            "ok": True,
+            "pipeline_count": 1,
+            "summary": {"wired": 1, "latest_ok": 0, "not_run": 1, "latest_not_ok": 0},
+            "pipelines": [
+                {
+                    "pipeline_id": "price_action",
+                    "wiring_ok": True,
+                    "latest_status": "not_run",
+                    "make_target": "price-action-research-pipeline",
+                    "latest_summary_path": None,
+                    "reasons": ["latest_summary_missing"],
+                    "action_required": True,
+                    "next_action": "run make price-action-research-pipeline with the required research inputs",
+                }
+            ],
+        },
+    )
+
+    assert script.main([]) == 0
+    out = capsys.readouterr().out
+    assert "Research Pipeline Status" in out
+    assert "reasons=latest_summary_missing" in out
+    assert "next_action=run make price-action-research-pipeline" in out

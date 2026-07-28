@@ -46,6 +46,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         reasons = [str(item) for item in list(row.get("reasons") or []) if str(item)]
         if reasons:
             print(f"  reasons={','.join(reasons)}")
+        if bool(row.get("action_required")):
+            print(f"  next_action={row.get('next_action')}")
 
 
 def main(argv: list[str] | None = None) -> int:
