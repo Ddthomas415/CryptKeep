@@ -56,8 +56,18 @@ def _print_report(payload: dict[str, Any]) -> None:
         "proofs: "
         f"remaining={summary.get('remaining_proof_or_coverage_markers', 0)} "
         f"host_side={summary.get('host_side_markers', 0)} "
-        f"proof_ready={summary.get('proof_ready_markers', 0)}"
+        f"proof_ready={summary.get('proof_ready_markers', 0)} "
+        f"actions_required={summary.get('operator_proof_actions_required', 0)}"
     )
+    for row in list(dict(payload.get("actions") or {}).get("operator_proofs") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "proof_action: "
+            f"L{row.get('line')} "
+            f"{row.get('category')} "
+            f"action={row.get('next_action')}"
+        )
 
 
 def main(argv: list[str] | None = None) -> int:

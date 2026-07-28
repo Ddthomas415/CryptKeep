@@ -37,12 +37,16 @@ def _print_report(payload: dict[str, Any]) -> None:
         if not isinstance(row, dict):
             continue
         print(f"- {row.get('ordinal')}. {row.get('text')}")
+        if row.get("next_action"):
+            print(f"  next_action={row.get('next_action')}")
 
     markers = [row for row in list(payload.get("proof_markers") or []) if isinstance(row, dict)]
     if markers:
         print("proof_marker_lines:")
         for row in markers[:20]:
             print(f"- L{row.get('line')} {row.get('category')}: {row.get('text')}")
+            if row.get("next_action"):
+                print(f"  next_action={row.get('next_action')}")
         if len(markers) > 20:
             print(f"... {len(markers) - 20} more markers; use --json for all")
 

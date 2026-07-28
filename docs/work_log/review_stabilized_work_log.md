@@ -26242,3 +26242,62 @@ Remaining risk:
   report may influence operator planning but cannot execute research,
   campaign, market-data, gate, ingestion, live-routing, or proof-closing paths.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T11:52:59Z - Operator Proof Status Action Hints
+
+Active role: ENGINEER
+
+Objective:
+- Extend the read-only operator proof/status reports so proof blockers surface
+  concrete next actions instead of only aggregate marker counts.
+
+What was found:
+- SHOWN: `make operator-proof-status` lists passive evidence items and proof
+  marker line references, but did not attach a machine-readable or text
+  `next_action` to those rows.
+- SHOWN: `make operator-status` summarized proof counts
+  (`remaining`, `host_side`, `proof_ready`) but did not carry actionable proof
+  rows into the bundle.
+
+What changed:
+- `services.analytics.operator_proof_status` now adds
+  `action_required`/`next_action` to passive evidence rows and proof markers.
+- `scripts/report_operator_proof_status.py` prints those next actions next to
+  passive items and backlog marker lines.
+- `services.analytics.operator_status_bundle` carries a bounded first-10 proof
+  action list and a total `operator_proof_actions_required` count.
+- `scripts/report_operator_status_bundle.py` prints the first five proof
+  actions for compact check-ins.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and targeted tests.
+
+Why this change was chosen:
+- It is the same read-only status/reporting lane as the previous batch and
+  reduces manual backlog inspection without running campaigns, fetching market
+  data, closing proof, authorizing implementation, or mutating runtime state.
+
+Expected outcome:
+- `make operator-status` can identify both unresolved research-pipeline actions
+  and top proof/evidence actions during a check-in.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_research_pipeline_status.py tests/test_research_command_status.py tests/test_script_index_alignment_guard.py tests/test_backlog_lane_status.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/operator_status_bundle.py scripts/report_operator_proof_status.py scripts/report_operator_status_bundle.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py`
+  - SHOWN: passed with no output.
+- `make operator-proof-status`
+  - SHOWN: `ok=True passive_items=15 proof_markers=69`; passive rows and proof
+    marker lines include `next_action`.
+- `make operator-status`
+  - SHOWN: `ok=True`; proof summary includes `actions_required=69` and the
+    first five `proof_action` rows.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: read-only reporting/presentation and additive JSON fields only. The
+  report may influence operator planning but cannot run campaigns, fetch
+  market data, close proof, authorize implementation, or touch trading
+  execution/gates.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

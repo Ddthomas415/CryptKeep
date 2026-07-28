@@ -68,6 +68,8 @@ def test_operator_status_bundle_combines_existing_status_reports(tmp_path: Path)
     assert out["summary"]["research_commands_not_wired"] == 0
     assert out["summary"]["remaining_proof_or_coverage_markers"] == 1
     assert out["summary"]["host_side_markers"] == 1
+    assert out["summary"]["operator_proof_actions_required"] >= 1
+    assert out["actions"]["operator_proofs"]
 
 
 def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
@@ -92,6 +94,7 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                 "remaining_proof_or_coverage_markers": 27,
                 "host_side_markers": 17,
                 "proof_ready_markers": 25,
+                "operator_proof_actions_required": 2,
             },
             "actions": {
                 "research_pipelines": [
@@ -101,7 +104,14 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
                         "blocking_reason": "latest_summary_missing",
                         "next_action": "run make price-action-research-pipeline with the required research inputs",
                     }
-                ]
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "remaining_proof",
+                        "next_action": "produce or record the remaining proof referenced at REMAINING_TASKS.md:L7",
+                    }
+                ],
             },
         },
     )
@@ -116,3 +126,4 @@ def test_report_operator_status_bundle_cli(monkeypatch, capsys) -> None:
     assert "latest_summary_missing" in out
     assert "research_commands: wired=19" in out
     assert "remaining=27" in out
+    assert "proof_action: L7 remaining_proof" in out
