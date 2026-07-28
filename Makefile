@@ -70,11 +70,12 @@ pre-release-sanity-json-fast:
 remaining-tasks:
 	$(PYTHON) scripts/rebuild_remaining_tasks.py
 
+BACKLOG_LANE_STATUS_LANE ?=
 backlog-lane-status:
-	$(PYTHON) scripts/report_backlog_lane_status.py
+	$(PYTHON) scripts/report_backlog_lane_status.py $(if $(BACKLOG_LANE_STATUS_LANE),--lane $(BACKLOG_LANE_STATUS_LANE),)
 
 backlog-lane-status-json:
-	@$(PYTHON) scripts/report_backlog_lane_status.py --json
+	@$(PYTHON) scripts/report_backlog_lane_status.py --json $(if $(BACKLOG_LANE_STATUS_LANE),--lane $(BACKLOG_LANE_STATUS_LANE),)
 
 operator-proof-status:
 	$(PYTHON) scripts/report_operator_proof_status.py
