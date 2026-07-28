@@ -23,12 +23,21 @@ def _print_report(payload: dict[str, Any]) -> None:
     reports = dict(payload.get("reports") or {})
     actions_payload = dict(payload.get("actions") or {})
     section_filter = str(payload.get("section_filter") or "")
+    filter_keys = (
+        "backlog_lane_filter",
+        "research_command_lane_filter",
+        "research_command_input_class_filter",
+        "operator_proof_category_filter",
+    )
     print("=== Operator Status Bundle ===")
     print(f"ok={bool(payload.get('ok'))}")
     if payload.get("reason"):
         print(f"reason={payload.get('reason')}")
     if section_filter:
         print(f"section_filter={section_filter}")
+    for key in filter_keys:
+        if payload.get(key):
+            print(f"{key}={payload.get(key)}")
     shown = payload.get("shown_sections") or []
     if shown:
         print("shown_sections=" + ",".join(str(value) for value in shown))
@@ -94,9 +103,32 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Limit output to one section: backlog, research_pipeline, research_command, or operator_proof",
     )
+    parser.add_argument("--backlog-lane", default=None, help="Forward a lane filter to backlog lane status")
+    parser.add_argument(
+        "--research-command-lane",
+        default=None,
+        help="Forward a lane filter to research command status",
+    )
+    parser.add_argument(
+        "--research-command-input-class",
+        default=None,
+        help="Forward an input_class filter to research command status",
+    )
+    parser.add_argument(
+        "--operator-proof-category",
+        default=None,
+        help="Forward a category filter to operator proof status",
+    )
     args = parser.parse_args(argv)
 
-    payload = build_operator_status_bundle(repo_root=ROOT, section=args.section)
+    payload = build_operator_status_bundle(
+        repo_root=ROOT,
+        section=args.section,
+        backlog_lane=args.backlog_lane,
+        research_command_lane=args.research_command_lane,
+        research_command_input_class=args.research_command_input_class,
+        operator_proof_category=args.operator_proof_category,
+    )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
