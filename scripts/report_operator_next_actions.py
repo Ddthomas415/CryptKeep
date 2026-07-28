@@ -57,9 +57,15 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Limit output to one action lane",
     )
+    parser.add_argument("--reason", default=None, help="Limit output to one blocking_reason value")
     args = parser.parse_args(argv)
 
-    payload = build_operator_next_actions(repo_root=ROOT, max_actions=args.max_actions, lane=args.lane)
+    payload = build_operator_next_actions(
+        repo_root=ROOT,
+        max_actions=args.max_actions,
+        lane=args.lane,
+        reason=args.reason,
+    )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

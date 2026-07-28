@@ -2659,6 +2659,11 @@ substrate work, but they are concrete enough to keep visible.
     prints those buckets before the detailed action list. This remains
     read-only planning/status only and does not change status sources or
     runtime behavior.
+    2026-07-28: operator next-actions reason filtering is ready for independent
+    review. The report now supports `--reason <blocking_reason>` and the Make
+    override `OPERATOR_NEXT_ACTIONS_REASON`, allowing focused checks such as
+    host-side-only or remaining-proof-only actions without changing underlying
+    status sources. This remains read-only planning/status only.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,
