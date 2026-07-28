@@ -239,6 +239,80 @@ def test_operator_next_actions_filters_by_research_command_lane(monkeypatch) -> 
     ]
 
 
+def test_operator_next_actions_backlog_lane_filter_implies_matching_action_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {
+                "backlog_lane_actions_required": 2,
+                "research_pipeline_actions_required": 1,
+                "operator_proof_actions_required": 9,
+            },
+            "actions": {
+                "backlog_lanes": [
+                    {
+                        "lane_key": "low_risk_docs_tests",
+                        "ordinal": 1,
+                        "next_action": "select or execute a scoped batch for docs",
+                    },
+                    {
+                        "lane_key": "low_risk_docs_tests",
+                        "ordinal": 2,
+                        "next_action": "select or execute a scoped batch for tests",
+                    },
+                ],
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(repo_root=".", backlog_lane="low_risk_docs_tests", max_actions=20)
+
+    assert captured["backlog_lane"] == "low_risk_docs_tests"
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["lane_filter"] is None
+    assert out["action_count_total"] == 2
+    assert out["action_count_available"] == 2
+    assert out["actions"] == [
+        {
+            "lane": "backlog_lane",
+            "source": "low_risk_docs_tests",
+            "line": None,
+            "ordinal": 1,
+            "blocking_reason": "backlog_lane_item",
+            "next_action": "select or execute a scoped batch for docs",
+        },
+        {
+            "lane": "backlog_lane",
+            "source": "low_risk_docs_tests",
+            "line": None,
+            "ordinal": 2,
+            "blocking_reason": "backlog_lane_item",
+            "next_action": "select or execute a scoped batch for tests",
+        },
+    ]
+
+
 def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
@@ -531,17 +605,17 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "operator_proof_category_filter": filters.get("operator_proof_category"),
             "operator_proof_line_filter": int(filters.get("operator_proof_line") or 0) or None,
             "summary": {
-                "available_by_lane": {"passive_operator_evidence": 1},
-                "available_by_reason": {"passive_operator_evidence": 1},
+                "available_by_lane": {"backlog_lane": 1},
+                "available_by_reason": {"backlog_lane_item": 1},
             },
             "actions": [
                 {
-                    "lane": "passive_operator_evidence",
-                    "source": "passive_operator_evidence",
+                    "lane": "backlog_lane",
+                    "source": "low_risk_docs_tests",
                     "line": None,
                     "ordinal": 1,
-                    "blocking_reason": "passive_operator_evidence",
-                    "next_action": "collect or record operator evidence",
+                    "blocking_reason": "backlog_lane_item",
+                    "next_action": "select or execute a scoped batch",
                 }
             ],
         },
@@ -552,11 +626,11 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "--max-actions",
             "1",
             "--lane",
-            "passive_operator_evidence",
+            "backlog_lane",
             "--reason",
-            "passive_operator_evidence",
+            "backlog_lane_item",
             "--action-source",
-            "passive_operator_evidence",
+            "low_risk_docs_tests",
             "--research-pipeline",
             "price_action",
             "--operator-proof-category",
@@ -568,11 +642,12 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
-    assert "action_source_filter=passive_operator_evidence" in out
+    assert "lane_filter=backlog_lane" in out
+    assert "action_source_filter=low_risk_docs_tests" in out
     assert "research_pipeline_filter=price_action" in out
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
-    assert "by_lane: passive_operator_evidence=1" in out
-    assert "by_reason: passive_operator_evidence=1" in out
-    assert "passive_operator_evidence:passive_operator_evidence" in out
-    assert "collect or record operator evidence" in out
+    assert "by_lane: backlog_lane=1" in out
+    assert "by_reason: backlog_lane_item=1" in out
+    assert "backlog_lane:low_risk_docs_tests" in out
+    assert "select or execute a scoped batch" in out

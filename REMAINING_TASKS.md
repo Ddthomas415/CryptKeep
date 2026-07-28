@@ -2777,6 +2777,15 @@ substrate work, but they are concrete enough to keep visible.
     lane alongside research pipeline and proof-marker actions. This remains
     read-only planning/status only and does not run research, campaigns,
     market-data fetches, proof closure, authorization, or runtime mutation.
+    2026-07-28: backlog-lane action hints are ready for independent review.
+    When a backlog lane filter is supplied, the operator status bundle exposes
+    each lane-map item as a `backlog_lanes` action row and
+    `operator-next-actions` surfaces them through the `backlog_lane` action
+    lane. Unfiltered default next-actions do not emit backlog-lane rows, so the
+    compact report is not flooded with all lane-map categories. This remains
+    read-only planning/status only; it does not decide backlog items, run
+    research/campaigns, fetch market data, close proof, authorize
+    implementation, or mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

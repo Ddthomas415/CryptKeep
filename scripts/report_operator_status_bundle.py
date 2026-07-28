@@ -49,7 +49,17 @@ def _print_report(payload: dict[str, Any]) -> None:
             f"passive={summary.get('passive_operator_items', 0)} "
             f"low={summary.get('low_risk_docs_tests', 0)} "
             f"medium={summary.get('medium_risk_runtime_read_only', 0)} "
-            f"high={summary.get('high_risk_gate_execution_deploy', 0)}"
+            f"high={summary.get('high_risk_gate_execution_deploy', 0)} "
+            f"actions_required={summary.get('backlog_lane_actions_required', 0)}"
+        )
+    for row in list(actions_payload.get("backlog_lanes") or [])[:5]:
+        if not isinstance(row, dict):
+            continue
+        print(
+            "backlog_action: "
+            f"#{row.get('ordinal')} "
+            f"{row.get('lane_key')} "
+            f"action={row.get('next_action')}"
         )
     if "research_pipeline_status" in reports:
         print(
