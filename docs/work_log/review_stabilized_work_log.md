@@ -26404,3 +26404,53 @@ Remaining risk:
   research execution, market-data fetch, proof closure, gate, ingestion, live
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T12:38:29Z - Operator Next-Actions Summary Buckets
+
+Active role: ENGINEER
+
+Objective:
+- Add grouped counts to the compact operator next-actions report so the action
+  list can be triaged by lane and blocking reason before reading each row.
+
+What was found:
+- SHOWN: `make operator-next-actions` prints detailed action rows, but it did
+  not summarize the returned action set by lane or reason.
+
+What changed:
+- `services.analytics.operator_next_actions` now emits additive
+  `summary.available_by_lane` and `summary.available_by_reason` fields over
+  the currently available filtered action rows.
+- `scripts/report_operator_next_actions.py` prints the summary buckets before
+  the detailed action list.
+- Updated `REMAINING_TASKS.md` and targeted tests.
+
+Why this change was chosen:
+- It improves the same read-only operator/reporting surface without adding a
+  new command or changing the underlying status sources.
+
+Expected outcome:
+- Operators can see at a glance whether the current action set is mostly
+  research-pipeline, host-side, remaining-proof, or proof-ready work.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `11 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: passed with no output.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `ok=True actions=71 shown=5`; text output includes `by_lane`
+    and `by_reason` buckets.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_LANE=operator_proof OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: valid JSON with `summary.available_by_lane.operator_proof=10`
+    and `summary.available_by_reason.host_side_reference=7`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: additive JSON/text summary fields only. No campaign, research
+  execution, market-data fetch, proof closure, gate, ingestion, live routing,
+  or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
