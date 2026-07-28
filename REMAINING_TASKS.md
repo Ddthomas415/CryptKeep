@@ -2653,6 +2653,12 @@ substrate work, but they are concrete enough to keep visible.
     Make overrides `OPERATOR_NEXT_ACTIONS_MAX` / `OPERATOR_NEXT_ACTIONS_LANE`
     so check-ins can focus on research or proof blockers without changing the
     underlying status sources. This remains read-only planning/status only.
+    2026-07-28: operator next-actions summary buckets are ready for
+    independent review. The report now includes additive `summary` fields for
+    available actions grouped by lane and blocking reason, and the text output
+    prints those buckets before the detailed action list. This remains
+    read-only planning/status only and does not change status sources or
+    runtime behavior.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,

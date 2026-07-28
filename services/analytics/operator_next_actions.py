@@ -41,6 +41,14 @@ def _proof_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def _counts_by_key(actions: list[dict[str, Any]], key: str) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in actions:
+        value = str(row.get(key) or "unknown")
+        counts[value] = counts.get(value, 0) + 1
+    return dict(sorted(counts.items()))
+
+
 def build_operator_next_actions(
     *,
     repo_root: str | Path | None = None,
@@ -80,6 +88,10 @@ def build_operator_next_actions(
         "lane_filter": lane_filter or None,
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
+        "summary": {
+            "available_by_lane": _counts_by_key(actions, "lane"),
+            "available_by_reason": _counts_by_key(actions, "blocking_reason"),
+        },
         "action_count_total": required_total,
         "action_count_available": len(actions),
         "action_count_returned": min(len(actions), limit),

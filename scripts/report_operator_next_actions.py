@@ -25,6 +25,14 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"actions={payload.get('action_count_total', 0)} "
         f"shown={payload.get('action_count_returned', 0)}"
     )
+    summary = dict(payload.get("summary") or {})
+    for label, values in (
+        ("by_lane", dict(summary.get("available_by_lane") or {})),
+        ("by_reason", dict(summary.get("available_by_reason") or {})),
+    ):
+        if values:
+            joined = " ".join(f"{key}={value}" for key, value in sorted(values.items()))
+            print(f"{label}: {joined}")
     for idx, row in enumerate(list(payload.get("actions") or []), start=1):
         if not isinstance(row, dict):
             continue

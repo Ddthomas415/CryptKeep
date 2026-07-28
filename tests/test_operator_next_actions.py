@@ -41,6 +41,11 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     assert out["action_count_total"] == 70
     assert out["action_count_available"] == 2
     assert out["action_count_returned"] == 2
+    assert out["summary"]["available_by_lane"] == {"operator_proof": 1, "research_pipeline": 1}
+    assert out["summary"]["available_by_reason"] == {
+        "latest_summary_missing": 1,
+        "remaining_proof": 1,
+    }
     assert [row["lane"] for row in out["actions"]] == ["research_pipeline", "operator_proof"]
     assert out["actions"][0]["source"] == "price_action"
     assert out["actions"][1]["line"] == 12
@@ -115,6 +120,10 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "action_count_total": 1,
             "action_count_returned": 1,
             "lane_filter": lane,
+            "summary": {
+                "available_by_lane": {"operator_proof": 1},
+                "available_by_reason": {"remaining_proof": 1},
+            },
             "actions": [
                 {
                     "lane": "operator_proof",
@@ -131,5 +140,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
+    assert "by_lane: operator_proof=1" in out
+    assert "by_reason: remaining_proof=1" in out
     assert "operator_proof:remaining_proof" in out
     assert "produce or record proof" in out
