@@ -39,7 +39,7 @@ def test_make_script_index_points_to_maintained_docs():
     assert "make status-paper-all" in target
     assert "make recover-paper-campaigns" in target
     assert "make funding-stage0-readiness" in target
-    assert "make backlog-lane-status" in target
+    assert "make backlog-lane-status[-json]" in target
     assert "make funding-threshold-candidate-triage" in target
     assert "make funding-threshold-stability-triage" in target
     assert "make funding-threshold-research-pipeline" in target
@@ -48,9 +48,10 @@ def test_make_script_index_points_to_maintained_docs():
     assert "make price-action-window-stability" in target
     assert "make price-action-candidate-triage" in target
     assert "make price-action-research-pipeline" in target
-    assert "make research-pipeline-status" in target
-    assert "make operator-proof-status" in target
-    assert "make operator-status" in target
+    assert "make research-pipeline-status[-json]" in target
+    assert "make research-command-status[-json]" in target
+    assert "make operator-proof-status[-json]" in target
+    assert "make operator-status[-json]" in target
     assert "docs/GOLDEN_PATH.md" in target
     assert "scripts/SCRIPTS.md" in target
     assert "ls scripts/*.py" not in target
@@ -94,6 +95,23 @@ def test_accepted_research_tools_have_script_index_and_makefile_links():
         if target is not None:
             assert target in scripts
             assert target.split("make ", 1)[1] + ":" in makefile
+
+
+def test_read_only_status_reports_have_json_make_targets():
+    scripts = _read("scripts/SCRIPTS.md")
+    makefile = _read("Makefile")
+
+    expected = {
+        "backlog-lane-status-json": "scripts/report_backlog_lane_status.py --json",
+        "operator-proof-status-json": "scripts/report_operator_proof_status.py --json",
+        "operator-status-json": "scripts/report_operator_status_bundle.py --json",
+        "research-pipeline-status-json": "scripts/research/report_research_pipeline_status.py --json",
+        "research-command-status-json": "scripts/research/report_research_command_status.py --json",
+    }
+    for target, command in expected.items():
+        assert f"{target}:" in makefile
+        assert command in makefile
+        assert f"make {target}" in scripts
 
 
 def test_key_daily_operator_commands_stay_in_canonical_index():
