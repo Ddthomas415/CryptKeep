@@ -1,5 +1,14 @@
 # Bot Control Topology
 
+`docs/CURRENT_RUNTIME_TRUTH.md` is the authoritative operator-facing runtime
+truth for startup, stop, and status behavior. This file summarizes the bot
+control topology and must stay aligned with that document.
+
+Executable guard: `tests/test_bot_control_runtime_truth_guard.py` pins this
+document's canonical control plane, runtime truth sources, compatibility-only
+legacy plane, decision-only compatibility boundary, and live-confirmation
+requirements.
+
 ## Canonical operator control plane
 - `scripts/start_bot.py`
 - `scripts/stop_bot.py`

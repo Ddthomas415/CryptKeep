@@ -3,6 +3,11 @@
 Use this runbook after a laptop restart or any event that may have terminated
 the detached paper evidence collectors.
 
+Executable guard: `tests/test_paper_campaign_recovery_runbook_guard.py` pins
+the operator-facing recovery contract in this document. If recovery commands,
+OHLCV blocked-state behavior, ownership split, or restart safety boundaries
+change, update that test and this runbook together.
+
 ## Status
 
 For the routine check-in across both the laptop and Hetzner paper campaigns,
