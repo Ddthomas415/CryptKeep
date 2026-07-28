@@ -7,7 +7,7 @@ def test_operator_next_actions_combines_research_and_proof_actions(monkeypatch) 
     monkeypatch.setattr(
         mod,
         "build_operator_status_bundle",
-        lambda repo_root=None: {
+        lambda repo_root=None, **_filters: {
             "ok": True,
             "report_type": "operator_status_bundle",
             "summary": {"research_pipeline_actions_required": 1, "operator_proof_actions_required": 69},
@@ -57,7 +57,7 @@ def test_operator_next_actions_respects_limit(monkeypatch) -> None:
     monkeypatch.setattr(
         mod,
         "build_operator_status_bundle",
-        lambda repo_root=None: {
+        lambda repo_root=None, **_filters: {
             "ok": True,
             "report_type": "operator_status_bundle",
             "summary": {"research_pipeline_actions_required": 2, "operator_proof_actions_required": 0},
@@ -85,7 +85,7 @@ def test_operator_next_actions_filters_by_lane(monkeypatch) -> None:
     monkeypatch.setattr(
         mod,
         "build_operator_status_bundle",
-        lambda repo_root=None: {
+        lambda repo_root=None, **_filters: {
             "ok": True,
             "report_type": "operator_status_bundle",
             "summary": {"research_pipeline_actions_required": 2, "operator_proof_actions_required": 69},
@@ -115,7 +115,7 @@ def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
     monkeypatch.setattr(
         mod,
         "build_operator_status_bundle",
-        lambda repo_root=None: {
+        lambda repo_root=None, **_filters: {
             "ok": True,
             "report_type": "operator_status_bundle",
             "summary": {"research_pipeline_actions_required": 1, "operator_proof_actions_required": 2},
@@ -144,18 +144,77 @@ def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
     assert [row["blocking_reason"] for row in out["actions"]] == ["host_side_reference"]
 
 
+def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    captured = {}
+
+    def fake_bundle(repo_root=None, **filters):
+        captured.update(filters)
+        return {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {"research_pipeline_actions_required": 1, "operator_proof_actions_required": 1},
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        }
+
+    monkeypatch.setattr(mod, "build_operator_status_bundle", fake_bundle)
+
+    out = mod.build_operator_next_actions(
+        repo_root=".",
+        backlog_lane="low_risk_docs_tests",
+        research_pipeline="price_action",
+        research_command_lane="funding",
+        research_command_input_class="artifact_input",
+        operator_proof_category="host_side_reference",
+    )
+
+    assert captured == {
+        "backlog_lane": "low_risk_docs_tests",
+        "research_pipeline": "price_action",
+        "research_command_lane": "funding",
+        "research_command_input_class": "artifact_input",
+        "operator_proof_category": "host_side_reference",
+    }
+    assert out["backlog_lane_filter"] == "low_risk_docs_tests"
+    assert out["research_pipeline_filter"] == "price_action"
+    assert out["research_command_lane_filter"] == "funding"
+    assert out["research_command_input_class_filter"] == "artifact_input"
+    assert out["operator_proof_category_filter"] == "host_side_reference"
+
+
 def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_next_actions as script
 
     monkeypatch.setattr(
         script,
         "build_operator_next_actions",
-        lambda repo_root=None, max_actions=20, lane=None, reason=None: {
+        lambda repo_root=None, max_actions=20, lane=None, reason=None, **filters: {
             "ok": True,
             "action_count_total": 1,
             "action_count_returned": 1,
             "lane_filter": lane,
             "reason_filter": reason,
+            "backlog_lane_filter": filters.get("backlog_lane"),
+            "research_pipeline_filter": filters.get("research_pipeline"),
+            "research_command_lane_filter": filters.get("research_command_lane"),
+            "research_command_input_class_filter": filters.get("research_command_input_class"),
+            "operator_proof_category_filter": filters.get("operator_proof_category"),
             "summary": {
                 "available_by_lane": {"operator_proof": 1},
                 "available_by_reason": {"remaining_proof": 1},
@@ -173,11 +232,24 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     )
 
     assert script.main(
-        ["--max-actions", "1", "--lane", "operator_proof", "--reason", "remaining_proof"]
+        [
+            "--max-actions",
+            "1",
+            "--lane",
+            "operator_proof",
+            "--reason",
+            "remaining_proof",
+            "--research-pipeline",
+            "price_action",
+            "--operator-proof-category",
+            "host_side_reference",
+        ]
     ) == 0
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
+    assert "research_pipeline_filter=price_action" in out
+    assert "operator_proof_category_filter=host_side_reference" in out
     assert "by_lane: operator_proof=1" in out
     assert "by_reason: remaining_proof=1" in out
     assert "operator_proof:remaining_proof" in out

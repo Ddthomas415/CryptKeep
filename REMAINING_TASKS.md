@@ -2729,6 +2729,13 @@ substrate work, but they are concrete enough to keep visible.
     override `OPERATOR_NEXT_ACTIONS_REASON`, allowing focused checks such as
     host-side-only or remaining-proof-only actions without changing underlying
     status sources. This remains read-only planning/status only.
+    2026-07-28: operator next-actions source-filter pass-through is ready for
+    independent review. The compact report, CLI, and Make targets can now
+    forward the accepted source-report filters for backlog lane, research
+    pipeline, research command lane/input class, and operator proof category to
+    the underlying operator status bundle. This remains read-only
+    planning/status only and does not run research, campaigns, market-data
+    fetches, proof closure, authorization, or runtime mutation.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,

@@ -55,12 +55,29 @@ def build_operator_next_actions(
     max_actions: int = 20,
     lane: str | None = None,
     reason: str | None = None,
+    backlog_lane: str | None = None,
+    research_pipeline: str | None = None,
+    research_command_lane: str | None = None,
+    research_command_input_class: str | None = None,
+    operator_proof_category: str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     limit = max(1, int(max_actions))
     lane_filter = str(lane or "").strip()
     reason_filter = str(reason or "").strip()
-    bundle = build_operator_status_bundle(repo_root=root)
+    backlog_lane_filter = str(backlog_lane or "").strip()
+    research_pipeline_filter = str(research_pipeline or "").strip()
+    research_command_lane_filter = str(research_command_lane or "").strip()
+    research_command_input_filter = str(research_command_input_class or "").strip()
+    proof_category_filter = str(operator_proof_category or "").strip()
+    bundle = build_operator_status_bundle(
+        repo_root=root,
+        backlog_lane=backlog_lane_filter or None,
+        research_pipeline=research_pipeline_filter or None,
+        research_command_lane=research_command_lane_filter or None,
+        research_command_input_class=research_command_input_filter or None,
+        operator_proof_category=proof_category_filter or None,
+    )
     summary = dict(bundle.get("summary") or {})
     actions = [*_research_actions(bundle), *_proof_actions(bundle)]
     if lane_filter:
@@ -95,6 +112,11 @@ def build_operator_next_actions(
         "repo_root": str(root),
         "lane_filter": lane_filter or None,
         "reason_filter": reason_filter or None,
+        "backlog_lane_filter": backlog_lane_filter or None,
+        "research_pipeline_filter": research_pipeline_filter or None,
+        "research_command_lane_filter": research_command_lane_filter or None,
+        "research_command_input_class_filter": research_command_input_filter or None,
+        "operator_proof_category_filter": proof_category_filter or None,
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
         "summary": {

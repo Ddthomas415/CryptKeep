@@ -26925,3 +26925,61 @@ Remaining risk:
   gate, ingestion, live routing, execution, authorization, or runtime mutation
   changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T19:02:41Z - Operator Next-Actions Source Filter Pass-Through
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by forwarding accepted
+  source-report filters through the compact operator next-actions report.
+
+What was found:
+- SHOWN: `services.analytics.operator_status_bundle` can already forward
+  filters for backlog lane, research pipeline, research command lane/input
+  class, and operator proof category.
+- SHOWN: `services.analytics.operator_next_actions` only exposed its own
+  `lane` and `reason` filters, so the compact action report could not reuse
+  the accepted source-report focus controls.
+
+What changed:
+- `build_operator_next_actions()` now accepts `backlog_lane`,
+  `research_pipeline`, `research_command_lane`,
+  `research_command_input_class`, and `operator_proof_category`, forwards
+  them to `build_operator_status_bundle()`, and records the active filters in
+  the JSON payload.
+- `scripts/report_operator_next_actions.py` exposes matching CLI options and
+  prints active source filters in text output.
+- `Makefile` exposes matching `OPERATOR_NEXT_ACTIONS_*` overrides for text and
+  JSON targets.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests were updated.
+
+Why this change was chosen:
+- It is the smallest same-surface continuation of the accepted reporting
+  filter batches: no new classifier, no new status source, only pass-through
+  to existing read-only reports.
+
+Expected outcome:
+- Operators can ask the compact next-action report for focused views such as
+  one research pipeline or one proof category without reading the full bundle
+  and without running any research, campaigns, market-data fetches, proof
+  closure, authorization, or runtime mutation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `21 passed in 0.31s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE=price_action OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=True`, prints `research_pipeline_filter=price_action`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: `ok=true`, JSON includes
+    `operator_proof_category_filter=host_side_reference`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

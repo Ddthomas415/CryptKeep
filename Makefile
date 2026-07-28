@@ -18,6 +18,11 @@ OPERATOR_PROOF_STATUS_CATEGORY ?=
 OPERATOR_NEXT_ACTIONS_MAX ?= 20
 OPERATOR_NEXT_ACTIONS_LANE ?=
 OPERATOR_NEXT_ACTIONS_REASON ?=
+OPERATOR_NEXT_ACTIONS_BACKLOG_LANE ?=
+OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE ?=
+OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE ?=
+OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS ?=
+OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY ?=
 
 .PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status backlog-lane-status-json operator-proof-status operator-proof-status-json operator-status operator-status-json operator-next-actions operator-next-actions-json phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight research-pipeline-status research-pipeline-status-json research-command-status research-command-status-json
 
@@ -97,10 +102,10 @@ operator-status-json:
 	@$(PYTHON) scripts/report_operator_status_bundle.py --json $(if $(OPERATOR_STATUS_SECTION),--section $(OPERATOR_STATUS_SECTION),) $(if $(OPERATOR_STATUS_BACKLOG_LANE),--backlog-lane $(OPERATOR_STATUS_BACKLOG_LANE),) $(if $(OPERATOR_STATUS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_STATUS_RESEARCH_PIPELINE),) $(if $(OPERATOR_STATUS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_STATUS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_STATUS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_STATUS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_STATUS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_STATUS_OPERATOR_PROOF_CATEGORY),)
 
 operator-next-actions:
-	$(PYTHON) scripts/report_operator_next_actions.py --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),)
+	$(PYTHON) scripts/report_operator_next_actions.py --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),--backlog-lane $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),)
 
 operator-next-actions-json:
-	@$(PYTHON) scripts/report_operator_next_actions.py --json --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),)
+	@$(PYTHON) scripts/report_operator_next_actions.py --json --max-actions $(OPERATOR_NEXT_ACTIONS_MAX) $(if $(OPERATOR_NEXT_ACTIONS_LANE),--lane $(OPERATOR_NEXT_ACTIONS_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_REASON),--reason $(OPERATOR_NEXT_ACTIONS_REASON),) $(if $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),--backlog-lane $(OPERATOR_NEXT_ACTIONS_BACKLOG_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),--research-pipeline $(OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),--research-command-lane $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_LANE),) $(if $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),--research-command-input-class $(OPERATOR_NEXT_ACTIONS_RESEARCH_COMMAND_INPUT_CLASS),) $(if $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),--operator-proof-category $(OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY),)
 
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
