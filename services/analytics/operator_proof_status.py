@@ -118,14 +118,23 @@ def _marker_next_action(marker: ProofMarker) -> str:
     return f"produce or record the remaining proof referenced at REMAINING_TASKS.md:L{marker.line}"
 
 
-def build_operator_proof_status(*, repo_root: str | Path | None = None) -> dict[str, Any]:
+def build_operator_proof_status(
+    *,
+    repo_root: str | Path | None = None,
+    category: str | None = None,
+) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
+    category_filter = str(category or "").strip()
     lane_doc = root / "docs" / "BACKLOG_EXECUTION_LANES.md"
     backlog = root / "REMAINING_TASKS.md"
     lane_text = _read_text(lane_doc)
     backlog_text = _read_text(backlog)
     passive_items = _bullet_items(_section(lane_text, PASSIVE_HEADING))
-    proof_markers = _proof_markers(backlog_text)
+    all_proof_markers = _proof_markers(backlog_text)
+    source_category_counts = _category_counts(all_proof_markers)
+    proof_markers = all_proof_markers
+    if category_filter:
+        proof_markers = tuple(marker for marker in all_proof_markers if marker.category == category_filter)
     category_counts = _category_counts(proof_markers)
     remaining_marker_count = sum(
         count
@@ -146,6 +155,7 @@ def build_operator_proof_status(*, repo_root: str | Path | None = None) -> dict[
         "does_not_fetch_market_data": True,
         "does_not_mutate_state": True,
         "repo_root": str(root),
+        "category_filter": category_filter or None,
         "lane_doc": str(lane_doc),
         "lane_doc_sha256": _sha256(lane_doc),
         "backlog": str(backlog),
@@ -161,6 +171,7 @@ def build_operator_proof_status(*, repo_root: str | Path | None = None) -> dict[
             for idx, item in enumerate(passive_items, start=1)
         ],
         "proof_marker_count": len(proof_markers),
+        "source_proof_marker_count": len(all_proof_markers),
         "proof_markers": [
             {
                 "line": marker.line,
@@ -178,5 +189,6 @@ def build_operator_proof_status(*, repo_root: str | Path | None = None) -> dict[
             "host_side_markers": category_counts.get("host_side_reference", 0),
             "proof_ready_markers": category_counts.get("proof_ready_implementation", 0),
             "category_counts": category_counts,
+            "source_category_counts": source_category_counts,
         },
     }
