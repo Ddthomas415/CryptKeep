@@ -2587,6 +2587,14 @@ substrate work, but they are concrete enough to keep visible.
     expose `make backlog-lane-status`. The report is planning/status only: it
     does not decide backlog items, authorize implementation, or change runtime
     behavior.
+    2026-07-28: read-only operator proof status report is ready for
+    independent review. `services.analytics.operator_proof_status` and
+    `scripts/report_operator_proof_status.py` summarize the
+    passive/operator-evidence lane and surface proof/coverage markers from
+    `REMAINING_TASKS.md` with line references and source hashes. It exposes
+    `make operator-proof-status` and is planning/status only: it does not run
+    campaigns, fetch market data, close proof, authorize implementation, or
+    mutate runtime state.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,

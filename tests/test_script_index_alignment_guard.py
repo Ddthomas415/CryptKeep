@@ -49,6 +49,7 @@ def test_make_script_index_points_to_maintained_docs():
     assert "make price-action-candidate-triage" in target
     assert "make price-action-research-pipeline" in target
     assert "make research-pipeline-status" in target
+    assert "make operator-proof-status" in target
     assert "docs/GOLDEN_PATH.md" in target
     assert "scripts/SCRIPTS.md" in target
     assert "ls scripts/*.py" not in target
