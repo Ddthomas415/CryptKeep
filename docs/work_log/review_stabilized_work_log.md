@@ -26506,3 +26506,62 @@ Remaining risk:
   research execution, market-data fetch, proof closure, gate, ingestion, live
   routing, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T13:06:39Z - Funding Threshold Pipeline Negative Threshold Argv Fix
+
+Active role: ENGINEER
+
+Objective:
+- Run the currently wired research-only pipelines and fix any same-surface
+  blocker that prevents their latest summaries from becoming `ok=true`.
+
+What was found:
+- SHOWN: `make price-action-research-pipeline` and `make
+  funding-threshold-research-pipeline` initially failed with `archive_missing`.
+- SHOWN: research-only OHLCV archive backfill fixed the archive prerequisite:
+  Coinbase `BTC/USDT` 1h wrote 662 rows and OKX `BTC/USDT` 5m wrote 1309 rows.
+- SHOWN: after archive backfill, `make price-action-research-pipeline`
+  returned `ok=true` with four expected steps.
+- SHOWN: after archive backfill, `make funding-threshold-research-pipeline`
+  still failed at `threshold_sensitivity`; downstream `argparse` rejected the
+  default negative `--short-thresholds-pct` CSV because it was passed as the
+  next argv token.
+
+What changed:
+- `scripts/research/run_funding_threshold_research_pipeline.py` now passes
+  long/short threshold CSVs as `--flag=value`, so negative CSV values cannot be
+  parsed as option names.
+- `tests/test_funding_threshold_research_pipeline.py` pins the default negative
+  short-threshold argv form for both sensitivity and window-stability steps.
+- `REMAINING_TASKS.md` records the fix and the local research-pipeline proof.
+
+Why this change was chosen:
+- It is the smallest same-surface fix: the downstream scripts already accept
+  negative threshold defaults; only the wrapper command construction was wrong.
+
+Expected outcome:
+- The funding-threshold research pipeline can execute its accepted report
+  sequence using its documented default negative short thresholds.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_funding_threshold_research_pipeline.py`
+  - SHOWN: `3 passed in 0.11s`.
+- `make ohlcv-archive-backfill OHLCV_ARCHIVE_BACKFILL_ARGS="--venue coinbase --symbol BTC/USDT --timeframe 1h --since 2026-07-01T00:00:00Z --page-limit 500 --max-pages 5 --max-bars 2500 --fail-if-not-ok"`
+  - SHOWN: `ok=true`, `rows_written=662`, dataset hash
+    `c6c82f287b838d0322d4563e5e302b55d8a4daa503a63db6074619d2a50d374a`.
+- `make ohlcv-archive-backfill OHLCV_ARCHIVE_BACKFILL_ARGS="--venue okx --symbol BTC/USDT --timeframe 5m --since 2026-07-24T00:00:00Z --page-limit 500 --max-pages 5 --max-bars 2500 --fail-if-not-ok"`
+  - SHOWN: `ok=true`, `rows_written=1309`, dataset hash
+    `5d58bb612c395f8c36d350ab58d507b7fbced3cd51579d59000a9353fb22e1a3`.
+- `make price-action-research-pipeline`
+  - SHOWN: `ok=true`, four expected research-only steps.
+- `make funding-threshold-research-pipeline`
+  - SHOWN: `ok=true`, five expected research-only steps.
+- `make research-pipeline-status-json`
+  - SHOWN: summary `latest_ok=2`, `latest_not_ok=0`, `not_run=0`, `wired=2`.
+
+Remaining risk:
+- MEDIUM: read-only research orchestration and local research artifact creation
+  only. No campaign, strategy config, gate, data-ingestion policy, live routing,
+  execution, or promotion evidence changed. Research artifacts remain local
+  state and are not presented as campaign/profitability evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

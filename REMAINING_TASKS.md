@@ -639,6 +639,17 @@ deployment work still needs independent review.
     wrapper. This is research orchestration only; it does not change
     collectors, thresholds, scoring logic, strategy config, campaigns, gates,
     data ingestion, live routing, execution, or promotion evidence.
+    2026-07-28: funding-threshold research pipeline negative-threshold argv
+    handling is ready for independent review. The wrapper now passes long/short
+    threshold CSVs using `--flag=value` form, so default negative short
+    thresholds are not misparsed by downstream `argparse` as option flags.
+    SHOWN locally after research archive backfill: `make
+    funding-threshold-research-pipeline` returns `ok=true`, writes five
+    expected research-only step artifacts, and `make research-pipeline-status-json`
+    reports both wired research pipelines as `latest_ok` with no action
+    required. This remains research orchestration only; it does not change
+    collectors, thresholds, scoring logic, strategy config, campaigns, gates,
+    data ingestion policy, live routing, execution, or promotion evidence.
     2026-07-22: research-only crypto-edge strategy readiness matrix is ready
     for independent review. `services.analytics.crypto_edge_strategy_readiness`
     and `scripts/research/run_crypto_edge_strategy_readiness.py` classify the
