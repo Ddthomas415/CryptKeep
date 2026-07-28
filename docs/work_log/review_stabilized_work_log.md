@@ -26454,3 +26454,55 @@ Remaining risk:
   execution, market-data fetch, proof closure, gate, ingestion, live routing,
   or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T12:58:38Z - Operator Next-Actions Reason Filter
+
+Active role: ENGINEER
+
+Objective:
+- Add focused filtering by `blocking_reason` to the compact operator
+  next-actions report.
+
+What was found:
+- SHOWN: lane filtering exists, and summary buckets expose blocking reasons,
+  but there was no direct way to request one reason class such as
+  `host_side_reference` or `remaining_proof`.
+
+What changed:
+- `services.analytics.operator_next_actions.build_operator_next_actions()`
+  accepts optional `reason`.
+- `scripts/report_operator_next_actions.py` exposes `--reason`.
+- `Makefile` exposes `OPERATOR_NEXT_ACTIONS_REASON` for both text and JSON
+  targets.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests.
+
+Why this change was chosen:
+- It is a same-surface additive filter over already-derived status rows. It
+  changes only report selection/presentation.
+
+Expected outcome:
+- Operators can run focused checks such as
+  `make operator-next-actions OPERATOR_NEXT_ACTIONS_REASON=host_side_reference`.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `12 passed in 0.19s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_REASON=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=True actions=7 shown=3`; `by_reason: host_side_reference=7`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_REASON=latest_summary_missing OPERATOR_NEXT_ACTIONS_MAX=5`
+  - SHOWN: `action_count_total=2`, `action_count_available=2`,
+    `reason_filter=latest_summary_missing`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `"ok": true`.
+- `git diff --check`
+  - SHOWN: exit 0.
+- Python 120-column check over touched Python files
+  - SHOWN: exit 0.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

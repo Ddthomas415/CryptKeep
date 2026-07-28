@@ -54,15 +54,19 @@ def build_operator_next_actions(
     repo_root: str | Path | None = None,
     max_actions: int = 20,
     lane: str | None = None,
+    reason: str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     limit = max(1, int(max_actions))
     lane_filter = str(lane or "").strip()
+    reason_filter = str(reason or "").strip()
     bundle = build_operator_status_bundle(repo_root=root)
     summary = dict(bundle.get("summary") or {})
     actions = [*_research_actions(bundle), *_proof_actions(bundle)]
     if lane_filter:
         actions = [row for row in actions if row.get("lane") == lane_filter]
+    if reason_filter:
+        actions = [row for row in actions if row.get("blocking_reason") == reason_filter]
     required_total = int(summary.get("research_pipeline_actions_required") or 0) + int(
         summary.get("operator_proof_actions_required") or 0
     )
@@ -70,6 +74,10 @@ def build_operator_next_actions(
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
     elif lane_filter == "operator_proof":
         required_total = int(summary.get("operator_proof_actions_required") or 0)
+    if reason_filter:
+        # The source summary has lane totals, not reason totals; once filtered
+        # by reason, the truthful total is the filtered available row count.
+        required_total = len(actions)
     if required_total <= 0:
         required_total = len(actions)
 
@@ -86,6 +94,7 @@ def build_operator_next_actions(
         "does_not_mutate_state": True,
         "repo_root": str(root),
         "lane_filter": lane_filter or None,
+        "reason_filter": reason_filter or None,
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
         "summary": {

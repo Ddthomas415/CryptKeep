@@ -109,17 +109,53 @@ def test_operator_next_actions_filters_by_lane(monkeypatch) -> None:
     assert [row["lane"] for row in out["actions"]] == ["operator_proof"]
 
 
+def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {"research_pipeline_actions_required": 1, "operator_proof_actions_required": 2},
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "operator_proofs": [
+                    {"line": 7, "category": "remaining_proof", "next_action": "produce proof"},
+                    {"line": 8, "category": "host_side_reference", "next_action": "run host proof"},
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", reason="host_side_reference", max_actions=20)
+
+    assert out["reason_filter"] == "host_side_reference"
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["summary"]["available_by_reason"] == {"host_side_reference": 1}
+    assert [row["blocking_reason"] for row in out["actions"]] == ["host_side_reference"]
+
+
 def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_next_actions as script
 
     monkeypatch.setattr(
         script,
         "build_operator_next_actions",
-        lambda repo_root=None, max_actions=20, lane=None: {
+        lambda repo_root=None, max_actions=20, lane=None, reason=None: {
             "ok": True,
             "action_count_total": 1,
             "action_count_returned": 1,
             "lane_filter": lane,
+            "reason_filter": reason,
             "summary": {
                 "available_by_lane": {"operator_proof": 1},
                 "available_by_reason": {"remaining_proof": 1},
@@ -136,7 +172,9 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main(["--max-actions", "1", "--lane", "operator_proof"]) == 0
+    assert script.main(
+        ["--max-actions", "1", "--lane", "operator_proof", "--reason", "remaining_proof"]
+    ) == 0
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
