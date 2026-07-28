@@ -2648,6 +2648,11 @@ substrate work, but they are concrete enough to keep visible.
     and `make operator-next-actions-json`. This is read-only planning/status
     only; it does not run research pipelines or campaigns, fetch market data,
     close proof, authorize implementation, or mutate runtime state.
+    2026-07-28: operator next-actions filtering is ready for independent
+    review. The report supports `--lane research_pipeline|operator_proof` and
+    Make overrides `OPERATOR_NEXT_ACTIONS_MAX` / `OPERATOR_NEXT_ACTIONS_LANE`
+    so check-ins can focus on research or proof blockers without changing the
+    underlying status sources. This remains read-only planning/status only.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,
