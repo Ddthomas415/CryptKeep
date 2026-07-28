@@ -26027,3 +26027,57 @@ Remaining risk:
   implementation, run pipelines or campaigns, fetch market data, close proof,
   mutate state, or change runtime behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T04:56:33Z - Research Command Status Report
+
+Active role: ENGINEER
+
+Objective:
+- Add a read-only status report for accepted research commands, grouped by
+  research lane and input class, without running research jobs or generating
+  artifacts.
+
+What was found:
+- SHOWN: the repo has accepted archive, funding-threshold, price-action, and
+  research-status scripts in `scripts/research/`.
+- SHOWN: `make research-pipeline-status` reports accepted pipeline artifacts,
+  but there was no command-level wiring/input-class report showing which
+  research commands require operator args, stored state, archive rows, or an
+  input artifact.
+
+What changed:
+- Added `services.analytics.research_command_status`.
+- Added `scripts/research/report_research_command_status.py`.
+- Added `tests/test_research_command_status.py`.
+- Updated `scripts/SCRIPTS.md` and `REMAINING_TASKS.md`.
+
+Why this change was chosen:
+- This stays in the research-only/status lane and helps operators choose the
+  next research artifact to run without touching campaign, gate, execution, or
+  market-data paths.
+
+Expected outcome:
+- Operators can distinguish wired research commands from wiring drift and see
+  which tools require prior artifacts versus archive/state inputs.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_research_command_status.py`
+  - SHOWN: `3 passed`.
+- `./.venv/bin/python scripts/research/report_research_command_status.py`
+  - SHOWN: `ok=True`, `commands=19`, `wired=19`, `not_wired=0`; lanes
+    `archive=4`, `funding=8`, `price_action=5`, `status=2`.
+- `./.venv/bin/python -m py_compile services/analytics/research_command_status.py scripts/research/report_research_command_status.py tests/test_research_command_status.py`
+  - SHOWN: passed with no output.
+- `./.venv/bin/python -m pytest -q tests/test_script_index_alignment_guard.py tests/test_research_pipeline_status.py tests/test_research_command_status.py`
+  - SHOWN: `12 passed`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: read-only research status/reporting only. The report may
+  influence operator planning, but it does not run research jobs, fetch data,
+  generate artifacts, decide strategy changes, change campaigns, gates,
+  ingestion, live routing, execution, or promotion evidence.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

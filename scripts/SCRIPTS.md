@@ -314,6 +314,11 @@ decision makes them authoritative.
   present and `ok=true`; it does not run pipelines, fetch data, or mutate
   research, strategy, campaign, gate, or execution state. Use
   `make research-pipeline-status`.
+- `research/report_research_command_status.py` — read-only status report over
+  accepted research command wiring and input classes. It checks script,
+  Makefile target, and SCRIPTS registration for archive, funding, price-action,
+  and status research commands; it does not run research jobs, fetch data,
+  generate artifacts, or mutate strategy, campaign, gate, or execution state.
 - `run_ai_operator_oversight.py` — read-only one-shot AI operator oversight
   report over existing paper-sim monitor, watch-report, and paper-gate facts;
   use `make ai-operator-oversight`.

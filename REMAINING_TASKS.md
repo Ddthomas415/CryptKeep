@@ -2500,6 +2500,15 @@ substrate work, but they are concrete enough to keep visible.
     run pipelines, fetch data, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-28: read-only research command status report is ready for
+    independent review. `services.analytics.research_command_status` and
+    `scripts/research/report_research_command_status.py` inventory accepted
+    research commands by lane/input class and verify script/SCRIPTS/Makefile
+    wiring where a Make target is part of the command contract. This is
+    status/observability only; it does not run research jobs, fetch data,
+    generate artifacts, or change research artifacts, strategy config,
+    campaigns, gates, data ingestion, live routing, execution, or promotion
+    evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,
