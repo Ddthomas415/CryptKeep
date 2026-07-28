@@ -83,14 +83,43 @@ def test_operator_proof_status_fails_closed_without_passive_lane(tmp_path: Path)
     assert out["passive_operator_item_count"] == 0
 
 
+def test_operator_proof_status_filters_proof_markers_by_category(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "1. Item.",
+                "   Remaining proof: run the host drill.",
+                "   Remaining capped-live proof: venue time check.",
+                "   2026-07-01: implementation is proof-ready for independent review.",
+                "   host-side status still required.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, category="host_side_reference")
+
+    assert out["category_filter"] == "host_side_reference"
+    assert out["passive_operator_item_count"] == 2
+    assert out["proof_marker_count"] == 1
+    assert out["source_proof_marker_count"] == 4
+    assert out["summary"]["category_counts"] == {"host_side_reference": 1}
+    assert out["summary"]["source_category_counts"]["proof_ready_implementation"] == 1
+    assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
+
+
 def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_proof_status as script
 
     monkeypatch.setattr(
         script,
         "build_operator_proof_status",
-        lambda repo_root=None: {
+        lambda repo_root=None, category=None: {
             "ok": True,
+            "category_filter": category,
             "passive_operator_item_count": 1,
             "proof_marker_count": 1,
             "summary": {
@@ -110,9 +139,10 @@ def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main([]) == 0
+    assert script.main(["--category", "remaining_proof"]) == 0
     out = capsys.readouterr().out
     assert "Operator Proof Status" in out
+    assert "category_filter=remaining_proof" in out
     assert "passive_items=1" in out
     assert "Run host proof" in out
     assert "L7 remaining_proof" in out

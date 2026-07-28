@@ -25,6 +25,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"passive_items={payload.get('passive_operator_item_count')} "
         f"proof_markers={payload.get('proof_marker_count')}"
     )
+    if payload.get("category_filter"):
+        print(f"category_filter={payload.get('category_filter')}")
     summary = dict(payload.get("summary") or {})
     print(
         "summary: "
@@ -56,9 +58,10 @@ def main(argv: list[str] | None = None) -> int:
         description="Read-only report of operator-side proof/evidence items from backlog docs."
     )
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
+    parser.add_argument("--category", default=None, help="Limit proof markers to one category")
     args = parser.parse_args(argv)
 
-    payload = build_operator_proof_status(repo_root=ROOT)
+    payload = build_operator_proof_status(repo_root=ROOT, category=args.category)
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

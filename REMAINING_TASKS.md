@@ -2634,6 +2634,15 @@ substrate work, but they are concrete enough to keep visible.
     the passive item or backlog line reference. This is presentation/JSON
     status only and does not run campaigns, fetch market data, close proof,
     authorize implementation, or mutate runtime state.
+    2026-07-28: operator proof status category filtering is ready for
+    independent review. `build_operator_proof_status()` now accepts optional
+    `category`, `scripts/report_operator_proof_status.py` exposes `--category`,
+    and Make exposes `OPERATOR_PROOF_STATUS_CATEGORY` for text/JSON targets.
+    Filtered reports keep the original source marker count and source category
+    counts for auditability while narrowing returned proof markers to the
+    requested category. This is presentation/JSON status only and does not run
+    campaigns, fetch market data, close proof, authorize implementation, or
+    mutate runtime state.
     2026-07-28: read-only operator status bundle is ready for independent
     review. `services.analytics.operator_status_bundle` and
     `scripts/report_operator_status_bundle.py` combine backlog lane status,

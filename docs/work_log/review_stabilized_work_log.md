@@ -26565,3 +26565,54 @@ Remaining risk:
   execution, or promotion evidence changed. Research artifacts remain local
   state and are not presented as campaign/profitability evidence.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T13:11:03Z - Operator Proof Status Category Filter
+
+Active role: ENGINEER
+
+Objective:
+- Add focused filtering by proof-marker category to the read-only operator
+  proof status report.
+
+What was found:
+- SHOWN: `services.analytics.operator_proof_status` already classifies proof
+  markers into categories such as `host_side_reference`,
+  `proof_ready_implementation`, and `remaining_proof`, but the report always
+  returned every marker.
+
+What changed:
+- `build_operator_proof_status()` now accepts optional `category` and narrows
+  returned proof markers to that category.
+- Filtered reports include `category_filter`, `source_proof_marker_count`, and
+  `summary.source_category_counts` so the filtered view remains auditable
+  against the unfiltered source set.
+- `scripts/report_operator_proof_status.py` exposes `--category`.
+- `Makefile` exposes `OPERATOR_PROOF_STATUS_CATEGORY` for text and JSON proof
+  status targets.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests.
+
+Why this change was chosen:
+- It is the smallest same-surface reporting improvement: no new classifier, no
+  status-source change, only an additive filter over existing categories.
+
+Expected outcome:
+- Operators can focus proof queues directly, e.g. host-side-only or
+  proof-ready-only markers, without reading all proof categories together.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `13 passed in 0.27s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py scripts/report_operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: exit 0.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_CATEGORY=host_side_reference`
+  - SHOWN: `ok=True passive_items=15 proof_markers=17`; output includes
+    `category_filter=host_side_reference`.
+- `make operator-proof-status-json OPERATOR_PROOF_STATUS_CATEGORY=proof_ready_implementation`
+  - SHOWN: `proof_marker_count=25`, `source_proof_marker_count=69`, and
+    `category_filter=proof_ready_implementation`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

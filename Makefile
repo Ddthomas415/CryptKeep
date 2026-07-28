@@ -14,6 +14,7 @@ HETZNER_EDGE_REMOTE_STATE_DIR ?= /var/lib/cbp
 STRATEGY_REVIEW_STRATEGY_ID ?= sma_200_trend
 STRATEGY_REVIEW_SYMBOL ?= BTC/USDT
 STRATEGY_REVIEW_LOSS_LIMIT ?= 10
+OPERATOR_PROOF_STATUS_CATEGORY ?=
 OPERATOR_NEXT_ACTIONS_MAX ?= 20
 OPERATOR_NEXT_ACTIONS_LANE ?=
 OPERATOR_NEXT_ACTIONS_REASON ?=
@@ -77,10 +78,10 @@ backlog-lane-status-json:
 	@$(PYTHON) scripts/report_backlog_lane_status.py --json
 
 operator-proof-status:
-	$(PYTHON) scripts/report_operator_proof_status.py
+	$(PYTHON) scripts/report_operator_proof_status.py $(if $(OPERATOR_PROOF_STATUS_CATEGORY),--category $(OPERATOR_PROOF_STATUS_CATEGORY),)
 
 operator-proof-status-json:
-	@$(PYTHON) scripts/report_operator_proof_status.py --json
+	@$(PYTHON) scripts/report_operator_proof_status.py --json $(if $(OPERATOR_PROOF_STATUS_CATEGORY),--category $(OPERATOR_PROOF_STATUS_CATEGORY),)
 
 operator-status:
 	$(PYTHON) scripts/report_operator_status_bundle.py
