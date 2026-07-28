@@ -21,7 +21,7 @@ def test_research_command_status_reports_all_commands_on_current_repo() -> None:
     assert out["script_index_sha256"]
     rows = {row["command_id"]: row for row in out["commands"]}
     assert rows["research_command_status"]["script_index_exists"] is True
-    assert rows["research_command_status"]["make_target"] is None
+    assert rows["research_command_status"]["make_target"] == "research-command-status"
     assert rows["funding_threshold_pipeline"]["make_target"] == "funding-threshold-research-pipeline"
 
 

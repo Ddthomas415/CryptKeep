@@ -2509,6 +2509,11 @@ substrate work, but they are concrete enough to keep visible.
     generate artifacts, or change research artifacts, strategy config,
     campaigns, gates, data ingestion, live routing, execution, or promotion
     evidence.
+    2026-07-28: research command status is now wired into the operator status
+    bundle and exposed via `make research-command-status`. The added wiring is
+    still status-only: it does not run research jobs, fetch data, generate
+    artifacts, or change research artifacts, strategy config, campaigns,
+    gates, data ingestion, live routing, execution, or promotion evidence.
 14. Triage dashboard/data-page wiring as a product backlog, not a trading gate.
     Several dashboard pages have UI surfaces without confirmed live service
     data behind them. Prioritize operator-critical pages first: gate status,

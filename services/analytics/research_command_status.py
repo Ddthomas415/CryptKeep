@@ -146,7 +146,7 @@ RESEARCH_COMMANDS: tuple[ResearchCommandSpec, ...] = (
     ResearchCommandSpec(
         "research_command_status",
         "scripts/research/report_research_command_status.py",
-        None,
+        "research-command-status",
         "status",
         "none",
     ),

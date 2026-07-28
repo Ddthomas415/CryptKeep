@@ -36,6 +36,11 @@ def _print_report(payload: dict[str, Any]) -> None:
         f"not_run={summary.get('research_pipelines_not_run', 0)}"
     )
     print(
+        "research_commands: "
+        f"wired={summary.get('research_commands_wired', 0)} "
+        f"not_wired={summary.get('research_commands_not_wired', 0)}"
+    )
+    print(
         "proofs: "
         f"remaining={summary.get('remaining_proof_or_coverage_markers', 0)} "
         f"host_side={summary.get('host_side_markers', 0)} "

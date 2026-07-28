@@ -86,6 +86,7 @@ def test_accepted_research_tools_have_script_index_and_makefile_links():
         "research/run_price_action_candidate_triage.py": "make price-action-candidate-triage",
         "research/run_price_action_research_pipeline.py": "make price-action-research-pipeline",
         "research/report_research_pipeline_status.py": "make research-pipeline-status",
+        "research/report_research_command_status.py": "make research-command-status",
         "report_execution_cost_stack.py": None,
     }
     for script, target in expected.items():
