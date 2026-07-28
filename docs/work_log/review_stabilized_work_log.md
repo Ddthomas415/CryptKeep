@@ -26948,6 +26948,10 @@ What changed:
   `research_command_input_class`, and `operator_proof_category`, forwards
   them to `build_operator_status_bundle()`, and records the active filters in
   the JSON payload.
+- Action-producing source filters (`research_pipeline`,
+  `operator_proof_category`) now narrow the compact action list to their
+  matching action lane unless an explicit lane filter is set, so a
+  one-pipeline query does not display unrelated proof actions.
 - `scripts/report_operator_next_actions.py` exposes matching CLI options and
   prints active source filters in text output.
 - `Makefile` exposes matching `OPERATOR_NEXT_ACTIONS_*` overrides for text and
@@ -26967,13 +26971,14 @@ Expected outcome:
 
 Verification:
 - `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_script_index_alignment_guard.py`
-  - SHOWN: `21 passed in 0.31s`.
+  - SHOWN: `22 passed in 0.39s`.
 - `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
   - SHOWN: exit 0.
 - `git diff --check`
   - SHOWN: exit 0.
 - `make operator-next-actions OPERATOR_NEXT_ACTIONS_RESEARCH_PIPELINE=price_action OPERATOR_NEXT_ACTIONS_MAX=3`
-  - SHOWN: `ok=True`, prints `research_pipeline_filter=price_action`.
+  - SHOWN: `ok=True`, prints `research_pipeline_filter=price_action` and
+    `actions=0 shown=0` for a latest-ok pipeline with no pending action.
 - `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_CATEGORY=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=2`
   - SHOWN: `ok=true`, JSON includes
     `operator_proof_category_filter=host_side_reference`.

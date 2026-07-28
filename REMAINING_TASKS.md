@@ -2733,9 +2733,12 @@ substrate work, but they are concrete enough to keep visible.
     independent review. The compact report, CLI, and Make targets can now
     forward the accepted source-report filters for backlog lane, research
     pipeline, research command lane/input class, and operator proof category to
-    the underlying operator status bundle. This remains read-only
-    planning/status only and does not run research, campaigns, market-data
-    fetches, proof closure, authorization, or runtime mutation.
+    the underlying operator status bundle. Action-producing source filters
+    (`research_pipeline`, `operator_proof_category`) narrow the compact action
+    list to their matching action lane unless an explicit lane filter is set.
+    This remains read-only planning/status only and does not run research,
+    campaigns, market-data fetches, proof closure, authorization, or runtime
+    mutation.
     2026-07-28: JSON Make targets for read-only operator/status reports are
     ready for independent review: `backlog-lane-status-json`,
     `operator-proof-status-json`, `operator-status-json`,

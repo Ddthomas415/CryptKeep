@@ -198,6 +198,52 @@ def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
     assert out["operator_proof_category_filter"] == "host_side_reference"
 
 
+def test_operator_next_actions_source_filter_implies_matching_action_lane(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {"research_pipeline_actions_required": 1, "operator_proof_actions_required": 9},
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "operator_proofs": [
+                    {
+                        "line": 7,
+                        "category": "host_side_reference",
+                        "next_action": "run host proof",
+                    }
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", research_pipeline="price_action", max_actions=20)
+
+    assert out["research_pipeline_filter"] == "price_action"
+    assert out["lane_filter"] is None
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["actions"] == [
+        {
+            "lane": "research_pipeline",
+            "source": "price_action",
+            "line": None,
+            "blocking_reason": "latest_summary_missing",
+            "next_action": "run research",
+        }
+    ]
+
+
 def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_next_actions as script
 

@@ -80,6 +80,13 @@ def build_operator_next_actions(
     )
     summary = dict(bundle.get("summary") or {})
     actions = [*_research_actions(bundle), *_proof_actions(bundle)]
+    source_action_lanes: set[str] = set()
+    if research_pipeline_filter:
+        source_action_lanes.add("research_pipeline")
+    if proof_category_filter:
+        source_action_lanes.add("operator_proof")
+    if source_action_lanes and not lane_filter:
+        actions = [row for row in actions if row.get("lane") in source_action_lanes]
     if lane_filter:
         actions = [row for row in actions if row.get("lane") == lane_filter]
     if reason_filter:
@@ -91,6 +98,12 @@ def build_operator_next_actions(
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
     elif lane_filter == "operator_proof":
         required_total = int(summary.get("operator_proof_actions_required") or 0)
+    elif source_action_lanes:
+        required_total = 0
+        if "research_pipeline" in source_action_lanes:
+            required_total += int(summary.get("research_pipeline_actions_required") or 0)
+        if "operator_proof" in source_action_lanes:
+            required_total += int(summary.get("operator_proof_actions_required") or 0)
     if reason_filter:
         # The source summary has lane totals, not reason totals; once filtered
         # by reason, the truthful total is the filtered available row count.
