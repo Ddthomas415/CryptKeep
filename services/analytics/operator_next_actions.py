@@ -55,21 +55,25 @@ def build_operator_next_actions(
     max_actions: int = 20,
     lane: str | None = None,
     reason: str | None = None,
+    action_source: str | None = None,
     backlog_lane: str | None = None,
     research_pipeline: str | None = None,
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
     operator_proof_category: str | None = None,
+    operator_proof_line: int | str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     limit = max(1, int(max_actions))
     lane_filter = str(lane or "").strip()
     reason_filter = str(reason or "").strip()
+    source_filter = str(action_source or "").strip()
     backlog_lane_filter = str(backlog_lane or "").strip()
     research_pipeline_filter = str(research_pipeline or "").strip()
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
+    proof_line_filter = str(operator_proof_line or "").strip()
     bundle = build_operator_status_bundle(
         repo_root=root,
         backlog_lane=backlog_lane_filter or None,
@@ -77,13 +81,14 @@ def build_operator_next_actions(
         research_command_lane=research_command_lane_filter or None,
         research_command_input_class=research_command_input_filter or None,
         operator_proof_category=proof_category_filter or None,
+        operator_proof_line=proof_line_filter or None,
     )
     summary = dict(bundle.get("summary") or {})
     actions = [*_research_actions(bundle), *_proof_actions(bundle)]
     source_action_lanes: set[str] = set()
     if research_pipeline_filter:
         source_action_lanes.add("research_pipeline")
-    if proof_category_filter:
+    if proof_category_filter or proof_line_filter:
         source_action_lanes.add("operator_proof")
     if source_action_lanes and not lane_filter:
         actions = [row for row in actions if row.get("lane") in source_action_lanes]
@@ -91,6 +96,8 @@ def build_operator_next_actions(
         actions = [row for row in actions if row.get("lane") == lane_filter]
     if reason_filter:
         actions = [row for row in actions if row.get("blocking_reason") == reason_filter]
+    if source_filter:
+        actions = [row for row in actions if row.get("source") == source_filter]
     required_total = int(summary.get("research_pipeline_actions_required") or 0) + int(
         summary.get("operator_proof_actions_required") or 0
     )
@@ -107,6 +114,10 @@ def build_operator_next_actions(
     if reason_filter:
         # The source summary has lane totals, not reason totals; once filtered
         # by reason, the truthful total is the filtered available row count.
+        required_total = len(actions)
+    if source_filter:
+        # Source is a final action-row field, not a source-report summary
+        # dimension, so the truthful total is the filtered available row count.
         required_total = len(actions)
     if required_total <= 0:
         required_total = len(actions)
@@ -125,11 +136,13 @@ def build_operator_next_actions(
         "repo_root": str(root),
         "lane_filter": lane_filter or None,
         "reason_filter": reason_filter or None,
+        "action_source_filter": source_filter or None,
         "backlog_lane_filter": backlog_lane_filter or None,
         "research_pipeline_filter": research_pipeline_filter or None,
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
+        "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
         "summary": {

@@ -27,6 +27,10 @@ def _print_report(payload: dict[str, Any]) -> None:
     )
     if payload.get("category_filter"):
         print(f"category_filter={payload.get('category_filter')}")
+    if payload.get("line_filter"):
+        print(f"line_filter={payload.get('line_filter')}")
+    if payload.get("reason"):
+        print(f"reason={payload.get('reason')}")
     summary = dict(payload.get("summary") or {})
     print(
         "summary: "
@@ -59,9 +63,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
     parser.add_argument("--category", default=None, help="Limit proof markers to one category")
+    parser.add_argument("--line", default=None, help="Limit proof markers to one REMAINING_TASKS.md line")
     args = parser.parse_args(argv)
 
-    payload = build_operator_proof_status(repo_root=ROOT, category=args.category)
+    payload = build_operator_proof_status(repo_root=ROOT, category=args.category, line=args.line)
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
