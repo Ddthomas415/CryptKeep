@@ -105,6 +105,7 @@ def test_read_only_status_reports_have_json_make_targets():
         "backlog-lane-status-json": "scripts/report_backlog_lane_status.py --json",
         "operator-proof-status-json": "scripts/report_operator_proof_status.py --json",
         "operator-status-json": "scripts/report_operator_status_bundle.py --json",
+        "operator-next-actions-json": "scripts/report_operator_next_actions.py --json",
         "research-pipeline-status-json": "scripts/research/report_research_pipeline_status.py --json",
         "research-command-status-json": "scripts/research/report_research_command_status.py --json",
     }
@@ -120,6 +121,7 @@ def test_key_daily_operator_commands_stay_in_canonical_index():
     for command in (
         "check_promotion_gates.py",
         "check_ohlcv_preflight.py",
+        "report_operator_next_actions.py",
         "report_paper_gate_qualification.py",
         "report_paper_gate_velocity.py",
         "report_supervised_soak_status.py",

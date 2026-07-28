@@ -26301,3 +26301,55 @@ Remaining risk:
   market data, close proof, authorize implementation, or touch trading
   execution/gates.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T12:15:21Z - Compact Operator Next-Actions Report
+
+Active role: ENGINEER
+
+Objective:
+- Add a compact read-only report that prints only the next actions already
+  derived by operator status, so check-ins do not require scanning the full
+  bundle output.
+
+What was found:
+- SHOWN: `make operator-status` now includes actionable research and proof
+  rows, but it also prints the full status summary. A compact action-only view
+  did not exist.
+
+What changed:
+- Added `services.analytics.operator_next_actions`, which derives a bounded
+  action list from `build_operator_status_bundle()`.
+- Added `scripts/report_operator_next_actions.py`.
+- Added `make operator-next-actions` and `make operator-next-actions-json`.
+- Updated `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and targeted tests.
+
+Why this change was chosen:
+- It keeps the work in the same read-only operator/status lane and reuses the
+  accepted status bundle instead of creating another source of truth.
+
+Expected outcome:
+- Operators can run one compact command to see research/proof next actions
+  without triggering research jobs, campaign work, market-data fetches, proof
+  closure, or runtime mutation.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_operator_status_bundle.py tests/test_operator_proof_status.py tests/test_research_pipeline_status.py tests/test_script_index_alignment_guard.py tests/test_backlog_lane_status.py`
+  - SHOWN: `23 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: passed with no output.
+- `make operator-next-actions`
+  - SHOWN: `ok=True actions=71 shown=12`; first actions include both research
+    pipeline commands and backlog proof references.
+- `make operator-next-actions-json`
+  - SHOWN: valid JSON with `action_count_total=71`,
+    `action_count_available=12`, and `action_count_returned=12`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW: read-only reporting and Make/script-index wiring only. No campaign,
+  research execution, market-data fetch, proof closure, gate, ingestion, live
+  routing, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
