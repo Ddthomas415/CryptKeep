@@ -27047,3 +27047,58 @@ Remaining risk:
   market-data fetch, proof closure, gate, ingestion, live routing, execution,
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T19:46:33Z - Operator Next-Actions Final Source Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by adding a final
+  action-row source filter to the compact next-actions report.
+
+What was found:
+- SHOWN: `operator_next_actions` already normalizes each final action row with
+  a `source` field, but only exposed lane/reason filters and source-report
+  pass-through filters.
+- SHOWN: source-report pass-through and final-row filtering are different:
+  pass-through changes the underlying report input, while final-row filtering
+  narrows the compact action list after source reports are built.
+
+What changed:
+- `build_operator_next_actions()` now accepts `action_source`, filters final
+  action rows by `source`, records `action_source_filter`, and reports action
+  counts from the filtered row set.
+- `scripts/report_operator_next_actions.py` exposes `--action-source` and
+  prints the active filter in text output.
+- `Makefile` exposes `OPERATOR_NEXT_ACTIONS_SOURCE` for text and JSON targets.
+- `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests were updated.
+
+Why this change was chosen:
+- It is a small same-surface presentation filter that reduces operator scan
+  time without changing any source report, proof state, evidence, campaign, or
+  runtime behavior.
+
+Expected outcome:
+- Operators can focus the compact action report directly on a final action
+  source such as `host_side_reference`, while keeping source-report
+  pass-through filters available for upstream narrowing.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `16 passed in 0.19s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_next_actions.py scripts/report_operator_next_actions.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-next-actions OPERATOR_NEXT_ACTIONS_SOURCE=host_side_reference OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: `ok=True`, `actions=7`, `shown=2`, and
+    `action_source_filter=host_side_reference`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_SOURCE=remaining_proof OPERATOR_NEXT_ACTIONS_MAX=2`
+  - SHOWN: `ok=true`, `action_count_total=3`, and
+    `action_source_filter=remaining_proof`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

@@ -144,6 +144,42 @@ def test_operator_next_actions_filters_by_reason(monkeypatch) -> None:
     assert [row["blocking_reason"] for row in out["actions"]] == ["host_side_reference"]
 
 
+def test_operator_next_actions_filters_by_action_source(monkeypatch) -> None:
+    import services.analytics.operator_next_actions as mod
+
+    monkeypatch.setattr(
+        mod,
+        "build_operator_status_bundle",
+        lambda repo_root=None, **_filters: {
+            "ok": True,
+            "report_type": "operator_status_bundle",
+            "summary": {"research_pipeline_actions_required": 1, "operator_proof_actions_required": 2},
+            "actions": {
+                "research_pipelines": [
+                    {
+                        "pipeline_id": "price_action",
+                        "blocking_reason": "latest_summary_missing",
+                        "next_action": "run research",
+                    }
+                ],
+                "operator_proofs": [
+                    {"line": 7, "category": "remaining_proof", "next_action": "produce proof"},
+                    {"line": 8, "category": "host_side_reference", "next_action": "run host proof"},
+                ],
+            },
+        },
+    )
+
+    out = mod.build_operator_next_actions(repo_root=".", action_source="host_side_reference", max_actions=20)
+
+    assert out["action_source_filter"] == "host_side_reference"
+    assert out["action_count_total"] == 1
+    assert out["action_count_available"] == 1
+    assert out["summary"]["available_by_lane"] == {"operator_proof": 1}
+    assert out["summary"]["available_by_reason"] == {"host_side_reference": 1}
+    assert [row["source"] for row in out["actions"]] == ["host_side_reference"]
+
+
 def test_operator_next_actions_forwards_source_filters(monkeypatch) -> None:
     import services.analytics.operator_next_actions as mod
 
@@ -291,12 +327,13 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,
         "build_operator_next_actions",
-        lambda repo_root=None, max_actions=20, lane=None, reason=None, **filters: {
+        lambda repo_root=None, max_actions=20, lane=None, reason=None, action_source=None, **filters: {
             "ok": True,
             "action_count_total": 1,
             "action_count_returned": 1,
             "lane_filter": lane,
             "reason_filter": reason,
+            "action_source_filter": action_source,
             "backlog_lane_filter": filters.get("backlog_lane"),
             "research_pipeline_filter": filters.get("research_pipeline"),
             "research_command_lane_filter": filters.get("research_command_lane"),
@@ -327,6 +364,8 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
             "operator_proof",
             "--reason",
             "remaining_proof",
+            "--action-source",
+            "remaining_proof",
             "--research-pipeline",
             "price_action",
             "--operator-proof-category",
@@ -338,6 +377,7 @@ def test_report_operator_next_actions_cli(monkeypatch, capsys) -> None:
     out = capsys.readouterr().out
     assert "Operator Next Actions" in out
     assert "actions=1 shown=1" in out
+    assert "action_source_filter=remaining_proof" in out
     assert "research_pipeline_filter=price_action" in out
     assert "operator_proof_category_filter=host_side_reference" in out
     assert "operator_proof_line_filter=7" in out
