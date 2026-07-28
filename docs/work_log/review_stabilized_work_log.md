@@ -25971,3 +25971,59 @@ Remaining risk:
   implementation, run campaigns, fetch market data, close proof, mutate state,
   or change runtime behavior.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T04:43:00Z - Operator Status Bundle
+
+Active role: ENGINEER
+
+Objective:
+- Add a single read-only check-in command that bundles backlog lane status,
+  research pipeline status, and operator proof status.
+
+What was found:
+- SHOWN: `make backlog-lane-status` reports lane counts.
+- SHOWN: `make research-pipeline-status` reports accepted research pipeline
+  wiring/artifact state.
+- SHOWN: `make operator-proof-status` reports passive proof items and
+  proof-marker line references.
+- SHOWN: there was no single command that surfaces those three read-only
+  reports together for fast operator check-ins.
+
+What changed:
+- Added `services.analytics.operator_status_bundle`.
+- Added `scripts/report_operator_status_bundle.py`.
+- Added `tests/test_operator_status_bundle.py`.
+- Added `make operator-status`.
+- Updated `scripts/SCRIPTS.md`, `tests/test_script_index_alignment_guard.py`,
+  `REMAINING_TASKS.md`, and this work log.
+
+Why this change was chosen:
+- The current bottleneck is operator evidence and research artifacts. A bundle
+  reduces command churn while reusing existing read-only report builders and
+  avoiding any campaign, market-data, gate, or execution changes.
+
+Expected outcome:
+- Operators can run one command for the current lane/research/proof shape, then
+  decide which proof or artifact to produce next.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_status_bundle.py tests/test_operator_proof_status.py tests/test_script_index_alignment_guard.py tests/test_backlog_execution_lanes_guard.py tests/test_backlog_lane_status.py tests/test_research_pipeline_status.py`
+  - SHOWN: `24 passed`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_status_bundle.py scripts/report_operator_status_bundle.py tests/test_operator_status_bundle.py services/analytics/operator_proof_status.py scripts/report_operator_proof_status.py tests/test_operator_proof_status.py`
+  - SHOWN: passed with no output.
+- `make operator-status`
+  - SHOWN: `ok=True`; backlog summary `passive=15`, `low=13`,
+    `medium=7`, `high=7`; research summary `wired=2`, `latest_ok=0`,
+    `not_run=2`; proof summary `remaining=27`, `host_side=17`,
+    `proof_ready=25`.
+- `./.venv/bin/python scripts/check_repo_alignment.py --json`
+  - SHOWN: `ok=true`, guard tests `23 passed`.
+- `git diff --check`
+  - SHOWN: passed with no output.
+
+Remaining risk:
+- LOW/MEDIUM: read-only status/reporting only. The bundle may influence
+  operator planning, but it does not decide backlog items, authorize
+  implementation, run pipelines or campaigns, fetch market data, close proof,
+  mutate state, or change runtime behavior.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

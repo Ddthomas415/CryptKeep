@@ -15,7 +15,7 @@ STRATEGY_REVIEW_STRATEGY_ID ?= sma_200_trend
 STRATEGY_REVIEW_SYMBOL ?= BTC/USDT
 STRATEGY_REVIEW_LOSS_LIMIT ?= 10
 
-.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status operator-proof-status phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight
+.PHONY: doctor-strict alignment check-alignment check-alignment-list check-alignment-list-json check-alignment-json check-alignment-json-fast validate-quick validate-json-quick validate-json-fast validate-json validate pre-release-sanity pre-release-sanity-quick pre-release-sanity-json-quick pre-release-sanity-json-fast remaining-tasks backlog-lane-status operator-proof-status operator-status phase1-safety phase1-smoke phase1-smoke-openai load-sample-crypto-edges collect-live-crypto-edges collect-live-crypto-edges-loop stop-live-crypto-edges-loop status-live-crypto-edges-loop check-short-context-readiness collect-paper-strategy-evidence stop-paper-strategy-evidence status-paper-strategy-evidence status-paper-campaigns status-paper-soak status-paper-soak-json status-paper-gate-qualification status-paper-gate-qualification-json status-paper-hetzner status-hetzner-edge-runtime status-paper-all check-hetzner-paper-host-health restore-paper-campaigns recover-paper-campaigns strategy-evidence-cycle system-diagnostics dashboard docker-up-auto-ports docker-print-auto-ports test test-runtime test-checkpoints ai-operator-oversight
 
 doctor-strict:
 	$(PYTHON) tools/repo_doctor.py --strict
@@ -72,6 +72,9 @@ backlog-lane-status:
 
 operator-proof-status:
 	$(PYTHON) scripts/report_operator_proof_status.py
+
+operator-status:
+	$(PYTHON) scripts/report_operator_status_bundle.py
 
 phase1-safety:
 	$(PYTHON) scripts/run_phase1_safety.py
@@ -489,6 +492,7 @@ script-index:
 	@echo "  make price-action-research-pipeline — run the price-action research report sequence"
 	@echo "  make research-pipeline-status — report accepted research pipeline wiring/artifacts"
 	@echo "  make operator-proof-status — report operator-side proof/evidence backlog markers"
+	@echo "  make operator-status — bundle backlog lane, research pipeline, and proof status"
 	@echo "  make live-reconcile     — reconcile live positions"
 	@echo "  make paper-logs         — tail campaign logs"
 	@echo "  make dev-setup          — setup developer environment"
