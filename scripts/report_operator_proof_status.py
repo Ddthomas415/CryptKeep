@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+try:
+    from scripts._bootstrap import add_repo_root_to_syspath
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from scripts._bootstrap import add_repo_root_to_syspath
+
+ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parents[1])
+
+from services.analytics.operator_proof_status import build_operator_proof_status  # noqa: E402
+
+
+def _print_report(payload: dict[str, Any]) -> None:
+    print("=== Operator Proof Status ===")
+    print(
+        f"ok={bool(payload.get('ok'))} "
+        f"passive_items={payload.get('passive_operator_item_count')} "
+        f"proof_markers={payload.get('proof_marker_count')}"
+    )
+    summary = dict(payload.get("summary") or {})
+    print(
+        "summary: "
+        f"remaining={summary.get('remaining_proof_or_coverage_markers', 0)} "
+        f"host_side={summary.get('host_side_markers', 0)} "
+        f"proof_ready={summary.get('proof_ready_markers', 0)}"
+    )
+    print("passive_operator_evidence:")
+    for row in list(payload.get("passive_operator_items") or []):
+        if not isinstance(row, dict):
+            continue
+        print(f"- {row.get('ordinal')}. {row.get('text')}")
+
+    markers = [row for row in list(payload.get("proof_markers") or []) if isinstance(row, dict)]
+    if markers:
+        print("proof_marker_lines:")
+        for row in markers[:20]:
+            print(f"- L{row.get('line')} {row.get('category')}: {row.get('text')}")
+        if len(markers) > 20:
+            print(f"... {len(markers) - 20} more markers; use --json for all")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Read-only report of operator-side proof/evidence items from backlog docs."
+    )
+    parser.add_argument("--json", action="store_true", help="Print machine-readable JSON only")
+    args = parser.parse_args(argv)
+
+    payload = build_operator_proof_status(repo_root=ROOT)
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        _print_report(payload)
+    return 0 if bool(payload.get("ok")) else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
