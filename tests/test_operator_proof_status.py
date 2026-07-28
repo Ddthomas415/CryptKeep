@@ -111,15 +111,54 @@ def test_operator_proof_status_filters_proof_markers_by_category(tmp_path: Path)
     assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
 
 
+def test_operator_proof_status_filters_proof_markers_by_line(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text(
+        "\n".join(
+            [
+                "1. Item.",
+                "   Remaining proof: run the host drill.",
+                "   host-side status still required.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    out = build_operator_proof_status(repo_root=tmp_path, line=3)
+
+    assert out["ok"] is True
+    assert out["line_filter"] == 3
+    assert out["proof_marker_count"] == 1
+    assert out["source_proof_marker_count"] == 2
+    assert [row["line"] for row in out["proof_markers"]] == [3]
+    assert [row["category"] for row in out["proof_markers"]] == ["host_side_reference"]
+
+
+def test_operator_proof_status_rejects_invalid_line_filter(tmp_path: Path) -> None:
+    from services.analytics.operator_proof_status import build_operator_proof_status
+
+    _write_docs(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text("Remaining proof: run drill.", encoding="utf-8")
+
+    out = build_operator_proof_status(repo_root=tmp_path, line="abc")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_line"
+    assert out["line_filter"] is None
+
+
 def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
     from scripts import report_operator_proof_status as script
 
     monkeypatch.setattr(
         script,
         "build_operator_proof_status",
-        lambda repo_root=None, category=None: {
+        lambda repo_root=None, category=None, line=None: {
             "ok": True,
             "category_filter": category,
+            "line_filter": int(line) if line else None,
             "passive_operator_item_count": 1,
             "proof_marker_count": 1,
             "summary": {
@@ -139,10 +178,11 @@ def test_report_operator_proof_status_cli(monkeypatch, capsys) -> None:
         },
     )
 
-    assert script.main(["--category", "remaining_proof"]) == 0
+    assert script.main(["--category", "remaining_proof", "--line", "7"]) == 0
     out = capsys.readouterr().out
     assert "Operator Proof Status" in out
     assert "category_filter=remaining_proof" in out
+    assert "line_filter=7" in out
     assert "passive_items=1" in out
     assert "Run host proof" in out
     assert "L7 remaining_proof" in out

@@ -60,6 +60,7 @@ def build_operator_next_actions(
     research_command_lane: str | None = None,
     research_command_input_class: str | None = None,
     operator_proof_category: str | None = None,
+    operator_proof_line: int | str | None = None,
 ) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
     limit = max(1, int(max_actions))
@@ -70,6 +71,7 @@ def build_operator_next_actions(
     research_command_lane_filter = str(research_command_lane or "").strip()
     research_command_input_filter = str(research_command_input_class or "").strip()
     proof_category_filter = str(operator_proof_category or "").strip()
+    proof_line_filter = str(operator_proof_line or "").strip()
     bundle = build_operator_status_bundle(
         repo_root=root,
         backlog_lane=backlog_lane_filter or None,
@@ -77,13 +79,14 @@ def build_operator_next_actions(
         research_command_lane=research_command_lane_filter or None,
         research_command_input_class=research_command_input_filter or None,
         operator_proof_category=proof_category_filter or None,
+        operator_proof_line=proof_line_filter or None,
     )
     summary = dict(bundle.get("summary") or {})
     actions = [*_research_actions(bundle), *_proof_actions(bundle)]
     source_action_lanes: set[str] = set()
     if research_pipeline_filter:
         source_action_lanes.add("research_pipeline")
-    if proof_category_filter:
+    if proof_category_filter or proof_line_filter:
         source_action_lanes.add("operator_proof")
     if source_action_lanes and not lane_filter:
         actions = [row for row in actions if row.get("lane") in source_action_lanes]
@@ -130,6 +133,7 @@ def build_operator_next_actions(
         "research_command_lane_filter": research_command_lane_filter or None,
         "research_command_input_class_filter": research_command_input_filter or None,
         "operator_proof_category_filter": proof_category_filter or None,
+        "operator_proof_line_filter": int(proof_line_filter) if proof_line_filter.isdigit() else None,
         "source_report_type": bundle.get("report_type"),
         "source_summary": summary,
         "summary": {

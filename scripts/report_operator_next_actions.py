@@ -33,6 +33,7 @@ def _print_report(payload: dict[str, Any]) -> None:
         "research_command_lane_filter",
         "research_command_input_class_filter",
         "operator_proof_category_filter",
+        "operator_proof_line_filter",
     ):
         value = payload.get(key)
         if value:
@@ -87,6 +88,11 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Forward an operator proof category filter to the source bundle",
     )
+    parser.add_argument(
+        "--operator-proof-line",
+        default=None,
+        help="Forward a REMAINING_TASKS.md line filter to the source bundle",
+    )
     args = parser.parse_args(argv)
 
     payload = build_operator_next_actions(
@@ -99,6 +105,7 @@ def main(argv: list[str] | None = None) -> int:
         research_command_lane=args.research_command_lane,
         research_command_input_class=args.research_command_input_class,
         operator_proof_category=args.operator_proof_category,
+        operator_proof_line=args.operator_proof_line,
     )
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))

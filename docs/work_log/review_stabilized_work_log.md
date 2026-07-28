@@ -26988,3 +26988,62 @@ Remaining risk:
   market-data fetch, proof closure, gate, ingestion, live routing, execution,
   authorization, or runtime mutation changed.
 - Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.
+
+## 2026-07-28T19:43:04Z - Operator Proof Line Filter
+
+Active role: ENGINEER
+
+Objective:
+- Continue the low-risk operator/status reporting lane by allowing proof
+  status and compact next-action reports to focus on one exact
+  `REMAINING_TASKS.md` proof-marker line.
+
+What was found:
+- SHOWN: `operator_proof_status` could filter proof markers by category, but
+  not by exact backlog line.
+- SHOWN: `operator_status_bundle` and `operator_next_actions` could forward
+  category filters only, so line-level check-ins still required scanning a
+  category or full report.
+
+What changed:
+- `build_operator_proof_status()` now accepts a `line` filter, returns
+  `line_filter`, and fails closed with `reason=invalid_line` for non-positive
+  or non-integer line filters.
+- `build_operator_status_bundle()` forwards `operator_proof_line` to proof
+  status and records `operator_proof_line_filter` in the bundle payload.
+- `build_operator_next_actions()` forwards `operator_proof_line`, records it
+  in the compact payload, and treats it as an action-producing source filter
+  for the operator-proof lane.
+- `scripts/report_operator_proof_status.py`,
+  `scripts/report_operator_status_bundle.py`, `scripts/report_operator_next_actions.py`,
+  `Makefile`, `scripts/SCRIPTS.md`, `REMAINING_TASKS.md`, and tests were
+  updated.
+
+Why this change was chosen:
+- It is a same-surface read-only reporting improvement that reduces operator
+  scan time without changing proof state, evidence, campaigns, or runtime
+  behavior.
+
+Expected outcome:
+- Operators can run focused checks such as
+  `make operator-next-actions OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE=172`
+  and see only the action tied to that proof marker.
+
+Verification:
+- `./.venv/bin/python -m pytest -q tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py tests/test_script_index_alignment_guard.py`
+  - SHOWN: `30 passed in 0.44s`.
+- `./.venv/bin/python -m py_compile services/analytics/operator_proof_status.py services/analytics/operator_status_bundle.py services/analytics/operator_next_actions.py scripts/report_operator_proof_status.py scripts/report_operator_status_bundle.py scripts/report_operator_next_actions.py tests/test_operator_proof_status.py tests/test_operator_status_bundle.py tests/test_operator_next_actions.py`
+  - SHOWN: exit 0.
+- `git diff --check`
+  - SHOWN: exit 0.
+- `make operator-proof-status OPERATOR_PROOF_STATUS_LINE=172`
+  - SHOWN: `ok=True`, `proof_markers=1`, `line_filter=172`.
+- `make operator-next-actions-json OPERATOR_NEXT_ACTIONS_OPERATOR_PROOF_LINE=172 OPERATOR_NEXT_ACTIONS_MAX=3`
+  - SHOWN: `ok=true`, `action_count_total=1`, and
+    `operator_proof_line_filter=172`.
+
+Remaining risk:
+- LOW: read-only filtering/presentation and Make/docs/tests only. No campaign,
+  market-data fetch, proof closure, gate, ingestion, live routing, execution,
+  authorization, or runtime mutation changed.
+- Acceptance state: `READY_FOR_INDEPENDENT_REVIEW`.

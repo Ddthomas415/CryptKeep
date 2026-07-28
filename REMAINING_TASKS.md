@@ -2746,6 +2746,13 @@ substrate work, but they are concrete enough to keep visible.
     are CLI wiring only and preserve the same no-campaign, no-market-fetch,
     no-proof-closure, and no-runtime-mutation boundaries as the underlying
     scripts.
+    2026-07-28: operator proof line filtering is ready for independent review.
+    `operator-proof-status`, `operator-status`, and `operator-next-actions`
+    can now focus proof markers by exact `REMAINING_TASKS.md` line via
+    `--line`, `--operator-proof-line`, or the matching Make overrides. Invalid
+    line filters fail closed as `invalid_line`. This remains read-only
+    planning/status only and does not run research, campaigns, market-data
+    fetches, proof closure, authorization, or runtime mutation.
 19. Clarify repo identity in public/operator docs. Until live expectancy is
     proven, describe CryptKeep as a profit-measurement and evidence-generation
     lab, not a profitable trading bot. This keeps strategy discovery,
