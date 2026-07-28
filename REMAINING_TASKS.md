@@ -2636,6 +2636,13 @@ substrate work, but they are concrete enough to keep visible.
     expose `make backlog-lane-status`. The report is planning/status only: it
     does not decide backlog items, authorize implementation, or change runtime
     behavior.
+    2026-07-28: backlog lane status filtering is ready for independent review.
+    `build_backlog_lane_status`, the CLI, and Make targets now support focused
+    views by canonical lane key while preserving full source lane/item counts
+    and source summaries. Invalid lane names fail closed as `invalid_lane`.
+    This remains planning/status only and does not decide backlog items,
+    authorize implementation, run campaigns, fetch market data, close proof, or
+    mutate runtime state.
     2026-07-28: read-only operator proof status report is ready for
     independent review. `services.analytics.operator_proof_status` and
     `scripts/report_operator_proof_status.py` summarize the

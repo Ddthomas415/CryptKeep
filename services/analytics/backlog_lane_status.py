@@ -14,6 +14,15 @@ LANE_HEADINGS: tuple[str, ...] = (
     "High-Risk Gate / Execution / Deploy",
 )
 
+LANE_KEYS: tuple[str, ...] = (
+    "passive_operator_evidence",
+    "low_risk_docs_tests",
+    "medium_risk_runtime_read_only",
+    "high_risk_gate_execution_deploy",
+)
+
+LANE_KEY_TO_HEADING = dict(zip(LANE_KEYS, LANE_HEADINGS))
+
 
 @dataclass(frozen=True)
 class LaneSummary:
@@ -77,16 +86,43 @@ def _lane_summary(text: str, heading: str) -> LaneSummary:
     return LaneSummary(name=heading, item_count=len(items), items=items)
 
 
-def build_backlog_lane_status(*, repo_root: str | Path | None = None) -> dict[str, Any]:
+def build_backlog_lane_status(
+    *,
+    repo_root: str | Path | None = None,
+    lane: str | None = None,
+) -> dict[str, Any]:
     root = Path(repo_root).resolve() if repo_root is not None else Path(__file__).resolve().parents[2]
+    lane_filter = str(lane or "").strip()
     lane_doc = root / "docs" / "BACKLOG_EXECUTION_LANES.md"
     backlog = root / "REMAINING_TASKS.md"
     lane_text = _read_text(lane_doc)
     backlog_text = _read_text(backlog)
-    lanes = [_lane_summary(lane_text, heading) for heading in LANE_HEADINGS]
-    missing_lanes = [lane.name for lane in lanes if lane.item_count == 0]
+    source_lanes = [_lane_summary(lane_text, heading) for heading in LANE_HEADINGS]
+    missing_lanes = [lane_row.name for lane_row in source_lanes if lane_row.item_count == 0]
     backlog_links_lane_doc = "docs/BACKLOG_EXECUTION_LANES.md" in backlog_text
     ok = bool(lane_text and backlog_text and not missing_lanes and backlog_links_lane_doc)
+    valid_lane_filter = not lane_filter or lane_filter in LANE_KEY_TO_HEADING
+    if not valid_lane_filter:
+        ok = False
+        lanes: list[LaneSummary] = []
+    elif lane_filter:
+        lanes = [
+            lane_row for lane_row in source_lanes if lane_row.name == LANE_KEY_TO_HEADING[lane_filter]
+        ]
+    else:
+        lanes = source_lanes
+    source_summary = {
+        key: source_lanes[index].item_count
+        for index, key in enumerate(LANE_KEYS)
+    }
+    summary = {
+        key: sum(
+            lane_row.item_count
+            for lane_row in lanes
+            if lane_row.name == LANE_KEY_TO_HEADING[key]
+        )
+        for key in LANE_KEYS
+    }
 
     return {
         "schema_version": 1,
@@ -97,6 +133,8 @@ def build_backlog_lane_status(*, repo_root: str | Path | None = None) -> dict[st
         "planning_only": True,
         "does_not_decide_backlog_items": True,
         "repo_root": str(root),
+        "lane_filter": lane_filter or None,
+        "available_lanes": list(LANE_KEYS),
         "source_doc": str(lane_doc),
         "source_doc_sha256": _sha256(lane_doc),
         "backlog": str(backlog),
@@ -104,7 +142,10 @@ def build_backlog_lane_status(*, repo_root: str | Path | None = None) -> dict[st
         "backlog_links_lane_doc": backlog_links_lane_doc,
         "lane_count": len(lanes),
         "total_item_count": sum(lane.item_count for lane in lanes),
+        "source_lane_count": len(source_lanes),
+        "source_total_item_count": sum(lane.item_count for lane in source_lanes),
         "missing_lanes": missing_lanes,
+        "reason": None if valid_lane_filter else "invalid_lane",
         "lanes": [
             {
                 "name": lane.name,
@@ -113,10 +154,6 @@ def build_backlog_lane_status(*, repo_root: str | Path | None = None) -> dict[st
             }
             for lane in lanes
         ],
-        "summary": {
-            "passive_operator_evidence": lanes[0].item_count,
-            "low_risk_docs_tests": lanes[1].item_count,
-            "medium_risk_runtime_read_only": lanes[2].item_count,
-            "high_risk_gate_execution_deploy": lanes[3].item_count,
-        },
+        "summary": summary,
+        "source_summary": source_summary,
     }

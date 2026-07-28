@@ -41,12 +41,52 @@ def test_backlog_lane_status_counts_lanes_and_preserves_hashes(tmp_path: Path) -
     assert out["ok"] is True
     assert out["read_only"] is True
     assert out["does_not_decide_backlog_items"] is True
+    assert out["lane_filter"] is None
     assert out["lane_count"] == 4
     assert out["total_item_count"] == 8
+    assert out["source_lane_count"] == 4
+    assert out["source_total_item_count"] == 8
     assert out["source_doc_sha256"]
     assert out["backlog_sha256"]
     assert out["summary"]["high_risk_gate_execution_deploy"] == 2
+    assert out["source_summary"]["high_risk_gate_execution_deploy"] == 2
     assert any("continues with detail" in item for row in out["lanes"] for item in row["items"])
+
+
+def test_backlog_lane_status_filters_by_lane_key(tmp_path: Path) -> None:
+    from services.analytics.backlog_lane_status import build_backlog_lane_status
+
+    _write_lane_doc(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text("See docs/BACKLOG_EXECUTION_LANES.md", encoding="utf-8")
+
+    out = build_backlog_lane_status(repo_root=tmp_path, lane="low_risk_docs_tests")
+
+    assert out["ok"] is True
+    assert out["lane_filter"] == "low_risk_docs_tests"
+    assert out["lane_count"] == 1
+    assert out["total_item_count"] == 2
+    assert out["source_lane_count"] == 4
+    assert out["source_total_item_count"] == 8
+    assert out["lanes"][0]["name"] == "Low-Risk Docs / Tests"
+    assert out["summary"]["low_risk_docs_tests"] == 2
+    assert out["summary"]["high_risk_gate_execution_deploy"] == 0
+    assert out["source_summary"]["high_risk_gate_execution_deploy"] == 2
+
+
+def test_backlog_lane_status_rejects_unknown_lane(tmp_path: Path) -> None:
+    from services.analytics.backlog_lane_status import build_backlog_lane_status
+
+    _write_lane_doc(tmp_path)
+    (tmp_path / "REMAINING_TASKS.md").write_text("See docs/BACKLOG_EXECUTION_LANES.md", encoding="utf-8")
+
+    out = build_backlog_lane_status(repo_root=tmp_path, lane="execution")
+
+    assert out["ok"] is False
+    assert out["reason"] == "invalid_lane"
+    assert out["lane_filter"] == "execution"
+    assert out["lane_count"] == 0
+    assert out["lanes"] == []
+    assert "medium_risk_runtime_read_only" in out["available_lanes"]
 
 
 def test_backlog_lane_status_fails_closed_when_lane_missing(tmp_path: Path) -> None:
@@ -79,8 +119,11 @@ def test_report_backlog_lane_status_cli(monkeypatch, capsys) -> None:
     monkeypatch.setattr(
         script,
         "build_backlog_lane_status",
-        lambda repo_root=None: {
+        lambda repo_root=None, lane=None: {
             "ok": True,
+            "lane_filter": lane,
+            "source_lane_count": 4,
+            "source_total_item_count": 7,
             "lane_count": 4,
             "total_item_count": 7,
             "summary": {
@@ -93,10 +136,11 @@ def test_report_backlog_lane_status_cli(monkeypatch, capsys) -> None:
             "missing_lanes": [],
         },
     )
-    monkeypatch.setattr(script.sys, "argv", ["report_backlog_lane_status.py"])
 
-    assert script.main() == 0
+    assert script.main(["--lane", "low_risk_docs_tests"]) == 0
     out = capsys.readouterr().out
     assert "Backlog Lane Status" in out
+    assert "lane_filter=low_risk_docs_tests" in out
+    assert "source_lanes=4 source_items=7" in out
     assert "low=2" in out
     assert "Low-Risk Docs / Tests: 2" in out
