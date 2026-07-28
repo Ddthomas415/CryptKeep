@@ -51,7 +51,8 @@ def _print_report(payload: dict[str, Any]) -> None:
         if not isinstance(row, dict):
             continue
         line = row.get("line")
-        ref = f"L{line}" if line is not None else "-"
+        ordinal = row.get("ordinal")
+        ref = f"L{line}" if line is not None else (f"#{ordinal}" if ordinal is not None else "-")
         print(
             f"{idx}. {row.get('lane')}:{row.get('source')} "
             f"ref={ref} reason={row.get('blocking_reason')} "
@@ -67,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-actions", type=int, default=20, help="Maximum actions to print or return")
     parser.add_argument(
         "--lane",
-        choices=("research_pipeline", "operator_proof"),
+        choices=("research_pipeline", "passive_operator_evidence", "operator_proof"),
         default=None,
         help="Limit output to one action lane",
     )

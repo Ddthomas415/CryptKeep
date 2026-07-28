@@ -41,6 +41,24 @@ def _proof_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def _passive_operator_actions(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in list(dict(bundle.get("actions") or {}).get("passive_operator_evidence") or []):
+        if not isinstance(row, dict):
+            continue
+        rows.append(
+            {
+                "lane": "passive_operator_evidence",
+                "source": "passive_operator_evidence",
+                "line": None,
+                "ordinal": row.get("ordinal"),
+                "blocking_reason": "passive_operator_evidence",
+                "next_action": str(row.get("next_action") or ""),
+            }
+        )
+    return rows
+
+
 def _counts_by_key(actions: list[dict[str, Any]], key: str) -> dict[str, int]:
     counts: dict[str, int] = {}
     for row in actions:
@@ -84,7 +102,7 @@ def build_operator_next_actions(
         operator_proof_line=proof_line_filter or None,
     )
     summary = dict(bundle.get("summary") or {})
-    actions = [*_research_actions(bundle), *_proof_actions(bundle)]
+    actions = [*_research_actions(bundle), *_passive_operator_actions(bundle), *_proof_actions(bundle)]
     source_action_lanes: set[str] = set()
     if research_pipeline_filter:
         source_action_lanes.add("research_pipeline")
@@ -98,13 +116,17 @@ def build_operator_next_actions(
         actions = [row for row in actions if row.get("blocking_reason") == reason_filter]
     if source_filter:
         actions = [row for row in actions if row.get("source") == source_filter]
-    required_total = int(summary.get("research_pipeline_actions_required") or 0) + int(
-        summary.get("operator_proof_actions_required") or 0
+    required_total = (
+        int(summary.get("research_pipeline_actions_required") or 0)
+        + int(summary.get("passive_operator_evidence_actions_required") or 0)
+        + int(summary.get("operator_proof_actions_required") or 0)
     )
     if lane_filter == "research_pipeline":
         required_total = int(summary.get("research_pipeline_actions_required") or 0)
     elif lane_filter == "operator_proof":
         required_total = int(summary.get("operator_proof_actions_required") or 0)
+    elif lane_filter == "passive_operator_evidence":
+        required_total = int(summary.get("passive_operator_evidence_actions_required") or 0)
     elif source_action_lanes:
         required_total = 0
         if "research_pipeline" in source_action_lanes:
